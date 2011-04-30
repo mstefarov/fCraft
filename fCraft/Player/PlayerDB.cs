@@ -101,8 +101,6 @@ namespace fCraft {
         }
 
 
-
-
         internal static void Save() {
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -114,7 +112,7 @@ namespace fCraft {
                     writer.WriteLine( maxID + Header );
                     string[] fields = new string[PlayerInfo.ExpectedFieldCount];
                     for( int i = 0; i < listCopy.Length; i++ ) {
-                        listCopy[i].Serialize( fields );
+                        listCopy[i].SerializeOldFormat( fields );
                         writer.Write( fields[0] );
                         for( int j = 1; j < fields.Length; j++ ) {
                             writer.Write( ',' );

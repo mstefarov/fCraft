@@ -219,7 +219,7 @@ namespace fCraft {
 
 
         static char CodeToChar( int code ) {
-            if( code < 26 ) 
+            if( code < 26 )
                 return (char)(code + 'a');
             if( code >= 26 && code < 36 )
                 return (char)(code + '0');
@@ -228,11 +228,11 @@ namespace fCraft {
         }
 
 
-        static char CanonicizeChar( char ch ){
-            if( ch >= 'a' && ch <= 'z' || ch >= '0' && ch <= '9' || ch=='_' )
+        static char CanonicizeChar( char ch ) {
+            if( ch >= 'a' && ch <= 'z' || ch >= '0' && ch <= '9' || ch == '_' )
                 return ch;
             else if( ch >= 'A' && ch <= 'Z' )
-                return (char)(ch - ('A'-'a'));
+                return (char)(ch - ('A' - 'a'));
             else
                 return '_';
         }
@@ -240,8 +240,8 @@ namespace fCraft {
 
         static string CanonicizeKey( string key ) {
             StringBuilder sb = new StringBuilder( key );
-            for( int i=0; i<sb.Length;i++){
-                sb[i] = CanonicizeChar(sb[i]);
+            for( int i = 0; i < sb.Length; i++ ) {
+                sb[i] = CanonicizeChar( sb[i] );
             }
             return sb.ToString();
         }
@@ -370,8 +370,9 @@ namespace fCraft {
                                 } else {
                                     goto continueLoop;
                                 }
+                            } else {
+                                currentIndex++;
                             }
-                            currentIndex++;
                         }
                         if( !MoveUp() ) return false;
                         goto continueLoop;
@@ -382,7 +383,6 @@ namespace fCraft {
 
                     default:
                         if( currentIndex == 0 ) {
-                            currentIndex = 1;
                             MoveDown( currentNode.Children[0], currentNode.Tag );
                             if( currentNode.Payload != null ) {
                                 return true;
@@ -413,7 +413,7 @@ namespace fCraft {
             protected void MoveDown( TrieNode node, int index ) {
                 currentKeyName.Append( CodeToChar( index ) );
                 parents.Push( currentNode );
-                parentIndices.Push( currentIndex );
+                parentIndices.Push( currentIndex + 1 );
                 currentNode = node;
                 currentIndex = 0;
             }
@@ -430,12 +430,14 @@ namespace fCraft {
         #region IDictionary<string,T> Members
 
         TrieKeyCollection keys;
-        public ICollection<string> Keys { get { return keys; }
+        public ICollection<string> Keys {
+            get { return keys; }
         }
 
 
         TrieValueCollection values;
-        public ICollection<T> Values { get { return values; }
+        public ICollection<T> Values {
+            get { return values; }
         }
 
 
@@ -982,7 +984,7 @@ namespace fCraft {
             }
 
 
-            #region TrieValueEnumerator
+            #region TrieKeyEnumerator
 
             public IEnumerator<string> GetEnumerator() {
                 return new TrieKeyEnumerator( trie.root, trie, "" );
@@ -1261,7 +1263,7 @@ namespace fCraft {
             }
 
 
-            public bool GetAllChildren( ICollection<T> list, int limit ) {
+            public bool GetAllChildren( IList<T> list, int limit ) {
                 if( list.Count >= limit ) return false;
                 if( Payload != null ) {
                     list.Add( Payload );
@@ -1285,9 +1287,11 @@ namespace fCraft {
                 }
             }
         }
+        
 
-
-        /* Self-test
+        #region Self-test
+        /*
+        // Self-test
         const int ItemsToAdd = 1000000;
         const int DupeCheckCount = ItemsToAdd / 10000;
 
@@ -1303,7 +1307,7 @@ namespace fCraft {
                     string key = RandString( rand );
                     if( reference.ContainsKey( key ) ) continue;
                     reference.Add( key, key );
-                    if( !test.Add( key, key ) ) Console.WriteLine( " {0}: dupe", key );
+                    if( !test.Add( key, key, true ) ) Console.WriteLine( " {0}: dupe", key );
                 }
 
                 // verify that trie contains all elements that are in the reference
@@ -1312,7 +1316,7 @@ namespace fCraft {
                         Console.WriteLine( " {0}: got: {1}", pair.Key, test.Get( pair.Key ) ?? "null", pair.Value );
                     }
                     string partialTest;
-                    if( !test.Get( pair.Key, out partialTest ) )
+                    if( !test.TryGetValue( pair.Key, out partialTest ) )
                         Console.WriteLine( " {0}: get with completion: failed (multi)" );
                     if( partialTest != pair.Value )
                         Console.WriteLine( " {0}: got with completion: {1}", pair.Key, test.Get( pair.Key ) ?? "null", pair.Value );
@@ -1326,14 +1330,14 @@ namespace fCraft {
                 Console.WriteLine();
             }
 
-
+            
             {
                 IEnumerable<string> dupeKeys = reference.Where( pair => pair.Key.Length < 4 ).Select( pair => pair.Key ).Distinct().Take( DupeCheckCount );
                 Console.WriteLine( "Testing autocompletion on {0} nodes...", dupeKeys.Count() );
 
                 int k = 0;
                 foreach( string dupeKey in dupeKeys ) {
-                    IOrderedEnumerable<string> matches = test.GetMultiple( dupeKey, Int32.MaxValue ).OrderBy( s => s );
+                    IOrderedEnumerable<string> matches = test.ValuesStartingWith( dupeKey ).OrderBy( s => s );
                     IOrderedEnumerable<string> refMatches = reference.Where( pair => pair.Key.StartsWith( dupeKey ) ).Select( pair => pair.Key ).OrderBy( s => s );
                     if( !matches.SequenceEqual( refMatches ) )
                         Console.WriteLine( "{0}: Autocompletion failed ({1} vs ref {2})", dupeKey, matches.Count(), refMatches.Count() );
@@ -1345,7 +1349,7 @@ namespace fCraft {
 
 
             {
-                Console.WriteLine( "Removing {0} nodes...", reference.Count/2 );
+                Console.WriteLine( "Removing {0} nodes...", reference.Count / 2 );
                 int r = 0;
                 List<string> stuffToRemove = new List<string>();
                 // make a list of items to remove
@@ -1369,7 +1373,7 @@ namespace fCraft {
                         Console.WriteLine( " {0}: got: {1}", pair.Key, test.Get( pair.Key ) ?? "null", pair.Value );
                     }
                     string partialTest;
-                    if( !test.Get( pair.Key, out partialTest ) )
+                    if( !test.TryGetValue( pair.Key, out partialTest ) )
                         Console.WriteLine( " {0}: get with completion: failed (multi)" );
                     if( partialTest != pair.Value )
                         Console.WriteLine( " {0}: got with completion: {1}", pair.Key, test.Get( pair.Key ) ?? "null", pair.Value );
@@ -1384,14 +1388,14 @@ namespace fCraft {
                 Console.WriteLine();
             }
 
-
+            
             {
                 IEnumerable<string> dupeKeys = reference.Where( pair => pair.Key.Length < 4 ).Select( pair => pair.Key ).Distinct().Take( DupeCheckCount );
                 Console.WriteLine( "Testing autocompletion on {0} nodes...", dupeKeys.Count() );
 
                 int k = 0;
                 foreach( string dupeKey in dupeKeys ) {
-                    IOrderedEnumerable<string> matches = test.GetMultiple( dupeKey, Int32.MaxValue ).OrderBy( s => s );
+                    IOrderedEnumerable<string> matches = test.ValuesStartingWith( dupeKey ).OrderBy( s => s );
                     IOrderedEnumerable<string> refMatches = reference.Where( pair => pair.Key.StartsWith( dupeKey ) ).Select( pair => pair.Key ).OrderBy( s => s );
                     if( !matches.SequenceEqual( refMatches ) )
                         Console.WriteLine( "{0}: Autocompletion failed ({1} vs ref {2})", dupeKey, matches.Count(), refMatches.Count() );
@@ -1399,6 +1403,71 @@ namespace fCraft {
                 }
                 Console.WriteLine( "Autocompletion test done." );
                 Console.WriteLine();
+            }
+
+
+            {
+                string[] dupeKeys = reference.Where( pair => pair.Key.Length < 4 ).Select( pair => pair.Key ).Distinct().Take(100).ToArray();
+                Console.WriteLine( "Benchmarking {0} iterators...", dupeKeys.Count() );
+
+                string[] randomKeys = reference.OrderBy( k => rand.Next() ).Select(pair=>pair.Key).ToArray();
+
+                
+                {
+                    Stopwatch sw = Stopwatch.StartNew();
+                    int total = 0;
+                    string temp;
+                    foreach( string randKey in randomKeys ) {
+                        temp = reference[randKey];
+                        total++;
+                    }
+                    sw.Stop();
+                    Console.WriteLine( "Dictionary.this[]: {0} nodes in {1} ms", total, sw.ElapsedMilliseconds );
+                }
+
+                {
+                    Stopwatch sw = Stopwatch.StartNew();
+                    int total = 0;
+                    string temp;
+                    foreach( string randKey in randomKeys ) {
+                        temp = test.Get( randKey );
+                        total++;
+                    }
+                    sw.Stop();
+                    Console.WriteLine( "Trie.Get: {0} nodes in {1} ms", total, sw.ElapsedMilliseconds );
+                }
+                
+                
+                {
+                    Stopwatch sw = Stopwatch.StartNew();
+                    int total = 0;
+                    foreach( string dupeKey in dupeKeys ) {
+                        total += reference.Where( pair => CanonicizeKey( pair.Key ).StartsWith( dupeKey ) ).Select( pair => pair.Value ).ToList().Count;
+                        //Console.WriteLine( dupeKey );
+                    }
+                    sw.Stop();
+                    Console.WriteLine( "Dictionary: {0} nodes in {1} ms", total, sw.ElapsedMilliseconds );
+                }
+                
+                {
+                    Stopwatch sw = Stopwatch.StartNew();
+                    int total = 0;
+                    foreach( string dupeKey in dupeKeys ) {
+                        total += test.ValuesStartingWith( dupeKey ).ToList().Count;
+                    }
+                    sw.Stop();
+                    Console.WriteLine( "ValuesStartingWith: {0} nodes in {1} ms", total, sw.ElapsedMilliseconds );
+                }
+
+                {
+                    Stopwatch sw = Stopwatch.StartNew();
+                    int total = 0;
+                    foreach( string dupeKey in dupeKeys ) {
+                        total += test.GetList( dupeKey, Int32.MaxValue ).Count;
+                    }
+                    sw.Stop();
+                    Console.WriteLine( "GetList: {0} nodes in {1} ms", total, sw.ElapsedMilliseconds );
+                }
             }
         }
 
@@ -1412,5 +1481,6 @@ namespace fCraft {
             return sb.ToString();
         }
         */
+        #endregion
     }
 }
