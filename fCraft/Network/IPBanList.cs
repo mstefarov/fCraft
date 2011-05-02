@@ -219,7 +219,7 @@ namespace fCraft {
         public IPBanInfo( IPAddress address, string playerName, string bannedBy, string banReason ) {
             Address = address;
             BannedBy = bannedBy;
-            BanDate = DateTime.Now;
+            BanDate = DateTime.UtcNow;
             if( banReason != null ) {
                 BanReason = banReason;
             }
@@ -252,7 +252,7 @@ namespace fCraft {
         public void ProcessAttempt( Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Attempts++;
-            LastAttemptDate = DateTime.Now;
+            LastAttemptDate = DateTime.UtcNow;
             LastAttemptName = player.Name;
         }
     }

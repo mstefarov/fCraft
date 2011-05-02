@@ -186,7 +186,7 @@ namespace fCraftUpdater {
 
 
         static void DoBackup() {
-            string backupFileName = String.Format( BackupFileNameFormat, DateTime.Now );
+            string backupFileName = String.Format( BackupFileNameFormat, DateTime.Now ); // localized
             using( FileStream fs = File.Create( backupFileName ) ) {
                 using( ZipStorer backupZip = ZipStorer.Create( fs, "" ) ) {
                     foreach( string dataFileName in FilesToBackup ) {

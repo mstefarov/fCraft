@@ -171,12 +171,12 @@ namespace fCraft {
                     if( player.Can( Permission.ViewPlayerIPs ) ) {
                         player.Message( "About {0}&S: Last seen {1} ago from {2}",
                                         info.Name,
-                                        DateTime.Now.Subtract( info.LastSeen ).ToMiniString(),
+                                        DateTime.UtcNow.Subtract( info.LastSeen ).ToMiniString(),
                                         info.LastIP );
                     } else {
                         player.Message( "About {0}&S: Last seen {1} ago.",
                                         info.Name,
-                                        DateTime.Now.Subtract( info.LastSeen ).ToMiniString() );
+                                        DateTime.UtcNow.Subtract( info.LastSeen ).ToMiniString() );
                     }
                 }
                 // Show login information
@@ -259,7 +259,7 @@ namespace fCraft {
 
             if( info.TimesKicked > 0 ) {
                 if( info.LastKickDate != DateTime.MinValue ) {
-                    TimeSpan timeSinceLastKick = DateTime.Now.Subtract( info.LastKickDate );
+                    TimeSpan timeSinceLastKick = DateTime.UtcNow.Subtract( info.LastKickDate );
                     player.Message( "  Got kicked {0} times. Last kick {1} ago by {2}",
                                     info.TimesKicked,
                                     timeSinceLastKick.ToMiniString(),
@@ -276,25 +276,25 @@ namespace fCraft {
             // Promotion/demotion
             if( !String.IsNullOrEmpty( info.RankChangedBy ) ) {
                 if( info.PreviousRank == null ) {
-                    player.Message( "  Promoted to {0}&S by {1} on {2:d MMM yyyy}.",
+                    player.Message( "  Promoted to {0}&S by {1} {2} ago.",
                                     info.Rank.GetClassyName(),
                                     info.RankChangedBy,
-                                    info.RankChangeDate );
+                                    info.TimeSinceRankChange.ToMiniString() );
                 } else if( info.PreviousRank < info.Rank ) {
-                    player.Message( "  Promoted from {0}&S to {1}&S by {2} on {3:d MMM yyyy}.",
+                    player.Message( "  Promoted from {0}&S to {1}&S by {2} {3} ago.",
                                     info.PreviousRank.GetClassyName(),
                                     info.Rank.GetClassyName(),
                                     info.RankChangedBy,
-                                    info.RankChangeDate );
+                                    info.TimeSinceRankChange.ToMiniString() );
                     if( !string.IsNullOrEmpty( info.RankChangeReason ) ) {
                         player.Message( "  Promotion reason: {0}", info.RankChangeReason );
                     }
                 } else {
-                    player.Message( "  Demoted from {0}&S to {1}&S by {2} on {3:d MMM yyyy}.",
+                    player.Message( "  Demoted from {0}&S to {1}&S by {2} {3} ago.",
                                     info.PreviousRank.GetClassyName(),
                                     info.Rank.GetClassyName(),
                                     info.RankChangedBy,
-                                    info.RankChangeDate );
+                                    info.TimeSinceRankChange.ToMiniString() );
                     if( info.RankChangeReason.Length > 0 ) {
                         player.Message( "  Demotion reason: {0}", info.RankChangeReason );
                     }
@@ -308,7 +308,7 @@ namespace fCraft {
                 // Time on the server
                 TimeSpan totalTime = info.TotalTime;
                 if( target != null ) {
-                    totalTime = totalTime.Add( DateTime.Now.Subtract( info.LastLoginDate ) );
+                    totalTime = totalTime.Add( DateTime.UtcNow.Subtract( info.LastLoginDate ) );
                 }
                 player.Message( "  Spent a total of {0:F1} hours ({1:F1} minutes) here.",
                                 totalTime.TotalHours,
@@ -373,17 +373,19 @@ namespace fCraft {
                         player.Message( "Player {0}&S is NOT banned.", info.GetClassyName() );
                     }
                     if( !String.IsNullOrEmpty( info.BannedBy ) ) {
-                        player.Message( "  Last ban by {0} on {1:dd MMM yyyy}.",
+                        player.Message( "  Last ban by {0} on {1:dd MMM yyyy} ({2} ago).",
                                         info.BannedBy,
-                                        info.BanDate );
+                                        info.BanDate,
+                                        info.TimeSinceBan.ToMiniString() );
                         if( info.BanReason.Length > 0 ) {
                             player.Message( "  Last ban reason: {0}", info.BanReason );
                         }
                     }
                     if( !String.IsNullOrEmpty( info.UnbannedBy ) ) {
-                        player.Message( "  Unbanned by {0} on {1:dd MMM yyyy}.",
+                        player.Message( "  Unbanned by {0} on {1:dd MMM yyyy} ({2} ago).",
                                         info.UnbannedBy,
-                                        info.UnbanDate );
+                                        info.UnbanDate,
+                                        info.TimeSinceUnban.ToMiniString() );
                         if( info.UnbanReason.Length > 0 ) {
                             player.Message( "  Last unban reason: {0}", info.UnbanReason );
                         }
@@ -391,7 +393,7 @@ namespace fCraft {
                     if( info.BanDate != DateTime.MinValue ) {
                         TimeSpan banDuration;
                         if( info.Banned ) {
-                            banDuration = DateTime.Now.Subtract( info.BanDate );
+                            banDuration = info.TimeSinceBan;
                         } else {
                             banDuration = info.UnbanDate.Subtract( info.BanDate );
                         }

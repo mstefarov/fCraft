@@ -190,7 +190,7 @@ namespace fCraft {
 
                 if( ConfigKey.BackupOnJoin.GetBool() ) {
                     string backupFileName = String.Format( "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm",
-                                                           Name, DateTime.Now, player.Name );
+                                                           Name, DateTime.Now, player.Name ); // localized
                     Map.SaveBackup( Path.Combine( Paths.MapPath, GetMapName() ),
                                     Path.Combine( Paths.BackupPath, backupFileName ),
                                     true );
@@ -601,7 +601,7 @@ namespace fCraft {
             Map tempMap = Map;
             if( tempMap != null ) {
                 tempMap.SaveBackup( Path.Combine( Paths.MapPath, GetMapName() ),
-                                    Path.Combine( Paths.BackupPath, String.Format( "{0}_{1:yyyy-MM-dd_HH-mm}.fcm", Name, DateTime.Now ) ),
+                                    Path.Combine( Paths.BackupPath, String.Format( "{0}_{1:yyyy-MM-dd_HH-mm}.fcm", Name, DateTime.Now ) ), // localized
                                     true );
             }
         }
