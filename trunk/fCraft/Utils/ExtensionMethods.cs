@@ -16,10 +16,92 @@ namespace fCraft {
     }
 
 
-    static class TimeSpanUtil {
+
+    static class DateTimeUtil {
+
+        static DateTimeUtil(){
+            TicksToUnixEpoch = UnixEpoch.Ticks;
+        }
+
+        public static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1 );
+        public static readonly long TicksToUnixEpoch;
+        public const int TicksPerSecond = 10000;
+
+        public static string ToCompactString( this DateTime date ) {
+            return date.ToString( "yyyy'-'MM'-'dd'T'HH':'mm':'ssK" );
+        }
+
+        public static string ToTickString( this DateTime date ) {
+            if( date == DateTime.MinValue ) {
+                return "";
+            } else {
+                return ((date.Ticks - TicksToUnixEpoch) / TicksPerSecond).ToString();
+            }
+        }
+
+
+        public static long ToTimestamp( this DateTime timestamp ) {
+            return (long)(timestamp - UnixEpoch).TotalSeconds;
+        }
+
+        public static long ToUtcTimestamp( this DateTime timestamp ) {
+            if( timestamp.Kind != DateTimeKind.Utc ) {
+                timestamp = TimeZone.CurrentTimeZone.ToUniversalTime( timestamp );
+            }
+            return timestamp.ToTimestamp();
+        }
+
+
+        #region ToDateTime
+
+        public static DateTime ToDateTime( this long timestamp ) {
+            return UnixEpoch.AddSeconds( timestamp );
+        }
+
+        public static DateTime ToDateTime( this int timestamp ) {
+            return UnixEpoch.AddSeconds( timestamp );
+        }
+
+        public static DateTime ToDateTime( this uint timestamp ) {
+            return UnixEpoch.AddSeconds( timestamp );
+        }
+
+        public static bool ToDateTime( this string str, ref DateTime date ) {
+            if( str.Length > 1 ) {
+                date = new DateTime( Int64.Parse( str ) * TicksPerSecond + TicksToUnixEpoch, DateTimeKind.Utc );
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        #endregion
+
+
+        public static bool ToTimeSpan( this string str, ref TimeSpan date ) {
+            if( str.Length > 1 ) {
+                date = new TimeSpan( Int64.Parse( str ) * TicksPerSecond + TicksToUnixEpoch );
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+
         public static string ToCompactString( this TimeSpan span ) {
             return String.Format( "{0}.{1:00}:{2:00}:{3:00}",
                 span.Days, span.Hours, span.Minutes, span.Seconds );
+        }
+
+
+        #region Mini-string (very compact format)
+
+        public static string ToTickString( this TimeSpan time ) {
+            if( time == TimeSpan.Zero ) {
+                return "";
+            } else {
+                return (time.Ticks / TicksPerSecond).ToString();
+            }
         }
 
 
@@ -99,39 +181,7 @@ namespace fCraft {
             }
             return result;
         }
-    }
 
-
-    static class DateTimeUtil {
-
-        public static string ToCompactString( this DateTime date ) {
-            return date.ToString( "yyyy'-'MM'-'dd'T'HH':'mm':'ssK" );
-        }
-
-
-        static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1 );
-
-        public static long ToTimestamp( this DateTime timestamp ) {
-            return (long)(timestamp - UnixEpoch).TotalSeconds;
-        }
-
-        public static long ToUtcTimestamp( this DateTime timestamp ) {
-            if( timestamp.Kind != DateTimeKind.Utc ) {
-                timestamp = TimeZone.CurrentTimeZone.ToUniversalTime( timestamp );
-            }
-            return timestamp.ToTimestamp();
-        }
-
-        public static DateTime ToDateTime( this long timestamp ) {
-            return UnixEpoch.AddSeconds( timestamp );
-        }
-
-        public static DateTime ToDateTime( this int timestamp ) {
-            return UnixEpoch.AddSeconds( timestamp );
-        }
-
-        public static DateTime ToDateTime( this uint timestamp ) {
-            return UnixEpoch.AddSeconds( timestamp );
-        }
+        #endregion
     }
 }

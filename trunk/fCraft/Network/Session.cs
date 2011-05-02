@@ -17,7 +17,7 @@ namespace fCraft {
     /// Handles low-level interactions (e.g. networking). </summary>
     public sealed class Session {
         public Player Player;
-        public DateTime LoginTime = DateTime.Now;
+        public DateTime LoginTime = DateTime.UtcNow;
 
         // status flags
         public bool CanReceive = true,
@@ -495,7 +495,7 @@ namespace fCraft {
                                             Player.GetClassyName() );
                 }
                 string bannedMessage = String.Format( "Banned {0} ago by {1}: {2}",
-                                                      DateTime.Now.Subtract( Player.Info.BanDate ).ToMiniString(),
+                                                      Player.Info.TimeSinceBan.ToMiniString(),
                                                       Player.Info.BannedBy,
                                                       Player.Info.BanReason );
                 KickNow( bannedMessage, LeaveReason.LoginFailed );
@@ -514,7 +514,7 @@ namespace fCraft {
                 Logger.Log( "{0} tried to log in from a banned IP.", LogType.SuspiciousActivity,
                             Player.Name );
                 string bannedMessage = String.Format( "IP-banned {0} ago by {1}: {2}",
-                                                      DateTime.Now.Subtract( ipBanInfo.BanDate ).ToMiniString(),
+                                                      DateTime.UtcNow.Subtract( ipBanInfo.BanDate ).ToMiniString(),
                                                       ipBanInfo.BannedBy,
                                                       ipBanInfo.BanReason );
                 KickNow( bannedMessage, LeaveReason.LoginFailed );
@@ -623,11 +623,11 @@ namespace fCraft {
             if( Player.Info.IsFrozen ) {
                 if( Player.Info.FrozenOn != DateTime.MinValue ) {
                     Player.Message( "&WYou were previously frozen {0} ago by {1}",
-                                    DateTime.Now.Subtract( Player.Info.FrozenOn ).ToMiniString(),
+                                    DateTime.UtcNow.Subtract( Player.Info.FrozenOn ).ToMiniString(),
                                     Player.Info.FrozenBy );
                     Server.SendToAllExcept( "&WPlayer {0}&W was previously frozen {1} ago by {2}.", Player,
                                             Player.GetClassyName(),
-                                            DateTime.Now.Subtract( Player.Info.FrozenOn ).ToMiniString(),
+                                            DateTime.UtcNow.Subtract( Player.Info.FrozenOn ).ToMiniString(),
                                             Player.Info.FrozenBy );
                 } else {
                     Player.Message( "&WYou were previously frozen by {0}",
@@ -646,7 +646,7 @@ namespace fCraft {
                     sb.Replace( "{SERVER_NAME}", ConfigKey.ServerName.GetString() );
                     sb.Replace( "{RANK}", Player.Info.Rank.GetClassyName() );
                     sb.Replace( "{PLAYER_NAME}", Player.GetClassyName() );
-                    sb.Replace( "{TIME}", DateTime.Now.ToShortTimeString() );
+                    sb.Replace( "{TIME}", DateTime.Now.ToShortTimeString() ); // localized
                     sb.Replace( "{WORLD}", Player.World.GetClassyName() );
                     sb.Replace( "{PLAYERS}", Server.CountVisiblePlayers( Player ).ToString() );
                     sb.Replace( "{WORLDS}", WorldManager.WorldList.Length.ToString() );

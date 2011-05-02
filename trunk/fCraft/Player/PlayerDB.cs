@@ -18,7 +18,9 @@ namespace fCraft {
 
         public const int NumberOfMatchesToPrint = 20;
 
-        const string Header = " fCraft PlayerDB | Row format: " +
+        public const int FormatVersion = 1;
+
+        const string Header = "fCraft PlayerDB | Row format: " +
                               "playerName,lastIP,rank,rankChangeDate,rankChangeBy," +
                               "banStatus,banDate,bannedBy,unbanDate,unbannedBy," +
                               "firstLoginDate,lastLoginDate,lastFailedLoginDate," +
@@ -59,28 +61,31 @@ namespace fCraft {
                     if( header == null ) return; // PlayerDB is an empty file
 
                     lock( Locker ) {
-                        // first number of the header is MaxID
-                        int maxIDField;
-                        if( Int32.TryParse( header.Split( ' ' )[0], out maxIDField ) ) {
-                            if( maxIDField >= 255 ) {// IDs start at 256
-                                maxID = maxIDField;
-                            }
-                        }
+                        int version = IdentifyFormatVersion( header );
 
                         while( !reader.EndOfStream ) {
                             string[] fields = reader.ReadLine().Split( ',' );
                             if( fields.Length >= PlayerInfo.MinFieldCount ) {
+#if !DEBUG
                                 try {
-                                    PlayerInfo info = new PlayerInfo( fields );
+#endif
+                                    PlayerInfo info;
+                                    if( version == 0 ) {
+                                        info = PlayerInfo.LoadOldFormat( fields, true );
+                                    } else {
+                                        info = PlayerInfo.LoadNewFormat( fields );
+                                    }
                                     if( Trie.ContainsKey( info.Name ) ) {
                                         Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.", LogType.Error, info.Name );
                                     } else {
                                         Trie.Add( info.Name, info );
                                         List.Add( info );
                                     }
+#if !DEBUG
                                 } catch( Exception ex ) {
                                     Logger.LogAndReportCrash( "Error while parsing PlayerInfo record", "fCraft", ex, false );
                                 }
+#endif
                             } else {
                                 Logger.Log( "PlayerDB.Load: Unexpected field count ({0}), expecting at least {1} fields for a PlayerDB entry.", LogType.Error,
                                             fields.Length,
@@ -101,6 +106,24 @@ namespace fCraft {
         }
 
 
+        static int IdentifyFormatVersion( string header ) {
+            string[] headerParts = header.Split( ' ' );
+            if( headerParts.Length < 2 ) throw new FormatException( "Invalid PlayerDB file format." );
+            int maxIDField;
+            if( Int32.TryParse( headerParts[0], out maxIDField ) ) {
+                if( maxIDField >= 255 ) {// IDs start at 256
+                    maxID = maxIDField;
+                }
+            }
+            int version;
+            if( Int32.TryParse( headerParts[1], out version ) ) {
+                return version;
+            } else {
+                return 0;
+            }
+        }
+
+
         internal static void Save() {
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -109,15 +132,11 @@ namespace fCraft {
 
             using( FileStream fs = new FileStream( tempFileName, FileMode.Create, FileAccess.Write, FileShare.None, 64 * 1024 ) ) {
                 using( StreamWriter writer = new StreamWriter( fs, System.Text.Encoding.ASCII, 64 * 1024 ) ) {
-                    writer.WriteLine( maxID + Header );
+                    writer.WriteLine( "{0} {1} {2}", maxID, FormatVersion, Header );
                     string[] fields = new string[PlayerInfo.ExpectedFieldCount];
                     for( int i = 0; i < listCopy.Length; i++ ) {
-                        listCopy[i].SerializeOldFormat( fields );
-                        writer.Write( fields[0] );
-                        for( int j = 1; j < fields.Length; j++ ) {
-                            writer.Write( ',' );
-                            writer.Write( fields[j] );
-                        }
+                        listCopy[i].SerializeNewFormat( fields );
+                        writer.Write( String.Join( ",", fields ) );
                         writer.WriteLine();
                     }
                 }
@@ -368,7 +387,7 @@ namespace fCraft {
             if( player.Banned || !String.IsNullOrEmpty( player.UnbannedBy ) || player.IsFrozen || player.IsMuted() || player.TimesKicked != 0 || !String.IsNullOrEmpty( player.RankChangedBy ) ) {
                 return false;
             }
-            if( player.TotalTime.TotalMinutes > 30 || DateTime.Now.Subtract( player.LastSeen ).TotalDays < 30 ) {
+            if( player.TotalTime.TotalMinutes > 30 || DateTime.UtcNow.Subtract( player.LastSeen ).TotalDays < 30 ) {
                 return false;
             }
             if( IPBanList.Get( player.LastIP ) != null ) {

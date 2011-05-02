@@ -39,7 +39,7 @@ namespace AutoLauncher {
                     break;
             }
 
-            Console.WriteLine( "{0} ==== STARTING ====", DateTime.Now );
+            Console.WriteLine( "{0} ==== STARTING ====", DateTime.Now ); // localized
 
             while( true ) {
                 Thread.Sleep( Delay );
@@ -47,7 +47,7 @@ namespace AutoLauncher {
                 while( !p.HasExited ) {
                     p.WaitForExit( Tick );
                 }
-                Console.WriteLine( "{0} ==== SERVER SHUT DOWN, RESTARTING ====", DateTime.Now );
+                Console.WriteLine( "{0} ==== SERVER SHUT DOWN, RESTARTING ====", DateTime.Now ); // localized
             }
         }
     }

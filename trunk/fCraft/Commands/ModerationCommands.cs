@@ -461,7 +461,7 @@ namespace fCraft {
                                         target.GetClassyName(), target.Info.TimesKicked - 1 );
                         if( previousKickDate != DateTime.MinValue ) {
                             player.Message( "Most recent kick was {0} ago, by {1}.",
-                                            DateTime.Now.Subtract( previousKickDate ).ToMiniString(),
+                                            DateTime.UtcNow.Subtract( previousKickDate ).ToMiniString(),
                                             previousKickedBy );
                         }
                         if( !String.IsNullOrEmpty( previousKickReason ) ) {
@@ -768,7 +768,7 @@ namespace fCraft {
             player.Message( "{0}You are now hidden.", Color.Gray );
 
             // to make it look like player just logged out in /info
-            player.Info.LastSeen = DateTime.Now;
+            player.Info.LastSeen = DateTime.UtcNow;
 
             if( !silent ) {
                 if( ConfigKey.ShowConnectionMessages.GetBool() ) {

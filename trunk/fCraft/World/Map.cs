@@ -305,6 +305,7 @@ namespace fCraft {
             foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
                 if( block != Block.Undefined ) {
                     BlockNames.Add( block.ToString().ToLower(), block );
+                    BlockNames.Add( ((int)block).ToString(), block );
                 }
             }
 
@@ -315,6 +316,7 @@ namespace fCraft {
             BlockNames["empty"] = Block.Air;
             BlockNames["delete"] = Block.Air;
             BlockNames["erase"] = Block.Air;
+            BlockNames["blank"] = Block.Air;
 
             BlockNames["cement"] = Block.Stone;
             BlockNames["concrete"] = Block.Stone;
@@ -331,11 +333,16 @@ namespace fCraft {
             BlockNames["tree"] = Block.Plant;
             BlockNames["sappling"] = Block.Plant;
             BlockNames["adminium"] = Block.Admincrete;
+            BlockNames["adminite"] = Block.Admincrete;
             BlockNames["opcrete"] = Block.Admincrete;
+            BlockNames["hardrock"] = Block.Admincrete;
             BlockNames["solid"] = Block.Admincrete;
             BlockNames["bedrock"] = Block.Admincrete;
             BlockNames["gold_ore"] = Block.GoldOre;
             BlockNames["iron_ore"] = Block.IronOre;
+            BlockNames["copper"] = Block.IronOre;
+            BlockNames["copperore"] = Block.IronOre;
+            BlockNames["copper_ore"] = Block.IronOre;
             BlockNames["ore"] = Block.IronOre;
             BlockNames["coals"] = Block.Coal;
             BlockNames["coalore"] = Block.Coal;
@@ -349,15 +356,47 @@ namespace fCraft {
             BlockNames["leaf"] = Block.Leaves;
             BlockNames["foliage"] = Block.Leaves;
 
+            BlockNames["cheese"] = Block.Sponge;
+
+            BlockNames["redcloth"] = Block.Red;
+            BlockNames["redwool"] = Block.Red;
+            BlockNames["orangecloth"] = Block.Orange;
+            BlockNames["orangewool"] = Block.Orange;
+            BlockNames["yellowcloth"] = Block.Yellow;
+            BlockNames["yellowwool"] = Block.Yellow;
+            BlockNames["limecloth"] = Block.Lime;
+            BlockNames["limewool"] = Block.Lime;
             BlockNames["greenyellow"] = Block.Lime;
             BlockNames["yellowgreen"] = Block.Lime;
             BlockNames["lightgreen"] = Block.Lime;
+            BlockNames["lightgreencloth"] = Block.Lime;
+            BlockNames["lightgreenwool"] = Block.Lime;
+            BlockNames["greencloth"] = Block.Green;
+            BlockNames["greenwool"] = Block.Green;
             BlockNames["springgreen"] = Block.Teal;
             BlockNames["emerald"] = Block.Teal;
+            BlockNames["tealwool"] = Block.Teal;
+            BlockNames["tealcloth"] = Block.Teal;
+            BlockNames["aquawool"] = Block.Aqua;
+            BlockNames["aquacloth"] = Block.Aqua;
+            BlockNames["cyanwool"] = Block.Cyan;
+            BlockNames["cyancloth"] = Block.Cyan;
+            BlockNames["bluewool"] = Block.Blue;
+            BlockNames["bluecloth"] = Block.Blue;
+            BlockNames["indigowool"] = Block.Indigo;
+            BlockNames["indigocloth"] = Block.Indigo;
+            BlockNames["violetwool"] = Block.Violet;
+            BlockNames["violetcloth"] = Block.Violet;
             BlockNames["lightpurple"] = Block.Violet;
             BlockNames["purple"] = Block.Violet;
+            BlockNames["purplewool"] = Block.Violet;
+            BlockNames["purplecloth"] = Block.Violet;
             BlockNames["fuchsia"] = Block.Magenta;
+            BlockNames["magentawool"] = Block.Magenta;
+            BlockNames["magentacloth"] = Block.Magenta;
             BlockNames["darkpink"] = Block.Pink;
+            BlockNames["pinkwool"] = Block.Pink;
+            BlockNames["pinkcloth"] = Block.Pink;
             BlockNames["cloth"] = Block.White;
             BlockNames["cotton"] = Block.White;
             BlockNames["grey"] = Block.Gray;
@@ -368,18 +407,22 @@ namespace fCraft {
 
             BlockNames["yellow_flower"] = Block.YellowFlower;
             BlockNames["flower"] = Block.YellowFlower;
+            BlockNames["rose"] = Block.RedFlower;
+            BlockNames["redrose"] = Block.RedFlower;
             BlockNames["red_flower"] = Block.RedFlower;
-
+            
             BlockNames["mushroom"] = Block.BrownMushroom;
             BlockNames["shroom"] = Block.BrownMushroom;
             BlockNames["brown_shroom"] = Block.BrownMushroom;
             BlockNames["red_shroom"] = Block.RedMushroom;
 
+            BlockNames["goldblock"] = Block.Gold;
             BlockNames["goldsolid"] = Block.Gold;
             BlockNames["golden"] = Block.Gold;
             BlockNames["copper"] = Block.Gold;
             BlockNames["brass"] = Block.Gold;
 
+            BlockNames["ironblock"] = Block.Steel;
             BlockNames["iron"] = Block.Steel;
             BlockNames["metal"] = Block.Steel;
             BlockNames["silver"] = Block.Steel;
@@ -414,6 +457,7 @@ namespace fCraft {
             BlockNames["mossyrock"] = Block.MossyRocks;
             BlockNames["mossystone"] = Block.MossyRocks;
             BlockNames["mossystones"] = Block.MossyRocks;
+            BlockNames["greencobblestone"] = Block.MossyRocks;
             BlockNames["mossycobblestone"] = Block.MossyRocks;
             BlockNames["mossy_cobblestone"] = Block.MossyRocks;
             BlockNames["blockthathasgreypixelsonitmostlybutsomeareactuallygreen"] = Block.MossyRocks;

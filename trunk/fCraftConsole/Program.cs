@@ -104,6 +104,7 @@ namespace fCraftConsole {
         }
 
 
+        [DebuggerStepThrough]
         static void OnLogged( object sender, LogEventArgs e ) {
             if( !e.WriteToConsole ) return;
             switch( e.MessageType ) {

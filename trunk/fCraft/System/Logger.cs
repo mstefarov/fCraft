@@ -9,6 +9,7 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Linq;
 using fCraft.Events;
+using System.Diagnostics;
 
 namespace fCraft {
 
@@ -59,7 +60,7 @@ namespace fCraft {
                      ShortDateFormat = "yyyy'-'MM'-'dd";
         public static LogSplittingType SplittingType = LogSplittingType.OneFile;
 
-        static readonly string SessionStart = DateTime.Now.ToString( LongDateFormat );
+        static readonly string SessionStart = DateTime.Now.ToString( LongDateFormat ); // localized
         static readonly Queue<string> RecentMessages = new Queue<string>();
         const int MaxRecentMessages = 25;
 
@@ -77,10 +78,11 @@ namespace fCraft {
         internal static void MarkLogStart() {
             // Mark start of logging
             Log( "------ Log Starts {0} ({1}) ------", LogType.SystemActivity,
-                 DateTime.Now.ToLongDateString(), DateTime.Now.ToShortDateString() );
+                 DateTime.Now.ToLongDateString(), DateTime.Now.ToShortDateString() ); // localized
         }
 
 
+        [DebuggerStepThrough]
         public static void Log( string message, LogType type, params object[] values ) {
             Log( String.Format( message, values ), type );
         }
@@ -103,9 +105,11 @@ namespace fCraft {
         }
 
 
+        [DebuggerStepThrough]
         public static void Log( string message, LogType type ) {
+            if( Server.HasArg( ArgKey.NoLog ) ) return;
             if( message == null ) throw new ArgumentNullException( "message" );
-            string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message;
+            string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message; // localized
 
             RaiseLoggedEvent( message, line, type );
 
@@ -116,7 +120,7 @@ namespace fCraft {
                         actualLogFileName = Path.Combine( Paths.LogPath, SessionStart + ".log" );
                         break;
                     case LogSplittingType.SplitByDay:
-                        actualLogFileName = Path.Combine( Paths.LogPath, DateTime.Now.ToString( ShortDateFormat ) + ".log" );
+                        actualLogFileName = Path.Combine( Paths.LogPath, DateTime.Now.ToString( ShortDateFormat ) + ".log" ); // localized
                         break;
                     default:
                         actualLogFileName = Path.Combine( Paths.LogPath, DefaultLogFileName );
@@ -133,13 +137,14 @@ namespace fCraft {
                 } catch( Exception ex ) {
                     string errorMessage = "Logger.Log: " + ex.Message;
                     RaiseLoggedEvent( errorMessage,
-                                      DateTime.Now.ToLongTimeString() + " > " + GetPrefix( LogType.Error ) + errorMessage,
+                                      DateTime.Now.ToLongTimeString() + " > " + GetPrefix( LogType.Error ) + errorMessage, // localized
                                       LogType.Error );
                 }
             }
         }
 
 
+        [DebuggerStepThrough]
         public static string GetPrefix( LogType level ) {
             switch( level ) {
                 case LogType.SeriousError:
@@ -441,6 +446,7 @@ namespace fCraft {
         public static event EventHandler<CrashEventArgs> Crashed;
 
 
+        [DebuggerStepThrough]
         static void RaiseLoggedEvent( string rawMessage, string line, LogType logType ) {
             var h = Logged;
             if( h != null ) h( null, new LogEventArgs( rawMessage,
@@ -465,6 +471,7 @@ namespace fCraft {
 namespace fCraft.Events {
 
     public sealed class LogEventArgs : EventArgs {
+        [DebuggerStepThrough]
         internal LogEventArgs( string rawMessage, string message, LogType messageType, bool writeToFile, bool writeToConsole ) {
             RawMessage = rawMessage;
             Message = message;

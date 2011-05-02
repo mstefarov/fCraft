@@ -26,6 +26,7 @@ namespace fCraft {
 
         public Trie( IDictionary<string, T> dictionary )
             : this() {
+            if( dictionary == null ) throw new ArgumentNullException( "dictionary" );
             foreach( var pair in dictionary ) {
                 Add( pair.Key, pair.Value );
             }
@@ -34,6 +35,8 @@ namespace fCraft {
 
         // Find a node that exactly matches the given key
         TrieNode GetNode( string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
+
             TrieNode temp = root;
             for( int i = 0; i < key.Length; i++ ) {
                 int code = CharToCode( key[i] );
@@ -63,6 +66,7 @@ namespace fCraft {
 
 
         public bool ContainsValue( T value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
             return Values.Contains( value );
         }
 
@@ -70,10 +74,19 @@ namespace fCraft {
         /// <summary> Searches for payloads with keys that start with keyPart, returning just one or none of the matches. </summary>
         /// <param name="namePart"> Partial or full key. </param>
         /// <param name="info"> Payload object to output (will be set to null if no single match was found). </param>
-        /// <returns> True if one or zero matches were found, false if multiple matches were found. </returns>
+        /// <returns>
+        /// If no matches were found, returns true and sets payload to null.
+        /// If one match was found, returns true and sets payload to the value.
+        /// If more than one match was found, returns false and sets payload to null.
+        /// </returns>
         public bool GetOneMatch( string keyPart, out T payload ) {
-            if( keyPart == null ) throw new ArgumentNullException( "name" );
+            if( keyPart == null ) throw new ArgumentNullException( "keyPart" );
             TrieNode node = GetNode( keyPart );
+
+            if( node == null ) {
+                payload = null;
+                return true; // no matches
+            }
 
             if( node.Payload != null ) {
                 payload = node.Payload;
@@ -84,7 +97,7 @@ namespace fCraft {
                 return false; // multiple matches
             }
 
-            // todo: check for multiple matches in this loop
+            // either partial match, or multiple matches
             while( true ) {
                 switch( node.Tag ) {
                     case LeafNode:
@@ -272,24 +285,24 @@ namespace fCraft {
 
 
         public class TrieSubset : IEnumerable<KeyValuePair<string, T>> {
-                            Trie<T> trie;
-                string prefix;
+            Trie<T> trie;
+            string prefix;
 
-                public TrieSubset( Trie<T> trie, string prefix ) {
-                    this.trie = trie;
-                    this.prefix = prefix;
-                }
-
-
-                public IEnumerator<KeyValuePair<string, T>> GetEnumerator() {
-                    TrieNode node = trie.GetNode( prefix );
-                    return new TrieEnumerator( node, trie, CanonicizeKey( prefix ) );
-                }
+            public TrieSubset( Trie<T> trie, string prefix ) {
+                this.trie = trie;
+                this.prefix = prefix;
+            }
 
 
-                IEnumerator IEnumerable.GetEnumerator() {
-                    return GetEnumerator() as IEnumerator;
-                }
+            public IEnumerator<KeyValuePair<string, T>> GetEnumerator() {
+                TrieNode node = trie.GetNode( prefix );
+                return new TrieEnumerator( node, trie, CanonicizeKey( prefix ) );
+            }
+
+
+            IEnumerator IEnumerable.GetEnumerator() {
+                return GetEnumerator() as IEnumerator;
+            }
         }
 
         #endregion
@@ -324,6 +337,7 @@ namespace fCraft {
             protected Stack<int> parentIndices = new Stack<int>();
 
             public EnumeratorBase( TrieNode node, Trie<T> trie, string prefix ) {
+                if( node == null ) throw new ArgumentNullException( "node" );
                 if( trie == null ) throw new ArgumentNullException( "trie" );
                 if( prefix == null ) throw new ArgumentNullException( "prefix" );
                 startingNode = node;
@@ -470,7 +484,8 @@ namespace fCraft {
 
 
         public bool ContainsKey( string key ) {
-            return (GetNode( key ) != null);
+            TrieNode node = GetNode( key );
+            return (node != null && node.Payload != null);
         }
 
 
@@ -716,6 +731,7 @@ namespace fCraft {
 
 
             public TrieValueCollection( Trie<T> trie ) {
+                if( trie == null ) throw new ArgumentNullException( "trie" );
                 this.trie = trie;
             }
 
@@ -733,9 +749,8 @@ namespace fCraft {
 
 
             public void CopyTo( Array array, int index ) {
-                if( array == null ) {
-                    throw new ArgumentNullException( "array" );
-                }
+                if( array == null ) throw new ArgumentNullException( "array" );
+                if( index < 0 || index > array.Length ) throw new ArgumentOutOfRangeException( "index" );
 
                 T[] castArray = array as T[];
                 if( castArray == null ) {
@@ -751,9 +766,8 @@ namespace fCraft {
 
 
             public void CopyTo( T[] array, int index ) {
-                if( array == null ) {
-                    throw new ArgumentNullException( "array" );
-                }
+                if( array == null ) throw new ArgumentNullException( "array" );
+                if( index < 0 || index > array.Length ) throw new ArgumentOutOfRangeException( "index" );
 
                 int i = index;
                 foreach( T element in this ) {
@@ -791,7 +805,7 @@ namespace fCraft {
 
 
             public IEnumerable<T> StartingWith( string prefix ) {
-                return new TrieValueSubset( trie,prefix );
+                return new TrieValueSubset( trie, prefix );
             }
 
 
@@ -800,6 +814,8 @@ namespace fCraft {
                 string prefix;
 
                 public TrieValueSubset( Trie<T> trie, string prefix ) {
+                    if( trie == null ) throw new ArgumentNullException( "trie" );
+                    if( prefix == null ) throw new ArgumentNullException( "prefix" );
                     this.trie = trie;
                     this.prefix = prefix;
                 }
@@ -883,6 +899,7 @@ namespace fCraft {
 
 
             public TrieKeyCollection( Trie<T> trie ) {
+                if( trie == null ) throw new ArgumentNullException( "trie" );
                 this.trie = trie;
             }
 
@@ -900,9 +917,8 @@ namespace fCraft {
 
 
             public void CopyTo( Array array, int index ) {
-                if( array == null ) {
-                    throw new ArgumentNullException( "array" );
-                }
+                if( array == null ) throw new ArgumentNullException( "array" );
+                if( index < 0 || index > array.Length ) throw new ArgumentOutOfRangeException( "index" );
 
                 string[] castArray = array as string[];
                 if( castArray == null ) {
@@ -918,9 +934,8 @@ namespace fCraft {
 
 
             public void CopyTo( string[] array, int index ) {
-                if( array == null ) {
-                    throw new ArgumentNullException( "array" );
-                }
+                if( array == null ) throw new ArgumentNullException( "array" );
+                if( index < 0 || index > array.Length ) throw new ArgumentOutOfRangeException( "index" );
 
                 int i = index;
                 foreach( string element in this ) {
@@ -967,6 +982,8 @@ namespace fCraft {
                 string prefix;
 
                 public TrieKeySubset( Trie<T> trie, string prefix ) {
+                    if( trie == null ) throw new ArgumentNullException( "trie" );
+                    if( prefix == null ) throw new ArgumentNullException( "prefix" );
                     this.trie = trie;
                     this.prefix = prefix;
                 }
@@ -1122,9 +1139,8 @@ namespace fCraft {
 
 
         public void CopyTo( KeyValuePair<string, T>[] pairArray, int index ) {
-            if( pairArray == null ) {
-                throw new ArgumentNullException( "array" );
-            }
+            if( pairArray == null ) throw new ArgumentNullException( "pairArray" );
+            if( index < 0 || index > pairArray.Length ) throw new ArgumentOutOfRangeException( "index" );
 
             int i = index;
             foreach( var pair in this ) {
@@ -1146,9 +1162,8 @@ namespace fCraft {
 
 
         public void CopyTo( Array pairArray, int index ) {
-            if( pairArray == null ) {
-                throw new ArgumentNullException( "array" );
-            }
+            if( pairArray == null ) throw new ArgumentNullException( "pairArray" );
+            if( index < 0 || index > pairArray.Length ) throw new ArgumentOutOfRangeException( "index" );
 
             var castPairArray = pairArray as KeyValuePair<string, T>[];
             if( castPairArray == null ) {
@@ -1287,7 +1302,7 @@ namespace fCraft {
                 }
             }
         }
-        
+
 
         #region Self-test
         /*

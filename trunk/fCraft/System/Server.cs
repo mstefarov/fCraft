@@ -193,7 +193,6 @@ namespace fCraft {
         /// Loads config, PlayerDB, IP bans, AutoRank settings, builds a list of commands, and prepares the IRC bot.
         /// Raises Server.Initializing and Server.Initialized events, and possibly Logger.Logged events.
         /// Throws exceptions on failure. </summary>
-        /// <returns> </returns>
         public static void InitServer() {
             if( !libraryInitialized ) {
                 throw new Exception( "Server.InitializeLibrary must be called before Server.InitServer" );
@@ -213,7 +212,7 @@ namespace fCraft {
                                          "Do not use except for debugging purposes. " +
                                          "Latest non-broken build is " + Updater.LatestStable;
 #if DEBUG
-                Logger.Log( message, LogType.Warning, Updater.LatestStable );
+                Logger.Log( unstableMessage, LogType.Warning, Updater.LatestStable );
 #else
                 throw new Exception( unstableMessage );
 #endif
@@ -225,15 +224,15 @@ namespace fCraft {
                             MonoCompat.MonoVersion );
             }
 
+#if DEBUG
+            Config.RunSelfTest();
+#else
             // delete the old updater, if exists
             try {
                 if( File.Exists( Paths.UpdaterFile ) ) {
                     File.Delete( Paths.UpdaterFile );
                 }
             } catch { }
-
-#if DEBUG
-            Config.RunSelfTest();
 #endif
 
             // try to load the config
@@ -267,8 +266,8 @@ namespace fCraft {
         /// Creates Console pseudoplayer, loads the world list, starts listening for incoming connections,
         /// sets up scheduled tasks and starts the scheduler, starts the heartbeat, and connects to IRC.
         /// Raises Server.Starting and Server.Started events.
-        /// May throw an exception on failure. </summary>
-        /// <returns> True if server started normally, false on failure. </returns>
+        /// May throw an exception on hard failure. </summary>
+        /// <returns> True if server started normally, false on soft failure. </returns>
         public static bool StartServer() {
             if( !serverInitialized ) {
                 throw new Exception( "Server.InitServer() must be called before Server.StartServer()" );
@@ -1283,6 +1282,10 @@ namespace fCraft {
 
         /// <summary> If ExitOnCrash flag is present, fCraft will exit
         /// at once in the event of an unrecoverable crash, instead of showing a message. </summary>
-        ExitOnCrash
+        ExitOnCrash,
+
+
+        /// <summary> Disables all logging. </summary>
+        NoLog
     };
 }
