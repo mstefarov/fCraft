@@ -97,8 +97,10 @@ namespace fCraft {
         /// <summary> Schedules a given task for execution. </summary>
         /// <param name="task"> Task to schedule. </param>
         internal static void AddTask( SchedulerTask task ) {
-            task.IsStopped = false;
+            if( task == null ) throw new ArgumentNullException( "task" );
             lock( TaskListLock ) {
+                if( Server.IsShuttingDown ) return;
+                task.IsStopped = false;
                 if( Tasks.Add( task ) ) {
                     UpdateCache();
 #if DEBUG_SCHEDULER
@@ -214,11 +216,13 @@ namespace fCraft {
     public sealed class SchedulerTask {
 
         internal SchedulerTask( SchedulerCallback callback, bool isBackground ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
             Callback = callback;
             IsBackground = isBackground;
         }
 
         internal SchedulerTask( SchedulerCallback callback, bool isBackground, object userState ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
             Callback = callback;
             IsBackground = isBackground;
             UserState = userState;

@@ -118,22 +118,42 @@ namespace fCraft {
     }
 
 
+    /// <summary> List of common world operation issues. Used by WorldOpException. </summary>
     public enum WorldOpExceptionCode {
+        /// <summary> No changes were needed or made (e.g. renaming a world to the same name). </summary>
         NoChangeNeeded,
 
+        /// <summary> Given world name was of invalid format. </summary>
         InvalidWorldName,
+
+        /// <summary> Given world could not be found by name. </summary>
         WorldNotFound,
+
+        /// <summary> A world could not be added or renamed because the name is taken by another world. </summary>
         DuplicateWorldName,
 
+        /// <summary> A permission issue prohibited the operation. </summary>
         SecurityError,
+
+        /// <summary> Operation may not be done on the world designated as main. </summary>
         CannotDoThatToMainWorld,
 
+        /// <summary> Specified map file could not be found. </summary>
         MapNotFound,
+
+        /// <summary> Given map path was invalid or inaccessible. </summary>
         MapPathError,
+
+        /// <summary> Map file was found but could not be loaded. </summary>
         MapLoadError,
+
+        /// <summary> Map file could not be saved. </summary>
         MapSaveError,
+
+        /// <summary> Map file could not be renamed, replaced, or moved. </summary>
         MapMoveError,
 
+        /// <summary> A plugin callback cancelled the operation. </summary>
         PluginDenied
     }
 }

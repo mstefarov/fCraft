@@ -5,10 +5,8 @@ namespace fCraft {
 
     // See comment at the top of Config.cs for a history of changes.
 
-    /// <summary>
-    /// Enumeration of permission types/categories.
-    /// Every rank definition contains a combination of these.
-    /// </summary>
+    /// <summary> Enumeration of permission types/categories.
+    /// Every rank definition contains a combination of these. </summary>
     public enum Permission {
         Chat,
         Build,

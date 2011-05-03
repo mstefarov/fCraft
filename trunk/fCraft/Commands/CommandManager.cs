@@ -6,15 +6,29 @@ using fCraft.Events;
 
 namespace fCraft {
     /// <summary> Type of message sent by the player. Set by CommandManager.GetMessageType() </summary>
-    enum MessageType {
+    public enum MessageType {
+        /// <summary> Unparseable chat syntax (rare). </summary>
         Invalid,
 
+        /// <summary> Normal (white) chat. </summary>
         Chat,
+
+        /// <summary> Command. </summary>
         Command,
+
+        /// <summary> Confirmation (/ok) for a previous command. </summary>
         Confirmation,
+
+        /// <summary> Partial message (ends with " /") </summary>
         PartialMessage,
+
+        /// <summary> Private message. </summary>
         PrivateChat,
+
+        /// <summary> Rank chat. </summary>
         RankChat,
+
+        /// <summary> Repeat of the last command ("/"). </summary>
         RepeatCommand,
     }
 

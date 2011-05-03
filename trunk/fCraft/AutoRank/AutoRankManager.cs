@@ -84,33 +84,83 @@ namespace fCraft.AutoRank {
 
     #region Enums
 
+    /// <summary>  Operators used to compare PlayerInfo fields. </summary>
     public enum ComparisonOperation {
+        /// <summary> Less Than </summary>
         Lt,
+
+        /// <summary> Less Than or Equal </summary>
         Lte,
+
+        /// <summary> Greater Than or Equal </summary>
         Gte,
+
+        /// <summary> Greater Than </summary>
         Gt,
+
+        /// <summary> EQuals to </summary>
         Eq,
+
+        /// <summary> Not EQual to </summary>
         Neq
     }
 
 
+    /// <summary> Enumeration of quantifiable PlayerInfo fields (or field combinations) that may be used with AutoRank conditions. </summary>
     public enum ConditionField {
+        /// <summary> Time since first login (first time the player connected), in seconds.
+        /// For players who have been entered into PlayerDB but have never logged in, this is a huge value. </summary>
         TimeSinceFirstLogin,
+
+        /// <summary> Time since most recent login, in seconds.
+        /// For players who have been entered into PlayerDB but have never logged in, this is a huge value.</summary>
         TimeSinceLastLogin,
+
+        /// <summary> Time since player was last seen (0 if the player is online, otherwise time since last logout, in seconds).
+        /// For players who have been entered into PlayerDB but have never logged in, this is a huge value.</summary>
         LastSeen,
+
+        /// <summary> Total time spent on the server (including current session) in seconds.
+        /// For players who have been entered into PlayerDB but have never logged in, this is 0.</summary>
         TotalTime,
+
+        /// <summary> Number of blocks that were built manually (by clicking).
+        /// Does not include drawn or pasted blocks. </summary>
         BlocksBuilt,
+
+        /// <summary> Number of blocks deleted manually (by clicking).
+        /// Does not include drawn or cut blocks. </summary>
         BlocksDeleted,
-        BlocksChanged, // BlocksBuilt+BlocksDeleted
+
+        /// <summary> Number of blocks changed (built + deleted) manually (by clicking).
+        /// Does not include drawn or cut/paste blocks. </summary>
+        BlocksChanged,
+
+        /// <summary> Number of blocks affected by drawing commands, replacement, and cut/paste. </summary>
         BlocksDrawn,
+
+        /// <summary> Number of separate visits/sessions on this server. </summary>
         TimesVisited,
+
+        /// <summary> Number of messages written in chat.
+        /// Includes normal chat, PMs, rank chat, /staff, /say, and /me messages. </summary>
         MessagesWritten,
+
+        /// <summary> Number of times kicked by other players or by console.
+        /// Does not include any kind of automated kicks (AFK kicks, anti-grief or anti-spam, server shutdown, etc). </summary>
         TimesKicked,
+
+        /// <summary> Time since last promotion or demotion, in seconds.
+        /// For new players (who still have the default rank) this is a huge value. </summary>
         TimeSinceRankChange,
+
+        /// <summary> Time since the player has been kicked by other players or by console.
+        /// Does not reset from any kind of automated kicks (AFK kicks, anti-grief or anti-spam, server shutdown, etc). </summary>
         TimeSinceLastKick
     }
 
 
+    // Not yet implemented.
     public enum ConditionScopeType {
         Total,
         SinceRankChange,
@@ -119,6 +169,7 @@ namespace fCraft.AutoRank {
     }
 
 
+    // Not yet implemented.
     public enum CriterionType {
         Required,
         Suggested,

@@ -10,6 +10,7 @@ namespace fCraft {
 
         #region State Objects and Enums
 
+        /// <summary> A type of drawing operation. Does not include Cut/Copy/Paste. </summary>
         public enum DrawMode {
             Cuboid,
             CuboidHollow,

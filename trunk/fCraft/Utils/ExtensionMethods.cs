@@ -80,7 +80,7 @@ namespace fCraft {
 
         public static bool ToTimeSpan( this string str, ref TimeSpan date ) {
             if( str.Length > 1 ) {
-                date = new TimeSpan( Int64.Parse( str ) * TicksPerSecond + TicksToUnixEpoch );
+                date = new TimeSpan( Int64.Parse( str ) * TicksPerSecond );
                 return true;
             } else {
                 return false;

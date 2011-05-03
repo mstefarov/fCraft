@@ -13,6 +13,7 @@ namespace fCraft.AutoRank {
         public Criterion() { }
 
         public Criterion( Criterion other ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
             Type = other.Type;
             FromRank = other.FromRank;
             ToRank = other.ToRank;
@@ -20,6 +21,9 @@ namespace fCraft.AutoRank {
         }
 
         public Criterion( CriterionType type, Rank fromRank, Rank toRank, Condition condition ) {
+            if( fromRank == null ) throw new ArgumentNullException( "fromRank" );
+            if( toRank == null ) throw new ArgumentNullException( "toRank" );
+            if( condition == null ) throw new ArgumentNullException( "condition" );
             Type = type;
             FromRank = fromRank;
             ToRank = toRank;
@@ -27,6 +31,7 @@ namespace fCraft.AutoRank {
         }
 
         public Criterion( XElement el ) {
+            if( el == null ) throw new ArgumentNullException( "el" );
             Type = (CriterionType)Enum.Parse( typeof( CriterionType ), el.Attribute( "type" ).Value, true );
 
             FromRank = RankManager.ParseRank( el.Attribute( "fromRank" ).Value );

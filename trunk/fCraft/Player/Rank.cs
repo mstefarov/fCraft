@@ -40,6 +40,7 @@ namespace fCraft {
 
 
         public int CompareTo( Rank other ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
             return other.Index - Index;
         }
 
@@ -51,8 +52,11 @@ namespace fCraft {
             Color = "";
         }
 
+
         public Rank( XElement el )
             : this() {
+
+            if( el == null ) throw new ArgumentNullException( "el" );
 
             // Name
             XAttribute attr = el.Attribute( "name" );

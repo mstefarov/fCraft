@@ -8,6 +8,7 @@ using System.Net;
 using System.Text;
 
 namespace fCraft.MapConversion {
+    /// <summary> Standard NBT data types. </summary>
     public enum NBTType : byte {
         End,
         Byte,
