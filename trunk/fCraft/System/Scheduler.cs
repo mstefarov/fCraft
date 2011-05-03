@@ -105,7 +105,6 @@ namespace fCraft {
                     Logger.Log( "Scheduler.AddTask: Added {0}", LogType.Debug, task );
                 }else{
                     Logger.Log( "Scheduler.AddTask: Added duplicate {0}", LogType.Debug, task );
-                }
 #endif
                 }
             }
@@ -165,7 +164,7 @@ namespace fCraft {
                 for( int i = 0; i < deletionList.Count; i++ ) {
                     Tasks.Remove( deletionList[i] );
 #if DEBUG_SCHEDULER
-                    Logger.Log( "Scheduler.UpdateCache: Removed {0}", LogType.Debug, task );
+                    Logger.Log( "Scheduler.UpdateCache: Removed {0}", LogType.Debug, deletionList[i] );
 #endif
                 }
             }
