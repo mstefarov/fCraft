@@ -19,10 +19,13 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             523,
-            566,
+            568,
             new DateTime( 2011, 5, 2, 18, 30, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Dev | ReleaseFlags.APIChange | ReleaseFlags.Optimized | ReleaseFlags.Unstable
+            ReleaseFlags.Dev | ReleaseFlags.Unstable
+#if DEBUG
+            | ReleaseFlags.Dev
+#endif
         );
 
         public const string LatestStable = "0.522_r546";
@@ -170,7 +173,14 @@ namespace fCraft {
 
         public string VersionString {
             get {
-                return String.Format( CultureInfo.InvariantCulture, "{0:0.000}_r{1}",
+                string formatString = "{0:0.000}_r{1}";
+                if( IsFlagged( ReleaseFlags.Dev ) ) {
+                    formatString += "_dev";
+                }
+                if( IsFlagged( ReleaseFlags.Unstable ) ) {
+                    formatString += "_u";
+                }
+                return String.Format( CultureInfo.InvariantCulture, formatString,
                                       Decimal.Divide( Version, 1000 ),
                                       Revision );
             }
