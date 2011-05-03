@@ -935,21 +935,25 @@ namespace fCraft {
                     sourceFullFileName += ".fcm";
 
                 } else if( MonoCompat.IsCaseSensitive ) {
-                    // If we're on a case-sensitive OS, try case-insensitive search
-                    FileInfo[] candidates = Paths.FindFiles( sourceFullFileName + ".fcm" );
-                    if( candidates.Length == 0 ) {
-                        candidates = Paths.FindFiles( sourceFullFileName );
-                    }
+                    try {
+                        // If we're on a case-sensitive OS, try case-insensitive search
+                        FileInfo[] candidates = Paths.FindFiles( sourceFullFileName + ".fcm" );
+                        if( candidates.Length == 0 ) {
+                            candidates = Paths.FindFiles( sourceFullFileName );
+                        }
 
-                    if( candidates.Length == 0 ) {
-                        player.Message( "File/directory not found: {0}", fileName );
+                        if( candidates.Length == 0 ) {
+                            player.Message( "File/directory not found: {0}", fileName );
 
-                    } else if( candidates.Length == 1 ) {
-                        player.Message( "Filenames are case-sensitive! Did you mean to load \"{0}\"?", candidates[0].Name );
+                        } else if( candidates.Length == 1 ) {
+                            player.Message( "Filenames are case-sensitive! Did you mean to load \"{0}\"?", candidates[0].Name );
 
-                    } else {
-                        player.Message( "Filenames are case-sensitive! Did you mean to load one of these: {0}",
-                                        String.Join( ", ", candidates.Select( c => c.Name ).ToArray() ) );
+                        } else {
+                            player.Message( "Filenames are case-sensitive! Did you mean to load one of these: {0}",
+                                            String.Join( ", ", candidates.Select( c => c.Name ).ToArray() ) );
+                        }
+                    } catch( DirectoryNotFoundException ex ) {
+                        player.Message( ex.Message );
                     }
                     return;
 

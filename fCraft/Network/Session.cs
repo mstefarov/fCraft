@@ -51,13 +51,12 @@ namespace fCraft {
             client = tcpClient;
             client.SendTimeout = SocketTimeout;
             client.ReceiveTimeout = SocketTimeout;
-
-            IP = ((IPEndPoint)(client.Client.RemoteEndPoint)).Address;
         }
 
 
         public void Start() {
             try {
+                IP = ((IPEndPoint)(client.Client.RemoteEndPoint)).Address;
                 if( Server.RaiseSessionConnectingEvent( IP ) ) return;
 
                 reader = new BinaryReader( client.GetStream() );
