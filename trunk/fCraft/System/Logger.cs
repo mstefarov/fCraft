@@ -13,9 +13,7 @@ using System.Diagnostics;
 
 namespace fCraft {
 
-    /// <summary>
-    /// Category of a log event.
-    /// </summary>
+    /// <summary> Category of a log event. </summary>
     public enum LogType {
         SystemActivity,
         Warning,
@@ -46,9 +44,7 @@ namespace fCraft {
     }
 
 
-    /// <summary>
-    /// Central logging class. Logs to file, relays messages to the frontend, submits crash reports.
-    /// </summary>
+    /// <summary> Central logging class. Logs to file, relays messages to the frontend, submits crash reports. </summary>
     public static class Logger {
         static readonly object LogLock = new object();
         public static readonly bool[] ConsoleOptions;

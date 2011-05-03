@@ -56,9 +56,9 @@ namespace fCraft {
                 Stopwatch sw = Stopwatch.StartNew();
                 using( StreamReader reader = File.OpenText( Paths.PlayerDBFileName ) ) {
 
-                    string header = reader.ReadLine(); // header
+                    string header = reader.ReadLine();
 
-                    if( header == null ) return; // PlayerDB is an empty file
+                    if( header == null ) return; // if PlayerDB is an empty file
 
                     lock( Locker ) {
                         int version = IdentifyFormatVersion( header );
@@ -245,7 +245,7 @@ namespace fCraft {
         public static PlayerInfo[] FindPlayers( string namePart, int limit ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
             lock( Locker ) {
-                //return Trie.ValuesStartingWith( namePart ).Take( limit ).ToArray();
+                //return Trie.ValuesStartingWith( namePart ).Take( limit ).ToArray(); // <- works, but is slightly slower
                 return Trie.GetList( namePart, limit ).ToArray();
             }
         }
@@ -275,8 +275,7 @@ namespace fCraft {
         #region Stats
 
         public static int CountBannedPlayers() {
-            PlayerInfo[] cache = PlayerInfoList;
-            return cache.Count( t => t.Banned );
+            return PlayerInfoList.Count( t => t.Banned );
         }
 
 
