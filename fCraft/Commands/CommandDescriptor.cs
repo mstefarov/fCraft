@@ -10,12 +10,14 @@ namespace fCraft {
     /// <param name="message">Command and its arguments.</param>
     public delegate void CommandHandler( Player source, Command message );
 
+
     /// <summary>
     /// Callback for displaying help information for chat commands that require a non-static/personalized help message.
     /// </summary>
     /// <param name="source">Player who is asking for help.</param>
     /// <returns>String to print to player.</returns>
     public delegate string HelpHandler( Player source );
+
 
     /// <summary>
     /// Describes a chat command handler. Defined properties and usage/help information, and specifies a callback.
@@ -35,6 +37,7 @@ namespace fCraft {
 
 
         public void PrintUsage( Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             if( Usage != null ) {
                 player.Message( "Usage: &H{0}", Usage );
             } else {

@@ -13,37 +13,6 @@ using System.Diagnostics;
 
 namespace fCraft {
 
-    /// <summary> Category of a log event. </summary>
-    public enum LogType {
-        SystemActivity,
-        Warning,
-        Error,
-        SeriousError,
-
-        UserActivity,
-        UserCommand,
-        SuspiciousActivity,
-
-        GlobalChat,
-        PrivateChat,
-        RankChat,
-
-        ConsoleInput,
-        ConsoleOutput,
-
-        IRC,
-        Debug,
-        Trace
-    }
-
-
-    public enum LogSplittingType {
-        OneFile,
-        SplitBySession,
-        SplitByDay
-    }
-
-
     /// <summary> Central logging class. Logs to file, relays messages to the frontend, submits crash reports. </summary>
     public static class Logger {
         static readonly object LogLock = new object();
@@ -460,6 +429,73 @@ namespace fCraft {
 
         #endregion
     }
+
+
+    #region Enums
+
+    /// <summary> Category of a log event. </summary>
+    public enum LogType {
+        /// <summary> System activity (loading/saving of data, shutdown and startup events, etc). </summary>
+        SystemActivity,
+
+        /// <summary> Warnings (missing files, config discrepancies, minor recoverable errors, etc). </summary>
+        Warning,
+
+        /// <summary> Recoverable errors (loading/saving problems, connection problems, etc). </summary>
+        Error,
+
+        /// <summary> Critical non-recoverable errors and crashes. </summary>
+        SeriousError,
+
+        /// <summary> Routine user activity (command results, kicks, bans, etc). </summary>
+        UserActivity,
+
+        /// <summary> Raw commands entered by the player. </summary>
+        UserCommand,
+
+        /// <summary> Permission and hack related activity (name verification failures, banned players logging in, detected hacks, etc). </summary>
+        SuspiciousActivity,
+
+        /// <summary> Normal (white) chat written by the players. </summary>
+        GlobalChat,
+
+        /// <summary> Private messages exchanged by players. </summary>
+        PrivateChat,
+
+        /// <summary> Rank chat messages. </summary>
+        RankChat,
+
+        /// <summary> Messages and commands entered from console. </summary>
+        ConsoleInput,
+
+        /// <summary> Messages printed to the console (typically as the result of commands called from console). </summary>
+        ConsoleOutput,
+
+        /// <summary> Messages related to IRC activity.
+        /// Does not include all messages relayed to/from IRC channels. </summary>
+        IRC,
+
+        /// <summary> Information useful for debugging (error details, routine events, system information). </summary>
+        Debug,
+
+        /// <summary> Special-purpose messages related to event tracing (never logged). </summary>
+        Trace
+    }
+
+
+    /// <summary> Log splitting type. </summary>
+    public enum LogSplittingType {
+        /// <summary> All logs are written to one file. </summary>
+        OneFile,
+
+        /// <summary> A new timestamped logfile is made every time the server is started. </summary>
+        SplitBySession,
+
+        /// <summary> A new timestamped logfile is created every 24 hours. </summary>
+        SplitByDay
+    }
+
+    #endregion
 }
 
 

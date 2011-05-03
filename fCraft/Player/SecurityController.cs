@@ -7,28 +7,14 @@ using System.Xml.Linq;
 
 namespace fCraft {
 
-    public enum PermissionOverride {
-        None,
-        Allow,
-        Deny
-    }
-
-
-    public enum SecurityCheckResult {
-        Allowed,
-        RankTooLow,
-        RankTooHigh,
-        WhiteListed,
-        BlackListed
-    }
-
-
+    /// <summary> Controller for setting and checking per-rank and per-player permissions. </summary>
     public sealed class SecurityController : ICloneable {
 
         readonly Dictionary<string, PlayerInfo> includedPlayers = new Dictionary<string, PlayerInfo>();
         readonly Dictionary<string, PlayerInfo> excludedPlayers = new Dictionary<string, PlayerInfo>();
 
         public PlayerListCollection ExceptionList { get; private set; }
+        readonly object playerPermissionListLock = new object();
 
         private Rank minRank;
         public Rank MinRank {
@@ -44,12 +30,11 @@ namespace fCraft {
             get { return (minRank == null); }
         }
 
-        readonly object playerPermissionListLock = new object();
-
 
         public SecurityController() {
             UpdatePlayerListCache();
         }
+
 
         public SecurityController( SecurityController other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
@@ -62,6 +47,7 @@ namespace fCraft {
             excludedPlayers = new Dictionary<string, PlayerInfo>( other.excludedPlayers );
             UpdatePlayerListCache();
         }
+
 
         public object Clone() {
             return new SecurityController( this );
@@ -164,6 +150,8 @@ namespace fCraft {
         public void PrintDescription( Player player, IClassy target, string noun, string verb ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( target == null ) throw new ArgumentNullException( "target" );
+            if( noun == null ) throw new ArgumentNullException( "noun" );
+            if( verb == null ) throw new ArgumentNullException( "verb" );
             PlayerListCollection list = ExceptionList;
 
             noun = Char.ToUpper( noun[0] ) + noun.Substring( 1 ); // capitalize first letter
@@ -204,22 +192,22 @@ namespace fCraft {
         public const string XmlRootElementName = "PermissionController";
 
 
-        public SecurityController( XElement root ) {
-            if( root == null ) throw new ArgumentNullException( "root" );
-            if( root.Element( "minRank" ) != null ) {
-                minRank = RankManager.ParseRank( root.Element( "minRank" ).Value );
+        public SecurityController( XElement el ) {
+            if( el == null ) throw new ArgumentNullException( "root" );
+            if( el.Element( "minRank" ) != null ) {
+                minRank = RankManager.ParseRank( el.Element( "minRank" ).Value );
             } else {
                 minRank = null;
             }
 
             //maxRank = RankManager.ParseRank( root.Element( "maxRank" ).Value );
-            foreach( XElement player in root.Elements( "included" ) ) {
+            foreach( XElement player in el.Elements( "included" ) ) {
                 if( !Player.IsValidName( player.Value ) ) continue;
                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
                 if( info != null ) Include( info );
             }
 
-            foreach( XElement player in root.Elements( "excluded" ) ) {
+            foreach( XElement player in el.Elements( "excluded" ) ) {
                 if( !Player.IsValidName( player.Value ) ) continue;
                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
                 if( info != null ) Exclude( info );
@@ -227,12 +215,15 @@ namespace fCraft {
             UpdatePlayerListCache();
         }
 
+
         public XElement Serialize() {
             return Serialize( XmlRootElementName );
         }
 
+
         public XElement Serialize( string tagName ) {
             if( tagName == null ) throw new ArgumentNullException( "tagName" );
+
             XElement root = new XElement( tagName );
             if( !NoRankRestriction ) {
                 root.Add( new XElement( "minRank", MinRank ) );
@@ -283,15 +274,55 @@ namespace fCraft {
         public sealed class PlayerListCollection : ICloneable {
             public PlayerListCollection() { }
             public PlayerListCollection( PlayerListCollection other ) {
+                if( other == null ) throw new ArgumentNullException( "other" );
                 Included = (PlayerInfo[])other.Included.Clone();
                 Excluded = (PlayerInfo[])other.Excluded.Clone();
             }
+
             // keeping both lists on one object allows lock-free synchronization
             public PlayerInfo[] Included;
+
             public PlayerInfo[] Excluded;
+
             public object Clone() {
                 return new PlayerListCollection( this );
             }
         }
     }
+
+
+    #region Enums
+
+    /// <summary> Indicates what kind of per-entity override/exception is defined in a security controller. </summary>
+    public enum PermissionOverride {
+        /// <summary> No permission exception. </summary>
+        None,
+
+        /// <summary> Entity is explicitly allowed / whitelisted. </summary>
+        Allow,
+
+        /// <summary> Entity is explicitly denied / blacklisted. </summary>
+        Deny
+    }
+
+
+    /// <summary> Possible results of a SecurityController permission check. </summary>
+    public enum SecurityCheckResult {
+        /// <summary> Allowed, no permission involved. </summary>
+        Allowed,
+
+        /// <summary> Denied, rank too low. </summary>
+        RankTooLow,
+
+        /// <summary> Denied, rank too high (not yet implemented). </summary>
+        RankTooHigh,
+
+        /// <summary> Allowed, this entity was explicitly allowed / whitelisted. </summary>
+        WhiteListed,
+
+        /// <summary> Denied, this entity was explicitly denied / blacklisted. </summary>
+        BlackListed
+    }
+
+    #endregion
 }

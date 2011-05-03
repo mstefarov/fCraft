@@ -199,7 +199,7 @@ namespace fCraft {
 
         public static bool CanRenameRank( Rank rank, string newName ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
-            if( newName == null ) throw new ArgumentNullException( "rank" );
+            if( newName == null ) throw new ArgumentNullException( "newName" );
             if( rank.Name.Equals( newName, StringComparison.OrdinalIgnoreCase ) ) {
                 return true;
             } else {
@@ -210,7 +210,7 @@ namespace fCraft {
 
         public static void RenameRank( Rank rank, string newName ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
-            if( newName == null ) throw new ArgumentNullException( "rank" );
+            if( newName == null ) throw new ArgumentNullException( "newName" );
             RanksByName.Remove( rank.Name.ToLower() );
             rank.Name = newName;
             RanksByName.Add( rank.Name.ToLower(), rank );
@@ -273,10 +273,11 @@ namespace fCraft {
         /// <summary> Finds the lowest rank that has all the required permissions. </summary>
         /// <param name="permission"> One or more permissions to check for. </param>
         /// <returns> A relevant Rank object, or null of none were found. </returns>
-        public static Rank GetMinRankWithPermission( params Permission[] permission ) {
+        public static Rank GetMinRankWithPermission( params Permission[] permissions ) {
+            if( permissions == null ) throw new ArgumentNullException( "permissions" );
             for( int r = Ranks.Count - 1; r >= 0; r-- ) {
                 int r1 = r;
-                if( permission.All( t => Ranks[r1].Can( t ) ) ) {
+                if( permissions.All( t => Ranks[r1].Can( t ) ) ) {
                     return Ranks[r];
                 }
             }

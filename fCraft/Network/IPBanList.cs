@@ -13,6 +13,7 @@ namespace fCraft {
         static readonly object BanListLock = new object();
         public static bool IsLoaded { get; private set; }
 
+
         internal static void Load() {
             if( File.Exists( Paths.IPBanListFileName ) ) {
                 string headerText;
@@ -200,23 +201,28 @@ namespace fCraft {
 
 
         public IPBanInfo( string[] fields ) {
+            if( fields == null ) throw new ArgumentNullException( "fields" );
+            if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
+
             Address = IPAddress.Parse( fields[0] );
-            BannedBy = fields[1];
+            BannedBy = PlayerInfo.Unescape( fields[1] );
             BanDate = DateTime.Parse( fields[2] );
             BanReason = PlayerInfo.Unescape( fields[3] );
-            if( fields[4].Length < 2 ) {
-                PlayerName = fields[4];
+            if( fields[4].Length > 1 ) {
+                PlayerName = PlayerInfo.Unescape( fields[4] );
             }
 
             Attempts = Int16.Parse( fields[5] );
-            LastAttemptName = fields[6];
-            if( fields[7].Length > 2 ) {
+            LastAttemptName = PlayerInfo.Unescape( fields[6] );
+            if( fields[7].Length > 1 ) {
                 LastAttemptDate = DateTime.Parse( fields[7] );
             }
         }
 
 
         public IPBanInfo( IPAddress address, string playerName, string bannedBy, string banReason ) {
+            if( address == null ) throw new ArgumentNullException( "address" );
+            if( bannedBy == null ) throw new ArgumentNullException( "bannedBy" );
             Address = address;
             BannedBy = bannedBy;
             BanDate = DateTime.UtcNow;
@@ -233,12 +239,12 @@ namespace fCraft {
             string[] fields = new string[FieldCount];
 
             fields[0] = Address.ToString();
-            fields[1] = BannedBy;
+            fields[1] = PlayerInfo.Escape( BannedBy );
             fields[2] = BanDate.ToCompactString();
             fields[3] = PlayerInfo.Escape( BanReason );
-            fields[4] = PlayerName;
+            fields[4] = PlayerInfo.Escape( PlayerName );
             fields[5] = Attempts.ToString();
-            fields[6] = LastAttemptName;
+            fields[6] = PlayerInfo.Escape( LastAttemptName );
             if( LastAttemptDate == DateTime.MinValue ) {
                 fields[7] = "";
             } else {

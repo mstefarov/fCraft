@@ -9,6 +9,7 @@ namespace fCraft.MapConversion {
 
         static readonly Dictionary<MapFormat, IMapConverter> AvailableConverters = new Dictionary<MapFormat, IMapConverter>();
 
+
         static MapUtility() {
             AvailableConverters.Add( MapFormat.D3, new MapD3() );
             AvailableConverters.Add( MapFormat.Creative, new MapDAT() );
@@ -177,6 +178,8 @@ namespace fCraft.MapConversion {
         public static bool TrySave( Map mapToSave, string fileName, MapFormat format ) {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            if( format == MapFormat.Unknown ) throw new ArgumentException( "Format may not be \"Unknown\"", "format" );
+
             if( AvailableConverters.ContainsKey( format ) ) {
                 IMapConverter converter = AvailableConverters[format];
                 try {
@@ -192,6 +195,8 @@ namespace fCraft.MapConversion {
 
 
         internal static void ReadAll( Stream source, byte[] destination ) {
+            if( source == null ) throw new ArgumentNullException( "source" );
+            if( destination == null ) throw new ArgumentNullException( "destination" );
             int read = 0;
             while( read < destination.Length ) {
                 int readPass = source.Read( destination, read, destination.Length - read );

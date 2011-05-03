@@ -63,6 +63,7 @@ namespace fCraft {
 
 
             public bool Start( string botNick, bool parseInput ) {
+                if( botNick == null ) throw new ArgumentNullException( "botNick" );
                 ActualBotNick = botNick;
                 ResponsibleForInputParsing = parseInput;
                 try {
@@ -100,6 +101,7 @@ namespace fCraft {
 
 
             void Send( string msg ) {
+                if( msg == null ) throw new ArgumentNullException( "msg" );
                 localQueue.Enqueue( msg );
             }
 
@@ -453,6 +455,7 @@ namespace fCraft {
             }
         }
 
+
         public static void SendAction( string line ) {
             if( line == null ) throw new ArgumentNullException( "line" );
             SendChannelMessage( String.Format( "\u0001ACTION {0}\u0001", line ) );
@@ -472,6 +475,7 @@ namespace fCraft {
             }
         }
 
+
         public static void SendRawMessage( string line ) {
             if( line == null ) throw new ArgumentNullException( "line" );
             OutputQueue.Enqueue( line );
@@ -479,6 +483,7 @@ namespace fCraft {
 
 
         static bool IsBotNick( string str ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
             return threads.Any( t => t.ActualBotNick == str );
         }
 
@@ -576,6 +581,9 @@ namespace fCraft {
 
 
         static IRCMessageType GetMessageType( string rawline, string actualBotNick ) {
+            if( rawline == null ) throw new ArgumentNullException( "rawline" );
+            if( actualBotNick == null ) throw new ArgumentNullException( "actualBotNick" );
+
             Match found = ReplyCodeRegex.Match( rawline );
             if( found.Success ) {
                 string code = found.Groups[1].Value;
@@ -753,6 +761,9 @@ namespace fCraft {
 
 
         static IRCMessage MessageParser( string rawline, string actualBotNick ) {
+            if( rawline == null ) throw new ArgumentNullException( "rawline" );
+            if( actualBotNick == null ) throw new ArgumentNullException( "actualBotNick" );
+
             string line;
             string nick = null;
             string ident = null;
@@ -854,6 +865,7 @@ namespace fCraft {
     }
 
 
+    /// <summary> IRC protocol reply codes. </summary>
     public enum IRCReplyCode {
         Null = 000,
         Welcome = 001,
@@ -997,6 +1009,7 @@ namespace fCraft {
     }
 
 
+    /// <summary> IRC message types. </summary>
     public enum IRCMessageType {
         Ping,
         Info,

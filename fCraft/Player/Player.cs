@@ -84,6 +84,7 @@ namespace fCraft {
             if( Session != null ) Session.Send( packet );
         }
 
+
         public void SendDelayed( Packet packet ) {
             if( Session != null ) Session.SendDelayed( packet );
         }
@@ -893,18 +894,8 @@ namespace fCraft {
             return String.Format( "Player({0})", Info.Name );
         }
     }
-
-
-    public enum CanPlaceResult {
-        Allowed,
-        BlocktypeDenied,
-        WorldDenied,
-        ZoneDenied,
-        RankDenied,
-        PluginDenied,
-        PluginDeniedNoUpdate
-    }
 }
+
 
 #region Events
 namespace fCraft.Events {

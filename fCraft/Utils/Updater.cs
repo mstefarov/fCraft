@@ -267,27 +267,61 @@ namespace fCraft {
 
     #region Enums
 
+    /// <summary> Updater behavior. </summary>
     public enum UpdaterMode {
+        /// <summary> Does not check for updates. </summary>
         Disabled,
+
+        /// <summary> Checks for updates and notifies of availability (in console/log). </summary>
         Notify,
+
+        /// <summary>
+        /// Checks for updates and prompts to install them.
+        /// Behavior is frontend-specific: in fCraftUI, downloads the update and promots to install. In fCraftConsole, acts same as Notify.
+        /// Note: Requires user interaction (if you restart the server remotely while unattended, it may get stuck on this dialog).
+        /// </summary>
         Prompt,
+
+        /// <summary> Checks for updates, automatically downloads and installs the updates, and restarts the server. </summary>
         Auto,
     }
 
 
+    /// <summary> A list of release flags/attributes.
+    /// Use binary flag logic (value & flag == flag) or Release.IsFlagged() to test for flags. </summary>
     [Flags]
     public enum ReleaseFlags {
         None = 0,
 
+        /// <summary> The API was notably changed in this release. </summary>
         APIChange = 1,
+
+        /// <summary> Bugs were fixed in this release. </summary>
         Bugfix = 2,
+
+        /// <summary> Config.xml format was changed (and version was incremented) in this release. </summary>
         ConfigFormatChange = 4,
+
+        /// <summary> This is a developer-only release, not to be used on live servers.
+        /// Untested/undertested releases are often marked as such. </summary>
         Dev = 8,
+
+        /// <summary> A notable new feature was added in this release. </summary>
         Feature = 16,
+
+        /// <summary> The map format was changed in this release (rare). </summary>
         MapFormatChange = 32,
+
+        /// <summary> The PlayerDB format was changed in this release. </summary>
         PlayerDBFormatChange = 64,
+
+        /// <summary> A security issue was addressed in this release. </summary>
         Security = 128,
+
+        /// <summary> There are known or likely stability issues in this release. </summary>
         Unstable = 256,
+
+        /// <summary> This release contains notable optimizations. </summary>
         Optimized = 512
     }
 

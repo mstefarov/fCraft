@@ -9,9 +9,7 @@ namespace System.IO.Compression {
     /// Unique class for compression/decompression file. Represents a Zip file.
     /// </summary>
     public sealed class ZipStorer : IDisposable {
-        /// <summary>
-        /// Compression method enumeration
-        /// </summary>
+        /// <summary> Compression method enumeration. </summary>
         public enum Compression : ushort {
             /// <summary>Uncompressed storage</summary> 
             Store = 0,

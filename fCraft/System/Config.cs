@@ -196,19 +196,23 @@ namespace fCraft {
             }
         }
 
+
         public static void LoadDefaults( ConfigSection section ) {
             foreach( var key in KeySections[section] ) {
                 SetValue( key, KeyMetadata[key].DefaultValue );
             }
         }
 
+
         public static bool IsDefault( this ConfigKey key ) {
             return (KeyMetadata[key].DefaultValue.ToString() == Settings[key]);
         }
 
+
         public static bool IsDefault( this ConfigKey key, object value ) {
             return (KeyMetadata[key].DefaultValue.ToString() == value.ToString());
         }
+
 
         public static object GetDefault( this ConfigKey key ) {
             return KeyMetadata[key].DefaultValue;
@@ -336,6 +340,9 @@ namespace fCraft {
 
 
         static void LoadLogOptions( XElement el, bool[] list ) {
+            if( el == null ) throw new ArgumentNullException( "el" );
+            if( list == null ) throw new ArgumentNullException( "list" );
+
             for( int i = 0; i < list.Length; i++ ) {
                 if( el.Element( ((LogType)i).ToString() ) != null ) {
                     list[i] = true;
@@ -346,8 +353,10 @@ namespace fCraft {
         }
 
 
-        static void LoadRankList( XElement config, int version, bool fromFile ) {
-            XElement legacyRankMappingTag = config.Element( "LegacyRankMapping" );
+        static void LoadRankList( XElement el, int version, bool fromFile ) {
+            if( el == null ) throw new ArgumentNullException( "el" );
+
+            XElement legacyRankMappingTag = el.Element( "LegacyRankMapping" );
             if( legacyRankMappingTag != null ) {
                 foreach( XElement rankPair in legacyRankMappingTag.Elements( "LegacyRankPair" ) ) {
                     XAttribute fromRankID = rankPair.Attribute( "from" );
@@ -361,7 +370,7 @@ namespace fCraft {
                 }
             }
 
-            XElement rankList = config.Element( "Ranks" ) ?? config.Element( "Classes" );
+            XElement rankList = el.Element( "Ranks" ) ?? el.Element( "Classes" );
 
             if( rankList != null ) {
                 XElement[] rankDefinitionList = rankList.Elements( "Rank" ).ToArray();
@@ -379,7 +388,7 @@ namespace fCraft {
                 if( RankManager.RanksByName.Count == 0 ) {
                     Log( "Config.Load: No ranks were defined, or none were defined correctly. Using default ranks (guest, regular, op, and owner).", LogType.Warning );
                     rankList.Remove();
-                    config.Add( DefineDefaultRanks() );
+                    el.Add( DefineDefaultRanks() );
 
                 } else if( version < ConfigVersion ) { // start LEGACY code
 
@@ -402,7 +411,7 @@ namespace fCraft {
 
             } else {
                 if( fromFile ) Log( "Config.Load: using default player ranks.", LogType.Warning );
-                config.Add( DefineDefaultRanks() );
+                el.Add( DefineDefaultRanks() );
             }
 
             // parse rank-limit permissions
@@ -872,6 +881,7 @@ namespace fCraft {
 
         #region Logging
 
+        // todo: switch from using this silly stuff to Logger.Logged events
         public static string Errors = ""; // for ConfigTool
         public static bool LogToString;
 
@@ -910,6 +920,7 @@ namespace fCraft {
             if( h != null ) h( null, EventArgs.Empty );
         }
 
+
         static bool RaiseKeyChangingEvent( ConfigKey key, string oldValue, ref string newValue ) {
             var h = KeyChanging;
             if( h == null ) return false;
@@ -918,6 +929,7 @@ namespace fCraft {
             newValue = e.NewValue;
             return e.Cancel;
         }
+
 
         static void RaiseKeyChangedEvent( ConfigKey key, string oldValue, string newValue ) {
             var h = KeyChanged;

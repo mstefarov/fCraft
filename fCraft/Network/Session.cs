@@ -19,6 +19,8 @@ namespace fCraft {
         public Player Player;
         public DateTime LoginTime = DateTime.UtcNow;
 
+        const string NoSmpMessage = "This server is for Minecraft Classic only.";
+
         // status flags
         public bool CanReceive = true,
                     CanSend = true,
@@ -365,8 +367,6 @@ namespace fCraft {
         }
 
 
-        const string NoSmpMessage = "This server is for Minecraft Classic only.";
-
         bool LoginSequence() {
             byte opcode = reader.ReadByte();
 
@@ -437,15 +437,30 @@ namespace fCraft {
 
                 string standardMessage = String.Format( "Session.LoginSequence: Could not verify player name for {0} ({1}).",
                                                         Player.Name, IP );
-                if( IP.Equals(IPAddress.Loopback) && nameVerificationMode == NameVerificationMode.Always ) {
+                if( IP.Equals( IPAddress.Loopback ) && nameVerificationMode == NameVerificationMode.Always ) {
                     Logger.Log( "{0} Player was identified as connecting from localhost and allowed in.", LogType.SuspiciousActivity,
                                 standardMessage );
 
                 } else if( IP.IsLAN() && ConfigKey.AllowUnverifiedLAN.GetBool() ) {
                     Logger.Log( "{0} Player was identified as connecting from LAN and allowed in.", LogType.SuspiciousActivity,
                                 standardMessage );
+                } else if( Player.Info.TimesVisited > 1 && Player.Info.LastIP.Equals( IP ) ) {
+                    switch( nameVerificationMode ) {
+                        case NameVerificationMode.Always:
+                            Player.Info.ProcessFailedLogin( this );
+                            Logger.Log( "{0} IP matched previous records for that name. " +
+                                        "Player was kicked anyway because VerifyNames is set to Always.", LogType.SuspiciousActivity,
+                                        standardMessage );
+                            KickNow( "Could not verify player name!", LeaveReason.UnverifiedName );
+                            return false;
+                        case NameVerificationMode.Balanced:
+                        case NameVerificationMode.Never:
+                            Logger.Log( "{0} IP matched previous records for that name. Player was allowed in.", LogType.SuspiciousActivity,
+                                        standardMessage );
+                            break;
+                    }
 
-                } else if( Player.Info.TimesVisited < 2 || Player.Info.LastIP.ToString() != IP.ToString() ) {
+                } else {
                     switch( nameVerificationMode ) {
                         case NameVerificationMode.Always:
                         case NameVerificationMode.Balanced:
@@ -460,22 +475,6 @@ namespace fCraft {
                                         standardMessage );
                             Player.Message( "&WYour name could not be verified." );
                             showVerifyNamesWarning = true;
-                            break;
-                    }
-
-                } else {
-                    switch( nameVerificationMode ) {
-                        case NameVerificationMode.Always:
-                            Player.Info.ProcessFailedLogin( this );
-                            Logger.Log( "{0} IP matched previous records for that name. " +
-                                        "Player was kicked anyway because VerifyNames is set to Always.", LogType.SuspiciousActivity,
-                                        standardMessage );
-                            KickNow( "Could not verify player name!", LeaveReason.UnverifiedName );
-                            return false;
-                        case NameVerificationMode.Balanced:
-                        case NameVerificationMode.Never:
-                            Logger.Log( "{0} IP matched previous records for that name. Player was allowed in.", LogType.SuspiciousActivity,
-                                        standardMessage );
                             break;
                     }
                 }

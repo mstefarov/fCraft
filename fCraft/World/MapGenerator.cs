@@ -6,6 +6,7 @@ using System.Xml.Linq;
 
 namespace fCraft {
 
+    /// <summary> Map generator themes. A theme defines what type of blocks are used to fill the map. </summary>
     public enum MapGenTheme {
         Arctic,
         Desert,
@@ -14,6 +15,8 @@ namespace fCraft {
         Swamp
     }
 
+
+    /// <summary> Map generator template. Templates define landscape shapes and features. </summary>
     public enum MapGenTemplate {
         Archipelago,
         Atoll,

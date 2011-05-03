@@ -40,6 +40,8 @@ namespace fCraft.MapConversion {
         XMap
     }
 
+
+    /// <summary> Type of map storage (file or folder-based). </summary>
     public enum MapFormatType {
         SingleFile,
         Directory

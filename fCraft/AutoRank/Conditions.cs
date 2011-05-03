@@ -44,6 +44,7 @@ namespace fCraft.AutoRank {
         public ConditionIntRange() { }
 
         public ConditionIntRange( XElement el ) {
+            if( el == null ) throw new ArgumentNullException( "el" );
             Field = (ConditionField)Enum.Parse( typeof( ConditionField ), el.Attribute( "field" ).Value, true );
             Value = Int32.Parse( el.Attribute( "val" ).Value );
             if( el.Attribute( "op" ) != null ) {
@@ -61,6 +62,7 @@ namespace fCraft.AutoRank {
         }
 
         public override bool Eval( PlayerInfo info ) {
+            if( info == null ) throw new ArgumentNullException( "info" );
             long givenValue;
             switch( Field ) {
                 case ConditionField.TimeSinceFirstLogin:
@@ -151,10 +153,12 @@ namespace fCraft.AutoRank {
         }
 
         public ConditionRankChangeType( XElement el ) {
+            if( el == null ) throw new ArgumentNullException( "el" );
             Type = (RankChangeType)Enum.Parse( typeof( RankChangeType ), el.Attribute( "val" ).Value, true );
         }
 
         public override bool Eval( PlayerInfo info ) {
+            if( info == null ) throw new ArgumentNullException( "info" );
             return (info.RankChangeType == Type);
         }
 
@@ -172,6 +176,7 @@ namespace fCraft.AutoRank {
         public ComparisonOperation Comparison;
 
         public ConditionPreviousRank( Rank rank, ComparisonOperation comparison ) {
+            if( rank == null ) throw new ArgumentNullException( "rank" );
             if( !Enum.IsDefined( typeof( ComparisonOperation ), comparison ) ) {
                 throw new ArgumentOutOfRangeException( "comparison", "Unknown comparison type" );
             }
@@ -180,11 +185,13 @@ namespace fCraft.AutoRank {
         }
 
         public ConditionPreviousRank( XElement el ) {
+            if( el == null ) throw new ArgumentNullException( "el" );
             Rank = RankManager.ParseRank( el.Attribute( "val" ).Value );
             Comparison = (ComparisonOperation)Enum.Parse( typeof( ComparisonOperation ), el.Attribute( "op" ).Value, true );
         }
 
         public override bool Eval( PlayerInfo info ) {
+            if( info == null ) throw new ArgumentNullException( "info" );
             Rank prevRank = info.PreviousRank ?? info.Rank;
             switch( Comparison ) {
                 case ComparisonOperation.Lt:
@@ -224,11 +231,13 @@ namespace fCraft.AutoRank {
         public List<Condition> Conditions { get; private set; }
 
         protected ConditionSet( IEnumerable<Condition> conditions ) {
+            if( conditions == null ) throw new ArgumentNullException( "conditions" );
             Conditions = conditions.ToList();
         }
 
         protected ConditionSet( XElement el )
             : this() {
+            if( el == null ) throw new ArgumentNullException( "el" );
             foreach( XElement cel in el.Elements() ) {
                 Add( Parse( cel ) );
             }
@@ -238,8 +247,9 @@ namespace fCraft.AutoRank {
             throw new NotImplementedException();
         }
 
-        public void Add( Condition cond ) {
-            Conditions.Add( cond );
+        public void Add( Condition condition ) {
+            if( condition == null ) throw new ArgumentNullException( "condition" );
+            Conditions.Add( condition );
         }
 
         public override XElement Serialize() {
@@ -276,6 +286,7 @@ namespace fCraft.AutoRank {
         public ConditionNAND( XElement el ) : base( el ) { }
 
         public override bool Eval( PlayerInfo info ) {
+            if( info == null ) throw new ArgumentNullException( "info" );
             return Conditions == null || Conditions.Any( t => !t.Eval( info ) );
         }
 
@@ -297,6 +308,7 @@ namespace fCraft.AutoRank {
         public ConditionOR( XElement el ) : base( el ) { }
 
         public override bool Eval( PlayerInfo info ) {
+            if( info == null ) throw new ArgumentNullException( "info" );
             return Conditions == null || Conditions.Any( t => t.Eval( info ) );
         }
 
@@ -318,6 +330,7 @@ namespace fCraft.AutoRank {
         public ConditionNOR( XElement el ) : base( el ) { }
 
         public override bool Eval( PlayerInfo info ) {
+            if( info == null ) throw new ArgumentNullException( "info" );
             return Conditions == null || Conditions.All( t => !t.Eval( info ) );
         }
 

@@ -3,16 +3,23 @@ using System;
 
 namespace fCraft {
 
+    /// <summary> Interpolation mode for perlin noise. </summary>
     public enum NoiseInterpolationMode {
+        /// <summary> Bilinear (LERP) interpolation (fastest). </summary>
         Linear,
+
+        /// <summary> Cosine interpolation (fast). </summary>
         Cosine,
+
+        /// <summary> Bicubic interpolation (slow). </summary>
         Bicubic,
+
+        /// <summary> Spline interpolation (slowest). </summary>
         Spline
     }
 
-    /// <summary>
-    /// Class for generating and filtering 2D noise, extensively used by MapGenerator.
-    /// </summary>
+
+    /// <summary> Class for generating and filtering 2D noise, extensively used by MapGenerator. </summary>
     public sealed class Noise {
         public readonly int Seed;
         public NoiseInterpolationMode InterpolationMode;
