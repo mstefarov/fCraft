@@ -73,7 +73,7 @@ namespace fCraft {
                                     if( version == 0 ) {
                                         info = PlayerInfo.LoadOldFormat( fields, true );
                                     } else {
-                                        info = PlayerInfo.LoadNewFormat( fields );
+                                        info = PlayerInfo.Load( fields );
                                     }
                                     if( Trie.ContainsKey( info.Name ) ) {
                                         Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.", LogType.Error, info.Name );
@@ -135,7 +135,7 @@ namespace fCraft {
                     writer.WriteLine( "{0} {1} {2}", maxID, FormatVersion, Header );
                     string[] fields = new string[PlayerInfo.ExpectedFieldCount];
                     for( int i = 0; i < listCopy.Length; i++ ) {
-                        listCopy[i].SerializeNewFormat( fields );
+                        listCopy[i].Serialize( fields );
                         writer.Write( String.Join( ",", fields ) );
                         writer.WriteLine();
                     }

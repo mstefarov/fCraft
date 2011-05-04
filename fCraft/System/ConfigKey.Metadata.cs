@@ -130,17 +130,17 @@ namespace fCraft {
                     }
                 }
                 if( !found && parsedValue != 0 ) {
-                    throw new FormatException( String.Format("Value ({0}) is not a power of two.", parsedValue) );
+                    throw new FormatException( String.Format( "Value ({0}) is not a power of two.", parsedValue ) );
                 }
             }
             if( ValidValues != null ) {
                 if( !ValidValues.Any( t => parsedValue == t ) ) {
-                    throw new FormatException( String.Format("Value ({0}) is not on the list of valid values.", parsedValue) );
+                    throw new FormatException( String.Format( "Value ({0}) is not on the list of valid values.", parsedValue ) );
                 }
             }
             if( InvalidValues != null ) {
                 if( !InvalidValues.All( t => parsedValue != t ) ) {
-                    throw new FormatException( String.Format("Value ({0}) is on the list of invalid values.", parsedValue) );
+                    throw new FormatException( String.Format( "Value ({0}) is on the list of invalid values.", parsedValue ) );
                 }
             }
         }
@@ -275,13 +275,13 @@ namespace fCraft {
             IPAddress test;
             if( value.Length == 0 ) {
                 test = GetBlankValueSubstitute();
-            }else if( !IPAddress.TryParse( value, out test ) ) {
+            } else if( !IPAddress.TryParse( value, out test ) ) {
                 throw new FormatException( "Value cannot be parsed as an IP Address." );
             }
-            if( NotAny && test.ToString() == IPAddress.Any.ToString() ) {
+            if( NotAny && test.Equals( IPAddress.Any ) ) {
                 throw new FormatException( String.Format( "Value cannot be {0}", IPAddress.Any ) );
             }
-            if( NotNone && test.ToString() == IPAddress.None.ToString() ) {
+            if( NotNone && test.Equals( IPAddress.None ) ) {
                 throw new FormatException( String.Format( "Value cannot be {0}", IPAddress.None ) );
             }
             if( NotLAN && test.IsLAN() ) {
@@ -335,7 +335,7 @@ namespace fCraft {
             base.Validate( value );
             if( Color.Parse( value ) == null ) {
                 throw new FormatException( "Value cannot be parsed as a color." );
-            } else if( Color.Parse( value ) == "" && NotBlank ) {
+            } else if( Color.Parse( value ).Length == 0 && NotBlank ) {
                 throw new FormatException( "Value may not represent absence of color." );
             }
         }

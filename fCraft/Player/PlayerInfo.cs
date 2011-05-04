@@ -127,9 +127,7 @@ namespace fCraft {
 
         #region Loading
 
-        static CultureInfo cultureInfo = CultureInfo.CurrentCulture;
-
-        internal static PlayerInfo LoadNewFormat( string[] fields ) {
+        internal static PlayerInfo Load( string[] fields ) {
             PlayerInfo info = new PlayerInfo();
 
             info.Name = fields[0];
@@ -234,28 +232,6 @@ namespace fCraft {
         }
 
 
-        static bool TryParseLocalDate( string dateString, out DateTime time ) {
-            if( dateString.Length <= 1 ) {
-                time = DateTime.MinValue;
-                return false;
-            } else {
-                if( !DateTime.TryParse( dateString, cultureInfo, DateTimeStyles.None, out time ) ) {
-                    CultureInfo[] cultureList = CultureInfo.GetCultures( CultureTypes.FrameworkCultures );
-                    foreach( CultureInfo otherCultureInfo in cultureList ) {
-                        cultureInfo = otherCultureInfo;
-                        try {
-                            if( DateTime.TryParse( dateString, cultureInfo, DateTimeStyles.None, out time ) ) {
-                                return true;
-                            }
-                        } catch( NotSupportedException ) { }
-                    }
-                    throw new Exception( "Could not find a culture that would be able to parse date/time formats." );
-                } else {
-                    return true;
-                }
-            }
-        }
-
 
         internal static PlayerInfo LoadOldFormat( string[] fields, bool convertDatesToUtc ) {
             PlayerInfo info = new PlayerInfo();
@@ -275,14 +251,14 @@ namespace fCraft {
             // ban information
             if( TryParseLocalDate( fields[6], out info.BanDate ) ) {
                 info.BannedBy = fields[7];
-                info.BanReason = Unescape( fields[10] );
+                info.BanReason = UnescapeOldFormat( fields[10] );
                 if( info.BanReason == "-" ) info.BanReason = "";
             }
 
             // unban information
             if( TryParseLocalDate( fields[8], out info.UnbanDate ) ) {
                 info.UnbannedBy = fields[9];
-                info.UnbanReason = Unescape( fields[11] );
+                info.UnbanReason = UnescapeOldFormat( fields[11] );
                 if( info.UnbanReason == "-" ) info.UnbanReason = "";
             }
 
@@ -309,7 +285,7 @@ namespace fCraft {
 
             if( fields.Length > MinFieldCount ) {
                 if( fields[24].Length > 0 ) info.PreviousRank = RankManager.ParseRank( fields[24] );
-                if( fields[25].Length > 0 ) info.RankChangeReason = Unescape( fields[25] );
+                if( fields[25].Length > 0 ) info.RankChangeReason = UnescapeOldFormat( fields[25] );
                 Int32.TryParse( fields[26], out info.TimesKicked );
                 Int32.TryParse( fields[27], out info.TimesKickedOthers );
                 Int32.TryParse( fields[28], out info.TimesBannedOthers );
@@ -333,7 +309,7 @@ namespace fCraft {
                     Int64.TryParse( fields[33], out info.BlocksDrawn );
 
                     info.LastKickBy = fields[34];
-                    info.LastKickReason = Unescape( fields[35] );
+                    info.LastKickReason = UnescapeOldFormat( fields[35] );
 
                 } else {
                     info.ID = PlayerDB.GetNextID();
@@ -344,11 +320,11 @@ namespace fCraft {
                 if( fields.Length > 36 ) {
                     TryParseLocalDate( fields[36], out info.BannedUntil );
                     info.IsFrozen = (fields[37] == "f");
-                    info.FrozenBy = Unescape( fields[38] );
+                    info.FrozenBy = UnescapeOldFormat( fields[38] );
                     TryParseLocalDate( fields[39], out info.FrozenOn );
                     TryParseLocalDate( fields[40], out info.MutedUntil );
-                    info.MutedBy = Unescape( fields[41] );
-                    info.IRCPassword = Unescape( fields[42] );
+                    info.MutedBy = UnescapeOldFormat( fields[41] );
+                    info.IRCPassword = UnescapeOldFormat( fields[42] );
                     // fields[43] is "online", and is ignored
                 }
 
@@ -404,149 +380,36 @@ namespace fCraft {
             }
         }
 
+
+        static CultureInfo cultureInfo = CultureInfo.CurrentCulture;
+        static bool TryParseLocalDate( string dateString, out DateTime time ) {
+            if( dateString.Length <= 1 ) {
+                time = DateTime.MinValue;
+                return false;
+            } else {
+                if( !DateTime.TryParse( dateString, cultureInfo, DateTimeStyles.None, out time ) ) {
+                    CultureInfo[] cultureList = CultureInfo.GetCultures( CultureTypes.FrameworkCultures );
+                    foreach( CultureInfo otherCultureInfo in cultureList ) {
+                        cultureInfo = otherCultureInfo;
+                        try {
+                            if( DateTime.TryParse( dateString, cultureInfo, DateTimeStyles.None, out time ) ) {
+                                return true;
+                            }
+                        } catch( NotSupportedException ) { }
+                    }
+                    throw new Exception( "Could not find a culture that would be able to parse date/time formats." );
+                } else {
+                    return true;
+                }
+            }
+        }
+
         #endregion
 
 
         #region Saving
 
-        // save to file
-        internal void SerializeOldFormat( string[] fields ) {
-#if DEBUG
-            string testGuid = Guid.NewGuid().ToString();
-            for( int i = 0; i < fields.Length; i++ ) fields[i] = testGuid;
-#endif
-
-            fields[0] = Name;
-            if( LastIP.ToString() != IPAddress.None.ToString() ) {
-                fields[1] = LastIP.ToString();
-            } else {
-                fields[1] = "";
-            }
-
-            fields[2] = Rank.ToString();
-            if( RankChangeDate == DateTime.MinValue ) fields[3] = "";
-            else fields[3] = RankChangeDate.ToString();
-            fields[4] = RankChangedBy;
-
-            if( Banned ) fields[5] = "b";
-            else fields[5] = "";
-
-            if( BanDate == DateTime.MinValue ) fields[6] = "";
-            else fields[6] = BanDate.ToString();
-
-            fields[7] = BannedBy;
-            if( UnbanDate == DateTime.MinValue ) fields[8] = "";
-
-            else fields[8] = UnbanDate.ToString();
-            fields[9] = UnbannedBy;
-
-            if( BanReason.Length > 0 ) fields[10] = Escape( BanReason );
-            else fields[10] = "";
-
-            if( UnbanReason.Length > 0 ) fields[11] = Escape( UnbanReason );
-            else fields[11] = "";
-
-            if( LastFailedLoginDate == DateTime.MinValue ) fields[12] = "";
-            else fields[12] = LastFailedLoginDate.ToString();
-
-            if( LastFailedLoginIP == IPAddress.None ) fields[13] = "";
-            else fields[13] = LastFailedLoginIP.ToString();
-
-            if( FailedLoginCount > 0 ) fields[14] = FailedLoginCount.ToString();
-            else fields[14] = "";
-
-            if( FirstLoginDate == DateTime.MinValue ) fields[15] = "";
-            else fields[15] = FirstLoginDate.ToString();
-
-            if( LastLoginDate == DateTime.MinValue ) fields[16] = "";
-            else fields[16] = LastLoginDate.ToString();
-
-            if( TotalTime == TimeSpan.Zero ) fields[17] = "";
-            else fields[17] = TotalTime.ToString();
-
-            if( BlocksBuilt > 0 ) fields[18] = BlocksBuilt.ToString();
-            else fields[18] = "";
-
-            if( BlocksDeleted > 0 ) fields[19] = BlocksDeleted.ToString();
-            else fields[19] = "";
-
-            fields[20] = TimesVisited.ToString();
-
-            if( LinesWritten > 0 ) fields[21] = LinesWritten.ToString();
-            else fields[21] = "";
-
-            // fields 22-23 are no longer in use
-            fields[22] = "";
-            fields[23] = "";
-
-            if( PreviousRank != null ) fields[24] = PreviousRank.ToString();
-            else fields[24] = "";
-
-            if( RankChangeReason.Length > 0 ) fields[25] = Escape( RankChangeReason );
-            else fields[25] = "";
-
-            if( TimesKicked > 0 ) fields[26] = TimesKicked.ToString();
-            else fields[26] = "";
-            if( TimesKickedOthers > 0 ) fields[27] = TimesKickedOthers.ToString();
-            else fields[27] = "";
-            if( TimesBannedOthers > 0 ) fields[28] = TimesBannedOthers.ToString();
-            else fields[28] = "";
-            fields[29] = ID.ToString();
-            fields[30] = ((int)RankChangeType).ToString();
-
-            if( LastKickDate == DateTime.MinValue ) fields[31] = "";
-            else fields[31] = LastKickDate.ToString();
-
-            if( LastSeen == DateTime.MinValue ) fields[32] = "";
-            else if( Online ) fields[32] = DateTime.Now.ToString(); // localized
-            else fields[32] = LastSeen.ToString();
-
-            if( BlocksDrawn > 0 ) fields[33] = BlocksDrawn.ToString();
-            fields[33] = "";
-
-            fields[34] = LastKickBy;
-            if( LastKickReason.Length == 0 ) fields[35] = "";
-            else fields[35] = Escape( LastKickReason );
-
-            if( BannedUntil == DateTime.MinValue ) fields[36] = "";
-            else fields[36] = BannedUntil.ToString();
-
-            if( IsFrozen ) {
-                fields[37] = "f";
-                fields[38] = Escape( FrozenBy );
-                fields[39] = FrozenOn.ToString();
-            } else {
-                fields[37] = "";
-                fields[38] = "";
-                fields[39] = "";
-            }
-
-            if( MutedUntil != DateTime.MinValue ) {
-                fields[40] = MutedUntil.ToString();
-                fields[41] = Escape( MutedBy );
-            } else {
-                fields[40] = "";
-                fields[41] = "";
-            }
-
-            if( !String.IsNullOrEmpty( IRCPassword ) ) fields[42] = Escape( IRCPassword );
-            else fields[42] = "";
-
-            fields[43] = (Online ? "o" : "");
-
-            fields[44] = (BandwidthUseMode == BandwidthUseMode.Default ? "" : ((int)BandwidthUseMode).ToString());
-
-#if DEBUG
-            for( int i = 0; i < fields.Length; i++ ) {
-                if( fields[i] == null || fields[i] == testGuid ) {
-                    throw new Exception( "PlayerInfo did not save one of the fields properly." );
-                }
-            }
-#endif
-        }
-
-
-        internal void SerializeNewFormat( string[] fields ) {
+        internal void Serialize( string[] fields ) {
 #if DEBUG
             string testGuid = Guid.NewGuid().ToString();
             for( int i = 0; i < fields.Length; i++ ) fields[i] = testGuid;
@@ -661,6 +524,142 @@ namespace fCraft {
 #endif
         }
 
+
+        internal void SerializeOldFormat( string[] fields ) {
+#if DEBUG
+            string testGuid = Guid.NewGuid().ToString();
+            for( int i = 0; i < fields.Length; i++ ) fields[i] = testGuid;
+#endif
+
+            fields[0] = Name;
+            if( LastIP.ToString() != IPAddress.None.ToString() ) {
+                fields[1] = LastIP.ToString();
+            } else {
+                fields[1] = "";
+            }
+
+            fields[2] = Rank.ToString();
+            if( RankChangeDate == DateTime.MinValue ) fields[3] = "";
+            else fields[3] = RankChangeDate.ToString();
+            fields[4] = RankChangedBy;
+
+            if( Banned ) fields[5] = "b";
+            else fields[5] = "";
+
+            if( BanDate == DateTime.MinValue ) fields[6] = "";
+            else fields[6] = BanDate.ToString();
+
+            fields[7] = BannedBy;
+            if( UnbanDate == DateTime.MinValue ) fields[8] = "";
+
+            else fields[8] = UnbanDate.ToString();
+            fields[9] = UnbannedBy;
+
+            if( BanReason.Length > 0 ) fields[10] = EscapeOldFormat( BanReason );
+            else fields[10] = "";
+
+            if( UnbanReason.Length > 0 ) fields[11] = EscapeOldFormat( UnbanReason );
+            else fields[11] = "";
+
+            if( LastFailedLoginDate == DateTime.MinValue ) fields[12] = "";
+            else fields[12] = LastFailedLoginDate.ToString();
+
+            if( LastFailedLoginIP.Equals( IPAddress.None ) ) fields[13] = "";
+            else fields[13] = LastFailedLoginIP.ToString();
+
+            if( FailedLoginCount > 0 ) fields[14] = FailedLoginCount.ToString();
+            else fields[14] = "";
+
+            if( FirstLoginDate == DateTime.MinValue ) fields[15] = "";
+            else fields[15] = FirstLoginDate.ToString();
+
+            if( LastLoginDate == DateTime.MinValue ) fields[16] = "";
+            else fields[16] = LastLoginDate.ToString();
+
+            if( TotalTime == TimeSpan.Zero ) fields[17] = "";
+            else fields[17] = TotalTime.ToString();
+
+            if( BlocksBuilt > 0 ) fields[18] = BlocksBuilt.ToString();
+            else fields[18] = "";
+
+            if( BlocksDeleted > 0 ) fields[19] = BlocksDeleted.ToString();
+            else fields[19] = "";
+
+            fields[20] = TimesVisited.ToString();
+
+            if( LinesWritten > 0 ) fields[21] = LinesWritten.ToString();
+            else fields[21] = "";
+
+            // fields 22-23 are no longer in use
+            fields[22] = "";
+            fields[23] = "";
+
+            if( PreviousRank != null ) fields[24] = PreviousRank.ToString();
+            else fields[24] = "";
+
+            if( RankChangeReason.Length > 0 ) fields[25] = EscapeOldFormat( RankChangeReason );
+            else fields[25] = "";
+
+            if( TimesKicked > 0 ) fields[26] = TimesKicked.ToString();
+            else fields[26] = "";
+            if( TimesKickedOthers > 0 ) fields[27] = TimesKickedOthers.ToString();
+            else fields[27] = "";
+            if( TimesBannedOthers > 0 ) fields[28] = TimesBannedOthers.ToString();
+            else fields[28] = "";
+            fields[29] = ID.ToString();
+            fields[30] = ((int)RankChangeType).ToString();
+
+            if( LastKickDate == DateTime.MinValue ) fields[31] = "";
+            else fields[31] = LastKickDate.ToString();
+
+            if( LastSeen == DateTime.MinValue ) fields[32] = "";
+            else if( Online ) fields[32] = DateTime.Now.ToString(); // localized
+            else fields[32] = LastSeen.ToString();
+
+            if( BlocksDrawn > 0 ) fields[33] = BlocksDrawn.ToString();
+            fields[33] = "";
+
+            fields[34] = LastKickBy;
+            if( LastKickReason.Length == 0 ) fields[35] = "";
+            else fields[35] = EscapeOldFormat( LastKickReason );
+
+            if( BannedUntil == DateTime.MinValue ) fields[36] = "";
+            else fields[36] = BannedUntil.ToString();
+
+            if( IsFrozen ) {
+                fields[37] = "f";
+                fields[38] = EscapeOldFormat( FrozenBy );
+                fields[39] = FrozenOn.ToString();
+            } else {
+                fields[37] = "";
+                fields[38] = "";
+                fields[39] = "";
+            }
+
+            if( MutedUntil != DateTime.MinValue ) {
+                fields[40] = MutedUntil.ToString();
+                fields[41] = EscapeOldFormat( MutedBy );
+            } else {
+                fields[40] = "";
+                fields[41] = "";
+            }
+
+            if( !String.IsNullOrEmpty( IRCPassword ) ) fields[42] = EscapeOldFormat( IRCPassword );
+            else fields[42] = "";
+
+            fields[43] = (Online ? "o" : "");
+
+            fields[44] = (BandwidthUseMode == BandwidthUseMode.Default ? "" : ((int)BandwidthUseMode).ToString());
+
+#if DEBUG
+            for( int i = 0; i < fields.Length; i++ ) {
+                if( fields[i] == null || fields[i] == testGuid ) {
+                    throw new Exception( "PlayerInfo did not save one of the fields properly." );
+                }
+            }
+#endif
+        }
+
         #endregion
 
 
@@ -757,14 +756,31 @@ namespace fCraft {
         #region Utilities
 
 
-
-        public static string Escape( string str ) {
+        public static string EscapeOldFormat( string str ) {
             return str.Replace( @"\", @"\\" ).Replace( "'", @"\'" ).Replace( ',', '\xFF' );
         }
 
 
-        public static string Unescape( string str ) {
+        public static string Escape( string str ) {
+            if( str.IndexOf( ',' ) > -1 ) {
+                return str.Replace( ',', '\xFF' );
+            } else {
+                return str;
+            }
+        }
+
+
+        public static string UnescapeOldFormat( string str ) {
             return str.Replace( '\xFF', ',' ).Replace( @"\'", "'" ).Replace( @"\\", @"\" );
+        }
+
+
+        public static string Unescape( string str ) {
+            if( str.IndexOf( '\xFF' ) > -1 ) {
+                return str.Replace( '\xFF', ',' );
+            } else {
+                return str;
+            }
         }
 
 

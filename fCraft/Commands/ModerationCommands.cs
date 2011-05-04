@@ -310,7 +310,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( address == null ) throw new ArgumentNullException( "address" );
 
-            if( address == IPAddress.None || address == IPAddress.Any ) {
+            if( address.Equals( IPAddress.None ) || address.Equals( IPAddress.Any ) ) {
                 player.Message( "Invalid IP: {0}", address );
                 return;
             }
@@ -1061,7 +1061,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdBring = new CommandDescriptor {
             Name = "bring",
-            IsConsoleSafe=true,
+            IsConsoleSafe = true,
             Aliases = new[] { "summon", "fetch" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Bring },
@@ -1103,9 +1103,9 @@ namespace fCraft {
             if( target.World == toPlayer.World ) {
                 // teleport within the same world
                 target.Send( PacketWriter.MakeSelfTeleport( toPlayer.Position ) );
+                target.Position = toPlayer.Position;
+                if( target.Info.IsFrozen ) {
                     target.Position = toPlayer.Position;
-                    if( target.Info.IsFrozen ) {
-                        target.Position = toPlayer.Position;
                 }
 
             } else {
