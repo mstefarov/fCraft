@@ -970,7 +970,7 @@ namespace fCraft {
                 if( maxSessions > 0 ) {
                     int sessionCount = 0;
                     foreach( Session s in Sessions ) {
-                        if( s.IP.ToString() == session.IP.ToString() ) {
+                        if( s.IP.Equals( session.IP) ) {
                             sessionCount++;
                             if( sessionCount >= maxSessions ) {
                                 return false;
@@ -1170,7 +1170,7 @@ namespace fCraft {
         public static Player[] FindPlayers( IPAddress ip ) {
             if( ip == null ) throw new ArgumentNullException( "ip" );
             return PlayerList.Where( t => t != null &&
-                                          t.Session.IP.ToString() == ip.ToString() ).ToArray();
+                                          t.Session.IP.Equals( ip ) ).ToArray();
         }
 
 

@@ -143,7 +143,7 @@ namespace fCraft {
                 target = null;
             }
 
-            if( info.LastIP.ToString() == IPAddress.None.ToString() ) {
+            if( info.LastIP.Equals( IPAddress.None ) ) {
                 player.Message( "About {0}&S: Never seen before.", info.GetClassyName() );
 
             } else {

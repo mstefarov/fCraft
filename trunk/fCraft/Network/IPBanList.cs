@@ -9,7 +9,8 @@ namespace fCraft {
     public static class IPBanList {
 
         static readonly SortedDictionary<string, IPBanInfo> Bans = new SortedDictionary<string, IPBanInfo>();
-        const string Header = "IP,bannedBy,banDate,banReason,playerName,attempts,lastAttemptName,lastAttemptDate ";
+        const string Header = "IP,bannedBy,banDate,banReason,playerName,attempts,lastAttemptName,lastAttemptDate";
+        const int ForamtVersion = 1;
         static readonly object BanListLock = new object();
         public static bool IsLoaded { get; private set; }
 
@@ -24,12 +25,20 @@ namespace fCraft {
                         Logger.Log( "IPBanList.Load: IP ban file is empty.", LogType.Warning );
                     }
 
+                    int version = ParseHeader( headerText );
+
                     while( !reader.EndOfStream ) {
                         string[] fields = reader.ReadLine().Split( ',' );
                         if( fields.Length == IPBanInfo.FieldCount ) {
                             try {
-                                IPBanInfo ban = new IPBanInfo( fields );
-                                if( ban.Address == IPAddress.Any || ban.Address == IPAddress.None ) {
+                                IPBanInfo ban;
+                                if( version == 0 ) {
+                                    ban = IPBanInfo.LoadOldFormat( fields, true );
+                                } else {
+                                    ban = IPBanInfo.Load( fields );
+                                }
+
+                                if( ban.Address.Equals( IPAddress.Any ) || ban.Address.Equals( IPAddress.None ) ) {
                                     Logger.Log( "IPBanList.Load: Invalid IP address skipped.", LogType.Warning );
                                 } else {
                                     Bans.Add( ban.Address.ToString(), ban );
@@ -44,18 +53,31 @@ namespace fCraft {
                                         fields.Length, IPBanInfo.FieldCount, String.Join( ",", fields ) );
                         }
                     }
+
+                    if( version == 0 ) {
+                        Logger.Log( "IPBanList.Load: Attempting to recover IP bans...", LogType.SystemActivity );
+                        int oldBanCount = Bans.Count;
+                        PlayerDB.RecoverIPBans();
+                        Logger.Log( "IPBanList.Load: {0} IP bans recovered.", LogType.SystemActivity, Bans.Count - oldBanCount );
+                    }
                 }
-                if( !headerText.EndsWith( " " ) ) {
-                    Logger.Log( "IPBanList.Load: Attempting to recover IP bans...", LogType.SystemActivity );
-                    int oldBanCount = Bans.Count;
-                    PlayerDB.RecoverIPBans();
-                    Logger.Log( "IPBanList.Load: {0} IP bans recovered.", LogType.SystemActivity, Bans.Count - oldBanCount );
-                }
+
                 Logger.Log( "IPBanList.Load: Done loading IP ban list ({0} records).", LogType.Debug, Bans.Count );
             } else {
                 Logger.Log( "IPBanList.Load: No IP ban file found.", LogType.Warning );
             }
             IsLoaded = true;
+        }
+
+
+        static int ParseHeader( string header ) {
+            string firstPart = header.Substring( 0, header.IndexOf( ' ' ) );
+            int version;
+            if( Int32.TryParse( firstPart, out version ) ) {
+                return version;
+            } else {
+                return 0;
+            }
         }
 
 
@@ -66,7 +88,7 @@ namespace fCraft {
 
             lock( BanListLock ) {
                 using( StreamWriter writer = File.CreateText( tempFile ) ) {
-                    writer.WriteLine( Header );
+                    writer.WriteLine( "{0} {1}", ForamtVersion, Header );
                     foreach( IPBanInfo entry in Bans.Values ) {
                         writer.WriteLine( entry.Serialize() );
                     }
@@ -189,35 +211,18 @@ namespace fCraft {
     public sealed class IPBanInfo {
         public const int FieldCount = 8;
 
-        public readonly IPAddress Address;
+        public IPAddress Address;
         public string BannedBy;
         public DateTime BanDate;
         public string BanReason;
         public string PlayerName = "";
 
-        public short Attempts;
+        public int Attempts;
         public string LastAttemptName;
         public DateTime LastAttemptDate;
 
 
-        public IPBanInfo( string[] fields ) {
-            if( fields == null ) throw new ArgumentNullException( "fields" );
-            if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
-
-            Address = IPAddress.Parse( fields[0] );
-            BannedBy = PlayerInfo.Unescape( fields[1] );
-            BanDate = DateTime.Parse( fields[2] );
-            BanReason = PlayerInfo.Unescape( fields[3] );
-            if( fields[4].Length > 1 ) {
-                PlayerName = PlayerInfo.Unescape( fields[4] );
-            }
-
-            Attempts = Int16.Parse( fields[5] );
-            LastAttemptName = PlayerInfo.Unescape( fields[6] );
-            if( fields[7].Length > 1 ) {
-                LastAttemptDate = DateTime.Parse( fields[7] );
-            }
-        }
+        IPBanInfo() { }
 
 
         public IPBanInfo( IPAddress address, string playerName, string bannedBy, string banReason ) {
@@ -235,16 +240,81 @@ namespace fCraft {
         }
 
 
+        public static IPBanInfo Load( string[] fields ) {
+            IPBanInfo info = new IPBanInfo();
+            if( fields == null ) throw new ArgumentNullException( "fields" );
+            if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
+
+            info.Address = IPAddress.Parse( fields[0] );
+            info.BannedBy = PlayerInfo.Unescape( fields[1] );
+            fields[2].ToDateTime( ref info.BanDate );
+            info.BanReason = PlayerInfo.Unescape( fields[3] );
+            if( fields[4].Length > 1 ) {
+                info.PlayerName = PlayerInfo.Unescape( fields[4] );
+            }
+
+            Int32.TryParse( fields[5], out info.Attempts );
+            info.LastAttemptName = PlayerInfo.Unescape( fields[6] );
+            fields[7].ToDateTime( ref info.LastAttemptDate );
+
+            return info;
+        }
+
+
+        public static IPBanInfo LoadOldFormat( string[] fields, bool convertToUtc ) {
+            IPBanInfo info = new IPBanInfo();
+            if( fields == null ) throw new ArgumentNullException( "fields" );
+            if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
+
+            info.Address = IPAddress.Parse( fields[0] );
+            info.BannedBy = PlayerInfo.UnescapeOldFormat( fields[1] );
+            info.BanDate = DateTime.Parse( fields[2] );
+            info.BanReason = PlayerInfo.UnescapeOldFormat( fields[3] );
+            if( fields[4].Length > 1 ) {
+                info.PlayerName = PlayerInfo.UnescapeOldFormat( fields[4] );
+            }
+
+            info.Attempts = Int32.Parse( fields[5] );
+            info.LastAttemptName = PlayerInfo.UnescapeOldFormat( fields[6] );
+            if( fields[7].Length > 1 ) {
+                info.LastAttemptDate = DateTime.Parse( fields[7] );
+            }
+
+            if( convertToUtc ) {
+                if( info.BanDate != DateTime.MinValue ) info.BanDate = info.BanDate.ToUniversalTime();
+                if( info.LastAttemptDate != DateTime.MinValue ) info.LastAttemptDate = info.LastAttemptDate.ToUniversalTime();
+            }
+
+            return info;
+        }
+
+
         public string Serialize() {
             string[] fields = new string[FieldCount];
 
             fields[0] = Address.ToString();
             fields[1] = PlayerInfo.Escape( BannedBy );
-            fields[2] = BanDate.ToCompactString();
+            fields[2] = BanDate.ToTickString();
             fields[3] = PlayerInfo.Escape( BanReason );
             fields[4] = PlayerInfo.Escape( PlayerName );
             fields[5] = Attempts.ToString();
             fields[6] = PlayerInfo.Escape( LastAttemptName );
+            fields[7] = LastAttemptDate.ToTickString();
+
+            return String.Join( ",", fields );
+        }
+
+
+        public string SerializeOldFormat() {
+            string[] fields = new string[FieldCount];
+
+            fields[0] = Address.ToString();
+            fields[1] = PlayerInfo.EscapeOldFormat( BannedBy );
+            fields[2] = BanDate.ToCompactString();
+            fields[3] = PlayerInfo.EscapeOldFormat( BanReason );
+            fields[4] = PlayerInfo.EscapeOldFormat( PlayerName );
+            fields[5] = Attempts.ToString();
+            fields[6] = PlayerInfo.EscapeOldFormat( LastAttemptName );
             if( LastAttemptDate == DateTime.MinValue ) {
                 fields[7] = "";
             } else {
