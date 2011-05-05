@@ -1019,7 +1019,14 @@ namespace fCraft {
                             return;
                         }
 
-                        world.ChangeMap( map );
+                        try {
+                            world.ChangeMap( map );
+                        } catch( WorldOpException ex ) {
+                            Logger.Log( "Could not complete WorldLoad operation: {0}", LogType.Error, ex.Message );
+                            player.Message( "&WWLoad: {0}", ex.Message );
+                            return;
+                        }
+
                         world.SendToAllExcept( "{0}&S loaded a new map for the world {1}", player,
                                                player.GetClassyName(), world.GetClassyName() );
                         player.MessageNow( "New map for the world {0}&S has been loaded.", world.GetClassyName() );

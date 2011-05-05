@@ -80,6 +80,7 @@ namespace fCraft {
             return true;
         }
 
+
         static void CreateDefaultMainWorld() {
             Map map = new Map( null, 64, 64, 64, true );
             MapGenerator.GenerateFlatgrass( map );
@@ -111,33 +112,34 @@ namespace fCraft {
                         continue;
                     }
 
-                    World world = AddWorld( null, worldName, null, (el.Attribute( "noUnload" ) != null) );
-
-                    if( world == null ) {
-                        Logger.Log( "Server.ParseWorldListXML: Error loading world \"{0}\"", LogType.Error, worldName );
-                    } else {
-                        if( (temp = el.Attribute( "hidden" )) != null ) {
-                            if( !Boolean.TryParse( temp.Value, out world.IsHidden ) ) {
-                                Logger.Log( "Server.ParseWorldListXML: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
-                                            LogType.Warning, worldName );
-                                world.IsHidden = false;
-                            }
-                        }
-                        if( firstWorld == null ) firstWorld = world;
-
-                        if( el.Element( "accessSecurity" ) != null ) {
-                            world.AccessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
-                        } else {
-                            world.AccessSecurity.MinRank = LoadWorldRankRestriction( world, "access", el );
-                        }
-
-                        if( el.Element( "buildSecurity" ) != null ) {
-                            world.BuildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
-                        } else {
-                            world.BuildSecurity.MinRank = LoadWorldRankRestriction( world, "build", el );
-                        }
+                    World world;
+                    try {
+                        world = AddWorld( null, worldName, null, (el.Attribute( "noUnload" ) != null) );
+                    } catch( WorldOpException ex ) {
+                        Logger.Log( "Server.ParseWorldListXML: Error loading world \"{0}\": {1}", LogType.Error, worldName, ex.Message );
+                        continue;
                     }
 
+                    if( (temp = el.Attribute( "hidden" )) != null ) {
+                        if( !Boolean.TryParse( temp.Value, out world.IsHidden ) ) {
+                            Logger.Log( "Server.ParseWorldListXML: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
+                                        LogType.Warning, worldName );
+                            world.IsHidden = false;
+                        }
+                    }
+                    if( firstWorld == null ) firstWorld = world;
+
+                    if( el.Element( "accessSecurity" ) != null ) {
+                        world.AccessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
+                    } else {
+                        world.AccessSecurity.MinRank = LoadWorldRankRestriction( world, "access", el );
+                    }
+
+                    if( el.Element( "buildSecurity" ) != null ) {
+                        world.BuildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
+                    } else {
+                        world.BuildSecurity.MinRank = LoadWorldRankRestriction( world, "build", el );
+                    }
 
                     // Check the world's map file
                     string mapFullName = world.GetMapName();
@@ -251,7 +253,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
 
         #region Finding Worlds
