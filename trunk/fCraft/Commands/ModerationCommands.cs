@@ -166,17 +166,17 @@ namespace fCraft {
 
             IPAddress address;
             Player target = Server.FindPlayerExact( nameOrIP );
-            PlayerInfo info;
+            PlayerInfo targetInfo;
             if( target != null ) {
-                info = target.Info;
+                targetInfo = target.Info;
             } else {
-                info = PlayerDB.FindPlayerInfoExact( nameOrIP );
+                targetInfo = PlayerDB.FindPlayerInfoExact( nameOrIP );
             }
 
             if( ConfigKey.RequireBanReason.GetBool() && string.IsNullOrEmpty( reason ) ) {
                 player.Message( "&WPlease specify a ban/unban reason." );
                 // freeze the target player to prevent further damage
-                if( !unban && target != null && player.Can( Permission.Freeze ) && player.Can( Permission.Ban, target.Info.Rank ) ) {
+                if( !unban && target != null && !targetInfo.IsFrozen && player.Can( Permission.Freeze ) && player.Can( Permission.Ban, target.Info.Rank ) ) {
                     player.Message( "{0}&S has been frozen while you retry.",
                                     target.GetClassyName() );
                     Freeze( player, new Command( "/freeze " + target.Name ) );
@@ -234,36 +234,36 @@ namespace fCraft {
                 }
 
                 // ban or unban offline players
-            } else if( info != null ) {
-                if( player.Can( Permission.Ban, info.Rank ) || unban ) {
-                    address = info.LastIP;
-                    if( banIP ) DoIPBan( player, address, reason, info.Name, banAll, unban );
+            } else if( targetInfo != null ) {
+                if( player.Can( Permission.Ban, targetInfo.Rank ) || unban ) {
+                    address = targetInfo.LastIP;
+                    if( banIP ) DoIPBan( player, address, reason, targetInfo.Name, banAll, unban );
                     if( !banAll ) {
                         if( unban ) {
-                            if( info.ProcessUnban( player.Name, reason ) ) {
-                                Server.FirePlayerUnbannedEvent( info, player, reason );
+                            if( targetInfo.ProcessUnban( player.Name, reason ) ) {
+                                Server.FirePlayerUnbannedEvent( targetInfo, player, reason );
                                 Logger.Log( "{0} (offline) was unbanned by {1}", LogType.UserActivity,
-                                            info.Name, player.Name );
+                                            targetInfo.Name, player.Name );
                                 Server.SendToAll( "{0}&W (offline) was unbanned by {1}",
-                                                  info.GetClassyName(), player.GetClassyName() );
+                                                  targetInfo.GetClassyName(), player.GetClassyName() );
                                 if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !string.IsNullOrEmpty( reason ) ) {
                                     Server.SendToAll( "&WUnban reason: {0}", reason );
                                 }
                             } else {
-                                player.Message( "{0}&S (offline) is not currenty banned.", info.GetClassyName() );
+                                player.Message( "{0}&S (offline) is not currenty banned.", targetInfo.GetClassyName() );
                             }
                         } else {
-                            if( info.ProcessBan( player, reason ) ) {
-                                Server.FirePlayerBannedEvent( info, player, reason );
+                            if( targetInfo.ProcessBan( player, reason ) ) {
+                                Server.FirePlayerBannedEvent( targetInfo, player, reason );
                                 Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity,
-                                            info.Name, player.Name );
+                                            targetInfo.Name, player.Name );
                                 Server.SendToAll( "{0}&W (offline) was banned by {1}",
-                                                  info.GetClassyName(), player.GetClassyName() );
+                                                  targetInfo.GetClassyName(), player.GetClassyName() );
                                 if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !string.IsNullOrEmpty( reason ) ) {
                                     Server.SendToAll( "&WBan reason: {0}", reason );
                                 }
                             } else {
-                                player.Message( "{0}&S (offline) is already banned.", info.GetClassyName() );
+                                player.Message( "{0}&S (offline) is already banned.", targetInfo.GetClassyName() );
                             }
                         }
                     }
@@ -271,7 +271,7 @@ namespace fCraft {
                     player.Message( "You can only ban players ranked {0}&S or lower.",
                                     player.Info.Rank.GetLimit( Permission.Ban ).GetClassyName() );
                     player.Message( "{0}&S is ranked {1}",
-                                    info.GetClassyName(), info.Rank.GetClassyName() );
+                                    targetInfo.GetClassyName(), targetInfo.Rank.GetClassyName() );
                 }
 
                 // ban players who are not in the database yet
@@ -286,14 +286,14 @@ namespace fCraft {
                 if( unban ) {
                     player.Message( "\"{0}\" (unrecognized) is not banned.", nameOrIP );
                 } else {
-                    info = PlayerDB.AddFakeEntry( nameOrIP, RankChangeType.Default );
-                    info.ProcessBan( player, reason ); // this will never return false (player could not have been banned already)
-                    Server.FirePlayerBannedEvent( info, player, reason );
+                    targetInfo = PlayerDB.AddFakeEntry( nameOrIP, RankChangeType.Default );
+                    targetInfo.ProcessBan( player, reason ); // this will never return false (player could not have been banned already)
+                    Server.FirePlayerBannedEvent( targetInfo, player, reason );
                     player.Message( "Player \"{0}\" (unrecognized) was banned.", nameOrIP );
                     Logger.Log( "{0} (unrecognized) was banned by {1}", LogType.UserActivity,
-                                info.Name, player.Name );
+                                targetInfo.Name, player.Name );
                     Server.SendToAll( "{0}&W (unrecognized) was banned by {1}",
-                                      info.GetClassyName(), player.GetClassyName() );
+                                      targetInfo.GetClassyName(), player.GetClassyName() );
 
                     if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !string.IsNullOrEmpty( reason ) ) {
                         Server.SendToAll( "&WBan reason: {0}", reason );
@@ -447,7 +447,7 @@ namespace fCraft {
                 if( ConfigKey.RequireKickReason.GetBool() && String.IsNullOrEmpty( reason ) ) {
                     player.Message( "&WPlease specify a kick reason: &H/k PlayerName Reason" );
                     // freeze the target player to prevent further damage
-                    if( player.Can( Permission.Freeze ) && player.Can( Permission.Kick, target.Info.Rank ) ) {
+                    if( !target.Info.IsFrozen && player.Can( Permission.Freeze ) && player.Can( Permission.Kick, target.Info.Rank ) ) {
                         player.Message( "{0}&S has been frozen while you retry.",
                                         target.GetClassyName() );
                         Freeze( player, new Command( "/freeze " + target.Name ) );
