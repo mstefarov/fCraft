@@ -49,7 +49,7 @@ namespace fCraft {
         };
 
         internal static void Say( Player player, Command cmd ) {
-            if( player.Info.IsMuted() ) {
+            if( player.Info.IsMuted ) {
                 player.MutedMessage();
                 return;
             }
@@ -83,7 +83,7 @@ namespace fCraft {
         };
 
         internal static void StaffChat( Player player, Command cmd ) {
-            if( player.Info.IsMuted() ) {
+            if( player.Info.IsMuted ) {
                 player.MutedMessage();
                 return;
             }
@@ -225,7 +225,7 @@ namespace fCraft {
         };
 
         internal static void Me( Player player, Command cmd ) {
-            if( player.Info.IsMuted() ) {
+            if( player.Info.IsMuted ) {
                 player.MutedMessage();
                 return;
             }
@@ -260,7 +260,7 @@ namespace fCraft {
         };
 
         internal static void Roll( Player player, Command cmd ) {
-            if( player.Info.IsMuted() ) {
+            if( player.Info.IsMuted ) {
                 player.MutedMessage();
                 return;
             }

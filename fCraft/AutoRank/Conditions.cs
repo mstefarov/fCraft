@@ -66,13 +66,13 @@ namespace fCraft.AutoRank {
             long givenValue;
             switch( Field ) {
                 case ConditionField.TimeSinceFirstLogin:
-                    givenValue = (int)DateTime.UtcNow.Subtract( info.FirstLoginDate ).TotalSeconds;
+                    givenValue = (int)info.TimeSinceFirstLogin.TotalSeconds;
                     break;
                 case ConditionField.TimeSinceLastLogin:
-                    givenValue = (int)DateTime.UtcNow.Subtract( info.LastLoginDate ).TotalSeconds;
+                    givenValue = (int)info.TimeSinceLastLogin.TotalSeconds;
                     break;
                 case ConditionField.LastSeen:
-                    givenValue = (int)DateTime.UtcNow.Subtract( info.LastSeen ).TotalSeconds;
+                    givenValue = (int)info.TimeSinceLastSeen.TotalSeconds;
                     break;
                 case ConditionField.BlocksBuilt:
                     givenValue = info.BlocksBuilt;
@@ -102,7 +102,7 @@ namespace fCraft.AutoRank {
                     givenValue = (int)info.TimeSinceRankChange.TotalSeconds;
                     break;
                 case ConditionField.TimeSinceLastKick:
-                    givenValue = (int)DateTime.UtcNow.Subtract( info.LastKickDate ).TotalSeconds;
+                    givenValue = (int)info.TimeSinceLastKick.TotalSeconds;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException( "Field", "Unknown field type" );

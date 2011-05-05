@@ -171,12 +171,12 @@ namespace fCraft {
                     if( player.Can( Permission.ViewPlayerIPs ) ) {
                         player.Message( "About {0}&S: Last seen {1} ago from {2}",
                                         info.Name,
-                                        DateTime.UtcNow.Subtract( info.LastSeen ).ToMiniString(),
+                                        info.TimeSinceLastSeen.ToMiniString(),
                                         info.LastIP );
                     } else {
                         player.Message( "About {0}&S: Last seen {1} ago.",
                                         info.Name,
-                                        DateTime.UtcNow.Subtract( info.LastSeen ).ToMiniString() );
+                                        info.TimeSinceLastSeen.ToMiniString() );
                     }
                 }
                 // Show login information
@@ -259,10 +259,9 @@ namespace fCraft {
 
             if( info.TimesKicked > 0 ) {
                 if( info.LastKickDate != DateTime.MinValue ) {
-                    TimeSpan timeSinceLastKick = DateTime.UtcNow.Subtract( info.LastKickDate );
                     player.Message( "  Got kicked {0} times. Last kick {1} ago by {2}",
                                     info.TimesKicked,
-                                    timeSinceLastKick.ToMiniString(),
+                                    info.TimeSinceLastKick.ToMiniString(),
                                     info.LastKickBy );
                     if( info.LastKickReason.Length > 0 ) {
                         player.Message( "  Last kick reason: {0}", info.LastKickReason );
@@ -308,7 +307,7 @@ namespace fCraft {
                 // Time on the server
                 TimeSpan totalTime = info.TotalTime;
                 if( target != null ) {
-                    totalTime = totalTime.Add( DateTime.UtcNow.Subtract( info.LastLoginDate ) );
+                    totalTime = totalTime.Add( info.TimeSinceLastLogin );
                 }
                 player.Message( "  Spent a total of {0:F1} hours ({1:F1} minutes) here.",
                                 totalTime.TotalHours,

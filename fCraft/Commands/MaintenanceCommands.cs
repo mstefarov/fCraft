@@ -121,7 +121,7 @@ namespace fCraft {
                 stat.PreviousRank.Add( rank2, 0 );
             }
 
-            infos = infos.Where( info => (DateTime.UtcNow.Subtract( info.LastLoginDate ).TotalDays < 30) ).ToArray();
+            infos = infos.Where( info => (info.TimeSinceLastLogin.TotalDays < 30) ).ToArray();
             infos = infos.Where( info => (!info.Banned) ).ToArray();
 
             if( infos.Length == 0 ) {
@@ -131,8 +131,8 @@ namespace fCraft {
             }
 
             for( int i = 0; i < infos.Length; i++ ) {
-                stat.TimeSinceFirstLogin += DateTime.UtcNow.Subtract( infos[i].FirstLoginDate );
-                stat.TimeSinceLastLogin += DateTime.UtcNow.Subtract( infos[i].LastLoginDate );
+                stat.TimeSinceFirstLogin += infos[i].TimeSinceFirstLogin;
+                stat.TimeSinceLastLogin += infos[i].TimeSinceLastLogin;
                 stat.TotalTime += infos[i].TotalTime;
                 stat.BlocksBuilt += infos[i].BlocksBuilt;
                 stat.BlocksDeleted += infos[i].BlocksDeleted;
@@ -189,15 +189,15 @@ namespace fCraft {
                               stat.TimeSinceFirstLogin.ToCompactString() );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimeSinceFirstLogin.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20}  {1}", DateTime.UtcNow.Subtract( info.FirstLoginDate ).ToCompactString(), info.Name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TimeSinceFirstLogin.ToCompactString(), info.Name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopTimeSinceFirstLogin.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20}  {1}", DateTime.UtcNow.Subtract( info.FirstLoginDate ).ToCompactString(), info.Name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TimeSinceFirstLogin.ToCompactString(), info.Name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopTimeSinceFirstLogin ) {
-                    writer.WriteLine( "        {0,20}  {1}", DateTime.UtcNow.Subtract( info.FirstLoginDate ).ToCompactString(), info.Name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TimeSinceFirstLogin.ToCompactString(), info.Name );
                 }
             }
             writer.WriteLine();
@@ -209,15 +209,15 @@ namespace fCraft {
                               stat.TimeSinceLastLogin.ToCompactString() );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimeSinceLastLogin.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20}  {1}", DateTime.UtcNow.Subtract( info.LastLoginDate ).ToCompactString(), info.Name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TimeSinceLastLogin.ToCompactString(), info.Name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopTimeSinceLastLogin.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20}  {1}", DateTime.UtcNow.Subtract( info.LastLoginDate ).ToCompactString(), info.Name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TimeSinceLastLogin.ToCompactString(), info.Name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopTimeSinceLastLogin ) {
-                    writer.WriteLine( "        {0,20}  {1}", DateTime.UtcNow.Subtract( info.LastLoginDate ).ToCompactString(), info.Name );
+                    writer.WriteLine( "        {0,20}  {1}", info.TimeSinceLastLogin.ToCompactString(), info.Name );
                 }
             }
             writer.WriteLine();

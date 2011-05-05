@@ -261,7 +261,7 @@ namespace fCraft {
         }
 
 
-        public static IPBanInfo LoadOldFormat( string[] fields, bool convertToUtc ) {
+        public static IPBanInfo LoadOldFormat( string[] fields, bool convertDatesToUtc ) {
             IPBanInfo info = new IPBanInfo();
             if( fields == null ) throw new ArgumentNullException( "fields" );
             if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
@@ -280,7 +280,7 @@ namespace fCraft {
                 info.LastAttemptDate = DateTime.Parse( fields[7] );
             }
 
-            if( convertToUtc ) {
+            if( convertDatesToUtc ) {
                 if( info.BanDate != DateTime.MinValue ) info.BanDate = info.BanDate.ToUniversalTime();
                 if( info.LastAttemptDate != DateTime.MinValue ) info.LastAttemptDate = info.LastAttemptDate.ToUniversalTime();
             }

@@ -118,7 +118,7 @@ namespace fCraft {
                         Session.KickNow( "You were kicked for repeated spamming.", LeaveReason.MessageSpamKick );
                         Server.SendToAll( "&W{0} was kicked for repeated spamming.", GetClassyName() );
                     } else {
-                        Info.MutedUntil = DateTime.UtcNow.Add( AutoMuteDuration );
+                        Info.Mute( "(antispam)", AutoMuteDuration );
                         Message( "You have been muted for {0} seconds. Slow down.", AutoMuteDuration.TotalSeconds );
                     }
                     return true;
@@ -142,7 +142,7 @@ namespace fCraft {
                 case MessageType.Chat: {
                         if( !Can( Permission.Chat ) ) return;
 
-                        if( Info.IsMuted() ) {
+                        if( Info.IsMuted ) {
                             MutedMessage();
                             return;
                         }
@@ -202,7 +202,7 @@ namespace fCraft {
                 case MessageType.PrivateChat: {
                         if( !Can( Permission.Chat ) ) return;
 
-                        if( Info.IsMuted() ) {
+                        if( Info.IsMuted ) {
                             MutedMessage();
                             return;
                         }
@@ -266,7 +266,7 @@ namespace fCraft {
                 case MessageType.RankChat: {
                         if( !Can( Permission.Chat ) ) return;
 
-                        if( Info.IsMuted() ) {
+                        if( Info.IsMuted ) {
                             MutedMessage();
                             return;
                         }
