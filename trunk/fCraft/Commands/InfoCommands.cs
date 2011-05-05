@@ -215,11 +215,11 @@ namespace fCraft {
                         player.Message( "  {0} accounts ({1} banned) share this IP: {2}",
                                         altNames.Count,
                                         bannedAltCount,
-                                        PlayerInfo.PlayerInfoArrayToString( altNames.ToArray() ) );
+                                        altNames.ToArray().JoinToClassyString() );
                     } else {
                         player.Message( "  {0} accounts share this IP: {1}",
                                         altNames.Count,
-                                        PlayerInfo.PlayerInfoArrayToString( altNames.ToArray() ) );
+                                        altNames.ToArray().JoinToClassyString() );
                     }
                 }
             }
@@ -698,14 +698,7 @@ namespace fCraft {
 
                 if( descriptor.Aliases != null ) {
                     sb.Append( "Aliases: &H" );
-                    bool first = true;
-                    foreach( string alias in descriptor.Aliases ) {
-                        if( !first ) {
-                            sb.Append( "&S, &H" );
-                        }
-                        sb.Append( alias );
-                        first = false;
-                    }
+                    sb.Append( descriptor.Aliases.JoinToString( "&S, &H" ) );
                     sb.Append( "&N" );
                 }
 

@@ -434,12 +434,12 @@ namespace fCraft {
 
             if( playerList.Included.Length > 0 ) {
                 player.Message( "  Zone whitelist includes: {0}",
-                                PlayerInfo.PlayerInfoArrayToString( playerList.Included ) );
+                                playerList.Included.JoinToClassyString() );
             }
 
             if( playerList.Excluded.Length > 0 ) {
                 player.Message( "  Zone blacklist excludes: {0}",
-                                PlayerInfo.PlayerInfoArrayToString( playerList.Excluded ) );
+                                playerList.Excluded.JoinToClassyString() );
             }
         }
     }

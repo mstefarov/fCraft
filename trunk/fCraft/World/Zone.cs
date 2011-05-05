@@ -107,26 +107,13 @@ namespace fCraft {
             }
 
             SecurityController.PlayerListCollection list = Controller.ExceptionList;
-            StringBuilder includedList = new StringBuilder();
-            bool firstWord = true;
-            foreach( PlayerInfo info in list.Included ) {
-                if( firstWord ) includedList.Append( ' ' );
-                includedList.Append( info.Name );
-                firstWord = false;
-            }
-
-            firstWord = true;
-            StringBuilder excludedList = new StringBuilder();
-            foreach( PlayerInfo info in list.Excluded ) {
-                if( firstWord ) excludedList.Append( ' ' );
-                excludedList.Append( info.Name );
-                firstWord = false;
-            }
 
             return String.Format( "{0},{1},{2},{3}",
                                   String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
                                                  Name, Bounds.XMin, Bounds.YMin, Bounds.HMin, Bounds.XMax, Bounds.YMax, Bounds.HMax, Controller.MinRank ),
-                                  includedList, excludedList, xheader );
+                                  list.Included.JoinToString( " ", p => p.Name ),
+                                  list.Excluded.JoinToString( " ", p => p.Name ),
+                                  xheader );
         }
 
 

@@ -19,10 +19,10 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             523,
-            572,
+            573,
             new DateTime( 2011, 5, 5, 4, 30, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Dev
+            ReleaseFlags.Dev | ReleaseFlags.Unstable
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
@@ -41,7 +41,6 @@ namespace fCraft {
         public static int UpdateCheckTimeout { get; set; }
 
         public static UpdaterResult CheckForUpdates() {
-            // TODO: fix the rest
             UpdaterMode mode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
             if( mode == UpdaterMode.Disabled ) return UpdaterResult.NoUpdate;
 

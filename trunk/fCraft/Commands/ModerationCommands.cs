@@ -218,7 +218,7 @@ namespace fCraft {
                                 if( bannedAlts.Length > 0 ) {
                                     player.Message( "Warning: {0}&S shares IP with other banned players: {1}&S. Consider adding an IP-ban.",
                                                     target.GetClassyName(),
-                                                    PlayerInfo.PlayerInfoArrayToString( bannedAlts ) );
+                                                    bannedAlts.JoinToClassyString() );
                                 }
                             }
 
