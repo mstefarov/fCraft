@@ -387,11 +387,15 @@ namespace fCraft {
                 return false;
             } else {
                 if( !DateTime.TryParse( dateString, cultureInfo, DateTimeStyles.None, out time ) ) {
+                    Logger.Log( "PlayerInfo.TryParseLocalDate: Unable to parse a date string \"{0}\". Trying to guess format...",
+                                LogType.Warning, dateString );
                     CultureInfo[] cultureList = CultureInfo.GetCultures( CultureTypes.FrameworkCultures );
                     foreach( CultureInfo otherCultureInfo in cultureList ) {
                         cultureInfo = otherCultureInfo;
                         try {
                             if( DateTime.TryParse( dateString, cultureInfo, DateTimeStyles.None, out time ) ) {
+                                Logger.Log( "PlayerInfo.TryParseLocalDate: Date string parsed succesfully using \"{0}\" format...", LogType.Warning,
+                                            cultureInfo.EnglishName );
                                 return true;
                             }
                         } catch( NotSupportedException ) { }
