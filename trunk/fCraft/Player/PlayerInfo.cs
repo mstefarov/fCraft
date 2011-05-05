@@ -232,7 +232,6 @@ namespace fCraft {
         }
 
 
-
         internal static PlayerInfo LoadOldFormat( string[] fields, bool convertDatesToUtc ) {
             PlayerInfo info = new PlayerInfo();
 
@@ -500,7 +499,7 @@ namespace fCraft {
                 fields[39] = "";
             }
 
-            if( MutedUntil != DateTime.MinValue ) {
+            if( MutedUntil > DateTime.UtcNow ) {
                 fields[40] = MutedUntil.ToTickString();
                 fields[41] = Escape( MutedBy );
             } else {
@@ -860,19 +859,35 @@ namespace fCraft {
 
         #region Actions
 
-        public void Mute( string by, int seconds ) {
+        public bool Mute( string by, TimeSpan timespan ) {
             if( by == null ) throw new ArgumentNullException( "by" );
-            MutedUntil = DateTime.UtcNow.AddSeconds( seconds );
-            MutedBy = by;
+            DateTime newMutedUntil = MutedUntil = DateTime.UtcNow.Add( timespan );
+            if( newMutedUntil > MutedUntil ) {
+                MutedUntil = newMutedUntil;
+                MutedBy = by;
+                return true;
+            } else {
+                return false;
+            }
         }
 
-        public void Unmute() {
-            MutedUntil = DateTime.UtcNow;
+
+        public bool Unmute() {
+            if( IsMuted ) {
+                MutedUntil = DateTime.MinValue;
+                return true;
+            } else {
+                return false;
+            }
         }
 
-        public bool IsMuted() {
-            return DateTime.UtcNow < MutedUntil;
+
+        public bool IsMuted {
+            get {
+                return DateTime.UtcNow < MutedUntil;
+            }
         }
+
 
         public bool Freeze( string by ) {
             if( by == null ) throw new ArgumentNullException( "by" );

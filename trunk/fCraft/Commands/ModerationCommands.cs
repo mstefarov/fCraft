@@ -1291,12 +1291,18 @@ namespace fCraft {
                     return;
                 }
 
-                target.Info.Mute( player.Name, seconds );
-                target.Message( "You were muted by {0}&S for {1} sec", player.GetClassyName(), seconds );
-                Server.SendToAllExcept( "&SPlayer {0}&S was muted by {1}&S for {2} sec", target,
-                                        target.GetClassyName(), player.GetClassyName(), seconds );
-                Logger.Log( "Player {0} was muted by {1} for {2} seconds.", LogType.UserActivity,
-                            target.Name, player.Name, seconds );
+                if( target.Info.Mute( player.Name, TimeSpan.FromSeconds( seconds ) ) ) {
+                    target.Message( "You were muted by {0}&S for {1} sec", player.GetClassyName(), seconds );
+                    Server.SendToAllExcept( "&SPlayer {0}&S was muted by {1}&S for {2} sec", target,
+                                            target.GetClassyName(), player.GetClassyName(), seconds );
+                    Logger.Log( "Player {0} was muted by {1} for {2} seconds.", LogType.UserActivity,
+                                target.Name, player.Name, seconds );
+                } else {
+                    player.Message( "Player {0}&S is already muted by {1}&S for {2:0} more seconds.",
+                                    target.GetClassyName(),
+                                    target.Info.MutedBy,
+                                    target.Info.MutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
+                }
 
             } else {
                 cdMute.PrintUsage( player );

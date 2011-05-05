@@ -383,10 +383,10 @@ namespace fCraft {
 
         static bool PlayerIsInactive( PlayerInfo player, bool checkIP ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( player.Banned || !String.IsNullOrEmpty( player.UnbannedBy ) || player.IsFrozen || player.IsMuted() || player.TimesKicked != 0 || !String.IsNullOrEmpty( player.RankChangedBy ) ) {
+            if( player.Banned || !String.IsNullOrEmpty( player.UnbannedBy ) || player.IsFrozen || player.IsMuted || player.TimesKicked != 0 || !String.IsNullOrEmpty( player.RankChangedBy ) ) {
                 return false;
             }
-            if( player.TotalTime.TotalMinutes > 30 || DateTime.UtcNow.Subtract( player.LastSeen ).TotalDays < 30 ) {
+            if( player.TotalTime.TotalMinutes > 30 || player.TimeSinceLastSeen.TotalDays < 30 ) {
                 return false;
             }
             if( IPBanList.Get( player.LastIP ) != null ) {

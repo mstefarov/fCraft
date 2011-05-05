@@ -621,11 +621,11 @@ namespace fCraft {
             if( Player.Info.IsFrozen ) {
                 if( Player.Info.FrozenOn != DateTime.MinValue ) {
                     Player.Message( "&WYou were previously frozen {0} ago by {1}",
-                                    DateTime.UtcNow.Subtract( Player.Info.FrozenOn ).ToMiniString(),
+                                    Player.Info.TimeSinceFrozen.ToMiniString(),
                                     Player.Info.FrozenBy );
                     Server.SendToAllExcept( "&WPlayer {0}&W was previously frozen {1} ago by {2}.", Player,
                                             Player.GetClassyName(),
-                                            DateTime.UtcNow.Subtract( Player.Info.FrozenOn ).ToMiniString(),
+                                            Player.Info.TimeSinceFrozen.ToMiniString(),
                                             Player.Info.FrozenBy );
                 } else {
                     Player.Message( "&WYou were previously frozen by {0}",
