@@ -561,7 +561,7 @@ namespace fCraft {
                         if( noLongerExcluded.Length > 0 ) {
                             player.Message( "Following players no longer need to be blacklisted to be barred from {0}&S: {1}",
                                             world.GetClassyName(),
-                                            PlayerInfo.PlayerInfoArrayToString( noLongerExcluded ) );
+                                            noLongerExcluded.JoinToClassyString() );
                         }
 
                         // list players who are redundantly whitelisted
@@ -569,7 +569,7 @@ namespace fCraft {
                         if( noLongerIncluded.Length > 0 ) {
                             player.Message( "Following players no longer need to be whitelisted to access {0}&S: {1}",
                                             world.GetClassyName(),
-                                            PlayerInfo.PlayerInfoArrayToString( noLongerIncluded ) );
+                                            noLongerIncluded.JoinToClassyString() );
                         }
 
                         // apply changes
@@ -792,7 +792,7 @@ namespace fCraft {
                         if( noLongerExcluded.Length > 0 ) {
                             player.Message( "Following players no longer need to be blacklisted on world {0}&S: {1}",
                                             world.GetClassyName(),
-                                            PlayerInfo.PlayerInfoArrayToString( noLongerExcluded ) );
+                                            noLongerExcluded.JoinToClassyString() );
                         }
 
                         // list players who are redundantly whitelisted
@@ -800,7 +800,7 @@ namespace fCraft {
                         if( noLongerIncluded.Length > 0 ) {
                             player.Message( "Following players no longer need to be whitelisted on world {0}&S: {1}",
                                             world.GetClassyName(),
-                                            PlayerInfo.PlayerInfoArrayToString( noLongerIncluded ) );
+                                            noLongerIncluded.JoinToClassyString() );
                         }
 
                         // apply changes

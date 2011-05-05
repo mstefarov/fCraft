@@ -169,11 +169,11 @@ namespace fCraft {
             }
 
             if( list.Included.Length > 0 ) {
-                message.AppendFormat( " and {0}&S", PlayerInfo.PlayerInfoArrayToString( list.Included ) );
+                message.AppendFormat( " and {0}&S", list.Included.JoinToClassyString() );
             }
 
             if( list.Excluded.Length > 0 ) {
-                message.AppendFormat( ", except {0}", PlayerInfo.PlayerInfoArrayToString( list.Excluded ) );
+                message.AppendFormat( ", except {0}", list.Excluded.JoinToClassyString() );
             }
 
             message.Append( '.' );

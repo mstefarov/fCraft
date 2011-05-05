@@ -388,16 +388,11 @@ namespace fCraft {
         public void ManyMatchesMessage( string itemType, IEnumerable<IClassy> names ) {
             if( itemType == null ) throw new ArgumentNullException( "itemType" );
             if( names == null ) throw new ArgumentNullException( "names" );
-            bool first = true;
-            StringBuilder list = new StringBuilder();
-            foreach( IClassy item in names ) {
-                if( !first ) {
-                    list.Append( ", " );
-                }
-                list.Append( item.GetClassyName() );
-                first = false;
-            }
-            Message( "More than one {0} matched: {1}", itemType, list );
+
+            string nameList = names.JoinToString( ", ",
+                                                  p => p.GetClassyName() );
+            Message( "More than one {0} matched: {1}",
+                     itemType, nameList );
         }
 
 

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -33,14 +34,15 @@ namespace fCraft {
                               "mutedUntil,mutedBy,IRCPassword,online,leaveReason";
 
 
-        static readonly object Locker = new object();
+        static readonly object AddLocker = new object(),
+                               SaveLoadLocker = new object();
         public static bool IsLoaded { get; private set; }
 
 
         public static PlayerInfo AddFakeEntry( string name, RankChangeType rankChangeType ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             PlayerInfo info = new PlayerInfo( name, RankManager.DefaultRank, false, rankChangeType );
-            lock( Locker ) {
+            lock( AddLocker ) {
                 List.Add( info );
                 Trie.Add( info.Name, info );
                 UpdateCache();
@@ -52,57 +54,59 @@ namespace fCraft {
         #region Saving/Loading
 
         internal static void Load() {
-            if( File.Exists( Paths.PlayerDBFileName ) ) {
-                Stopwatch sw = Stopwatch.StartNew();
-                using( StreamReader reader = File.OpenText( Paths.PlayerDBFileName ) ) {
+            lock( SaveLoadLocker ) {
+                if( File.Exists( Paths.PlayerDBFileName ) ) {
+                    Stopwatch sw = Stopwatch.StartNew();
+                    using( StreamReader reader = File.OpenText( Paths.PlayerDBFileName ) ) {
 
-                    string header = reader.ReadLine();
+                        string header = reader.ReadLine();
 
-                    if( header == null ) return; // if PlayerDB is an empty file
+                        if( header == null ) return; // if PlayerDB is an empty file
 
-                    lock( Locker ) {
-                        int version = IdentifyFormatVersion( header );
+                        lock( AddLocker ) {
+                            int version = IdentifyFormatVersion( header );
 
-                        while( !reader.EndOfStream ) {
-                            string[] fields = reader.ReadLine().Split( ',' );
-                            if( fields.Length >= PlayerInfo.MinFieldCount ) {
+                            while( !reader.EndOfStream ) {
+                                string[] fields = reader.ReadLine().Split( ',' );
+                                if( fields.Length >= PlayerInfo.MinFieldCount ) {
 #if !DEBUG
-                                try {
+                                    try {
 #endif
-                                    PlayerInfo info;
-                                    if( version == 0 ) {
-                                        info = PlayerInfo.LoadOldFormat( fields, true );
-                                    } else {
-                                        info = PlayerInfo.Load( fields );
-                                    }
-                                    if( Trie.ContainsKey( info.Name ) ) {
-                                        Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.", LogType.Error, info.Name );
-                                    } else {
-                                        Trie.Add( info.Name, info );
-                                        List.Add( info );
-                                    }
+                                        PlayerInfo info;
+                                        if( version == 0 ) {
+                                            info = PlayerInfo.LoadOldFormat( fields, true );
+                                        } else {
+                                            info = PlayerInfo.Load( fields );
+                                        }
+                                        if( Trie.ContainsKey( info.Name ) ) {
+                                            Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.", LogType.Error, info.Name );
+                                        } else {
+                                            Trie.Add( info.Name, info );
+                                            List.Add( info );
+                                        }
 #if !DEBUG
-                                } catch( Exception ex ) {
-                                    Logger.LogAndReportCrash( "Error while parsing PlayerInfo record", "fCraft", ex, false );
+                                    } catch( Exception ex ) {
+                                        Logger.LogAndReportCrash( "Error while parsing PlayerInfo record", "fCraft", ex, false );
+                                    }
+#endif
+                                } else {
+                                    Logger.Log( "PlayerDB.Load: Unexpected field count ({0}), expecting at least {1} fields for a PlayerDB entry.", LogType.Error,
+                                                fields.Length,
+                                                PlayerInfo.MinFieldCount );
                                 }
-#endif
-                            } else {
-                                Logger.Log( "PlayerDB.Load: Unexpected field count ({0}), expecting at least {1} fields for a PlayerDB entry.", LogType.Error,
-                                            fields.Length,
-                                            PlayerInfo.MinFieldCount );
                             }
                         }
                     }
+                    List.TrimExcess();
+                    sw.Stop();
+                    Logger.Log( "PlayerDB.Load: Done loading player DB ({0} records) in {1}ms.", LogType.Debug,
+                                Trie.Count, sw.ElapsedMilliseconds );
+                } else {
+                    Logger.Log( "PlayerDB.Load: No player DB file found.", LogType.Warning );
                 }
-                List.TrimExcess();
-                sw.Stop();
-                Logger.Log( "PlayerDB.Load: Done loading player DB ({0} records) in {1}ms.", LogType.Debug,
-                            Trie.Count, sw.ElapsedMilliseconds );
-            } else {
-                Logger.Log( "PlayerDB.Load: No player DB file found.", LogType.Warning );
+                UpdateCache();
+                IsLoaded = true;
             }
-            UpdateCache();
-            IsLoaded = true;
         }
 
 
@@ -124,31 +128,32 @@ namespace fCraft {
         }
 
 
-        internal static void Save() {
-            Stopwatch sw = Stopwatch.StartNew();
+        public static void Save() {
 
             const string tempFileName = Paths.PlayerDBFileName + ".temp";
-            PlayerInfo[] listCopy = GetPlayerListCopy();
 
-            using( FileStream fs = new FileStream( tempFileName, FileMode.Create, FileAccess.Write, FileShare.None, 64 * 1024 ) ) {
-                using( StreamWriter writer = new StreamWriter( fs, System.Text.Encoding.ASCII, 64 * 1024 ) ) {
-                    writer.WriteLine( "{0} {1} {2}", maxID, FormatVersion, Header );
-                    string[] fields = new string[PlayerInfo.ExpectedFieldCount];
-                    for( int i = 0; i < listCopy.Length; i++ ) {
-                        listCopy[i].Serialize( fields );
-                        writer.Write( String.Join( ",", fields ) );
-                        writer.WriteLine();
+            lock( SaveLoadLocker ) {
+                PlayerInfo[] listCopy = GetPlayerListCopy();
+                Stopwatch sw = Stopwatch.StartNew();
+                using( FileStream fs = new FileStream( tempFileName, FileMode.Create, FileAccess.Write, FileShare.None, 64 * 1024 ) ) {
+                    using( StreamWriter writer = new StreamWriter( fs, System.Text.Encoding.ASCII, 64 * 1024 ) ) {
+                        writer.WriteLine( "{0} {1} {2}", maxID, FormatVersion, Header );
+
+                        for( int i = 0; i < listCopy.Length; i++ ) {
+                            // TODO: Reuse StringBuilder after switching to 4.0
+                            writer.WriteLine( listCopy[i].Serialize() );
+                        }
                     }
                 }
-            }
-            sw.Stop();
-            Logger.Log( "PlayerDB.Save: Saved player database ({0} records) in {1}ms", LogType.Debug,
-                        Trie.Count, sw.ElapsedMilliseconds );
+                sw.Stop();
+                Logger.Log( "PlayerDB.Save: Saved player database ({0} records) in {1}ms", LogType.Debug,
+                            Trie.Count, sw.ElapsedMilliseconds );
 
-            try {
-                Paths.MoveOrReplace( tempFileName, Paths.PlayerDBFileName );
-            } catch( Exception ex ) {
-                Logger.Log( "PlayerDB.Save: An error occured while trying to save PlayerDB: " + ex, LogType.Error );
+                try {
+                    Paths.MoveOrReplace( tempFileName, Paths.PlayerDBFileName );
+                } catch( Exception ex ) {
+                    Logger.Log( "PlayerDB.Save: An error occured while trying to save PlayerDB: " + ex, LogType.Error );
+                }
             }
         }
 
@@ -182,7 +187,7 @@ namespace fCraft {
             if( name == null ) throw new ArgumentNullException( "name" );
             PlayerInfo info;
 
-            lock( Locker ) {
+            lock( AddLocker ) {
                 info = Trie.Get( name );
                 if( info == null ) {
                     info = new PlayerInfo( name, lastIP );
@@ -244,7 +249,7 @@ namespace fCraft {
 
         public static PlayerInfo[] FindPlayers( string namePart, int limit ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
-            lock( Locker ) {
+            lock( AddLocker ) {
                 //return Trie.ValuesStartingWith( namePart ).Take( limit ).ToArray(); // <- works, but is slightly slower
                 return Trie.GetList( namePart, limit ).ToArray();
             }
@@ -256,7 +261,7 @@ namespace fCraft {
         /// <returns>true if one or zero matches were found, false if multiple matches were found</returns>
         public static bool FindPlayerInfo( string name, out PlayerInfo info ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            lock( Locker ) {
+            lock( AddLocker ) {
                 return Trie.GetOneMatch( name, out info );
             }
         }
@@ -264,7 +269,7 @@ namespace fCraft {
 
         public static PlayerInfo FindPlayerInfoExact( string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            lock( Locker ) {
+            lock( AddLocker ) {
                 return Trie.Get( name );
             }
         }
@@ -302,7 +307,7 @@ namespace fCraft {
             if( from == null ) throw new ArgumentNullException( "from" );
             if( to == null ) throw new ArgumentNullException( "to" );
             int affected = 0;
-            lock( Locker ) {
+            lock( AddLocker ) {
                 foreach( PlayerInfo info in List ) {
                     if( info.Rank == from ) {
                         ModerationCommands.DoChangeRank( player, info, to, "~MassRank", silent, false );
@@ -327,7 +332,7 @@ namespace fCraft {
 
 
         static void UpdateCache() {
-            lock( Locker ) {
+            lock( AddLocker ) {
                 PlayerInfoList = List.ToArray();
             }
         }
@@ -341,7 +346,7 @@ namespace fCraft {
 
         internal static int CountInactivePlayers() {
             int count;
-            lock( Locker ) {
+            lock( AddLocker ) {
                 playersByIP = new Dictionary<IPAddress, List<PlayerInfo>>();
                 PlayerInfo[] playerInfoListCache = PlayerInfoList;
                 for( int i = 0; i < playerInfoListCache.Length; i++ ) {
@@ -359,7 +364,7 @@ namespace fCraft {
 
         internal static int RemoveInactivePlayers() {
             int count = 0;
-            lock( Locker ) {
+            lock( AddLocker ) {
                 playersByIP = new Dictionary<IPAddress, List<PlayerInfo>>();
                 PlayerInfo[] playerInfoListCache = PlayerInfoList;
                 for( int i = 0; i < playerInfoListCache.Length; i++ ) {

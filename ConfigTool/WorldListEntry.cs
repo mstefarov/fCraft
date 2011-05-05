@@ -60,8 +60,6 @@ namespace ConfigTool {
                 Backup = World.BackupEnum[5];
             }
 
-            // TODO: Support parsing SecurityController
-
             if( el.Element( "accessSecurity" ) != null ) {
                 accessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
             }else if( (temp = el.Attribute( "access" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {

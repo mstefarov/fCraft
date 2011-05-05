@@ -331,17 +331,9 @@ namespace fCraft {
             }
 
             // list loaded worlds
-            StringBuilder line = new StringBuilder( "All available worlds: " );
-            bool firstPrintedWorld = true;
             WorldManager.UpdateWorldList();
-            foreach( string worldName in WorldManager.WorldList.Select( w => w.Name ) ) {
-                if( !firstPrintedWorld ) {
-                    line.Append( ", " );
-                }
-                line.Append( worldName );
-                firstPrintedWorld = false;
-            }
-            Logger.Log( line.ToString(), LogType.SystemActivity );
+            Logger.Log( "All available worlds: {0}", LogType.SystemActivity,
+                        WorldManager.WorldList.JoinToString( ", ", w => w.Name ) );
 
             Logger.Log( "Main world: {0}; default rank: {1}", LogType.SystemActivity,
                         WorldManager.MainWorld.Name, RankManager.DefaultRank.Name );

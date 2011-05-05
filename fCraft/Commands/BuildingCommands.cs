@@ -569,14 +569,14 @@ namespace fCraft {
                     };
                     callback = ReplaceCallback;
 
-                    string affectedString = "";
-                    foreach( Block affectedBlock in replacedTypes ) {
-                        affectedString += ", " + affectedBlock;
-                    }
                     if( mode == DrawMode.ReplaceNot ) {
-                        player.MessageNow( "ReplaceNot: Ready to replace everything EXCEPT ({0}) with {1}", affectedString.Substring( 2 ), replacementType );
+                        player.MessageNow( "ReplaceNot: Ready to replace everything EXCEPT ({0}) with {1}",
+                                           replacedTypes.JoinToString( ", " ),
+                                           replacementType );
                     } else {
-                        player.MessageNow( "Replace: Ready to replace ({0}) with {1}", affectedString.Substring( 2 ), replacementType );
+                        player.MessageNow( "Replace: Ready to replace ({0}) with {1}",
+                                           replacedTypes.JoinToString( ", " ),
+                                           replacementType );
                     }
 
                     break;
@@ -957,15 +957,12 @@ namespace fCraft {
                 }
             }
 
-            string affectedString = "";
-            for( int i = 0; i < specialTypeCount; i++ ) {
-                affectedString += ", " + ((Block)specialTypes[i]);
-            }
+
             Logger.Log( "{0} replaced {1} blocks {2} ({3}) with {4} (on world {5})", LogType.UserActivity,
                         player.Name,
                         blocks,
                         (doExclude ? "except" : "of"),
-                        affectedString.Substring( 2 ),
+                        args.Types.JoinToString( ", " ),
                         args.ReplacementBlock,
                         player.World.Name );
 
@@ -1538,11 +1535,8 @@ namespace fCraft {
                     DoExclude = true,
                     BlockTypes = excludedTypes.ToArray()
                 };
-                string includedString = "";
-                foreach( Block block in excludedTypes ) {
-                    includedString += ", " + block;
-                }
-                player.MessageNow( "Ready to paste all EXCEPT {0}", includedString.Substring( 2 ) );
+                player.MessageNow( "Ready to paste all EXCEPT {0}",
+                                   excludedTypes.JoinToString( ", " ) );
             } else {
                 player.MessageNow( "PasteNot: Please specify block(s) to exclude." );
                 return;
@@ -1591,11 +1585,7 @@ namespace fCraft {
                     DoInclude = true,
                     BlockTypes = includedTypes.ToArray()
                 };
-                string includedString = "";
-                foreach( Block block in includedTypes ) {
-                    includedString += ", " + block;
-                }
-                player.MessageNow( "Ready to paste ONLY {0}", includedString.Substring( 2 ) );
+                player.MessageNow( "Ready to paste ONLY {0}", includedTypes.JoinToString( ", " ) );
             } else {
                 args = new PasteArgs {
                     BlockTypes = new Block[0]

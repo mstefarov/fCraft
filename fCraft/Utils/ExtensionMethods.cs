@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net;
+using System.Globalization;
 
 namespace fCraft {
 
@@ -16,10 +18,9 @@ namespace fCraft {
     }
 
 
-
     static class DateTimeUtil {
 
-        static DateTimeUtil(){
+        static DateTimeUtil() {
             TicksToUnixEpoch = UnixEpoch.Ticks;
         }
 
@@ -38,6 +39,14 @@ namespace fCraft {
                 return ((date.Ticks - TicksToUnixEpoch) / TicksPerSecond).ToString();
             }
         }
+
+        public static StringBuilder ToTickString( this DateTime date, StringBuilder sb ) {
+            if( date != DateTime.MinValue ) {
+                sb.Append( (date.Ticks - TicksToUnixEpoch) / TicksPerSecond );
+            }
+            return sb;
+        }
+
 
 
         public static long ToTimestamp( this DateTime timestamp ) {
@@ -102,6 +111,13 @@ namespace fCraft {
             } else {
                 return (time.Ticks / TicksPerSecond).ToString();
             }
+        }
+
+        public static StringBuilder ToTickString( this TimeSpan time, StringBuilder sb ) {
+            if( time != TimeSpan.Zero ) {
+                sb.Append( time.Ticks / TicksPerSecond );
+            }
+            return sb;
         }
 
 
@@ -183,5 +199,75 @@ namespace fCraft {
         }
 
         #endregion
+
+
+
+        static CultureInfo cultureInfo = CultureInfo.CurrentCulture;
+
+        /// <summary> Tries to parse a data in a culture-specific ways.
+        /// This method is, unfortunately, necessary because in versions 0.520-0.522,
+        /// fCraft saved dates in a culture-specific format. This means that if the
+        /// server's culture settings were changed, or if the PlayerDB and IPBanList
+        /// files were moved between machines, all dates became unparseable. </summary>
+        /// <param name="dateString"> String to parse. </param>
+        /// <param name="date"> Date to output. </param>
+        /// <returns> True if date string could be parsed and was not empty/MinValue. </returns>
+        public static bool TryParseLocalDate( string dateString, out DateTime date ) {
+            if( dateString.Length <= 1 ) {
+                date = DateTime.MinValue;
+                return false;
+            } else {
+                if( !DateTime.TryParse( dateString, cultureInfo, DateTimeStyles.None, out date ) ) {
+                    Logger.Log( "PlayerInfo.TryParseLocalDate: Unable to parse a date string \"{0}\". Trying to guess format...",
+                                LogType.Warning, dateString );
+                    CultureInfo[] cultureList = CultureInfo.GetCultures( CultureTypes.FrameworkCultures );
+                    foreach( CultureInfo otherCultureInfo in cultureList ) {
+                        cultureInfo = otherCultureInfo;
+                        try {
+                            if( DateTime.TryParse( dateString, cultureInfo, DateTimeStyles.None, out date ) ) {
+                                Logger.Log( "PlayerInfo.TryParseLocalDate: Date string parsed succesfully using \"{0}\" format...", LogType.Warning,
+                                            cultureInfo.EnglishName );
+                                return true;
+                            }
+                        } catch( NotSupportedException ) { }
+                    }
+                    throw new Exception( "Could not find a culture that would be able to parse date/time formats." );
+                } else {
+                    return true;
+                }
+            }
+        }
+    }
+
+
+    static class EnumerableUtil {
+        public static string JoinToString<T>( this IEnumerable<T> items, string separator ) {
+            StringBuilder sb = new StringBuilder();
+            bool first = true;
+            foreach( T item in items ) {
+                if( !first ) sb.Append( separator );
+                sb.Append( item );
+                first = false;
+            }
+            return sb.ToString();
+        }
+
+
+        public static string JoinToString<T>( this IEnumerable<T> items, string separator, Func<T, string> stringConversionFunction ) {
+            StringBuilder sb = new StringBuilder();
+            bool first = true;
+            foreach( T item in items ) {
+                if( !first ) sb.Append( separator );
+                sb.Append( stringConversionFunction( item ) );
+                first = false;
+            }
+            return sb.ToString();
+        }
+
+
+        // TODO: After switching to 4.0, mess with generics to allow IEnumerable<IClassy>
+        public static string JoinToClassyString( this IEnumerable<IClassy> list ) {
+            return list.JoinToString( "&S, ", p => p.GetClassyName() );
+        }
     }
 }

@@ -86,7 +86,6 @@ namespace fCraft {
                 // try to log the player in, otherwise die.
                 if( !LoginSequence() ) return;
 
-                // set up position updates (TODO: Load from PlayerDB)
                 SetBandwidthUseMode( Player.Info.BandwidthUseMode );
 
                 // set up some temp variables
@@ -598,7 +597,7 @@ namespace fCraft {
             if( bannedPlayerNames.Length > 0 ) {
                 string logString = String.Format( "&WPlayer {0}&W logged in from an IP previously used by banned players: {1}",
                                                   Player.GetClassyName(),
-                                                  PlayerInfo.PlayerInfoArrayToString( bannedPlayerNames ) );
+                                                  bannedPlayerNames.JoinToClassyString() );
                 Server.SendToAll( logString );
                 Logger.Log( logString, LogType.SuspiciousActivity );
             }
@@ -813,7 +812,9 @@ namespace fCraft {
             Server.FireWorldChangedEvent( Player, oldWorld, newWorld );
 
             // Done.
-            Server.RequestGC();
+            if( MonoCompat.IsMono ) {
+                Server.RequestGC();
+            }
 
             return true;
         }

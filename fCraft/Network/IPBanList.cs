@@ -268,7 +268,7 @@ namespace fCraft {
 
             info.Address = IPAddress.Parse( fields[0] );
             info.BannedBy = PlayerInfo.UnescapeOldFormat( fields[1] );
-            info.BanDate = DateTime.Parse( fields[2] );
+            DateTimeUtil.TryParseLocalDate( fields[2], out info.BanDate );
             info.BanReason = PlayerInfo.UnescapeOldFormat( fields[3] );
             if( fields[4].Length > 1 ) {
                 info.PlayerName = PlayerInfo.UnescapeOldFormat( fields[4] );
@@ -276,9 +276,7 @@ namespace fCraft {
 
             info.Attempts = Int32.Parse( fields[5] );
             info.LastAttemptName = PlayerInfo.UnescapeOldFormat( fields[6] );
-            if( fields[7].Length > 1 ) {
-                info.LastAttemptDate = DateTime.Parse( fields[7] );
-            }
+            DateTimeUtil.TryParseLocalDate( fields[7], out info.LastAttemptDate );
 
             if( convertDatesToUtc ) {
                 if( info.BanDate != DateTime.MinValue ) info.BanDate = info.BanDate.ToUniversalTime();
