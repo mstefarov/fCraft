@@ -241,6 +241,19 @@ namespace fCraft {
 
 
     static class EnumerableUtil {
+
+        public static string JoinToString<T>( this IEnumerable<T> items ) {
+            StringBuilder sb = new StringBuilder();
+            bool first = true;
+            foreach( T item in items ) {
+                if( !first ) sb.Append( ',' ).Append( ' ' );
+                sb.Append( item );
+                first = false;
+            }
+            return sb.ToString();
+        }
+
+
         public static string JoinToString<T>( this IEnumerable<T> items, string separator ) {
             StringBuilder sb = new StringBuilder();
             bool first = true;

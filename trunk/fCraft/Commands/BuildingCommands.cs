@@ -571,11 +571,11 @@ namespace fCraft {
 
                     if( mode == DrawMode.ReplaceNot ) {
                         player.MessageNow( "ReplaceNot: Ready to replace everything EXCEPT ({0}) with {1}",
-                                           replacedTypes.JoinToString( ", " ),
+                                           replacedTypes.JoinToString(),
                                            replacementType );
                     } else {
                         player.MessageNow( "Replace: Ready to replace ({0}) with {1}",
-                                           replacedTypes.JoinToString( ", " ),
+                                           replacedTypes.JoinToString(),
                                            replacementType );
                     }
 
@@ -962,7 +962,7 @@ namespace fCraft {
                         player.Name,
                         blocks,
                         (doExclude ? "except" : "of"),
-                        args.Types.JoinToString( ", " ),
+                        args.Types.JoinToString(),
                         args.ReplacementBlock,
                         player.World.Name );
 
@@ -1181,7 +1181,7 @@ namespace fCraft {
                         double dy = (y - cy);
                         double dh = (h - ch);
 
-                        if( ( dx * dx ) * rx2 + ( dy * dy ) * ry2 + ( dh * dh ) * rh2 > 1 ) continue;
+                        if( (dx * dx) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 > 1 ) continue;
 
                         // we touched the surface
                         // keep drilling until we hit an internal block
@@ -1536,7 +1536,7 @@ namespace fCraft {
                     BlockTypes = excludedTypes.ToArray()
                 };
                 player.MessageNow( "Ready to paste all EXCEPT {0}",
-                                   excludedTypes.JoinToString( ", " ) );
+                                   excludedTypes.JoinToString() );
             } else {
                 player.MessageNow( "PasteNot: Please specify block(s) to exclude." );
                 return;
@@ -1585,7 +1585,7 @@ namespace fCraft {
                     DoInclude = true,
                     BlockTypes = includedTypes.ToArray()
                 };
-                player.MessageNow( "Ready to paste ONLY {0}", includedTypes.JoinToString( ", " ) );
+                player.MessageNow( "Ready to paste ONLY {0}", includedTypes.JoinToString() );
             } else {
                 args = new PasteArgs {
                     BlockTypes = new Block[0]
