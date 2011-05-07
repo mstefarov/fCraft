@@ -426,7 +426,7 @@
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox2.Controls.Add( this.bViewCredits );
             this.groupBox2.Controls.Add( this.bViewVersionHistory );
-            this.groupBox2.Location = new System.Drawing.Point( 329, 410 );
+            this.groupBox2.Location = new System.Drawing.Point( 329, 442 );
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size( 315, 55 );
             this.groupBox2.TabIndex = 4;
@@ -458,7 +458,7 @@
             this.gHelpAndSupport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.gHelpAndSupport.Controls.Add( this.bOpenWiki );
             this.gHelpAndSupport.Controls.Add( this.bReportABug );
-            this.gHelpAndSupport.Location = new System.Drawing.Point( 8, 410 );
+            this.gHelpAndSupport.Location = new System.Drawing.Point( 8, 442 );
             this.gHelpAndSupport.Name = "gHelpAndSupport";
             this.gHelpAndSupport.Size = new System.Drawing.Size( 315, 55 );
             this.gHelpAndSupport.TabIndex = 3;
@@ -1090,7 +1090,7 @@
             // 
             this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
             this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size( 637, 219 );
+            this.chatPreview.Size = new System.Drawing.Size( 637, 241 );
             this.chatPreview.TabIndex = 2;
             // 
             // tabWorlds
@@ -1118,7 +1118,7 @@
             // 
             this.bMapPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bMapPath.Enabled = false;
-            this.bMapPath.Location = new System.Drawing.Point( 586, 414 );
+            this.bMapPath.Location = new System.Drawing.Point( 587, 474 );
             this.bMapPath.Name = "bMapPath";
             this.bMapPath.Size = new System.Drawing.Size( 57, 23 );
             this.bMapPath.TabIndex = 8;
@@ -1130,7 +1130,7 @@
             // 
             this.xMapPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.xMapPath.AutoSize = true;
-            this.xMapPath.Location = new System.Drawing.Point( 7, 414 );
+            this.xMapPath.Location = new System.Drawing.Point( 8, 474 );
             this.xMapPath.Name = "xMapPath";
             this.xMapPath.Size = new System.Drawing.Size( 189, 19 );
             this.xMapPath.TabIndex = 6;
@@ -1144,7 +1144,7 @@
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.tMapPath.Enabled = false;
             this.tMapPath.Font = new System.Drawing.Font( "Lucida Console", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.tMapPath.Location = new System.Drawing.Point( 202, 416 );
+            this.tMapPath.Location = new System.Drawing.Point( 203, 476 );
             this.tMapPath.Name = "tMapPath";
             this.tMapPath.Size = new System.Drawing.Size( 378, 19 );
             this.tMapPath.TabIndex = 7;
@@ -1153,7 +1153,7 @@
             // 
             this.lDefaultBuildRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lDefaultBuildRank.AutoSize = true;
-            this.lDefaultBuildRank.Location = new System.Drawing.Point( 23, 390 );
+            this.lDefaultBuildRank.Location = new System.Drawing.Point( 24, 450 );
             this.lDefaultBuildRank.Name = "lDefaultBuildRank";
             this.lDefaultBuildRank.Size = new System.Drawing.Size( 342, 15 );
             this.lDefaultBuildRank.TabIndex = 7;
@@ -1164,7 +1164,7 @@
             this.cDefaultBuildRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cDefaultBuildRank.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cDefaultBuildRank.FormattingEnabled = true;
-            this.cDefaultBuildRank.Location = new System.Drawing.Point( 371, 387 );
+            this.cDefaultBuildRank.Location = new System.Drawing.Point( 372, 447 );
             this.cDefaultBuildRank.Name = "cDefaultBuildRank";
             this.cDefaultBuildRank.Size = new System.Drawing.Size( 121, 23 );
             this.cDefaultBuildRank.TabIndex = 5;
@@ -1243,7 +1243,7 @@
             dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
             this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvWorlds.Size = new System.Drawing.Size( 636, 334 );
+            this.dgvWorlds.Size = new System.Drawing.Size( 636, 394 );
             this.dgvWorlds.TabIndex = 1;
             this.dgvWorlds.SelectionChanged += new System.EventHandler( this.dgvWorlds_Click );
             this.dgvWorlds.Click += new System.EventHandler( this.dgvWorlds_Click );
@@ -2382,7 +2382,7 @@
             this.gLogFile.Controls.Add( this.lLogMode );
             this.gLogFile.Location = new System.Drawing.Point( 329, 13 );
             this.gLogFile.Name = "gLogFile";
-            this.gLogFile.Size = new System.Drawing.Size( 315, 395 );
+            this.gLogFile.Size = new System.Drawing.Size( 315, 423 );
             this.gLogFile.TabIndex = 1;
             this.gLogFile.TabStop = false;
             this.gLogFile.Text = "Log File";
@@ -2400,7 +2400,7 @@
             // 
             this.xLogLimit.AutoSize = true;
             this.xLogLimit.Enabled = false;
-            this.xLogLimit.Location = new System.Drawing.Point( 18, 365 );
+            this.xLogLimit.Location = new System.Drawing.Point( 18, 390 );
             this.xLogLimit.Name = "xLogLimit";
             this.xLogLimit.Size = new System.Drawing.Size( 80, 19 );
             this.xLogLimit.TabIndex = 2;
@@ -2418,7 +2418,7 @@
             this.vLogFileOptions.Location = new System.Drawing.Point( 78, 59 );
             this.vLogFileOptions.Name = "vLogFileOptions";
             this.vLogFileOptions.ShowItemToolTips = true;
-            this.vLogFileOptions.Size = new System.Drawing.Size( 161, 270 );
+            this.vLogFileOptions.Size = new System.Drawing.Size( 161, 294 );
             this.vLogFileOptions.TabIndex = 0;
             this.vLogFileOptions.UseCompatibleStateImageBehavior = false;
             this.vLogFileOptions.View = System.Windows.Forms.View.Details;
@@ -2431,7 +2431,7 @@
             // lLogLimitUnits
             // 
             this.lLogLimitUnits.AutoSize = true;
-            this.lLogLimitUnits.Location = new System.Drawing.Point( 166, 366 );
+            this.lLogLimitUnits.Location = new System.Drawing.Point( 166, 391 );
             this.lLogLimitUnits.Name = "lLogLimitUnits";
             this.lLogLimitUnits.Size = new System.Drawing.Size( 129, 15 );
             this.lLogLimitUnits.TabIndex = 4;
@@ -2440,7 +2440,7 @@
             // nLogLimit
             // 
             this.nLogLimit.Enabled = false;
-            this.nLogLimit.Location = new System.Drawing.Point( 104, 364 );
+            this.nLogLimit.Location = new System.Drawing.Point( 104, 389 );
             this.nLogLimit.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -2458,7 +2458,7 @@
             "One long file",
             "Multiple files, split by session",
             "Multiple files, split by day"} );
-            this.cLogMode.Location = new System.Drawing.Point( 104, 335 );
+            this.cLogMode.Location = new System.Drawing.Point( 104, 360 );
             this.cLogMode.Name = "cLogMode";
             this.cLogMode.Size = new System.Drawing.Size( 185, 23 );
             this.cLogMode.TabIndex = 1;
@@ -2466,7 +2466,7 @@
             // lLogMode
             // 
             this.lLogMode.AutoSize = true;
-            this.lLogMode.Location = new System.Drawing.Point( 35, 338 );
+            this.lLogMode.Location = new System.Drawing.Point( 35, 363 );
             this.lLogMode.Name = "lLogMode";
             this.lLogMode.Size = new System.Drawing.Size( 63, 15 );
             this.lLogMode.TabIndex = 0;
@@ -2478,7 +2478,7 @@
             this.gConsole.Controls.Add( this.vConsoleOptions );
             this.gConsole.Location = new System.Drawing.Point( 8, 13 );
             this.gConsole.Name = "gConsole";
-            this.gConsole.Size = new System.Drawing.Size( 315, 395 );
+            this.gConsole.Size = new System.Drawing.Size( 315, 423 );
             this.gConsole.TabIndex = 0;
             this.gConsole.TabStop = false;
             this.gConsole.Text = "Console";
@@ -2502,7 +2502,7 @@
             this.vConsoleOptions.Location = new System.Drawing.Point( 76, 59 );
             this.vConsoleOptions.Name = "vConsoleOptions";
             this.vConsoleOptions.ShowItemToolTips = true;
-            this.vConsoleOptions.Size = new System.Drawing.Size( 161, 270 );
+            this.vConsoleOptions.Size = new System.Drawing.Size( 161, 294 );
             this.vConsoleOptions.TabIndex = 0;
             this.vConsoleOptions.UseCompatibleStateImageBehavior = false;
             this.vConsoleOptions.View = System.Windows.Forms.View.Details;
@@ -2879,11 +2879,11 @@
             this.lIRCList.TabIndex = 4;
             this.lIRCList.Text = "Popular networks:";
             // 
-            // xIRC
+            // xIRCBotEnabled
             // 
             this.xIRCBotEnabled.AutoSize = true;
             this.xIRCBotEnabled.Location = new System.Drawing.Point( 14, 13 );
-            this.xIRCBotEnabled.Name = "xIRC";
+            this.xIRCBotEnabled.Name = "xIRCBotEnabled";
             this.xIRCBotEnabled.Size = new System.Drawing.Size( 149, 19 );
             this.xIRCBotEnabled.TabIndex = 0;
             this.xIRCBotEnabled.Text = "Enable IRC integration";
@@ -2915,6 +2915,9 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add( this.lIPWarning );
             this.groupBox1.Controls.Add( this.tIP );
             this.groupBox1.Controls.Add( this.xIP );
@@ -2938,7 +2941,7 @@
             this.groupBox1.Controls.Add( this.xNoPartialPositionUpdates );
             this.groupBox1.Location = new System.Drawing.Point( 8, 118 );
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size( 638, 347 );
+            this.groupBox1.Size = new System.Drawing.Size( 638, 379 );
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Miscellaneous";
@@ -3205,6 +3208,8 @@
             // 
             // gCrashReport
             // 
+            this.gCrashReport.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.gCrashReport.Controls.Add( this.lCrashReportDisclaimer );
             this.gCrashReport.Controls.Add( this.xSubmitCrashReports );
             this.gCrashReport.Location = new System.Drawing.Point( 8, 13 );

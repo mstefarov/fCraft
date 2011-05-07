@@ -33,13 +33,14 @@ namespace ConfigTool {
                 MessageBox.Show( missingFileMsg );
             }
 
-
-            if( Config.Load( false, false ) ) {
-                if( Config.Errors.Length > 0 ) {
-                    MessageBox.Show( Config.Errors, "Config loading warnings" );
+            using( LogRecorder loadLogger = new LogRecorder() ) {
+                if( Config.Load( false, false ) ) {
+                    if( loadLogger.HasMessages ) {
+                        MessageBox.Show( loadLogger.MessageString, "Config loading warnings" );
+                    }
+                } else {
+                    MessageBox.Show( loadLogger.MessageString, "Error occured while trying to load config" );
                 }
-            } else {
-                MessageBox.Show( Config.Errors, "Error occured while trying to load config" );
             }
 
             ApplyTabGeneral();
@@ -393,8 +394,6 @@ namespace ConfigTool {
         #region Saving Config
 
         void SaveConfig() {
-            Config.Errors = "";
-
             // General
             Config.TrySetValue( ConfigKey.ServerName, tServerName.Text );
             Config.TrySetValue( ConfigKey.MOTD, tMOTD.Text );
@@ -448,7 +447,7 @@ namespace ConfigTool {
             }
 
             if( xMapPath.Checked ) Config.TrySetValue( ConfigKey.MapPath, tMapPath.Text );
-            else Config.TrySetValue( ConfigKey.MapPath, "" );
+            else Config.TrySetValue( ConfigKey.MapPath, ConfigKey.MapPath.GetDefault() );
 
 
             // Security

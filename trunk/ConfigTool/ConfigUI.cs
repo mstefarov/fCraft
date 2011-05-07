@@ -50,8 +50,6 @@ namespace ConfigTool {
 
             dgvWorlds.DataError += ( sender, e ) => MessageBox.Show( e.Exception.Message, "Data Error" );
 
-            Config.LogToString = true;
-
             PopulateIRCNetworkList( false );
 
             Load += LoadConfig;
@@ -65,7 +63,6 @@ namespace ConfigTool {
             }
 
             foreach( LogType type in Enum.GetValues( typeof( LogType ) ) ) {
-                if( type == LogType.Trace ) continue;
                 ListViewItem item = new ListViewItem( type.ToString() );
                 item.Tag = type;
                 vLogFileOptions.Items.Add( item );
@@ -506,6 +503,10 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         }
 
         #endregion
+
+        private void xAnnounceRankChanges_CheckedChanged( object sender, EventArgs e ) {
+            xAnnounceRankChangeReasons.Enabled = xAnnounceRankChanges.Checked;
+        }
 
         #endregion
 
@@ -1169,25 +1170,29 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         #region Apply / Save / Cancel Buttons
 
         private void bApply_Click( object sender, EventArgs e ) {
-            SaveConfig();
-            if( Config.Errors.Length > 0 ) {
-                MessageBox.Show( Config.Errors, "Some errors were found in the selected values:" );
-            } else if( Config.Save( false ) ) {
-                bApply.Enabled = false;
-            } else {
-                MessageBox.Show( Config.Errors, "An error occured while trying to save:" );
-            }
+            SaveEverything();
         }
 
         private void bSave_Click( object sender, EventArgs e ) {
-            SaveConfig();
-            if( Config.Errors.Length > 0 ) {
-                MessageBox.Show( Config.Errors, "Some errors were found in the selected values:" );
-            } else if( Config.Save( false ) ) {
-                bApply.Enabled = false;
-                Application.Exit();
-            } else {
-                MessageBox.Show( Config.Errors, "An error occured while trying to save:" );
+            SaveEverything();
+            Application.Exit();
+        }
+
+        void SaveEverything() {
+            using( LogRecorder applyLogger = new LogRecorder() ) {
+                SaveConfig();
+                if( applyLogger.HasMessages ) {
+                    MessageBox.Show( applyLogger.MessageString, "Some problems were encountered with the selected values." );
+                    return;
+                }
+            }
+            using( LogRecorder saveLogger = new LogRecorder() ) {
+                if( Config.Save( false ) ) {
+                    bApply.Enabled = false;
+                }
+                if( saveLogger.HasMessages ) {
+                    MessageBox.Show( saveLogger.MessageString, "Some problems were encountered while saving." );
+                }
             }
         }
 
@@ -1444,25 +1449,13 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             if( !bApply.Enabled ) return;
             switch( MessageBox.Show( "Would you like to save the changes before exiting?", "Warning", MessageBoxButtons.YesNoCancel ) ) {
                 case DialogResult.Yes:
-                    SaveConfig();
-                    if( Config.Errors.Length > 0 ) {
-                        MessageBox.Show( Config.Errors, "Some errors were found in the selected values:" );
-                    } else if( Config.Save( false ) ) {
-                        bApply.Enabled = false;
-                    } else {
-                        MessageBox.Show( Config.Errors, "An error occured while trying to save:" );
-                    }
+                    SaveEverything();
                     return;
+
                 case DialogResult.Cancel:
                     e.Cancel = true;
                     return;
             }
         }
-
-        private void xAnnounceRankChanges_CheckedChanged( object sender, EventArgs e ) {
-            xAnnounceRankChangeReasons.Enabled = xAnnounceRankChanges.Checked;
-        }
-
-
     }
 }

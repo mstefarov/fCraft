@@ -506,7 +506,7 @@ namespace fCraft {
             Server.PlayerKicked += PlayerKickedHandler;
             Server.OnPlayerBanned += PlayerBannedHandler;
             Server.OnPlayerUnbanned += PlayerUnbannedHandler;
-            Server.OnRankChanged += PlayerRankChangedHandler;
+            Server.PlayerInfoRankChanged += PlayerRankChangedHandler;
         }
 
         internal static void PlayerMessageHandler( Player player, World world, ref string message, ref bool cancel ) {
@@ -550,12 +550,12 @@ namespace fCraft {
             PlayerSomethingMessage( unbanner, "unbanned", player, reason );
         }
 
-        internal static void PlayerRankChangedHandler( PlayerInfo target, Player changer, Rank oldRank, Rank newRank, string reason, ref bool cancel ) {
-            string actionString = String.Format( "{0}moted from {1}&W to {2}&W",
-                                                 (oldRank < newRank ? "pro" : "de"),
-                                                 oldRank.GetClassyName(),
-                                                 newRank.GetClassyName() );
-            PlayerSomethingMessage( changer, actionString, target, reason );
+        internal static void PlayerRankChangedHandler( object sender, PlayerInfoRankChangedEventArgs e ) {
+            string actionString = String.Format( "{0} from {1}&W to {2}&W",
+                                                 e.RankChangeType,
+                                                 e.OldRank.GetClassyName(),
+                                                 e.NewRank.GetClassyName() );
+            PlayerSomethingMessage( e.RankChanger, actionString, e.PlayerInfo, e.Reason );
         }
 
         static void PlayerSomethingMessage( Player player, string action, PlayerInfo target, string reason ) {

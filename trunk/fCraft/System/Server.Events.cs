@@ -155,6 +155,9 @@ namespace fCraft {
         public static event EventHandler<PlayerKickedEventArgs> PlayerKicked;
 
 
+        /// <summary> Happens after a player has hidden or unhidden. </summary>
+        public static event EventHandler<PlayerEventArgs> PlayerHideChanged;
+
         /// <summary> Occurs when player is about to send a chat message (cancellable). </summary>
         //public static event EventHandler<PlayerSendingMessageEventArgs> PlayerSendingMessage;
 
@@ -248,6 +251,12 @@ namespace fCraft {
         }
 
 
+        internal static void RaisePlayerHideChangedEvent( Player player ) {
+            var h = PlayerHideChanged;
+            if( h != null ) h( null, new PlayerEventArgs( player ) );
+        }
+
+
         /*internal static bool RaisePlayerSendingMessageEvent( ChatMessage message ) {
             var h = PlayerSendingMessage;
             if( h == null ) return false;
@@ -271,12 +280,55 @@ namespace fCraft {
         #endregion
 
 
+        #region PlayerInfo-related
+
+        /// <summary> Occurs when a new PlayerDB entry is being created.
+        /// Cancellable (kicks the player), and allows editing the starting rank. </summary>
+        public static event EventHandler<PlayerInfoCreatingEventArgs> PlayerInfoCreating;
+
+        /// <summary> Occurs after a new PlayerDB entry has been created. </summary>
+        public static event EventHandler<PlayerInfoCreatedEventArgs> PlayerInfoCreated;
+
+        /// <summary> Occurs when a player's rank is about to be changed (automatically or manually). </summary>
+        public static event EventHandler<PlayerInfoRankChangingEventArgs> PlayerInfoRankChanging;
+
+        /// <summary> Occurs when a player's rank was just changed (automatically or manually). </summary>
+        public static event EventHandler<PlayerInfoRankChangedEventArgs> PlayerInfoRankChanged;
+
+
+        internal static void RaisePlayerInfoCreatingEvent( PlayerInfoCreatingEventArgs e ) {
+            var h = PlayerInfoCreating;
+            if( h != null ) h( null, e );
+        }
+
+        internal static void RaisePlayerInfoCreatedEvent( PlayerInfo info, bool isUnrecognized ) {
+            var h = PlayerInfoCreated;
+            if( h != null ) h( null, new PlayerInfoCreatedEventArgs( info, isUnrecognized ) );
+        }
+
+        internal static bool RaisePlayerInfoRankChangingEvent( PlayerInfo playerInfo, Player rankChanger, Rank newRank, string reason, RankChangeType rankChangeType ) {
+            var h = PlayerInfoRankChanging;
+            if( h == null ) return false;
+            var e = new PlayerInfoRankChangingEventArgs( playerInfo, rankChanger, newRank, reason, rankChangeType );
+            h( null, e );
+            return e.Cancel;
+        }
+
+        internal static void RaisePlayerInfoRankChangedEvent( PlayerInfo playerInfo, Player rankChanger, Rank oldRank, string reason, RankChangeType rankChangeType ) {
+            var h = PlayerInfoRankChanged;
+            if( h != null ) h( null, new PlayerInfoRankChangedEventArgs( playerInfo, rankChanger, oldRank, reason, rankChangeType ) );
+        }
+
+        #endregion
+
+
         #region World-related
 
         #endregion
 
     }
 }
+
 
 namespace fCraft.Events {
 

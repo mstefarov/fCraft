@@ -163,6 +163,8 @@ namespace fCraft.MapConversion {
             if( dataStore.Zones.Length == 0 ) {
                 return;
             }
+
+            // TODO: investigate side effects
             PlayerInfo conversionPlayer = new PlayerInfo( "OpticraftConversion", RankManager.HighestRank, true, RankChangeType.AutoPromoted );
             foreach( OpticraftZone optiZone in dataStore.Zones ) {
                 //Make zone

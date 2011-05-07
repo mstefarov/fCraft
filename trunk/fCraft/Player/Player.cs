@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Cache;
 using System.Text;
+using fCraft.Events;
 
 namespace fCraft {
     /// <summary>
@@ -50,9 +51,9 @@ namespace fCraft {
         // last command (to be able to repeat)
         public Command LastCommand;
 
-        // for block tracking
-        public ushort LocalPlayerID = (ushort)ReservedPlayerID.None; // map-specific PlayerID
+        // map-specific PlayerID for block tracking
         // if no ID is assigned, set to ReservedPlayerID.None
+        public ushort LocalPlayerID = (ushort)ReservedPlayerID.None;
 
 
         // This constructor is used to create dummy players (such as Console and /dummy)
@@ -984,27 +985,17 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class PlayerPlacingBlockEventArgs : PlayerEventArgs {
+    public sealed class PlayerPlacingBlockEventArgs : PlayerPlacedBlockEventArgs {
         internal PlayerPlacingBlockEventArgs( Player player, short x, short y, short h, Block block, bool isManual, CanPlaceResult result )
-            : base( player ) {
-            X = x;
-            Y = y;
-            H = h;
-            Block = block;
-            IsManual = isManual;
+            : base( player, x, y, h, block, isManual ) {
             Result = result;
         }
 
-        public short X { get; private set; }
-        public short Y { get; private set; }
-        public short H { get; private set; }
-        public bool IsManual { get; private set; }
-        public Block Block { get; private set; }
         public CanPlaceResult Result { get; set; }
     }
 
 
-    public sealed class PlayerPlacedBlockEventArgs : PlayerEventArgs {
+    public class PlayerPlacedBlockEventArgs : PlayerEventArgs {
         internal PlayerPlacedBlockEventArgs( Player player, short x, short y, short h, Block block, bool isManual )
             : base( player ) {
             X = x;
@@ -1056,6 +1047,5 @@ namespace fCraft.Events {
         }
         public LeaveReason LeaveReason { get; private set; }
     }
-
 }
 #endregion

@@ -377,6 +377,11 @@ namespace fCraft {
 
 
         public override string ToString() {
+            return String.Format( "Rank({0})", Name );
+        }
+
+
+        public string GetFullName() {
             return Name + "#" + ID;
         }
 

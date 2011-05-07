@@ -127,7 +127,7 @@ namespace ConfigTool {
                 foreach( Rank rank in RankManager.Ranks ) {
                     if( rank.ToComboBoxOption() == value ) {
                         accessSecurity.MinRank = rank;
-                        accessRankString = rank.ToString();
+                        accessRankString = rank.GetFullName();
                         return;
                     }
                 }
@@ -150,7 +150,7 @@ namespace ConfigTool {
                 foreach( Rank rank in RankManager.Ranks ) {
                     if( rank.ToComboBoxOption() == value ) {
                         buildSecurity.MinRank = rank;
-                        buildRankString = rank.ToString();
+                        buildRankString = rank.GetFullName();
                         return;
                     }
                 }
