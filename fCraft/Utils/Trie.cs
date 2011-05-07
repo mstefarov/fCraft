@@ -10,15 +10,18 @@ namespace fCraft {
     /// <summary> Specialized data structure for partial-matching of large sparse sets of words.
     /// Used as a searchable index of players for PlayerDB. </summary>
     [DebuggerDisplay( "Count = {Count}" )]
-    public sealed class Trie<T> : IDictionary<string, T>, IDictionary, ICloneable where T : class {
+    public class Trie<T> : IDictionary<string, T>, IDictionary, ICloneable where T : class {
         const byte LeafNode = 254,
                    MultiNode = 255;
+
+        const string InconsistentStateMessage = "Inconsistent state";
 
         TrieNode root = new TrieNode();
 
         int version;
 
 
+        /// <summary> Creates a new empty trie. </summary>
         public Trie() {
             Count = 0;
             keys = new TrieKeyCollection( this );
@@ -26,6 +29,8 @@ namespace fCraft {
         }
 
 
+        /// <summary> Creates a new trie from an existing dictionary. Values are shallowly copied. </summary>
+        /// <param name="dictionary"> Source dictionary to copy from. </param>
         public Trie( IEnumerable<KeyValuePair<string, T>> dictionary )
             : this() {
             if( dictionary == null ) throw new ArgumentNullException( "dictionary" );
@@ -67,6 +72,10 @@ namespace fCraft {
         }
 
 
+        /// <summary> Checks whether the trie contains a given value.
+        /// This method uses the value enumerator and runs in O(n). </summary>
+        /// <param name="value"> Value to search for. </param>
+        /// <returns> True if the trie contains at least one copy of the value. </returns>
         public bool ContainsValue( T value ) {
             // ReSharper restore UnusedMember.Global
             if( value == null ) throw new ArgumentNullException( "value" );
@@ -223,7 +232,7 @@ namespace fCraft {
         #region Key Encoding / Decoding
 
         // Decodes ASCII into internal letter code.
-        static int CharToCode( char ch ) {
+        protected int CharToCode( char ch ) {
             if( ch >= 'a' && ch <= 'z' )
                 return ch - 'a';
             else if( ch >= 'A' && ch <= 'Z' )
@@ -235,7 +244,7 @@ namespace fCraft {
         }
 
 
-        static char CodeToChar( int code ) {
+        protected char CodeToChar( int code ) {
             if( code < 26 )
                 return (char)(code + 'a');
             if( code >= 26 && code < 36 )
@@ -245,7 +254,7 @@ namespace fCraft {
         }
 
 
-        static char CanonicizeChar( char ch ) {
+        protected char CanonicizeChar( char ch ) {
             if( ch >= 'a' && ch <= 'z' || ch >= '0' && ch <= '9' || ch == '_' )
                 return ch;
             else if( ch >= 'A' && ch <= 'Z' )
@@ -255,7 +264,7 @@ namespace fCraft {
         }
 
 
-        static string CanonicizeKey( string key ) {
+        protected string CanonicizeKey( string key ) {
             StringBuilder sb = new StringBuilder( key );
             for( int i = 0; i < sb.Length; i++ ) {
                 sb[i] = CanonicizeChar( sb[i] );
@@ -263,31 +272,36 @@ namespace fCraft {
             return sb.ToString();
         }
 
-
-        static void ThrowStateException() {
-            throw new Exception( "Inconsistent state" );
-        }
-
         #endregion
 
 
         #region Subset Enumerators
 
+        /// <summary> Finds a subset of values whose keys start with a given prefix. </summary>
+        /// <param name="prefix"> Key prefix. </param>
+        /// <returns> Enumeration of values. </returns>
         public IEnumerable<T> ValuesStartingWith( string prefix ) {
             return values.StartingWith( prefix );
         }
 
 
+        /// <summary> Finds a subset of keys that start with a given prefix. </summary>
+        /// <param name="prefix"> Key prefix. </param>
+        /// <returns> Enumeration of keys. </returns>
         public IEnumerable<string> KeysStartingWith( string prefix ) {
             return keys.StartingWith( prefix );
         }
 
 
+        /// <summary> Finds a subset of key/value pairs that start with a given prefix. </summary>
+        /// <param name="prefix"> Key prefix. </param>
+        /// <returns> Enumeration of key/value pairs. </returns>
         public IEnumerable<KeyValuePair<string, T>> StartingWith( string prefix ) {
             return new TrieSubset( this, prefix );
         }
 
 
+        /// <summary> A subset of trie's key/value pairs that start with a certain prefix. </summary>
         public class TrieSubset : IEnumerable<KeyValuePair<string, T>> {
             readonly Trie<T> trie;
             readonly string prefix;
@@ -300,7 +314,7 @@ namespace fCraft {
 
             public IEnumerator<KeyValuePair<string, T>> GetEnumerator() {
                 TrieNode node = trie.GetNode( prefix );
-                return new TrieEnumerator( node, trie, CanonicizeKey( prefix ) );
+                return new TrieEnumerator( node, trie, trie.CanonicizeKey( prefix ) );
             }
 
 
@@ -430,7 +444,7 @@ namespace fCraft {
 
             // Pushes current node onto the stack, and makes the given node current.
             protected void MoveDown( TrieNode node, int index ) {
-                CurrentKeyName.Append( CodeToChar( index ) );
+                CurrentKeyName.Append( BaseTrie.CodeToChar( index ) );
                 Parents.Push( CurrentNode );
                 ParentIndices.Push( CurrentIndex + 1 );
                 CurrentNode = node;
@@ -471,6 +485,10 @@ namespace fCraft {
         }
 
 
+        /// <summary> Tries to get a value by full key. </summary>
+        /// <param name="key"> Full key to search for. </param>
+        /// <param name="result"> Result. </param>
+        /// <returns> True of a value was found for this key. </returns>
         public bool TryGetValue( string key, out T result ) {
             TrieNode node = GetNode( key );
             if( node == null ) {
@@ -493,6 +511,9 @@ namespace fCraft {
         }
 
 
+        /// <summary> Checks whether the trie contains a given full key. </summary>
+        /// <param name="key"> Full key to search for. </param>
+        /// <returns> True if the trie contains a given key. </returns>
         public bool ContainsKey( string key ) {
             TrieNode node = GetNode( key );
             return (node != null && node.Payload != null);
@@ -549,8 +570,7 @@ namespace fCraft {
                 TrieNode parent = parents.Pop();
                 switch( parent.Tag ) {
                     case LeafNode:
-                        ThrowStateException();
-                        break;
+                        throw new Exception( InconsistentStateMessage );
 
                     case MultiNode:
                         parent.MultiToSingle();
@@ -568,6 +588,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Removes all keys/values from the trie, making it empty. </summary>
         public void Clear() {
             root = new TrieNode();
             Count = 0;
@@ -833,7 +854,7 @@ namespace fCraft {
 
                 public IEnumerator<T> GetEnumerator() {
                     TrieNode node = trie.GetNode( prefix );
-                    return new TrieValueEnumerator( node, trie, CanonicizeKey( prefix ) );
+                    return new TrieValueEnumerator( node, trie, trie.CanonicizeKey( prefix ) );
                 }
 
 
@@ -1001,7 +1022,7 @@ namespace fCraft {
 
                 public IEnumerator<string> GetEnumerator() {
                     TrieNode node = trie.GetNode( prefix );
-                    return new TrieKeyEnumerator( node, trie, CanonicizeKey( prefix ) );
+                    return new TrieKeyEnumerator( node, trie, trie.CanonicizeKey( prefix ) );
                 }
 
 
@@ -1220,7 +1241,7 @@ namespace fCraft {
 
             public void LeafToSingle( byte charCode ) {
                 if( Children != null || Tag != LeafNode ) {
-                    ThrowStateException();
+                    throw new Exception( InconsistentStateMessage );
                 }
                 Children = new TrieNode[1];
                 Tag = charCode;
@@ -1229,7 +1250,7 @@ namespace fCraft {
 
             public void SingleToLeaf() {
                 if( Children == null || Children.Length != 1 || Tag >= ChildCount ) {
-                    ThrowStateException();
+                    throw new Exception( InconsistentStateMessage );
                 }
                 if( Children[0].Tag == LeafNode ) {
                     Children = null;
@@ -1240,7 +1261,7 @@ namespace fCraft {
 
             public void SingleToMulti() {
                 if( Children == null || Children.Length != 1 || Tag >= ChildCount ) {
-                    ThrowStateException();
+                    throw new Exception( InconsistentStateMessage );
                 }
                 TrieNode oldNode = Children[0];
                 Children = new TrieNode[ChildCount];
@@ -1251,7 +1272,7 @@ namespace fCraft {
 
             public void MultiToSingle() {
                 if( Children == null || Children.Length != ChildCount || Tag != MultiNode ) {
-                    ThrowStateException();
+                    throw new Exception( InconsistentStateMessage );
                 }
                 int index = -1;
 
@@ -1272,7 +1293,7 @@ namespace fCraft {
                 }
 
                 if( index == -1 ) {
-                    ThrowStateException();
+                    throw new Exception( InconsistentStateMessage );
                 } else {
                     // if there's just one, convert to single
                     Children = new[] { Children[index] };
@@ -1304,200 +1325,5 @@ namespace fCraft {
                 }
             }
         }
-
-
-        #region Self-test
-        /*
-        // Self-test
-        const int ItemsToAdd = 1000000;
-        const int DupeCheckCount = ItemsToAdd / 10000;
-
-        public static void RunSelfTest() {
-            Trie<string> test = new Trie<string>();
-            Dictionary<string, string> reference = new Dictionary<string, string>();
-
-            Random rand = new Random();
-            {
-                Console.WriteLine( "Inserting {0} nodes...", ItemsToAdd );
-                // test insertion
-                for( int i = 0; i < ItemsToAdd; i++ ) {
-                    string key = RandString( rand );
-                    if( reference.ContainsKey( key ) ) continue;
-                    reference.Add( key, key );
-                    if( !test.Add( key, key, true ) ) Console.WriteLine( " {0}: dupe", key );
-                }
-
-                // verify that trie contains all elements that are in the reference
-                foreach( var pair in reference ) {
-                    if( test.Get( pair.Key ) != pair.Value ) {
-                        Console.WriteLine( " {0}: got: {1}", pair.Key, test.Get( pair.Key ) ?? "null", pair.Value );
-                    }
-                    string partialTest;
-                    if( !test.TryGetValue( pair.Key, out partialTest ) )
-                        Console.WriteLine( " {0}: get with completion: failed (multi)" );
-                    if( partialTest != pair.Value )
-                        Console.WriteLine( " {0}: got with completion: {1}", pair.Key, test.Get( pair.Key ) ?? "null", pair.Value );
-                }
-
-                // verify that counts match
-                if( test.Count != reference.Count ) {
-                    Console.WriteLine( "Count: {0} test vs. {1} reference", test.Count, reference.Count );
-                }
-                Console.WriteLine( "Insertion test done." );
-                Console.WriteLine();
-            }
-
-            
-            {
-                IEnumerable<string> dupeKeys = reference.Where( pair => pair.Key.Length < 4 ).Select( pair => pair.Key ).Distinct().Take( DupeCheckCount );
-                Console.WriteLine( "Testing autocompletion on {0} nodes...", dupeKeys.Count() );
-
-                int k = 0;
-                foreach( string dupeKey in dupeKeys ) {
-                    IOrderedEnumerable<string> matches = test.ValuesStartingWith( dupeKey ).OrderBy( s => s );
-                    IOrderedEnumerable<string> refMatches = reference.Where( pair => pair.Key.StartsWith( dupeKey ) ).Select( pair => pair.Key ).OrderBy( s => s );
-                    if( !matches.SequenceEqual( refMatches ) )
-                        Console.WriteLine( "{0}: Autocompletion failed ({1} vs ref {2})", dupeKey, matches.Count(), refMatches.Count() );
-                    k++;
-                }
-                Console.WriteLine( "Autocompletion test done." );
-                Console.WriteLine();
-            }
-
-
-            {
-                Console.WriteLine( "Removing {0} nodes...", reference.Count / 2 );
-                int r = 0;
-                List<string> stuffToRemove = new List<string>();
-                // make a list of items to remove
-                foreach( var pair in reference ) {
-                    stuffToRemove.Add( pair.Key );
-                    r++;
-                    if( r > reference.Count / 2 ) break;
-                }
-
-                // test removal
-                for( int i = 0; i < stuffToRemove.Count; i++ ) {
-                    if( !test.Remove( stuffToRemove[i] ) ) {
-                        Console.WriteLine( " {0}: missing (#{1})", stuffToRemove[i], i );
-                    }
-                    reference.Remove( stuffToRemove[i] );
-                }
-
-                // verify that all remaining items are intact
-                foreach( var pair in reference ) {
-                    if( test.Get( pair.Key ) != pair.Value ) {
-                        Console.WriteLine( " {0}: got: {1}", pair.Key, test.Get( pair.Key ) ?? "null", pair.Value );
-                    }
-                    string partialTest;
-                    if( !test.TryGetValue( pair.Key, out partialTest ) )
-                        Console.WriteLine( " {0}: get with completion: failed (multi)" );
-                    if( partialTest != pair.Value )
-                        Console.WriteLine( " {0}: got with completion: {1}", pair.Key, test.Get( pair.Key ) ?? "null", pair.Value );
-                }
-
-                // verify that count still matches
-                if( test.Count != reference.Count ) {
-                    Console.WriteLine( "Count: {0} test vs. {1} reference", test.Count, reference.Count );
-                }
-
-                Console.WriteLine( "Removal test done." );
-                Console.WriteLine();
-            }
-
-            
-            {
-                IEnumerable<string> dupeKeys = reference.Where( pair => pair.Key.Length < 4 ).Select( pair => pair.Key ).Distinct().Take( DupeCheckCount );
-                Console.WriteLine( "Testing autocompletion on {0} nodes...", dupeKeys.Count() );
-
-                int k = 0;
-                foreach( string dupeKey in dupeKeys ) {
-                    IOrderedEnumerable<string> matches = test.ValuesStartingWith( dupeKey ).OrderBy( s => s );
-                    IOrderedEnumerable<string> refMatches = reference.Where( pair => pair.Key.StartsWith( dupeKey ) ).Select( pair => pair.Key ).OrderBy( s => s );
-                    if( !matches.SequenceEqual( refMatches ) )
-                        Console.WriteLine( "{0}: Autocompletion failed ({1} vs ref {2})", dupeKey, matches.Count(), refMatches.Count() );
-                    k++;
-                }
-                Console.WriteLine( "Autocompletion test done." );
-                Console.WriteLine();
-            }
-
-
-            {
-                string[] dupeKeys = reference.Where( pair => pair.Key.Length < 4 ).Select( pair => pair.Key ).Distinct().Take(100).ToArray();
-                Console.WriteLine( "Benchmarking {0} iterators...", dupeKeys.Count() );
-
-                string[] randomKeys = reference.OrderBy( k => rand.Next() ).Select(pair=>pair.Key).ToArray();
-
-                
-                {
-                    Stopwatch sw = Stopwatch.StartNew();
-                    int total = 0;
-                    string temp;
-                    foreach( string randKey in randomKeys ) {
-                        temp = reference[randKey];
-                        total++;
-                    }
-                    sw.Stop();
-                    Console.WriteLine( "Dictionary.this[]: {0} nodes in {1} ms", total, sw.ElapsedMilliseconds );
-                }
-
-                {
-                    Stopwatch sw = Stopwatch.StartNew();
-                    int total = 0;
-                    string temp;
-                    foreach( string randKey in randomKeys ) {
-                        temp = test.Get( randKey );
-                        total++;
-                    }
-                    sw.Stop();
-                    Console.WriteLine( "Trie.Get: {0} nodes in {1} ms", total, sw.ElapsedMilliseconds );
-                }
-                
-                
-                {
-                    Stopwatch sw = Stopwatch.StartNew();
-                    int total = 0;
-                    foreach( string dupeKey in dupeKeys ) {
-                        total += reference.Where( pair => CanonicizeKey( pair.Key ).StartsWith( dupeKey ) ).Select( pair => pair.Value ).ToList().Count;
-                        //Console.WriteLine( dupeKey );
-                    }
-                    sw.Stop();
-                    Console.WriteLine( "Dictionary: {0} nodes in {1} ms", total, sw.ElapsedMilliseconds );
-                }
-                
-                {
-                    Stopwatch sw = Stopwatch.StartNew();
-                    int total = 0;
-                    foreach( string dupeKey in dupeKeys ) {
-                        total += test.ValuesStartingWith( dupeKey ).ToList().Count;
-                    }
-                    sw.Stop();
-                    Console.WriteLine( "ValuesStartingWith: {0} nodes in {1} ms", total, sw.ElapsedMilliseconds );
-                }
-
-                {
-                    Stopwatch sw = Stopwatch.StartNew();
-                    int total = 0;
-                    foreach( string dupeKey in dupeKeys ) {
-                        total += test.GetList( dupeKey, Int32.MaxValue ).Count;
-                    }
-                    sw.Stop();
-                    Console.WriteLine( "GetList: {0} nodes in {1} ms", total, sw.ElapsedMilliseconds );
-                }
-            }
-        }
-
-
-        public static string RandString( Random rand ) {
-            int len = rand.Next( 1, 8 );
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            for( int i = 0; i < len; i++ ) {
-                sb.Append( (char)rand.Next( 'a', 'z' + 1 ) );
-            }
-            return sb.ToString();
-        }
-        */
-        #endregion
     }
 }
