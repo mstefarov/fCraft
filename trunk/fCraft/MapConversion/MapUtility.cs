@@ -185,7 +185,7 @@ namespace fCraft.MapConversion {
                 try {
                     return converter.Save( mapToSave, fileName );
                 } catch( Exception ex ) {
-                    Logger.LogAndReportCrash( "Map failed to save", "Mcc", ex, false );
+                    Logger.LogAndReportCrash( "Map failed to save", "MapConversion", ex, false );
                     return false;
                 }
             }

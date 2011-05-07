@@ -18,6 +18,7 @@
  Fix: Fixed Scheduler being able to add tasks after the shutdown process started.
  Fix: Reduced problems associated with players trying to connect while the server is shutting down.
  Fix: Added autorank.xml to the list of protected files.
+ Fix: Fixed a crash in backup system that happened if two backups ran simultaneously and the total size or number of backup files was limited.
  Change: When players rejoin a world (e.g. /wflush or /wload), "joined world" message is no longer shown.
  Change: /mute no longer allows shortening players' mute time, only to extend it.
  Change: Allowed player names with periods.

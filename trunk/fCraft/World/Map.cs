@@ -33,7 +33,8 @@ namespace fCraft {
         // Queue of block updates. Updates are applied by ProcessUpdates()
         readonly ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
 
-        readonly object metaLock = new object();
+        readonly object metaLock = new object(),
+                        backupLock = new object();
 
         // used to skip backups/saves if no changes were made
         public bool ChangedSinceSave { get; internal set; }
@@ -818,67 +819,69 @@ namespace fCraft {
             if( targetName == null ) throw new ArgumentNullException( "targetName" );
             if( onlyIfChanged && !ChangedSinceBackup && ConfigKey.BackupOnlyWhenChanged.GetBool() ) return;
 
-            DirectoryInfo d = new DirectoryInfo( Paths.BackupPath );
+            lock( backupLock ) {
+                DirectoryInfo d = new DirectoryInfo( Paths.BackupPath );
 
-            if( !d.Exists ) {
+                if( !d.Exists ) {
+                    try {
+                        d.Create();
+                    } catch( Exception ex ) {
+                        Logger.Log( "Map.SaveBackup: Error occured while trying to create backup directory: {0}", LogType.Error,
+                                    ex );
+                        return;
+                    }
+                }
+
                 try {
-                    d.Create();
+                    ChangedSinceBackup = false;
+                    File.Copy( sourceName, targetName, true );
                 } catch( Exception ex ) {
-                    Logger.Log( "Map.SaveBackup: Error occured while trying to create backup directory: {0}", LogType.Error,
-                                ex );
+                    ChangedSinceBackup = true;
+                    Logger.Log( "Map.SaveBackup: Error occured while trying to save backup to \"{0}\": {1}", LogType.Error,
+                                targetName, ex );
                     return;
                 }
-            }
 
-            try {
-                ChangedSinceBackup = false;
-                File.Copy( sourceName, targetName, true );
-            } catch( Exception ex ) {
-                ChangedSinceBackup = true;
-                Logger.Log( "Map.SaveBackup: Error occured while trying to save backup to \"{0}\": {1}", LogType.Error,
-                            targetName, ex );
-                return;
-            }
+                List<FileInfo> backupList = new List<FileInfo>( d.GetFiles( "*.fcm" ) );
+                backupList.Sort( FileInfoComparer.Instance );
 
-            List<FileInfo> backupList = new List<FileInfo>( d.GetFiles( "*.fcm" ) );
-            backupList.Sort( FileInfoComparer.Instance );
-
-            if( ConfigKey.MaxBackups.GetInt() > 0 ) {
-                while( backupList.Count > ConfigKey.MaxBackups.GetInt() ) {
-                    FileInfo info = backupList[backupList.Count - 1];
-                    backupList.RemoveAt( backupList.Count - 1 );
-                    try {
-                        File.Delete( info.FullName );
-                    } catch( Exception ex ) {
-                        Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}", LogType.Error,
-                                    info.FullName, ex );
-                        break;
-                    }
-                    Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.SystemActivity,
-                                info.Name );
-                }
-            }
-
-
-            if( ConfigKey.MaxBackupSize.GetInt() > 0 ) {
-                while( true ) {
-                    FileInfo[] fis = d.GetFiles();
-                    long size = fis.Sum( fi => fi.Length );
-
-                    if( size / 1024 / 1024 > ConfigKey.MaxBackupSize.GetInt() ) {
+                if( ConfigKey.MaxBackups.GetInt() > 0 ) {
+                    while( backupList.Count > ConfigKey.MaxBackups.GetInt() ) {
                         FileInfo info = backupList[backupList.Count - 1];
                         backupList.RemoveAt( backupList.Count - 1 );
                         try {
                             File.Delete( info.FullName );
                         } catch( Exception ex ) {
                             Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}", LogType.Error,
-                                        info.Name, ex );
+                                        info.FullName, ex );
                             break;
                         }
                         Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.SystemActivity,
                                     info.Name );
-                    } else {
-                        break;
+                    }
+                }
+
+
+                if( ConfigKey.MaxBackupSize.GetInt() > 0 ) {
+                    while( true ) {
+                        FileInfo[] fis = d.GetFiles();
+                        long size = fis.Sum( fi => fi.Length );
+
+                        if( size / 1024 / 1024 > ConfigKey.MaxBackupSize.GetInt() ) {
+                            FileInfo info = backupList[backupList.Count - 1];
+                            backupList.RemoveAt( backupList.Count - 1 );
+                            try {
+                                File.Delete( info.FullName );
+                            } catch( Exception ex ) {
+                                Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}", LogType.Error,
+                                            info.Name, ex );
+                                break;
+                            }
+                            Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.SystemActivity,
+                                        info.Name );
+                        } else {
+                            break;
+                        }
                     }
                 }
             }
