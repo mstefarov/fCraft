@@ -110,12 +110,12 @@ namespace fCraft {
 
 
         // generate blank info for a new player
-        public PlayerInfo( string name, IPAddress lastIP )
+        public PlayerInfo( string name, IPAddress lastIP, Rank startingRank )
             : this() {
             FirstLoginDate = DateTime.UtcNow;
             LastSeen = DateTime.UtcNow;
             LastLoginDate = DateTime.UtcNow;
-            Rank = RankManager.DefaultRank;
+            Rank = startingRank;
             Name = name;
             ID = PlayerDB.GetNextID();
             LastIP = lastIP;
@@ -388,7 +388,7 @@ namespace fCraft {
             if( !LastIP.Equals( IPAddress.None ) ) sb.Append( LastIP.ToString() ); // 1
             sb.Append( ',' );
 
-            sb.Append( Rank.ToString() ).Append( ',' ); // 2
+            sb.Append( Rank.GetFullName() ).Append( ',' ); // 2
             RankChangeDate.ToTickString( sb ).Append( ',' ); // 3
 
             Escape( RankChangedBy, sb ).Append( ',' ); // 4
@@ -428,7 +428,7 @@ namespace fCraft {
             if( LinesWritten > 0 ) sb.Append( LinesWritten ); // 21
             sb.Append( ',', 3 ); // 22-23 no longer in use
 
-            if( PreviousRank != null ) sb.Append( PreviousRank.ToString() ); // 24
+            if( PreviousRank != null ) sb.Append( PreviousRank.GetFullName() ); // 24
             sb.Append( ',' );
 
             Escape( RankChangeReason, sb ).Append( ',' ); // 25
@@ -504,7 +504,7 @@ namespace fCraft {
                 fields[1] = "";
             }
 
-            fields[2] = Rank.ToString();
+            fields[2] = Rank.GetFullName();
             if( RankChangeDate == DateTime.MinValue ) fields[3] = "";
             else fields[3] = RankChangeDate.ToString();
             fields[4] = RankChangedBy;
@@ -560,7 +560,7 @@ namespace fCraft {
             fields[22] = "";
             fields[23] = "";
 
-            if( PreviousRank != null ) fields[24] = PreviousRank.ToString();
+            if( PreviousRank != null ) fields[24] = PreviousRank.GetFullName();
             else fields[24] = "";
 
             if( RankChangeReason.Length > 0 ) fields[25] = EscapeOldFormat( RankChangeReason );
@@ -880,7 +880,70 @@ namespace fCraft {
 
 
         public override string ToString() {
-            return String.Format( "PlayerInfo({0},{1})", Rank.Name, Name );
+            return String.Format( "PlayerInfo({0},{1})", Name, Rank.Name );
         }
     }
 }
+
+
+#region EventArgs
+namespace fCraft.Events {
+
+    public class PlayerInfoEventArgs : EventArgs {
+        public PlayerInfoEventArgs( PlayerInfo playerInfo ) {
+            PlayerInfo = playerInfo;
+        }
+        public PlayerInfo PlayerInfo { get; protected set; }
+    }
+
+
+    public sealed class PlayerInfoCreatingEventArgs : EventArgs {
+        public PlayerInfoCreatingEventArgs( string name, IPAddress ip, Rank startingRank, bool isUnrecognized ) {
+            Name = name;
+            StartingRank = startingRank;
+            IP = ip;
+            IsUnrecognized = isUnrecognized;
+        }
+        public string Name { get; private set; }
+        public Rank StartingRank { get; set; }
+        public IPAddress IP { get; private set; }
+        public bool IsUnrecognized { get; private set; }
+        public bool Cancel { get; set; }
+    }
+
+
+    public sealed class PlayerInfoCreatedEventArgs : PlayerInfoEventArgs {
+        public PlayerInfoCreatedEventArgs( PlayerInfo playerInfo, bool isUnrecognized )
+            : base( playerInfo ) {
+            IsUnrecognized = isUnrecognized;
+        }
+        public bool IsUnrecognized { get; private set; }
+    }
+
+
+    public class PlayerInfoRankChangedEventArgs : PlayerInfoEventArgs {
+        public PlayerInfoRankChangedEventArgs( PlayerInfo playerInfo, Player rankChanger, Rank oldRank, string reason, RankChangeType rankChangeType )
+            :base(playerInfo){
+            RankChanger=rankChanger;
+            OldRank =oldRank;
+            NewRank = playerInfo.Rank;
+            Reason=reason;
+            RankChangeType=rankChangeType;
+        }
+
+        public Player RankChanger { get; private set; }
+        public Rank OldRank { get; protected set; }
+        public Rank NewRank { get; protected set; }
+        public string Reason { get; private set; }
+        public RankChangeType RankChangeType { get; private set; }
+    }
+
+    public class PlayerInfoRankChangingEventArgs : PlayerInfoRankChangedEventArgs {
+        public PlayerInfoRankChangingEventArgs( PlayerInfo playerInfo, Player rankChanger, Rank newRank, string reason, RankChangeType rankChangeType )
+            : base( playerInfo, rankChanger, playerInfo.Rank, reason, rankChangeType ) {
+            NewRank = newRank;
+        }
+        public bool Cancel { get; set; }
+    }
+}
+#endregion

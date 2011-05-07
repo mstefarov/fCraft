@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
+using fCraft.Events;
 
 namespace fCraft {
     public static class PlayerDB {
@@ -40,12 +41,23 @@ namespace fCraft {
 
         public static PlayerInfo AddFakeEntry( string name, RankChangeType rankChangeType ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            PlayerInfo info = new PlayerInfo( name, RankManager.DefaultRank, false, rankChangeType );
+
+            PlayerInfo info;
             lock( AddLocker ) {
+                info = Trie.Get( name );
+                if( info != null ) throw new ArgumentException( "A PlayerDB entry already exists for this name." );
+
+                var e = new PlayerInfoCreatingEventArgs( name, IPAddress.None, RankManager.DefaultRank, true );
+                Server.RaisePlayerInfoCreatingEvent( e );
+                if( e.Cancel ) throw new OperationCanceledException( "Cancelled by a plugin." );
+
+                info = new PlayerInfo( name, e.StartingRank, false, rankChangeType );
+
                 List.Add( info );
                 Trie.Add( info.Name, info );
                 UpdateCache();
             }
+            Server.RaisePlayerInfoCreatedEvent( info, false );
             return info;
         }
 
@@ -186,14 +198,27 @@ namespace fCraft {
             if( name == null ) throw new ArgumentNullException( "name" );
             PlayerInfo info;
 
+            // this flag is used to avoid executing PlayerInfoCreated event in the lock
+            bool raiseCreatedEvent = false;
+
             lock( AddLocker ) {
                 info = Trie.Get( name );
                 if( info == null ) {
-                    info = new PlayerInfo( name, lastIP );
+                    var e = new PlayerInfoCreatingEventArgs( name, lastIP, RankManager.DefaultRank, false );
+                    Server.RaisePlayerInfoCreatingEvent( e );
+                    if( e.Cancel ) throw new OperationCanceledException( "Cancelled by a plugin." );
+
+                    info = new PlayerInfo( name, lastIP, e.StartingRank );
                     Trie.Add( name, info );
                     List.Add( info );
                     UpdateCache();
+
+                    raiseCreatedEvent = true;
                 }
+            }
+
+            if( raiseCreatedEvent ) {
+                Server.RaisePlayerInfoCreatedEvent( info, false );
             }
             return info;
         }

@@ -192,7 +192,7 @@ namespace fCraft {
                 if( defaultRank == null ) {
                     return "";
                 } else {
-                    return defaultRank.ToString();
+                    return defaultRank.GetFullName();
                 }
             } else {
                 return value;

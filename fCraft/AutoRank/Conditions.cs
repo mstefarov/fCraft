@@ -128,10 +128,10 @@ namespace fCraft.AutoRank {
 
         public override XElement Serialize() {
             XElement el = new XElement( "ConditionIntRange" );
-            el.Add( new XAttribute( "field", Field.ToString() ) );
-            el.Add( new XAttribute( "val", Value.ToString() ) );
-            el.Add( new XAttribute( "op", Comparison.ToString() ) );
-            el.Add( new XAttribute( "scope", Scope.ToString() ) );
+            el.Add( new XAttribute( "field", Field ) );
+            el.Add( new XAttribute( "val", Value ) );
+            el.Add( new XAttribute( "op", Comparison ) );
+            el.Add( new XAttribute( "scope", Scope ) );
             return el;
         }
 
@@ -213,7 +213,7 @@ namespace fCraft.AutoRank {
 
         public override XElement Serialize() {
             XElement el = new XElement( "ConditionPreviousRank" );
-            el.Add( new XAttribute( "val", Rank.ToString() ) );
+            el.Add( new XAttribute( "val", Rank.GetFullName() ) );
             el.Add( new XAttribute( "op", Comparison.ToString() ) );
             return el;
         }

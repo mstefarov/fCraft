@@ -686,9 +686,6 @@ namespace fCraft {
         #region Obsolete Events
 
         [Obsolete]
-        public static event PlayerRankChangedEventHandler OnRankChanged;
-
-        [Obsolete]
         public static event PlayerChangedWorldEventHandler OnPlayerChangedWorld;
 
         [Obsolete]
@@ -700,12 +697,6 @@ namespace fCraft {
         [Obsolete]
         public static event PlayerBanStatusChangedEventHandler OnPlayerUnbanned;
 
-
-        internal static bool FirePlayerRankChange( PlayerInfo target, Player player, Rank oldRank, Rank newRank, string reason ) {
-            bool cancel = false;
-            if( OnRankChanged != null ) OnRankChanged( target, player, oldRank, newRank, reason, ref cancel );
-            return !cancel;
-        }
 
         internal static void FireWorldChangedEvent( Player player, World oldWorld, World newWorld ) {
             if( OnPlayerChangedWorld != null ) OnPlayerChangedWorld( player, oldWorld, newWorld );

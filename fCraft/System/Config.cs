@@ -120,6 +120,9 @@ namespace fCraft {
      *              Tweaked range checks on some keys.
      *              Grouped key tags into section tags.
      *              When saving, keys with default values are now commented out.
+     *              CONFIGS SAVED WITH THIS VERSION ARE NOT LOADABLE
+     *              
+     * 139 - r579 - Fixed XML structure messed up by 138. Sections are now saved into <Section> elements.
      * 
      */
 
@@ -127,7 +130,7 @@ namespace fCraft {
     /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 138;
+        public const int ConfigVersion = 139;
         public const string ConfigXmlRootName = "fCraftConfig";
 
         static readonly Dictionary<ConfigKey, string> Settings = new Dictionary<ConfigKey, string>();
@@ -244,11 +247,11 @@ namespace fCraft {
                 try {
                     file = XDocument.Load( Paths.ConfigFileName );
                     if( file.Root == null || file.Root.Name != ConfigXmlRootName ) {
-                        Log( "Config.Load: Malformed or incompatible config file {0}. Loading defaults.", LogType.Warning, Paths.ConfigFileName );
+                        Logger.Log( "Config.Load: Malformed or incompatible config file {0}. Loading defaults.", LogType.Warning, Paths.ConfigFileName );
                         file = new XDocument();
                         file.Add( new XElement( ConfigXmlRootName ) );
                     } else {
-                        Log( "Config.Load: Config file {0} loaded succesfully.", LogType.Debug, Paths.ConfigFileName );
+                        Logger.Log( "Config.Load: Config file {0} loaded succesfully.", LogType.Debug, Paths.ConfigFileName );
                         fromFile = true;
                     }
                 } catch( Exception ex ) {
@@ -266,7 +269,7 @@ namespace fCraft {
             XAttribute attr = config.Attribute( "version" );
             int version = 0;
             if( fromFile && (attr == null || !Int32.TryParse( attr.Value, out version ) || version != ConfigVersion) ) {
-                Log( "Config.Load: Your config.xml was made for a different version of fCraft. " +
+                Logger.Log( "Config.Load: Your config.xml was made for a different version of fCraft. " +
                      "Some obsolete settings might be ignored, and some recently-added settings will be set to their default values. " +
                      "It is recommended that you run ConfigTool to make sure everything is in order.", LogType.Warning );
             }
@@ -281,7 +284,7 @@ namespace fCraft {
             if( consoleOptions != null ) {
                 LoadLogOptions( consoleOptions, Logger.ConsoleOptions );
             } else {
-                if( fromFile ) Log( "Config.Load: using default console options.", LogType.Warning );
+                if( fromFile ) Logger.Log( "Config.Load: using default console options.", LogType.Warning );
                 for( int i = 0; i < Logger.ConsoleOptions.Length; i++ ) {
                     Logger.ConsoleOptions[i] = true;
                 }
@@ -294,7 +297,7 @@ namespace fCraft {
             if( logFileOptions != null ) {
                 LoadLogOptions( logFileOptions, Logger.LogFileOptions );
             } else {
-                if( fromFile ) Log( "Config.Load: using default log file options.", LogType.Warning );
+                if( fromFile ) Logger.Log( "Config.Load: using default log file options.", LogType.Warning );
                 for( int i = 0; i < Logger.LogFileOptions.Length; i++ ) {
                     Logger.LogFileOptions[i] = true;
                 }
@@ -302,28 +305,15 @@ namespace fCraft {
 
             // read the rest of the keys
             string[] keyNames = Enum.GetNames( typeof( ConfigKey ) );
-            foreach( XElement element in config.Elements() ) {
-                string key = element.Name.ToString().ToLower();
-                if( keyNames.Contains( key, StringComparer.OrdinalIgnoreCase ) ) {
-                    // known key
-                    TrySetValue( (ConfigKey)Enum.Parse( typeof( ConfigKey ), key, true ), element.Value );
-
-                } else if( LegacyConfigKeys.ContainsKey( key ) ) { // LEGACY
-                    // renamed/legacy key
-                    TrySetValue( LegacyConfigKeys[key], element.Value );
-
-                } else if( key.Equals( "LimitOneConnectionPerIP", StringComparison.OrdinalIgnoreCase ) ) {
-                    Logger.Log( "Config.Load: LimitOneConnectionPerIP (bool) was replaced by MaxConnectionsPerIP (int). Adjust your configuration accordingly.",
-                                LogType.Warning );
-                    ConfigKey.MaxConnectionsPerIP.TrySetValue( 1 );
-
-                } else if( key != "consoleoptions" &&
-                            key != "logfileoptions" &&
-                            key != "classes" && // LEGACY
-                            key != "ranks" &&
-                            key != "legacyrankmapping" ) {
-                    // unknown key
-                    Log( "Unrecognized entry ignored: {0} = {1}", LogType.Debug, element.Name, element.Value );
+            if( version < 139 ) {
+                foreach( XElement element in config.Elements() ) {
+                    ParseKeyElement( element, keyNames );
+                }
+            } else {
+                foreach( XElement section in config.Elements( "Section" ) ) {
+                    foreach( XElement keyElement in section.Elements() ) {
+                        ParseKeyElement( keyElement, keyNames );
+                    }
                 }
             }
 
@@ -332,7 +322,7 @@ namespace fCraft {
                 ConfigKey.MaxPlayersPerWorld.TrySetValue( ConfigKey.MaxPlayers.GetInt() );
             }
             if( ConfigKey.MaxPlayersPerWorld.GetInt() > ConfigKey.MaxPlayers.GetInt() ) {
-                Log( "Value of MaxPlayersPerWorld ({0}) was lowered to match MaxPlayers ({1}).", LogType.Warning,
+                Logger.Log( "Value of MaxPlayersPerWorld ({0}) was lowered to match MaxPlayers ({1}).", LogType.Warning,
                      ConfigKey.MaxPlayersPerWorld.GetInt(),
                      ConfigKey.MaxPlayers.GetInt() );
                 ConfigKey.MaxPlayersPerWorld.TrySetValue( ConfigKey.MaxPlayers.GetInt() );
@@ -341,6 +331,35 @@ namespace fCraft {
             if( raiseReloadedEvent ) RaiseReloadedEvent();
 
             return true;
+        }
+
+
+        static void ParseKeyElement( XElement element, string[] keyNames ) {
+            if( element == null ) throw new ArgumentNullException( "element" );
+            if( keyNames == null ) throw new ArgumentNullException( "keyNames" );
+
+            string key = element.Name.ToString().ToLower();
+            if( keyNames.Contains( key, StringComparer.OrdinalIgnoreCase ) ) {
+                // known key
+                TrySetValue( (ConfigKey)Enum.Parse( typeof( ConfigKey ), key, true ), element.Value );
+
+            } else if( LegacyConfigKeys.ContainsKey( key ) ) { // LEGACY
+                // renamed/legacy key
+                TrySetValue( LegacyConfigKeys[key], element.Value );
+
+            } else if( key.Equals( "LimitOneConnectionPerIP", StringComparison.OrdinalIgnoreCase ) ) {
+                Logger.Log( "Config.Load: LimitOneConnectionPerIP (bool) was replaced by MaxConnectionsPerIP (int). Adjust your configuration accordingly.",
+                            LogType.Warning );
+                ConfigKey.MaxConnectionsPerIP.TrySetValue( 1 );
+
+            } else if( key != "consoleoptions" &&
+                       key != "logfileoptions" &&
+                       key != "classes" && // LEGACY
+                       key != "ranks" &&
+                       key != "legacyrankmapping" ) {
+                // unknown key
+                Logger.Log( "Unrecognized entry ignored: {0} = {1}", LogType.Debug, element.Name, element.Value );
+            }
         }
 
 
@@ -368,7 +387,7 @@ namespace fCraft {
                     XAttribute toRankID = rankPair.Attribute( "to" );
                     if( fromRankID == null || String.IsNullOrEmpty( fromRankID.Value ) ||
                         toRankID == null || String.IsNullOrEmpty( toRankID.Value ) ) {
-                        Log( "Config.Load: Could not parse a LegacyRankMapping entry: {0}", LogType.Error, rankPair.ToString() );
+                        Logger.Log( "Config.Load: Could not parse a LegacyRankMapping entry: {0}", LogType.Error, rankPair.ToString() );
                     } else {
                         RankManager.LegacyRankMapping.Add( fromRankID.Value, toRankID.Value );
                     }
@@ -386,12 +405,12 @@ namespace fCraft {
                     try {
                         RankManager.AddRank( new Rank( rankDefinition ) );
                     } catch( RankDefinitionException ex ) {
-                        Log( ex.Message, LogType.Error );
+                        Logger.Log( ex.Message, LogType.Error );
                     }
                 }
 
                 if( RankManager.RanksByName.Count == 0 ) {
-                    Log( "Config.Load: No ranks were defined, or none were defined correctly. Using default ranks (guest, regular, op, and owner).", LogType.Warning );
+                    Logger.Log( "Config.Load: No ranks were defined, or none were defined correctly. Using default ranks (guest, regular, op, and owner).", LogType.Warning );
                     rankList.Remove();
                     el.Add( DefineDefaultRanks() );
 
@@ -402,7 +421,7 @@ namespace fCraft {
                             foreach( Rank rank in RankManager.RanksByID.Values ) {
                                 rank.Permissions[(int)Permission.UseSpeedHack] = true;
                             }
-                            Log( "Config.Load: All ranks were granted UseSpeedHack permission (default). " +
+                            Logger.Log( "Config.Load: All ranks were granted UseSpeedHack permission (default). " +
                                  "Use ConfigTool to update config. If you are editing config.xml manually, " +
                                  "set version=\"{0}\" to prevent permissions from resetting in the future.", LogType.Warning, ConfigVersion );
                         }
@@ -415,12 +434,75 @@ namespace fCraft {
                 } // end LEGACY code
 
             } else {
-                if( fromFile ) Log( "Config.Load: using default player ranks.", LogType.Warning );
+                if( fromFile ) Logger.Log( "Config.Load: using default player ranks.", LogType.Warning );
                 el.Add( DefineDefaultRanks() );
             }
 
             // parse rank-limit permissions
             RankManager.ParsePermissionLimits();
+        }
+
+
+        internal static void ApplyConfig() {
+            Logger.SplittingType = (LogSplittingType)Enum.Parse( typeof( LogSplittingType ), Settings[ConfigKey.LogMode], true );
+            Logger.MarkLogStart();
+
+            Player.RelayAllUpdates = GetBool( ConfigKey.RelayAllBlockUpdates );
+            if( GetBool( ConfigKey.NoPartialPositionUpdates ) ) {
+                Session.FullPositionUpdateInterval = 0;
+            } else {
+                Session.FullPositionUpdateInterval = Session.FullPositionUpdateIntervalDefault;
+            }
+
+            // chat colors
+            Color.Sys = Color.Parse( Settings[ConfigKey.SystemMessageColor] );
+            Color.Say = Color.Parse( Settings[ConfigKey.SayColor] );
+            Color.Help = Color.Parse( Settings[ConfigKey.HelpColor] );
+            Color.Announcement = Color.Parse( Settings[ConfigKey.AnnouncementColor] );
+            Color.PM = Color.Parse( Settings[ConfigKey.PrivateMessageColor] );
+            Color.IRC = Color.Parse( Settings[ConfigKey.IRCMessageColor] );
+            Color.Me = Color.Parse( Settings[ConfigKey.MeColor] );
+            Color.Warning = Color.Parse( Settings[ConfigKey.WarningColor] );
+
+            // default class
+            if( !ConfigKey.DefaultRank.IsBlank() ) {
+                if( RankManager.ParseRank( Settings[ConfigKey.DefaultRank] ) != null ) {
+                    RankManager.DefaultRank = RankManager.ParseRank( Settings[ConfigKey.DefaultRank] );
+                } else {
+                    RankManager.DefaultRank = RankManager.LowestRank;
+                    Logger.Log( "Config.ApplyConfig: Could not parse DefaultRank; assuming that the lowest rank ({0}) is the default.",
+                         LogType.Warning, RankManager.DefaultRank.Name );
+                }
+            } else {
+                RankManager.DefaultRank = RankManager.LowestRank;
+            }
+
+            // antispam
+            Player.SpamChatCount = GetInt( ConfigKey.AntispamMessageCount );
+            Player.SpamChatTimer = GetInt( ConfigKey.AntispamInterval );
+            Player.AutoMuteDuration = TimeSpan.FromSeconds( GetInt( ConfigKey.AntispamMuteDuration ) );
+
+            // scheduler settings
+            Server.MaxUploadSpeed = GetInt( ConfigKey.UploadBandwidth );
+            Server.PacketsPerSecond = GetInt( ConfigKey.BlockUpdateThrottling );
+            Server.TicksPerSecond = 1000 / (float)GetInt( ConfigKey.TickInterval );
+
+            // rank to patrol
+            World.RankToPatrol = RankManager.ParseRank( ConfigKey.PatrolledRank.GetString() );
+
+            // IRC delay
+            IRC.SendDelay = GetInt( ConfigKey.IRCDelay );
+
+            BuildingCommands.MaxUndoCount = GetInt( ConfigKey.MaxUndo );
+
+            if( !Paths.IgnoreMapPathConfigKey && GetString( ConfigKey.MapPath ).Length > 0 ) {
+                if( Paths.TestDirectory( "MapPath", GetString( ConfigKey.MapPath ), true ) ) {
+                    Paths.MapPath = Path.GetFullPath( GetString( ConfigKey.MapPath ) );
+                    Logger.Log( "Maps are stored at: {0}", LogType.SystemActivity, Paths.MapPath );
+                }
+            }
+
+            AutoRankManager.CheckAutoRankSetting();
         }
 
         #endregion
@@ -439,7 +521,8 @@ namespace fCraft {
 
             // save general settings
             foreach( ConfigSection section in Enum.GetValues( typeof( ConfigSection ) ) ) {
-                XElement sectionEl = new XElement( section.ToString() );
+                XElement sectionEl = new XElement( "Section" );
+                sectionEl.Add( new XAttribute( "name", section ) );
                 foreach( ConfigKey key in KeyMetadata.Values.Where( a => a.Section == section ).Select( a => a.Key ) ) {
                     if( IsDefault( key ) ) {
                         sectionEl.Add( new XComment( new XElement( key.ToString(), Settings[key] ).ToString() ) );
@@ -617,68 +700,7 @@ namespace fCraft {
         #endregion
 
 
-        internal static void ApplyConfig() {
-            Logger.SplittingType = (LogSplittingType)Enum.Parse( typeof( LogSplittingType ), Settings[ConfigKey.LogMode], true );
-            Logger.MarkLogStart();
-
-            Player.RelayAllUpdates = GetBool( ConfigKey.RelayAllBlockUpdates );
-            if( GetBool( ConfigKey.NoPartialPositionUpdates ) ) {
-                Session.FullPositionUpdateInterval = 0;
-            } else {
-                Session.FullPositionUpdateInterval = Session.FullPositionUpdateIntervalDefault;
-            }
-
-            // chat colors
-            Color.Sys = Color.Parse( Settings[ConfigKey.SystemMessageColor] );
-            Color.Say = Color.Parse( Settings[ConfigKey.SayColor] );
-            Color.Help = Color.Parse( Settings[ConfigKey.HelpColor] );
-            Color.Announcement = Color.Parse( Settings[ConfigKey.AnnouncementColor] );
-            Color.PM = Color.Parse( Settings[ConfigKey.PrivateMessageColor] );
-            Color.IRC = Color.Parse( Settings[ConfigKey.IRCMessageColor] );
-            Color.Me = Color.Parse( Settings[ConfigKey.MeColor] );
-            Color.Warning = Color.Parse( Settings[ConfigKey.WarningColor] );
-
-            // default class
-            if( !ConfigKey.DefaultRank.IsBlank() ) {
-                if( RankManager.ParseRank( Settings[ConfigKey.DefaultRank] ) != null ) {
-                    RankManager.DefaultRank = RankManager.ParseRank( Settings[ConfigKey.DefaultRank] );
-                } else {
-                    RankManager.DefaultRank = RankManager.LowestRank;
-                    Log( "Config.ApplyConfig: Could not parse DefaultRank; assuming that the lowest rank ({0}) is the default.",
-                         LogType.Warning, RankManager.DefaultRank.Name );
-                }
-            } else {
-                RankManager.DefaultRank = RankManager.LowestRank;
-            }
-
-            // antispam
-            Player.SpamChatCount = GetInt( ConfigKey.AntispamMessageCount );
-            Player.SpamChatTimer = GetInt( ConfigKey.AntispamInterval );
-            Player.AutoMuteDuration = TimeSpan.FromSeconds( GetInt( ConfigKey.AntispamMuteDuration ) );
-
-            // scheduler settings
-            Server.MaxUploadSpeed = GetInt( ConfigKey.UploadBandwidth );
-            Server.PacketsPerSecond = GetInt( ConfigKey.BlockUpdateThrottling );
-            Server.TicksPerSecond = 1000 / (float)GetInt( ConfigKey.TickInterval );
-
-            // rank to patrol
-            World.RankToPatrol = RankManager.ParseRank( ConfigKey.PatrolledRank.GetString() );
-
-            // IRC delay
-            IRC.SendDelay = GetInt( ConfigKey.IRCDelay );
-
-            BuildingCommands.MaxUndoCount = GetInt( ConfigKey.MaxUndo );
-
-            if( !Paths.IgnoreMapPathConfigKey && GetString( ConfigKey.MapPath ).Length > 0 ) {
-                if( Paths.TestDirectory( "MapPath", GetString( ConfigKey.MapPath ), true ) ) {
-                    Paths.MapPath = Path.GetFullPath( GetString( ConfigKey.MapPath ) );
-                    Logger.Log( "Maps are stored at: {0}", LogType.SystemActivity, Paths.MapPath );
-                }
-            }
-
-            AutoRankManager.CheckAutoRankSetting();
-        }
-
+        #region Ranks
 
         /// <summary> Resets the list of ranks to defaults (guest/regular/op/owner).
         /// Warning: This method is not thread-safe. </summary>
@@ -762,7 +784,7 @@ namespace fCraft {
             try {
                 RankManager.AddRank( new Rank( owner ) );
             } catch( RankDefinitionException ex ) {
-                Log( ex.Message, LogType.Error );
+                Logger.Log( ex.Message, LogType.Error );
             }
 
 
@@ -825,7 +847,7 @@ namespace fCraft {
             try {
                 RankManager.AddRank( new Rank( op ) );
             } catch( RankDefinitionException ex ) {
-                Log( ex.Message, LogType.Error );
+                Logger.Log( ex.Message, LogType.Error );
             }
 
 
@@ -864,7 +886,7 @@ namespace fCraft {
             try {
                 RankManager.AddRank( new Rank( regular ) );
             } catch( RankDefinitionException ex ) {
-                Log( ex.Message, LogType.Error );
+                Logger.Log( ex.Message, LogType.Error );
             }
 
 
@@ -886,29 +908,10 @@ namespace fCraft {
             try {
                 RankManager.AddRank( new Rank( guest ) );
             } catch( RankDefinitionException ex ) {
-                Log( ex.Message, LogType.Error );
+                Logger.Log( ex.Message, LogType.Error );
             }
 
             return permissions;
-        }
-
-
-        #region Logging
-
-        // todo: switch from using this silly stuff to Logger.Logged events
-        public static string Errors = ""; // for ConfigTool
-        public static bool LogToString;
-
-        static void Log( string format, LogType type, params object[] args ) {
-            Log( String.Format( format, args ), type );
-        }
-
-        static void Log( string message, LogType type ) {
-            if( !LogToString ) {
-                Logger.Log( message, type );
-            } else if( type != LogType.Debug ) {
-                Errors += message + Environment.NewLine;
-            }
         }
 
         #endregion

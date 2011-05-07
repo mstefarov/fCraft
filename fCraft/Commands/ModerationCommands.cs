@@ -658,7 +658,9 @@ namespace fCraft {
                 (!promote && targetInfo.Rank > newRank) ) {
                 Rank oldRank = targetInfo.Rank;
 
-                if( !Server.FirePlayerRankChange( targetInfo, player, oldRank, newRank, reason ) ) return;
+                if( Server.RaisePlayerInfoRankChangingEvent( targetInfo, player, newRank, reason, changeType ) ) {
+                    throw new OperationCanceledException( "Cancelled by plugin." );
+                }
 
                 if( !silent ) Logger.Log( "{0} {1} {2} from {3} to {4}.", LogType.UserActivity,
                                           player.Name, verb, targetInfo.Name, targetInfo.Rank.Name, newRank.Name );
@@ -679,6 +681,7 @@ namespace fCraft {
                     // ==== Actual rank change happens here ====
                     targetInfo.ProcessRankChange( newRank, player, reason, changeType );
                     Server.RaisePlayerListChangedEvent();
+                    Server.RaisePlayerInfoRankChangedEvent( targetInfo, player, oldRank, reason, changeType );
                     // ==== Actual rank change happens here ====
 
 
@@ -697,6 +700,7 @@ namespace fCraft {
                 } else {
                     // ==== Actual rank change happens here (offline) ====
                     targetInfo.ProcessRankChange( newRank, player, reason, changeType );
+                    Server.RaisePlayerInfoRankChangedEvent( targetInfo, player, oldRank, reason, changeType );
                     // ==== Actual rank change happens here (offline) ====
                 }
 
@@ -781,6 +785,8 @@ namespace fCraft {
 
             // for aware players: notify
             Server.SendToSeeing( String.Format( "{0}&S is now hidden.", player.GetClassyName() ), player );
+
+            Server.RaisePlayerHideChangedEvent( player );
         }
 
 
@@ -821,6 +827,7 @@ namespace fCraft {
 
             player.Message( "You are no longer hidden.", Color.Gray );
             player.IsHidden = false;
+            Server.RaisePlayerHideChangedEvent( player );
         }
 
         #endregion

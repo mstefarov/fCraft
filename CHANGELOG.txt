@@ -1,3 +1,35 @@
+0.530
+ Feature: New adaptive bandwidth-saving mechanism for updating player positions, controlled by the new BandwidthUseMode config key.
+ Feature: Added OptiCraft blocktype names and blocks' numeric IDs as aliases.
+ Fix: Fixed block bindings not being applied to drawing commands.
+ Fix: Fixed fCraft getting confused if worlds.xml contains duplicates.
+ Fix: Fixed "/" (repeat last command) not rewinding the command, which caused some issues with command arguments.
+ Fix: Fixed "Max connections per IP" setting not saving in ConfigTool.
+ Fix: Fixed AnnounceRankChangeReasons checkbox being erroneously tied to RequireRankChangeReasons key in ConfigTool.
+ Fix: Added some missing tooltips to ConfigTool.
+ Fix: Marked 10.0.0.0/8 IP range as LAN.
+ Fix: Fixed an issue with balanced name verification (thanks wootalyzer).
+ Fix: Fixed server announcing hidden players' departure (#3292633). Thanks to Hellenion.
+ Fix: Fixed /bring not checking per-rank permissions (#3292303). Thanks to Denny
+ Fix: Fixed some header bugs in the D3 map converter.
+ Fix: Fixed /wload crashing instead of printing an error message under Mono if the path was malformed.
+ Fix: Fixed /banip not recognizing invalid IPs (e.g. broadcast).
+ Fix: Fixed antispam resetting players' mute time.
+ Fix: Fixed Scheduler being able to add tasks after the shutdown process started.
+ Fix: Reduced problems associated with players trying to connect while the server is shutting down.
+ Fix: Added autorank.xml to the list of protected files.
+ Change: When players rejoin a world (e.g. /wflush or /wload), "joined world" message is no longer shown.
+ Change: /mute no longer allows shortening players' mute time, only to extend it.
+ Change: Allowed player names with periods.
+ Change: Removed SaveOnShutdown config key, tweaked range checks on some keys, grouped key tags into section tags.
+ Change: When saving config.xml, keys with default values are now commented out.
+ API: New events! PlayerHideChanged, PlayerInfoCreating, PlayerInfoCreated, PlayerInfoRankChanging, and PlayerInfoRankChanged.
+ API: Server.StartServer() now throws specific exceptions on failure, instead of returning false.
+ API: Removed some obsolete Server events.
+ API: Switched to 100% Utc dates/times internally. PlayerDB now uses UTC Unix timestamps to serialize all dates/times.
+ Optimization: Sped up map generation.
+ Optimization: Reduced PlayerDB saving interval, reduced PlayerDB filesize, reduced CPU and memory use of PlayerDB saving, reduced memory footprint of loaded PlayerDB, improved IPAddress lookup performance in PlayerDB.
+
 0.522
  Feature: Added more functionality to hollow ellipsoid and sphere, thanks to Redshift. Now it is possible to define outer/inner blocktypes.
  Feature: Added OptiCraft map format support, courtesy of LgZ-optical
