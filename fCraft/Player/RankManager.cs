@@ -271,7 +271,7 @@ namespace fCraft {
 
 
         /// <summary> Finds the lowest rank that has all the required permissions. </summary>
-        /// <param name="permission"> One or more permissions to check for. </param>
+        /// <param name="permissions"> One or more permissions to check for. </param>
         /// <returns> A relevant Rank object, or null of none were found. </returns>
         public static Rank GetMinRankWithPermission( params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );

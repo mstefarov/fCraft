@@ -1,9 +1,9 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Security;
-using System.Collections.Generic;
 
 namespace fCraft {
     /// <summary> Contains fCraft path settings, and some filesystem-related utilities. </summary>
@@ -297,13 +297,9 @@ namespace fCraft {
         public static FileInfo[] FindFiles( string fullFileName ) {
             FileInfo fi = new FileInfo( fullFileName );
             DirectoryInfo parentDir = fi.Directory;
-            List<FileInfo> matches = new List<FileInfo>();
-            foreach( FileInfo file in parentDir.GetFiles( "*", SearchOption.TopDirectoryOnly ) ) {
-                if( file.Name.Equals( fi.Name, StringComparison.OrdinalIgnoreCase ) ) {
-                    matches.Add( file );
-                }
-            }
-            return matches.ToArray();
+            return parentDir.GetFiles( "*", SearchOption.TopDirectoryOnly )
+                            .Where( file => file.Name.Equals( fi.Name, StringComparison.OrdinalIgnoreCase ) )
+                            .ToArray();
         }
 
 

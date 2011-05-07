@@ -93,7 +93,7 @@ namespace fCraft {
 
         public override bool Equals( object obj ) {
             if( obj is Vector3i ) {
-                return this.Equals( (Vector3i)obj );
+                return Equals( (Vector3i)obj );
             } else {
                 return base.Equals( obj );
             }
@@ -271,7 +271,7 @@ namespace fCraft {
 
         public override bool Equals( object obj ) {
             if( obj is Vector3f ) {
-                return this.Equals( (Vector3f)obj );
+                return Equals( (Vector3f)obj );
             } else {
                 return base.Equals( obj );
             }

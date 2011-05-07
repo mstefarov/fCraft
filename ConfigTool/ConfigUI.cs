@@ -38,6 +38,7 @@ namespace ConfigTool {
 
             FillOptionList();
             FillToolTipsGeneral();
+            FillToolTipsChat();
             FillToolTipsWorlds();
             FillToolTipsRanks();
             FillToolTipsSecurity();
@@ -345,11 +346,11 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         #region IRC
 
         private void xIRC_CheckedChanged( object sender, EventArgs e ) {
-            gIRCNetwork.Enabled = xIRC.Checked;
-            gIRCOptions.Enabled = xIRC.Checked;
-            lIRCList.Enabled = xIRC.Checked;
-            cIRCList.Enabled = xIRC.Checked;
-            xIRCListShowNonEnglish.Enabled = xIRC.Checked;
+            gIRCNetwork.Enabled = xIRCBotEnabled.Checked;
+            gIRCOptions.Enabled = xIRCBotEnabled.Checked;
+            lIRCList.Enabled = xIRCBotEnabled.Checked;
+            cIRCList.Enabled = xIRCBotEnabled.Checked;
+            xIRCListShowNonEnglish.Enabled = xIRCBotEnabled.Checked;
         }
 
 
@@ -889,7 +890,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
 
         private void xSpamChatKick_CheckedChanged( object sender, EventArgs e ) {
-            nSpamChatWarnings.Enabled = xSpamChatKick.Checked;
+            nAntispamMaxWarnings.Enabled = xAntispamKicks.Checked;
         }
 
         private void vRanks_SelectedIndexChanged( object sender, EventArgs e ) {
@@ -1389,27 +1390,27 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             List<string> lines = new List<string>();
             if( xShowJoinedWorldMessages.Checked ) {
                 lines.Add( String.Format( "{0}{1}Notch&S joined {2}{3}main",
-                                          xRankColors.Checked ? RankManager.HighestRank.Color : "&S",
-                                          xChatPrefixes.Checked ? RankManager.HighestRank.Prefix : "",
+                                          xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "&S",
+                                          xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "",
                                           xRankColorsInWorldNames.Checked ? RankManager.LowestRank.Color : "",
-                                          xChatPrefixes.Checked ? RankManager.LowestRank.Prefix : "" ) );
+                                          xRankPrefixesInChat.Checked ? RankManager.LowestRank.Prefix : "" ) );
             }
             lines.Add( "&R<*- This is a random announcement -*>");
             lines.Add( "&YSomeone wrote this message with /say");
             lines.Add( String.Format( "{0}{1}Notch&F: This is a normal chat message",
-                                      xRankColors.Checked ? RankManager.HighestRank.Color : "",
-                                      xChatPrefixes.Checked ? RankManager.HighestRank.Prefix : "" ) );
+                                      xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
+                                      xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "" ) );
             lines.Add( "&Pfrom Notch: This is a private message / whisper");
             lines.Add( "* &MNotch is using /me to write this");
             lines.Add( "&SUnknown command \"kic\", see &H/help commands");
             lines.Add( String.Format( "&W{0}{1}Notch&W was kicked by {0}{1}gamer1",
-                                      xRankColors.Checked ? RankManager.HighestRank.Color : "",
-                                      xChatPrefixes.Checked ? RankManager.HighestRank.Prefix : "" ));
+                                      xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
+                                      xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "" ));
 
             if( xShowConnectionMessages.Checked ) {
                 lines.Add( String.Format( "&S{0}{1}Notch&S left the server.",
-                                          xRankColors.Checked ? RankManager.HighestRank.Color : "",
-                                          xChatPrefixes.Checked ? RankManager.HighestRank.Prefix : "" ) );
+                                          xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
+                                          xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "" ) );
             }
 
             chatPreview.SetText( lines.ToArray() );

@@ -127,9 +127,8 @@ namespace fCraft {
         #region Loading
 
         internal static PlayerInfo Load( string[] fields ) {
-            PlayerInfo info = new PlayerInfo();
+            PlayerInfo info = new PlayerInfo { Name = fields[0] };
 
-            info.Name = fields[0];
             if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out info.LastIP ) ) { // LEGACY
                 info.LastIP = IPAddress.None;
             }
@@ -232,9 +231,8 @@ namespace fCraft {
 
 
         internal static PlayerInfo LoadOldFormat( string[] fields, bool convertDatesToUtc ) {
-            PlayerInfo info = new PlayerInfo();
+            PlayerInfo info = new PlayerInfo { Name = fields[0] };
 
-            info.Name = fields[0];
             if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out info.LastIP ) ) { // LEGACY
                 info.LastIP = IPAddress.None;
             }

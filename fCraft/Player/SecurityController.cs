@@ -193,7 +193,7 @@ namespace fCraft {
 
 
         public SecurityController( XElement el ) {
-            if( el == null ) throw new ArgumentNullException( "root" );
+            if( el == null ) throw new ArgumentNullException( "el" );
             if( el.Element( "minRank" ) != null ) {
                 minRank = RankManager.ParseRank( el.Element( "minRank" ).Value );
             } else {

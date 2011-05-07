@@ -129,9 +129,9 @@ namespace ConfigTool {
 
 
         void ApplyTabChat() {
-            xRankColors.Checked = ConfigKey.RankColorsInChat.GetBool();
-            xChatPrefixes.Checked = ConfigKey.RankPrefixesInChat.GetBool();
-            xListPrefixes.Checked = ConfigKey.RankPrefixesInList.GetBool();
+            xRankColorsInChat.Checked = ConfigKey.RankColorsInChat.GetBool();
+            xRankPrefixesInChat.Checked = ConfigKey.RankPrefixesInChat.GetBool();
+            xRankPrefixesInList.Checked = ConfigKey.RankPrefixesInList.GetBool();
             xRankColorsInWorldNames.Checked = ConfigKey.RankColorsInWorldNames.GetBool();
             xShowJoinedWorldMessages.Checked = ConfigKey.ShowJoinedWorldMessages.GetBool();
             xShowConnectionMessages.Checked = ConfigKey.ShowConnectionMessages.GetBool();
@@ -230,20 +230,20 @@ namespace ConfigTool {
             xMaxConnectionsPerIP.Checked = (nMaxConnectionsPerIP.Value > 0);
             xAllowUnverifiedLAN.Checked = ConfigKey.AllowUnverifiedLAN.GetBool();
 
-            nSpamChatCount.Value = ConfigKey.AntispamMessageCount.GetInt();
-            nSpamChatTimer.Value = ConfigKey.AntispamInterval.GetInt();
+            nAntispamMessageCount.Value = ConfigKey.AntispamMessageCount.GetInt();
+            nAntispamInterval.Value = ConfigKey.AntispamInterval.GetInt();
             nSpamMute.Value = ConfigKey.AntispamMuteDuration.GetInt();
 
-            xSpamChatKick.Checked = (ConfigKey.AntispamMaxWarnings.GetInt() > 0);
-            nSpamChatWarnings.Value = ConfigKey.AntispamMaxWarnings.GetInt();
-            if( !xSpamChatKick.Checked ) nSpamChatWarnings.Enabled = false;
+            xAntispamKicks.Checked = (ConfigKey.AntispamMaxWarnings.GetInt() > 0);
+            nAntispamMaxWarnings.Value = ConfigKey.AntispamMaxWarnings.GetInt();
+            if( !xAntispamKicks.Checked ) nAntispamMaxWarnings.Enabled = false;
 
             xRequireKickReason.Checked = ConfigKey.RequireKickReason.GetBool();
             xRequireBanReason.Checked = ConfigKey.RequireBanReason.GetBool();
             xRequireRankChangeReason.Checked = ConfigKey.RequireRankChangeReason.GetBool();
             xAnnounceKickAndBanReasons.Checked = ConfigKey.AnnounceKickAndBanReasons.GetBool();
             xAnnounceRankChanges.Checked = ConfigKey.AnnounceRankChanges.GetBool();
-            xAnnounceRankChangeReasons.Checked = ConfigKey.RequireRankChangeReason.GetBool();
+            xAnnounceRankChangeReasons.Checked = ConfigKey.AnnounceRankChangeReasons.GetBool();
             xAnnounceRankChangeReasons.Enabled = xAnnounceRankChanges.Checked;
 
             FillRankList( cPatrolledRank, "(lowest rank)" );
@@ -258,8 +258,6 @@ namespace ConfigTool {
 
 
         void ApplyTabSavingAndBackup() {
-            xSaveOnShutdown.Checked = ConfigKey.SaveOnShutdown.GetBool();
-
             xSaveInterval.Checked = (ConfigKey.SaveInterval.GetInt() > 0);
             nSaveInterval.Value = ConfigKey.SaveInterval.GetInt();
             if( !xSaveInterval.Checked ) nSaveInterval.Enabled = false;
@@ -299,9 +297,9 @@ namespace ConfigTool {
 
 
         void ApplyTabIRC() {
-            xIRC.Checked = ConfigKey.IRCBotEnabled.GetBool();
-            gIRCNetwork.Enabled = xIRC.Checked;
-            gIRCOptions.Enabled = xIRC.Checked;
+            xIRCBotEnabled.Checked = ConfigKey.IRCBotEnabled.GetBool();
+            gIRCNetwork.Enabled = xIRCBotEnabled.Checked;
+            gIRCOptions.Enabled = xIRCBotEnabled.Checked;
 
             tIRCBotNetwork.Text = ConfigKey.IRCBotNetwork.GetString();
             nIRCBotPort.Value = ConfigKey.IRCBotPort.GetInt();
@@ -437,9 +435,9 @@ namespace ConfigTool {
             Config.TrySetValue( ConfigKey.MeColor, Color.GetName( colorMe ) );
             Config.TrySetValue( ConfigKey.ShowJoinedWorldMessages, xShowJoinedWorldMessages.Checked );
             Config.TrySetValue( ConfigKey.RankColorsInWorldNames, xRankColorsInWorldNames.Checked );
-            Config.TrySetValue( ConfigKey.RankColorsInChat, xRankColors.Checked );
-            Config.TrySetValue( ConfigKey.RankPrefixesInChat, xChatPrefixes.Checked );
-            Config.TrySetValue( ConfigKey.RankPrefixesInList, xListPrefixes.Checked );
+            Config.TrySetValue( ConfigKey.RankColorsInChat, xRankColorsInChat.Checked );
+            Config.TrySetValue( ConfigKey.RankPrefixesInChat, xRankPrefixesInChat.Checked );
+            Config.TrySetValue( ConfigKey.RankPrefixesInList, xRankPrefixesInList.Checked );
 
 
             // Worlds
@@ -463,11 +461,11 @@ namespace ConfigTool {
             }
             Config.TrySetValue( ConfigKey.AllowUnverifiedLAN, xAllowUnverifiedLAN.Checked );
 
-            Config.TrySetValue( ConfigKey.AntispamMessageCount, nSpamChatCount.Value );
-            Config.TrySetValue( ConfigKey.AntispamInterval, nSpamChatTimer.Value );
+            Config.TrySetValue( ConfigKey.AntispamMessageCount, nAntispamMessageCount.Value );
+            Config.TrySetValue( ConfigKey.AntispamInterval, nAntispamInterval.Value );
             Config.TrySetValue( ConfigKey.AntispamMuteDuration, nSpamMute.Value );
 
-            if( xSpamChatKick.Checked ) Config.TrySetValue( ConfigKey.AntispamMaxWarnings, nSpamChatWarnings.Value );
+            if( xAntispamKicks.Checked ) Config.TrySetValue( ConfigKey.AntispamMaxWarnings, nAntispamMaxWarnings.Value );
             else Config.TrySetValue( ConfigKey.AntispamMaxWarnings, 0 );
 
             Config.TrySetValue( ConfigKey.RequireKickReason, xRequireKickReason.Checked );
@@ -486,7 +484,6 @@ namespace ConfigTool {
 
 
             // Saving & Backups
-            Config.TrySetValue( ConfigKey.SaveOnShutdown, xSaveOnShutdown.Checked );
             if( xSaveInterval.Checked ) Config.TrySetValue( ConfigKey.SaveInterval, nSaveInterval.Value );
             else Config.TrySetValue( ConfigKey.SaveInterval, 0 );
             Config.TrySetValue( ConfigKey.BackupOnStartup, xBackupOnStartup.Checked );
@@ -514,7 +511,7 @@ namespace ConfigTool {
 
 
             // IRC
-            Config.TrySetValue( ConfigKey.IRCBotEnabled, xIRC.Checked );
+            Config.TrySetValue( ConfigKey.IRCBotEnabled, xIRCBotEnabled.Checked );
 
             Config.TrySetValue( ConfigKey.IRCBotNetwork, tIRCBotNetwork.Text );
             Config.TrySetValue( ConfigKey.IRCBotPort, nIRCBotPort.Value );

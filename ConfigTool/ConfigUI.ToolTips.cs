@@ -7,129 +7,39 @@ namespace ConfigTool {
 
         void FillToolTipsGeneral() {
 
-            string tipServerName =
-@"The name of the server, as shown on the welcome screen
-and the official server list (if server is public).";
-            toolTip.SetToolTip( lServerName, tipServerName );
-            toolTip.SetToolTip( tServerName, tipServerName );
+            toolTip.SetToolTip( lServerName, ConfigKey.ServerName.GetDescription() );
+            toolTip.SetToolTip( tServerName, ConfigKey.ServerName.GetDescription() );
 
-            string tipMOTD =
-@"MOTD (Message Of The Day) is a message shown to
-connecting players right under the server name.
-It can be left blank.";
-            toolTip.SetToolTip( lMOTD, tipMOTD );
-            toolTip.SetToolTip( tMOTD, tipMOTD );
+            toolTip.SetToolTip( lMOTD, ConfigKey.MOTD.GetDescription() );
+            toolTip.SetToolTip( tMOTD, ConfigKey.MOTD.GetDescription() );
 
+            toolTip.SetToolTip( lMaxPlayers, ConfigKey.MaxPlayers.GetDescription() );
+            toolTip.SetToolTip( nMaxPlayers, ConfigKey.MaxPlayers.GetDescription() );
 
+            toolTip.SetToolTip( lMaxPlayersPerWorld, ConfigKey.MaxPlayersPerWorld.GetDescription() );
+            toolTip.SetToolTip( nMaxPlayersPerWorld, ConfigKey.MaxPlayersPerWorld.GetDescription() );
 
-            string tipPublic =
-@"Public servers are listed on minecraft.net server list, so expect
-random players to join. Private servers can only be joined by players
-who already know the server port/address or URL. Note that the URL
-changes if your computer's IP or server's port change.";
-            toolTip.SetToolTip( lPublic, tipPublic );
-            toolTip.SetToolTip( cPublic, tipPublic );
+            toolTip.SetToolTip( lDefaultRank, ConfigKey.DefaultRank.GetDescription() );
+            toolTip.SetToolTip( cDefaultRank, ConfigKey.DefaultRank.GetDescription() );
 
-            string tipMaxPlayers =
-@"Maximum number of players on the server. Having more players
-uses more RAM and more bandwidth. If a player's rank is given a
-""reserved slot"" on the server, they can join even if server is full.";
-            toolTip.SetToolTip( lMaxPlayers, tipMaxPlayers );
-            toolTip.SetToolTip( nMaxPlayers, tipMaxPlayers );
+            toolTip.SetToolTip( lPublic, ConfigKey.IsPublic.GetDescription() );
+            toolTip.SetToolTip( cPublic, ConfigKey.IsPublic.GetDescription() );
 
-
-            string tipMaxPlayersPerWorld =
-@"Maximum number of players allowed to be on the same world at the same time.
-Minecraft protocol limits total number of players per world to 127.
-Note that having more people on a world increases everyone's bandwidth use.";
-            toolTip.SetToolTip( lMaxPlayersPerWorld, tipMaxPlayersPerWorld );
-            toolTip.SetToolTip( nMaxPlayersPerWorld, tipMaxPlayersPerWorld );
-
-
-            string tipUploadBandwidth =
-@"Total available upload bandwidth, in kilobytes.
-This number is used to pace drawing commands
-to prevent server from overwhelming the Internet
-connection with data.";
-            toolTip.SetToolTip( nUploadBandwidth, tipUploadBandwidth );
-            toolTip.SetToolTip( lUploadBandwidth, tipUploadBandwidth );
-
-            toolTip.SetToolTip( bMeasure,
-@"Test your connection's upload speed with speedtest.net
-Note: to convert from megabits to kilobytes, multiply the
-number by 128" );
-
-            string tipDefaultRank =
-@"New players will be assigned this rank by default.
-It\'s generally a good idea not to give new players
-many powers until they prove themselves trustworthy.";
-            toolTip.SetToolTip( lDefaultRank, tipDefaultRank );
-            toolTip.SetToolTip( cDefaultRank, tipDefaultRank );
-
-            string tipPort =
-@"Port number on your local machine that fCraft uses to listen for
-incoming connections. If you are behind a router, you may need
-to set up port forwarding. You may also need to add a firewall 
-exception for fCraftUI/fCraftConsole/ConfigTool.  Note that your
-server's URL will change if you change the port number.";
-            toolTip.SetToolTip( nPort, tipPort );
-            toolTip.SetToolTip( lPort, tipPort );
+            toolTip.SetToolTip( nPort, ConfigKey.Port.GetDescription() );
+            toolTip.SetToolTip( lPort, ConfigKey.Port.GetDescription() );
 
             toolTip.SetToolTip( bPortCheck,
 @"Check if the selected port is connectible.
 If port check fails, you may need to set up
 port forwarding on your router." );
 
-            string tipIP =
-@"If the machine has more than one available IP address
-(for example if you have more than one NIC) you can
-use this setting to make fCraft bind to the same IP
-every time.";
-            toolTip.SetToolTip( xIP, tipIP );
-            toolTip.SetToolTip( tIP, tipIP );
+            toolTip.SetToolTip( nUploadBandwidth, ConfigKey.UploadBandwidth.GetDescription() );
+            toolTip.SetToolTip( lUploadBandwidth, ConfigKey.UploadBandwidth.GetDescription() );
 
-
-
-            string tipColorSys = "This is the color of normal system messages. Default is yellow.";
-            toolTip.SetToolTip( bColorSys, tipColorSys );
-            toolTip.SetToolTip( lColorSys, tipColorSys );
-
-            string tipColorHelp = "Color of command usage examples in help. Default is lime-green.";
-            toolTip.SetToolTip( bColorHelp, tipColorHelp );
-            toolTip.SetToolTip( lColorHelp, tipColorHelp );
-
-            string tipColorSay = "Color of messages produced by \"/say\" command. Default is dark-green.";
-            toolTip.SetToolTip( bColorSay, tipColorSay );
-            toolTip.SetToolTip( lColorSay, tipColorSay );
-
-            string tipColorAnnouncement =
-@"Color of announcements and rules. Default is dark-green.
-Note that this default color can be overriden by
-colorcodes in announcement and rule files.";
-            toolTip.SetToolTip( bColorAnnouncement, tipColorAnnouncement );
-            toolTip.SetToolTip( lColorAnnouncement, tipColorAnnouncement );
-
-            string tipColorPM = "Color of private messages and rank-wide messages. Default is aqua.";
-            toolTip.SetToolTip( bColorPM, tipColorPM );
-            toolTip.SetToolTip( lColorPM, tipColorPM );
-
-
-
-            toolTip.SetToolTip( xShowJoinedWorldMessages, "Show messages when players change worlds." );
-
-            toolTip.SetToolTip( xRankColors, "Color player names in chat and in-game based on their rank." );
-
-            toolTip.SetToolTip( xRankColorsInWorldNames, "Color world names in chat based on their build and access permissions." );
-
-            toolTip.SetToolTip( xChatPrefixes,
-@"Show 1-letter prefixes in chat before player names. This can be
-used to set up IRC-style ""+"" and ""@"" prefixes for ops." );
-
-            toolTip.SetToolTip( xListPrefixes,
-@"Show prefixes in the player list. As a side-effect, Minecraft client
-will not show custom skins for players with prefixed names." );
-
-
+            toolTip.SetToolTip( bMeasure,
+@"Test your connection's upload speed with speedtest.net
+Note: to convert from megabits to kilobytes, multiply the
+number by 128" );
 
             toolTip.SetToolTip( bRules,
 @"Edit the list of rules displayed by the ""/rules"" command.
@@ -137,25 +47,65 @@ This list is stored in rules.txt, and can also be edited with any text editor.
 If rules.txt is missing or empty, ""/rules"" shows this message:
 ""Use common sense!""" );
 
+            string tipAnnouncements =
+@"Show a random announcement every once in a while.
+Announcements are shown to all players, one line at a time, in random order.";
+            toolTip.SetToolTip( xAnnouncements, tipAnnouncements );
+
+            toolTip.SetToolTip( nAnnouncements, ConfigKey.AnnouncementInterval.GetDescription() );
+            toolTip.SetToolTip( lAnnouncementsUnits, ConfigKey.AnnouncementInterval.GetDescription() );
+
             toolTip.SetToolTip( bAnnouncements,
 @"Edit the list of announcements (announcements.txt).
 One line is shown at a time, in random order.
 You can include any color codes in the announcements.
 You can also edit announcements.txt with any text editor." );
 
-
-            string tipAnnouncements =
-@"Show a random announcement every once in a while.
-Announcements are shown to all players, one line at a time, in random order.";
-            toolTip.SetToolTip( xAnnouncements, tipAnnouncements );
-            toolTip.SetToolTip( nAnnouncements, tipAnnouncements );
-            toolTip.SetToolTip( lAnnouncementsUnits, tipAnnouncements );
-
             toolTip.SetToolTip( bGreeting,
 @"Edit a custom greeting that's shown to connecting players.
 You can use any color codes, and these special variables:
     {SERVER_NAME} = server name (as defined in config)
     {RANK} = connecting player's rank" );
+
+        }
+
+
+        void FillToolTipsChat() {
+
+            toolTip.SetToolTip( xRankColorsInChat, ConfigKey.RankColorsInChat.GetDescription() );
+
+            toolTip.SetToolTip( xRankColorsInWorldNames, ConfigKey.RankColorsInWorldNames.GetDescription() );
+
+            toolTip.SetToolTip( xRankPrefixesInChat, ConfigKey.RankPrefixesInChat.GetDescription() );
+
+            toolTip.SetToolTip( xRankPrefixesInList, ConfigKey.RankPrefixesInList.GetDescription() );
+
+            toolTip.SetToolTip( xShowConnectionMessages, ConfigKey.ShowConnectionMessages.GetDescription() );
+
+            // TODO: ShowBannedConnectionMessages
+
+            toolTip.SetToolTip( xShowJoinedWorldMessages, ConfigKey.ShowJoinedWorldMessages.GetDescription() );
+
+            toolTip.SetToolTip( bColorSys, ConfigKey.SystemMessageColor.GetDescription() );
+            toolTip.SetToolTip( lColorSys, ConfigKey.SystemMessageColor.GetDescription() );
+
+            toolTip.SetToolTip( bColorHelp, ConfigKey.HelpColor.GetDescription() );
+            toolTip.SetToolTip( lColorHelp, ConfigKey.HelpColor.GetDescription() );
+
+            toolTip.SetToolTip( bColorSay, ConfigKey.SayColor.GetDescription() );
+            toolTip.SetToolTip( lColorSay, ConfigKey.SayColor.GetDescription() );
+
+            toolTip.SetToolTip( bColorAnnouncement, ConfigKey.AnnouncementColor.GetDescription() );
+            toolTip.SetToolTip( lColorAnnouncement, ConfigKey.AnnouncementColor.GetDescription() );
+
+            toolTip.SetToolTip( bColorPM, ConfigKey.PrivateMessageColor.GetDescription() );
+            toolTip.SetToolTip( lColorPM, ConfigKey.PrivateMessageColor.GetDescription() );
+
+            toolTip.SetToolTip( bColorMe, ConfigKey.MeColor.GetDescription() );
+            toolTip.SetToolTip( lColorMe, ConfigKey.MeColor.GetDescription() );
+
+            toolTip.SetToolTip( bColorWarning, ConfigKey.WarningColor.GetDescription() );
+            toolTip.SetToolTip( lColorWarning, ConfigKey.WarningColor.GetDescription() );
         }
 
 
@@ -164,15 +114,27 @@ You can use any color codes, and these special variables:
             toolTip.SetToolTip( bWorldEdit, "Edit or replace an existing world." );
             toolTip.SetToolTip( cMainWorld, "Main world is the first world that players see when they join the server." );
             toolTip.SetToolTip( bWorldDelete, "Delete a world from the list." );
-            string tipDefaultBuildRank =
-@"When new maps are loaded with the /wload command,
-the build permission for new maps will default to this rank.";
-            toolTip.SetToolTip( lDefaultBuildRank, tipDefaultBuildRank );
-            toolTip.SetToolTip( cDefaultBuildRank, tipDefaultBuildRank );
+
+            toolTip.SetToolTip( lDefaultBuildRank, ConfigKey.DefaultBuildRank.GetDescription() );
+            toolTip.SetToolTip( cDefaultBuildRank, ConfigKey.DefaultBuildRank.GetDescription() );
+
+            toolTip.SetToolTip( tMapPath, ConfigKey.MapPath.GetDescription() );
+            toolTip.SetToolTip( xMapPath, ConfigKey.MapPath.GetDescription() );
         }
 
 
         void FillToolTipsRanks() {
+
+            toolTip.SetToolTip( xAllowSecurityCircumvention,
+@"Allows players to manupulate whitelists/blacklists or rank requirements
+in order to join restricted worlds, or to build in worlds/zones. Normally
+players with ManageWorlds and ManageZones permissions are not allowed to do this.
+Affected commands:
+    /waccess
+    /wbuild
+    /wmain
+    /zedit" );
+
             toolTip.SetToolTip( bAddRank, "Add a new rank to the list." );
             toolTip.SetToolTip( bDeleteRank,
 @"Delete a rank from the list. You will be prompted to specify a replacement
@@ -539,108 +501,73 @@ Affected commands:
 
 
         void FillToolTipsSecurity() {
-            string tipVerifyNames =
-@"Name verification ensures that connecting players are not impersonating
-someone else. Strict verification uses only the main verification method.
-Sometimes it can produce false negatives - for example if server has just
-restarted, or if minecraft.net heartbeats are timing out. Balanced verification
-checks player's current and on-record IP address to eliminate false negatives.";
-            toolTip.SetToolTip( lVerifyNames, tipVerifyNames );
-            toolTip.SetToolTip( cVerifyNames, tipVerifyNames );
+            toolTip.SetToolTip( lVerifyNames, ConfigKey.VerifyNames.GetDescription() );
+            toolTip.SetToolTip( cVerifyNames, ConfigKey.VerifyNames.GetDescription() );
 
-            toolTip.SetToolTip( xMaxConnectionsPerIP,
-@"Restricts the number of connections allowed from any one IP address.
-Note that all players on the same LAN will share an IP, and may be prevented
-from joining together. Enabling this option is not recommended unless there
-is a specific need/threat." );
+            toolTip.SetToolTip( xMaxConnectionsPerIP, ConfigKey.MaxConnectionsPerIP.GetDescription() );
+            toolTip.SetToolTip( nMaxConnectionsPerIP, ConfigKey.MaxConnectionsPerIP.GetDescription() );
 
-            toolTip.SetToolTip( xAllowUnverifiedLAN,
-@"Allow players from your local network (LAN) to connect without name verification.
-May be useful if minecraft.net is blocked on your LAN for some reason.
-Warning: unverified players can log in with ANY name - even as you!" );
+            toolTip.SetToolTip( xAllowUnverifiedLAN, ConfigKey.AllowUnverifiedLAN.GetDescription() );
 
-            toolTip.SetToolTip( xRequireBanReason, "Require players to specify a reason/memo when banning or unbanning someone." );
-            toolTip.SetToolTip( xRequireRankChangeReason, "Require players to specify a reason/memo when promoting or demoting someone." );
-            toolTip.SetToolTip( xAnnounceKickAndBanReasons, "Show the reason/memo in chat for everyone when someone gets kicked/banned/unbanned." );
-            toolTip.SetToolTip( xAnnounceRankChanges, "Announce promotions and demotions in chat." );
+            toolTip.SetToolTip( xRequireBanReason, ConfigKey.RequireBanReason.GetDescription() );
+            toolTip.SetToolTip( xRequireKickReason, ConfigKey.RequireKickReason.GetDescription() );
+            toolTip.SetToolTip( xRequireRankChangeReason, ConfigKey.RequireRankChangeReason.GetDescription() );
 
-            string tipPatrolledRank =
-@"When players use the /patrol command, they will be  teleported
-to players of this (or lower) rank. ""Patrolling"" means teleporting
-to other players to check on them, usually while hidden.";
-            toolTip.SetToolTip( lPatrolledRank, tipPatrolledRank );
-            toolTip.SetToolTip( cPatrolledRank, tipPatrolledRank );
-            toolTip.SetToolTip( lPatrolledRankAndBelow, tipPatrolledRank );
+            toolTip.SetToolTip( xAnnounceKickAndBanReasons, ConfigKey.AnnounceKickAndBanReasons.GetDescription() );
+            toolTip.SetToolTip( xAnnounceRankChanges, ConfigKey.AnnounceRankChanges.GetDescription() );
+            toolTip.SetToolTip( xAnnounceRankChangeReasons, ConfigKey.AnnounceRankChanges.GetDescription() );
 
-            toolTip.SetToolTip( xPaidPlayersOnly,
-@"Only allow players who have a paid Minecraft account (not recommended).
-This will help filter out griefers with throwaway accounts,
-but will also prevent many legitimate players from joining." );
 
-            toolTip.SetToolTip( xAllowSecurityCircumvention,
-@"Allows players to manupulate whitelists/blacklists or rank requirements
-in order to join restricted worlds, or to build in worlds/zones. Normally
-players with ManageWorlds and ManageZones permissions are not allowed to do this.
-Affected commands:
-    /waccess
-    /wbuild
-    /wmain
-    /zedit" );
+            toolTip.SetToolTip( lPatrolledRank, ConfigKey.PatrolledRank.GetDescription() );
+            toolTip.SetToolTip( cPatrolledRank, ConfigKey.PatrolledRank.GetDescription() );
+            toolTip.SetToolTip( lPatrolledRankAndBelow, ConfigKey.PatrolledRank.GetDescription() );
+
+            toolTip.SetToolTip( nAntispamMessageCount, ConfigKey.AntispamMessageCount.GetDescription() );
+            toolTip.SetToolTip( lAntispamMessageCount, ConfigKey.AntispamMessageCount.GetDescription() );
+            toolTip.SetToolTip( nAntispamInterval, ConfigKey.AntispamInterval.GetDescription() );
+            toolTip.SetToolTip( lAntispamInterval, ConfigKey.AntispamInterval.GetDescription() );
+
+            toolTip.SetToolTip( xAntispamKicks, "Kick players who repeatedly trigger antispam warnings." );
+            toolTip.SetToolTip( nAntispamMaxWarnings, ConfigKey.AntispamMaxWarnings.GetDescription() );
+            toolTip.SetToolTip( lAntispamMaxWarnings, ConfigKey.AntispamMaxWarnings.GetDescription() );
+
+            toolTip.SetToolTip( xPaidPlayersOnly, ConfigKey.PaidPlayersOnly.GetDescription() );
         }
 
 
         void FillToolTipsSavingAndBackup() {
-            toolTip.SetToolTip( xSaveOnShutdown,
-@"Whether to save maps when server is shutting down or not.
-generally this is a good idea." );
 
-            string tipSaveInterval =
-@"Whether to save maps (if modified) automatically once in a while.
-If disabled, maps are only saved when a world is unloaded.";
-            toolTip.SetToolTip( xSaveInterval, tipSaveInterval );
-            toolTip.SetToolTip( nSaveInterval, tipSaveInterval );
-            toolTip.SetToolTip( lSaveIntervalUnits, tipSaveInterval );
+            toolTip.SetToolTip( xSaveInterval, ConfigKey.SaveInterval.GetDescription() );
+            toolTip.SetToolTip( nSaveInterval, ConfigKey.SaveInterval.GetDescription() );
+            toolTip.SetToolTip( lSaveIntervalUnits, ConfigKey.SaveInterval.GetDescription() );
 
-            toolTip.SetToolTip( xBackupOnStartup, "Create a backup of every map when the server starts." );
+            toolTip.SetToolTip( xBackupOnStartup, ConfigKey.BackupOnStartup.GetDescription() );
 
-            string tipBackupInterval =
-@"Create backups of loaded maps automatically once in a while.
-A world is considered ""loaded"" if there is at least one player on it.";
-            toolTip.SetToolTip( xBackupInterval, tipBackupInterval );
-            toolTip.SetToolTip( nBackupInterval, tipBackupInterval );
-            toolTip.SetToolTip( lBackupIntervalUnits, tipBackupInterval );
+            toolTip.SetToolTip( xBackupOnJoin, ConfigKey.BackupOnJoin.GetDescription() );
 
-            toolTip.SetToolTip( xBackupOnlyWhenChanged, "Only save backups if the map changed in any way since last backup." );
+            toolTip.SetToolTip( xBackupInterval, ConfigKey.BackupInterval.GetDescription() );
+            toolTip.SetToolTip( nBackupInterval, ConfigKey.BackupInterval.GetDescription() );
+            toolTip.SetToolTip( lBackupIntervalUnits, ConfigKey.BackupInterval.GetDescription() );
 
-            toolTip.SetToolTip( xBackupOnJoin,
-@"Create backups any time a player joins a map.
-Both a timestamp and player's name are included in the filename." );
+            toolTip.SetToolTip( xBackupOnlyWhenChanged, ConfigKey.BackupInterval.GetDescription() );
 
-            string tipMaxBackups =
-@"Maximum number of backup files that fCraft should keep.
-If exceeded, oldest backups will be deleted.";
-            toolTip.SetToolTip( xMaxBackups, tipMaxBackups );
-            toolTip.SetToolTip( nMaxBackups, tipMaxBackups );
-            toolTip.SetToolTip( lMaxBackups, tipMaxBackups );
+            toolTip.SetToolTip( xMaxBackups, ConfigKey.MaxBackups.GetDescription() );
+            toolTip.SetToolTip( nMaxBackups, ConfigKey.MaxBackups.GetDescription() );
+            toolTip.SetToolTip( lMaxBackups, ConfigKey.MaxBackups.GetDescription() );
 
-            string tipMaxBackupSize =
-@"Maximum combined filesize of all backups.
-If exceeded, oldest backups will be deleted.";
-            toolTip.SetToolTip( xMaxBackupSize, tipMaxBackupSize );
-            toolTip.SetToolTip( nMaxBackupSize, tipMaxBackupSize );
-            toolTip.SetToolTip( lMaxBackupSize, tipMaxBackupSize );
+            toolTip.SetToolTip( xMaxBackupSize, ConfigKey.MaxBackupSize.GetDescription() );
+            toolTip.SetToolTip( nMaxBackupSize, ConfigKey.MaxBackupSize.GetDescription() );
+            toolTip.SetToolTip( lMaxBackupSize, ConfigKey.MaxBackupSize.GetDescription() );
         }
 
 
         void FillToolTipsLogging() {
-            string tipLogMode = "Select the way logs are stored.";
-            toolTip.SetToolTip( lLogMode, tipLogMode );
-            toolTip.SetToolTip( cLogMode, tipLogMode );
+            toolTip.SetToolTip( lLogMode, ConfigKey.LogMode.GetDescription() );
+            toolTip.SetToolTip( cLogMode, ConfigKey.LogMode.GetDescription() );
 
-            string tipLogLimit = "If enabled, old logs will be automatically erased.";
-            toolTip.SetToolTip( xLogLimit, tipLogLimit );
-            toolTip.SetToolTip( nLogLimit, tipLogLimit );
-            toolTip.SetToolTip( lLogLimitUnits, tipLogLimit );
+            toolTip.SetToolTip( xLogLimit, ConfigKey.MaxLogs.GetDescription() );
+            toolTip.SetToolTip( nLogLimit, ConfigKey.MaxLogs.GetDescription() );
+            toolTip.SetToolTip( lLogLimitUnits, ConfigKey.MaxLogs.GetDescription() );
 
             vLogFileOptions.Items[(int)LogType.ConsoleInput].ToolTipText = "Commands typed in from the server console.";
             vLogFileOptions.Items[(int)LogType.ConsoleOutput].ToolTipText =
@@ -669,10 +596,7 @@ Does not include IRC chatter (see IRCChat).";
 
 
         void FillToolTipsIRC() {
-            toolTip.SetToolTip( xIRC, 
-@"fCraft contains an IRC (Internet Relay Chat) bot for
-relaying messages to and from any IRC network.
-Note that encrypted IRC (via SSL) is not supported." );
+            toolTip.SetToolTip( xIRCBotEnabled, ConfigKey.IRCBotEnabled.GetDescription() );
 
             string tipIRCList =
 @"Choose one of these popular IRC networks,
@@ -680,117 +604,72 @@ or type in address/port manually below.";
             toolTip.SetToolTip( lIRCList, tipIRCList );
             toolTip.SetToolTip( cIRCList, tipIRCList );
 
-            string tipIRCBotNetwork = "Host or address of the IRC network.";
-            toolTip.SetToolTip( lIRCBotNetwork, tipIRCBotNetwork );
-            toolTip.SetToolTip( tIRCBotNetwork, tipIRCBotNetwork );
+            toolTip.SetToolTip( lIRCBotNick, ConfigKey.IRCBotNick.GetDescription() );
+            toolTip.SetToolTip( tIRCBotNick, ConfigKey.IRCBotNick.GetDescription() );
 
-            string tipIRCBotPort = "Port number of the IRC network (default: 6667).";
-            toolTip.SetToolTip( lIRCBotPort, tipIRCBotPort );
-            toolTip.SetToolTip( nIRCBotPort, tipIRCBotPort );
+            toolTip.SetToolTip( lIRCBotNetwork, ConfigKey.IRCBotNetwork.GetDescription() );
+            toolTip.SetToolTip( tIRCBotNetwork, ConfigKey.IRCBotNetwork.GetDescription() );
 
-            string tipIRCDelay =
-@"Minimum delay (in milliseconds) between IRC messages.
-Many networks have strict anti-flood limits, so a delay
-of at least 500ms is recommended.";
-            toolTip.SetToolTip( lIRCDelay, tipIRCDelay );
-            toolTip.SetToolTip( nIRCDelay, tipIRCDelay );
-            toolTip.SetToolTip( lIRCDelayUnits, tipIRCDelay );
+            toolTip.SetToolTip( lIRCBotPort, ConfigKey.IRCBotPort.GetDescription() );
+            toolTip.SetToolTip( nIRCBotPort, ConfigKey.IRCBotPort.GetDescription() );
 
-            toolTip.SetToolTip( tIRCBotChannels,
-@"Comma-separated list of channels to join. Channel names should include the hash (#).
-One some IRC networks, channel names are case-sensitive." );
+            toolTip.SetToolTip( lIRCDelay, ConfigKey.IRCDelay.GetDescription() );
+            toolTip.SetToolTip( nIRCDelay, ConfigKey.IRCDelay.GetDescription() );
+            toolTip.SetToolTip( lIRCDelayUnits, ConfigKey.IRCDelay.GetDescription() );
 
-            string tipIRCBotNick =
-@"IRC bot's nickname. If the nickname is taken, fCraft will append
-an underscore (_) to the name and retry.";
-            toolTip.SetToolTip( lIRCBotNick, tipIRCBotNick );
-            toolTip.SetToolTip( tIRCBotNick, tipIRCBotNick );
+            toolTip.SetToolTip( tIRCBotChannels, ConfigKey.IRCBotChannels.GetDescription() );
 
-            toolTip.SetToolTip( xIRCRegisteredNick,
-@"Check this if bot's nickname is registered
-or requires identification/authentication." );
+            toolTip.SetToolTip( xIRCRegisteredNick, ConfigKey.IRCRegisteredNick.GetDescription() );
 
-            string tipIRCNickServ = "Name of the registration service bot (usually NickServ)";
-            toolTip.SetToolTip( lIRCNickServ, tipIRCNickServ );
-            toolTip.SetToolTip( tIRCNickServ, tipIRCNickServ );
+            toolTip.SetToolTip( lIRCNickServ, ConfigKey.IRCNickServ.GetDescription() );
+            toolTip.SetToolTip( tIRCNickServ, ConfigKey.IRCNickServ.GetDescription() );
 
-            string tipIRCNickServMessage = "Message to send to registration service bot.";
-            toolTip.SetToolTip( lIRCNickServMessage, tipIRCNickServMessage );
-            toolTip.SetToolTip( tIRCNickServMessage, tipIRCNickServMessage );
+            toolTip.SetToolTip( lIRCNickServMessage, ConfigKey.IRCNickServMessage.GetDescription() );
+            toolTip.SetToolTip( tIRCNickServMessage, ConfigKey.IRCNickServMessage.GetDescription() );
 
-            string tipColorIRC = "Color of IRC message in-game.";
-            toolTip.SetToolTip( lColorIRC, tipColorIRC );
-            toolTip.SetToolTip( bColorIRC, tipColorIRC );
+            toolTip.SetToolTip( lColorIRC, ConfigKey.IRCMessageColor.GetDescription() );
+            toolTip.SetToolTip( bColorIRC, ConfigKey.IRCMessageColor.GetDescription() );
 
-            toolTip.SetToolTip( xIRCBotForwardFromServer,
-@"If checked, all chat messages on IRC are shown in the game.
-Otherwise, only IRC messages starting with a hash (#) will be relayed." );
+            toolTip.SetToolTip( xIRCBotForwardFromIRC, ConfigKey.IRCBotForwardFromIRC.GetDescription() );
+            toolTip.SetToolTip( xIRCBotAnnounceIRCJoins, ConfigKey.IRCBotAnnounceIRCJoins.GetDescription() );
 
-            toolTip.SetToolTip( xIRCBotForwardFromIRC,
-@"If checked, all chat messages from the server are shown on IRC.
-Otherwise, only chat messages starting with a hash (#) will be relayed." );
+            toolTip.SetToolTip( xIRCBotForwardFromServer, ConfigKey.IRCBotForwardFromServer.GetDescription() );
+            toolTip.SetToolTip( xIRCBotAnnounceServerJoins, ConfigKey.IRCBotAnnounceServerJoins.GetDescription() );
+            toolTip.SetToolTip( xIRCBotAnnounceServerEvents, ConfigKey.IRCBotAnnounceServerEvents.GetDescription() );
 
-            toolTip.SetToolTip( xIRCBotAnnounceServerJoins, "Show a message on IRC when someone joins of leaves the server." );
-            toolTip.SetToolTip( xIRCBotAnnounceIRCJoins, "Show a message in-gam,e when someone joins of leaves the IRC channel." );
+            // TODO: IRCThreads
+
+            toolTip.SetToolTip( xIRCUseColor, ConfigKey.IRCUseColor.GetDescription() );
         }
 
 
         void FillToolTipsAdvanced() {
-            toolTip.SetToolTip( xRelayAllBlockUpdates,
-@"When a player places or deletes a block, vanilla Minecraft server
-relays the action back. This is not needed, and only wastes bandwidth." );
+            toolTip.SetToolTip( xRelayAllBlockUpdates, ConfigKey.RelayAllBlockUpdates.GetDescription() );
 
-            toolTip.SetToolTip( xNoPartialPositionUpdates,
-@"Minecraft protocol specifies 4 different movement packet types.
-One of them sends absolute position, and other 3 send incremental relative positions." );
+            toolTip.SetToolTip( xNoPartialPositionUpdates, ConfigKey.NoPartialPositionUpdates.GetDescription() );
 
-            toolTip.SetToolTip( xLowLatencyMode,
-@"This mode reduces lag by up to 200ms, at the cost of vastly increased
-bandwidth use. It's only practical if you have a very fast connection
-with few players, or if your server is LAN-only." );
+            toolTip.SetToolTip( xLowLatencyMode, ConfigKey.LowLatencyMode.GetDescription() );
 
-            string tipProcessPriority =
-@"It is recommended to leave fCraft at default priority.
-Setting this below ""Normal"" may starve fCraft of resources.
-Setting this above ""Normal"" may slow down other software on your machine.";
-            toolTip.SetToolTip( lProcessPriority, tipProcessPriority );
-            toolTip.SetToolTip( cProcessPriority, tipProcessPriority );
+            toolTip.SetToolTip( lProcessPriority, ConfigKey.ProcessPriority.GetDescription() );
+            toolTip.SetToolTip( cProcessPriority, ConfigKey.ProcessPriority.GetDescription() );
 
-            string tipUpdater =
-@"fCraft can automatically update to latest stable versions.
-The update check is done on-startup.
-    ""Disabled"" - no check is done at all
-    ""Notify"" - fCraft only shows a message about availability
-    ""Download/Prompt"" - fCraft downloads the update automatically,
-        shows a list of changes, and asks to continue (or cancel).
-    ""Automatic"" - fCraft downloads and applies updates at once.";
-            toolTip.SetToolTip( lUpdater, tipUpdater );
-            toolTip.SetToolTip( cUpdaterMode, tipUpdater );
+            toolTip.SetToolTip( lUpdater, ConfigKey.UpdaterMode.GetDescription() );
+            toolTip.SetToolTip( cUpdaterMode, ConfigKey.UpdaterMode.GetDescription() );
 
-            string tipThrottling =
-@"The maximum number of block changes that can be sent to each client per second.
-Unmodified Minecraft client can only handle about 2500 updates per second.
-Setting this any higher may cause lag. Setting this lower will show down
-drawing commands (like cuboid).";
-            toolTip.SetToolTip( lThrottling, tipThrottling );
-            toolTip.SetToolTip( nThrottling, tipThrottling );
-            toolTip.SetToolTip( lThrottlingUnits, tipThrottling );
+            toolTip.SetToolTip( lThrottling, ConfigKey.BlockUpdateThrottling.GetDescription() );
+            toolTip.SetToolTip( nThrottling, ConfigKey.BlockUpdateThrottling.GetDescription() );
+            toolTip.SetToolTip( lThrottlingUnits, ConfigKey.BlockUpdateThrottling.GetDescription() );
 
-            string tipTickInterval =
-@"The rate at which fCraft applies block updates. Lowering this will slightly
-reduce bandwidth and CPU use, but will add latency to block placement.";
-            toolTip.SetToolTip( lTickInterval, tipTickInterval );
-            toolTip.SetToolTip( nTickInterval, tipTickInterval );
-            toolTip.SetToolTip( lTickIntervalUnits, tipTickInterval );
+            toolTip.SetToolTip( lTickInterval, ConfigKey.TickInterval.GetDescription() );
+            toolTip.SetToolTip( nTickInterval, ConfigKey.TickInterval.GetDescription() );
+            toolTip.SetToolTip( lTickIntervalUnits, ConfigKey.TickInterval.GetDescription() );
 
-            string tipMaxUndo =
-@"The number of blocks that players can undo at a time.
-Only the most-recent draw command can be undo, so the actual
-limit also depends on rank draw limits. Saving undo information
-takes up 16 bytes per block.";
-            toolTip.SetToolTip( xMaxUndo, tipMaxUndo );
-            toolTip.SetToolTip( nMaxUndo, tipMaxUndo );
-            toolTip.SetToolTip( lMaxUndoUnits, tipMaxUndo );
+            toolTip.SetToolTip( xMaxUndo, ConfigKey.MaxUndo.GetDescription() );
+            toolTip.SetToolTip( nMaxUndo, ConfigKey.MaxUndo.GetDescription() );
+            toolTip.SetToolTip( lMaxUndoUnits, ConfigKey.MaxUndo.GetDescription() );
+
+            toolTip.SetToolTip( xIP, ConfigKey.IP.GetDescription() );
+            toolTip.SetToolTip( tIP, ConfigKey.IP.GetDescription() );
         }
     }
 }

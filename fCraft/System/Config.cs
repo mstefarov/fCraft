@@ -112,9 +112,14 @@ namespace fCraft {
      * 135 - r526 - Added RequireKickReason and AnnounceRankChangeReasons keys
      *              Added ViewPlayerIPs permission
      *              
-     * 136 - r528 - Added BanAll permission.
+     * 136 - r528 - Added BringAll permission.
      * 
      * 137 - r556 - Added BandwidthUseMode key.
+     * 
+     * 138 - r578 - Removed SaveOnShutdown key.
+     *              Tweaked range checks on some keys.
+     *              Grouped key tags into section tags.
+     *              When saving, keys with default values are now commented out.
      * 
      */
 
@@ -122,7 +127,7 @@ namespace fCraft {
     /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 137;
+        public const int ConfigVersion = 138;
         public const string ConfigXmlRootName = "fCraftConfig";
 
         static readonly Dictionary<ConfigKey, string> Settings = new Dictionary<ConfigKey, string>();
@@ -433,8 +438,16 @@ namespace fCraft {
             }
 
             // save general settings
-            foreach( KeyValuePair<ConfigKey, string> pair in Settings ) {
-                config.Add( new XElement( pair.Key.ToString(), pair.Value ) );
+            foreach( ConfigSection section in Enum.GetValues( typeof( ConfigSection ) ) ) {
+                XElement sectionEl = new XElement( section.ToString() );
+                foreach( ConfigKey key in KeyMetadata.Values.Where( a => a.Section == section ).Select( a => a.Key ) ) {
+                    if( IsDefault( key ) ) {
+                        sectionEl.Add( new XComment( new XElement( key.ToString(), Settings[key] ).ToString() ) );
+                    } else {
+                        sectionEl.Add( new XElement( key.ToString(), Settings[key] ) );
+                    }
+                }
+                config.Add( sectionEl );
             }
 
             // save console options
@@ -523,6 +536,10 @@ namespace fCraft {
             return KeyMetadata[key].Section;
         }
 
+        public static string GetDescription( this ConfigKey key ) {
+            return KeyMetadata[key].Description;
+        }
+
         #endregion
 
 
@@ -550,10 +567,7 @@ namespace fCraft {
                 throw new ArgumentNullException( "rawValue", key + ": ConfigKey values cannot be null. Use an empty string to indicate unset value." );
             }
 
-            string value = rawValue as string;
-            if( value == null ) {
-                value = rawValue.ToString();
-            }
+            string value = (rawValue as string ?? rawValue.ToString());
 
             if( value == null ) {
                 throw new NullReferenceException( key + ": rawValue.ToString() returned null." );

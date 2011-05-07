@@ -10,21 +10,23 @@ namespace fCraft {
     /// <summary> Specialized data structure for partial-matching of large sparse sets of words.
     /// Used as a searchable index of players for PlayerDB. </summary>
     [DebuggerDisplay( "Count = {Count}" )]
-    public sealed class Trie<T> : IDictionary<string, T>, IEnumerable<KeyValuePair<string, T>>, IDictionary, ICollection, IEnumerable, ICloneable where T : class {
-        public const byte LeafNode = 254,
-                          MultiNode = 255;
+    public sealed class Trie<T> : IDictionary<string, T>, IDictionary, ICloneable where T : class {
+        const byte LeafNode = 254,
+                   MultiNode = 255;
+
         TrieNode root = new TrieNode();
 
-        int count = 0;
-        int version = 0;
+        int version;
 
 
         public Trie() {
+            Count = 0;
             keys = new TrieKeyCollection( this );
             values = new TrieValueCollection( this );
         }
 
-        public Trie( IDictionary<string, T> dictionary )
+
+        public Trie( IEnumerable<KeyValuePair<string, T>> dictionary )
             : this() {
             if( dictionary == null ) throw new ArgumentNullException( "dictionary" );
             foreach( var pair in dictionary ) {
@@ -66,14 +68,15 @@ namespace fCraft {
 
 
         public bool ContainsValue( T value ) {
+            // ReSharper restore UnusedMember.Global
             if( value == null ) throw new ArgumentNullException( "value" );
             return Values.Contains( value );
         }
 
 
         /// <summary> Searches for payloads with keys that start with keyPart, returning just one or none of the matches. </summary>
-        /// <param name="namePart"> Partial or full key. </param>
-        /// <param name="info"> Payload object to output (will be set to null if no single match was found). </param>
+        /// <param name="keyPart"> Partial or full key. </param>
+        /// <param name="payload"> Payload object to output (will be set to null if no single match was found). </param>
         /// <returns>
         /// If no matches were found, returns true and sets payload to null.
         /// If one match was found, returns true and sets payload to the value.
@@ -120,7 +123,7 @@ namespace fCraft {
 
 
         /// <summary> Finds a list of payloads with keys that start with keyPart, up to a specified limit. Autocompletes. </summary>
-        /// <param name="namePart"> Partial or full key. </param>
+        /// <param name="keyPart"> Partial or full key. </param>
         /// <param name="limit"> Limit on the number of payloads to find/return. </param>
         /// <returns> List of matches (if there are no matches, length is zero). </returns>
         public List<T> GetList( string keyPart, int limit ) {
@@ -137,11 +140,12 @@ namespace fCraft {
 
 
         /// <summary> Adds a new object by key. </summary>
-        /// <param name="name"> Full key. </param>
+        /// <param name="key"> Full key. </param>
         /// <param name="payload"> Object associated with the key. </param>
+        /// <param name="overwriteOnDuplicate"> Whether to overwrite the value in case this key already exists. </param>
         /// <returns> True if object was added, false if an entry for this key already exists. </returns>
         public bool Add( string key, T payload, bool overwriteOnDuplicate ) {
-            if( key == null ) throw new ArgumentNullException( "name" );
+            if( key == null ) throw new ArgumentNullException( "key" );
             if( payload == null ) throw new ArgumentNullException( "payload" );
 
             if( key.Length == 0 ) {
@@ -152,7 +156,7 @@ namespace fCraft {
                     }
                     return false;
                 }
-                count++;
+                Count++;
                 root.Payload = payload;
                 return true;
             }
@@ -196,17 +200,17 @@ namespace fCraft {
             } else {
                 temp.Payload = payload;
                 version++;
-                count++;
+                Count++;
                 return true;
             }
         }
 
 
         /// <summary> Get payload for an exact key (no autocompletion). </summary>
-        /// <param name="name"> Full key. </param>
+        /// <param name="key"> Full key. </param>
         /// <returns> Payload object, if found. Null if not found. </returns>
         public T Get( string key ) {
-            if( key == null ) throw new ArgumentNullException( "name" );
+            if( key == null ) throw new ArgumentNullException( "key" );
             TrieNode node = GetNode( key );
             if( node != null ) {
                 return node.Payload;
@@ -285,8 +289,8 @@ namespace fCraft {
 
 
         public class TrieSubset : IEnumerable<KeyValuePair<string, T>> {
-            Trie<T> trie;
-            string prefix;
+            readonly Trie<T> trie;
+            readonly string prefix;
 
             public TrieSubset( Trie<T> trie, string prefix ) {
                 this.trie = trie;
@@ -301,7 +305,7 @@ namespace fCraft {
 
 
             IEnumerator IEnumerable.GetEnumerator() {
-                return GetEnumerator() as IEnumerator;
+                return GetEnumerator();
             }
         }
 
@@ -313,49 +317,50 @@ namespace fCraft {
         class EnumeratorBase {
 
             // Starting node ("root" of the trie/subtrie)
-            protected TrieNode startingNode;
+            protected readonly TrieNode StartingNode;
 
             // Current node (presumably with payload)
-            protected TrieNode currentNode;
+            protected TrieNode CurrentNode;
 
             // Index of the child in the current node
-            protected int currentIndex;
+            protected int CurrentIndex;
 
             // Version of collection when we started iterating. Used to keep track of collection changes.
-            protected int startingVersion;
+            protected int StartingVersion;
 
             // Trie from which our nodes originate (used in conjunction with startingVersion to check for modification).
-            protected Trie<T> baseTrie;
+            protected readonly Trie<T> BaseTrie;
 
-            protected StringBuilder currentKeyName;
+            protected StringBuilder CurrentKeyName;
 
-            protected string basePrefix;
+            protected readonly string BasePrefix;
 
 
             // A couple stacks to keep track of our position in the trie
-            protected Stack<TrieNode> parents = new Stack<TrieNode>();
-            protected Stack<int> parentIndices = new Stack<int>();
+            protected readonly Stack<TrieNode> Parents = new Stack<TrieNode>();
+            protected readonly Stack<int> ParentIndices = new Stack<int>();
 
-            public EnumeratorBase( TrieNode node, Trie<T> trie, string prefix ) {
+
+            protected EnumeratorBase( TrieNode node, Trie<T> trie, string prefix ) {
                 if( node == null ) throw new ArgumentNullException( "node" );
                 if( trie == null ) throw new ArgumentNullException( "trie" );
                 if( prefix == null ) throw new ArgumentNullException( "prefix" );
-                startingNode = node;
-                baseTrie = trie;
-                basePrefix = prefix;
-                currentKeyName = new StringBuilder( basePrefix );
-                startingVersion = baseTrie.version;
+                StartingNode = node;
+                BaseTrie = trie;
+                BasePrefix = prefix;
+                CurrentKeyName = new StringBuilder( BasePrefix );
+                StartingVersion = BaseTrie.version;
             }
 
 
             protected bool MoveNextInternal() {
-                if( startingNode == null ) return false;
-                if( baseTrie.version != startingVersion ) {
+                if( StartingNode == null ) return false;
+                if( BaseTrie.version != StartingVersion ) {
                     ThrowCollectionModifiedException();
                 }
-                if( currentNode == null ) {
-                    currentNode = startingNode;
-                    if( currentNode.Payload != null ) {
+                if( CurrentNode == null ) {
+                    CurrentNode = StartingNode;
+                    if( CurrentNode.Payload != null ) {
                         return true;
                     }
                 }
@@ -364,28 +369,28 @@ namespace fCraft {
 
 
             protected void ResetInternal() {
-                parents.Clear();
-                parentIndices.Clear();
-                currentNode = null;
-                startingVersion = baseTrie.version;
-                currentKeyName = new StringBuilder( basePrefix );
+                Parents.Clear();
+                ParentIndices.Clear();
+                CurrentNode = null;
+                StartingVersion = BaseTrie.version;
+                CurrentKeyName = new StringBuilder( BasePrefix );
             }
 
 
             protected bool FindNextPayload() {
             continueLoop:
-                switch( currentNode.Tag ) {
+                switch( CurrentNode.Tag ) {
                     case MultiNode:
-                        while( currentIndex < currentNode.Children.Length ) {
-                            if( currentNode.Children[currentIndex] != null ) {
-                                MoveDown( currentNode.Children[currentIndex], currentIndex );
-                                if( currentNode.Payload != null ) {
+                        while( CurrentIndex < CurrentNode.Children.Length ) {
+                            if( CurrentNode.Children[CurrentIndex] != null ) {
+                                MoveDown( CurrentNode.Children[CurrentIndex], CurrentIndex );
+                                if( CurrentNode.Payload != null ) {
                                     return true;
                                 } else {
                                     goto continueLoop;
                                 }
                             } else {
-                                currentIndex++;
+                                CurrentIndex++;
                             }
                         }
                         if( !MoveUp() ) return false;
@@ -396,9 +401,9 @@ namespace fCraft {
                         goto continueLoop;
 
                     default:
-                        if( currentIndex == 0 ) {
-                            MoveDown( currentNode.Children[0], currentNode.Tag );
-                            if( currentNode.Payload != null ) {
+                        if( CurrentIndex == 0 ) {
+                            MoveDown( CurrentNode.Children[0], CurrentNode.Tag );
+                            if( CurrentNode.Payload != null ) {
                                 return true;
                             }
                         } else {
@@ -412,12 +417,12 @@ namespace fCraft {
 
             // Pops the nearest parent from the stack (moving up the trie)
             protected bool MoveUp() {
-                if( parents.Count == 0 ) {
+                if( Parents.Count == 0 ) {
                     return false;
                 } else {
-                    currentKeyName.Remove( currentKeyName.Length - 1, 1 );
-                    currentNode = parents.Pop();
-                    currentIndex = parentIndices.Pop();
+                    CurrentKeyName.Remove( CurrentKeyName.Length - 1, 1 );
+                    CurrentNode = Parents.Pop();
+                    CurrentIndex = ParentIndices.Pop();
                     return true;
                 }
             }
@@ -425,15 +430,15 @@ namespace fCraft {
 
             // Pushes current node onto the stack, and makes the given node current.
             protected void MoveDown( TrieNode node, int index ) {
-                currentKeyName.Append( CodeToChar( index ) );
-                parents.Push( currentNode );
-                parentIndices.Push( currentIndex + 1 );
-                currentNode = node;
-                currentIndex = 0;
+                CurrentKeyName.Append( CodeToChar( index ) );
+                Parents.Push( CurrentNode );
+                ParentIndices.Push( CurrentIndex + 1 );
+                CurrentNode = node;
+                CurrentIndex = 0;
             }
 
 
-            protected void ThrowCollectionModifiedException() {
+            protected static void ThrowCollectionModifiedException() {
                 throw new InvalidOperationException( "Trie was modified since enumeration started." );
             }
         }
@@ -443,20 +448,20 @@ namespace fCraft {
 
         #region IDictionary<string,T> Members
 
-        TrieKeyCollection keys;
+        readonly TrieKeyCollection keys;
         public ICollection<string> Keys {
             get { return keys; }
         }
 
 
-        TrieValueCollection values;
+        readonly TrieValueCollection values;
         public ICollection<T> Values {
             get { return values; }
         }
 
 
         /// <summary> Adds a new object by key. If an entry for this key already exists, it is NOT overwritten. </summary>
-        /// <param name="name"> Full key. </param>
+        /// <param name="key"> Full key. </param>
         /// <param name="payload"> Object associated with the key. </param>
         /// <returns> True if object was added, false if an entry for this key already exists. </returns>
         public void Add( string key, T payload ) {
@@ -468,8 +473,13 @@ namespace fCraft {
 
         public bool TryGetValue( string key, out T result ) {
             TrieNode node = GetNode( key );
-            result = node.Payload;
-            return (node != null);
+            if( node == null ) {
+                result = null;
+                return false;
+            } else {
+                result = node.Payload;
+                return (result != null);
+            }
         }
 
 
@@ -490,14 +500,14 @@ namespace fCraft {
 
 
         /// <summary> Removes an entry by key. </summary>
-        /// <param name="name"> Key for the entry to remove. </param>
+        /// <param name="key"> Key for the entry to remove. </param>
         /// <returns> True if the entry was removed, false if no entry was found for this key. </returns>
         public bool Remove( string key ) {
-            if( key == null ) throw new ArgumentNullException( "name" );
+            if( key == null ) throw new ArgumentNullException( "key" );
             if( key.Length == 0 ) {
                 if( root.Payload == null ) return false;
                 root.Payload = null;
-                count--;
+                Count--;
                 version++;
                 return true;
             }
@@ -533,7 +543,7 @@ namespace fCraft {
 
             // reduce parents
             temp.Payload = null;
-            count--;
+            Count--;
             version++;
             while( parents.Count > 0 ) {
                 TrieNode parent = parents.Pop();
@@ -560,7 +570,7 @@ namespace fCraft {
 
         public void Clear() {
             root = new TrieNode();
-            count = 0;
+            Count = 0;
             version = 0;
         }
 
@@ -574,14 +584,14 @@ namespace fCraft {
 
         ICollection IDictionary.Values {
             get {
-                return Values as ICollection;
+                return (ICollection)Values;
             }
         }
 
 
         ICollection IDictionary.Keys {
             get {
-                return Keys as ICollection;
+                return (ICollection)Keys;
             }
         }
 
@@ -595,7 +605,7 @@ namespace fCraft {
                 if( castKey == null ) {
                     throw new ArgumentException( "Key must be of type String.", "key" );
                 }
-                return this[castKey] as object;
+                return this[castKey];
             }
             set {
                 if( key == null ) {
@@ -666,7 +676,7 @@ namespace fCraft {
         }
 
 
-        class TrieDictionaryEnumerator : EnumeratorBase, IDictionaryEnumerator {
+        sealed class TrieDictionaryEnumerator : EnumeratorBase, IDictionaryEnumerator {
 
             public TrieDictionaryEnumerator( TrieNode node, Trie<T> trie, string prefix )
                 : base( node, trie, prefix ) {
@@ -675,37 +685,37 @@ namespace fCraft {
 
             public object Key {
                 get {
-                    if( currentNode == null || currentNode.Payload == null ) {
+                    if( CurrentNode == null || CurrentNode.Payload == null ) {
                         throw new InvalidOperationException();
                     }
-                    return currentKeyName.ToString() as object;
+                    return CurrentKeyName.ToString();
                 }
             }
 
 
             public object Value {
                 get {
-                    if( currentNode == null || currentNode.Payload == null ) {
+                    if( CurrentNode == null || CurrentNode.Payload == null ) {
                         throw new InvalidOperationException();
                     }
-                    return currentNode.Payload as object;
+                    return CurrentNode.Payload;
                 }
             }
 
 
             public DictionaryEntry Entry {
                 get {
-                    if( currentNode == null || currentNode.Payload == null ) {
+                    if( CurrentNode == null || CurrentNode.Payload == null ) {
                         throw new InvalidOperationException();
                     }
-                    return new DictionaryEntry( currentKeyName.ToString(), currentNode.Payload );
+                    return new DictionaryEntry( CurrentKeyName.ToString(), CurrentNode.Payload );
                 }
             }
 
 
             object IEnumerator.Current {
                 get {
-                    return Entry as object;
+                    return Entry;
                 }
             }
 
@@ -726,8 +736,8 @@ namespace fCraft {
         #region ValueCollection
 
         [DebuggerDisplay( "Count = {Count}" )]
-        public class TrieValueCollection : ICollection<T>, IEnumerable<T>, ICollection, IEnumerable {
-            public Trie<T> trie;
+        public class TrieValueCollection : ICollection<T>, ICollection {
+            readonly Trie<T> trie;
 
 
             public TrieValueCollection( Trie<T> trie ) {
@@ -736,7 +746,7 @@ namespace fCraft {
             }
 
 
-            public int Count { get { return trie.count; } }
+            public int Count { get { return trie.Count; } }
 
 
             public bool IsReadOnly { get { return true; } }
@@ -810,8 +820,8 @@ namespace fCraft {
 
 
             public class TrieValueSubset : IEnumerable<T> {
-                Trie<T> trie;
-                string prefix;
+                readonly Trie<T> trie;
+                readonly string prefix;
 
                 public TrieValueSubset( Trie<T> trie, string prefix ) {
                     if( trie == null ) throw new ArgumentNullException( "trie" );
@@ -828,7 +838,7 @@ namespace fCraft {
 
 
                 IEnumerator IEnumerable.GetEnumerator() {
-                    return GetEnumerator() as IEnumerator;
+                    return GetEnumerator();
                 }
             }
 
@@ -845,7 +855,7 @@ namespace fCraft {
             }
 
 
-            class TrieValueEnumerator : EnumeratorBase, IEnumerator<T> {
+            sealed class TrieValueEnumerator : EnumeratorBase, IEnumerator<T> {
 
                 public TrieValueEnumerator( TrieNode node, Trie<T> trie, string prefix )
                     : base( node, trie, prefix ) {
@@ -854,20 +864,20 @@ namespace fCraft {
 
                 public T Current {
                     get {
-                        if( currentNode == null || currentNode.Payload == null ) {
+                        if( CurrentNode == null || CurrentNode.Payload == null ) {
                             throw new InvalidOperationException();
                         }
-                        return currentNode.Payload;
+                        return CurrentNode.Payload;
                     }
                 }
 
 
                 object IEnumerator.Current {
                     get {
-                        if( currentNode == null || currentNode.Payload == null ) {
+                        if( CurrentNode == null || CurrentNode.Payload == null ) {
                             throw new InvalidOperationException();
                         }
-                        return currentNode.Payload as object;
+                        return CurrentNode.Payload;
                     }
                 }
 
@@ -894,8 +904,8 @@ namespace fCraft {
         #region KeyCollection
 
         [DebuggerDisplay( "Count = {Count}" )]
-        public class TrieKeyCollection : ICollection<string>, IEnumerable<string>, ICollection, IEnumerable {
-            public Trie<T> trie;
+        public class TrieKeyCollection : ICollection<string>, ICollection {
+            readonly Trie<T> trie;
 
 
             public TrieKeyCollection( Trie<T> trie ) {
@@ -904,7 +914,7 @@ namespace fCraft {
             }
 
 
-            public int Count { get { return trie.count; } }
+            public int Count { get { return trie.Count; } }
 
 
             public bool IsReadOnly { get { return true; } }
@@ -978,8 +988,8 @@ namespace fCraft {
 
 
             public class TrieKeySubset : IEnumerable<string> {
-                Trie<T> trie;
-                string prefix;
+                readonly Trie<T> trie;
+                readonly string prefix;
 
                 public TrieKeySubset( Trie<T> trie, string prefix ) {
                     if( trie == null ) throw new ArgumentNullException( "trie" );
@@ -996,7 +1006,7 @@ namespace fCraft {
 
 
                 IEnumerator IEnumerable.GetEnumerator() {
-                    return GetEnumerator() as IEnumerator;
+                    return GetEnumerator();
                 }
             }
 
@@ -1013,7 +1023,7 @@ namespace fCraft {
             }
 
 
-            class TrieKeyEnumerator : EnumeratorBase, IEnumerator<string> {
+            sealed class TrieKeyEnumerator : EnumeratorBase, IEnumerator<string> {
 
                 public TrieKeyEnumerator( TrieNode node, Trie<T> trie, string prefix )
                     : base( node, trie, prefix ) {
@@ -1022,17 +1032,17 @@ namespace fCraft {
 
                 public string Current {
                     get {
-                        if( currentNode == null || currentNode.Payload == null ) {
+                        if( CurrentNode == null || CurrentNode.Payload == null ) {
                             throw new InvalidOperationException();
                         }
-                        return currentKeyName.ToString();
+                        return CurrentKeyName.ToString();
                     }
                 }
 
 
                 object IEnumerator.Current {
                     get {
-                        return Current as object;
+                        return Current;
                     }
                 }
 
@@ -1068,7 +1078,7 @@ namespace fCraft {
         }
 
 
-        class TrieEnumerator : EnumeratorBase, IEnumerator<KeyValuePair<string, T>> {
+        sealed class TrieEnumerator : EnumeratorBase, IEnumerator<KeyValuePair<string, T>> {
 
             public TrieEnumerator( TrieNode node, Trie<T> trie, string prefix )
                 : base( node, trie, prefix ) {
@@ -1077,17 +1087,17 @@ namespace fCraft {
 
             public KeyValuePair<string, T> Current {
                 get {
-                    if( currentNode == null || currentNode.Payload == null ) {
+                    if( CurrentNode == null || CurrentNode.Payload == null ) {
                         throw new InvalidOperationException();
                     }
-                    return new KeyValuePair<string, T>( currentKeyName.ToString(), currentNode.Payload );
+                    return new KeyValuePair<string, T>( CurrentKeyName.ToString(), CurrentNode.Payload );
                 }
             }
 
 
             object IEnumerator.Current {
                 get {
-                    return Current as object;
+                    return Current;
                 }
             }
 
@@ -1110,7 +1120,8 @@ namespace fCraft {
 
         #region ICollection<KeyValuePair<string,T>> Members
 
-        public int Count { get { return count; } }
+
+        public int Count { get; private set; }
 
 
         public bool IsReadOnly { get { return false; } }
@@ -1157,7 +1168,7 @@ namespace fCraft {
         public bool IsSynchronized { get { return false; } }
 
 
-        object syncRoot = new object();
+        readonly object syncRoot = new object();
         public object SyncRoot { get { return syncRoot; } }
 
 
@@ -1205,14 +1216,6 @@ namespace fCraft {
 
             // May be null (if MultiNode or single-child node)
             public T Payload;
-
-
-            public TrieNode() { }
-
-
-            public TrieNode( T payload ) {
-                Payload = payload;
-            }
 
 
             public void LeafToSingle( byte charCode ) {
@@ -1272,7 +1275,7 @@ namespace fCraft {
                     ThrowStateException();
                 } else {
                     // if there's just one, convert to single
-                    Children = new TrieNode[] { Children[index] };
+                    Children = new[] { Children[index] };
                     Tag = (byte)index;
                 }
             }
@@ -1288,9 +1291,8 @@ namespace fCraft {
                 switch( Tag ) {
                     case MultiNode:
                         for( int i = 0; i < Children.Length; i++ ) {
-                            if( Children[i] != null ) {
-                                if( !Children[i].GetAllChildren( list, limit ) ) return false;
-                            }
+                            if( Children[i] == null ) continue;
+                            if( !Children[i].GetAllChildren( list, limit ) ) return false;
                         }
                         return true;
 
