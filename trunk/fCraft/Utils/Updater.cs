@@ -19,10 +19,10 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             523,
-            577,
+            578,
             new DateTime( 2011, 5, 6, 3, 20, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Dev
+            ReleaseFlags.Dev | ReleaseFlags.Bugfix | ReleaseFlags.ConfigFormatChange
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
@@ -128,7 +128,7 @@ namespace fCraft {
                 return new UpdaterResult( false, null, new ReleaseInfo[0] );
             }
         }
-        internal UpdaterResult( bool updateAvailable, string downloadUrl, ReleaseInfo[] releases ) {
+        internal UpdaterResult( bool updateAvailable, string downloadUrl, IEnumerable<ReleaseInfo> releases ) {
             UpdateAvailable = updateAvailable;
             DownloadUrl = downloadUrl;
             History = releases.OrderByDescending( r => r.Revision ).ToArray();

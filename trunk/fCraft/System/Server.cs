@@ -97,7 +97,7 @@ namespace fCraft {
         /// Does not raise any events besides Logger.Logged.
         /// Throws exceptions on failure. </summary>
         /// <param name="rawArgs"> string arguments passed to the frontend (if any). </param>
-        public static void InitLibrary( string[] rawArgs ) {
+        public static void InitLibrary( IEnumerable<string> rawArgs ) {
             if( rawArgs == null ) throw new ArgumentNullException( "rawArgs" );
 
             // try to parse arguments
@@ -208,9 +208,9 @@ namespace fCraft {
             }
 
             if( Updater.CurrentRelease.IsFlagged( ReleaseFlags.Unstable ) ) {
-                string unstableMessage = "This build has been marked as UNSTABLE. " +
-                                         "Do not use except for debugging purposes. " +
-                                         "Latest non-broken build is " + Updater.LatestStable;
+                const string unstableMessage = "This build has been marked as UNSTABLE. " +
+                                               "Do not use except for debugging purposes. " +
+                                               "Latest non-broken build is " + Updater.LatestStable;
 #if DEBUG
                 Logger.Log( unstableMessage, LogType.Warning, Updater.LatestStable );
 #else
@@ -429,7 +429,7 @@ namespace fCraft {
                     lock( WorldManager.WorldListLock ) {
                         // unload all worlds (includes saving)
                         foreach( World world in WorldManager.WorldList ) {
-                            world.Shutdown();
+                            world.SaveMap();
                         }
                     }
                 }

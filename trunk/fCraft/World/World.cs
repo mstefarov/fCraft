@@ -50,14 +50,6 @@ namespace fCraft {
         }
 
 
-        // Prepare for shutdown
-        public void Shutdown() {
-            if( ConfigKey.SaveOnShutdown.GetBool() ) {
-                SaveMap();
-            }
-        }
-
-
         #region Map
 
         public Map EnsureMapLoaded() {
@@ -71,6 +63,7 @@ namespace fCraft {
                 }
             }
         }
+
 
         public void LoadMap() {
             lock( WorldLock ) {

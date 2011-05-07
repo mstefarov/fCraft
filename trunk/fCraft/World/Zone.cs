@@ -1,7 +1,5 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Text;
-using System.Xml.Linq;
 
 namespace fCraft {
 
@@ -121,7 +119,7 @@ namespace fCraft {
             return Controller.MinRank.Color + Name;
         }
 
-
+        /*
         #region Xml Serialization
 
         const string XmlRootElementName = "Zone";
@@ -170,5 +168,6 @@ namespace fCraft {
         }
 
         #endregion
+         */
     }
 }

@@ -12,7 +12,7 @@ namespace fCraft.MapConversion {
 
         static MapUtility() {
             AvailableConverters.Add( MapFormat.D3, new MapD3() );
-            AvailableConverters.Add( MapFormat.Creative, new MapDAT() );
+            AvailableConverters.Add( MapFormat.Creative, new MapDat() );
             AvailableConverters.Add( MapFormat.FCMv2, new MapFCMv2() );
             AvailableConverters.Add( MapFormat.FCMv3, new MapFCMv3() );
             AvailableConverters.Add( MapFormat.JTE, new MapJTE() );

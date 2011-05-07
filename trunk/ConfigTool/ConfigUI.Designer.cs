@@ -25,7 +25,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -86,9 +86,9 @@
             this.xShowConnectionMessages = new System.Windows.Forms.CheckBox();
             this.xShowJoinedWorldMessages = new System.Windows.Forms.CheckBox();
             this.xRankColorsInWorldNames = new System.Windows.Forms.CheckBox();
-            this.xListPrefixes = new System.Windows.Forms.CheckBox();
-            this.xChatPrefixes = new System.Windows.Forms.CheckBox();
-            this.xRankColors = new System.Windows.Forms.CheckBox();
+            this.xRankPrefixesInList = new System.Windows.Forms.CheckBox();
+            this.xRankPrefixesInChat = new System.Windows.Forms.CheckBox();
+            this.xRankColorsInChat = new System.Windows.Forms.CheckBox();
             this.chatPreview = new ConfigTool.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.bMapPath = new System.Windows.Forms.Button();
@@ -168,16 +168,16 @@
             this.xRequireRankChangeReason = new System.Windows.Forms.CheckBox();
             this.xRequireBanReason = new System.Windows.Forms.CheckBox();
             this.gSpamChat = new System.Windows.Forms.GroupBox();
-            this.lSpamChatWarnings = new System.Windows.Forms.Label();
-            this.nSpamChatWarnings = new System.Windows.Forms.NumericUpDown();
-            this.xSpamChatKick = new System.Windows.Forms.CheckBox();
+            this.lAntispamMaxWarnings = new System.Windows.Forms.Label();
+            this.nAntispamMaxWarnings = new System.Windows.Forms.NumericUpDown();
+            this.xAntispamKicks = new System.Windows.Forms.CheckBox();
             this.lSpamMuteSeconds = new System.Windows.Forms.Label();
-            this.lSpamChatSeconds = new System.Windows.Forms.Label();
+            this.lAntispamInterval = new System.Windows.Forms.Label();
             this.nSpamMute = new System.Windows.Forms.NumericUpDown();
             this.lSpamMute = new System.Windows.Forms.Label();
-            this.nSpamChatTimer = new System.Windows.Forms.NumericUpDown();
-            this.lSpamChatMessages = new System.Windows.Forms.Label();
-            this.nSpamChatCount = new System.Windows.Forms.NumericUpDown();
+            this.nAntispamInterval = new System.Windows.Forms.NumericUpDown();
+            this.lAntispamMessageCount = new System.Windows.Forms.Label();
+            this.nAntispamMessageCount = new System.Windows.Forms.NumericUpDown();
             this.lSpamChat = new System.Windows.Forms.Label();
             this.gVerify = new System.Windows.Forms.GroupBox();
             this.nMaxConnectionsPerIP = new System.Windows.Forms.NumericUpDown();
@@ -187,7 +187,6 @@
             this.cVerifyNames = new System.Windows.Forms.ComboBox();
             this.tabSavingAndBackup = new System.Windows.Forms.TabPage();
             this.gSaving = new System.Windows.Forms.GroupBox();
-            this.xSaveOnShutdown = new System.Windows.Forms.CheckBox();
             this.nSaveInterval = new System.Windows.Forms.NumericUpDown();
             this.lSaveIntervalUnits = new System.Windows.Forms.Label();
             this.xSaveInterval = new System.Windows.Forms.CheckBox();
@@ -250,7 +249,7 @@
             this.lIRCBotNick = new System.Windows.Forms.Label();
             this.tIRCBotNick = new System.Windows.Forms.TextBox();
             this.lIRCList = new System.Windows.Forms.Label();
-            this.xIRC = new System.Windows.Forms.CheckBox();
+            this.xIRCBotEnabled = new System.Windows.Forms.CheckBox();
             this.cIRCList = new System.Windows.Forms.ComboBox();
             this.tabAdvanced = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -310,10 +309,10 @@
             this.tabSecurity.SuspendLayout();
             this.gSecurityMisc.SuspendLayout();
             this.gSpamChat.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nSpamChatWarnings)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nAntispamMaxWarnings)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nSpamMute)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nSpamChatTimer)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nSpamChatCount)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nAntispamInterval)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nAntispamMessageCount)).BeginInit();
             this.gVerify.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxConnectionsPerIP)).BeginInit();
             this.tabSavingAndBackup.SuspendLayout();
@@ -1017,9 +1016,9 @@
             this.gAppearence.Controls.Add( this.xShowConnectionMessages );
             this.gAppearence.Controls.Add( this.xShowJoinedWorldMessages );
             this.gAppearence.Controls.Add( this.xRankColorsInWorldNames );
-            this.gAppearence.Controls.Add( this.xListPrefixes );
-            this.gAppearence.Controls.Add( this.xChatPrefixes );
-            this.gAppearence.Controls.Add( this.xRankColors );
+            this.gAppearence.Controls.Add( this.xRankPrefixesInList );
+            this.gAppearence.Controls.Add( this.xRankPrefixesInChat );
+            this.gAppearence.Controls.Add( this.xRankColorsInChat );
             this.gAppearence.Location = new System.Drawing.Point( 7, 153 );
             this.gAppearence.Name = "gAppearence";
             this.gAppearence.Size = new System.Drawing.Size( 637, 97 );
@@ -1057,35 +1056,35 @@
             this.xRankColorsInWorldNames.Text = "Color world names based on build rank.";
             this.xRankColorsInWorldNames.UseVisualStyleBackColor = true;
             // 
-            // xListPrefixes
+            // xRankPrefixesInList
             // 
-            this.xListPrefixes.AutoSize = true;
-            this.xListPrefixes.Location = new System.Drawing.Point( 44, 70 );
-            this.xListPrefixes.Name = "xListPrefixes";
-            this.xListPrefixes.Size = new System.Drawing.Size( 219, 19 );
-            this.xListPrefixes.TabIndex = 2;
-            this.xListPrefixes.Text = "Prefixes in player list (breaks skins).";
-            this.xListPrefixes.UseVisualStyleBackColor = true;
+            this.xRankPrefixesInList.AutoSize = true;
+            this.xRankPrefixesInList.Location = new System.Drawing.Point( 44, 70 );
+            this.xRankPrefixesInList.Name = "xRankPrefixesInList";
+            this.xRankPrefixesInList.Size = new System.Drawing.Size( 219, 19 );
+            this.xRankPrefixesInList.TabIndex = 2;
+            this.xRankPrefixesInList.Text = "Prefixes in player list (breaks skins).";
+            this.xRankPrefixesInList.UseVisualStyleBackColor = true;
             // 
-            // xChatPrefixes
+            // xRankPrefixesInChat
             // 
-            this.xChatPrefixes.AutoSize = true;
-            this.xChatPrefixes.Location = new System.Drawing.Point( 25, 45 );
-            this.xChatPrefixes.Name = "xChatPrefixes";
-            this.xChatPrefixes.Size = new System.Drawing.Size( 133, 19 );
-            this.xChatPrefixes.TabIndex = 1;
-            this.xChatPrefixes.Text = "Show rank prefixes.";
-            this.xChatPrefixes.UseVisualStyleBackColor = true;
+            this.xRankPrefixesInChat.AutoSize = true;
+            this.xRankPrefixesInChat.Location = new System.Drawing.Point( 25, 45 );
+            this.xRankPrefixesInChat.Name = "xRankPrefixesInChat";
+            this.xRankPrefixesInChat.Size = new System.Drawing.Size( 133, 19 );
+            this.xRankPrefixesInChat.TabIndex = 1;
+            this.xRankPrefixesInChat.Text = "Show rank prefixes.";
+            this.xRankPrefixesInChat.UseVisualStyleBackColor = true;
             // 
-            // xRankColors
+            // xRankColorsInChat
             // 
-            this.xRankColors.AutoSize = true;
-            this.xRankColors.Location = new System.Drawing.Point( 25, 20 );
-            this.xRankColors.Name = "xRankColors";
-            this.xRankColors.Size = new System.Drawing.Size( 123, 19 );
-            this.xRankColors.TabIndex = 0;
-            this.xRankColors.Text = "Show rank colors.";
-            this.xRankColors.UseVisualStyleBackColor = true;
+            this.xRankColorsInChat.AutoSize = true;
+            this.xRankColorsInChat.Location = new System.Drawing.Point( 25, 20 );
+            this.xRankColorsInChat.Name = "xRankColorsInChat";
+            this.xRankColorsInChat.Size = new System.Drawing.Size( 123, 19 );
+            this.xRankColorsInChat.TabIndex = 0;
+            this.xRankColorsInChat.Text = "Show rank colors.";
+            this.xRankColorsInChat.UseVisualStyleBackColor = true;
             // 
             // chatPreview
             // 
@@ -1241,8 +1240,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 334 );
             this.dgvWorlds.TabIndex = 1;
@@ -1950,16 +1949,16 @@
             // 
             // gSpamChat
             // 
-            this.gSpamChat.Controls.Add( this.lSpamChatWarnings );
-            this.gSpamChat.Controls.Add( this.nSpamChatWarnings );
-            this.gSpamChat.Controls.Add( this.xSpamChatKick );
+            this.gSpamChat.Controls.Add( this.lAntispamMaxWarnings );
+            this.gSpamChat.Controls.Add( this.nAntispamMaxWarnings );
+            this.gSpamChat.Controls.Add( this.xAntispamKicks );
             this.gSpamChat.Controls.Add( this.lSpamMuteSeconds );
-            this.gSpamChat.Controls.Add( this.lSpamChatSeconds );
+            this.gSpamChat.Controls.Add( this.lAntispamInterval );
             this.gSpamChat.Controls.Add( this.nSpamMute );
             this.gSpamChat.Controls.Add( this.lSpamMute );
-            this.gSpamChat.Controls.Add( this.nSpamChatTimer );
-            this.gSpamChat.Controls.Add( this.lSpamChatMessages );
-            this.gSpamChat.Controls.Add( this.nSpamChatCount );
+            this.gSpamChat.Controls.Add( this.nAntispamInterval );
+            this.gSpamChat.Controls.Add( this.lAntispamMessageCount );
+            this.gSpamChat.Controls.Add( this.nAntispamMessageCount );
             this.gSpamChat.Controls.Add( this.lSpamChat );
             this.gSpamChat.Location = new System.Drawing.Point( 8, 100 );
             this.gSpamChat.Name = "gSpamChat";
@@ -1968,32 +1967,32 @@
             this.gSpamChat.TabStop = false;
             this.gSpamChat.Text = "Chat Spam Prevention";
             // 
-            // lSpamChatWarnings
+            // lAntispamMaxWarnings
             // 
-            this.lSpamChatWarnings.AutoSize = true;
-            this.lSpamChatWarnings.Location = new System.Drawing.Point( 454, 62 );
-            this.lSpamChatWarnings.Name = "lSpamChatWarnings";
-            this.lSpamChatWarnings.Size = new System.Drawing.Size( 57, 15 );
-            this.lSpamChatWarnings.TabIndex = 12;
-            this.lSpamChatWarnings.Text = "warnings";
+            this.lAntispamMaxWarnings.AutoSize = true;
+            this.lAntispamMaxWarnings.Location = new System.Drawing.Point( 454, 62 );
+            this.lAntispamMaxWarnings.Name = "lAntispamMaxWarnings";
+            this.lAntispamMaxWarnings.Size = new System.Drawing.Size( 57, 15 );
+            this.lAntispamMaxWarnings.TabIndex = 12;
+            this.lAntispamMaxWarnings.Text = "warnings";
             // 
-            // nSpamChatWarnings
+            // nAntispamMaxWarnings
             // 
-            this.nSpamChatWarnings.Location = new System.Drawing.Point( 386, 60 );
-            this.nSpamChatWarnings.Name = "nSpamChatWarnings";
-            this.nSpamChatWarnings.Size = new System.Drawing.Size( 62, 21 );
-            this.nSpamChatWarnings.TabIndex = 4;
+            this.nAntispamMaxWarnings.Location = new System.Drawing.Point( 386, 60 );
+            this.nAntispamMaxWarnings.Name = "nAntispamMaxWarnings";
+            this.nAntispamMaxWarnings.Size = new System.Drawing.Size( 62, 21 );
+            this.nAntispamMaxWarnings.TabIndex = 4;
             // 
-            // xSpamChatKick
+            // xAntispamKicks
             // 
-            this.xSpamChatKick.AutoSize = true;
-            this.xSpamChatKick.Location = new System.Drawing.Point( 304, 61 );
-            this.xSpamChatKick.Name = "xSpamChatKick";
-            this.xSpamChatKick.Size = new System.Drawing.Size( 76, 19 );
-            this.xSpamChatKick.TabIndex = 3;
-            this.xSpamChatKick.Text = "Kick after";
-            this.xSpamChatKick.UseVisualStyleBackColor = true;
-            this.xSpamChatKick.CheckedChanged += new System.EventHandler( this.xSpamChatKick_CheckedChanged );
+            this.xAntispamKicks.AutoSize = true;
+            this.xAntispamKicks.Location = new System.Drawing.Point( 304, 61 );
+            this.xAntispamKicks.Name = "xAntispamKicks";
+            this.xAntispamKicks.Size = new System.Drawing.Size( 76, 19 );
+            this.xAntispamKicks.TabIndex = 3;
+            this.xAntispamKicks.Text = "Kick after";
+            this.xAntispamKicks.UseVisualStyleBackColor = true;
+            this.xAntispamKicks.CheckedChanged += new System.EventHandler( this.xSpamChatKick_CheckedChanged );
             // 
             // lSpamMuteSeconds
             // 
@@ -2004,14 +2003,14 @@
             this.lSpamMuteSeconds.TabIndex = 9;
             this.lSpamMuteSeconds.Text = "seconds";
             // 
-            // lSpamChatSeconds
+            // lAntispamInterval
             // 
-            this.lSpamChatSeconds.AutoSize = true;
-            this.lSpamChatSeconds.Location = new System.Drawing.Point( 372, 27 );
-            this.lSpamChatSeconds.Name = "lSpamChatSeconds";
-            this.lSpamChatSeconds.Size = new System.Drawing.Size( 53, 15 );
-            this.lSpamChatSeconds.TabIndex = 4;
-            this.lSpamChatSeconds.Text = "seconds";
+            this.lAntispamInterval.AutoSize = true;
+            this.lAntispamInterval.Location = new System.Drawing.Point( 372, 27 );
+            this.lAntispamInterval.Name = "lAntispamInterval";
+            this.lAntispamInterval.Size = new System.Drawing.Size( 53, 15 );
+            this.lAntispamInterval.TabIndex = 4;
+            this.lAntispamInterval.Text = "seconds";
             // 
             // nSpamMute
             // 
@@ -2029,54 +2028,54 @@
             this.lSpamMute.TabIndex = 2;
             this.lSpamMute.Text = "Mute spammer for";
             // 
-            // nSpamChatTimer
+            // nAntispamInterval
             // 
-            this.nSpamChatTimer.Location = new System.Drawing.Point( 304, 25 );
-            this.nSpamChatTimer.Maximum = new decimal( new int[] {
+            this.nAntispamInterval.Location = new System.Drawing.Point( 304, 25 );
+            this.nAntispamInterval.Maximum = new decimal( new int[] {
             50,
             0,
             0,
             0} );
-            this.nSpamChatTimer.Minimum = new decimal( new int[] {
+            this.nAntispamInterval.Minimum = new decimal( new int[] {
             1,
             0,
             0,
             0} );
-            this.nSpamChatTimer.Name = "nSpamChatTimer";
-            this.nSpamChatTimer.Size = new System.Drawing.Size( 62, 21 );
-            this.nSpamChatTimer.TabIndex = 1;
-            this.nSpamChatTimer.Value = new decimal( new int[] {
+            this.nAntispamInterval.Name = "nAntispamInterval";
+            this.nAntispamInterval.Size = new System.Drawing.Size( 62, 21 );
+            this.nAntispamInterval.TabIndex = 1;
+            this.nAntispamInterval.Value = new decimal( new int[] {
             1,
             0,
             0,
             0} );
             // 
-            // lSpamChatMessages
+            // lAntispamMessageCount
             // 
-            this.lSpamChatMessages.AutoSize = true;
-            this.lSpamChatMessages.Location = new System.Drawing.Point( 219, 27 );
-            this.lSpamChatMessages.Name = "lSpamChatMessages";
-            this.lSpamChatMessages.Size = new System.Drawing.Size( 77, 15 );
-            this.lSpamChatMessages.TabIndex = 2;
-            this.lSpamChatMessages.Text = "messages in";
+            this.lAntispamMessageCount.AutoSize = true;
+            this.lAntispamMessageCount.Location = new System.Drawing.Point( 219, 27 );
+            this.lAntispamMessageCount.Name = "lAntispamMessageCount";
+            this.lAntispamMessageCount.Size = new System.Drawing.Size( 77, 15 );
+            this.lAntispamMessageCount.TabIndex = 2;
+            this.lAntispamMessageCount.Text = "messages in";
             // 
-            // nSpamChatCount
+            // nAntispamMessageCount
             // 
-            this.nSpamChatCount.Location = new System.Drawing.Point( 153, 25 );
-            this.nSpamChatCount.Maximum = new decimal( new int[] {
+            this.nAntispamMessageCount.Location = new System.Drawing.Point( 153, 25 );
+            this.nAntispamMessageCount.Maximum = new decimal( new int[] {
             50,
             0,
             0,
             0} );
-            this.nSpamChatCount.Minimum = new decimal( new int[] {
+            this.nAntispamMessageCount.Minimum = new decimal( new int[] {
             2,
             0,
             0,
             0} );
-            this.nSpamChatCount.Name = "nSpamChatCount";
-            this.nSpamChatCount.Size = new System.Drawing.Size( 62, 21 );
-            this.nSpamChatCount.TabIndex = 0;
-            this.nSpamChatCount.Value = new decimal( new int[] {
+            this.nAntispamMessageCount.Name = "nAntispamMessageCount";
+            this.nAntispamMessageCount.Size = new System.Drawing.Size( 62, 21 );
+            this.nAntispamMessageCount.TabIndex = 0;
+            this.nAntispamMessageCount.Value = new decimal( new int[] {
             2,
             0,
             0,
@@ -2180,30 +2179,19 @@
             // 
             // gSaving
             // 
-            this.gSaving.Controls.Add( this.xSaveOnShutdown );
             this.gSaving.Controls.Add( this.nSaveInterval );
             this.gSaving.Controls.Add( this.lSaveIntervalUnits );
             this.gSaving.Controls.Add( this.xSaveInterval );
             this.gSaving.Location = new System.Drawing.Point( 8, 13 );
             this.gSaving.Name = "gSaving";
-            this.gSaving.Size = new System.Drawing.Size( 636, 77 );
+            this.gSaving.Size = new System.Drawing.Size( 636, 53 );
             this.gSaving.TabIndex = 0;
             this.gSaving.TabStop = false;
             this.gSaving.Text = "Saving";
             // 
-            // xSaveOnShutdown
-            // 
-            this.xSaveOnShutdown.AutoSize = true;
-            this.xSaveOnShutdown.Location = new System.Drawing.Point( 16, 20 );
-            this.xSaveOnShutdown.Name = "xSaveOnShutdown";
-            this.xSaveOnShutdown.Size = new System.Drawing.Size( 160, 19 );
-            this.xSaveOnShutdown.TabIndex = 0;
-            this.xSaveOnShutdown.Text = "Save maps on shutdown";
-            this.xSaveOnShutdown.UseVisualStyleBackColor = true;
-            // 
             // nSaveInterval
             // 
-            this.nSaveInterval.Location = new System.Drawing.Point( 140, 44 );
+            this.nSaveInterval.Location = new System.Drawing.Point( 136, 20 );
             this.nSaveInterval.Name = "nSaveInterval";
             this.nSaveInterval.Size = new System.Drawing.Size( 48, 21 );
             this.nSaveInterval.TabIndex = 2;
@@ -2211,7 +2199,7 @@
             // lSaveIntervalUnits
             // 
             this.lSaveIntervalUnits.AutoSize = true;
-            this.lSaveIntervalUnits.Location = new System.Drawing.Point( 194, 46 );
+            this.lSaveIntervalUnits.Location = new System.Drawing.Point( 190, 22 );
             this.lSaveIntervalUnits.Name = "lSaveIntervalUnits";
             this.lSaveIntervalUnits.Size = new System.Drawing.Size( 53, 15 );
             this.lSaveIntervalUnits.TabIndex = 3;
@@ -2220,7 +2208,7 @@
             // xSaveInterval
             // 
             this.xSaveInterval.AutoSize = true;
-            this.xSaveInterval.Location = new System.Drawing.Point( 16, 45 );
+            this.xSaveInterval.Location = new System.Drawing.Point( 12, 21 );
             this.xSaveInterval.Name = "xSaveInterval";
             this.xSaveInterval.Size = new System.Drawing.Size( 118, 19 );
             this.xSaveInterval.TabIndex = 1;
@@ -2242,7 +2230,7 @@
             this.gBackups.Controls.Add( this.lBackupIntervalUnits );
             this.gBackups.Controls.Add( this.xBackupInterval );
             this.gBackups.Controls.Add( this.xBackupOnJoin );
-            this.gBackups.Location = new System.Drawing.Point( 8, 96 );
+            this.gBackups.Location = new System.Drawing.Point( 8, 72 );
             this.gBackups.Name = "gBackups";
             this.gBackups.Size = new System.Drawing.Size( 636, 158 );
             this.gBackups.TabIndex = 1;
@@ -2530,7 +2518,7 @@
             this.tabIRC.Controls.Add( this.gIRCOptions );
             this.tabIRC.Controls.Add( this.gIRCNetwork );
             this.tabIRC.Controls.Add( this.lIRCList );
-            this.tabIRC.Controls.Add( this.xIRC );
+            this.tabIRC.Controls.Add( this.xIRCBotEnabled );
             this.tabIRC.Controls.Add( this.cIRCList );
             this.tabIRC.Location = new System.Drawing.Point( 4, 24 );
             this.tabIRC.Name = "tabIRC";
@@ -2893,14 +2881,14 @@
             // 
             // xIRC
             // 
-            this.xIRC.AutoSize = true;
-            this.xIRC.Location = new System.Drawing.Point( 14, 13 );
-            this.xIRC.Name = "xIRC";
-            this.xIRC.Size = new System.Drawing.Size( 149, 19 );
-            this.xIRC.TabIndex = 0;
-            this.xIRC.Text = "Enable IRC integration";
-            this.xIRC.UseVisualStyleBackColor = true;
-            this.xIRC.CheckedChanged += new System.EventHandler( this.xIRC_CheckedChanged );
+            this.xIRCBotEnabled.AutoSize = true;
+            this.xIRCBotEnabled.Location = new System.Drawing.Point( 14, 13 );
+            this.xIRCBotEnabled.Name = "xIRC";
+            this.xIRCBotEnabled.Size = new System.Drawing.Size( 149, 19 );
+            this.xIRCBotEnabled.TabIndex = 0;
+            this.xIRCBotEnabled.Text = "Enable IRC integration";
+            this.xIRCBotEnabled.UseVisualStyleBackColor = true;
+            this.xIRCBotEnabled.CheckedChanged += new System.EventHandler( this.xIRC_CheckedChanged );
             // 
             // cIRCList
             // 
@@ -3363,10 +3351,10 @@
             this.gSecurityMisc.PerformLayout();
             this.gSpamChat.ResumeLayout( false );
             this.gSpamChat.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nSpamChatWarnings)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nAntispamMaxWarnings)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nSpamMute)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nSpamChatTimer)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nSpamChatCount)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nAntispamInterval)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nAntispamMessageCount)).EndInit();
             this.gVerify.ResumeLayout( false );
             this.gVerify.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxConnectionsPerIP)).EndInit();
@@ -3460,7 +3448,6 @@
         private System.Windows.Forms.ComboBox cDefaultRank;
         private System.Windows.Forms.Label lDefaultRank;
         private System.Windows.Forms.GroupBox gSaving;
-        private System.Windows.Forms.CheckBox xSaveOnShutdown;
         private System.Windows.Forms.NumericUpDown nSaveInterval;
         private System.Windows.Forms.Label lSaveIntervalUnits;
         private System.Windows.Forms.CheckBox xSaveInterval;
@@ -3507,25 +3494,25 @@
         private System.Windows.Forms.Label lVerifyNames;
         private System.Windows.Forms.ComboBox cVerifyNames;
         private System.Windows.Forms.GroupBox gSpamChat;
-        private System.Windows.Forms.Label lSpamChatSeconds;
-        private System.Windows.Forms.NumericUpDown nSpamChatTimer;
-        private System.Windows.Forms.Label lSpamChatMessages;
-        private System.Windows.Forms.NumericUpDown nSpamChatCount;
+        private System.Windows.Forms.Label lAntispamInterval;
+        private System.Windows.Forms.NumericUpDown nAntispamInterval;
+        private System.Windows.Forms.Label lAntispamMessageCount;
+        private System.Windows.Forms.NumericUpDown nAntispamMessageCount;
         private System.Windows.Forms.Label lSpamChat;
         private System.Windows.Forms.CheckBox xLowLatencyMode;
-        private System.Windows.Forms.CheckBox xSpamChatKick;
+        private System.Windows.Forms.CheckBox xAntispamKicks;
         private System.Windows.Forms.Label lSpamMuteSeconds;
         private System.Windows.Forms.NumericUpDown nSpamMute;
         private System.Windows.Forms.Label lSpamMute;
-        private System.Windows.Forms.Label lSpamChatWarnings;
-        private System.Windows.Forms.NumericUpDown nSpamChatWarnings;
+        private System.Windows.Forms.Label lAntispamMaxWarnings;
+        private System.Windows.Forms.NumericUpDown nAntispamMaxWarnings;
         private System.Windows.Forms.CheckBox xBackupOnlyWhenChanged;
         private System.Windows.Forms.Label lPort;
         private System.Windows.Forms.NumericUpDown nPort;
         private System.Windows.Forms.Button bRules;
         private System.Windows.Forms.TabPage tabIRC;
         private System.Windows.Forms.GroupBox gIRCNetwork;
-        private System.Windows.Forms.CheckBox xIRC;
+        private System.Windows.Forms.CheckBox xIRCBotEnabled;
         private System.Windows.Forms.CheckBox xIRCBotAnnounceServerJoins;
         private System.Windows.Forms.Label lIRCBotChannels;
         private System.Windows.Forms.NumericUpDown nIRCBotPort;
@@ -3617,9 +3604,9 @@
         private System.Windows.Forms.Button bColorSay;
         private System.Windows.Forms.Button bColorHelp;
         private System.Windows.Forms.Button bColorSys;
-        private System.Windows.Forms.CheckBox xListPrefixes;
-        private System.Windows.Forms.CheckBox xChatPrefixes;
-        private System.Windows.Forms.CheckBox xRankColors;
+        private System.Windows.Forms.CheckBox xRankPrefixesInList;
+        private System.Windows.Forms.CheckBox xRankPrefixesInChat;
+        private System.Windows.Forms.CheckBox xRankColorsInChat;
         private System.Windows.Forms.Label lColorSay;
         private System.Windows.Forms.Label lColorHelp;
         private System.Windows.Forms.Label lColorSys;

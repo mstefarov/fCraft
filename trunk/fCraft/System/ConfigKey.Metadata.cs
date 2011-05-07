@@ -8,10 +8,13 @@ namespace fCraft {
 
     [AttributeUsage( AttributeTargets.Field )]
     public class ConfigKeyAttribute : Attribute {
-        protected ConfigKeyAttribute( ConfigSection section, Type valueType, object defaultValue ) {
+        protected ConfigKeyAttribute( ConfigSection section, Type valueType, object defaultValue, string description ) {
+            if( valueType == null ) throw new ArgumentNullException( "valueType" );
+            if( description == null ) throw new ArgumentNullException( "description" );
             ValueType = valueType;
             DefaultValue = defaultValue;
             Section = section;
+            Description = description;
             NotBlank = false;
         }
         public Type ValueType { get; protected set; }
@@ -19,6 +22,7 @@ namespace fCraft {
         public ConfigSection Section { get; protected set; }
         public bool NotBlank { get; set; }
         public ConfigKey Key { get; internal set; }
+        public string Description { get; set; }
 
 
         public bool TryValidate( string value ) {
@@ -47,8 +51,8 @@ namespace fCraft {
 
     internal sealed class StringKeyAttribute : ConfigKeyAttribute {
         public const int NoLengthRestriction = -1;
-        public StringKeyAttribute( ConfigSection section, object defaultValue )
-            : base( section, typeof( string ), defaultValue ) {
+        public StringKeyAttribute( ConfigSection section, object defaultValue, string description )
+            : base( section, typeof( string ), defaultValue, description ) {
             MinLength = NoLengthRestriction;
             MaxLength = NoLengthRestriction;
             Regex = null;
@@ -81,8 +85,8 @@ namespace fCraft {
 
 
     internal sealed class IntKeyAttribute : ConfigKeyAttribute {
-        public IntKeyAttribute( ConfigSection section, int defaultValue )
-            : base( section, typeof( int ), defaultValue ) {
+        public IntKeyAttribute( ConfigSection section, int defaultValue, string description )
+            : base( section, typeof( int ), defaultValue, description ) {
             MinValue = int.MinValue;
             MaxValue = int.MaxValue;
             PowerOfTwo = false;
@@ -148,8 +152,8 @@ namespace fCraft {
 
 
     internal sealed class RankKeyAttribute : ConfigKeyAttribute {
-        public RankKeyAttribute( BlankValueMeaning blankMeaning, ConfigSection section )
-            : base( section, typeof( Rank ), "" ) {
+        public RankKeyAttribute( ConfigSection section, BlankValueMeaning blankMeaning, string description )
+            : base( section, typeof( Rank ), "", description ) {
             CanBeLowest = true;
             CanBeHighest = true;
             BlankMeaning = blankMeaning;
@@ -222,8 +226,8 @@ namespace fCraft {
 
 
     internal sealed class BoolKeyAttribute : ConfigKeyAttribute {
-        public BoolKeyAttribute( ConfigSection section, bool defaultValue )
-            : base( section, typeof( bool ), defaultValue ) {
+        public BoolKeyAttribute( ConfigSection section, bool defaultValue, string description )
+            : base( section, typeof( bool ), defaultValue, description ) {
         }
 
 
@@ -246,8 +250,8 @@ namespace fCraft {
 
 
     internal sealed class IPKeyAttribute : ConfigKeyAttribute {
-        public IPKeyAttribute( ConfigSection section, BlankValueMeaning defaultMeaning )
-            : base( section, typeof( IPAddress ), "" ) {
+        public IPKeyAttribute( ConfigSection section, BlankValueMeaning defaultMeaning, string description )
+            : base( section, typeof( IPAddress ), "", description ) {
             BlankMeaning = defaultMeaning;
             switch( BlankMeaning ) {
                 case BlankValueMeaning.Any:
@@ -325,9 +329,8 @@ namespace fCraft {
 
 
     internal sealed class ColorKeyAttribute : ConfigKeyAttribute {
-        public ColorKeyAttribute( ConfigSection section, string defaultColor )
-            : base( section, typeof( string ), defaultColor ) {
-            NotBlank = false;
+        public ColorKeyAttribute( ConfigSection section, string defaultColor, string description )
+            : base( section, typeof( string ), Color.GetName( defaultColor ), description ) {
         }
 
 
@@ -343,8 +346,8 @@ namespace fCraft {
 
 
     internal sealed class EnumKeyAttribute : ConfigKeyAttribute {
-        public EnumKeyAttribute( ConfigSection section, object defaultValue )
-            : base( section, defaultValue.GetType(), defaultValue ) {
+        public EnumKeyAttribute( ConfigSection section, object defaultValue, string description )
+            : base( section, defaultValue.GetType(), defaultValue, description ) {
             ValueType = defaultValue.GetType();
         }
 

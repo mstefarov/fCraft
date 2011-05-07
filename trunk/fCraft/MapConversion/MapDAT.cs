@@ -5,11 +5,11 @@ using System.IO.Compression;
 using System.Net;
 
 namespace fCraft.MapConversion {
-    public sealed class MapDAT : IMapConverter {
+    public sealed class MapDat : IMapConverter {
 
         static readonly byte[] Mapping = new byte[256];
 
-        static MapDAT() {
+        static MapDat() {
             Mapping[50] = (byte)Block.Air;      // torch
             Mapping[51] = (byte)Block.Lava;     // fire
             Mapping[52] = (byte)Block.Glass;    // spawner

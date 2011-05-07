@@ -224,9 +224,7 @@ namespace fCraft {
                                 // skip everything if player hasn't moved
                                 if( delta.IsZero() ) continue;
 
-                                bool posChanged = (delta.X != 0) || (delta.Y != 0) || (delta.H != 0);
                                 bool rotChanged = (delta.R != 0) || (delta.L != 0);
-                                int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.H * delta.H;
 
                                 // only reset the timer if player rotated
                                 // if player is just pushed around, rotation does not change (and timer should not reset)
@@ -246,10 +244,9 @@ namespace fCraft {
                                     delta.X = 0;
                                     delta.Y = 0;
                                     delta.H = 0;
-                                    posChanged = false;
-                                    distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.H * delta.H;
 
                                 } else if( !Player.Can( Permission.UseSpeedHack ) ) {
+                                    int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.H * delta.H;
                                     // speedhack detection
                                     if( DetectMovementPacketSpam() ) {
                                         continue;
@@ -291,7 +288,7 @@ namespace fCraft {
                                 byte type = reader.ReadByte();
 
                                 if( type > 49 ) {
-                                    type = MapDAT.MapBlock( type );
+                                    type = MapDat.MapBlock( type );
                                 }
 
                                 if( !Player.World.Map.InBounds( x, y, h ) ) {
@@ -736,7 +733,8 @@ namespace fCraft {
 
             // try to join the new world
             if( oldWorld != newWorld ) {
-                map = newWorld.AcceptPlayer( Player, !firstTime );
+                bool announce = (firstTime || (oldWorld.Name != newWorld.Name));
+                map = newWorld.AcceptPlayer( Player, announce );
                 if( map == null ) return false;
             } else {
                 map = oldWorld.EnsureMapLoaded();
@@ -986,12 +984,12 @@ namespace fCraft {
         #region Movement
 
         // visible entities
-        Dictionary<Player, VisibleEntity> entities = new Dictionary<Player, VisibleEntity>();
-        Stack<Player> playersToRemove = new Stack<Player>( 127 );
-        Stack<sbyte> freePlayerIDs = new Stack<sbyte>( 127 );
+        readonly Dictionary<Player, VisibleEntity> entities = new Dictionary<Player, VisibleEntity>();
+        readonly Stack<Player> playersToRemove = new Stack<Player>( 127 );
+        readonly Stack<sbyte> freePlayerIDs = new Stack<sbyte>( 127 );
 
         // movement optimization
-        int FullUpdateCounter;
+        int fullUpdateCounter;
         public const int FullPositionUpdateIntervalDefault = 20;
         public static int FullPositionUpdateInterval = FullPositionUpdateIntervalDefault;
         const int SkipMovementThresholdSquared = 64,
@@ -1076,9 +1074,9 @@ namespace fCraft {
                 RemoveEntity( playersToRemove.Pop() );
             }
 
-            FullUpdateCounter++;
-            if( FullUpdateCounter >= FullPositionUpdateInterval ) {
-                FullUpdateCounter = 0;
+            fullUpdateCounter++;
+            if( fullUpdateCounter >= FullPositionUpdateInterval ) {
+                fullUpdateCounter = 0;
             }
         }
 
@@ -1148,7 +1146,7 @@ namespace fCraft {
 
             Packet packet;
             // create the movement packet
-            if( partialUpdates && delta.FitsIntoByte() && FullUpdateCounter < FullPositionUpdateInterval ) {
+            if( partialUpdates && delta.FitsIntoByte() && fullUpdateCounter < FullPositionUpdateInterval ) {
                 if( posChanged && rotChanged ) {
                     // incremental position + rotation update
                     packet = PacketWriter.MakeMoveRotate( entity.Id, new Position {
@@ -1189,7 +1187,7 @@ namespace fCraft {
                 LastKnownRank = newRank;
             }
 
-            public sbyte Id;
+            public readonly sbyte Id;
             public Position LastKnownPosition;
             public Rank LastKnownRank;
             public bool Hidden;

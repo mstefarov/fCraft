@@ -120,11 +120,13 @@ namespace fCraft.MapConversion {
 
             OpticraftMetaData metaData = serializer.ReadObject( memStream ) as OpticraftMetaData;
             Map mapFile = new Map( null, metaData.X, metaData.Y, metaData.Z, false );
-            mapFile.Spawn.X = (short)(metaData.SpawnX);
-            mapFile.Spawn.Y = (short)(metaData.SpawnY);
-            mapFile.Spawn.H = (short)(metaData.SpawnZ);
-            mapFile.Spawn.R = metaData.SpawnOrientation;
-            mapFile.Spawn.L = metaData.SpawnPitch;
+            mapFile.Spawn = new Position {
+                X = (short)(metaData.SpawnX),
+                Y = (short)(metaData.SpawnY),
+                H = (short)(metaData.SpawnZ),
+                R = metaData.SpawnOrientation,
+                L = metaData.SpawnPitch
+            };
             return mapFile;
         }
 
@@ -243,7 +245,7 @@ namespace fCraft.MapConversion {
 
                 //Now create and serialize core data store (zones)
                 OpticraftDataStore oDataStore = new OpticraftDataStore {
-                    Zones = new OpticraftZone[ mapToSave.ZoneList.Length ]
+                    Zones = new OpticraftZone[mapToSave.ZoneList.Length]
                 };
                 int i = 0;
                 foreach( Zone zone in mapToSave.ZoneList ) {

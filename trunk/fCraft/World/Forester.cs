@@ -795,28 +795,20 @@ namespace fCraft {
             return iterations;
         }
 
-        public static float Sqr( float val ) {
+        static float Sqr( float val ) {
             return val * val;
         }
 
-        public static float Cub( float val ) {
+        static float Cub( float val ) {
             return val * val * val;
         }
 
-        public static int Sqr( int val ) {
+        static int Sqr( int val ) {
             return val * val;
         }
 
-        public static int Cub( int val ) {
-            return val * val * val;
-        }
-
-        public static double Sqr( double val ) {
+        static double Sqr( double val ) {
             return val * val;
-        }
-
-        public static double Cub( double val ) {
-            return val * val * val;
         }
 
         #endregion
