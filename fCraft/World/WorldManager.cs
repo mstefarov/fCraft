@@ -313,7 +313,7 @@ namespace fCraft {
             }
 
             lock( WorldListLock ) {
-                if( Worlds.ContainsKey( name ) ) {
+                if( Worlds.ContainsKey( name.ToLower() ) ) {
                     throw new WorldOpException( name, WorldOpExceptionCode.DuplicateWorldName );
                 }
 
@@ -422,7 +422,7 @@ namespace fCraft {
                     MainWorld = newWorld;
                 }
                 // swap worlds
-                Worlds[oldWorld.Name] = newWorld;
+                Worlds[oldWorld.Name.ToLower()] = newWorld;
 
                 oldWorld.StopTasks();
                 newWorld.StopTasks();
