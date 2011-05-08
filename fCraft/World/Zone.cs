@@ -108,7 +108,7 @@ namespace fCraft {
 
             return String.Format( "{0},{1},{2},{3}",
                                   String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
-                                                 Name, Bounds.XMin, Bounds.YMin, Bounds.HMin, Bounds.XMax, Bounds.YMax, Bounds.HMax, Controller.MinRank ),
+                                                 Name, Bounds.XMin, Bounds.YMin, Bounds.HMin, Bounds.XMax, Bounds.YMax, Bounds.HMax, Controller.MinRank.GetFullName() ),
                                   list.Included.JoinToString( " ", p => p.Name ),
                                   list.Excluded.JoinToString( " ", p => p.Name ),
                                   xheader );
