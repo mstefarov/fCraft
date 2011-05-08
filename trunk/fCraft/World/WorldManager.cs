@@ -338,7 +338,6 @@ namespace fCraft {
                     if( neverUnload ) newWorld.LoadMap();
                 }
 
-                newWorld.UpdatePlayerList();
                 newWorld.StartTasks();
 
                 Worlds.Add( name.ToLower(), newWorld );
@@ -427,8 +426,6 @@ namespace fCraft {
 
                 oldWorld.StopTasks();
                 newWorld.StopTasks();
-
-                Scheduler.UpdateCache();
 
                 newWorld.StartTasks();
                 UpdateWorldList();

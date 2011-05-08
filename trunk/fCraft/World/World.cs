@@ -546,7 +546,7 @@ namespace fCraft {
         SchedulerTask updateTask, saveTask, backupTask;
 
 
-        public void StopTasks() {
+        internal void StopTasks() {
             if( updateTask != null ) {
                 updateTask.Stop();
                 updateTask = null;
@@ -561,7 +561,8 @@ namespace fCraft {
             }
         }
 
-        public void StartTasks() {
+
+        internal void StartTasks() {
             updateTask = Scheduler.NewTask( UpdateTask );
             updateTask.RunForever( this,
                                    TimeSpan.FromMilliseconds( ConfigKey.TickInterval.GetInt() ),
