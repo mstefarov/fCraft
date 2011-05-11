@@ -1,18 +1,15 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Xml.Linq;
+using System.IO;
 
 namespace fCraft {
 
-    public sealed class MapGeneratorArgs {
+    public sealed class MapGeneratorArgs : IMapGeneratorArgs {
         const int FormatVersion = 2;
 
         public MapGenTheme Theme = MapGenTheme.Forest;
-        public int   Seed,
-                     WidthX = 256,
-                     WidthY = 256,
-                     Height = 96,
-                     MaxHeight = 20,
+        public int   MaxHeight = 20,
                      MaxDepth = 12,
                      MaxHeightVariation = 4,
                      MaxDepthVariation;
@@ -78,16 +75,107 @@ namespace fCraft {
         }
 
         public MapGeneratorArgs() {
+            WidthX = 256;
+                     WidthY = 256;
+                     Height = 96;
             Seed = (new Random()).Next();
         }
 
         public MapGeneratorArgs( string fileName ) {
-            XDocument doc = XDocument.Load( fileName );
+            Load( File.ReadAllText( fileName ) );
+        }
+
+
+        const string RootTagName = "fCraftMapGeneratorArgs";
+        public void Save( string fileName ) {
+            XDocument document = new XDocument();
+            document.Add( Serialize() );
+            document.Save( fileName );
+        }
+
+
+        public XElement Serialize() {
+            XElement root = new XElement( RootTagName );
+
+            root.Add( new XAttribute( "version", FormatVersion ) );
+
+            root.Add( new XElement( "theme", Theme ) );
+            root.Add( new XElement( "seed", Seed ) );
+            root.Add( new XElement( "dimX", WidthX ) );
+            root.Add( new XElement( "dimY", WidthY ) );
+            root.Add( new XElement( "dimH", Height ) );
+            root.Add( new XElement( "maxHeight", MaxHeight ) );
+            root.Add( new XElement( "maxDepth", MaxDepth ) );
+
+            root.Add( new XElement( "addWater", AddWater ) );
+            root.Add( new XElement( "customWaterLevel", CustomWaterLevel ) );
+            root.Add( new XElement( "matchWaterCoverage", MatchWaterCoverage ) );
+            root.Add( new XElement( "waterLevel", WaterLevel ) );
+            root.Add( new XElement( "waterCoverage", WaterCoverage ) );
+
+            root.Add( new XElement( "useBias", UseBias ) );
+            root.Add( new XElement( "delayBias", DelayBias ) );
+            root.Add( new XElement( "raisedCorners", RaisedCorners ) );
+            root.Add( new XElement( "loweredCorners", LoweredCorners ) );
+            root.Add( new XElement( "midPoint", MidPoint ) );
+            root.Add( new XElement( "bias", Bias ) );
+
+            root.Add( new XElement( "detailScale", DetailScale ) );
+            root.Add( new XElement( "featureScale", FeatureScale ) );
+            root.Add( new XElement( "roughness", Roughness ) );
+            root.Add( new XElement( "layeredHeightmap", LayeredHeightmap ) );
+            root.Add( new XElement( "marbledHeightmap", MarbledHeightmap ) );
+            root.Add( new XElement( "invertHeightmap", InvertHeightmap ) );
+            root.Add( new XElement( "aboveFuncExponent", AboveFuncExponent ) );
+            root.Add( new XElement( "belowFuncExponent", BelowFuncExponent ) );
+
+            root.Add( new XElement( "addTrees", AddTrees ) );
+            root.Add( new XElement( "treeSpacingMin", TreeSpacingMin ) );
+            root.Add( new XElement( "treeSpacingMax", TreeSpacingMax ) );
+            root.Add( new XElement( "treeHeightMin", TreeHeightMin ) );
+            root.Add( new XElement( "treeHeightMax", TreeHeightMax ) );
+
+            root.Add( new XElement( "addCaves", AddCaves ) );
+            root.Add( new XElement( "addCaveLava", AddCaveLava ) );
+            root.Add( new XElement( "addCaveWater", AddCaveWater ) );
+            root.Add( new XElement( "addOre", AddOre ) );
+            root.Add( new XElement( "caveDensity", CaveDensity ) );
+            root.Add( new XElement( "caveSize", CaveSize ) );
+
+            root.Add( new XElement( "addSnow", AddSnow ) );
+            root.Add( new XElement( "snowAltitude", SnowAltitude ) );
+            root.Add( new XElement( "snowTransition", SnowTransition ) );
+
+            root.Add( new XElement( "addCliffs", AddCliffs ) );
+            root.Add( new XElement( "cliffSmoothing", CliffSmoothing ) );
+            root.Add( new XElement( "cliffThreshold", CliffThreshold ) );
+
+            root.Add( new XElement( "addBeaches", AddBeaches ) );
+            root.Add( new XElement( "beachExtent", BeachExtent ) );
+            root.Add( new XElement( "beachHeight", BeachHeight ) );
+
+            root.Add( new XElement( "maxHeightVariation", MaxHeightVariation ) );
+            root.Add( new XElement( "maxDepthVariation", MaxDepthVariation ) );
+
+            return root;
+        }
+
+
+        #region IMapGeneratorArgs Members
+
+        public int WidthX { get; set; }
+        public int WidthY { get; set; }
+        public int Height { get; set; }
+        public int Seed { get; set; }
+
+
+        public void Load( string settings ) {
+            XDocument doc = XDocument.Parse( settings );
             XElement root = doc.Root;
 
             XAttribute versionTag = root.Attribute( "version" );
             int version = 0;
-            if( versionTag != null && !String.IsNullOrEmpty(versionTag.Value) ) {
+            if( versionTag != null && !String.IsNullOrEmpty( versionTag.Value ) ) {
                 version = Int32.Parse( versionTag.Value );
             }
 
@@ -160,77 +248,10 @@ namespace fCraft {
         }
 
 
-        const string RootTagName = "fCraftMapGeneratorArgs";
-        public void Save( string fileName ) {
-            XDocument document = new XDocument();
-            document.Add( Serialize() );
-            document.Save( fileName );
+        public string Save() {
+            return Serialize().ToString();
         }
 
-        public XElement Serialize() {
-            XElement root = new XElement( RootTagName );
-
-            root.Add( new XAttribute( "version", FormatVersion ) );
-
-            root.Add( new XElement( "theme", Theme ) );
-            root.Add( new XElement( "seed", Seed ) );
-            root.Add( new XElement( "dimX", WidthX ) );
-            root.Add( new XElement( "dimY", WidthY ) );
-            root.Add( new XElement( "dimH", Height ) );
-            root.Add( new XElement( "maxHeight", MaxHeight ) );
-            root.Add( new XElement( "maxDepth", MaxDepth ) );
-
-            root.Add( new XElement( "addWater", AddWater ) );
-            root.Add( new XElement( "customWaterLevel", CustomWaterLevel ) );
-            root.Add( new XElement( "matchWaterCoverage", MatchWaterCoverage ) );
-            root.Add( new XElement( "waterLevel", WaterLevel ) );
-            root.Add( new XElement( "waterCoverage", WaterCoverage ) );
-
-            root.Add( new XElement( "useBias", UseBias ) );
-            root.Add( new XElement( "delayBias", DelayBias ) );
-            root.Add( new XElement( "raisedCorners", RaisedCorners ) );
-            root.Add( new XElement( "loweredCorners", LoweredCorners ) );
-            root.Add( new XElement( "midPoint", MidPoint ) );
-            root.Add( new XElement( "bias", Bias ) );
-
-            root.Add( new XElement( "detailScale", DetailScale ) );
-            root.Add( new XElement( "featureScale", FeatureScale ) );
-            root.Add( new XElement( "roughness", Roughness ) );
-            root.Add( new XElement( "layeredHeightmap", LayeredHeightmap ) );
-            root.Add( new XElement( "marbledHeightmap", MarbledHeightmap ) );
-            root.Add( new XElement( "invertHeightmap", InvertHeightmap ) );
-            root.Add( new XElement( "aboveFuncExponent", AboveFuncExponent ) );
-            root.Add( new XElement( "belowFuncExponent", BelowFuncExponent ) );
-
-            root.Add( new XElement( "addTrees", AddTrees ) );
-            root.Add( new XElement( "treeSpacingMin", TreeSpacingMin ) );
-            root.Add( new XElement( "treeSpacingMax", TreeSpacingMax ) );
-            root.Add( new XElement( "treeHeightMin", TreeHeightMin ) );
-            root.Add( new XElement( "treeHeightMax", TreeHeightMax ) );
-
-            root.Add( new XElement( "addCaves", AddCaves ) );
-            root.Add( new XElement( "addCaveLava", AddCaveLava ) );
-            root.Add( new XElement( "addCaveWater", AddCaveWater ) );
-            root.Add( new XElement( "addOre", AddOre ) );
-            root.Add( new XElement( "caveDensity", CaveDensity ) );
-            root.Add( new XElement( "caveSize", CaveSize ) );
-
-            root.Add( new XElement( "addSnow", AddSnow ) );
-            root.Add( new XElement( "snowAltitude", SnowAltitude ) );
-            root.Add( new XElement( "snowTransition", SnowTransition ) );
-
-            root.Add( new XElement( "addCliffs", AddCliffs ) );
-            root.Add( new XElement( "cliffSmoothing", CliffSmoothing ) );
-            root.Add( new XElement( "cliffThreshold", CliffThreshold ) );
-
-            root.Add( new XElement( "addBeaches", AddBeaches ) );
-            root.Add( new XElement( "beachExtent", BeachExtent ) );
-            root.Add( new XElement( "beachHeight", BeachHeight ) );
-
-            root.Add( new XElement( "maxHeightVariation", MaxHeightVariation ) );
-            root.Add( new XElement( "maxDepthVariation", MaxDepthVariation ) );
-
-            return root;
-        }
+        #endregion
     }
 }

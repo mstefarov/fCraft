@@ -29,6 +29,7 @@ namespace fCraft {
             InterpolationMode = interpolationMode;
         }
 
+        #region Interpolation
 
         public static float InterpolateLinear( float v0, float v1, float x ) {
             return v0 * (1 - x) + v1 * x;
@@ -74,6 +75,7 @@ namespace fCraft {
             return (a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3);
         }
 
+        #endregion
 
         public float StaticNoise( int x, int y ) {
             int n = Seed + x + y * short.MaxValue;
@@ -82,6 +84,7 @@ namespace fCraft {
         }
 
 
+        float[,] points = new float[4, 4];
         public float InterpolatedNoise( float x, float y ) {
             int xInt = (int)Math.Floor( x );
             float xFloat = x - xInt;
@@ -90,7 +93,6 @@ namespace fCraft {
             float yFloat = y - yInt;
 
             float p00, p01, p10, p11;
-            float[,] points;
 
             switch( InterpolationMode ) {
                 case NoiseInterpolationMode.Linear:
@@ -108,7 +110,6 @@ namespace fCraft {
                     return InterpolateCosine( InterpolateCosine( p00, p10, xFloat ), InterpolateCosine( p01, p11, xFloat ), yFloat );
 
                 case NoiseInterpolationMode.Bicubic:
-                    points = new float[4, 4];
                     for( int xOffset = -1; xOffset < 3; xOffset++ ) {
                         for( int yOffset = -1; yOffset < 3; yOffset++ ) {
                             points[xOffset + 1, yOffset + 1] = StaticNoise( xInt + xOffset, yInt + yOffset );
@@ -121,7 +122,6 @@ namespace fCraft {
                     return InterpolateCubic( p00, p01, p10, p11, yFloat );
 
                 case NoiseInterpolationMode.Spline:
-                    points = new float[4, 4];
                     for( int xOffset = -1; xOffset < 3; xOffset++ ) {
                         for( int yOffset = -1; yOffset < 3; yOffset++ ) {
                             points[xOffset + 1, yOffset + 1] = StaticNoise( xInt + xOffset, yInt + yOffset );

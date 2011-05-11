@@ -76,15 +76,15 @@ namespace fCraft {
                 }
 
                 // or generate a default one
-                if( Map != null ) {
-                    Map.World = this;
-                } else {
+                if( Map == null ) {
                     Logger.Log( "World.LoadMap: Generating default flatgrass level.", LogType.SystemActivity );
                     Map = new Map( this, 64, 64, 64, true );
 
                     MapGenerator.GenerateFlatgrass( Map );
                     Map.ResetSpawn();
                 }
+                Map.World = this;
+                StartTasks();
 
                 if( OnLoaded != null ) OnLoaded();
             }
@@ -96,6 +96,7 @@ namespace fCraft {
             lock( WorldLock ) {
                 if( doubleCheckPendingUnload && !PendingUnload ) return;
                 SaveMap();
+                StopTasks();
                 Map = null;
                 PendingUnload = false;
                 if( OnUnloaded != null ) OnUnloaded();
