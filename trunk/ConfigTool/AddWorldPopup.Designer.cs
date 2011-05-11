@@ -40,13 +40,11 @@
             this.lPreview = new System.Windows.Forms.Label();
             this.bOK = new System.Windows.Forms.Button();
             this.bCancel = new System.Windows.Forms.Button();
-            this.cBackup = new System.Windows.Forms.ComboBox();
             this.cAccess = new System.Windows.Forms.ComboBox();
             this.cBuild = new System.Windows.Forms.ComboBox();
             this.lName = new System.Windows.Forms.Label();
             this.lAccess = new System.Windows.Forms.Label();
             this.lBuild = new System.Windows.Forms.Label();
-            this.lBackup = new System.Windows.Forms.Label();
             this.tName = new System.Windows.Forms.TextBox();
             this.bPreviewPrev = new System.Windows.Forms.Button();
             this.bPreviewNext = new System.Windows.Forms.Button();
@@ -189,9 +187,18 @@
             this.xSeed = new System.Windows.Forms.CheckBox();
             this.nSeed = new System.Windows.Forms.NumericUpDown();
             this.xAdvanced = new System.Windows.Forms.CheckBox();
-            this.lMapFileOptions = new System.Windows.Forms.Label();
             this.lCreateMap = new System.Windows.Forms.Label();
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
+            this.tabs2 = new System.Windows.Forms.TabControl();
+            this.tabProperties = new System.Windows.Forms.TabPage();
+            this.tabImportMap = new System.Windows.Forms.TabPage();
+            this.tabExportMap = new System.Windows.Forms.TabPage();
+            this.tabGenerateMap = new System.Windows.Forms.TabPage();
+            this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nHeight)).BeginInit();
@@ -245,6 +252,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nBeachHeight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nBeachExtent)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nSeed)).BeginInit();
+            this.tabs2.SuspendLayout();
+            this.tabProperties.SuspendLayout();
             this.SuspendLayout();
             // 
             // lX2
@@ -471,21 +480,11 @@
             this.bCancel.Text = "Cancel";
             this.bCancel.UseVisualStyleBackColor = true;
             // 
-            // cBackup
-            // 
-            this.cBackup.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cBackup.FormattingEnabled = true;
-            this.cBackup.Location = new System.Drawing.Point( 294, 65 );
-            this.cBackup.Name = "cBackup";
-            this.cBackup.Size = new System.Drawing.Size( 93, 21 );
-            this.cBackup.TabIndex = 4;
-            this.cBackup.SelectedIndexChanged += new System.EventHandler( this.cBackup_SelectedIndexChanged );
-            // 
             // cAccess
             // 
             this.cAccess.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cAccess.FormattingEnabled = true;
-            this.cAccess.Location = new System.Drawing.Point( 113, 38 );
+            this.cAccess.Location = new System.Drawing.Point( 110, 58 );
             this.cAccess.Name = "cAccess";
             this.cAccess.Size = new System.Drawing.Size( 113, 21 );
             this.cAccess.TabIndex = 1;
@@ -495,7 +494,7 @@
             // 
             this.cBuild.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cBuild.FormattingEnabled = true;
-            this.cBuild.Location = new System.Drawing.Point( 113, 65 );
+            this.cBuild.Location = new System.Drawing.Point( 110, 85 );
             this.cBuild.Name = "cBuild";
             this.cBuild.Size = new System.Drawing.Size( 113, 21 );
             this.cBuild.TabIndex = 2;
@@ -504,7 +503,7 @@
             // lName
             // 
             this.lName.AutoSize = true;
-            this.lName.Location = new System.Drawing.Point( 43, 15 );
+            this.lName.Location = new System.Drawing.Point( 40, 9 );
             this.lName.Name = "lName";
             this.lName.Size = new System.Drawing.Size( 64, 13 );
             this.lName.TabIndex = 21;
@@ -513,7 +512,7 @@
             // lAccess
             // 
             this.lAccess.AutoSize = true;
-            this.lAccess.Location = new System.Drawing.Point( 13, 42 );
+            this.lAccess.Location = new System.Drawing.Point( 10, 62 );
             this.lAccess.Name = "lAccess";
             this.lAccess.Size = new System.Drawing.Size( 94, 13 );
             this.lAccess.TabIndex = 22;
@@ -522,24 +521,15 @@
             // lBuild
             // 
             this.lBuild.AutoSize = true;
-            this.lBuild.Location = new System.Drawing.Point( 25, 68 );
+            this.lBuild.Location = new System.Drawing.Point( 22, 88 );
             this.lBuild.Name = "lBuild";
             this.lBuild.Size = new System.Drawing.Size( 82, 13 );
             this.lBuild.TabIndex = 23;
             this.lBuild.Text = "Build permission";
             // 
-            // lBackup
-            // 
-            this.lBackup.AutoSize = true;
-            this.lBackup.Location = new System.Drawing.Point( 244, 68 );
-            this.lBackup.Name = "lBackup";
-            this.lBackup.Size = new System.Drawing.Size( 44, 13 );
-            this.lBackup.TabIndex = 24;
-            this.lBackup.Text = "Backup";
-            // 
             // tName
             // 
-            this.tName.Location = new System.Drawing.Point( 113, 12 );
+            this.tName.Location = new System.Drawing.Point( 110, 6 );
             this.tName.Name = "tName";
             this.tName.Size = new System.Drawing.Size( 113, 20 );
             this.tName.TabIndex = 0;
@@ -571,7 +561,7 @@
             // xHidden
             // 
             this.xHidden.AutoSize = true;
-            this.xHidden.Location = new System.Drawing.Point( 247, 41 );
+            this.xHidden.Location = new System.Drawing.Point( 110, 112 );
             this.xHidden.Name = "xHidden";
             this.xHidden.Size = new System.Drawing.Size( 132, 17 );
             this.xHidden.TabIndex = 3;
@@ -851,10 +841,10 @@
             this.tabs.Controls.Add( this.tabFlatgrass );
             this.tabs.Controls.Add( this.tabHeightmap );
             this.tabs.Controls.Add( this.tabTerrain );
-            this.tabs.Location = new System.Drawing.Point( 12, 108 );
+            this.tabs.Location = new System.Drawing.Point( 12, 490 );
             this.tabs.Name = "tabs";
             this.tabs.SelectedIndex = 0;
-            this.tabs.Size = new System.Drawing.Size( 399, 450 );
+            this.tabs.Size = new System.Drawing.Size( 399, 68 );
             this.tabs.TabIndex = 5;
             this.tabs.SelectedIndexChanged += new System.EventHandler( this.tabs_SelectedIndexChanged );
             // 
@@ -864,7 +854,7 @@
             this.tabExisting.Location = new System.Drawing.Point( 4, 22 );
             this.tabExisting.Name = "tabExisting";
             this.tabExisting.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabExisting.Size = new System.Drawing.Size( 391, 424 );
+            this.tabExisting.Size = new System.Drawing.Size( 391, 42 );
             this.tabExisting.TabIndex = 0;
             this.tabExisting.Text = "Existing Map";
             this.tabExisting.UseVisualStyleBackColor = true;
@@ -897,7 +887,7 @@
             this.tabLoad.Location = new System.Drawing.Point( 4, 22 );
             this.tabLoad.Name = "tabLoad";
             this.tabLoad.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabLoad.Size = new System.Drawing.Size( 391, 424 );
+            this.tabLoad.Size = new System.Drawing.Size( 391, 42 );
             this.tabLoad.TabIndex = 1;
             this.tabLoad.Text = "Load File";
             this.tabLoad.UseVisualStyleBackColor = true;
@@ -990,7 +980,7 @@
             this.tabCopy.Location = new System.Drawing.Point( 4, 22 );
             this.tabCopy.Name = "tabCopy";
             this.tabCopy.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabCopy.Size = new System.Drawing.Size( 391, 424 );
+            this.tabCopy.Size = new System.Drawing.Size( 391, 42 );
             this.tabCopy.TabIndex = 2;
             this.tabCopy.Text = "Copy World";
             this.tabCopy.UseVisualStyleBackColor = true;
@@ -1026,7 +1016,7 @@
             this.tabFlatgrass.Location = new System.Drawing.Point( 4, 22 );
             this.tabFlatgrass.Name = "tabFlatgrass";
             this.tabFlatgrass.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabFlatgrass.Size = new System.Drawing.Size( 391, 424 );
+            this.tabFlatgrass.Size = new System.Drawing.Size( 391, 42 );
             this.tabFlatgrass.TabIndex = 3;
             this.tabFlatgrass.Text = "Flatgrass";
             this.tabFlatgrass.UseVisualStyleBackColor = true;
@@ -1155,7 +1145,7 @@
             this.tabHeightmap.Location = new System.Drawing.Point( 4, 22 );
             this.tabHeightmap.Name = "tabHeightmap";
             this.tabHeightmap.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabHeightmap.Size = new System.Drawing.Size( 391, 424 );
+            this.tabHeightmap.Size = new System.Drawing.Size( 391, 42 );
             this.tabHeightmap.TabIndex = 4;
             this.tabHeightmap.Text = "Heightmap";
             this.tabHeightmap.UseVisualStyleBackColor = true;
@@ -1182,7 +1172,7 @@
             this.tabTerrain.Location = new System.Drawing.Point( 4, 22 );
             this.tabTerrain.Name = "tabTerrain";
             this.tabTerrain.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabTerrain.Size = new System.Drawing.Size( 391, 424 );
+            this.tabTerrain.Size = new System.Drawing.Size( 391, 42 );
             this.tabTerrain.TabIndex = 5;
             this.tabTerrain.Text = "Generator";
             this.tabTerrain.UseVisualStyleBackColor = true;
@@ -1207,7 +1197,7 @@
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel1.Location = new System.Drawing.Point( 0, 59 );
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size( 391, 365 );
+            this.flowLayoutPanel1.Size = new System.Drawing.Size( 391, 0 );
             this.flowLayoutPanel1.TabIndex = 57;
             this.flowLayoutPanel1.WrapContents = false;
             // 
@@ -2275,15 +2265,6 @@
             this.xAdvanced.UseVisualStyleBackColor = true;
             this.xAdvanced.CheckedChanged += new System.EventHandler( this.xAdvanced_CheckedChanged );
             // 
-            // lMapFileOptions
-            // 
-            this.lMapFileOptions.AutoSize = true;
-            this.lMapFileOptions.Location = new System.Drawing.Point( 9, 92 );
-            this.lMapFileOptions.Name = "lMapFileOptions";
-            this.lMapFileOptions.Size = new System.Drawing.Size( 47, 13 );
-            this.lMapFileOptions.TabIndex = 55;
-            this.lMapFileOptions.Text = "Map file:";
-            // 
             // lCreateMap
             // 
             this.lCreateMap.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -2300,26 +2281,122 @@
             // 
             this.folderBrowser.Description = "Find the folder where your Myne / MyneCraft / Hydebuild / iCraft map is located.";
             // 
+            // tabs2
+            // 
+            this.tabs2.Controls.Add( this.tabProperties );
+            this.tabs2.Controls.Add( this.tabImportMap );
+            this.tabs2.Controls.Add( this.tabExportMap );
+            this.tabs2.Controls.Add( this.tabGenerateMap );
+            this.tabs2.Location = new System.Drawing.Point( 12, 12 );
+            this.tabs2.Name = "tabs2";
+            this.tabs2.SelectedIndex = 0;
+            this.tabs2.Size = new System.Drawing.Size( 402, 472 );
+            this.tabs2.TabIndex = 57;
+            // 
+            // tabProperties
+            // 
+            this.tabProperties.Controls.Add( this.textBox1 );
+            this.tabProperties.Controls.Add( this.label1 );
+            this.tabProperties.Controls.Add( this.groupBox1 );
+            this.tabProperties.Controls.Add( this.button2 );
+            this.tabProperties.Controls.Add( this.button1 );
+            this.tabProperties.Controls.Add( this.xHidden );
+            this.tabProperties.Controls.Add( this.tName );
+            this.tabProperties.Controls.Add( this.lName );
+            this.tabProperties.Controls.Add( this.cAccess );
+            this.tabProperties.Controls.Add( this.cBuild );
+            this.tabProperties.Controls.Add( this.lAccess );
+            this.tabProperties.Controls.Add( this.lBuild );
+            this.tabProperties.Location = new System.Drawing.Point( 4, 22 );
+            this.tabProperties.Name = "tabProperties";
+            this.tabProperties.Padding = new System.Windows.Forms.Padding( 3 );
+            this.tabProperties.Size = new System.Drawing.Size( 394, 446 );
+            this.tabProperties.TabIndex = 0;
+            this.tabProperties.Text = "Properties";
+            this.tabProperties.UseVisualStyleBackColor = true;
+            // 
+            // tabImportMap
+            // 
+            this.tabImportMap.Location = new System.Drawing.Point( 4, 22 );
+            this.tabImportMap.Name = "tabImportMap";
+            this.tabImportMap.Padding = new System.Windows.Forms.Padding( 3 );
+            this.tabImportMap.Size = new System.Drawing.Size( 394, 366 );
+            this.tabImportMap.TabIndex = 1;
+            this.tabImportMap.Text = "Import Map";
+            this.tabImportMap.UseVisualStyleBackColor = true;
+            // 
+            // tabExportMap
+            // 
+            this.tabExportMap.Location = new System.Drawing.Point( 4, 22 );
+            this.tabExportMap.Name = "tabExportMap";
+            this.tabExportMap.Size = new System.Drawing.Size( 394, 366 );
+            this.tabExportMap.TabIndex = 2;
+            this.tabExportMap.Text = "Export Map";
+            this.tabExportMap.UseVisualStyleBackColor = true;
+            // 
+            // tabGenerateMap
+            // 
+            this.tabGenerateMap.Location = new System.Drawing.Point( 4, 22 );
+            this.tabGenerateMap.Name = "tabGenerateMap";
+            this.tabGenerateMap.Size = new System.Drawing.Size( 394, 366 );
+            this.tabGenerateMap.TabIndex = 3;
+            this.tabGenerateMap.Text = "Generate Map";
+            this.tabGenerateMap.UseVisualStyleBackColor = true;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point( 229, 57 );
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size( 84, 22 );
+            this.button1.TabIndex = 24;
+            this.button1.Text = "Exceptions...";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point( 229, 85 );
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size( 84, 21 );
+            this.button2.TabIndex = 25;
+            this.button2.Text = "Exceptions...";
+            this.button2.UseVisualStyleBackColor = true;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Location = new System.Drawing.Point( 6, 220 );
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size( 382, 100 );
+            this.groupBox1.TabIndex = 26;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Zones";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point( 44, 35 );
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size( 60, 13 );
+            this.label1.TabIndex = 27;
+            this.label1.Text = "Description";
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point( 110, 32 );
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size( 278, 20 );
+            this.textBox1.TabIndex = 28;
+            // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size( 984, 583 );
+            this.Controls.Add( this.tabs2 );
             this.Controls.Add( this.lCreateMap );
-            this.Controls.Add( this.lMapFileOptions );
             this.Controls.Add( this.tabs );
             this.Controls.Add( this.bSavePreview );
             this.Controls.Add( this.previewLayout );
             this.Controls.Add( this.statusStrip );
-            this.Controls.Add( this.xHidden );
-            this.Controls.Add( this.tName );
-            this.Controls.Add( this.lBackup );
-            this.Controls.Add( this.lBuild );
-            this.Controls.Add( this.lAccess );
-            this.Controls.Add( this.lName );
-            this.Controls.Add( this.cBuild );
-            this.Controls.Add( this.cAccess );
-            this.Controls.Add( this.cBackup );
             this.Controls.Add( this.bCancel );
             this.Controls.Add( this.bOK );
             this.Name = "AddWorldPopup";
@@ -2398,6 +2475,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.nBeachHeight)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nBeachExtent)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nSeed)).EndInit();
+            this.tabs2.ResumeLayout( false );
+            this.tabProperties.ResumeLayout( false );
+            this.tabProperties.PerformLayout();
             this.ResumeLayout( false );
             this.PerformLayout();
 
@@ -2418,13 +2498,11 @@
         private System.Windows.Forms.Button bBrowseFile;
         private System.Windows.Forms.Button bOK;
         private System.Windows.Forms.Button bCancel;
-        private System.Windows.Forms.ComboBox cBackup;
         private System.Windows.Forms.ComboBox cAccess;
         private System.Windows.Forms.ComboBox cBuild;
         private System.Windows.Forms.Label lName;
         private System.Windows.Forms.Label lAccess;
         private System.Windows.Forms.Label lBuild;
-        private System.Windows.Forms.Label lBackup;
         private System.Windows.Forms.TextBox tName;
         private System.Windows.Forms.ComboBox cTheme;
         private System.Windows.Forms.Label lTheme;
@@ -2466,7 +2544,6 @@
         private System.Windows.Forms.TabPage tabHeightmap;
         private System.Windows.Forms.TabPage tabTerrain;
         private CustomPictureBox preview;
-        private System.Windows.Forms.Label lMapFileOptions;
         private System.Windows.Forms.GroupBox gTrees;
         private System.Windows.Forms.Label lTreeHeightUnits;
         private System.Windows.Forms.NumericUpDown nTreeHeightVariation;
@@ -2574,5 +2651,15 @@
         private System.Windows.Forms.NumericUpDown nMaxHeightVariation;
         private System.Windows.Forms.Label lMaxHeightVariationUnits;
         private System.Windows.Forms.Label lMaxDepthVariationUnits;
+        private System.Windows.Forms.TabControl tabs2;
+        private System.Windows.Forms.TabPage tabProperties;
+        private System.Windows.Forms.TabPage tabImportMap;
+        private System.Windows.Forms.TabPage tabExportMap;
+        private System.Windows.Forms.TabPage tabGenerateMap;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button button1;
     }
 }

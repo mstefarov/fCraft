@@ -57,7 +57,6 @@ namespace ConfigTool {
             InitializeComponent();
             fileBrowser.Filter = MapLoadFilter;
 
-            cBackup.Items.AddRange( World.BackupEnum );
             cTemplates.Items.AddRange( Enum.GetNames( typeof( MapGenTemplate ) ) );
             cTheme.Items.AddRange( Enum.GetNames( typeof( MapGenTheme ) ) );
 
@@ -123,7 +122,6 @@ namespace ConfigTool {
                 tName.Text = world.Name;
                 cAccess.SelectedIndex = 0;
                 cBuild.SelectedIndex = 0;
-                cBackup.SelectedIndex = 5;
                 map = null;
             } else {
                 world = new WorldListEntry( world );
@@ -132,7 +130,6 @@ namespace ConfigTool {
                 tName.Text = world.Name;
                 cAccess.SelectedItem = world.AccessPermission;
                 cBuild.SelectedItem = world.BuildPermission;
-                cBackup.SelectedItem = world.Backup;
                 xHidden.Checked = world.Hidden;
             }
 
@@ -325,7 +322,7 @@ namespace ConfigTool {
             Map generatedMap;
             if( tab == Tabs.Generator ) {
                 MapGenerator gen = new MapGenerator( generatorArgs );
-                gen.ProgressCallback = delegate( object _sender, ProgressChangedEventArgs args ) {
+                gen.ProgressChanged += delegate( object _sender, ProgressChangedEventArgs args ) {
                     bwGenerator.ReportProgress( args.ProgressPercentage, args.UserState );
                 };
                 generatedMap = gen.Generate();
@@ -401,10 +398,6 @@ namespace ConfigTool {
 
         private void cBuild_SelectedIndexChanged( object sender, EventArgs e ) {
             world.BuildPermission = cBuild.SelectedItem.ToString();
-        }
-
-        private void cBackup_SelectedIndexChanged( object sender, EventArgs e ) {
-            world.Backup = cBackup.SelectedItem.ToString();
         }
 
         private void xHidden_CheckedChanged( object sender, EventArgs e ) {

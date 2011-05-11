@@ -79,10 +79,10 @@ namespace fCraft.MapConversion {
 
                 // read the index
                 int layerCount = reader.ReadByte();
-                List<Map.DataLayer> layers = new List<Map.DataLayer>( layerCount );
+                List<DataLayer> layers = new List<DataLayer>( layerCount );
                 for( int i = 0; i < layerCount; i++ ) {
-                    Map.DataLayer layer = new Map.DataLayer {
-                        Type = (Map.DataLayerType)reader.ReadByte(),
+                    DataLayer layer = new DataLayer {
+                        Type = (DataLayerType)reader.ReadByte(),
                         Offset = reader.ReadInt64(),
                         CompressedLength = reader.ReadInt32(),
                         GeneralPurposeField = reader.ReadInt32(),
@@ -162,10 +162,10 @@ namespace fCraft.MapConversion {
 
                 // read the index
                 int layerCount = reader.ReadByte();
-                List<Map.DataLayer> layers = new List<Map.DataLayer>( layerCount );
+                List<DataLayer> layers = new List<DataLayer>( layerCount );
                 for( int i = 0; i < layerCount; i++ ) {
-                    Map.DataLayer layer = new Map.DataLayer {
-                        Type = (Map.DataLayerType)reader.ReadByte(),
+                    DataLayer layer = new DataLayer {
+                        Type = (DataLayerType)reader.ReadByte(),
                         Offset = reader.ReadInt64(),
                         CompressedLength = reader.ReadInt32(),
                         GeneralPurposeField = reader.ReadInt32(),
@@ -205,7 +205,7 @@ namespace fCraft.MapConversion {
                     }
 
                     for( int i = 0; i < layerCount; i++ ) {
-                        map.ReadLayer( layers[i], ds );
+                        ReadLayer( layers[i], ds, map );
                     }
                 }
                 return map;
@@ -237,40 +237,35 @@ namespace fCraft.MapConversion {
 
                 writer.Write( mapToSave.Guid.ToByteArray() );
 
-                List<Map.DataLayer> layers = mapToSave.PrepareLayers();
-                writer.Write( (byte)layers.Count );
+                writer.Write( (byte)1 );
 
                 // skip over index and metacount
                 long indexOffset = mapStream.Position;
-                writer.Seek( 25 * layers.Count + 4, SeekOrigin.Current );
+                writer.Seek( 29, SeekOrigin.Current );
 
-                int metaCount;
+                byte[] blocksCache = mapToSave.Blocks;
+                int metaCount, compressedLength;
+                long offset;
                 using( DeflateStream ds = new DeflateStream( mapStream, CompressionMode.Compress, true ) ) {
                     using( BufferedStream bs = new BufferedStream( ds ) ) {
                         // write metadata
-                        metaCount = mapToSave.WriteMetadata( ds );
-
-                        for( int i = 0; i < layers.Count; i++ ) {
-                            Map.DataLayer layer = layers[i];
-                            layer.Offset = mapStream.Position;
-                            Map.WriteLayer( layer, bs );
-                            bs.Flush();
-                            ds.Flush();
-                            layer.CompressedLength = (int)(mapStream.Position - layer.Offset);
-                        }
+                        metaCount = mapToSave.WriteMetadataFCMv3( ds );
+                        offset = mapStream.Position;
+                        bs.Write( blocksCache, 0, blocksCache.Length );
+                        bs.Flush();
+                        ds.Flush();
+                        compressedLength = (int)(mapStream.Position - offset);
                     }
                 }
 
                 // come back to write the index
                 writer.BaseStream.Seek( indexOffset, SeekOrigin.Begin );
-                for( int i = 0; i < layers.Count; i++ ) {
-                    writer.Write( (byte)layers[i].Type );
-                    writer.Write( layers[i].Offset ); // written later
-                    writer.Write( layers[i].CompressedLength );  // written later
-                    writer.Write( layers[i].GeneralPurposeField );
-                    writer.Write( layers[i].ElementSize );  // -1 for PlayerIDs
-                    writer.Write( layers[i].ElementCount ); // to be written later for PlayerIDs
-                }
+                writer.Write( (byte)0 );
+                writer.Write( offset ); // written later
+                writer.Write( compressedLength );  // written later
+                writer.Write( 0);
+                writer.Write( 1 );
+                writer.Write( blocksCache.Length ); // to be written later for PlayerIDs
                 writer.Write( metaCount );
 
                 return true;
@@ -278,7 +273,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        public static string ReadLengthPrefixedString( BinaryReader reader ) {
+        static string ReadLengthPrefixedString( BinaryReader reader ) {
             int length = reader.ReadUInt16();
             byte[] stringData = reader.ReadBytes( length );
             return Encoding.ASCII.GetString( stringData );
@@ -291,5 +286,53 @@ namespace fCraft.MapConversion {
             writer.Write( stringData );
         }
 
+
+        static void ReadLayer( DataLayer layer, DeflateStream stream, Map map ) {
+            if( layer == null ) throw new ArgumentNullException( "layer" );
+            if( stream == null ) throw new ArgumentNullException( "stream" );
+            switch( layer.Type ) {
+                case DataLayerType.Blocks:
+                    map.Blocks = new byte[layer.ElementCount];
+                    stream.Read( map.Blocks, 0, map.Blocks.Length );
+                    map.RemoveUnknownBlocktypes( false );
+                    break;
+
+                default:
+                    Logger.Log( "Map.ReadLayer: Skipping unknown layer ({0})", LogType.Warning, layer.Type );
+                    stream.BaseStream.Seek( layer.CompressedLength, SeekOrigin.Current );
+                    break;
+            }
+        }
+
+
+        sealed class DataLayer {
+            public DataLayerType Type;        // see "DataLayerType" below
+            public int GeneralPurposeField;   // 32 bits that can be used in implementation-specific ways
+            public int ElementSize;           // size of each data element (if elements are variable-size, set this to 1)
+            public int ElementCount;          // number of fixed-sized elements (if elements are variable-size, set this to total number of bytes)
+            public long Offset;
+            public int CompressedLength;
+        }
+
+
+        // type of block - allows storing multiple layers of information about blocks
+        enum DataLayerType : byte {
+            Blocks = 0, // Block types (El.Size=1)
+
+            BlockUndo = 1, // Previous block type (per-block) (El.Size=1)
+
+            BlockOwnership = 2, // IDs of block changers (per-block) (El.Size=2)
+
+            BlockTimestamps = 3, // Modification date/time (per-block) (El.Size=4)
+
+            BlockChangeFlags = 4, // Type of action that resulted in the block change
+            // See BlockChangeFlags flags (El.Size=1)
+
+            PlayerIDs = 5  // mapping of player names to ID numbers (El.Size=2)
+
+            // 4-31 reserved
+            // 32-255 custom
+
+        } // 1 byte
     }
 }

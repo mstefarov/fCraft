@@ -6,37 +6,7 @@ using System.Xml.Linq;
 
 namespace fCraft {
 
-    /// <summary> Map generator themes. A theme defines what type of blocks are used to fill the map. </summary>
-    public enum MapGenTheme {
-        Arctic,
-        Desert,
-        Forest,
-        Hell,
-        Swamp
-    }
-
-
-    /// <summary> Map generator template. Templates define landscape shapes and features. </summary>
-    public enum MapGenTemplate {
-        Archipelago,
-        Atoll,
-        Bay,
-        Default,
-        Dunes,
-        Flat,
-        Hills,
-        Ice,
-        Island,
-        Lake,
-        Mountains,
-        Peninsula,
-        River,
-        Streams
-    }
-
-
-    public sealed class MapGenerator {
-        readonly MapGeneratorArgs args;
+    public sealed class MapGenerator : IMapGenerator {
         readonly Random rand;
         readonly Noise noise;
         float[,] heightmap, blendmap, slopemap;
@@ -89,8 +59,6 @@ namespace fCraft {
 
 
         #region Progress Reporting
-        public ProgressChangedEventHandler ProgressCallback;
-
 
         int progressTotalEstimate, progressRunningTotal;
 
@@ -122,8 +90,10 @@ namespace fCraft {
 
 
         void ReportProgress( int relativeIncrease, string message ) {
-            if( ProgressCallback != null ) {
-                ProgressCallback( this, new ProgressChangedEventArgs( (100 * progressRunningTotal / progressTotalEstimate), message ) );
+            var h = ProgressChanged;
+            if( h != null ) {
+                var e = new ProgressChangedEventArgs( (100 * progressRunningTotal) / progressTotalEstimate, message );
+                h( this, e );
             }
             progressRunningTotal += relativeIncrease;
         }
@@ -979,5 +949,98 @@ namespace fCraft {
         }
 
         #endregion
+
+
+        #region IMapGenerator Members
+
+        public string Name {
+            get { return "MapGenerator3"; }
+        }
+
+        MapGeneratorArgs args;
+        public IMapGeneratorArgs Args {
+            get { return args; }
+            set {
+                MapGeneratorArgs castArgs = value as MapGeneratorArgs;
+                if( castArgs == null ) {
+                    throw new ArgumentException();
+                }
+                args = castArgs;
+            }
+        }
+
+        byte[] IMapGenerator.Generate() {
+            throw new NotImplementedException();
+        }
+
+        public event ProgressChangedEventHandler ProgressChanged;
+
+        #endregion
+    }
+
+
+    #region Enums
+
+    /// <summary> Map generator themes. A theme defines what type of blocks are used to fill the map. </summary>
+    public enum MapGenTheme {
+        Arctic,
+        Desert,
+        Forest,
+        Hell,
+        Swamp
+    }
+
+
+    /// <summary> Map generator template. Templates define landscape shapes and features. </summary>
+    public enum MapGenTemplate {
+        Archipelago,
+        Atoll,
+        Bay,
+        Default,
+        Dunes,
+        Flat,
+        Hills,
+        Ice,
+        Island,
+        Lake,
+        Mountains,
+        Peninsula,
+        River,
+        Streams
+    }
+
+    #endregion
+
+
+    public interface IMapGenerator {
+        string Name { get; }
+
+        IMapGeneratorArgs Args { get; set; }
+
+        byte[] Generate();
+
+        event ProgressChangedEventHandler ProgressChanged;
+    }
+
+
+    public interface IMapGeneratorArgs {
+        int WidthX { get; set; }
+        int WidthY { get; set; }
+        int Height { get; set; }
+        int Seed { get; set; }
+
+        void Load( string settings );
+
+        string Save();
+    }
+
+
+    public class MapGeneratorProgressEventArgs : EventArgs {
+        public MapGeneratorProgressEventArgs( float progress, string statusMessage ) {
+            Progress = progress;
+            StatusMessage = statusMessage;
+        }
+        public float Progress { get; private set; }
+        public string StatusMessage { get; private set; }
     }
 }
