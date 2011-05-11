@@ -381,8 +381,7 @@ namespace fCraft {
 
         #region Saving
 
-        internal string Serialize() {
-            StringBuilder sb = new StringBuilder();
+        internal void Serialize( StringBuilder sb) {
 
             sb.Append( Name ).Append( ',' ); // 0
             if( !LastIP.Equals( IPAddress.None ) ) sb.Append( LastIP.ToString() ); // 1
@@ -486,8 +485,6 @@ namespace fCraft {
             sb.Append( ',' );
 
             if( BandwidthUseMode != BandwidthUseMode.Default ) sb.Append( (int)BandwidthUseMode ); // 44
-
-            return sb.ToString();
         }
 
 
