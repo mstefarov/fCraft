@@ -238,7 +238,6 @@ namespace fCraft {
         /// <param name="raiseReloadedEvent">Whether ConfigReloaded event should be raised.</param>
         /// <returns>True if loading succeeded.</returns>
         public static bool Load( bool skipRankList, bool raiseReloadedEvent ) {
-            // generate random salt
             bool fromFile = false;
 
             // try to load config file (XML)

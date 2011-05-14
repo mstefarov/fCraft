@@ -248,8 +248,10 @@ namespace fCraft {
             info.Address = IPAddress.Parse( fields[0] );
             info.BannedBy = PlayerInfo.Unescape( fields[1] );
             fields[2].ToDateTime( ref info.BanDate );
-            info.BanReason = PlayerInfo.Unescape( fields[3] );
-            if( fields[4].Length > 1 ) {
+            if( fields[3].Length > 0 ) {
+                info.BanReason = PlayerInfo.Unescape( fields[3] );
+            }
+            if( fields[4].Length > 0 ) {
                 info.PlayerName = PlayerInfo.Unescape( fields[4] );
             }
 
