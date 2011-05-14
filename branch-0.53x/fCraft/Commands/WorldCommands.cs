@@ -134,7 +134,7 @@ namespace fCraft {
                 switch( world.AccessSecurity.CheckDetailed( player.Info ) ) {
                     case SecurityCheckResult.Allowed:
                     case SecurityCheckResult.WhiteListed:
-                        if( world.IsFull() ) {
+                        if( world.IsFull ) {
                             player.Message( "Cannot join {0}&S: world is full.", world.GetClassyName() );
                             return;
                         }

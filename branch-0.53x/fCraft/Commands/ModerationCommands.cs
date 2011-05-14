@@ -1022,7 +1022,7 @@ namespace fCraft {
                         switch( target.World.AccessSecurity.CheckDetailed( player.Info ) ) {
                             case SecurityCheckResult.Allowed:
                             case SecurityCheckResult.WhiteListed:
-                                if( target.World.IsFull() ) {
+                                if( target.World.IsFull ) {
                                     player.Message( "Cannot teleport to {0}&S because world {1}&S is full.",
                                                     target.GetClassyName(),
                                                     target.World.GetClassyName() );
@@ -1120,7 +1120,7 @@ namespace fCraft {
                 switch( toPlayer.World.AccessSecurity.CheckDetailed( target.Info ) ) {
                     case SecurityCheckResult.Allowed:
                     case SecurityCheckResult.WhiteListed:
-                        if( toPlayer.World.IsFull() ) {
+                        if( toPlayer.World.IsFull ) {
                             player.Message( "Cannot bring {0}&S because world {1}&S is full.",
                                             target.GetClassyName(),
                                             toPlayer.World.GetClassyName() );
