@@ -421,7 +421,8 @@ This setting allows the updater to do that for you.")]
 
         [BoolKey( ConfigSection.Advanced, false,
 @"Minecraft protocol specifies 4 different movement packet types.
-One of them sends absolute position, and other 3 send incremental relative positions." )]
+One of them sends absolute position, and other 3 send incremental relative positions.
+You may use this option to disable the relative updates." )]
         NoPartialPositionUpdates,
 
         [EnumKey( ConfigSection.Advanced, ProcessPriorityClass.Normal,
@@ -433,13 +434,13 @@ Setting this above ""Normal"" may slow down other software on your machine." )]
         [IntKey( ConfigSection.Advanced, 2048,
 @"The maximum number of block changes that can be sent to each client per second.
 Unmodified Minecraft client can only handle about 2500 updates per second.
-Setting this any higher may cause lag. Setting this lower will show down
+Setting this any higher may cause lag. Setting this lower will slow down
 drawing commands (like cuboid).",
             MinValue = 10 )]
         BlockUpdateThrottling,
 
         [IntKey( ConfigSection.Advanced, 100,
-@"The rate at which fCraft applies block updates. Lowering this will slightly
+@"The rate at which fCraft applies block updates, in milliseconds. Lowering this will slightly
 reduce bandwidth and CPU use, but will add latency to block placement.",
             MinValue = 10, MaxValue = 10000 )]
         TickInterval,

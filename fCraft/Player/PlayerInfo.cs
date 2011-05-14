@@ -479,8 +479,7 @@ namespace fCraft {
                 sb.Append( ',', 2 ); // 40-41
             }
 
-            if( !String.IsNullOrEmpty( Password ) ) Escape( Password, sb ); // 42
-            sb.Append( ',' );
+            Escape( Password, sb ).Append( ',' ); // 42
 
             if( Online ) sb.Append( 'o' ); // 43
             sb.Append( ',' );
@@ -723,12 +722,18 @@ namespace fCraft {
 
 
         public static string EscapeOldFormat( string str ) {
-            return str.Replace( @"\", @"\\" ).Replace( "'", @"\'" ).Replace( ',', '\xFF' );
+            if( String.IsNullOrEmpty( str ) ) {
+                return "";
+            } else {
+                return str.Replace( @"\", @"\\" ).Replace( "'", @"\'" ).Replace( ',', '\xFF' );
+            }
         }
 
 
         public static string Escape( string str ) {
-            if( str.IndexOf( ',' ) > -1 ) {
+            if( String.IsNullOrEmpty( str ) ) {
+                return "";
+            }else if( str.IndexOf( ',' ) > -1 ) {
                 return str.Replace( ',', '\xFF' );
             } else {
                 return str;
@@ -737,7 +742,7 @@ namespace fCraft {
 
 
         public static StringBuilder Escape( string str, StringBuilder sb ) {
-            if( str.IndexOf( ',' ) > -1 ) {
+            if( !String.IsNullOrEmpty( str ) && str.IndexOf( ',' ) > -1 ) {
                 int startIndex = sb.Length;
                 sb.Append( str );
                 sb.Replace( ',', '\xFF', startIndex, str.Length );
