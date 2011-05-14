@@ -169,8 +169,15 @@ namespace fCraft {
 
             lock( WorldLock ) {
 
-                if( IsFull() ) {
+                if( IsFull ) {
                     return null;
+                }
+
+                if( players.ContainsKey( player.Name.ToLower() ) ) {
+                    Logger.Log( "This world already contains the player by name ({)}). " +
+                                "Some sort of state corruption must have occured.", LogType.Error,
+                                player.Name );
+                    players.Remove( player.Name.ToLower() );
                 }
 
                 players.Add( player.Name.ToLower(), player );
@@ -328,8 +335,10 @@ namespace fCraft {
         }
 
 
-        public bool IsFull() {
-            return (PlayerList.Length >= ConfigKey.MaxPlayersPerWorld.GetInt());
+        public bool IsFull {
+            get {
+                return (PlayerList.Length >= ConfigKey.MaxPlayersPerWorld.GetInt());
+            }
         }
 
 
