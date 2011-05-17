@@ -49,9 +49,14 @@ namespace fCraft {
                         }
                     } else {
                         task.IsExecuting = true;
+
+#if DEBUG_SCHEDULER
+                        FireEvent( TaskExecuting, task );
+#endif
+
 #if DEBUG
-                    task.Callback( task );
-                    task.IsExecuting = false;
+                        task.Callback( task );
+                        task.IsExecuting = false;
 #else
                         try {
                             task.Callback( task );
@@ -60,6 +65,10 @@ namespace fCraft {
                         } finally {
                             task.IsExecuting = false;
                         }
+#endif
+
+#if DEBUG_SCHEDULER
+                        FireEvent( TaskExecuted, task );
 #endif
                     }
 
@@ -87,7 +96,13 @@ namespace fCraft {
                     lock( BackgroundTaskListLock ) {
                         task = BackgroundTasks.Dequeue();
                     }
+#if DEBUG_SCHEDULER
+                    FireEvent( TaskExecuting, task );
                     task.Callback( task );
+                    FireEvent( TaskExecuted, task );
+#else
+                    task.Callback( task );
+#endif
                 }
                 Thread.Sleep( 10 );
             }
@@ -101,14 +116,19 @@ namespace fCraft {
             lock( TaskListLock ) {
                 if( Server.IsShuttingDown ) return;
                 task.IsStopped = false;
+#if DEBUG_SCHEDULER
+                FireEvent( TaskAdded, task );
                 if( Tasks.Add( task ) ) {
                     UpdateCache();
-#if DEBUG_SCHEDULER
                     Logger.Log( "Scheduler.AddTask: Added {0}", LogType.Debug, task );
                 }else{
                     Logger.Log( "Scheduler.AddTask: Added duplicate {0}", LogType.Debug, task );
-#endif
                 }
+#else
+                if( Tasks.Add( task ) ) {
+                    UpdateCache();
+                }
+#endif
             }
         }
 
@@ -166,6 +186,7 @@ namespace fCraft {
                 for( int i = 0; i < deletionList.Count; i++ ) {
                     Tasks.Remove( deletionList[i] );
 #if DEBUG_SCHEDULER
+                    FireEvent( TaskRemoved, deletionList[i] );
                     Logger.Log( "Scheduler.UpdateCache: Removed {0}", LogType.Debug, deletionList[i] );
 #endif
                 }
@@ -210,6 +231,23 @@ namespace fCraft {
                 }
             }
         }
+
+
+ #if DEBUG_SCHEDULER
+        public static event EventHandler<SchedulerTaskEventArgs> TaskAdded;
+
+        public static event EventHandler<SchedulerTaskEventArgs> TaskExecuting;
+
+        public static event EventHandler<SchedulerTaskEventArgs> TaskExecuted;
+
+        public static event EventHandler<SchedulerTaskEventArgs> TaskRemoved;
+
+
+        static void FireEvent( EventHandler<SchedulerTaskEventArgs> eventToFire, SchedulerTask task ) {
+            var h = eventToFire;
+            if( h != null ) h( null, new SchedulerTaskEventArgs( task ) );
+        }
+#endif
     }
 
 
@@ -398,5 +436,16 @@ namespace fCraft {
         }
     }
 
+
     public delegate void SchedulerCallback( SchedulerTask task );
+
+
+#if DEBUG_SCHEDULER
+    public class SchedulerTaskEventArgs : EventArgs {
+        public SchedulerTaskEventArgs( SchedulerTask task ) {
+            Task = task;
+        }
+        public SchedulerTask Task { get; private set; }
+    }
+#endif
 }
