@@ -22,7 +22,6 @@ namespace fCraft {
             CommandManager.RegisterCommand( cdBanInfo );
             CommandManager.RegisterCommand( cdRankInfo );
 
-            CommandManager.RegisterCommand( cdVersion );
             CommandManager.RegisterCommand( cdRules );
             CommandManager.RegisterCommand( cdHelp );
             CommandManager.RegisterCommand( cdCommands );
@@ -464,7 +463,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdServerInfo = new CommandDescriptor {
             Name = "sinfo",
-            Aliases = new[] { "serverreport" },
+            Aliases = new[] { "serverreport", "version" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             Help = "Shows server stats",
@@ -473,6 +472,7 @@ namespace fCraft {
 
         internal static void ServerInfo( Player player, Command cmd ) {
             Process.GetCurrentProcess().Refresh();
+            
             player.Message( "Servers stats: Up for {0:0.0} hours, using {1:0} MB of memory",
                             DateTime.UtcNow.Subtract( Server.ServerStart ).TotalHours,
                             (Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024)) );
@@ -481,6 +481,16 @@ namespace fCraft {
                 player.Message( "   Averaging {0:0.0}% CPU in last minute, {1:0.0}% CPU overall.",
                                 Server.CPUUsageLastMinute * 100,
                                 Server.CPUUsageTotal * 100 );
+            }
+
+            if( MonoCompat.IsMono ) {
+                player.Message( "   Running fCraft {0}, under Mono {1}",
+                                Updater.CurrentRelease.VersionString,
+                                MonoCompat.MonoVersionString );
+            } else {
+                player.Message( "   Running fCraft {0}, under .NET {1}",
+                                Updater.CurrentRelease.VersionString,
+                                Environment.Version );
             }
 
             player.Message( "   There are {0} players in the database.",
@@ -606,21 +616,6 @@ namespace fCraft {
                 player.Message( "There are no players online." );
             }
         }
-
-
-
-        static readonly CommandDescriptor cdVersion = new CommandDescriptor {
-            Name = "version",
-            Category = CommandCategory.Info,
-            IsConsoleSafe = true,
-            Help = "Shows server software name and version.",
-            Handler = Version
-        };
-
-        internal static void Version( Player player, Command cmd ) {
-            player.Message( "fCraft custom server {0}", Updater.CurrentRelease.VersionString );
-        }
-
 
 
         static readonly CommandDescriptor cdWhere = new CommandDescriptor {
