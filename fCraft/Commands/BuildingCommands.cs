@@ -1933,13 +1933,22 @@ namespace fCraft {
             Name = "mark",
             Aliases = new[] { "m" },
             Category = CommandCategory.Building,
+            Usage = "/mark&S or &H/mark X Y H",
             Help = "When making a selection (for drawing or zoning) use this to make a marker at your position in the world. " +
-                   "You can mark in places where making blocks is difficult (e.g. mid-air).",
+                   "If three numbers are given, those coordinates are used instead.",
             Handler = Mark
         };
 
         internal static void Mark( Player player, Command command ) {
-            Position pos = new Position( (short)((player.Position.X - 1) / 32), (short)((player.Position.Y - 1) / 32), (short)((player.Position.H - 1) / 32) );
+            int x, y, h;
+            Position pos;
+            if( command.NextInt( out x ) && command.NextInt( out y ) && command.NextInt( out h ) ) {
+                pos = new Position( x, y, h );
+            } else {
+                pos = new Position( (player.Position.X - 1) / 32,
+                                    (player.Position.Y - 1) / 32,
+                                    (player.Position.H - 1) / 32 );
+            }
             pos.X = (short)Math.Min( player.World.Map.WidthX - 1, Math.Max( 0, (int)pos.X ) );
             pos.Y = (short)Math.Min( player.World.Map.WidthY - 1, Math.Max( 0, (int)pos.Y ) );
             pos.H = (short)Math.Min( player.World.Map.Height - 1, Math.Max( 0, (int)pos.H ) );

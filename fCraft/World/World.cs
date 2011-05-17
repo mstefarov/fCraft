@@ -24,8 +24,8 @@ namespace fCraft {
         public bool IsLocked,
                     IsHidden,
                     PendingUnload,
-                    IsFlushing,
-                    NeverUnload;
+                    IsFlushing;
+        public bool NeverUnload { get; private set; }
         public SecurityController AccessSecurity = new SecurityController(),
                                   BuildSecurity = new SecurityController();
 
@@ -38,7 +38,7 @@ namespace fCraft {
         internal readonly object WorldLock = new object();
 
 
-        internal World( string name ) {
+        internal World( string name, bool neverUnload ) {
             if( name == null ) {
                 throw new ArgumentException( "name" );
             }
@@ -46,6 +46,7 @@ namespace fCraft {
                 throw new ArgumentException( "Incorrect world name format" );
             }
             Name = name;
+            NeverUnload = neverUnload;
             UpdatePlayerList();
         }
 
@@ -64,16 +65,17 @@ namespace fCraft {
             }
         }
 
-
+        
         public void LoadMap() {
             lock( WorldLock ) {
                 if( Map != null ) return;
-                try {
-                    Map = MapUtility.Load( GetMapName() );
-                } catch( Exception ex ) {
-                    Logger.Log( "World.LoadMap: Failed to load map ({0}): {1}", LogType.Error,
-                                GetMapName(), ex );
-                }
+
+                    try {
+                        Map = MapUtility.Load( GetMapName() );
+                    } catch( Exception ex ) {
+                        Logger.Log( "World.LoadMap: Failed to load map ({0}): {1}", LogType.Error,
+                                    GetMapName(), ex );
+                    }
 
                 // or generate a default one
                 if( Map != null ) {
@@ -85,23 +87,23 @@ namespace fCraft {
                     MapGenerator.GenerateFlatgrass( Map );
                     Map.ResetSpawn();
                 }
+                StartTasks();
 
                 if( OnLoaded != null ) OnLoaded();
             }
         }
 
 
-        public void UnloadMap( bool doubleCheckPendingUnload ) {
+        public void UnloadMap( bool expectedPendingFlag ) {
             Map thisMap = Map;
             lock( WorldLock ) {
-                if( doubleCheckPendingUnload && !PendingUnload ) return;
+                if( expectedPendingFlag != PendingUnload ) return;
                 SaveMap();
                 Map = null;
+                StopTasks();
                 PendingUnload = false;
                 if( OnUnloaded != null ) OnUnloaded();
             }
-            thisMap.World = null;
-            thisMap.Blocks = null;
             Server.RequestGC();
         }
 
@@ -124,9 +126,8 @@ namespace fCraft {
             if( newMap == null ) throw new ArgumentNullException( "newMap" );
             lock( WorldLock ) {
                 Map = null;
-                World newWorld = new World( Name ) {
+                World newWorld = new World( Name, NeverUnload ) {
                     Map = newMap,
-                    NeverUnload = NeverUnload,
                     AccessSecurity = (SecurityController)AccessSecurity.Clone(),
                     BuildSecurity = (SecurityController)BuildSecurity.Clone()
                 };
@@ -134,6 +135,19 @@ namespace fCraft {
                 WorldManager.ReplaceWorld( this, newWorld );
                 foreach( Player player in PlayerList ) {
                     player.Session.JoinWorld( newWorld );
+                }
+            }
+        }
+
+
+        public void ToggleNeverUnloadFlag( bool newValue ) {
+            lock( WorldLock ) {
+                if( NeverUnload == newValue ) return;
+                NeverUnload = newValue;
+                if( NeverUnload ) {
+                    if( Map == null ) LoadMap();
+                } else {
+                    if( Map != null && players.Count == 0 ) UnloadMap( false );
                 }
             }
         }
@@ -553,45 +567,51 @@ namespace fCraft {
         #region Scheduled Tasks
 
         SchedulerTask updateTask, saveTask, backupTask;
+        object taskLock = new object();
 
 
-        internal void StopTasks() {
-            if( updateTask != null ) {
-                updateTask.Stop();
-                updateTask = null;
-            }
-            if( saveTask != null ) {
-                saveTask.Stop();
-                saveTask = null;
-            }
-            if( backupTask != null ) {
-                backupTask.Stop();
-                backupTask = null;
+        void StopTasks() {
+            lock( taskLock ) {
+                if( updateTask != null ) {
+                    updateTask.Stop();
+                    updateTask = null;
+                }
+                if( saveTask != null ) {
+                    saveTask.Stop();
+                    saveTask = null;
+                }
+                if( backupTask != null ) {
+                    backupTask.Stop();
+                    backupTask = null;
+                }
             }
         }
 
 
         internal void StartTasks() {
-            updateTask = Scheduler.NewTask( UpdateTask );
-            updateTask.RunForever( this,
-                                   TimeSpan.FromMilliseconds( ConfigKey.TickInterval.GetInt() ),
-                                   TimeSpan.Zero );
+            lock( taskLock ) {
+                updateTask = Scheduler.NewTask( UpdateTask );
+                updateTask.RunForever( this,
+                                       TimeSpan.FromMilliseconds( ConfigKey.TickInterval.GetInt() ),
+                                       TimeSpan.Zero );
 
-            if( ConfigKey.SaveInterval.GetInt() > 0 ) {
-                saveTask = Scheduler.NewTask( SaveTask );
-                saveTask.RunForever( this,
-                                     TimeSpan.FromSeconds( ConfigKey.SaveInterval.GetInt() ),
-                                     TimeSpan.FromSeconds( ConfigKey.SaveInterval.GetInt() ) );
-            }
+                if( ConfigKey.SaveInterval.GetInt() > 0 ) {
+                    saveTask = Scheduler.NewTask( SaveTask );
+                    saveTask.RunForever( this,
+                                         TimeSpan.FromSeconds( ConfigKey.SaveInterval.GetInt() ),
+                                         TimeSpan.FromSeconds( ConfigKey.SaveInterval.GetInt() ) );
+                }
 
-            if( ConfigKey.BackupInterval.GetInt() > 0 ) {
-                backupTask = Scheduler.NewTask( BackupTask );
-                TimeSpan interval = TimeSpan.FromMinutes( ConfigKey.BackupInterval.GetInt() );
-                backupTask.RunForever( this,
-                                       interval,
-                                       (ConfigKey.BackupOnStartup.GetBool() ? TimeSpan.Zero : interval) );
+                if( ConfigKey.BackupInterval.GetInt() > 0 ) {
+                    backupTask = Scheduler.NewTask( BackupTask );
+                    TimeSpan interval = TimeSpan.FromMinutes( ConfigKey.BackupInterval.GetInt() );
+                    backupTask.RunForever( this,
+                                           interval,
+                                           (ConfigKey.BackupOnStartup.GetBool() ? TimeSpan.Zero : interval) );
+                }
             }
         }
+
 
         void UpdateTask( SchedulerTask task ) {
             Map tempMap = Map;
@@ -599,6 +619,7 @@ namespace fCraft {
                 tempMap.ProcessUpdates();
             }
         }
+
 
         void BackupTask( SchedulerTask task ) {
             Map tempMap = Map;
@@ -608,6 +629,7 @@ namespace fCraft {
                                     true );
             }
         }
+
 
         void SaveTask( SchedulerTask task ) {
             Map tempMap = Map;

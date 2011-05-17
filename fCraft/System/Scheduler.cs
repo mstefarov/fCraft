@@ -413,10 +413,17 @@ namespace fCraft {
         public override string ToString() {
             StringBuilder sb = new StringBuilder( "Task(" );
 
+            if( IsStopped ) {
+                sb.Append( "STOPPED " );
+            }
+
             if( Callback.Target != null ) {
                 sb.Append( Callback.Target ).Append( "::" );
             }
-            sb.Append( Callback.Method ).Append( " @ " );
+            sb.Append( Callback.Method.DeclaringType.Name );
+            sb.Append( '.' );
+            sb.Append( Callback.Method.Name );
+            sb.Append( " @ " );
 
             if( IsRecurring ) {
                 sb.Append( Interval.ToCompactString() );
@@ -425,11 +432,7 @@ namespace fCraft {
 
             if( UserState != null ) {
                 sb.Append( " -> " );
-                if( UserState is IClassy ) {
-                    sb.Append( (UserState as IClassy).GetClassyName() );
-                } else {
-                    sb.Append( UserState );
-                }
+                sb.Append( UserState );
             }
             sb.Append( ')' );
             return sb.ToString();

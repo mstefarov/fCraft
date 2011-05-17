@@ -36,7 +36,9 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( cdMeasure );
 
-            //CommandManager.RegisterCommand( cdTaskDebug );
+#if DEBUG_SCHEDULER
+            CommandManager.RegisterCommand( cdTaskDebug );
+#endif
 
             CommandManager.RegisterCommand( cdColors );
         }
@@ -63,13 +65,12 @@ namespace fCraft {
 
         static CommandDescriptor cdTaskDebug = new CommandDescriptor {
             Name = "taskdebug",
-            Category = CommandCategory.None,
+            Category = CommandCategory.Info,
             IsConsoleSafe = true,
             Help = "",
             IsHidden = true,
             Handler = delegate( Player player, Command cmd ) {
                 Scheduler.PrintTasks( player );
-                Scheduler.PrintTasks( Player.Console );
             }
         };
 
