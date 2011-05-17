@@ -19,19 +19,15 @@ namespace fCraft {
 
         public static World MainWorld { get; private set; }
 
+
         public static bool SetMainWorld( this World newWorld ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             if( RaiseMainWorldChangingEvent( MainWorld, newWorld ) ) return false;
             World oldWorld;
             lock( WorldListLock ) {
-                lock( newWorld.WorldLock ) {
-                    newWorld.NeverUnload = true;
-                    if( newWorld.Map == null ) {
-                        newWorld.LoadMap();
-                    }
-                }
+                newWorld.ToggleNeverUnloadFlag( true );
                 oldWorld = MainWorld;
-                oldWorld.NeverUnload = false;
+                oldWorld.ToggleNeverUnloadFlag( false );
                 MainWorld = newWorld;
             }
             RaiseMainWorldChangedEvent( oldWorld, newWorld );
@@ -71,10 +67,7 @@ namespace fCraft {
                                  MainWorld.Name );
                     MainWorld.AccessSecurity.Reset();
                 }
-                if( !MainWorld.NeverUnload ) {
-                    MainWorld.NeverUnload = true;
-                    MainWorld.LoadMap();
-                }
+                MainWorld.ToggleNeverUnloadFlag( true );
             }
 
             return true;
@@ -321,24 +314,21 @@ namespace fCraft {
                     throw new WorldOpException( name, WorldOpExceptionCode.PluginDenied );
                 }
 
-                World newWorld = new World( name ) { NeverUnload = neverUnload };
+                World newWorld = new World( name, neverUnload );
 
                 if( map != null ) {
-                    // if a map is given
                     newWorld.Map = map;
                     map.World = newWorld;
-                    if( !neverUnload ) {
-                        newWorld.UnloadMap( false );// UnloadMap also saves the map
-                    } else {
-                        newWorld.SaveMap();
+                    // if a map is given
+                    if( neverUnload ) {
+                        newWorld.StartTasks();
+                    }else{
+                        newWorld.UnloadMap( false );
                     }
 
-                } else {
-                    // generate default map
-                    if( neverUnload ) newWorld.LoadMap();
+                } else if( neverUnload ){
+                    newWorld.LoadMap();
                 }
-
-                newWorld.StartTasks();
 
                 Worlds.Add( name.ToLower(), newWorld );
                 UpdateWorldList();
@@ -423,11 +413,8 @@ namespace fCraft {
                 }
                 // swap worlds
                 Worlds[oldWorld.Name.ToLower()] = newWorld;
+                oldWorld.UnloadMap( false );
 
-                oldWorld.StopTasks();
-                newWorld.StopTasks();
-
-                newWorld.StartTasks();
                 UpdateWorldList();
             }
         }
@@ -446,9 +433,6 @@ namespace fCraft {
                 foreach( Player player in worldPlayerList ) {
                     player.Session.JoinWorld( MainWorld );
                 }
-
-                worldToDelete.StopTasks();
-                worldToDelete.SaveMap();
 
                 Worlds.Remove( worldToDelete.Name.ToLower() );
                 UpdateWorldList();
