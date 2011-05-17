@@ -49,54 +49,6 @@ namespace fCraft {
 
         // block data
         public byte[] Blocks;
-        internal byte[] BlockUndo; // currently unused
-
-        // block ownership
-        readonly object playerIDLock = new object();
-        ushort maxPlayerID = 256;
-        readonly Dictionary<string, ushort> playerIDs = new Dictionary<string, ushort>();
-        readonly Dictionary<ushort, string> playerNames = new Dictionary<ushort, string>();
-        internal ushort[] BlockOwnership;
-
-
-        public ushort FindPlayerID( string name ) {
-            lock( playerIDLock ) {
-                if( playerIDs.ContainsKey( name ) ) {
-                    return playerIDs[name];
-                }
-            }
-            return (ushort)ReservedPlayerID.None;
-        }
-
-
-        public ushort AssignPlayerID( string name ) {
-            ushort id;
-            lock( playerIDLock ) {
-                id = maxPlayerID++;
-                playerIDs[name] = id;
-                playerNames[id] = name;
-                ChangedSinceSave = true;
-            }
-            return id;
-        }
-
-
-        public string FindPlayerName( ushort id ) {
-            if( id < 256 ) {
-                return ((ReservedPlayerID)id).ToString();
-            }
-            lock( playerIDLock ) {
-                if( playerNames.ContainsKey( id ) ) {
-                    return playerNames[id];
-                }
-            }
-            return ReservedPlayerID.Unknown.ToString();
-        }
-
-
-        // more block metadata
-        internal byte[] BlockChangeFlags;
-        internal uint[] BlockTimestamps;
 
 
         internal Map() {
@@ -157,13 +109,13 @@ namespace fCraft {
         }
 
 
-        internal int WriteMetadata( Stream stream ) {
+        internal int WriteMetadataFCMv3( Stream stream ) {
             if( stream == null ) throw new ArgumentNullException( "stream" );
             BinaryWriter writer = new BinaryWriter( stream );
             int metaCount = 0;
             lock( metaLock ) {
-                foreach( KeyValuePair<string, Dictionary<string, string>> group in metadata ) {
-                    foreach( KeyValuePair<string, string> key in group.Value ) {
+                foreach( var group in metadata ) {
+                    foreach( var key in group.Value ) {
                         MapFCMv3.WriteLengthPrefixedString( writer, group.Key );
                         MapFCMv3.WriteLengthPrefixedString( writer, key.Key );
                         MapFCMv3.WriteLengthPrefixedString( writer, key.Value );
@@ -411,7 +363,7 @@ namespace fCraft {
             BlockNames["rose"] = Block.RedFlower;
             BlockNames["redrose"] = Block.RedFlower;
             BlockNames["red_flower"] = Block.RedFlower;
-            
+
             BlockNames["mushroom"] = Block.BrownMushroom;
             BlockNames["shroom"] = Block.BrownMushroom;
             BlockNames["brown_shroom"] = Block.BrownMushroom;
@@ -793,13 +745,8 @@ namespace fCraft {
                 int blockIndex = Index( update.X, update.Y, update.H );
                 Blocks[blockIndex] = update.BlockType; // TODO: investigate IndexOutOfRangeException here
 
-                if( !World.IsFlushing ) World.SendToAllDelayed( PacketWriter.MakeSetBlock( update.X, update.Y, update.H, update.BlockType ), update.Origin );
-                if( update.Origin != null && BlockOwnership != null ) {
-                    // TODO: ensure safety in case player leaves the world (and localPlayerID changes) before everything is processed
-                    if( update.Origin.LocalPlayerID == (ushort)ReservedPlayerID.None ) {
-                        update.Origin.LocalPlayerID = AssignPlayerID( update.Origin.Name );
-                    }
-                    BlockOwnership[blockIndex] = update.Origin.LocalPlayerID;
+                if( !World.IsFlushing ) {
+                    World.SendToAllDelayed( PacketWriter.MakeSetBlock( update.X, update.Y, update.H, update.BlockType ), update.Origin );
                 }
                 packetsSent++;
             }
@@ -896,240 +843,6 @@ namespace fCraft {
                 return -x.CreationTime.CompareTo( y.CreationTime );
             }
         }
-
-        #endregion
-
-
-        #region FCMv3
-
-        // todo: layerLock object of some sort
-        internal List<DataLayer> PrepareLayers() {
-            List<DataLayer> layers = new List<DataLayer>();
-
-            byte[] blocksCache = Blocks;
-            if( blocksCache != null ) {
-                layers.Add( new DataLayer {
-                    Type = DataLayerType.Blocks,
-                    Data = blocksCache,
-                    ElementSize = 1,
-                    ElementCount = blocksCache.Length
-                } );
-            }
-
-            return layers; // TODO: Implement the rest of the layers
-
-            byte[] blockUndoCache = BlockUndo;
-            if( blockUndoCache != null ) {
-                layers.Add( new DataLayer {
-                    Type = DataLayerType.BlockUndo,
-                    Data = blockUndoCache,
-                    ElementSize = 1,
-                    ElementCount = blockUndoCache.Length
-                } );
-            }
-
-            ushort[] blockOwnershipCache = BlockOwnership;
-            if( blockOwnershipCache != null ) {
-                layers.Add( new DataLayer {
-                    Type = DataLayerType.BlockOwnership,
-                    Data = blockOwnershipCache,
-                    ElementSize = 2,
-                    ElementCount = blockOwnershipCache.Length
-                } );
-            }
-
-            uint[] blockTimestampsCache = BlockTimestamps;
-            if( blockTimestampsCache != null ) {
-                layers.Add( new DataLayer {
-                    Type = DataLayerType.BlockTimestamps,
-                    Data = blockTimestampsCache,
-                    ElementSize = 4,
-                    ElementCount = blockTimestampsCache.Length
-                } );
-            }
-
-            byte[] blockChangeFlagsCache = BlockChangeFlags;
-            if( blockChangeFlagsCache != null ) {
-                layers.Add( new DataLayer {
-                    Type = DataLayerType.BlockChangeFlags,
-                    Data = blockChangeFlagsCache,
-                    ElementSize = 1,
-                    ElementCount = blockChangeFlagsCache.Length
-                } );
-            }
-
-            Dictionary<string, ushort> playerIDsCache = playerIDs;
-            if( playerIDsCache != null && playerNames != null ) {
-                lock( playerIDLock ) {
-                    layers.Add( new DataLayer {
-                        Type = DataLayerType.PlayerIDs,
-                        Data = new Dictionary<string, ushort>( playerIDsCache ), // locked copy is needed to avoid threading issues
-                        ElementSize = -1, // variable
-                        ElementCount = playerIDsCache.Count
-                    } );
-                }
-            }
-            return layers;
-        }
-
-        internal void ReadLayer( DataLayer layer, DeflateStream stream ) {
-            if( layer == null ) throw new ArgumentNullException( "layer" );
-            if( stream == null ) throw new ArgumentNullException( "stream" );
-            switch( layer.Type ) {
-                case DataLayerType.Blocks:
-                    Blocks = new byte[layer.ElementCount];
-                    stream.Read( Blocks, 0, Blocks.Length );
-                    RemoveUnknownBlocktypes( false );
-                    break;
-
-                case DataLayerType.BlockUndo:
-                    BlockUndo = new byte[layer.ElementCount];
-                    stream.Read( BlockUndo, 0, BlockUndo.Length );
-                    BlockUndo = null;
-                    break;
-
-                case DataLayerType.BlockOwnership: {
-                        BlockOwnership = new ushort[layer.ElementCount];
-                        BinaryReader reader = new BinaryReader( stream );
-                        for( int i = 0; i < layer.ElementCount; i++ ) {
-                            BlockOwnership[i] = reader.ReadUInt16();
-                        }
-                        BlockOwnership = null;
-                    } break;
-
-                case DataLayerType.BlockTimestamps: {
-                        BlockTimestamps = new uint[layer.ElementCount];
-                        BinaryReader reader = new BinaryReader( stream );
-                        for( int i = 0; i < layer.ElementCount; i++ ) {
-                            BlockTimestamps[i] = reader.ReadUInt32();
-                        }
-                        BlockTimestamps = null;
-                    } break;
-
-                case DataLayerType.BlockChangeFlags:
-                    BlockChangeFlags = new byte[layer.ElementCount];
-                    stream.Read( BlockChangeFlags, 0, BlockChangeFlags.Length );
-                    BlockChangeFlags = null;
-                    break;
-
-                case DataLayerType.PlayerIDs: {
-                        //PlayerIDs = new Dictionary<string, ushort>();
-                        //PlayerNames = new Dictionary<ushort, string>();
-                        BinaryReader reader = new BinaryReader( stream );
-                        //MaxPlayerID = 256;
-                        for( int i = 0; i < layer.ElementCount; i++ ) {
-                            int length = reader.ReadByte();
-                            //byte[] stringData =
-                            reader.ReadBytes( length );
-                            //string name = ASCIIEncoding.ASCII.GetString( stringData );
-                            //PlayerNames[MaxPlayerID] = name;
-                            //PlayerIDs[name] = MaxPlayerID;
-                            //MaxPlayerID++;
-                        }
-                    } break;
-
-                default:
-                    Logger.Log( "Map.ReadLayer: Skipping unknown layer ({0})", LogType.Warning, layer.Type );
-                    stream.BaseStream.Seek( layer.CompressedLength, SeekOrigin.Current );
-                    break;
-            }
-        }
-
-        internal static void WriteLayer( DataLayer layer, Stream stream ) {
-            if( layer == null ) throw new ArgumentNullException( "layer" );
-            if( stream == null ) throw new ArgumentNullException( "stream" );
-            switch( layer.Type ) {
-                case DataLayerType.Blocks:
-                case DataLayerType.BlockUndo:
-                case DataLayerType.BlockChangeFlags:
-                    stream.Write( (byte[])layer.Data, 0, layer.ElementCount );
-                    break;
-
-                case DataLayerType.BlockOwnership: {
-                        BinaryWriter bw = new BinaryWriter( stream );
-                        ushort[] data = (ushort[])layer.Data;
-                        for( int i = 0; i < layer.ElementCount; i++ ) {
-                            bw.Write( data[i] );
-                        }
-                    }
-                    break;
-
-                case DataLayerType.BlockTimestamps: {
-                        BinaryWriter bw = new BinaryWriter( stream );
-                        uint[] data = (uint[])layer.Data;
-                        for( int i = 0; i < layer.ElementCount; i++ ) {
-                            bw.Write( data[i] );
-                        }
-                    }
-                    break;
-
-                case DataLayerType.PlayerIDs: {
-                        BinaryWriter bw = new BinaryWriter( stream );
-                        Dictionary<string, ushort> ids = (Dictionary<string, ushort>)layer.Data;
-                        foreach( string name in ids.Keys ) {//todo: thread safety
-                            byte[] stringData = Encoding.ASCII.GetBytes( name );
-                            bw.Write( (byte)stringData.Length );
-                            bw.Write( stringData );
-                        }
-                    }
-                    break;
-
-                default: {
-                        Type type = layer.GetType();
-                        if( type == typeof( byte[] ) ) {
-                            stream.Write( (byte[])layer.Data, 0, layer.ElementCount );
-                        } else if( type == typeof( ushort[] ) ) {
-                            BinaryWriter bw = new BinaryWriter( stream );
-                            ushort[] data = (ushort[])layer.Data;
-                            for( int i = 0; i < layer.ElementCount; i++ ) {
-                                bw.Write( data[i] );
-                            }
-                        } else if( type == typeof( uint[] ) ) {
-                            BinaryWriter bw = new BinaryWriter( stream );
-                            uint[] data = (uint[])layer.Data;
-                            for( int i = 0; i < layer.ElementCount; i++ ) {
-                                bw.Write( data[i] );
-                            }
-                        } else {
-                            Logger.Log( "Map.WriteLayer: Unknown layer type ({0})", LogType.Error,
-                                        layer.Type );
-                        }
-                    }
-                    break;
-            }
-        }
-
-        public sealed class DataLayer {
-            public DataLayerType Type;         // see "DataLayerType" below
-            public int GeneralPurposeField;   // 32 bits that can be used in implementation-specific ways
-            public int ElementSize;           // size of each data element (if elements are variable-size, set this to 1)
-            public int ElementCount;          // number of fixed-sized elements (if elements are variable-size, set this to total number of bytes)
-            // uncompressed length = (element size * element count)
-            public object Data;
-            public long Offset;
-            public int CompressedLength;
-        }
-
-
-        // type of block - allows storing multiple layers of information about blocks
-        public enum DataLayerType : byte {
-            Blocks = 0, // Block types (El.Size=1)
-
-            BlockUndo = 1, // Previous block type (per-block) (El.Size=1)
-
-            BlockOwnership = 2, // IDs of block changers (per-block) (El.Size=2)
-
-            BlockTimestamps = 3, // Modification date/time (per-block) (El.Size=4)
-
-            BlockChangeFlags = 4, // Type of action that resulted in the block change
-            // See BlockChangeFlags flags (El.Size=1)
-
-            PlayerIDs = 5  // mapping of player names to ID numbers (El.Size=2)
-
-            // 4-31 reserved
-            // 32-255 custom
-
-        } // 1 byte
 
         #endregion
     }

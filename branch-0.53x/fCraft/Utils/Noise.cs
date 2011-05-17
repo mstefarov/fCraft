@@ -82,6 +82,7 @@ namespace fCraft {
         }
 
 
+        readonly float[,] points = new float[4, 4];
         public float InterpolatedNoise( float x, float y ) {
             int xInt = (int)Math.Floor( x );
             float xFloat = x - xInt;
@@ -90,7 +91,6 @@ namespace fCraft {
             float yFloat = y - yInt;
 
             float p00, p01, p10, p11;
-            float[,] points;
 
             switch( InterpolationMode ) {
                 case NoiseInterpolationMode.Linear:
@@ -108,7 +108,6 @@ namespace fCraft {
                     return InterpolateCosine( InterpolateCosine( p00, p10, xFloat ), InterpolateCosine( p01, p11, xFloat ), yFloat );
 
                 case NoiseInterpolationMode.Bicubic:
-                    points = new float[4, 4];
                     for( int xOffset = -1; xOffset < 3; xOffset++ ) {
                         for( int yOffset = -1; yOffset < 3; yOffset++ ) {
                             points[xOffset + 1, yOffset + 1] = StaticNoise( xInt + xOffset, yInt + yOffset );
@@ -121,7 +120,6 @@ namespace fCraft {
                     return InterpolateCubic( p00, p01, p10, p11, yFloat );
 
                 case NoiseInterpolationMode.Spline:
-                    points = new float[4, 4];
                     for( int xOffset = -1; xOffset < 3; xOffset++ ) {
                         for( int yOffset = -1; yOffset < 3; yOffset++ ) {
                             points[xOffset + 1, yOffset + 1] = StaticNoise( xInt + xOffset, yInt + yOffset );
