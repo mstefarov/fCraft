@@ -19,10 +19,10 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             531,
-            596,
+            598,
             new DateTime( 2011, 5, 20, 17, 0, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Bugfix | ReleaseFlags.Feature | ReleaseFlags.APIChange | ReleaseFlags.Optimized
+            ReleaseFlags.Unstable | ReleaseFlags.Dev
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
