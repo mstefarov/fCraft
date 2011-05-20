@@ -214,6 +214,7 @@
     <Compile Include="MapConversion\MapFormatException.cs" />
     <Compile Include="MapConversion\MapOpticraft.cs" />
     <Compile Include="MapConversion\MapXMap.cs" />
+    <Compile Include="Network\OpCode.cs" />
     <Compile Include="System\ConfigKey.Metadata.cs" />
     <Compile Include="System\ConfigSection.cs" />
     <Compile Include="System\Server.Events.cs" />

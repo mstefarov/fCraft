@@ -34,6 +34,8 @@ namespace fCraft {
             Write( packet.Data );
         }
 
+        #endregion
+
 
         #region Direct Writing Whole Packets
 
@@ -44,12 +46,12 @@ namespace fCraft {
         }
 
         public void WriteLevelBegin() {
-            Write( OpCode.LevelBegin );
+            Write( OpCode.MapBegin );
         }
 
         public void WriteLevelChunk( byte[] chunk, int chunkSize, byte progress ) {
             if( chunk == null ) throw new ArgumentNullException( "chunk" );
-            Write( OpCode.LevelChunk );
+            Write( OpCode.MapChunk );
             Write( (short)chunkSize );
             Write( chunk, 0, 1024 );
             Write( progress );
@@ -57,7 +59,7 @@ namespace fCraft {
 
         internal void WriteLevelEnd( Map map ) {
             if( map == null ) throw new ArgumentNullException( "map" );
-            Write( OpCode.LevelEnd );
+            Write( OpCode.MapEnd );
             Write( IPAddress.HostToNetworkOrder( (short)map.WidthX ) );
             Write( IPAddress.HostToNetworkOrder( (short)map.Height ) );
             Write( IPAddress.HostToNetworkOrder( (short)map.WidthY ) );
@@ -87,8 +89,6 @@ namespace fCraft {
 
         #endregion
 
-        #endregion
-
 
         #region Packet Making
 
@@ -97,8 +97,7 @@ namespace fCraft {
             if( serverName == null ) throw new ArgumentNullException( "serverName" );
             if( motd == null ) throw new ArgumentNullException( "motd" );
 
-            Packet packet = new Packet( 131 );
-            packet.Data[0] = (byte)OpCode.Handshake;
+            Packet packet = new Packet( OpCode.Handshake );
             packet.Data[1] = Config.ProtocolVersion;
             Encoding.ASCII.GetBytes( serverName.PadRight( 64 ), 0, 64, packet.Data, 2 );
             Encoding.ASCII.GetBytes( motd.PadRight( 64 ), 0, 64, packet.Data, 66 );
@@ -110,8 +109,7 @@ namespace fCraft {
         internal static Packet MakeMessage( string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
 
-            Packet packet = new Packet( 66 );
-            packet.Data[0] = (byte)OpCode.Message;
+            Packet packet = new Packet( OpCode.Message );
             packet.Data[1] = 0;
             Encoding.ASCII.GetBytes( message.PadRight( 64 ), 0, 64, packet.Data, 2 );
             return packet;
@@ -121,8 +119,7 @@ namespace fCraft {
         internal static Packet MakeAddEntity( int id, string name, Position pos ) {
             if( name == null ) throw new ArgumentNullException( "name" );
 
-            Packet packet = new Packet( 74 );
-            packet.Data[0] = (byte)OpCode.AddEntity;
+            Packet packet = new Packet( OpCode.AddEntity );
             packet.Data[1] = (byte)id;
             Encoding.ASCII.GetBytes( name.PadRight( 64 ), 0, 64, packet.Data, 2 );
             ToNetOrder( pos.X, packet.Data, 66 );
@@ -137,24 +134,21 @@ namespace fCraft {
         internal static Packet MakeDisconnect( string reason ) {
             if( reason == null ) throw new ArgumentNullException( "reason" );
 
-            Packet packet = new Packet( 65 );
-            packet.Data[0] = (byte)OpCode.Disconnect;
+            Packet packet = new Packet( OpCode.Kick );
             Encoding.ASCII.GetBytes( reason.PadRight( 64 ), 0, 64, packet.Data, 1 );
             return packet;
         }
 
 
         internal static Packet MakeRemoveEntity( int id ) {
-            Packet packet = new Packet( 2 );
-            packet.Data[0] = (byte)OpCode.RemoveEntity;
+            Packet packet = new Packet( OpCode.RemoveEntity );
             packet.Data[1] = (byte)id;
             return packet;
         }
 
 
         internal static Packet MakeTeleport( int id, Position pos ) {
-            Packet packet = new Packet( 10 );
-            packet.Data[0] = (byte)OpCode.Teleport;
+            Packet packet = new Packet( OpCode.Teleport );
             packet.Data[1] = (byte)id;
             ToNetOrder( pos.X, packet.Data, 2 );
             ToNetOrder( pos.H, packet.Data, 4 );
@@ -171,8 +165,7 @@ namespace fCraft {
 
 
         internal static Packet MakeMoveRotate( int id, Position pos ) {
-            Packet packet = new Packet( 7 );
-            packet.Data[0] = (byte)OpCode.MoveRotate;
+            Packet packet = new Packet( OpCode.MoveRotate );
             packet.Data[1] = (byte)id;
             packet.Data[2] = (byte)(pos.X & 0xFF);
             packet.Data[3] = (byte)(pos.H & 0xFF);
@@ -184,8 +177,7 @@ namespace fCraft {
 
 
         internal static Packet MakeMove( int id, Position pos ) {
-            Packet packet = new Packet( 5 );
-            packet.Data[0] = (byte)OpCode.Move;
+            Packet packet = new Packet( OpCode.Move );
             packet.Data[1] = (byte)id;
             packet.Data[2] = (byte)pos.X;
             packet.Data[3] = (byte)pos.H;
@@ -195,8 +187,7 @@ namespace fCraft {
 
 
         internal static Packet MakeRotate( int id, Position pos ) {
-            Packet packet = new Packet( 4 );
-            packet.Data[0] = (byte)OpCode.Rotate;
+            Packet packet = new Packet( OpCode.Rotate );
             packet.Data[1] = (byte)id;
             packet.Data[2] = pos.R;
             packet.Data[3] = pos.L;
@@ -205,8 +196,7 @@ namespace fCraft {
 
 
         internal static Packet MakeSetBlock( int x, int y, int h, byte type ) {
-            Packet packet = new Packet( 8 );
-            packet.Data[0] = (byte)OpCode.SetTileServer;
+            Packet packet = new Packet( OpCode.SetBlockServer );
             ToNetOrder( x, packet.Data, 1 );
             ToNetOrder( h, packet.Data, 3 );
             ToNetOrder( y, packet.Data, 5 );
@@ -216,8 +206,7 @@ namespace fCraft {
 
 
         internal static Packet MakeSetBlock( int x, int y, int h, Block type ) {
-            Packet packet = new Packet( 8 );
-            packet.Data[0] = (byte)OpCode.SetTileServer;
+            Packet packet = new Packet( OpCode.SetBlockServer );
             ToNetOrder( x, packet.Data, 1 );
             ToNetOrder( h, packet.Data, 3 );
             ToNetOrder( y, packet.Data, 5 );
@@ -229,8 +218,7 @@ namespace fCraft {
         internal static Packet MakeSetPermission( Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
-            Packet packet = new Packet( 2 );
-            packet.Data[0] = (byte)OpCode.SetPermission;
+            Packet packet = new Packet( OpCode.SetPermission );
             packet.Data[1] = player.GetOpPacketCode();
             return packet;
         }

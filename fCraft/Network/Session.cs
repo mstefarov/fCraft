@@ -140,7 +140,7 @@ namespace fCraft {
                         bytesSent += packet.Data.Length;
                         packetsSent++;
 
-                        if( packet.OpCode == OpCode.Disconnect ) {
+                        if( packet.OpCode == OpCode.Kick ) {
                             writer.Flush();
                             Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug,
                                         Player.Name );
@@ -157,7 +157,7 @@ namespace fCraft {
                                     writer.Write( packet.Data );
                                     bytesSent += packet.Data.Length;
                                     packetsSent++;
-                                    if( packet.Data[0] == (byte)OpCode.Disconnect ) {
+                                    if( packet.Data[0] == (byte)OpCode.Kick ) {
                                         writer.Flush();
                                         Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug,
                                                     Player.Name );
@@ -293,7 +293,7 @@ namespace fCraft {
                                 break;
 
                             // Set tile
-                            case OpCode.SetTileClient:
+                            case OpCode.SetBlockClient:
                                 bytesReceived += 9;
                                 if( Player.World == null || Player.World.Map == null ) continue;
                                 Player.ResetIdleTimer();

@@ -6,33 +6,32 @@ namespace fCraft {
     public struct Packet {
         public readonly byte[] Data;
 
-        public Packet( int length ) {
-            Data = new byte[length];
+        public Packet( OpCode opcode ) {
+            Data = new byte[PacketSizes[(int)opcode]];
+            Data[0] = (byte)opcode;
         }
 
         public OpCode OpCode {
             get { return (OpCode)Data[0]; }
         }
+
+        static int[] PacketSizes = {
+            131,    // Handshake
+            1,      // Ping
+            1,      // LevelBegin
+            1028,   // LevelChunk
+            7,      // LevelEnd
+            9,      // SetTile (clientside)
+            8,      // SetTile (serverside)
+            74,     // AddEntity
+            10,     // Teleport
+            7,      // MoveRotate
+            5,      // Move
+            4,      // Rotate
+            2,      // RemoveEntity
+            66,     // Message
+            65,     // Disconnect
+            2       // SetPermission
+        };
     }
-
-
-    /// <summary> Minecraft protocol's opcodes. </summary>
-    public enum OpCode {
-        Handshake = 0,
-        Ping = 1,
-        LevelBegin = 2,
-        LevelChunk = 3,
-        LevelEnd = 4,
-        SetTileClient = 5,
-        SetTileServer = 6,
-        AddEntity = 7,
-        Teleport = 8,
-        MoveRotate = 9,
-        Move = 10,
-        Rotate = 11,
-        RemoveEntity = 12,
-        Message = 13,
-        Disconnect = 14,
-        SetPermission = 15
-    };
 }
