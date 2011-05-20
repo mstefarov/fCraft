@@ -10,35 +10,26 @@ namespace fCraft {
             Data = new byte[length];
         }
 
-        public OutputCode OpCode {
-            get { return (OutputCode)Data[0]; }
+        public OpCode OpCode {
+            get { return (OpCode)Data[0]; }
         }
     }
 
 
-    /// <summary> Minecraft protocol's opcodes for client-to-server (incoming) packets. </summary>
-    public enum InputCode {
-        Handshake = 0,
-        Ping = 1,
-        SetTile = 5,
-        MoveRotate = 8,
-        Message = 13
-    };
-
-
-    /// <summary> Minecraft protocol's opcodes for server-to-client (outgoing) packets. </summary>
-    public enum OutputCode {
+    /// <summary> Minecraft protocol's opcodes. </summary>
+    public enum OpCode {
         Handshake = 0,
         Ping = 1,
         LevelBegin = 2,
         LevelChunk = 3,
         LevelEnd = 4,
-        SetBlock = 6,
+        SetTileClient = 5,
+        SetTileServer = 6,
         AddEntity = 7,
         Teleport = 8,
         MoveRotate = 9,
         Move = 10,
-        Rotate = 11, // thanks liq3
+        Rotate = 11,
         RemoveEntity = 12,
         Message = 13,
         Disconnect = 14,

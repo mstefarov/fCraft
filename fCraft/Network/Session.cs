@@ -115,7 +115,9 @@ namespace fCraft {
                         }
                         if( pingCounter > pingInterval ) {
                             writer.WritePing();
+                            bytesSent++;
                             pingCounter = 0;
+                            MeasureBandwidthUseRates();
                         }
                         pingCounter++;
                         pollCounter = 0;
@@ -132,12 +134,13 @@ namespace fCraft {
                         if( !priorityOutputQueue.Dequeue( ref packet ) )
                             if( !outputQueue.Dequeue( ref packet ) ) break;
 
-                        if( Player.IsDeaf && packet.OpCode == OutputCode.Message ) continue;
+                        if( Player.IsDeaf && packet.OpCode == OpCode.Message ) continue;
 
                         writer.Write( packet.Data );
+                        bytesSent += packet.Data.Length;
                         packetsSent++;
 
-                        if( packet.OpCode == OutputCode.Disconnect ) {
+                        if( packet.OpCode == OpCode.Disconnect ) {
                             writer.Flush();
                             Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug,
                                         Player.Name );
@@ -152,8 +155,9 @@ namespace fCraft {
                             if( forcedWorldToJoin != null ) {
                                 while( priorityOutputQueue.Dequeue( ref packet ) ) {
                                     writer.Write( packet.Data );
+                                    bytesSent += packet.Data.Length;
                                     packetsSent++;
-                                    if( packet.Data[0] == (byte)OutputCode.Disconnect ) {
+                                    if( packet.Data[0] == (byte)OpCode.Disconnect ) {
                                         writer.Flush();
                                         Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug,
                                                     Player.Name );
@@ -179,10 +183,11 @@ namespace fCraft {
                     // get input from player
                     while( CanReceive && client.GetStream().DataAvailable ) {
                         byte opcode = reader.ReadByte();
-                        switch( (InputCode)opcode ) {
+                        switch( (OpCode)opcode ) {
 
                             // Message
-                            case InputCode.Message:
+                            case OpCode.Message:
+                                bytesReceived += 66;
                                 Player.ResetIdleTimer();
                                 reader.ReadByte();
                                 string message = ReadString();
@@ -209,7 +214,8 @@ namespace fCraft {
                                 break;
 
                             // Player movement
-                            case InputCode.MoveRotate:
+                            case OpCode.MoveRotate:
+                                bytesReceived += 7;
                                 reader.ReadByte();
                                 Position newPos = new Position {
                                     X = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
@@ -287,7 +293,8 @@ namespace fCraft {
                                 break;
 
                             // Set tile
-                            case InputCode.SetTile:
+                            case OpCode.SetTileClient:
+                                bytesReceived += 9;
                                 if( Player.World == null || Player.World.Map == null ) continue;
                                 Player.ResetIdleTimer();
                                 short x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
@@ -313,7 +320,8 @@ namespace fCraft {
                                 }
                                 break;
 
-                            case InputCode.Ping:
+                            case OpCode.Ping:
+                                bytesReceived++;
                                 continue;
 
                             default:
@@ -382,7 +390,7 @@ namespace fCraft {
         bool LoginSequence() {
             byte opcode = reader.ReadByte();
 
-            if( opcode != (byte)InputCode.Handshake ) {
+            if( opcode != (byte)OpCode.Handshake ) {
                 if( opcode == 2 ) {
                     // This may be someone connecting with an SMP client
                     int strLen = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
@@ -399,6 +407,7 @@ namespace fCraft {
                         byte[] stringData = Encoding.UTF8.GetBytes( NoSmpMessage );
                         writer.Write( (short)stringData.Length );
                         writer.Write( stringData );
+                        bytesSent += (1 + stringData.Length);
                         writer.Flush();
 
                     } else {
@@ -429,7 +438,8 @@ namespace fCraft {
 
             string playerName = ReadString();
             string verificationCode = ReadString();
-            reader.ReadByte(); // unused    
+            reader.ReadByte(); // unused
+            bytesReceived += 131;
 
 
             // Check name for nonstandard characters
@@ -544,9 +554,9 @@ namespace fCraft {
 
             // Check if player is paid (if required)
             if( ConfigKey.PaidPlayersOnly.GetBool() ) {
-                writer.Write( PacketWriter.MakeHandshake( Player,
-                                                          ConfigKey.ServerName.GetString(),
-                                                          "Please wait; Checking paid status..." ) );
+                SendNow( PacketWriter.MakeHandshake( Player,
+                                                     ConfigKey.ServerName.GetString(),
+                                                     "Please wait; Checking paid status..." ) );
                 writer.Flush();
 
                 if( !Player.CheckPaidStatus( Player.Name ) ) {
@@ -578,7 +588,7 @@ namespace fCraft {
             World startingWorld = Server.RaisePlayerConnectedEvent( Player, WorldManager.MainWorld );
 
             // Send server information
-            writer.Write( PacketWriter.MakeHandshake( Player, ConfigKey.ServerName.GetString(), ConfigKey.MOTD.GetString() ) );
+            SendNow( PacketWriter.MakeHandshake( Player, ConfigKey.ServerName.GetString(), ConfigKey.MOTD.GetString() ) );
 
             // AutoRank
             if( ConfigKey.AutoRankEnabled.GetBool() ) {
@@ -768,12 +778,13 @@ namespace fCraft {
 
             // Start sending over the level copy
             if( !firstTime ) {
-                writer.Write( PacketWriter.MakeHandshake( Player,
-                                                          ConfigKey.ServerName.GetString(),
-                                                          "Loading world " + newWorld.GetClassyName() ) );
+                SendNow( PacketWriter.MakeHandshake( Player,
+                                                     ConfigKey.ServerName.GetString(),
+                                                     "Loading world " + newWorld.GetClassyName() ) );
             }
 
             writer.WriteLevelBegin();
+            bytesSent++;
 
             // enable Nagle's algorithm (in case it was turned off by LowLatencyMode)
             // to avoid wasting bandwidth for map transfer
@@ -781,7 +792,7 @@ namespace fCraft {
 
             // Fetch compressed map copy
             byte[] buffer = new byte[1024];
-            int bytesSent = 0;
+            int mapBytesSent = 0;
             byte[] blockData;
             using( MemoryStream stream = new MemoryStream() ) {
                 map.GetCompressedCopy( stream, true );
@@ -791,8 +802,8 @@ namespace fCraft {
                         blockData.Length, Player.Name );
 
             // Transfer the map copy
-            while( bytesSent < blockData.Length ) {
-                int chunkSize = blockData.Length - bytesSent;
+            while( mapBytesSent < blockData.Length ) {
+                int chunkSize = blockData.Length - mapBytesSent;
                 if( chunkSize > 1024 ) {
                     chunkSize = 1024;
                 } else {
@@ -801,20 +812,24 @@ namespace fCraft {
                         buffer[i] = 0;
                     }
                 }
-                Array.Copy( blockData, bytesSent, buffer, 0, chunkSize );
-                byte progress = (byte)(100 * bytesSent / blockData.Length);
+                Array.Copy( blockData, mapBytesSent, buffer, 0, chunkSize );
+                byte progress = (byte)(100 * mapBytesSent / blockData.Length);
 
                 // write in chunks of 1024 bytes or less
                 writer.WriteLevelChunk( buffer, chunkSize, progress );
-                bytesSent += chunkSize;
+                bytesSent += 1028; 
+                mapBytesSent += chunkSize;
             }
 
             // Done sending over level copy
-            writer.Write( PacketWriter.MakeLevelEnd( map ) );
+            writer.WriteLevelEnd( map );
+            bytesSent += 7;
 
             // Send spawn point
             writer.WriteAddEntity( 255, Player, map.Spawn );
+            bytesSent += 74;
             writer.WriteTeleport( 255, spawn );
+            bytesSent += 10;
 
             Player.Message( "Joined world {0}", newWorld.GetClassyName() );
 
@@ -846,6 +861,7 @@ namespace fCraft {
         /// </summary>
         public void SendNow( Packet packet ) {
             writer.Write( packet.Data );
+            bytesSent += packet.Data.Length;
         }
 
 
@@ -1239,6 +1255,31 @@ namespace fCraft {
                 Player.Message( "&WYou are not allowed to speedhack." );
                 antiSpeedLastNotification = DateTime.UtcNow;
             }
+        }
+
+        #endregion
+
+
+        #region Bandwidth Use Metering
+
+        int bytesSent, bytesReceived;
+        DateTime lastMeasurementDate = DateTime.UtcNow;
+        int lastBytesSent, lastBytesReceived;
+
+        public int BytesSent { get { return bytesSent; } }
+        public int BytesReceived { get { return bytesReceived; } }
+        public double BytesSentRate { get; private set; }
+        public double BytesReceivedRate { get; private set; }
+
+        void MeasureBandwidthUseRates() {
+            int sentDelta = bytesSent - lastBytesSent;
+            int receivedDelta = bytesReceived - lastBytesReceived;
+            TimeSpan timeDelta = DateTime.UtcNow.Subtract( lastMeasurementDate );
+            BytesSentRate = sentDelta / timeDelta.TotalSeconds;
+            BytesReceivedRate = receivedDelta / timeDelta.TotalSeconds;
+            lastBytesSent = bytesSent;
+            lastBytesReceived = bytesReceived;
+            lastMeasurementDate = DateTime.UtcNow;
         }
 
         #endregion
