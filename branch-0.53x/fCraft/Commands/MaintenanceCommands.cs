@@ -31,6 +31,15 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( cdImportBans );
             CommandManager.RegisterCommand( cdImportRanks );
+
+            CommandManager.RegisterCommand( new CommandDescriptor {
+                Category = CommandCategory.Maintenance,
+                Handler = delegate( Player player, Command cmd ) {
+                    player.Session.SetBandwidthUseMode( (BandwidthUseMode)Enum.Parse( typeof( BandwidthUseMode ), cmd.Next(), true ) );
+                },
+                Name = "bum",
+                IsHidden = true
+            } );
         }
 
 

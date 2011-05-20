@@ -23,17 +23,39 @@ namespace fCraft {
     /// Describes a chat command handler. Defined properties and usage/help information, and specifies a callback.
     /// </summary>
     public sealed class CommandDescriptor {
-        public string[] Aliases { get; set; }            // list of aliases
-        public CommandCategory Category { get; set; }    // category
-        public bool IsConsoleSafe { get; set; }            // if true, command can be called from console (defaults to false)
-        public CommandHandler Handler { get; set; }      // callback function to execute the command
-        public string Help { get; set; }                 // full help
-        public HelpHandler HelpHandler { get; set; }     // callback function to provide custom help (optional)
-        public bool IsHidden { get; set; }                 // hidden command does not show up in /help
-        public bool IsCustom { get; internal set; }      // whether the command is fCraft-standard or not
-        public string Name { get; set; }                 // main name
-        public Permission[] Permissions { get; set; }    // list of required permissions
-        public string Usage { get; set; }                // short help
+
+        /// <summary> List of aliases. May be null or empty. Default: null </summary>
+        public string[] Aliases { get; set; }
+
+        /// <summary> Command category. Must be set before registering. </summary>
+        public CommandCategory Category { get; set; }
+
+        /// <summary> Whether the command may be used from console. Default: false </summary>
+        public bool IsConsoleSafe { get; set; }
+
+        /// <summary> Callback function to execute when command is called. Must be set before registering. </summary>
+        public CommandHandler Handler { get; set; }
+
+        /// <summary> Full text of the help message. Default: null </summary>
+        public string Help { get; set; }
+
+        /// <summary> If command has contextual help, use this to define a callback to call when /help is called for your command. (default: null) </summary>
+        public HelpHandler HelpHandler { get; set; }
+
+        /// <summary> Whether the command is hidden from command list (/cmds). Default: false </summary>
+        public bool IsHidden { get; set; }
+
+        /// <summary> Whether the command is not part of fCraft core (set automatically). </summary>
+        public bool IsCustom { get; internal set; }
+
+        /// <summary> Primary command name. Must be set before registering. </summary>
+        public string Name { get; set; }
+
+        /// <summary> List of permissions required to call the command. May be empty or null. Default: null </summary>
+        public Permission[] Permissions { get; set; }
+
+        /// <summary> Brief demonstration of command's usage syntax. Defaults to "/commandname". </summary>
+        public string Usage { get; set; }
 
 
         public void PrintUsage( Player player ) {
