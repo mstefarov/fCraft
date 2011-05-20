@@ -71,10 +71,14 @@ namespace fCraft {
 
 
         static int ParseHeader( string header ) {
-            string firstPart = header.Substring( 0, header.IndexOf( ' ' ) );
-            int version;
-            if( Int32.TryParse( firstPart, out version ) ) {
-                return version;
+            if( header.IndexOf( ' ' ) > 0 ) {
+                string firstPart = header.Substring( 0, header.IndexOf( ' ' ) );
+                int version;
+                if( Int32.TryParse( firstPart, out version ) ) {
+                    return version;
+                } else {
+                    return 0;
+                }
             } else {
                 return 0;
             }

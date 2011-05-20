@@ -94,13 +94,11 @@ namespace fCraft {
                 const int pollInterval = 200; // 2 seconds
                 int pollCounter = 0;
 
-                const int pingInterval = 4; // 8 seconds (4 * pollInterval)
+                const int pingInterval = 3; // 6 seconds (3 * pollInterval)
                 int pingCounter = 0;
 
                 // main i/o loop
                 while( CanSend ) {
-                    Thread.Sleep( sleepDelay );
-
                     int packetsSent = 0;
 
                     // detect player disconnect
@@ -117,11 +115,17 @@ namespace fCraft {
                         }
                         if( pingCounter > pingInterval ) {
                             writer.WritePing();
+                            pingCounter = 0;
                         }
                         pingCounter++;
                         pollCounter = 0;
                     }
                     pollCounter++;
+
+                    if( DateTime.UtcNow.Subtract( lastMovementUpdate ) > movementUpdateInterval ) {
+                        UpdateVisibleEntities();
+                        lastMovementUpdate = DateTime.UtcNow;
+                    }
 
                     // send output to player
                     while( CanSend && packetsSent < Server.MaxSessionPacketsPerTick ) {
@@ -166,6 +170,12 @@ namespace fCraft {
                         }
                     }
 
+
+                    if( DateTime.UtcNow.Subtract( lastMovementUpdate ) > movementUpdateInterval ) {
+                        UpdateVisibleEntities();
+                        lastMovementUpdate = DateTime.UtcNow;
+                    }
+
                     // get input from player
                     while( CanReceive && client.GetStream().DataAvailable ) {
                         byte opcode = reader.ReadByte();
@@ -200,7 +210,6 @@ namespace fCraft {
 
                             // Player movement
                             case InputCode.MoveRotate:
-                                UpdateVisibleEntities();
                                 reader.ReadByte();
                                 Position newPos = new Position {
                                     X = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
@@ -312,6 +321,13 @@ namespace fCraft {
                                 return;
                         }
                     }
+
+                    if( DateTime.UtcNow.Subtract( lastMovementUpdate ) > movementUpdateInterval ) {
+                        UpdateVisibleEntities();
+                        lastMovementUpdate = DateTime.UtcNow;
+                    }
+
+                    Thread.Sleep( sleepDelay );
                 }
 
             } catch( IOException ex ) {
@@ -928,6 +944,8 @@ namespace fCraft {
         bool partialUpdates, skipUpdates;
 
         int sleepDelay = 10;
+        DateTime lastMovementUpdate;
+        TimeSpan movementUpdateInterval;
 
 
         internal void SetBandwidthUseMode( BandwidthUseMode newBandwidthUseMode ) {
@@ -942,6 +960,7 @@ namespace fCraft {
                     partialUpdates = true;
                     skipUpdates = true;
                     sleepDelay = 15;
+                    movementUpdateInterval = TimeSpan.FromMilliseconds( 100 );
                     break;
 
                 case BandwidthUseMode.Low:
@@ -950,6 +969,7 @@ namespace fCraft {
                     partialUpdates = true;
                     skipUpdates = true;
                     sleepDelay = 10;
+                    movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
                     break;
 
                 case BandwidthUseMode.Normal:
@@ -958,6 +978,7 @@ namespace fCraft {
                     partialUpdates = true;
                     skipUpdates = false;
                     sleepDelay = 10;
+                    movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
                     break;
 
                 case BandwidthUseMode.High:
@@ -966,6 +987,7 @@ namespace fCraft {
                     partialUpdates = true;
                     skipUpdates = false;
                     sleepDelay = 5;
+                    movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
                     break;
 
                 case BandwidthUseMode.VeryHigh:
@@ -974,6 +996,7 @@ namespace fCraft {
                     partialUpdates = false;
                     skipUpdates = false;
                     sleepDelay = 5;
+                    movementUpdateInterval = TimeSpan.FromMilliseconds( 25 );
                     break;
             }
         }
