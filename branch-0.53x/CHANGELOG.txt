@@ -1,3 +1,15 @@
+0.531
+ Feature: Added ability to use coordinates with mark (e.g. "/mark 0 0 0").
+ Fix: Fixed non-default rank settings not saving properly from ConfigTool.
+ Fix: Fixed a few minor bugs in /wmain.
+ Fix: Fixed a serialization bug in IPBanList that happened if a ban reason was not given, or if an IP address was not associated with any player.
+ Change: Allowed the caret (^) in chat messages.
+ Change: Added fCraft & framework versions to /sinfo, merged /version with /sinfo.
+ Change: Reduced movement lag.
+ API: Added new events: Scheduler.TaskAdded, Scheduler.TaskExecuting, Scheduler.TaskExecuted, and Scheduler.TaskRemoved. These events are only available when fCraft.dll is built with DEBUG_SCHEDULER flag because of their performance impact.
+ Optimization: Removed the scheduler overhead from having unloaded worlds.
+ Optimization: Sped up MapGenerator by about 10%.
+
 0.530
  Feature: New adaptive bandwidth-saving mechanism for updating player positions, controlled by the new BandwidthUseMode config key.
  Feature: Added OptiCraft blocktype names and blocks' numeric IDs as aliases.
