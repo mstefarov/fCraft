@@ -214,7 +214,7 @@ namespace fCraft {
                                 break;
 
                             // Player movement
-                            case OpCode.MoveRotate:
+                            case OpCode.Teleport:
                                 bytesReceived += 7;
                                 reader.ReadByte();
                                 Position newPos = new Position {
@@ -325,7 +325,10 @@ namespace fCraft {
                                 continue;
 
                             default:
-                                KickNow( "Unknown packet opcode.", LeaveReason.InvalidOpcodeKick );
+                                Logger.Log( "Player {0} was kicked after sending an invalid opcode ({1}).", LogType.SuspiciousActivity,
+                                            Player.Name, opcode );
+                                KickNow( "Unknown packet opcode " + opcode,
+                                         LeaveReason.InvalidOpcodeKick );
                                 return;
                         }
                     }
@@ -560,6 +563,8 @@ namespace fCraft {
                 writer.Flush();
 
                 if( !Player.CheckPaidStatus( Player.Name ) ) {
+                    Logger.Log( "Player {0} was kicked because their account is not paid, and PaidOnly setting is enabled.", LogType.SystemActivity,
+                                Player.Name );
                     KickNow( "Paid players allowed only.", LeaveReason.LoginFailed );
                     return false;
                 }
@@ -574,6 +579,8 @@ namespace fCraft {
 
             // Register player for future block updates
             if( !Server.RegisterPlayerAndCheckIfFull( this ) ) {
+                Logger.Log( "Player {0} was kicked because server is full.", LogType.SystemActivity,
+                            Player.Name );
                 string kickMessage = String.Format( "Sorry, server is full ({0}/{1})",
                                         Server.PlayerList.Length, ConfigKey.MaxPlayers.GetInt() );
                 KickNow( kickMessage, LeaveReason.ServerFull );
@@ -761,7 +768,9 @@ namespace fCraft {
             if( oldWorld != newWorld ) {
                 bool announce = (firstTime || (oldWorld.Name != newWorld.Name));
                 map = newWorld.AcceptPlayer( Player, announce );
-                if( map == null ) return false;
+                if( map == null ) {
+                    return false;
+                }
             } else {
                 map = oldWorld.EnsureMapLoaded();
             }
