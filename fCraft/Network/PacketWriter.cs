@@ -30,10 +30,6 @@ namespace fCraft {
             Write( Encoding.ASCII.GetBytes( data.PadRight( 64 ).Substring( 0, 64 ) ) );
         }
 
-        public void Write( Packet packet ) {
-            Write( packet.Data );
-        }
-
         #endregion
 
 
@@ -60,9 +56,9 @@ namespace fCraft {
         internal void WriteLevelEnd( Map map ) {
             if( map == null ) throw new ArgumentNullException( "map" );
             Write( OpCode.MapEnd );
-            Write( IPAddress.HostToNetworkOrder( (short)map.WidthX ) );
-            Write( IPAddress.HostToNetworkOrder( (short)map.Height ) );
-            Write( IPAddress.HostToNetworkOrder( (short)map.WidthY ) );
+            Write( (short)map.WidthX );
+            Write( (short)map.Height );
+            Write( (short)map.WidthY );
         }
 
         public void WriteAddEntity( byte id, Player player, Position pos ) {

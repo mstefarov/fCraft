@@ -12,7 +12,7 @@ namespace fCraft {
     /// Static class responsible for sending heartbeats.
     /// </summary>
     public static class Heartbeat {
-        const int HeartbeatDelay = 20000,
+        const int HeartbeatDelay = 25000,
                   HeartbeatTimeout = 10000;
         public static string PrimaryUrl { get; set; }
 
