@@ -700,8 +700,10 @@ namespace fCraft {
 
                 if( descriptor.HelpHandler != null ) {
                     sb.Append( descriptor.HelpHandler( player ) );
-                } else {
+                } else if( descriptor.Help != null ) {
                     sb.Append( descriptor.Help );
+                } else {
+                    sb.Append( "No help is available for this command." );
                 }
 
                 player.MessagePrefixed( HelpPrefix, sb.ToString() );
