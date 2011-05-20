@@ -1058,12 +1058,7 @@ namespace fCraft {
 
         public static void UpdatePlayerList() {
             lock( PlayerListLock ) {
-                Player[] newPlayerList = new Player[Players.Count];
-                int i = 0;
-                foreach( Player player in Players.Values ) {
-                    newPlayerList[i++] = player;
-                }
-                PlayerList = newPlayerList.OrderBy( player => player.Name ).ToArray();
+                PlayerList = Players.Values.OrderBy( player => player.Name ).ToArray();
             }
         }
 
