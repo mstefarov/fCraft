@@ -86,7 +86,7 @@ namespace fCraft {
                 // try to log the player in, otherwise die.
                 if( !LoginSequence() ) return;
 
-                SetBandwidthUseMode( Player.Info.BandwidthUseMode );
+                BandwidthUseMode = Player.Info.BandwidthUseMode;
 
                 // set up some temp variables
                 Packet packet = new Packet();
@@ -157,7 +157,7 @@ namespace fCraft {
                                     writer.Write( packet.Data );
                                     bytesSent += packet.Data.Length;
                                     packetsSent++;
-                                    if( packet.Data[0] == (byte)OpCode.Kick ) {
+                                    if( packet.OpCode == OpCode.Kick ) {
                                         writer.Flush();
                                         Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug,
                                                     Player.Name );
@@ -215,7 +215,7 @@ namespace fCraft {
 
                             // Player movement
                             case OpCode.Teleport:
-                                bytesReceived += 7;
+                                bytesReceived += 10;
                                 reader.ReadByte();
                                 Position newPos = new Position {
                                     X = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
@@ -343,11 +343,11 @@ namespace fCraft {
 
             } catch( IOException ex ) {
                 LeaveReason = LeaveReason.ClientQuit;
-                Logger.Log( "Session.IoLoop: {0}", LogType.Debug, ex.Message );
+                //Logger.Log( "Session.IoLoop: {0}", LogType.Debug, ex.Message );
 
             } catch( SocketException ex ) {
                 LeaveReason = LeaveReason.ClientQuit;
-                Logger.Log( "Session.IoLoop: {0}", LogType.Debug, ex.Message );
+                //Logger.Log( "Session.IoLoop: {0}", LogType.Debug, ex.Message );
 #if !DEBUG
             } catch( Exception ex ) {
                 LeaveReason = LeaveReason.ServerError;
@@ -973,56 +973,62 @@ namespace fCraft {
         TimeSpan movementUpdateInterval;
 
 
-        internal void SetBandwidthUseMode( BandwidthUseMode newBandwidthUseMode ) {
-            if( newBandwidthUseMode == BandwidthUseMode.Default ) {
-                newBandwidthUseMode = ConfigKey.BandwidthUseMode.GetEnum<BandwidthUseMode>();
+        public BandwidthUseMode BandwidthUseMode {
+            get {
+                return bandwidthUseMode;
             }
-            bandwidthUseMode = newBandwidthUseMode;
-            switch( bandwidthUseMode ) {
-                case BandwidthUseMode.VeryLow:
-                    entityShowingThreshold = (40 * 32) * (40 * 32);
-                    entityHidingThreshold = (42 * 32) * (42 * 32);
-                    partialUpdates = true;
-                    skipUpdates = true;
-                    sleepDelay = 15;
-                    movementUpdateInterval = TimeSpan.FromMilliseconds( 100 );
-                    break;
 
-                case BandwidthUseMode.Low:
-                    entityShowingThreshold = (50 * 32) * (50 * 32);
-                    entityHidingThreshold = (52 * 32) * (52 * 32);
-                    partialUpdates = true;
-                    skipUpdates = true;
-                    sleepDelay = 10;
-                    movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
-                    break;
+            set {
+                if( value == BandwidthUseMode.Default ) {
+                    value = ConfigKey.BandwidthUseMode.GetEnum<BandwidthUseMode>();
+                }
+                bandwidthUseMode = value;
+                switch( bandwidthUseMode ) {
+                    case BandwidthUseMode.VeryLow:
+                        entityShowingThreshold = (40 * 32) * (40 * 32);
+                        entityHidingThreshold = (42 * 32) * (42 * 32);
+                        partialUpdates = true;
+                        skipUpdates = true;
+                        sleepDelay = 15;
+                        movementUpdateInterval = TimeSpan.FromMilliseconds( 100 );
+                        break;
 
-                case BandwidthUseMode.Normal:
-                    entityShowingThreshold = (68 * 32) * (68 * 32);
-                    entityHidingThreshold = (70 * 32) * (70 * 32);
-                    partialUpdates = true;
-                    skipUpdates = false;
-                    sleepDelay = 10;
-                    movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
-                    break;
+                    case BandwidthUseMode.Low:
+                        entityShowingThreshold = (50 * 32) * (50 * 32);
+                        entityHidingThreshold = (52 * 32) * (52 * 32);
+                        partialUpdates = true;
+                        skipUpdates = true;
+                        sleepDelay = 10;
+                        movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
+                        break;
 
-                case BandwidthUseMode.High:
-                    entityShowingThreshold = (128 * 32) * (128 * 32);
-                    entityHidingThreshold = (130 * 32) * (130 * 32);
-                    partialUpdates = true;
-                    skipUpdates = false;
-                    sleepDelay = 5;
-                    movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
-                    break;
+                    case BandwidthUseMode.Normal:
+                        entityShowingThreshold = (68 * 32) * (68 * 32);
+                        entityHidingThreshold = (70 * 32) * (70 * 32);
+                        partialUpdates = true;
+                        skipUpdates = false;
+                        sleepDelay = 10;
+                        movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
+                        break;
 
-                case BandwidthUseMode.VeryHigh:
-                    entityShowingThreshold = int.MaxValue;
-                    entityHidingThreshold = int.MaxValue;
-                    partialUpdates = false;
-                    skipUpdates = false;
-                    sleepDelay = 5;
-                    movementUpdateInterval = TimeSpan.FromMilliseconds( 25 );
-                    break;
+                    case BandwidthUseMode.High:
+                        entityShowingThreshold = (128 * 32) * (128 * 32);
+                        entityHidingThreshold = (130 * 32) * (130 * 32);
+                        partialUpdates = true;
+                        skipUpdates = false;
+                        sleepDelay = 5;
+                        movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
+                        break;
+
+                    case BandwidthUseMode.VeryHigh:
+                        entityShowingThreshold = int.MaxValue;
+                        entityHidingThreshold = int.MaxValue;
+                        partialUpdates = false;
+                        skipUpdates = false;
+                        sleepDelay = 5;
+                        movementUpdateInterval = TimeSpan.FromMilliseconds( 25 );
+                        break;
+                }
             }
         }
 
