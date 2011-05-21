@@ -402,7 +402,7 @@ namespace ConfigTool {
             if( cDefaultRank.SelectedIndex == 0 ) {
                 Config.TrySetValue( ConfigKey.DefaultRank, "" );
             } else {
-                Config.TrySetValue( ConfigKey.DefaultRank, RankManager.FindRank( cDefaultRank.SelectedIndex - 1 ) );
+                Config.TrySetValue( ConfigKey.DefaultRank, RankManager.FindRank( cDefaultRank.SelectedIndex - 1 ).GetFullName() );
             }
             Config.TrySetValue( ConfigKey.IsPublic, cPublic.SelectedIndex == 0 );
             Config.TrySetValue( ConfigKey.Port, nPort.Value );
@@ -443,7 +443,7 @@ namespace ConfigTool {
             if( cDefaultBuildRank.SelectedIndex == 0 ) {
                 Config.TrySetValue( ConfigKey.DefaultBuildRank, "" );
             } else {
-                Config.TrySetValue( ConfigKey.DefaultBuildRank, RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 ) );
+                Config.TrySetValue( ConfigKey.DefaultBuildRank, RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 ).GetFullName() );
             }
 
             if( xMapPath.Checked ) Config.TrySetValue( ConfigKey.MapPath, tMapPath.Text );
@@ -477,7 +477,7 @@ namespace ConfigTool {
             if( cPatrolledRank.SelectedIndex == 0 ) {
                 Config.TrySetValue( ConfigKey.PatrolledRank, "" );
             } else {
-                Config.TrySetValue( ConfigKey.PatrolledRank, RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 ) );
+                Config.TrySetValue( ConfigKey.PatrolledRank, RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 ).GetFullName() );
             }
             Config.TrySetValue( ConfigKey.PaidPlayersOnly, xPaidPlayersOnly.Checked );
 

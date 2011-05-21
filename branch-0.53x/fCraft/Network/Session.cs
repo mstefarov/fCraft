@@ -764,7 +764,7 @@ namespace fCraft {
 
             // try to join the new world
             if( oldWorld != newWorld ) {
-                bool announce = (firstTime || (oldWorld.Name != newWorld.Name));
+                bool announce = !firstTime && (oldWorld.Name != newWorld.Name);
                 map = newWorld.AcceptPlayer( Player, announce );
                 if( map == null ) {
                     return false;
