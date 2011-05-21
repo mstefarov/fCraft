@@ -337,6 +337,7 @@ Affected commands:
             vPermissions.Items[(int)Permission.EditPlayerDB].ToolTipText =
 @"Ability to edit the player database directly. This also adds the ability to
 promote/demote/ban players by name, even if they have not visited the server yet.
+Also allows to manipulate players' records, and to promote/demote players in batches.
 Affected commands:
     /autorankall
     /autorankreload
@@ -454,7 +455,7 @@ Affected commands:
     /reloadconfig";
 
             vPermissions.Items[(int)Permission.Say].ToolTipText =
-@"Ability to use /say command to show announcements.
+@"Ability to use /say command.
 Required permission: Chat
 Affected commands:
     /say";
@@ -465,8 +466,8 @@ Affected commands:
     /setspawn";
 
             vPermissions.Items[(int)Permission.ShutdownServer].ToolTipText =
-@"Ability to initiate a graceful shutdown remotely.
-Useful for servers that are run on dedicated machines.
+@"Ability to shut down or restart the server remotely.
+Useful for servers that run on dedicated machines.
 Affected commands:
     /shutdown
     /restart";
@@ -477,11 +478,11 @@ Affected commands:
     /tp";
 
             vPermissions.Items[(int)Permission.UseColorCodes].ToolTipText =
-@"Ability to use color codes in messages.";
+@"Ability to use color codes in chat messages.";
 
             vPermissions.Items[(int)Permission.UseSpeedHack].ToolTipText =
 @"Ability to move at a faster-than-normal rate (using hacks).
-WARNING: Speedhack detection is experimental, and may produce many
+WARNING: Speedhack detection is often inaccurate, and may produce many
 false positives - especially on laggy servers.";
 
             vPermissions.Items[(int)Permission.ViewOthersInfo].ToolTipText =
