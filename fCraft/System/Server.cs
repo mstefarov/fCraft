@@ -272,7 +272,9 @@ namespace fCraft {
             if( !serverInitialized ) {
                 throw new Exception( "Server.InitServer() must be called before Server.StartServer()" );
             }
+
             ServerStart = DateTime.UtcNow;
+            CPUUsageStartingOffset = Process.GetCurrentProcess().TotalProcessorTime;
 
             RaiseEvent( Starting );
 
@@ -823,6 +825,7 @@ namespace fCraft {
         // measures CPU usage
 
         public static bool IsMonitoringCPUUsage { get; private set; }
+        static TimeSpan CPUUsageStartingOffset;
         public static double CPUUsageTotal { get; private set; }
         public static double CPUUsageLastMinute { get; private set; }
 
@@ -831,7 +834,7 @@ namespace fCraft {
         static DateTime lastMonitorTime = DateTime.UtcNow;
 
         static void MonitorProcessorUsage( SchedulerTask task ) {
-            TimeSpan newCPUTime = Process.GetCurrentProcess().TotalProcessorTime;
+            TimeSpan newCPUTime = Process.GetCurrentProcess().TotalProcessorTime - CPUUsageStartingOffset;
             CPUUsageLastMinute = (newCPUTime - oldCPUTime).TotalSeconds /
                                  (Environment.ProcessorCount * DateTime.UtcNow.Subtract( lastMonitorTime ).TotalSeconds);
             lastMonitorTime = DateTime.UtcNow;

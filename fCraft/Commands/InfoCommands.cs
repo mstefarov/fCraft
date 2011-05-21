@@ -478,7 +478,7 @@ namespace fCraft {
                             (Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024)) );
 
             if( Server.IsMonitoringCPUUsage ) {
-                player.Message( "   Averaging {0:0.0}% CPU in last minute, {1:0.0}% CPU overall.",
+                player.Message( "   Averaging {0:0.0}% CPU in last minute, {1:0.0}% CPU overall",
                                 Server.CPUUsageLastMinute * 100,
                                 Server.CPUUsageTotal * 100 );
             }
@@ -493,23 +493,24 @@ namespace fCraft {
                                 Environment.Version );
             }
 
-            player.Message( "   There are {0} players in the database.",
-                            PlayerDB.CountTotalPlayers() );
-            player.Message( "   Of those, {0} are banned, and {1} are IP-banned.",
-                            PlayerDB.CountBannedPlayers(),
-                            IPBanList.Count );
-
-            player.Message( "   {0} worlds available ({1} loaded), {2} players online.",
-                            WorldManager.WorldList.Length,
-                            WorldManager.CountLoadedWorlds(),
-                            Server.CountVisiblePlayers( player ) );
-
             double bytesReceivedRate = Server.PlayerList.Aggregate( (double)0,
                                                                     ( i, p ) => i + p.Session.BytesReceivedRate );
             double bytesSentRate = Server.PlayerList.Aggregate( (double)0,
                                                                 ( i, p ) => i + p.Session.BytesSentRate );
             player.Message( "   Upstream {0:0.0} KB/s, downstream {1:0.0} KB/s",
                             bytesSentRate / 1000, bytesReceivedRate / 1000 );
+
+
+            player.Message( "   Database contains {0} players ({1} online, {2} banned, {3} IP-banned)",
+                            PlayerDB.CountTotalPlayers(),
+                            Server.CountVisiblePlayers( player ),
+                            PlayerDB.CountBannedPlayers(),
+                            IPBanList.Count );
+
+            player.Message( "   There are {0} worlds available ({1} loaded)",
+                            WorldManager.WorldList.Length,
+                            WorldManager.CountLoadedWorlds(),
+                            Server.CountVisiblePlayers( player ) );
         }
 
         #endregion

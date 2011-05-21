@@ -1,11 +1,14 @@
 0.531
+ Feature: /sinfo now shows bandwidth use, fCraft version, and .NET/Mono version.
  Feature: Added ability to use coordinates with mark (e.g. "/mark 0 0 0").
  Fix: Fixed non-default rank settings not saving properly from ConfigTool.
- Fix: Fixed a few minor bugs in /wmain.
  Fix: Fixed a serialization bug in IPBanList that happened if a ban reason was not given, or if an IP address was not associated with any player.
+ Fix: Fixed a few minor bugs in /wmain.
  Change: Allowed the caret (^) in chat messages.
- Change: Added fCraft & framework versions to /sinfo, merged /version with /sinfo.
  Change: Reduced movement lag.
+ Change: /version command has been removed due to redundancy with /sinfo.
+ Change: Detailed reasons of player disconnects are now logged better.
+ Change: Increased Minecraft.net heartbeat interval slightly.
  API: Added new events: Scheduler.TaskAdded, Scheduler.TaskExecuting, Scheduler.TaskExecuted, and Scheduler.TaskRemoved. These events are only available when fCraft.dll is built with DEBUG_SCHEDULER flag because of their performance impact.
  Optimization: Removed the scheduler overhead from having unloaded worlds.
  Optimization: Sped up MapGenerator by about 10%.

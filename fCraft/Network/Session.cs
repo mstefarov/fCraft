@@ -341,13 +341,11 @@ namespace fCraft {
                     Thread.Sleep( sleepDelay );
                 }
 
-            } catch( IOException ex ) {
+            } catch( IOException ) {
                 LeaveReason = LeaveReason.ClientQuit;
-                //Logger.Log( "Session.IoLoop: {0}", LogType.Debug, ex.Message );
 
-            } catch( SocketException ex ) {
+            } catch( SocketException ) {
                 LeaveReason = LeaveReason.ClientQuit;
-                //Logger.Log( "Session.IoLoop: {0}", LogType.Debug, ex.Message );
 #if !DEBUG
             } catch( Exception ex ) {
                 LeaveReason = LeaveReason.ServerError;
