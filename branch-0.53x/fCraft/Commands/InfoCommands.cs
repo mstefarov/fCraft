@@ -503,6 +503,13 @@ namespace fCraft {
                             WorldManager.WorldList.Length,
                             WorldManager.CountLoadedWorlds(),
                             Server.CountVisiblePlayers( player ) );
+
+            double bytesReceivedRate = Server.PlayerList.Aggregate( (double)0,
+                                                                    ( i, p ) => i + p.Session.BytesReceivedRate );
+            double bytesSentRate = Server.PlayerList.Aggregate( (double)0,
+                                                                ( i, p ) => i + p.Session.BytesSentRate );
+            player.Message( "   Upstream {0:0.0} KB/s, downstream {1:0.0} KB/s",
+                            bytesSentRate / 1000, bytesReceivedRate / 1000 );
         }
 
         #endregion
