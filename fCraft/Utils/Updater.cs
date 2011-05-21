@@ -18,17 +18,17 @@ namespace fCraft {
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            531,
-            603,
-            new DateTime( 2011, 5, 21, 1, 0, 0, DateTimeKind.Utc ),
+            532,
+            604,
+            new DateTime( 2011, 5, 21, 1, 40, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Bugfix | ReleaseFlags.Feature | ReleaseFlags.APIChange | ReleaseFlags.Optimized
+            ReleaseFlags.Dev
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
         );
 
-        public const string LatestStable = "0.531_r503";
+        public const string LatestStable = "0.531_r603";
 
         public static string UpdateUrl { get; set; }
 
