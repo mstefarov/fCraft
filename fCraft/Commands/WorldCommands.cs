@@ -213,7 +213,7 @@ namespace fCraft {
                 return;
             }
             if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
-                player.MessageUnsafePath();
+                player.UnsafePathMessage();
                 return;
             }
 
@@ -831,7 +831,7 @@ namespace fCraft {
             Category = CommandCategory.World | CommandCategory.Info,
             IsConsoleSafe = true,
             Aliases = new[] { "maps", "levels" },
-            Usage = "/worlds [all|hidden]",
+            Usage = "/worlds [all|hidden|loaded]",
             Help = "Shows a list of worlds available for you to join. " +
                    "If the optional \"all\" is added, also shows unavailable (restricted) worlds. " +
                    "If \"hidden\" is added, shows only hidden and inaccessible worlds.",
@@ -841,17 +841,21 @@ namespace fCraft {
         internal static void Worlds( Player player, Command cmd ) {
             string param = cmd.Next();
             bool listVisible = true,
-                 listHidden = false;
+                 listHidden = false,
+                 listAllLoaded = false;
             if( !String.IsNullOrEmpty( param ) ) {
-                switch( param[0] ) {
-                    case 'A':
+                switch( Char.ToLower( param[0] ) ) {
                     case 'a':
                         listHidden = true;
                         break;
-                    case 'H':
                     case 'h':
                         listVisible = false;
                         listHidden = true;
+                        break;
+                    case 'l':
+                        listAllLoaded = true;
+                        listVisible = false;
+                        listHidden = false;
                         break;
                     default:
                         cdWorlds.PrintUsage( player );
@@ -866,7 +870,7 @@ namespace fCraft {
             World[] worldListCache = WorldManager.WorldList;
             foreach( World world in worldListCache ) {
                 bool visible = player.CanJoin( world ) && !world.IsHidden;
-                if( (visible && listVisible) || (!visible && listHidden) ) {
+                if( (world.IsLoaded && listAllLoaded) || (visible && listVisible) || (!visible && listHidden) ) {
                     if( !first ) {
                         sb.Append( ", " );
                     }
@@ -876,7 +880,9 @@ namespace fCraft {
                 }
             }
 
-            if( listVisible && !listHidden ) {
+            if( listAllLoaded ) {
+                player.MessagePrefixed( "&S   ", "There are " + count + " loaded worlds: " + sb );
+            } else if( listVisible && !listHidden ) {
                 player.MessagePrefixed( "&S   ", "There are " + count + " available worlds: " + sb );
             } else if( !listVisible ) {
                 player.MessagePrefixed( "&S   ", "There are " + count + " hidden worlds: " + sb );
@@ -966,7 +972,7 @@ namespace fCraft {
 
             // Make sure that the given file is within the map directory
             if( !Paths.Contains( Paths.MapPath, sourceFullFileName ) ) {
-                player.MessageUnsafePath();
+                player.UnsafePathMessage();
                 return;
             }
 
@@ -1346,7 +1352,7 @@ namespace fCraft {
                     return;
                 }
                 if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
-                    player.MessageUnsafePath();
+                    player.UnsafePathMessage();
                     return;
                 }
                 string dirName = fullFileName.Substring( 0, fullFileName.LastIndexOf( Path.DirectorySeparatorChar ) );

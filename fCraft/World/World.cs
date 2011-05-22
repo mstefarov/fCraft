@@ -53,6 +53,11 @@ namespace fCraft {
 
         #region Map
 
+        public bool IsLoaded {
+            get { return Map != null; }
+        }
+
+
         public Map EnsureMapLoaded() {
             Map map = Map;
             if( map != null ) {
@@ -354,7 +359,6 @@ namespace fCraft {
                 return (PlayerList.Length >= ConfigKey.MaxPlayersPerWorld.GetInt());
             }
         }
-
 
         #endregion
 

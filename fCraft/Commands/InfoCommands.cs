@@ -44,6 +44,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdColors = new CommandDescriptor {
             Name = "colors",
+            Aliases = new[] { "colours" },
             Category = CommandCategory.Info | CommandCategory.Chat,
             IsConsoleSafe = true,
             Help = "Shows a list of all available color codes.",

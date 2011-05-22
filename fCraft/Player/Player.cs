@@ -422,7 +422,8 @@ namespace fCraft {
             Message( "Unrecognized rank \"{0}\"", rankName );
         }
 
-        public void MessageUnsafePath() {
+
+        public void UnsafePathMessage() {
             Message( "You cannot access files outside the map folder." );
         }
 
