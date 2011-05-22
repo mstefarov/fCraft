@@ -87,7 +87,7 @@ namespace fCraft {
             }
 
             if( !Paths.Contains( Paths.WorkingPath, fileName ) ) {
-                player.MessageUnsafePath();
+                player.UnsafePathMessage();
                 return;
             }
 
