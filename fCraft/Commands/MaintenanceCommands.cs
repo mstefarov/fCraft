@@ -60,7 +60,7 @@ namespace fCraft {
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
             IsHidden = true,
-            Permissions = new[] { Permission.Import },
+            Permissions = new[] { Permission.EditPlayerDB },
             Help = "Writes out a number of statistics about the server. " +
                    "Only non-banned players active in the last 30 days are counted.",
             Usage = "/dumpstats FileName",
@@ -76,18 +76,13 @@ namespace fCraft {
                 return;
             }
 
-            if( !Paths.TestFile( "dumpstats file", fileName, false, true, false ) ) {
-                cdDumpStats.PrintUsage( player );
-                return;
-            }
-
-            if( Paths.IsProtectedFileName( fileName ) ) {
-                player.Message( "You may not use this file." );
-                return;
-            }
-
             if( !Paths.Contains( Paths.WorkingPath, fileName ) ) {
                 player.UnsafePathMessage();
+                return;
+            }
+
+            if( Paths.IsProtectedFileName( Path.GetFileName( fileName ) ) ) {
+                player.Message( "You may not use this file." );
                 return;
             }
 
@@ -97,13 +92,13 @@ namespace fCraft {
                 return;
             }
 
-            if( !Paths.TestFile( "dumpstats file", fileName, false, true, false ) ) {
-                player.Message( "Cannot create specified file. See log for details." );
+            if( File.Exists( fileName ) && !cmd.Confirmed ) {
+                player.AskForConfirmation( cmd, "File \"{0}\" already exists. Overwrite?", Path.GetFileName( fileName ) );
                 return;
             }
 
-            if( File.Exists( fileName ) && !cmd.Confirmed ) {
-                player.AskForConfirmation( cmd, "File \"{0}\" already exists. Overwrite?", Path.GetFileName( fileName ) );
+            if( !Paths.TestFile( "dumpstats file", fileName, false, true, false ) ) {
+                player.Message( "Cannot create specified file. See log for details." );
                 return;
             }
 
@@ -140,8 +135,7 @@ namespace fCraft {
                 stat.PreviousRank.Add( rank2, 0 );
             }
 
-            infos = infos.Where( info => (info.TimeSinceLastLogin.TotalDays < 30) ).ToArray();
-            infos = infos.Where( info => (!info.Banned) ).ToArray();
+            infos = infos.Where( info => (info.TimeSinceLastLogin.TotalDays < 30 && !info.Banned) ).ToArray();
 
             if( infos.Length == 0 ) {
                 writer.WriteLine( "{0}: 0 players, 0 banned", groupName );
