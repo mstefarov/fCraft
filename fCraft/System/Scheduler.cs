@@ -406,6 +406,7 @@ namespace fCraft {
 
         public SchedulerTask Stop() {
             IsStopped = true;
+            Scheduler.UpdateCache();
             return this;
         }
 

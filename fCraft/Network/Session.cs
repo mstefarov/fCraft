@@ -79,6 +79,8 @@ namespace fCraft {
         }
 
 
+        #region I/O Loop
+
         void IoLoop() {
             try {
                 Server.RaiseSessionConnectedEvent( this );
@@ -185,139 +187,16 @@ namespace fCraft {
                         byte opcode = reader.ReadByte();
                         switch( (OpCode)opcode ) {
 
-                            // Message
                             case OpCode.Message:
-                                bytesReceived += 66;
-                                Player.ResetIdleTimer();
-                                reader.ReadByte();
-                                string message = ReadString();
-                                if( Player.ContainsIllegalChars( message ) ) {
-                                    Logger.Log( "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.", LogType.SuspiciousActivity,
-                                                Player.Name );
-                                    Server.SendToAll( "{0}&W was kicked for attempted hacking (0x0d).", Player.GetClassyName() );
-                                    KickNow( "Illegal characters in chat.", LeaveReason.InvalidMessageKick );
-                                    return;
-                                } else {
-                                    try {
-                                        Player.ParseMessage( message, false );
-                                    } catch( IOException ) {
-                                        throw;
-                                    } catch( SocketException ) {
-                                        throw;
-                                    } catch( Exception ex ) {
-                                        Logger.LogAndReportCrash( "Error while parsing player's message", "fCraft", ex, false );
-                                        Player.MessageNow( "&WAn error occured while trying to process your message. " +
-                                                           "Error details have been logged. " +
-                                                           "It is recommended that you reconnect to the server." );
-                                    }
-                                }
+                                if( !ProcessMessagePacket() ) return;
                                 break;
 
-                            // Player movement
                             case OpCode.Teleport:
-                                bytesReceived += 10;
-                                reader.ReadByte();
-                                Position newPos = new Position {
-                                    X = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
-                                    H = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
-                                    Y = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
-                                    R = reader.ReadByte(),
-                                    L = reader.ReadByte()
-                                };
-
-                                Position oldPos = Player.Position;
-
-                                // calculate difference between old and new positions
-                                Position delta = new Position {
-                                    X = (short)(newPos.X - oldPos.X),
-                                    Y = (short)(newPos.Y - oldPos.Y),
-                                    H = (short)(newPos.H - oldPos.H),
-                                    R = (byte)Math.Abs( newPos.R - oldPos.R ),
-                                    L = (byte)Math.Abs( newPos.L - oldPos.L )
-                                };
-
-                                // skip everything if player hasn't moved
-                                if( delta.IsZero() ) continue;
-
-                                bool rotChanged = (delta.R != 0) || (delta.L != 0);
-
-                                // only reset the timer if player rotated
-                                // if player is just pushed around, rotation does not change (and timer should not reset)
-                                if( rotChanged ) Player.ResetIdleTimer();
-
-                                if( Player.Info.IsFrozen ) {
-                                    // special handling for frozen players
-                                    if( delta.X * delta.X + delta.Y * delta.Y > AntiSpeedMaxDistanceSquared ||
-                                        Math.Abs( delta.H ) > 40 ) {
-                                        SendNow( PacketWriter.MakeSelfTeleport( Player.Position ) );
-                                    }
-                                    newPos.X = Player.Position.X;
-                                    newPos.Y = Player.Position.Y;
-                                    newPos.H = Player.Position.H;
-
-                                    // recalculate deltas
-                                    delta.X = 0;
-                                    delta.Y = 0;
-                                    delta.H = 0;
-
-                                } else if( !Player.Can( Permission.UseSpeedHack ) ) {
-                                    int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.H * delta.H;
-                                    // speedhack detection
-                                    if( DetectMovementPacketSpam() ) {
-                                        continue;
-
-                                    } else if( (distSquared - delta.H * delta.H > AntiSpeedMaxDistanceSquared || delta.H > AntiSpeedMaxJumpDelta) &&
-                                               speedHackDetectionCounter >= 0 ) {
-
-                                        if( speedHackDetectionCounter == 0 ) {
-                                            Player.LastValidPosition = Player.Position;
-                                        } else if( speedHackDetectionCounter > 1 ) {
-                                            DenyMovement();
-                                            speedHackDetectionCounter = 0;
-                                            continue;
-                                        }
-                                        speedHackDetectionCounter++;
-
-                                    } else {
-                                        speedHackDetectionCounter = 0;
-                                    }
-                                }
-
-                                if( Server.RaisePlayerMovingEvent( Player, newPos ) ) {
-                                    DenyMovement();
-                                    continue;
-                                }
-
-                                Player.Position = newPos;
-                                Server.RaisePlayerMovedEvent( Player, oldPos );
+                                ProcessMovementPacket();
                                 break;
 
-                            // Set tile
                             case OpCode.SetBlockClient:
-                                bytesReceived += 9;
-                                if( Player.World == null || Player.World.Map == null ) continue;
-                                Player.ResetIdleTimer();
-                                short x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
-                                short h = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
-                                short y = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
-                                bool mode = (reader.ReadByte() == 1);
-                                byte type = reader.ReadByte();
-
-                                if( type > 49 ) {
-                                    type = MapDat.MapBlock( type );
-                                }
-
-                                if( !Player.World.Map.InBounds( x, y, h ) ) {
-                                    continue;
-                                } else {
-                                    var e = new PlayerClickingEventArgs( Player, x, y, h, mode, (Block)type );
-                                    if( Server.RaisePlayerClickingEvent( e ) ) {
-                                        Player.RevertBlockNow( x, y, h );
-                                        continue;
-                                    }
-                                    Server.RaisePlayerClickedEvent( Player, x, y, h, e.Mode, e.Block );
-                                    Player.PlaceBlock( x, y, h, e.Mode, e.Block );
-                                }
+                                ProcessSetBlockPacket();
                                 break;
 
                             case OpCode.Ping:
@@ -357,6 +236,142 @@ namespace fCraft {
                 Disconnect();
             }
         }
+
+
+        bool ProcessMessagePacket() {
+            bytesReceived += 66;
+            Player.ResetIdleTimer();
+            reader.ReadByte();
+            string message = ReadString();
+            if( Player.ContainsIllegalChars( message ) ) {
+                Logger.Log( "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.", LogType.SuspiciousActivity,
+                            Player.Name );
+                Server.SendToAll( "{0}&W was kicked for attempted hacking (0x0d).", Player.GetClassyName() );
+                KickNow( "Illegal characters in chat.", LeaveReason.InvalidMessageKick );
+                return false;
+            } else {
+                try {
+                    Player.ParseMessage( message, false );
+                } catch( IOException ) {
+                    throw;
+                } catch( SocketException ) {
+                    throw;
+                } catch( Exception ex ) {
+                    Logger.LogAndReportCrash( "Error while parsing player's message", "fCraft", ex, false );
+                    Player.MessageNow( "&WAn error occured while trying to process your message. " +
+                                       "Error details have been logged. " +
+                                       "It is recommended that you reconnect to the server." );
+                }
+            }
+            return true;
+        }
+
+
+        void ProcessMovementPacket() {
+            bytesReceived += 10;
+            reader.ReadByte();
+            Position newPos = new Position {
+                X = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
+                H = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
+                Y = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
+                R = reader.ReadByte(),
+                L = reader.ReadByte()
+            };
+
+            Position oldPos = Player.Position;
+
+            // calculate difference between old and new positions
+            Position delta = new Position {
+                X = (short)(newPos.X - oldPos.X),
+                Y = (short)(newPos.Y - oldPos.Y),
+                H = (short)(newPos.H - oldPos.H),
+                R = (byte)Math.Abs( newPos.R - oldPos.R ),
+                L = (byte)Math.Abs( newPos.L - oldPos.L )
+            };
+
+            // skip everything if player hasn't moved
+            if( delta.IsZero() ) return;
+
+            bool rotChanged = (delta.R != 0) || (delta.L != 0);
+
+            // only reset the timer if player rotated
+            // if player is just pushed around, rotation does not change (and timer should not reset)
+            if( rotChanged ) Player.ResetIdleTimer();
+
+            if( Player.Info.IsFrozen ) {
+                // special handling for frozen players
+                if( delta.X * delta.X + delta.Y * delta.Y > AntiSpeedMaxDistanceSquared ||
+                    Math.Abs( delta.H ) > 40 ) {
+                    SendNow( PacketWriter.MakeSelfTeleport( Player.Position ) );
+                }
+                newPos.X = Player.Position.X;
+                newPos.Y = Player.Position.Y;
+                newPos.H = Player.Position.H;
+
+                // recalculate deltas
+                delta.X = 0;
+                delta.Y = 0;
+                delta.H = 0;
+
+            } else if( !Player.Can( Permission.UseSpeedHack ) ) {
+                int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.H * delta.H;
+                // speedhack detection
+                if( DetectMovementPacketSpam() ) {
+                    return;
+
+                } else if( (distSquared - delta.H * delta.H > AntiSpeedMaxDistanceSquared || delta.H > AntiSpeedMaxJumpDelta) &&
+                           speedHackDetectionCounter >= 0 ) {
+
+                    if( speedHackDetectionCounter == 0 ) {
+                        Player.LastValidPosition = Player.Position;
+                    } else if( speedHackDetectionCounter > 1 ) {
+                        DenyMovement();
+                        speedHackDetectionCounter = 0;
+                        return;
+                    }
+                    speedHackDetectionCounter++;
+
+                } else {
+                    speedHackDetectionCounter = 0;
+                }
+            }
+
+            if( Server.RaisePlayerMovingEvent( Player, newPos ) ) {
+                DenyMovement();
+                return;
+            }
+
+            Player.Position = newPos;
+            Server.RaisePlayerMovedEvent( Player, oldPos );
+        }
+
+
+        void ProcessSetBlockPacket() {
+            bytesReceived += 9;
+            if( Player.World == null || Player.World.Map == null ) return;
+            Player.ResetIdleTimer();
+            short x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
+            short h = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
+            short y = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
+            bool mode = (reader.ReadByte() == 1);
+            byte type = reader.ReadByte();
+
+            if( type > 49 ) {
+                type = MapDat.MapBlock( type );
+            }
+
+            if( Player.World.Map.InBounds( x, y, h ) ) {
+                var e = new PlayerClickingEventArgs( Player, x, y, h, mode, (Block)type );
+                if( Server.RaisePlayerClickingEvent( e ) ) {
+                    Player.RevertBlockNow( x, y, h );
+                } else {
+                    Server.RaisePlayerClickedEvent( Player, x, y, h, e.Mode, e.Block );
+                    Player.PlaceBlock( x, y, h, e.Mode, e.Block );
+                }
+            }
+        }
+
+        #endregion
 
 
         public void Disconnect() {
@@ -1033,7 +1048,7 @@ namespace fCraft {
         #endregion
 
 
-        #region Movement
+        #region Movement Updates
 
         // visible entities
         readonly Dictionary<Player, VisibleEntity> entities = new Dictionary<Player, VisibleEntity>();
