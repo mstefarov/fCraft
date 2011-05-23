@@ -408,10 +408,18 @@ namespace fCraft {
                 }
 
                 newWorld.Name = oldWorld.Name;
+
+                // change the main world, if needed
                 if( oldWorld == MainWorld ) {
                     MainWorld = newWorld;
                 }
-                // swap worlds
+
+                // if the old world is loaded, preload the new world as well
+                if( oldWorld.Map != null ) {
+                    newWorld.LoadMap();
+                    oldWorld.Map = null;
+                }
+
                 Worlds[oldWorld.Name.ToLower()] = newWorld;
                 oldWorld.UnloadMap( false );
 

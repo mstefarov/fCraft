@@ -130,7 +130,6 @@ namespace fCraft {
         public void ChangeMap( Map newMap ) {
             if( newMap == null ) throw new ArgumentNullException( "newMap" );
             lock( WorldLock ) {
-                Map = null;
                 World newWorld = new World( Name, NeverUnload ) {
                     Map = newMap,
                     AccessSecurity = (SecurityController)AccessSecurity.Clone(),
@@ -138,6 +137,7 @@ namespace fCraft {
                 };
                 newMap.World = newWorld;
                 WorldManager.ReplaceWorld( this, newWorld );
+                Map = null;
                 foreach( Player player in PlayerList ) {
                     player.Session.JoinWorld( newWorld );
                 }
