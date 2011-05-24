@@ -390,7 +390,7 @@ namespace fCraft {
         }
 
 
-        public static void ReplaceWorld( World oldWorld, World newWorld ) {
+        internal static void ReplaceWorld( World oldWorld, World newWorld ) {
             if( oldWorld == null ) throw new ArgumentNullException( "oldWorld" );
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
 
@@ -407,21 +407,16 @@ namespace fCraft {
                     throw new InvalidOperationException( "New world already exists on the list." );
                 }
 
+                // cycle load/unload on the new world to save it under the new name
                 newWorld.Name = oldWorld.Name;
+                newWorld.UnloadMap( false );
+
+                Worlds[oldWorld.Name.ToLower()] = newWorld;
 
                 // change the main world, if needed
                 if( oldWorld == MainWorld ) {
                     MainWorld = newWorld;
                 }
-
-                // if the old world is loaded, preload the new world as well
-                if( oldWorld.Map != null ) {
-                    newWorld.LoadMap();
-                    oldWorld.Map = null;
-                }
-
-                Worlds[oldWorld.Name.ToLower()] = newWorld;
-                oldWorld.UnloadMap( false );
 
                 UpdateWorldList();
             }

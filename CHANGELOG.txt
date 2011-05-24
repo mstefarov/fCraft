@@ -1,3 +1,10 @@
+0.532
+ Feature: Added "/worlds loaded" command.
+ Fix: Fixed a bug that prevented worlds from accepting any block changes after a map change (/wload or /gen)
+ Fix: Fixed "Player _____ joined main." displaying twice when players connect.
+ Change: Added /colours as an alias to /colors
+ Change: Adjusted /dumpstats security checks, and made it require EditPlayerDB permission (instead of Import).
+
 0.531
  Feature: /sinfo now shows bandwidth use, fCraft version, and .NET/Mono version.
  Feature: Added ability to use coordinates with mark (e.g. "/mark 0 0 0").
