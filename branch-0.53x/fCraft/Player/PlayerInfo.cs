@@ -742,10 +742,14 @@ namespace fCraft {
 
 
         public static StringBuilder Escape( string str, StringBuilder sb ) {
-            if( !String.IsNullOrEmpty( str ) && str.IndexOf( ',' ) > -1 ) {
-                int startIndex = sb.Length;
-                sb.Append( str );
-                sb.Replace( ',', '\xFF', startIndex, str.Length );
+            if( !String.IsNullOrEmpty( str ) ) {
+                if( str.IndexOf( ',' ) > -1 ) {
+                    int startIndex = sb.Length;
+                    sb.Append( str );
+                    sb.Replace( ',', '\xFF', startIndex, str.Length );
+                } else {
+                    sb.Append( str );
+                }
             }
             return sb;
         }
