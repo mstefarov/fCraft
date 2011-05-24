@@ -19,16 +19,16 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             532,
-            605,
-            new DateTime( 2011, 5, 21, 1, 40, 0, DateTimeKind.Utc ),
+            610,
+            new DateTime( 2011, 5, 24, 4, 0, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Dev
+            ReleaseFlags.Bugfix
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
         );
 
-        public const string LatestStable = "0.531_r603";
+        public const string LatestStable = "0.533_r610";
 
         public static string UpdateUrl { get; set; }
 

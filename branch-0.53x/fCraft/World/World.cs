@@ -574,7 +574,7 @@ namespace fCraft {
         object taskLock = new object();
 
 
-        void StopTasks() {
+        internal void StopTasks() {
             lock( taskLock ) {
                 if( updateTask != null ) {
                     updateTask.Stop();

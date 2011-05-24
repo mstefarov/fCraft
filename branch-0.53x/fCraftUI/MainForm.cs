@@ -195,7 +195,11 @@ namespace fCraftUI {
         }
 
         private void bPlay_Click( object sender, EventArgs e ) {
-            Process.Start( urlDisplay.Text );
+            try {
+                Process.Start( urlDisplay.Text );
+            } catch( Exception ) {
+                MessageBox.Show( "Could not open server URL. Please copy/paste it manually." );
+            }
         }
     }
 }
