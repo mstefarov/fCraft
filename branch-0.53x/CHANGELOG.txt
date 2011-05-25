@@ -1,3 +1,8 @@
+0.533
+ Fix: Fixed a regression in 0.530 that erased some strings in PlayerInfo and IPBanInfo objects, such as ban reasons.
+ Change: Increased heartbeat interval to 27.5 seconds.
+ Change: Reduced jitter of player movement at the cost of a slight CPU use increase.
+
 0.532
  Feature: Added "/worlds loaded" command.
  Fix: Fixed a bug that prevented worlds from accepting any block changes after a map change (/wload or /gen)
