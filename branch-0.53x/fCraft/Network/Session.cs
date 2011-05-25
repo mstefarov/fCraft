@@ -149,6 +149,11 @@ namespace fCraft {
                             if( LeaveReason == LeaveReason.Unknown ) LeaveReason = LeaveReason.Kick;
                             return;
                         }
+
+                        if( DateTime.UtcNow.Subtract( lastMovementUpdate ) > movementUpdateInterval ) {
+                            UpdateVisibleEntities();
+                            lastMovementUpdate = DateTime.UtcNow;
+                        }
                     }
 
                     // check if player needs to change worlds
@@ -174,13 +179,13 @@ namespace fCraft {
                                 forcedWorldToJoin = null;
                             }
                         }
+
+                        if( DateTime.UtcNow.Subtract( lastMovementUpdate ) > movementUpdateInterval ) {
+                            UpdateVisibleEntities();
+                            lastMovementUpdate = DateTime.UtcNow;
+                        }
                     }
 
-
-                    if( DateTime.UtcNow.Subtract( lastMovementUpdate ) > movementUpdateInterval ) {
-                        UpdateVisibleEntities();
-                        lastMovementUpdate = DateTime.UtcNow;
-                    }
 
                     // get input from player
                     while( CanReceive && client.GetStream().DataAvailable ) {
@@ -210,14 +215,14 @@ namespace fCraft {
                                          LeaveReason.InvalidOpcodeKick );
                                 return;
                         }
+
+                        if( DateTime.UtcNow.Subtract( lastMovementUpdate ) > movementUpdateInterval ) {
+                            UpdateVisibleEntities();
+                            lastMovementUpdate = DateTime.UtcNow;
+                        }
                     }
 
-                    if( DateTime.UtcNow.Subtract( lastMovementUpdate ) > movementUpdateInterval ) {
-                        UpdateVisibleEntities();
-                        lastMovementUpdate = DateTime.UtcNow;
-                    }
-
-                    Thread.Sleep( sleepDelay );
+                    Thread.Sleep( SleepDelay );
                 }
 
             } catch( IOException ) {
@@ -981,7 +986,7 @@ namespace fCraft {
         int entityShowingThreshold, entityHidingThreshold;
         bool partialUpdates, skipUpdates;
 
-        int sleepDelay = 10;
+        const int SleepDelay = 5;
         DateTime lastMovementUpdate;
         TimeSpan movementUpdateInterval;
 
@@ -1002,7 +1007,6 @@ namespace fCraft {
                         entityHidingThreshold = (42 * 32) * (42 * 32);
                         partialUpdates = true;
                         skipUpdates = true;
-                        sleepDelay = 15;
                         movementUpdateInterval = TimeSpan.FromMilliseconds( 100 );
                         break;
 
@@ -1011,7 +1015,6 @@ namespace fCraft {
                         entityHidingThreshold = (52 * 32) * (52 * 32);
                         partialUpdates = true;
                         skipUpdates = true;
-                        sleepDelay = 10;
                         movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
                         break;
 
@@ -1020,7 +1023,6 @@ namespace fCraft {
                         entityHidingThreshold = (70 * 32) * (70 * 32);
                         partialUpdates = true;
                         skipUpdates = false;
-                        sleepDelay = 10;
                         movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
                         break;
 
@@ -1029,7 +1031,6 @@ namespace fCraft {
                         entityHidingThreshold = (130 * 32) * (130 * 32);
                         partialUpdates = true;
                         skipUpdates = false;
-                        sleepDelay = 5;
                         movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
                         break;
 
@@ -1038,7 +1039,6 @@ namespace fCraft {
                         entityHidingThreshold = int.MaxValue;
                         partialUpdates = false;
                         skipUpdates = false;
-                        sleepDelay = 5;
                         movementUpdateInterval = TimeSpan.FromMilliseconds( 25 );
                         break;
                 }
