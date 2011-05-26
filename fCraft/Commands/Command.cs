@@ -9,14 +9,14 @@ namespace fCraft {
         int offset;
         public readonly string Message;
         public string Name { get; private set; } // lowercase name of the command
-        public bool Confirmed; // whether this command has been confirmed by the user (with /ok)
+        public bool IsConfirmed; // whether this command has been confirmed by the user (with /ok)
 
         public Command( Command other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             offset = other.offset;
             Message = other.Message;
             Name = other.Name;
-            Confirmed = other.Confirmed;
+            IsConfirmed = other.IsConfirmed;
         }
 
         public Command( string rawMessage ) {
@@ -97,7 +97,7 @@ namespace fCraft {
 
 
         public override string ToString() {
-            if( Confirmed ) {
+            if( IsConfirmed ) {
                 return String.Format( "Command(\"{0}\",{1},confirmed)", Message, offset );
             } else {
                 return String.Format( "Command(\"{0}\",{1})", Message, offset );

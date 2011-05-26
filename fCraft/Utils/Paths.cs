@@ -287,7 +287,7 @@ namespace fCraft {
             FileInfo newFile = new FileInfo( Path.Combine( originalFile.DirectoryName, newFileName ) );
             string tempFileName = originalFile.FullName + Guid.NewGuid();
             File.Move( originalFile.FullName, tempFileName );
-            File.Move( tempFileName, newFile.FullName );
+            MoveOrReplace( tempFileName, newFile.FullName );
         }
 
 

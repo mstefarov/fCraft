@@ -92,7 +92,7 @@ namespace fCraft {
                 return;
             }
 
-            if( File.Exists( fileName ) && !cmd.Confirmed ) {
+            if( File.Exists( fileName ) && !cmd.IsConfirmed ) {
                 player.AskForConfirmation( cmd, "File \"{0}\" already exists. Overwrite?", Path.GetFileName( fileName ) );
                 return;
             }
@@ -609,7 +609,7 @@ namespace fCraft {
             string verb = (fromRank > toRank ? "demot" : "promot");
 
 
-            if( !cmd.Confirmed ) {
+            if( !cmd.IsConfirmed ) {
                 player.AskForConfirmation( cmd, "About to {0}e {1} players.", verb, playerCount );
                 return;
             }
@@ -898,7 +898,7 @@ namespace fCraft {
         };
 
         internal static void PruneDB( Player player, Command cmd ) {
-            if( !cmd.Confirmed ) {
+            if( !cmd.IsConfirmed ) {
                 player.MessageNow( "PruneDB: Finding inactive players..." );
                 player.AskForConfirmation( cmd, "Remove {0} inactive players from the database?",
                                            PlayerDB.CountInactivePlayers() );
@@ -961,7 +961,7 @@ namespace fCraft {
                     return;
             }
 
-            if( !cmd.Confirmed ) {
+            if( !cmd.IsConfirmed ) {
                 player.AskForConfirmation( cmd, "You are about to import {0} bans.", names.Length );
                 return;
             }
@@ -1042,7 +1042,7 @@ namespace fCraft {
                     return;
             }
 
-            if( !cmd.Confirmed ) {
+            if( !cmd.IsConfirmed ) {
                 player.AskForConfirmation( cmd, "You are about to import {0} player ranks.", names.Length );
                 return;
             }

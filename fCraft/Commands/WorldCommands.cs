@@ -222,7 +222,7 @@ namespace fCraft {
                 FileInfo targetFile = new FileInfo( fullFileName );
                 FileInfo sourceFile = new FileInfo( world.GetMapName() );
                 if( !targetFile.FullName.Equals( sourceFile.FullName, StringComparison.OrdinalIgnoreCase ) ) {
-                    if( !cmd.Confirmed ) {
+                    if( !cmd.IsConfirmed ) {
                         player.AskForConfirmation( cmd, "Target file \"{0}\" already exists, and will be overwritten.", targetFile.Name );
                         return;
                     }
@@ -978,7 +978,7 @@ namespace fCraft {
 
             // Loading map into current world
             if( worldName == null ) {
-                if( !cmd.Confirmed ) {
+                if( !cmd.IsConfirmed ) {
                     player.AskForConfirmation( cmd, "About to replace THIS MAP with \"{0}\".", fileName );
                     return;
                 }
@@ -1011,7 +1011,7 @@ namespace fCraft {
                     World world = WorldManager.FindWorldExact( worldName );
                     if( world != null ) {
                         // Replacing existing world's map
-                        if( !cmd.Confirmed ) {
+                        if( !cmd.IsConfirmed ) {
                             player.AskForConfirmation( cmd, "About to replace map for {0}&S with \"{1}\".",
                                                        world.GetClassyName(), fileName );
                             return;
@@ -1042,7 +1042,7 @@ namespace fCraft {
                     } else {
                         // Adding a new world
                         string targetFullFileName = Path.Combine( Paths.MapPath, worldName + ".fcm" );
-                        if( !cmd.Confirmed &&
+                        if( !cmd.IsConfirmed &&
                             File.Exists( targetFullFileName ) && // target file already exists
                             !Paths.Compare( targetFullFileName, sourceFullFileName ) ) { // and is different from sourceFile
                             player.AskForConfirmation( cmd, "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
@@ -1110,6 +1110,11 @@ namespace fCraft {
             World oldWorld = WorldManager.FindWorldOrPrintMatches( player, oldName );
             if( oldWorld == null ) return;
             oldName = oldWorld.Name;
+
+            if( !cmd.IsConfirmed && File.Exists( Path.Combine( Paths.MapPath, newName + ".fcm" ) ) ) {
+                player.AskForConfirmation( cmd, "Renaming this world will overwrite an existing map file \"{0}.fcm\".", newName );
+                return;
+            }
 
             try {
                 WorldManager.RenameWorld( oldWorld, newName, true );
@@ -1337,7 +1342,7 @@ namespace fCraft {
                     cdGenerate.PrintUsage( player );
                     return;
                 }
-                if( !cmd.Confirmed ) {
+                if( !cmd.IsConfirmed ) {
                     player.AskForConfirmation( cmd, "Replace this world's map with a generated one?" );
                     return;
                 }
@@ -1359,7 +1364,7 @@ namespace fCraft {
                 if( !Directory.Exists( dirName ) ) {
                     Directory.CreateDirectory( dirName );
                 }
-                if( !cmd.Confirmed && File.Exists( fullFileName ) ) {
+                if( !cmd.IsConfirmed && File.Exists( fullFileName ) ) {
                     player.AskForConfirmation( cmd, "The mapfile \"{0}\" already exists. Overwrite?", fileName );
                     return;
                 }
