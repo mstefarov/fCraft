@@ -46,7 +46,56 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( cdMute );
             CommandManager.RegisterCommand( cdUnmute );
+
+            CommandManager.RegisterCommand( cdSpectate );
+            CommandManager.RegisterCommand( cdUnspectate );
         }
+
+        static readonly CommandDescriptor cdSpectate = new CommandDescriptor {
+            Name = "spectate",
+            Aliases = new[] { "follow" },
+            Category = CommandCategory.Moderation,
+            Permissions = new[] { Permission.Spectate },
+            Handler = Spectate
+        };
+
+        internal static void Spectate( Player player, Command cmd ) {
+            string targetName = cmd.Next();
+            if( targetName == null ) {
+                cdSpectate.PrintUsage( player );
+                return;
+            }
+
+            Player target = Server.FindPlayerOrPrintMatches( player, targetName, false );
+            if( target == null ) return;
+            if( target == player ) {
+                player.Message( "You cannot spectate yourself." );
+                return;
+            }
+
+            player.Session.SpectatedPlayer = target;
+            player.Message( "Now spectating {0}", target.GetClassyName() );
+        }
+
+
+
+        static readonly CommandDescriptor cdUnspectate = new CommandDescriptor {
+            Name = "unspectate",
+            Aliases = new[] { "unfollow" },
+            Category = CommandCategory.Moderation,
+            Permissions = new[] { Permission.Spectate },
+            Handler = Unspectate
+        };
+
+        internal static void Unspectate( Player player, Command cmd ) {
+            if( player.Session.SpectatedPlayer != null ) {
+                player.Message( "Stopped spectating {0}", player.Session.SpectatedPlayer.GetClassyName() );
+                player.Session.SpectatedPlayer = null;
+            } else {
+                player.Message( "You are not currently spectating anyone." );
+            }
+        }
+
 
 
         #region Ban

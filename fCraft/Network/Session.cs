@@ -1073,6 +1073,8 @@ namespace fCraft {
         readonly Queue<DateTime> antiSpeedPacketLog = new Queue<DateTime>();
         DateTime antiSpeedLastNotification = DateTime.UtcNow;
 
+        internal Player SpectatedPlayer;
+
 
         void ResetVisibleEntities() {
             foreach( var pos in entities.Values ) {
@@ -1088,6 +1090,25 @@ namespace fCraft {
 
 
         void UpdateVisibleEntities() {
+            if( SpectatedPlayer != null ) {
+                if( SpectatedPlayer.IsDisconnected || !Player.CanSee( SpectatedPlayer ) ) {
+                    Player.Message( "Stopped spectating {0}&S (disconnected)", SpectatedPlayer.GetClassyName() );
+                    SpectatedPlayer = null;
+                } else {
+                    Position spectatePos = SpectatedPlayer.Position;
+                    World spectateWorld = SpectatedPlayer.World;
+                    if( spectateWorld != Player.World ) {
+                        postJoinPosition = spectatePos;
+                        Player.Message( "Joined {0}&S to continue spectating {1}",
+                                        spectateWorld.GetClassyName(),
+                                        SpectatedPlayer.GetClassyName() );
+                        JoinWorldNow( spectateWorld, false, false );
+                    } else if( spectatePos != Player.Position ) {
+                        SendNow( PacketWriter.MakeSelfTeleport( spectatePos ) );
+                    }
+                }
+            }
+
             Player[] worldPlayerList = Player.World.PlayerList;
             Position pos = Player.Position;
 
@@ -1095,6 +1116,7 @@ namespace fCraft {
                 Player otherPlayer = worldPlayerList[i];
                 if( otherPlayer == Player ) continue;
                 if( !Player.CanSee( otherPlayer ) ) continue;
+                if( SpectatedPlayer == otherPlayer || otherPlayer.Session.SpectatedPlayer == Player ) continue;
 
                 Position otherPos = otherPlayer.Position;
                 int distance = pos.DistanceSquaredTo( otherPos );

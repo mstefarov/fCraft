@@ -1029,6 +1029,7 @@ namespace fCraft {
             if( session == null ) throw new ArgumentNullException( "session" );
 
             Player player = session.Player;
+            player.IsDisconnected = true;
             lock( PlayerListLock ) {
                 if( !session.IsRegistered ) return;
                 player.Info.ProcessLogout( session );
