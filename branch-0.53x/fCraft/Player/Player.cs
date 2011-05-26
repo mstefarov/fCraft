@@ -308,7 +308,7 @@ namespace fCraft {
                 case MessageType.Confirmation: {
                         if( CommandToConfirm != null ) {
                             if( DateTime.UtcNow.Subtract( CommandToConfirmDate ).TotalSeconds < ConfirmationTimeout ) {
-                                CommandToConfirm.Confirmed = true;
+                                CommandToConfirm.IsConfirmed = true;
                                 CommandManager.ParseCommand( this, CommandToConfirm, fromConsole );
                                 CommandToConfirm = null;
                             } else {

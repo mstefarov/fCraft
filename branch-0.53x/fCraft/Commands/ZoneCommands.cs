@@ -311,7 +311,7 @@ namespace fCraft {
                     player.Message( "You are not allowed to remove zone {0}", zone.GetClassyName() );
                     return;
                 }
-                if( !cmd.Confirmed ) {
+                if( !cmd.IsConfirmed ) {
                     player.AskForConfirmation( cmd, "You are about to remove zone {0}&S.", zone.GetClassyName() );
                     return;
                 }

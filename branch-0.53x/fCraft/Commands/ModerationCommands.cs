@@ -568,7 +568,7 @@ namespace fCraft {
                     return;
                 }
                 if( Player.IsValidName( name ) ) {
-                    if( cmd.Confirmed ) {
+                    if( cmd.IsConfirmed ) {
                         targetInfo = PlayerDB.AddFakeEntry( name, (newRank > RankManager.DefaultRank ? RankChangeType.Promoted : RankChangeType.Demoted) );
                     } else {
                         player.AskForConfirmation( cmd, "Warning: Player \"{0}\" is not in the database (possible typo). Type out the full name or", name );
