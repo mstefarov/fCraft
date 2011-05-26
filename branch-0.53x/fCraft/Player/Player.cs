@@ -40,7 +40,8 @@ namespace fCraft {
 
         public bool IsPainting,
                     IsHidden,
-                    IsDeaf;
+                    IsDeaf,
+                    IsDisconnected;
         public World World;
         internal DateTime IdleTimer = DateTime.UtcNow; // used for afk kicks
 

@@ -120,9 +120,11 @@ namespace fCraft {
      *              Tweaked range checks on some keys.
      *              Grouped key tags into section tags.
      *              When saving, keys with default values are now commented out.
-     *              CONFIGS SAVED WITH THIS VERSION ARE NOT LOADABLE
+     *              CONFIGS SAVED WITH THIS VERSION ARE NOT LOADABLE. It is obsolete.
      *              
      * 139 - r579 - Fixed XML structure messed up by 138. Sections are now saved into <Section> elements.
+     * 
+     * 140 - r616 - Added Spectate permission.
      * 
      */
 
@@ -130,7 +132,7 @@ namespace fCraft {
     /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 139;
+        public const int ConfigVersion = 140;
         public const string ConfigXmlRootName = "fCraftConfig";
 
         static readonly Dictionary<ConfigKey, string> Settings = new Dictionary<ConfigKey, string>();
@@ -765,6 +767,7 @@ namespace fCraft {
             owner.Add( new XElement( Permission.Bring.ToString() ) );
             owner.Add( new XElement( Permission.BringAll.ToString() ) );
             owner.Add( new XElement( Permission.Patrol.ToString() ) );
+            owner.Add( new XElement( Permission.Spectate.ToString() ) );
             owner.Add( new XElement( Permission.Freeze.ToString() ) );
             owner.Add( new XElement( Permission.Mute.ToString() ) );
             owner.Add( new XElement( Permission.SetSpawn.ToString() ) );
@@ -834,6 +837,7 @@ namespace fCraft {
             op.Add( new XElement( Permission.Teleport.ToString() ) );
             op.Add( new XElement( Permission.Bring.ToString() ) );
             op.Add( new XElement( Permission.Patrol.ToString() ) );
+            op.Add( new XElement( Permission.Spectate.ToString() ) );
             op.Add( new XElement( Permission.Freeze.ToString() ) );
             op.Add( new XElement( Permission.Mute.ToString() ) );
             op.Add( new XElement( Permission.SetSpawn.ToString() ) );
