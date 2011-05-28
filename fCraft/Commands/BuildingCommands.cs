@@ -838,7 +838,13 @@ namespace fCraft {
             int sh = Math.Min( marks[0].H, marks[1].H );
             int eh = Math.Max( marks[0].H, marks[1].H );
 
-            int volume = (ex - sx + 1) * 4 + (ey - sy + 1) * 4 + (eh - sh + 1) * 4 - 16;
+
+            int solidVolume = (ex - sx + 1) *  (ey - sy + 1) *  (eh - sh + 1);
+            int hollowVolume = Math.Max( 0, ex - sx - 1 ) * Math.Max( 0, ey - sy - 1 ) * Math.Max( 0, eh - sh - 1 );
+            int sideVolume = Math.Max( 0, ex - sx - 1 ) * Math.Max( 0, ey - sy - 1 ) * 2 +
+                             Math.Max( 0, ey - sy - 1 ) * Math.Max( 0, eh - sh - 1 ) * 2 +
+                             Math.Max( 0, eh - sh - 1 ) * Math.Max( 0, ex - sx - 1 ) * 2;
+            int volume = solidVolume - hollowVolume - sideVolume;
 
             if( !player.CanDraw( volume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
@@ -855,22 +861,28 @@ namespace fCraft {
             for( int x = sx; x <= ex; x++ ) {
                 DrawOneBlock( player, drawBlock, x, sy, sh, ref blocks, ref blocksDenied, ref cannotUndo );
                 DrawOneBlock( player, drawBlock, x, sy, eh, ref blocks, ref blocksDenied, ref cannotUndo );
-                DrawOneBlock( player, drawBlock, x, ey, sh, ref blocks, ref blocksDenied, ref cannotUndo );
-                DrawOneBlock( player, drawBlock, x, ey, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+                if( sx != ex ) {
+                    DrawOneBlock( player, drawBlock, x, ey, sh, ref blocks, ref blocksDenied, ref cannotUndo );
+                    DrawOneBlock( player, drawBlock, x, ey, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+                }
             }
 
             for( int y = sy; y <= ey; y++ ) {
                 DrawOneBlock( player, drawBlock, sx, y, sh, ref blocks, ref blocksDenied, ref cannotUndo );
                 DrawOneBlock( player, drawBlock, sx, y, eh, ref blocks, ref blocksDenied, ref cannotUndo );
-                DrawOneBlock( player, drawBlock, ex, y, sh, ref blocks, ref blocksDenied, ref cannotUndo );
-                DrawOneBlock( player, drawBlock, ex, y, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+                if( sy != ey ) {
+                    DrawOneBlock( player, drawBlock, ex, y, sh, ref blocks, ref blocksDenied, ref cannotUndo );
+                    DrawOneBlock( player, drawBlock, ex, y, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+                }
             }
 
             for( int h = sh; h <= eh; h++ ) {
                 DrawOneBlock( player, drawBlock, sx, sy, h, ref blocks, ref blocksDenied, ref cannotUndo );
                 DrawOneBlock( player, drawBlock, ex, sy, h, ref blocks, ref blocksDenied, ref cannotUndo );
-                DrawOneBlock( player, drawBlock, sx, ey, h, ref blocks, ref blocksDenied, ref cannotUndo );
-                DrawOneBlock( player, drawBlock, ex, ey, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                if( sh != eh ) {
+                    DrawOneBlock( player, drawBlock, sx, ey, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                    DrawOneBlock( player, drawBlock, ex, ey, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                }
             }
 
             Logger.Log( "{0} drew a wireframe cuboid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
