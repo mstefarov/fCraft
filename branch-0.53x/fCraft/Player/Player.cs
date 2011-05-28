@@ -372,8 +372,11 @@ namespace fCraft {
 
 
         // Makes sure that there are no unprintable or illegal characters in the message
-        public static bool ContainsIllegalChars( IEnumerable<char> message ) {
-            return message.Any( ch => (ch < ' ' || ch == '&' || ch == '`' || ch > '}') );
+        public static bool ContainsIllegalChars( string message ) {
+            for( int i = 0; i < message.Length; i++ ) {
+                if( message[i] < ' ' || message[i] == '&' || message[i] > '~' ) return true;
+            }
+            return false;
         }
 
 
