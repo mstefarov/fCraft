@@ -138,6 +138,7 @@ namespace fCraft {
                             player.Message( "Cannot join {0}&S: world is full.", world.GetClassyName() );
                             return;
                         }
+                        player.StopSpectating();
                         if( !player.Session.JoinWorldNow( world, false, true ) ) {
                             player.Message( "ERROR: Failed to join world. See log for details." );
                         }
@@ -156,6 +157,7 @@ namespace fCraft {
                 // no worlds found - see if player meant to type in "/join" and not "/tp"
                 Player[] players = Server.FindPlayers( player, worldName );
                 if( players.Length == 1 ) {
+                    player.StopSpectating();
                     player.ParseMessage( "/tp " + players[0].Name, false );
                 } else {
                     player.NoWorldMessage( worldName );

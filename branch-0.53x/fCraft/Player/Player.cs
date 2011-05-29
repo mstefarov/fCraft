@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Cache;
 using System.Text;
+using System.Threading;
 using fCraft.Events;
 
 namespace fCraft {
@@ -893,6 +894,24 @@ namespace fCraft {
 
         public override string ToString() {
             return String.Format( "Player({0})", Info.Name );
+        }
+
+
+        public bool Spectate( Player target ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
+            if( target == this ) throw new ArgumentException( "Cannot spectate self.", "target" );
+            Message( "Now spectating {0}&S. Type &H/unspec&S to stop.", target.GetClassyName() );
+            return (Interlocked.Exchange<Player>( ref Session.SpectatedPlayer, target ) == null);
+        }
+
+        public bool StopSpectating() {
+            Player wasSpectating = Interlocked.Exchange<Player>( ref Session.SpectatedPlayer, null );
+            if( wasSpectating != null ) {
+                Message( "Stopped spectating {0}", wasSpectating.GetClassyName() );
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 }

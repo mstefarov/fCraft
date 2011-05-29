@@ -73,8 +73,7 @@ namespace fCraft {
                 return;
             }
 
-            player.Session.SpectatedPlayer = target;
-            player.Message( "Now spectating {0}", target.GetClassyName() );
+            player.Spectate( target );
         }
 
 
@@ -88,10 +87,7 @@ namespace fCraft {
         };
 
         internal static void Unspectate( Player player, Command cmd ) {
-            if( player.Session.SpectatedPlayer != null ) {
-                player.Message( "Stopped spectating {0}", player.Session.SpectatedPlayer.GetClassyName() );
-                player.Session.SpectatedPlayer = null;
-            } else {
+            if( !player.StopSpectating() ) {
                 player.Message( "You are not currently spectating anyone." );
             }
         }
@@ -1029,6 +1025,7 @@ namespace fCraft {
             string name = cmd.Next();
 
             if( name == null ) {
+                player.StopSpectating();
                 player.Send( PacketWriter.MakeSelfTeleport( player.World.Map.Spawn ) );
                 return;
             }
@@ -1047,6 +1044,7 @@ namespace fCraft {
                         player.Message( "Coordinates are outside the valid range!" );
 
                     } else {
+                        player.StopSpectating();
                         player.Send( PacketWriter.MakeTeleport( 255, new Position {
                             X = (short)(x * 32 + 16),
                             Y = (short)(y * 32 + 16),
@@ -1065,6 +1063,7 @@ namespace fCraft {
                     Player target = matches[0];
 
                     if( target.World == player.World ) {
+                        player.StopSpectating();
                         player.Send( PacketWriter.MakeSelfTeleport( target.Position ) );
 
                     } else {
@@ -1077,6 +1076,7 @@ namespace fCraft {
                                                     target.World.GetClassyName() );
                                     return;
                                 }
+                                player.StopSpectating();
                                 player.Session.JoinWorld( target.World, target.Position );
                                 break;
                             case SecurityCheckResult.BlackListed:
@@ -1105,6 +1105,7 @@ namespace fCraft {
                     worlds = e.Matches.ToArray();
 
                     if( worlds.Length == 1 ) {
+                        player.StopSpectating();
                         player.ParseMessage( "/join " + name, false );
                     } else {
                         player.NoPlayerMessage( name );
@@ -1314,6 +1315,7 @@ namespace fCraft {
                 }
             }
 
+            player.StopSpectating();
             player.Message( "Patrol: Teleporting to {0}", target.GetClassyName() );
             player.Send( PacketWriter.MakeSelfTeleport( target.Position ) );
         }
