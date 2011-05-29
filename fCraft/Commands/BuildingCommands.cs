@@ -841,10 +841,12 @@ namespace fCraft {
 
             int solidVolume = (ex - sx + 1) *  (ey - sy + 1) *  (eh - sh + 1);
             int hollowVolume = Math.Max( 0, ex - sx - 1 ) * Math.Max( 0, ey - sy - 1 ) * Math.Max( 0, eh - sh - 1 );
-            int sideVolume = Math.Max( 0, ex - sx - 1 ) * Math.Max( 0, ey - sy - 1 ) * 2 +
-                             Math.Max( 0, ey - sy - 1 ) * Math.Max( 0, eh - sh - 1 ) * 2 +
-                             Math.Max( 0, eh - sh - 1 ) * Math.Max( 0, ex - sx - 1 ) * 2;
+            int sideVolume = Math.Max( 0, ex - sx - 1 ) * Math.Max( 0, ey - sy - 1 ) * (ex != sx ? 2 : 1) +
+                             Math.Max( 0, ey - sy - 1 ) * Math.Max( 0, eh - sh - 1 ) * (ey != sy ? 2 : 1) +
+                             Math.Max( 0, eh - sh - 1 ) * Math.Max( 0, ex - sx - 1 ) * (eh != sh ? 2 : 1);
             int volume = solidVolume - hollowVolume - sideVolume;
+
+            player.Message( "{0}", volume );
 
             if( !player.CanDraw( volume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
@@ -858,30 +860,49 @@ namespace fCraft {
             int blocks = 0, blocksDenied = 0;
             bool cannotUndo = false;
 
-            for( int x = sx; x <= ex; x++ ) {
-                DrawOneBlock( player, drawBlock, x, sy, sh, ref blocks, ref blocksDenied, ref cannotUndo );
-                DrawOneBlock( player, drawBlock, x, sy, eh, ref blocks, ref blocksDenied, ref cannotUndo );
-                if( sx != ex ) {
-                    DrawOneBlock( player, drawBlock, x, ey, sh, ref blocks, ref blocksDenied, ref cannotUndo );
-                    DrawOneBlock( player, drawBlock, x, ey, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+            // Draw vertices
+            DrawOneBlock( player, drawBlock, sx, sy, sh, ref blocks, ref blocksDenied, ref cannotUndo );
+            if( sx != ex ) DrawOneBlock( player, drawBlock, ex, sy, sh, ref blocks, ref blocksDenied, ref cannotUndo );
+            if( sy != ey ) DrawOneBlock( player, drawBlock, sx, ey, sh, ref blocks, ref blocksDenied, ref cannotUndo );
+            if( sx != ex && sy != ey ) DrawOneBlock( player, drawBlock, ex, ey, sh, ref blocks, ref blocksDenied, ref cannotUndo );
+            if( sh != eh ) DrawOneBlock( player, drawBlock, sx, sy, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+            if( sx != ex && sh != eh ) DrawOneBlock( player, drawBlock, ex, sy, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+            if( sy != ey && sh != eh ) DrawOneBlock( player, drawBlock, sx, ey, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+            if( sx != ex && sy != ey && sh != eh ) DrawOneBlock( player, drawBlock, ex, ey, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+
+            // Draw edges along the X axis
+            if( ex - sx > 1 ) {
+                for( int x = sx + 1; x < ex; x++ ) {
+                    DrawOneBlock( player, drawBlock, x, sy, sh, ref blocks, ref blocksDenied, ref cannotUndo );
+                    if( sh != eh ) DrawOneBlock( player, drawBlock, x, sy, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+                    if( sy != ey ) {
+                        DrawOneBlock( player, drawBlock, x, ey, sh, ref blocks, ref blocksDenied, ref cannotUndo );
+                        if( sh != eh ) DrawOneBlock( player, drawBlock, x, ey, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+                    }
                 }
             }
 
-            for( int y = sy; y <= ey; y++ ) {
-                DrawOneBlock( player, drawBlock, sx, y, sh, ref blocks, ref blocksDenied, ref cannotUndo );
-                DrawOneBlock( player, drawBlock, sx, y, eh, ref blocks, ref blocksDenied, ref cannotUndo );
-                if( sy != ey ) {
-                    DrawOneBlock( player, drawBlock, ex, y, sh, ref blocks, ref blocksDenied, ref cannotUndo );
-                    DrawOneBlock( player, drawBlock, ex, y, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+            // Draw edges along the Y axis
+            if( ey - sy > 1 ) {
+                for( int y = sy + 1; y < ey; y++ ) {
+                    DrawOneBlock( player, drawBlock, sx, y, sh, ref blocks, ref blocksDenied, ref cannotUndo );
+                    if( sh != eh ) DrawOneBlock( player, drawBlock, sx, y, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+                    if( sx != ex ) {
+                        DrawOneBlock( player, drawBlock, ex, y, sh, ref blocks, ref blocksDenied, ref cannotUndo );
+                        if( sh != eh ) DrawOneBlock( player, drawBlock, ex, y, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+                    }
                 }
             }
 
-            for( int h = sh; h <= eh; h++ ) {
-                DrawOneBlock( player, drawBlock, sx, sy, h, ref blocks, ref blocksDenied, ref cannotUndo );
-                DrawOneBlock( player, drawBlock, ex, sy, h, ref blocks, ref blocksDenied, ref cannotUndo );
-                if( sh != eh ) {
-                    DrawOneBlock( player, drawBlock, sx, ey, h, ref blocks, ref blocksDenied, ref cannotUndo );
-                    DrawOneBlock( player, drawBlock, ex, ey, h, ref blocks, ref blocksDenied, ref cannotUndo );
+            // Draw edges along the H axis
+            if( eh - sh > 1 ) {
+                for( int h = sh + 1; h < eh; h++ ) {
+                    DrawOneBlock( player, drawBlock, sx, sy, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                    if( sy != ey ) DrawOneBlock( player, drawBlock, sx, ey, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                    if( sx != ex ) {
+                        DrawOneBlock( player, drawBlock, ex, ey, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                        if( sy != ey ) DrawOneBlock( player, drawBlock, ex, sy, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                    }
                 }
             }
 
