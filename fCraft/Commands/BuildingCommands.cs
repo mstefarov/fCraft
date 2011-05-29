@@ -838,15 +838,13 @@ namespace fCraft {
             int sh = Math.Min( marks[0].H, marks[1].H );
             int eh = Math.Max( marks[0].H, marks[1].H );
 
-
+            // Calculate the upper limit on the volume
             int solidVolume = (ex - sx + 1) *  (ey - sy + 1) *  (eh - sh + 1);
             int hollowVolume = Math.Max( 0, ex - sx - 1 ) * Math.Max( 0, ey - sy - 1 ) * Math.Max( 0, eh - sh - 1 );
             int sideVolume = Math.Max( 0, ex - sx - 1 ) * Math.Max( 0, ey - sy - 1 ) * (ex != sx ? 2 : 1) +
                              Math.Max( 0, ey - sy - 1 ) * Math.Max( 0, eh - sh - 1 ) * (ey != sy ? 2 : 1) +
                              Math.Max( 0, eh - sh - 1 ) * Math.Max( 0, ex - sx - 1 ) * (eh != sh ? 2 : 1);
             int volume = solidVolume - hollowVolume - sideVolume;
-
-            player.Message( "{0}", volume );
 
             if( !player.CanDraw( volume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
@@ -860,7 +858,7 @@ namespace fCraft {
             int blocks = 0, blocksDenied = 0;
             bool cannotUndo = false;
 
-            // Draw vertices
+            // Draw cuboid vertices
             DrawOneBlock( player, drawBlock, sx, sy, sh, ref blocks, ref blocksDenied, ref cannotUndo );
             if( sx != ex ) DrawOneBlock( player, drawBlock, ex, sy, sh, ref blocks, ref blocksDenied, ref cannotUndo );
             if( sy != ey ) DrawOneBlock( player, drawBlock, sx, ey, sh, ref blocks, ref blocksDenied, ref cannotUndo );
