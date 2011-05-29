@@ -193,7 +193,7 @@ namespace fCraft {
                 }
 
                 if( players.ContainsKey( player.Name.ToLower() ) ) {
-                    Logger.Log( "This world already contains the player by name ({)}). " +
+                    Logger.Log( "This world already contains the player by name ({0}). " +
                                 "Some sort of state corruption must have occured.", LogType.Error,
                                 player.Name );
                     players.Remove( player.Name.ToLower() );

@@ -76,34 +76,35 @@ namespace fCraft {
             if( message == null ) throw new ArgumentNullException( "message" );
             string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message; // localized
 
-            RaiseLoggedEvent( message, line, type );
+            lock( LogLock ) {
+                RaiseLoggedEvent( message, line, type );
 
-            if( LogFileOptions[(int)type] ) {
-                string actualLogFileName;
-                switch( SplittingType ) {
-                    case LogSplittingType.SplitBySession:
-                        actualLogFileName = Path.Combine( Paths.LogPath, SessionStart + ".log" );
-                        break;
-                    case LogSplittingType.SplitByDay:
-                        actualLogFileName = Path.Combine( Paths.LogPath, DateTime.Now.ToString( ShortDateFormat ) + ".log" ); // localized
-                        break;
-                    default:
-                        actualLogFileName = Path.Combine( Paths.LogPath, DefaultLogFileName );
-                        break;
+                RecentMessages.Enqueue( line );
+                while( RecentMessages.Count > MaxRecentMessages ) {
+                    RecentMessages.Dequeue();
                 }
-                try {
-                    lock( LogLock ) {
-                        File.AppendAllText( actualLogFileName, line + Environment.NewLine );
-                        RecentMessages.Enqueue( line );
-                        while( RecentMessages.Count > MaxRecentMessages ) {
-                            RecentMessages.Dequeue();
-                        }
+
+                if( LogFileOptions[(int)type] ) {
+                    string actualLogFileName;
+                    switch( SplittingType ) {
+                        case LogSplittingType.SplitBySession:
+                            actualLogFileName = Path.Combine( Paths.LogPath, SessionStart + ".log" );
+                            break;
+                        case LogSplittingType.SplitByDay:
+                            actualLogFileName = Path.Combine( Paths.LogPath, DateTime.Now.ToString( ShortDateFormat ) + ".log" ); // localized
+                            break;
+                        default:
+                            actualLogFileName = Path.Combine( Paths.LogPath, DefaultLogFileName );
+                            break;
                     }
-                } catch( Exception ex ) {
-                    string errorMessage = "Logger.Log: " + ex.Message;
-                    RaiseLoggedEvent( errorMessage,
-                                      DateTime.Now.ToLongTimeString() + " > " + GetPrefix( LogType.Error ) + errorMessage, // localized
-                                      LogType.Error );
+                    try {
+                        File.AppendAllText( actualLogFileName, line + Environment.NewLine );
+                    } catch( Exception ex ) {
+                        string errorMessage = "Logger.Log: " + ex.Message;
+                        RaiseLoggedEvent( errorMessage,
+                                          DateTime.Now.ToLongTimeString() + " > " + GetPrefix( LogType.Error ) + errorMessage, // localized
+                                          LogType.Error );
+                    }
                 }
             }
         }
