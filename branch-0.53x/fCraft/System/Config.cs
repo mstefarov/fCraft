@@ -126,13 +126,15 @@ namespace fCraft {
      * 
      * 140 - r616 - Added Spectate permission.
      * 
+     * 141 - r622 - Added RestartInterval key.
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
     /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 140;
+        public const int ConfigVersion = 141;
         public const string ConfigXmlRootName = "fCraftConfig";
 
         static readonly Dictionary<ConfigKey, string> Settings = new Dictionary<ConfigKey, string>();
