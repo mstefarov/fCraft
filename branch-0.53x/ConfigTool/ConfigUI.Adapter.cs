@@ -16,7 +16,7 @@ namespace ConfigTool {
 
         #region Loading & Applying Config
 
-        void LoadConfig( object sender, EventArgs args ) {
+        void LoadConfig() {
             string missingFileMsg = null;
             if( !File.Exists( Paths.WorldListFileName ) && !File.Exists( Paths.ConfigFileName ) ) {
                 missingFileMsg = String.Format( "Configuration ({0}) and world list ({1}) were not found. Using defaults.",

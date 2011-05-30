@@ -133,7 +133,8 @@ namespace fCraft {
                 World newWorld = new World( Name, NeverUnload ) {
                     Map = newMap,
                     AccessSecurity = (SecurityController)AccessSecurity.Clone(),
-                    BuildSecurity = (SecurityController)BuildSecurity.Clone()
+                    BuildSecurity = (SecurityController)BuildSecurity.Clone(),
+                    IsHidden = IsHidden
                 };
                 newMap.World = newWorld;
                 WorldManager.ReplaceWorld( this, newWorld );

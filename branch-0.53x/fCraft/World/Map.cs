@@ -131,6 +131,15 @@ namespace fCraft {
                     metaCount++;
                 }
             }
+            World thisWorld = World;
+            if( thisWorld != null ) {
+                MapFCMv3.WriteLengthPrefixedString( writer, "security" );
+                MapFCMv3.WriteLengthPrefixedString( writer, "access" );
+                MapFCMv3.WriteLengthPrefixedString( writer, thisWorld.AccessSecurity.Serialize().ToString() );
+                MapFCMv3.WriteLengthPrefixedString( writer, "security" );
+                MapFCMv3.WriteLengthPrefixedString( writer, "build" );
+                MapFCMv3.WriteLengthPrefixedString( writer, thisWorld.BuildSecurity.Serialize().ToString() );
+            }
             return metaCount;
         }
 

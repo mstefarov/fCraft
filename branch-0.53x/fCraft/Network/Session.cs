@@ -112,7 +112,7 @@ namespace fCraft {
                             } else {
                                 Logger.Log( "Session.IoLoop: Lost connection to unidentified player at {0}.", LogType.Debug, IP );
                             }
-                            LeaveReason = LeaveReason.ClientQuit;
+                            LeaveReason = LeaveReason.Quit;
                             return;
                         }
                         if( pingCounter > pingInterval ) {
@@ -226,10 +226,10 @@ namespace fCraft {
                 }
 
             } catch( IOException ) {
-                LeaveReason = LeaveReason.ClientQuit;
+                LeaveReason = LeaveReason.Quit;
 
             } catch( SocketException ) {
-                LeaveReason = LeaveReason.ClientQuit;
+                LeaveReason = LeaveReason.Quit;
 #if !DEBUG
             } catch( Exception ex ) {
                 LeaveReason = LeaveReason.ServerError;
