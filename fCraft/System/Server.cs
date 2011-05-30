@@ -375,10 +375,21 @@ namespace fCraft {
 
             Heartbeat.Start();
 
+            if( ConfigKey.RestartInterval.GetInt() > 0 ) {
+                TimeSpan restartIn = TimeSpan.FromSeconds(ConfigKey.RestartInterval.GetInt());
+                Scheduler.NewTask( AutoRestartCallback ).RunOnce( restartIn );
+                Logger.Log( "Will restart in {0}", LogType.SystemActivity, restartIn.ToCompactString() );
+            }
+
             if( ConfigKey.IRCBotEnabled.GetBool() ) IRC.Start();
 
             RaiseEvent( Started );
             return true;
+        }
+
+        static void AutoRestartCallback( SchedulerTask task ) {
+            var shutdownParams = new ShutdownParams( ShutdownReason.Restarting, 5, true, true );
+            Server.Shutdown( shutdownParams, false );
         }
 
         #endregion

@@ -492,7 +492,11 @@ fCraft bind to the same IP every time." )]
 High/Highest settings will reduce jitter of player movement, but increase bandwidth use.
 Low/Lowest settings will introduce some popping in/out of players and increase jitter,
 but will reduce bandwidth use.")]
-        BandwidthUseMode
+        BandwidthUseMode,
+
+        [IntKey(ConfigSection.Advanced, 0,
+@"Automatically restarts the server after a given number of seconds.")]
+        RestartInterval
 
         #endregion
     }

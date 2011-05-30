@@ -54,7 +54,8 @@ namespace fCraft {
             }
 
             if( Worlds.Count == 0 ) {
-                Logger.Log( "Server.Start: Could not load any of the specified worlds, or no worlds were specified. Creating default \"main\" world.", LogType.Error );
+                Logger.Log( "Server.Start: Could not load any of the specified worlds, or no worlds were specified. " +
+                            "Creating default \"main\" world.", LogType.Error );
                 CreateDefaultMainWorld();
             }
 
@@ -108,8 +109,7 @@ namespace fCraft {
 
                     World world;
                     try {
-                        Map map = MapUtility.Load( Path.Combine( Paths.MapPath, worldName + ".fcm" ) );
-                        world = AddWorld( null, worldName, map, (el.Attribute( "noUnload" ) != null) );
+                        world = AddWorld( null, worldName, null, (el.Attribute( "noUnload" ) != null) );
                     } catch( WorldOpException ex ) {
                         Logger.Log( "Server.ParseWorldListXML: Error loading world \"{0}\": {1}", LogType.Error, worldName, ex.Message );
                         continue;
@@ -127,13 +127,13 @@ namespace fCraft {
                     if( el.Element( "accessSecurity" ) != null ) {
                         world.AccessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
                     } else {
-                        world.AccessSecurity.MinRank = LoadWorldRankRestriction( world, "access", el );
+                        world.AccessSecurity.MinRank = LoadWorldRankRestriction( world, "access", el ); // LEGACY
                     }
 
                     if( el.Element( "buildSecurity" ) != null ) {
                         world.BuildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
                     } else {
-                        world.BuildSecurity.MinRank = LoadWorldRankRestriction( world, "build", el );
+                        world.BuildSecurity.MinRank = LoadWorldRankRestriction( world, "build", el ); // LEGACY
                     }
 
                     // Check the world's map file
@@ -322,6 +322,7 @@ namespace fCraft {
                     newWorld.Map = map;
                     map.World = newWorld;
 
+                    /*
                     string accessSecurityString = map.GetMeta( "security", "access" );
                     if( accessSecurityString != null ) {
                         try {
@@ -339,6 +340,7 @@ namespace fCraft {
                             Logger.Log( "WorldManager.AddWorld: Error loading stored build permissions: {0}", LogType.Error, ex );
                         }
                     }
+                    */
 
                     // if a map is given
                     if( neverUnload ) {
