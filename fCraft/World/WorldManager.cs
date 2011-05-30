@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
 using System.Xml.Linq;
 using System.IO;
 using fCraft.Events;
@@ -107,7 +108,8 @@ namespace fCraft {
 
                     World world;
                     try {
-                        world = AddWorld( null, worldName, null, (el.Attribute( "noUnload" ) != null) );
+                        Map map = MapUtility.Load( Path.Combine( Paths.MapPath, worldName + ".fcm" ) );
+                        world = AddWorld( null, worldName, map, (el.Attribute( "noUnload" ) != null) );
                     } catch( WorldOpException ex ) {
                         Logger.Log( "Server.ParseWorldListXML: Error loading world \"{0}\": {1}", LogType.Error, worldName, ex.Message );
                         continue;
@@ -319,6 +321,25 @@ namespace fCraft {
                 if( map != null ) {
                     newWorld.Map = map;
                     map.World = newWorld;
+
+                    string accessSecurityString = map.GetMeta( "security", "access" );
+                    if( accessSecurityString != null ) {
+                        try {
+                            newWorld.AccessSecurity = new SecurityController( XElement.Parse( accessSecurityString ) );
+                        } catch( XmlException ex ) {
+                            Logger.Log( "WorldManager.AddWorld: Error loading stored access permissions: {0}", LogType.Error, ex );
+                        }
+                    }
+
+                    string buildSecurityString = map.GetMeta( "security", "build" );
+                    if( buildSecurityString != null ) {
+                        try {
+                            newWorld.BuildSecurity = new SecurityController( XElement.Parse( buildSecurityString ) );
+                        } catch( XmlException ex ) {
+                            Logger.Log( "WorldManager.AddWorld: Error loading stored build permissions: {0}", LogType.Error, ex );
+                        }
+                    }
+
                     // if a map is given
                     if( neverUnload ) {
                         newWorld.StartTasks();
@@ -328,6 +349,7 @@ namespace fCraft {
 
                 } else if( neverUnload ){
                     newWorld.LoadMap();
+                    map = newWorld.Map;
                 }
 
                 Worlds.Add( name.ToLower(), newWorld );
@@ -341,9 +363,6 @@ namespace fCraft {
 
 
         /// <summary> Changes the name of the given world. </summary>
-        /// <param name="world"></param>
-        /// <param name="newName"></param>
-        /// <param name="moveMapFile"></param>
         public static void RenameWorld( World world, string newName, bool moveMapFile ) {
             if( newName == null ) throw new ArgumentNullException( "newName" );
 

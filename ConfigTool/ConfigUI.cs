@@ -25,17 +25,14 @@ namespace ConfigTool {
         #region Initialization
 
         public ConfigUI( string[] args ) {
-            Server.InitLibrary( args );
-
             instance = this;
             InitializeComponent();
-
-            foreach( ListViewItem item in vConsoleOptions.Items ) {
-                vLogFileOptions.Items.Add( (ListViewItem)item.Clone() );
-            }
-
             bold = new Font( Font, FontStyle.Bold );
+            Shown += Init;
+        }
 
+
+        void Init( object sender, EventArgs e ) {
             FillOptionList();
             FillToolTipsGeneral();
             FillToolTipsChat();
@@ -47,13 +44,16 @@ namespace ConfigTool {
             FillToolTipsIRC();
             FillToolTipsAdvanced();
 
-
-            dgvWorlds.DataError += ( sender, e ) => MessageBox.Show( e.Exception.Message, "Data Error" );
-
             PopulateIRCNetworkList( false );
 
-            Load += LoadConfig;
+            Server.InitLibrary( Environment.GetCommandLineArgs() );
+            //dgvWorlds.DataError += ( sender1, e1 ) => MessageBox.Show( a.Exception.Message, "Data Error" );
+            
+            worlds.ListChanged += SomethingChanged;
+
+            LoadConfig();
         }
+
 
         void FillOptionList() {
             foreach( Permission permission in Enum.GetValues( typeof( Permission ) ) ) {

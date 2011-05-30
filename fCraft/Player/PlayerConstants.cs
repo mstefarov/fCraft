@@ -8,7 +8,7 @@ namespace fCraft {
         Unknown = 0x00,
 
         /// <summary> Client exited normally </summary>
-        ClientQuit = 0x01,
+        Quit = 0x01,
 
         /// <summary> Client reconnected before old session timed out, or connected from another IP. </summary>
         ClientReconnect = 0x03,
