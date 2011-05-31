@@ -8,7 +8,7 @@ namespace fCraft {
         Unknown = 0x00,
 
         /// <summary> Client exited normally </summary>
-        Quit = 0x01,
+        ClientQuit = 0x01,
 
         /// <summary> Client reconnected before old session timed out, or connected from another IP. </summary>
         ClientReconnect = 0x03,
@@ -65,21 +65,6 @@ namespace fCraft {
 
         /// <summary> Login denied for some other reason </summary>
         LoginFailed = 0x43,
-    }
-
-
-    /// <summary> Used to distinguish actual players from special-purpose entities/states.
-    /// Real PlayerDB IDs start at 256 </summary>
-    public enum ReservedPlayerID {
-        None = 0, // no one (certain) - initial state for generated maps
-        Unknown = 1, // unknown (uncertain) - initial state for imported maps
-        Console = 2,
-        IRCBot = 3, // IRC bot
-        Automatic = 4, // For auto-bans / auto-kicks / etc
-        Physics = 5
-
-        // 6-31 are reserved for fCraft
-        // 32-255 are available for plugins
     }
 
 

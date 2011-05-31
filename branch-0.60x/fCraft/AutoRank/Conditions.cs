@@ -37,7 +37,6 @@ namespace fCraft.AutoRank {
     /// <summary> Class for checking ranges of countable PlayerInfo fields (see ConditionField enum). </summary>
     public sealed class ConditionIntRange : Condition {
         public ConditionField Field;
-        public ConditionScopeType Scope = ConditionScopeType.Total;
         public ComparisonOperation Comparison = ComparisonOperation.Eq;
         public int Value;
 
@@ -49,9 +48,6 @@ namespace fCraft.AutoRank {
             Value = Int32.Parse( el.Attribute( "val" ).Value );
             if( el.Attribute( "op" ) != null ) {
                 Comparison = (ComparisonOperation)Enum.Parse( typeof( ComparisonOperation ), el.Attribute( "op" ).Value, true );
-            }
-            if( el.Attribute( "scope" ) != null ) {
-                Scope = (ConditionScopeType)Enum.Parse( typeof( ConditionScopeType ), el.Attribute( "scope" ).Value, true );
             }
         }
 
@@ -131,7 +127,6 @@ namespace fCraft.AutoRank {
             el.Add( new XAttribute( "field", Field ) );
             el.Add( new XAttribute( "val", Value ) );
             el.Add( new XAttribute( "op", Comparison ) );
-            el.Add( new XAttribute( "scope", Scope ) );
             return el;
         }
 

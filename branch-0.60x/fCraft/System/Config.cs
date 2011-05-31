@@ -294,6 +294,7 @@ namespace fCraft {
             // read rank definitions
             if( !skipRankList ) {
                 LoadRankList( config, version, fromFile );
+                RankManager.DefaultRank = RankManager.ParseRank( ConfigKey.DefaultRank.GetString() );
             }
 
             // read log options for console
@@ -344,8 +345,6 @@ namespace fCraft {
                      ConfigKey.MaxPlayers.GetInt() );
                 ConfigKey.MaxPlayersPerWorld.TrySetValue( ConfigKey.MaxPlayers.GetInt() );
             }
-
-            RankManager.DefaultRank = RankManager.ParseRank( ConfigKey.DefaultRank.GetString() );
 
             if( raiseReloadedEvent ) RaiseReloadedEvent();
 
@@ -489,7 +488,7 @@ namespace fCraft {
                 case ConfigKey.AntispamInterval:
                     Player.AntispamInterval = args.Key.GetInt();
                     break;
-                    
+
                 case ConfigKey.AntispamMessageCount:
                     Player.AntispamMessageCount = args.Key.GetInt();
                     break;
@@ -1003,7 +1002,7 @@ namespace fCraft {
                 new Dictionary<ConfigKey, EventHandler<ConfigKeyChangedEventArgs>>();
         static object keyChangedHandlerLock = new object();
 
-        public static void AddKeyChangedHandler( ConfigKey key, EventHandler<ConfigKeyChangedEventArgs> handler ){
+        public static void AddKeyChangedHandler( ConfigKey key, EventHandler<ConfigKeyChangedEventArgs> handler ) {
             lock( keyChangedHandlerLock ) {
                 keyChangedHandlers[key] += handler;
             }

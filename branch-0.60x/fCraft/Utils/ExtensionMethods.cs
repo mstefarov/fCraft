@@ -51,13 +51,6 @@ namespace fCraft {
             return (long)(timestamp - UnixEpoch).TotalSeconds;
         }
 
-        public static long ToUtcTimestamp( this DateTime timestamp ) {
-            if( timestamp.Kind != DateTimeKind.Utc ) {
-                timestamp = TimeZone.CurrentTimeZone.ToUniversalTime( timestamp );
-            }
-            return timestamp.ToTimestamp();
-        }
-
 
         #region ToDateTime
 

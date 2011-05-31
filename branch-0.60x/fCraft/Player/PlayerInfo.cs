@@ -7,8 +7,7 @@ using System.Threading;
 namespace fCraft {
     public sealed class PlayerInfo : IClassy {
 
-        public const int MinFieldCount = 24,
-                         ExpectedFieldCount = 45;
+        public const int MinFieldCount = 24;
 
         public string Name { get; internal set; }
 
@@ -652,6 +651,7 @@ namespace fCraft {
             LastSeen = DateTime.UtcNow;
             Online = false;
             PlayerObject = null;
+            LeaveReason = session.LeaveReason;
         }
 
 
