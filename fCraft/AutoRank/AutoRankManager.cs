@@ -7,8 +7,7 @@ using System.Xml.Linq;
 namespace fCraft.AutoRank {
     public static class AutoRankManager {
 
-        static readonly TimeSpan TickInterval = TimeSpan.FromSeconds( 60 );
-        static SchedulerTask task;
+        internal static readonly TimeSpan TickInterval = TimeSpan.FromSeconds( 60 );
 
         public static bool HasCriteria {
             get {
@@ -17,22 +16,10 @@ namespace fCraft.AutoRank {
         }
 
 
-        public static void CheckAutoRankSetting() {
-            if( ConfigKey.AutoRankEnabled.GetBool() ) {
-                if( task == null ) {
-                    task = Scheduler.NewBackgroundTask( TaskCallback );
-                    task.RunForever( TickInterval );
-                } else if( task.IsStopped ) {
-                    task.RunForever( TickInterval );
-                }
-            } else if( task != null && !task.IsStopped ) {
-                task.Stop();
-            }
-        }
-
-
         public static void TaskCallback( SchedulerTask schedulerTask ) {
-            MaintenanceCommands.DoAutoRankAll( Player.Console, PlayerDB.GetPlayerListCopy(), false, "~AutoRank" );
+            if( ConfigKey.AutoRankEnabled.GetBool() ) {
+                MaintenanceCommands.DoAutoRankAll( Player.Console, PlayerDB.GetPlayerListCopy(), false, "~AutoRank" );
+            }
         }
 
 

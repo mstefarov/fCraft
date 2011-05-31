@@ -95,9 +95,9 @@ namespace fCraft {
 
         #region Messaging
 
-        public static int SpamChatCount = 3;
-        public static int SpamChatTimer = 4;
-        readonly Queue<DateTime> spamChatLog = new Queue<DateTime>( SpamChatCount );
+        public static int AntispamMessageCount = 3;
+        public static int AntispamInterval = 4;
+        readonly Queue<DateTime> spamChatLog = new Queue<DateTime>( AntispamMessageCount );
 
         int muteWarnings;
         public static TimeSpan AutoMuteDuration = TimeSpan.FromSeconds( 5 );
@@ -113,16 +113,17 @@ namespace fCraft {
 
         bool DetectChatSpam() {
             if( this == Console ) return false;
-            if( spamChatLog.Count >= SpamChatCount ) {
+            if( spamChatLog.Count >= AntispamMessageCount ) {
                 DateTime oldestTime = spamChatLog.Dequeue();
-                if( DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds < SpamChatTimer ) {
+                if( DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds < AntispamInterval ) {
                     muteWarnings++;
                     if( muteWarnings > ConfigKey.AntispamMaxWarnings.GetInt() ) {
                         Session.KickNow( "You were kicked for repeated spamming.", LeaveReason.MessageSpamKick );
                         Server.SendToAll( "&W{0} was kicked for repeated spamming.", GetClassyName() );
                     } else {
-                        Info.Mute( "(antispam)", AutoMuteDuration );
-                        Message( "You have been muted for {0} seconds. Slow down.", AutoMuteDuration.TotalSeconds );
+                        TimeSpan autoMuteDuration = TimeSpan.FromSeconds( ConfigKey.AntispamMuteDuration.GetInt() );
+                        Info.Mute( "(antispam)", autoMuteDuration );
+                        Message( "You have been muted for {0} seconds. Slow down.", autoMuteDuration );
                     }
                     return true;
                 }

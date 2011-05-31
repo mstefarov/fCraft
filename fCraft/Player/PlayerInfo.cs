@@ -10,7 +10,7 @@ namespace fCraft {
         public const int MinFieldCount = 24,
                          ExpectedFieldCount = 45;
 
-        public string Name { get; private set; }
+        public string Name { get; internal set; }
 
         public IPAddress LastIP;
 

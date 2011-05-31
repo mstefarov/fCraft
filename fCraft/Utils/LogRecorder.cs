@@ -9,9 +9,14 @@ namespace fCraft {
         List<string> messages = new List<string>();
         public bool HasMessages { get; private set; }
         LogType[] thingsToLog;
+        bool disposed;
 
         public LogRecorder()
             : this( LogType.Error, LogType.Warning ) {
+        }
+
+        ~LogRecorder() {
+            Dispose();
         }
 
 
@@ -52,7 +57,10 @@ namespace fCraft {
 
 
         public void Dispose() {
-            Logger.Logged -= HandleLog;
+            if( !disposed ) {
+                Logger.Logged -= HandleLog;
+                disposed = true;
+            }
         }
     }
 }

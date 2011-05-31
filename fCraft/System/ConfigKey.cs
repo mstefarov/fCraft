@@ -463,7 +463,7 @@ Reports are confidential and are not displayed publicly." )]
 @"The number of blocks that players can undo at a time.
 Only the most-recent draw command can be undo, so the actual
 limit also depends on rank draw limits. Saving undo information
-takes up 16 bytes per block.",
+takes up 16 bytes per block. If set to 0, there is no limit.",
             MinValue = 0 )]
         MaxUndo,
 

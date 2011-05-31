@@ -660,7 +660,7 @@ namespace fCraft {
             Server.RaisePlayerPlacedBlockEvent( player, (short)x, (short)y, (short)h, (Block)drawBlock, false );
             //player.SendDelayed( PacketWriter.MakeSetBlock( x, y, h, drawBlock ) );
 
-            if( blocks < MaxUndoCount ) {
+            if( MaxUndoCount < 1 || blocks < MaxUndoCount ) {
                 player.UndoBuffer.Enqueue( new BlockUpdate( null, x, y, h, block ) );
             } else if( !cannotUndo ) {
                 player.UndoBuffer.Clear();
@@ -969,7 +969,7 @@ namespace fCraft {
                                 }
                                 player.World.Map.QueueUpdate( new BlockUpdate( null, x + x3, y + y3, h, args.ReplacementBlock ) );
                                 Server.RaisePlayerPlacedBlockEvent( player, (short)x, (short)y, (short)h, args.ReplacementBlock, false );
-                                if( blocks < MaxUndoCount ) {
+                                if( MaxUndoCount < 1 || blocks < MaxUndoCount ) {
                                     player.UndoBuffer.Enqueue( new BlockUpdate( null, x + x3, y + y3, h, block ) );
                                 } else if( !cannotUndo ) {
                                     player.UndoBuffer.Clear();
