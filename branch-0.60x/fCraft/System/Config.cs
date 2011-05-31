@@ -145,6 +145,7 @@ namespace fCraft {
         static readonly Dictionary<ConfigKey, KeyValuePair<string, string>> LegacyConfigValues = new Dictionary<ConfigKey, KeyValuePair<string, string>>();
 
 
+
         static Config() {
             foreach( var keyField in typeof( ConfigKey ).GetFields() ) {
                 foreach( var attribute in (ConfigKeyAttribute[])keyField.GetCustomAttributes( typeof( ConfigKeyAttribute ), false ) ) {
@@ -152,6 +153,10 @@ namespace fCraft {
                     attribute.Key = key;
                     KeyMetadata.Add( key, attribute );
                 }
+            }
+
+            foreach( ConfigKey key in Enum.GetValues( typeof( ConfigKey ) ) ) {
+                keyChangedHandlers[key] = null;
             }
 
             foreach( ConfigSection section in Enum.GetValues( typeof( ConfigSection ) ) ) {
@@ -188,8 +193,17 @@ namespace fCraft {
                 if( !Settings.ContainsKey( key ) ) {
                     throw new Exception( "One of the ConfigKey keys is missing a default: " + key );
                 }
+
                 if( Settings[key] == null ) {
-                    throw new Exception( "One of the ConfigKey kets is null: " + key );
+                    throw new Exception( "One of the ConfigKey keys is null: " + key );
+                }
+
+                if( !keyChangedHandlers.ContainsKey( key ) ) {
+                    throw new Exception( "One of the ConfigKey keys does not have a keyChangedHandler: " + key );
+                }
+
+                if( !KeyMetadata.ContainsKey( key ) ) {
+                    throw new Exception( "One of the ConfigKey keys does not have metadata set: " + key );
                 }
 
                 GetValueType( key );
@@ -331,6 +345,8 @@ namespace fCraft {
                 ConfigKey.MaxPlayersPerWorld.TrySetValue( ConfigKey.MaxPlayers.GetInt() );
             }
 
+            RankManager.DefaultRank = RankManager.ParseRank( ConfigKey.DefaultRank.GetString() );
+
             if( raiseReloadedEvent ) RaiseReloadedEvent();
 
             return true;
@@ -446,66 +462,125 @@ namespace fCraft {
         }
 
 
-        internal static void ApplyConfig() {
-            Logger.SplittingType = (LogSplittingType)Enum.Parse( typeof( LogSplittingType ), Settings[ConfigKey.LogMode], true );
-            Logger.MarkLogStart();
-
-            Player.RelayAllUpdates = GetBool( ConfigKey.RelayAllBlockUpdates );
-            if( GetBool( ConfigKey.NoPartialPositionUpdates ) ) {
-                Session.FullPositionUpdateInterval = 0;
-            } else {
-                Session.FullPositionUpdateInterval = Session.FullPositionUpdateIntervalDefault;
+        static bool applyChanges;
+        public static bool ApplyChanges {
+            get {
+                return applyChanges;
             }
-
-            // chat colors
-            Color.Sys = Color.Parse( Settings[ConfigKey.SystemMessageColor] );
-            Color.Say = Color.Parse( Settings[ConfigKey.SayColor] );
-            Color.Help = Color.Parse( Settings[ConfigKey.HelpColor] );
-            Color.Announcement = Color.Parse( Settings[ConfigKey.AnnouncementColor] );
-            Color.PM = Color.Parse( Settings[ConfigKey.PrivateMessageColor] );
-            Color.IRC = Color.Parse( Settings[ConfigKey.IRCMessageColor] );
-            Color.Me = Color.Parse( Settings[ConfigKey.MeColor] );
-            Color.Warning = Color.Parse( Settings[ConfigKey.WarningColor] );
-
-            // default class
-            if( !ConfigKey.DefaultRank.IsBlank() ) {
-                if( RankManager.ParseRank( Settings[ConfigKey.DefaultRank] ) != null ) {
-                    RankManager.DefaultRank = RankManager.ParseRank( Settings[ConfigKey.DefaultRank] );
-                } else {
-                    RankManager.DefaultRank = RankManager.LowestRank;
-                    Logger.Log( "Config.ApplyConfig: Could not parse DefaultRank; assuming that the lowest rank ({0}) is the default.",
-                         LogType.Warning, RankManager.DefaultRank.Name );
+            set {
+                if( value != applyChanges ) {
+                    if( applyChanges ) {
+                        KeyChanged += OnKeyChanged;
+                    } else {
+                        KeyChanged -= OnKeyChanged;
+                    }
                 }
-            } else {
-                RankManager.DefaultRank = RankManager.LowestRank;
+                applyChanges = value;
             }
+        }
 
-            // antispam
-            Player.SpamChatCount = GetInt( ConfigKey.AntispamMessageCount );
-            Player.SpamChatTimer = GetInt( ConfigKey.AntispamInterval );
-            Player.AutoMuteDuration = TimeSpan.FromSeconds( GetInt( ConfigKey.AntispamMuteDuration ) );
 
-            // scheduler settings
-            Server.MaxUploadSpeed = GetInt( ConfigKey.UploadBandwidth );
-            Server.PacketsPerSecond = GetInt( ConfigKey.BlockUpdateThrottling );
-            Server.TicksPerSecond = 1000 / (float)GetInt( ConfigKey.TickInterval );
+        static void OnKeyChanged( object sender, ConfigKeyChangedEventArgs args ) {
+            switch( args.Key ) {
+                case ConfigKey.AnnouncementColor:
+                    Color.Announcement = Color.Parse( args.NewValue );
+                    break;
 
-            // rank to patrol
-            World.RankToPatrol = RankManager.ParseRank( ConfigKey.PatrolledRank.GetString() );
+                case ConfigKey.AntispamInterval:
+                    Player.AntispamInterval = args.Key.GetInt();
+                    break;
+                    
+                case ConfigKey.AntispamMessageCount:
+                    Player.AntispamMessageCount = args.Key.GetInt();
+                    break;
 
-            // IRC delay
-            IRC.SendDelay = GetInt( ConfigKey.IRCDelay );
+                case ConfigKey.BandwidthUseMode:
+                    Player[] playerListCache = Server.PlayerList;
+                    foreach( Player p in playerListCache ) {
+                        if( p.Session.BandwidthUseMode == BandwidthUseMode.Default ) {
+                            p.Session.BandwidthUseMode = BandwidthUseMode.Default;
+                        }
+                    }
+                    break;
 
-            BuildingCommands.MaxUndoCount = GetInt( ConfigKey.MaxUndo );
+                case ConfigKey.BlockUpdateThrottling:
+                    Server.BlockUpdateThrottling = args.Key.GetInt();
+                    break;
 
-            if( !Paths.IgnoreMapPathConfigKey && GetString( ConfigKey.MapPath ).Length > 0 ) {
-                if( Paths.TestDirectory( "MapPath", GetString( ConfigKey.MapPath ), true ) ) {
-                    Paths.MapPath = Path.GetFullPath( GetString( ConfigKey.MapPath ) );
-                    Logger.Log( "Maps are stored at: {0}", LogType.SystemActivity, Paths.MapPath );
-                }
+                case ConfigKey.ConsoleName:
+                    Player.Console.Info.Name = args.Key.GetString();
+                    break;
+
+                case ConfigKey.HelpColor:
+                    Color.Help = Color.Parse( args.Key.GetString() );
+                    break;
+
+                case ConfigKey.IRCDelay:
+                    IRC.SendDelay = args.Key.GetInt();
+                    break;
+
+                case ConfigKey.IRCMessageColor:
+                    Color.IRC = Color.Parse( args.Key.GetString() );
+                    break;
+
+                case ConfigKey.LogMode:
+                    Logger.SplittingType = args.Key.GetEnum<LogSplittingType>();
+                    Logger.MarkLogStart();
+                    break;
+
+                case ConfigKey.MapPath:
+                    if( !Paths.IgnoreMapPathConfigKey && GetString( ConfigKey.MapPath ).Length > 0 ) {
+                        if( Paths.TestDirectory( "MapPath", GetString( ConfigKey.MapPath ), true ) ) {
+                            Paths.MapPath = Path.GetFullPath( GetString( ConfigKey.MapPath ) );
+                            Logger.Log( "Maps are stored at: {0}", LogType.SystemActivity, Paths.MapPath );
+                        }
+                    }
+                    break;
+
+                case ConfigKey.MaxUndo:
+                    BuildingCommands.MaxUndoCount = args.Key.GetInt();
+                    break;
+
+                case ConfigKey.MeColor:
+                    Color.Me = Color.Parse( args.Key.GetString() );
+                    break;
+
+                case ConfigKey.NoPartialPositionUpdates:
+                    if( args.Key.GetBool() ) {
+                        Session.FullPositionUpdateInterval = 0;
+                    } else {
+                        Session.FullPositionUpdateInterval = Session.FullPositionUpdateIntervalDefault;
+                    }
+                    break;
+
+                case ConfigKey.PrivateMessageColor:
+                    Color.PM = Color.Parse( args.Key.GetString() );
+                    break;
+
+                case ConfigKey.RelayAllBlockUpdates:
+                    Player.RelayAllUpdates = args.Key.GetBool();
+                    break;
+
+                case ConfigKey.SayColor:
+                    Color.Say = Color.Parse( args.Key.GetString() );
+                    break;
+
+                case ConfigKey.SystemMessageColor:
+                    Color.Sys = Color.Parse( args.Key.GetString() );
+                    break;
+
+                case ConfigKey.TickInterval:
+                    Server.TicksPerSecond = 1000 / (float)args.Key.GetInt();
+                    break;
+
+                case ConfigKey.UploadBandwidth:
+                    Server.MaxUploadSpeed = args.Key.GetInt();
+                    break;
+
+                case ConfigKey.WarningColor:
+                    Color.Warning = Color.Parse( args.Key.GetString() );
+                    break;
             }
-
-            AutoRankManager.CheckAutoRankSetting();
         }
 
         #endregion
@@ -924,6 +999,23 @@ namespace fCraft {
 
         #region Events
 
+        static Dictionary<ConfigKey, EventHandler<ConfigKeyChangedEventArgs>> keyChangedHandlers =
+                new Dictionary<ConfigKey, EventHandler<ConfigKeyChangedEventArgs>>();
+        static object keyChangedHandlerLock = new object();
+
+        public static void AddKeyChangedHandler( ConfigKey key, EventHandler<ConfigKeyChangedEventArgs> handler ){
+            lock( keyChangedHandlerLock ) {
+                keyChangedHandlers[key] += handler;
+            }
+        }
+
+        public static void RemoveKeyChangedHandler( ConfigKey key, EventHandler<ConfigKeyChangedEventArgs> handler ) {
+            lock( keyChangedHandlerLock ) {
+                keyChangedHandlers[key] -= handler;
+            }
+        }
+
+
         /// <summary> Occurs after the entire configuration has been reloaded from file. </summary>
         public static event EventHandler Reloaded;
 
@@ -955,7 +1047,10 @@ namespace fCraft {
 
         static void RaiseKeyChangedEvent( ConfigKey key, string oldValue, string newValue ) {
             var h = KeyChanged;
-            if( h != null ) h( null, new ConfigKeyChangedEventArgs( key, oldValue, newValue ) );
+            var args = new ConfigKeyChangedEventArgs( key, oldValue, newValue );
+            if( h != null ) h( null, args );
+            h = keyChangedHandlers[key];
+            if( h != null ) h( null, args );
         }
 
         #endregion

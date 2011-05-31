@@ -20,7 +20,7 @@ namespace fCraft {
         public static DateTime ServerStart { get; private set; }
 
         internal static int MaxUploadSpeed,   // set by Config.ApplyConfig
-                            PacketsPerSecond; // used when there are no players in a world
+                            BlockUpdateThrottling; // used when there are no players in a world
 
         internal const int MaxSessionPacketsPerTick = 128, // used when there are no players in a world
                            MaxBlockUpdatesPerTick = 100000; // used when there are no players in a world
@@ -235,11 +235,13 @@ namespace fCraft {
             } catch { }
 #endif
 
+            Config.ApplyChanges = true;
+
             // try to load the config
             if( !Config.Load( false, false ) ) {
                 throw new Exception( "fCraft failed to initialize" );
             }
-            Config.ApplyConfig();
+
             Salt = GenerateSalt();
 
             // load player DB
@@ -383,9 +385,12 @@ namespace fCraft {
 
             if( ConfigKey.IRCBotEnabled.GetBool() ) IRC.Start();
 
+            Scheduler.NewTask( AutoRankManager.TaskCallback ).RunForever( AutoRankManager.TickInterval );
+
             RaiseEvent( Started );
             return true;
         }
+
 
         static void AutoRestartCallback( SchedulerTask task ) {
             var shutdownParams = new ShutdownParams( ShutdownReason.Restarting, 5, true, true );
@@ -898,7 +903,7 @@ namespace fCraft {
 
         public static int CalculateMaxPacketsPerUpdate( World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );
-            int packetsPerTick = (int)(PacketsPerSecond / TicksPerSecond);
+            int packetsPerTick = (int)(BlockUpdateThrottling / TicksPerSecond);
             int maxPacketsPerUpdate = (int)(MaxUploadSpeed / TicksPerSecond * 128);
 
             int playerCount = world.PlayerList.Length;

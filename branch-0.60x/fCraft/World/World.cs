@@ -518,7 +518,6 @@ namespace fCraft {
         #region Patrol
 
         readonly LinkedList<Player> patrolList = new LinkedList<Player>();
-        internal static Rank RankToPatrol;
 
         public Player GetNextPatrolTarget() {
             lock( patrolLock ) {
@@ -545,7 +544,8 @@ namespace fCraft {
 
         void AddPlayerForPatrol( Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( player.Info.Rank <= RankToPatrol ) {
+            Rank rankToPatrol = RankManager.ParseRank( ConfigKey.PatrolledRank.GetString() );
+            if( player.Info.Rank <= rankToPatrol ) {
                 lock( patrolLock ) {
                     patrolList.AddLast( player );
                 }
@@ -555,12 +555,13 @@ namespace fCraft {
 
         internal void CheckIfPlayerIsPatrollable( Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
+            Rank rankToPatrol = RankManager.ParseRank( ConfigKey.PatrolledRank.GetString() );
             lock( patrolLock ) {
                 if( patrolList.Contains( player ) ) {
-                    if( player.Info.Rank > RankToPatrol ) {
+                    if( player.Info.Rank > rankToPatrol ) {
                         RemovePlayerFromPatrol( player );
                     }
-                } else if( player.Info.Rank <= RankToPatrol ) {
+                } else if( player.Info.Rank <= rankToPatrol ) {
                     AddPlayerForPatrol( player );
                 }
             }

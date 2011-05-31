@@ -997,11 +997,12 @@ namespace fCraft {
             }
 
             set {
-                if( value == BandwidthUseMode.Default ) {
-                    value = ConfigKey.BandwidthUseMode.GetEnum<BandwidthUseMode>();
-                }
                 bandwidthUseMode = value;
-                switch( bandwidthUseMode ) {
+                BandwidthUseMode actualValue = value;
+                if( value == BandwidthUseMode.Default ) {
+                    actualValue = ConfigKey.BandwidthUseMode.GetEnum<BandwidthUseMode>();
+                }
+                switch( actualValue ) {
                     case BandwidthUseMode.VeryLow:
                         entityShowingThreshold = (40 * 32) * (40 * 32);
                         entityHidingThreshold = (42 * 32) * (42 * 32);
