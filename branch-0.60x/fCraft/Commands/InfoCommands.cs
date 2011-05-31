@@ -171,12 +171,12 @@ namespace fCraft {
                 } else {
                     if( player.Can( Permission.ViewPlayerIPs ) ) {
                         player.Message( "About {0}&S: Last seen {1} ago from {2}",
-                                        info.Name,
+                                        info.GetClassyName(),
                                         info.TimeSinceLastSeen.ToMiniString(),
                                         info.LastIP );
                     } else {
                         player.Message( "About {0}&S: Last seen {1} ago.",
-                                        info.Name,
+                                        info.GetClassyName(),
                                         info.TimeSinceLastSeen.ToMiniString() );
                     }
                 }
