@@ -100,7 +100,6 @@ namespace fCraft {
 
 
         public void UnloadMap( bool expectedPendingFlag ) {
-            Map thisMap = Map;
             lock( WorldLock ) {
                 if( expectedPendingFlag != PendingUnload ) return;
                 SaveMap();
@@ -573,7 +572,7 @@ namespace fCraft {
         #region Scheduled Tasks
 
         SchedulerTask updateTask, saveTask, backupTask;
-        object taskLock = new object();
+        readonly object taskLock = new object();
 
 
         internal void StopTasks() {

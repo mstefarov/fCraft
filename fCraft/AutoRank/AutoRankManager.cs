@@ -34,9 +34,12 @@ namespace fCraft.AutoRank {
 
         public static Rank Check( PlayerInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
-            foreach( Criterion c in Criteria ) {
-                if( c.FromRank == info.Rank && !info.Banned && c.Condition.Eval( info ) ) {
-                    return c.ToRank;
+            for( int i = 0; i < Criteria.Count; i++ ) {
+                if( Criteria[i].FromRank == info.Rank &&
+                    !info.Banned &&
+                    Criteria[i].Condition.Eval( info ) ) {
+
+                    return Criteria[i].ToRank;
                 }
             }
             return null;
@@ -49,6 +52,7 @@ namespace fCraft.AutoRank {
             if( File.Exists( Paths.AutoRankFile ) ) {
                 try {
                     XDocument doc = XDocument.Load( Paths.AutoRankFile );
+                    if( doc.Root == null ) return;
                     foreach( XElement el in doc.Root.Elements( "Criterion" ) ) {
                         try {
                             Add( new Criterion( el ) );
@@ -144,23 +148,6 @@ namespace fCraft.AutoRank {
         /// <summary> Time since the player has been kicked by other players or by console.
         /// Does not reset from any kind of automated kicks (AFK kicks, anti-grief or anti-spam, server shutdown, etc). </summary>
         TimeSinceLastKick
-    }
-
-
-    // Not yet implemented.
-    public enum ConditionScopeType {
-        Total,
-        SinceRankChange,
-        SinceKick,
-        TimeSpan
-    }
-
-
-    // Not yet implemented.
-    public enum CriterionType {
-        Required,
-        Suggested,
-        Automatic
     }
 
     #endregion

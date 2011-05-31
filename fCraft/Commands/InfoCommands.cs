@@ -170,14 +170,29 @@ namespace fCraft {
                     }
                 } else {
                     if( player.Can( Permission.ViewPlayerIPs ) ) {
-                        player.Message( "About {0}&S: Last seen {1} ago from {2}",
-                                        info.GetClassyName(),
-                                        info.TimeSinceLastSeen.ToMiniString(),
-                                        info.LastIP );
+                        if( info.LeaveReason != LeaveReason.Unknown ) {
+                            player.Message( "About {0}&S: Last seen {1} ago from {2} ({3}).",
+                                            info.GetClassyName(),
+                                            info.TimeSinceLastSeen.ToMiniString(),
+                                            info.LastIP,
+                                            info.LeaveReason );
+                        } else {
+                            player.Message( "About {0}&S: Last seen {1} ago from {2}.",
+                                            info.GetClassyName(),
+                                            info.TimeSinceLastSeen.ToMiniString(),
+                                            info.LastIP );
+                        }
                     } else {
-                        player.Message( "About {0}&S: Last seen {1} ago.",
-                                        info.GetClassyName(),
-                                        info.TimeSinceLastSeen.ToMiniString() );
+                        if( info.LeaveReason != LeaveReason.Unknown ) {
+                            player.Message( "About {0}&S: Last seen {1} ago ({2}).",
+                                            info.GetClassyName(),
+                                            info.TimeSinceLastSeen.ToMiniString(),
+                                            info.LeaveReason );
+                        } else {
+                            player.Message( "About {0}&S: Last seen {1} ago.",
+                                            info.GetClassyName(),
+                                            info.TimeSinceLastSeen.ToMiniString() );
+                        }
                     }
                 }
                 // Show login information

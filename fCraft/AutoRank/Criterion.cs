@@ -5,7 +5,6 @@ using System.Xml.Linq;
 
 namespace fCraft.AutoRank {
     public sealed class Criterion : ICloneable {
-        public CriterionType Type { get; set; }
         public Rank FromRank { get; set; }
         public Rank ToRank { get; set; }
         public Condition Condition { get; set; }
@@ -14,17 +13,15 @@ namespace fCraft.AutoRank {
 
         public Criterion( Criterion other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            Type = other.Type;
             FromRank = other.FromRank;
             ToRank = other.ToRank;
             Condition = other.Condition;
         }
 
-        public Criterion( CriterionType type, Rank fromRank, Rank toRank, Condition condition ) {
+        public Criterion( Rank fromRank, Rank toRank, Condition condition ) {
             if( fromRank == null ) throw new ArgumentNullException( "fromRank" );
             if( toRank == null ) throw new ArgumentNullException( "toRank" );
             if( condition == null ) throw new ArgumentNullException( "condition" );
-            Type = type;
             FromRank = fromRank;
             ToRank = toRank;
             Condition = condition;
@@ -32,7 +29,6 @@ namespace fCraft.AutoRank {
 
         public Criterion( XElement el ) {
             if( el == null ) throw new ArgumentNullException( "el" );
-            Type = (CriterionType)Enum.Parse( typeof( CriterionType ), el.Attribute( "type" ).Value, true );
 
             FromRank = RankManager.ParseRank( el.Attribute( "fromRank" ).Value );
             if( FromRank == null ) throw new FormatException( "Could not parse \"fromRank\"" );
@@ -68,7 +64,6 @@ namespace fCraft.AutoRank {
 
         public XElement Serialize() {
             XElement el = new XElement( "Criterion" );
-            el.Add( new XAttribute( "type", Type ) );
             el.Add( new XAttribute( "fromRank", FromRank ) );
             el.Add( new XAttribute( "toRank", ToRank ) );
             if( Condition != null ) {

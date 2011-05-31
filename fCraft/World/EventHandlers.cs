@@ -8,7 +8,6 @@ namespace fCraft {
     public delegate void PlayerChangedBlockEventHandler( World world, ref BlockUpdate update, ref bool cancel );
     public delegate void PlayerSentMessageEventHandler( Player player, World world, ref string message, ref bool cancel );
 
-    public delegate void PlayerRankChangedEventHandler( PlayerInfo target, Player changer, Rank oldRank, Rank newRank, string reason, ref bool cancel );
     public delegate void PlayerBanStatusChangedEventHandler( PlayerInfo target, Player banner, string reason );
 
     /// <summary>

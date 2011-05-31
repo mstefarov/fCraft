@@ -53,10 +53,6 @@ namespace fCraft {
         // last command (to be able to repeat)
         public Command LastCommand;
 
-        // map-specific PlayerID for block tracking
-        // if no ID is assigned, set to ReservedPlayerID.None
-        public ushort LocalPlayerID = (ushort)ReservedPlayerID.None;
-
 
         // This constructor is used to create dummy players (such as Console and /dummy)
         // It will soon be replaced by a generic Entity class
