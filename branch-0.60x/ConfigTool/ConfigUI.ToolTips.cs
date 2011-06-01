@@ -196,6 +196,10 @@ By default, players can only mute players of same or lower rank." );
 @"Limit on who can be brought (forcibly teleported) by players of this rank.
 By default, players can only bring players of same or lower rank." );
 
+            toolTip.SetToolTip( permissionLimitBoxes[Permission.Spectate],
+@"Limit on who can be spectated by players of this rank.
+By default, players can only bring players of same or lower rank." );
+
 
 
             toolTip.SetToolTip( xReserveSlot,

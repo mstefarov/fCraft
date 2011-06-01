@@ -25,7 +25,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -1227,8 +1227,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 394 );
             this.dgvWorlds.TabIndex = 1;
@@ -1389,7 +1389,7 @@
             // xAllowSecurityCircumvention
             // 
             this.xAllowSecurityCircumvention.AutoSize = true;
-            this.xAllowSecurityCircumvention.Location = new System.Drawing.Point( 12, 160 );
+            this.xAllowSecurityCircumvention.Location = new System.Drawing.Point( 12, 165 );
             this.xAllowSecurityCircumvention.Name = "xAllowSecurityCircumvention";
             this.xAllowSecurityCircumvention.Size = new System.Drawing.Size( 271, 19 );
             this.xAllowSecurityCircumvention.TabIndex = 27;
@@ -1400,7 +1400,7 @@
             // lAntiGrief1
             // 
             this.lAntiGrief1.AutoSize = true;
-            this.lAntiGrief1.Location = new System.Drawing.Point( 63, 135 );
+            this.lAntiGrief1.Location = new System.Drawing.Point( 50, 135 );
             this.lAntiGrief1.Name = "lAntiGrief1";
             this.lAntiGrief1.Size = new System.Drawing.Size( 47, 15 );
             this.lAntiGrief1.TabIndex = 22;
@@ -1417,7 +1417,7 @@
             // 
             // nAntiGriefSeconds
             // 
-            this.nAntiGriefSeconds.Location = new System.Drawing.Point( 242, 133 );
+            this.nAntiGriefSeconds.Location = new System.Drawing.Point( 229, 133 );
             this.nAntiGriefSeconds.Name = "nAntiGriefSeconds";
             this.nAntiGriefSeconds.Size = new System.Drawing.Size( 40, 21 );
             this.nAntiGriefSeconds.TabIndex = 14;
@@ -1436,7 +1436,7 @@
             // xDrawLimit
             // 
             this.xDrawLimit.AutoSize = true;
-            this.xDrawLimit.Location = new System.Drawing.Point( 12, 185 );
+            this.xDrawLimit.Location = new System.Drawing.Point( 12, 190 );
             this.xDrawLimit.Name = "xDrawLimit";
             this.xDrawLimit.Size = new System.Drawing.Size( 81, 19 );
             this.xDrawLimit.TabIndex = 15;
@@ -1447,7 +1447,7 @@
             // lDrawLimitUnits
             // 
             this.lDrawLimitUnits.AutoSize = true;
-            this.lDrawLimitUnits.Location = new System.Drawing.Point( 172, 186 );
+            this.lDrawLimitUnits.Location = new System.Drawing.Point( 172, 191 );
             this.lDrawLimitUnits.Name = "lDrawLimitUnits";
             this.lDrawLimitUnits.Size = new System.Drawing.Size( 42, 15 );
             this.lDrawLimitUnits.TabIndex = 8;
@@ -1469,7 +1469,7 @@
             0,
             0,
             0} );
-            this.nDrawLimit.Location = new System.Drawing.Point( 99, 184 );
+            this.nDrawLimit.Location = new System.Drawing.Point( 99, 189 );
             this.nDrawLimit.Maximum = new decimal( new int[] {
             100000000,
             0,
@@ -1507,7 +1507,7 @@
             // lAntiGrief2
             // 
             this.lAntiGrief2.AutoSize = true;
-            this.lAntiGrief2.Location = new System.Drawing.Point( 181, 135 );
+            this.lAntiGrief2.Location = new System.Drawing.Point( 168, 135 );
             this.lAntiGrief2.Name = "lAntiGrief2";
             this.lAntiGrief2.Size = new System.Drawing.Size( 55, 15 );
             this.lAntiGrief2.TabIndex = 5;
@@ -1526,7 +1526,7 @@
             // 
             // nAntiGriefBlocks
             // 
-            this.nAntiGriefBlocks.Location = new System.Drawing.Point( 116, 133 );
+            this.nAntiGriefBlocks.Location = new System.Drawing.Point( 103, 133 );
             this.nAntiGriefBlocks.Maximum = new decimal( new int[] {
             1000,
             0,

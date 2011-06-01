@@ -68,8 +68,17 @@ namespace fCraft {
 
             Player target = Server.FindPlayerOrPrintMatches( player, targetName, false );
             if( target == null ) return;
+
             if( target == player ) {
                 player.Message( "You cannot spectate yourself." );
+                return;
+            }
+
+            if( !player.Can( Permission.Spectate, target.Info.Rank ) ) {
+                player.Message( "You can only spectate players ranked {0}&S or lower.",
+                player.Info.Rank.GetLimit( Permission.Spectate ).GetClassyName() );
+                player.Message( "{0}&S is ranked {1}",
+                                target.GetClassyName(), target.Info.Rank.GetClassyName() );
                 return;
             }
 
