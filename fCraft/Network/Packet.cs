@@ -15,7 +15,7 @@ namespace fCraft {
             get { return (OpCode)Data[0]; }
         }
 
-        static int[] PacketSizes = {
+        static readonly int[] PacketSizes = {
             131,    // Handshake
             1,      // Ping
             1,      // LevelBegin

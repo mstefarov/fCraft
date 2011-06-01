@@ -932,12 +932,12 @@ namespace fCraft.Events {
 
     public class PlayerInfoRankChangedEventArgs : PlayerInfoEventArgs {
         public PlayerInfoRankChangedEventArgs( PlayerInfo playerInfo, Player rankChanger, Rank oldRank, string reason, RankChangeType rankChangeType )
-            :base(playerInfo){
-            RankChanger=rankChanger;
-            OldRank =oldRank;
+            : base( playerInfo ) {
+            RankChanger = rankChanger;
+            OldRank = oldRank;
             NewRank = playerInfo.Rank;
-            Reason=reason;
-            RankChangeType=rankChangeType;
+            Reason = reason;
+            RankChangeType = rankChangeType;
         }
 
         public Player RankChanger { get; private set; }
@@ -947,7 +947,8 @@ namespace fCraft.Events {
         public RankChangeType RankChangeType { get; private set; }
     }
 
-    public class PlayerInfoRankChangingEventArgs : PlayerInfoRankChangedEventArgs {
+
+    public sealed class PlayerInfoRankChangingEventArgs : PlayerInfoRankChangedEventArgs {
         public PlayerInfoRankChangingEventArgs( PlayerInfo playerInfo, Player rankChanger, Rank newRank, string reason, RankChangeType rankChangeType )
             : base( playerInfo, rankChanger, playerInfo.Rank, reason, rankChangeType ) {
             NewRank = newRank;

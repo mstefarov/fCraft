@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using fCraft.Events;
 
 namespace fCraft {
-    public class LogRecorder : IDisposable {
-        object locker = new object();
-        List<string> messages = new List<string>();
-        public bool HasMessages { get; private set; }
-        LogType[] thingsToLog;
+    public sealed class LogRecorder : IDisposable {
+        readonly object locker = new object();
+        readonly List<string> messages = new List<string>();
+        readonly LogType[] thingsToLog;
         bool disposed;
+
+        public bool HasMessages { get; private set; }
 
         public LogRecorder()
             : this( LogType.Error, LogType.Warning ) {

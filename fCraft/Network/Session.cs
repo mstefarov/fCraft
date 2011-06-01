@@ -117,7 +117,7 @@ namespace fCraft {
                         }
                         if( pingCounter > pingInterval ) {
                             writer.WritePing();
-                            bytesSent++;
+                            BytesSent++;
                             pingCounter = 0;
                             MeasureBandwidthUseRates();
                         }
@@ -139,7 +139,7 @@ namespace fCraft {
                         if( Player.IsDeaf && packet.OpCode == OpCode.Message ) continue;
 
                         writer.Write( packet.Data );
-                        bytesSent += packet.Data.Length;
+                        BytesSent += packet.Data.Length;
                         packetsSent++;
 
                         if( packet.OpCode == OpCode.Kick ) {
@@ -162,7 +162,7 @@ namespace fCraft {
                             if( forcedWorldToJoin != null ) {
                                 while( priorityOutputQueue.Dequeue( ref packet ) ) {
                                     writer.Write( packet.Data );
-                                    bytesSent += packet.Data.Length;
+                                    BytesSent += packet.Data.Length;
                                     packetsSent++;
                                     if( packet.OpCode == OpCode.Kick ) {
                                         writer.Flush();
@@ -205,7 +205,7 @@ namespace fCraft {
                                 break;
 
                             case OpCode.Ping:
-                                bytesReceived++;
+                                BytesReceived++;
                                 continue;
 
                             default:
@@ -244,7 +244,7 @@ namespace fCraft {
 
 
         bool ProcessMessagePacket() {
-            bytesReceived += 66;
+            BytesReceived += 66;
             Player.ResetIdleTimer();
             reader.ReadByte();
             string message = ReadString();
@@ -273,7 +273,7 @@ namespace fCraft {
 
 
         void ProcessMovementPacket() {
-            bytesReceived += 10;
+            BytesReceived += 10;
             reader.ReadByte();
             Position newPos = new Position {
                 X = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
@@ -352,7 +352,7 @@ namespace fCraft {
 
 
         void ProcessSetBlockPacket() {
-            bytesReceived += 9;
+            BytesReceived += 9;
             if( Player.World == null || Player.World.Map == null ) return;
             Player.ResetIdleTimer();
             short x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
@@ -428,7 +428,7 @@ namespace fCraft {
                         byte[] stringData = Encoding.UTF8.GetBytes( NoSmpMessage );
                         writer.Write( (short)stringData.Length );
                         writer.Write( stringData );
-                        bytesSent += (1 + stringData.Length);
+                        BytesSent += (1 + stringData.Length);
                         writer.Flush();
 
                     } else {
@@ -460,7 +460,7 @@ namespace fCraft {
             string playerName = ReadString();
             string verificationCode = ReadString();
             reader.ReadByte(); // unused
-            bytesReceived += 131;
+            BytesReceived += 131;
 
 
             // Check name for nonstandard characters
@@ -811,7 +811,7 @@ namespace fCraft {
             }
 
             writer.WriteLevelBegin();
-            bytesSent++;
+            BytesSent++;
 
             // enable Nagle's algorithm (in case it was turned off by LowLatencyMode)
             // to avoid wasting bandwidth for map transfer
@@ -844,19 +844,19 @@ namespace fCraft {
 
                 // write in chunks of 1024 bytes or less
                 writer.WriteLevelChunk( buffer, chunkSize, progress );
-                bytesSent += 1028; 
+                BytesSent += 1028; 
                 mapBytesSent += chunkSize;
             }
 
             // Done sending over level copy
             writer.WriteLevelEnd( map );
-            bytesSent += 7;
+            BytesSent += 7;
 
             // Send spawn point
             writer.WriteAddEntity( 255, Player, map.Spawn );
-            bytesSent += 74;
+            BytesSent += 74;
             writer.WriteTeleport( 255, spawn );
-            bytesSent += 10;
+            BytesSent += 10;
 
             Player.Message( "Joined world {0}", newWorld.GetClassyName() );
 
@@ -888,7 +888,7 @@ namespace fCraft {
         /// </summary>
         public void SendNow( Packet packet ) {
             writer.Write( packet.Data );
-            bytesSent += packet.Data.Length;
+            BytesSent += packet.Data.Length;
         }
 
 
@@ -1313,23 +1313,22 @@ namespace fCraft {
 
         #region Bandwidth Use Metering
 
-        int bytesSent, bytesReceived;
         DateTime lastMeasurementDate = DateTime.UtcNow;
         int lastBytesSent, lastBytesReceived;
 
-        public int BytesSent { get { return bytesSent; } }
-        public int BytesReceived { get { return bytesReceived; } }
+        public int BytesSent { get; private set; }
+        public int BytesReceived { get; private set; }
         public double BytesSentRate { get; private set; }
         public double BytesReceivedRate { get; private set; }
 
         void MeasureBandwidthUseRates() {
-            int sentDelta = bytesSent - lastBytesSent;
-            int receivedDelta = bytesReceived - lastBytesReceived;
+            int sentDelta = BytesSent - lastBytesSent;
+            int receivedDelta = BytesReceived - lastBytesReceived;
             TimeSpan timeDelta = DateTime.UtcNow.Subtract( lastMeasurementDate );
             BytesSentRate = sentDelta / timeDelta.TotalSeconds;
             BytesReceivedRate = receivedDelta / timeDelta.TotalSeconds;
-            lastBytesSent = bytesSent;
-            lastBytesReceived = bytesReceived;
+            lastBytesSent = BytesSent;
+            lastBytesReceived = BytesReceived;
             lastMeasurementDate = DateTime.UtcNow;
         }
 

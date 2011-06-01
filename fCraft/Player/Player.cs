@@ -5,19 +5,16 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Cache;
-using System.Text;
 using System.Threading;
-using fCraft.Events;
 
 namespace fCraft {
-    /// <summary>
-    /// Callback for a player-made selection of one or more blocks on a map.
+    /// <summary> Callback for a player-made selection of one or more blocks on a map.
     /// A command may request a number of marks/blocks to select, and a specify callback
-    /// to be executed when the desired number of marks/blocks is reached.
-    /// </summary>
-    /// <param name="player">Player who made the selection.</param>
-    /// <param name="marks">An array of 3D marks/blocks, in terms of block coordinates.</param>
-    /// <param name="tag">An optional argument to pass to the callback, the value of player.selectionArgs</param>
+    /// to be executed when the desired number of marks/blocks is reached. </summary>
+    /// <param name="player"> Player who made the selection. </param>
+    /// <param name="marks"> An array of 3D marks/blocks, in terms of block coordinates. </param>
+    /// <param name="tag"> An optional argument to pass to the callback,
+    /// the value of player.selectionArgs </param>
     public delegate void SelectionCallback( Player player, Position[] marks, object tag );
 
 
@@ -96,7 +93,6 @@ namespace fCraft {
         readonly Queue<DateTime> spamChatLog = new Queue<DateTime>( AntispamMessageCount );
 
         int muteWarnings;
-        public static TimeSpan AutoMuteDuration = TimeSpan.FromSeconds( 5 );
 
         const int ConfirmationTimeout = 60;
 
@@ -611,7 +607,8 @@ namespace fCraft {
         }
 
 
-        /// <summary>  Gets the block from given location in player's world, and sends it (async) to the player.
+        /// <summary>  Gets the block from given location in player's world,
+        /// and sends it (async) to the player.
         /// Used to undo player's attempted block placement/deletion. </summary>
         public void RevertBlock( short x, short y, short h ) {
             Session.SendDelayed( PacketWriter.MakeSetBlock( x, y, h, World.Map.GetBlockByte( x, y, h ) ) );
@@ -898,11 +895,11 @@ namespace fCraft {
             if( target == null ) throw new ArgumentNullException( "target" );
             if( target == this ) throw new ArgumentException( "Cannot spectate self.", "target" );
             Message( "Now spectating {0}&S. Type &H/unspec&S to stop.", target.GetClassyName() );
-            return (Interlocked.Exchange<Player>( ref Session.SpectatedPlayer, target ) == null);
+            return (Interlocked.Exchange( ref Session.SpectatedPlayer, target ) == null);
         }
 
         public bool StopSpectating() {
-            Player wasSpectating = Interlocked.Exchange<Player>( ref Session.SpectatedPlayer, null );
+            Player wasSpectating = Interlocked.Exchange( ref Session.SpectatedPlayer, null );
             if( wasSpectating != null ) {
                 Message( "Stopped spectating {0}", wasSpectating.GetClassyName() );
                 return true;
