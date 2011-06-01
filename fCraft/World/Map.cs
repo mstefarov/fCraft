@@ -139,6 +139,7 @@ namespace fCraft {
                 MapFCMv3.WriteLengthPrefixedString( writer, "security" );
                 MapFCMv3.WriteLengthPrefixedString( writer, "build" );
                 MapFCMv3.WriteLengthPrefixedString( writer, thisWorld.BuildSecurity.Serialize().ToString() );
+                metaCount += 2;
             }
             return metaCount;
         }
