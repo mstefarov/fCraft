@@ -276,7 +276,7 @@ namespace fCraft {
             }
 
             ServerStart = DateTime.UtcNow;
-            CPUUsageStartingOffset = Process.GetCurrentProcess().TotalProcessorTime;
+            cpuUsageStartingOffset = Process.GetCurrentProcess().TotalProcessorTime;
 
             RaiseEvent( Starting );
 
@@ -394,7 +394,7 @@ namespace fCraft {
 
         static void AutoRestartCallback( SchedulerTask task ) {
             var shutdownParams = new ShutdownParams( ShutdownReason.Restarting, 5, true, true );
-            Server.Shutdown( shutdownParams, false );
+            Shutdown( shutdownParams, false );
         }
 
         #endregion
@@ -841,7 +841,7 @@ namespace fCraft {
         // measures CPU usage
 
         public static bool IsMonitoringCPUUsage { get; private set; }
-        static TimeSpan CPUUsageStartingOffset;
+        static TimeSpan cpuUsageStartingOffset;
         public static double CPUUsageTotal { get; private set; }
         public static double CPUUsageLastMinute { get; private set; }
 
@@ -850,7 +850,7 @@ namespace fCraft {
         static DateTime lastMonitorTime = DateTime.UtcNow;
 
         static void MonitorProcessorUsage( SchedulerTask task ) {
-            TimeSpan newCPUTime = Process.GetCurrentProcess().TotalProcessorTime - CPUUsageStartingOffset;
+            TimeSpan newCPUTime = Process.GetCurrentProcess().TotalProcessorTime - cpuUsageStartingOffset;
             CPUUsageLastMinute = (newCPUTime - oldCPUTime).TotalSeconds /
                                  (Environment.ProcessorCount * DateTime.UtcNow.Subtract( lastMonitorTime ).TotalSeconds);
             lastMonitorTime = DateTime.UtcNow;

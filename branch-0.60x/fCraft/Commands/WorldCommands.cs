@@ -857,7 +857,6 @@ namespace fCraft {
                     case 'l':
                         listAllLoaded = true;
                         listVisible = false;
-                        listHidden = false;
                         break;
                     default:
                         cdWorlds.PrintUsage( player );

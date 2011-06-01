@@ -1,6 +1,4 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
-using System.ComponentModel;
-
 namespace fCraft {
 
     // See comment at the top of Config.cs for a history of changes.

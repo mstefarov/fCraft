@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using fCraft.Events;
-using fCraft.AutoRank;
 
 namespace fCraft {
 
@@ -156,7 +155,7 @@ namespace fCraft {
             }
 
             foreach( ConfigKey key in Enum.GetValues( typeof( ConfigKey ) ) ) {
-                keyChangedHandlers[key] = null;
+                KeyChangedHandlers[key] = null;
             }
 
             foreach( ConfigSection section in Enum.GetValues( typeof( ConfigSection ) ) ) {
@@ -198,7 +197,7 @@ namespace fCraft {
                     throw new Exception( "One of the ConfigKey keys is null: " + key );
                 }
 
-                if( !keyChangedHandlers.ContainsKey( key ) ) {
+                if( !KeyChangedHandlers.ContainsKey( key ) ) {
                     throw new Exception( "One of the ConfigKey keys does not have a keyChangedHandler: " + key );
                 }
 
@@ -998,19 +997,19 @@ namespace fCraft {
 
         #region Events
 
-        static Dictionary<ConfigKey, EventHandler<ConfigKeyChangedEventArgs>> keyChangedHandlers =
+        static readonly Dictionary<ConfigKey, EventHandler<ConfigKeyChangedEventArgs>> KeyChangedHandlers =
                 new Dictionary<ConfigKey, EventHandler<ConfigKeyChangedEventArgs>>();
-        static object keyChangedHandlerLock = new object();
+        static readonly object KeyChangedHandlerLock = new object();
 
         public static void AddKeyChangedHandler( ConfigKey key, EventHandler<ConfigKeyChangedEventArgs> handler ) {
-            lock( keyChangedHandlerLock ) {
-                keyChangedHandlers[key] += handler;
+            lock( KeyChangedHandlerLock ) {
+                KeyChangedHandlers[key] += handler;
             }
         }
 
         public static void RemoveKeyChangedHandler( ConfigKey key, EventHandler<ConfigKeyChangedEventArgs> handler ) {
-            lock( keyChangedHandlerLock ) {
-                keyChangedHandlers[key] -= handler;
+            lock( KeyChangedHandlerLock ) {
+                KeyChangedHandlers[key] -= handler;
             }
         }
 
@@ -1048,7 +1047,7 @@ namespace fCraft {
             var h = KeyChanged;
             var args = new ConfigKeyChangedEventArgs( key, oldValue, newValue );
             if( h != null ) h( null, args );
-            h = keyChangedHandlers[key];
+            h = KeyChangedHandlers[key];
             if( h != null ) h( null, args );
         }
 
