@@ -34,6 +34,9 @@ namespace ConfigTool {
 
         void Init( object sender, EventArgs e ) {
             FillOptionList();
+
+            FillPermissionLimitBoxes();
+
             FillToolTipsGeneral();
             FillToolTipsChat();
             FillToolTipsWorlds();
@@ -70,19 +73,6 @@ namespace ConfigTool {
             }
         }
 
-        internal static void HandleWorldRename( string from, string to ) {
-            if( instance.cMainWorld.SelectedItem == null ) {
-                instance.cMainWorld.SelectedIndex = 0;
-            } else {
-                string mainWorldName = instance.cMainWorld.SelectedItem.ToString();
-                instance.FillWorldList();
-                if( mainWorldName == from ) {
-                    instance.cMainWorld.SelectedItem = to;
-                } else {
-                    instance.cMainWorld.SelectedItem = mainWorldName;
-                }
-            }
-        }
 
         void FillWorldList() {
             cMainWorld.Items.Clear();
@@ -535,14 +525,9 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
             tPrefix.Text = rank.Prefix;
 
-            cKickLimit.SelectedIndex = rank.GetLimitIndex( Permission.Kick );
-            cBanLimit.SelectedIndex = rank.GetLimitIndex( Permission.Ban );
-            cPromoteLimit.SelectedIndex = rank.GetLimitIndex( Permission.Promote );
-            cDemoteLimit.SelectedIndex = rank.GetLimitIndex( Permission.Demote );
-            cMaxHideFrom.SelectedIndex = rank.GetLimitIndex( Permission.Hide );
-            cFreezeLimit.SelectedIndex = rank.GetLimitIndex( Permission.Freeze );
-            cMuteLimit.SelectedIndex = rank.GetLimitIndex( Permission.Mute );
-            cBringLimit.SelectedIndex = rank.GetLimitIndex( Permission.Bring );
+            foreach( var box in permissionLimitBoxes.Values ) {
+                box.SelectRank( rank );
+            }
 
             xReserveSlot.Checked = rank.ReservedSlot;
             xKickIdle.Checked = rank.IdleKickTimer > 0;
@@ -566,15 +551,6 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 }
             }
 
-            cKickLimit.Enabled = rank.Can( Permission.Kick );
-            cBanLimit.Enabled = rank.Can( Permission.Ban );
-            cPromoteLimit.Enabled = rank.Can( Permission.Promote );
-            cDemoteLimit.Enabled = rank.Can( Permission.Demote );
-            cMaxHideFrom.Enabled = rank.Can( Permission.Hide );
-            cFreezeLimit.Enabled = rank.Can( Permission.Freeze );
-            cMuteLimit.Enabled = rank.Can( Permission.Mute );
-            cBringLimit.Enabled = rank.Can( Permission.Bring );
-
             xDrawLimit.Enabled = rank.Can( Permission.Draw ) || rank.Can( Permission.CopyAndPaste );
             nDrawLimit.Enabled = xDrawLimit.Checked;
             xAllowSecurityCircumvention.Enabled = rank.Can( Permission.ManageWorlds ) || rank.Can( Permission.ManageZones );
@@ -587,6 +563,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             bRaiseRank.Enabled = ( selectedRank != RankManager.HighestRank );
             bLowerRank.Enabled = ( selectedRank != RankManager.LowestRank );
         }
+
 
         void RebuildRankList() {
             vRanks.Items.Clear();
@@ -605,26 +582,12 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             FillRankList( cPatrolledRank, "(lowest rank)" );
             cPatrolledRank.SelectedIndex = RankManager.GetIndex( patrolledRank );
 
-            FillRankList( cKickLimit, "(own rank)" );
-            FillRankList( cBanLimit, "(own rank)" );
-            FillRankList( cPromoteLimit, "(own rank)" );
-            FillRankList( cDemoteLimit, "(own rank)" );
-            FillRankList( cMaxHideFrom, "(own rank)" );
-            FillRankList( cFreezeLimit, "(own rank)" );
-            FillRankList( cMuteLimit, "(own rank)" );
-            FillRankList( cBringLimit, "(own rank)" );
-
-            if( selectedRank != null ) {
-                cKickLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Kick );
-                cBanLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Ban );
-                cPromoteLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Promote );
-                cDemoteLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Demote );
-                cMaxHideFrom.SelectedIndex = selectedRank.GetLimitIndex( Permission.Hide );
-                cFreezeLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Freeze );
-                cMuteLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Mute );
-                cBringLimit.SelectedIndex = selectedRank.GetLimitIndex( Permission.Bring );
+            foreach( var box in permissionLimitBoxes.Values ) {
+                box.RebuildList();
+                box.SelectRank( selectedRank );
             }
         }
+
 
         void DisableRankOptions() {
             selectedRank = null;
@@ -635,23 +598,9 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             bColorRank.Text = "";
             tPrefix.Text = "";
 
-            FillRankList( cKickLimit, "(own rank)" );
-            FillRankList( cBanLimit, "(own rank)" );
-            FillRankList( cPromoteLimit, "(own rank)" );
-            FillRankList( cDemoteLimit, "(own rank)" );
-            FillRankList( cMaxHideFrom, "(own rank)" );
-            FillRankList( cFreezeLimit, "(own rank)" );
-            FillRankList( cMuteLimit, "(own rank)" );
-            FillRankList( cBringLimit, "(own rank)" );
-
-            cPromoteLimit.SelectedIndex = 0;
-            cDemoteLimit.SelectedIndex = 0;
-            cKickLimit.SelectedIndex = 0;
-            cBanLimit.SelectedIndex = 0;
-            cMaxHideFrom.SelectedIndex = 0;
-            cFreezeLimit.SelectedIndex = 0;
-            cMuteLimit.SelectedIndex = 0;
-            cBringLimit.SelectedIndex = 0;
+            foreach( var box in permissionLimitBoxes.Values ) {
+                box.SelectRank( null );
+            }
 
             xReserveSlot.Checked = false;
             xKickIdle.Checked = false;
@@ -677,53 +626,6 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 box.Items.Add( rank.ToComboBoxOption() );
             }
         }
-
-
-        #region Permission Limits
-
-        private void cPromoteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            PermissionLimitChange( Permission.Promote, cPromoteLimit );
-        }
-
-        private void cDemoteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            PermissionLimitChange( Permission.Demote, cDemoteLimit );
-        }
-
-        private void cKickLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            PermissionLimitChange( Permission.Kick, cKickLimit );
-        }
-
-        private void cBanLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            PermissionLimitChange( Permission.Ban, cBanLimit );
-        }
-
-        private void cMaxHideFrom_SelectedIndexChanged( object sender, EventArgs e ) {
-            PermissionLimitChange( Permission.Hide, cMaxHideFrom );
-        }
-
-        private void cFreezeLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            PermissionLimitChange( Permission.Freeze, cFreezeLimit );
-        }
-
-        private void cMuteLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            PermissionLimitChange( Permission.Mute, cMuteLimit );
-        }
-
-        private void cBringLimit_SelectedIndexChanged( object sender, EventArgs e ) {
-            PermissionLimitChange( Permission.Bring, cBringLimit );
-        }
-
-        void PermissionLimitChange( Permission permission, ComboBox control ) {
-            if( selectedRank != null ) {
-                if( control.SelectedIndex == 0 ) {
-                    selectedRank.ResetLimit( permission );
-                } else {
-                    selectedRank.SetLimit( permission, RankManager.FindRank( control.SelectedIndex - 1 ) );
-                }
-            }
-        }
-
-        #endregion
 
 
         #region Ranks Input Handlers
@@ -950,7 +852,10 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 e.Item.Font = vPermissions.Font;
             }
             if( selectedRank == null ) return;
-            switch( (Permission)e.Item.Tag ) {
+
+            Permission permission = (Permission)e.Item.Tag;
+
+            switch( permission ) {
                 case Permission.Chat:
                     if( !check ) {
                         vPermissions.Items[(int)Permission.Say].Checked = false;
@@ -972,7 +877,6 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                     break;
 
                 case Permission.Ban:
-                    cBanLimit.Enabled = check;
                     if( !check ) {
                         vPermissions.Items[(int)Permission.BanIP].Checked = false;
                         vPermissions.Items[(int)Permission.BanIP].ForeColor = SystemColors.GrayText;
@@ -983,6 +887,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                         vPermissions.Items[(int)Permission.BanAll].ForeColor = SystemColors.ControlText;
                     }
                     break;
+
                 case Permission.BanIP:
                     if( check ) {
                         vPermissions.Items[(int)Permission.Ban].Checked = true;
@@ -992,25 +897,13 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                         vPermissions.Items[(int)Permission.BanAll].ForeColor = SystemColors.GrayText;
                     }
                     break;
+
                 case Permission.BanAll:
                     if( check ) {
                         vPermissions.Items[(int)Permission.Ban].Checked = true;
                         vPermissions.Items[(int)Permission.BanIP].Checked = true;
                     }
                     break;
-
-                case Permission.Kick:
-                    cKickLimit.Enabled = check; break;
-                case Permission.Promote:
-                    cPromoteLimit.Enabled = check; break;
-                case Permission.Demote:
-                    cDemoteLimit.Enabled = check; break;
-                case Permission.Hide:
-                    cMaxHideFrom.Enabled = check; break;
-                case Permission.Freeze:
-                    cFreezeLimit.Enabled = check; break;
-                case Permission.Mute:
-                    cMuteLimit.Enabled = check; break;
 
                 case Permission.Draw:
                 case Permission.CopyAndPaste:
@@ -1032,6 +925,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                         vPermissions.Items[(int)Permission.Patrol].ForeColor = SystemColors.ControlText;
                     }
                     break;
+
                 case Permission.Patrol:
                     if( check ) vPermissions.Items[(int)Permission.Teleport].Checked = true;
                     break;
@@ -1044,6 +938,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                         vPermissions.Items[(int)Permission.DeleteAdmincrete].ForeColor = SystemColors.ControlText;
                     }
                     break;
+
                 case Permission.DeleteAdmincrete:
                     if( check ) vPermissions.Items[(int)Permission.Delete].Checked = true;
                     break;
@@ -1074,7 +969,6 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                     break;
 
                 case Permission.Bring:
-                    cBringLimit.Enabled = check;
                     if( !check ) {
                         vPermissions.Items[(int)Permission.BringAll].Checked = false;
                         vPermissions.Items[(int)Permission.BringAll].ForeColor = SystemColors.GrayText;
@@ -1087,6 +981,10 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                     if( check ) vPermissions.Items[(int)Permission.Bring].Checked = true;
                     break;
 
+            }
+
+            if( permissionLimitBoxes.ContainsKey( permission ) ) {
+                permissionLimitBoxes[permission].PermissionToggled( check );
             }
 
             selectedRank.Permissions[(int)e.Item.Tag] = e.Item.Checked;
@@ -1305,6 +1203,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
         #endregion
 
+
         #region Colors
         int colorSys, colorSay, colorHelp, colorAnnouncement, colorPM, colorIRC, colorMe, colorWarning;
 
@@ -1423,10 +1322,12 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
         #endregion
 
+
         private void bRules_Click( object sender, EventArgs e ) {
             TextEditorPopup popup = new TextEditorPopup( Paths.RulesFileName, "Use common sense!" );
             popup.ShowDialog();
         }
+
 
         internal static bool IsWorldNameTaken( string name ) {
             foreach( WorldListEntry world in worlds ) {
@@ -1435,11 +1336,27 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             return false;
         }
 
+
         void CheckMaxPlayersPerWorldValue() {
             if( nMaxPlayersPerWorld.Value > nMaxPlayers.Value ) {
                 nMaxPlayersPerWorld.Value = nMaxPlayers.Value;
             }
             nMaxPlayersPerWorld.Maximum = Math.Min( 128, nMaxPlayers.Value );
+        }
+
+
+        internal static void HandleWorldRename( string from, string to ) {
+            if( instance.cMainWorld.SelectedItem == null ) {
+                instance.cMainWorld.SelectedIndex = 0;
+            } else {
+                string mainWorldName = instance.cMainWorld.SelectedItem.ToString();
+                instance.FillWorldList();
+                if( mainWorldName == from ) {
+                    instance.cMainWorld.SelectedItem = to;
+                } else {
+                    instance.cMainWorld.SelectedItem = mainWorldName;
+                }
+            }
         }
 
         #endregion
@@ -1455,6 +1372,26 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 case DialogResult.Cancel:
                     e.Cancel = true;
                     return;
+            }
+        }
+
+
+        Dictionary<Permission, PermissionLimitBox> permissionLimitBoxes = new Dictionary<Permission, PermissionLimitBox>();
+
+        const string ownRank = "(own rank)";
+        void FillPermissionLimitBoxes() {
+
+            permissionLimitBoxes[Permission.Kick] = new PermissionLimitBox( "Kick limit", Permission.Kick, ownRank );
+            permissionLimitBoxes[Permission.Ban] = new PermissionLimitBox( "Ban limit", Permission.Ban, ownRank );
+            permissionLimitBoxes[Permission.Promote] = new PermissionLimitBox( "Promote limit", Permission.Promote, ownRank );
+            permissionLimitBoxes[Permission.Demote] = new PermissionLimitBox( "Demote limit", Permission.Demote, ownRank );
+            permissionLimitBoxes[Permission.Hide] = new PermissionLimitBox( "Can hide from", Permission.Hide, ownRank );
+            permissionLimitBoxes[Permission.Freeze] = new PermissionLimitBox( "Freeze limit", Permission.Freeze, ownRank );
+            permissionLimitBoxes[Permission.Mute] = new PermissionLimitBox( "Mute limit", Permission.Mute, ownRank );
+            permissionLimitBoxes[Permission.Bring] = new PermissionLimitBox( "Bring limit", Permission.Bring, ownRank );
+
+            foreach( var box in permissionLimitBoxes.Values ) {
+                permissionLimitBoxContainer.Controls.Add( box );
             }
         }
     }

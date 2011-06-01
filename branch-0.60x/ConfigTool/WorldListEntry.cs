@@ -106,7 +106,10 @@ namespace ConfigTool {
                 if( loadingFailed ) {
                     return "(cannot load file)";
                 } else {
-                    return String.Format( "{0} × {1} × {2}", cachedMapHeader.WidthX, cachedMapHeader.WidthY, cachedMapHeader.Height );
+                    return String.Format( "{0} × {1} × {2}",
+                                          cachedMapHeader.WidthX,
+                                          cachedMapHeader.WidthY,
+                                          cachedMapHeader.Height );
                 }
             }
         }

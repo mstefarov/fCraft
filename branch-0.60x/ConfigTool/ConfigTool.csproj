@@ -85,6 +85,9 @@
     <EmbeddedResource Include="DeleteRankPopup.resx">
       <DependentUpon>DeleteRankPopup.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="PermissionLimitBox.resx">
+      <DependentUpon>PermissionLimitBox.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -135,6 +138,12 @@
     </Compile>
     <Compile Include="DeleteRankPopup.Designer.cs">
       <DependentUpon>DeleteRankPopup.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PermissionLimitBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PermissionLimitBox.Designer.cs">
+      <DependentUpon>PermissionLimitBox.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
