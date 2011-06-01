@@ -164,53 +164,37 @@ The option to show prefixes in chat is on ""General"" tab.";
 
 
 
-            string tipKickLimit =
+            toolTip.SetToolTip( permissionLimitBoxes[Permission.Kick],
 @"Limit on who can be kicked by players of this rank.
-By default, players can only kick players of same or lower rank.";
-            toolTip.SetToolTip( lKickLimit, tipKickLimit );
-            toolTip.SetToolTip( cKickLimit, tipKickLimit );
+By default, players can only kick players of same or lower rank." );
 
-            string tipBanLimit =
+            toolTip.SetToolTip( permissionLimitBoxes[Permission.Ban],
 @"Limit on who can be banned by players of this rank.
-By default, players can only ban players of same or lower rank.";
-            toolTip.SetToolTip( lBanLimit, tipBanLimit );
-            toolTip.SetToolTip( cBanLimit, tipBanLimit );
+By default, players can only ban players of same or lower rank." );
 
-            string tipPromoteLimit =
+            toolTip.SetToolTip( permissionLimitBoxes[Permission.Promote],
 @"Limit on how much can players of this rank promote others.
-By default, players can only promote up to the same or lower rank.";
-            toolTip.SetToolTip( lPromoteLimit, tipPromoteLimit );
-            toolTip.SetToolTip( cPromoteLimit, tipPromoteLimit );
+By default, players can only promote up to the same or lower rank." );
 
-            string tipDemoteLimit =
-@"Limit on who can be demoted by players of this rank.
-By default, players can only demote players of same or lower rank.";
-            toolTip.SetToolTip( lDemoteLimit, tipDemoteLimit );
-            toolTip.SetToolTip( cDemoteLimit, tipDemoteLimit );
+            toolTip.SetToolTip( permissionLimitBoxes[Permission.Demote],
+@"Limit on whom players of this rank can demote.
+By default, players can only demote players of same or lower rank." );
 
-            string tipHideLimit =
+            toolTip.SetToolTip( permissionLimitBoxes[Permission.Hide],
 @"Limit on whom can players of this rank hide from.
-By default, players can only hide from players of same or lower rank.";
-            toolTip.SetToolTip( lMaxHideFrom, tipHideLimit );
-            toolTip.SetToolTip( cMaxHideFrom, tipHideLimit );
+By default, players can only hide from players of same or lower rank." );
 
-            string tipFreezeLimit =
+            toolTip.SetToolTip( permissionLimitBoxes[Permission.Freeze],
 @"Limit on who can be frozen by players of this rank.
-By default, players can only freeze players of same or lower rank.";
-            toolTip.SetToolTip( lFreezeLimit, tipFreezeLimit );
-            toolTip.SetToolTip( cFreezeLimit, tipFreezeLimit );
+By default, players can only freeze players of same or lower rank." );
 
-            string tipMuteLimit =
+            toolTip.SetToolTip( permissionLimitBoxes[Permission.Mute],
 @"Limit on who can be muted by players of this rank.
-By default, players can only mute players of same or lower rank.";
-            toolTip.SetToolTip( lMuteLimit, tipMuteLimit );
-            toolTip.SetToolTip( cMuteLimit, tipMuteLimit );
+By default, players can only mute players of same or lower rank." );
 
-            string tipBringLimit =
+            toolTip.SetToolTip( permissionLimitBoxes[Permission.Bring],
 @"Limit on who can be brought (forcibly teleported) by players of this rank.
-By default, players can only bring players of same or lower rank.";
-            toolTip.SetToolTip( lBringLimit, tipBringLimit );
-            toolTip.SetToolTip( cBringLimit, tipBringLimit );
+By default, players can only bring players of same or lower rank." );
 
 
 

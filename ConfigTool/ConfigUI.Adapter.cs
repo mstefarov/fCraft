@@ -63,7 +63,7 @@ namespace ConfigTool {
 
 
         void LoadWorldList() {
-            worlds.Clear();
+            if( worlds.Count > 0 ) worlds.Clear();
             if( !File.Exists( Paths.WorldListFileName ) ) return;
 
             try {
@@ -219,6 +219,7 @@ namespace ConfigTool {
             foreach( Rank rank in RankManager.Ranks ) {
                 vRanks.Items.Add( rank.ToComboBoxOption() );
             }
+            RebuildRankList();
             DisableRankOptions();
         }
 

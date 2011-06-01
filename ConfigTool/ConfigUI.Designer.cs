@@ -25,7 +25,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -109,19 +109,13 @@
             this.dgvcBuild = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.dgvcBackup = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.tabRanks = new System.Windows.Forms.TabPage();
+            this.gPermissionLimits = new System.Windows.Forms.GroupBox();
+            this.permissionLimitBoxContainer = new System.Windows.Forms.FlowLayoutPanel();
             this.lRankList = new System.Windows.Forms.Label();
             this.bLowerRank = new System.Windows.Forms.Button();
             this.bRaiseRank = new System.Windows.Forms.Button();
             this.gRankOptions = new System.Windows.Forms.GroupBox();
-            this.cBringLimit = new System.Windows.Forms.ComboBox();
-            this.lBringLimit = new System.Windows.Forms.Label();
-            this.cMuteLimit = new System.Windows.Forms.ComboBox();
-            this.lMuteLimit = new System.Windows.Forms.Label();
             this.xAllowSecurityCircumvention = new System.Windows.Forms.CheckBox();
-            this.cFreezeLimit = new System.Windows.Forms.ComboBox();
-            this.lFreezeLimit = new System.Windows.Forms.Label();
-            this.cMaxHideFrom = new System.Windows.Forms.ComboBox();
-            this.lMaxHideFrom = new System.Windows.Forms.Label();
             this.lAntiGrief1 = new System.Windows.Forms.Label();
             this.lAntiGrief3 = new System.Windows.Forms.Label();
             this.nAntiGriefSeconds = new System.Windows.Forms.NumericUpDown();
@@ -136,14 +130,6 @@
             this.xKickIdle = new System.Windows.Forms.CheckBox();
             this.nAntiGriefBlocks = new System.Windows.Forms.NumericUpDown();
             this.xReserveSlot = new System.Windows.Forms.CheckBox();
-            this.cBanLimit = new System.Windows.Forms.ComboBox();
-            this.cKickLimit = new System.Windows.Forms.ComboBox();
-            this.cDemoteLimit = new System.Windows.Forms.ComboBox();
-            this.cPromoteLimit = new System.Windows.Forms.ComboBox();
-            this.lBanLimit = new System.Windows.Forms.Label();
-            this.lKickLimit = new System.Windows.Forms.Label();
-            this.lDemoteLimit = new System.Windows.Forms.Label();
-            this.lPromoteLimit = new System.Windows.Forms.Label();
             this.tPrefix = new System.Windows.Forms.TextBox();
             this.lPrefix = new System.Windows.Forms.Label();
             this.lRankColor = new System.Windows.Forms.Label();
@@ -301,6 +287,7 @@
             this.tabWorlds.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvWorlds)).BeginInit();
             this.tabRanks.SuspendLayout();
+            this.gPermissionLimits.SuspendLayout();
             this.gRankOptions.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefSeconds)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nDrawLimit)).BeginInit();
@@ -1240,8 +1227,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 394 );
             this.dgvWorlds.TabIndex = 1;
@@ -1294,6 +1281,7 @@
             // 
             // tabRanks
             // 
+            this.tabRanks.Controls.Add( this.gPermissionLimits );
             this.tabRanks.Controls.Add( this.lRankList );
             this.tabRanks.Controls.Add( this.bLowerRank );
             this.tabRanks.Controls.Add( this.bRaiseRank );
@@ -1310,6 +1298,31 @@
             this.tabRanks.TabIndex = 2;
             this.tabRanks.Text = "Ranks";
             this.tabRanks.UseVisualStyleBackColor = true;
+            // 
+            // gPermissionLimits
+            // 
+            this.gPermissionLimits.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.gPermissionLimits.Controls.Add( this.permissionLimitBoxContainer );
+            this.gPermissionLimits.Location = new System.Drawing.Point( 160, 237 );
+            this.gPermissionLimits.Name = "gPermissionLimits";
+            this.gPermissionLimits.Size = new System.Drawing.Size( 307, 270 );
+            this.gPermissionLimits.TabIndex = 9;
+            this.gPermissionLimits.TabStop = false;
+            this.gPermissionLimits.Text = "Permission Limits";
+            // 
+            // permissionLimitBoxContainer
+            // 
+            this.permissionLimitBoxContainer.AutoScroll = true;
+            this.permissionLimitBoxContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.permissionLimitBoxContainer.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.permissionLimitBoxContainer.Location = new System.Drawing.Point( 3, 17 );
+            this.permissionLimitBoxContainer.Margin = new System.Windows.Forms.Padding( 0 );
+            this.permissionLimitBoxContainer.Name = "permissionLimitBoxContainer";
+            this.permissionLimitBoxContainer.Size = new System.Drawing.Size( 301, 250 );
+            this.permissionLimitBoxContainer.TabIndex = 0;
+            this.permissionLimitBoxContainer.WrapContents = false;
             // 
             // lRankList
             // 
@@ -1346,15 +1359,7 @@
             // 
             this.gRankOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.gRankOptions.Controls.Add( this.cBringLimit );
-            this.gRankOptions.Controls.Add( this.lBringLimit );
-            this.gRankOptions.Controls.Add( this.cMuteLimit );
-            this.gRankOptions.Controls.Add( this.lMuteLimit );
             this.gRankOptions.Controls.Add( this.xAllowSecurityCircumvention );
-            this.gRankOptions.Controls.Add( this.cFreezeLimit );
-            this.gRankOptions.Controls.Add( this.lFreezeLimit );
-            this.gRankOptions.Controls.Add( this.cMaxHideFrom );
-            this.gRankOptions.Controls.Add( this.lMaxHideFrom );
             this.gRankOptions.Controls.Add( this.lAntiGrief1 );
             this.gRankOptions.Controls.Add( this.lAntiGrief3 );
             this.gRankOptions.Controls.Add( this.nAntiGriefSeconds );
@@ -1369,14 +1374,6 @@
             this.gRankOptions.Controls.Add( this.xKickIdle );
             this.gRankOptions.Controls.Add( this.nAntiGriefBlocks );
             this.gRankOptions.Controls.Add( this.xReserveSlot );
-            this.gRankOptions.Controls.Add( this.cBanLimit );
-            this.gRankOptions.Controls.Add( this.cKickLimit );
-            this.gRankOptions.Controls.Add( this.cDemoteLimit );
-            this.gRankOptions.Controls.Add( this.cPromoteLimit );
-            this.gRankOptions.Controls.Add( this.lBanLimit );
-            this.gRankOptions.Controls.Add( this.lKickLimit );
-            this.gRankOptions.Controls.Add( this.lDemoteLimit );
-            this.gRankOptions.Controls.Add( this.lPromoteLimit );
             this.gRankOptions.Controls.Add( this.tPrefix );
             this.gRankOptions.Controls.Add( this.lPrefix );
             this.gRankOptions.Controls.Add( this.lRankColor );
@@ -1384,53 +1381,15 @@
             this.gRankOptions.Controls.Add( this.lRankName );
             this.gRankOptions.Location = new System.Drawing.Point( 160, 13 );
             this.gRankOptions.Name = "gRankOptions";
-            this.gRankOptions.Size = new System.Drawing.Size( 307, 494 );
+            this.gRankOptions.Size = new System.Drawing.Size( 307, 218 );
             this.gRankOptions.TabIndex = 5;
             this.gRankOptions.TabStop = false;
             this.gRankOptions.Text = "Rank Options";
             // 
-            // cBringLimit
-            // 
-            this.cBringLimit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cBringLimit.FormattingEnabled = true;
-            this.cBringLimit.Location = new System.Drawing.Point( 96, 280 );
-            this.cBringLimit.Name = "cBringLimit";
-            this.cBringLimit.Size = new System.Drawing.Size( 180, 23 );
-            this.cBringLimit.TabIndex = 30;
-            this.cBringLimit.SelectedIndexChanged += new System.EventHandler( this.cBringLimit_SelectedIndexChanged );
-            // 
-            // lBringLimit
-            // 
-            this.lBringLimit.AutoSize = true;
-            this.lBringLimit.Location = new System.Drawing.Point( 28, 283 );
-            this.lBringLimit.Name = "lBringLimit";
-            this.lBringLimit.Size = new System.Drawing.Size( 62, 15 );
-            this.lBringLimit.TabIndex = 31;
-            this.lBringLimit.Text = "Bring limit";
-            // 
-            // cMuteLimit
-            // 
-            this.cMuteLimit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cMuteLimit.FormattingEnabled = true;
-            this.cMuteLimit.Location = new System.Drawing.Point( 96, 251 );
-            this.cMuteLimit.Name = "cMuteLimit";
-            this.cMuteLimit.Size = new System.Drawing.Size( 180, 23 );
-            this.cMuteLimit.TabIndex = 28;
-            this.cMuteLimit.SelectedIndexChanged += new System.EventHandler( this.cMuteLimit_SelectedIndexChanged );
-            // 
-            // lMuteLimit
-            // 
-            this.lMuteLimit.AutoSize = true;
-            this.lMuteLimit.Location = new System.Drawing.Point( 29, 254 );
-            this.lMuteLimit.Name = "lMuteLimit";
-            this.lMuteLimit.Size = new System.Drawing.Size( 61, 15 );
-            this.lMuteLimit.TabIndex = 29;
-            this.lMuteLimit.Text = "Mute limit";
-            // 
             // xAllowSecurityCircumvention
             // 
             this.xAllowSecurityCircumvention.AutoSize = true;
-            this.xAllowSecurityCircumvention.Location = new System.Drawing.Point( 9, 465 );
+            this.xAllowSecurityCircumvention.Location = new System.Drawing.Point( 12, 160 );
             this.xAllowSecurityCircumvention.Name = "xAllowSecurityCircumvention";
             this.xAllowSecurityCircumvention.Size = new System.Drawing.Size( 271, 19 );
             this.xAllowSecurityCircumvention.TabIndex = 27;
@@ -1438,48 +1397,10 @@
             this.xAllowSecurityCircumvention.UseVisualStyleBackColor = true;
             this.xAllowSecurityCircumvention.CheckedChanged += new System.EventHandler( this.xAllowSecurityCircumvention_CheckedChanged );
             // 
-            // cFreezeLimit
-            // 
-            this.cFreezeLimit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cFreezeLimit.FormattingEnabled = true;
-            this.cFreezeLimit.Location = new System.Drawing.Point( 96, 222 );
-            this.cFreezeLimit.Name = "cFreezeLimit";
-            this.cFreezeLimit.Size = new System.Drawing.Size( 180, 23 );
-            this.cFreezeLimit.TabIndex = 8;
-            this.cFreezeLimit.SelectedIndexChanged += new System.EventHandler( this.cFreezeLimit_SelectedIndexChanged );
-            // 
-            // lFreezeLimit
-            // 
-            this.lFreezeLimit.AutoSize = true;
-            this.lFreezeLimit.Location = new System.Drawing.Point( 19, 225 );
-            this.lFreezeLimit.Name = "lFreezeLimit";
-            this.lFreezeLimit.Size = new System.Drawing.Size( 71, 15 );
-            this.lFreezeLimit.TabIndex = 26;
-            this.lFreezeLimit.Text = "Freeze limit";
-            // 
-            // cMaxHideFrom
-            // 
-            this.cMaxHideFrom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cMaxHideFrom.FormattingEnabled = true;
-            this.cMaxHideFrom.Location = new System.Drawing.Point( 96, 193 );
-            this.cMaxHideFrom.Name = "cMaxHideFrom";
-            this.cMaxHideFrom.Size = new System.Drawing.Size( 180, 23 );
-            this.cMaxHideFrom.TabIndex = 7;
-            this.cMaxHideFrom.SelectedIndexChanged += new System.EventHandler( this.cMaxHideFrom_SelectedIndexChanged );
-            // 
-            // lMaxHideFrom
-            // 
-            this.lMaxHideFrom.AutoSize = true;
-            this.lMaxHideFrom.Location = new System.Drawing.Point( 6, 196 );
-            this.lMaxHideFrom.Name = "lMaxHideFrom";
-            this.lMaxHideFrom.Size = new System.Drawing.Size( 84, 15 );
-            this.lMaxHideFrom.TabIndex = 24;
-            this.lMaxHideFrom.Text = "Can hide from";
-            // 
             // lAntiGrief1
             // 
             this.lAntiGrief1.AutoSize = true;
-            this.lAntiGrief1.Location = new System.Drawing.Point( 43, 402 );
+            this.lAntiGrief1.Location = new System.Drawing.Point( 63, 135 );
             this.lAntiGrief1.Name = "lAntiGrief1";
             this.lAntiGrief1.Size = new System.Drawing.Size( 47, 15 );
             this.lAntiGrief1.TabIndex = 22;
@@ -1488,7 +1409,7 @@
             // lAntiGrief3
             // 
             this.lAntiGrief3.AutoSize = true;
-            this.lAntiGrief3.Location = new System.Drawing.Point( 265, 402 );
+            this.lAntiGrief3.Location = new System.Drawing.Point( 275, 135 );
             this.lAntiGrief3.Name = "lAntiGrief3";
             this.lAntiGrief3.Size = new System.Drawing.Size( 26, 15 );
             this.lAntiGrief3.TabIndex = 21;
@@ -1496,16 +1417,16 @@
             // 
             // nAntiGriefSeconds
             // 
-            this.nAntiGriefSeconds.Location = new System.Drawing.Point( 214, 400 );
+            this.nAntiGriefSeconds.Location = new System.Drawing.Point( 242, 133 );
             this.nAntiGriefSeconds.Name = "nAntiGriefSeconds";
-            this.nAntiGriefSeconds.Size = new System.Drawing.Size( 45, 21 );
+            this.nAntiGriefSeconds.Size = new System.Drawing.Size( 40, 21 );
             this.nAntiGriefSeconds.TabIndex = 14;
             this.nAntiGriefSeconds.ValueChanged += new System.EventHandler( this.nAntiGriefSeconds_ValueChanged );
             // 
             // bColorRank
             // 
             this.bColorRank.BackColor = System.Drawing.Color.White;
-            this.bColorRank.Location = new System.Drawing.Point( 96, 47 );
+            this.bColorRank.Location = new System.Drawing.Point( 201, 47 );
             this.bColorRank.Name = "bColorRank";
             this.bColorRank.Size = new System.Drawing.Size( 100, 24 );
             this.bColorRank.TabIndex = 1;
@@ -1515,7 +1436,7 @@
             // xDrawLimit
             // 
             this.xDrawLimit.AutoSize = true;
-            this.xDrawLimit.Location = new System.Drawing.Point( 9, 435 );
+            this.xDrawLimit.Location = new System.Drawing.Point( 12, 185 );
             this.xDrawLimit.Name = "xDrawLimit";
             this.xDrawLimit.Size = new System.Drawing.Size( 81, 19 );
             this.xDrawLimit.TabIndex = 15;
@@ -1526,7 +1447,7 @@
             // lDrawLimitUnits
             // 
             this.lDrawLimitUnits.AutoSize = true;
-            this.lDrawLimitUnits.Location = new System.Drawing.Point( 169, 436 );
+            this.lDrawLimitUnits.Location = new System.Drawing.Point( 172, 186 );
             this.lDrawLimitUnits.Name = "lDrawLimitUnits";
             this.lDrawLimitUnits.Size = new System.Drawing.Size( 42, 15 );
             this.lDrawLimitUnits.TabIndex = 8;
@@ -1535,7 +1456,7 @@
             // lKickIdleUnits
             // 
             this.lKickIdleUnits.AutoSize = true;
-            this.lKickIdleUnits.Location = new System.Drawing.Point( 178, 346 );
+            this.lKickIdleUnits.Location = new System.Drawing.Point( 181, 79 );
             this.lKickIdleUnits.Name = "lKickIdleUnits";
             this.lKickIdleUnits.Size = new System.Drawing.Size( 51, 15 );
             this.lKickIdleUnits.TabIndex = 19;
@@ -1548,7 +1469,7 @@
             0,
             0,
             0} );
-            this.nDrawLimit.Location = new System.Drawing.Point( 96, 434 );
+            this.nDrawLimit.Location = new System.Drawing.Point( 99, 184 );
             this.nDrawLimit.Maximum = new decimal( new int[] {
             100000000,
             0,
@@ -1561,7 +1482,7 @@
             // 
             // nKickIdle
             // 
-            this.nKickIdle.Location = new System.Drawing.Point( 113, 344 );
+            this.nKickIdle.Location = new System.Drawing.Point( 116, 77 );
             this.nKickIdle.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -1575,7 +1496,7 @@
             // xAntiGrief
             // 
             this.xAntiGrief.AutoSize = true;
-            this.xAntiGrief.Location = new System.Drawing.Point( 9, 375 );
+            this.xAntiGrief.Location = new System.Drawing.Point( 12, 108 );
             this.xAntiGrief.Name = "xAntiGrief";
             this.xAntiGrief.Size = new System.Drawing.Size( 213, 19 );
             this.xAntiGrief.TabIndex = 12;
@@ -1586,7 +1507,7 @@
             // lAntiGrief2
             // 
             this.lAntiGrief2.AutoSize = true;
-            this.lAntiGrief2.Location = new System.Drawing.Point( 153, 402 );
+            this.lAntiGrief2.Location = new System.Drawing.Point( 181, 135 );
             this.lAntiGrief2.Name = "lAntiGrief2";
             this.lAntiGrief2.Size = new System.Drawing.Size( 55, 15 );
             this.lAntiGrief2.TabIndex = 5;
@@ -1595,7 +1516,7 @@
             // xKickIdle
             // 
             this.xKickIdle.AutoSize = true;
-            this.xKickIdle.Location = new System.Drawing.Point( 9, 345 );
+            this.xKickIdle.Location = new System.Drawing.Point( 12, 78 );
             this.xKickIdle.Name = "xKickIdle";
             this.xKickIdle.Size = new System.Drawing.Size( 98, 19 );
             this.xKickIdle.TabIndex = 10;
@@ -1605,21 +1526,21 @@
             // 
             // nAntiGriefBlocks
             // 
-            this.nAntiGriefBlocks.Location = new System.Drawing.Point( 96, 400 );
+            this.nAntiGriefBlocks.Location = new System.Drawing.Point( 116, 133 );
             this.nAntiGriefBlocks.Maximum = new decimal( new int[] {
             1000,
             0,
             0,
             0} );
             this.nAntiGriefBlocks.Name = "nAntiGriefBlocks";
-            this.nAntiGriefBlocks.Size = new System.Drawing.Size( 51, 21 );
+            this.nAntiGriefBlocks.Size = new System.Drawing.Size( 59, 21 );
             this.nAntiGriefBlocks.TabIndex = 13;
             this.nAntiGriefBlocks.ValueChanged += new System.EventHandler( this.nAntiGriefBlocks_ValueChanged );
             // 
             // xReserveSlot
             // 
             this.xReserveSlot.AutoSize = true;
-            this.xReserveSlot.Location = new System.Drawing.Point( 9, 315 );
+            this.xReserveSlot.Location = new System.Drawing.Point( 12, 51 );
             this.xReserveSlot.Name = "xReserveSlot";
             this.xReserveSlot.Size = new System.Drawing.Size( 129, 19 );
             this.xReserveSlot.TabIndex = 9;
@@ -1627,85 +1548,9 @@
             this.xReserveSlot.UseVisualStyleBackColor = true;
             this.xReserveSlot.CheckedChanged += new System.EventHandler( this.xReserveSlot_CheckedChanged );
             // 
-            // cBanLimit
-            // 
-            this.cBanLimit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cBanLimit.FormattingEnabled = true;
-            this.cBanLimit.Location = new System.Drawing.Point( 96, 106 );
-            this.cBanLimit.Name = "cBanLimit";
-            this.cBanLimit.Size = new System.Drawing.Size( 180, 23 );
-            this.cBanLimit.TabIndex = 4;
-            this.cBanLimit.SelectedIndexChanged += new System.EventHandler( this.cBanLimit_SelectedIndexChanged );
-            // 
-            // cKickLimit
-            // 
-            this.cKickLimit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cKickLimit.FormattingEnabled = true;
-            this.cKickLimit.Location = new System.Drawing.Point( 96, 77 );
-            this.cKickLimit.Name = "cKickLimit";
-            this.cKickLimit.Size = new System.Drawing.Size( 180, 23 );
-            this.cKickLimit.TabIndex = 3;
-            this.cKickLimit.SelectedIndexChanged += new System.EventHandler( this.cKickLimit_SelectedIndexChanged );
-            // 
-            // cDemoteLimit
-            // 
-            this.cDemoteLimit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cDemoteLimit.FormattingEnabled = true;
-            this.cDemoteLimit.Location = new System.Drawing.Point( 96, 164 );
-            this.cDemoteLimit.Name = "cDemoteLimit";
-            this.cDemoteLimit.Size = new System.Drawing.Size( 180, 23 );
-            this.cDemoteLimit.TabIndex = 6;
-            this.cDemoteLimit.SelectedIndexChanged += new System.EventHandler( this.cDemoteLimit_SelectedIndexChanged );
-            // 
-            // cPromoteLimit
-            // 
-            this.cPromoteLimit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cPromoteLimit.FormattingEnabled = true;
-            this.cPromoteLimit.Location = new System.Drawing.Point( 96, 135 );
-            this.cPromoteLimit.Name = "cPromoteLimit";
-            this.cPromoteLimit.Size = new System.Drawing.Size( 180, 23 );
-            this.cPromoteLimit.TabIndex = 5;
-            this.cPromoteLimit.SelectedIndexChanged += new System.EventHandler( this.cPromoteLimit_SelectedIndexChanged );
-            // 
-            // lBanLimit
-            // 
-            this.lBanLimit.AutoSize = true;
-            this.lBanLimit.Location = new System.Drawing.Point( 35, 109 );
-            this.lBanLimit.Name = "lBanLimit";
-            this.lBanLimit.Size = new System.Drawing.Size( 55, 15 );
-            this.lBanLimit.TabIndex = 11;
-            this.lBanLimit.Text = "Ban limit";
-            // 
-            // lKickLimit
-            // 
-            this.lKickLimit.AutoSize = true;
-            this.lKickLimit.Location = new System.Drawing.Point( 34, 80 );
-            this.lKickLimit.Name = "lKickLimit";
-            this.lKickLimit.Size = new System.Drawing.Size( 56, 15 );
-            this.lKickLimit.TabIndex = 10;
-            this.lKickLimit.Text = "Kick limit";
-            // 
-            // lDemoteLimit
-            // 
-            this.lDemoteLimit.AutoSize = true;
-            this.lDemoteLimit.Location = new System.Drawing.Point( 13, 167 );
-            this.lDemoteLimit.Name = "lDemoteLimit";
-            this.lDemoteLimit.Size = new System.Drawing.Size( 77, 15 );
-            this.lDemoteLimit.TabIndex = 9;
-            this.lDemoteLimit.Text = "Demote limit";
-            // 
-            // lPromoteLimit
-            // 
-            this.lPromoteLimit.AutoSize = true;
-            this.lPromoteLimit.Location = new System.Drawing.Point( 10, 138 );
-            this.lPromoteLimit.Name = "lPromoteLimit";
-            this.lPromoteLimit.Size = new System.Drawing.Size( 80, 15 );
-            this.lPromoteLimit.TabIndex = 8;
-            this.lPromoteLimit.Text = "Promote limit";
-            // 
             // tPrefix
             // 
-            this.tPrefix.Location = new System.Drawing.Point( 254, 48 );
+            this.tPrefix.Location = new System.Drawing.Point( 279, 20 );
             this.tPrefix.MaxLength = 1;
             this.tPrefix.Name = "tPrefix";
             this.tPrefix.Size = new System.Drawing.Size( 22, 21 );
@@ -1715,7 +1560,7 @@
             // lPrefix
             // 
             this.lPrefix.AutoSize = true;
-            this.lPrefix.Location = new System.Drawing.Point( 210, 51 );
+            this.lPrefix.Location = new System.Drawing.Point( 235, 23 );
             this.lPrefix.Name = "lPrefix";
             this.lPrefix.Size = new System.Drawing.Size( 38, 15 );
             this.lPrefix.TabIndex = 6;
@@ -1724,7 +1569,7 @@
             // lRankColor
             // 
             this.lRankColor.AutoSize = true;
-            this.lRankColor.Location = new System.Drawing.Point( 54, 51 );
+            this.lRankColor.Location = new System.Drawing.Point( 159, 52 );
             this.lRankColor.Name = "lRankColor";
             this.lRankColor.Size = new System.Drawing.Size( 36, 15 );
             this.lRankColor.TabIndex = 2;
@@ -1732,7 +1577,7 @@
             // 
             // tRankName
             // 
-            this.tRankName.Location = new System.Drawing.Point( 96, 20 );
+            this.tRankName.Location = new System.Drawing.Point( 62, 20 );
             this.tRankName.MaxLength = 16;
             this.tRankName.Name = "tRankName";
             this.tRankName.Size = new System.Drawing.Size( 143, 21 );
@@ -1742,7 +1587,7 @@
             // lRankName
             // 
             this.lRankName.AutoSize = true;
-            this.lRankName.Location = new System.Drawing.Point( 49, 23 );
+            this.lRankName.Location = new System.Drawing.Point( 15, 23 );
             this.lRankName.Name = "lRankName";
             this.lRankName.Size = new System.Drawing.Size( 41, 15 );
             this.lRankName.TabIndex = 0;
@@ -3345,6 +3190,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvWorlds)).EndInit();
             this.tabRanks.ResumeLayout( false );
             this.tabRanks.PerformLayout();
+            this.gPermissionLimits.ResumeLayout( false );
             this.gRankOptions.ResumeLayout( false );
             this.gRankOptions.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefSeconds)).EndInit();
@@ -3441,14 +3287,6 @@
         private System.Windows.Forms.NumericUpDown nAntiGriefBlocks;
         private System.Windows.Forms.CheckBox xDrawLimit;
         private System.Windows.Forms.Label lDrawLimitUnits;
-        private System.Windows.Forms.Label lBanLimit;
-        private System.Windows.Forms.Label lKickLimit;
-        private System.Windows.Forms.Label lDemoteLimit;
-        private System.Windows.Forms.Label lPromoteLimit;
-        private System.Windows.Forms.ComboBox cPromoteLimit;
-        private System.Windows.Forms.ComboBox cBanLimit;
-        private System.Windows.Forms.ComboBox cKickLimit;
-        private System.Windows.Forms.ComboBox cDemoteLimit;
         private System.Windows.Forms.GroupBox gBasic;
         private System.Windows.Forms.ComboBox cDefaultRank;
         private System.Windows.Forms.Label lDefaultRank;
@@ -3570,8 +3408,6 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label lIRCDelay;
         private System.Windows.Forms.NumericUpDown nIRCDelay;
-        private System.Windows.Forms.ComboBox cMaxHideFrom;
-        private System.Windows.Forms.Label lMaxHideFrom;
         private System.Windows.Forms.ComboBox cPatrolledRank;
         private System.Windows.Forms.Label lPatrolledRank;
         private System.Windows.Forms.Label lPatrolledRankAndBelow;
@@ -3583,8 +3419,6 @@
         private System.Windows.Forms.Label lIRCNickServMessage;
         private System.Windows.Forms.TextBox tIRCNickServ;
         private System.Windows.Forms.Label lIRCNickServ;
-        private System.Windows.Forms.ComboBox cFreezeLimit;
-        private System.Windows.Forms.Label lFreezeLimit;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.Label lIRCNoForwardingMessage;
         private System.Windows.Forms.Label lIRCDelayUnits;
@@ -3634,8 +3468,6 @@
         private System.Windows.Forms.TextBox tConsoleName;
         private System.Windows.Forms.Label lConsoleNameHint;
         private System.Windows.Forms.CheckBox xShowConnectionMessages;
-        private System.Windows.Forms.ComboBox cMuteLimit;
-        private System.Windows.Forms.Label lMuteLimit;
         private System.Windows.Forms.GroupBox gHelpAndSupport;
         private System.Windows.Forms.Button bViewVersionHistory;
         private System.Windows.Forms.Button bReportABug;
@@ -3654,7 +3486,7 @@
         private System.Windows.Forms.Label lMaxPlayersPerWorld;
         private System.Windows.Forms.CheckBox xAnnounceRankChangeReasons;
         private System.Windows.Forms.CheckBox xRequireKickReason;
-        private System.Windows.Forms.ComboBox cBringLimit;
-        private System.Windows.Forms.Label lBringLimit;
+        private System.Windows.Forms.GroupBox gPermissionLimits;
+        private System.Windows.Forms.FlowLayoutPanel permissionLimitBoxContainer;
     }
 }
