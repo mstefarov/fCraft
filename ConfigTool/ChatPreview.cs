@@ -9,27 +9,27 @@ using ConfigTool.Properties;
 
 
 namespace ConfigTool {
-    partial class ChatPreview : UserControl {
+    sealed partial class ChatPreview : UserControl {
 
         struct ColorPair {
             public ColorPair( int r, int g, int b, int sr, int sg, int sb ) {
                 Foreground = new SolidBrush( Color.FromArgb( r, g, b ) );
                 Shadow = new SolidBrush( Color.FromArgb( sr, sg, sb ) );
             }
-            public Brush Foreground, Shadow;
+            public readonly Brush Foreground, Shadow;
         }
 
-        static PrivateFontCollection fonts;
-        static Font font;
-        static ColorPair[] colorPairs;
+        static readonly PrivateFontCollection Fonts;
+        static readonly Font MinecraftFont;
+        static readonly ColorPair[] ColorPairs;
 
         unsafe static ChatPreview() {
-            fonts = new PrivateFontCollection();
+            Fonts = new PrivateFontCollection();
             fixed( byte* fontPointer = Resources.MinecraftFont ) {
-                fonts.AddMemoryFont( (IntPtr)fontPointer, Resources.MinecraftFont.Length );
+                Fonts.AddMemoryFont( (IntPtr)fontPointer, Resources.MinecraftFont.Length );
             }
-            font = new Font( fonts.Families[0], 12, FontStyle.Regular );
-            colorPairs = new[]{
+            MinecraftFont = new Font( Fonts.Families[0], 12, FontStyle.Regular );
+            ColorPairs = new[]{
                 new ColorPair(0,0,0,0,0,0),
                 new ColorPair(0,0,191,0,0,47),
                 new ColorPair(0,191,0,0,47,0),
@@ -56,14 +56,14 @@ namespace ConfigTool {
         }
 
 
-        class TextSegment {
+        sealed class TextSegment {
             public string Text;
             public ColorPair Color;
             public int X, Y;
 
             public void Draw( Graphics g ) {
-                g.DrawString( Text, font, Color.Shadow, X + 2, Y + 2 );
-                g.DrawString( Text, font, Color.Foreground, X, Y );
+                g.DrawString( Text, MinecraftFont, Color.Shadow, X + 2, Y + 2 );
+                g.DrawString( Text, MinecraftFont, Color.Foreground, X, Y );
             }
         }
 
@@ -91,12 +91,12 @@ namespace ConfigTool {
                                 color = fCraft.Color.ParseToIndex( plainTextSegments[j] );
                             } else {
                                 newSegments.Add( new TextSegment {
-                                    Color = colorPairs[color],
+                                    Color = ColorPairs[color],
                                     Text = plainTextSegments[j],
                                     X = x,
                                     Y = y
                                 } );
-                                x += (int)g.MeasureString( plainTextSegments[j], font ).Width;
+                                x += (int)g.MeasureString( plainTextSegments[j], MinecraftFont ).Width;
                             }
                         }
                         y += 20;

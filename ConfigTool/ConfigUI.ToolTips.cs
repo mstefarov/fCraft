@@ -47,7 +47,7 @@ This list is stored in rules.txt, and can also be edited with any text editor.
 If rules.txt is missing or empty, ""/rules"" shows this message:
 ""Use common sense!""" );
 
-            string tipAnnouncements =
+            const string tipAnnouncements =
 @"Show a random announcement every once in a while.
 Announcements are shown to all players, one line at a time, in random order.";
             toolTip.SetToolTip( xAnnouncements, tipAnnouncements );
@@ -146,17 +146,18 @@ The hierarchy is used for all permission checks." );
 @"Lower a rank (and all players of the rank) on the hierarchy.
 The hierarchy is used for all permission checks." );
 
-            string tipRankName = "Name of the rank - between 2 and 16 alphanumeric characters.";
+            const string tipRankName =
+"Name of the rank - between 2 and 16 alphanumeric characters.";
             toolTip.SetToolTip( lRankName, tipRankName );
             toolTip.SetToolTip( tRankName, tipRankName );
 
-            string tipRankColor =
+            const string tipRankColor =
 @"Color associated with this rank.
 Rank colors may be applied to player and world names.";
             toolTip.SetToolTip( lRankColor, tipRankColor );
             toolTip.SetToolTip( bColorRank, tipRankColor );
 
-            string tipPrefix =
+            const string tipPrefix =
 @"1-character prefix that may be shown above player names.
 The option to show prefixes in chat is on ""General"" tab.";
             toolTip.SetToolTip( lPrefix, tipPrefix );
@@ -226,7 +227,7 @@ allowed to build in a specified time period." );
 @"Minimum time interval that players of this rank are
 expected to spent to build a specified number of blocks." );
 
-            string tipDrawLimit =
+            const string tipDrawLimit =
 @"Limit on the number of blocks that a player is
 allowed to affect with drawing or copy/paste commands
 at one time. If unchecked, there is no limit.";
@@ -591,7 +592,7 @@ Does not include IRC chatter (see IRCChat).";
         void FillToolTipsIRC() {
             toolTip.SetToolTip( xIRCBotEnabled, ConfigKey.IRCBotEnabled.GetDescription() );
 
-            string tipIRCList =
+            const string tipIRCList =
 @"Choose one of these popular IRC networks,
 or type in address/port manually below.";
             toolTip.SetToolTip( lIRCList, tipIRCList );

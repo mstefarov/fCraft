@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Windows.Forms;
 
 namespace ConfigTool {
-    public partial class UpdaterSettingsWindow : Form {
+    public sealed partial class UpdaterSettingsWindow : Form {
 
         public string RunBeforeUpdate {
             get {
@@ -64,7 +59,7 @@ namespace ConfigTool {
                 oldUpdaterMode = UpdaterMode;
                 oldBackupBeforeUpdate = BackupBeforeUpdate;
             };
-            FormClosed += delegate( object sender, FormClosedEventArgs e ) {
+            FormClosed += delegate {
                 if( DialogResult != DialogResult.OK ) {
                     RunBeforeUpdate = oldRunBeforeUpdate;
                     RunAfterUpdate = oldRunAfterUpdate;

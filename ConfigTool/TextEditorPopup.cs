@@ -1,42 +1,42 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace ConfigTool {
     public sealed partial class TextEditorPopup : Form {
+        public string OriginalText { get; private set; }
+        public string FileName { get; private set; }
 
-        string oldText, fileName;
 
-        public TextEditorPopup( string _fileName, string defaultValue ) {
+        public TextEditorPopup( string fileName, string defaultValue ) {
             InitializeComponent();
 
-            fileName = _fileName;
-            Text = "Editing " + fileName;
+            FileName = fileName;
+            Text = "Editing " + FileName;
 
             if( File.Exists( fileName ) ) {
-                oldText = File.ReadAllText( fileName );
+                OriginalText = File.ReadAllText( fileName );
             } else {
-                oldText = defaultValue;
+                OriginalText = defaultValue;
             }
 
-            tRules.Text = oldText;
-            lWarning.Visible = CheckForLongLines();
+            tRules.Text = OriginalText;
+            lWarning.Visible = ContainsLongLines();
         }
 
-        bool CheckForLongLines() {
-            foreach( string line in tRules.Lines ) {
-                if( line.Length > 62 ) return true;
-            }
-            return false;
+        bool ContainsLongLines() {
+            return tRules.Lines.Any( line => (line.Length > 62) );
         }
+
 
         private void tRules_KeyDown( object sender, KeyEventArgs e ) {
-            lWarning.Visible = CheckForLongLines();
+            lWarning.Visible = ContainsLongLines();
         }
 
         private void bOK_Click( object sender, EventArgs e ) {
-            File.WriteAllText( fileName, tRules.Text );
+            File.WriteAllText( FileName, tRules.Text );
             Close();
         }
     }

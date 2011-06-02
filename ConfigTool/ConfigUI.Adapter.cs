@@ -3,7 +3,6 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using fCraft;
@@ -63,7 +62,7 @@ namespace ConfigTool {
 
 
         void LoadWorldList() {
-            if( worlds.Count > 0 ) worlds.Clear();
+            if( Worlds.Count > 0 ) Worlds.Clear();
             if( !File.Exists( Paths.WorldListFileName ) ) return;
 
             try {
@@ -73,7 +72,7 @@ namespace ConfigTool {
                 string errorLog = "";
                 foreach( XElement el in root.Elements( "World" ) ) {
                     try {
-                        worlds.Add( new WorldListEntry( el ) );
+                        Worlds.Add( new WorldListEntry( el ) );
                     } catch( Exception ex ) {
                         errorLog += ex + Environment.NewLine;
                     }
@@ -85,9 +84,9 @@ namespace ConfigTool {
                 FillWorldList();
                 XAttribute mainWorldAttr = root.Attribute( "main" );
                 if( mainWorldAttr != null ) {
-                    foreach( WorldListEntry world in worlds ) {
-                        if( world.name.ToLower() == mainWorldAttr.Value.ToLower() ) {
-                            cMainWorld.SelectedItem = world.name;
+                    foreach( WorldListEntry world in Worlds ) {
+                        if( world.Name.ToLower() == mainWorldAttr.Value.ToLower() ) {
+                            cMainWorld.SelectedItem = world.Name;
                             break;
                         }
                     }
@@ -97,7 +96,7 @@ namespace ConfigTool {
                 MessageBox.Show( "Error occured while loading the world list: " + Environment.NewLine + ex, "Warning" );
             }
 
-            worlds.ListChanged += SomethingChanged;
+            Worlds.ListChanged += SomethingChanged;
         }
 
 
@@ -173,8 +172,9 @@ namespace ConfigTool {
 
         void ApplyTabWorlds() {
             if( rankNameList == null ) {
-                rankNameList = new BindingList<string>();
-                rankNameList.Add( WorldListEntry.DefaultRankOption );
+                rankNameList = new BindingList<string> {
+                    WorldListEntry.DefaultRankOption
+                };
                 foreach( Rank rank in RankManager.Ranks ) {
                     rankNameList.Add( rank.ToComboBoxOption() );
                 }
@@ -183,7 +183,7 @@ namespace ConfigTool {
                 dgvcBackup.DataSource = World.BackupEnum;
 
                 LoadWorldList();
-                dgvWorlds.DataSource = worlds;
+                dgvWorlds.DataSource = Worlds;
 
             } else {
                 //dgvWorlds.DataSource = null;
@@ -192,10 +192,10 @@ namespace ConfigTool {
                 foreach( Rank rank in RankManager.Ranks ) {
                     rankNameList.Add( rank.ToComboBoxOption() );
                 }
-                foreach( WorldListEntry world in worlds ) {
+                foreach( WorldListEntry world in Worlds ) {
                     world.ReparseRanks();
                 }
-                worlds.ResetBindings();
+                Worlds.ResetBindings();
                 //dgvWorlds.DataSource = worlds;
             }
 
@@ -206,11 +206,11 @@ namespace ConfigTool {
                 cDefaultBuildRank.SelectedIndex = RankManager.GetIndex( RankManager.ParseRank( ConfigKey.DefaultBuildRank.GetString() ) );
             }
 
-            if( Paths.IsDefaultMapPath( Config.GetString( ConfigKey.MapPath ) ) ) {
+            if( Paths.IsDefaultMapPath( ConfigKey.MapPath.GetString() ) ) {
                 tMapPath.Text = Paths.MapPathDefault;
                 xMapPath.Checked = false;
             } else {
-                tMapPath.Text = Config.GetString( ConfigKey.MapPath );
+                tMapPath.Text = ConfigKey.MapPath.GetString();
                 xMapPath.Checked = true;
             }
         }
@@ -384,7 +384,7 @@ namespace ConfigTool {
                 if( key.IsBlank() ) {
                     box.SelectedIndex = (int)(object)def;
                 } else {
-                    box.SelectedIndex = (int)Enum.Parse( typeof( TEnum ), Config.GetString( key ), true );
+                    box.SelectedIndex = (int)Enum.Parse( typeof( TEnum ), key.GetString(), true );
                 }
             } catch( ArgumentException ) {
                 box.SelectedIndex = (int)(object)def;
@@ -398,27 +398,27 @@ namespace ConfigTool {
 
         void SaveConfig() {
             // General
-            Config.TrySetValue( ConfigKey.ServerName, tServerName.Text );
-            Config.TrySetValue( ConfigKey.MOTD, tMOTD.Text );
-            Config.TrySetValue( ConfigKey.MaxPlayers, nMaxPlayers.Value );
-            Config.TrySetValue( ConfigKey.MaxPlayersPerWorld, nMaxPlayersPerWorld.Value );
+            ConfigKey.ServerName.TrySetValue( tServerName.Text );
+            ConfigKey.MOTD.TrySetValue( tMOTD.Text );
+            ConfigKey.MaxPlayers.TrySetValue( nMaxPlayers.Value );
+            ConfigKey.MaxPlayersPerWorld.TrySetValue( nMaxPlayersPerWorld.Value );
             if( cDefaultRank.SelectedIndex == 0 ) {
-                Config.TrySetValue( ConfigKey.DefaultRank, "" );
+                ConfigKey.DefaultRank.TrySetValue( "" );
             } else {
-                Config.TrySetValue( ConfigKey.DefaultRank, RankManager.FindRank( cDefaultRank.SelectedIndex - 1 ).GetFullName() );
+                ConfigKey.DefaultRank.TrySetValue( RankManager.FindRank( cDefaultRank.SelectedIndex - 1 ).GetFullName() );
             }
-            Config.TrySetValue( ConfigKey.IsPublic, cPublic.SelectedIndex == 0 );
-            Config.TrySetValue( ConfigKey.Port, nPort.Value );
+            ConfigKey.IsPublic.TrySetValue( cPublic.SelectedIndex == 0 );
+            ConfigKey.Port.TrySetValue( nPort.Value );
             if( xIP.Checked ) {
                 ConfigKey.IP.TrySetValue( tIP.Text );
             } else {
                 ConfigKey.IP.ResetValue();
             }
 
-            Config.TrySetValue( ConfigKey.UploadBandwidth, nUploadBandwidth.Value );
+            ConfigKey.UploadBandwidth.TrySetValue( nUploadBandwidth.Value );
 
-            if( xAnnouncements.Checked ) Config.TrySetValue( ConfigKey.AnnouncementInterval, nAnnouncements.Value );
-            else Config.TrySetValue( ConfigKey.AnnouncementInterval, 0 );
+            if( xAnnouncements.Checked ) ConfigKey.AnnouncementInterval.TrySetValue( nAnnouncements.Value );
+            else ConfigKey.AnnouncementInterval.TrySetValue( 0 );
 
             // UpdaterSettingsWindow
             ConfigKey.UpdaterMode.TrySetValue( updaterWindow.UpdaterMode );
@@ -428,82 +428,82 @@ namespace ConfigTool {
 
 
             // Chat
-            Config.TrySetValue( ConfigKey.SystemMessageColor, Color.GetName( colorSys ) );
-            Config.TrySetValue( ConfigKey.HelpColor, Color.GetName( colorHelp ) );
-            Config.TrySetValue( ConfigKey.SayColor, Color.GetName( colorSay ) );
-            Config.TrySetValue( ConfigKey.AnnouncementColor, Color.GetName( colorAnnouncement ) );
-            Config.TrySetValue( ConfigKey.PrivateMessageColor, Color.GetName( colorPM ) );
-            Config.TrySetValue( ConfigKey.WarningColor, Color.GetName( colorWarning ) );
-            Config.TrySetValue( ConfigKey.MeColor, Color.GetName( colorMe ) );
-            Config.TrySetValue( ConfigKey.ShowJoinedWorldMessages, xShowJoinedWorldMessages.Checked );
-            Config.TrySetValue( ConfigKey.RankColorsInWorldNames, xRankColorsInWorldNames.Checked );
-            Config.TrySetValue( ConfigKey.RankColorsInChat, xRankColorsInChat.Checked );
-            Config.TrySetValue( ConfigKey.RankPrefixesInChat, xRankPrefixesInChat.Checked );
-            Config.TrySetValue( ConfigKey.RankPrefixesInList, xRankPrefixesInList.Checked );
+            ConfigKey.SystemMessageColor.TrySetValue( Color.GetName( colorSys ) );
+            ConfigKey.HelpColor.TrySetValue( Color.GetName( colorHelp ) );
+            ConfigKey.SayColor.TrySetValue( Color.GetName( colorSay ) );
+            ConfigKey.AnnouncementColor.TrySetValue( Color.GetName( colorAnnouncement ) );
+            ConfigKey.PrivateMessageColor.TrySetValue( Color.GetName( colorPM ) );
+            ConfigKey.WarningColor.TrySetValue( Color.GetName( colorWarning ) );
+            ConfigKey.MeColor.TrySetValue( Color.GetName( colorMe ) );
+            ConfigKey.ShowJoinedWorldMessages.TrySetValue( xShowJoinedWorldMessages.Checked );
+            ConfigKey.RankColorsInWorldNames.TrySetValue( xRankColorsInWorldNames.Checked );
+            ConfigKey.RankColorsInChat.TrySetValue( xRankColorsInChat.Checked );
+            ConfigKey.RankPrefixesInChat.TrySetValue( xRankPrefixesInChat.Checked );
+            ConfigKey.RankPrefixesInList.TrySetValue( xRankPrefixesInList.Checked );
 
 
             // Worlds
             if( cDefaultBuildRank.SelectedIndex == 0 ) {
-                Config.TrySetValue( ConfigKey.DefaultBuildRank, "" );
+                ConfigKey.DefaultBuildRank.TrySetValue( "" );
             } else {
-                Config.TrySetValue( ConfigKey.DefaultBuildRank, RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 ).GetFullName() );
+                ConfigKey.DefaultBuildRank.TrySetValue( RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 ).GetFullName() );
             }
 
-            if( xMapPath.Checked ) Config.TrySetValue( ConfigKey.MapPath, tMapPath.Text );
-            else Config.TrySetValue( ConfigKey.MapPath, ConfigKey.MapPath.GetDefault() );
+            if( xMapPath.Checked ) ConfigKey.MapPath.TrySetValue( tMapPath.Text );
+            else ConfigKey.MapPath.TrySetValue( ConfigKey.MapPath.GetDefault() );
 
 
             // Security
             WriteEnum<NameVerificationMode>( cVerifyNames, ConfigKey.VerifyNames );
 
             if( xMaxConnectionsPerIP.Checked ) {
-                Config.TrySetValue( ConfigKey.MaxConnectionsPerIP, nMaxConnectionsPerIP.Value );
+                ConfigKey.MaxConnectionsPerIP.TrySetValue( nMaxConnectionsPerIP.Value );
             } else {
-                Config.TrySetValue( ConfigKey.MaxConnectionsPerIP, 0 );
+                ConfigKey.MaxConnectionsPerIP.TrySetValue( 0 );
             }
-            Config.TrySetValue( ConfigKey.AllowUnverifiedLAN, xAllowUnverifiedLAN.Checked );
+            ConfigKey.AllowUnverifiedLAN.TrySetValue( xAllowUnverifiedLAN.Checked );
 
-            Config.TrySetValue( ConfigKey.AntispamMessageCount, nAntispamMessageCount.Value );
-            Config.TrySetValue( ConfigKey.AntispamInterval, nAntispamInterval.Value );
-            Config.TrySetValue( ConfigKey.AntispamMuteDuration, nSpamMute.Value );
+            ConfigKey.AntispamMessageCount.TrySetValue( nAntispamMessageCount.Value );
+            ConfigKey.AntispamInterval.TrySetValue( nAntispamInterval.Value );
+            ConfigKey.AntispamMuteDuration.TrySetValue( nSpamMute.Value );
 
-            if( xAntispamKicks.Checked ) Config.TrySetValue( ConfigKey.AntispamMaxWarnings, nAntispamMaxWarnings.Value );
-            else Config.TrySetValue( ConfigKey.AntispamMaxWarnings, 0 );
+            if( xAntispamKicks.Checked ) ConfigKey.AntispamMaxWarnings.TrySetValue( nAntispamMaxWarnings.Value );
+            else ConfigKey.AntispamMaxWarnings.TrySetValue( 0 );
 
-            Config.TrySetValue( ConfigKey.RequireKickReason, xRequireKickReason.Checked );
-            Config.TrySetValue( ConfigKey.RequireBanReason, xRequireBanReason.Checked );
-            Config.TrySetValue( ConfigKey.RequireRankChangeReason, xRequireRankChangeReason.Checked );
-            Config.TrySetValue( ConfigKey.AnnounceKickAndBanReasons, xAnnounceKickAndBanReasons.Checked );
-            Config.TrySetValue( ConfigKey.AnnounceRankChanges, xAnnounceRankChanges.Checked );
-            Config.TrySetValue( ConfigKey.AnnounceRankChangeReasons, xAnnounceRankChangeReasons.Checked );
+            ConfigKey.RequireKickReason.TrySetValue( xRequireKickReason.Checked );
+            ConfigKey.RequireBanReason.TrySetValue( xRequireBanReason.Checked );
+            ConfigKey.RequireRankChangeReason.TrySetValue( xRequireRankChangeReason.Checked );
+            ConfigKey.AnnounceKickAndBanReasons.TrySetValue( xAnnounceKickAndBanReasons.Checked );
+            ConfigKey.AnnounceRankChanges.TrySetValue( xAnnounceRankChanges.Checked );
+            ConfigKey.AnnounceRankChangeReasons.TrySetValue( xAnnounceRankChangeReasons.Checked );
 
             if( cPatrolledRank.SelectedIndex == 0 ) {
-                Config.TrySetValue( ConfigKey.PatrolledRank, "" );
+                ConfigKey.PatrolledRank.TrySetValue( "" );
             } else {
-                Config.TrySetValue( ConfigKey.PatrolledRank, RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 ).GetFullName() );
+                ConfigKey.PatrolledRank.TrySetValue( RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 ).GetFullName() );
             }
-            Config.TrySetValue( ConfigKey.PaidPlayersOnly, xPaidPlayersOnly.Checked );
+            ConfigKey.PaidPlayersOnly.TrySetValue( xPaidPlayersOnly.Checked );
 
 
             // Saving & Backups
-            if( xSaveInterval.Checked ) Config.TrySetValue( ConfigKey.SaveInterval, nSaveInterval.Value );
-            else Config.TrySetValue( ConfigKey.SaveInterval, 0 );
-            Config.TrySetValue( ConfigKey.BackupOnStartup, xBackupOnStartup.Checked );
-            Config.TrySetValue( ConfigKey.BackupOnJoin, xBackupOnJoin.Checked );
-            Config.TrySetValue( ConfigKey.BackupOnlyWhenChanged, xBackupOnlyWhenChanged.Checked );
+            if( xSaveInterval.Checked ) ConfigKey.SaveInterval.TrySetValue( nSaveInterval.Value );
+            else ConfigKey.SaveInterval.TrySetValue( 0 );
+            ConfigKey.BackupOnStartup.TrySetValue( xBackupOnStartup.Checked );
+            ConfigKey.BackupOnJoin.TrySetValue( xBackupOnJoin.Checked );
+            ConfigKey.BackupOnlyWhenChanged.TrySetValue( xBackupOnlyWhenChanged.Checked );
 
-            if( xBackupInterval.Checked ) Config.TrySetValue( ConfigKey.BackupInterval, nBackupInterval.Value );
-            else Config.TrySetValue( ConfigKey.BackupInterval, 0 );
-            if( xMaxBackups.Checked ) Config.TrySetValue( ConfigKey.MaxBackups, nMaxBackups.Value );
-            else Config.TrySetValue( ConfigKey.MaxBackups, 0 );
-            if( xMaxBackupSize.Checked ) Config.TrySetValue( ConfigKey.MaxBackupSize, nMaxBackupSize.Value );
-            else Config.TrySetValue( ConfigKey.MaxBackupSize, 0 );
+            if( xBackupInterval.Checked ) ConfigKey.BackupInterval.TrySetValue( nBackupInterval.Value );
+            else ConfigKey.BackupInterval.TrySetValue( 0 );
+            if( xMaxBackups.Checked ) ConfigKey.MaxBackups.TrySetValue( nMaxBackups.Value );
+            else ConfigKey.MaxBackups.TrySetValue( 0 );
+            if( xMaxBackupSize.Checked ) ConfigKey.MaxBackupSize.TrySetValue( nMaxBackupSize.Value );
+            else ConfigKey.MaxBackupSize.TrySetValue( 0 );
 
 
             // Logging
             WriteEnum<LogSplittingType>( cLogMode, ConfigKey.LogMode );
-            if( xLogLimit.Checked ) Config.TrySetValue( ConfigKey.MaxLogs, nLogLimit.Value );
-            else Config.TrySetValue( ConfigKey.MaxLogs, "0" );
+            if( xLogLimit.Checked ) ConfigKey.MaxLogs.TrySetValue( nLogLimit.Value );
+            else ConfigKey.MaxLogs.TrySetValue( "0" );
             foreach( ListViewItem item in vConsoleOptions.Items ) {
                 Logger.ConsoleOptions[item.Index] = item.Checked;
             }
@@ -513,35 +513,35 @@ namespace ConfigTool {
 
 
             // IRC
-            Config.TrySetValue( ConfigKey.IRCBotEnabled, xIRCBotEnabled.Checked );
+            ConfigKey.IRCBotEnabled.TrySetValue( xIRCBotEnabled.Checked );
 
-            Config.TrySetValue( ConfigKey.IRCBotNetwork, tIRCBotNetwork.Text );
-            Config.TrySetValue( ConfigKey.IRCBotPort, nIRCBotPort.Value );
-            Config.TrySetValue( ConfigKey.IRCDelay, nIRCDelay.Value );
+            ConfigKey.IRCBotNetwork.TrySetValue( tIRCBotNetwork.Text );
+            ConfigKey.IRCBotPort.TrySetValue( nIRCBotPort.Value );
+            ConfigKey.IRCDelay.TrySetValue( nIRCDelay.Value );
 
-            Config.TrySetValue( ConfigKey.IRCBotChannels, tIRCBotChannels.Text );
+            ConfigKey.IRCBotChannels.TrySetValue( tIRCBotChannels.Text );
 
-            Config.TrySetValue( ConfigKey.IRCBotNick, tIRCBotNick.Text );
-            Config.TrySetValue( ConfigKey.IRCRegisteredNick, xIRCRegisteredNick.Checked );
-            Config.TrySetValue( ConfigKey.IRCNickServ, tIRCNickServ.Text );
-            Config.TrySetValue( ConfigKey.IRCNickServMessage, tIRCNickServMessage.Text );
+            ConfigKey.IRCBotNick.TrySetValue( tIRCBotNick.Text );
+            ConfigKey.IRCRegisteredNick.TrySetValue( xIRCRegisteredNick.Checked );
+            ConfigKey.IRCNickServ.TrySetValue( tIRCNickServ.Text );
+            ConfigKey.IRCNickServMessage.TrySetValue( tIRCNickServMessage.Text );
 
-            Config.TrySetValue( ConfigKey.IRCBotAnnounceIRCJoins, xIRCBotAnnounceIRCJoins.Checked );
-            Config.TrySetValue( ConfigKey.IRCBotAnnounceServerJoins, xIRCBotAnnounceServerJoins.Checked );
-            Config.TrySetValue( ConfigKey.IRCBotAnnounceServerEvents, xIRCBotAnnounceServerEvents.Checked );
-            Config.TrySetValue( ConfigKey.IRCBotForwardFromIRC, xIRCBotForwardFromIRC.Checked );
-            Config.TrySetValue( ConfigKey.IRCBotForwardFromServer, xIRCBotForwardFromServer.Checked );
+            ConfigKey.IRCBotAnnounceIRCJoins.TrySetValue( xIRCBotAnnounceIRCJoins.Checked );
+            ConfigKey.IRCBotAnnounceServerJoins.TrySetValue( xIRCBotAnnounceServerJoins.Checked );
+            ConfigKey.IRCBotAnnounceServerEvents.TrySetValue( xIRCBotAnnounceServerEvents.Checked );
+            ConfigKey.IRCBotForwardFromIRC.TrySetValue( xIRCBotForwardFromIRC.Checked );
+            ConfigKey.IRCBotForwardFromServer.TrySetValue( xIRCBotForwardFromServer.Checked );
 
-            Config.TrySetValue( ConfigKey.IRCMessageColor, Color.GetName( colorIRC ) );
-            Config.TrySetValue( ConfigKey.IRCUseColor, xIRCUseColor.Checked );
+            ConfigKey.IRCMessageColor.TrySetValue( Color.GetName( colorIRC ) );
+            ConfigKey.IRCUseColor.TrySetValue( xIRCUseColor.Checked );
 
 
             // advanced
-            Config.TrySetValue( ConfigKey.SubmitCrashReports, xSubmitCrashReports.Checked );
+            ConfigKey.SubmitCrashReports.TrySetValue( xSubmitCrashReports.Checked );
 
-            Config.TrySetValue( ConfigKey.RelayAllBlockUpdates, xRelayAllBlockUpdates.Checked );
-            Config.TrySetValue( ConfigKey.NoPartialPositionUpdates, xNoPartialPositionUpdates.Checked );
-            Config.TrySetValue( ConfigKey.TickInterval, Convert.ToInt32( nTickInterval.Value ) );
+            ConfigKey.RelayAllBlockUpdates.TrySetValue( xRelayAllBlockUpdates.Checked );
+            ConfigKey.NoPartialPositionUpdates.TrySetValue( xNoPartialPositionUpdates.Checked );
+            ConfigKey.TickInterval.TrySetValue( Convert.ToInt32( nTickInterval.Value ) );
 
             switch( cProcessPriority.SelectedIndex ) {
                 case 0:
@@ -558,33 +558,33 @@ namespace ConfigTool {
                     ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.Idle ); break;
             }
 
-            Config.TrySetValue( ConfigKey.BlockUpdateThrottling, Convert.ToInt32( nThrottling.Value ) );
+            ConfigKey.BlockUpdateThrottling.TrySetValue( Convert.ToInt32( nThrottling.Value ) );
 
-            Config.TrySetValue( ConfigKey.LowLatencyMode, xLowLatencyMode.Checked );
+            ConfigKey.LowLatencyMode.TrySetValue( xLowLatencyMode.Checked );
 
-            if( xMaxUndo.Checked ) Config.TrySetValue( ConfigKey.MaxUndo, Convert.ToInt32( nMaxUndo.Value ) );
-            else Config.TrySetValue( ConfigKey.MaxUndo, 0 );
+            if( xMaxUndo.Checked ) ConfigKey.MaxUndo.TrySetValue( Convert.ToInt32( nMaxUndo.Value ) );
+            else ConfigKey.MaxUndo.TrySetValue( 0 );
 
-            Config.TrySetValue( ConfigKey.ConsoleName, tConsoleName.Text );
+            ConfigKey.ConsoleName.TrySetValue( tConsoleName.Text );
 
             SaveWorldList();
         }
 
 
         void SaveWorldList() {
-            string WorldListTempFileName = Paths.WorldListFileName + ".tmp";
+            const string worldListTempFileName = Paths.WorldListFileName + ".tmp";
             try {
                 XDocument doc = new XDocument();
                 XElement root = new XElement( "fCraftWorldList" );
-                foreach( WorldListEntry world in worlds ) {
+                foreach( WorldListEntry world in Worlds ) {
                     root.Add( world.Serialize() );
                 }
                 if( cMainWorld.SelectedItem != null ) {
                     root.Add( new XAttribute( "main", cMainWorld.SelectedItem ) );
                 }
                 doc.Add( root );
-                doc.Save( WorldListTempFileName );
-                Paths.MoveOrReplace( WorldListTempFileName, Paths.WorldListFileName );
+                doc.Save( worldListTempFileName );
+                Paths.MoveOrReplace( worldListTempFileName, Paths.WorldListFileName );
             } catch( Exception ex ) {
                 MessageBox.Show( String.Format( "An error occured while trying to save world list ({0}): {1}{2}",
                                                 Paths.WorldListFileName,
@@ -600,7 +600,7 @@ namespace ConfigTool {
 #endif
             try {
                 TEnum val = (TEnum)Enum.Parse( typeof( TEnum ), box.SelectedIndex.ToString(), true );
-                Config.TrySetValue( key, val );
+                key.TrySetValue( val );
             } catch( ArgumentException ) {
                 Logger.Log( "ConfigUI.WriteEnum<{0}>: Could not parse value for {1}. Using default ({2}).", LogType.Error,
                             typeof( TEnum ).Name, key, key.GetString() );

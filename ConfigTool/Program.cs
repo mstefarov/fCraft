@@ -27,14 +27,14 @@ using fCraft;
 namespace ConfigTool {
     static class Program {
         [STAThread]
-        static void Main( string[] args ) {
+        static void Main() {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault( false );
 #if DEBUG
-            Application.Run( new ConfigUI( args ) );
+            Application.Run( new ConfigUI() );
 #else
             try {
-                Application.Run( new ConfigUI( args ) );
+                Application.Run( new ConfigUI() );
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Error in ConfigTool", "ConfigTool", ex, true );
                 if( !Server.HasArg( ArgKey.ExitOnCrash ) ) {

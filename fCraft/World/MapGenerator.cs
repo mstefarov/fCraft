@@ -89,8 +89,8 @@ namespace fCraft {
 
 
         #region Progress Reporting
-        public ProgressChangedEventHandler ProgressCallback;
 
+        public event ProgressChangedEventHandler ProgressChanged;
 
         int progressTotalEstimate, progressRunningTotal;
 
@@ -122,8 +122,9 @@ namespace fCraft {
 
 
         void ReportProgress( int relativeIncrease, string message ) {
-            if( ProgressCallback != null ) {
-                ProgressCallback( this, new ProgressChangedEventArgs( (100 * progressRunningTotal / progressTotalEstimate), message ) );
+            var h = ProgressChanged;
+            if( h != null ) {
+                h( this, new ProgressChangedEventArgs( ( 100 * progressRunningTotal / progressTotalEstimate ), message ) );
             }
             progressRunningTotal += relativeIncrease;
         }

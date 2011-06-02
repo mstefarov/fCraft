@@ -16,15 +16,15 @@ using Color = System.Drawing.Color;
 namespace ConfigTool {
     public sealed partial class ConfigUI : Form {
         static ConfigUI instance;
-        Font bold;
+        readonly Font bold;
         Rank selectedRank, defaultRank, patrolledRank, defaultBuildRank;
-        UpdaterSettingsWindow updaterWindow = new UpdaterSettingsWindow();
-        internal static SortableBindingList<WorldListEntry> worlds = new SortableBindingList<WorldListEntry>();
+        readonly UpdaterSettingsWindow updaterWindow = new UpdaterSettingsWindow();
+        internal static SortableBindingList<WorldListEntry> Worlds = new SortableBindingList<WorldListEntry>();
 
 
         #region Initialization
 
-        public ConfigUI( string[] args ) {
+        public ConfigUI() {
             instance = this;
             InitializeComponent();
             bold = new Font( Font, FontStyle.Bold );
@@ -58,14 +58,12 @@ namespace ConfigTool {
 
         void FillOptionList() {
             foreach( Permission permission in Enum.GetValues( typeof( Permission ) ) ) {
-                ListViewItem item = new ListViewItem( permission.ToString() );
-                item.Tag = permission;
+                ListViewItem item = new ListViewItem( permission.ToString() ) { Tag = permission };
                 vPermissions.Items.Add( item );
             }
 
             foreach( LogType type in Enum.GetValues( typeof( LogType ) ) ) {
-                ListViewItem item = new ListViewItem( type.ToString() );
-                item.Tag = type;
+                ListViewItem item = new ListViewItem( type.ToString() ) { Tag = type };
                 vLogFileOptions.Items.Add( item );
                 vConsoleOptions.Items.Add( (ListViewItem)item.Clone() );
             }
@@ -74,8 +72,8 @@ namespace ConfigTool {
 
         void FillWorldList() {
             cMainWorld.Items.Clear();
-            foreach( WorldListEntry world in worlds ) {
-                cMainWorld.Items.Add( world.name );
+            foreach( WorldListEntry world in Worlds ) {
+                cMainWorld.Items.Add( world.Name );
             }
         }
 
@@ -102,7 +100,7 @@ namespace ConfigTool {
 
         private void bPortCheck_Click( object sender, EventArgs e ) {
             bPortCheck.Text = "Checking";
-            this.Enabled = false;
+            Enabled = false;
             TcpListener listener = null;
 
             try {
@@ -114,10 +112,13 @@ namespace ConfigTool {
 
                 if( response.StatusCode == HttpStatusCode.OK ) {
                     using( Stream stream = response.GetResponseStream() ) {
-                        StreamReader reader = new StreamReader( stream );
-                        if( reader.ReadLine().StartsWith( "ok" ) ) {
-                            MessageBox.Show( "Port " + nPort.Value + " is open!", "Port check success" );
-                            return;
+                        if( stream != null ) {
+                            StreamReader reader = new StreamReader( stream );
+                            string returnMessage = reader.ReadLine();
+                            if( returnMessage != null && returnMessage.StartsWith( "ok" ) ) {
+                                MessageBox.Show( "Port " + nPort.Value + " is open!", "Port check success" );
+                                return;
+                            }
                         }
                     }
                 }
@@ -129,7 +130,7 @@ namespace ConfigTool {
                 if( listener != null ) {
                     listener.Stop();
                 }
-                this.Enabled = true;
+                Enabled = true;
                 bPortCheck.Text = "Check";
             }
         }
@@ -187,27 +188,26 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         private void bAddWorld_Click( object sender, EventArgs e ) {
             AddWorldPopup popup = new AddWorldPopup( null );
             if( popup.ShowDialog() == DialogResult.OK ) {
-                worlds.Add( popup.world );
+                Worlds.Add( popup.World );
             }
-            string mainWorldName;
             if( cMainWorld.SelectedItem == null ) {
                 FillWorldList();
                 if( cMainWorld.Items.Count > 0 ) {
                     cMainWorld.SelectedIndex = 0;
                 }
             } else {
-                mainWorldName = cMainWorld.SelectedItem.ToString();
+                string mainWorldName = cMainWorld.SelectedItem.ToString();
                 FillWorldList();
                 cMainWorld.SelectedItem = mainWorldName;
             }
         }
 
         private void bWorldEdit_Click( object sender, EventArgs e ) {
-            AddWorldPopup popup = new AddWorldPopup( worlds[dgvWorlds.SelectedRows[0].Index] );
+            AddWorldPopup popup = new AddWorldPopup( Worlds[dgvWorlds.SelectedRows[0].Index] );
             if( popup.ShowDialog() == DialogResult.OK ) {
-                string oldName = worlds[dgvWorlds.SelectedRows[0].Index].name;
-                worlds[dgvWorlds.SelectedRows[0].Index] = popup.world;
-                HandleWorldRename( oldName, popup.world.name );
+                string oldName = Worlds[dgvWorlds.SelectedRows[0].Index].Name;
+                Worlds[dgvWorlds.SelectedRows[0].Index] = popup.World;
+                HandleWorldRename( oldName, popup.World.Name );
             }
         }
 
@@ -219,27 +219,25 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
         private void bWorldDel_Click( object sender, EventArgs e ) {
             if( dgvWorlds.SelectedRows.Count > 0 ) {
-                WorldListEntry world = worlds[dgvWorlds.SelectedRows[0].Index];
-                string fileName = world.Name + ".fcm";
-                string fullFileName = Path.Combine( Paths.MapPath, fileName );
-                if( File.Exists( fullFileName ) ) {
+                WorldListEntry world = Worlds[dgvWorlds.SelectedRows[0].Index];
+                if( File.Exists( world.FullFileName ) ) {
                     string promptMessage = String.Format( "Are you sure you want to delete world \"{0}\"?", world.Name );
 
                     if( MessageBox.Show( promptMessage, "Deleting a world", MessageBoxButtons.YesNo ) == DialogResult.No ) {
                         return;
                     }
 
-                    if( MessageBox.Show( "Do you want to delete the map file (" + fileName + ") as well?", "Warning", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
+                    if( MessageBox.Show( "Do you want to delete the map file (" + world.FileName + ") as well?", "Warning", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
                         try {
-                            File.Delete( fullFileName );
+                            File.Delete( world.FullFileName );
                         } catch( Exception ex ) {
-                            MessageBox.Show( "You have to delete the file (" + fileName + ") manually. " +
+                            MessageBox.Show( "You have to delete the file (" + world.FileName + ") manually. " +
                                              "An error occured while trying to delete it automatically:" + Environment.NewLine + ex, "Error" );
                         }
                     }
                 }
 
-                worlds.Remove( world );
+                Worlds.Remove( world );
 
                 // handle change of main world
                 if( cMainWorld.SelectedItem == null ) {
@@ -251,7 +249,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 } else {
                     string mainWorldName = cMainWorld.SelectedItem.ToString();
                     FillWorldList();
-                    if( mainWorldName == world.name ) {
+                    if( mainWorldName == world.Name ) {
                         MessageBox.Show( "Main world has been reset." );
                         if( cMainWorld.Items.Count > 0 ) {
                             cMainWorld.SelectedIndex = 0;
@@ -344,25 +342,25 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
 
         struct IRCNetwork {
-            public IRCNetwork( string _name, string _host ) {
-                Name = _name;
-                Host = _host;
-                Port = 6667;
-                NonEnglish = false;
+            const int DefaultIRCPort = 6667;
+
+            public readonly string Name, Host;
+            public readonly int Port;
+            public readonly bool IsNonEnglish;
+
+            public IRCNetwork( string name, string host )
+                : this( name, host, DefaultIRCPort, false ) {
             }
-            public IRCNetwork( string _name, string _host, int _port, bool _nonEnglish ) {
-                Name = _name;
-                Host = _host;
-                Port = _port;
-                NonEnglish = _nonEnglish;
+
+            public IRCNetwork( string name, string host, int port, bool isNonEnglish ) {
+                Name = name;
+                Host = host;
+                Port = port;
+                IsNonEnglish = isNonEnglish;
             }
-            public string Name;
-            public string Host;
-            public int Port;
-            public bool NonEnglish;
         }
 
-        static IRCNetwork[] IRCNetworks = new[]{
+        static readonly IRCNetwork[] IRCNetworks = new[]{
             new IRCNetwork("FreeNode", "chat.freenode.net"),
             new IRCNetwork("QuakeNet", "irc.quakenet.org"),
             new IRCNetwork("IRCnet", "irc.belwue.de"),
@@ -443,12 +441,12 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             new IRCNetwork("Friend4ever [IT]", "irc.friend4ever.it", 6667,true),
             new IRCNetwork("AustNet", "irc.austnet.org"),
             new IRCNetwork("GamesNET","irc.GamesNET.net")
-        }.OrderBy( ( network ) => network.Name ).ToArray();
+        }.OrderBy( network => network.Name ).ToArray();
 
         private void cIRCList_SelectedIndexChanged( object sender, EventArgs e ) {
             if( cIRCList.SelectedIndex < 0 ) return;
             string selectedNetwork = (string)cIRCList.Items[cIRCList.SelectedIndex];
-            IRCNetwork network = IRCNetworks.First( ( _network ) => ( _network.Name == selectedNetwork ) );
+            IRCNetwork network = IRCNetworks.First( _network => ( _network.Name == selectedNetwork ) );
             tIRCBotNetwork.Text = network.Host;
             nIRCBotPort.Value = network.Port;
         }
@@ -460,7 +458,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         void PopulateIRCNetworkList( bool showNonEnglishNetworks ) {
             cIRCList.Items.Clear();
             foreach( IRCNetwork network in IRCNetworks ) {
-                if( showNonEnglishNetworks || !network.NonEnglish ) {
+                if( showNonEnglishNetworks || !network.IsNonEnglish ) {
                     cIRCList.Items.Add( network.Name );
                 }
             }
@@ -636,13 +634,14 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             int number = 1;
             while( RankManager.RanksByName.ContainsKey( "rank" + number ) ) number++;
 
-            Rank rank = new Rank();
-            rank.ID = RankManager.GenerateID();
-            rank.Name = "rank" + number;
-            rank.LegacyNumericRank = 0;
-            rank.Prefix = "";
-            rank.ReservedSlot = false;
-            rank.Color = "";
+            Rank rank = new Rank {
+                 ID = RankManager.GenerateID(),
+                 Name = "rank" + number,
+                 LegacyNumericRank = 0,
+                 Prefix = "",
+                 ReservedSlot = false,
+                 Color = ""
+             };
 
             defaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
             defaultBuildRank = RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
@@ -669,7 +668,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 DeleteRankPopup popup = new DeleteRankPopup( deletedRank );
                 if( popup.ShowDialog() != DialogResult.OK ) return;
 
-                Rank replacementRank = popup.substituteRank;
+                Rank replacementRank = popup.SubstituteRank;
 
                 // Update default rank
                 defaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
@@ -700,14 +699,14 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
                 // Update world permissions
                 string worldUpdates = "";
-                foreach( WorldListEntry world in worlds ) {
+                foreach( WorldListEntry world in Worlds ) {
                     if( world.AccessPermission == deletedRank.ToComboBoxOption() ) {
                         world.AccessPermission = replacementRank.ToComboBoxOption();
-                        worldUpdates += " - " + world.name + ": access permission changed to " + replacementRank.Name + Environment.NewLine;
+                        worldUpdates += " - " + world.Name + ": access permission changed to " + replacementRank.Name + Environment.NewLine;
                     }
                     if( world.BuildPermission == deletedRank.ToComboBoxOption() ) {
                         world.BuildPermission = replacementRank.ToComboBoxOption();
-                        worldUpdates += " - " + world.name + ": build permission changed to " + replacementRank.Name + Environment.NewLine;
+                        worldUpdates += " - " + world.Name + ": build permission changed to " + replacementRank.Name + Environment.NewLine;
                     }
                 }
 
@@ -757,7 +756,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             // Remove the old name from the list of options
             rankNameList.Remove( oldName );
 
-            worlds.ResetBindings();
+            Worlds.ResetBindings();
             RebuildRankList();
         }
 
@@ -785,7 +784,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             if( selectedRank == null || !xDrawLimit.Checked ) return;
             selectedRank.DrawLimit = Convert.ToInt32( nDrawLimit.Value );
             double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1 / 3d );
-            lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed ); ;
+            lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed );
         }
 
         private void xAllowSecurityCircumvention_CheckedChanged( object sender, EventArgs e ) {
@@ -837,7 +836,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             if( xDrawLimit.Checked ) {
                 nDrawLimit.Value = selectedRank.DrawLimit;
                 double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1 / 3d );
-                lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed ); ;
+                lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed );
             } else {
                 nDrawLimit.Value = 0;
                 selectedRank.DrawLimit = 0;
@@ -1034,7 +1033,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 // Remove the old name from the list of options
                 rankNameList.Remove( oldName );
 
-                worlds.ResetBindings();
+                Worlds.ResetBindings();
                 RebuildRankList();
             }
         }
@@ -1212,15 +1211,15 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
         void ApplyColor( Button button, int color ) {
             button.Text = fCraft.Color.GetName( color );
-            button.BackColor = ColorPicker.colors[color].background;
-            button.ForeColor = ColorPicker.colors[color].foreground;
+            button.BackColor = ColorPicker.ColorPairs[color].Background;
+            button.ForeColor = ColorPicker.ColorPairs[color].Foreground;
             bApply.Enabled = true;
         }
 
         private void bColorSys_Click( object sender, EventArgs e ) {
             ColorPicker picker = new ColorPicker( "System message color", colorSys );
             picker.ShowDialog();
-            colorSys = picker.color;
+            colorSys = picker.ColorIndex;
             ApplyColor( bColorSys, colorSys );
             fCraft.Color.Sys = fCraft.Color.Parse( colorSys );
         }
@@ -1228,7 +1227,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         private void bColorHelp_Click( object sender, EventArgs e ) {
             ColorPicker picker = new ColorPicker( "Help message color", colorHelp );
             picker.ShowDialog();
-            colorHelp = picker.color;
+            colorHelp = picker.ColorIndex;
             ApplyColor( bColorHelp, colorHelp );
             fCraft.Color.Help = fCraft.Color.Parse( colorHelp );
         }
@@ -1236,7 +1235,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         private void bColorSay_Click( object sender, EventArgs e ) {
             ColorPicker picker = new ColorPicker( "/say message color", colorSay );
             picker.ShowDialog();
-            colorSay = picker.color;
+            colorSay = picker.ColorIndex;
             ApplyColor( bColorSay, colorSay );
             fCraft.Color.Say = fCraft.Color.Parse( colorSay );
         }
@@ -1244,7 +1243,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         private void bColorAnnouncement_Click( object sender, EventArgs e ) {
             ColorPicker picker = new ColorPicker( "Announcement color", colorAnnouncement );
             picker.ShowDialog();
-            colorAnnouncement = picker.color;
+            colorAnnouncement = picker.ColorIndex;
             ApplyColor( bColorAnnouncement, colorAnnouncement );
             fCraft.Color.Announcement = fCraft.Color.Parse( colorAnnouncement );
         }
@@ -1252,7 +1251,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         private void bColorPM_Click( object sender, EventArgs e ) {
             ColorPicker picker = new ColorPicker( "Private / rank chat color", colorPM );
             picker.ShowDialog();
-            colorPM = picker.color;
+            colorPM = picker.ColorIndex;
             ApplyColor( bColorPM, colorPM );
             fCraft.Color.PM = fCraft.Color.Parse( colorPM );
         }
@@ -1260,7 +1259,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         private void bColorWarning_Click( object sender, EventArgs e ) {
             ColorPicker picker = new ColorPicker( "Warning / Error message color", colorWarning );
             picker.ShowDialog();
-            colorWarning = picker.color;
+            colorWarning = picker.ColorIndex;
             ApplyColor( bColorWarning, colorWarning );
             fCraft.Color.Warning = fCraft.Color.Parse( colorWarning );
         }
@@ -1268,7 +1267,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         private void bColorMe_Click( object sender, EventArgs e ) {
             ColorPicker picker = new ColorPicker( "/me command color", colorMe );
             picker.ShowDialog();
-            colorMe = picker.color;
+            colorMe = picker.ColorIndex;
             ApplyColor( bColorMe, colorMe );
             fCraft.Color.Me = fCraft.Color.Parse( colorMe );
         }
@@ -1276,7 +1275,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         private void bColorIRC_Click( object sender, EventArgs e ) {
             ColorPicker picker = new ColorPicker( "IRC message color", colorIRC );
             picker.ShowDialog();
-            colorIRC = picker.color;
+            colorIRC = picker.ColorIndex;
             ApplyColor( bColorIRC, colorIRC );
             fCraft.Color.IRC = fCraft.Color.Parse( colorIRC );
         }
@@ -1284,8 +1283,8 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         private void bColorRank_Click( object sender, EventArgs e ) {
             ColorPicker picker = new ColorPicker( "Rank color for \"" + selectedRank.Name + "\"", fCraft.Color.ParseToIndex( selectedRank.Color ) );
             picker.ShowDialog();
-            ApplyColor( bColorRank, picker.color );
-            selectedRank.Color = fCraft.Color.GetName( picker.color );
+            ApplyColor( bColorRank, picker.ColorIndex );
+            selectedRank.Color = fCraft.Color.GetName( picker.ColorIndex );
         }
 
 
@@ -1333,10 +1332,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
 
         internal static bool IsWorldNameTaken( string name ) {
-            foreach( WorldListEntry world in worlds ) {
-                if( world.Name == name ) return true;
-            }
-            return false;
+            return Worlds.Any( world => world.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
         }
 
 
@@ -1381,18 +1377,18 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
         Dictionary<Permission, PermissionLimitBox> permissionLimitBoxes = new Dictionary<Permission, PermissionLimitBox>();
 
-        const string ownRank = "(own rank)";
+        const string DefaultPermissionLimitString = "(own rank)";
         void FillPermissionLimitBoxes() {
 
-            permissionLimitBoxes[Permission.Kick] = new PermissionLimitBox( "Kick limit", Permission.Kick, ownRank );
-            permissionLimitBoxes[Permission.Ban] = new PermissionLimitBox( "Ban limit", Permission.Ban, ownRank );
-            permissionLimitBoxes[Permission.Promote] = new PermissionLimitBox( "Promote limit", Permission.Promote, ownRank );
-            permissionLimitBoxes[Permission.Demote] = new PermissionLimitBox( "Demote limit", Permission.Demote, ownRank );
-            permissionLimitBoxes[Permission.Hide] = new PermissionLimitBox( "Can hide from", Permission.Hide, ownRank );
-            permissionLimitBoxes[Permission.Freeze] = new PermissionLimitBox( "Freeze limit", Permission.Freeze, ownRank );
-            permissionLimitBoxes[Permission.Mute] = new PermissionLimitBox( "Mute limit", Permission.Mute, ownRank );
-            permissionLimitBoxes[Permission.Bring] = new PermissionLimitBox( "Bring limit", Permission.Bring, ownRank );
-            permissionLimitBoxes[Permission.Spectate] = new PermissionLimitBox( "Spectate limit", Permission.Spectate, ownRank );
+            permissionLimitBoxes[Permission.Kick] = new PermissionLimitBox( "Kick limit", Permission.Kick, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.Ban] = new PermissionLimitBox( "Ban limit", Permission.Ban, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.Promote] = new PermissionLimitBox( "Promote limit", Permission.Promote, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.Demote] = new PermissionLimitBox( "Demote limit", Permission.Demote, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.Hide] = new PermissionLimitBox( "Can hide from", Permission.Hide, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.Freeze] = new PermissionLimitBox( "Freeze limit", Permission.Freeze, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.Mute] = new PermissionLimitBox( "Mute limit", Permission.Mute, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.Bring] = new PermissionLimitBox( "Bring limit", Permission.Bring, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.Spectate] = new PermissionLimitBox( "Spectate limit", Permission.Spectate, DefaultPermissionLimitString );
 
             foreach( var box in permissionLimitBoxes.Values ) {
                 permissionLimitBoxContainer.Controls.Add( box );
