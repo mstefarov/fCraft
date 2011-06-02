@@ -7,33 +7,33 @@ namespace ConfigTool {
 
     [Serializable]
     // SortableBindingList by Tim Van Wassenhove, http://www.timvw.be/presenting-the-sortablebindinglistt/
-    public class SortableBindingList<T> : BindingList<T> {
-        private bool _isSorted;
-        private ListSortDirection _dir = ListSortDirection.Ascending;
+    public sealed class SortableBindingList<T> : BindingList<T> {
+        private bool isSorted;
+        private ListSortDirection dir = ListSortDirection.Ascending;
 
         [NonSerialized]
-        private PropertyDescriptor _sort;
+        private PropertyDescriptor sort;
 
         #region BindingList<T> Public Sorting API
         public void Sort() {
-            ApplySortCore( _sort, _dir );
+            ApplySortCore( sort, dir );
         }
 
         public void Sort( string property ) {
             /* Get the PD */
-            _sort = FindPropertyDescriptor( property );
+            sort = FindPropertyDescriptor( property );
 
             /* Sort */
-            ApplySortCore( _sort, _dir );
+            ApplySortCore( sort, dir );
         }
 
         public void Sort( string property, ListSortDirection direction ) {
             /* Get the sort property */
-            _sort = FindPropertyDescriptor( property );
-            _dir = direction;
+            sort = FindPropertyDescriptor( property );
+            dir = direction;
 
             /* Sort */
-            ApplySortCore( _sort, _dir );
+            ApplySortCore( sort, dir );
         }
         #endregion
 
@@ -43,44 +43,41 @@ namespace ConfigTool {
         }
 
         protected override void ApplySortCore( PropertyDescriptor prop, ListSortDirection direction ) {
-            List<T> items = this.Items as List<T>;
+            List<T> items = Items as List<T>;
 
-            if( (null != items) && (null != prop) ) {
+            if( null != items ) {
                 PropertyComparer<T> pc = new PropertyComparer<T>( prop, direction );
                 items.Sort( pc );
 
                 /* Set sorted */
-                _isSorted = true;
+                isSorted = true;
             } else {
                 /* Set sorted */
-                _isSorted = false;
+                isSorted = false;
             }
         }
 
         protected override bool IsSortedCore {
-            get { return _isSorted; }
+            get { return isSorted; }
         }
 
         protected override void RemoveSortCore() {
-            _isSorted = false;
+            isSorted = false;
         }
         #endregion
 
         #region BindingList<T> Private Sorting API
-        private PropertyDescriptor FindPropertyDescriptor( string property ) {
+
+        static PropertyDescriptor FindPropertyDescriptor( string property ) {
             PropertyDescriptorCollection pdc = TypeDescriptor.GetProperties( typeof( T ) );
-            PropertyDescriptor prop = null;
-
-            if( null != pdc ) {
-                prop = pdc.Find( property, true );
-            }
-
+            PropertyDescriptor prop = pdc.Find( property, true );
             return prop;
         }
+
         #endregion
 
         #region PropertyComparer<TKey>
-        internal class PropertyComparer<TKey> : IComparer<TKey> {
+        internal sealed class PropertyComparer<TKey> : IComparer<TKey> {
             /*
             * The following code contains code implemented by Rockford Lhotka:
             * //msdn.microsoft.com/library/default.asp?url=/library/en-us/dnadvnet/html/vbnet01272004.asp" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnadvnet/html/vbnet01272004.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnadvnet/html/vbnet01272004.asp
@@ -116,7 +113,7 @@ namespace ConfigTool {
             }
 
             /* Compare two property values of any type */
-            private int CompareAscending( object xValue, object yValue ) {
+            static int CompareAscending( object xValue, object yValue ) {
                 int result;
 
                 /* If values implement IComparer */
@@ -134,13 +131,13 @@ namespace ConfigTool {
                 return result;
             }
 
-            private int CompareDescending( object xValue, object yValue ) {
+            static int CompareDescending( object xValue, object yValue ) {
                 /* Return result adjusted for ascending or descending sort order ie
                    multiplied by 1 for ascending or -1 for descending */
                 return CompareAscending( xValue, yValue ) * -1;
             }
 
-            private object GetPropertyValue( TKey value, string property ) {
+            static object GetPropertyValue( TKey value, string property ) {
                 /* Get property */
                 PropertyInfo propertyInfo = value.GetType().GetProperty( property );
 

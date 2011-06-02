@@ -5,7 +5,7 @@ using fCraft;
 
 namespace ConfigTool {
     public sealed partial class DeleteRankPopup : Form {
-        internal Rank substituteRank;
+        internal Rank SubstituteRank { get; private set; }
 
         public DeleteRankPopup( Rank deletedRank ) {
             InitializeComponent();
@@ -23,7 +23,7 @@ namespace ConfigTool {
             if( cSubstitute.SelectedIndex < 0 ) return;
             foreach( Rank rank in RankManager.Ranks ) {
                 if( cSubstitute.SelectedItem.ToString() != rank.ToComboBoxOption() ) continue;
-                substituteRank = rank;
+                SubstituteRank = rank;
                 bDelete.Enabled = true;
                 break;
             }

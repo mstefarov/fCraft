@@ -11,14 +11,13 @@ namespace ConfigTool {
     /// </summary>
     sealed class WorldListEntry : ICloneable {
         public const string DefaultRankOption = "(everyone)";
-        Map cachedMapHeader;
-        internal bool loadingFailed;
+        const string MapFileExtension = ".fcm";
+
+        internal bool LoadingFailed { get; private set; }
+
 
         public WorldListEntry() { }
 
-        public object Clone() {
-            return new WorldListEntry( this );
-        }
 
         public WorldListEntry( WorldListEntry original ) {
             name = original.Name;
@@ -27,6 +26,7 @@ namespace ConfigTool {
             accessSecurity = new SecurityController( original.accessSecurity );
             buildSecurity = new SecurityController( original.buildSecurity );
         }
+
 
         public WorldListEntry( XElement el ) {
             XAttribute temp;
@@ -62,19 +62,21 @@ namespace ConfigTool {
 
             if( el.Element( "accessSecurity" ) != null ) {
                 accessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
-            }else if( (temp = el.Attribute( "access" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
+            } else if( (temp = el.Attribute( "access" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
                 accessSecurity.MinRank = RankManager.ParseRank( temp.Value );
             }
 
             if( el.Element( "buildSecurity" ) != null ) {
                 buildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
-            }else if( (temp = el.Attribute( "build" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
+            } else if( (temp = el.Attribute( "build" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
                 buildSecurity.MinRank = RankManager.ParseRank( temp.Value );
             }
         }
 
 
-        internal string name;
+        #region List Properties
+
+        string name;
         public string Name {
             get {
                 return name;
@@ -97,13 +99,16 @@ namespace ConfigTool {
             }
         }
 
+
+        Map cachedMapHeader;
         public string Description {
             get {
-                if( cachedMapHeader == null && !loadingFailed ) {
+                if( cachedMapHeader == null && !LoadingFailed ) {
                     string fullFileName = Path.Combine( Paths.MapPath, name + ".fcm" );
-                    loadingFailed = !MapUtility.TryLoadHeader( fullFileName, out cachedMapHeader );
+                    LoadingFailed = !MapUtility.TryLoadHeader( fullFileName, out cachedMapHeader );
                 }
-                if( loadingFailed ) {
+
+                if( LoadingFailed ) {
                     return "(cannot load file)";
                 } else {
                     return String.Format( "{0} × {1} × {2}",
@@ -114,9 +119,11 @@ namespace ConfigTool {
             }
         }
 
+
         public bool Hidden { get; set; }
 
-        SecurityController accessSecurity = new SecurityController();
+
+        readonly SecurityController accessSecurity = new SecurityController();
         string accessRankString;
         public string AccessPermission {
             get {
@@ -138,8 +145,9 @@ namespace ConfigTool {
                 accessRankString = "";
             }
         }
-        
-        SecurityController buildSecurity = new SecurityController();
+
+
+        readonly SecurityController buildSecurity = new SecurityController();
         string buildRankString;
         public string BuildPermission {
             get {
@@ -162,21 +170,45 @@ namespace ConfigTool {
             }
         }
 
+
         public string Backup { get; set; }
+
+        #endregion
+
 
         internal XElement Serialize() {
             XElement element = new XElement( "World" );
             element.Add( new XAttribute( "name", Name ) );
             element.Add( new XAttribute( "hidden", Hidden ) );
             element.Add( new XAttribute( "backup", Backup ) );
-            element.Add( accessSecurity.Serialize("accessSecurity") );
+            element.Add( accessSecurity.Serialize( "accessSecurity" ) );
             element.Add( buildSecurity.Serialize( "buildSecurity" ) );
             return element;
         }
+
 
         public void ReparseRanks() {
             accessSecurity.MinRank = RankManager.ParseRank( accessRankString );
             buildSecurity.MinRank = RankManager.ParseRank( buildRankString );
         }
+
+
+        public string FileName {
+            get { return Name + MapFileExtension; }
+        }
+
+
+        public string FullFileName {
+            get { return Path.Combine( Paths.MapPath, Name + MapFileExtension ); }
+        }
+
+
+        #region ICloneable Members
+
+        public object Clone() {
+            return new WorldListEntry( this );
+        }
+
+        #endregion
     }
 }

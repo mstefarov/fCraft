@@ -1,5 +1,5 @@
 ﻿namespace ConfigTool {
-    partial class ChatPreview {
+    sealed partial class ChatPreview {
         /// <summary> 
         /// Required designer variable.
         /// </summary>

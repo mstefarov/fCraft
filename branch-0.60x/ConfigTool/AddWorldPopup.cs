@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using fCraft;
@@ -15,18 +16,18 @@ using Color = System.Drawing.Color;
 
 namespace ConfigTool {
     sealed partial class AddWorldPopup : Form {
-        BackgroundWorker bwLoader = new BackgroundWorker(),
-                         bwGenerator = new BackgroundWorker(),
-                         bwRenderer = new BackgroundWorker();
+        readonly BackgroundWorker bwLoader = new BackgroundWorker(),
+                                  bwGenerator = new BackgroundWorker(),
+                                  bwRenderer = new BackgroundWorker();
 
         const string MapLoadFilter = "Minecraft Maps|*.fcm;*.lvl;*.dat;*.mclevel;*.gz;*.map;*.meta;*.mine;*.save";
 
         readonly object redrawLock = new object();
 
-        Map _map;
-        Map map {
+        Map map;
+        Map Map {
             get {
-                return _map;
+                return map;
             }
             set {
                 try {
@@ -39,7 +40,7 @@ namespace ConfigTool {
                     } );
                 } catch( ObjectDisposedException ) {
                 } catch( InvalidOperationException ) { }
-                _map = value;
+                map = value;
             }
         }
 
@@ -48,16 +49,18 @@ namespace ConfigTool {
         Bitmap previewImage;
         bool floodBarrier;
         string originalWorldName;
-        internal WorldListEntry world;
-        List<WorldListEntry> copyOptionsList = new List<WorldListEntry>();
+        readonly List<WorldListEntry> copyOptionsList = new List<WorldListEntry>();
         Tabs tab;
 
 
-        public AddWorldPopup( WorldListEntry _world ) {
+        internal WorldListEntry World { get; private set; }
+
+
+        public AddWorldPopup( WorldListEntry world ) {
             InitializeComponent();
             fileBrowser.Filter = MapLoadFilter;
 
-            cBackup.Items.AddRange( World.BackupEnum );
+            cBackup.Items.AddRange( fCraft.World.BackupEnum );
             cTemplates.Items.AddRange( Enum.GetNames( typeof( MapGenTemplate ) ) );
             cTheme.Items.AddRange( Enum.GetNames( typeof( MapGenTheme ) ) );
 
@@ -89,7 +92,7 @@ namespace ConfigTool {
             tStatus1.Text = "";
             tStatus2.Text = "";
 
-            world = _world;
+            World = world;
 
             savePreviewDialog.Filter = "PNG Image|*.png|TIFF Image|*.tif;*.tiff|Bitmap Image|*.bmp|JPEG Image|*.jpg;*.jpeg";
             savePreviewDialog.Title = "Saving preview image...";
@@ -107,33 +110,40 @@ namespace ConfigTool {
         void LoadMap( object sender, EventArgs args ) {
 
             // Fill in the "Copy existing world" combobox
-            foreach( WorldListEntry otherWorld in ConfigUI.worlds ) {
-                if( otherWorld != world ) {
-                    cWorld.Items.Add( otherWorld.name + " (" + otherWorld.Description + ")" );
+            foreach( WorldListEntry otherWorld in ConfigUI.Worlds ) {
+                if( otherWorld != World ) {
+                    cWorld.Items.Add( otherWorld.Name + " (" + otherWorld.Description + ")" );
                     copyOptionsList.Add( otherWorld );
                 }
             }
 
-            if( world == null ) {
+            if( World == null ) {
                 Text = "Adding a New World";
-                world = new WorldListEntry();
+                World = new WorldListEntry();
+
+                // keep trying "NewWorld#" until we find an unused number
                 int worldNameCounter = 1;
-                for( ; ConfigUI.IsWorldNameTaken( "NewWorld" + worldNameCounter ); worldNameCounter++ ) ;
-                world.name = "NewWorld" + worldNameCounter;
-                tName.Text = world.Name;
+                while( ConfigUI.IsWorldNameTaken( "NewWorld" + worldNameCounter ) ) {
+                    worldNameCounter++;
+                }
+
+                World.Name = "NewWorld" + worldNameCounter;
+                tName.Text = World.Name;
                 cAccess.SelectedIndex = 0;
                 cBuild.SelectedIndex = 0;
                 cBackup.SelectedIndex = 5;
-                map = null;
+                Map = null;
+
             } else {
-                world = new WorldListEntry( world );
-                Text = "Editing World \"" + world.Name + "\"";
-                originalWorldName = world.Name;
-                tName.Text = world.Name;
-                cAccess.SelectedItem = world.AccessPermission;
-                cBuild.SelectedItem = world.BuildPermission;
-                cBackup.SelectedItem = world.Backup;
-                xHidden.Checked = world.Hidden;
+                // Editing a world
+                World = new WorldListEntry( World );
+                Text = "Editing World \"" + World.Name + "\"";
+                originalWorldName = World.Name;
+                tName.Text = World.Name;
+                cAccess.SelectedItem = World.AccessPermission;
+                cBuild.SelectedItem = World.BuildPermission;
+                cBackup.SelectedItem = World.Backup;
+                xHidden.Checked = World.Hidden;
             }
 
             // Disable "copy" tab if there are no other worlds
@@ -143,8 +153,8 @@ namespace ConfigTool {
                 tabs.TabPages.Remove( tabCopy );
             }
 
-            // Disable "existing map" tab if there are no other worlds
-            fileToLoad = Path.Combine( Paths.MapPath, world.Name + ".fcm" );
+            // Disable "existing map" tab if mapfile does not exist
+            fileToLoad = World.FullFileName;
             if( File.Exists( fileToLoad ) ) {
                 ShowMapDetails( tExistingMapInfo, fileToLoad );
                 StartLoadingMap();
@@ -156,14 +166,14 @@ namespace ConfigTool {
             // Set Generator comboboxes to defaults
             cTemplates.SelectedIndex = (int)MapGenTemplate.River;
 
-            savePreviewDialog.FileName = world.name;
+            savePreviewDialog.FileName = World.Name;
         }
 
 
         #region Loading/Saving
 
         void StartLoadingMap() {
-            map = null;
+            Map = null;
             tStatus1.Text = "Loading " + new FileInfo( fileToLoad ).Name;
             tStatus2.Text = "";
             progressBar.Visible = true;
@@ -200,8 +210,8 @@ namespace ConfigTool {
         void AsyncLoad( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
             try {
-                map = MapUtility.Load( fileToLoad );
-                map.CalculateShadows();
+                Map = MapUtility.Load( fileToLoad );
+                Map.CalculateShadows();
             } catch( Exception ex ) {
                 MessageBox.Show( String.Format( "Could not load specified map: {0}: {1}",
                                                 ex.GetType().Name, ex.Message ) );
@@ -210,7 +220,7 @@ namespace ConfigTool {
 
         void AsyncLoadCompleted( object sender, RunWorkerCompletedEventArgs e ) {
             stopwatch.Stop();
-            if( map == null ) {
+            if( Map == null ) {
                 tStatus1.Text = "Load failed!";
             } else {
                 tStatus1.Text = "Load successful (" + stopwatch.Elapsed.TotalSeconds.ToString( "0.000" ) + "s)";
@@ -245,7 +255,7 @@ namespace ConfigTool {
 
         void AsyncDraw( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
-            renderer = new IsoCat( map, IsoCatMode.Normal, previewRotation );
+            renderer = new IsoCat( Map, IsoCatMode.Normal, previewRotation );
             Rectangle cropRectangle = new Rectangle();
             if( bwRenderer.CancellationPending ) return;
             Bitmap rawImage = renderer.Draw( ref cropRectangle, bwRenderer );
@@ -274,7 +284,7 @@ namespace ConfigTool {
         }
 
         private void bPreviewPrev_Click( object sender, EventArgs e ) {
-            if( map == null ) return;
+            if( Map == null ) return;
             if( previewRotation == 0 ) previewRotation = 3;
             else previewRotation--;
             tStatus2.Text = ", redrawing...";
@@ -282,7 +292,7 @@ namespace ConfigTool {
         }
 
         private void bPreviewNext_Click( object sender, EventArgs e ) {
-            if( map == null ) return;
+            if( Map == null ) return;
             if( previewRotation == 3 ) previewRotation = 0;
             else previewRotation++;
             tStatus2.Text = ", redrawing...";
@@ -297,7 +307,7 @@ namespace ConfigTool {
         MapGeneratorArgs generatorArgs = new MapGeneratorArgs();
 
         private void bGenerate_Click( object sender, EventArgs e ) {
-            map = null;
+            Map = null;
             bGenerate.Enabled = false;
             bFlatgrassGenerate.Enabled = false;
 
@@ -325,9 +335,9 @@ namespace ConfigTool {
             Map generatedMap;
             if( tab == Tabs.Generator ) {
                 MapGenerator gen = new MapGenerator( generatorArgs );
-                gen.ProgressCallback = delegate( object _sender, ProgressChangedEventArgs args ) {
-                    bwGenerator.ReportProgress( args.ProgressPercentage, args.UserState );
-                };
+                gen.ProgressChanged +=
+                    ( progressSender, progressArgs ) =>
+                    bwGenerator.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
                 generatedMap = gen.Generate();
             } else {
                 generatedMap = new Map( null,
@@ -341,7 +351,7 @@ namespace ConfigTool {
 
             if( floodBarrier ) generatedMap.MakeFloodBarrier();
             generatedMap.CalculateShadows();
-            map = generatedMap;
+            Map = generatedMap;
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
         }
 
@@ -352,7 +362,7 @@ namespace ConfigTool {
 
         void AsyncGenCompleted( object sender, RunWorkerCompletedEventArgs e ) {
             stopwatch.Stop();
-            if( map == null ) {
+            if( Map == null ) {
                 tStatus1.Text = "Generation failed!";
             } else {
                 tStatus1.Text = "Generation successful (" + stopwatch.Elapsed.TotalSeconds.ToString( "0.000" ) + "s)";
@@ -372,16 +382,19 @@ namespace ConfigTool {
 
 
         #region Input Handlers
-        private void xFloodBarrier_CheckedChanged( object sender, EventArgs e ) {
+
+        void xFloodBarrier_CheckedChanged( object sender, EventArgs e ) {
             floodBarrier = xFloodBarrier.Checked;
         }
 
-        private void MapDimensionValidating( object sender, CancelEventArgs e ) {
+
+        static void MapDimensionValidating( object sender, CancelEventArgs e ) {
             ((NumericUpDown)sender).Value = Convert.ToInt32( ((NumericUpDown)sender).Value / 16 ) * 16;
         }
 
-        private void tName_Validating( object sender, CancelEventArgs e ) {
-            if( World.IsValidName( tName.Text ) &&
+
+        void tName_Validating( object sender, CancelEventArgs e ) {
+            if( fCraft.World.IsValidName( tName.Text ) &&
                 (!ConfigUI.IsWorldNameTaken( tName.Text ) ||
                 (originalWorldName != null && tName.Text.ToLower() == originalWorldName.ToLower())) ) {
                 tName.ForeColor = SystemColors.ControlText;
@@ -391,44 +404,52 @@ namespace ConfigTool {
             }
         }
 
-        private void tName_Validated( object sender, EventArgs e ) {
-            world.name = tName.Text;
+
+        void tName_Validated( object sender, EventArgs e ) {
+            World.Name = tName.Text;
         }
 
-        private void cAccess_SelectedIndexChanged( object sender, EventArgs e ) {
-            world.AccessPermission = cAccess.SelectedItem.ToString();
+
+        void cAccess_SelectedIndexChanged( object sender, EventArgs e ) {
+            World.AccessPermission = cAccess.SelectedItem.ToString();
         }
 
-        private void cBuild_SelectedIndexChanged( object sender, EventArgs e ) {
-            world.BuildPermission = cBuild.SelectedItem.ToString();
+
+        void cBuild_SelectedIndexChanged( object sender, EventArgs e ) {
+            World.BuildPermission = cBuild.SelectedItem.ToString();
         }
 
-        private void cBackup_SelectedIndexChanged( object sender, EventArgs e ) {
-            world.Backup = cBackup.SelectedItem.ToString();
+
+        void cBackup_SelectedIndexChanged( object sender, EventArgs e ) {
+            World.Backup = cBackup.SelectedItem.ToString();
         }
 
-        private void xHidden_CheckedChanged( object sender, EventArgs e ) {
-            world.Hidden = xHidden.Checked;
+
+        void xHidden_CheckedChanged( object sender, EventArgs e ) {
+            World.Hidden = xHidden.Checked;
         }
 
-        private void bShow_Click( object sender, EventArgs e ) {
-            if( cWorld.SelectedIndex != -1 && File.Exists( Path.Combine( Paths.MapPath, copyOptionsList[cWorld.SelectedIndex].name + ".fcm" ) ) ) {
+
+        void bShow_Click( object sender, EventArgs e ) {
+            if( cWorld.SelectedIndex != -1 && File.Exists( copyOptionsList[cWorld.SelectedIndex].FullFileName ) ) {
                 bShow.Enabled = false;
-                fileToLoad = Path.Combine( Paths.MapPath, copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
+                fileToLoad = copyOptionsList[cWorld.SelectedIndex].FullFileName;
                 ShowMapDetails( tCopyInfo, fileToLoad );
                 StartLoadingMap();
             }
         }
 
-        private void cWorld_SelectedIndexChanged( object sender, EventArgs e ) {
+
+        void cWorld_SelectedIndexChanged( object sender, EventArgs e ) {
             if( cWorld.SelectedIndex != -1 ) {
-                string fileName = Path.Combine( Paths.MapPath, copyOptionsList[cWorld.SelectedIndex].name + ".fcm" );
+                string fileName = copyOptionsList[cWorld.SelectedIndex].FullFileName;
                 bShow.Enabled = File.Exists( fileName );
                 ShowMapDetails( tCopyInfo, fileName );
             }
         }
 
-        private void xAdvanced_CheckedChanged( object sender, EventArgs e ) {
+
+        void xAdvanced_CheckedChanged( object sender, EventArgs e ) {
             gTerrainFeatures.Visible = xAdvanced.Checked;
             gHeightmapCreation.Visible = xAdvanced.Checked;
             gTrees.Visible = xAdvanced.Checked && xAddTrees.Checked;
@@ -438,7 +459,8 @@ namespace ConfigTool {
             gBeaches.Visible = xAdvanced.Checked && xAddBeaches.Checked;
         }
 
-        private void MapDimensionChanged( object sender, EventArgs e ) {
+
+        void MapDimensionChanged( object sender, EventArgs e ) {
             sFeatureScale.Maximum = (int)Math.Log( (double)Math.Max( nWidthX.Value, nWidthY.Value ), 2 );
             int value = sDetailScale.Maximum - sDetailScale.Value;
             sDetailScale.Maximum = sFeatureScale.Maximum;
@@ -450,7 +472,8 @@ namespace ConfigTool {
             lFeatureSizeDisplay.Text = resolution + "×" + resolution;
         }
 
-        private void sFeatureSize_ValueChanged( object sender, EventArgs e ) {
+
+        void sFeatureSize_ValueChanged( object sender, EventArgs e ) {
             int resolution = 1 << (sFeatureScale.Maximum - sFeatureScale.Value);
             lFeatureSizeDisplay.Text = resolution + "×" + resolution;
             if( sDetailScale.Value < sFeatureScale.Value ) {
@@ -458,7 +481,7 @@ namespace ConfigTool {
             }
         }
 
-        private void sDetailSize_ValueChanged( object sender, EventArgs e ) {
+        void sDetailSize_ValueChanged( object sender, EventArgs e ) {
             int resolution = 1 << (sDetailScale.Maximum - sDetailScale.Value);
             lDetailSizeDisplay.Text = resolution + "×" + resolution;
             if( sFeatureScale.Value > sDetailScale.Value ) {
@@ -466,15 +489,18 @@ namespace ConfigTool {
             }
         }
 
-        private void xMatchWaterCoverage_CheckedChanged( object sender, EventArgs e ) {
+
+        void xMatchWaterCoverage_CheckedChanged( object sender, EventArgs e ) {
             sWaterCoverage.Enabled = xMatchWaterCoverage.Checked;
         }
 
-        private void sWaterCoverage_ValueChanged( object sender, EventArgs e ) {
+
+        void sWaterCoverage_ValueChanged( object sender, EventArgs e ) {
             lMatchWaterCoverageDisplay.Text = sWaterCoverage.Value + "%";
         }
 
-        private void sBias_ValueChanged( object sender, EventArgs e ) {
+
+        void sBias_ValueChanged( object sender, EventArgs e ) {
             lBiasDisplay.Text = sBias.Value + "%";
             bool useBias = (sBias.Value != 0);
 
@@ -484,25 +510,31 @@ namespace ConfigTool {
             xDelayBias.Enabled = useBias;
         }
 
-        private void sRoughness_ValueChanged( object sender, EventArgs e ) {
+
+        void sRoughness_ValueChanged( object sender, EventArgs e ) {
             lRoughnessDisplay.Text = sRoughness.Value + "%";
         }
 
-        private void xSeed_CheckedChanged( object sender, EventArgs e ) {
+
+        void xSeed_CheckedChanged( object sender, EventArgs e ) {
             nSeed.Enabled = xSeed.Checked;
         }
 
-        private void nRaisedCorners_ValueChanged( object sender, EventArgs e ) {
+
+        void nRaisedCorners_ValueChanged( object sender, EventArgs e ) {
             nLoweredCorners.Value = Math.Min( 4 - nRaisedCorners.Value, nLoweredCorners.Value );
         }
 
-        private void nLoweredCorners_ValueChanged( object sender, EventArgs e ) {
+
+        void nLoweredCorners_ValueChanged( object sender, EventArgs e ) {
             nRaisedCorners.Value = Math.Min( 4 - nLoweredCorners.Value, nRaisedCorners.Value );
         }
+
         #endregion
 
 
         #region Tabs
+
         private void tabs_SelectedIndexChanged( object sender, EventArgs e ) {
             if( tabs.SelectedTab == tabExisting ) {
                 tab = Tabs.ExistingMap;
@@ -520,7 +552,7 @@ namespace ConfigTool {
 
             switch( tab ) {
                 case Tabs.ExistingMap:
-                    fileToLoad = Path.Combine( Paths.MapPath, world.Name + ".fcm" );
+                    fileToLoad = World.FullFileName;
                     ShowMapDetails( tExistingMapInfo, fileToLoad );
                     StartLoadingMap();
                     return;
@@ -534,7 +566,7 @@ namespace ConfigTool {
                     return;
                 case Tabs.CopyWorld:
                     if( cWorld.SelectedIndex != -1 ) {
-                        bShow.Enabled = File.Exists( Path.Combine( Paths.MapPath, copyOptionsList[cWorld.SelectedIndex].name + ".fcm" ) );
+                        bShow.Enabled = File.Exists( copyOptionsList[cWorld.SelectedIndex].FullFileName );
                     }
                     return;
                 case Tabs.Flatgrass:
@@ -554,26 +586,27 @@ namespace ConfigTool {
             Heightmap,
             Generator
         }
+
         #endregion
 
 
         static void ShowMapDetails( TextBox textBox, string fileName ) {
 
             DateTime creationTime, modificationTime;
-            long fileSize = 0;
+            long fileSize;
 
             if( File.Exists( fileName ) ) {
                 FileInfo existingMapFileInfo = new FileInfo( fileName );
                 creationTime = existingMapFileInfo.CreationTime;
                 modificationTime = existingMapFileInfo.LastWriteTime;
                 fileSize = existingMapFileInfo.Length;
+
             } else if( Directory.Exists( fileName ) ) {
                 DirectoryInfo dirInfo = new DirectoryInfo( fileName );
                 creationTime = dirInfo.CreationTime;
                 modificationTime = dirInfo.LastWriteTime;
-                foreach( FileInfo finfo in dirInfo.GetFiles() ) {
-                    fileSize += finfo.Length;
-                }
+                fileSize = dirInfo.GetFiles().Sum( finfo => finfo.Length );
+
             } else {
                 textBox.Text = "File or directory \"" + fileName + "\" does not exist.";
                 return;
@@ -631,7 +664,7 @@ Could not load more information:
         private void AddWorldPopup_FormClosing( object sender, FormClosingEventArgs e ) {
             Redraw( false );
             if( DialogResult == DialogResult.OK ) {
-                if( map == null ) {
+                if( Map == null ) {
                     e.Cancel = true;
                 } else {
                     bwRenderer.CancelAsync();
@@ -642,11 +675,11 @@ Could not load more information:
                     tStatus2.Text = "";
                     Refresh();
 
-                    string newFileName = Path.Combine( Paths.MapPath, world.Name + ".fcm" );
-                    map.Save( newFileName );
+                    string newFileName = World.FullFileName;
+                    Map.Save( newFileName );
                     string oldFileName = Path.Combine( Paths.MapPath, originalWorldName + ".fcm" );
 
-                    if( originalWorldName != null && originalWorldName != world.Name && File.Exists( oldFileName ) ) {
+                    if( originalWorldName != null && originalWorldName != World.Name && File.Exists( oldFileName ) ) {
                         try {
                             File.Delete( oldFileName );
                         } catch( Exception ex ) {
@@ -725,10 +758,10 @@ Could not load more information:
             nLoweredCorners.Value = generatorArgs.LoweredCorners;
 
             cTheme.SelectedIndex = (int)generatorArgs.Theme;
-            nTreeHeight.Value = (generatorArgs.TreeHeightMax + generatorArgs.TreeHeightMin) / 2;
-            nTreeHeightVariation.Value = (generatorArgs.TreeHeightMax - generatorArgs.TreeHeightMin) / 2;
-            nTreeSpacing.Value = (generatorArgs.TreeSpacingMax + generatorArgs.TreeSpacingMin) / 2;
-            nTreeSpacingVariation.Value = (generatorArgs.TreeSpacingMax - generatorArgs.TreeSpacingMin) / 2;
+            nTreeHeight.Value = (generatorArgs.TreeHeightMax + generatorArgs.TreeHeightMin) / 2m;
+            nTreeHeightVariation.Value = (generatorArgs.TreeHeightMax - generatorArgs.TreeHeightMin) / 2m;
+            nTreeSpacing.Value = (generatorArgs.TreeSpacingMax + generatorArgs.TreeSpacingMin) / 2m;
+            nTreeSpacingVariation.Value = (generatorArgs.TreeSpacingMax - generatorArgs.TreeSpacingMin) / 2m;
 
             xCaves.Checked = generatorArgs.AddCaves;
             xCaveLava.Checked = generatorArgs.AddCaveLava;
@@ -882,7 +915,7 @@ Could not load more information:
         static int ExponentToTrackBar( TrackBar bar, float val ) {
             if( val >= 1 ) {
                 float normalized = (float)Math.Sqrt( (val - 1) / 3f );
-                return (int)(bar.Maximum / 2 + normalized * (bar.Maximum / 2));
+                return (int)(bar.Maximum / 2f + normalized * (bar.Maximum / 2f));
             } else {
                 float normalized = (val - .25f) / .75f;
                 return (int)(normalized * bar.Maximum / 2f);
