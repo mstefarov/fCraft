@@ -51,8 +51,6 @@ namespace ConfigTool {
 
             Server.InitLibrary( Environment.GetCommandLineArgs() );
             //dgvWorlds.DataError += ( sender1, e1 ) => MessageBox.Show( a.Exception.Message, "Data Error" );
-            
-            worlds.ListChanged += SomethingChanged;
 
             LoadConfig();
         }
@@ -225,9 +223,12 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 string fileName = world.Name + ".fcm";
                 string fullFileName = Path.Combine( Paths.MapPath, fileName );
                 if( File.Exists( fullFileName ) ) {
-                    if( MessageBox.Show( String.Format( "Are you sure you want to delete world \"{0}\"?", world.Name ), "Deleting a world", MessageBoxButtons.YesNo ) == DialogResult.No ) {
+                    string promptMessage = String.Format( "Are you sure you want to delete world \"{0}\"?", world.Name );
+
+                    if( MessageBox.Show( promptMessage, "Deleting a world", MessageBoxButtons.YesNo ) == DialogResult.No ) {
                         return;
                     }
+
                     if( MessageBox.Show( "Do you want to delete the map file (" + fileName + ") as well?", "Warning", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
                         try {
                             File.Delete( fullFileName );
@@ -246,6 +247,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                     if( cMainWorld.Items.Count > 0 ) {
                         cMainWorld.SelectedIndex = 0;
                     }
+
                 } else {
                     string mainWorldName = cMainWorld.SelectedItem.ToString();
                     FillWorldList();
@@ -1177,6 +1179,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         void SomethingChanged( object sender, EventArgs args ) {
             bApply.Enabled = true;
         }
+
 
         void AddChangeHandler( Control c, EventHandler handler ) {
             if( c is CheckBox ) {

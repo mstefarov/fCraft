@@ -96,6 +96,8 @@ namespace ConfigTool {
             } catch( Exception ex ) {
                 MessageBox.Show( "Error occured while loading the world list: " + Environment.NewLine + ex, "Warning" );
             }
+
+            worlds.ListChanged += SomethingChanged;
         }
 
 
