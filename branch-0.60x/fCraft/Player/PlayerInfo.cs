@@ -773,8 +773,6 @@ namespace fCraft {
         public string GetClassyName() {
             StringBuilder sb = new StringBuilder();
             if( ConfigKey.RankColorsInChat.GetBool() ) {
-                if( Name == "fragmer" ) return "&4f&cr&ea&ag&bm&9e&5r";
-                if( Name == "Kirshi" ) return "&bKir&dshi";
                 sb.Append( Rank.Color );
             }
             if( ConfigKey.RankPrefixesInChat.GetBool() ) {
