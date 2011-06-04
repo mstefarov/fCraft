@@ -28,13 +28,9 @@ namespace fCraft {
 
         public Position Spawn;
 
-        readonly Dictionary<string, Dictionary<string, string>> metadata = new Dictionary<string, Dictionary<string, string>>();
-
         // Queue of block updates. Updates are applied by ProcessUpdates()
         readonly ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
 
-        readonly object metaLock = new object(),
-                        backupLock = new object();
 
         // used to skip backups/saves if no changes were made
         public bool ChangedSinceSave { get; internal set; }
@@ -55,6 +51,7 @@ namespace fCraft {
             UpdateZoneCache();
         }
 
+
         // creates an empty new world of specified dimensions
         public Map( World world, int widthX, int widthY, int height, bool initBlockArray )
             : this() {
@@ -67,7 +64,6 @@ namespace fCraft {
             if( initBlockArray ) {
                 int blockCount = WidthX * WidthY * Height;
                 Blocks = new byte[blockCount];
-                Blocks.Initialize();
             }
         }
 
@@ -181,8 +177,7 @@ namespace fCraft {
         }
 
 
-
-        internal bool RemoveUnknownBlocktypes( bool returnOnErrors ) {
+        public bool RemoveUnknownBlocktypes( bool returnOnErrors ) {
             bool foundUnknownTypes = false;
             fixed( byte* ptr = Blocks ) {
                 for( int j = 0; j < Blocks.Length; j++ ) {
@@ -199,6 +194,9 @@ namespace fCraft {
 
 
         public bool ConvertBlockTypes( byte[] mapping ) {
+            if( mapping == null ) throw new ArgumentNullException( "mapping" );
+            if( mapping.Length != 256 ) throw new ArgumentException( "mapping" );
+
             bool mapped = false;
             fixed( byte* ptr = Blocks ) {
                 for( int j = 0; j < Blocks.Length; j++ ) {
@@ -212,11 +210,13 @@ namespace fCraft {
             return mapped;
         }
 
-
         #endregion
 
 
         #region Metadata
+
+        readonly Dictionary<string, Dictionary<string, string>> metadata = new Dictionary<string, Dictionary<string, string>>();
+        readonly object metaLock = new object();
 
         public string GetMeta( string key ) {
             if( key == null ) throw new ArgumentNullException( "key" );
@@ -770,6 +770,9 @@ namespace fCraft {
 
 
         #region Backup
+
+        readonly object backupLock = new object();
+
 
         public void SaveBackup( string sourceName, string targetName, bool onlyIfChanged ) {
             if( sourceName == null ) throw new ArgumentNullException( "sourceName" );
