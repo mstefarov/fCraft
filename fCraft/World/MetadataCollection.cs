@@ -39,7 +39,6 @@ namespace fCraft {
 
     /// <summary> A collection of string metadata entries. </summary>
     public class MetadataCollection : ICollection<MetadataEntry>, ICollection, ICloneable {
-        public const string EmptyGroup = "";
 
         readonly Dictionary<string, Dictionary<string, string>> store = new Dictionary<string, Dictionary<string, string>>();
 
@@ -62,11 +61,6 @@ namespace fCraft {
         }
 
 
-        public void Add( string key, string value ) {
-            Add( EmptyGroup, key, value );
-        }
-
-
         public void Add( string group, string key, string value ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
@@ -77,11 +71,6 @@ namespace fCraft {
                 }
                 store[group].Add( key, value );
             }
-        }
-
-
-        public bool Remove( string key ) {
-            return Remove( EmptyGroup, key );
         }
 
 
@@ -96,28 +85,13 @@ namespace fCraft {
 
         #region Index / Get / Set
 
-        public string this[string group,string key] {
+        public string this[string group, string key] {
             get {
                 return GetValue( group, key );
             }
             set {
                 SetValue( group, key, value );
             }
-        }
-
-
-        public string this[string key] {
-            get {
-                return GetValue( EmptyGroup, key );
-            }
-            set {
-                SetValue( EmptyGroup, key, value );
-            }
-        }
-
-
-        public string GetValue( string key ) {
-            return GetValue( EmptyGroup, key );
         }
 
 
@@ -130,11 +104,6 @@ namespace fCraft {
         }
 
 
-        public void SetValue( string key, string value ) {
-            SetValue( EmptyGroup, key, value );
-        }
-        
-
         public void SetValue( string group, string key, string value ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
@@ -145,11 +114,6 @@ namespace fCraft {
                 }
                 store[group][key] = value;
             }
-        }
-
-
-        public MetadataEntry Get( string key ) {
-            return Get( EmptyGroup, key );
         }
 
 
@@ -173,20 +137,10 @@ namespace fCraft {
         #endregion
 
 
-        #region Contains Group/Key
-
         public bool ContainsGroup( string group ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             lock( syncRoot ) {
                 return store.ContainsKey( group );
-            }
-        }
-
-
-        public bool ContainsKey( string key ) {
-            if( key == null ) throw new ArgumentNullException( "key" );
-            lock( syncRoot ) {
-                return store[EmptyGroup].ContainsKey( key );
             }
         }
 
@@ -200,20 +154,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
-
-        #region TryGetValue
-
-        public bool TryGetValue( string key, out string value ) {
-            return TryGetValue( EmptyGroup, key, out value );
-        }
-
 
         public bool TryGetValue( string group, string key, out string value ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
-            Dictionary<string,string> pair;
+            Dictionary<string, string> pair;
             lock( syncRoot ) {
                 if( !store.TryGetValue( group, out pair ) ) {
                     value = null;
@@ -223,7 +168,6 @@ namespace fCraft {
             }
         }
 
-        #endregion
 
 
         /// <summary> Enumerates a group of keys. </summary>
