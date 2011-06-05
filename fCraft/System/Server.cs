@@ -237,8 +237,6 @@ namespace fCraft {
             } catch { }
 #endif
 
-            Config.ApplyChanges = true;
-
             // try to load the config
             if( !Config.Load( false, false ) ) {
                 throw new Exception( "fCraft failed to initialize" );

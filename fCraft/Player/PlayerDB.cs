@@ -122,8 +122,11 @@ namespace fCraft {
 
 
         static int IdentifyFormatVersion( string header ) {
+            if( header == null ) throw new ArgumentNullException( "header" );
             string[] headerParts = header.Split( ' ' );
-            if( headerParts.Length < 2 ) throw new FormatException( "Invalid PlayerDB file format." );
+            if( headerParts.Length < 2 ) {
+                throw new FormatException( "Invalid PlayerDB header format: " + header );
+            }
             int maxIDField;
             if( Int32.TryParse( headerParts[0], out maxIDField ) ) {
                 if( maxIDField >= 255 ) {// IDs start at 256
