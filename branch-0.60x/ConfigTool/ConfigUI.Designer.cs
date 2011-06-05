@@ -29,7 +29,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
-            this.gUpdateSettings = new System.Windows.Forms.GroupBox();
+            this.gUpdaterSettings = new System.Windows.Forms.GroupBox();
             this.bShowAdvancedUpdaterSettings = new System.Windows.Forms.Button();
             this.cUpdaterMode = new System.Windows.Forms.ComboBox();
             this.lUpdater = new System.Windows.Forms.Label();
@@ -172,6 +172,8 @@
             this.lVerifyNames = new System.Windows.Forms.Label();
             this.cVerifyNames = new System.Windows.Forms.ComboBox();
             this.tabSavingAndBackup = new System.Windows.Forms.TabPage();
+            this.gDataBackup = new System.Windows.Forms.GroupBox();
+            this.xBackupDataOnStartup = new System.Windows.Forms.CheckBox();
             this.gSaving = new System.Windows.Forms.GroupBox();
             this.nSaveInterval = new System.Windows.Forms.NumericUpDown();
             this.lSaveIntervalUnits = new System.Windows.Forms.Label();
@@ -238,7 +240,7 @@
             this.xIRCBotEnabled = new System.Windows.Forms.CheckBox();
             this.cIRCList = new System.Windows.Forms.ComboBox();
             this.tabAdvanced = new System.Windows.Forms.TabPage();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.gAdvancedMisc = new System.Windows.Forms.GroupBox();
             this.lIPWarning = new System.Windows.Forms.Label();
             this.tIP = new System.Windows.Forms.TextBox();
             this.xIP = new System.Windows.Forms.CheckBox();
@@ -269,11 +271,9 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.xBackupDataOnStartup = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
-            this.gUpdateSettings.SuspendLayout();
+            this.gUpdaterSettings.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.gHelpAndSupport.SuspendLayout();
             this.gInformation.SuspendLayout();
@@ -305,6 +305,7 @@
             this.gVerify.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxConnectionsPerIP)).BeginInit();
             this.tabSavingAndBackup.SuspendLayout();
+            this.gDataBackup.SuspendLayout();
             this.gSaving.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nSaveInterval)).BeginInit();
             this.gBackups.SuspendLayout();
@@ -321,12 +322,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.nIRCDelay)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nIRCBotPort)).BeginInit();
             this.tabAdvanced.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.gAdvancedMisc.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             this.gCrashReport.SuspendLayout();
-            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabs
@@ -352,7 +352,7 @@
             // 
             // tabGeneral
             // 
-            this.tabGeneral.Controls.Add( this.gUpdateSettings );
+            this.tabGeneral.Controls.Add( this.gUpdaterSettings );
             this.tabGeneral.Controls.Add( this.groupBox2 );
             this.tabGeneral.Controls.Add( this.gHelpAndSupport );
             this.tabGeneral.Controls.Add( this.gInformation );
@@ -365,17 +365,17 @@
             this.tabGeneral.Text = "General";
             this.tabGeneral.UseVisualStyleBackColor = true;
             // 
-            // gUpdateSettings
+            // gUpdaterSettings
             // 
-            this.gUpdateSettings.Controls.Add( this.bShowAdvancedUpdaterSettings );
-            this.gUpdateSettings.Controls.Add( this.cUpdaterMode );
-            this.gUpdateSettings.Controls.Add( this.lUpdater );
-            this.gUpdateSettings.Location = new System.Drawing.Point( 8, 247 );
-            this.gUpdateSettings.Name = "gUpdateSettings";
-            this.gUpdateSettings.Size = new System.Drawing.Size( 636, 54 );
-            this.gUpdateSettings.TabIndex = 2;
-            this.gUpdateSettings.TabStop = false;
-            this.gUpdateSettings.Text = "Updater Settings";
+            this.gUpdaterSettings.Controls.Add( this.bShowAdvancedUpdaterSettings );
+            this.gUpdaterSettings.Controls.Add( this.cUpdaterMode );
+            this.gUpdaterSettings.Controls.Add( this.lUpdater );
+            this.gUpdaterSettings.Location = new System.Drawing.Point( 8, 247 );
+            this.gUpdaterSettings.Name = "gUpdaterSettings";
+            this.gUpdaterSettings.Size = new System.Drawing.Size( 636, 54 );
+            this.gUpdaterSettings.TabIndex = 2;
+            this.gUpdaterSettings.TabStop = false;
+            this.gUpdaterSettings.Text = "Updater Settings";
             // 
             // bShowAdvancedUpdaterSettings
             // 
@@ -2015,7 +2015,7 @@
             // 
             // tabSavingAndBackup
             // 
-            this.tabSavingAndBackup.Controls.Add( this.groupBox3 );
+            this.tabSavingAndBackup.Controls.Add( this.gDataBackup );
             this.tabSavingAndBackup.Controls.Add( this.gSaving );
             this.tabSavingAndBackup.Controls.Add( this.gBackups );
             this.tabSavingAndBackup.Location = new System.Drawing.Point( 4, 24 );
@@ -2025,6 +2025,26 @@
             this.tabSavingAndBackup.TabIndex = 4;
             this.tabSavingAndBackup.Text = "Saving and Backup";
             this.tabSavingAndBackup.UseVisualStyleBackColor = true;
+            // 
+            // gDataBackup
+            // 
+            this.gDataBackup.Controls.Add( this.xBackupDataOnStartup );
+            this.gDataBackup.Location = new System.Drawing.Point( 8, 235 );
+            this.gDataBackup.Name = "gDataBackup";
+            this.gDataBackup.Size = new System.Drawing.Size( 636, 52 );
+            this.gDataBackup.TabIndex = 2;
+            this.gDataBackup.TabStop = false;
+            this.gDataBackup.Text = "Data Backup";
+            // 
+            // xBackupDataOnStartup
+            // 
+            this.xBackupDataOnStartup.AutoSize = true;
+            this.xBackupDataOnStartup.Location = new System.Drawing.Point( 16, 20 );
+            this.xBackupDataOnStartup.Name = "xBackupDataOnStartup";
+            this.xBackupDataOnStartup.Size = new System.Drawing.Size( 261, 19 );
+            this.xBackupDataOnStartup.TabIndex = 0;
+            this.xBackupDataOnStartup.Text = "Backup PlayerDB and IP ban list on startup.";
+            this.xBackupDataOnStartup.UseVisualStyleBackColor = true;
             // 
             // gSaving
             // 
@@ -2752,7 +2772,7 @@
             // 
             // tabAdvanced
             // 
-            this.tabAdvanced.Controls.Add( this.groupBox1 );
+            this.tabAdvanced.Controls.Add( this.gAdvancedMisc );
             this.tabAdvanced.Controls.Add( this.gCrashReport );
             this.tabAdvanced.Location = new System.Drawing.Point( 4, 24 );
             this.tabAdvanced.Name = "tabAdvanced";
@@ -2762,38 +2782,38 @@
             this.tabAdvanced.Text = "Advanced";
             this.tabAdvanced.UseVisualStyleBackColor = true;
             // 
-            // groupBox1
+            // gAdvancedMisc
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            this.gAdvancedMisc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add( this.lIPWarning );
-            this.groupBox1.Controls.Add( this.tIP );
-            this.groupBox1.Controls.Add( this.xIP );
-            this.groupBox1.Controls.Add( this.lConsoleNameHint );
-            this.groupBox1.Controls.Add( this.lConsoleName );
-            this.groupBox1.Controls.Add( this.tConsoleName );
-            this.groupBox1.Controls.Add( this.nMaxUndo );
-            this.groupBox1.Controls.Add( this.lMaxUndoUnits );
-            this.groupBox1.Controls.Add( this.xMaxUndo );
-            this.groupBox1.Controls.Add( this.lAdvancedWarning );
-            this.groupBox1.Controls.Add( this.lTickInterval );
-            this.groupBox1.Controls.Add( this.xLowLatencyMode );
-            this.groupBox1.Controls.Add( this.nTickInterval );
-            this.groupBox1.Controls.Add( this.lTickIntervalUnits );
-            this.groupBox1.Controls.Add( this.xRelayAllBlockUpdates );
-            this.groupBox1.Controls.Add( this.lThrottlingUnits );
-            this.groupBox1.Controls.Add( this.lProcessPriority );
-            this.groupBox1.Controls.Add( this.nThrottling );
-            this.groupBox1.Controls.Add( this.cProcessPriority );
-            this.groupBox1.Controls.Add( this.lThrottling );
-            this.groupBox1.Controls.Add( this.xNoPartialPositionUpdates );
-            this.groupBox1.Location = new System.Drawing.Point( 8, 118 );
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size( 638, 379 );
-            this.groupBox1.TabIndex = 1;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Miscellaneous";
+            this.gAdvancedMisc.Controls.Add( this.lIPWarning );
+            this.gAdvancedMisc.Controls.Add( this.tIP );
+            this.gAdvancedMisc.Controls.Add( this.xIP );
+            this.gAdvancedMisc.Controls.Add( this.lConsoleNameHint );
+            this.gAdvancedMisc.Controls.Add( this.lConsoleName );
+            this.gAdvancedMisc.Controls.Add( this.tConsoleName );
+            this.gAdvancedMisc.Controls.Add( this.nMaxUndo );
+            this.gAdvancedMisc.Controls.Add( this.lMaxUndoUnits );
+            this.gAdvancedMisc.Controls.Add( this.xMaxUndo );
+            this.gAdvancedMisc.Controls.Add( this.lAdvancedWarning );
+            this.gAdvancedMisc.Controls.Add( this.lTickInterval );
+            this.gAdvancedMisc.Controls.Add( this.xLowLatencyMode );
+            this.gAdvancedMisc.Controls.Add( this.nTickInterval );
+            this.gAdvancedMisc.Controls.Add( this.lTickIntervalUnits );
+            this.gAdvancedMisc.Controls.Add( this.xRelayAllBlockUpdates );
+            this.gAdvancedMisc.Controls.Add( this.lThrottlingUnits );
+            this.gAdvancedMisc.Controls.Add( this.lProcessPriority );
+            this.gAdvancedMisc.Controls.Add( this.nThrottling );
+            this.gAdvancedMisc.Controls.Add( this.cProcessPriority );
+            this.gAdvancedMisc.Controls.Add( this.lThrottling );
+            this.gAdvancedMisc.Controls.Add( this.xNoPartialPositionUpdates );
+            this.gAdvancedMisc.Location = new System.Drawing.Point( 8, 118 );
+            this.gAdvancedMisc.Name = "gAdvancedMisc";
+            this.gAdvancedMisc.Size = new System.Drawing.Size( 638, 379 );
+            this.gAdvancedMisc.TabIndex = 1;
+            this.gAdvancedMisc.TabStop = false;
+            this.gAdvancedMisc.Text = "Miscellaneous";
             // 
             // lIPWarning
             // 
@@ -3066,7 +3086,7 @@
             this.gCrashReport.Size = new System.Drawing.Size( 638, 99 );
             this.gCrashReport.TabIndex = 0;
             this.gCrashReport.TabStop = false;
-            this.gCrashReport.Text = "Web connectivity";
+            this.gCrashReport.Text = "Crash Reporting";
             // 
             // lCrashReportDisclaimer
             // 
@@ -3153,26 +3173,6 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // groupBox3
-            // 
-            this.groupBox3.Controls.Add( this.xBackupDataOnStartup );
-            this.groupBox3.Location = new System.Drawing.Point( 8, 235 );
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size( 636, 52 );
-            this.groupBox3.TabIndex = 2;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Data Backups";
-            // 
-            // xBackupDataOnStartup
-            // 
-            this.xBackupDataOnStartup.AutoSize = true;
-            this.xBackupDataOnStartup.Location = new System.Drawing.Point( 16, 20 );
-            this.xBackupDataOnStartup.Name = "xBackupDataOnStartup";
-            this.xBackupDataOnStartup.Size = new System.Drawing.Size( 261, 19 );
-            this.xBackupDataOnStartup.TabIndex = 0;
-            this.xBackupDataOnStartup.Text = "Backup PlayerDB and IP ban list on startup.";
-            this.xBackupDataOnStartup.UseVisualStyleBackColor = true;
-            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -3191,8 +3191,8 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler( this.ConfigUI_FormClosing );
             this.tabs.ResumeLayout( false );
             this.tabGeneral.ResumeLayout( false );
-            this.gUpdateSettings.ResumeLayout( false );
-            this.gUpdateSettings.PerformLayout();
+            this.gUpdaterSettings.ResumeLayout( false );
+            this.gUpdaterSettings.PerformLayout();
             this.groupBox2.ResumeLayout( false );
             this.gHelpAndSupport.ResumeLayout( false );
             this.gInformation.ResumeLayout( false );
@@ -3234,6 +3234,8 @@
             this.gVerify.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxConnectionsPerIP)).EndInit();
             this.tabSavingAndBackup.ResumeLayout( false );
+            this.gDataBackup.ResumeLayout( false );
+            this.gDataBackup.PerformLayout();
             this.gSaving.ResumeLayout( false );
             this.gSaving.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nSaveInterval)).EndInit();
@@ -3257,15 +3259,13 @@
             ((System.ComponentModel.ISupportInitialize)(this.nIRCDelay)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nIRCBotPort)).EndInit();
             this.tabAdvanced.ResumeLayout( false );
-            this.groupBox1.ResumeLayout( false );
-            this.groupBox1.PerformLayout();
+            this.gAdvancedMisc.ResumeLayout( false );
+            this.gAdvancedMisc.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             this.gCrashReport.ResumeLayout( false );
             this.gCrashReport.PerformLayout();
-            this.groupBox3.ResumeLayout( false );
-            this.groupBox3.PerformLayout();
             this.ResumeLayout( false );
 
         }
@@ -3431,7 +3431,7 @@
         private System.Windows.Forms.CheckBox xSubmitCrashReports;
         private System.Windows.Forms.GroupBox gCrashReport;
         private System.Windows.Forms.Label lCrashReportDisclaimer;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox gAdvancedMisc;
         private System.Windows.Forms.Label lIRCDelay;
         private System.Windows.Forms.NumericUpDown nIRCDelay;
         private System.Windows.Forms.ComboBox cPatrolledRank;
@@ -3502,7 +3502,7 @@
         private System.Windows.Forms.Button bOpenWiki;
         private System.Windows.Forms.ComboBox cUpdaterMode;
         private System.Windows.Forms.Label lUpdater;
-        private System.Windows.Forms.GroupBox gUpdateSettings;
+        private System.Windows.Forms.GroupBox gUpdaterSettings;
         private System.Windows.Forms.Button bShowAdvancedUpdaterSettings;
         private System.Windows.Forms.Label lIPWarning;
         private System.Windows.Forms.TextBox tIP;
@@ -3514,7 +3514,7 @@
         private System.Windows.Forms.CheckBox xRequireKickReason;
         private System.Windows.Forms.GroupBox gPermissionLimits;
         private System.Windows.Forms.FlowLayoutPanel permissionLimitBoxContainer;
-        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.GroupBox gDataBackup;
         private System.Windows.Forms.CheckBox xBackupDataOnStartup;
     }
 }
