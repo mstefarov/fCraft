@@ -102,7 +102,7 @@ namespace fCraft.MapConversion {
             int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
 
             Map map = new Map( null, widthX, widthY, height, false );
-            map.SetSpawn( spawn );
+            map.Spawn = spawn;
 
             return map;
         }
@@ -120,7 +120,7 @@ namespace fCraft.MapConversion {
                 }
 
                 // Read in the map data
-                map.Blocks = new byte[map.WidthX * map.WidthY * map.Height];
+                map.Blocks = new byte[map.Volume];
                 mapStream.Read( map.Blocks, 0, map.Blocks.Length );
 
                 map.ConvertBlockTypes( Mapping );

@@ -22,20 +22,43 @@ namespace fCraft {
         /// <summary> Map height, in blocks. Equivalent to Notch's Y (vertical)</summary>
         public readonly int Height;
 
-        public BoundingBox Bounds {
-            get { return new BoundingBox( Position.Zero, WidthX, WidthY, Height ); }
+        /// <summary> Map boundaries. Can be useful for calculating volume or interesections. </summary>
+        public readonly BoundingBox Bounds;
+
+        public readonly int Volume;
+
+        /// <summary> Default spawning point on the map. </summary>
+        Position spawn;
+        public Position Spawn {
+            get {
+                return spawn;
+            }
+            set {
+                spawn = value;
+                ChangedSinceSave = true;
+            }
         }
 
-        public Position Spawn;
+        /// <summary> Resets spawn to the default location (top center of the map). </summary>
+        public void ResetSpawn() {
+            Spawn = new Position {
+                X = (short)(WidthX * 16),
+                Y = (short)(WidthY * 16),
+                H = (short)Math.Min( short.MaxValue, Height * 32 ),
+                R = 0,
+                L = 0
+            };
+        }
+
 
         // Queue of block updates. Updates are applied by ProcessUpdates()
         readonly ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
-
 
         // used to skip backups/saves if no changes were made
         public bool ChangedSinceSave { get; internal set; }
         public bool ChangedSinceBackup { get; internal set; }
 
+        // used by IsoCat and MapGenerator
         public short[,] Shadows;
 
         // FCMv3 additions
@@ -46,24 +69,25 @@ namespace fCraft {
         // block data
         public byte[] Blocks;
 
-
-        internal Map() {
-            UpdateZoneCache();
-        }
+        // metadata
+        public MetadataCollection Metadata { get; private set; }
 
 
         // creates an empty new world of specified dimensions
-        public Map( World world, int widthX, int widthY, int height, bool initBlockArray )
-            : this() {
+        public Map( World world, int widthX, int widthY, int height, bool initBlockArray ) {
+            Metadata = new MetadataCollection();
+            UpdateZoneCache();
+
             World = world;
 
             WidthX = widthX;
             WidthY = widthY;
             Height = height;
+            Bounds = new BoundingBox( Position.Zero, WidthX, WidthY, Height );
+            Volume = Bounds.Volume;
 
             if( initBlockArray ) {
-                int blockCount = WidthX * WidthY * Height;
-                Blocks = new byte[blockCount];
+                Blocks = new byte[Volume];
             }
         }
 
@@ -74,6 +98,7 @@ namespace fCraft {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             string tempFileName = fileName + ".temp";
 
+            // save to a temporary file
             try {
                 ChangedSinceSave = false;
                 if( !MapUtility.TrySave( this, tempFileName, MapFormat.FCMv3 ) ) {
@@ -83,11 +108,12 @@ namespace fCraft {
             } catch( IOException ex ) {
                 ChangedSinceSave = true;
                 Logger.Log( "Map.Save: Unable to open file \"{0}\" for writing: {1}", LogType.Error,
-                               tempFileName, ex.Message );
+                               tempFileName, ex );
                 try { File.Delete( tempFileName ); } catch { }
                 return false;
             }
 
+            // move newly-written file into its permanent destination
             try {
                 Paths.MoveOrReplace( tempFileName, fileName );
                 Logger.Log( "Saved map successfully to {0}", LogType.SystemActivity,
@@ -104,46 +130,10 @@ namespace fCraft {
             return true;
         }
 
-
-        internal int WriteMetadataFCMv3( Stream stream ) {
-            if( stream == null ) throw new ArgumentNullException( "stream" );
-            BinaryWriter writer = new BinaryWriter( stream );
-            int metaCount = 0;
-            lock( metaLock ) {
-                foreach( var group in metadata ) {
-                    foreach( var key in group.Value ) {
-                        MapFCMv3.WriteLengthPrefixedString( writer, group.Key );
-                        MapFCMv3.WriteLengthPrefixedString( writer, key.Key );
-                        MapFCMv3.WriteLengthPrefixedString( writer, key.Value );
-                        metaCount++;
-                    }
-                }
-            }
-            lock( zoneLock ) {
-                foreach( Zone zone in zones.Values ) {
-                    MapFCMv3.WriteLengthPrefixedString( writer, "zones" );
-                    MapFCMv3.WriteLengthPrefixedString( writer, zone.Name );
-                    MapFCMv3.WriteLengthPrefixedString( writer, zone.SerializeFCMv2() );
-                    metaCount++;
-                }
-            }
-            World thisWorld = World;
-            if( thisWorld != null ) {
-                MapFCMv3.WriteLengthPrefixedString( writer, "security" );
-                MapFCMv3.WriteLengthPrefixedString( writer, "access" );
-                MapFCMv3.WriteLengthPrefixedString( writer, thisWorld.AccessSecurity.Serialize().ToString() );
-                MapFCMv3.WriteLengthPrefixedString( writer, "security" );
-                MapFCMv3.WriteLengthPrefixedString( writer, "build" );
-                MapFCMv3.WriteLengthPrefixedString( writer, thisWorld.BuildSecurity.Serialize().ToString() );
-                metaCount += 2;
-            }
-            return metaCount;
-        }
-
         #endregion
 
 
-        #region Loading
+        #region Utilities
 
         internal bool ValidateHeader() {
             if( !IsValidDimension( WidthX ) ) {
@@ -177,12 +167,11 @@ namespace fCraft {
         }
 
 
-        public bool RemoveUnknownBlocktypes( bool returnOnErrors ) {
+        public bool RemoveUnknownBlocktypes() {
             bool foundUnknownTypes = false;
             fixed( byte* ptr = Blocks ) {
                 for( int j = 0; j < Blocks.Length; j++ ) {
                     if( ptr[j] > 49 ) {
-                        if( returnOnErrors ) return false;
                         ptr[j] = 0;
                         foundUnknownTypes = true;
                     }
@@ -210,57 +199,6 @@ namespace fCraft {
             return mapped;
         }
 
-        #endregion
-
-
-        #region Metadata
-
-        readonly Dictionary<string, Dictionary<string, string>> metadata = new Dictionary<string, Dictionary<string, string>>();
-        readonly object metaLock = new object();
-
-        public string GetMeta( string key ) {
-            if( key == null ) throw new ArgumentNullException( "key" );
-            return GetMeta( "", key );
-        }
-
-
-        public string GetMeta( string group, string key ) {
-            if( group == null ) throw new ArgumentNullException( "group" );
-            if( key == null ) throw new ArgumentNullException( "key" );
-            try {
-                lock( metaLock ) {
-                    return metadata[group][key];
-                }
-            } catch( KeyNotFoundException ) {
-                return null;
-            }
-        }
-
-
-        public void SetMeta( string key, string value ) {
-            if( key == null ) throw new ArgumentNullException( "key" );
-            if( value == null ) throw new ArgumentNullException( "value" );
-            SetMeta( "", key, value );
-        }
-
-
-        public void SetMeta( string group, string key, string value ) {
-            if( group == null ) throw new ArgumentNullException( "group" );
-            if( key == null ) throw new ArgumentNullException( "key" );
-            if( value == null ) throw new ArgumentNullException( "value" );
-            lock( metaLock ) {
-                if( !metadata.ContainsKey( group ) ) {
-                    metadata[group] = new Dictionary<string, string>();
-                }
-                metadata[group][key] = value;
-            }
-            ChangedSinceSave = true;
-        }
-
-        #endregion
-
-
-        #region Utilities
 
         static readonly Dictionary<string, Block> BlockNames = new Dictionary<string, Block>();
 
@@ -429,22 +367,6 @@ namespace fCraft {
         }
 
 
-        public void SetSpawn( Position newSpawn ) {
-            Spawn = newSpawn;
-            ChangedSinceSave = true;
-        }
-
-
-        public void ResetSpawn() {
-            Spawn.X = (short)(WidthX * 16);
-            Spawn.Y = (short)(WidthY * 16);
-            Spawn.H = (short)(Height * 32);
-            Spawn.R = 0;
-            Spawn.L = 0;
-            ChangedSinceSave = true;
-        }
-
-
         public void CalculateShadows() {
             if( Shadows != null ) return;
 
@@ -454,12 +376,12 @@ namespace fCraft {
                     for( short h = (short)(Height - 1); h >= 0; h-- ) {
                         switch( GetBlock( x, y, h ) ) {
                             case Block.Air:
-                            case Block.Leaves:
+                            case Block.BrownMushroom:
                             case Block.Glass:
+                            case Block.Leaves:
                             case Block.RedFlower:
                             case Block.RedMushroom:
                             case Block.YellowFlower:
-                            case Block.BrownMushroom:
                                 continue;
                             default:
                                 Shadows[x, y] = h;
@@ -472,16 +394,21 @@ namespace fCraft {
         }
 
 
-        internal static Block GetBlockByName( string block ) {
-            if( block == null ) throw new ArgumentNullException( "block" );
-            block = block.ToLower();
-            return BlockNames.ContainsKey( block ) ? BlockNames[block] : Block.Undefined;
+        /// <summary> Tries to find a blocktype by name. </summary>
+        /// <param name="blockName"> Name of the block. </param>
+        /// <returns> Described Block, or Block.Undefined if name could not be recognized. </returns>
+        internal static Block GetBlockByName( string blockName ) {
+            if( blockName == null ) throw new ArgumentNullException( "block" );
+            Block result;
+            if( BlockNames.TryGetValue( blockName.ToLower(), out result ) ) {
+                return result;
+            } else {
+                return Block.Undefined;
+            }
         }
 
 
-
-
-        /// <summary> Writes a copy of the current map to a specified stream, compressed with GZipStream. </summary>
+        /// <summary> Writes a copy of the current map to a given stream, compressed with GZipStream. </summary>
         /// <param name="stream"> Stream to write the compressed data to. </param>
         /// <param name="prependBlockCount"> If true, prepends block data with signed, 32bit, big-endian block count. </param>
         public void GetCompressedCopy( Stream stream, bool prependBlockCount ) {
@@ -520,24 +447,21 @@ namespace fCraft {
             }
         }
 
-
-        /// <summary>
-        /// Returns the block count (volume) of the map.
-        /// </summary>
-        public int GetBlockCount() {
-            return WidthX * WidthY * Height;
-        }
-
         #endregion
 
 
         #region Zones
 
-        readonly object zoneLock = new object(); // zone list (only needed when using "zones" dictionary, not "zoneList" cached array)
         readonly Dictionary<string, Zone> zones = new Dictionary<string, Zone>();
         public Zone[] ZoneList { get; private set; }
 
+        // locking is only needed when using "zones" dictionary, not "zoneList" cached array
+        readonly object zoneLock = new object();
 
+
+        /// <summary> Adds a new zone to the map. </summary>
+        /// <param name="zone"> Zone to add. </param>
+        /// <returns> True if the zone was added, false if the given zone was already on the list. </returns>
         public bool AddZone( Zone zone ) {
             if( zone == null ) throw new ArgumentNullException( "zone" );
             lock( zoneLock ) {
@@ -550,11 +474,13 @@ namespace fCraft {
         }
 
 
+        /// <summary> Removes a zone from the map. </summary>
+        /// <param name="zone"> Zone to remove. </param>
+        /// <returns> True if zone was removed, false if the given zone was not on the list. </returns>
         public bool RemoveZone( string zone ) {
             if( zone == null ) throw new ArgumentNullException( "zone" );
             lock( zoneLock ) {
-                if( !zones.ContainsKey( zone.ToLower() ) ) return false;
-                zones.Remove( zone.ToLower() );
+                if( !zones.Remove( zone.ToLower() ) ) return false;
                 ChangedSinceSave = true;
                 UpdateZoneCache();
             }
@@ -562,9 +488,21 @@ namespace fCraft {
         }
 
 
+        /// <summary> Checks how zones affect the given player's ability to affect
+        /// a block at given coordinates. </summary>
+        /// <param name="x"> Block's X coordinate. </param>
+        /// <param name="y"> Block's Y coordinate. </param>
+        /// <param name="h"> Block's H coordinate. </param>
+        /// <param name="player"> Player to check. </param>
+        /// <returns> None if no zones affect the coordinate.
+        /// Allow if ALL affecting zones allow the player.
+        /// Deny if ANY affecting zone denies the player. </returns>
         public PermissionOverride CheckZones( int x, int y, int h, Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
+
             PermissionOverride result = PermissionOverride.None;
+            if( ZoneList.Length == 0 ) return result;
+
             Zone[] zoneListCache = ZoneList;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
                 if( zoneListCache[i].Bounds.Contains( x, y, h ) ) {
@@ -579,21 +517,10 @@ namespace fCraft {
         }
 
 
-        public Zone FindDeniedZone( int x, int y, int h, Player player ) {
+        public bool CheckZonesDetailed( short x, short y, short h, Player player, out Zone[] allowedZones, out Zone[] deniedZones ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            Zone[] zoneListCache = ZoneList;
-            for( int i = 0; i < zoneListCache.Length; i++ ) {
-                if( zoneListCache[i].Bounds.Contains( x, y, h ) && !zoneListCache[i].Controller.Check( player.Info ) ) {
-                    return zoneListCache[i];
-                }
-            }
-            return null;
-        }
-
-
-        public bool TestZones( short x, short y, short h, Player player, out Zone[] allowedZones, out Zone[] deniedZones ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            List<Zone> allowed = new List<Zone>(), denied = new List<Zone>();
+            var allowedList = new List<Zone>();
+            var deniedList = new List<Zone>();
             bool found = false;
 
             Zone[] zoneListCache = ZoneList;
@@ -601,26 +528,85 @@ namespace fCraft {
                 if( zoneListCache[i].Bounds.Contains( x, y, h ) ) {
                     found = true;
                     if( zoneListCache[i].Controller.Check( player.Info ) ) {
-                        allowed.Add( zoneListCache[i] );
+                        allowedList.Add( zoneListCache[i] );
                     } else {
-                        denied.Add( zoneListCache[i] );
+                        deniedList.Add( zoneListCache[i] );
                     }
                 }
             }
-            allowedZones = allowed.ToArray();
-            deniedZones = denied.ToArray();
+            allowedZones = allowedList.ToArray();
+            deniedZones = deniedList.ToArray();
             return found;
         }
 
 
-        public Zone FindZone( string name ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
-            lock( zoneLock ) {
-                if( zones.ContainsKey( name.ToLower() ) ) {
-                    return zones[name.ToLower()];
+        /// <summary> Finds which zone denied player's ability to affect
+        /// a block at given coordinates. Used in conjunction with CheckZones(). </summary>
+        /// <param name="x"> Block's X coordinate. </param>
+        /// <param name="y"> Block's Y coordinate. </param>
+        /// <param name="h"> Block's H coordinate. </param>
+        /// <param name="player"> Player to check. </param>
+        /// <returns> First zone to deny the player.
+        /// null if none of the zones deny the player. </returns>
+        public Zone FindDeniedZone( int x, int y, int h, Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            Zone[] zoneListCache = ZoneList;
+            for( int i = 0; i < zoneListCache.Length; i++ ) {
+                if( zoneListCache[i].Bounds.Contains( x, y, h ) &&
+                    !zoneListCache[i].Controller.Check( player.Info ) ) {
+                    return zoneListCache[i];
                 }
             }
             return null;
+        }
+
+
+        /// <summary> Finds a zone by name, without using autocompletion.
+        /// Zone names are case-insensitive. </summary>
+        /// <param name="name"> Full zone name. </param>
+        /// <returns> Zone object if it was found.
+        /// null if no Zone with the given name could be found. </returns>
+        public Zone FindZoneExact( string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            lock( zoneLock ) {
+                Zone result;
+                if( zones.TryGetValue( name.ToLower(), out result ) ) {
+                    return result;
+                }
+            }
+            return null;
+        }
+
+
+        /// <summary> Finds a zone by name, with autocompletion.
+        /// Zone names are case-insensitive. </summary>
+        /// <remarks> Note that this method is a lot slower than FindZoneExact. </remarks>
+        /// <param name="name"> Full zone name. </param>
+        /// <returns> Zone object if it was found.
+        /// null if no Zone with the given name could be found. </returns>
+        public Zone FindZone( string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            // try to find exact match
+            lock( zoneLock ) {
+                Zone result;
+                if( zones.TryGetValue( name.ToLower(), out result ) ) {
+                    return result;
+                }
+            }
+            // try to autocomplete
+            Zone match = null;
+            foreach( Zone zone in ZoneList ) {
+                if( zone.Name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
+                    if( match != null ) {
+                        // first (and hopefully only) match found
+                        match = zone;
+                    } else {
+                        // more than one match found
+                        return null;
+                    }
+                }
+            }
+            return match;
         }
 
 

@@ -902,7 +902,7 @@ namespace fCraft {
         internal static void SetSpawn( Player player, Command cmd ) {
             string playerName = cmd.Next();
             if( playerName == null ) {
-                player.World.Map.SetSpawn( player.Position );
+                player.World.Map.Spawn = player.Position;
                 player.Send( PacketWriter.MakeSelfTeleport( player.World.Map.Spawn ) );
                 player.Send( PacketWriter.MakeAddEntity( 255, player.GetListName(), player.Position ) );
                 player.Message( "New spawn point saved." );

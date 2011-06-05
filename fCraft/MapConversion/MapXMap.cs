@@ -82,14 +82,13 @@ namespace fCraft.MapConversion {
             Map map = new Map( null, widthX, widthY, height, false );
 
             // spawn
-            Position spawn = new Position();
-            spawn.X = (short)bs.ReadInt32();
-            spawn.H = (short)bs.ReadInt32();
-            spawn.Y = (short)bs.ReadInt32();
-            spawn.R = bs.ReadByte();
-            spawn.L = bs.ReadByte();
-
-            map.SetSpawn( spawn );
+            map.Spawn = new Position {
+                X = (short)bs.ReadInt32(),
+                H = (short)bs.ReadInt32(),
+                Y = (short)bs.ReadInt32(),
+                R = bs.ReadByte(),
+                L = bs.ReadByte()
+            };
 
             // creation/modification dates
             map.DateCreated = bs.ReadInt64().ToDateTime();
@@ -107,7 +106,7 @@ namespace fCraft.MapConversion {
                     string keyName = ReadString( bs );
                     string value = ReadString( bs );
                     // TODO: parse zones etc
-                    map.SetMeta( groupName, keyName, value );
+                    map.Metadata[groupName, keyName] = value;
                 }
             }
 

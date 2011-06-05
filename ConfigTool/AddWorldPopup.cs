@@ -639,7 +639,7 @@ Dimensions: {5}×{6}×{7}
                 loadedMap.WidthX,
                 loadedMap.WidthY,
                 loadedMap.Height,
-                loadedMap.WidthX * loadedMap.WidthY * loadedMap.Height );
+                loadedMap.Volume );
             } else {
                 textBox.Text = String.Format(
 @"  Location: {0}

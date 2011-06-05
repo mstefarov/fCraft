@@ -138,7 +138,7 @@ namespace fCraft.MapConversion {
                         spawn.X = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
                         spawn.Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
                         spawn.H = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        map.SetSpawn( spawn );
+                        map.Spawn = spawn;
                         break;
                     //case 1030:
                     //case 1040:
@@ -149,7 +149,7 @@ namespace fCraft.MapConversion {
                         spawn.H = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
                         spawn.R = (byte)IPAddress.NetworkToHostOrder( bs.ReadInt16() );
                         spawn.L = (byte)IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        map.SetSpawn( spawn );
+                        map.Spawn = spawn;
                         break;
                 }
 
@@ -168,7 +168,7 @@ namespace fCraft.MapConversion {
                 }
 
                 // Read in the map data
-                map.Blocks = new byte[map.WidthX * map.WidthY * map.Height];
+                map.Blocks = new byte[map.Volume];
                 mapStream.Read( map.Blocks, 0, map.Blocks.Length );
                 map.ConvertBlockTypes( Mapping );
 

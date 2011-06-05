@@ -191,7 +191,7 @@ namespace fCraft.MapConversion {
                     }
 
                     map = new Map( null, widthX, widthY, height, false );
-                    map.SetSpawn( spawn );
+                    map.Spawn = spawn;
 
                     if( !map.ValidateHeader() ) {
                         throw new MapFormatException( "One or more of the map dimensions are invalid." );
@@ -210,7 +210,7 @@ namespace fCraft.MapConversion {
 
                     // copy the block array... or fail
                     if( foundBlockArray ) {
-                        map.Blocks = new byte[map.WidthX * map.WidthY * map.Height];
+                        map.Blocks = new byte[map.Volume];
                         Array.Copy( data, pointer, map.Blocks, 0, map.Blocks.Length );
                         map.ConvertBlockTypes( Mapping );
                     } else {

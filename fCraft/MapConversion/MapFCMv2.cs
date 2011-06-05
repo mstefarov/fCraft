@@ -67,13 +67,13 @@ namespace fCraft.MapConversion {
             Map map = new Map( null, widthX, widthY, height, false );
 
             // Read in the spawn location
-            map.Spawn.X = reader.ReadInt16();
-            map.Spawn.Y = reader.ReadInt16();
-            map.Spawn.H = reader.ReadInt16();
-
-            // Read in the spawn orientation
-            map.Spawn.R = reader.ReadByte();
-            map.Spawn.L = reader.ReadByte();
+            map.Spawn = new Position {
+                X = reader.ReadInt16(),
+                Y = reader.ReadInt16(),
+                H = reader.ReadInt16(),
+                R = reader.ReadByte(),
+                L = reader.ReadByte()
+            };
 
             return map;
         }
@@ -103,17 +103,18 @@ namespace fCraft.MapConversion {
                             Logger.Log( "MapFCMv2.Load: Error importing zone definition: {0}", LogType.Error, ex );
                         }
                     } else {
-                        map.SetMeta( key, value );
+                        Logger.Log( "MapFCMv2.Load: Metadata discarded: \"{0}\"=\"{1}\"", LogType.Warning,
+                                    key, value );
                     }
                 }
 
                 // Read in the map data
-                map.Blocks = new Byte[map.GetBlockCount()];
+                map.Blocks = new Byte[map.Volume];
                 using( GZipStream decompressor = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
                     decompressor.Read( map.Blocks, 0, map.Blocks.Length );
                 }
 
-                map.RemoveUnknownBlocktypes( false );
+                map.RemoveUnknownBlocktypes();
 
                 return map;
             }

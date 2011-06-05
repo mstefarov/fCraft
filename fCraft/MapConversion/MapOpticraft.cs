@@ -149,7 +149,7 @@ namespace fCraft.MapConversion {
                 LoadZones( mapFile, dataStore );
 
                 //Load the block store
-                mapFile.Blocks = new Byte[mapFile.GetBlockCount()];
+                mapFile.Blocks = new Byte[mapFile.Volume];
                 using( GZipStream decompressor = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
                     decompressor.Read( mapFile.Blocks, 0, mapFile.Blocks.Length );
                 }

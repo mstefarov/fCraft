@@ -281,6 +281,8 @@ namespace ConfigTool {
             xMaxBackupSize.Checked = (ConfigKey.MaxBackupSize.GetInt() > 0);
             nMaxBackupSize.Value = ConfigKey.MaxBackupSize.GetInt();
             if( !xMaxBackupSize.Checked ) nMaxBackupSize.Enabled = false;
+
+            xBackupDataOnStartup.Checked = ConfigKey.BackupDataOnStartup.GetBool();
         }
 
 
@@ -499,6 +501,8 @@ namespace ConfigTool {
             if( xMaxBackupSize.Checked ) ConfigKey.MaxBackupSize.TrySetValue( nMaxBackupSize.Value );
             else ConfigKey.MaxBackupSize.TrySetValue( 0 );
 
+            ConfigKey.BackupDataOnStartup.TrySetValue( xBackupDataOnStartup.Checked );
+
 
             // Logging
             WriteEnum<LogSplittingType>( cLogMode, ConfigKey.LogMode );
@@ -608,6 +612,5 @@ namespace ConfigTool {
         }
 
         #endregion
-
     }
 }
