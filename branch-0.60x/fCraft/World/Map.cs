@@ -35,7 +35,7 @@ namespace fCraft {
             }
             set {
                 spawn = value;
-                ChangedSinceSave = true;
+                HasChangedSinceSave = true;
             }
         }
 
@@ -54,9 +54,11 @@ namespace fCraft {
         // Queue of block updates. Updates are applied by ProcessUpdates()
         readonly ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
 
-        // used to skip backups/saves if no changes were made
-        public bool ChangedSinceSave { get; internal set; }
-        public bool ChangedSinceBackup { get; internal set; }
+        /// <summary> Whether the map was modified since last time it was saved. </summary>
+        public bool HasChangedSinceSave { get; internal set; }
+
+        /// <summary> Whether the map was saved since last time it was backed up. </summary>
+        public bool HasChangedSinceBackup { get; internal set; }
 
         // used by IsoCat and MapGenerator
         public short[,] Shadows;
@@ -66,10 +68,12 @@ namespace fCraft {
         public DateTime DateCreated = DateTime.UtcNow;
         public Guid Guid = Guid.NewGuid();
 
-        // block data
+        /// <summary> Array of map blocks.
+        /// See Index(x,y,h) for the packing formula.
+        /// Use QueueUpdate() for working on maps on a live world. </summary>
         public byte[] Blocks;
 
-        // metadata
+        /// <summary> Map metadata, excluding zones. </summary>
         public MetadataCollection Metadata { get; private set; }
 
 
@@ -100,13 +104,13 @@ namespace fCraft {
 
             // save to a temporary file
             try {
-                ChangedSinceSave = false;
+                HasChangedSinceSave = false;
                 if( !MapUtility.TrySave( this, tempFileName, MapFormat.FCMv3 ) ) {
-                    ChangedSinceSave = true;
+                    HasChangedSinceSave = true;
                 }
 
             } catch( IOException ex ) {
-                ChangedSinceSave = true;
+                HasChangedSinceSave = true;
                 Logger.Log( "Map.Save: Unable to open file \"{0}\" for writing: {1}", LogType.Error,
                                tempFileName, ex );
                 try { File.Delete( tempFileName ); } catch { }
@@ -118,10 +122,10 @@ namespace fCraft {
                 Paths.MoveOrReplace( tempFileName, fileName );
                 Logger.Log( "Saved map successfully to {0}", LogType.SystemActivity,
                             fileName );
-                ChangedSinceBackup = true;
+                HasChangedSinceBackup = true;
 
             } catch( Exception ex ) {
-                ChangedSinceSave = true;
+                HasChangedSinceSave = true;
                 Logger.Log( "Error trying to replace file \"{0}\": {1}", LogType.Error,
                             fileName, ex );
                 try { File.Delete( tempFileName ); } catch { }
@@ -177,7 +181,7 @@ namespace fCraft {
                     }
                 }
             }
-            if( foundUnknownTypes ) ChangedSinceSave = true;
+            if( foundUnknownTypes ) HasChangedSinceSave = true;
             return !foundUnknownTypes;
         }
 
@@ -195,7 +199,7 @@ namespace fCraft {
                     }
                 }
             }
-            if( mapped ) ChangedSinceSave = true;
+            if( mapped ) HasChangedSinceSave = true;
             return mapped;
         }
 
@@ -467,7 +471,7 @@ namespace fCraft {
             lock( zoneLock ) {
                 if( zones.ContainsKey( zone.Name.ToLower() ) ) return false;
                 zones.Add( zone.Name.ToLower(), zone );
-                ChangedSinceSave = true;
+                HasChangedSinceSave = true;
                 UpdateZoneCache();
             }
             return true;
@@ -481,7 +485,7 @@ namespace fCraft {
             if( zone == null ) throw new ArgumentNullException( "zone" );
             lock( zoneLock ) {
                 if( !zones.Remove( zone.ToLower() ) ) return false;
-                ChangedSinceSave = true;
+                HasChangedSinceSave = true;
                 UpdateZoneCache();
             }
             return true;
@@ -634,28 +638,28 @@ namespace fCraft {
         public void SetBlock( int x, int y, int h, Block type ) {
             if( x < WidthX && y < WidthY && h < Height && x >= 0 && y >= 0 && h >= 0 ) {
                 Blocks[Index( x, y, h )] = (byte)type;
-                ChangedSinceSave = true;
+                HasChangedSinceSave = true;
             }
         }
 
         public void SetBlock( int x, int y, int h, byte type ) {
             if( h < Height && x < WidthX && y < WidthY && x >= 0 && y >= 0 && h >= 0 && type < 50 ) {
                 Blocks[Index( x, y, h )] = type;
-                ChangedSinceSave = true;
+                HasChangedSinceSave = true;
             }
         }
 
         public void SetBlock( Vector3i vec, Block type ) {
             if( vec.X < WidthX && vec.Z < WidthY && vec.Y < Height && vec.X >= 0 && vec.Z >= 0 && vec.Y >= 0 && (byte)type < 50 ) {
                 Blocks[Index( vec.X, vec.Z, vec.Y )] = (byte)type;
-                ChangedSinceSave = true;
+                HasChangedSinceSave = true;
             }
         }
 
         public void SetBlock( Vector3i vec, byte type ) {
             if( vec.X < WidthX && vec.Z < WidthY && vec.Y < Height && vec.X >= 0 && vec.Z >= 0 && vec.Y >= 0 && type < 50 ) {
                 Blocks[Index( vec.X, vec.Z, vec.Y )] = type;
-                ChangedSinceSave = true;
+                HasChangedSinceSave = true;
             }
         }
 
@@ -736,7 +740,7 @@ namespace fCraft {
                     }
                     break;
                 }
-                ChangedSinceSave = true;
+                HasChangedSinceSave = true;
                 if( !InBounds( update.X, update.Y, update.H ) ) continue;
                 int blockIndex = Index( update.X, update.Y, update.H );
                 Blocks[blockIndex] = update.BlockType; // TODO: investigate IndexOutOfRangeException here
@@ -763,7 +767,7 @@ namespace fCraft {
         public void SaveBackup( string sourceName, string targetName, bool onlyIfChanged ) {
             if( sourceName == null ) throw new ArgumentNullException( "sourceName" );
             if( targetName == null ) throw new ArgumentNullException( "targetName" );
-            if( onlyIfChanged && !ChangedSinceBackup && ConfigKey.BackupOnlyWhenChanged.GetBool() ) return;
+            if( onlyIfChanged && !HasChangedSinceBackup && ConfigKey.BackupOnlyWhenChanged.GetBool() ) return;
 
             lock( backupLock ) {
                 DirectoryInfo d = new DirectoryInfo( Paths.BackupPath );
@@ -779,10 +783,10 @@ namespace fCraft {
                 }
 
                 try {
-                    ChangedSinceBackup = false;
+                    HasChangedSinceBackup = false;
                     File.Copy( sourceName, targetName, true );
                 } catch( Exception ex ) {
-                    ChangedSinceBackup = true;
+                    HasChangedSinceBackup = true;
                     Logger.Log( "Map.SaveBackup: Error occured while trying to save backup to \"{0}\": {1}", LogType.Error,
                                 targetName, ex );
                     return;
