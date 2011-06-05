@@ -269,7 +269,6 @@ namespace fCraft {
         }
 
 
-        // TODO: After switching to 4.0, mess with generics to allow IEnumerable<IClassy>
         public static string JoinToClassyString( this IEnumerable<IClassy> list ) {
             return list.JoinToString( "&S, ", p => p.GetClassyName() );
         }

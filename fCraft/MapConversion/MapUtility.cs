@@ -99,7 +99,7 @@ namespace fCraft.MapConversion {
                 if( claims ) {
                     try {
                         Map map = converter.LoadHeader( fileName );
-                        map.ChangedSinceSave = false;
+                        map.HasChangedSinceSave = false;
                         return map;
                     } catch( NotImplementedException ) { }
                 } else {
@@ -110,7 +110,7 @@ namespace fCraft.MapConversion {
             foreach( IMapConverter converter in fallbackConverters ) {
                 try {
                     Map map = converter.LoadHeader( fileName );
-                    map.ChangedSinceSave = false;
+                    map.HasChangedSinceSave = false;
                     return map;
                 } catch { }
             }
@@ -156,7 +156,7 @@ namespace fCraft.MapConversion {
                 } catch { }
                 if( claims ) {
                     Map map = converter.Load( fileName );
-                    map.ChangedSinceSave = false;
+                    map.HasChangedSinceSave = false;
                     return map;
                 } else {
                     fallbackConverters.Add( converter );
@@ -166,7 +166,7 @@ namespace fCraft.MapConversion {
             foreach( IMapConverter converter in fallbackConverters ) {
                 try {
                     Map map = converter.Load( fileName );
-                    map.ChangedSinceSave = false;
+                    map.HasChangedSinceSave = false;
                     return map;
                 } catch { }
             }

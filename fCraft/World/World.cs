@@ -638,7 +638,7 @@ namespace fCraft {
 
         void SaveTask( SchedulerTask task ) {
             Map tempMap = Map;
-            if( tempMap != null && tempMap.ChangedSinceSave ) {
+            if( tempMap != null && tempMap.HasChangedSinceSave ) {
                 SaveMap();
             }
         }

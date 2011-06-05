@@ -148,6 +148,7 @@ namespace fCraft {
 
 
         static Config() {
+            // gather metadata for ConfigKeys
             foreach( var keyField in typeof( ConfigKey ).GetFields() ) {
                 foreach( var attribute in (ConfigKeyAttribute[])keyField.GetCustomAttributes( typeof( ConfigKeyAttribute ), false ) ) {
                     ConfigKey key = (ConfigKey)keyField.GetValue( null );
@@ -156,10 +157,11 @@ namespace fCraft {
                 }
             }
 
+            // organize ConfigKeys into categories, based on metadata
             foreach( ConfigSection section in Enum.GetValues( typeof( ConfigSection ) ) ) {
                 ConfigSection sec = section;
-                KeySections.Add( section, KeyMetadata.Values.Where( att => (att.Section == sec) )
-                                                            .Select( att => att.Key )
+                KeySections.Add( section, KeyMetadata.Values.Where( meta => (meta.Section == sec) )
+                                                            .Select( meta => meta.Key )
                                                             .ToArray() );
             }
 
@@ -206,9 +208,7 @@ namespace fCraft {
 
         #region Defaults
 
-        /// <summary>
-        /// Overwrites current settings with defaults
-        /// </summary>
+        /// <summary> Overwrites current settings with defaults. </summary>
         public static void LoadDefaults() {
             foreach( var pair in KeyMetadata ) {
                 if( pair.Key == ConfigKey.SystemMessageColor ) {
@@ -219,6 +219,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Loads defaults for keys in a given ConfigSection. </summary>
         public static void LoadDefaults( ConfigSection section ) {
             foreach( var key in KeySections[section] ) {
                 if( key == ConfigKey.SystemMessageColor ) {
@@ -229,16 +230,13 @@ namespace fCraft {
         }
 
 
+        /// <summary> Checks whether given ConfigKey still has its default value. </summary>
         public static bool IsDefault( this ConfigKey key ) {
             return (KeyMetadata[key].DefaultValue.ToString() == Settings[key]);
         }
 
 
-        public static bool IsDefault( this ConfigKey key, object value ) {
-            return (KeyMetadata[key].DefaultValue.ToString() == value.ToString());
-        }
-
-
+        /// <summary> Provides the default value for a given ConfigKey. </summary>
         public static object GetDefault( this ConfigKey key ) {
             return KeyMetadata[key].DefaultValue;
         }
@@ -248,12 +246,10 @@ namespace fCraft {
 
         #region Loading
 
-        /// <summary>
-        /// Loads config from file.
-        /// </summary>
-        /// <param name="skipRankList">If true, skips over rank definitions.</param>
-        /// <param name="raiseReloadedEvent">Whether ConfigReloaded event should be raised.</param>
-        /// <returns>True if loading succeeded.</returns>
+        /// <summary> Loads configuration from file. </summary>
+        /// <param name="skipRankList"> If true, skips over rank definitions. </param>
+        /// <param name="raiseReloadedEvent"> Whether ConfigReloaded event should be raised. </param>
+        /// <returns> True if loading succeeded. </returns>
         public static bool Load( bool skipRankList, bool raiseReloadedEvent ) {
             bool fromFile = false;
 
