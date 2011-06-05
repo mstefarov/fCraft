@@ -71,13 +71,13 @@ namespace fCraft.MapConversion {
 
             // Read in the spawn location
             // XYZ(?)
-            map.Spawn.X = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-            map.Spawn.H = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-            map.Spawn.Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-
-            // Read in the spawn orientation
-            map.Spawn.R = bs.ReadByte();
-            map.Spawn.L = bs.ReadByte();
+            map.Spawn = new Position {
+                X = IPAddress.NetworkToHostOrder( bs.ReadInt16() ),
+                H = IPAddress.NetworkToHostOrder( bs.ReadInt16() ),
+                Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() ),
+                R = bs.ReadByte(),
+                L = bs.ReadByte()
+            };
 
             // Skip over the block count, totally useless
             bs.ReadInt32();
@@ -98,7 +98,7 @@ namespace fCraft.MapConversion {
                     }
 
                     // Read in the map data
-                    map.Blocks = new byte[map.WidthX * map.WidthY * map.Height];
+                    map.Blocks = new byte[map.Volume];
                     mapStream.Read( map.Blocks, 0, map.Blocks.Length );
 
                     return map;

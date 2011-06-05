@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -85,7 +86,7 @@ namespace fCraft {
         #endregion
 
 
-        #region Initialization
+        #region Initialization and Startup
 
         // flags used to ensure proper initialization order
         static bool libraryInitialized,
@@ -150,6 +151,7 @@ namespace fCraft {
             } else {
                 throw new Exception( "Could not set the log path." );
             }
+            Logger.MarkLogStart();
 
 
             // set map path
@@ -279,6 +281,10 @@ namespace fCraft {
             cpuUsageStartingOffset = Process.GetCurrentProcess().TotalProcessorTime;
 
             RaiseEvent( Starting );
+
+            if( ConfigKey.BackupDataOnStartup.GetBool() ) {
+                BackupData();
+            }
 
             if( CheckForFCraftProcesses() ) {
                 Logger.Log( "Please close all other fCraft processes (fCraftUI, fCraftConsole, or ConfigTool) " +
@@ -949,6 +955,30 @@ namespace fCraft {
         public static bool IsIP( string ipString ) {
             if( ipString == null ) throw new ArgumentNullException( "ipString" );
             return RegexIP.IsMatch( ipString );
+        }
+
+
+        const string DataBackupFileNameFormat = "fCraftData_{0:yyyyMMdd'_'HH'-'mm'-'ss}.zip";
+
+        public static void BackupData() {
+            string backupFileName = String.Format( DataBackupFileNameFormat, DateTime.Now ); // localized
+            using( FileStream fs = File.Create( backupFileName ) ) {
+                string fileComment = String.Format( "Backup of fCraft data for server \"{0}\", saved on {1}",
+                                                    ConfigKey.ServerName.GetString(),
+                                                    DateTime.Now );
+                using( ZipStorer backupZip = ZipStorer.Create( fs, fileComment ) ) {
+                    foreach( string dataFileName in Paths.DataFilesToBackup ) {
+                        if( File.Exists( dataFileName ) ) {
+                            backupZip.AddFile( ZipStorer.Compression.Deflate,
+                                               dataFileName,
+                                               dataFileName,
+                                               "" );
+                        }
+                    }
+                }
+            }
+            Logger.Log( "Backed up server data to \"{0}\"", LogType.SystemActivity,
+                        backupFileName );
         }
 
         #endregion

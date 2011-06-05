@@ -272,7 +272,7 @@ namespace fCraft {
 
         internal static void ZoneTestCallback( Player player, Position[] marks, object tag ) {
             Zone[] allowed, denied;
-            if( player.World.Map.TestZones( marks[0].X, marks[0].Y, marks[0].H, player, out allowed, out denied ) ) {
+            if( player.World.Map.CheckZonesDetailed( marks[0].X, marks[0].Y, marks[0].H, player, out allowed, out denied ) ) {
                 foreach( Zone zone in allowed ) {
                     SecurityCheckResult status = zone.Controller.CheckDetailed( player.Info );
                     player.Message( "> {0}: {1}{2}", zone.Name, Color.Lime, status );

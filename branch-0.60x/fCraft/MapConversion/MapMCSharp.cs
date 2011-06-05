@@ -196,9 +196,13 @@ namespace fCraft.MapConversion {
             Map map = new Map( null, widthX, widthY, height, false );
 
             // Read in the spawn location
-            map.Spawn.X = (short)(bs.ReadInt16() * 32);
-            map.Spawn.H = (short)(bs.ReadInt16() * 32);
-            map.Spawn.Y = (short)(bs.ReadInt16() * 32);
+            map.Spawn = new Position {
+                X = (short)(bs.ReadInt16() * 32),
+                H = (short)(bs.ReadInt16() * 32),
+                Y = (short)(bs.ReadInt16() * 32),
+                R = 0,
+                L = 0
+            };
 
             // Skip over the VisitPermission and BuildPermission bytes
             bs.ReadByte();
@@ -219,7 +223,7 @@ namespace fCraft.MapConversion {
                     }
 
                     // Read in the map data
-                    map.Blocks = new byte[map.WidthX * map.WidthY * map.Height];
+                    map.Blocks = new byte[map.Volume];
                     MapUtility.ReadAll( gs, map.Blocks );
 
                     map.ConvertBlockTypes( Mapping );

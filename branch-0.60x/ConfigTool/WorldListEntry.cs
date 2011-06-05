@@ -92,7 +92,7 @@ namespace ConfigTool {
                     string oldFileName = Path.Combine( Paths.MapPath, oldName + ".fcm" );
                     string newFileName = Path.Combine( Paths.MapPath, name + ".fcm" );
                     if( File.Exists( oldFileName ) ) {
-                        File.Move( oldFileName, newFileName );
+                        Paths.ForceRename( oldFileName, newFileName );
                     }
                     ConfigUI.HandleWorldRename( oldName, name );
                 }

@@ -69,7 +69,7 @@ namespace fCraft.MapConversion {
                 }
 
                 map.Blocks = mapTag["Blocks"].GetBytes();
-                map.RemoveUnknownBlocktypes( false );
+                map.RemoveUnknownBlocktypes();
 
                 return map;
             }

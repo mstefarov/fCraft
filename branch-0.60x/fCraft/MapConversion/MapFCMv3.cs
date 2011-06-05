@@ -66,12 +66,11 @@ namespace fCraft.MapConversion {
                         string key = ReadLengthPrefixedString( br ).ToLowerInvariant();
                         string newValue = ReadLengthPrefixedString( br );
 
-                        string oldValue = map.GetMeta( group, key );
-
-                        if( oldValue != null && oldValue != newValue ) {
+                        string oldValue;
+                        if( map.Metadata.TryGetValue( key, group, out oldValue ) && oldValue != newValue ) {
                             Logger.Log( "MapFCMv3.LoadHeader: Duplicate metadata entry found for [{0}].[{1}]. " +
                                         "Old value (overwritten): \"{2}\". New value: \"{3}\"", LogType.Warning,
-                                        group, key, map.GetMeta( group, key ), newValue );
+                                        group, key, oldValue, newValue );
                         }
                         if( group == "zones" ) {
                             try {
@@ -80,7 +79,7 @@ namespace fCraft.MapConversion {
                                 Logger.Log( "MapFCMv3.LoadHeader: Error importing zone definition: {0}", LogType.Error, ex );
                             }
                         } else {
-                            map.SetMeta( group, key, newValue );
+                            map.Metadata[group, key] = newValue;
                         }
                     }
                 }
@@ -112,26 +111,25 @@ namespace fCraft.MapConversion {
                         string key = ReadLengthPrefixedString( br ).ToLowerInvariant();
                         string newValue = ReadLengthPrefixedString( br );
 
-                        string oldValue = map.GetMeta( group, key );
-
-                        if( oldValue != null && oldValue != newValue ) {
-                            Logger.Log( "MapFCMv3.Load: Duplicate metadata entry found for [{0}].[{1}]. " +
+                        string oldValue;
+                        if( map.Metadata.TryGetValue( key, group, out oldValue ) && oldValue != newValue ) {
+                            Logger.Log( "MapFCMv3.LoadHeader: Duplicate metadata entry found for [{0}].[{1}]. " +
                                         "Old value (overwritten): \"{2}\". New value: \"{3}\"", LogType.Warning,
-                                        group, key, map.GetMeta( group, key ), newValue );
+                                        group, key, oldValue, newValue );
                         }
                         if( group == "zones" ) {
                             try {
                                 map.AddZone( new Zone( newValue, map.World ) );
                             } catch( Exception ex ) {
-                                Logger.Log( "MapFCMv3.Load: Error importing zone definition: {0}", LogType.Error, ex );
+                                Logger.Log( "MapFCMv3.LoadHeader: Error importing zone definition: {0}", LogType.Error, ex );
                             }
                         } else {
-                            map.SetMeta( group, key, newValue );
+                            map.Metadata[group, key] = newValue;
                         }
                     }
-                    map.Blocks = new byte[map.WidthX * map.WidthY * map.Height];
+                    map.Blocks = new byte[map.Volume];
                     ds.Read( map.Blocks, 0, map.Blocks.Length );
-                    map.RemoveUnknownBlocktypes( false );
+                    map.RemoveUnknownBlocktypes();
 
                 }
                 return map;
@@ -152,11 +150,13 @@ namespace fCraft.MapConversion {
             Map map = new Map( null, widthX, widthY, height, false );
 
             // read spawn
-            map.Spawn.X = (short)reader.ReadInt32();
-            map.Spawn.H = (short)reader.ReadInt32();
-            map.Spawn.Y = (short)reader.ReadInt32();
-            map.Spawn.R = reader.ReadByte();
-            map.Spawn.L = reader.ReadByte();
+            map.Spawn = new Position {
+                X = (short)reader.ReadInt32(),
+                H = (short)reader.ReadInt32(),
+                Y = (short)reader.ReadInt32(),
+                R = reader.ReadByte(),
+                L = reader.ReadByte()
+            };
 
 
             // read modification/creation times
@@ -205,7 +205,7 @@ namespace fCraft.MapConversion {
                 using( DeflateStream ds = new DeflateStream( mapStream, CompressionMode.Compress, true ) ) {
                     using( BufferedStream bs = new BufferedStream( ds ) ) {
                         // write metadata
-                        metaCount = mapToSave.WriteMetadataFCMv3( ds );
+                        metaCount = WriteMetadata( ds, mapToSave );
                         bs.Flush();
                         ds.Flush();
                         offset = mapStream.Position;
@@ -239,10 +239,47 @@ namespace fCraft.MapConversion {
         }
 
 
-        public static void WriteLengthPrefixedString( BinaryWriter writer, string s ) {
-            byte[] stringData = Encoding.ASCII.GetBytes( s );
+        public static void WriteLengthPrefixedString( BinaryWriter writer, string str ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
+            if( str.Length > ushort.MaxValue ) throw new ArgumentException( "String is too long.", "str" );
+            byte[] stringData = Encoding.ASCII.GetBytes( str );
             writer.Write( (ushort)stringData.Length );
             writer.Write( stringData );
+        }
+
+
+        static int WriteMetadata( Stream stream, Map map ) {
+            if( stream == null ) throw new ArgumentNullException( "stream" );
+            BinaryWriter writer = new BinaryWriter( stream );
+            int metaCount = 0;
+            lock( map.Metadata.SyncRoot ) {
+                foreach( MetadataEntry entry in map.Metadata ) {
+                    WriteLengthPrefixedString( writer, entry.Group );
+                    WriteLengthPrefixedString( writer, entry.Key );
+                    WriteLengthPrefixedString( writer, entry.Value );
+                    metaCount++;
+                }
+            }
+
+            Zone[] zoneList = map.ZoneList;
+            foreach( Zone zone in zoneList ) {
+                MapFCMv3.WriteLengthPrefixedString( writer, "zones" );
+                MapFCMv3.WriteLengthPrefixedString( writer, zone.Name );
+                MapFCMv3.WriteLengthPrefixedString( writer, zone.SerializeFCMv2() );
+                metaCount++;
+            }
+
+            World world = map.World;
+            if( world != null ) {
+                MapFCMv3.WriteLengthPrefixedString( writer, "security" );
+                MapFCMv3.WriteLengthPrefixedString( writer, "access" );
+                MapFCMv3.WriteLengthPrefixedString( writer, world.AccessSecurity.Serialize().ToString() );
+                MapFCMv3.WriteLengthPrefixedString( writer, "security" );
+                MapFCMv3.WriteLengthPrefixedString( writer, "build" );
+                MapFCMv3.WriteLengthPrefixedString( writer, world.BuildSecurity.Serialize().ToString() );
+                metaCount += 2;
+            }
+            return metaCount;
         }
     }
 }

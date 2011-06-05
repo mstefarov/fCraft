@@ -269,6 +269,8 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.xBackupDataOnStartup = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdateSettings.SuspendLayout();
@@ -324,6 +326,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             this.gCrashReport.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabs
@@ -2012,6 +2015,7 @@
             // 
             // tabSavingAndBackup
             // 
+            this.tabSavingAndBackup.Controls.Add( this.groupBox3 );
             this.tabSavingAndBackup.Controls.Add( this.gSaving );
             this.tabSavingAndBackup.Controls.Add( this.gBackups );
             this.tabSavingAndBackup.Location = new System.Drawing.Point( 4, 24 );
@@ -2029,10 +2033,10 @@
             this.gSaving.Controls.Add( this.xSaveInterval );
             this.gSaving.Location = new System.Drawing.Point( 8, 13 );
             this.gSaving.Name = "gSaving";
-            this.gSaving.Size = new System.Drawing.Size( 636, 53 );
+            this.gSaving.Size = new System.Drawing.Size( 636, 52 );
             this.gSaving.TabIndex = 0;
             this.gSaving.TabStop = false;
-            this.gSaving.Text = "Saving";
+            this.gSaving.Text = "Map Saving";
             // 
             // nSaveInterval
             // 
@@ -2075,12 +2079,12 @@
             this.gBackups.Controls.Add( this.lBackupIntervalUnits );
             this.gBackups.Controls.Add( this.xBackupInterval );
             this.gBackups.Controls.Add( this.xBackupOnJoin );
-            this.gBackups.Location = new System.Drawing.Point( 8, 72 );
+            this.gBackups.Location = new System.Drawing.Point( 8, 71 );
             this.gBackups.Name = "gBackups";
             this.gBackups.Size = new System.Drawing.Size( 636, 158 );
             this.gBackups.TabIndex = 1;
             this.gBackups.TabStop = false;
-            this.gBackups.Text = "Backups";
+            this.gBackups.Text = "Map Backups";
             // 
             // xBackupOnlyWhenChanged
             // 
@@ -3149,6 +3153,26 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add( this.xBackupDataOnStartup );
+            this.groupBox3.Location = new System.Drawing.Point( 8, 235 );
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size( 636, 52 );
+            this.groupBox3.TabIndex = 2;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Data Backups";
+            // 
+            // xBackupDataOnStartup
+            // 
+            this.xBackupDataOnStartup.AutoSize = true;
+            this.xBackupDataOnStartup.Location = new System.Drawing.Point( 16, 20 );
+            this.xBackupDataOnStartup.Name = "xBackupDataOnStartup";
+            this.xBackupDataOnStartup.Size = new System.Drawing.Size( 261, 19 );
+            this.xBackupDataOnStartup.TabIndex = 0;
+            this.xBackupDataOnStartup.Text = "Backup PlayerDB and IP ban list on startup.";
+            this.xBackupDataOnStartup.UseVisualStyleBackColor = true;
+            // 
             // ConfigUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -3240,6 +3264,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             this.gCrashReport.ResumeLayout( false );
             this.gCrashReport.PerformLayout();
+            this.groupBox3.ResumeLayout( false );
+            this.groupBox3.PerformLayout();
             this.ResumeLayout( false );
 
         }
@@ -3488,5 +3514,7 @@
         private System.Windows.Forms.CheckBox xRequireKickReason;
         private System.Windows.Forms.GroupBox gPermissionLimits;
         private System.Windows.Forms.FlowLayoutPanel permissionLimitBoxContainer;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.CheckBox xBackupDataOnStartup;
     }
 }

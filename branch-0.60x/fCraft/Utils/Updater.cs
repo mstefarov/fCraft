@@ -12,17 +12,15 @@ using fCraft.Events;
 
 namespace fCraft {
 
-    /// <summary>
-    /// Checks for updates, and keeps track of current version/revision.
-    /// </summary>
+    /// <summary> Checks for updates, and keeps track of current version/revision. </summary>
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             600,
-            634,
+            638,
             new DateTime( 2011, 6, 1, 4, 30, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Bugfix | ReleaseFlags.Dev | ReleaseFlags.Unstable
+            ReleaseFlags.Dev | ReleaseFlags.Unstable
 #if DEBUG
             | ReleaseFlags.Dev
 #endif

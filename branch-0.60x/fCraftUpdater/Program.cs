@@ -34,7 +34,7 @@ using fCraftUpdater.Properties;
 namespace fCraftUpdater {
     static class Program {
         const string ConfigFileNameDefault = "config.xml",
-                     BackupFileNameFormat = "fCraftData_{0:yyyyMMdd'_'HH'-'mm'-'ss}.zip";
+                     BackupFileNameFormat = "fCraftData_{0:yyyyMMdd'_'HH'-'mm'-'ss}_BeforeUpdate.zip";
 
         static readonly string[] FilesToBackup = new[]{
             "PlayerDB.txt",

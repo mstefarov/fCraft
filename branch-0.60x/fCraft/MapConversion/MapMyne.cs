@@ -78,13 +78,13 @@ namespace fCraft.MapConversion {
             BinaryReader bs = new BinaryReader( gs );
 
             int blockCount = IPAddress.HostToNetworkOrder( bs.ReadInt32() );
-            if( blockCount != map.WidthY * map.WidthX * map.Height ) {
+            if( blockCount != map.Volume ) {
                 throw new Exception( "Map dimensions in the metadata do not match dimensions of the block array." );
             }
 
             map.Blocks = new byte[blockCount];
             bs.Read( map.Blocks, 0, map.Blocks.Length );
-            map.RemoveUnknownBlocktypes( false );
+            map.RemoveUnknownBlocktypes();
         }
 
 
@@ -108,14 +108,13 @@ namespace fCraft.MapConversion {
             }
 
             if( metaFile.Contains( "spawn", "x", "y", "z", "h" ) ) {
-                Position spawn = new Position {
+                map.Spawn = new Position {
                     X = (short)(Int16.Parse( metaFile["spawn", "x"] ) * 32 + 16),
                     Y = (short)(Int16.Parse( metaFile["spawn", "z"] ) * 32 + 16),
                     H = (short)(Int16.Parse( metaFile["spawn", "y"] ) * 32 + 16),
                     R = Byte.Parse( metaFile["spawn", "h"] ),
                     L = 0
                 };
-                map.SetSpawn( spawn );
             } else {
                 map.ResetSpawn();
             }
