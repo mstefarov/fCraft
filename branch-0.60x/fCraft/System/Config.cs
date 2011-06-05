@@ -156,10 +156,6 @@ namespace fCraft {
                 }
             }
 
-            foreach( ConfigKey key in Enum.GetValues( typeof( ConfigKey ) ) ) {
-                KeyChangedHandlers[key] = null;
-            }
-
             foreach( ConfigSection section in Enum.GetValues( typeof( ConfigSection ) ) ) {
                 ConfigSection sec = section;
                 KeySections.Add( section, KeyMetadata.Values.Where( att => (att.Section == sec) )
@@ -199,10 +195,6 @@ namespace fCraft {
                     throw new Exception( "One of the ConfigKey keys is null: " + key );
                 }
 
-                if( !KeyChangedHandlers.ContainsKey( key ) ) {
-                    throw new Exception( "One of the ConfigKey keys does not have a keyChangedHandler: " + key );
-                }
-
                 if( !KeyMetadata.ContainsKey( key ) ) {
                     throw new Exception( "One of the ConfigKey keys does not have metadata set: " + key );
                 }
@@ -219,6 +211,9 @@ namespace fCraft {
         /// </summary>
         public static void LoadDefaults() {
             foreach( var pair in KeyMetadata ) {
+                if( pair.Key == ConfigKey.SystemMessageColor ) {
+                    Console.Write( true );
+                }
                 SetValue( pair.Key, pair.Value.DefaultValue );
             }
         }
@@ -226,6 +221,9 @@ namespace fCraft {
 
         public static void LoadDefaults( ConfigSection section ) {
             foreach( var key in KeySections[section] ) {
+                if( key == ConfigKey.SystemMessageColor ) {
+                    Console.Write( true );
+                }
                 SetValue( key, KeyMetadata[key].DefaultValue );
             }
         }
@@ -462,69 +460,55 @@ namespace fCraft {
         }
 
 
-        static bool applyChanges;
-        public static bool ApplyChanges {
-            get {
-                return applyChanges;
-            }
-            set {
-                if( value != applyChanges ) {
-                    if( applyChanges ) {
-                        KeyChanged += OnKeyChanged;
-                    } else {
-                        KeyChanged -= OnKeyChanged;
-                    }
-                }
-                applyChanges = value;
-            }
-        }
-
-
-        static void OnKeyChanged( object sender, ConfigKeyChangedEventArgs args ) {
-            switch( args.Key ) {
+        static void ApplyKeyChange( ConfigKey key ) {
+            switch( key ) {
                 case ConfigKey.AnnouncementColor:
-                    Color.Announcement = Color.Parse( args.NewValue );
+                    Color.Announcement = Color.Parse( key.GetString() );
                     break;
 
                 case ConfigKey.AntispamInterval:
-                    Player.AntispamInterval = args.Key.GetInt();
+                    Player.AntispamInterval = key.GetInt();
                     break;
 
                 case ConfigKey.AntispamMessageCount:
-                    Player.AntispamMessageCount = args.Key.GetInt();
+                    Player.AntispamMessageCount = key.GetInt();
                     break;
 
                 case ConfigKey.BandwidthUseMode:
                     Player[] playerListCache = Server.PlayerList;
-                    foreach( Player p in playerListCache ) {
-                        if( p.Session.BandwidthUseMode == BandwidthUseMode.Default ) {
-                            p.Session.BandwidthUseMode = BandwidthUseMode.Default;
+                    if( playerListCache != null ) {
+                        foreach( Player p in playerListCache ) {
+                            if( p.Session.BandwidthUseMode == BandwidthUseMode.Default ) {
+                                p.Session.BandwidthUseMode = BandwidthUseMode.Default;
+                            }
                         }
                     }
                     break;
 
                 case ConfigKey.BlockUpdateThrottling:
-                    Server.BlockUpdateThrottling = args.Key.GetInt();
+                    Server.BlockUpdateThrottling = key.GetInt();
                     break;
 
                 case ConfigKey.ConsoleName:
-                    Player.Console.Info.Name = args.Key.GetString();
+                    if( Player.Console != null ) {
+                        Player.Console.Info.Name = key.GetString();
+                    }
                     break;
 
                 case ConfigKey.HelpColor:
-                    Color.Help = Color.Parse( args.Key.GetString() );
+                    Color.Help = Color.Parse( key.GetString() );
                     break;
 
                 case ConfigKey.IRCDelay:
-                    IRC.SendDelay = args.Key.GetInt();
+                    IRC.SendDelay = key.GetInt();
                     break;
 
                 case ConfigKey.IRCMessageColor:
-                    Color.IRC = Color.Parse( args.Key.GetString() );
+                    Color.IRC = Color.Parse( key.GetString() );
                     break;
 
                 case ConfigKey.LogMode:
-                    Logger.SplittingType = args.Key.GetEnum<LogSplittingType>();
+                    Logger.SplittingType = key.GetEnum<LogSplittingType>();
                     break;
 
                 case ConfigKey.MapPath:
@@ -537,15 +521,15 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.MaxUndo:
-                    BuildingCommands.MaxUndoCount = args.Key.GetInt();
+                    BuildingCommands.MaxUndoCount = key.GetInt();
                     break;
 
                 case ConfigKey.MeColor:
-                    Color.Me = Color.Parse( args.Key.GetString() );
+                    Color.Me = Color.Parse( key.GetString() );
                     break;
 
                 case ConfigKey.NoPartialPositionUpdates:
-                    if( args.Key.GetBool() ) {
+                    if( key.GetBool() ) {
                         Session.FullPositionUpdateInterval = 0;
                     } else {
                         Session.FullPositionUpdateInterval = Session.FullPositionUpdateIntervalDefault;
@@ -553,31 +537,31 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.PrivateMessageColor:
-                    Color.PM = Color.Parse( args.Key.GetString() );
+                    Color.PM = Color.Parse( key.GetString() );
                     break;
 
                 case ConfigKey.RelayAllBlockUpdates:
-                    Player.RelayAllUpdates = args.Key.GetBool();
+                    Player.RelayAllUpdates = key.GetBool();
                     break;
 
                 case ConfigKey.SayColor:
-                    Color.Say = Color.Parse( args.Key.GetString() );
+                    Color.Say = Color.Parse( key.GetString() );
                     break;
 
                 case ConfigKey.SystemMessageColor:
-                    Color.Sys = Color.Parse( args.Key.GetString() );
+                    Color.Sys = Color.Parse( key.GetString() );
                     break;
 
                 case ConfigKey.TickInterval:
-                    Server.TicksPerSecond = 1000 / (float)args.Key.GetInt();
+                    Server.TicksPerSecond = 1000 / (float)key.GetInt();
                     break;
 
                 case ConfigKey.UploadBandwidth:
-                    Server.MaxUploadSpeed = args.Key.GetInt();
+                    Server.MaxUploadSpeed = key.GetInt();
                     break;
 
                 case ConfigKey.WarningColor:
-                    Color.Warning = Color.Parse( args.Key.GetString() );
+                    Color.Warning = Color.Parse( key.GetString() );
                     break;
             }
         }
@@ -749,6 +733,7 @@ namespace fCraft {
             return DoSetValue( key, value );
         }
 
+
         public static bool TrySetValue( this ConfigKey key, object rawValue ) {
             try {
                 SetValue( key, rawValue );
@@ -763,11 +748,13 @@ namespace fCraft {
         static bool DoSetValue( ConfigKey key, string newValue ) {
             if( !Settings.ContainsKey( key ) ) {
                 Settings[key] = newValue;
+                ApplyKeyChange( key );
             } else {
                 string oldValue = Settings[key];
                 if( oldValue != newValue ) {
                     if( RaiseKeyChangingEvent( key, oldValue, ref newValue ) ) return false;
                     Settings[key] = newValue;
+                    ApplyKeyChange( key );
                     RaiseKeyChangedEvent( key, oldValue, newValue );
                 }
             }
@@ -998,23 +985,6 @@ namespace fCraft {
 
         #region Events
 
-        static readonly Dictionary<ConfigKey, EventHandler<ConfigKeyChangedEventArgs>> KeyChangedHandlers =
-                new Dictionary<ConfigKey, EventHandler<ConfigKeyChangedEventArgs>>();
-        static readonly object KeyChangedHandlerLock = new object();
-
-        public static void AddKeyChangedHandler( ConfigKey key, EventHandler<ConfigKeyChangedEventArgs> handler ) {
-            lock( KeyChangedHandlerLock ) {
-                KeyChangedHandlers[key] += handler;
-            }
-        }
-
-        public static void RemoveKeyChangedHandler( ConfigKey key, EventHandler<ConfigKeyChangedEventArgs> handler ) {
-            lock( KeyChangedHandlerLock ) {
-                KeyChangedHandlers[key] -= handler;
-            }
-        }
-
-
         /// <summary> Occurs after the entire configuration has been reloaded from file. </summary>
         public static event EventHandler Reloaded;
 
@@ -1047,8 +1017,6 @@ namespace fCraft {
         static void RaiseKeyChangedEvent( ConfigKey key, string oldValue, string newValue ) {
             var h = KeyChanged;
             var args = new ConfigKeyChangedEventArgs( key, oldValue, newValue );
-            if( h != null ) h( null, args );
-            h = KeyChangedHandlers[key];
             if( h != null ) h( null, args );
         }
 
