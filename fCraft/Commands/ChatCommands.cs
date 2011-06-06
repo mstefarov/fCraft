@@ -41,7 +41,7 @@ namespace fCraft {
             Name = "say",
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Say },
+            Permissions = new[] { Permission.Chat, Permission.Say },
             Usage = "/say Message",
             Help = "Shows a message in special color, without the player name prefix. " +
                    "Can be used for making announcements.",
@@ -76,6 +76,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdStaffChat = new CommandDescriptor {
             Name = "staff",
             Category = CommandCategory.Chat | CommandCategory.Moderation,
+            Permissions = new[] { Permission.Chat },
             IsConsoleSafe = true,
             Usage = "/staff Message",
             Help = "Broadcasts your message to all operators/moderators on the server at once.",
@@ -218,6 +219,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdMe = new CommandDescriptor {
             Name = "me",
             Category = CommandCategory.Chat,
+            Permissions = new[] { Permission.Chat },
             IsConsoleSafe = true,
             Usage = "/me Message",
             Help = "Sends IRC-style action message prefixed with your name.",
@@ -250,6 +252,7 @@ namespace fCraft {
         static readonly CommandDescriptor cdRoll = new CommandDescriptor {
             Name = "roll",
             Category = CommandCategory.Chat,
+            Permissions = new[] { Permission.Chat },
             IsConsoleSafe = true,
             Help = "Gives random number between 1 and 100.&N" +
                    "&H/roll MaxNumber&N" +
