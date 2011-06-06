@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Windows.Forms;
 using System.Xml.Linq;
 using fCraft;
 using fCraft.MapConversion;
@@ -80,19 +81,35 @@ namespace ConfigTool {
                 return name;
             }
             set {
+                if( name == value ) return;
                 if( !World.IsValidName( value ) ) {
                     throw new FormatException( "Invalid world name" );
-                } else if( value != name && ConfigUI.IsWorldNameTaken( value ) ) {
+
+                } else if( !value.Equals(name, StringComparison.OrdinalIgnoreCase) && ConfigUI.IsWorldNameTaken( value ) ) {
                     throw new FormatException( "Duplicate world names are not allowed." );
+
                 } else {
                     string oldName = name;
-                    name = value;
                     string oldFileName = Path.Combine( Paths.MapPath, oldName + ".fcm" );
-                    string newFileName = Path.Combine( Paths.MapPath, name + ".fcm" );
+                    string newFileName = Path.Combine( Paths.MapPath, value + ".fcm" );
                     if( File.Exists( oldFileName ) ) {
+                        bool isSameFile;
+                        if( MonoCompat.IsCaseSensitive ) {
+                            isSameFile = newFileName.Equals( oldFileName, StringComparison.Ordinal );
+                        } else {
+                            isSameFile = newFileName.Equals( oldFileName, StringComparison.OrdinalIgnoreCase );
+                        }
+                        if( File.Exists( newFileName ) && !isSameFile ) {
+                            string messageText = String.Format( "Map file \"{0}\" already exists. Overwrite?", value + ".fcm" );
+                            var result = MessageBox.Show( messageText, "", MessageBoxButtons.OKCancel );
+                            if( result == DialogResult.Cancel ) return;
+                        }
                         Paths.ForceRename( oldFileName, newFileName );
                     }
-                    ConfigUI.HandleWorldRename( oldName, name );
+                    name = value;
+                    if( oldName != null ) {
+                        ConfigUI.HandleWorldRename( oldName, name );
+                    }
                 }
             }
         }

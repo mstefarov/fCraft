@@ -1429,10 +1429,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         }
 
         internal static bool IsWorldNameTaken( string name ) {
-            foreach( WorldListEntry world in worlds ) {
-                if( world.Name == name ) return true;
-            }
-            return false;
+            return worlds.Any( world => world.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
         }
 
         void CheckMaxPlayersPerWorldValue() {
