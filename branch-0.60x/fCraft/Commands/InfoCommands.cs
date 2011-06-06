@@ -754,7 +754,7 @@ namespace fCraft {
             Aliases = new[] { "cmds", "cmdlist" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
-            Usage = "/commands [Category|Permission|@RankName]",
+            Usage = "/commands [Category|@RankName]",
             Help = "Shows a list of commands, by category, permission, or rank.",
             Handler = Commands
         };
@@ -790,11 +790,6 @@ namespace fCraft {
                 CommandCategory category = (CommandCategory)Enum.Parse( typeof( CommandCategory ), param, true );
                 player.Message( "List of {0} commands:", category );
                 cd = CommandManager.GetCommands( category, false );
-
-            } else if( Enum.GetNames( typeof( Permission ) ).Contains( param, StringComparer.OrdinalIgnoreCase ) ) {
-                Permission permission = (Permission)Enum.Parse( typeof( Permission ), param, true );
-                player.Message( "List of commands that need {0} permission:", permission );
-                cd = CommandManager.GetCommands( permission, true );
 
             } else {
                 cdCommands.PrintUsage( player );

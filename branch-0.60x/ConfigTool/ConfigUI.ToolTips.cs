@@ -330,7 +330,6 @@ Also allows to manipulate players' records, and to promote/demote players in bat
 Affected commands:
     /autorankall
     /autorankreload
-    /editplayerinfo
     /massrank
     /setinfo";
 
