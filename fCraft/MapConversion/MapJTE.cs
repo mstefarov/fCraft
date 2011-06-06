@@ -85,26 +85,21 @@ namespace fCraft.MapConversion {
             byte version = bs.ReadByte();
             if( version != 1 && version != 2 ) throw new MapFormatException();
 
-            Position spawn = new Position();
-
-            // Read in the spawn location
-            spawn.X = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
-            spawn.H = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
-            spawn.Y = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32);
-
-            // Read in the spawn orientation
-            spawn.R = bs.ReadByte();
-            spawn.L = bs.ReadByte();
+            // read spawn location and orientation
+            Position spawn = new Position {
+                X = (short)( IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32 ),
+                H = (short)( IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32 ),
+                Y = (short)( IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32 ),
+                R = bs.ReadByte(),
+                L = bs.ReadByte()
+            };
 
             // Read in the map dimesions
             int widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
             int widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
             int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
 
-            Map map = new Map( null, widthX, widthY, height, false );
-            map.Spawn = spawn;
-
-            return map;
+            return new Map( null, widthX, widthY, height, false ) { Spawn = spawn };
         }
 
 

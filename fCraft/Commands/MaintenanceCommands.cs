@@ -35,8 +35,8 @@ namespace fCraft {
             CommandManager.RegisterCommand( new CommandDescriptor {
                 Category = CommandCategory.Maintenance,
                 Handler = delegate( Player player, Command cmd ) {
-                    string newbum = cmd.Next();
-                    if( newbum == null ) {
+                    string newModeName = cmd.Next();
+                    if( newModeName == null ) {
                         player.Message( "{0}: S: {1}  R: {2}  S/s: {3:0.0}  R/s: {4:0.0}",
                                         player.Session.BandwidthUseMode,
                                         player.Session.BytesSent,
@@ -44,7 +44,9 @@ namespace fCraft {
                                         player.Session.BytesSentRate,
                                         player.Session.BytesReceivedRate );
                     } else {
-                        player.Session.BandwidthUseMode = (BandwidthUseMode)Enum.Parse( typeof( BandwidthUseMode ), newbum, true );
+                        var newMode = (BandwidthUseMode)Enum.Parse( typeof( BandwidthUseMode ), newModeName, true );
+                        player.Session.BandwidthUseMode = newMode;
+                        player.Info.BandwidthUseMode = newMode;
                     }
                 },
                 Name = "bum",

@@ -119,7 +119,6 @@ namespace ConfigTool {
 
             if( World == null ) {
                 Text = "Adding a New World";
-                World = new WorldListEntry();
 
                 // keep trying "NewWorld#" until we find an unused number
                 int worldNameCounter = 1;
@@ -127,7 +126,8 @@ namespace ConfigTool {
                     worldNameCounter++;
                 }
 
-                World.Name = "NewWorld" + worldNameCounter;
+                World = new WorldListEntry( "NewWorld" + worldNameCounter );
+
                 tName.Text = World.Name;
                 cAccess.SelectedIndex = 0;
                 cBuild.SelectedIndex = 0;

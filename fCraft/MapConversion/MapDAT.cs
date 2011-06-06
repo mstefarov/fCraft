@@ -190,8 +190,7 @@ namespace fCraft.MapConversion {
                         pointer += skip;
                     }
 
-                    map = new Map( null, widthX, widthY, height, false );
-                    map.Spawn = spawn;
+                    map = new Map( null, widthX, widthY, height, false ) { Spawn = spawn };
 
                     if( !map.ValidateHeader() ) {
                         throw new MapFormatException( "One or more of the map dimensions are invalid." );

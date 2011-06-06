@@ -120,5 +120,11 @@ namespace fCraft {
             } // endloop
             Interlocked.Increment( ref Length );
         }
+
+
+        public void Clear() {
+            T t = default( T );
+            while( Dequeue( ref t ) ) { }
+        }
     }
 }

@@ -580,7 +580,8 @@ namespace fCraft {
             foreach( ConfigSection section in Enum.GetValues( typeof( ConfigSection ) ) ) {
                 XElement sectionEl = new XElement( "Section" );
                 sectionEl.Add( new XAttribute( "name", section ) );
-                foreach( ConfigKey key in KeyMetadata.Values.Where( a => a.Section == section ).Select( a => a.Key ) ) {
+                foreach( ConfigKey key in KeyMetadata.Values.Where( meta => meta.Section == section )
+                                                            .Select( meta => meta.Key ) ) {
                     if( IsDefault( key ) ) {
                         sectionEl.Add( new XComment( new XElement( key.ToString(), Settings[key] ).ToString() ) );
                     } else {

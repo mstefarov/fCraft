@@ -293,7 +293,7 @@ namespace fCraft {
             } else {
                 player.MessageNow( "WFlush: Flushing {0}&S ({1} blocks in queue)...",
                                    world.GetClassyName(),
-                                   world.Map.UpdateQueueSize() );
+                                   world.Map.UpdateQueueLength );
 
                 world.BeginFlushMapBuffer();
             }
@@ -558,8 +558,8 @@ namespace fCraft {
 
                     } else {
                         // list players who are redundantly blacklisted
-                        SecurityController.PlayerListCollection lists = world.AccessSecurity.ExceptionList;
-                        PlayerInfo[] noLongerExcluded = lists.Excluded.Where( excludedPlayer => excludedPlayer.Rank < rank ).ToArray();
+                        var exceptionList = world.AccessSecurity.ExceptionList;
+                        PlayerInfo[] noLongerExcluded = exceptionList.Excluded.Where( excludedPlayer => excludedPlayer.Rank < rank ).ToArray();
                         if( noLongerExcluded.Length > 0 ) {
                             player.Message( "Following players no longer need to be blacklisted to be barred from {0}&S: {1}",
                                             world.GetClassyName(),
@@ -567,7 +567,7 @@ namespace fCraft {
                         }
 
                         // list players who are redundantly whitelisted
-                        PlayerInfo[] noLongerIncluded = lists.Included.Where( includedPlayer => includedPlayer.Rank >= rank ).ToArray();
+                        PlayerInfo[] noLongerIncluded = exceptionList.Included.Where( includedPlayer => includedPlayer.Rank >= rank ).ToArray();
                         if( noLongerIncluded.Length > 0 ) {
                             player.Message( "Following players no longer need to be whitelisted to access {0}&S: {1}",
                                             world.GetClassyName(),
@@ -789,8 +789,8 @@ namespace fCraft {
                                         world.BuildSecurity.MinRank.GetClassyName(), world.GetClassyName() );
                     } else {
                         // list players who are redundantly blacklisted
-                        SecurityController.PlayerListCollection lists = world.BuildSecurity.ExceptionList;
-                        PlayerInfo[] noLongerExcluded = lists.Excluded.Where( excludedPlayer => excludedPlayer.Rank < rank ).ToArray();
+                        var exceptionList = world.BuildSecurity.ExceptionList;
+                        PlayerInfo[] noLongerExcluded = exceptionList.Excluded.Where( excludedPlayer => excludedPlayer.Rank < rank ).ToArray();
                         if( noLongerExcluded.Length > 0 ) {
                             player.Message( "Following players no longer need to be blacklisted on world {0}&S: {1}",
                                             world.GetClassyName(),
@@ -798,7 +798,7 @@ namespace fCraft {
                         }
 
                         // list players who are redundantly whitelisted
-                        PlayerInfo[] noLongerIncluded = lists.Included.Where( includedPlayer => includedPlayer.Rank >= rank ).ToArray();
+                        PlayerInfo[] noLongerIncluded = exceptionList.Included.Where( includedPlayer => includedPlayer.Rank >= rank ).ToArray();
                         if( noLongerIncluded.Length > 0 ) {
                             player.Message( "Following players no longer need to be whitelisted on world {0}&S: {1}",
                                             world.GetClassyName(),

@@ -265,7 +265,7 @@ namespace fCraft.MapConversion {
             foreach( Zone zone in zoneList ) {
                 MapFCMv3.WriteLengthPrefixedString( writer, "zones" );
                 MapFCMv3.WriteLengthPrefixedString( writer, zone.Name );
-                MapFCMv3.WriteLengthPrefixedString( writer, zone.SerializeFCMv2() );
+                MapFCMv3.WriteLengthPrefixedString( writer, SerializeZone(zone) );
                 metaCount++;
             }
 
@@ -280,6 +280,35 @@ namespace fCraft.MapConversion {
                 metaCount += 2;
             }
             return metaCount;
+        }
+
+
+
+        public static string SerializeZone( Zone zone ) {
+            string xheader;
+            if( zone.CreatedBy != null ) {
+                xheader = zone.CreatedBy.Name + " " + zone.CreatedDate.ToCompactString() + " ";
+            } else {
+                xheader = "- - ";
+            }
+
+            if( zone.EditedBy != null ) {
+                xheader += zone.EditedBy.Name + " " + zone.EditedDate.ToCompactString();
+            } else {
+                xheader += "- -";
+            }
+
+            var zoneExceptions = zone.Controller.ExceptionList;
+
+            return String.Format( "{0},{1},{2},{3}",
+                                  String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
+                                                 zone.Name,
+                                                 zone.Bounds.XMin, zone.Bounds.YMin, zone.Bounds.HMin,
+                                                 zone.Bounds.XMax, zone.Bounds.YMax, zone.Bounds.HMax,
+                                                 zone.Controller.MinRank.GetFullName() ),
+                                  zoneExceptions.Included.JoinToString( " ", p => p.Name ),
+                                  zoneExceptions.Excluded.JoinToString( " ", p => p.Name ),
+                                  xheader );
         }
     }
 }

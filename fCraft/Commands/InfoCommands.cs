@@ -61,18 +61,17 @@ namespace fCraft {
             player.Message( sb.ToString() );
         }
 
-
-
+        
+#if DEBUG_SCHEDULER
         static CommandDescriptor cdTaskDebug = new CommandDescriptor {
             Name = "taskdebug",
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             Help = "",
             IsHidden = true,
-            Handler = delegate( Player player, Command cmd ) {
-                Scheduler.PrintTasks( player );
-            }
+            Handler = ( player, cmd ) => Scheduler.PrintTasks( player )
         };
+#endif
 
 
         #region Infos (/info, /rinfo, /baninfo, /sinfo)
