@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
+using System.Linq;
 
 namespace ConfigTool {
 
@@ -15,9 +16,11 @@ namespace ConfigTool {
         private PropertyDescriptor sort;
 
         #region BindingList<T> Public Sorting API
+
         public void Sort() {
             ApplySortCore( sort, dir );
         }
+
 
         public void Sort( string property ) {
             /* Get the PD */
@@ -27,6 +30,7 @@ namespace ConfigTool {
             ApplySortCore( sort, dir );
         }
 
+
         public void Sort( string property, ListSortDirection direction ) {
             /* Get the sort property */
             sort = FindPropertyDescriptor( property );
@@ -35,12 +39,16 @@ namespace ConfigTool {
             /* Sort */
             ApplySortCore( sort, dir );
         }
+
         #endregion
 
+
         #region BindingList<T> Sorting Overrides
+
         protected override bool SupportsSortingCore {
             get { return true; }
         }
+
 
         protected override void ApplySortCore( PropertyDescriptor prop, ListSortDirection direction ) {
             List<T> items = Items as List<T>;
@@ -57,14 +65,18 @@ namespace ConfigTool {
             }
         }
 
+
         protected override bool IsSortedCore {
             get { return isSorted; }
         }
 
+
         protected override void RemoveSortCore() {
             isSorted = false;
         }
+
         #endregion
+
 
         #region BindingList<T> Private Sorting API
 
@@ -75,6 +87,7 @@ namespace ConfigTool {
         }
 
         #endregion
+
 
         #region PropertyComparer<TKey>
         internal sealed class PropertyComparer<TKey> : IComparer<TKey> {
@@ -95,6 +108,18 @@ namespace ConfigTool {
                 /* Get property values */
                 object xValue = GetPropertyValue( xVal, _property.Name );
                 object yValue = GetPropertyValue( yVal, _property.Name );
+
+                foreach( Attribute att in _property.Attributes ) {
+                    var sortableAtt = att as SortablePropertyAttribute;
+                    if( sortableAtt != null ) {
+                        int comparisonResult = sortableAtt.Compare( _property.Name, xVal, yVal );
+                        if( _direction == ListSortDirection.Ascending ) {
+                            return comparisonResult;
+                        } else {
+                            return -comparisonResult;
+                        }
+                    }
+                }
 
                 /* Determine sort order */
                 if( _direction == ListSortDirection.Ascending ) {
@@ -120,7 +145,7 @@ namespace ConfigTool {
                 if( xValue is IComparable ) {
                     result = ((IComparable)xValue).CompareTo( yValue );
                 }
-                    /* If values don't implement IComparer but are equivalent */
+                /* If values don't implement IComparer but are equivalent */
                 else if( xValue.Equals( yValue ) ) {
                     result = 0;
                 }
@@ -146,5 +171,22 @@ namespace ConfigTool {
             }
         }
         #endregion
+    }
+
+
+    [AttributeUsage( AttributeTargets.Property )]
+    public class SortablePropertyAttribute : Attribute {
+        public SortablePropertyAttribute( Type type, string comparerMethodName ) {
+            if( type == null ) throw new ArgumentNullException( "type" );
+            if( comparerMethodName == null ) throw new ArgumentNullException( "comparerMethodName" );
+            method = type.GetMethod( comparerMethodName );
+            if( method == null ) throw new ArgumentException( "No such method", "comparerMethodName" );
+        }
+
+        MethodInfo method;
+        public int Compare( string propertyName, object a, object b ) {
+            object[] methodArgs = new[] { propertyName, a, b };
+            return (int)method.Invoke( null, methodArgs );
+        }
     }
 }

@@ -15,6 +15,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( cdZoneList );
             CommandManager.RegisterCommand( cdZoneRemove );
             CommandManager.RegisterCommand( cdZoneInfo );
+            CommandManager.RegisterCommand( cdZoneRename );
         }
 
 
@@ -430,17 +431,53 @@ namespace fCraft {
                 DateTime.UtcNow.Subtract( zone.EditedDate ).Hours );
             }
 
-            SecurityController.PlayerListCollection playerList = zone.GetPlayerList();
+            PlayerExceptionCollection zoneExceptions = zone.ExceptionList;
 
-            if( playerList.Included.Length > 0 ) {
+            if( zoneExceptions.Included.Length > 0 ) {
                 player.Message( "  Zone whitelist includes: {0}",
-                                playerList.Included.JoinToClassyString() );
+                                zoneExceptions.Included.JoinToClassyString() );
             }
 
-            if( playerList.Excluded.Length > 0 ) {
+            if( zoneExceptions.Excluded.Length > 0 ) {
                 player.Message( "  Zone blacklist excludes: {0}",
-                                playerList.Excluded.JoinToClassyString() );
+                                zoneExceptions.Excluded.JoinToClassyString() );
             }
+        }
+
+
+
+        static readonly CommandDescriptor cdZoneRename = new CommandDescriptor {
+            Name = "zrename",
+            Category = CommandCategory.Zone,
+            Help = "Renames a zone",
+            Usage = "/zrename OldName NewName",
+            Handler = ZoneRename
+        };
+
+        internal static void ZoneRename( Player player, Command cmd ) {
+            string oldName = cmd.Next();
+            string newName = cmd.Next();
+            if( oldName == null || newName == null ) {
+                cdZoneRename.PrintUsage( player );
+                return;
+            }
+
+            if( !World.IsValidName( newName ) ) {
+                player.Message( "\"{0}\" is not a valid zone name", newName );
+                return;
+            }
+
+            Zone zone = player.World.Map.FindZone( oldName );
+            if( zone == null ) {
+                player.Message( "No zone found with the name \"{0}\". See &H/zones", oldName );
+                return;
+            }
+
+            string fullOldName = zone.Name;
+
+            player.World.Map.RenameZone( zone, newName );
+            Logger.Log( "Player {0} renamed zone \"{1}\" to \"{2}\" on world {3}", LogType.UserActivity,
+                        player.Name, fullOldName, newName, player.World.Name );
         }
     }
 }

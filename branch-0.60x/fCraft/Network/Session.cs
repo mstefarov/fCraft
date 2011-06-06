@@ -918,14 +918,12 @@ namespace fCraft {
 
 
         public void ClearBlockUpdateQueue() {
-            Packet temp = new Packet();
-            while( outputQueue.Dequeue( ref temp ) ) { }
+            outputQueue.Clear();
         }
 
 
         public void ClearPriorityOutputQueue() {
-            Packet tempPacket = new Packet();
-            while( priorityOutputQueue.Dequeue( ref tempPacket ) ) { }
+            priorityOutputQueue.Clear();
         }
 
 

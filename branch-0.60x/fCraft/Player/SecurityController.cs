@@ -13,7 +13,7 @@ namespace fCraft {
         readonly Dictionary<string, PlayerInfo> includedPlayers = new Dictionary<string, PlayerInfo>();
         readonly Dictionary<string, PlayerInfo> excludedPlayers = new Dictionary<string, PlayerInfo>();
 
-        public PlayerListCollection ExceptionList { get; private set; }
+        public PlayerExceptionCollection ExceptionList { get; private set; }
         readonly object playerPermissionListLock = new object();
 
         private Rank minRank;
@@ -56,7 +56,7 @@ namespace fCraft {
 
         public void UpdatePlayerListCache() {
             lock( playerPermissionListLock ) {
-                ExceptionList = new PlayerListCollection {
+                ExceptionList = new PlayerExceptionCollection {
                     Included = includedPlayers.Values.ToArray(),
                     Excluded = excludedPlayers.Values.ToArray()
                 };
@@ -106,7 +106,7 @@ namespace fCraft {
 
         public bool Check( PlayerInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
-            PlayerListCollection listCache = ExceptionList;
+            PlayerExceptionCollection listCache = ExceptionList;
             for( int i = 0; i < listCache.Excluded.Length; i++ ) {
                 if( listCache.Excluded[i] == info ) {
                     return false;
@@ -127,7 +127,7 @@ namespace fCraft {
 
         public SecurityCheckResult CheckDetailed( PlayerInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
-            PlayerListCollection listCache = ExceptionList;
+            PlayerExceptionCollection listCache = ExceptionList;
             for( int i = 0; i < listCache.Excluded.Length; i++ ) {
                 if( listCache.Excluded[i] == info ) {
                     return SecurityCheckResult.BlackListed;
@@ -152,7 +152,7 @@ namespace fCraft {
             if( target == null ) throw new ArgumentNullException( "target" );
             if( noun == null ) throw new ArgumentNullException( "noun" );
             if( verb == null ) throw new ArgumentNullException( "verb" );
-            PlayerListCollection list = ExceptionList;
+            PlayerExceptionCollection list = ExceptionList;
 
             noun = Char.ToUpper( noun[0] ) + noun.Substring( 1 ); // capitalize first letter
 
@@ -269,24 +269,24 @@ namespace fCraft {
         }
 
         #endregion
+    }
 
 
-        public sealed class PlayerListCollection : ICloneable {
-            public PlayerListCollection() { }
-            public PlayerListCollection( PlayerListCollection other ) {
-                if( other == null ) throw new ArgumentNullException( "other" );
-                Included = (PlayerInfo[])other.Included.Clone();
-                Excluded = (PlayerInfo[])other.Excluded.Clone();
-            }
+    public sealed class PlayerExceptionCollection : ICloneable {
+        public PlayerExceptionCollection() { }
+        public PlayerExceptionCollection( PlayerExceptionCollection other ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
+            Included = (PlayerInfo[])other.Included.Clone();
+            Excluded = (PlayerInfo[])other.Excluded.Clone();
+        }
 
-            // keeping both lists on one object allows lock-free synchronization
-            public PlayerInfo[] Included;
+        // keeping both lists on one object allows lock-free synchronization
+        public PlayerInfo[] Included;
 
-            public PlayerInfo[] Excluded;
+        public PlayerInfo[] Excluded;
 
-            public object Clone() {
-                return new PlayerListCollection( this );
-            }
+        public object Clone() {
+            return new PlayerExceptionCollection( this );
         }
     }
 

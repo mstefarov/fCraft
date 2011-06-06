@@ -50,7 +50,8 @@ namespace ConfigTool {
             PopulateIRCNetworkList( false );
 
             Server.InitLibrary( Environment.GetCommandLineArgs() );
-            //dgvWorlds.DataError += ( sender1, e1 ) => MessageBox.Show( a.Exception.Message, "Data Error" );
+
+            dgvWorlds.DataError += WorldListErrorHandler;
 
             LoadConfig();
         }
@@ -183,7 +184,17 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
         #endregion
 
+
         #region Worlds
+
+        void WorldListErrorHandler( object sender, DataGridViewDataErrorEventArgs e ) {
+            if( e.Exception is FormatException ) {
+                string columnName = dgvWorlds.Columns[e.ColumnIndex].HeaderText;
+                MessageBox.Show( e.Exception.Message, "Error editing " + columnName );
+            } else {
+                MessageBox.Show( e.Exception.ToString(), "An error occured in the world list" );
+            }
+        }
 
         private void bAddWorld_Click( object sender, EventArgs e ) {
             AddWorldPopup popup = new AddWorldPopup( null );
@@ -273,6 +284,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
         #endregion
 
+
         #region Security
 
         private void cVerifyNames_SelectedIndexChanged( object sender, EventArgs e ) {
@@ -285,6 +297,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         }
 
         #endregion
+
 
         #region Logging
 
@@ -310,6 +323,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
         #endregion
 
+
         #region Saving & Backup
 
         private void xSaveAtInterval_CheckedChanged( object sender, EventArgs e ) {
@@ -329,6 +343,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         }
 
         #endregion
+
 
         #region IRC
 
@@ -470,6 +485,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         }
 
         #endregion
+
 
         #region Advanced
 

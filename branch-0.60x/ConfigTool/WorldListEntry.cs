@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Windows.Forms;
 using System.Xml.Linq;
 using fCraft;
 using fCraft.MapConversion;
@@ -16,7 +17,9 @@ namespace ConfigTool {
         internal bool LoadingFailed { get; private set; }
 
 
-        public WorldListEntry() { }
+        public WorldListEntry( string newName ) {
+            name = newName;
+        }
 
 
         public WorldListEntry( WorldListEntry original ) {
@@ -77,44 +80,57 @@ namespace ConfigTool {
         #region List Properties
 
         string name;
+        [SortableProperty( typeof( WorldListEntry ), "Compare" )]
         public string Name {
             get {
                 return name;
             }
             set {
+                if( name == value ) return;
                 if( !World.IsValidName( value ) ) {
                     throw new FormatException( "Invalid world name" );
-                } else if( value != name && ConfigUI.IsWorldNameTaken( value ) ) {
+
+                } else if( !value.Equals(name, StringComparison.OrdinalIgnoreCase) && ConfigUI.IsWorldNameTaken( value ) ) {
                     throw new FormatException( "Duplicate world names are not allowed." );
+
                 } else {
                     string oldName = name;
-                    name = value;
                     string oldFileName = Path.Combine( Paths.MapPath, oldName + ".fcm" );
-                    string newFileName = Path.Combine( Paths.MapPath, name + ".fcm" );
+                    string newFileName = Path.Combine( Paths.MapPath, value + ".fcm" );
                     if( File.Exists( oldFileName ) ) {
+                        bool isSameFile;
+                        if( MonoCompat.IsCaseSensitive ) {
+                            isSameFile = newFileName.Equals( oldFileName, StringComparison.Ordinal );
+                        } else {
+                            isSameFile = newFileName.Equals( oldFileName, StringComparison.OrdinalIgnoreCase );
+                        }
+                        if( File.Exists( newFileName ) && !isSameFile ) {
+                            string messageText = String.Format( "Map file \"{0}\" already exists. Overwrite?", value + ".fcm" );
+                            var result = MessageBox.Show( messageText, "", MessageBoxButtons.OKCancel );
+                            if( result == DialogResult.Cancel ) return;
+                        }
                         Paths.ForceRename( oldFileName, newFileName );
                     }
-                    ConfigUI.HandleWorldRename( oldName, name );
+                    name = value;
+                    if( oldName != null ) {
+                        ConfigUI.HandleWorldRename( oldName, name );
+                    }
                 }
             }
         }
 
 
-        Map cachedMapHeader;
+        [SortableProperty(typeof(WorldListEntry),"Compare")]
         public string Description {
             get {
-                if( cachedMapHeader == null && !LoadingFailed ) {
-                    string fullFileName = Path.Combine( Paths.MapPath, name + ".fcm" );
-                    LoadingFailed = !MapUtility.TryLoadHeader( fullFileName, out cachedMapHeader );
-                }
-
+                Map mapHeader = MapHeader;
                 if( LoadingFailed ) {
                     return "(cannot load file)";
                 } else {
                     return String.Format( "{0} × {1} × {2}",
-                                          cachedMapHeader.WidthX,
-                                          cachedMapHeader.WidthY,
-                                          cachedMapHeader.Height );
+                                          mapHeader.WidthX,
+                                          mapHeader.WidthY,
+                                          mapHeader.Height );
                 }
             }
         }
@@ -193,6 +209,18 @@ namespace ConfigTool {
         }
 
 
+        Map cachedMapHeader;
+        public Map MapHeader {
+            get {
+                if( cachedMapHeader == null && !LoadingFailed ) {
+                    string fullFileName = Path.Combine( Paths.MapPath, name + ".fcm" );
+                    LoadingFailed = !MapUtility.TryLoadHeader( fullFileName, out cachedMapHeader );
+                }
+                return cachedMapHeader;
+            }
+        }
+
+
         public string FileName {
             get { return Name + MapFileExtension; }
         }
@@ -210,5 +238,26 @@ namespace ConfigTool {
         }
 
         #endregion
+
+
+        // Comparison method used to customize sorting
+        public static object Compare( string propertyName, object a, object b ) {
+            WorldListEntry entry1 = a as WorldListEntry;
+            WorldListEntry entry2 = b as WorldListEntry;
+            switch( propertyName ) {
+                case "Description":
+                    if( entry1.MapHeader == null && entry2.MapHeader == null ) return null;
+                    if( entry1.MapHeader == null ) return 1;
+                    if( entry2.MapHeader == null ) return -1;
+                    int volumeDifference = entry1.MapHeader.Volume - entry2.MapHeader.Volume;
+                    return Math.Min( 1, Math.Max( -1, volumeDifference ) );
+
+                case "Name":
+                    return StringComparer.OrdinalIgnoreCase.Compare( entry1.name, entry2.name );
+
+                default:
+                    throw new NotImplementedException();
+            }
+        }
     }
 }

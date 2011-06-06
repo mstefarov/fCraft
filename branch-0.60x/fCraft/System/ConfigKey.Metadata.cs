@@ -3,18 +3,19 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.ComponentModel;
 
 namespace fCraft {
 
     [AttributeUsage( AttributeTargets.Field )]
-    public class ConfigKeyAttribute : Attribute {
-        protected ConfigKeyAttribute( ConfigSection section, Type valueType, object defaultValue, string description ) {
+    public class ConfigKeyAttribute : DescriptionAttribute {
+        protected ConfigKeyAttribute( ConfigSection section, Type valueType, object defaultValue, string description )
+            : base( description ) {
             if( valueType == null ) throw new ArgumentNullException( "valueType" );
             if( description == null ) throw new ArgumentNullException( "description" );
             ValueType = valueType;
             DefaultValue = defaultValue;
             Section = section;
-            Description = description;
             NotBlank = false;
         }
         public Type ValueType { get; protected set; }
@@ -22,7 +23,6 @@ namespace fCraft {
         public ConfigSection Section { get; protected set; }
         public bool NotBlank { get; set; }
         public ConfigKey Key { get; internal set; }
-        public string Description { get; set; }
 
 
         public bool TryValidate( string value ) {

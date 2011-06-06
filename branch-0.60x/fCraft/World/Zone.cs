@@ -5,21 +5,41 @@ namespace fCraft {
 
     public sealed class Zone : IClassy {
 
+        /// <summary> Zone boundaries. </summary>
         public BoundingBox Bounds { get; private set; }
+
+        /// <summary> Zone build permission controller. </summary>
         public readonly SecurityController Controller = new SecurityController();
 
-        public string Name;
+        /// <summary> Zone name (case-preserving but case-insensitive). </summary>
+        public string Name { get; set; }
 
-        public SecurityController.PlayerListCollection GetPlayerList() {
-            return Controller.ExceptionList;
+        /// <summary> List of exceptions (included and excluded players). </summary>
+        public PlayerExceptionCollection ExceptionList {
+            get {
+                return Controller.ExceptionList;
+            }
         }
 
+        /// <summary> Zone creation date, UTC. </summary>
         public DateTime CreatedDate { get; private set; }
+
+        /// <summary> Zone editing date, UTC. </summary>
         public DateTime EditedDate { get; private set; }
+
+        /// <summary> Player who created this zone. May be null if unknown. </summary>
         public PlayerInfo CreatedBy { get; private set; }
+
+        /// <summary> Player who was the last to edit this zone. May be null if unknown. </summary>
         public PlayerInfo EditedBy { get; private set; }
 
+        /// <summary> Map that this zone is on. </summary>
+        public Map Map { get; set; }
 
+
+        /// <summary> Creates the zone boundaries, and sets CreatedDate/CreatedBy. </summary>
+        /// <param name="bounds"> New zone boundaries. </param>
+        /// <param name="createdBy"> Player who created this zone. May not be null. </param>
         public void Create( BoundingBox bounds, PlayerInfo createdBy ) {
             if( bounds == null ) throw new ArgumentNullException( "bounds" );
             if( createdBy == null ) throw new ArgumentNullException( "createdBy" );
@@ -27,6 +47,7 @@ namespace fCraft {
             Bounds = bounds;
             CreatedBy = createdBy;
         }
+
 
         public void Edit( PlayerInfo editedBy ) {
             if( editedBy == null ) throw new ArgumentNullException( "editedBy" );
@@ -87,31 +108,6 @@ namespace fCraft {
                 EditedBy = PlayerDB.FindPlayerInfoExact( xheader[2] );
                 if( EditedBy != null ) EditedDate = DateTime.Parse( xheader[3] );
             }
-        }
-
-
-        public string SerializeFCMv2() {
-            string xheader;
-            if( CreatedBy != null ) {
-                xheader = CreatedBy.Name + " " + CreatedDate.ToCompactString() + " ";
-            } else {
-                xheader = "- - ";
-            }
-
-            if( EditedBy != null ) {
-                xheader += EditedBy.Name + " " + EditedDate.ToCompactString();
-            } else {
-                xheader += "- -";
-            }
-
-            SecurityController.PlayerListCollection list = Controller.ExceptionList;
-
-            return String.Format( "{0},{1},{2},{3}",
-                                  String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
-                                                 Name, Bounds.XMin, Bounds.YMin, Bounds.HMin, Bounds.XMax, Bounds.YMax, Bounds.HMax, Controller.MinRank.GetFullName() ),
-                                  list.Included.JoinToString( " ", p => p.Name ),
-                                  list.Excluded.JoinToString( " ", p => p.Name ),
-                                  xheader );
         }
 
 

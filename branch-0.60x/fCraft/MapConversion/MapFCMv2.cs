@@ -131,5 +131,7 @@ namespace fCraft.MapConversion {
             byte[] stringData = reader.ReadBytes( length );
             return Encoding.ASCII.GetString( stringData );
         }
+
+
     }
 }

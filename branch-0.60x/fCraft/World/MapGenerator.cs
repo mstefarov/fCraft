@@ -280,47 +280,6 @@ namespace fCraft {
                 slopemap = Noise.CalculateSlope( heightmap );
             }
 
-            int level;
-            float slope;
-
-            /* draw heightmap visually (DEBUG)
-
-            
-            float underWaterMultiplier = 0;
-            if( desiredWaterLevel != 0 ) {
-                underWaterMultiplier = (float)(args.maxDepth / desiredWaterLevel);
-            }
-            
-            for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    if( heightmap[x, y] < desiredWaterLevel ) {
-                        slope = slopemap[x, y] * args.maxDepth;
-                        level = args.waterLevel - (int)Math.Round( (desiredWaterLevel - heightmap[x, y]) * underWaterMultiplier );
-                    } else {
-                        slope = slopemap[x, y] * args.maxHeight;
-                        level = args.waterLevel + (int)Math.Round( (heightmap[x, y] - desiredWaterLevel) * aboveWaterMultiplier );
-                    }
-                    Block block;
-                    if( slope < .12 ) {
-                        block = Block.Green;
-                    } else if( slope < .24 ) {
-                        block = Block.Lime;
-                    } else if( slope < .36 ) {
-                        block = Block.Yellow;
-                    } else if( slope < .48 ) {
-                        block = Block.Orange;
-                    } else if( slope < .6 ) {
-                        block = Block.Red;
-                    } else {
-                        block = Block.Black;
-                    }
-                    for( int i = level; i >= 0; i-- ) {
-                        map.SetBlock( x, y, i, block );
-                    }
-                }
-            }*/
-
-
             float[,] altmap = null;
             if( args.MaxHeightVariation != 0 || args.MaxDepthVariation != 0 ) {
                 ReportProgress( 5, "Heightmap Processing: Randomizing" );
@@ -336,7 +295,8 @@ namespace fCraft {
             ReportProgress( 10, "Filling" );
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
-
+                    int level;
+                    float slope;
                     if( heightmap[x, y] < desiredWaterLevel ) {
                         float depth = args.MaxDepth;
                         if( altmap != null ) {
@@ -697,20 +657,20 @@ namespace fCraft {
             const double odds = 0.618;
 
             Random rn = new Random();
-            int nx, ny, nz, nh;
 
             map.CalculateShadows();
 
             for( int x = 0; x < map.WidthX; x += rn.Next( minTrunkPadding, maxTrunkPadding + 1 ) ) {
                 for( int y = 0; y < map.WidthY; y += rn.Next( minTrunkPadding, maxTrunkPadding + 1 ) ) {
-                    nx = x + rn.Next( -(minTrunkPadding / 2), (maxTrunkPadding / 2) + 1 );
-                    ny = y + rn.Next( -(minTrunkPadding / 2), (maxTrunkPadding / 2) + 1 );
+                    int nx = x + rn.Next( -(minTrunkPadding / 2), (maxTrunkPadding / 2) + 1 );
+                    int ny = y + rn.Next( -(minTrunkPadding / 2), (maxTrunkPadding / 2) + 1 );
                     if( nx < 0 || nx >= map.WidthX || ny < 0 || ny >= map.WidthY ) continue;
-                    nz = map.Shadows[nx, ny];
+                    int nz = map.Shadows[nx, ny];
 
                     if( (map.GetBlock( nx, ny, nz ) == bGroundSurface) && slopemap[nx, ny] < .5 ) {
                         // Pick a random height for the tree between Min and Max,
                         // discarding this tree if it would breach the top of the map
+                        int nh;
                         if( (nh = rn.Next( minHeight, maxHeight + 1 )) + nz + nh / 2 > map.Height )
                             continue;
 

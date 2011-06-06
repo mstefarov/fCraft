@@ -2,8 +2,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace fCraft {
     /// <summary> A string metadata entry. </summary>
@@ -38,7 +36,7 @@ namespace fCraft {
 
 
     /// <summary> A collection of string metadata entries. </summary>
-    public class MetadataCollection : ICollection<MetadataEntry>, ICollection, ICloneable {
+    public sealed class MetadataCollection : ICollection<MetadataEntry>, ICollection, ICloneable {
 
         readonly Dictionary<string, Dictionary<string, string>> store = new Dictionary<string, Dictionary<string, string>>();
 
@@ -305,7 +303,7 @@ namespace fCraft {
         }
 
 
-        object syncRoot = new object();
+        readonly object syncRoot = new object();
         public object SyncRoot {
             get { return syncRoot; }
         }
