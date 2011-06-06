@@ -117,7 +117,6 @@ namespace fCraft {
         #endregion
 
 
-
         #region Ignore / Unignore
 
         static readonly CommandDescriptor cdIgnore = new CommandDescriptor {

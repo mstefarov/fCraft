@@ -15,7 +15,7 @@ namespace fCraft {
         public string Name { get; set; }
 
         /// <summary> List of exceptions (included and excluded players). </summary>
-        public PlayerExceptionCollection ExceptionList {
+        public PlayerExceptions ExceptionList {
             get {
                 return Controller.ExceptionList;
             }
@@ -97,8 +97,6 @@ namespace fCraft {
                 if( info == null ) continue; // player name not found in the DB (discarded)
                 Controller.Exclude( info );
             }
-
-            Controller.UpdatePlayerListCache();
 
             // Part 4: extended header
             if( parts.Length > 3 ) {

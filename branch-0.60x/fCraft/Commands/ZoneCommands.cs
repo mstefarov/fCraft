@@ -431,7 +431,7 @@ namespace fCraft {
                 DateTime.UtcNow.Subtract( zone.EditedDate ).Hours );
             }
 
-            PlayerExceptionCollection zoneExceptions = zone.ExceptionList;
+            PlayerExceptions zoneExceptions = zone.ExceptionList;
 
             if( zoneExceptions.Included.Length > 0 ) {
                 player.Message( "  Zone whitelist includes: {0}",

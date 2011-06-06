@@ -143,10 +143,10 @@ namespace ConfigTool {
         string accessRankString;
         public string AccessPermission {
             get {
-                if( accessSecurity.NoRankRestriction ) {
-                    return DefaultRankOption;
-                } else {
+                if( accessSecurity.HasRankRestriction ) {
                     return accessSecurity.MinRank.ToComboBoxOption();
+                } else {
+                    return DefaultRankOption;
                 }
             }
             set {
@@ -167,10 +167,10 @@ namespace ConfigTool {
         string buildRankString;
         public string BuildPermission {
             get {
-                if( buildSecurity.NoRankRestriction ) {
-                    return DefaultRankOption;
-                } else {
+                if( buildSecurity.HasRankRestriction ) {
                     return buildSecurity.MinRank.ToComboBoxOption();
+                } else {
+                    return DefaultRankOption;
                 }
             }
             set {
