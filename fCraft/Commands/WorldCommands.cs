@@ -85,8 +85,8 @@ namespace fCraft {
             }
 
             // Print access/build limits
-            world.AccessSecurity.PrintDescription( player, world, "world", "accessed" );
-            world.BuildSecurity.PrintDescription( player, world, "world", "modified" );
+            player.Message( world.AccessSecurity.GetDescription( world, "world", "accessed" ) );
+            player.Message( world.BuildSecurity.GetDescription( world, "world", "modified" ) );
 
             // Print lock/unlock information
             if( world.IsLocked ) {
@@ -338,7 +338,7 @@ namespace fCraft {
                 }
 
             } else {
-                if( world.AccessSecurity.HasRestrictions() ) {
+                if( world.AccessSecurity.HasRestrictions ) {
                     world.AccessSecurity.Reset();
                     player.Message( "The main world cannot have access restrictions. " +
                                     "All access restrictions were removed from world {0}",
@@ -380,7 +380,7 @@ namespace fCraft {
                 if( player == Player.Console ) {
                     player.Message( "When calling /waccess from console, you must specify a world name." );
                 } else {
-                    player.World.AccessSecurity.PrintDescription( player, player.World, "world", "accessed" );
+                    player.Message( player.World.AccessSecurity.GetDescription( player.World, "world", "accessed" ) );
                 }
                 return;
             }
@@ -392,7 +392,7 @@ namespace fCraft {
 
             string name = cmd.Next();
             if( name == null ) {
-                world.AccessSecurity.PrintDescription( player, world, "world", "accessed" );
+                player.Message( world.AccessSecurity.GetDescription( world, "world", "accessed" ) );
                 return;
             }
             if( world == WorldManager.MainWorld ) {
@@ -618,7 +618,7 @@ namespace fCraft {
                 if( player == Player.Console ) {
                     player.Message( "When calling /wbuild from console, you must specify a world name." );
                 } else {
-                    player.World.BuildSecurity.PrintDescription( player, player.World, "world", "modified" );
+                    player.Message( player.World.BuildSecurity.GetDescription( player.World, "world", "modified" ) );
                 }
                 return;
             }
@@ -630,7 +630,7 @@ namespace fCraft {
 
             string name = cmd.Next();
             if( name == null ) {
-                world.BuildSecurity.PrintDescription( player, world, "world", "modified" );
+                player.Message( world.BuildSecurity.GetDescription( world, "world", "modified" ) );
                 return;
             }
 

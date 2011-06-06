@@ -62,7 +62,7 @@ namespace fCraft {
             if( MainWorld == null ) {
                 throw new Exception( "Could not create any worlds" );
             } else {
-                if( MainWorld.AccessSecurity.HasRestrictions() ) {
+                if( MainWorld.AccessSecurity.HasRestrictions ) {
                     Logger.Log( "Server.LoadWorldList: Main world cannot have any access restrictions. " +
                                 "Access permission for \"{0}\" has been reset.", LogType.Warning,
                                  MainWorld.Name );
