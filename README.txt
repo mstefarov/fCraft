@@ -10,26 +10,31 @@ Installation instructions:
 https://sourceforge.net/apps/mediawiki/fcraft/index.php?title=Installation
 
 Before starting the server, run ConfigTool.exe to choose your settings.
-To start a server, run any one of the front ends (fCraftConsole or fCraftUI
-are recommended).
+To start a server, run any ONE of the front ends (fCraftConsole or fCraftUI).
 
 
 == List of Files ==
 
     AutoLauncher.exe - EXPERIMENTAL. Automatically launches fCraftConsole, and
-                       restarts it if process dies. Not compatible with the
-                       /restart command.
+                       restarts it if process dies.
 
       ConfigTool.exe - GUI for editing fCraft's configuration, ranks, and world
                        list. Also includes a map coverter and terrain generator.
+                       If you any configuration while the server is running,
+                       use /reloadconfig command. Note however that the world
+                       list cannot be edited while the server is running
+                       (it will get overwritten).
 
           fCraft.dll - Core of the server, used by all other programs.
 
-   fCraftConsole.exe - Text-only/terminal frontend for fCraft.
+   fCraftConsole.exe - Command-line interface for fCraft.
 
-        fCraftUI.exe - GUI (WinForms) frontend for fCraft.
+        fCraftUI.exe - Graphical interface for fCraft.
 
 fCraftWinService.exe - EXPERIMENTAL. Windows service frontend for fCraft.
+                       After installing the service, it can be configured
+                       to start automatically, and can be controlled
+                       via "Services" Windows management console.
                        Usage (from command line): fCraftWinService.exe <action>
                        Where <action> can be:
                              install    to add to list of services
@@ -40,10 +45,13 @@ fCraftWinService.exe - EXPERIMENTAL. Windows service frontend for fCraft.
 
 == Help & Support ==
 
-Type "/help" in game or console to get started. Type "/help commands" for a
+Type "/help" in game or console to get started. Type "/commands" for a
 list of commands.
+
+See www.fcraft.net for news and more documentation.
 
 For quick help/support, join #fCraft channel on Esper.net IRC:
 irc://irc.esper.net:5555/fCraft
 
 If you like fCraft, support its developer by donating! http://donate.fcraft.net
+
