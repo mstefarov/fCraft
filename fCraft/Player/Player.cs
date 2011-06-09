@@ -898,6 +898,7 @@ namespace fCraft {
             return (Interlocked.Exchange( ref Session.SpectatedPlayer, target ) == null);
         }
 
+
         public bool StopSpectating() {
             Player wasSpectating = Interlocked.Exchange( ref Session.SpectatedPlayer, null );
             if( wasSpectating != null ) {
