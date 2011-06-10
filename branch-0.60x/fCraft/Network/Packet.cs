@@ -6,6 +6,10 @@ namespace fCraft {
     public struct Packet {
         public readonly byte[] Data;
 
+        public Packet( byte[] data ) {
+            Data = data;
+        }
+
         public Packet( OpCode opcode ) {
             Data = new byte[PacketSizes[(int)opcode]];
             Data[0] = (byte)opcode;
@@ -14,6 +18,7 @@ namespace fCraft {
         public OpCode OpCode {
             get { return (OpCode)Data[0]; }
         }
+
 
         static readonly int[] PacketSizes = {
             131,    // Handshake
