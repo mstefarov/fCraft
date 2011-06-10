@@ -55,8 +55,8 @@ namespace fCraft {
 
         public static void LogToConsole( string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
-            if( message.Contains( "&N" ) ) {
-                foreach( string line in message.Split( PacketWriter.NewlineSplitter, StringSplitOptions.RemoveEmptyEntries ) ) {
+            if( message.Contains( '\n' ) ) {
+                foreach( string line in message.Split( '\n' ) ) {
                     LogToConsole( line );
                 }
                 return;

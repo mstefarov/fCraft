@@ -713,7 +713,7 @@ namespace fCraft {
                     return;
                 }
                 StringBuilder sb = new StringBuilder( Color.Help );
-                sb.Append( descriptor.Usage ).Append( "&N" );
+                sb.Append( descriptor.Usage ).Append( '\n' );
 
                 if( descriptor.Aliases != null ) {
                     sb.Append( "Aliases: &H" );
@@ -795,9 +795,9 @@ namespace fCraft {
                 return;
             }
 
-            string[] commandNames = cd.Select( desc => desc.Name ).ToArray();
+            string commandNames = cd.JoinToString( ", ", desc => desc.Name );
 
-            player.MessagePrefixed( "&S   ", "&S   " + String.Join( ", ", commandNames ) );
+            player.MessagePrefixed( "&S   ", "&S   " + commandNames );
         }
     }
 }

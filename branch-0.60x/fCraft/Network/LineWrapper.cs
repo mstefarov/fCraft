@@ -6,6 +6,12 @@ using System.Text;
 namespace fCraft {
     unsafe class LineWrapper : IEnumerable<Packet>, IEnumerator<Packet> {
 
+        public const string DefaultPrefixString = "> ";
+        static readonly byte[] DefaultPrefix;
+        static LineWrapper() {
+            DefaultPrefix = Encoding.ASCII.GetBytes( DefaultPrefixString );
+        }
+
         const int LineSize = 64;
         const int PacketSize = 66; // opcode + id + 64
         const byte NoColor = (byte)'f';
@@ -24,17 +30,31 @@ namespace fCraft {
         int InputIndex;
 
         byte[] Output;
+        int OutputStart;
         int OutputIndex;
 
-        public LineWrapper( string rawString ) {
-            Input = Encoding.ASCII.GetBytes( rawString );
+        byte[] Prefix;
+
+
+        LineWrapper( string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            Input = Encoding.ASCII.GetBytes( message );
+            Prefix = DefaultPrefix;
+            Reset();
+        }
+
+
+        LineWrapper( string prefix, string message ) {
+            if( prefix == null ) throw new ArgumentNullException( "prefix" );
+            Prefix = Encoding.ASCII.GetBytes( prefix );
+            if( message == null ) throw new ArgumentNullException( "message" );
+            Input = Encoding.ASCII.GetBytes( message );
             Reset();
         }
 
 
         public void Reset() {
             Color = NoColor;
-            SpaceCount = 0;
             WordLength = 0;
             InputIndex = 0;
         }
@@ -45,15 +65,25 @@ namespace fCraft {
                 return false;
             }
 
-            SpaceCount = 0;
-            LastColor = NoColor;
             Output = new byte[PacketSize];
             Output[0] = (byte)OpCode.Message;
-            OutputIndex = 2;
+
+            if( InputIndex > 0 && Prefix.Length > 0 ) {
+                OutputStart = 2 + Prefix.Length;
+                // TODO: safe insertion using Append()
+                Buffer.BlockCopy( Prefix, 0, Output, 2, Prefix.Length );
+            } else {
+                OutputStart = 2;
+            }
+
+            OutputIndex = OutputStart;
+
+            SpaceCount = 0;
+            LastColor = NoColor;
             Current = new Packet( Output );
 
             int wrapIndex = 0,
-                wrapOutputIndex = 0;
+                wrapOutputIndex = OutputStart;
             byte wrapColor = NoColor;
             bool expectingColor = false;
 
@@ -105,6 +135,11 @@ namespace fCraft {
                         wrapOutputIndex = OutputIndex;
                         wrapColor = Color;
                         break;
+
+                    case (byte)'\n':
+                        InputIndex++;
+                        PrepareOutput();
+                        return true;
 
                     default:
                         if( expectingColor ) {
@@ -164,7 +199,7 @@ namespace fCraft {
                 LastColor = Color;
             }
 
-            if( SpaceCount > 0 && OutputIndex > 2 ) {
+            if( SpaceCount > 0 && OutputIndex > OutputStart ) {
                 // append spaces that accumulated since last word
                 while( SpaceCount > 0 ) {
                     Output[OutputIndex++] = (byte)' ';
@@ -244,11 +279,6 @@ namespace fCraft {
         public void Dispose() { }
 
 
-        public static LineWrapper Wrap( string message ) {
-            return new LineWrapper( message );
-        }
-
-
         #region IEnumerable<Packet> Members
 
         public IEnumerator<Packet> GetEnumerator() {
@@ -260,5 +290,13 @@ namespace fCraft {
         }
 
         #endregion
+
+        public static LineWrapper Wrap( string message ) {
+            return new LineWrapper( message );
+        }
+
+        public static LineWrapper Wrap( string prefix, string message ) {
+            return new LineWrapper( prefix, message );
+        }
     }
 }

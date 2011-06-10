@@ -253,11 +253,11 @@ namespace fCraft {
             Category = CommandCategory.Chat,
             Permissions = new[] { Permission.Chat },
             IsConsoleSafe = true,
-            Help = "Gives random number between 1 and 100.&N" +
-                   "&H/roll MaxNumber&N" +
-                   "Gives number between 1 and max.&N" +
-                   "&H/roll MinNumber MaxNumber&N" +
-                   "Gives number between min and max.",
+            Help = "Gives random number between 1 and 100.\n" +
+                   "&H/roll MaxNumber\n" +
+                   "&S  Gives number between 1 and max.\n" +
+                   "&H/roll MinNumber MaxNumber\n" +
+                   "&S  Gives number between min and max.",
             Handler = Roll
         };
 
