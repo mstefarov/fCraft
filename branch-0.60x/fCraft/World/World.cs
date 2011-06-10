@@ -221,7 +221,7 @@ namespace fCraft {
 
                 if( announce && ConfigKey.ShowJoinedWorldMessages.GetBool() ) {
                     string message = String.Format( "&SPlayer {0}&S joined {1}", player.GetClassyName(), GetClassyName() );
-                    foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
+                    foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message ) ) {
                         Server.SendToSeeing( packet, player );
                     }
                 }
@@ -393,7 +393,7 @@ namespace fCraft {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
             if( args.Length > 0 ) message = String.Format( message, args );
-            foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message, false ) ) {
+            foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message ) ) {
                 SendToAll( p, null );
             }
         }
@@ -402,7 +402,7 @@ namespace fCraft {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
             if( args.Length > 0 ) message = String.Format( message, args );
-            foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message, false ) ) {
+            foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message ) ) {
                 SendToAll( p, except );
             }
         }
