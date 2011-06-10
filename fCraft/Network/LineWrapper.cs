@@ -1,9 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
 namespace fCraft {
-    unsafe class LineWrapper : IEnumerator<Packet> {
+    unsafe class LineWrapper : IEnumerable<Packet>, IEnumerator<Packet> {
 
         const int LineSize = 64;
         const int PacketSize = 66; // opcode + id + 64
@@ -25,10 +26,8 @@ namespace fCraft {
         byte[] Output;
         int OutputIndex;
 
-
         public LineWrapper( string rawString ) {
             Input = Encoding.ASCII.GetBytes( rawString );
-            Output = new byte[LineSize];
             Reset();
         }
 
@@ -42,6 +41,10 @@ namespace fCraft {
 
 
         public bool MoveNext() {
+            if( InputIndex >= Input.Length ) {
+                return false;
+            }
+
             SpaceCount = 0;
             LastColor = NoColor;
             Output = new byte[PacketSize];
@@ -73,13 +76,12 @@ namespace fCraft {
                             // append "&&"
                             expectingColor = false;
                             if( !Append( ch ) ) {
-                                if( WordLength >= LineSize - 1 ) {
-                                    // force wrap long words
-                                    return true;
-                                }
-                                InputIndex = wrapIndex;
-                                OutputIndex = wrapOutputIndex;
-                                Color = wrapColor;
+                                if( WordLength < LineSize - 1 ) {
+                                    InputIndex = wrapIndex;
+                                    OutputIndex = wrapOutputIndex;
+                                    Color = wrapColor;
+                                }// else word is too long, dont backtrack to wrap
+                                PrepareOutput();
                                 return true;
                             }
                             SpaceCount = 0;
@@ -94,6 +96,7 @@ namespace fCraft {
                             InputIndex = wrapIndex;
                             OutputIndex = wrapOutputIndex;
                             Color = wrapColor;
+                            PrepareOutput();
                             return true;
                         }
                         SpaceCount = 0;
@@ -119,13 +122,12 @@ namespace fCraft {
                                 ch = (byte)'?';
                             }
                             if( !Append( ch ) ) {
-                                if( WordLength >= LineSize ) {
-                                    // force wrap long words
-                                    return true;
-                                }
-                                InputIndex = wrapIndex;
-                                OutputIndex = wrapOutputIndex;
-                                Color = wrapColor;
+                                if( WordLength < LineSize ) {
+                                    InputIndex = wrapIndex;
+                                    OutputIndex = wrapOutputIndex;
+                                    Color = wrapColor;
+                                }// else word is too long, dont backtrack to wrap
+                                PrepareOutput();
                                 return true;
                             }
                         }
@@ -133,7 +135,15 @@ namespace fCraft {
                 }
                 InputIndex++;
             }
-            return false;
+            PrepareOutput();
+            return true;
+        }
+
+
+        void PrepareOutput() {
+            for( int i = OutputIndex; i < PacketSize; i++ ) {
+                Output[i] = (byte)' ';
+            }
         }
 
 
@@ -142,7 +152,7 @@ namespace fCraft {
             int bytesToInsert = 1 + SpaceCount;
             if( ch == (byte)'&' ) bytesToInsert++;
             if( LastColor != Color ) bytesToInsert += 2;
-            if( OutputIndex + bytesToInsert > Output.Length ) {
+            if( OutputIndex + bytesToInsert > PacketSize ) {
                 return false;
             }
             WordLength += bytesToInsert;
@@ -154,7 +164,7 @@ namespace fCraft {
                 LastColor = Color;
             }
 
-            if( SpaceCount > 0 && OutputIndex > 0 ) {
+            if( SpaceCount > 0 && OutputIndex > 2 ) {
                 // append spaces that accumulated since last word
                 while( SpaceCount > 0 ) {
                     Output[OutputIndex++] = (byte)' ';
@@ -232,5 +242,23 @@ namespace fCraft {
 
 
         public void Dispose() { }
+
+
+        public static LineWrapper Wrap( string message ) {
+            return new LineWrapper( message );
+        }
+
+
+        #region IEnumerable<Packet> Members
+
+        public IEnumerator<Packet> GetEnumerator() {
+            return this;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return this;
+        }
+
+        #endregion
     }
 }

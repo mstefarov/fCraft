@@ -234,6 +234,11 @@ namespace fCraft {
 
         internal static readonly string[] NewlineSplitter = new[] { "&N" };
 
+        internal static LineWrapper MakeWrappedMessage( string prefix, string text ) {
+            return new LineWrapper( text );
+        }
+#if DERP
+
         internal static IEnumerable<Packet> MakeWrappedMessage( string prefix, string text, bool appendPrefixToFirstLine ) {
             if( appendPrefixToFirstLine ) text = prefix + text;
 
@@ -346,5 +351,7 @@ namespace fCraft {
         static bool IsColorCode( char c ) {
             return (c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F');
         }
+        
+        #endif
     }
 }
