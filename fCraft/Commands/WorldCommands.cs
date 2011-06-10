@@ -1286,9 +1286,9 @@ namespace fCraft {
             Usage = "/gen ThemeName TemplateName [X Y Height [FileName]]",
             HelpHandler = delegate {
                 return "Generates a new map. If no dimensions are given, uses current world's dimensions. " +
-                       "If no filename is given, loads generated world into current world.&N" +
-                       "Available themes: Grass, " + String.Join( ", ", Enum.GetNames( typeof( MapGenTheme ) ) ) + "&N" +
-                       "Available terrain types: " + String.Join( ", ", Enum.GetNames( typeof( MapGenTemplate ) ) ) + "&N" +
+                       "If no filename is given, loads generated world into current world.\n" +
+                       "Available themes: Grass, " + String.Join( ", ", Enum.GetNames( typeof( MapGenTheme ) ) ) + '\n' +
+                       "Available terrain types: " + String.Join( ", ", Enum.GetNames( typeof( MapGenTemplate ) ) ) + '\n' +
                        "NOTE: Map is saved TO FILE ONLY, use /wload to load it.";
             },
             Handler = Generate

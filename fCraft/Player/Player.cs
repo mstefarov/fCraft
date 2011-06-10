@@ -342,7 +342,7 @@ namespace fCraft {
             if( this == Console ) {
                 Logger.LogToConsole( message );
             } else {
-                foreach( Packet p in PacketWriter.MakeWrappedMessage( prefix, Color.Sys + message ) ) {
+                foreach( Packet p in LineWrapper.Wrap( prefix, Color.Sys + message ) ) {
                     Session.Send( p );
                 }
             }
@@ -358,7 +358,7 @@ namespace fCraft {
             if( Session == null ) {
                 Logger.LogToConsole( message );
             } else {
-                foreach( Packet p in PacketWriter.MakeWrappedMessage( ">", Color.Sys + message ) ) {
+                foreach( Packet p in LineWrapper.Wrap( Color.Sys + message ) ) {
                     Session.Send( p );
                 }
             }

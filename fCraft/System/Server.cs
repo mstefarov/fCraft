@@ -580,7 +580,7 @@ namespace fCraft {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( formatArgs.Length > 0 ) message = String.Format( message, formatArgs );
             //if( except != Player.Console ) Logger.LogConsole( message );
-            foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message ) ) {
+            foreach( Packet p in LineWrapper.Wrap( message ) ) {
                 SendToAll( p, except );
             }
         }
@@ -591,7 +591,7 @@ namespace fCraft {
             if( formatArgs.Length > 0 ) {
                 message = String.Format( message, formatArgs );
             }
-            foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message ) ) {
+            foreach( Packet p in LineWrapper.Wrap( message ) ) {
                 foreach( Player player in PlayerList.Where( pl => pl.Can( permission ) ) ) {
                     if( player != except ) {
                         player.Send( p );
@@ -606,7 +606,7 @@ namespace fCraft {
             if( formatArgs.Length > 0 ) {
                 message = String.Format( message, formatArgs );
             }
-            foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message ) ) {
+            foreach( Packet p in LineWrapper.Wrap( message ) ) {
                 foreach( Player player in PlayerList.Where( pl => !pl.Can( permission ) ) ) {
                     if( player != except ) {
                         player.Send( p );
@@ -620,7 +620,7 @@ namespace fCraft {
             if( origin == null ) throw new ArgumentNullException( "origin" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( formatArgs.Length > 0 ) message = String.Format( message, formatArgs );
-            foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message ) ) {
+            foreach( Packet p in LineWrapper.Wrap( message ) ) {
                 Player[] tempList = PlayerList;
                 for( int i = 0; i < tempList.Length; i++ ) {
                     if( tempList[i] != except && !tempList[i].IsIgnoring( origin.Info ) ) {
@@ -647,7 +647,7 @@ namespace fCraft {
         public static void SendToSeeing( string message, Player source ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( source == null ) throw new ArgumentNullException( "source" );
-            foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message ) ) {
+            foreach( Packet packet in LineWrapper.Wrap( message ) ) {
                 SendToSeeing( packet, source );
             }
         }
@@ -669,7 +669,7 @@ namespace fCraft {
         public static void SendToBlind( string message, Player source ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( source == null ) throw new ArgumentNullException( "source" );
-            foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message ) ) {
+            foreach( Packet packet in LineWrapper.Wrap( message ) ) {
                 SendToBlind( packet, source );
             }
         }
@@ -692,7 +692,7 @@ namespace fCraft {
             if( origin == null ) throw new ArgumentNullException( "origin" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( rank == null ) throw new ArgumentNullException( "rank" );
-            foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message ) ) {
+            foreach( Packet packet in LineWrapper.Wrap( message ) ) {
                 Player[] tempList = PlayerList;
                 for( int i = 0; i < tempList.Length; i++ ) {
                     if( tempList[i].Info.Rank == rank && !tempList[i].IsIgnoring( origin.Info ) ) {
