@@ -22,16 +22,14 @@ namespace fCraft {
         public const int FormatVersion = 1;
 
         const string Header = "fCraft PlayerDB | Row format: " +
-                              "playerName,lastIP,rank,rankChangeDate,rankChangeBy," +
-                              "banStatus,banDate,bannedBy,unbanDate,unbannedBy," +
-                              "firstLoginDate,lastLoginDate,lastFailedLoginDate," +
-                              "lastFailedLoginIP,failedLoginCount,totalTimeOnServer," +
-                              "blocksBuilt,blocksDeleted,timesVisited," +
-                              "linesWritten,UNUSED,UNUSED,previousRank,rankChangeReason," +
-                              "timesKicked,timesKickedOthers,timesBannedOthers,UID,rankChangeType," +
-                              "lastKickDate,LastSeen,BlocksDrawn,lastKickBy,lastKickReason," +
-                              "bannedUntil,loggedOutFrozen,frozenBy," +
-                              "mutedUntil,mutedBy,IRCPassword,online,leaveReason";
+                              "Name,IPAddress,Rank,RankChangeDate,RankChangedBy,Banned,BanDate,BannedBy,"+
+                              "UnbanDate,UnbannedBy,BanReason,UnbanReason,LastFailedLoginDate,"+
+                              "LastFailedLoginIP,FailedLoginCount,FirstLoginDate,LastLoginDate,TotalTime,"+
+                              "BlocksBuilt,BlocksDeleted,TimesVisited,LinesWritten,UNUSED,UNUSED,"+
+                              "PreviousRank,RankChangeReason,TimesKicked,TimesKickedOthers,"+
+                              "TimesBannedOthers,ID,RankChangeType,LastKickDate,LastSeen,BlocksDrawn,"+
+                              "LastKickBy,LastKickReason,IsFrozen,FrozenBy,FrozenOn, MutedUntil,MutedBy,"+
+                              "Password,Online,BandwidthUseMode";
 
 
         static readonly object AddLocker = new object(),

@@ -1266,7 +1266,7 @@
 
 
 0.305
- removed config.xml from svn.
+ Removed config.xml from svn.
 
 
 0.304
