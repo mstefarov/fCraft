@@ -55,14 +55,14 @@ namespace fCraft {
             }
 
             if( player.Can( Permission.Say ) ) {
-                string msg = cmd.NextAll();
+                string msg = cmd.NextAll().Trim();
                 if( player.Can( Permission.UseColorCodes ) && msg.Contains( "%" ) ) {
                     msg = Color.ReplacePercentCodes( msg );
                 }
-                if( msg != null && msg.Trim().Length > 0 ) {
+                if( msg != null && msg.Length > 0 ) {
                     player.Info.LinesWritten++;
-                    Server.SendToAllExceptIgnored( player, "&Y{0}", null, msg.Trim() );
-                    IRC.SendAction( String.Format( "&Y{0}", msg.Trim() ) );
+                    Server.Players.NotIgnoring( player ).Message( "&Y{0}", msg );
+                    IRC.SendAction( String.Format( "&Y{0}", msg ) );
                 } else {
                     cdSay.PrintUsage( player );
                 }
@@ -96,7 +96,7 @@ namespace fCraft {
             }
 
 
-            Player[] plist = Server.PlayerList;
+            Player[] plist = Server.Players;
 
             if( plist.Length > 0 ) player.Info.LinesWritten++;
 
@@ -238,7 +238,7 @@ namespace fCraft {
                     msg = Color.ReplacePercentCodes( msg );
                 }
                 string message = String.Format( "{0}*{1} {2}", Color.Me, player.Name, msg );
-                Server.SendToAll( message );
+                Server.Message( message );
                 IRC.SendChannelMessage( message );
             }
         }
@@ -284,8 +284,8 @@ namespace fCraft {
                 }
             }
             int num = rand.Next( min, max + 1 );
-            Server.SendToAll( "{0}{1} rolled {2} ({3}...{4})",
-                              player.GetClassyName(), Color.Silver, num, min, max );
+            Server.Message( "{0}{1} rolled {2} ({3}...{4})",
+                            player.GetClassyName(), Color.Silver, num, min, max );
         }
 
         #endregion

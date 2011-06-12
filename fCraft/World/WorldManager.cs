@@ -450,7 +450,7 @@ namespace fCraft {
                     throw new WorldOpException( worldToDelete.Name, WorldOpExceptionCode.CannotDoThatToMainWorld );
                 }
 
-                Player[] worldPlayerList = worldToDelete.PlayerList;
+                Player[] worldPlayerList = worldToDelete.Players;
                 worldToDelete.SendToAll( "&SYou have been moved to the main world." );
                 foreach( Player player in worldPlayerList ) {
                     player.Session.JoinWorld( MainWorld );

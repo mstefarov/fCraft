@@ -256,12 +256,12 @@ namespace fCraft {
                             Logger.Log( "{0} was banned by {1}.", LogType.UserActivity,
                                         target.Info.Name, player.Name );
 
-                            Server.SendToAllExcept( "{0}&W was banned by {1}", target,
-                                                    target.GetClassyName(), player.GetClassyName() );
+                            Server.Message( target,
+                                            "{0}&W was banned by {1}",
+                                            target.GetClassyName(), player.GetClassyName() );
                             if( !string.IsNullOrEmpty( reason ) ) {
                                 if( ConfigKey.AnnounceKickAndBanReasons.GetBool() ) {
-                                    Server.SendToAllExcept( "&WBan reason: {0}", target,
-                                                            reason );
+                                    Server.Message( target, "&WBan reason: {0}", reason );
                                 }
                             }
                             DoKick( player, target, reason, true, false, LeaveReason.Ban );
@@ -298,10 +298,10 @@ namespace fCraft {
                                 Server.FirePlayerUnbannedEvent( targetInfo, player, reason );
                                 Logger.Log( "{0} (offline) was unbanned by {1}", LogType.UserActivity,
                                             targetInfo.Name, player.Name );
-                                Server.SendToAll( "{0}&W (offline) was unbanned by {1}",
+                                Server.Message( "{0}&W (offline) was unbanned by {1}",
                                                   targetInfo.GetClassyName(), player.GetClassyName() );
                                 if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !string.IsNullOrEmpty( reason ) ) {
-                                    Server.SendToAll( "&WUnban reason: {0}", reason );
+                                    Server.Message( "&WUnban reason: {0}", reason );
                                 }
                             } else {
                                 player.Message( "{0}&S (offline) is not currenty banned.", targetInfo.GetClassyName() );
@@ -311,10 +311,10 @@ namespace fCraft {
                                 Server.FirePlayerBannedEvent( targetInfo, player, reason );
                                 Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity,
                                             targetInfo.Name, player.Name );
-                                Server.SendToAll( "{0}&W (offline) was banned by {1}",
+                                Server.Message( "{0}&W (offline) was banned by {1}",
                                                   targetInfo.GetClassyName(), player.GetClassyName() );
                                 if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !string.IsNullOrEmpty( reason ) ) {
-                                    Server.SendToAll( "&WBan reason: {0}", reason );
+                                    Server.Message( "&WBan reason: {0}", reason );
                                 }
                             } else {
                                 player.Message( "{0}&S (offline) is already banned.", targetInfo.GetClassyName() );
@@ -346,11 +346,11 @@ namespace fCraft {
                     player.Message( "Player \"{0}\" (unrecognized) was banned.", nameOrIP );
                     Logger.Log( "{0} (unrecognized) was banned by {1}", LogType.UserActivity,
                                 targetInfo.Name, player.Name );
-                    Server.SendToAll( "{0}&W (unrecognized) was banned by {1}",
+                    Server.Message( "{0}&W (unrecognized) was banned by {1}",
                                       targetInfo.GetClassyName(), player.GetClassyName() );
 
                     if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !string.IsNullOrEmpty( reason ) ) {
-                        Server.SendToAll( "&WBan reason: {0}", reason );
+                        Server.Message( "&WBan reason: {0}", reason );
                     }
                 }
             } else {
@@ -383,19 +383,23 @@ namespace fCraft {
                         ipAssociatedName = banInfo.PlayerName;
                     }
 
+                    var can = Server.Players.Can( Permission.ViewPlayerIPs ).Except( player );
+                    var cant = Server.Players.Cant( Permission.ViewPlayerIPs ).Except( player );
                     if( !String.IsNullOrEmpty( ipAssociatedName ) ) {
-                        Server.SendToAllWhoCan( "&W{0} (associated with {1}) was unbanned by {2}", player, Permission.ViewPlayerIPs,
-                                                address, ipAssociatedName, player.GetClassyName() );
-                        Server.SendToAllWhoCant( "&WIP associated with {0} was unbanned by {1}", player, Permission.ViewPlayerIPs,
-                                                ipAssociatedName, player.GetClassyName() );
+                        can.Message( "&W{0} (associated with {1}) was unbanned by {2}",
+                                     address, ipAssociatedName, player.GetClassyName() );
+                        cant.Message( "&WIP associated with {0} was unbanned by {1}",
+                                      ipAssociatedName, player.GetClassyName() );
                     } else {
-                        Server.SendToAllWhoCan( "&W{0} was unbanned by {1}", player, Permission.ViewPlayerIPs,
-                                                address, player.GetClassyName() );
-                        Server.SendToAllWhoCant( "&WAn IP was unbanned by {0}", player, Permission.ViewPlayerIPs,
-                                                 player.GetClassyName() );
+                        can.Message( "&W{0} was unbanned by {1}",
+                                     address, player.GetClassyName() );
+                        can.Message( "&WAn IP was unbanned by {0}",
+                                     player.GetClassyName() );
                     }
                     if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !String.IsNullOrEmpty( reason ) ) {
-                        Server.SendToAllExcept( "&WUnban reason: {0}", player, reason );
+                        Server.Message( player,
+                                        "&WUnban reason: {0}",
+                                        player, reason );
                     }
                 } else {
                     if( player.Can( Permission.ViewPlayerIPs ) ) {
@@ -409,8 +413,9 @@ namespace fCraft {
                     foreach( PlayerInfo otherInfo in PlayerDB.FindPlayers( address ) ) {
                         if( otherInfo.ProcessUnban( player.Name, reason + "~UnBanAll" ) ) {
                             Server.FirePlayerUnbannedEvent( otherInfo, player, reason + "~UnBanAll" );
-                            Server.SendToAllExcept( "{0}&W was unbanned (UnbanAll) by {1}", player,
-                                                    otherInfo.GetClassyName(), player.GetClassyName() );
+                            Server.Message( player,
+                                            "{0}&W was unbanned (UnbanAll) by {1}",
+                                            otherInfo.GetClassyName(), player.GetClassyName() );
                             player.Message( "{0}&S matched IP and was also unbanned.", otherInfo.GetClassyName() );
                         }
                     }
@@ -424,20 +429,23 @@ namespace fCraft {
                     } else {
                         player.Message( "This IP was added to the ban list.", address );
                     }
+
+                    var can = Server.Players.Can( Permission.ViewPlayerIPs ).Except( player );
+                    var cant = Server.Players.Cant( Permission.ViewPlayerIPs ).Except( player );
                     if( !String.IsNullOrEmpty( targetName ) ) {
-                        Server.SendToAllWhoCan( "&W{0} (associated with {1}) was banned by {2}", player, Permission.ViewPlayerIPs,
-                                                address, targetName, player.GetClassyName() );
-                        Server.SendToAllWhoCant( "&WIP associated with {0} was banned by {1}", player, Permission.ViewPlayerIPs,
-                                                targetName, player.GetClassyName() );
+                        can.Message( "&W{0} (associated with {1}) was banned by {2}",
+                                     address, targetName, player.GetClassyName() );
+                        cant.Message( "&WIP associated with {0} was banned by {1}",
+                                      targetName, player.GetClassyName() );
                     } else {
-                        Server.SendToAllWhoCan( "&W{0} was banned by {1}", player, Permission.ViewPlayerIPs,
-                                                address, player.GetClassyName() );
-                        Server.SendToAllWhoCant( "&WAn IP was banned by {0}", player, Permission.ViewPlayerIPs,
-                                                 player.GetClassyName() );
+                        can.Message( "&W{0} was banned by {1}",
+                                     address, player.GetClassyName() );
+                        cant.Message( "&WAn IP was banned by {0}",
+                                      player.GetClassyName() );
                     }
 
                     if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !String.IsNullOrEmpty( reason ) ) {
-                        Server.SendToAllExcept( "&WBan reason: {0}", player, reason );
+                        Server.Message( player, "&WBan reason: {0}", reason );
                     }
 
                     foreach( Player other in Server.FindPlayers( address ) ) {
@@ -457,8 +465,9 @@ namespace fCraft {
                         if( otherInfo.ProcessBan( player, reason + "~BanAll" ) ) {
                             Server.FirePlayerBannedEvent( otherInfo, player, reason + "~BanAll" );
                             player.Message( "{0}&S matched IP and was also banned.", otherInfo.GetClassyName() );
-                            Server.SendToAllExcept( "{0}&W was banned (BanAll) by {1}", player,
-                                                    otherInfo.GetClassyName(), player.GetClassyName() );
+                            Server.Message( player,
+                                            "{0}&W was banned (BanAll) by {1}",
+                                            otherInfo.GetClassyName(), player.GetClassyName() );
                         }
                     }
 
@@ -553,7 +562,7 @@ namespace fCraft {
                 if( e.Cancel ) return false;
 
                 if( !e.IsSilent ) {
-                    Server.SendToAll( "{0}&W was kicked by {1}",
+                    Server.Message( "{0}&W was kicked by {1}",
                                       target.GetClassyName(), player.GetClassyName() );
                 }
 
@@ -564,7 +573,7 @@ namespace fCraft {
                 Server.RaisePlayerKickedEvent( e );
                 if( !string.IsNullOrEmpty( reason ) ) {
                     if( !e.IsSilent && ConfigKey.AnnounceKickAndBanReasons.GetBool() ) {
-                        Server.SendToAll( "&WKick reason: {0}", reason );
+                        Server.Message( "&WKick reason: {0}", reason );
                     }
                     Logger.Log( "{0} was kicked by {1}. Reason: {2}", LogType.UserActivity,
                                 target.Name, player.Name, reason );
@@ -724,7 +733,7 @@ namespace fCraft {
 
                     HashSet<Player> invisiblePlayers = new HashSet<Player>();
 
-                    Player[] worldPlayerList = target.World.PlayerList;
+                    Player[] worldPlayerList = target.World.Players;
                     for( int i = 0; i < worldPlayerList.Length; i++ ) {
                         if( !target.CanSee( worldPlayerList[i] ) ) {
                             invisiblePlayers.Add( worldPlayerList[i] );
@@ -760,14 +769,15 @@ namespace fCraft {
 
                 if( !silent ) {
                     if( ConfigKey.AnnounceRankChanges.GetBool() ) {
-                        Server.SendToAllExcept( "{0}&S {1} {2} from {3}&S to {4}", target,
-                                                player.GetClassyName(),
-                                                verb,
-                                                targetInfo.Name,
-                                                oldRank.GetClassyName(),
-                                                newRank.GetClassyName() );
+                        Server.Message( target,
+                                        "{0}&S {1} {2} from {3}&S to {4}",
+                                        player.GetClassyName(),
+                                        verb,
+                                        targetInfo.Name,
+                                        oldRank.GetClassyName(),
+                                        newRank.GetClassyName() );
                         if( ConfigKey.AnnounceRankChangeReasons.GetBool() && !String.IsNullOrEmpty( reason ) ) {
-                            Server.SendToAll( "&S{0} reason: {1}",
+                            Server.Message( "&S{0} reason: {1}",
                                               promote ? "Promotion" : "Demotion",
                                               reason );
                         }
@@ -830,7 +840,7 @@ namespace fCraft {
 
             if( !silent ) {
                 if( ConfigKey.ShowConnectionMessages.GetBool() ) {
-                    Server.SendToBlind( String.Format( "&SPlayer {0}&S left the server.", player.GetClassyName() ), player );
+                    Server.Players.CantSee( player ).Message( "&SPlayer {0}&S left the server.", player.GetClassyName() );
                 }
                 if( ConfigKey.IRCBotAnnounceServerJoins.GetBool() ) {
                     IRC.PlayerDisconnectedHandler( null, new PlayerDisconnectedEventArgs( player, LeaveReason.ClientQuit ) );
@@ -838,7 +848,7 @@ namespace fCraft {
             }
 
             // for aware players: notify
-            Server.SendToSeeing( String.Format( "{0}&S is now hidden.", player.GetClassyName() ), player );
+            Server.Players.CanSee( player ).Message( "&SPlayer {0}&S is now hidden.", player.GetClassyName() );
 
             Server.RaisePlayerHideChangedEvent( player );
         }
@@ -868,11 +878,12 @@ namespace fCraft {
             }
 
             // for aware players: notify
-            Server.SendToSeeing( String.Format( "{0}&S is no longer hidden.", player.GetClassyName() ), player );
+            Server.Players.CanSee( player ).Message( "&SPlayer {0}&S is no longer hidden.",
+                                                     player.GetClassyName() );
 
             if( !silent ) {
                 if( ConfigKey.ShowConnectionMessages.GetBool() ) {
-                    Server.SendToBlind( Server.MakePlayerConnectedMessage( player, false, player.World ), player );
+                    Server.Players.CantSee( player ).Message( Server.MakePlayerConnectedMessage( player, false, player.World ) );
                 }
                 if( ConfigKey.IRCBotAnnounceServerJoins.GetBool() ) {
                     IRC.PlayerReadyHandler( null, new PlayerConnectedEventArgs( player, player.World ) );
@@ -966,7 +977,7 @@ namespace fCraft {
 
             if( player.Can( Permission.Freeze, target.Info.Rank ) ) {
                 if( target.Info.Freeze( player.Name ) ) {
-                    Server.SendToAll( "{0}&S has been frozen by {1}",
+                    Server.Message( "{0}&S has been frozen by {1}",
                                       target.GetClassyName(), player.GetClassyName() );
                 } else {
                     player.Message( "{0}&S is already frozen.", target.GetClassyName() );
@@ -1003,7 +1014,7 @@ namespace fCraft {
 
             if( player.Can( Permission.Freeze, target.Info.Rank ) ) {
                 if( target.Info.Unfreeze() ) {
-                    Server.SendToAll( "{0}&S is no longer frozen.", target.GetClassyName() );
+                    Server.Message( "{0}&S is no longer frozen.", target.GetClassyName() );
                 } else {
                     player.Message( "{0}&S is currently not frozen.", target.GetClassyName() );
                 }
@@ -1255,18 +1266,18 @@ namespace fCraft {
             // Apply all the rank and world options
             HashSet<Player> targetPlayers;
             if( allRanks && allWorlds ) {
-                targetPlayers = new HashSet<Player>( Server.PlayerList );
+                targetPlayers = new HashSet<Player>( Server.Players );
             } else if( allWorlds ) {
                 targetPlayers = new HashSet<Player>();
                 foreach( Rank rank in targetRanks ) {
-                    foreach( Player rankPlayer in Server.PlayerList.Where( p => (p.Info.Rank == rank) ) ) {
+                    foreach( Player rankPlayer in Server.Players.Where( p => (p.Info.Rank == rank) ) ) {
                         targetPlayers.Add( rankPlayer );
                     }
                 }
             } else if( allRanks ) {
                 targetPlayers = new HashSet<Player>();
                 foreach( World world in targetWorlds ) {
-                    Player[] worldPlayers = world.PlayerList;
+                    Player[] worldPlayers = world.Players;
                     foreach( Player worldPlayer in worldPlayers ) {
                         targetPlayers.Add( worldPlayer );
                     }
@@ -1275,7 +1286,7 @@ namespace fCraft {
                 targetPlayers = new HashSet<Player>();
                 foreach( Rank rank in targetRanks ) {
                     foreach( World world in targetWorlds ) {
-                        foreach( Player rankWorldPlayer in world.PlayerList.Where( p => (p.Info.Rank == rank) ) ) {
+                        foreach( Player rankWorldPlayer in world.Players.Where( p => (p.Info.Rank == rank) ) ) {
                             targetPlayers.Add( rankWorldPlayer );
                         }
                     }
@@ -1360,8 +1371,9 @@ namespace fCraft {
 
                 if( target.Info.Mute( player.Name, TimeSpan.FromSeconds( seconds ) ) ) {
                     target.Message( "You were muted by {0}&S for {1} sec", player.GetClassyName(), seconds );
-                    Server.SendToAllExcept( "&SPlayer {0}&S was muted by {1}&S for {2} sec", target,
-                                            target.GetClassyName(), player.GetClassyName(), seconds );
+                    Server.Message( target,
+                                    "&SPlayer {0}&S was muted by {1}&S for {2} sec",
+                                    target.GetClassyName(), player.GetClassyName(), seconds );
                     Logger.Log( "Player {0} was muted by {1} for {2} seconds.", LogType.UserActivity,
                                 target.Name, player.Name, seconds );
                 } else {
@@ -1405,8 +1417,9 @@ namespace fCraft {
                 if( target.Info.MutedUntil >= DateTime.UtcNow ) {
                     target.Info.Unmute();
                     target.Message( "You were unmuted by {0}", player.GetClassyName() );
-                    Server.SendToAllExcept( "&SPlayer {0}&S was unmuted by {1}", target,
-                                            target.GetClassyName(), player.GetClassyName() );
+                    Server.Message( target,
+                                    "&SPlayer {0}&S was unmuted by {1}",
+                                    target.GetClassyName(), player.GetClassyName() );
                     Logger.Log( "Player {0} was unmuted by {1}.", LogType.UserActivity,
                                 target.Name, player.Name );
                 } else {

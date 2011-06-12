@@ -19,8 +19,8 @@ namespace fCraft {
 
         public Map Map;
         public string Name;
-        readonly SortedDictionary<string, Player> players = new SortedDictionary<string, Player>();
-        public Player[] PlayerList;
+        readonly SortedDictionary<string, Player> playerIndex = new SortedDictionary<string, Player>();
+        public Player[] Players { get; private set; }
         public bool IsLocked,
                     IsHidden,
                     PendingUnload,
@@ -138,7 +138,7 @@ namespace fCraft {
                 newMap.World = newWorld;
                 WorldManager.ReplaceWorld( this, newWorld );
                 Map = null;
-                foreach( Player player in PlayerList ) {
+                foreach( Player player in Players ) {
                     player.Session.JoinWorld( newWorld );
                 }
             }
@@ -152,7 +152,7 @@ namespace fCraft {
                 if( NeverUnload ) {
                     if( Map == null ) LoadMap();
                 } else {
-                    if( Map != null && players.Count == 0 ) UnloadMap( false );
+                    if( Map != null && playerIndex.Count == 0 ) UnloadMap( false );
                 }
             }
         }
@@ -171,7 +171,7 @@ namespace fCraft {
             lock( WorldLock ) {
                 IsFlushing = false;
                 SendToAll( "&WMap flushed. Reloading..." );
-                foreach( Player player in PlayerList ) {
+                foreach( Player player in Players ) {
                     player.Session.JoinWorld( this, player.Position );
                 }
             }
@@ -192,14 +192,14 @@ namespace fCraft {
                     return null;
                 }
 
-                if( players.ContainsKey( player.Name.ToLower() ) ) {
+                if( playerIndex.ContainsKey( player.Name.ToLower() ) ) {
                     Logger.Log( "This world already contains the player by name ({0}). " +
                                 "Some sort of state corruption must have occured.", LogType.Error,
                                 player.Name );
-                    players.Remove( player.Name.ToLower() );
+                    playerIndex.Remove( player.Name.ToLower() );
                 }
 
-                players.Add( player.Name.ToLower(), player );
+                playerIndex.Add( player.Name.ToLower(), player );
 
                 // load the map, if it's not yet loaded
                 PendingUnload = false;
@@ -220,10 +220,8 @@ namespace fCraft {
                 UpdatePlayerList();
 
                 if( announce && ConfigKey.ShowJoinedWorldMessages.GetBool() ) {
-                    string message = String.Format( "&SPlayer {0}&S joined {1}", player.GetClassyName(), GetClassyName() );
-                    foreach( Packet packet in LineWrapper.Wrap( message ) ) {
-                        Server.SendToSeeing( packet, player );
-                    }
+                    Server.Players.CanSee( player ).Message( "&SPlayer {0}&S joined {1}",
+                                                             player.GetClassyName(), GetClassyName() );
                 }
 
                 Logger.Log( "Player {0} joined world {1}.", LogType.UserActivity,
@@ -247,7 +245,7 @@ namespace fCraft {
         public bool ReleasePlayer( Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             lock( WorldLock ) {
-                if( !players.Remove( player.Name.ToLower() ) ) {
+                if( !playerIndex.Remove( player.Name.ToLower() ) ) {
                     return false;
                 }
 
@@ -265,7 +263,7 @@ namespace fCraft {
                 if( OnPlayerLeft != null ) OnPlayerLeft( player, this );
 
                 // unload map (if needed)
-                if( players.Count == 0 && !NeverUnload ) {
+                if( playerIndex.Count == 0 && !NeverUnload ) {
                     PendingUnload = true;
                 }
                 return true;
@@ -276,7 +274,7 @@ namespace fCraft {
         // Find player by name using autocompletion
         public Player FindPlayer( string playerName ) {
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
-            Player[] tempList = PlayerList;
+            Player[] tempList = Players;
             Player result = null;
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && tempList[i].Name.StartsWith( playerName, StringComparison.OrdinalIgnoreCase ) ) {
@@ -294,7 +292,7 @@ namespace fCraft {
         public Player[] FindPlayers( Player player, string playerName ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
-            Player[] tempList = PlayerList;
+            Player[] tempList = Players;
             List<Player> results = new List<Player>();
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && player.CanSee( tempList[i] ) ) {
@@ -314,7 +312,7 @@ namespace fCraft {
         /// <summary> Gets player by name (without autocompletion) </summary>
         public Player FindPlayerExact( string playerName ) {
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
-            Player[] tempList = PlayerList;
+            Player[] tempList = Players;
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && tempList[i].Name.Equals( playerName, StringComparison.OrdinalIgnoreCase ) ) {
                     return tempList[i];
@@ -327,12 +325,12 @@ namespace fCraft {
         /// <summary> Caches the player list to an array (Players -> PlayerList) </summary>
         public void UpdatePlayerList() {
             lock( WorldLock ) {
-                Player[] newPlayerList = new Player[players.Count];
+                Player[] newPlayerList = new Player[playerIndex.Count];
                 int i = 0;
-                foreach( Player player in players.Values ) {
+                foreach( Player player in playerIndex.Values ) {
                     newPlayerList[i++] = player;
                 }
-                PlayerList = newPlayerList;
+                Players = newPlayerList;
             }
         }
 
@@ -340,9 +338,9 @@ namespace fCraft {
         /// <summary> Counts all players (optionally includes all hidden players). </summary>
         public int CountPlayers( bool includeHiddenPlayers ) {
             if( includeHiddenPlayers ) {
-                return PlayerList.Length;
+                return Players.Length;
             } else {
-                return PlayerList.Count( player => !player.IsHidden );
+                return Players.Count( player => !player.IsHidden );
             }
         }
 
@@ -350,13 +348,13 @@ namespace fCraft {
         /// <summary> Counts only the players who are not hidden from a given observer. </summary>
         public int CountVisiblePlayers( Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
-            return PlayerList.Count( observer.CanSee );
+            return Players.Count( observer.CanSee );
         }
 
 
         public bool IsFull {
             get {
-                return (PlayerList.Length >= ConfigKey.MaxPlayersPerWorld.GetInt());
+                return (Players.Length >= ConfigKey.MaxPlayersPerWorld.GetInt());
             }
         }
 
@@ -371,7 +369,7 @@ namespace fCraft {
 
 
         public void SendToAll( Packet packet, Player except ) {
-            Player[] tempList = PlayerList;
+            Player[] tempList = Players;
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != except ) {
                     tempList[i].Send( packet );
@@ -381,10 +379,10 @@ namespace fCraft {
 
 
         public void SendToAllDelayed( Packet packet, Player except ) {
-            Player[] tempList = PlayerList;
+            Player[] tempList = Players;
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != except ) {
-                    tempList[i].SendDelayed( packet );
+                    tempList[i].SendLowPriority( packet );
                 }
             }
         }
@@ -410,7 +408,7 @@ namespace fCraft {
 
         public void SendToSeeing( Packet packet, Player source ) {
             if( source == null ) throw new ArgumentNullException( "source" );
-            Player[] playerListCopy = PlayerList;
+            Player[] playerListCopy = Players;
             for( int i = 0; i < playerListCopy.Length; i++ ) {
                 if( playerListCopy[i] != source && playerListCopy[i].CanSee( source ) ) {
                     playerListCopy[i].Send( packet );
@@ -420,7 +418,7 @@ namespace fCraft {
 
         public void SendToBlind( Packet packet, Player source ) {
             if( source == null ) throw new ArgumentNullException( "source" );
-            Player[] playerListCopy = PlayerList;
+            Player[] playerListCopy = Players;
             for( int i = 0; i < playerListCopy.Length; i++ ) {
                 if( playerListCopy[i] != source && !playerListCopy[i].CanSee( source ) ) {
                     playerListCopy[i].Send( packet );

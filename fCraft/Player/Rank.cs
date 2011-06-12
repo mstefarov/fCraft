@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Xml.Linq;
+using System.Collections.Generic;
 
 namespace fCraft {
     /// <summary>
@@ -406,6 +407,13 @@ namespace fCraft {
                 ok &= (GetLimit( (Permission)i ) != null);
             }
             return ok;
+        }
+
+
+        public IEnumerable<Player> Players {
+            get {
+                return Server.Players.Ranked( this );
+            }
         }
     }
 

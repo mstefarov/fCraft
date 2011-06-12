@@ -382,7 +382,7 @@ namespace fCraft {
             Heartbeat.Start();
 
             if( ConfigKey.RestartInterval.GetInt() > 0 ) {
-                TimeSpan restartIn = TimeSpan.FromSeconds(ConfigKey.RestartInterval.GetInt());
+                TimeSpan restartIn = TimeSpan.FromSeconds( ConfigKey.RestartInterval.GetInt() );
                 Scheduler.NewTask( AutoRestartCallback ).RunOnce( restartIn );
                 Logger.Log( "Will restart in {0}", LogType.SystemActivity, restartIn.ToCompactString() );
             }
@@ -419,49 +419,49 @@ namespace fCraft {
 #else
             try {
 #endif
-                RaiseShutdownBeganEvent( shutdownParams );
+            RaiseShutdownBeganEvent( shutdownParams );
 
-                Scheduler.BeginShutdown();
+            Scheduler.BeginShutdown();
 
-                Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
-                            shutdownParams.ReasonString );
+            Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
+                        shutdownParams.ReasonString );
 
-                // stop accepting new players
-                if( listener != null ) {
-                    listener.Stop();
-                    listener = null;
+            // stop accepting new players
+            if( listener != null ) {
+                listener.Stop();
+                listener = null;
+            }
+
+            // kick all players
+            lock( SessionLock ) {
+                foreach( Session s in Sessions ) {
+                    // NOTE: kick packet delivery here is not currently guaranteed
+                    s.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")", LeaveReason.ServerShutdown );
                 }
+                if( Sessions.Count > 0 ) {
+                    // increase the chances of kick packets being delivered
+                    Thread.Sleep( 1000 );
+                }
+            }
 
-                // kick all players
-                lock( SessionLock ) {
-                    foreach( Session s in Sessions ) {
-                        // NOTE: kick packet delivery here is not currently guaranteed
-                        s.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")", LeaveReason.ServerShutdown );
-                    }
-                    if( Sessions.Count > 0 ) {
-                        // increase the chances of kick packets being delivered
-                        Thread.Sleep( 1000 );
+            // kill IRC bot
+            IRC.Disconnect();
+
+            if( WorldManager.WorldList != null ) {
+                lock( WorldManager.WorldListLock ) {
+                    // unload all worlds (includes saving)
+                    foreach( World world in WorldManager.WorldList ) {
+                        world.SaveMap();
                     }
                 }
+            }
 
-                // kill IRC bot
-                IRC.Disconnect();
+            Scheduler.EndShutdown();
 
-                if( WorldManager.WorldList != null ) {
-                    lock( WorldManager.WorldListLock ) {
-                        // unload all worlds (includes saving)
-                        foreach( World world in WorldManager.WorldList ) {
-                            world.SaveMap();
-                        }
-                    }
-                }
+            if( PlayerDB.IsLoaded ) PlayerDB.Save();
+            if( IPBanList.IsLoaded ) IPBanList.Save();
 
-                Scheduler.EndShutdown();
-
-                if( PlayerDB.IsLoaded ) PlayerDB.Save();
-                if( IPBanList.IsLoaded ) IPBanList.Save();
-
-                RaiseShutdownEndedEvent( shutdownParams );
+            RaiseShutdownEndedEvent( shutdownParams );
 #if DEBUG
 #else
             } catch( Exception ex ) {
@@ -536,28 +536,37 @@ namespace fCraft {
 
         #region Messaging / Packet Sending
 
-        // Send a low-priority packet to everyone
-        // If 'except' is not null, excludes specified player
-        public static void SendToAllLowPriority( Packet packet, Player except ) {
-            Player[] tempList = PlayerList;
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != except ) {
-                    tempList[i].SendDelayed( packet );
-                }
-            }
+        /// <summary> Broadcasts a message to all online players.
+        /// Shorthand for Server.Players.Message </summary>
+        public static void Message( string message ) {
+            Players.Message( message );
         }
 
 
-        // Send a normal priority packet to everyone
-        public static void SendToAll( Packet packet ) {
-            SendToAll( packet, null );
+        /// <summary> Broadcasts a message to all online players.
+        /// Shorthand for Server.Players.Message </summary>
+        public static void Message( string message, params object[] formatArgs ) {
+            Players.Message( message, formatArgs );
         }
 
 
-        // Send a normal priority packet to everyone
-        // If 'except' is not null, excludes specified player
+        /// <summary> Broadcasts a message to all online players except one.
+        /// Shorthand for Server.Players.Except(except).Message </summary>
+        public static void Message( Player except, string message ) {
+            Players.Except( except ).Message( message );
+        }
+
+
+        /// <summary> Broadcasts a message to all online players except one.
+        /// Shorthand for Server.Players.Except(except).Message </summary>
+        public static void Message( Player except, string message, params object[] formatArgs ) {
+            Players.Except( except ).Message( message, formatArgs );
+        }
+
+
+        [Obsolete( "Use Server.Players.Except(except).Send" )]
         public static void SendToAll( Packet packet, Player except ) {
-            Player[] tempList = PlayerList;
+            Player[] tempList = Players;
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != except ) {
                     tempList[i].Send( packet );
@@ -566,16 +575,14 @@ namespace fCraft {
         }
 
 
-        // Send a message to everyone
-        // Wraps String.Format() for easy formatting
+        [Obsolete( "Use Server.Players.Message" )]
         public static void SendToAll( string message, params object[] formatArgs ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             SendToAllExcept( message, null, formatArgs );
         }
 
 
-        // Send a message to everyone (except a specified player)
-        // Wraps String.Format() for easy formatting
+        [Obsolete( "Use Server.Message" )]
         public static void SendToAllExcept( string message, Player except, params object[] formatArgs ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( formatArgs.Length > 0 ) message = String.Format( message, formatArgs );
@@ -586,13 +593,14 @@ namespace fCraft {
         }
 
 
+        [Obsolete( "Use Server.Players.Can(permission).Message" )]
         public static void SendToAllWhoCan( string message, Player except, Permission permission, params object[] formatArgs ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( formatArgs.Length > 0 ) {
                 message = String.Format( message, formatArgs );
             }
             foreach( Packet p in LineWrapper.Wrap( message ) ) {
-                foreach( Player player in PlayerList.Where( pl => pl.Can( permission ) ) ) {
+                foreach( Player player in Players.Where( pl => pl.Can( permission ) ) ) {
                     if( player != except ) {
                         player.Send( p );
                     }
@@ -601,13 +609,14 @@ namespace fCraft {
         }
 
 
+        [Obsolete( "Use Server.Players.Cant(permission).Message" )]
         public static void SendToAllWhoCant( string message, Player except, Permission permission, params object[] formatArgs ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( formatArgs.Length > 0 ) {
                 message = String.Format( message, formatArgs );
             }
             foreach( Packet p in LineWrapper.Wrap( message ) ) {
-                foreach( Player player in PlayerList.Where( pl => !pl.Can( permission ) ) ) {
+                foreach( Player player in Players.Where( pl => !pl.Can( permission ) ) ) {
                     if( player != except ) {
                         player.Send( p );
                     }
@@ -616,12 +625,13 @@ namespace fCraft {
         }
 
 
+        [Obsolete( "Use Server.Players.NotIgnoring(origin).Message" )]
         public static void SendToAllExceptIgnored( Player origin, string message, Player except, params object[] formatArgs ) {
             if( origin == null ) throw new ArgumentNullException( "origin" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( formatArgs.Length > 0 ) message = String.Format( message, formatArgs );
             foreach( Packet p in LineWrapper.Wrap( message ) ) {
-                Player[] tempList = PlayerList;
+                Player[] tempList = Players;
                 for( int i = 0; i < tempList.Length; i++ ) {
                     if( tempList[i] != except && !tempList[i].IsIgnoring( origin.Info ) ) {
                         tempList[i].Send( p );
@@ -631,10 +641,10 @@ namespace fCraft {
         }
 
 
-        // Sends a packet to everyone who CAN see 'source' player
+        [Obsolete( "Use Server.Players.CanSee(source).Send" )]
         public static void SendToSeeing( Packet packet, Player source ) {
             if( source == null ) throw new ArgumentNullException( "source" );
-            Player[] playerListCopy = PlayerList;
+            Player[] playerListCopy = Players;
             for( int i = 0; i < playerListCopy.Length; i++ ) {
                 if( playerListCopy[i] != source && playerListCopy[i].CanSee( source ) ) {
                     playerListCopy[i].Send( packet );
@@ -643,7 +653,7 @@ namespace fCraft {
         }
 
 
-        // Sends a string to everyone who CAN see 'source' player
+        [Obsolete( "Use Server.Players.CanSee(source).Message" )]
         public static void SendToSeeing( string message, Player source ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( source == null ) throw new ArgumentNullException( "source" );
@@ -653,10 +663,10 @@ namespace fCraft {
         }
 
 
-        // Sends a packet to everyone who CAN'T see 'source' player
+        [Obsolete( "Use Server.Players.CantSee(source).Send" )]
         public static void SendToBlind( Packet packet, Player source ) {
             if( source == null ) throw new ArgumentNullException( "source" );
-            Player[] playerListCopy = PlayerList;
+            Player[] playerListCopy = Players;
             for( int i = 0; i < playerListCopy.Length; i++ ) {
                 if( playerListCopy[i] != source && !playerListCopy[i].CanSee( source ) ) {
                     playerListCopy[i].Send( packet );
@@ -665,7 +675,7 @@ namespace fCraft {
         }
 
 
-        // Sends a string to everyone who CAN'T see 'source' player
+        [Obsolete( "Use Server.Players.CantSee(source).Message" )]
         public static void SendToBlind( string message, Player source ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( source == null ) throw new ArgumentNullException( "source" );
@@ -675,10 +685,10 @@ namespace fCraft {
         }
 
 
-        // Sends a packet to all players of a specific rank
+        [Obsolete( "Use rank.Players.Send or Server.Players.Ranked(rank).Send" )]
         public static void SendToRank( Packet packet, Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
-            Player[] tempList = PlayerList;
+            Player[] tempList = Players;
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i].Info.Rank == rank ) {
                     tempList[i].Send( packet );
@@ -687,13 +697,13 @@ namespace fCraft {
         }
 
 
-        // Sends a string to all players of a specific rank
+        [Obsolete( "Use rank.Players.NotIgnoring(origin).Message or Server.Players.Ranked(rank).NotIgnoring(origin).Message" )]
         public static void SendToRank( Player origin, string message, Rank rank ) {
             if( origin == null ) throw new ArgumentNullException( "origin" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( rank == null ) throw new ArgumentNullException( "rank" );
             foreach( Packet packet in LineWrapper.Wrap( message ) ) {
-                Player[] tempList = PlayerList;
+                Player[] tempList = Players;
                 for( int i = 0; i < tempList.Length; i++ ) {
                     if( tempList[i].Info.Rank == rank && !tempList[i].IsIgnoring( origin.Info ) ) {
                         tempList[i].Send( packet );
@@ -787,13 +797,13 @@ namespace fCraft {
         }
 
         static void CheckIdles( object param ) {
-            Player[] tempPlayerList = PlayerList;
+            Player[] tempPlayerList = Players;
             foreach( Player player in tempPlayerList ) {
                 if( player.Info.Rank.IdleKickTimer <= 0 ) continue;
                 if( DateTime.UtcNow.Subtract( player.IdleTimer ).TotalMinutes >= player.Info.Rank.IdleKickTimer ) {
-                    SendToAllExcept( "{0}&S was kicked for being idle for {1} min", player,
-                                     player.GetClassyName(),
-                                     player.Info.Rank.IdleKickTimer.ToString() );
+                    Message( "{0}&S was kicked for being idle for {1} min",
+                             player.GetClassyName(),
+                             player.Info.Rank.IdleKickTimer.ToString() );
                     ModerationCommands.DoKick( Player.Console,
                                                player,
                                                "Idle for " + player.Info.Rank.IdleKickTimer + " minutes",
@@ -834,9 +844,9 @@ namespace fCraft {
             string line = lines[new Random().Next( 0, lines.Length )].Trim();
             if( line.Length > 0 ) {
                 if( line.StartsWith( "&" ) ) {
-                    SendToAll( "{0}", line );
+                    Message( "{0}", line );
                 } else {
-                    SendToAll( "{0}{1}", Color.Announcement, line );
+                    Message( "{0}{1}", Color.Announcement, line );
                 }
             }
         }
@@ -910,7 +920,7 @@ namespace fCraft {
             int packetsPerTick = (int)(BlockUpdateThrottling / TicksPerSecond);
             int maxPacketsPerUpdate = (int)(MaxUploadSpeed / TicksPerSecond * 128);
 
-            int playerCount = world.PlayerList.Length;
+            int playerCount = world.Players.Length;
             if( playerCount > 0 && !world.IsFlushing ) {
                 maxPacketsPerUpdate /= playerCount;
                 if( maxPacketsPerUpdate > packetsPerTick ) {
@@ -985,8 +995,8 @@ namespace fCraft {
         #region Player and Session Management
 
         // player list
-        static readonly SortedDictionary<string, Player> Players = new SortedDictionary<string, Player>();
-        public static Player[] PlayerList { get; private set; }
+        static readonly SortedDictionary<string, Player> PlayerIndex = new SortedDictionary<string, Player>();
+        public static Player[] Players { get; private set; }
         static readonly object PlayerListLock = new object();
 
         // session list
@@ -1000,7 +1010,7 @@ namespace fCraft {
                 if( maxSessions > 0 ) {
                     int sessionCount = 0;
                     foreach( Session s in Sessions ) {
-                        if( s.IP.Equals( session.IP) ) {
+                        if( s.IP.Equals( session.IP ) ) {
                             sessionCount++;
                             if( sessionCount >= maxSessions ) {
                                 return false;
@@ -1040,10 +1050,10 @@ namespace fCraft {
 
             // Add player to the list
             lock( PlayerListLock ) {
-                if( Players.Count >= ConfigKey.MaxPlayers.GetInt() && !player.Info.Rank.ReservedSlot ) {
+                if( PlayerIndex.Count >= ConfigKey.MaxPlayers.GetInt() && !player.Info.Rank.ReservedSlot ) {
                     return false;
                 }
-                Players.Add( player.Name, player );
+                PlayerIndex.Add( player.Name, player );
                 UpdatePlayerList();
                 RaiseEvent( PlayerListChanged );
                 session.IsRegistered = true;
@@ -1081,13 +1091,14 @@ namespace fCraft {
                 Logger.Log( "{0} left the server.", LogType.UserActivity,
                             player.Name );
                 if( session.IsReady && ConfigKey.ShowConnectionMessages.GetBool() ) {
-                    SendToSeeing( String.Format( "&SPlayer {0}&S left the server.", player.GetClassyName() ), player );
+                    Players.CanSee( player ).Message( "&SPlayer {0}&S left the server.",
+                                                      player.GetClassyName() );
                 }
 
                 if( player.World != null ) {
                     player.World.ReleasePlayer( player );
                 }
-                Players.Remove( player.Name );
+                PlayerIndex.Remove( player.Name );
                 UpdatePlayerList();
                 RaiseEvent( PlayerListChanged );
             }
@@ -1106,7 +1117,7 @@ namespace fCraft {
 
         public static void UpdatePlayerList() {
             lock( PlayerListLock ) {
-                PlayerList = Players.Values.OrderBy( player => player.Name ).ToArray();
+                Players = PlayerIndex.Values.OrderBy( player => player.Name ).ToArray();
             }
         }
 
@@ -1117,7 +1128,7 @@ namespace fCraft {
         /// 1 is an exact match; over 1 for multiple matches.</returns>
         public static Player[] FindPlayers( string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            Player[] tempList = PlayerList;
+            Player[] tempList = Players;
             List<Player> results = new List<Player>();
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] == null ) continue;
@@ -1144,7 +1155,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( name == null ) throw new ArgumentNullException( "name" );
             List<Player> results = new List<Player>();
-            Player[] tempList = PlayerList;
+            Player[] tempList = Players;
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && player.CanSee( tempList[i] ) ) {
                     if( tempList[i].Name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
@@ -1195,7 +1206,7 @@ namespace fCraft {
         /// 1 is an exact match; over 1 for multiple matches.</returns>
         public static Player[] FindPlayers( IPAddress ip ) {
             if( ip == null ) throw new ArgumentNullException( "ip" );
-            return PlayerList.Where( t => t != null &&
+            return Players.Where( t => t != null &&
                                           t.Session.IP.Equals( ip ) ).ToArray();
         }
 
@@ -1205,7 +1216,7 @@ namespace fCraft {
         /// <returns>Player object, or null if player was not found.</returns>
         public static Player FindPlayerExact( string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            return PlayerList.FirstOrDefault( t => t != null &&
+            return Players.FirstOrDefault( t => t != null &&
                                                    t.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
         }
 
@@ -1223,15 +1234,15 @@ namespace fCraft {
 
         public static int CountPlayers( bool includeHiddenPlayers ) {
             if( includeHiddenPlayers ) {
-                return PlayerList.Length;
+                return Players.Length;
             } else {
-                return PlayerList.Count( player => !player.IsHidden );
+                return Players.Count( player => !player.IsHidden );
             }
         }
 
         public static int CountVisiblePlayers( Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
-            return PlayerList.Count( observer.CanSee );
+            return Players.Count( observer.CanSee );
         }
 
         #endregion
