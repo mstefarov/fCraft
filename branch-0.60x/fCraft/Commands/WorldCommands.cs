@@ -351,7 +351,7 @@ namespace fCraft {
                 }
                 WorldManager.SaveWorldList();
 
-                Server.SendToAll( "{0}&S set {1}&S to be the main world.",
+                Server.Message( "{0}&S set {1}&S to be the main world.",
                                   player.GetClassyName(), world.GetClassyName() );
                 Logger.Log( "{0} set {1} to be the main world.", LogType.UserActivity,
                             player.Name, world.Name );
@@ -578,10 +578,10 @@ namespace fCraft {
                         world.AccessSecurity.MinRank = rank;
                         changesWereMade = true;
                         if( world.AccessSecurity.MinRank == RankManager.LowestRank ) {
-                            Server.SendToAll( "{0}&S made the world {1}&S accessible to everyone.",
+                            Server.Message( "{0}&S made the world {1}&S accessible to everyone.",
                                               player.GetClassyName(), world.GetClassyName() );
                         } else {
-                            Server.SendToAll( "{0}&S made the world {1}&S accessible only by {2}+",
+                            Server.Message( "{0}&S made the world {1}&S accessible only by {2}+",
                                               player.GetClassyName(), world.GetClassyName(),
                                               world.AccessSecurity.MinRank.GetClassyName() );
                         }
@@ -809,10 +809,10 @@ namespace fCraft {
                         world.BuildSecurity.MinRank = rank;
                         changesWereMade = true;
                         if( world.BuildSecurity.MinRank == RankManager.LowestRank ) {
-                            Server.SendToAll( "{0}&S allowed anyone to build on world {1}",
+                            Server.Message( "{0}&S allowed anyone to build on world {1}",
                                               player.GetClassyName(), world.GetClassyName() );
                         } else {
-                            Server.SendToAll( "{0}&S allowed only {1}+&S to build in world {2}",
+                            Server.Message( "{0}&S allowed only {1}+&S to build in world {2}",
                                               player.GetClassyName(), world.BuildSecurity.MinRank.GetClassyName(), world.GetClassyName() );
                         }
                         Logger.Log( "{0} set build rank for world {1} to {2}+", LogType.UserActivity,
@@ -881,15 +881,18 @@ namespace fCraft {
                 }
             }
 
+            string listName;
             if( listAllLoaded ) {
-                player.MessagePrefixed( "&S   ", "There are " + count + " loaded worlds: " + sb );
+                listName = "loaded worlds";
             } else if( listVisible && !listHidden ) {
-                player.MessagePrefixed( "&S   ", "There are " + count + " available worlds: " + sb );
+                listName = "available worlds";
             } else if( !listVisible ) {
-                player.MessagePrefixed( "&S   ", "There are " + count + " hidden worlds: " + sb );
+                listName = "hidden worlds";
             } else {
-                player.MessagePrefixed( "&S   ", "There are " + count + " worlds total: " + sb );
+                listName = "worlds total";
             }
+
+            player.MessagePrefixed( "&S   ", "There are {0} {1}: {2}", count, listName, sb );
         }
 
 
@@ -1070,7 +1073,7 @@ namespace fCraft {
 
                         if( newWorld != null ) {
                             newWorld.BuildSecurity.MinRank = RankManager.ParseRank( ConfigKey.DefaultBuildRank.GetString() );
-                            Server.SendToAll( "{0}&S created a new world named {1}",
+                            Server.Message( "{0}&S created a new world named {1}",
                                               player.GetClassyName(), newWorld.GetClassyName() );
                             Logger.Log( "{0} created a new world named \"{1}\" (loaded from \"{2}\")", LogType.UserActivity,
                                         player.Name, worldName, fileName );
@@ -1145,7 +1148,7 @@ namespace fCraft {
             WorldManager.SaveWorldList();
             Logger.Log( "{0} renamed the world \"{1}\" to \"{2}\".", LogType.UserActivity,
                         player.Name, oldName, newName );
-            Server.SendToAll( "{0}&S renamed the world \"{1}\" to \"{2}\"",
+            Server.Message( "{0}&S renamed the world \"{1}\" to \"{2}\"",
                               player.GetClassyName(), oldName, newName );
         }
 
@@ -1196,8 +1199,9 @@ namespace fCraft {
             }
 
             WorldManager.SaveWorldList();
-            Server.SendToAllExcept( "{0}&S removed {1}&S from the world list.", player,
-                                    player.GetClassyName(), world.GetClassyName() );
+            Server.Message( player,
+                            "{0}&S removed {1}&S from the world list.",
+                            player.GetClassyName(), world.GetClassyName() );
             player.Message( "Removed {0}&S from the world list. You can now delete the map file ({1}.fcm) manually.",
                             world.GetClassyName(), world.Name );
             Logger.Log( "{0} removed \"{1}\" from the world list.", LogType.UserActivity,

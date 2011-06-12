@@ -251,7 +251,7 @@ namespace fCraft {
             if( Player.ContainsIllegalChars( message ) ) {
                 Logger.Log( "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.", LogType.SuspiciousActivity,
                             Player.Name );
-                Server.SendToAll( "{0}&W was kicked for attempted hacking (0x0d).", Player.GetClassyName() );
+                Server.Message( "{0}&W was kicked for attempted hacking (0x0d).", Player.GetClassyName() );
                 KickNow( "Illegal characters in chat.", LeaveReason.InvalidMessageKick );
                 return false;
             } else {
@@ -530,10 +530,12 @@ namespace fCraft {
                 Logger.Log( "Banned player {0} tried to log in from {1}", LogType.SuspiciousActivity,
                             Player.Name, IP );
                 if( ConfigKey.ShowBannedConnectionMessages.GetBool() ) {
-                    Server.SendToAllWhoCan( "&SBanned player {0}&S tried to log in from {1}", null, Permission.ViewPlayerIPs,
-                                            Player.GetClassyName(), IP );
-                    Server.SendToAllWhoCant( "&SBanned player {0}&S tried to log in.", null, Permission.ViewPlayerIPs,
-                                            Player.GetClassyName() );
+                    var can = Server.Players.Can( Permission.ViewPlayerIPs );
+                    can.Message( "&SBanned player {0}&S tried to log in from {1}",
+                                 Player.GetClassyName(), IP );
+                    var cant = Server.Players.Cant( Permission.ViewPlayerIPs );
+                    cant.Message( "&SBanned player {0}&S tried to log in.",
+                                  Player.GetClassyName() );
                 }
                 string bannedMessage = String.Format( "Banned {0} ago by {1}: {2}",
                                                       Player.Info.TimeSinceBan.ToMiniString(),
@@ -550,7 +552,7 @@ namespace fCraft {
                 Player.Info.ProcessFailedLogin( this );
                 ipBanInfo.ProcessAttempt( Player );
                 if( ConfigKey.ShowBannedConnectionMessages.GetBool() ) {
-                    Server.SendToAll( "{0}&S tried to log in from a banned IP.", Player.GetClassyName() );
+                    Server.Message( "{0}&S tried to log in from a banned IP.", Player.GetClassyName() );
                 }
                 Logger.Log( "{0} tried to log in from a banned IP.", LogType.SuspiciousActivity,
                             Player.Name );
@@ -600,7 +602,7 @@ namespace fCraft {
                 Logger.Log( "Player {0} was kicked because server is full.", LogType.SystemActivity,
                             Player.Name );
                 string kickMessage = String.Format( "Sorry, server is full ({0}/{1})",
-                                        Server.PlayerList.Length, ConfigKey.MaxPlayers.GetInt() );
+                                        Server.Players.Length, ConfigKey.MaxPlayers.GetInt() );
                 KickNow( kickMessage, LeaveReason.ServerFull );
                 return false;
             }
@@ -636,8 +638,9 @@ namespace fCraft {
 
 
             if( showVerifyNamesWarning ) {
-                Server.SendToAllExcept( "&WName and IP of {0}&W are unverified!", Player,
-                                        Player.GetClassyName() );
+                Server.Message( Player,
+                                "&WName and IP of {0}&W are unverified!",
+                                Player.GetClassyName() );
             }
 
             // Check if other banned players logged in from this IP
@@ -646,13 +649,13 @@ namespace fCraft {
                 string logString = String.Format( "&WPlayer {0}&W logged in from an IP previously used by banned players: {1}",
                                                   Player.GetClassyName(),
                                                   bannedPlayerNames.JoinToClassyString() );
-                Server.SendToAll( logString );
+                Server.Message( logString );
                 Logger.Log( logString, LogType.SuspiciousActivity );
             }
 
             // Announce join
             if( ConfigKey.ShowConnectionMessages.GetBool() ) {
-                Server.SendToAllExcept( Server.MakePlayerConnectedMessage( Player, firstTime, Player.World ), Player );
+                Server.Message( Player, Server.MakePlayerConnectedMessage( Player, firstTime, Player.World ) );
             }
 
             // check if player is still muted
@@ -660,8 +663,9 @@ namespace fCraft {
                 int secondsLeft = (int)Player.Info.MutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds;
                 Player.Message( "&WYou were previously muted by {0}, {1} seconds left.",
                                 Player.Info.MutedBy, secondsLeft );
-                Server.SendToAllExcept( "&WPlayer {0}&W was previously muted by {1}&W, {2} seconds left.", Player,
-                                        Player.GetClassyName(), Player.Info.MutedBy, secondsLeft );
+                Server.Message( Player,
+                                "&WPlayer {0}&W was previously muted by {1}&W, {2} seconds left.",
+                                Player.GetClassyName(), Player.Info.MutedBy, secondsLeft );
             }
 
             // check if player is still frozen
@@ -670,16 +674,17 @@ namespace fCraft {
                     Player.Message( "&WYou were previously frozen {0} ago by {1}",
                                     Player.Info.TimeSinceFrozen.ToMiniString(),
                                     Player.Info.FrozenBy );
-                    Server.SendToAllExcept( "&WPlayer {0}&W was previously frozen {1} ago by {2}.", Player,
-                                            Player.GetClassyName(),
-                                            Player.Info.TimeSinceFrozen.ToMiniString(),
-                                            Player.Info.FrozenBy );
+                    Server.Message( Player,
+                                    "&WPlayer {0}&W was previously frozen {1} ago by {2}.",
+                                    Player.GetClassyName(),
+                                    Player.Info.TimeSinceFrozen.ToMiniString(),
+                                    Player.Info.FrozenBy );
                 } else {
                     Player.Message( "&WYou were previously frozen by {0}",
                                     Player.Info.FrozenBy );
-                    Server.SendToAllExcept( "&WPlayer {0}&W was previously frozen by {1}.", Player,
-                                            Player.GetClassyName(),
-                                            Player.Info.FrozenBy );
+                    Server.Message( Player,
+                                    "&WPlayer {0}&W was previously frozen by {1}.",
+                                    Player.GetClassyName(), Player.Info.FrozenBy );
                 }
             }
 
@@ -740,7 +745,7 @@ namespace fCraft {
         }
 
 
-        void JoinWorldInternal( World newWorld, Position position, bool doUseWorldPosition ){
+        void JoinWorldInternal( World newWorld, Position position, bool doUseWorldPosition ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
 
             lock( joinWorldLock ) {
@@ -798,7 +803,7 @@ namespace fCraft {
             Position spawn;
             if( doUseWorldSpawn ) {
                 spawn = map.Spawn;
-            }else{
+            } else {
                 spawn = postJoinPosition;
             }
             Player.Position = spawn;
@@ -844,7 +849,7 @@ namespace fCraft {
 
                 // write in chunks of 1024 bytes or less
                 writer.WriteLevelChunk( buffer, chunkSize, progress );
-                BytesSent += 1028; 
+                BytesSent += 1028;
                 mapBytesSent += chunkSize;
             }
 
@@ -881,31 +886,28 @@ namespace fCraft {
 
         #region Sending
 
-        /// <summary>
-        /// Send packet to player (synchronous). Sends the packet off immediately.
-        /// Should not be used from any thread other than this session's IoThread.
-        /// Not thread-safe (for performance reason).
-        /// </summary>
+        /// <summary> Send packet to player (not thread safe, sync, immediate).
+        /// Should NEVER be used from any thread other than this session's IoThread.
+        /// Not thread-safe (for performance reason). </summary>
         public void SendNow( Packet packet ) {
+#if DEBUG
+            if( Thread.CurrentThread != ioThread ) throw new InvalidOperationException();
+#endif
             writer.Write( packet.Data );
             BytesSent += packet.Data.Length;
         }
 
 
-        /// <summary>
-        /// Send packet (asynchronous, priority queue).
-        /// This is used for most packets (movement, chat, etc).
-        /// </summary>
+        /// <summary> Send packet (thread-safe, async, priority queue).
+        /// This is used for most packets (movement, chat, etc). </summary>
         public void Send( Packet packet ) {
             if( CanQueue ) priorityOutputQueue.Enqueue( packet );
         }
 
 
-        /// <summary>
-        /// Send packet (asynchronous, delayed queue).
-        /// This is currently only used for block updates.
-        /// </summary>
-        public void SendDelayed( Packet packet ) {
+        /// <summary> Send packet (thread-safe, asynchronous, delayed queue).
+        /// This is currently only used for block updates. </summary>
+        public void SendLowPriority( Packet packet ) {
             if( CanQueue ) outputQueue.Enqueue( packet );
         }
 
@@ -1108,7 +1110,7 @@ namespace fCraft {
                 }
             }
 
-            Player[] worldPlayerList = Player.World.PlayerList;
+            Player[] worldPlayerList = Player.World.Players;
             Position pos = Player.Position;
 
             for( int i = 0; i < worldPlayerList.Length; i++ ) {
@@ -1146,7 +1148,7 @@ namespace fCraft {
                     AddEntity( otherPlayer, otherPos );
                 }
             }
-            
+
 
             // Find entities to remove (not marked for retention).
             foreach( var pair in entities ) {

@@ -26,9 +26,8 @@ namespace fCraft {
 
         public static bool RelayAllUpdates;
 
-
-        public string Name { get { return Info.Name; } } // always same as PlayerInfo.name
         // use Player.GetClassyName() to get the colorful version
+        public string Name { get { return Info.Name; } }
 
         public readonly Session Session;
         public readonly PlayerInfo Info;
@@ -75,53 +74,29 @@ namespace fCraft {
         }
 
 
-        // safe wrapper for session.Send
+        /// <summary> Send a packet to the player, thread-safe. </summary>
         public void Send( Packet packet ) {
             if( Session != null ) Session.Send( packet );
         }
 
 
-        public void SendDelayed( Packet packet ) {
-            if( Session != null ) Session.SendDelayed( packet );
+        /// <summary> Send a packet to the player, thread-safe. </summary>
+        public void SendLowPriority( Packet packet ) {
+            if( Session != null ) Session.SendLowPriority( packet );
         }
 
 
         #region Messaging
-
-        public static int AntispamMessageCount = 3;
-        public static int AntispamInterval = 4;
-        readonly Queue<DateTime> spamChatLog = new Queue<DateTime>( AntispamMessageCount );
+        
+        const int ConfirmationTimeout = 60;
 
         int muteWarnings;
-
-        const int ConfirmationTimeout = 60;
+        string partialMessage;
 
 
         public void MutedMessage() {
             Message( "You are muted for another {0:0} seconds.",
                      Info.MutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
-        }
-
-
-        bool DetectChatSpam() {
-            if( this == Console ) return false;
-            if( spamChatLog.Count >= AntispamMessageCount ) {
-                DateTime oldestTime = spamChatLog.Dequeue();
-                if( DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds < AntispamInterval ) {
-                    muteWarnings++;
-                    if( muteWarnings > ConfigKey.AntispamMaxWarnings.GetInt() ) {
-                        Session.KickNow( "You were kicked for repeated spamming.", LeaveReason.MessageSpamKick );
-                        Server.SendToAll( "&W{0} was kicked for repeated spamming.", GetClassyName() );
-                    } else {
-                        TimeSpan autoMuteDuration = TimeSpan.FromSeconds( ConfigKey.AntispamMuteDuration.GetInt() );
-                        Info.Mute( "(antispam)", autoMuteDuration );
-                        Message( "You have been muted for {0} seconds. Slow down.", autoMuteDuration );
-                    }
-                    return true;
-                }
-            }
-            spamChatLog.Enqueue( DateTime.UtcNow );
-            return false;
         }
 
 
@@ -165,8 +140,10 @@ namespace fCraft {
                             rawMessage = Color.ReplacePercentCodes( rawMessage );
                         }
 
-                        Server.SendToAllExceptIgnored( this, "{0}{1}: {2}", Console,
-                                                       GetClassyName(), Color.White, rawMessage );
+                        Server.Players.NotIgnoring( this ).Message( "{0}{1}: {2}",
+                                                                    GetClassyName(),
+                                                                    Color.White,
+                                                                    rawMessage );
                     } break;
 
 
@@ -290,7 +267,7 @@ namespace fCraft {
                                                                      Color.PM,
                                                                      Name,
                                                                      messageText );
-                            Server.SendToRank( this, formattedMessage, rank );
+                            rank.Players.NotIgnoring( this ).Message( formattedMessage );
                             if( Info.Rank != rank ) {
                                 Message( formattedMessage );
                             }
@@ -326,10 +303,23 @@ namespace fCraft {
             }
         }
 
-        string partialMessage;
+
+        public void Message( string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( this == Console ) {
+                Logger.LogToConsole( message );
+            } else {
+                foreach( Packet p in LineWrapper.Wrap( message, Color.Sys ) ) {
+                    Session.Send( p );
+                }
+            }
+        }
+
 
         public void Message( string message, params object[] args ) {
-            MessagePrefixed( ">", message, args );
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( args == null ) throw new ArgumentNullException( "args" );
+            Message( String.Format( message, args ) );
         }
 
 
@@ -342,14 +332,18 @@ namespace fCraft {
             if( this == Console ) {
                 Logger.LogToConsole( message );
             } else {
-                foreach( Packet p in LineWrapper.Wrap( prefix, Color.Sys + message ) ) {
+                foreach( Packet p in LineWrapper.WrapPrefixed( prefix, message, Color.Sys ) ) {
                     Session.Send( p );
                 }
             }
         }
 
 
-        // Sends a message directly (synchronously). Should only be used from Session.IoThread
+        /// <summary>
+        /// Sends a text message
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="args"></param>
         internal void MessageNow( string message, params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args.Length > 0 ) {
@@ -359,7 +353,7 @@ namespace fCraft {
                 Logger.LogToConsole( message );
             } else {
                 foreach( Packet p in LineWrapper.Wrap( Color.Sys + message ) ) {
-                    Session.Send( p );
+                    Session.SendNow( p );
                 }
             }
         }
@@ -463,6 +457,36 @@ namespace fCraft {
             lock( ignoreLock ) {
                 return ignoreList.ToArray();
             }
+        }
+
+        #endregion
+
+
+        #region AntiSpam
+
+        public static int AntispamMessageCount = 3;
+        public static int AntispamInterval = 4;
+        readonly Queue<DateTime> spamChatLog = new Queue<DateTime>( AntispamMessageCount );
+
+        bool DetectChatSpam() {
+            if( this == Console ) return false;
+            if( spamChatLog.Count >= AntispamMessageCount ) {
+                DateTime oldestTime = spamChatLog.Dequeue();
+                if( DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds < AntispamInterval ) {
+                    muteWarnings++;
+                    if( muteWarnings > ConfigKey.AntispamMaxWarnings.GetInt() ) {
+                        Session.KickNow( "You were kicked for repeated spamming.", LeaveReason.MessageSpamKick );
+                        Server.Message( "&W{0} was kicked for repeated spamming.", GetClassyName() );
+                    } else {
+                        TimeSpan autoMuteDuration = TimeSpan.FromSeconds( ConfigKey.AntispamMuteDuration.GetInt() );
+                        Info.Mute( "(antispam)", autoMuteDuration );
+                        Message( "You have been muted for {0} seconds. Slow down.", autoMuteDuration );
+                    }
+                    return true;
+                }
+            }
+            spamChatLog.Enqueue( DateTime.UtcNow );
+            return false;
         }
 
         #endregion
@@ -611,7 +635,7 @@ namespace fCraft {
         /// and sends it (async) to the player.
         /// Used to undo player's attempted block placement/deletion. </summary>
         public void RevertBlock( short x, short y, short h ) {
-            Session.SendDelayed( PacketWriter.MakeSetBlock( x, y, h, World.Map.GetBlockByte( x, y, h ) ) );
+            Session.SendLowPriority( PacketWriter.MakeSetBlock( x, y, h, World.Map.GetBlockByte( x, y, h ) ) );
         }
 
 
@@ -630,7 +654,7 @@ namespace fCraft {
                 double spamTimer = DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds;
                 if( spamTimer < Info.Rank.AntiGriefSeconds ) {
                     Session.KickNow( "You were kicked by antigrief system. Slow down.", LeaveReason.BlockSpamKick );
-                    Server.SendToAll( "{0}&W was kicked for suspected griefing.", GetClassyName() );
+                    Server.Message( "{0}&W was kicked for suspected griefing.", GetClassyName() );
                     Logger.Log( "{0} was kicked for block spam ({1} blocks in {2} seconds)", LogType.SuspiciousActivity,
                                 Name, Info.Rank.AntiGriefBlocks, spamTimer );
                     return true;

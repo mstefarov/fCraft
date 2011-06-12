@@ -53,6 +53,27 @@ namespace fCraft {
         }
 
 
+        LineWrapper( string prefix, string message, byte startingColor ) {
+            if( prefix == null ) throw new ArgumentNullException( "prefix" );
+            Prefix = Encoding.ASCII.GetBytes( prefix );
+            if( message == null ) throw new ArgumentNullException( "message" );
+            Input = Encoding.ASCII.GetBytes( message );
+            Color = startingColor;
+            if( !ProcessColor( ref Color ) ) throw new ArgumentException( "startingColor" );
+            Reset();
+        }
+
+
+        LineWrapper( string message, byte startingColor ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            Input = Encoding.ASCII.GetBytes( message );
+            Prefix = DefaultPrefix;
+            Color = startingColor;
+            if( !ProcessColor( ref Color ) ) throw new ArgumentException( "startingColor" );
+            Reset();
+        }
+
+
         public void Reset() {
             Color = NoColor;
             WordLength = 0;
@@ -289,8 +310,18 @@ namespace fCraft {
             return new LineWrapper( message );
         }
 
-        public static LineWrapper Wrap( string prefix, string message ) {
+        public static LineWrapper WrapPrefixed( string prefix, string message ) {
             return new LineWrapper( prefix, message );
+        }
+
+        public static LineWrapper Wrap( string message, string startingColor ) {
+            if( startingColor == null ) throw new ArgumentNullException( "startingColor" );
+            return new LineWrapper( message, (byte)startingColor[1] );
+        }
+
+        public static LineWrapper WrapPrefixed( string prefix, string message, string startingColor ) {
+            if( startingColor == null ) throw new ArgumentNullException( "startingColor" );
+            return new LineWrapper( prefix, message, (byte)startingColor[1] );
         }
     }
 }

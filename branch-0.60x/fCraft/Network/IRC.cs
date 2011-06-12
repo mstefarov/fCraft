@@ -216,15 +216,15 @@ namespace fCraft {
                             if( processedMessage.Length > 0 ) {
                                 if( ConfigKey.IRCBotForwardFromIRC.GetBool() ) {
                                     if( msg.Type == IRCMessageType.ChannelAction ) {
-                                        Server.SendToAll( "{0}(IRC) * {1} {2}",
-                                                          Color.IRC, msg.Nick, processedMessage );
+                                        Server.Message( "{0}(IRC) * {1} {2}",
+                                                        Color.IRC, msg.Nick, processedMessage );
                                     } else {
-                                        Server.SendToAll( "{0}(IRC) {1}{2}: {3}",
-                                                          Color.IRC, msg.Nick, Color.White, processedMessage );
+                                        Server.Message( "{0}(IRC) {1}{2}: {3}",
+                                                        Color.IRC, msg.Nick, Color.White, processedMessage );
                                     }
                                 } else if( msg.Message.StartsWith( "#" ) ) {
-                                    Server.SendToAll( "{0}(IRC) {1}{2}: {3}",
-                                                      Color.IRC, msg.Nick, Color.White, processedMessage.Substring( 1 ) );
+                                    Server.Message( "{0}(IRC) {1}{2}: {3}",
+                                                    Color.IRC, msg.Nick, Color.White, processedMessage.Substring( 1 ) );
                                 }
                             }
                         }
@@ -234,8 +234,8 @@ namespace fCraft {
                     case IRCMessageType.Join:
                         if( !ResponsibleForInputParsing ) return;
                         if( ConfigKey.IRCBotAnnounceIRCJoins.GetBool() ) {
-                            Server.SendToAll( "{0}(IRC) {1} joined {2}",
-                                              Color.IRC, msg.Nick, msg.Channel );
+                            Server.Message( "{0}(IRC) {1} joined {2}",
+                                                    Color.IRC, msg.Nick, msg.Channel );
                         }
                         return;
 
@@ -252,8 +252,8 @@ namespace fCraft {
                     case IRCMessageType.Quit:
                         if( !ResponsibleForInputParsing ) return;
                         if( ConfigKey.IRCBotAnnounceIRCJoins.GetBool() ) {
-                            Server.SendToAll( "{0}(IRC) {1} left {2}",
-                                              Color.IRC, msg.Nick, msg.Channel );
+                            Server.Message( "{0}(IRC) {1} left {2}",
+                                            Color.IRC, msg.Nick, msg.Channel );
                         }
                         return;
 

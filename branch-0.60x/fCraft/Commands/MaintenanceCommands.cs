@@ -823,14 +823,14 @@ namespace fCraft {
             if( reason.Equals( "abort", StringComparison.OrdinalIgnoreCase ) ) {
                 if( Server.CancelShutdown() ) {
                     Logger.Log( "Shutdown aborted by {0}.", LogType.UserActivity, player.Name );
-                    Server.SendToAll( "&WShutdown aborted by {0}", player.GetClassyName() );
+                    Server.Message( "&WShutdown aborted by {0}", player.GetClassyName() );
                 } else {
                     player.MessageNow( "Cannot abort shutdown - too late." );
                 }
                 return;
             }
 
-            Server.SendToAll( "&WServer shutting down in {0} seconds.", delay );
+            Server.Message( "&WServer shutting down in {0} seconds.", delay );
 
             if( String.IsNullOrEmpty( reason ) ) {
                 Logger.Log( "{0} shut down the server ({1} second delay).", LogType.UserActivity,
@@ -838,7 +838,7 @@ namespace fCraft {
                 ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delay, true, false );
                 Server.Shutdown( sp, false );
             } else {
-                Server.SendToAll( "&WShutdown reason: {0}", reason );
+                Server.Message( "&WShutdown reason: {0}", reason );
                 Logger.Log( "{0} shut down the server ({1} second delay). Reason: {2}", LogType.UserActivity,
                             player.Name, delay, reason );
                 ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delay, true, false, reason, player );
@@ -868,7 +868,7 @@ namespace fCraft {
             }
             string reason = cmd.Next();
 
-            Server.SendToAll( "&WServer restarting in {0} seconds.", delay );
+            Server.Message( "&WServer restarting in {0} seconds.", delay );
 
             if( reason == null ) {
                 Logger.Log( "{0} restarted the server ({1} second delay).", LogType.UserActivity,

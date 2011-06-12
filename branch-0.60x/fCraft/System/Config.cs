@@ -471,7 +471,7 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.BandwidthUseMode:
-                    Player[] playerListCache = Server.PlayerList;
+                    Player[] playerListCache = Server.Players;
                     if( playerListCache != null ) {
                         foreach( Player p in playerListCache ) {
                             if( p.Session.BandwidthUseMode == BandwidthUseMode.Default ) {

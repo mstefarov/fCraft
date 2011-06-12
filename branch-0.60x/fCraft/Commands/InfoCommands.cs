@@ -508,9 +508,9 @@ namespace fCraft {
                                 Environment.Version );
             }
 
-            double bytesReceivedRate = Server.PlayerList.Aggregate( (double)0,
+            double bytesReceivedRate = Server.Players.Aggregate( (double)0,
                                                                     ( i, p ) => i + p.Session.BytesReceivedRate );
-            double bytesSentRate = Server.PlayerList.Aggregate( (double)0,
+            double bytesSentRate = Server.Players.Aggregate( (double)0,
                                                                 ( i, p ) => i + p.Session.BytesSentRate );
             player.Message( "   Upstream {0:0.0} KB/s, downstream {1:0.0} KB/s",
                             bytesSentRate / 1000, bytesReceivedRate / 1000 );
@@ -622,7 +622,7 @@ namespace fCraft {
         };
 
         internal static void Players( Player player, Command cmd ) {
-            Player[] players = Server.PlayerList;
+            Player[] players = Server.Players;
             if( players.Length > 0 ) {
 
                 string[] playerNameList = players.Where( player.CanSee )
