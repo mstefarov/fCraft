@@ -93,6 +93,14 @@ namespace fCraft {
             get { return (HMax - HMin + 1); }
         }
 
+        public Position MinVertex {
+            get { return new Position( XMin, YMin, HMin ); }
+        }
+
+        public Position MaxVertex {
+            get { return new Position( XMax, YMax, HMax ); }
+        }
+
 
         public BoundingBox( XElement root ) {
             if( root == null ) throw new ArgumentNullException( "root" );

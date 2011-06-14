@@ -16,8 +16,42 @@ namespace fCraft {
             CommandManager.RegisterCommand( cdZoneRemove );
             CommandManager.RegisterCommand( cdZoneInfo );
             CommandManager.RegisterCommand( cdZoneRename );
+            CommandManager.RegisterCommand( cdZoneMark );
         }
 
+
+
+        static readonly CommandDescriptor cdZoneMark = new CommandDescriptor {
+            Name = "zmark",
+            Category = CommandCategory.Zone | CommandCategory.Building,
+            Usage = "/zmark ZoneName",
+            Help = "Uses zone boundaries to make a selection.",
+            Handler = ZoneMark
+        };
+
+        internal static void ZoneMark( Player player, Command cmd ) {
+            if( player.SelectionMarksExpected == 0 ) {
+                player.MessageNow( "Cannot zmark - no selection in progress." );
+            } else if( player.SelectionMarksExpected == 2 ) {
+                string zoneName = cmd.Next();
+                if( zoneName == null ) {
+                    cdZoneMark.PrintUsage( player );
+                    return;
+                }
+
+                Zone zone = player.World.Map.FindZone( zoneName );
+                if( zone == null ) {
+                    player.Message( "No zone found with the name \"{0}\". See &H/zones", zoneName );
+                    return;
+                }
+
+                player.ResetSelection();
+                player.AddSelectionMark( zone.Bounds.MinVertex, false );
+                player.AddSelectionMark( zone.Bounds.MaxVertex, true );
+            } else {
+                player.MessageNow( "ZMark can only be used for 2-block selection." );
+            }
+        }
 
 
         static readonly CommandDescriptor cdZoneEdit = new CommandDescriptor {
