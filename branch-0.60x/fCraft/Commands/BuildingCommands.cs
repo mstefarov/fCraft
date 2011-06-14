@@ -1986,7 +1986,7 @@ namespace fCraft {
             if( player.SelectionMarksExpected > 0 ) {
                 player.AddSelectionMark( pos, true );
             } else {
-                player.MessageNow( "Cannot mark - no draw or zone commands initiated." );
+                player.MessageNow( "Cannot mark - no selection in progress." );
             }
         }
 

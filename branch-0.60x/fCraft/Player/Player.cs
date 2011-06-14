@@ -847,6 +847,11 @@ namespace fCraft {
             SelectionPermissions = requiredPermissions;
         }
 
+        public void ResetSelection() {
+            SelectionMarks.Clear();
+            SelectionMarkCount = 0;
+        }
+
         #endregion
 
 
