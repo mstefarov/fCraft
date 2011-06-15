@@ -589,7 +589,7 @@ namespace fCraft {
                     throw new ArgumentOutOfRangeException( "mode" );
             }
 
-            player.SetCallback( 2, callback, selectionArgs, Permission.Draw );
+            player.SelectionSetCallback( 2, callback, selectionArgs, Permission.Draw );
 
             if( block != Block.Undefined ) {
                 player.MessageNow( "{0} ({1}): Click a block or use &H/mark",
@@ -1401,7 +1401,7 @@ namespace fCraft {
         };
 
         internal static void Copy( Player player, Command cmd ) {
-            player.SetCallback( 2, CopyCallback, null, cdCopy.Permissions );
+            player.SelectionSetCallback( 2, CopyCallback, null, cdCopy.Permissions );
             player.MessageNow( "Copy: Place a block or type /mark to use your location." );
         }
 
@@ -1470,7 +1470,7 @@ namespace fCraft {
                     return;
                 }
             }
-            player.SetCallback( 2, CutCallback, fillBlock, cdCut.Permissions );
+            player.SelectionSetCallback( 2, CutCallback, fillBlock, cdCut.Permissions );
             player.MessageNow( "Cut: Place a block or type /mark to use your location." );
         }
 
@@ -1573,7 +1573,7 @@ namespace fCraft {
                 return;
             }
 
-            player.SetCallback( 1, PasteCallback, args, cdPasteNot.Permissions );
+            player.SelectionSetCallback( 1, PasteCallback, args, cdPasteNot.Permissions );
 
             player.MessageNow( "PasteNot: Place a block or type /mark to use your location. " );
         }
@@ -1623,7 +1623,7 @@ namespace fCraft {
                 };
             }
 
-            player.SetCallback( 1, PasteCallback, args, cdPaste.Permissions );
+            player.SelectionSetCallback( 1, PasteCallback, args, cdPaste.Permissions );
 
             player.MessageNow( "Paste: Place a block or type /mark to use your location. " );
         }
@@ -1984,7 +1984,7 @@ namespace fCraft {
             pos.H = (short)Math.Min( player.World.Map.Height - 1, Math.Max( 0, (int)pos.H ) );
 
             if( player.SelectionMarksExpected > 0 ) {
-                player.AddSelectionMark( pos, true );
+                player.SelectionAddMark( pos, true );
             } else {
                 player.MessageNow( "Cannot mark - no selection in progress." );
             }
@@ -2001,8 +2001,8 @@ namespace fCraft {
         };
 
         internal static void Cancel( Player player, Command command ) {
-            if( player.SelectionMarksExpected > 0 ) {
-                player.SelectionMarksExpected = 0;
+            if( player.IsMakingSelection ) {
+                player.SelectionCancel();
                 player.MessageNow( "Selection cancelled." );
             } else {
                 player.MessageNow( "There is currently nothing to cancel." );

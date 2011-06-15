@@ -589,7 +589,7 @@ namespace fCraft {
         };
 
         internal static void Measure( Player player, Command cmd ) {
-            player.SetCallback( 2, MeasureCallback, null );
+            player.SelectionSetCallback( 2, MeasureCallback, null );
             player.Message( "Measure: Select the area to be measured" );
         }
 
