@@ -10,9 +10,7 @@ namespace fCraft.AutoRank {
         internal static readonly TimeSpan TickInterval = TimeSpan.FromSeconds( 60 );
 
         public static bool HasCriteria {
-            get {
-                return Criteria.Count > 0;
-            }
+            get { return Criteria.Count > 0; }
         }
 
 
@@ -76,7 +74,7 @@ namespace fCraft.AutoRank {
     #region Enums
 
     /// <summary>  Operators used to compare PlayerInfo fields. </summary>
-    public enum ComparisonOperation {
+    public enum ComparisonOp {
         /// <summary> Less Than </summary>
         Lt,
 

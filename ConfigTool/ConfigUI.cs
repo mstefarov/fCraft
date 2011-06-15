@@ -1060,10 +1060,11 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             defaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
             defaultBuildRank = RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
             patrolledRank = RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 );
-            RankManager.RaiseRank( selectedRank );
-            RebuildRankList();
-            rankNameList.Insert( selectedRank.Index + 1, selectedRank.ToComboBoxOption() );
-            rankNameList.RemoveAt( selectedRank.Index + 3 );
+            if( RankManager.RaiseRank( selectedRank ) ) {
+                RebuildRankList();
+                rankNameList.Insert( selectedRank.Index + 1, selectedRank.ToComboBoxOption() );
+                rankNameList.RemoveAt( selectedRank.Index + 3 );
+            }
         }
 
         private void bLowerRank_Click( object sender, EventArgs e ) {
@@ -1071,10 +1072,11 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             defaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
             defaultBuildRank = RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
             patrolledRank = RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 );
-            RankManager.LowerRank( selectedRank );
-            RebuildRankList();
-            rankNameList.Insert( selectedRank.Index + 2, selectedRank.ToComboBoxOption() );
-            rankNameList.RemoveAt( selectedRank.Index );
+            if( RankManager.LowerRank( selectedRank ) ) {
+                RebuildRankList();
+                rankNameList.Insert( selectedRank.Index + 2, selectedRank.ToComboBoxOption() );
+                rankNameList.RemoveAt( selectedRank.Index );
+            }
         }
 
         #endregion

@@ -338,7 +338,6 @@ namespace fCraft {
 }
 
 
-#region EventArgs
 namespace fCraft.Events {
 
     public class IPBanEventArgs : EventArgs {
@@ -349,7 +348,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class IPBanCancellableEventArgs : IPBanEventArgs {
+    public sealed class IPBanCancellableEventArgs : IPBanEventArgs, ICancellableEvent {
         internal IPBanCancellableEventArgs( IPBanInfo info ) :
             base( info ) {
         }
@@ -357,4 +356,3 @@ namespace fCraft.Events {
     }
 
 }
-#endregion

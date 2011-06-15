@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using fCraft.Events;
@@ -148,12 +149,14 @@ namespace fCraft {
                 PlayerInfo[] listCopy = GetPlayerListCopy();
                 Stopwatch sw = Stopwatch.StartNew();
                 using( FileStream fs = new FileStream( tempFileName, FileMode.Create, FileAccess.Write, FileShare.None, 64 * 1024 ) ) {
-                    using( StreamWriter writer = new StreamWriter( fs, System.Text.Encoding.ASCII, 64 * 1024 ) ) {
+                    using( StreamWriter writer = new StreamWriter( fs, Encoding.ASCII, 64 * 1024 ) ) {
                         writer.WriteLine( "{0} {1} {2}", maxID, FormatVersion, Header );
 
+                        StringBuilder sb = new StringBuilder();
                         for( int i = 0; i < listCopy.Length; i++ ) {
-                            // TODO: Reuse StringBuilder after switching to 4.0
-                            writer.WriteLine( listCopy[i].Serialize() );
+                            listCopy[i].Serialize( sb );
+                            writer.WriteLine( sb.ToString() );
+                            sb.Length = 0;
                         }
                     }
                 }

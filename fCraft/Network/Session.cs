@@ -1346,10 +1346,9 @@ namespace fCraft {
 }
 
 
-#region EventArgs
 namespace fCraft.Events {
 
-    public sealed class SessionConnectingEventArgs : EventArgs {
+    public sealed class SessionConnectingEventArgs : EventArgs, ICancellableEvent {
         public SessionConnectingEventArgs( IPAddress ip ) {
             IP = ip;
         }
@@ -1376,4 +1375,3 @@ namespace fCraft.Events {
     }
 
 }
-#endregion

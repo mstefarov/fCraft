@@ -93,7 +93,7 @@ namespace fCraft {
             if( name == null ) {
                 name = player.Name;
             } else if( !player.Can( Permission.ViewOthersInfo ) ) {
-                player.NoAccessMessage( Permission.ViewOthersInfo );
+                player.MessageNoAccess( Permission.ViewOthersInfo );
                 return;
             }
 
@@ -115,7 +115,7 @@ namespace fCraft {
                 if( !PlayerDB.FindPlayerInfo( name, out tempInfo ) ) {
                     infos = PlayerDB.FindPlayers( name, PlayerDB.NumberOfMatchesToPrint );
                 } else if( tempInfo == null ) {
-                    player.NoPlayerMessage( name );
+                    player.MessageNoPlayer( name );
                     return;
                 } else {
                     infos = new[] { tempInfo };
@@ -125,12 +125,12 @@ namespace fCraft {
             if( infos.Length == 1 ) {
                 PrintPlayerInfo( player, infos[0] );
             } else if( infos.Length > 1 ) {
-                player.ManyMatchesMessage( "player", infos );
+                player.MessageManyMatches( "player", infos );
                 if( infos.Length == PlayerDB.NumberOfMatchesToPrint ) {
                     player.Message( "NOTE: Only first {0} matches are shown.", PlayerDB.NumberOfMatchesToPrint );
                 }
             } else {
-                player.NoPlayerMessage( name );
+                player.MessageNoPlayer( name );
             }
         }
 
@@ -246,24 +246,24 @@ namespace fCraft {
                                 info.BlocksBuilt,
                                 info.BlocksDeleted,
                                 info.BlocksDrawn / 1000000,
-                                info.LinesWritten );
+                                info.MessagesWritten );
             } else if( info.BlocksDrawn > 500000 ) {
                 player.Message( "  Built {0} and deleted {1} blocks, drew {2}K blocks, wrote {3} messages.",
                                 info.BlocksBuilt,
                                 info.BlocksDeleted,
                                 info.BlocksDrawn / 1000,
-                                info.LinesWritten );
+                                info.MessagesWritten );
             } else if( info.BlocksDrawn > 0 ) {
                 player.Message( "  Built {0} and deleted {1} blocks, drew {2} blocks, wrote {3} messages.",
                                 info.BlocksBuilt,
                                 info.BlocksDeleted,
                                 info.BlocksDrawn,
-                                info.LinesWritten );
+                                info.MessagesWritten );
             } else {
                 player.Message( "  Built {0} and deleted {1} blocks, wrote {2} messages.",
                                 info.BlocksBuilt,
                                 info.BlocksDeleted,
-                                info.LinesWritten );
+                                info.MessagesWritten );
             }
 
 
@@ -348,7 +348,7 @@ namespace fCraft {
             if( name == null ) {
                 name = player.Name;
             } else if( !player.Can( Permission.ViewOthersInfo ) ) {
-                player.NoAccessMessage( Permission.ViewOthersInfo );
+                player.MessageNoAccess( Permission.ViewOthersInfo );
                 return;
             }
 
@@ -416,7 +416,7 @@ namespace fCraft {
                                         banDuration.TotalHours );
                     }
                 } else {
-                    player.NoPlayerMessage( name );
+                    player.MessageNoPlayer( name );
                 }
             }
         }
@@ -732,7 +732,7 @@ namespace fCraft {
                 player.MessagePrefixed( HelpPrefix, sb.ToString() );
 
                 if( descriptor.Permissions != null && descriptor.Permissions.Length > 0 ) {
-                    player.NoAccessMessage( descriptor.Permissions );
+                    player.MessageNoAccess( descriptor.Permissions );
                 }
 
             } else {

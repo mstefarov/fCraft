@@ -257,21 +257,6 @@ namespace fCraft {
         }
 
 
-        /*internal static bool RaisePlayerSendingMessageEvent( ChatMessage message ) {
-            var h = PlayerSendingMessage;
-            if( h == null ) return false;
-            var e = new PlayerSendingMessageEventArgs( message );
-            h( null, e );
-            return e.Cancel;
-        }
-
-
-        internal static void RaisePlayerSentMessageEvent( ChatMessage message ) {
-            var h = PlayerSentMessage;
-            if( h != null ) h( null, new PlayerSentMessageEventArgs( message ) );
-        }*/
-
-
         internal static void RaisePlayerDisconnectedEventArgs( Player player, LeaveReason leaveReason ) {
             var h = PlayerDisconnected;
             if( h != null ) h( null, new PlayerDisconnectedEventArgs( player, leaveReason ) );
@@ -349,4 +334,8 @@ namespace fCraft.Events {
         public ShutdownParams ShutdownParams { get; private set; }
     }
 
+
+    public interface ICancellableEvent {
+        bool Cancel { get; set; }
+    }
 }

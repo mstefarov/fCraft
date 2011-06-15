@@ -197,12 +197,16 @@ namespace fCraft {
             } else {
                 if( descriptor.Permissions != null ) {
                     if( player.Can( descriptor.Permissions ) ) {
-                        descriptor.Call( player, cmd, true );
+                        if( !descriptor.Call( player, cmd, true ) ) {
+                            player.Message( "Command was cancelled." );
+                        }
                     } else {
-                        player.NoAccessMessage( descriptor.Permissions );
+                        player.MessageNoAccess( descriptor.Permissions );
                     }
                 } else {
-                    descriptor.Call( player, cmd, true );
+                    if( !descriptor.Call( player, cmd, true ) ) {
+                        player.Message( "Command was cancelled." );
+                    }
                 }
             }
         }
@@ -292,7 +296,6 @@ namespace fCraft {
 }
 
 
-#region EventArgs
 namespace fCraft.Events {
 
     public class CommandRegisteredEventArgs : EventArgs {
@@ -304,7 +307,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class CommandRegistringEventArgs : CommandRegisteredEventArgs {
+    public sealed class CommandRegistringEventArgs : CommandRegisteredEventArgs, ICancellableEvent {
         internal CommandRegistringEventArgs( CommandDescriptor commandDescriptor )
             : base( commandDescriptor ) {
         }
@@ -326,7 +329,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class CommandCallingEventArgs : CommandCalledEventArgs {
+    public sealed class CommandCallingEventArgs : CommandCalledEventArgs, ICancellableEvent {
         internal CommandCallingEventArgs( Command command, CommandDescriptor commandDescriptor, Player player ) :
             base( command, commandDescriptor, player ) {
         }
@@ -335,4 +338,3 @@ namespace fCraft.Events {
     }
 
 }
-#endregion

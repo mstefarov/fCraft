@@ -42,7 +42,9 @@ namespace fCraft {
             CommandManager.RegisterCommand( cdTP );
             CommandManager.RegisterCommand( cdBring );
             CommandManager.RegisterCommand( cdBringAll );
+
             CommandManager.RegisterCommand( cdPatrol );
+            CommandManager.RegisterCommand( cdSpecPatrol );
 
             CommandManager.RegisterCommand( cdMute );
             CommandManager.RegisterCommand( cdUnmute );
@@ -618,7 +620,7 @@ namespace fCraft {
             // Parse rank name
             Rank newRank = RankManager.FindRank( newRankName );
             if( newRank == null ) {
-                player.NoRankMessage( newRankName );
+                player.MessageNoRank( newRankName );
                 return;
             }
 
@@ -627,7 +629,7 @@ namespace fCraft {
 
             if( targetInfo == null ) {
                 if( !player.Can( Permission.EditPlayerDB ) ) {
-                    player.NoPlayerMessage( name );
+                    player.MessageNoPlayer( name );
                     return;
                 }
                 if( Player.IsValidName( name ) ) {
@@ -673,10 +675,10 @@ namespace fCraft {
 
             // Make sure player has the general permissions
             if( promote && !player.Can( Permission.Promote ) ) {
-                player.NoAccessMessage( Permission.Promote );
+                player.MessageNoAccess( Permission.Promote );
                 return;
             } else if( !promote && !player.Can( Permission.Demote ) ) {
-                player.NoAccessMessage( Permission.Demote );
+                player.MessageNoAccess( Permission.Demote );
                 return;
             }
 
@@ -932,18 +934,18 @@ namespace fCraft {
                     }
 
                 } else if( infos.Length > 0 ) {
-                    player.ManyMatchesMessage( "player", infos );
+                    player.MessageManyMatches( "player", infos );
 
                 } else {
                     infos = Server.FindPlayers( player, playerName );
                     if( infos.Length > 0 ) {
                         player.Message( "You can only set spawn of players on the same world as you." );
                     } else {
-                        player.NoPlayerMessage( playerName );
+                        player.MessageNoPlayer( playerName );
                     }
                 }
             } else {
-                player.NoAccessMessage( Permission.Bring, Permission.SetSpawn );
+                player.MessageNoAccess( Permission.Bring, Permission.SetSpawn );
             }
         }
 
@@ -1028,7 +1030,7 @@ namespace fCraft {
         #endregion
 
 
-        #region Teleport / Bring / BringAll / Patrol
+        #region Teleport / Bring / BringAll
 
         static readonly CommandDescriptor cdTP = new CommandDescriptor {
             Name = "tp",
@@ -1051,7 +1053,7 @@ namespace fCraft {
             }
 
             if( !player.Can( Permission.Teleport ) ) {
-                player.NoAccessMessage( Permission.Teleport );
+                player.MessageNoAccess( Permission.Teleport );
                 return;
             }
 
@@ -1115,7 +1117,7 @@ namespace fCraft {
                     }
 
                 } else if( matches.Length > 1 ) {
-                    player.ManyMatchesMessage( "player", matches );
+                    player.MessageManyMatches( "player", matches );
 
                 } else {
                     // Try to guess if player typed "/tp" instead of "/join"
@@ -1128,7 +1130,7 @@ namespace fCraft {
                         player.StopSpectating();
                         player.ParseMessage( "/join " + name, false );
                     } else {
-                        player.NoPlayerMessage( name );
+                        player.MessageNoPlayer( name );
                     }
                 }
             }
@@ -1309,7 +1311,10 @@ namespace fCraft {
             }
         }
 
+        #endregion
 
+
+        #region Patrol & SpecPatrol
 
         static readonly CommandDescriptor cdPatrol = new CommandDescriptor {
             Name = "patrol",

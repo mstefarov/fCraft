@@ -376,7 +376,7 @@ namespace fCraft {
         }
 
 
-        static void LoadLogOptions( XElement el, bool[] list ) {
+        static void LoadLogOptions( XContainer el, bool[] list ) {
             if( el == null ) throw new ArgumentNullException( "el" );
             if( list == null ) throw new ArgumentNullException( "list" );
 
@@ -390,7 +390,7 @@ namespace fCraft {
         }
 
 
-        static void LoadRankList( XElement el, int version, bool fromFile ) {
+        static void LoadRankList( XContainer el, int version, bool fromFile ) {
             if( el == null ) throw new ArgumentNullException( "el" );
 
             XElement legacyRankMappingTag = el.Element( "LegacyRankMapping" );
@@ -1022,10 +1022,9 @@ namespace fCraft {
 }
 
 
-#region EventArgs
 namespace fCraft.Events {
 
-    public sealed class ConfigKeyChangingEventArgs : EventArgs {
+    public sealed class ConfigKeyChangingEventArgs : EventArgs, ICancellableEvent {
         public ConfigKey Key { get; private set; }
         public string OldValue { get; private set; }
         public string NewValue { get; set; }
@@ -1053,4 +1052,3 @@ namespace fCraft.Events {
     }
 
 }
-#endregion

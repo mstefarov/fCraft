@@ -90,7 +90,7 @@ namespace fCraft {
                     }
 
                     if( info == null ) {
-                        player.NoPlayerMessage( name.Substring( 1 ) );
+                        player.MessageNoPlayer( name.Substring( 1 ) );
                         return;
                     }
 
@@ -128,7 +128,7 @@ namespace fCraft {
                     }
 
                     if( info == null ) {
-                        player.NoPlayerMessage( name.Substring( 1 ) );
+                        player.MessageNoPlayer( name.Substring( 1 ) );
                         return;
                     }
 
@@ -168,7 +168,7 @@ namespace fCraft {
                             changesWereMade = true;
                         }
                     } else {
-                        player.NoRankMessage( name );
+                        player.MessageNoRank( name );
                     }
                 }
 
@@ -211,7 +211,7 @@ namespace fCraft {
                     return;
                 }
                 if( info == null ) {
-                    player.NoPlayerMessage( zoneName.Substring( 1 ) );
+                    player.MessageNoPlayer( zoneName.Substring( 1 ) );
                     return;
                 }
 
@@ -254,7 +254,7 @@ namespace fCraft {
                             return;
                         }
                         if( info == null ) {
-                            player.NoPlayerMessage( name.Substring( 1 ) );
+                            player.MessageNoPlayer( name.Substring( 1 ) );
                             return;
                         }
 
@@ -270,7 +270,7 @@ namespace fCraft {
                     player.Message( "Zone: Place a block or type /mark to use your location." );
 
                 } else {
-                    player.NoRankMessage( rankName );
+                    player.MessageNoRank( rankName );
                 }
             }
         }

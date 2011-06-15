@@ -302,7 +302,7 @@ namespace fCraft {
             Zone match = null;
             foreach( Zone zone in ZoneList ) {
                 if( zone.Name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
-                    if( match != null ) {
+                    if( match == null ) {
                         // first (and hopefully only) match found
                         match = zone;
                     } else {

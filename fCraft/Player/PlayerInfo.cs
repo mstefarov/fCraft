@@ -36,7 +36,7 @@ namespace fCraft {
         public int BlocksBuilt;
         public int BlocksDeleted;
         public int TimesVisited;
-        public int LinesWritten;
+        public int MessagesWritten;
 
         public Rank PreviousRank;
         public string RankChangeReason = "";
@@ -167,7 +167,7 @@ namespace fCraft {
             if( fields[18].Length > 0 ) Int32.TryParse( fields[18], out info.BlocksBuilt );
             if( fields[19].Length > 0 ) Int32.TryParse( fields[19], out info.BlocksDeleted );
             Int32.TryParse( fields[20], out info.TimesVisited );
-            if( fields[20].Length > 0 ) Int32.TryParse( fields[21], out info.LinesWritten );
+            if( fields[20].Length > 0 ) Int32.TryParse( fields[21], out info.MessagesWritten );
             // fields 22-23 are no longer in use
 
             if( fields[24].Length > 0 ) info.PreviousRank = RankManager.ParseRank( fields[24] );
@@ -275,7 +275,7 @@ namespace fCraft {
             if( fields[18].Length > 0 ) Int32.TryParse( fields[18], out info.BlocksBuilt );
             if( fields[19].Length > 0 ) Int32.TryParse( fields[19], out info.BlocksDeleted );
             Int32.TryParse( fields[20], out info.TimesVisited );
-            if( fields[20].Length > 0 ) Int32.TryParse( fields[21], out info.LinesWritten );
+            if( fields[20].Length > 0 ) Int32.TryParse( fields[21], out info.MessagesWritten );
             // fields 22-23 are no longer in use
 
             if( fields.Length > MinFieldCount ) {
@@ -380,9 +380,7 @@ namespace fCraft {
 
         #region Saving
 
-        internal string Serialize() {
-            StringBuilder sb = new StringBuilder();
-
+        internal void Serialize( StringBuilder sb ) {
             sb.Append( Name ).Append( ',' ); // 0
             if( !LastIP.Equals( IPAddress.None ) ) sb.Append( LastIP.ToString() ); // 1
             sb.Append( ',' );
@@ -424,7 +422,7 @@ namespace fCraft {
             sb.Append( TimesVisited ).Append( ',' ); // 20
 
 
-            if( LinesWritten > 0 ) sb.Append( LinesWritten ); // 21
+            if( MessagesWritten > 0 ) sb.Append( MessagesWritten ); // 21
             sb.Append( ',', 3 ); // 22-23 no longer in use
 
             if( PreviousRank != null ) sb.Append( PreviousRank.GetFullName() ); // 24
@@ -445,7 +443,7 @@ namespace fCraft {
 
             sb.Append( ID ).Append( ',' ); // 29
 
-            sb.Append( (int)RankChangeType ).Append(','); // 30
+            sb.Append( (int)RankChangeType ).Append( ',' ); // 30
 
 
             LastKickDate.ToTickString( sb ).Append( ',' ); // 31
@@ -464,9 +462,9 @@ namespace fCraft {
             BannedUntil.ToTickString( sb ); // 36
 
             if( IsFrozen ) {
-                sb.Append( ',' ).Append( 'f' ).Append(','); // 37
+                sb.Append( ',' ).Append( 'f' ).Append( ',' ); // 37
                 Escape( FrozenBy, sb ).Append( ',' ); // 38
-                FrozenOn.ToTickString( sb ).Append(','); // 39
+                FrozenOn.ToTickString( sb ).Append( ',' ); // 39
             } else {
                 sb.Append( ',', 4 ); // 37-39
             }
@@ -484,8 +482,6 @@ namespace fCraft {
             sb.Append( ',' );
 
             if( BandwidthUseMode != BandwidthUseMode.Default ) sb.Append( (int)BandwidthUseMode ); // 44
-
-            return sb.ToString();
         }
 
 
@@ -551,7 +547,7 @@ namespace fCraft {
 
             fields[20] = TimesVisited.ToString();
 
-            if( LinesWritten > 0 ) fields[21] = LinesWritten.ToString();
+            if( MessagesWritten > 0 ) fields[21] = MessagesWritten.ToString();
             else fields[21] = "";
 
             // fields 22-23 are no longer in use
@@ -628,6 +624,10 @@ namespace fCraft {
 
 
         #region Update Handlers
+
+        public void ProcessMessageWritten() {
+            Interlocked.Increment( ref MessagesWritten );
+        }
 
         public void ProcessLogin( Player player ) {
             LastIP = player.Session.IP;
@@ -893,7 +893,6 @@ namespace fCraft {
 }
 
 
-#region EventArgs
 namespace fCraft.Events {
 
     public class PlayerInfoEventArgs : EventArgs {
@@ -904,7 +903,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class PlayerInfoCreatingEventArgs : EventArgs {
+    public sealed class PlayerInfoCreatingEventArgs : EventArgs, ICancellableEvent {
         public PlayerInfoCreatingEventArgs( string name, IPAddress ip, Rank startingRank, bool isUnrecognized ) {
             Name = name;
             StartingRank = startingRank;
@@ -946,7 +945,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class PlayerInfoRankChangingEventArgs : PlayerInfoRankChangedEventArgs {
+    public sealed class PlayerInfoRankChangingEventArgs : PlayerInfoRankChangedEventArgs, ICancellableEvent {
         public PlayerInfoRankChangingEventArgs( PlayerInfo playerInfo, Player rankChanger, Rank newRank, string reason, RankChangeType rankChangeType )
             : base( playerInfo, rankChanger, playerInfo.Rank, reason, rankChangeType ) {
             NewRank = newRank;
@@ -954,4 +953,3 @@ namespace fCraft.Events {
         public bool Cancel { get; set; }
     }
 }
-#endregion

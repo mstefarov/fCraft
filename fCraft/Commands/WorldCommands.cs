@@ -127,7 +127,7 @@ namespace fCraft {
             worlds = e.Matches.ToArray();
 
             if( worlds.Length > 1 ) {
-                player.ManyMatchesMessage( "world", worlds );
+                player.MessageManyMatches( "world", worlds );
 
             } else if( worlds.Length == 1 ) {
                 World world = worlds[0];
@@ -160,7 +160,7 @@ namespace fCraft {
                     player.StopSpectating();
                     player.ParseMessage( "/tp " + players[0].Name, false );
                 } else {
-                    player.NoWorldMessage( worldName );
+                    player.MessageNoWorld( worldName );
                 }
             }
         }
@@ -215,7 +215,7 @@ namespace fCraft {
                 return;
             }
             if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
-                player.UnsafePathMessage();
+                player.MessageUnsafePath();
                 return;
             }
 
@@ -411,7 +411,7 @@ namespace fCraft {
                         continue;
 
                     } else if( info == null ) {
-                        player.NoPlayerMessage( name.Substring( 1 ) );
+                        player.MessageNoPlayer( name.Substring( 1 ) );
                         continue;
                     }
 
@@ -488,7 +488,7 @@ namespace fCraft {
                         player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
                         continue;
                     } else if( info == null ) {
-                        player.NoPlayerMessage( name.Substring( 1 ) );
+                        player.MessageNoPlayer( name.Substring( 1 ) );
                         continue;
                     }
 
@@ -548,7 +548,7 @@ namespace fCraft {
                 } else {
                     Rank rank = RankManager.FindRank( name );
                     if( rank == null ) {
-                        player.NoRankMessage( name );
+                        player.MessageNoRank( name );
 
                     } else if( !player.Info.Rank.AllowSecurityCircumvention &&
                                world.AccessSecurity.MinRank > rank &&
@@ -644,7 +644,7 @@ namespace fCraft {
                         player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
                         continue;
                     } else if( info == null ) {
-                        player.NoPlayerMessage( name.Substring( 1 ) );
+                        player.MessageNoPlayer( name.Substring( 1 ) );
                         continue;
                     }
 
@@ -721,7 +721,7 @@ namespace fCraft {
                         player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
                         continue;
                     } else if( info == null ) {
-                        player.NoPlayerMessage( name.Substring( 1 ) );
+                        player.MessageNoPlayer( name.Substring( 1 ) );
                         continue;
                     }
 
@@ -781,7 +781,7 @@ namespace fCraft {
                 } else {
                     Rank rank = RankManager.FindRank( name );
                     if( rank == null ) {
-                        player.NoRankMessage( name );
+                        player.MessageNoRank( name );
                     } else if( !player.Info.Rank.AllowSecurityCircumvention &&
                                world.BuildSecurity.MinRank > rank &&
                                world.BuildSecurity.MinRank > player.Info.Rank ) {
@@ -976,7 +976,7 @@ namespace fCraft {
 
             // Make sure that the given file is within the map directory
             if( !Paths.Contains( Paths.MapPath, sourceFullFileName ) ) {
-                player.UnsafePathMessage();
+                player.MessageUnsafePath();
                 return;
             }
 
@@ -1362,7 +1362,7 @@ namespace fCraft {
                     return;
                 }
                 if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
-                    player.UnsafePathMessage();
+                    player.MessageUnsafePath();
                     return;
                 }
                 string dirName = fullFileName.Substring( 0, fullFileName.LastIndexOf( Path.DirectorySeparatorChar ) );

@@ -198,7 +198,7 @@ namespace fCraft {
         public const string XmlRootElementName = "PermissionController";
 
 
-        public SecurityController( XElement el ) {
+        public SecurityController( XContainer el ) {
             if( el == null ) throw new ArgumentNullException( "el" );
             if( el.Element( "minRank" ) != null ) {
                 minRank = RankManager.ParseRank( el.Element( "minRank" ).Value );

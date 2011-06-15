@@ -326,10 +326,10 @@ namespace fCraft {
 
 }
 
-#region EventArgs
+
 namespace fCraft.Events {
 
-    public sealed class CheckingForUpdatesEventArgs : EventArgs {
+    public sealed class CheckingForUpdatesEventArgs : EventArgs, ICancellableEvent {
         internal CheckingForUpdatesEventArgs( string url ) {
             Url = url;
         }
@@ -348,4 +348,3 @@ namespace fCraft.Events {
     }
 
 }
-#endregion

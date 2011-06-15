@@ -500,7 +500,6 @@ namespace fCraft {
 }
 
 
-#region EventArgs
 namespace fCraft.Events {
 
     public sealed class LogEventArgs : EventArgs {
@@ -538,4 +537,3 @@ namespace fCraft.Events {
     }
 
 }
-#endregion
