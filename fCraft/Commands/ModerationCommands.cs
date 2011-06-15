@@ -53,7 +53,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdSpectate = new CommandDescriptor {
             Name = "spectate",
-            Aliases = new[] { "follow" },
+            Aliases = new[] { "follow", "spec" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Spectate },
             Handler = Spectate
@@ -89,7 +89,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdUnspectate = new CommandDescriptor {
             Name = "unspectate",
-            Aliases = new[] { "unfollow" },
+            Aliases = new[] { "unfollow", "unspec" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Spectate },
             Handler = Unspectate
@@ -1338,6 +1338,35 @@ namespace fCraft {
             player.StopSpectating();
             player.Message( "Patrol: Teleporting to {0}", target.GetClassyName() );
             player.Send( PacketWriter.MakeSelfTeleport( target.Position ) );
+        }
+
+
+        static readonly CommandDescriptor cdSpecPatrol = new CommandDescriptor {
+            Name = "specpatrol",
+            Aliases = new[] { "spat" },
+            Category = CommandCategory.Moderation,
+            Permissions = new[] { Permission.Patrol },
+            Help = "Teleports you to the next player in need of checking.",
+            Handler = SpecPatrol
+        };
+
+        internal static void SpecPatrol( Player player, Command cmd ) {
+            Player target = player.World.GetNextPatrolTarget();
+            if( target == null ) {
+                player.Message( "Patrol: No one to patrol in this world." );
+                return;
+            }
+
+            if( target == player ) {
+                target = player.World.GetNextPatrolTarget();
+                if( target == player ) {
+                    player.Message( "Patrol: No one to patrol in this world (except yourself)." );
+                    return;
+                }
+            }
+
+            player.Spectate( target );
+            player.Message( "SpecPatrol: Spectating {0}", target.GetClassyName() );
         }
 
         #endregion

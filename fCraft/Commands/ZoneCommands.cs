@@ -45,9 +45,9 @@ namespace fCraft {
                     return;
                 }
 
-                player.ResetSelection();
-                player.AddSelectionMark( zone.Bounds.MinVertex, false );
-                player.AddSelectionMark( zone.Bounds.MaxVertex, true );
+                player.SelectionResetMarks();
+                player.SelectionAddMark( zone.Bounds.MinVertex, false );
+                player.SelectionAddMark( zone.Bounds.MaxVertex, true );
             } else {
                 player.MessageNow( "ZMark can only be used for 2-block selection." );
             }
@@ -220,7 +220,7 @@ namespace fCraft {
                 zone.Controller.Include( info );
                 player.Message( "Zone: Creating a {0}+&S zone for player {1}&S. Place a block or type /mark to use your location.",
                                 zone.Controller.MinRank.GetClassyName(), info.GetClassyName() );
-                player.SetCallback( 2, ZoneAddCallback, zone, cdZoneAdd.Permissions );
+                player.SelectionSetCallback( 2, ZoneAddCallback, zone, cdZoneAdd.Permissions );
 
             } else {
                 if( !World.IsValidName( zoneName ) ) {
@@ -266,7 +266,7 @@ namespace fCraft {
                     }
 
                     zone.Controller.MinRank = minRank;
-                    player.SetCallback( 2, ZoneAddCallback, zone, cdZoneAdd.Permissions );
+                    player.SelectionSetCallback( 2, ZoneAddCallback, zone, cdZoneAdd.Permissions );
                     player.Message( "Zone: Place a block or type /mark to use your location." );
 
                 } else {
@@ -301,7 +301,7 @@ namespace fCraft {
         };
 
         static void ZoneTest( Player player, Command cmd ) {
-            player.SetCallback( 1, ZoneTestCallback, null );
+            player.SelectionSetCallback( 1, ZoneTestCallback, null );
             player.Message( "Click the block that you would like to test." );
         }
 

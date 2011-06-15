@@ -540,7 +540,7 @@ namespace fCraft {
             // selection handling
             if( SelectionMarksExpected > 0 ) {
                 RevertBlockNow( x, y, h );
-                AddSelectionMark( new Position( x, y, h ), true );
+                SelectionAddMark( new Position( x, y, h ), true );
                 return false;
             }
 
@@ -812,12 +812,12 @@ namespace fCraft {
 
         internal BuildingCommands.CopyInformation CopyInformation;
 
-        public void AddSelectionMark( Position pos, bool executeCallbackIfNeeded ) {
+        public void SelectionAddMark( Position pos, bool executeCallbackIfNeeded ) {
             SelectionMarks.Enqueue( pos );
             SelectionMarkCount++;
             if( SelectionMarkCount >= SelectionMarksExpected ) {
                 if( executeCallbackIfNeeded ) {
-                    ExecuteSelectionCallback();
+                    SelectionExecute();
                 } else {
                     Message( "Last block marked at ({0},{1},{2}). Type &H/mark&S or click any block to continue.",
                              pos.X, pos.Y, pos.H );
@@ -828,7 +828,7 @@ namespace fCraft {
             }
         }
 
-        public void ExecuteSelectionCallback() {
+        public void SelectionExecute() {
             SelectionMarksExpected = 0;
             if( SelectionPermissions == null || Can( SelectionPermissions ) ) {
                 SelectionCallback( this, SelectionMarks.ToArray(), SelectionArgs );
@@ -838,7 +838,7 @@ namespace fCraft {
             }
         }
 
-        public void SetCallback( int marksExpected, SelectionCallback callback, object args, params Permission[] requiredPermissions ) {
+        public void SelectionSetCallback( int marksExpected, SelectionCallback callback, object args, params Permission[] requiredPermissions ) {
             SelectionArgs = args;
             SelectionMarksExpected = marksExpected;
             SelectionMarks.Clear();
@@ -847,9 +847,17 @@ namespace fCraft {
             SelectionPermissions = requiredPermissions;
         }
 
-        public void ResetSelection() {
+        public void SelectionResetMarks() {
             SelectionMarks.Clear();
             SelectionMarkCount = 0;
+        }
+
+        public void SelectionCancel() {
+            SelectionMarksExpected = 0;
+        }
+
+        public bool IsMakingSelection {
+            get { return SelectionMarksExpected > 0; }
         }
 
         #endregion
