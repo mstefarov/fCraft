@@ -37,7 +37,8 @@ namespace fCraft {
         public bool ReservedSlot;
         public int Index;
 
-        public Rank NextRankUp, NextRankDown;
+        public Rank NextRankUp { get; internal set; }
+        public Rank NextRankDown { get; internal set; }
 
 
         public int CompareTo( Rank other ) {

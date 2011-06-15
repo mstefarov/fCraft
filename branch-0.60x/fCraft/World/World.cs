@@ -683,10 +683,9 @@ namespace fCraft {
 }
 
 
-#region EventArgs
 namespace fCraft.Events {
 
-    public sealed class WorldCreatingEventArgs : EventArgs {
+    public sealed class WorldCreatingEventArgs : EventArgs, ICancellableEvent {
         public WorldCreatingEventArgs( Player player, string worldName, Map map ) {
             Player = player;
             WorldName = worldName;
@@ -711,4 +710,3 @@ namespace fCraft.Events {
     }
 
 }
-#endregion

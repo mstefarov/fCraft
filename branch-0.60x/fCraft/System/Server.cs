@@ -1188,11 +1188,11 @@ namespace fCraft {
             }
 
             if( matches.Length == 0 ) {
-                player.NoPlayerMessage( name );
+                player.MessageNoPlayer( name );
                 return null;
 
             } else if( matches.Length > 1 ) {
-                player.ManyMatchesMessage( "player", matches );
+                player.MessageManyMatches( "player", matches );
                 return null;
 
             } else {

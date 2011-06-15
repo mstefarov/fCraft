@@ -263,28 +263,27 @@ namespace fCraft.MapConversion {
 
             Zone[] zoneList = map.ZoneList;
             foreach( Zone zone in zoneList ) {
-                MapFCMv3.WriteLengthPrefixedString( writer, "zones" );
-                MapFCMv3.WriteLengthPrefixedString( writer, zone.Name );
-                MapFCMv3.WriteLengthPrefixedString( writer, SerializeZone(zone) );
+                WriteLengthPrefixedString( writer, "zones" );
+                WriteLengthPrefixedString( writer, zone.Name );
+                WriteLengthPrefixedString( writer, SerializeZone(zone) );
                 metaCount++;
             }
 
             World world = map.World;
             if( world != null ) {
-                MapFCMv3.WriteLengthPrefixedString( writer, "security" );
-                MapFCMv3.WriteLengthPrefixedString( writer, "access" );
-                MapFCMv3.WriteLengthPrefixedString( writer, world.AccessSecurity.Serialize().ToString() );
-                MapFCMv3.WriteLengthPrefixedString( writer, "security" );
-                MapFCMv3.WriteLengthPrefixedString( writer, "build" );
-                MapFCMv3.WriteLengthPrefixedString( writer, world.BuildSecurity.Serialize().ToString() );
+                WriteLengthPrefixedString( writer, "security" );
+                WriteLengthPrefixedString( writer, "access" );
+                WriteLengthPrefixedString( writer, world.AccessSecurity.Serialize().ToString() );
+                WriteLengthPrefixedString( writer, "security" );
+                WriteLengthPrefixedString( writer, "build" );
+                WriteLengthPrefixedString( writer, world.BuildSecurity.Serialize().ToString() );
                 metaCount += 2;
             }
             return metaCount;
         }
 
 
-
-        public static string SerializeZone( Zone zone ) {
+        static string SerializeZone( Zone zone ) {
             string xheader;
             if( zone.CreatedBy != null ) {
                 xheader = zone.CreatedBy.Name + " " + zone.CreatedDate.ToCompactString() + " ";

@@ -306,11 +306,13 @@ namespace System.IO.Compression {
             // Make sure the parent directory exist
             string path = Path.GetDirectoryName( filename );
 
-            if( !Directory.Exists( path ) )
+            if( !Directory.Exists( path ) ) {
                 Directory.CreateDirectory( path );
+            }
             // Check it is directory. If so, do nothing
-            if( Directory.Exists( filename ) )
+            if( Directory.Exists( filename ) ) {
                 return true;
+            }
 
             Stream output = new FileStream( filename, FileMode.Create, FileAccess.Write );
             bool result = ExtractFile( zfe, output );

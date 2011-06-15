@@ -79,7 +79,7 @@ namespace fCraft {
             }
 
             if( !Paths.Contains( Paths.WorkingPath, fileName ) ) {
-                player.UnsafePathMessage();
+                player.MessageUnsafePath();
                 return;
             }
 
@@ -152,7 +152,7 @@ namespace fCraft {
                 stat.BlocksBuilt += infos[i].BlocksBuilt;
                 stat.BlocksDeleted += infos[i].BlocksDeleted;
                 stat.TimesVisited += infos[i].TimesVisited;
-                stat.MessagesWritten += infos[i].LinesWritten;
+                stat.MessagesWritten += infos[i].MessagesWritten;
                 stat.TimesKicked += infos[i].TimesKicked;
                 stat.TimesKickedOthers += infos[i].TimesKickedOthers;
                 stat.TimesBannedOthers += infos[i].TimesBannedOthers;
@@ -177,7 +177,7 @@ namespace fCraft {
                                                     .ElementAt( infos.Length / 2 );
             stat.BlockRatioMedian = medianBlockRatioPlayerInfo.BlocksBuilt / (double)Math.Max( medianBlockRatioPlayerInfo.BlocksDeleted, 1 );
             stat.TimesVisitedMedian = infos.OrderByDescending( info => info.TimesVisited ).ElementAt( infos.Length / 2 ).TimesVisited;
-            stat.MessagesWrittenMedian = infos.OrderByDescending( info => info.LinesWritten ).ElementAt( infos.Length / 2 ).LinesWritten;
+            stat.MessagesWrittenMedian = infos.OrderByDescending( info => info.MessagesWritten ).ElementAt( infos.Length / 2 ).MessagesWritten;
             stat.TimesKickedMedian = infos.OrderByDescending( info => info.TimesKicked ).ElementAt( infos.Length / 2 ).TimesKicked;
             stat.TimesKickedOthersMedian = infos.OrderByDescending( info => info.TimesKickedOthers ).ElementAt( infos.Length / 2 ).TimesKickedOthers;
             stat.TimesBannedOthersMedian = infos.OrderByDescending( info => info.TimesBannedOthers ).ElementAt( infos.Length / 2 ).TimesBannedOthers;
@@ -191,7 +191,7 @@ namespace fCraft {
             stat.TopBlocksChanged = infos.OrderByDescending( info => (info.BlocksDeleted + info.BlocksBuilt) ).ToArray();
             stat.TopBlockRatio = infos.OrderByDescending( info => (info.BlocksBuilt / (double)Math.Max( info.BlocksDeleted, 1 )) ).ToArray();
             stat.TopTimesVisited = infos.OrderByDescending( info => info.TimesVisited ).ToArray();
-            stat.TopMessagesWritten = infos.OrderByDescending( info => info.LinesWritten ).ToArray();
+            stat.TopMessagesWritten = infos.OrderByDescending( info => info.MessagesWritten ).ToArray();
             stat.TopTimesKicked = infos.OrderByDescending( info => info.TimesKicked ).ToArray();
             stat.TopTimesKickedOthers = infos.OrderByDescending( info => info.TimesKickedOthers ).ToArray();
             stat.TopTimesBannedOthers = infos.OrderByDescending( info => info.TimesBannedOthers ).ToArray();
@@ -365,15 +365,15 @@ namespace fCraft {
                               stat.MessagesWritten );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopMessagesWritten.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.LinesWritten, info.Name );
+                    writer.WriteLine( "        {0,20}  {1}", info.MessagesWritten, info.Name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopMessagesWritten.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.LinesWritten, info.Name );
+                    writer.WriteLine( "        {0,20}  {1}", info.MessagesWritten, info.Name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopMessagesWritten ) {
-                    writer.WriteLine( "        {0,20}  {1}", info.LinesWritten, info.Name );
+                    writer.WriteLine( "        {0,20}  {1}", info.MessagesWritten, info.Name );
                 }
             }
             writer.WriteLine();
@@ -506,7 +506,7 @@ namespace fCraft {
             if( rankName != null ) {
                 rank = RankManager.ParseRank( rankName );
                 if( rank == null ) {
-                    player.NoRankMessage( rankName );
+                    player.MessageNoRank( rankName );
                     return;
                 }
             }
@@ -592,13 +592,13 @@ namespace fCraft {
 
             Rank fromRank = RankManager.ParseRank( fromRankName );
             if( fromRank == null ) {
-                player.NoRankMessage( fromRankName );
+                player.MessageNoRank( fromRankName );
                 return;
             }
 
             Rank toRank = RankManager.ParseRank( toRankName );
             if( toRank == null ) {
-                player.NoRankMessage( toRankName );
+                player.MessageNoRank( toRankName );
                 return;
             }
 
@@ -655,7 +655,7 @@ namespace fCraft {
             if( !PlayerDB.FindPlayerInfo( targetName, out info ) ) {
                 player.Message( "More than one player found matching \"{0}\"", targetName );
             } else if( info == null ) {
-                player.NoPlayerMessage( targetName );
+                player.MessageNoPlayer( targetName );
             } else {
                 switch( propertyName.ToLower() ) {
                     case "timeskicked":
@@ -681,7 +681,7 @@ namespace fCraft {
                                             oldPreviousRank.GetClassyName(),
                                             info.PreviousRank.GetClassyName() );
                         } else {
-                            player.NoRankMessage( valName );
+                            player.MessageNoRank( valName );
                         }
                         return;
 
@@ -1019,7 +1019,7 @@ namespace fCraft {
 
             Rank targetRank = RankManager.ParseRank( rankName );
             if( targetRank == null ) {
-                player.NoRankMessage( rankName );
+                player.MessageNoRank( rankName );
                 return;
             }
 

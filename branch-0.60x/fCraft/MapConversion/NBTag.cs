@@ -33,7 +33,7 @@ namespace fCraft.MapConversion {
 
         #region Constructors
 
-        public NBTag() { }
+        protected NBTag() { }
 
         public NBTag( NBTType type, NBTag parent ) {
             Type = type;

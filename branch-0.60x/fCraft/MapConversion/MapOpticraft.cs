@@ -118,7 +118,7 @@ namespace fCraft.MapConversion {
             reader.Read( rawMetaData, 0, metaDataSize );
             MemoryStream memStream = new MemoryStream( rawMetaData );
 
-            OpticraftMetaData metaData = serializer.ReadObject( memStream ) as OpticraftMetaData;
+            OpticraftMetaData metaData = (OpticraftMetaData)serializer.ReadObject( memStream );
             Map mapFile = new Map( null, metaData.X, metaData.Y, metaData.Z, false );
             mapFile.Spawn = new Position {
                 X = (short)(metaData.SpawnX),
@@ -143,7 +143,7 @@ namespace fCraft.MapConversion {
                 reader.Read( jsonDataBlock, 0, dataBlockSize );
                 MemoryStream memStream = new MemoryStream( jsonDataBlock );
                 DataContractJsonSerializer serializer = new DataContractJsonSerializer( typeof( OpticraftDataStore ) );
-                OpticraftDataStore dataStore = serializer.ReadObject( memStream ) as OpticraftDataStore;
+                OpticraftDataStore dataStore = (OpticraftDataStore)serializer.ReadObject( memStream );
                 reader.ReadInt32();
                 //Load Zones
                 LoadZones( mapFile, dataStore );

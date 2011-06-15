@@ -59,15 +59,15 @@ namespace fCraft {
                 if( player.Can( Permission.UseColorCodes ) && msg.Contains( "%" ) ) {
                     msg = Color.ReplacePercentCodes( msg );
                 }
-                if( msg != null && msg.Length > 0 ) {
-                    player.Info.LinesWritten++;
-                    Server.Players.NotIgnoring( player ).Message( "&Y{0}", msg );
-                    IRC.SendAction( String.Format( "&Y{0}", msg ) );
+                if( msg.Length > 0 ) {
+                    if( !Chat.SendSay( player, msg ) ) {
+                        player.MessageChatNotSent();
+                    }
                 } else {
                     cdSay.PrintUsage( player );
                 }
             } else {
-                player.NoAccessMessage( Permission.Say );
+                player.MessageNoAccess( Permission.Say );
             }
         }
 
@@ -95,21 +95,13 @@ namespace fCraft {
                 return;
             }
 
-
-            Player[] plist = Server.Players;
-
-            if( plist.Length > 0 ) player.Info.LinesWritten++;
-
-            string message = cmd.NextAll();
-            if( message != null && message.Trim().Length > 0 ) {
-                message = message.Trim();
+            string message = cmd.NextAll().Trim();
+            if( message.Length > 0 ) {
                 if( player.Can( Permission.UseColorCodes ) && message.Contains( "%" ) ) {
                     message = Color.ReplacePercentCodes( message );
                 }
-                for( int i = 0; i < plist.Length; i++ ) {
-                    if( (plist[i].Can( Permission.ReadStaffChat ) || plist[i] == player) && !plist[i].IsIgnoring( player.Info ) ) {
-                        plist[i].Message( "{0}(staff){1}{0}: {2}", Color.PM, player.GetClassyName(), message );
-                    }
+                if( !Chat.SendStaff( player, message ) ) {
+                    player.MessageChatNotSent();
                 }
             }
         }
@@ -138,14 +130,14 @@ namespace fCraft {
                     if( infos.Length == 1 ) {
                         targetInfo = infos[0];
                     } else if( infos.Length > 1 ) {
-                        player.ManyMatchesMessage( "player", infos );
+                        player.MessageManyMatches( "player", infos );
                         return;
                     } else {
-                        player.NoPlayerMessage( name );
+                        player.MessageNoPlayer( name );
                         return;
                     }
                 } else if( targetInfo == null ) {
-                    player.NoPlayerMessage( name );
+                    player.MessageNoPlayer( name );
                     return;
                 }
                 if( player.Ignore( targetInfo ) ) {
@@ -184,14 +176,14 @@ namespace fCraft {
                     if( infos.Length == 1 ) {
                         targetInfo = infos[0];
                     } else if( infos.Length > 1 ) {
-                        player.ManyMatchesMessage( "player", infos );
+                        player.MessageManyMatches( "player", infos );
                         return;
                     } else {
-                        player.NoPlayerMessage( name );
+                        player.MessageNoPlayer( name );
                         return;
                     }
                 } else if( targetInfo == null ) {
-                    player.NoPlayerMessage( name );
+                    player.MessageNoPlayer( name );
                     return;
                 }
                 if( player.Unignore( targetInfo ) ) {
@@ -233,13 +225,13 @@ namespace fCraft {
 
             string msg = cmd.NextAll().Trim();
             if( msg.Length > 0 ) {
-                player.Info.LinesWritten++;
+                player.Info.ProcessMessageWritten();
                 if( player.Can( Permission.UseColorCodes ) && msg.Contains( "%" ) ) {
                     msg = Color.ReplacePercentCodes( msg );
                 }
-                string message = String.Format( "{0}*{1} {2}", Color.Me, player.Name, msg );
-                Server.Message( message );
-                IRC.SendChannelMessage( message );
+                if( !Chat.SendMe( player, msg ) ) {
+                    player.MessageChatNotSent();
+                }
             }
         }
 

@@ -209,7 +209,7 @@
     <Compile Include="AutoRank\Conditions.cs" />
     <Compile Include="AutoRank\Criterion.cs" />
     <Compile Include="Commands\ChatCommands.cs" />
-    <Compile Include="Commands\ChatMessage.cs" />
+    <Compile Include="Player\Chat.cs" />
     <Compile Include="Commands\CommandCategory.cs" />
     <Compile Include="MapConversion\MapFormatException.cs" />
     <Compile Include="MapConversion\MapOpticraft.cs" />

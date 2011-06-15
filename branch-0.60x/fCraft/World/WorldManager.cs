@@ -286,10 +286,10 @@ namespace fCraft {
             matches = e.Matches;
 
             if( matches.Count == 0 ) {
-                player.NoWorldMessage( worldName );
+                player.MessageNoWorld( worldName );
                 return null;
             } else if( matches.Count > 1 ) {
-                player.ManyMatchesMessage( "world", matches.ToArray() );
+                player.MessageManyMatches( "world", matches.ToArray() );
                 return null;
             } else {
                 return matches[0];
@@ -533,7 +533,6 @@ namespace fCraft {
 }
 
 
-#region EventArgs
 namespace fCraft.Events {
 
     public class MainWorldChangedEventArgs : EventArgs {
@@ -546,7 +545,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class MainWorldChangingEventArgs : MainWorldChangedEventArgs {
+    public sealed class MainWorldChangingEventArgs : MainWorldChangedEventArgs, ICancellableEvent {
         internal MainWorldChangingEventArgs( World oldWorld, World newWorld ) : base( oldWorld, newWorld ) { }
         public bool Cancel { get; set; }
     }
@@ -566,4 +565,3 @@ namespace fCraft.Events {
     }
 
 }
-#endregion

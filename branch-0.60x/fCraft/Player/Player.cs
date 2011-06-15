@@ -123,10 +123,6 @@ namespace fCraft {
                         if( World != null && !World.FireSentMessageEvent( this, ref rawMessage ) ||
                             !Server.FireSentMessageEvent( this, ref rawMessage ) ) return;
 
-                        Info.LinesWritten++;
-
-                        Logger.Log( "{0}: {1}", LogType.GlobalChat, Name, rawMessage );
-
                         // Escaped slash removed AFTER logging, to avoid confusion with real commands
                         if( rawMessage.StartsWith( "//" ) ) {
                             rawMessage = rawMessage.Substring( 1 );
@@ -140,10 +136,9 @@ namespace fCraft {
                             rawMessage = Color.ReplacePercentCodes( rawMessage );
                         }
 
-                        Server.Players.NotIgnoring( this ).Message( "{0}{1}: {2}",
-                                                                    GetClassyName(),
-                                                                    Color.White,
-                                                                    rawMessage );
+                        if( !Chat.SendGlobal( this, rawMessage ) ) {
+                            MessageChatNotSent();
+                        }
                     } break;
 
 
@@ -214,24 +209,26 @@ namespace fCraft {
                                     MessageNow( "&WCannot PM {0}&W: you are ignored.", target.GetClassyName() );
                                 }
                             } else {
-                                Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat,
-                                            Name, target.Name, messageText );
-                                target.Message( "{0}from {1}: {2}",
-                                                     Color.PM, Name, messageText );
-                                if( CanSee( target ) ) {
-                                    Message( "{0}to {1}: {2}",
-                                             Color.PM, target.Name, messageText );
+                                if( !Chat.SendPM( this, target, messageText ) ) {
+                                    // message was not sent
+                                    MessageChatNotSent();
+
+                                } else if( !CanSee( target ) ) {
+                                    // message was sent to a hidden player
+                                    MessageNoPlayer( otherPlayerName );
 
                                 } else {
-                                    NoPlayerMessage( otherPlayerName );
+                                    // message was sent normally
+                                    Message( "&Pto {0}: {1}",
+                                             target.Name, messageText );
                                 }
                             }
 
                         } else if( allPlayers.Length == 0 ) {
-                            NoPlayerMessage( otherPlayerName );
+                            MessageNoPlayer( otherPlayerName );
 
                         } else {
-                            ManyMatchesMessage( "player", allPlayers );
+                            MessageManyMatches( "player", allPlayers );
                         }
                     } break;
 
@@ -260,16 +257,8 @@ namespace fCraft {
                                 messageText = Color.ReplacePercentCodes( messageText );
                             }
 
-                            string formattedMessage = String.Format( "{0}({1}{2}){3}{4}: {5}",
-                                                                     rank.Color,
-                                                                     (ConfigKey.RankPrefixesInChat.GetBool() ? rank.Prefix : ""),
-                                                                     rank.Name,
-                                                                     Color.PM,
-                                                                     Name,
-                                                                     messageText );
-                            rank.Players.NotIgnoring( this ).Message( formattedMessage );
-                            if( Info.Rank != rank ) {
-                                Message( formattedMessage );
+                            if( !Chat.SendRank( this, rank, messageText ) ) {
+                                MessageChatNotSent();
                             }
                         } else {
                             Message( "No rank found matching \"{0}\"", rankName );
@@ -309,7 +298,7 @@ namespace fCraft {
             if( this == Console ) {
                 Logger.LogToConsole( message );
             } else {
-                foreach( Packet p in LineWrapper.Wrap( message, Color.Sys ) ) {
+                foreach( Packet p in LineWrapper.Wrap( Color.Sys + message ) ) {
                     Session.Send( p );
                 }
             }
@@ -332,7 +321,7 @@ namespace fCraft {
             if( this == Console ) {
                 Logger.LogToConsole( message );
             } else {
-                foreach( Packet p in LineWrapper.WrapPrefixed( prefix, message, Color.Sys ) ) {
+                foreach( Packet p in LineWrapper.WrapPrefixed( prefix, Color.Sys + message ) ) {
                     Session.Send( p );
                 }
             }
@@ -368,27 +357,6 @@ namespace fCraft {
         }
 
 
-        public void NoPlayerMessage( string playerName ) {
-            Message( "No players found matching \"{0}\"", playerName );
-        }
-
-
-        public void NoWorldMessage( string worldName ) {
-            Message( "No world found with the name \"{0}\"", worldName );
-        }
-
-
-        public void ManyMatchesMessage( string itemType, IEnumerable<IClassy> names ) {
-            if( itemType == null ) throw new ArgumentNullException( "itemType" );
-            if( names == null ) throw new ArgumentNullException( "names" );
-
-            string nameList = names.JoinToString( ", ",
-                                                  p => p.GetClassyName() );
-            Message( "More than one {0} matched: {1}",
-                     itemType, nameList );
-        }
-
-
         public void AskForConfirmation( Command cmd, string message, params object[] args ) {
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( message == null ) throw new ArgumentNullException( "message" );
@@ -399,7 +367,28 @@ namespace fCraft {
         }
 
 
-        public void NoAccessMessage( params Permission[] permissions ) {
+        public void MessageNoPlayer( string playerName ) {
+            Message( "No players found matching \"{0}\"", playerName );
+        }
+
+
+        public void MessageNoWorld( string worldName ) {
+            Message( "No world found with the name \"{0}\"", worldName );
+        }
+
+
+        public void MessageManyMatches( string itemType, IEnumerable<IClassy> names ) {
+            if( itemType == null ) throw new ArgumentNullException( "itemType" );
+            if( names == null ) throw new ArgumentNullException( "names" );
+
+            string nameList = names.JoinToString( ", ",
+                                                  p => p.GetClassyName() );
+            Message( "More than one {0} matched: {1}",
+                     itemType, nameList );
+        }
+
+
+        public void MessageNoAccess( params Permission[] permissions ) {
             Rank reqRank = RankManager.GetMinRankWithPermission( permissions );
             if( reqRank == null ) {
                 Message( "This command is disabled on the server." );
@@ -410,13 +399,18 @@ namespace fCraft {
         }
 
 
-        public void NoRankMessage( string rankName ) {
+        public void MessageNoRank( string rankName ) {
             Message( "Unrecognized rank \"{0}\"", rankName );
         }
 
 
-        public void UnsafePathMessage() {
-            Message( "You cannot access files outside the map folder." );
+        public void MessageUnsafePath() {
+            Message( "&WYou cannot access files outside the map folder." );
+        }
+
+
+        public void MessageChatNotSent() {
+            Message( "&WChat message was not be sent." );
         }
 
 
@@ -834,7 +828,7 @@ namespace fCraft {
                 SelectionCallback( this, SelectionMarks.ToArray(), SelectionArgs );
             } else {
                 Message( "&WYou are no longer allowed to complete this action." );
-                NoAccessMessage( SelectionPermissions );
+                MessageNoAccess( SelectionPermissions );
             }
         }
 
@@ -949,7 +943,6 @@ namespace fCraft {
 }
 
 
-#region Events
 namespace fCraft.Events {
 
     public class PlayerEventArgs : EventArgs {
@@ -961,7 +954,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class PlayerConnectingEventArgs : PlayerEventArgs {
+    public sealed class PlayerConnectingEventArgs : PlayerEventArgs, ICancellableEvent {
         internal PlayerConnectingEventArgs( Player player )
             : base( player ) {
         }
@@ -980,7 +973,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class PlayerMovingEventArgs : PlayerEventArgs {
+    public sealed class PlayerMovingEventArgs : PlayerEventArgs, ICancellableEvent {
         internal PlayerMovingEventArgs( Player player, Position newPos )
             : base( player ) {
             OldPosition = player.Position;
@@ -1004,7 +997,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class PlayerClickingEventArgs : PlayerEventArgs {
+    public sealed class PlayerClickingEventArgs : PlayerEventArgs, ICancellableEvent {
         internal PlayerClickingEventArgs( Player player, short x, short y, short h, bool mode, Block block )
             : base( player ) {
             X = x;
@@ -1069,7 +1062,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class PlayerBeingKickedEventArgs : PlayerKickedEventArgs {
+    public sealed class PlayerBeingKickedEventArgs : PlayerKickedEventArgs, ICancellableEvent {
         internal PlayerBeingKickedEventArgs( Player player, Player kicker, string reason, bool isSilent, bool recordToPlayerDB, LeaveReason context )
             : base( player, kicker, reason, isSilent, recordToPlayerDB, context ) {
         }
@@ -1104,4 +1097,3 @@ namespace fCraft.Events {
         public LeaveReason LeaveReason { get; private set; }
     }
 }
-#endregion

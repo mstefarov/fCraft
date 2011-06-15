@@ -139,7 +139,9 @@ namespace fCraft {
                     RaiseHeartbeatSentEvent( data, response, responseText );
                 }
                 string newUrl = responseText.Trim();
-                if( newUrl.Length > 32 && newUrl != Server.Url ) {
+                if( newUrl.Contains( "Bad heartbeat" ) ) {
+                    LastHeartbeatFailed = true;
+                } else if( newUrl.Length > 32 && newUrl != Server.Url ) {
                     string oldUrl = Server.Url;
                     Server.Url = newUrl;
                     RaiseUrlChangedEvent( oldUrl, newUrl );
@@ -220,7 +222,6 @@ namespace fCraft {
 }
 
 
-#region EventArgs
 namespace fCraft.Events {
 
     public sealed class HeartbeatSentEventArgs : EventArgs {
@@ -240,7 +241,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class HeartbeatSendingEventArgs : EventArgs {
+    public sealed class HeartbeatSendingEventArgs : EventArgs, ICancellableEvent {
         internal HeartbeatSendingEventArgs( HeartbeatData data ) {
             HeartbeatData = data;
         }
@@ -259,4 +260,3 @@ namespace fCraft.Events {
     }
 
 }
-#endregion

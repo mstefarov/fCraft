@@ -215,9 +215,7 @@ namespace fCraft {
             return (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f') || (code >= 'A' && code <= 'F');
         }
 
-
-        public static string ReplacePercentCodes( string message ) {
-            StringBuilder sb = new StringBuilder( message );
+        public static void ReplacePercentCodes( StringBuilder sb ) {
             sb.Replace( "%0", "&0" );
             sb.Replace( "%1", "&1" );
             sb.Replace( "%2", "&2" );
@@ -240,6 +238,11 @@ namespace fCraft {
             sb.Replace( "%D", "&d" );
             sb.Replace( "%E", "&e" );
             sb.Replace( "%F", "&f" );
+        }
+
+        public static string ReplacePercentCodes( string message ) {
+            StringBuilder sb = new StringBuilder( message );
+            ReplacePercentCodes( sb );
             return sb.ToString();
         }
 
