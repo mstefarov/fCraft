@@ -32,7 +32,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
-            var recepientList = Server.Players.NotIgnoring( player ).Union( player );
+            var recepientList = Server.Players.NotIgnoring( player );
 
             string formattedMessage = String.Format( "&M*{0} {1}",
                                                      player.Name,
@@ -80,7 +80,7 @@ namespace fCraft {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
-            var recepientList = rank.Players.NotIgnoring( player ).Union( player );
+            var recepientList = rank.Players.NotIgnoring( player );
 
             string formattedMessage = String.Format( "&P({0})&P{1}: {2}",
                                                      rank.GetClassyName(),
@@ -105,7 +105,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
-            var recepientList = Server.Players.NotIgnoring( player ).Union( player );
+            var recepientList = Server.Players.NotIgnoring( player );
 
             string formattedMessage = Color.Say + rawMessage;
 
@@ -126,9 +126,8 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
-            var recepientList = Server.Players.Can(Permission.ReadStaffChat)
-                                              .NotIgnoring( player )
-                                              .Union( player );
+            var recepientList = Server.Players.Can( Permission.ReadStaffChat )
+                                              .NotIgnoring( player );
 
             string formattedMessage = String.Format( "&P(staff){0}&P: {1}",
                                                      player.GetClassyName(),

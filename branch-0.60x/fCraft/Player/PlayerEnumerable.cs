@@ -234,7 +234,7 @@ namespace fCraft {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( player == null ) throw new ArgumentNullException( "player" );
             foreach( Player otherPlayer in source ) {
-                if( otherPlayer != player && otherPlayer.IsIgnoring( player.Info ) ) {
+                if( otherPlayer.IsIgnoring( player.Info ) ) {
                     yield return otherPlayer;
                 }
             }
@@ -249,7 +249,7 @@ namespace fCraft {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( player == null ) throw new ArgumentNullException( "player" );
             foreach( Player otherPlayer in source ) {
-                if( otherPlayer != player && !otherPlayer.IsIgnoring( player.Info ) ) {
+                if( !otherPlayer.IsIgnoring( player.Info ) ) {
                     yield return otherPlayer;
                 }
             }
@@ -264,7 +264,7 @@ namespace fCraft {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
             foreach( Player otherPlayer in source ) {
-                if( otherPlayer.Info != playerInfo && otherPlayer.IsIgnoring( playerInfo ) ) {
+                if( otherPlayer.IsIgnoring( playerInfo ) ) {
                     yield return otherPlayer;
                 }
             }
@@ -279,7 +279,7 @@ namespace fCraft {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
             foreach( Player otherPlayer in source ) {
-                if( otherPlayer != playerInfo.PlayerObject && !otherPlayer.IsIgnoring( playerInfo ) ) {
+                if( !otherPlayer.IsIgnoring( playerInfo ) ) {
                     yield return otherPlayer;
                 }
             }
@@ -294,7 +294,7 @@ namespace fCraft {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( ignorer == null ) throw new ArgumentNullException( "ignorer" );
             foreach( Player otherPlayer in source ) {
-                if( otherPlayer != ignorer && ignorer.IsIgnoring( otherPlayer.Info ) ) {
+                if( ignorer.IsIgnoring( otherPlayer.Info ) ) {
                     yield return otherPlayer;
                 }
             }
@@ -309,7 +309,7 @@ namespace fCraft {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( ignorer == null ) throw new ArgumentNullException( "ignorer" );
             foreach( Player otherPlayer in source ) {
-                if( otherPlayer != ignorer && !ignorer.IsIgnoring( otherPlayer.Info ) ) {
+                if( !ignorer.IsIgnoring( otherPlayer.Info ) ) {
                     yield return otherPlayer;
                 }
             }
