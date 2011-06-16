@@ -70,8 +70,7 @@ namespace fCraft {
 
             Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat,
                         from.Name, to.Name, rawMessage );
-
-            return false;
+            return true;
         }
 
 

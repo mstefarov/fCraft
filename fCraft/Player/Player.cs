@@ -136,9 +136,7 @@ namespace fCraft {
                             rawMessage = Color.ReplacePercentCodes( rawMessage );
                         }
 
-                        if( !Chat.SendGlobal( this, rawMessage ) ) {
-                            MessageChatNotSent();
-                        }
+                        Chat.SendGlobal( this, rawMessage );
                     } break;
 
 
@@ -209,11 +207,8 @@ namespace fCraft {
                                     MessageNow( "&WCannot PM {0}&W: you are ignored.", target.GetClassyName() );
                                 }
                             } else {
-                                if( !Chat.SendPM( this, target, messageText ) ) {
-                                    // message was not sent
-                                    MessageChatNotSent();
-
-                                } else if( !CanSee( target ) ) {
+                                Chat.SendPM( this, target, messageText );
+                                if( !CanSee( target ) ) {
                                     // message was sent to a hidden player
                                     MessageNoPlayer( otherPlayerName );
 
@@ -257,9 +252,7 @@ namespace fCraft {
                                 messageText = Color.ReplacePercentCodes( messageText );
                             }
 
-                            if( !Chat.SendRank( this, rank, messageText ) ) {
-                                MessageChatNotSent();
-                            }
+                            Chat.SendRank( this, rank, messageText );
                         } else {
                             Message( "No rank found matching \"{0}\"", rankName );
                         }
@@ -406,11 +399,6 @@ namespace fCraft {
 
         public void MessageUnsafePath() {
             Message( "&WYou cannot access files outside the map folder." );
-        }
-
-
-        public void MessageChatNotSent() {
-            Message( "&WChat message was not be sent." );
         }
 
 
