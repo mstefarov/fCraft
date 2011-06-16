@@ -217,43 +217,43 @@ namespace fCraft {
 
 
         static bool ProcessColor( ref byte ch ) {
-            if( ch >= (byte)'a' && ch <= (byte)'f' ) {
-                ch -= 32;
+            if( ch >= (byte)'A' && ch <= (byte)'Z' ) {
+                ch += 32;
             }
-            if( ch >= (byte)'A' && ch <= (byte)'F' ||
+            if( ch >= (byte)'a' && ch <= (byte)'f' ||
                 ch >= (byte)'0' && ch <= (byte)'9' ) {
                 return true;
             }
             switch( ch ) {
-                case (byte)'S':
+                case (byte)'s':
                     ch = (byte)Color.Sys[1];
                     return true;
 
-                case (byte)'Y':
+                case (byte)'y':
                     ch = (byte)Color.Say[1];
                     return true;
 
-                case (byte)'P':
+                case (byte)'p':
                     ch = (byte)Color.PM[1];
                     return true;
 
-                case (byte)'R':
+                case (byte)'r':
                     ch = (byte)Color.Announcement[1];
                     return true;
 
-                case (byte)'H':
+                case (byte)'h':
                     ch = (byte)Color.Help[1];
                     return true;
 
-                case (byte)'W':
+                case (byte)'w':
                     ch = (byte)Color.Warning[1];
                     return true;
 
-                case (byte)'N':
+                case (byte)'m':
                     ch = (byte)Color.Me[1];
                     return true;
 
-                case (byte)'I':
+                case (byte)'i':
                     ch = (byte)Color.IRC[1];
                     return true;
             }
