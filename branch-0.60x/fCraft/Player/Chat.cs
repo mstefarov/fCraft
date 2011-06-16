@@ -81,7 +81,7 @@ namespace fCraft {
 
             var recepientList = rank.Players.NotIgnoring( player );
 
-            string formattedMessage = String.Format( "&P({0})&P{1}: {2}",
+            string formattedMessage = String.Format( "&P({0}&P){1}: {2}",
                                                      rank.GetClassyName(),
                                                      player.Name,
                                                      rawMessage );
