@@ -60,9 +60,7 @@ namespace fCraft {
                     msg = Color.ReplacePercentCodes( msg );
                 }
                 if( msg.Length > 0 ) {
-                    if( !Chat.SendSay( player, msg ) ) {
-                        player.MessageChatNotSent();
-                    }
+                    Chat.SendSay( player, msg );
                 } else {
                     cdSay.PrintUsage( player );
                 }
@@ -100,9 +98,7 @@ namespace fCraft {
                 if( player.Can( Permission.UseColorCodes ) && message.Contains( "%" ) ) {
                     message = Color.ReplacePercentCodes( message );
                 }
-                if( !Chat.SendStaff( player, message ) ) {
-                    player.MessageChatNotSent();
-                }
+                Chat.SendStaff( player, message );
             }
         }
 
@@ -229,9 +225,7 @@ namespace fCraft {
                 if( player.Can( Permission.UseColorCodes ) && msg.Contains( "%" ) ) {
                     msg = Color.ReplacePercentCodes( msg );
                 }
-                if( !Chat.SendMe( player, msg ) ) {
-                    player.MessageChatNotSent();
-                }
+                Chat.SendMe( player, msg );
             }
         }
 
