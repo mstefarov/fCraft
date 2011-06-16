@@ -718,7 +718,7 @@ namespace fCraft {
                 if( descriptor.Aliases != null ) {
                     sb.Append( "Aliases: &H" );
                     sb.Append( descriptor.Aliases.JoinToString( "&S, &H" ) );
-                    sb.Append( "&N" );
+                    sb.Append( '\n' );
                 }
 
                 if( descriptor.HelpHandler != null ) {
