@@ -431,9 +431,9 @@ namespace fCraft {
 
         #region Obsolete Events
         [Obsolete]
-        public event SimpleEventHandler OnLoaded;
+        public event Action OnLoaded;
         [Obsolete]
-        public event SimpleEventHandler OnUnloaded;
+        public event Action OnUnloaded;
         [Obsolete]
         public event PlayerJoinedWorldEventHandler OnPlayerJoined;
         [Obsolete]
@@ -442,21 +442,11 @@ namespace fCraft {
         public event PlayerLeftWorldEventHandler OnPlayerLeft;
         [Obsolete]
         public event PlayerChangedBlockEventHandler OnPlayerChangedBlock;
-        [Obsolete]
-        public event PlayerSentMessageEventHandler OnPlayerSentMessage;
 
         public bool FireChangedBlockEvent( ref BlockUpdate update ) {
             bool cancel = false;
             if( OnPlayerChangedBlock != null ) {
                 OnPlayerChangedBlock( this, ref update, ref cancel );
-            }
-            return !cancel;
-        }
-
-        public bool FireSentMessageEvent( Player player, ref string message ) {
-            bool cancel = false;
-            if( OnPlayerSentMessage != null ) {
-                OnPlayerSentMessage( player, this, ref message, ref cancel );
             }
             return !cancel;
         }

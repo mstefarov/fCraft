@@ -721,9 +721,6 @@ namespace fCraft {
         public static event PlayerChangedWorldEventHandler OnPlayerChangedWorld;
 
         [Obsolete]
-        public static event PlayerSentMessageEventHandler OnPlayerSentMessage;
-
-        [Obsolete]
         public static event PlayerBanStatusChangedEventHandler OnPlayerBanned;
 
         [Obsolete]
@@ -732,14 +729,6 @@ namespace fCraft {
 
         internal static void FireWorldChangedEvent( Player player, World oldWorld, World newWorld ) {
             if( OnPlayerChangedWorld != null ) OnPlayerChangedWorld( player, oldWorld, newWorld );
-        }
-
-        internal static bool FireSentMessageEvent( Player player, ref string message ) {
-            bool cancel = false;
-            if( OnPlayerSentMessage != null ) {
-                OnPlayerSentMessage( player, player.World, ref message, ref cancel );
-            }
-            return !cancel;
         }
 
         internal static void FirePlayerBannedEvent( PlayerInfo player, Player banner, string reason ) {

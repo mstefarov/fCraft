@@ -1,13 +1,14 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System;
 using fCraft;
 
 namespace fCraftUI {
     sealed class ConsoleBox : TextBox {
         const int WM_KEYDOWN = 0x100;
         const int WM_SYSKEYDOWN = 0x104;
-        public SimpleEventHandler OnCommand;
+        public event Action OnCommand;
         readonly List<string> log = new List<string>();
         int logPointer;
 
