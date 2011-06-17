@@ -120,9 +120,6 @@ namespace fCraft {
 
                         if( DetectChatSpam() ) return;
 
-                        if( World != null && !World.FireSentMessageEvent( this, ref rawMessage ) ||
-                            !Server.FireSentMessageEvent( this, ref rawMessage ) ) return;
-
                         // Escaped slash removed AFTER logging, to avoid confusion with real commands
                         if( rawMessage.StartsWith( "//" ) ) {
                             rawMessage = rawMessage.Substring( 1 );
