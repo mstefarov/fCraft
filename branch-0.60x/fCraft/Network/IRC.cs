@@ -500,7 +500,7 @@ namespace fCraft {
         #region Server Event Handlers
 
         static void HookUpHandlers() {
-            Server.OnPlayerSentMessage += PlayerMessageHandler;
+            Chat.Sent += ChatSentHandler;
             Server.PlayerReady += PlayerReadyHandler;
             Server.PlayerDisconnected += PlayerDisconnectedHandler;
             Server.PlayerKicked += PlayerKickedHandler;
@@ -509,11 +509,21 @@ namespace fCraft {
             Server.PlayerInfoRankChanged += PlayerRankChangedHandler;
         }
 
-        internal static void PlayerMessageHandler( Player player, World world, ref string message, ref bool cancel ) {
-            if( ConfigKey.IRCBotForwardFromServer.GetBool() ) {
-                SendChannelMessage( player.GetClassyName() + Color.IRCReset + ": " + message );
-            } else if( message.StartsWith( "#" ) ) {
-                SendChannelMessage( player.GetClassyName() + Color.IRCReset + ": " + message.Substring( 1 ) );
+        internal static void ChatSentHandler( object sender, ChatSentEventArgs args ) {
+            bool enabled = ConfigKey.IRCBotForwardFromServer.GetBool();
+            switch( args.MessageType ) {
+                case ChatMessageType.Global:
+                    if( enabled ) {
+                        SendChannelMessage( args.Player.GetClassyName() + Color.IRCReset + ": " + args.Message );
+                    } else if( args.Message.StartsWith( "#" ) ) {
+                        SendChannelMessage( args.Player.GetClassyName() + Color.IRCReset + ": " + args.Message.Substring( 1 ) );
+                    }
+                    break;
+
+                case ChatMessageType.Me:
+                case ChatMessageType.Say:
+                    if( enabled ) SendAction( args.FormattedMessage );
+                    break;
             }
         }
 

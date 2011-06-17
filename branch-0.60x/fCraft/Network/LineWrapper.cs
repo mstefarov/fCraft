@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -12,6 +13,7 @@ namespace fCraft {
         }
 
         const int LineSize = 64;
+        const int MaxPrefixSize = 32;
         const int PacketSize = 66; // opcode + id + 64
         const byte NoColor = (byte)'f';
 
@@ -40,9 +42,10 @@ namespace fCraft {
         }
 
 
-        LineWrapper( string prefix, string message ) {
-            if( prefix == null ) throw new ArgumentNullException( "prefix" );
-            this.prefix = Encoding.ASCII.GetBytes( prefix );
+        LineWrapper( string prefixString, string message ) {
+            if( prefixString == null ) throw new ArgumentNullException( "prefixString" );
+            prefix = Encoding.ASCII.GetBytes( prefixString );
+            if( prefix.Length > MaxPrefixSize ) throw new ArgumentException( "Prefix too long", "prefixString" );
             if( message == null ) throw new ArgumentNullException( "message" );
             input = Encoding.ASCII.GetBytes( message );
             Reset();
@@ -64,110 +67,128 @@ namespace fCraft {
             output = new byte[PacketSize];
             output[0] = (byte)OpCode.Message;
 
-            if( inputIndex > 0 && prefix.Length > 0 ) {
-                outputStart = 2 + prefix.Length;
-                // TODO: safe insertion using Append()
-                Buffer.BlockCopy( prefix, 0, output, 2, prefix.Length );
-            } else {
-                outputStart = 2;
-            }
-
+            outputStart = 2;
             outputIndex = outputStart;
-
             spaceCount = 0;
             lastColor = NoColor;
             Current = new Packet( output );
 
-            int wrapIndex = 0,
-                wrapOutputIndex = outputStart;
-            byte wrapColor = NoColor;
-            bool expectingColor = false;
+            wrapIndex = 0;
+            wrapColor = NoColor;
+            wrapOutputIndex = outputStart;
+            expectingColor = false;
 
+            // Prepend line prefix, if needed
+            if( inputIndex > 0 && prefix.Length > 0 ) {
+                int preBufferInputIndex = inputIndex;
+                inputIndex = 0;
+                while( inputIndex < prefix.Length ) {
+                    byte ch = prefix[inputIndex];
+                    if( ProcessChar( ch ) ) {
+                        // Should never happen, since prefix is under 32 chars
+                        throw new Exception( "Prefix required wrapping." );
+                    }
+                    inputIndex++;
+                }
+                inputIndex = preBufferInputIndex;
+            }
+
+            // Append as much of the remaining input as possible
             while( inputIndex < input.Length ) {
                 byte ch = input[inputIndex];
-                switch( ch ) {
-                    case (byte)' ':
-                        expectingColor = false;
-                        if( spaceCount == 0 ) {
-                            // first space after a word, set wrapping point
-                            wrapIndex = inputIndex;
-                            wrapOutputIndex = outputIndex;
-                            wrapColor = color;
-                        }
-                        spaceCount++;
-                        break;
-
-                    case (byte)'&':
-                        if( expectingColor ) {
-                            // append "&&"
-                            expectingColor = false;
-                            if( !Append( ch ) ) {
-                                if( wordLength < LineSize - 1 ) {
-                                    inputIndex = wrapIndex;
-                                    outputIndex = wrapOutputIndex;
-                                    color = wrapColor;
-                                }// else word is too long, dont backtrack to wrap
-                                PrepareOutput();
-                                return true;
-                            }
-                            spaceCount = 0;
-                        } else {
-                            expectingColor = true;
-                        }
-                        break;
-
-                    case (byte)'-':
-                        expectingColor = false;
-                        if( !Append( ch ) ) {
-                            inputIndex = wrapIndex;
-                            outputIndex = wrapOutputIndex;
-                            color = wrapColor;
-                            PrepareOutput();
-                            return true;
-                        }
-                        spaceCount = 0;
-                        // allow wrapping after dash
-                        wrapIndex = inputIndex + 1;
-                        wrapOutputIndex = outputIndex;
-                        wrapColor = color;
-                        break;
-
-                    case (byte)'\n':
-                        inputIndex++;
-                        PrepareOutput();
-                        return true;
-
-                    default:
-                        if( expectingColor ) {
-                            expectingColor = false;
-                            if( ProcessColor( ref ch ) ) {
-                                color = ch;
-                            }// else colorcode is invalid, skip
-                        } else {
-                            if( spaceCount > 0 ) {
-                                wrapIndex = inputIndex;
-                                wrapColor = color;
-                            }
-                            if( !IsWordChar( ch ) ) {
-                                // replace unprintable chars with '?'
-                                ch = (byte)'?';
-                            }
-                            if( !Append( ch ) ) {
-                                if( wordLength < LineSize ) {
-                                    inputIndex = wrapIndex;
-                                    outputIndex = wrapOutputIndex;
-                                    color = wrapColor;
-                                }// else word is too long, dont backtrack to wrap
-                                PrepareOutput();
-                                return true;
-                            }
-                        }
-                        break;
+                if( ProcessChar( ch ) ) {
+                    // Line wrap is needed
+                    PrepareOutput();
+                    return true;
                 }
                 inputIndex++;
             }
             PrepareOutput();
             return true;
+        }
+
+        int wrapIndex,
+            wrapOutputIndex;
+        byte wrapColor;
+        bool expectingColor;
+
+        bool ProcessChar( byte ch ) {
+            switch( ch ) {
+                case (byte)' ':
+                    expectingColor = false;
+                    if( spaceCount == 0 ) {
+                        // first space after a word, set wrapping point
+                        wrapIndex = inputIndex;
+                        wrapOutputIndex = outputIndex;
+                        wrapColor = color;
+                    }
+                    spaceCount++;
+                    break;
+
+                case (byte)'&':
+                    if( expectingColor ) {
+                        // append "&&"
+                        expectingColor = false;
+                        if( !Append( ch ) ) {
+                            if( wordLength < LineSize - 1 ) {
+                                inputIndex = wrapIndex;
+                                outputIndex = wrapOutputIndex;
+                                color = wrapColor;
+                            }// else word is too long, dont backtrack to wrap
+                            return true;
+                        }
+                        spaceCount = 0;
+                    } else {
+                        expectingColor = true;
+                    }
+                    break;
+
+                case (byte)'-':
+                    expectingColor = false;
+                    if( !Append( ch ) ) {
+                        inputIndex = wrapIndex;
+                        outputIndex = wrapOutputIndex;
+                        color = wrapColor;
+                        return true;
+                    }
+                    spaceCount = 0;
+                    // allow wrapping after dash
+                    wrapIndex = inputIndex + 1;
+                    wrapOutputIndex = outputIndex;
+                    wrapColor = color;
+                    break;
+
+                case (byte)'\n':
+                    inputIndex++;
+                    return true;
+
+                default:
+                    if( expectingColor ) {
+                        expectingColor = false;
+                        if( ProcessColor( ref ch ) ) {
+                            color = ch;
+                        }// else colorcode is invalid, skip
+                    } else {
+                        if( spaceCount > 0 ) {
+                            wrapIndex = inputIndex;
+                            wrapColor = color;
+                        }
+                        if( !IsWordChar( ch ) ) {
+                            // replace unprintable chars with '?'
+                            ch = (byte)'?';
+                        }
+                        if( !Append( ch ) ) {
+                            if( wordLength < LineSize ) {
+                                inputIndex = wrapIndex;
+                                outputIndex = wrapOutputIndex;
+                                color = wrapColor;
+                            }// else word is too long, dont backtrack to wrap
+                            return true;
+                        }
+                    }
+                    break;
+            }
+            return false;
         }
 
 

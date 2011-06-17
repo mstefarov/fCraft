@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using fCraft.Events;
@@ -221,7 +222,7 @@ namespace fCraft.Events {
     }
 
 
-    public class ChatSentEventArgs : PlayerEventArgs {
+    public sealed class ChatSentEventArgs : PlayerEventArgs {
         internal ChatSentEventArgs( Player player, string message, string formattedMessage,
                                     ChatMessageType messageType, IEnumerable<Player> recepientList, int recepientCount )
             : base( player ) {

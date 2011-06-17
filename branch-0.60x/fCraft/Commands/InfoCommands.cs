@@ -704,7 +704,7 @@ namespace fCraft {
             string commandName = cmd.Next();
 
             if( commandName == "commands" ) {
-                cdCommands.Handler( player, cmd );
+                cdCommands.Call( player, cmd, false );
 
             } else if( commandName != null ) {
                 CommandDescriptor descriptor = CommandManager.GetDescriptor( commandName );
