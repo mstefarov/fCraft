@@ -12,7 +12,7 @@ namespace fCraft {
     /// Static class responsible for sending heartbeats.
     /// </summary>
     public static class Heartbeat {
-        const int HeartbeatDelay = 27500,
+        const int HeartbeatDelay = 30000,
                   HeartbeatTimeout = 10000;
         public static string PrimaryUrl { get; set; }
 
@@ -138,8 +138,11 @@ namespace fCraft {
                     LastHeartbeatFailed = false;
                     RaiseHeartbeatSentEvent( data, response, responseText );
                 }
+
                 string newUrl = responseText.Trim();
-                if( newUrl.Length > 32 && newUrl != Server.Url ) {
+                if( newUrl.Contains( "Bad heartbeat" ) ) {
+                    LastHeartbeatFailed = true;
+                } else if( newUrl.Length > 32 && newUrl != Server.Url ) {
                     string oldUrl = Server.Url;
                     Server.Url = newUrl;
                     RaiseUrlChangedEvent( oldUrl, newUrl );
