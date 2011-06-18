@@ -824,7 +824,7 @@ namespace fCraft {
                     Server.SendToBlind( String.Format( "&SPlayer {0}&S left the server.", player.GetClassyName() ), player );
                 }
                 if( ConfigKey.IRCBotAnnounceServerJoins.GetBool() ) {
-                    IRC.PlayerDisconnectedHandler( null, new PlayerDisconnectedEventArgs( player, LeaveReason.Quit ) );
+                    IRC.PlayerDisconnectedHandler( null, new PlayerDisconnectedEventArgs( player, LeaveReason.ClientQuit ) );
                 }
             }
 

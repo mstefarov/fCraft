@@ -2571,7 +2571,6 @@
             // xIRCUseColor
             // 
             this.xIRCUseColor.AutoSize = true;
-            this.xIRCUseColor.Enabled = false;
             this.xIRCUseColor.Location = new System.Drawing.Point( 325, 23 );
             this.xIRCUseColor.Name = "xIRCUseColor";
             this.xIRCUseColor.Size = new System.Drawing.Size( 149, 19 );
