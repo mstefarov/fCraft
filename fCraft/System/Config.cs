@@ -769,7 +769,7 @@ namespace fCraft {
             owner.Add( new XElement( Permission.Bring.ToString() ) );
             owner.Add( new XElement( Permission.BringAll.ToString() ) );
             owner.Add( new XElement( Permission.Patrol.ToString() ) );
-            owner.Add( new XElement( Permission.Spectate.ToString() ) );
+            //owner.Add( new XElement( Permission.Spectate.ToString() ) );
             owner.Add( new XElement( Permission.Freeze.ToString() ) );
             owner.Add( new XElement( Permission.Mute.ToString() ) );
             owner.Add( new XElement( Permission.SetSpawn.ToString() ) );
@@ -839,7 +839,7 @@ namespace fCraft {
             op.Add( new XElement( Permission.Teleport.ToString() ) );
             op.Add( new XElement( Permission.Bring.ToString() ) );
             op.Add( new XElement( Permission.Patrol.ToString() ) );
-            op.Add( new XElement( Permission.Spectate.ToString() ) );
+            //op.Add( new XElement( Permission.Spectate.ToString() ) );
             op.Add( new XElement( Permission.Freeze.ToString() ) );
             op.Add( new XElement( Permission.Mute.ToString() ) );
             op.Add( new XElement( Permission.SetSpawn.ToString() ) );

@@ -472,10 +472,10 @@ Affected commands:
     /shutdown
     /restart";
 
-            vPermissions.Items[(int)Permission.Spectate].ToolTipText =
+/*            vPermissions.Items[(int)Permission.Spectate].ToolTipText =
 @"Ability to spectate/follow other players in first-person view.
 Affected commands:
-    /spectate";
+    /spectate";*/
 
             vPermissions.Items[(int)Permission.Teleport].ToolTipText =
 @"Ability to teleport to other players.

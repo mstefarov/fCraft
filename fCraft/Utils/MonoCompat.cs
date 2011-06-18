@@ -81,10 +81,9 @@ namespace fCraft {
                 } else {
                     binaryName = "mono";
                 }
-                if( String.IsNullOrEmpty( assemblyArgs ) ) {
-                    args = assemblyLocation;
-                } else {
-                    args = assemblyLocation + " " + assemblyArgs;
+                args = "\"" + assemblyLocation + "\"";
+                if( !String.IsNullOrEmpty( assemblyArgs ) ) {
+                    args += " " + assemblyArgs;
                 }
                 if( detachIfMono ) {
                     args += " &";

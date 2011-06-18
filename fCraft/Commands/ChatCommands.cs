@@ -41,7 +41,7 @@ namespace fCraft {
             Name = "say",
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Say },
+            Permissions = new[] { Permission.Chat, Permission.Say },
             Usage = "/say Message",
             Help = "Shows a message in special color, without the player name prefix. " +
                    "Can be used for making announcements.",
@@ -77,6 +77,7 @@ namespace fCraft {
             Name = "staff",
             Category = CommandCategory.Chat | CommandCategory.Moderation,
             IsConsoleSafe = true,
+            Permissions = new[] { Permission.Chat },
             Usage = "/staff Message",
             Help = "Broadcasts your message to all operators/moderators on the server at once.",
             Handler = StaffChat
@@ -219,6 +220,7 @@ namespace fCraft {
             Name = "me",
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
+            Permissions = new[] { Permission.Chat },
             Usage = "/me Message",
             Help = "Sends IRC-style action message prefixed with your name.",
             Handler = Me
@@ -251,6 +253,7 @@ namespace fCraft {
             Name = "roll",
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
+            Permissions = new[] { Permission.Chat },
             Help = "Gives random number between 1 and 100.&N" +
                    "&H/roll MaxNumber&N" +
                    "Gives number between 1 and max.&N" +
