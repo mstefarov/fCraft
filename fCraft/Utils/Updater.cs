@@ -20,11 +20,15 @@ namespace fCraft {
             663,
             new DateTime( 2011, 6, 17, 22, 0, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Dev | ReleaseFlags.Unstable
+            ReleaseFlags.Dev
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
         );
+
+        public static string UserAgent {
+            get { return "fCraft " + CurrentRelease.VersionString; }
+        }
 
         public const string LatestStable = "0.533_r614";
 

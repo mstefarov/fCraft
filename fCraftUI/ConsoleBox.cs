@@ -24,6 +24,7 @@ namespace fCraftUI {
                         SelectAll();
                     }
                     return true;
+
                 case Keys.Down:
                     if( msg.Msg == WM_SYSKEYDOWN || msg.Msg == WM_KEYDOWN ) {
                         if( log.Count == 0 ) return true;
@@ -34,6 +35,7 @@ namespace fCraftUI {
                         SelectAll();
                     }
                     return true;
+
                 case Keys.Enter:
                     if( msg.Msg == WM_SYSKEYDOWN || msg.Msg == WM_KEYDOWN ) {
                         if( Text.Length > 0 ) {
@@ -44,12 +46,14 @@ namespace fCraftUI {
                     }
                     if( OnCommand != null ) OnCommand();
                     return true;
+
                 case Keys.Escape:
                     if( msg.Msg == WM_SYSKEYDOWN || msg.Msg == WM_KEYDOWN ) {
                         logPointer = log.Count;
                         Text = "";
                     }
                     return base.ProcessCmdKey( ref msg, keyData );
+
                 default:
                     return base.ProcessCmdKey( ref msg, keyData );
             }
