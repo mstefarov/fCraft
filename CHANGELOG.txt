@@ -1,3 +1,19 @@
+0.534
+ Feature: Added <RestartInterval> config key (in seconds). It should help people who are suffering from Mono memory leaks. This setting can only currently be modified by editing config.xml
+ Fix: Fixed /wload and /gen resetting the world's hidden status.
+ Fix: Fixed "Apply" button not getting enabled in ConfigTool when world list is changed.
+ Fix: Fixed /cw reporting incorrect volume (fixes #3308137).
+ Fix: Added a confirmation when /wrename will result in overwriting a map file, and fixed a related crash (fixes #3311994).
+ Fix: Fixed FormatException in error handling code in World.AcceptPlayer
+ Fix: Fixed /info not showing formatted names for players who appear offline.
+ Fix: Fixed several issues with renaming worlds from ConfigTool.
+ Fix: Fixed /restart breaking under Mono if path contains spaces.
+ Fix: Fixed /staff, /me, and /roll commands not requiring the Chat permission.
+ Fix: Fixed "Use IRC colors" checkbox remaining disabled in ConfigTool.
+ Change: Allowed all printable ASCII characters in chat except '&'.
+ Change: Heartbeat tweaks to prevent "Bad heartbeat" from popping up.
+ Optimization: ConfigTool starts up faster, and uses much less memory.
+
 0.533
  Fix: Fixed a regression in 0.530 that erased some strings in PlayerInfo and IPBanInfo objects, such as ban reasons.
  Change: Increased heartbeat interval to 27.5 seconds.
