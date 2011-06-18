@@ -20,7 +20,7 @@ namespace fCraft {
         public static readonly bool[] LogFileOptions;
 
         const string DefaultLogFileName = "fCraft.log",
-                     CrashReportUrl = "http://fragmer.net/fcraft/crashreport.php",
+                     CrashReportUrl = "http://www.fcraft.net/crashreport.php",
                      LongDateFormat = "yyyy'-'MM'-'dd'_'HH'-'mm'-'ss",
                      ShortDateFormat = "yyyy'-'MM'-'dd";
         public static LogSplittingType SplittingType = LogSplittingType.OneFile;
@@ -194,23 +194,43 @@ namespace fCraft {
                     }
                     sb.Append( "&log=" ).Append( Uri.EscapeDataString( String.Join( Environment.NewLine, lastFewLines ) ) );
 
-                    byte[] formData = Encoding.ASCII.GetBytes( sb.ToString() );
+                    byte[] formData = Encoding.UTF8.GetBytes( sb.ToString() );
 
-                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create( CrashReportUrl );
                     ServicePointManager.Expect100Continue = false;
+                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create( CrashReportUrl );
                     request.Method = "POST";
                     request.Timeout = 15000; // 15s timeout
                     request.ContentType = "application/x-www-form-urlencoded";
                     request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
                     request.ContentLength = formData.Length;
+                    request.UserAgent = Updater.UserAgent;
 
                     using( Stream requestStream = request.GetRequestStream() ) {
                         requestStream.Write( formData, 0, formData.Length );
                         requestStream.Flush();
                     }
 
+                    string responseString;
+                    using( HttpWebResponse response = (HttpWebResponse)request.GetResponse() ) {
+                        using( Stream responseStream = response.GetResponseStream() ) {
+                            using( StreamReader reader = new StreamReader( responseStream ) ) {
+                                responseString = reader.ReadLine();
+                            }
+                        }
+                    }
                     request.Abort();
-                    Log( "Crash report submitted.", LogType.SystemActivity );
+
+                    if( responseString != null && responseString.StartsWith( "ERROR" ) ) {
+                        Log( "Crash report could not be processed by fCraft.net.", LogType.Error );
+                    } else {
+                        int referenceNumber;
+                        if( responseString != null && Int32.TryParse( responseString, out referenceNumber ) ) {
+                            Log( "Crash report submitted (Reference #{0})", LogType.SystemActivity, referenceNumber );
+                        } else {
+                            Log( "Crash report submitted.", LogType.SystemActivity );
+                        }
+                    }
+
 
                 } catch( Exception ex ) {
                     Log( "Logger.SubmitCrashReport: {0}", LogType.Warning, ex.Message );
