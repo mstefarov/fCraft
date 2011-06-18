@@ -47,11 +47,11 @@ namespace fCraft {
             CommandManager.RegisterCommand( cdMute );
             CommandManager.RegisterCommand( cdUnmute );
 
-            CommandManager.RegisterCommand( cdSpectate );
-            CommandManager.RegisterCommand( cdUnspectate );
+            //CommandManager.RegisterCommand( cdSpectate );
+            //CommandManager.RegisterCommand( cdUnspectate );
         }
 
-        static readonly CommandDescriptor cdSpectate = new CommandDescriptor {
+        /*static readonly CommandDescriptor cdSpectate = new CommandDescriptor {
             Name = "spectate",
             Aliases = new[] { "follow" },
             Category = CommandCategory.Moderation,
@@ -90,7 +90,7 @@ namespace fCraft {
             if( !player.StopSpectating() ) {
                 player.Message( "You are not currently spectating anyone." );
             }
-        }
+        }*/
 
 
 

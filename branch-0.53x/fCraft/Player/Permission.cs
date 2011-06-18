@@ -113,8 +113,8 @@ namespace fCraft {
         /// usually while hidden. </summary>
         Patrol,
 
-        /// <summary> Ability to use /spectate. </summary>
-        Spectate,
+        ///// <summary> Ability to use /spectate. </summary>
+        //Spectate,
 
         /// <summary> Ability to freeze/unfreeze players.
         /// Frozen players cannot move or build/delete.</summary>
