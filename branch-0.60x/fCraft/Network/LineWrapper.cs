@@ -81,6 +81,7 @@ namespace fCraft {
             // Prepend line prefix, if needed
             if( inputIndex > 0 && prefix.Length > 0 ) {
                 int preBufferInputIndex = inputIndex;
+                byte preBufferColor = color;
                 inputIndex = 0;
                 while( inputIndex < prefix.Length ) {
                     byte ch = prefix[inputIndex];
@@ -91,6 +92,8 @@ namespace fCraft {
                     inputIndex++;
                 }
                 inputIndex = preBufferInputIndex;
+                color = preBufferColor;
+                wrapColor = preBufferColor;
             }
 
             // Append as much of the remaining input as possible

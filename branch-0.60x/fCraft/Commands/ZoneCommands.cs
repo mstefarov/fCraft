@@ -501,15 +501,21 @@ namespace fCraft {
                 return;
             }
 
-            Zone zone = player.World.Map.FindZone( oldName );
-            if( zone == null ) {
+            Zone oldZone = player.World.Map.FindZone( oldName );
+            if( oldZone == null ) {
                 player.Message( "No zone found with the name \"{0}\". See &H/zones", oldName );
                 return;
             }
 
-            string fullOldName = zone.Name;
+            Zone newZone = player.World.Map.FindZoneExact( newName );
+            if( newZone!=null && newZone != oldZone ) {
+                player.Message( "A zone with the name \"{0}\" already exists.", newName );
+                return;
+            }
 
-            player.World.Map.RenameZone( zone, newName );
+            string fullOldName = oldZone.Name;
+
+            player.World.Map.RenameZone( oldZone, newName );
             Logger.Log( "Player {0} renamed zone \"{1}\" to \"{2}\" on world {3}", LogType.UserActivity,
                         player.Name, fullOldName, newName, player.World.Name );
         }
