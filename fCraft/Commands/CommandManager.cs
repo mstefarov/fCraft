@@ -5,7 +5,7 @@ using System.Linq;
 using fCraft.Events;
 
 namespace fCraft {
-    /// <summary> Type of message sent by the player. Set by CommandManager.GetMessageType() </summary>
+    /// <summary> Type of message sent by the player. Determined by CommandManager.GetMessageType() </summary>
     public enum MessageType {
         /// <summary> Unparseable chat syntax (rare). </summary>
         Invalid,
@@ -117,7 +117,7 @@ namespace fCraft {
             }
 #endif
 
-            if( string.IsNullOrEmpty( descriptor.Name ) || descriptor.Name.Length > 16 ) {
+            if( !IsValidCommandName(descriptor.Name) ) {
                 throw new CommandRegistrationException( "All commands need a name, between 1 and 16 alphanumeric characters long." );
             }
 
@@ -165,12 +165,15 @@ namespace fCraft {
         }
 
 
-        public static CommandDescriptor GetDescriptor( string commandName ) {
+        /// <summary> Finds an instance of CommandDescriptor for a given command. </summary>
+        /// <param name="commandName"> Command to find. </param>
+        /// <returns> CommandDesriptor object if found, null if not found. </returns>
+        public static CommandDescriptor GetDescriptor( string commandName, bool alsoCheckAliases ) {
             if( commandName == null ) throw new ArgumentNullException( "commandName" );
             commandName = commandName.ToLower();
             if( Commands.ContainsKey( commandName ) ) {
                 return Commands[commandName];
-            } else if( Aliases.ContainsKey( commandName ) ) {
+            } else if( alsoCheckAliases && Aliases.ContainsKey( commandName ) ) {
                 return Commands[Aliases[commandName]];
             } else {
                 return null;
@@ -185,7 +188,7 @@ namespace fCraft {
         public static void ParseCommand( Player player, Command cmd, bool fromConsole ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
-            CommandDescriptor descriptor = GetDescriptor( cmd.Name );
+            CommandDescriptor descriptor = GetDescriptor( cmd.Name, true );
 
             if( descriptor == null ) {
                 player.Message( "Unknown command \"{0}\". See &H/help commands", cmd.Name );
@@ -238,6 +241,23 @@ namespace fCraft {
                     return MessageType.PrivateChat;
             }
             return MessageType.Chat;
+        }
+
+
+        /// <summary> Checks whether a command name is acceptible.
+        /// Constraints are similar to Player.IsValidName, except for minimum length. </summary>
+        /// <param name="name"> Command name to check. </param>
+        /// <returns> True if the name is valid. </returns>
+        public static bool IsValidCommandName( string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( name.Length == 0 || name.Length > 16 ) return false;
+            for( int i = 0; i < name.Length; i++ ) {
+                char ch = name[i];
+                if( (ch < '0' && ch != '.') || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') || ch > 'z' ) {
+                    return false;
+                }
+            }
+            return true;
         }
 
 

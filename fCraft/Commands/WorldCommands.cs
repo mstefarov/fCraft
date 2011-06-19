@@ -12,33 +12,33 @@ namespace fCraft {
     /// </summary>
     static class WorldCommands {
         internal static void Init() {
-            CommandManager.RegisterCommand( cdJoin );
+            CommandManager.RegisterCommand( CdJoin );
 
-            CommandManager.RegisterCommand( cdWorldInfo );
+            CommandManager.RegisterCommand( CdWorldInfo );
 
-            CommandManager.RegisterCommand( cdWorldSave );
-            CommandManager.RegisterCommand( cdWorldMain );
-            CommandManager.RegisterCommand( cdWorldAccess );
-            CommandManager.RegisterCommand( cdWorldBuild );
-            CommandManager.RegisterCommand( cdWorlds );
-            CommandManager.RegisterCommand( cdWorldLoad );
-            CommandManager.RegisterCommand( cdWorldRename );
-            CommandManager.RegisterCommand( cdWorldUnload );
-            CommandManager.RegisterCommand( cdWorldFlush );
+            CommandManager.RegisterCommand( CdWorldSave );
+            CommandManager.RegisterCommand( CdWorldMain );
+            CommandManager.RegisterCommand( CdWorldAccess );
+            CommandManager.RegisterCommand( CdWorldBuild );
+            CommandManager.RegisterCommand( CdWorlds );
+            CommandManager.RegisterCommand( CdWorldLoad );
+            CommandManager.RegisterCommand( CdWorldRename );
+            CommandManager.RegisterCommand( CdWorldUnload );
+            CommandManager.RegisterCommand( CdWorldFlush );
 
-            CommandManager.RegisterCommand( cdWorldHide );
-            CommandManager.RegisterCommand( cdWorldUnhide );
+            CommandManager.RegisterCommand( CdWorldHide );
+            CommandManager.RegisterCommand( CdWorldUnhide );
 
-            CommandManager.RegisterCommand( cdGenerate );
+            CommandManager.RegisterCommand( CdGenerate );
 
-            CommandManager.RegisterCommand( cdLock );
-            CommandManager.RegisterCommand( cdLockAll );
-            CommandManager.RegisterCommand( cdUnlock );
-            CommandManager.RegisterCommand( cdUnlockAll );
+            CommandManager.RegisterCommand( CdLock );
+            CommandManager.RegisterCommand( CdLockAll );
+            CommandManager.RegisterCommand( CdUnlock );
+            CommandManager.RegisterCommand( CdUnlockAll );
         }
 
 
-        static readonly CommandDescriptor cdWorldInfo = new CommandDescriptor {
+        static readonly CommandDescriptor CdWorldInfo = new CommandDescriptor {
             Name = "winfo",
             Aliases = new[] { "mapinfo" },
             Category = CommandCategory.World | CommandCategory.Info,
@@ -104,7 +104,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdJoin = new CommandDescriptor {
+        static readonly CommandDescriptor CdJoin = new CommandDescriptor {
             Name = "join",
             Aliases = new[] { "j", "load", "l", "goto", "map" },
             Category = CommandCategory.World,
@@ -116,7 +116,7 @@ namespace fCraft {
         internal static void Join( Player player, Command cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
-                cdJoin.PrintUsage( player );
+                CdJoin.PrintUsage( player );
                 return;
             }
 
@@ -168,7 +168,7 @@ namespace fCraft {
 
         #region World Commands
 
-        static readonly CommandDescriptor cdWorldSave = new CommandDescriptor {
+        static readonly CommandDescriptor CdWorldSave = new CommandDescriptor {
             Name = "wsave",
             Aliases = new[] { "save" },
             Category = CommandCategory.World,
@@ -184,7 +184,7 @@ namespace fCraft {
         internal static void WorldSave( Player player, Command cmd ) {
             string p1 = cmd.Next(), p2 = cmd.Next();
             if( p1 == null ) {
-                cdWorldSave.PrintUsage( player );
+                CdWorldSave.PrintUsage( player );
                 return;
             }
 
@@ -263,7 +263,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdWorldFlush = new CommandDescriptor {
+        static readonly CommandDescriptor CdWorldFlush = new CommandDescriptor {
             Name = "wflush",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -301,7 +301,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdWorldMain = new CommandDescriptor {
+        static readonly CommandDescriptor CdWorldMain = new CommandDescriptor {
             Name = "wmain",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -360,7 +360,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdWorldAccess = new CommandDescriptor {
+        static readonly CommandDescriptor CdWorldAccess = new CommandDescriptor {
             Name = "waccess",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -598,7 +598,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdWorldBuild = new CommandDescriptor {
+        static readonly CommandDescriptor CdWorldBuild = new CommandDescriptor {
             Name = "wbuild",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -828,7 +828,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdWorlds = new CommandDescriptor {
+        static readonly CommandDescriptor CdWorlds = new CommandDescriptor {
             Name = "worlds",
             Category = CommandCategory.World | CommandCategory.Info,
             IsConsoleSafe = true,
@@ -859,7 +859,7 @@ namespace fCraft {
                         listVisible = false;
                         break;
                     default:
-                        cdWorlds.PrintUsage( player );
+                        CdWorlds.PrintUsage( player );
                         return;
                 }
             }
@@ -897,7 +897,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdWorldLoad = new CommandDescriptor {
+        static readonly CommandDescriptor CdWorldLoad = new CommandDescriptor {
             Name = "wload",
             Aliases = new[] { "wadd" },
             Category = CommandCategory.World,
@@ -923,7 +923,7 @@ namespace fCraft {
 
             if( fileName == null ) {
                 // No params given at all
-                cdWorldLoad.PrintUsage( player );
+                CdWorldLoad.PrintUsage( player );
                 return;
             }
 
@@ -1093,7 +1093,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdWorldRename = new CommandDescriptor {
+        static readonly CommandDescriptor CdWorldRename = new CommandDescriptor {
             Name = "wrename",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -1107,7 +1107,7 @@ namespace fCraft {
             string oldName = cmd.Next();
             string newName = cmd.Next();
             if( oldName == null || newName == null ) {
-                cdWorldRename.PrintUsage( player );
+                CdWorldRename.PrintUsage( player );
                 return;
             }
 
@@ -1154,7 +1154,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdWorldUnload = new CommandDescriptor {
+        static readonly CommandDescriptor CdWorldUnload = new CommandDescriptor {
             Name = "wunload",
             Aliases = new[] { "wremove", "wdelete" },
             Category = CommandCategory.World,
@@ -1169,7 +1169,7 @@ namespace fCraft {
         internal static void WorldUnload( Player player, Command cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
-                cdWorldUnload.PrintUsage( player );
+                CdWorldUnload.PrintUsage( player );
                 return;
             }
 
@@ -1215,7 +1215,7 @@ namespace fCraft {
 
         #region Hide / Unhide
 
-        static readonly CommandDescriptor cdWorldHide = new CommandDescriptor {
+        static readonly CommandDescriptor CdWorldHide = new CommandDescriptor {
             Name = "whide",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -1229,7 +1229,7 @@ namespace fCraft {
         internal static void WorldHide( Player player, Command cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
-                cdWorldAccess.PrintUsage( player );
+                CdWorldAccess.PrintUsage( player );
                 return;
             }
 
@@ -1247,7 +1247,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdWorldUnhide = new CommandDescriptor {
+        static readonly CommandDescriptor CdWorldUnhide = new CommandDescriptor {
             Name = "wunhide",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -1261,7 +1261,7 @@ namespace fCraft {
         internal static void WorldUnhide( Player player, Command cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
-                cdWorldAccess.PrintUsage( player );
+                CdWorldAccess.PrintUsage( player );
                 return;
             }
 
@@ -1282,7 +1282,7 @@ namespace fCraft {
 
         #region Generation
 
-        static readonly CommandDescriptor cdGenerate = new CommandDescriptor {
+        static readonly CommandDescriptor CdGenerate = new CommandDescriptor {
             Name = "gen",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -1304,7 +1304,7 @@ namespace fCraft {
             string templateName = cmd.Next();
 
             if( templateName == null ) {
-                cdGenerate.PrintUsage( player );
+                CdGenerate.PrintUsage( player );
                 return;
             }
 
@@ -1319,7 +1319,7 @@ namespace fCraft {
                     height = player.World.Map.Height;
                 } else {
                     player.Message( "When used from console, /gen requires map dimensions." );
-                    cdGenerate.PrintUsage( player );
+                    CdGenerate.PrintUsage( player );
                     return;
                 }
                 cmd.Rewind();
@@ -1344,7 +1344,7 @@ namespace fCraft {
             if( fileName == null ) {
                 if( player.World == null ) {
                     player.Message( "When used from console, /gen requires FileName." );
-                    cdGenerate.PrintUsage( player );
+                    CdGenerate.PrintUsage( player );
                     return;
                 }
                 if( !cmd.IsConfirmed ) {
@@ -1401,7 +1401,7 @@ namespace fCraft {
             }
 
             if( !Enum.IsDefined( typeof( MapGenTheme ), theme ) || !Enum.IsDefined( typeof( MapGenTemplate ), template ) ) {
-                cdGenerate.PrintUsage( player );
+                CdGenerate.PrintUsage( player );
                 return;
             }
 
@@ -1454,7 +1454,7 @@ namespace fCraft {
 
         #region Lock / Unlock
 
-        static readonly CommandDescriptor cdLock = new CommandDescriptor {
+        static readonly CommandDescriptor CdLock = new CommandDescriptor {
             Name = "lock",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -1490,7 +1490,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdLockAll = new CommandDescriptor {
+        static readonly CommandDescriptor CdLockAll = new CommandDescriptor {
             Name = "lockall",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -1509,7 +1509,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdUnlock = new CommandDescriptor {
+        static readonly CommandDescriptor CdUnlock = new CommandDescriptor {
             Name = "unlock",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -1542,7 +1542,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdUnlockAll = new CommandDescriptor {
+        static readonly CommandDescriptor CdUnlockAll = new CommandDescriptor {
             Name = "unlockall",
             Category = CommandCategory.World,
             IsConsoleSafe = true,

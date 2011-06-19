@@ -9,19 +9,19 @@ namespace fCraft {
     static class ZoneCommands {
 
         internal static void Init() {
-            CommandManager.RegisterCommand( cdZoneEdit );
-            CommandManager.RegisterCommand( cdZoneAdd );
-            CommandManager.RegisterCommand( cdZoneTest );
-            CommandManager.RegisterCommand( cdZoneList );
-            CommandManager.RegisterCommand( cdZoneRemove );
-            CommandManager.RegisterCommand( cdZoneInfo );
-            CommandManager.RegisterCommand( cdZoneRename );
-            CommandManager.RegisterCommand( cdZoneMark );
+            CommandManager.RegisterCommand( CdZoneEdit );
+            CommandManager.RegisterCommand( CdZoneAdd );
+            CommandManager.RegisterCommand( CdZoneTest );
+            CommandManager.RegisterCommand( CdZoneList );
+            CommandManager.RegisterCommand( CdZoneRemove );
+            CommandManager.RegisterCommand( CdZoneInfo );
+            CommandManager.RegisterCommand( CdZoneRename );
+            CommandManager.RegisterCommand( CdZoneMark );
         }
 
 
 
-        static readonly CommandDescriptor cdZoneMark = new CommandDescriptor {
+        static readonly CommandDescriptor CdZoneMark = new CommandDescriptor {
             Name = "zmark",
             Category = CommandCategory.Zone | CommandCategory.Building,
             Usage = "/zmark ZoneName",
@@ -35,7 +35,7 @@ namespace fCraft {
             } else if( player.SelectionMarksExpected == 2 ) {
                 string zoneName = cmd.Next();
                 if( zoneName == null ) {
-                    cdZoneMark.PrintUsage( player );
+                    CdZoneMark.PrintUsage( player );
                     return;
                 }
 
@@ -54,7 +54,7 @@ namespace fCraft {
         }
 
 
-        static readonly CommandDescriptor cdZoneEdit = new CommandDescriptor {
+        static readonly CommandDescriptor CdZoneEdit = new CommandDescriptor {
             Name = "zedit",
             Category = CommandCategory.Zone,
             Permissions = new[] { Permission.ManageZones },
@@ -183,7 +183,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdZoneAdd = new CommandDescriptor {
+        static readonly CommandDescriptor CdZoneAdd = new CommandDescriptor {
             Name = "zadd",
             Category = CommandCategory.Zone,
             Aliases = new[] { "zone" },
@@ -198,7 +198,7 @@ namespace fCraft {
         internal static void ZoneAdd( Player player, Command cmd ) {
             string zoneName = cmd.Next();
             if( zoneName == null ) {
-                cdZoneAdd.PrintUsage( player );
+                CdZoneAdd.PrintUsage( player );
                 return;
             }
 
@@ -220,7 +220,7 @@ namespace fCraft {
                 zone.Controller.Include( info );
                 player.Message( "Zone: Creating a {0}+&S zone for player {1}&S. Place a block or type /mark to use your location.",
                                 zone.Controller.MinRank.GetClassyName(), info.GetClassyName() );
-                player.SelectionSetCallback( 2, ZoneAddCallback, zone, cdZoneAdd.Permissions );
+                player.SelectionSetCallback( 2, ZoneAddCallback, zone, CdZoneAdd.Permissions );
 
             } else {
                 if( !World.IsValidName( zoneName ) ) {
@@ -266,7 +266,7 @@ namespace fCraft {
                     }
 
                     zone.Controller.MinRank = minRank;
-                    player.SelectionSetCallback( 2, ZoneAddCallback, zone, cdZoneAdd.Permissions );
+                    player.SelectionSetCallback( 2, ZoneAddCallback, zone, CdZoneAdd.Permissions );
                     player.Message( "Zone: Place a block or type /mark to use your location." );
 
                 } else {
@@ -293,7 +293,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdZoneTest = new CommandDescriptor {
+        static readonly CommandDescriptor CdZoneTest = new CommandDescriptor {
             Name = "ztest",
             Category = CommandCategory.Zone | CommandCategory.Info,
             Help = "Allows to test exactly which zones affect a particular block. Can be used to find and resolve zone overlaps.",
@@ -323,7 +323,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdZoneRemove = new CommandDescriptor {
+        static readonly CommandDescriptor CdZoneRemove = new CommandDescriptor {
             Name = "zremove",
             Aliases = new[] { "zdelete" },
             Category = CommandCategory.Zone,
@@ -336,7 +336,7 @@ namespace fCraft {
         internal static void ZoneRemove( Player player, Command cmd ) {
             string zoneName = cmd.Next();
             if( zoneName == null ) {
-                cdZoneRemove.PrintUsage( player );
+                CdZoneRemove.PrintUsage( player );
                 return;
             }
 
@@ -362,7 +362,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdZoneList = new CommandDescriptor {
+        static readonly CommandDescriptor CdZoneList = new CommandDescriptor {
             Name = "zones",
             Category = CommandCategory.Zone | CommandCategory.Info,
             IsConsoleSafe = true,
@@ -417,7 +417,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdZoneInfo = new CommandDescriptor {
+        static readonly CommandDescriptor CdZoneInfo = new CommandDescriptor {
             Name = "zinfo",
             Category = CommandCategory.Zone | CommandCategory.Info,
             Help = "Shows information about a zone",
@@ -480,7 +480,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdZoneRename = new CommandDescriptor {
+        static readonly CommandDescriptor CdZoneRename = new CommandDescriptor {
             Name = "zrename",
             Category = CommandCategory.Zone,
             Help = "Renames a zone",
@@ -492,7 +492,7 @@ namespace fCraft {
             string oldName = cmd.Next();
             string newName = cmd.Next();
             if( oldName == null || newName == null ) {
-                cdZoneRename.PrintUsage( player );
+                CdZoneRename.PrintUsage( player );
                 return;
             }
 

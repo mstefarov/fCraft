@@ -5,7 +5,12 @@ using System.Linq;
 using fCraft.Events;
 
 namespace fCraft {
+    /// <summary> Helper class for handling player-generated chat. </summary>
     public static class Chat {
+        /// <summary> Sends a global (white) chat. </summary>
+        /// <param name="player"> Player writing the message. </param>
+        /// <param name="rawMessage"> Message text. </param>
+        /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
         public static bool SendGlobal( Player player, string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
@@ -29,6 +34,10 @@ namespace fCraft {
         }
 
 
+        /// <summary> Sends an action message (/me). </summary>
+        /// <param name="player"> Player writing the message. </param>
+        /// <param name="rawMessage"> Message text. </param>
+        /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
         public static bool SendMe( Player player, string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
@@ -52,6 +61,11 @@ namespace fCraft {
         }
 
 
+        /// <summary> Sends a private message (PM). Does NOT send a copy of the message to the sender. </summary>
+        /// <param name="from"> Sender player. </param>
+        /// <param name="to"> Recepient player. </param>
+        /// <param name="rawMessage"> Message text. </param>
+        /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
         public static bool SendPM( Player from, Player to, string rawMessage ) {
             if( from == null ) throw new ArgumentNullException( "from" );
             if( to == null ) throw new ArgumentNullException( "to" );
@@ -75,6 +89,11 @@ namespace fCraft {
         }
 
 
+        /// <summary> Sends a rank-wide message (@@Rank message). </summary>
+        /// <param name="player"> Player writing the message. </param>
+        /// <param name="rank"> Target rank. </param>
+        /// <param name="rawMessage"> Message text. </param>
+        /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
         public static bool SendRank( Player player, Rank rank, string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rank == null ) throw new ArgumentNullException( "rank" );
@@ -101,6 +120,10 @@ namespace fCraft {
         }
 
 
+        /// <summary> Sends a global announcement (/say). </summary>
+        /// <param name="player"> Player writing the message. </param>
+        /// <param name="rawMessage"> Message text. </param>
+        /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
         public static bool SendSay( Player player, string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
@@ -122,6 +145,10 @@ namespace fCraft {
         }
 
 
+        /// <summary> Sends a staff message (/staff). </summary>
+        /// <param name="player"> Player writing the message. </param>
+        /// <param name="rawMessage"> Message text. </param>
+        /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
         public static bool SendStaff( Player player, string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
@@ -163,7 +190,9 @@ namespace fCraft {
         }
 
 
-        // Makes sure that there are no unprintable or illegal characters in the message
+        /// <summary> Checks for unprintable or illegal characters in a message. </summary>
+        /// <param name="message"> Message to check. </param>
+        /// <returns> True if message contains invalid chars. False if message is clean. </returns>
         public static bool ContainsInvalidChars( string message ) {
             for( int i = 0; i < message.Length; i++ ) {
                 if( message[i] < ' ' || message[i] == '&' || message[i] > '~' ) return true;
@@ -191,6 +220,8 @@ namespace fCraft {
 
         /// <summary> Occurs when a chat message is about to be sent. Cancellable. </summary>
         public static event EventHandler<ChatSendingEventArgs> Sending;
+
+        /// <summary> Occurs after a chat message has been sent. </summary>
         public static event EventHandler<ChatSentEventArgs> Sent;
 
         #endregion

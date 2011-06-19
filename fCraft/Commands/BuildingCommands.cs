@@ -60,54 +60,54 @@ namespace fCraft {
 
 
         internal static void Init() {
-            CommandManager.RegisterCommand( cdSolid );
-            CommandManager.RegisterCommand( cdPaint );
-            CommandManager.RegisterCommand( cdGrass );
-            CommandManager.RegisterCommand( cdWater );
-            CommandManager.RegisterCommand( cdLava );
-            CommandManager.RegisterCommand( cdBind );
+            CommandManager.RegisterCommand( CdSolid );
+            CommandManager.RegisterCommand( CdPaint );
+            CommandManager.RegisterCommand( CdGrass );
+            CommandManager.RegisterCommand( CdWater );
+            CommandManager.RegisterCommand( CdLava );
+            CommandManager.RegisterCommand( CdBind );
 
-            cdCuboid.Help += GeneralDrawingHelp;
-            cdCuboidHollow.Help += GeneralDrawingHelp;
-            cdCuboidWireframe.Help += GeneralDrawingHelp;
-            cdEllipsoid.Help += GeneralDrawingHelp;
-            cdEllipsoidHollow.Help += GeneralDrawingHelp;
-            cdSphere.Help += GeneralDrawingHelp;
-            cdSphereHollow.Help += GeneralDrawingHelp;
-            cdLine.Help += GeneralDrawingHelp;
-            cdReplace.Help += GeneralDrawingHelp;
-            cdReplaceNot.Help += GeneralDrawingHelp;
-            cdCut.Help += GeneralDrawingHelp;
-            cdPasteNot.Help += GeneralDrawingHelp;
-            cdPaste.Help += GeneralDrawingHelp;
+            CdCuboid.Help += GeneralDrawingHelp;
+            CdCuboidHollow.Help += GeneralDrawingHelp;
+            CdCuboidWireframe.Help += GeneralDrawingHelp;
+            CdEllipsoid.Help += GeneralDrawingHelp;
+            CdEllipsoidHollow.Help += GeneralDrawingHelp;
+            CdSphere.Help += GeneralDrawingHelp;
+            CdSphereHollow.Help += GeneralDrawingHelp;
+            CdLine.Help += GeneralDrawingHelp;
+            CdReplace.Help += GeneralDrawingHelp;
+            CdReplaceNot.Help += GeneralDrawingHelp;
+            CdCut.Help += GeneralDrawingHelp;
+            CdPasteNot.Help += GeneralDrawingHelp;
+            CdPaste.Help += GeneralDrawingHelp;
 
-            CommandManager.RegisterCommand( cdCuboid );
-            CommandManager.RegisterCommand( cdCuboidHollow );
-            CommandManager.RegisterCommand( cdCuboidWireframe );
-            CommandManager.RegisterCommand( cdEllipsoid );
-            CommandManager.RegisterCommand( cdEllipsoidHollow );
-            CommandManager.RegisterCommand( cdSphere );
-            CommandManager.RegisterCommand( cdSphereHollow );
-            CommandManager.RegisterCommand( cdReplace );
-            CommandManager.RegisterCommand( cdReplaceNot );
-            CommandManager.RegisterCommand( cdLine );
+            CommandManager.RegisterCommand( CdCuboid );
+            CommandManager.RegisterCommand( CdCuboidHollow );
+            CommandManager.RegisterCommand( CdCuboidWireframe );
+            CommandManager.RegisterCommand( CdEllipsoid );
+            CommandManager.RegisterCommand( CdEllipsoidHollow );
+            CommandManager.RegisterCommand( CdSphere );
+            CommandManager.RegisterCommand( CdSphereHollow );
+            CommandManager.RegisterCommand( CdReplace );
+            CommandManager.RegisterCommand( CdReplaceNot );
+            CommandManager.RegisterCommand( CdLine );
 
-            CommandManager.RegisterCommand( cdMark );
-            CommandManager.RegisterCommand( cdCancel );
-            CommandManager.RegisterCommand( cdUndo );
+            CommandManager.RegisterCommand( CdMark );
+            CommandManager.RegisterCommand( CdCancel );
+            CommandManager.RegisterCommand( CdUndo );
 
-            CommandManager.RegisterCommand( cdCopy );
-            CommandManager.RegisterCommand( cdCut );
-            CommandManager.RegisterCommand( cdPasteNot );
-            CommandManager.RegisterCommand( cdPaste );
-            CommandManager.RegisterCommand( cdMirror );
-            CommandManager.RegisterCommand( cdRotate );
+            CommandManager.RegisterCommand( CdCopy );
+            CommandManager.RegisterCommand( CdCut );
+            CommandManager.RegisterCommand( CdPasteNot );
+            CommandManager.RegisterCommand( CdPaste );
+            CommandManager.RegisterCommand( CdMirror );
+            CommandManager.RegisterCommand( CdRotate );
         }
 
 
         #region Block Commands
 
-        static readonly CommandDescriptor cdSolid = new CommandDescriptor {
+        static readonly CommandDescriptor CdSolid = new CommandDescriptor {
             Name = "solid",
             Aliases = new[] { "s" },
             Category = CommandCategory.Building,
@@ -128,7 +128,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdPaint = new CommandDescriptor {
+        static readonly CommandDescriptor CdPaint = new CommandDescriptor {
             Name = "paint",
             Aliases = new[] { "p" },
             Category = CommandCategory.Building,
@@ -148,7 +148,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdGrass = new CommandDescriptor {
+        static readonly CommandDescriptor CdGrass = new CommandDescriptor {
             Name = "grass",
             Aliases = new[] { "g" },
             Category = CommandCategory.Building,
@@ -169,7 +169,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdWater = new CommandDescriptor {
+        static readonly CommandDescriptor CdWater = new CommandDescriptor {
             Name = "water",
             Aliases = new[] { "w" },
             Category = CommandCategory.Building,
@@ -194,7 +194,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdLava = new CommandDescriptor {
+        static readonly CommandDescriptor CdLava = new CommandDescriptor {
             Name = "lava",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.PlaceLava },
@@ -214,7 +214,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdBind = new CommandDescriptor {
+        static readonly CommandDescriptor CdBind = new CommandDescriptor {
             Name = "bind",
             Aliases = new[] { "b" },
             Category = CommandCategory.Building,
@@ -286,7 +286,7 @@ namespace fCraft {
 
         #region Command Descriptors
 
-        static readonly CommandDescriptor cdCuboid = new CommandDescriptor {
+        static readonly CommandDescriptor CdCuboid = new CommandDescriptor {
             Name = "cuboid",
             Aliases = new[] { "blb", "c", "cub", "z" },
             Category = CommandCategory.Building,
@@ -297,13 +297,13 @@ namespace fCraft {
             Handler = Cuboid
         };
 
-        internal static void Cuboid( Player player, Command cmd ) {
+        static void Cuboid( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.Cuboid );
         }
 
 
 
-        static readonly CommandDescriptor cdCuboidHollow = new CommandDescriptor {
+        static readonly CommandDescriptor CdCuboidHollow = new CommandDescriptor {
             Name = "cubh",
             Aliases = new[] { "cuboidh", "ch", "h", "bhb" },
             Category = CommandCategory.Building,
@@ -315,13 +315,13 @@ namespace fCraft {
             Handler = CuboidHollow
         };
 
-        internal static void CuboidHollow( Player player, Command cmd ) {
+        static void CuboidHollow( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.CuboidHollow );
         }
 
 
 
-        static readonly CommandDescriptor cdCuboidWireframe = new CommandDescriptor {
+        static readonly CommandDescriptor CdCuboidWireframe = new CommandDescriptor {
             Name = "cubw",
             Aliases = new[] { "cuboidw", "cw", "bfb" },
             Category = CommandCategory.Building,
@@ -332,13 +332,13 @@ namespace fCraft {
             Handler = CuboidWireframe
         };
 
-        internal static void CuboidWireframe( Player player, Command cmd ) {
+        static void CuboidWireframe( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.CuboidWireframe );
         }
 
 
 
-        static readonly CommandDescriptor cdEllipsoid = new CommandDescriptor {
+        static readonly CommandDescriptor CdEllipsoid = new CommandDescriptor {
             Name = "ellipsoid",
             Aliases = new[] { "e" },
             Category = CommandCategory.Building,
@@ -349,12 +349,12 @@ namespace fCraft {
             Handler = Ellipsoid
         };
 
-        internal static void Ellipsoid( Player player, Command cmd ) {
+        static void Ellipsoid( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.Ellipsoid );
         }
 
 
-        static readonly CommandDescriptor cdEllipsoidHollow = new CommandDescriptor {
+        static readonly CommandDescriptor CdEllipsoidHollow = new CommandDescriptor {
             Name = "ellipsoidh",
             Aliases = new[] { "eh" },
             Category = CommandCategory.Building,
@@ -365,12 +365,12 @@ namespace fCraft {
             Handler = EllipsoidHollow
         };
 
-        internal static void EllipsoidHollow( Player player, Command cmd ) {
+        static void EllipsoidHollow( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.EllipsoidHollow );
         }
 
 
-        static readonly CommandDescriptor cdSphere = new CommandDescriptor {
+        static readonly CommandDescriptor CdSphere = new CommandDescriptor {
             Name = "sphere",
             Aliases = new[] { "sp", "spheroid" },
             Category = CommandCategory.Building,
@@ -382,12 +382,12 @@ namespace fCraft {
             Handler = Sphere
         };
 
-        internal static void Sphere( Player player, Command cmd ) {
+        static void Sphere( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.Sphere );
         }
 
 
-        static readonly CommandDescriptor cdSphereHollow = new CommandDescriptor {
+        static readonly CommandDescriptor CdSphereHollow = new CommandDescriptor {
             Name = "sphereh",
             Aliases = new[] { "sph", "hsphere" },
             Category = CommandCategory.Building,
@@ -399,12 +399,12 @@ namespace fCraft {
             Handler = SphereHollow
         };
 
-        internal static void SphereHollow( Player player, Command cmd ) {
+        static void SphereHollow( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.SphereHollow );
         }
 
 
-        static readonly CommandDescriptor cdReplace = new CommandDescriptor {
+        static readonly CommandDescriptor CdReplace = new CommandDescriptor {
             Name = "replace",
             Aliases = new[] { "r" },
             Category = CommandCategory.Building,
@@ -414,13 +414,13 @@ namespace fCraft {
             Handler = Replace
         };
 
-        internal static void Replace( Player player, Command cmd ) {
+        static void Replace( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.Replace );
         }
 
 
 
-        static readonly CommandDescriptor cdReplaceNot = new CommandDescriptor {
+        static readonly CommandDescriptor CdReplaceNot = new CommandDescriptor {
             Name = "replacenot",
             Aliases = new[] { "rn" },
             Category = CommandCategory.Building,
@@ -430,13 +430,13 @@ namespace fCraft {
             Handler = ReplaceNot
         };
 
-        internal static void ReplaceNot( Player player, Command cmd ) {
+        static void ReplaceNot( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.ReplaceNot );
         }
 
 
 
-        static readonly CommandDescriptor cdLine = new CommandDescriptor {
+        static readonly CommandDescriptor CdLine = new CommandDescriptor {
             Name = "line",
             Aliases = new[] { "ln" },
             Category = CommandCategory.Building,
@@ -447,7 +447,7 @@ namespace fCraft {
             Handler = Line
         };
 
-        internal static void Line( Player player, Command cmd ) {
+        static void Line( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.Line );
         }
 
@@ -541,9 +541,9 @@ namespace fCraft {
 
                     if( affectedBlockName == null ) {
                         if( mode == DrawMode.ReplaceNot ) {
-                            cdReplaceNot.PrintUsage( player );
+                            CdReplaceNot.PrintUsage( player );
                         } else {
-                            cdReplace.PrintUsage( player );
+                            CdReplace.PrintUsage( player );
                         }
                         return;
                     }
@@ -603,7 +603,7 @@ namespace fCraft {
 
         #region Undo / Redo
 
-        static readonly CommandDescriptor cdUndo = new CommandDescriptor {
+        static readonly CommandDescriptor CdUndo = new CommandDescriptor {
             Name = "undo",
             Aliases = new[] { "redo" },
             Category = CommandCategory.Building,
@@ -1390,7 +1390,7 @@ namespace fCraft {
 
         #region Copy and Paste
 
-        static readonly CommandDescriptor cdCopy = new CommandDescriptor {
+        static readonly CommandDescriptor CdCopy = new CommandDescriptor {
             Name = "copy",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
@@ -1401,7 +1401,7 @@ namespace fCraft {
         };
 
         internal static void Copy( Player player, Command cmd ) {
-            player.SelectionSetCallback( 2, CopyCallback, null, cdCopy.Permissions );
+            player.SelectionSetCallback( 2, CopyCallback, null, CdCopy.Permissions );
             player.MessageNow( "Copy: Place a block or type /mark to use your location." );
         }
 
@@ -1449,7 +1449,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdCut = new CommandDescriptor {
+        static readonly CommandDescriptor CdCut = new CommandDescriptor {
             Name = "cut",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
@@ -1470,7 +1470,7 @@ namespace fCraft {
                     return;
                 }
             }
-            player.SelectionSetCallback( 2, CutCallback, fillBlock, cdCut.Permissions );
+            player.SelectionSetCallback( 2, CutCallback, fillBlock, CdCut.Permissions );
             player.MessageNow( "Cut: Place a block or type /mark to use your location." );
         }
 
@@ -1528,7 +1528,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdPasteNot = new CommandDescriptor {
+        static readonly CommandDescriptor CdPasteNot = new CommandDescriptor {
             Name = "pastenot",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
@@ -1573,13 +1573,13 @@ namespace fCraft {
                 return;
             }
 
-            player.SelectionSetCallback( 1, PasteCallback, args, cdPasteNot.Permissions );
+            player.SelectionSetCallback( 1, PasteCallback, args, CdPasteNot.Permissions );
 
             player.MessageNow( "PasteNot: Place a block or type /mark to use your location. " );
         }
 
 
-        static readonly CommandDescriptor cdPaste = new CommandDescriptor {
+        static readonly CommandDescriptor CdPaste = new CommandDescriptor {
             Name = "paste",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
@@ -1623,7 +1623,7 @@ namespace fCraft {
                 };
             }
 
-            player.SelectionSetCallback( 1, PasteCallback, args, cdPaste.Permissions );
+            player.SelectionSetCallback( 1, PasteCallback, args, CdPaste.Permissions );
 
             player.MessageNow( "Paste: Place a block or type /mark to use your location. " );
         }
@@ -1704,7 +1704,7 @@ namespace fCraft {
         }
 
 
-        static readonly CommandDescriptor cdMirror = new CommandDescriptor {
+        static readonly CommandDescriptor CdMirror = new CommandDescriptor {
             Name = "mirror",
             Aliases = new[] { "flip" },
             Category = CommandCategory.Building,
@@ -1733,7 +1733,7 @@ namespace fCraft {
             }
 
             if( !flipX && !flipY && !flipH ) {
-                cdMirror.PrintUsage( player );
+                CdMirror.PrintUsage( player );
                 return;
             }
 
@@ -1816,7 +1816,7 @@ namespace fCraft {
         }
 
 
-        static readonly CommandDescriptor cdRotate = new CommandDescriptor {
+        static readonly CommandDescriptor CdRotate = new CommandDescriptor {
             Name = "rotate",
             Aliases = new[] { "spin" },
             Category = CommandCategory.Building,
@@ -1837,7 +1837,7 @@ namespace fCraft {
 
             int degrees;
             if( !cmd.NextInt( out degrees ) || (degrees != 90 && degrees != -90 && degrees != 180 && degrees != 270) ) {
-                cdRotate.PrintUsage( player );
+                CdRotate.PrintUsage( player );
                 return;
             }
 
@@ -1856,7 +1856,7 @@ namespace fCraft {
                         axis = RotationAxis.Z;
                         break;
                     default:
-                        cdRotate.PrintUsage( player );
+                        CdRotate.PrintUsage( player );
                         return;
                 }
             }
@@ -1959,7 +1959,7 @@ namespace fCraft {
 
         #region Mark, Cancel
 
-        static readonly CommandDescriptor cdMark = new CommandDescriptor {
+        static readonly CommandDescriptor CdMark = new CommandDescriptor {
             Name = "mark",
             Aliases = new[] { "m" },
             Category = CommandCategory.Building,
@@ -1992,7 +1992,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdCancel = new CommandDescriptor {
+        static readonly CommandDescriptor CdCancel = new CommandDescriptor {
             Name = "cancel",
             Category = CommandCategory.Building,
             Help = "Cancels current selection (for drawing or zoning) operation, for instance if you misclicked on the first block. " +

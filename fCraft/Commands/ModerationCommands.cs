@@ -13,47 +13,47 @@ namespace fCraft {
         const string BanCommonHelp = "Ban information can be viewed with &H/baninfo";
 
         internal static void Init() {
-            cdBan.Help += BanCommonHelp;
-            cdBanIP.Help += BanCommonHelp;
-            cdBanAll.Help += BanCommonHelp;
-            cdUnban.Help += BanCommonHelp;
-            cdUnbanIP.Help += BanCommonHelp;
-            cdUnbanAll.Help += BanCommonHelp;
+            CdBan.Help += BanCommonHelp;
+            CdBanIP.Help += BanCommonHelp;
+            CdBanAll.Help += BanCommonHelp;
+            CdUnban.Help += BanCommonHelp;
+            CdUnbanIP.Help += BanCommonHelp;
+            CdUnbanAll.Help += BanCommonHelp;
 
-            CommandManager.RegisterCommand( cdBan );
-            CommandManager.RegisterCommand( cdBanIP );
-            CommandManager.RegisterCommand( cdBanAll );
-            CommandManager.RegisterCommand( cdUnban );
-            CommandManager.RegisterCommand( cdUnbanIP );
-            CommandManager.RegisterCommand( cdUnbanAll );
+            CommandManager.RegisterCommand( CdBan );
+            CommandManager.RegisterCommand( CdBanIP );
+            CommandManager.RegisterCommand( CdBanAll );
+            CommandManager.RegisterCommand( CdUnban );
+            CommandManager.RegisterCommand( CdUnbanIP );
+            CommandManager.RegisterCommand( CdUnbanAll );
 
-            CommandManager.RegisterCommand( cdKick );
+            CommandManager.RegisterCommand( CdKick );
 
-            CommandManager.RegisterCommand( cdChangeRank );
+            CommandManager.RegisterCommand( CdChangeRank );
 
-            CommandManager.RegisterCommand( cdHide );
-            CommandManager.RegisterCommand( cdUnhide );
+            CommandManager.RegisterCommand( CdHide );
+            CommandManager.RegisterCommand( CdUnhide );
 
-            CommandManager.RegisterCommand( cdSetSpawn );
+            CommandManager.RegisterCommand( CdSetSpawn );
 
-            CommandManager.RegisterCommand( cdFreeze );
-            CommandManager.RegisterCommand( cdUnfreeze );
+            CommandManager.RegisterCommand( CdFreeze );
+            CommandManager.RegisterCommand( CdUnfreeze );
 
-            CommandManager.RegisterCommand( cdTP );
-            CommandManager.RegisterCommand( cdBring );
-            CommandManager.RegisterCommand( cdBringAll );
+            CommandManager.RegisterCommand( CdTP );
+            CommandManager.RegisterCommand( CdBring );
+            CommandManager.RegisterCommand( CdBringAll );
 
-            CommandManager.RegisterCommand( cdPatrol );
-            CommandManager.RegisterCommand( cdSpecPatrol );
+            CommandManager.RegisterCommand( CdPatrol );
+            CommandManager.RegisterCommand( CdSpecPatrol );
 
-            CommandManager.RegisterCommand( cdMute );
-            CommandManager.RegisterCommand( cdUnmute );
+            CommandManager.RegisterCommand( CdMute );
+            CommandManager.RegisterCommand( CdUnmute );
 
-            CommandManager.RegisterCommand( cdSpectate );
-            CommandManager.RegisterCommand( cdUnspectate );
+            CommandManager.RegisterCommand( CdSpectate );
+            CommandManager.RegisterCommand( CdUnspectate );
         }
 
-        static readonly CommandDescriptor cdSpectate = new CommandDescriptor {
+        static readonly CommandDescriptor CdSpectate = new CommandDescriptor {
             Name = "spectate",
             Aliases = new[] { "follow", "spec" },
             Category = CommandCategory.Moderation,
@@ -64,7 +64,7 @@ namespace fCraft {
         internal static void Spectate( Player player, Command cmd ) {
             string targetName = cmd.Next();
             if( targetName == null ) {
-                cdSpectate.PrintUsage( player );
+                CdSpectate.PrintUsage( player );
                 return;
             }
 
@@ -89,7 +89,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdUnspectate = new CommandDescriptor {
+        static readonly CommandDescriptor CdUnspectate = new CommandDescriptor {
             Name = "unspectate",
             Aliases = new[] { "unfollow", "unspec" },
             Category = CommandCategory.Moderation,
@@ -107,7 +107,7 @@ namespace fCraft {
 
         #region Ban
 
-        static readonly CommandDescriptor cdBan = new CommandDescriptor {
+        static readonly CommandDescriptor CdBan = new CommandDescriptor {
             Name = "ban",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -118,13 +118,13 @@ namespace fCraft {
             Handler = Ban
         };
 
-        internal static void Ban( Player player, Command cmd ) {
+        static void Ban( Player player, Command cmd ) {
             DoBan( player, cmd.Next(), cmd.NextAll(), false, false, false );
         }
 
 
 
-        static readonly CommandDescriptor cdBanIP = new CommandDescriptor {
+        static readonly CommandDescriptor CdBanIP = new CommandDescriptor {
             Name = "banip",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -136,13 +136,13 @@ namespace fCraft {
             Handler = BanIP
         };
 
-        internal static void BanIP( Player player, Command cmd ) {
+        static void BanIP( Player player, Command cmd ) {
             DoBan( player, cmd.Next(), cmd.NextAll(), true, false, false );
         }
 
 
 
-        static readonly CommandDescriptor cdBanAll = new CommandDescriptor {
+        static readonly CommandDescriptor CdBanAll = new CommandDescriptor {
             Name = "banall",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -155,13 +155,13 @@ namespace fCraft {
             Handler = BanAll
         };
 
-        internal static void BanAll( Player player, Command cmd ) {
+        static void BanAll( Player player, Command cmd ) {
             DoBan( player, cmd.Next(), cmd.NextAll(), true, true, false );
         }
 
 
 
-        static readonly CommandDescriptor cdUnban = new CommandDescriptor {
+        static readonly CommandDescriptor CdUnban = new CommandDescriptor {
             Name = "unban",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -172,13 +172,13 @@ namespace fCraft {
             Handler = Unban
         };
 
-        internal static void Unban( Player player, Command cmd ) {
+        static void Unban( Player player, Command cmd ) {
             DoBan( player, cmd.Next(), cmd.NextAll(), false, false, true );
         }
 
 
 
-        static readonly CommandDescriptor cdUnbanIP = new CommandDescriptor {
+        static readonly CommandDescriptor CdUnbanIP = new CommandDescriptor {
             Name = "unbanip",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -190,13 +190,13 @@ namespace fCraft {
             Handler = UnbanIP
         };
 
-        internal static void UnbanIP( Player player, Command cmd ) {
+        static void UnbanIP( Player player, Command cmd ) {
             DoBan( player, cmd.Next(), cmd.NextAll(), true, false, true );
         }
 
 
 
-        static readonly CommandDescriptor cdUnbanAll = new CommandDescriptor {
+        static readonly CommandDescriptor CdUnbanAll = new CommandDescriptor {
             Name = "unbanall",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -208,7 +208,7 @@ namespace fCraft {
             Handler = UnbanAll
         };
 
-        internal static void UnbanAll( Player player, Command cmd ) {
+        static void UnbanAll( Player player, Command cmd ) {
             DoBan( player, cmd.Next(), cmd.NextAll(), true, true, true );
         }
 
@@ -485,7 +485,7 @@ namespace fCraft {
 
         #region Kick
 
-        static readonly CommandDescriptor cdKick = new CommandDescriptor {
+        static readonly CommandDescriptor CdKick = new CommandDescriptor {
             Name = "kick",
             Aliases = new[] { "k" },
             Category = CommandCategory.Moderation,
@@ -595,7 +595,7 @@ namespace fCraft {
 
         #region Changing Rank (Promotion / Demotion)
 
-        static readonly CommandDescriptor cdChangeRank = new CommandDescriptor {
+        static readonly CommandDescriptor CdChangeRank = new CommandDescriptor {
             Name = "rank",
             Aliases = new[] { "user", "promote", "demote" },
             Category = CommandCategory.Moderation,
@@ -612,7 +612,7 @@ namespace fCraft {
 
             // Check arguments
             if( newRankName == null ) {
-                cdChangeRank.PrintUsage( player );
+                CdChangeRank.PrintUsage( player );
                 player.Message( "See &H/ranks&S for list of ranks." );
                 return;
             }
@@ -705,7 +705,7 @@ namespace fCraft {
                 } else {
                     player.Message( "&WPlease specify a demotion reason." );
                 }
-                cdChangeRank.PrintUsage( player );
+                CdChangeRank.PrintUsage( player );
                 return;
             }
 
@@ -810,7 +810,7 @@ namespace fCraft {
 
         #region Hide
 
-        static readonly CommandDescriptor cdHide = new CommandDescriptor {
+        static readonly CommandDescriptor CdHide = new CommandDescriptor {
             Name = "hide",
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Hide },
@@ -857,7 +857,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdUnhide = new CommandDescriptor {
+        static readonly CommandDescriptor CdUnhide = new CommandDescriptor {
             Name = "unhide",
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Hide },
@@ -902,7 +902,7 @@ namespace fCraft {
 
         #region Set Spawn
 
-        static readonly CommandDescriptor cdSetSpawn = new CommandDescriptor {
+        static readonly CommandDescriptor CdSetSpawn = new CommandDescriptor {
             Name = "setspawn",
             Category = CommandCategory.Moderation | CommandCategory.World,
             Permissions = new[] { Permission.SetSpawn },
@@ -954,7 +954,7 @@ namespace fCraft {
 
         #region Freeze
 
-        static readonly CommandDescriptor cdFreeze = new CommandDescriptor {
+        static readonly CommandDescriptor CdFreeze = new CommandDescriptor {
             Name = "freeze",
             Aliases = new[] { "f" },
             Category = CommandCategory.Moderation,
@@ -970,7 +970,7 @@ namespace fCraft {
         internal static void Freeze( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
-                cdFreeze.PrintUsage( player );
+                CdFreeze.PrintUsage( player );
                 return;
             }
 
@@ -993,7 +993,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdUnfreeze = new CommandDescriptor {
+        static readonly CommandDescriptor CdUnfreeze = new CommandDescriptor {
             Name = "unfreeze",
             Aliases = new[] { "uf" },
             Category = CommandCategory.Moderation,
@@ -1007,7 +1007,7 @@ namespace fCraft {
         internal static void Unfreeze( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
-                cdFreeze.PrintUsage( player );
+                CdFreeze.PrintUsage( player );
                 return;
             }
 
@@ -1032,7 +1032,7 @@ namespace fCraft {
 
         #region Teleport / Bring / BringAll
 
-        static readonly CommandDescriptor cdTP = new CommandDescriptor {
+        static readonly CommandDescriptor CdTP = new CommandDescriptor {
             Name = "tp",
             Aliases = new[] { "spawn" },
             Category = CommandCategory.Moderation,
@@ -1076,7 +1076,7 @@ namespace fCraft {
                         } ) );
                     }
                 } else {
-                    cdTP.PrintUsage( player );
+                    CdTP.PrintUsage( player );
                 }
 
             } else {
@@ -1138,7 +1138,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdBring = new CommandDescriptor {
+        static readonly CommandDescriptor CdBring = new CommandDescriptor {
             Name = "bring",
             IsConsoleSafe = true,
             Aliases = new[] { "summon", "fetch" },
@@ -1153,7 +1153,7 @@ namespace fCraft {
         internal static void Bring( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
-                cdBring.PrintUsage( player );
+                CdBring.PrintUsage( player );
                 return;
             }
 
@@ -1217,7 +1217,7 @@ namespace fCraft {
         }
 
 
-        static readonly CommandDescriptor cdBringAll = new CommandDescriptor {
+        static readonly CommandDescriptor CdBringAll = new CommandDescriptor {
             Name = "bringall",
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Bring, Permission.BringAll },
@@ -1316,7 +1316,7 @@ namespace fCraft {
 
         #region Patrol & SpecPatrol
 
-        static readonly CommandDescriptor cdPatrol = new CommandDescriptor {
+        static readonly CommandDescriptor CdPatrol = new CommandDescriptor {
             Name = "patrol",
             Aliases = new[] { "pat" },
             Category = CommandCategory.Moderation,
@@ -1346,7 +1346,7 @@ namespace fCraft {
         }
 
 
-        static readonly CommandDescriptor cdSpecPatrol = new CommandDescriptor {
+        static readonly CommandDescriptor CdSpecPatrol = new CommandDescriptor {
             Name = "specpatrol",
             Aliases = new[] { "spat" },
             Category = CommandCategory.Moderation,
@@ -1379,7 +1379,7 @@ namespace fCraft {
 
         #region Mute / Unmute
 
-        static readonly CommandDescriptor cdMute = new CommandDescriptor {
+        static readonly CommandDescriptor CdMute = new CommandDescriptor {
             Name = "mute",
             Category = CommandCategory.Moderation | CommandCategory.Chat,
             IsConsoleSafe = true,
@@ -1418,13 +1418,13 @@ namespace fCraft {
                 }
 
             } else {
-                cdMute.PrintUsage( player );
+                CdMute.PrintUsage( player );
             }
         }
 
 
 
-        static readonly CommandDescriptor cdUnmute = new CommandDescriptor {
+        static readonly CommandDescriptor CdUnmute = new CommandDescriptor {
             Name = "unmute",
             Category = CommandCategory.Moderation | CommandCategory.Chat,
             IsConsoleSafe = true,
@@ -1461,7 +1461,7 @@ namespace fCraft {
                 }
 
             } else {
-                cdUnmute.PrintUsage( player );
+                CdUnmute.PrintUsage( player );
             }
         }
 

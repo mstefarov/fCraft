@@ -18,31 +18,31 @@ namespace fCraft {
         // Register help commands
         internal static void Init() {
 
-            CommandManager.RegisterCommand( cdInfo );
-            CommandManager.RegisterCommand( cdBanInfo );
-            CommandManager.RegisterCommand( cdRankInfo );
+            CommandManager.RegisterCommand( CdInfo );
+            CommandManager.RegisterCommand( CdBanInfo );
+            CommandManager.RegisterCommand( CdRankInfo );
 
-            CommandManager.RegisterCommand( cdRules );
-            CommandManager.RegisterCommand( cdHelp );
-            CommandManager.RegisterCommand( cdCommands );
+            CommandManager.RegisterCommand( CdRules );
+            CommandManager.RegisterCommand( CdHelp );
+            CommandManager.RegisterCommand( CdCommands );
 
-            CommandManager.RegisterCommand( cdWhere );
+            CommandManager.RegisterCommand( CdWhere );
 
-            CommandManager.RegisterCommand( cdPlayers );
-            CommandManager.RegisterCommand( cdRanks );
+            CommandManager.RegisterCommand( CdPlayers );
+            CommandManager.RegisterCommand( CdRanks );
 
-            CommandManager.RegisterCommand( cdServerInfo );
+            CommandManager.RegisterCommand( CdServerInfo );
 
-            CommandManager.RegisterCommand( cdMeasure );
+            CommandManager.RegisterCommand( CdMeasure );
 
 #if DEBUG_SCHEDULER
             CommandManager.RegisterCommand( cdTaskDebug );
 #endif
 
-            CommandManager.RegisterCommand( cdColors );
+            CommandManager.RegisterCommand( CdColors );
         }
 
-        static readonly CommandDescriptor cdColors = new CommandDescriptor {
+        static readonly CommandDescriptor CdColors = new CommandDescriptor {
             Name = "colors",
             Aliases = new[] { "colours" },
             Category = CommandCategory.Info | CommandCategory.Chat,
@@ -76,7 +76,7 @@ namespace fCraft {
 
         #region Infos (/info, /rinfo, /baninfo, /sinfo)
 
-        static readonly CommandDescriptor cdInfo = new CommandDescriptor {
+        static readonly CommandDescriptor CdInfo = new CommandDescriptor {
             Name = "info",
             Aliases = new[] { "pinfo" },
             Category = CommandCategory.Info,
@@ -332,7 +332,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdBanInfo = new CommandDescriptor {
+        static readonly CommandDescriptor CdBanInfo = new CommandDescriptor {
             Name = "baninfo",
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
@@ -423,7 +423,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdRankInfo = new CommandDescriptor {
+        static readonly CommandDescriptor CdRankInfo = new CommandDescriptor {
             Name = "rankinfo",
             Aliases = new[] { "class", "rinfo", "cinfo" },
             Category = CommandCategory.Info,
@@ -476,7 +476,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdServerInfo = new CommandDescriptor {
+        static readonly CommandDescriptor CdServerInfo = new CommandDescriptor {
             Name = "sinfo",
             Aliases = new[] { "serverreport", "version" },
             Category = CommandCategory.Info,
@@ -532,7 +532,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdRanks = new CommandDescriptor {
+        static readonly CommandDescriptor CdRanks = new CommandDescriptor {
             Name = "ranks",
             Aliases = new[] { "classes" },
             Category = CommandCategory.Info,
@@ -542,7 +542,7 @@ namespace fCraft {
         };
 
         internal static void Ranks( Player player, Command cmd ) {
-            player.Message( "Below is a list of ranks. For detail see &H{0}", cdRankInfo.Usage );
+            player.Message( "Below is a list of ranks. For detail see &H{0}", CdRankInfo.Usage );
             foreach( Rank rank in RankManager.Ranks ) {
                 player.Message( "&S    {0}  ({1} players)",
                                 rank.GetClassyName(),
@@ -552,7 +552,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdRules = new CommandDescriptor {
+        static readonly CommandDescriptor CdRules = new CommandDescriptor {
             Name = "rules",
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
@@ -581,7 +581,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdMeasure = new CommandDescriptor {
+        static readonly CommandDescriptor CdMeasure = new CommandDescriptor {
             Name = "measure",
             Category = CommandCategory.Info | CommandCategory.Building,
             Help = "Shows information about a selection: width/length/height and volume.",
@@ -611,7 +611,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdPlayers = new CommandDescriptor {
+        static readonly CommandDescriptor CdPlayers = new CommandDescriptor {
             Name = "players",
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
@@ -641,7 +641,7 @@ namespace fCraft {
         }
 
 
-        static readonly CommandDescriptor cdWhere = new CommandDescriptor {
+        static readonly CommandDescriptor CdWhere = new CommandDescriptor {
             Name = "where",
             Aliases = new[] { "compass" },
             Category = CommandCategory.Info,
@@ -690,7 +690,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdHelp = new CommandDescriptor {
+        static readonly CommandDescriptor CdHelp = new CommandDescriptor {
             Name = "help",
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
@@ -704,10 +704,10 @@ namespace fCraft {
             string commandName = cmd.Next();
 
             if( commandName == "commands" ) {
-                cdCommands.Call( player, cmd, false );
+                CdCommands.Call( player, cmd, false );
 
             } else if( commandName != null ) {
-                CommandDescriptor descriptor = CommandManager.GetDescriptor( commandName );
+                CommandDescriptor descriptor = CommandManager.GetDescriptor( commandName, true );
                 if( descriptor == null ) {
                     player.Message( "Unknown command: \"{0}\"", commandName );
                     return;
@@ -748,7 +748,7 @@ namespace fCraft {
         }
 
 
-        static readonly CommandDescriptor cdCommands = new CommandDescriptor {
+        static readonly CommandDescriptor CdCommands = new CommandDescriptor {
             Name = "commands",
             Aliases = new[] { "cmds", "cmdlist" },
             Category = CommandCategory.Info,
@@ -791,7 +791,7 @@ namespace fCraft {
                 cd = CommandManager.GetCommands( category, false );
 
             } else {
-                cdCommands.PrintUsage( player );
+                CdCommands.PrintUsage( player );
                 return;
             }
 
