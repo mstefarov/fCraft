@@ -5,25 +5,25 @@ namespace fCraft {
     static class ChatCommands {
 
         public static void Init() {
-            CommandManager.RegisterCommand( cdSay );
-            CommandManager.RegisterCommand( cdStaffChat );
+            CommandManager.RegisterCommand( CdSay );
+            CommandManager.RegisterCommand( CdStaffChat );
 
-            CommandManager.RegisterCommand( cdIgnore );
-            CommandManager.RegisterCommand( cdUnignore );
+            CommandManager.RegisterCommand( CdIgnore );
+            CommandManager.RegisterCommand( CdUnignore );
 
-            CommandManager.RegisterCommand( cdMe );
+            CommandManager.RegisterCommand( CdMe );
 
-            CommandManager.RegisterCommand( cdRoll );
+            CommandManager.RegisterCommand( CdRoll );
 
-            CommandManager.RegisterCommand( cdDeafen );
+            CommandManager.RegisterCommand( CdDeafen );
 
-            CommandManager.RegisterCommand( cdClear );
+            CommandManager.RegisterCommand( CdClear );
         }
 
 
         #region Say, StaffChat
 
-        static readonly CommandDescriptor cdClear = new CommandDescriptor {
+        static readonly CommandDescriptor CdClear = new CommandDescriptor {
             Name = "clear",
             Category = CommandCategory.Chat,
             Help = "Clears the chat screen.",
@@ -37,7 +37,7 @@ namespace fCraft {
         }
 
 
-        static readonly CommandDescriptor cdSay = new CommandDescriptor {
+        static readonly CommandDescriptor CdSay = new CommandDescriptor {
             Name = "say",
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
@@ -48,7 +48,7 @@ namespace fCraft {
             Handler = Say
         };
 
-        internal static void Say( Player player, Command cmd ) {
+        static void Say( Player player, Command cmd ) {
             if( player.Info.IsMuted ) {
                 player.MutedMessage();
                 return;
@@ -62,7 +62,7 @@ namespace fCraft {
                 if( msg.Length > 0 ) {
                     Chat.SendSay( player, msg );
                 } else {
-                    cdSay.PrintUsage( player );
+                    CdSay.PrintUsage( player );
                 }
             } else {
                 player.MessageNoAccess( Permission.Say );
@@ -71,7 +71,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdStaffChat = new CommandDescriptor {
+        static readonly CommandDescriptor CdStaffChat = new CommandDescriptor {
             Name = "staff",
             Category = CommandCategory.Chat | CommandCategory.Moderation,
             Permissions = new[] { Permission.Chat },
@@ -107,7 +107,7 @@ namespace fCraft {
 
         #region Ignore / Unignore
 
-        static readonly CommandDescriptor cdIgnore = new CommandDescriptor {
+        static readonly CommandDescriptor CdIgnore = new CommandDescriptor {
             Name = "ignore",
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
@@ -154,7 +154,7 @@ namespace fCraft {
         }
 
 
-        static readonly CommandDescriptor cdUnignore = new CommandDescriptor {
+        static readonly CommandDescriptor CdUnignore = new CommandDescriptor {
             Name = "unignore",
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
@@ -203,7 +203,7 @@ namespace fCraft {
 
         #region Me
 
-        static readonly CommandDescriptor cdMe = new CommandDescriptor {
+        static readonly CommandDescriptor CdMe = new CommandDescriptor {
             Name = "me",
             Category = CommandCategory.Chat,
             Permissions = new[] { Permission.Chat },
@@ -234,7 +234,7 @@ namespace fCraft {
 
         #region Roll
 
-        static readonly CommandDescriptor cdRoll = new CommandDescriptor {
+        static readonly CommandDescriptor CdRoll = new CommandDescriptor {
             Name = "roll",
             Category = CommandCategory.Chat,
             Permissions = new[] { Permission.Chat },
@@ -279,7 +279,7 @@ namespace fCraft {
 
         #region Deafen
 
-        static readonly CommandDescriptor cdDeafen = new CommandDescriptor {
+        static readonly CommandDescriptor CdDeafen = new CommandDescriptor {
             Name = "deafen",
             Aliases = new[] { "deaf" },
             Category = CommandCategory.Chat,

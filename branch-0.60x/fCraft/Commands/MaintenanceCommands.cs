@@ -14,23 +14,23 @@ namespace fCraft {
     static class MaintenanceCommands {
 
         internal static void Init() {
-            CommandManager.RegisterCommand( cdDumpStats );
+            CommandManager.RegisterCommand( CdDumpStats );
 
-            CommandManager.RegisterCommand( cdAutoRankReload );
-            CommandManager.RegisterCommand( cdMassRank );
-            CommandManager.RegisterCommand( cdAutoRankAll );
-            CommandManager.RegisterCommand( cdSetInfo );
+            CommandManager.RegisterCommand( CdAutoRankReload );
+            CommandManager.RegisterCommand( CdMassRank );
+            CommandManager.RegisterCommand( CdAutoRankAll );
+            CommandManager.RegisterCommand( CdSetInfo );
 
 
-            CommandManager.RegisterCommand( cdReloadConfig );
+            CommandManager.RegisterCommand( CdReloadConfig );
 
-            CommandManager.RegisterCommand( cdShutdown );
-            CommandManager.RegisterCommand( cdRestart );
+            CommandManager.RegisterCommand( CdShutdown );
+            CommandManager.RegisterCommand( CdRestart );
 
-            CommandManager.RegisterCommand( cdPruneDB );
+            CommandManager.RegisterCommand( CdPruneDB );
 
-            CommandManager.RegisterCommand( cdImportBans );
-            CommandManager.RegisterCommand( cdImportRanks );
+            CommandManager.RegisterCommand( CdImportBans );
+            CommandManager.RegisterCommand( CdImportRanks );
 
             CommandManager.RegisterCommand( new CommandDescriptor {
                 Category = CommandCategory.Maintenance,
@@ -57,7 +57,7 @@ namespace fCraft {
 
         #region Stats
 
-        static readonly CommandDescriptor cdDumpStats = new CommandDescriptor {
+        static readonly CommandDescriptor CdDumpStats = new CommandDescriptor {
             Name = "dumpstats",
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
@@ -74,7 +74,7 @@ namespace fCraft {
         internal static void DumpStats( Player player, Command cmd ) {
             string fileName = cmd.Next();
             if( fileName == null ) {
-                cdDumpStats.PrintUsage( player );
+                CdDumpStats.PrintUsage( player );
                 return;
             }
 
@@ -488,7 +488,7 @@ namespace fCraft {
 
         #region AutoRank
 
-        static readonly CommandDescriptor cdAutoRankAll = new CommandDescriptor {
+        static readonly CommandDescriptor CdAutoRankAll = new CommandDescriptor {
             Name = "autorankall",
             Category = CommandCategory.Maintenance | CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -551,7 +551,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdAutoRankReload = new CommandDescriptor {
+        static readonly CommandDescriptor CdAutoRankReload = new CommandDescriptor {
             Name = "autorankreload",
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
@@ -570,7 +570,7 @@ namespace fCraft {
 
         #region MassRank
 
-        static readonly CommandDescriptor cdMassRank = new CommandDescriptor {
+        static readonly CommandDescriptor CdMassRank = new CommandDescriptor {
             Name = "massrank",
             Category = CommandCategory.Maintenance | CommandCategory.Moderation,
             IsHidden = true,
@@ -586,7 +586,7 @@ namespace fCraft {
             string toRankName = cmd.Next();
             bool silent = (cmd.Next() != null);
             if( toRankName == null ) {
-                cdMassRank.PrintUsage( player );
+                CdMassRank.PrintUsage( player );
                 return;
             }
 
@@ -628,7 +628,7 @@ namespace fCraft {
 
         #region SetInfo
 
-        static readonly CommandDescriptor cdSetInfo = new CommandDescriptor {
+        static readonly CommandDescriptor CdSetInfo = new CommandDescriptor {
             Name = "setinfo",
             Category = CommandCategory.Maintenance | CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -647,7 +647,7 @@ namespace fCraft {
             string valName = cmd.NextAll();
 
             if( targetName == null || propertyName == null ) {
-                cdSetInfo.PrintUsage( player );
+                CdSetInfo.PrintUsage( player );
                 return;
             }
 
@@ -774,7 +774,7 @@ namespace fCraft {
 
         #region ReloadConfig
 
-        static readonly CommandDescriptor cdReloadConfig = new CommandDescriptor {
+        static readonly CommandDescriptor CdReloadConfig = new CommandDescriptor {
             Name = "reloadconfig",
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.ReloadConfig },
@@ -799,7 +799,7 @@ namespace fCraft {
 
         #region Shutdown, Restart
 
-        static readonly CommandDescriptor cdShutdown = new CommandDescriptor {
+        static readonly CommandDescriptor CdShutdown = new CommandDescriptor {
             Name = "shutdown",
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.ShutdownServer },
@@ -848,7 +848,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdRestart = new CommandDescriptor {
+        static readonly CommandDescriptor CdRestart = new CommandDescriptor {
             Name = "restart",
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.ShutdownServer },
@@ -888,7 +888,7 @@ namespace fCraft {
 
         #region PruneDB
 
-        static readonly CommandDescriptor cdPruneDB = new CommandDescriptor {
+        static readonly CommandDescriptor CdPruneDB = new CommandDescriptor {
             Name = "prunedb",
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
@@ -916,7 +916,7 @@ namespace fCraft {
 
         #region Importing
 
-        static readonly CommandDescriptor cdImportBans = new CommandDescriptor {
+        static readonly CommandDescriptor CdImportBans = new CommandDescriptor {
             Name = "importbans",
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.Import, Permission.Ban },
@@ -932,7 +932,7 @@ namespace fCraft {
 
             // Make sure all parameters are specified
             if( file == null ) {
-                cdImportBans.PrintUsage( player );
+                CdImportBans.PrintUsage( player );
                 return;
             }
 
@@ -987,7 +987,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor cdImportRanks = new CommandDescriptor {
+        static readonly CommandDescriptor CdImportRanks = new CommandDescriptor {
             Name = "importranks",
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.Import, Permission.Promote, Permission.Demote },
@@ -1007,7 +1007,7 @@ namespace fCraft {
 
             // Make sure all parameters are specified
             if( rankName == null ) {
-                cdImportRanks.PrintUsage( player );
+                CdImportRanks.PrintUsage( player );
                 return;
             }
 
