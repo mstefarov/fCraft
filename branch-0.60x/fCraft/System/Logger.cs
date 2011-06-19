@@ -244,10 +244,9 @@ namespace fCraft {
         public static bool CheckForCommonErrors( Exception ex ) {
             string message = null;
             try {
-                if( ex is FileNotFoundException && (ex.Message.Contains( "System.Xml.Linq, Version=3.5" ) ||
-                                                    ex.Message.Contains( "System.Core, Version=3.5" )) ) {
+                if( ex is FileNotFoundException && ex.Message.Contains( "Version=3.5" ) ) {
                     message = "Your crash was likely caused by using an outdated version of .NET or Mono runtime. " +
-                              "Please update to Microsoft .NET Framework 3.5+ (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).";
+                              "Please update to Microsoft .NET Framework 3.5 (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).";
                     return true;
 
                 } else if( ex is FileNotFoundException && ex.Message.Contains( "libMonoPosixHelper.so" ) ||
@@ -272,7 +271,7 @@ namespace fCraft {
                     return true;
 
                 } else if( ex is SystemException && ex.Message == "Can't find current process" ) {
-                    // Mono-specific bug in MonitorProcessorUsage()
+                    // Ignore Mono-specific bug in MonitorProcessorUsage()
                     return true;
 
                 } else if( ex is InvalidOperationException && ex.StackTrace.Contains( "MD5CryptoServiceProvider" ) ) {

@@ -17,18 +17,14 @@ namespace fCraft {
 
 
     static class DateTimeUtil {
+        public static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1 );
+        public static readonly long TicksToUnixEpoch;
+        public const long TicksPerSecond = 10000;
 
         static DateTimeUtil() {
             TicksToUnixEpoch = UnixEpoch.Ticks;
         }
 
-        public static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1 );
-        public static readonly long TicksToUnixEpoch;
-        public const int TicksPerSecond = 10000;
-
-        public static string ToCompactString( this DateTime date ) {
-            return date.ToString( "yyyy'-'MM'-'dd'T'HH':'mm':'ssK" );
-        }
 
         public static string ToTickString( this DateTime date ) {
             if( date == DateTime.MinValue ) {
@@ -38,6 +34,7 @@ namespace fCraft {
             }
         }
 
+
         public static StringBuilder ToTickString( this DateTime date, StringBuilder sb ) {
             if( date != DateTime.MinValue ) {
                 sb.Append( (date.Ticks - TicksToUnixEpoch) / TicksPerSecond );
@@ -46,9 +43,8 @@ namespace fCraft {
         }
 
 
-
-        public static long ToTimestamp( this DateTime timestamp ) {
-            return (long)(timestamp - UnixEpoch).TotalSeconds;
+        public static long ToUnixTime( this DateTime date ) {
+            return (date.Ticks - TicksToUnixEpoch) / TicksPerSecond;
         }
 
 
@@ -58,13 +54,11 @@ namespace fCraft {
             return UnixEpoch.AddSeconds( timestamp );
         }
 
-        public static DateTime ToDateTime( this int timestamp ) {
-            return UnixEpoch.AddSeconds( timestamp );
-        }
 
         public static DateTime ToDateTime( this uint timestamp ) {
             return UnixEpoch.AddSeconds( timestamp );
         }
+
 
         public static bool ToDateTime( this string str, ref DateTime date ) {
             if( str.Length > 1 ) {
@@ -88,13 +82,7 @@ namespace fCraft {
         }
 
 
-        public static string ToCompactString( this TimeSpan span ) {
-            return String.Format( "{0}.{1:00}:{2:00}:{3:00}",
-                span.Days, span.Hours, span.Minutes, span.Seconds );
-        }
-
-
-        #region Mini-string (very compact format)
+        #region MiniString
 
         public static string ToTickString( this TimeSpan time ) {
             if( time == TimeSpan.Zero ) {
@@ -103,6 +91,7 @@ namespace fCraft {
                 return (time.Ticks / TicksPerSecond).ToString();
             }
         }
+
 
         public static StringBuilder ToTickString( this TimeSpan time, StringBuilder sb ) {
             if( time != TimeSpan.Zero ) {
@@ -191,6 +180,20 @@ namespace fCraft {
 
         #endregion
 
+
+        #region CompactString
+
+        public static string ToCompactString( this DateTime date ) {
+            return date.ToString( "yyyy'-'MM'-'dd'T'HH':'mm':'ssK" );
+        }
+
+
+        public static string ToCompactString( this TimeSpan span ) {
+            return String.Format( "{0}.{1:00}:{2:00}:{3:00}",
+                span.Days, span.Hours, span.Minutes, span.Seconds );
+        }
+
+        #endregion
 
 
         static CultureInfo cultureInfo = CultureInfo.CurrentCulture;

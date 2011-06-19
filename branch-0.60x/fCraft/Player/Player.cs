@@ -338,15 +338,6 @@ namespace fCraft {
         }
 
 
-        // Makes sure that there are no unprintable or illegal characters in the message
-        public static bool ContainsIllegalChars( string message ) {
-            for( int i = 0; i < message.Length; i++ ) {
-                if( message[i] < ' ' || message[i] == '&' || message[i] > '~' ) return true;
-            }
-            return false;
-        }
-
-
         public void AskForConfirmation( Command cmd, string message, params object[] args ) {
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( message == null ) throw new ArgumentNullException( "message" );

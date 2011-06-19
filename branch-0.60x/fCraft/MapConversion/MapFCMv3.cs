@@ -188,8 +188,8 @@ namespace fCraft.MapConversion {
                 writer.Write( mapToSave.Spawn.L );
 
                 mapToSave.DateModified = DateTime.UtcNow;
-                writer.Write( (uint)mapToSave.DateModified.ToTimestamp() );
-                writer.Write( (uint)mapToSave.DateCreated.ToTimestamp() );
+                writer.Write( (uint)mapToSave.DateModified.ToUnixTime() );
+                writer.Write( (uint)mapToSave.DateCreated.ToUnixTime() );
 
                 writer.Write( mapToSave.Guid.ToByteArray() );
 

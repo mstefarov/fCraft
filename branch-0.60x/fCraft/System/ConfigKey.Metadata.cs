@@ -73,7 +73,7 @@ namespace fCraft {
                 throw new FormatException( String.Format( "Value string too long; expected at most {0} characters.",
                                                           MaxLength ) );
             }
-            if( RestrictedChars && Player.ContainsIllegalChars( value ) ) {
+            if( RestrictedChars && Chat.ContainsInvalidChars( value ) ) {
                 throw new FormatException( String.Format( "Value contains restricted characters." ) );
             }
             if( Regex != null && !Regex.IsMatch( value ) ) {

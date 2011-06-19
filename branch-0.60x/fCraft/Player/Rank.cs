@@ -364,10 +364,11 @@ namespace fCraft {
             return true;
         }
 
-        public static bool IsValidPrefix( string val ) {
-            if( val.Length == 0 ) return true;
-            if( val.Length > 1 ) return false;
-            return val[0] > ' ' && val[0] != '&' && val[0] != '`' && val[0] != '^' && val[0] <= '}';
+        public static bool IsValidPrefix( string prefix ) {
+            if( prefix == null ) throw new ArgumentNullException( "prefix" );
+            if( prefix.Length == 0 ) return true;
+            if( prefix.Length > 1 ) return false;
+            return !Chat.ContainsInvalidChars( prefix );
         }
 
         #endregion
