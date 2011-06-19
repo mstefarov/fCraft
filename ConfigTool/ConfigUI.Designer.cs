@@ -25,7 +25,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -1230,8 +1230,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 394 );
             this.dgvWorlds.TabIndex = 1;
@@ -1311,7 +1311,7 @@
             this.gPermissionLimits.Location = new System.Drawing.Point( 160, 237 );
             this.gPermissionLimits.Name = "gPermissionLimits";
             this.gPermissionLimits.Size = new System.Drawing.Size( 307, 270 );
-            this.gPermissionLimits.TabIndex = 9;
+            this.gPermissionLimits.TabIndex = 6;
             this.gPermissionLimits.TabStop = false;
             this.gPermissionLimits.Text = "Permission Limits";
             // 
@@ -1395,7 +1395,7 @@
             this.xAllowSecurityCircumvention.Location = new System.Drawing.Point( 12, 165 );
             this.xAllowSecurityCircumvention.Name = "xAllowSecurityCircumvention";
             this.xAllowSecurityCircumvention.Size = new System.Drawing.Size( 271, 19 );
-            this.xAllowSecurityCircumvention.TabIndex = 27;
+            this.xAllowSecurityCircumvention.TabIndex = 9;
             this.xAllowSecurityCircumvention.Text = "Allow removing own access/build restrictions.";
             this.xAllowSecurityCircumvention.UseVisualStyleBackColor = true;
             this.xAllowSecurityCircumvention.CheckedChanged += new System.EventHandler( this.xAllowSecurityCircumvention_CheckedChanged );
@@ -1423,7 +1423,7 @@
             this.nAntiGriefSeconds.Location = new System.Drawing.Point( 229, 133 );
             this.nAntiGriefSeconds.Name = "nAntiGriefSeconds";
             this.nAntiGriefSeconds.Size = new System.Drawing.Size( 40, 21 );
-            this.nAntiGriefSeconds.TabIndex = 14;
+            this.nAntiGriefSeconds.TabIndex = 8;
             this.nAntiGriefSeconds.ValueChanged += new System.EventHandler( this.nAntiGriefSeconds_ValueChanged );
             // 
             // bColorRank
@@ -1432,7 +1432,7 @@
             this.bColorRank.Location = new System.Drawing.Point( 201, 47 );
             this.bColorRank.Name = "bColorRank";
             this.bColorRank.Size = new System.Drawing.Size( 100, 24 );
-            this.bColorRank.TabIndex = 1;
+            this.bColorRank.TabIndex = 3;
             this.bColorRank.UseVisualStyleBackColor = false;
             this.bColorRank.Click += new System.EventHandler( this.bColorRank_Click );
             // 
@@ -1442,7 +1442,7 @@
             this.xDrawLimit.Location = new System.Drawing.Point( 12, 190 );
             this.xDrawLimit.Name = "xDrawLimit";
             this.xDrawLimit.Size = new System.Drawing.Size( 81, 19 );
-            this.xDrawLimit.TabIndex = 15;
+            this.xDrawLimit.TabIndex = 10;
             this.xDrawLimit.Text = "Draw limit";
             this.xDrawLimit.UseVisualStyleBackColor = true;
             this.xDrawLimit.CheckedChanged += new System.EventHandler( this.xDrawLimit_CheckedChanged );
@@ -1480,7 +1480,7 @@
             0} );
             this.nDrawLimit.Name = "nDrawLimit";
             this.nDrawLimit.Size = new System.Drawing.Size( 67, 21 );
-            this.nDrawLimit.TabIndex = 16;
+            this.nDrawLimit.TabIndex = 11;
             this.nDrawLimit.ValueChanged += new System.EventHandler( this.nDrawLimit_ValueChanged );
             // 
             // nKickIdle
@@ -1493,7 +1493,7 @@
             0} );
             this.nKickIdle.Name = "nKickIdle";
             this.nKickIdle.Size = new System.Drawing.Size( 59, 21 );
-            this.nKickIdle.TabIndex = 11;
+            this.nKickIdle.TabIndex = 5;
             this.nKickIdle.ValueChanged += new System.EventHandler( this.nKickIdle_ValueChanged );
             // 
             // xAntiGrief
@@ -1502,7 +1502,7 @@
             this.xAntiGrief.Location = new System.Drawing.Point( 12, 108 );
             this.xAntiGrief.Name = "xAntiGrief";
             this.xAntiGrief.Size = new System.Drawing.Size( 213, 19 );
-            this.xAntiGrief.TabIndex = 12;
+            this.xAntiGrief.TabIndex = 6;
             this.xAntiGrief.Text = "Enable grief / autoclicker detection";
             this.xAntiGrief.UseVisualStyleBackColor = true;
             this.xAntiGrief.CheckedChanged += new System.EventHandler( this.xAntiGrief_CheckedChanged );
@@ -1522,7 +1522,7 @@
             this.xKickIdle.Location = new System.Drawing.Point( 12, 78 );
             this.xKickIdle.Name = "xKickIdle";
             this.xKickIdle.Size = new System.Drawing.Size( 98, 19 );
-            this.xKickIdle.TabIndex = 10;
+            this.xKickIdle.TabIndex = 4;
             this.xKickIdle.Text = "Kick if idle for";
             this.xKickIdle.UseVisualStyleBackColor = true;
             this.xKickIdle.CheckedChanged += new System.EventHandler( this.xKickIdle_CheckedChanged );
@@ -1537,7 +1537,7 @@
             0} );
             this.nAntiGriefBlocks.Name = "nAntiGriefBlocks";
             this.nAntiGriefBlocks.Size = new System.Drawing.Size( 59, 21 );
-            this.nAntiGriefBlocks.TabIndex = 13;
+            this.nAntiGriefBlocks.TabIndex = 7;
             this.nAntiGriefBlocks.ValueChanged += new System.EventHandler( this.nAntiGriefBlocks_ValueChanged );
             // 
             // xReserveSlot
@@ -1546,7 +1546,7 @@
             this.xReserveSlot.Location = new System.Drawing.Point( 12, 51 );
             this.xReserveSlot.Name = "xReserveSlot";
             this.xReserveSlot.Size = new System.Drawing.Size( 129, 19 );
-            this.xReserveSlot.TabIndex = 9;
+            this.xReserveSlot.TabIndex = 2;
             this.xReserveSlot.Text = "Reserve player slot";
             this.xReserveSlot.UseVisualStyleBackColor = true;
             this.xReserveSlot.CheckedChanged += new System.EventHandler( this.xReserveSlot_CheckedChanged );
@@ -1557,7 +1557,7 @@
             this.tPrefix.MaxLength = 1;
             this.tPrefix.Name = "tPrefix";
             this.tPrefix.Size = new System.Drawing.Size( 22, 21 );
-            this.tPrefix.TabIndex = 2;
+            this.tPrefix.TabIndex = 1;
             this.tPrefix.Validating += new System.ComponentModel.CancelEventHandler( this.tPrefix_Validating );
             // 
             // lPrefix
@@ -1621,7 +1621,7 @@
             this.vPermissions.ShowGroups = false;
             this.vPermissions.ShowItemToolTips = true;
             this.vPermissions.Size = new System.Drawing.Size( 171, 479 );
-            this.vPermissions.TabIndex = 6;
+            this.vPermissions.TabIndex = 7;
             this.vPermissions.UseCompatibleStateImageBehavior = false;
             this.vPermissions.View = System.Windows.Forms.View.Details;
             this.vPermissions.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler( this.vPermissions_ItemChecked );
@@ -2440,7 +2440,6 @@
             // xIRCUseColor
             // 
             this.xIRCUseColor.AutoSize = true;
-            this.xIRCUseColor.Enabled = false;
             this.xIRCUseColor.Location = new System.Drawing.Point( 325, 23 );
             this.xIRCUseColor.Name = "xIRCUseColor";
             this.xIRCUseColor.Size = new System.Drawing.Size( 149, 19 );

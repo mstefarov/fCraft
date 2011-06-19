@@ -248,7 +248,7 @@ namespace fCraft {
             Player.ResetIdleTimer();
             reader.ReadByte();
             string message = ReadString();
-            if( Player.ContainsIllegalChars( message ) ) {
+            if( Chat.ContainsInvalidChars( message ) ) {
                 Logger.Log( "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.", LogType.SuspiciousActivity,
                             Player.Name );
                 Server.Message( "{0}&W was kicked for attempted hacking (0x0d).", Player.GetClassyName() );

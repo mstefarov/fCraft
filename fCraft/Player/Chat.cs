@@ -163,6 +163,15 @@ namespace fCraft {
         }
 
 
+        // Makes sure that there are no unprintable or illegal characters in the message
+        public static bool ContainsInvalidChars( string message ) {
+            for( int i = 0; i < message.Length; i++ ) {
+                if( message[i] < ' ' || message[i] == '&' || message[i] > '~' ) return true;
+            }
+            return false;
+        }
+
+
         #region Events
 
         static bool RaiseSendingEvent( ChatSendingEventArgs args ) {
