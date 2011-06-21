@@ -95,18 +95,44 @@ namespace fCraft.MapConversion {
             map.DateModified = bs.ReadInt64().ToDateTime();
 
 
-            int metaCount = bs.ReadInt32();
+            int metaGroupCount = bs.ReadInt32();
+            if( metaGroupCount < 0 ) throw new MapFormatException( "Negative meta group count." );
+
             int layerCount = bs.ReadInt32();
+            if( layerCount < 0 ) throw new MapFormatException( "Negative layer count." );
 
             // metadata
-            for( int i = 0; i < metaCount; i++ ) {
+            for( int i = 0; i < metaGroupCount; i++ ) {
                 string groupName = ReadString( bs );
                 int keyCount = bs.ReadInt32();
+                if( keyCount < 0 ) throw new MapFormatException( "Negative meta group size." );
                 for( int k = 0; k < keyCount; k++ ) {
                     string keyName = ReadString( bs );
                     string value = ReadString( bs );
-                    // TODO: parse zones etc
-                    map.Metadata[groupName, keyName] = value;
+
+                    // check for duplicate keys
+                    string oldValue;
+                    if( map.Metadata.TryGetValue( groupName, keyName, out oldValue ) ) {
+                        Logger.Log( "MapXMap: Duplicate metadata entry \"{0}.{1}\". " +
+                                    "Old value: \"{2}\", new value \"{3}\"", LogType.Warning,
+                                    groupName, keyName, oldValue, value );
+                    }
+
+                    // parse or store metadata
+                    switch( groupName ) {
+                        case "fCraft.Zones":
+                            try {
+                                map.AddZone( new Zone( value, null ) );
+                            } catch( Exception ex ) {
+                                Logger.Log( "MapXMap: Error importing zone definition: {0}", LogType.Error,
+                                            ex );
+                            }
+                            break;
+
+                        default:
+                            map.Metadata[groupName, keyName] = value;
+                            break;
+                    }
                 }
             }
 
@@ -115,7 +141,6 @@ namespace fCraft.MapConversion {
                 for( int l = 0; l < layerCount; l++ ) {
                     string layerName = ReadString( bs );
                     int layerSize = bs.ReadInt32();
-                    int layerFlags = bs.ReadInt32();
 
 
 
@@ -129,6 +154,7 @@ namespace fCraft.MapConversion {
 
         internal static string ReadString( BinaryReader reader ) {
             int stringLength = reader.ReadInt32();
+            if( stringLength < 0 ) throw new MapFormatException( "Negative string length." );
             return Encoding.ASCII.GetString( reader.ReadBytes( stringLength ) );
         }
 
@@ -148,7 +174,7 @@ namespace fCraft.MapConversion {
         BlockArray,
 
         PlayerTable,        // Table of players that have been on the map
-        BlockPhysicsCode,   // Definition of all the phyiscs. Blocks should reference these
+        BlockPhysicsCode,   // Definition of all the physics. Blocks should reference these
         BlockUndo,          // Last change (per-block) ***Not Used by MCSharp***
         BlockProperties,    // Parallel array to block array, defining what physics code to run on specific blocks
         BlockAccessLevel,   // Parallel array of block access levels
@@ -159,15 +185,13 @@ namespace fCraft.MapConversion {
     public class XDataLayer {
         public string Name { get; set; }
         public XMapLayerType LayerType { get; set; }
-        public int Flags { get; set; }
 
         bool writeRaw = true;
         byte[] RawData;
 
 
-        public XDataLayer( string name, int flags, int length, Stream stream ) {
+        public XDataLayer( string name, int length, Stream stream ) {
             Name = name;
-            Flags = flags;
 
             try {
                 LayerType = (XMapLayerType)Enum.Parse( typeof( XMapLayerType ), name, true );
@@ -188,8 +212,7 @@ namespace fCraft.MapConversion {
             BinaryReader br = new BinaryReader( stream );
             string layerName = MapXMap.ReadString( br );
             int layerSize = br.ReadInt32();
-            int layerFlags = br.ReadInt32();
-            return new XDataLayer( layerName, layerFlags, layerSize, stream );
+            return new XDataLayer( layerName, layerSize, stream );
         }
 
 
