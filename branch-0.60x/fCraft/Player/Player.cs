@@ -39,6 +39,7 @@ namespace fCraft {
                     IsHidden,
                     IsDeaf,
                     IsDisconnected;
+
         public World World;
         internal DateTime IdleTimer = DateTime.UtcNow; // used for afk kicks
 
@@ -492,6 +493,12 @@ namespace fCraft {
                 return false;
             }
 
+            if( IsSpectating ) {
+                Message( "You cannot build or delete while spectating." );
+                RevertBlockNow( x, y, h );
+                return false;
+            }
+
             if( World.IsLocked ) {
                 RevertBlockNow( x, y, h );
                 Message( "This map is currently locked (read-only)." );
@@ -897,6 +904,14 @@ namespace fCraft {
             return String.Format( "Player({0})", Info.Name );
         }
 
+        #region Spectating
+
+        public bool IsSpectating {
+            get {
+                return (Session != null) && (Session.SpectatedPlayer != null);
+            }
+        }
+
 
         public bool Spectate( Player target ) {
             if( target == null ) throw new ArgumentNullException( "target" );
@@ -915,6 +930,8 @@ namespace fCraft {
                 return false;
             }
         }
+
+        #endregion
     }
 }
 
