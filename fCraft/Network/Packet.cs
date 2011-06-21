@@ -2,7 +2,7 @@
 
 namespace fCraft {
 
-    /// <summary> Basic struct, just a wrapper for a byte array. </summary>
+    /// <summary> Packet struct, just a wrapper for a byte array. </summary>
     public struct Packet {
         public readonly byte[] Data;
 
