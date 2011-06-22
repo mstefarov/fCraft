@@ -104,7 +104,9 @@ namespace fCraft.MapConversion {
 
 
         public Map LoadHeader( string fileName ) {
-            throw new NotImplementedException();
+            Map map = Load( fileName );
+            map.Blocks = null;
+            return map;
         }
 
 

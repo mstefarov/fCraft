@@ -14,6 +14,14 @@ namespace fCraft {
             UpdateCache();
         }
 
+        public ZoneCollection( ZoneCollection other ) {
+            lock( other.syncRoot ) {
+                foreach( Zone zone in other.store.Values ) {
+                    Add( zone );
+                }
+            }
+        }
+
         void UpdateCache() {
             lock( syncRoot ) {
                 Cache = this.ToArray();
@@ -29,6 +37,7 @@ namespace fCraft {
                     throw new ArgumentException( "Duplicate zone.", "item" );
                 }
                 store.Add( zoneName, item );
+                item.Changed += OnZoneChanged;
                 UpdateCache();
                 RaiseChangedEvent();
             }
@@ -37,10 +46,14 @@ namespace fCraft {
 
         public void Clear() {
             lock( syncRoot ) {
-                bool raiseChangedEvent = store.Count > 0;
-                store.Clear();
-                UpdateCache();
-                if( raiseChangedEvent ) RaiseChangedEvent();
+                if( store.Count > 0 ) {
+                    foreach( Zone zone in store.Values ) {
+                        zone.Changed -= OnZoneChanged;
+                    }
+                    store.Clear();
+                    UpdateCache();
+                    RaiseChangedEvent();
+                }
             }
         }
 
@@ -67,6 +80,7 @@ namespace fCraft {
                     store.Remove( item.Name.ToLower() );
                     UpdateCache();
                     RaiseChangedEvent();
+                    item.Changed -= OnZoneChanged;
                     return true;
                 } else {
                     return false;
@@ -78,7 +92,11 @@ namespace fCraft {
         public bool Remove( string zoneName ) {
             if( zoneName == null ) throw new ArgumentNullException( "zoneName" );
             lock( syncRoot ) {
-                if( store.Remove( zoneName.ToLower() ) ) {
+                string zoneNameLower = zoneName.ToLower();
+                Zone item;
+                if( store.TryGetValue( zoneNameLower, out item ) ) {
+                    item.Changed -= OnZoneChanged;
+                    store.Remove( zoneNameLower );
                     UpdateCache();
                     RaiseChangedEvent();
                     return true;
@@ -235,18 +253,23 @@ namespace fCraft {
         #region ICollection Boilerplate
 
         IEnumerator IEnumerable.GetEnumerator() {
-            throw new NotImplementedException();
+            return store.Values.GetEnumerator();
         }
 
 
         public void CopyTo( Zone[] array, int arrayIndex ) {
+            if( array == null ) throw new ArgumentNullException( "array" );
+            if( arrayIndex < 0 || arrayIndex > array.Length ) throw new ArgumentOutOfRangeException( "arrayIndex" );
             Zone[] cache = Cache;
-            Array.Copy( cache, array, cache.Length );
+            Array.Copy( cache, 0, array, arrayIndex, cache.Length );
         }
 
 
         public void CopyTo( Array array, int index ) {
-            throw new NotImplementedException();
+            if( array == null ) throw new ArgumentNullException( "array" );
+            if( index < 0 || index > array.Length ) throw new ArgumentOutOfRangeException( "index" );
+            Zone[] cache = Cache;
+            Array.Copy( cache, 0, array, index, cache.Length );
         }
 
 
@@ -269,11 +292,17 @@ namespace fCraft {
 
 
         public object Clone() {
-            throw new NotImplementedException();
+            lock( syncRoot ) {
+                return new ZoneCollection( this );
+            }
         }
 
 
         public event EventHandler Changed;
+
+        void OnZoneChanged( object sender, EventArgs e ) {
+            RaiseChangedEvent();
+        }
 
         void RaiseChangedEvent() {
             var h = Changed;

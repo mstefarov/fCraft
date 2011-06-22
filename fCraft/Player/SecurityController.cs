@@ -8,7 +8,7 @@ using System.Xml.Linq;
 namespace fCraft {
 
     /// <summary> Controller for setting and checking per-rank permissions and per-player exceptions. </summary>
-    public sealed class SecurityController : ICloneable {
+    public sealed class SecurityController : ICloneable, INotifiesOnChange {
 
         readonly Dictionary<string, PlayerInfo> includedPlayers = new Dictionary<string, PlayerInfo>();
         readonly Dictionary<string, PlayerInfo> excludedPlayers = new Dictionary<string, PlayerInfo>();
@@ -23,7 +23,10 @@ namespace fCraft {
                 return minRank ?? RankManager.LowestRank;
             }
             set {
-                minRank = value;
+                if( minRank != value ) {
+                    minRank = value;
+                    RaiseChangedEvent();
+                }
             }
         }
 
@@ -55,7 +58,7 @@ namespace fCraft {
         void UpdatePlayerListCache() {
             lock( exceptionListLock ) {
                 ExceptionList = new PlayerExceptions( includedPlayers.Values.ToArray(),
-                                                               excludedPlayers.Values.ToArray() );
+                                                      excludedPlayers.Values.ToArray() );
             }
         }
 
@@ -68,15 +71,16 @@ namespace fCraft {
             if( info == null ) throw new ArgumentNullException( "info" );
             lock( exceptionListLock ) {
                 if( includedPlayers.ContainsValue( info ) ) {
-                    UpdatePlayerListCache();
                     return PermissionOverride.Allow;
                 } else if( excludedPlayers.ContainsValue( info ) ) {
                     excludedPlayers.Remove( info.Name.ToLower() );
                     UpdatePlayerListCache();
+                    RaiseChangedEvent();
                     return PermissionOverride.Deny;
                 } else {
                     includedPlayers.Add( info.Name.ToLower(), info );
                     UpdatePlayerListCache();
+                    RaiseChangedEvent();
                     return PermissionOverride.None;
                 }
             }
@@ -91,15 +95,16 @@ namespace fCraft {
             if( info == null ) throw new ArgumentNullException( "info" );
             lock( exceptionListLock ) {
                 if( excludedPlayers.ContainsValue( info ) ) {
-                    UpdatePlayerListCache();
                     return PermissionOverride.Deny;
                 } else if( includedPlayers.ContainsValue( info ) ) {
                     includedPlayers.Remove( info.Name.ToLower() );
                     UpdatePlayerListCache();
+                    RaiseChangedEvent();
                     return PermissionOverride.Allow;
                 } else {
                     excludedPlayers.Add( info.Name.ToLower(), info );
                     UpdatePlayerListCache();
+                    RaiseChangedEvent();
                     return PermissionOverride.None;
                 }
             }
@@ -301,6 +306,13 @@ namespace fCraft {
         }
 
         #endregion
+
+        public event EventHandler Changed;
+
+        void RaiseChangedEvent() {
+            var h = Changed;
+            if( h != null ) h( null, EventArgs.Empty );
+        }
     }
 
 
