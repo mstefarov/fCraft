@@ -33,10 +33,13 @@ namespace ConfigTool {
 
 
         void Init( object sender, EventArgs e ) {
-            FillOptionList();
+            // fills Permission and LogType lists
+            FillEnumLists();
 
+            // create hidden boxes for permission limits
             FillPermissionLimitBoxes();
 
+            // fill out all the tool tips
             FillToolTipsGeneral();
             FillToolTipsChat();
             FillToolTipsWorlds();
@@ -47,9 +50,14 @@ namespace ConfigTool {
             FillToolTipsIRC();
             FillToolTipsAdvanced();
 
-            PopulateIRCNetworkList( false );
+            FillIRCNetworkList( false );
 
+            // Initialize fCraft's args, paths, and logging backend.
             Server.InitLibrary( Environment.GetCommandLineArgs() );
+
+            // Redraw chat preview when re-entering the tab.
+            // This ensured that changes to rank colors/prefixes are applied.
+            tabChat.Enter += ( o, e2 ) => UpdateChatPreview();
 
             dgvWorlds.DataError += WorldListErrorHandler;
 
@@ -57,7 +65,7 @@ namespace ConfigTool {
         }
 
 
-        void FillOptionList() {
+        void FillEnumLists() {
             foreach( Permission permission in Enum.GetValues( typeof( Permission ) ) ) {
                 ListViewItem item = new ListViewItem( permission.ToString() ) { Tag = permission };
                 vPermissions.Items.Add( item );
@@ -231,6 +239,8 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         private void bWorldDel_Click( object sender, EventArgs e ) {
             if( dgvWorlds.SelectedRows.Count > 0 ) {
                 WorldListEntry world = Worlds[dgvWorlds.SelectedRows[0].Index];
+
+                // prompt to delete map file, if it exists
                 if( File.Exists( world.FullFileName ) ) {
                     string promptMessage = String.Format( "Are you sure you want to delete world \"{0}\"?", world.Name );
 
@@ -238,26 +248,29 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                         return;
                     }
 
-                    if( MessageBox.Show( "Do you want to delete the map file (" + world.FileName + ") as well?", "Warning", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
+                    string fileDeleteWarning = "Do you want to delete the map file (" + world.FileName + ") as well?";
+                    if( MessageBox.Show( fileDeleteWarning, "Warning", MessageBoxButtons.YesNo ) == DialogResult.Yes ) {
                         try {
                             File.Delete( world.FullFileName );
                         } catch( Exception ex ) {
                             MessageBox.Show( "You have to delete the file (" + world.FileName + ") manually. " +
-                                             "An error occured while trying to delete it automatically:" + Environment.NewLine + ex, "Error" );
+                                             "An error occured while trying to delete it automatically:" + Environment.NewLine + ex,
+                                             "Could not delete map file" );
                         }
                     }
                 }
 
                 Worlds.Remove( world );
 
-                // handle change of main world
                 if( cMainWorld.SelectedItem == null ) {
+                    // deleting non-main world
                     FillWorldList();
                     if( cMainWorld.Items.Count > 0 ) {
                         cMainWorld.SelectedIndex = 0;
                     }
 
                 } else {
+                    // deleting main world
                     string mainWorldName = cMainWorld.SelectedItem.ToString();
                     FillWorldList();
                     if( mainWorldName == world.Name ) {
@@ -467,10 +480,10 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         }
 
         private void xIRCListShowNonEnglish_CheckedChanged( object sender, EventArgs e ) {
-            PopulateIRCNetworkList( xIRCListShowNonEnglish.Checked );
+            FillIRCNetworkList( xIRCListShowNonEnglish.Checked );
         }
 
-        void PopulateIRCNetworkList( bool showNonEnglishNetworks ) {
+        void FillIRCNetworkList( bool showNonEnglishNetworks ) {
             cIRCList.Items.Clear();
             foreach( IRCNetwork network in IRCNetworks ) {
                 if( showNonEnglishNetworks || !network.IsNonEnglish ) {

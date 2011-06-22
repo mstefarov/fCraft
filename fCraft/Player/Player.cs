@@ -391,6 +391,11 @@ namespace fCraft {
         }
 
 
+        public void MessageNoZone( string zoneName ) {
+            Message( "No zone found with the name \"{0}\". See &H/zones", zoneName );
+        }
+
+
         #region Ignore
 
         readonly HashSet<PlayerInfo> ignoreList = new HashSet<PlayerInfo>();
@@ -588,7 +593,7 @@ namespace fCraft {
                     break;
 
                 case CanPlaceResult.ZoneDenied:
-                    Zone deniedZone = World.Map.FindDeniedZone( x, y, h, this );
+                    Zone deniedZone = World.Map.Zones.FindDenied( x, y, h, this );
                     if( deniedZone != null ) {
                         Message( "&WYou are not allowed to build in zone \"{0}\".", deniedZone.Name );
                     } else {
@@ -726,7 +731,7 @@ namespace fCraft {
             }
 
             // check zones & world permissions
-            PermissionOverride zoneCheckResult = World.Map.CheckZones( x, y, h, this );
+            PermissionOverride zoneCheckResult = World.Map.Zones.Check( x, y, h, this );
             if( zoneCheckResult == PermissionOverride.Allow ) {
                 result = CanPlaceResult.Allowed;
                 goto eventCheck;

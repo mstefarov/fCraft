@@ -39,9 +39,9 @@ namespace fCraft {
                     return;
                 }
 
-                Zone zone = player.World.Map.FindZone( zoneName );
+                Zone zone = player.World.Map.Zones.Find( zoneName );
                 if( zone == null ) {
-                    player.Message( "No zone found with the name \"{0}\". See &H/zones", zoneName );
+                    player.MessageNoZone( zoneName );
                     return;
                 }
 
@@ -72,9 +72,9 @@ namespace fCraft {
                 return;
             }
 
-            Zone zone = player.World.Map.FindZone( zoneName );
+            Zone zone = player.World.Map.Zones.Find( zoneName );
             if( zone == null ) {
-                player.Message( "No zone found with the name \"{0}\". See &H/zones", zoneName );
+                player.MessageNoZone( zoneName );
                 return;
             }
 
@@ -228,7 +228,7 @@ namespace fCraft {
                     return;
                 }
 
-                if( player.World.Map.FindZone( zoneName ) != null ) {
+                if( player.World.Map.Zones.FindExact( zoneName ) != null ) {
                     player.Message( "A zone with this name already exists. Use &H/zedit&S to edit." );
                     return;
                 }
@@ -288,7 +288,7 @@ namespace fCraft {
                         zone.Name,
                         zone.Bounds.Volume );
 
-            player.World.Map.AddZone( zone );
+            player.World.Map.Zones.Add( zone );
         }
 
 
@@ -307,7 +307,7 @@ namespace fCraft {
 
         internal static void ZoneTestCallback( Player player, Position[] marks, object tag ) {
             Zone[] allowed, denied;
-            if( player.World.Map.CheckZonesDetailed( marks[0].X, marks[0].Y, marks[0].H, player, out allowed, out denied ) ) {
+            if( player.World.Map.Zones.CheckDetailed( marks[0].X, marks[0].Y, marks[0].H, player, out allowed, out denied ) ) {
                 foreach( Zone zone in allowed ) {
                     SecurityCheckResult status = zone.Controller.CheckDetailed( player.Info );
                     player.Message( "> {0}: {1}{2}", zone.Name, Color.Lime, status );
@@ -340,7 +340,7 @@ namespace fCraft {
                 return;
             }
 
-            Zone zone = player.World.Map.FindZone( zoneName );
+            Zone zone = player.World.Map.Zones.Find( zoneName );
             if( zone != null ) {
                 if( !zone.Controller.Check( player.Info ) && !player.Info.Rank.AllowSecurityCircumvention ) {
                     player.Message( "You are not allowed to remove zone {0}", zone.GetClassyName() );
@@ -351,12 +351,12 @@ namespace fCraft {
                     return;
                 }
 
-                if( player.World.Map.RemoveZone( zoneName ) ) {
+                if( player.World.Map.Zones.Remove( zoneName ) ) {
                     player.Message( "Zone \"{0}\" removed.", zoneName );
                 }
 
             } else {
-                player.Message( "No zone with the name \"{0}\" was found.", zoneName );
+                player.MessageNoZone( zoneName );
             }
         }
 
@@ -399,7 +399,7 @@ namespace fCraft {
                 }
             }
 
-            Zone[] zones = map.ZoneList;
+            Zone[] zones = map.Zones.Cache;
             if( zones.Length > 0 ) {
                 foreach( Zone zone in zones ) {
                     player.Message( "   {0} ({1}&S) - {2} x {3} x {4}",
@@ -432,9 +432,9 @@ namespace fCraft {
                 return;
             }
 
-            Zone zone = player.World.Map.FindZone( zoneName );
+            Zone zone = player.World.Map.Zones.Find( zoneName );
             if( zone == null ) {
-                player.Message( "No zone found with the name \"{0}\". See &H/zones", zoneName );
+                player.MessageNoZone( zoneName );
                 return;
             }
 
@@ -501,13 +501,15 @@ namespace fCraft {
                 return;
             }
 
-            Zone oldZone = player.World.Map.FindZone( oldName );
+            var zones = player.World.Map.Zones;
+
+            Zone oldZone = zones.Find( oldName );
             if( oldZone == null ) {
-                player.Message( "No zone found with the name \"{0}\". See &H/zones", oldName );
+                player.MessageNoZone( oldName );
                 return;
             }
 
-            Zone newZone = player.World.Map.FindZoneExact( newName );
+            Zone newZone = zones.FindExact( newName );
             if( newZone!=null && newZone != oldZone ) {
                 player.Message( "A zone with the name \"{0}\" already exists.", newName );
                 return;
@@ -515,7 +517,7 @@ namespace fCraft {
 
             string fullOldName = oldZone.Name;
 
-            player.World.Map.RenameZone( oldZone, newName );
+            zones.Rename( oldZone, newName );
             Logger.Log( "Player {0} renamed zone \"{1}\" to \"{2}\" on world {3}", LogType.UserActivity,
                         player.Name, fullOldName, newName, player.World.Name );
         }

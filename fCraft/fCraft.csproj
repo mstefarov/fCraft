@@ -221,12 +221,14 @@
     <Compile Include="System\ConfigSection.cs" />
     <Compile Include="System\Server.Events.cs" />
     <Compile Include="Utils\ExtensionMethods.cs" />
+    <Compile Include="Utils\INotifiesOnChange.cs" />
     <Compile Include="Utils\LogRecorder.cs" />
     <Compile Include="Utils\ZipStorer.cs" />
     <Compile Include="World\MetadataCollection.cs" />
     <Compile Include="World\WorldManager.cs" />
     <Compile Include="World\WorldOpException.cs" />
     <Compile Include="Utils\MonoCompat.cs" />
+    <Compile Include="World\ZoneCollection.cs" />
     <None Include="Tileset.png" />
     <None Include="TilesetShadowed.png" />
   </ItemGroup>

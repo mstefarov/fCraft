@@ -1,9 +1,10 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
-using System.ComponentModel;
 
 namespace fCraft {
 
@@ -43,6 +44,7 @@ namespace fCraft {
         }
 
 
+        [DebuggerStepThrough]
         public virtual string Process( string value ) {
             return value;
         }
@@ -186,6 +188,7 @@ namespace fCraft {
         }
 
 
+        [DebuggerStepThrough]
         public override string Process( string value ) {
             if( value.Length == 0 ) {
                 Rank defaultRank = GetBlankValueSubstitute();
@@ -239,6 +242,7 @@ namespace fCraft {
             }
         }
 
+        [DebuggerStepThrough]
         public override string Process( string value ) {
             if( value.Length == 0 ) {
                 return DefaultValue.ToString();
@@ -311,6 +315,7 @@ namespace fCraft {
         }
 
 
+        [DebuggerStepThrough]
         public override string Process( string value ) {
             if( value.Length == 0 ) {
                 return GetBlankValueSubstitute().ToString();
@@ -362,6 +367,7 @@ namespace fCraft {
             }
         }
 
+        [DebuggerStepThrough]
         public override string Process( string value ) {
             if( value.Length == 0 ) {
                 return DefaultValue.ToString();

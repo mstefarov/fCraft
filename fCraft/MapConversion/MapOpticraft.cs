@@ -204,7 +204,7 @@ namespace fCraft.MapConversion {
                         }
                     }
                 }
-                mapFile.AddZone( fZone );
+                mapFile.Zones.Add( fZone );
             }
         }
 
@@ -246,11 +246,12 @@ namespace fCraft.MapConversion {
                 writer.Write( jsonMetaData );
 
                 //Now create and serialize core data store (zones)
+                Zone[] zoneCache = mapToSave.Zones.Cache;
                 OpticraftDataStore oDataStore = new OpticraftDataStore {
-                    Zones = new OpticraftZone[mapToSave.ZoneList.Length]
+                    Zones = new OpticraftZone[zoneCache.Length]
                 };
                 int i = 0;
-                foreach( Zone zone in mapToSave.ZoneList ) {
+                foreach( Zone zone in zoneCache ) {
                     OpticraftZone oZone = new OpticraftZone {
                         Name = zone.Name,
                         MinimumRank = zone.Controller.MinRank.Name,

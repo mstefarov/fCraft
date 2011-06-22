@@ -74,6 +74,8 @@ namespace fCraft {
         /// <summary> Map metadata, excluding zones. </summary>
         public MetadataCollection Metadata { get; private set; }
 
+        public ZoneCollection Zones { get; private set; }
+
 
         /// <summary> Creates an empty new map of given dimensions.
         /// Dimensions cannot be changed after creation. </summary>
@@ -84,7 +86,10 @@ namespace fCraft {
         /// <param name="initBlockArray"> If true, the Blocks array will be created. </param>
         public Map( World world, int widthX, int widthY, int height, bool initBlockArray ) {
             Metadata = new MetadataCollection();
-            UpdateZoneCache();
+            Metadata.Changed += OnMetaOrZoneChange;
+
+            Zones = new ZoneCollection();
+            Zones.Changed += OnMetaOrZoneChange;
 
             World = world;
 
@@ -97,6 +102,10 @@ namespace fCraft {
             if( initBlockArray ) {
                 Blocks = new byte[Volume];
             }
+        }
+
+        void OnMetaOrZoneChange( object sender, EventArgs args ) {
+            HasChangedSinceSave = true;
         }
 
 
@@ -136,194 +145,6 @@ namespace fCraft {
                 return false;
             }
             return true;
-        }
-
-        #endregion
-
-
-        #region Zones
-
-        readonly Dictionary<string, Zone> zones = new Dictionary<string, Zone>();
-        public Zone[] ZoneList { get; private set; }
-
-        // locking is only needed when using "zones" dictionary, not "zoneList" cached array
-        readonly object zoneLock = new object();
-
-
-        /// <summary> Adds a new zone to the map. </summary>
-        /// <param name="zone"> Zone to add. </param>
-        /// <returns> True if the zone was added, false if the given zone was already on the list. </returns>
-        public bool AddZone( Zone zone ) {
-            if( zone == null ) throw new ArgumentNullException( "zone" );
-            lock( zoneLock ) {
-                if( zones.ContainsKey( zone.Name.ToLower() ) ) return false;
-                zones.Add( zone.Name.ToLower(), zone );
-                zone.Map = this;
-                HasChangedSinceSave = true;
-                UpdateZoneCache();
-            }
-            return true;
-        }
-
-
-        public void RenameZone( Zone zone, string newName ) {
-            if( zone == null ) throw new ArgumentNullException( "zone" );
-            if( newName == null ) throw new ArgumentNullException( "newName" );
-            lock( zoneLock ) {
-                zones.Remove( zone.Name.ToLower() );
-                zone.Name = newName;
-                zones.Add( newName.ToLower(), zone );
-                HasChangedSinceSave = true;
-                UpdateZoneCache();
-            }
-        }
-
-
-        /// <summary> Removes a zone from the map. </summary>
-        /// <param name="zone"> Zone to remove. </param>
-        /// <returns> True if zone was removed, false if the given zone was not on the list. </returns>
-        public bool RemoveZone( string zone ) {
-            if( zone == null ) throw new ArgumentNullException( "zone" );
-            lock( zoneLock ) {
-                if( !zones.Remove( zone.ToLower() ) ) return false;
-                HasChangedSinceSave = true;
-                UpdateZoneCache();
-            }
-            return true;
-        }
-
-
-        /// <summary> Checks how zones affect the given player's ability to affect
-        /// a block at given coordinates. </summary>
-        /// <param name="x"> Block's X coordinate. </param>
-        /// <param name="y"> Block's Y coordinate. </param>
-        /// <param name="h"> Block's H coordinate. </param>
-        /// <param name="player"> Player to check. </param>
-        /// <returns> None if no zones affect the coordinate.
-        /// Allow if ALL affecting zones allow the player.
-        /// Deny if ANY affecting zone denies the player. </returns>
-        public PermissionOverride CheckZones( int x, int y, int h, Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-
-            PermissionOverride result = PermissionOverride.None;
-            if( ZoneList.Length == 0 ) return result;
-
-            Zone[] zoneListCache = ZoneList;
-            for( int i = 0; i < zoneListCache.Length; i++ ) {
-                if( zoneListCache[i].Bounds.Contains( x, y, h ) ) {
-                    if( zoneListCache[i].Controller.Check( player.Info ) ) {
-                        result = PermissionOverride.Allow;
-                    } else {
-                        return PermissionOverride.Deny;
-                    }
-                }
-            }
-            return result;
-        }
-
-
-        public bool CheckZonesDetailed( short x, short y, short h, Player player, out Zone[] allowedZones, out Zone[] deniedZones ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            var allowedList = new List<Zone>();
-            var deniedList = new List<Zone>();
-            bool found = false;
-
-            Zone[] zoneListCache = ZoneList;
-            for( int i = 0; i < zoneListCache.Length; i++ ) {
-                if( zoneListCache[i].Bounds.Contains( x, y, h ) ) {
-                    found = true;
-                    if( zoneListCache[i].Controller.Check( player.Info ) ) {
-                        allowedList.Add( zoneListCache[i] );
-                    } else {
-                        deniedList.Add( zoneListCache[i] );
-                    }
-                }
-            }
-            allowedZones = allowedList.ToArray();
-            deniedZones = deniedList.ToArray();
-            return found;
-        }
-
-
-        /// <summary> Finds which zone denied player's ability to affect
-        /// a block at given coordinates. Used in conjunction with CheckZones(). </summary>
-        /// <param name="x"> Block's X coordinate. </param>
-        /// <param name="y"> Block's Y coordinate. </param>
-        /// <param name="h"> Block's H coordinate. </param>
-        /// <param name="player"> Player to check. </param>
-        /// <returns> First zone to deny the player.
-        /// null if none of the zones deny the player. </returns>
-        public Zone FindDeniedZone( int x, int y, int h, Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            Zone[] zoneListCache = ZoneList;
-            for( int i = 0; i < zoneListCache.Length; i++ ) {
-                if( zoneListCache[i].Bounds.Contains( x, y, h ) &&
-                    !zoneListCache[i].Controller.Check( player.Info ) ) {
-                    return zoneListCache[i];
-                }
-            }
-            return null;
-        }
-
-
-        /// <summary> Finds a zone by name, without using autocompletion.
-        /// Zone names are case-insensitive. </summary>
-        /// <param name="name"> Full zone name. </param>
-        /// <returns> Zone object if it was found.
-        /// null if no Zone with the given name could be found. </returns>
-        public Zone FindZoneExact( string name ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
-            lock( zoneLock ) {
-                Zone result;
-                if( zones.TryGetValue( name.ToLower(), out result ) ) {
-                    return result;
-                }
-            }
-            return null;
-        }
-
-
-        /// <summary> Finds a zone by name, with autocompletion.
-        /// Zone names are case-insensitive. </summary>
-        /// <remarks> Note that this method is a lot slower than FindZoneExact. </remarks>
-        /// <param name="name"> Full zone name. </param>
-        /// <returns> Zone object if it was found.
-        /// null if no Zone with the given name could be found. </returns>
-        public Zone FindZone( string name ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
-            // try to find exact match
-            lock( zoneLock ) {
-                Zone result;
-                if( zones.TryGetValue( name.ToLower(), out result ) ) {
-                    return result;
-                }
-            }
-            // try to autocomplete
-            Zone match = null;
-            foreach( Zone zone in ZoneList ) {
-                if( zone.Name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
-                    if( match == null ) {
-                        // first (and hopefully only) match found
-                        match = zone;
-                    } else {
-                        // more than one match found
-                        return null;
-                    }
-                }
-            }
-            return match;
-        }
-
-
-        void UpdateZoneCache() {
-            lock( zoneLock ) {
-                Zone[] newZoneList = new Zone[zones.Count];
-                int i = 0;
-                foreach( Zone zone in zones.Values ) {
-                    newZoneList[i++] = zone;
-                }
-                ZoneList = newZoneList;
-            }
         }
 
         #endregion

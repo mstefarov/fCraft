@@ -74,7 +74,7 @@ namespace fCraft.MapConversion {
                         }
                         if( group == "zones" ) {
                             try {
-                                map.AddZone( new Zone( newValue, map.World ) );
+                                map.Zones.Add( new Zone( newValue, map.World ) );
                             } catch( Exception ex ) {
                                 Logger.Log( "MapFCMv3.LoadHeader: Error importing zone definition: {0}", LogType.Error, ex );
                             }
@@ -119,7 +119,7 @@ namespace fCraft.MapConversion {
                         }
                         if( group == "zones" ) {
                             try {
-                                map.AddZone( new Zone( newValue, map.World ) );
+                                map.Zones.Add( new Zone( newValue, map.World ) );
                             } catch( Exception ex ) {
                                 Logger.Log( "MapFCMv3.LoadHeader: Error importing zone definition: {0}", LogType.Error, ex );
                             }
@@ -261,23 +261,12 @@ namespace fCraft.MapConversion {
                 }
             }
 
-            Zone[] zoneList = map.ZoneList;
+            Zone[] zoneList = map.Zones.Cache;
             foreach( Zone zone in zoneList ) {
                 WriteLengthPrefixedString( writer, "zones" );
                 WriteLengthPrefixedString( writer, zone.Name );
                 WriteLengthPrefixedString( writer, SerializeZone(zone) );
                 metaCount++;
-            }
-
-            World world = map.World;
-            if( world != null ) {
-                WriteLengthPrefixedString( writer, "security" );
-                WriteLengthPrefixedString( writer, "access" );
-                WriteLengthPrefixedString( writer, world.AccessSecurity.Serialize().ToString() );
-                WriteLengthPrefixedString( writer, "security" );
-                WriteLengthPrefixedString( writer, "build" );
-                WriteLengthPrefixedString( writer, world.BuildSecurity.Serialize().ToString() );
-                metaCount += 2;
             }
             return metaCount;
         }
