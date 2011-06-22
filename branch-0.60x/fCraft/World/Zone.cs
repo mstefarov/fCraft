@@ -3,7 +3,7 @@ using System;
 
 namespace fCraft {
 
-    public sealed class Zone : IClassy {
+    public sealed class Zone : IClassy, INotifiesOnChange {
 
         /// <summary> Zone boundaries. </summary>
         public BoundingBox Bounds { get; private set; }
@@ -53,13 +53,16 @@ namespace fCraft {
             if( editedBy == null ) throw new ArgumentNullException( "editedBy" );
             EditedDate = DateTime.UtcNow;
             EditedBy = editedBy;
+            RaiseChangedEvent();
         }
 
 
-        public Zone() { }
+        public Zone() {
+            Controller.Changed += ( o, e ) => RaiseChangedEvent();
+        }
 
 
-        public Zone( string raw, World world ) {
+        public Zone( string raw, World world ):this() {
             string[] parts = raw.Split( ',' );
 
             string[] header = parts[0].Split( ' ' );
@@ -163,5 +166,13 @@ namespace fCraft {
 
         #endregion
          */
+
+
+        public event EventHandler Changed;
+
+        void RaiseChangedEvent() {
+            var h = Changed;
+            if( h != null ) h( null, EventArgs.Empty );
+        }
     }
 }
