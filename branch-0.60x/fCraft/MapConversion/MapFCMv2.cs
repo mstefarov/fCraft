@@ -98,7 +98,7 @@ namespace fCraft.MapConversion {
                     string value = ReadLengthPrefixedString( reader );
                     if( key.StartsWith( "@zone", StringComparison.OrdinalIgnoreCase ) ) {
                         try {
-                            map.AddZone( new Zone( value, map.World ) );
+                            map.Zones.Add( new Zone( value, map.World ) );
                         } catch( Exception ex ) {
                             Logger.Log( "MapFCMv2.Load: Error importing zone definition: {0}", LogType.Error, ex );
                         }

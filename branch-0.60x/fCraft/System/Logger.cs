@@ -52,6 +52,11 @@ namespace fCraft {
             Log( String.Format( message, values ), type );
         }
 
+        [DebuggerStepThrough]
+        public static void Log( string message, LogType type, object value ) {
+            Log( String.Format( message, value ), type );
+        }
+
 
         public static void LogToConsole( string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );

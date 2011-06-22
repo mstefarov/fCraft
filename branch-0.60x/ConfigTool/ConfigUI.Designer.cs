@@ -25,7 +25,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( ConfigUI ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -517,6 +517,11 @@
             this.nAnnouncements.Location = new System.Drawing.Point( 210, 25 );
             this.nAnnouncements.Maximum = new decimal( new int[] {
             60,
+            0,
+            0,
+            0} );
+            this.nAnnouncements.Minimum = new decimal( new int[] {
+            1,
             0,
             0,
             0} );
@@ -1230,8 +1235,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 394 );
             this.dgvWorlds.TabIndex = 1;

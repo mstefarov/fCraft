@@ -36,7 +36,7 @@ namespace fCraft {
 
 
     /// <summary> A collection of string metadata entries. </summary>
-    public sealed class MetadataCollection : ICollection<MetadataEntry>, ICollection, ICloneable {
+    public sealed class MetadataCollection : ICollection<MetadataEntry>, ICollection, ICloneable, INotifiesOnChange {
 
         readonly Dictionary<string, Dictionary<string, string>> store = new Dictionary<string, Dictionary<string, string>>();
 
@@ -68,6 +68,7 @@ namespace fCraft {
                     store.Add( group, new Dictionary<string, string>() );
                 }
                 store[group].Add( key, value );
+                RaiseChangedEvent();
             }
         }
 
@@ -76,7 +77,12 @@ namespace fCraft {
             Dictionary<string, string> pair;
             lock( syncRoot ) {
                 if( !store.TryGetValue( group, out pair ) ) return false;
-                return pair.Remove( key );
+                if( pair.Remove( key ) ) {
+                    RaiseChangedEvent();
+                    return true;
+                } else {
+                    return false;
+                }
             }
         }
 
@@ -107,10 +113,16 @@ namespace fCraft {
             if( key == null ) throw new ArgumentNullException( "key" );
             if( value == null ) throw new ArgumentNullException( "value" );
             lock( syncRoot ) {
+                bool raiseChangedEvent = false;
                 if( !store.ContainsKey( group ) ) {
                     store.Add( group, new Dictionary<string, string>() );
+                    raiseChangedEvent = true;
+                }
+                if( !store[group].ContainsKey( key ) || store[group][key] != value ) {
+                    raiseChangedEvent = true;
                 }
                 store[group][key] = value;
+                if( raiseChangedEvent ) RaiseChangedEvent();
             }
         }
 
@@ -194,7 +206,9 @@ namespace fCraft {
 
         public void Clear() {
             lock( syncRoot ) {
+                bool raiseEvent = (store.Count > 0);
                 store.Clear();
+                if( raiseEvent ) RaiseChangedEvent();
             }
         }
 
@@ -276,17 +290,7 @@ namespace fCraft {
         #endregion
 
 
-        #region ICloneable Members
-
-        public object Clone() {
-            return new MetadataCollection( this );
-        }
-
-        #endregion
-
-
         #region ICollection Members
-
 
         public void CopyTo( Array array, int index ) {
             if( array == null ) throw new ArgumentNullException( "array" );
@@ -309,5 +313,18 @@ namespace fCraft {
         }
 
         #endregion
+
+
+
+        public object Clone() {
+            return new MetadataCollection( this );
+        }
+
+        public event EventHandler Changed;
+
+        void RaiseChangedEvent() {
+            var h = Changed;
+            if( h != null ) h( null, EventArgs.Empty );
+        }
     }
 }

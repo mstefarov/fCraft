@@ -95,7 +95,7 @@ namespace fCraftConsole {
         static void ReportFailure( ShutdownReason reason ) {
             Console.Title = String.Format( "fCraft {0} {1}", Updater.CurrentRelease.VersionString, reason );
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine( "** {0} **", reason );
+            Console.Error.WriteLine( "** {0} **", reason );
             Console.ResetColor();
             Server.Shutdown( new ShutdownParams( reason, 0, false, false ), true );
             if( !Server.HasArg( ArgKey.ExitOnCrash ) ) {

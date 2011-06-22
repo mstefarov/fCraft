@@ -210,7 +210,7 @@ namespace ConfigTool {
 
 
         Map cachedMapHeader;
-        public Map MapHeader {
+        internal Map MapHeader {
             get {
                 if( cachedMapHeader == null && !LoadingFailed ) {
                     string fullFileName = Path.Combine( Paths.MapPath, name + ".fcm" );
@@ -221,12 +221,12 @@ namespace ConfigTool {
         }
 
 
-        public string FileName {
+        internal string FileName {
             get { return Name + MapFileExtension; }
         }
 
 
-        public string FullFileName {
+        internal string FullFileName {
             get { return Path.Combine( Paths.MapPath, Name + MapFileExtension ); }
         }
 
@@ -247,8 +247,8 @@ namespace ConfigTool {
             switch( propertyName ) {
                 case "Description":
                     if( entry1.MapHeader == null && entry2.MapHeader == null ) return null;
-                    if( entry1.MapHeader == null ) return 1;
-                    if( entry2.MapHeader == null ) return -1;
+                    if( entry1.MapHeader == null ) return -1;
+                    if( entry2.MapHeader == null ) return 1;
                     int volumeDifference = entry1.MapHeader.Volume - entry2.MapHeader.Volume;
                     return Math.Min( 1, Math.Max( -1, volumeDifference ) );
 

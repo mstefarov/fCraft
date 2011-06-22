@@ -2,11 +2,11 @@
 using System;
 using System.Text;
 using System.IO;
+using System.IO.Compression;
 
 namespace fCraft.MapConversion {
     class MapXMap : IMapConverter {
         public const int FormatID = 88776580;                     // 88 77 45 80 - XMAP in ascii
-        public const int FormatRevision = 20110319;               // This is based on the date the revision was finalized
 
 
         /// <summary> Returns name(s) of the server(s) that uses this format. </summary>
@@ -32,7 +32,7 @@ namespace fCraft.MapConversion {
         public bool Claims( string path ) {
             using( FileStream fs = File.OpenRead( path ) ) {
                 BinaryReader reader = new BinaryReader( fs );
-                return (reader.ReadInt32() == FormatID) && (reader.ReadInt32() == FormatRevision);
+                return (reader.ReadInt32() == FormatID);
             }
         }
 
@@ -57,8 +57,34 @@ namespace fCraft.MapConversion {
 
         /// <summary> Saves given map at the given location. </summary>
         /// <returns> true if saving succeeded. </returns>
-        public bool Save( Map mapToSave, string path ) {
-            throw new NotImplementedException();
+        public bool Save( Map map, string path ) {
+            if( map == null ) throw new ArgumentNullException( "map" );
+            if(path==null)throw new ArgumentNullException("path");
+            using( FileStream mapStream = File.Create( path ) ) {
+                BinaryWriter writer = new BinaryWriter( mapStream );
+
+                writer.Write( FormatID );
+
+                writer.Write( map.WidthX );
+                writer.Write( map.Height );
+                writer.Write( map.WidthY );
+
+                writer.Write( (int)map.Spawn.X );
+                writer.Write( (int)map.Spawn.H );
+                writer.Write( (int)map.Spawn.Y );
+                writer.Write( map.Spawn.R );
+                writer.Write( map.Spawn.L );
+
+                writer.Write( map.DateCreated.ToUnixTime() );
+                map.DateModified = DateTime.UtcNow;
+                writer.Write( map.DateModified.ToUnixTime() );
+
+                var meta = (MetadataCollection)map.Metadata.Clone();
+                //TODO: var buildSecurity = (SecurityController)map.BuildSecurity.Clone();
+                //TODO: var accessSecurity = (SecurityController)map.AccessSecurity.Clone();
+
+                return true;
+            }
         }
 
 
@@ -68,10 +94,6 @@ namespace fCraft.MapConversion {
             // headers
             if( bs.ReadInt32() != FormatID ) {
                 throw new MapFormatException( "Invalid XMap format ID." );
-            }
-
-            if( bs.ReadInt32() != FormatRevision ) {
-                throw new MapFormatException( "Invalid XMap format revision." );
             }
 
             // map dimensions
@@ -122,11 +144,15 @@ namespace fCraft.MapConversion {
                     switch( groupName ) {
                         case "fCraft.Zones":
                             try {
-                                map.AddZone( new Zone( value, null ) );
+                                map.Zones.Add( new Zone( value, null ) );
                             } catch( Exception ex ) {
                                 Logger.Log( "MapXMap: Error importing zone definition: {0}", LogType.Error,
                                             ex );
                             }
+                            break;
+
+                        case "fCraft.Security":
+                            // build and access controllers, ownership, and hidden flag
                             break;
 
                         default:
@@ -141,10 +167,23 @@ namespace fCraft.MapConversion {
                 for( int l = 0; l < layerCount; l++ ) {
                     string layerName = ReadString( bs );
                     int layerSize = bs.ReadInt32();
+                    
+                    byte[] layerData = new byte[layerSize];
+                    if( layerSize != 0 ) {
+                        using( GZipStream gs = new GZipStream( stream, CompressionMode.Decompress ) ) {
+                            gs.Read( layerData, 0, layerSize );
+                        }
+                    }
 
+                    switch( layerName ) {
+                        case "Blocks":
+                            map.Blocks = layerData;
+                            break;
 
-
-                    // TODO: map.SetLayer( layerType, layerSize, layerFlags, stream )
+                        default:
+                            Logger.Log( "MapXMap: Unsupported layer \"{0}\" discarded.", LogType.Warning, layerName );
+                            break;
+                    }
                 }
             }
 
@@ -163,65 +202,6 @@ namespace fCraft.MapConversion {
             byte[] stringData = Encoding.ASCII.GetBytes( str );
             writer.Write( stringData.Length );
             writer.Write( stringData, 0, stringData.Length );
-        }
-    }
-
-
-    public enum XMapLayerType {
-        Unknown,
-
-        /// <summary> Array of blocks that make up the world (1 byte per block). </summary>
-        BlockArray,
-
-        PlayerTable,        // Table of players that have been on the map
-        BlockPhysicsCode,   // Definition of all the physics. Blocks should reference these
-        BlockUndo,          // Last change (per-block) ***Not Used by MCSharp***
-        BlockProperties,    // Parallel array to block array, defining what physics code to run on specific blocks
-        BlockAccessLevel,   // Parallel array of block access levels
-        BlockOwner          // Parallel array of PlayerIDs
-    }
-
-
-    public class XDataLayer {
-        public string Name { get; set; }
-        public XMapLayerType LayerType { get; set; }
-
-        bool writeRaw = true;
-        byte[] RawData;
-
-
-        public XDataLayer( string name, int length, Stream stream ) {
-            Name = name;
-
-            try {
-                LayerType = (XMapLayerType)Enum.Parse( typeof( XMapLayerType ), name, true );
-            } catch( ArgumentException ) {
-                LayerType = XMapLayerType.Unknown;
-            }
-
-            if( LayerType == XMapLayerType.Unknown || !Enum.IsDefined( typeof( XMapLayerType ), LayerType ) ) {
-                LayerType = XMapLayerType.Unknown;
-                stream.Read( RawData, 0, length );
-            }
-
-            // check if layer type is known, and set writeRaw
-        }
-
-
-        public static XDataLayer LoadFromStream( Stream stream ) {
-            BinaryReader br = new BinaryReader( stream );
-            string layerName = MapXMap.ReadString( br );
-            int layerSize = br.ReadInt32();
-            return new XDataLayer( layerName, layerSize, stream );
-        }
-
-
-        public void SaveToStream( Stream stream ) {
-            BinaryWriter writer = new BinaryWriter( stream );
-            MapXMap.WriteString( writer, Name );
-            if( writeRaw ) {
-            } else {
-            }
         }
     }
 }

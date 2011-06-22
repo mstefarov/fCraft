@@ -91,7 +91,7 @@ namespace fCraftUpdater {
                     }
                 }
             } catch( Exception ex ) {
-                Console.WriteLine( "Error reading fCraft config: {0}", ex );
+                Console.Error.WriteLine( "Error reading fCraft config: {0}", ex );
             }
 
             // Backup data files (if requested)
@@ -104,8 +104,7 @@ namespace fCraftUpdater {
                     Process preUpdateProcess = Process.Start( runBefore, "" );
                     if( preUpdateProcess != null ) preUpdateProcess.WaitForExit();
                 } catch( Exception ex ) {
-                    Console.WriteLine( "Failed to run pre-update process, aborting update application." );
-                    Console.WriteLine( ex );
+                    Console.Error.WriteLine( "Failed to run pre-update process, aborting update application: {0}", ex );
                     return (int)ReturnCodes.FailedToRunPreUpdateCommand;
                 }
             }
@@ -127,7 +126,7 @@ namespace fCraftUpdater {
                                 if( ex is IOException ) {
                                     Console.WriteLine( "Waiting for fCraft-related applications to close..." );
                                 } else {
-                                    Console.WriteLine( "ERROR: could not write to {0}: {1} - {2}", entry.FilenameInZip, ex.GetType().Name, ex.Message );
+                                    Console.Error.WriteLine( "ERROR: could not write to {0}: {1} - {2}", entry.FilenameInZip, ex.GetType().Name, ex.Message );
                                     Console.WriteLine();
                                 }
                                 allPassed = false;
@@ -145,7 +144,7 @@ namespace fCraftUpdater {
                                 zs.ExtractFile( entry, fs );
                             }
                         } catch( Exception ex ) {
-                            Console.WriteLine( "    ERROR: {0} {1}", ex.GetType().Name, ex.Message );
+                            Console.Error.WriteLine( "    ERROR: {0} {1}", ex.GetType().Name, ex.Message );
                         }
                     }
                 }
@@ -158,8 +157,7 @@ namespace fCraftUpdater {
                     Process postUpdateProcess = Process.Start( runAfter, "" );
                     if( postUpdateProcess != null ) postUpdateProcess.WaitForExit();
                 } catch( Exception ex ) {
-                    Console.WriteLine( "Failed to run post-update process, aborting restart." );
-                    Console.WriteLine( ex );
+                    Console.Error.WriteLine( "Failed to run post-update process, aborting restart: {0}", ex );
                     return (int)ReturnCodes.FailedToRunPostUpdateCommand;
                 }
             }

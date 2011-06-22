@@ -120,7 +120,11 @@ namespace ConfigTool {
             nUploadBandwidth.Value = ConfigKey.UploadBandwidth.GetInt();
 
             xAnnouncements.Checked = (ConfigKey.AnnouncementInterval.GetInt() > 0);
-            nAnnouncements.Value = ConfigKey.AnnouncementInterval.GetInt();
+            if( xAnnouncements.Checked ) {
+                nAnnouncements.Value = ConfigKey.AnnouncementInterval.GetInt();
+            } else {
+                nAnnouncements.Value = 1;
+            }
 
             // UpdaterSettingsWindow
             updaterWindow.BackupBeforeUpdate = ConfigKey.BackupBeforeUpdate.GetBool();

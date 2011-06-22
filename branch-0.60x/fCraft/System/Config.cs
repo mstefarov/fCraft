@@ -211,9 +211,6 @@ namespace fCraft {
         /// <summary> Overwrites current settings with defaults. </summary>
         public static void LoadDefaults() {
             foreach( var pair in KeyMetadata ) {
-                if( pair.Key == ConfigKey.SystemMessageColor ) {
-                    Console.Write( true );
-                }
                 SetValue( pair.Key, pair.Value.DefaultValue );
             }
         }
@@ -222,9 +219,6 @@ namespace fCraft {
         /// <summary> Loads defaults for keys in a given ConfigSection. </summary>
         public static void LoadDefaults( ConfigSection section ) {
             foreach( var key in KeySections[section] ) {
-                if( key == ConfigKey.SystemMessageColor ) {
-                    Console.Write( true );
-                }
                 SetValue( key, KeyMetadata[key].DefaultValue );
             }
         }
