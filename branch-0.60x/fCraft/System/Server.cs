@@ -127,7 +127,6 @@ namespace fCraft {
                 }
             }
 
-
             // before we do anything, set path to the default location
             Directory.SetCurrentDirectory( Paths.WorkingPath );
 
@@ -142,7 +141,6 @@ namespace fCraft {
                 throw new Exception( "Could not set the working path." );
             }
 
-
             // set log path
             if( HasArg( ArgKey.LogPath ) && Paths.TestDirectory( "LogPath", GetArg( ArgKey.LogPath ), true ) ) {
                 Paths.LogPath = Path.GetFullPath( GetArg( ArgKey.LogPath ) );
@@ -151,8 +149,12 @@ namespace fCraft {
             } else {
                 throw new Exception( "Could not set the log path." );
             }
-            Logger.MarkLogStart();
 
+            if( HasArg( ArgKey.NoLog ) ) {
+                Logger.Enabled = false;
+            } else {
+                Logger.MarkLogStart();
+            }
 
             // set map path
             if( HasArg( ArgKey.MapPath ) && Paths.TestDirectory( "MapPath", GetArg( ArgKey.MapPath ), true ) ) {
@@ -163,7 +165,6 @@ namespace fCraft {
             } else {
                 throw new Exception( "Could not set the map path." );
             }
-
 
             // set config path
             Paths.ConfigFileName = Paths.ConfigFileNameDefault;
@@ -186,6 +187,10 @@ namespace fCraft {
             Logger.Log( "Log path: {0}", LogType.Debug, Path.GetFullPath( Paths.LogPath ) );
             Logger.Log( "Map path: {0}", LogType.Debug, Path.GetFullPath( Paths.MapPath ) );
             Logger.Log( "Config path: {0}", LogType.Debug, Path.GetFullPath( Paths.ConfigFileName ) );
+
+            if( ConfigKey.LoadPlugins.GetBool() ) {
+                LoadAllPlugins();
+            }
 
             libraryInitialized = true;
         }
@@ -282,11 +287,6 @@ namespace fCraft {
 
             if( ConfigKey.BackupDataOnStartup.GetBool() ) {
                 BackupData();
-            }
-
-            if( CheckForFCraftProcesses() ) {
-                Logger.Log( "Please close all other fCraft processes (fCraftUI, fCraftConsole, or ConfigTool) " +
-                            "that are started from the same directory.", LogType.Warning );
             }
 
             Player.Console = new Player( null, ConfigKey.ConsoleName.GetString() );
@@ -528,6 +528,69 @@ namespace fCraft {
 
             if( param.KillProcess ) {
                 Process.GetCurrentProcess().Kill();
+            }
+        }
+
+        #endregion
+
+
+        #region Plugins
+
+        static readonly Dictionary<string, IPlugin> plugins = new Dictionary<string, IPlugin>();
+
+        static void LoadAllPlugins() {
+            DirectoryInfo pluginDir = new DirectoryInfo( Paths.PluginDirectory );
+            if( pluginDir.Exists ) {
+                foreach( FileInfo file in pluginDir.GetFiles( "fPlugin.*.dll", SearchOption.TopDirectoryOnly ) ) {
+                    LoadPlugin( file );
+                }
+            }
+        }
+
+        static void LoadPlugin( FileInfo file ) {
+            try {
+                Assembly assembly = Assembly.LoadFile( file.FullName );
+                foreach( Type type in assembly.GetTypes() ) {
+                    if( type.GetInterfaces().Contains( typeof( IPlugin ) ) ) {
+                        ConstructorInfo pluginConstructor = type.GetConstructor( Type.EmptyTypes );
+                        IPlugin pluginObject = (IPlugin)pluginConstructor.Invoke( new object[0] );
+
+                        if( String.IsNullOrEmpty( pluginObject.Name ) ) {
+                            Logger.Log( "Could not load plugin from \"{0}\": No name given.", LogType.Error,
+                                        file.Name );
+                            continue;
+                        }
+
+                        if( pluginObject.Version == null ) {
+                            Logger.Log( "Could not load plugin from \"{0}\": No version given.", LogType.Error,
+                                        file.Name );
+                            continue;
+                        }
+
+                        if( String.IsNullOrEmpty( pluginObject.Description ) ) {
+                            Logger.Log( "Could not load plugin \"{0}\" from \"{1}\": No description given.", LogType.Error,
+                                        pluginObject.Name, file.Name );
+                            continue;
+                        }
+
+                        if( plugins.ContainsKey( pluginObject.Name ) ) {
+                            Logger.Log( "Could not load plugin \"{0}\" (version {1}) from \"{2}\": " +
+                                        "A plugin with the same name (version {3}) is already loaded.", LogType.Error,
+                                        pluginObject.Name,
+                                        pluginObject.Version,
+                                        file.Name,
+                                        plugins[pluginObject.Name].Version );
+                            continue;
+                        }
+
+                        plugins.Add( pluginObject.Name, pluginObject );
+                        Logger.Log( "Loaded plugin \"{0} {1}\" from \"{1}\"", LogType.SystemActivity,
+                                    pluginObject.Name, pluginObject.Version, file.Name );
+                    }
+                }
+            } catch( Exception ex ) {
+                Logger.Log( "Could not load plugin from \"{0}\": {1}", LogType.Error,
+                            file.Name, ex );
             }
         }
 
@@ -920,29 +983,6 @@ namespace fCraft {
             }
 
             return maxPacketsPerUpdate;
-        }
-
-
-        public static bool CheckForFCraftProcesses() {
-            try {
-                Process[] processList = Process.GetProcesses();
-
-                foreach( Process process in processList ) {
-                    if( process.ProcessName.StartsWith( "fcraftui", StringComparison.OrdinalIgnoreCase ) ||
-                        process.ProcessName.StartsWith( "configtool", StringComparison.OrdinalIgnoreCase ) ||
-                        process.ProcessName.StartsWith( "fcraftconsole", StringComparison.OrdinalIgnoreCase ) ) {
-                        if( process.Id != Process.GetCurrentProcess().Id ) {
-                            Logger.Log( "Another fCraft process detected running: {0}", LogType.Warning, process.ProcessName );
-                            return true;
-                        }
-                    }
-                }
-                return false;
-
-            } catch( Exception ex ) {
-                Logger.Log( "Server.CheckForFCraftProcesses: {0}", LogType.Debug, ex );
-                return false;
-            }
         }
 
 

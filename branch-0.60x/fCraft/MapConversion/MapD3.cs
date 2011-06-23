@@ -132,7 +132,6 @@ namespace fCraft.MapConversion {
                 switch( formatVersion ) {
                     case 1000:
                     case 1010:
-                        map.ResetSpawn();
                         break;
                     case 1020:
                         spawn.X = IPAddress.NetworkToHostOrder( bs.ReadInt16() );

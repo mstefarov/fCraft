@@ -49,13 +49,13 @@ namespace fCraft {
                 }
             } else {
                 Logger.Log( "Server.Start: No world list found. Creating default \"main\" world.", LogType.SystemActivity );
-                CreateDefaultMainWorld();
+                MainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
             }
 
             if( Worlds.Count == 0 ) {
                 Logger.Log( "Server.Start: Could not load any of the specified worlds, or no worlds were specified. " +
                             "Creating default \"main\" world.", LogType.Error );
-                CreateDefaultMainWorld();
+                MainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
             }
 
             // if there is no default world still, die.
@@ -72,14 +72,6 @@ namespace fCraft {
             }
 
             return true;
-        }
-
-
-        static void CreateDefaultMainWorld() {
-            Map map = new Map( null, 64, 64, 64, true );
-            MapGenerator.GenerateFlatgrass( map );
-            map.ResetSpawn();
-            MainWorld = AddWorld( null, "main", map, true );
         }
 
 
@@ -317,38 +309,25 @@ namespace fCraft {
 
                 World newWorld = new World( name, neverUnload );
 
+                // If no map is given, and no file exists: make a flatgrass
+                if( map == null && neverUnload && !File.Exists( newWorld.GetMapName() ) ) {
+                    Logger.Log( "No mapfile found for world \"{0}\". A blank map will be generated.", LogType.Warning,
+                                name );
+                    map = MapGenerator.GenerateFlatgrass( 128, 128, 64 );
+                }
+
+                // if a map is given (or was generated)
                 if( map != null ) {
                     newWorld.Map = map;
                     map.World = newWorld;
-
-                    /*
-                    string accessSecurityString = map.GetMeta( "security", "access" );
-                    if( accessSecurityString != null ) {
-                        try {
-                            newWorld.AccessSecurity = new SecurityController( XElement.Parse( accessSecurityString ) );
-                        } catch( XmlException ex ) {
-                            Logger.Log( "WorldManager.AddWorld: Error loading stored access permissions: {0}", LogType.Error, ex );
-                        }
-                    }
-
-                    string buildSecurityString = map.GetMeta( "security", "build" );
-                    if( buildSecurityString != null ) {
-                        try {
-                            newWorld.BuildSecurity = new SecurityController( XElement.Parse( buildSecurityString ) );
-                        } catch( XmlException ex ) {
-                            Logger.Log( "WorldManager.AddWorld: Error loading stored build permissions: {0}", LogType.Error, ex );
-                        }
-                    }
-                    */
-
-                    // if a map is given
                     if( neverUnload ) {
                         newWorld.StartTasks();
+                        newWorld.SaveMap();
                     }else{
                         newWorld.UnloadMap( false );
                     }
 
-                } else if( neverUnload ){
+                } else if( neverUnload ) {
                     newWorld.LoadMap();
                 }
 

@@ -102,6 +102,8 @@ namespace fCraft {
 
         public const string AutoRankFile = "autorank.xml";
 
+        public const string PluginDirectory = "plugins";
+
         #endregion
 
 

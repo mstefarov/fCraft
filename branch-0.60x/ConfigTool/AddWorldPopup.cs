@@ -340,13 +340,9 @@ namespace ConfigTool {
                     bwGenerator.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
                 generatedMap = gen.Generate();
             } else {
-                generatedMap = new Map( null,
-                                        Convert.ToInt32( nFlatgrassDimX.Value ),
-                                        Convert.ToInt32( nFlatgrassDimY.Value ),
-                                        Convert.ToInt32( nFlatgrassDimH.Value ),
-                                        true );
-                MapGenerator.GenerateFlatgrass( generatedMap );
-                generatedMap.ResetSpawn();
+                generatedMap = MapGenerator.GenerateFlatgrass( Convert.ToInt32( nFlatgrassDimX.Value ),
+                                                               Convert.ToInt32( nFlatgrassDimY.Value ),
+                                                               Convert.ToInt32( nFlatgrassDimH.Value ) );
             }
 
             if( floodBarrier ) generatedMap.MakeFloodBarrier();

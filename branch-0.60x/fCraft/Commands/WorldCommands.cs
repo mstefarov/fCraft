@@ -1422,13 +1422,11 @@ namespace fCraft {
                     player.MessageNow( "Generating {0} {1}...", theme, template );
                 }
                 if( theme == MapGenTheme.Forest && noTrees && template == MapGenTemplate.Flat ) {
-                    map = new Map( null, args.WidthX, args.WidthY, args.Height, true );
-                    MapGenerator.GenerateFlatgrass( map );
+                    map = MapGenerator.GenerateFlatgrass( args.WidthX, args.WidthY, args.Height );
                 } else {
                     MapGenerator generator = new MapGenerator( args );
                     map = generator.Generate();
                 }
-                map.ResetSpawn();
 
             } catch( Exception ex ) {
                 Logger.Log( "MapGenerator: Generation failed: {0}", LogType.Error,

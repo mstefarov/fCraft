@@ -109,10 +109,30 @@ namespace fCraftConsole {
             if( !e.WriteToConsole ) return;
             switch( e.MessageType ) {
                 case LogType.Error:
-                case LogType.SeriousError:
-                case LogType.Warning:
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.Error.WriteLine( e.Message );
+                    Console.ResetColor();
                     return;
+
+                case LogType.SeriousError:
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.BackgroundColor = ConsoleColor.Red;
+                    Console.Error.WriteLine( e.Message );
+                    Console.ResetColor();
+                    return;
+
+                case LogType.Warning:
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine( e.Message );
+                    Console.ResetColor();
+                    return;
+
+                case LogType.Debug:
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.WriteLine( e.Message );
+                    Console.ResetColor();
+                    return;
+
                 default:
                     Console.WriteLine( e.Message );
                     return;

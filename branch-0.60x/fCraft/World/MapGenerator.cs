@@ -72,19 +72,21 @@ namespace fCraft {
         }
 
 
-        public static void GenerateFlatgrass( Map map ) {
-            for( int i = 0; i < map.WidthX; i++ ) {
-                for( int j = 0; j < map.WidthY; j++ ) {
-                    for( int k = 0; k < map.Height / 2 - 1; k++ ) {
-                        if( k < map.Height / 2 - 5 ) {
+        public static Map GenerateFlatgrass( int widthX, int widthY, int height ) {
+            Map map = new Map( null, widthX, widthY, height, true );
+            for( int i = 0; i < widthX; i++ ) {
+                for( int j = 0; j < widthY; j++ ) {
+                    for( int k = 0; k < height / 2 - 1; k++ ) {
+                        if( k < height / 2 - 5 ) {
                             map.SetBlock( i, j, k, Block.Stone );
                         } else {
                             map.SetBlock( i, j, k, Block.Dirt );
                         }
                     }
-                    map.SetBlock( i, j, map.Height / 2 - 1, Block.Grass );
+                    map.SetBlock( i, j, height / 2 - 1, Block.Grass );
                 }
             }
+            return map;
         }
 
 
@@ -423,7 +425,6 @@ namespace fCraft {
             }
 
             ReportProgress( 0, "Generation complete" );
-            map.ResetSpawn();
 
             map.Metadata["_Origin", "GeneratorName"] = "fCraft";
             map.Metadata["_Origin", "GeneratorVersion"] = Updater.CurrentRelease.VersionString;
