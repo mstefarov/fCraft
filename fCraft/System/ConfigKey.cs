@@ -70,6 +70,10 @@ overwhelming the Internet connection with data.",
             MinValue = 1, MaxValue = short.MaxValue )]
         UploadBandwidth,
 
+        [BoolKey(ConfigSection.General, false,
+@"Whether to load plugins from the /plugins/ folder on startup.")]
+        LoadPlugins,
+
         #endregion
 
 

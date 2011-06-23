@@ -129,13 +129,15 @@ namespace fCraft {
      * 
      * 142 - r638 - Added BackupDataOnStartup key.
      * 
+     * 143 - r676 - Added LoadPlugins key.
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
     /// and various configuration-related utilities. </summary>
     public static class Config {
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 142;
+        public const int ConfigVersion = 143;
         public const string ConfigXmlRootName = "fCraftConfig";
 
         static readonly Dictionary<ConfigKey, string> Settings = new Dictionary<ConfigKey, string>();
@@ -143,8 +145,8 @@ namespace fCraft {
         static readonly Dictionary<ConfigSection, ConfigKey[]> KeySections = new Dictionary<ConfigSection, ConfigKey[]>();
 
         static readonly Dictionary<string, ConfigKey> LegacyConfigKeys = new Dictionary<string, ConfigKey>(); // LEGACY
-        static readonly Dictionary<ConfigKey, KeyValuePair<string, string>> LegacyConfigValues = new Dictionary<ConfigKey, KeyValuePair<string, string>>();
-
+        static readonly Dictionary<ConfigKey, KeyValuePair<string, string>> LegacyConfigValues =
+                    new Dictionary<ConfigKey, KeyValuePair<string, string>>(); // LEGACY
 
 
         static Config() {
@@ -182,7 +184,8 @@ namespace fCraft {
             LegacyConfigKeys.Add( "UpdateMode".ToLower(), ConfigKey.UpdaterMode );
 
             // These values have been renamed at some point. LEGACY
-            LegacyConfigValues.Add( ConfigKey.ProcessPriority, new KeyValuePair<string, string>( "Low", ProcessPriorityClass.Idle.ToString() ) );
+            LegacyConfigValues.Add( ConfigKey.ProcessPriority,
+                                    new KeyValuePair<string, string>( "Low", ProcessPriorityClass.Idle.ToString() ) );
         }
 
 

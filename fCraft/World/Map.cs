@@ -102,6 +102,8 @@ namespace fCraft {
             if( initBlockArray ) {
                 Blocks = new byte[Volume];
             }
+
+            ResetSpawn();
         }
 
         void OnMetaOrZoneChange( object sender, EventArgs args ) {

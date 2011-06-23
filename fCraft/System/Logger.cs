@@ -16,6 +16,7 @@ namespace fCraft {
     /// <summary> Central logging class. Logs to file, relays messages to the frontend, submits crash reports. </summary>
     public static class Logger {
         static readonly object LogLock = new object();
+        public static bool Enabled { get; set; }
         public static readonly bool[] ConsoleOptions;
         public static readonly bool[] LogFileOptions;
 
@@ -31,6 +32,7 @@ namespace fCraft {
 
 
         static Logger() {
+            Enabled = true;
             ConsoleOptions = new bool[Enum.GetNames( typeof( LogType ) ).Length];
             LogFileOptions = new bool[ConsoleOptions.Length];
             for( int i = 0; i < ConsoleOptions.Length; i++ ) {
@@ -75,10 +77,10 @@ namespace fCraft {
         }
 
 
-        [DebuggerStepThrough]
+        //[DebuggerStepThrough]
         public static void Log( string message, LogType type ) {
-            if( Server.HasArg( ArgKey.NoLog ) ) return;
             if( message == null ) throw new ArgumentNullException( "message" );
+            if( !Enabled ) return;
             string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message; // localized
 
             lock( LogLock ) {

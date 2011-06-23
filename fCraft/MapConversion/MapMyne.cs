@@ -115,8 +115,6 @@ namespace fCraft.MapConversion {
                     R = Byte.Parse( metaFile["spawn", "h"] ),
                     L = 0
                 };
-            } else {
-                map.ResetSpawn();
             }
             return map;
         }
