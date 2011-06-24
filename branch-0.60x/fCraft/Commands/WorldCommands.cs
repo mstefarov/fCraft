@@ -437,7 +437,7 @@ namespace fCraft {
                         continue;
                     }
 
-                    Player target = Server.FindPlayerExact( info );
+                    Player target = info.PlayerObject;
                     if( target == player ) target = null; // to avoid duplicate messages
 
                     switch( world.AccessSecurity.Include( info ) ) {
@@ -499,7 +499,7 @@ namespace fCraft {
                         continue;
                     }
 
-                    Player target = Server.FindPlayerExact( info );
+                    Player target = info.PlayerObject;
                     if( target == player ) target = null; // to avoid duplicate messages
 
                     switch( world.AccessSecurity.Exclude( info ) ) {
@@ -670,7 +670,7 @@ namespace fCraft {
                         continue;
                     }
 
-                    Player target = Server.FindPlayerExact( info );
+                    Player target = info.PlayerObject;
                     if( target == player ) target = null; // to avoid duplicate messages
 
                     switch( world.BuildSecurity.Include( info ) ) {
@@ -732,7 +732,7 @@ namespace fCraft {
                         continue;
                     }
 
-                    Player target = Server.FindPlayerExact( info );
+                    Player target = info.PlayerObject;
                     if( target == player ) target = null; // to avoid duplicate messages
 
                     switch( world.BuildSecurity.Exclude( info ) ) {

@@ -936,6 +936,7 @@ namespace fCraft {
         /// until client thread sends the kick packet.
         /// </summary>
         public void Kick( string message, LeaveReason leaveReason ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
             LeaveReason = leaveReason;
 
             CanReceive = false;
@@ -955,6 +956,7 @@ namespace fCraft {
         /// Can only be used from IoThread (this is not thread-safe).
         /// </summary>
         public void KickNow( string message, LeaveReason leaveReason ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
             LeaveReason = leaveReason;
 
             CanQueue = false;
@@ -1172,6 +1174,7 @@ namespace fCraft {
 
 
         void AddEntity( Player player, Position newPos ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             var pos = new VisibleEntity( newPos, freePlayerIDs.Pop(), player.Info.Rank );
             entities.Add( player, pos );
             SendNow( PacketWriter.MakeAddEntity( pos.Id, player.GetListName(), newPos ) );
@@ -1179,6 +1182,7 @@ namespace fCraft {
 
 
         void HideEntity( VisibleEntity entity ) {
+            if( entity == null ) throw new ArgumentNullException( "entity" );
             entity.Hidden = true;
             entity.LastKnownPosition = VisibleEntity.HiddenPosition;
             SendNow( PacketWriter.MakeTeleport( entity.Id, VisibleEntity.HiddenPosition ) );
@@ -1186,6 +1190,7 @@ namespace fCraft {
 
 
         void ShowEntity( VisibleEntity entity, Position newPos ) {
+            if( entity == null ) throw new ArgumentNullException( "entity" );
             entity.Hidden = false;
             entity.LastKnownPosition = newPos;
             SendNow( PacketWriter.MakeTeleport( entity.Id, newPos ) );
@@ -1193,6 +1198,8 @@ namespace fCraft {
 
 
         void ReAddEntity( VisibleEntity entity, Player player, Position newPos ) {
+            if( entity == null ) throw new ArgumentNullException( "entity" );
+            if( player == null ) throw new ArgumentNullException( "player" );
             SendNow( PacketWriter.MakeRemoveEntity( entity.Id ) );
             SendNow( PacketWriter.MakeAddEntity( entity.Id, player.GetListName(), newPos ) );
             entity.LastKnownPosition = newPos;
@@ -1200,6 +1207,7 @@ namespace fCraft {
 
 
         void RemoveEntity( Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             SendNow( PacketWriter.MakeRemoveEntity( entities[player].Id ) );
             freePlayerIDs.Push( entities[player].Id );
             entities.Remove( player );
@@ -1207,6 +1215,7 @@ namespace fCraft {
 
 
         void MoveEntity( VisibleEntity entity, Position newPos ) {
+            if( entity == null ) throw new ArgumentNullException( "entity" );
             Position oldPos = entity.LastKnownPosition;
 
             // calculate difference between old and new positions

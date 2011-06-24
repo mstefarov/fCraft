@@ -70,6 +70,7 @@ namespace fCraft {
 
 
         static int ParseHeader( string header ) {
+            if( header == null ) throw new ArgumentNullException( "header" );
             if( header.IndexOf( ' ' ) > 0 ) {
                 string firstPart = header.Substring( 0, header.IndexOf( ' ' ) );
                 int version;

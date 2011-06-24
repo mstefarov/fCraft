@@ -2,12 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace fCraft {
     /// <summary> A collection of zones within a map. </summary>
-    public class ZoneCollection : ICollection<Zone>, ICollection, ICloneable, INotifiesOnChange {
-        Dictionary<string, Zone> store = new Dictionary<string, Zone>();
+    public sealed class ZoneCollection : ICollection<Zone>, ICollection, ICloneable, INotifiesOnChange {
+        readonly Dictionary<string, Zone> store = new Dictionary<string, Zone>();
 
         public Zone[] Cache { get; private set; }
 

@@ -328,7 +328,7 @@ namespace fCraft {
                 return false;
             }
 
-            IP = ((IPEndPoint)listener.LocalEndpoint).Address;
+            IP = ( (IPEndPoint)listener.LocalEndpoint ).Address;
 
             if( IP.Equals( IPAddress.Any ) ) {
                 Logger.Log( "Server.Run: now accepting connections at port {0}.", LogType.SystemActivity,
@@ -397,6 +397,7 @@ namespace fCraft {
 
 
         static void AutoRestartCallback( SchedulerTask task ) {
+            if( task == null ) throw new ArgumentNullException( "task" );
             var shutdownParams = new ShutdownParams( ShutdownReason.Restarting, 5, true, true );
             Shutdown( shutdownParams, false );
         }
@@ -412,56 +413,56 @@ namespace fCraft {
 
 
         internal static void ShutdownNow( ShutdownParams shutdownParams ) {
-            if( IsShuttingDown ) return; // to avoid starting shutdown twice
             if( shutdownParams == null ) throw new ArgumentNullException( "shutdownParams" );
+            if( IsShuttingDown ) return; // to avoid starting shutdown twice
             IsShuttingDown = true;
 #if DEBUG
 #else
             try {
 #endif
-            RaiseShutdownBeganEvent( shutdownParams );
+                RaiseShutdownBeganEvent( shutdownParams );
 
-            Scheduler.BeginShutdown();
+                Scheduler.BeginShutdown();
 
-            Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
-                        shutdownParams.ReasonString );
+                Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
+                            shutdownParams.ReasonString );
 
-            // stop accepting new players
-            if( listener != null ) {
-                listener.Stop();
-                listener = null;
-            }
-
-            // kick all players
-            lock( SessionLock ) {
-                foreach( Session s in Sessions ) {
-                    // NOTE: kick packet delivery here is not currently guaranteed
-                    s.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")", LeaveReason.ServerShutdown );
+                // stop accepting new players
+                if( listener != null ) {
+                    listener.Stop();
+                    listener = null;
                 }
-                if( Sessions.Count > 0 ) {
-                    // increase the chances of kick packets being delivered
-                    Thread.Sleep( 1000 );
-                }
-            }
 
-            // kill IRC bot
-            IRC.Disconnect();
-
-            if( WorldManager.WorldList != null ) {
-                lock( WorldManager.WorldListLock ) {
-                    // unload all worlds (includes saving)
-                    foreach( World world in WorldManager.WorldList ) {
-                        world.SaveMap();
+                // kick all players
+                lock( SessionLock ) {
+                    foreach( Session s in Sessions ) {
+                        // NOTE: kick packet delivery here is not currently guaranteed
+                        s.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")", LeaveReason.ServerShutdown );
+                    }
+                    if( Sessions.Count > 0 ) {
+                        // increase the chances of kick packets being delivered
+                        Thread.Sleep( 1000 );
                     }
                 }
-            }
 
-            Scheduler.EndShutdown();
+                // kill IRC bot
+                IRC.Disconnect();
 
-            if( PlayerDB.IsLoaded ) PlayerDB.Save();
-            if( IPBanList.IsLoaded ) IPBanList.Save();
+                if( WorldManager.WorldList != null ) {
+                    lock( WorldManager.WorldListLock ) {
+                        // unload all worlds (includes saving)
+                        foreach( World world in WorldManager.WorldList ) {
+                            world.SaveMap();
+                        }
+                    }
+                }
 
-            RaiseShutdownEndedEvent( shutdownParams );
+                Scheduler.EndShutdown();
+
+                if( PlayerDB.IsLoaded ) PlayerDB.Save();
+                if( IPBanList.IsLoaded ) IPBanList.Save();
+
+                RaiseShutdownEndedEvent( shutdownParams );
 #if DEBUG
 #else
             } catch( Exception ex ) {
@@ -504,12 +505,13 @@ namespace fCraft {
 
 
         static void ShutdownThread( object obj ) {
+            if( obj == null ) throw new ArgumentNullException( "obj" );
             ShutdownParams param = (ShutdownParams)obj;
             Thread.Sleep( param.Delay * 1000 );
             ShutdownNow( param );
             ShutdownWaiter.Set();
 
-            bool doRestart = (param.Restart && !HasArg( ArgKey.NoRestart ));
+            bool doRestart = ( param.Restart && !HasArg( ArgKey.NoRestart ) );
             string assemblyExecutable = Assembly.GetEntryAssembly().Location;
 
             if( Updater.RunAtShutdown && doRestart ) {
@@ -536,63 +538,64 @@ namespace fCraft {
 
         #region Plugins
 
-static readonly Dictionary<string, IPlugin> plugins = new Dictionary<string, IPlugin>();
+        static readonly Dictionary<string, IPlugin> Plugins = new Dictionary<string, IPlugin>();
 
-static void LoadAllPlugins() {
-    DirectoryInfo pluginDir = new DirectoryInfo( Paths.PluginDirectory );
-    if( pluginDir.Exists ) {
-        foreach( FileInfo file in pluginDir.GetFiles( "fPlugin.*.dll", SearchOption.TopDirectoryOnly ) ) {
-            LoadPlugin( file );
-        }
-    }
-}
-
-static void LoadPlugin( FileInfo file ) {
-    try {
-        Assembly assembly = Assembly.LoadFile( file.FullName );
-        foreach( Type type in assembly.GetTypes() ) {
-            if( type.GetInterfaces().Contains( typeof( IPlugin ) ) ) {
-                ConstructorInfo pluginConstructor = type.GetConstructor( Type.EmptyTypes );
-                IPlugin pluginObject = (IPlugin)pluginConstructor.Invoke( new object[0] );
-
-                if( String.IsNullOrEmpty( pluginObject.Name ) ) {
-                    Logger.Log( "Could not load plugin from \"{0}\": No name given.", LogType.Error,
-                                file.Name );
-                    continue;
+        static void LoadAllPlugins() {
+            DirectoryInfo pluginDir = new DirectoryInfo( Paths.PluginDirectory );
+            if( pluginDir.Exists ) {
+                foreach( FileInfo file in pluginDir.GetFiles( "fPlugin.*.dll", SearchOption.TopDirectoryOnly ) ) {
+                    LoadPlugin( file );
                 }
-
-                if( pluginObject.Version == null ) {
-                    Logger.Log( "Could not load plugin from \"{0}\": No version given.", LogType.Error,
-                                file.Name );
-                    continue;
-                }
-
-                if( String.IsNullOrEmpty( pluginObject.Description ) ) {
-                    Logger.Log( "Could not load plugin \"{0}\" from \"{1}\": No description given.", LogType.Error,
-                                pluginObject.Name, file.Name );
-                    continue;
-                }
-
-                if( plugins.ContainsKey( pluginObject.Name ) ) {
-                    Logger.Log( "Could not load plugin \"{0}\" (version {1}) from \"{2}\": " +
-                                "A plugin with the same name (version {3}) is already loaded.", LogType.Error,
-                                pluginObject.Name,
-                                pluginObject.Version,
-                                file.Name,
-                                plugins[pluginObject.Name].Version );
-                    continue;
-                }
-
-                plugins.Add( pluginObject.Name, pluginObject );
-                Logger.Log( "Loaded plugin \"{0} {1}\" from \"{1}\"", LogType.SystemActivity,
-                            pluginObject.Name, pluginObject.Version, file.Name );
             }
         }
-    } catch( Exception ex ) {
-        Logger.Log( "Could not load plugin from \"{0}\": {1}", LogType.Error,
-                    file.Name, ex );
-    }
-}
+
+        static void LoadPlugin( FileInfo file ) {
+            if( file == null ) throw new ArgumentNullException( "file" );
+            try {
+                Assembly assembly = Assembly.LoadFile( file.FullName );
+                foreach( Type type in assembly.GetTypes() ) {
+                    if( type.GetInterfaces().Contains( typeof( IPlugin ) ) ) {
+                        ConstructorInfo pluginConstructor = type.GetConstructor( Type.EmptyTypes );
+                        IPlugin pluginObject = (IPlugin)pluginConstructor.Invoke( new object[0] );
+
+                        if( String.IsNullOrEmpty( pluginObject.Name ) ) {
+                            Logger.Log( "Could not load plugin from \"{0}\": No name given.", LogType.Error,
+                                        file.Name );
+                            continue;
+                        }
+
+                        if( pluginObject.Version == null ) {
+                            Logger.Log( "Could not load plugin from \"{0}\": No version given.", LogType.Error,
+                                        file.Name );
+                            continue;
+                        }
+
+                        if( String.IsNullOrEmpty( pluginObject.Description ) ) {
+                            Logger.Log( "Could not load plugin \"{0}\" from \"{1}\": No description given.", LogType.Error,
+                                        pluginObject.Name, file.Name );
+                            continue;
+                        }
+
+                        if( Plugins.ContainsKey( pluginObject.Name ) ) {
+                            Logger.Log( "Could not load plugin \"{0}\" (version {1}) from \"{2}\": " +
+                                        "A plugin with the same name (version {3}) is already loaded.", LogType.Error,
+                                        pluginObject.Name,
+                                        pluginObject.Version,
+                                        file.Name,
+                                        Plugins[pluginObject.Name].Version );
+                            continue;
+                        }
+
+                        Plugins.Add( pluginObject.Name, pluginObject );
+                        Logger.Log( "Loaded plugin \"{0} {1}\" from \"{1}\"", LogType.SystemActivity,
+                                    pluginObject.Name, pluginObject.Version, file.Name );
+                    }
+                }
+            } catch( Exception ex ) {
+                Logger.Log( "Could not load plugin from \"{0}\": {1}", LogType.Error,
+                            file.Name, ex );
+            }
+        }
 
         #endregion
 
@@ -917,11 +920,11 @@ static void LoadPlugin( FileInfo file ) {
 
         static void MonitorProcessorUsage( SchedulerTask task ) {
             TimeSpan newCPUTime = Process.GetCurrentProcess().TotalProcessorTime - cpuUsageStartingOffset;
-            CPUUsageLastMinute = (newCPUTime - oldCPUTime).TotalSeconds /
-                                 (Environment.ProcessorCount * DateTime.UtcNow.Subtract( lastMonitorTime ).TotalSeconds);
+            CPUUsageLastMinute = ( newCPUTime - oldCPUTime ).TotalSeconds /
+                                 ( Environment.ProcessorCount * DateTime.UtcNow.Subtract( lastMonitorTime ).TotalSeconds );
             lastMonitorTime = DateTime.UtcNow;
             CPUUsageTotal = newCPUTime.TotalSeconds /
-                            (Environment.ProcessorCount * DateTime.UtcNow.Subtract( ServerStart ).TotalSeconds);
+                            ( Environment.ProcessorCount * DateTime.UtcNow.Subtract( ServerStart ).TotalSeconds );
             oldCPUTime = newCPUTime;
             IsMonitoringCPUUsage = true;
         }
@@ -955,6 +958,9 @@ static void LoadPlugin( FileInfo file ) {
 
 
         public static bool VerifyName( string name, string hash, string salt ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( hash == null ) throw new ArgumentNullException( "hash" );
+            if( salt == null ) throw new ArgumentNullException( "salt" );
             while( hash.Length < 32 ) {
                 hash = "0" + hash;
             }
@@ -969,8 +975,8 @@ static void LoadPlugin( FileInfo file ) {
 
         public static int CalculateMaxPacketsPerUpdate( World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );
-            int packetsPerTick = (int)(BlockUpdateThrottling / TicksPerSecond);
-            int maxPacketsPerUpdate = (int)(MaxUploadSpeed / TicksPerSecond * 128);
+            int packetsPerTick = (int)( BlockUpdateThrottling / TicksPerSecond );
+            int maxPacketsPerUpdate = (int)( MaxUploadSpeed / TicksPerSecond * 128 );
 
             int playerCount = world.Players.Length;
             if( playerCount > 0 && !world.IsFlushing ) {
@@ -1034,6 +1040,7 @@ static void LoadPlugin( FileInfo file ) {
 
 
         internal static bool RegisterSessionAndCheckConnectionCount( Session session ) {
+            if( session == null ) throw new ArgumentNullException( "session" );
             int maxSessions = ConfigKey.MaxConnectionsPerIP.GetInt();
             lock( SessionLock ) {
                 if( maxSessions > 0 ) {
@@ -1247,17 +1254,6 @@ static void LoadPlugin( FileInfo file ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             return Players.FirstOrDefault( t => t != null &&
                                                    t.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
-        }
-
-
-        /// <summary> Finds Player object associated with the given PlayerInfo object.</summary>
-        /// <returns>Player object, or null if player is offline.</returns>
-        public static Player FindPlayerExact( PlayerInfo info ) {
-            if( info == null || !info.Online ) {
-                return null;
-            } else {
-                return FindPlayerExact( info.Name );
-            }
         }
 
 
