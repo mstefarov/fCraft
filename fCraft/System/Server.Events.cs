@@ -220,22 +220,29 @@ namespace fCraft {
 
         internal static void RaisePlayerClickedEvent( Player player, short x, short y, short h, bool mode, Block block ) {
             var handler = PlayerClicked;
-            if( handler != null ) handler( null, new PlayerClickedEventArgs( player, x, y, h, mode, block ) );
+            if( handler != null ) {
+                handler( null, new PlayerClickedEventArgs( player, x, y, h, mode, block ) );
+            }
         }
 
 
-        internal static CanPlaceResult RaisePlayerPlacingBlockEvent( Player player, short x, short y, short h, Block block, bool manual, CanPlaceResult result ) {
+        internal static CanPlaceResult RaisePlayerPlacingBlockEvent( Player player, short x, short y, short h,
+                                                                     Block newBlock, Block oldBlock, bool manual,
+                                                                     CanPlaceResult result ) {
             var handler = PlayerPlacingBlock;
             if( handler == null ) return result;
-            var e = new PlayerPlacingBlockEventArgs( player, x, y, h, block, manual, result );
+            var e = new PlayerPlacingBlockEventArgs( player, x, y, h, oldBlock, newBlock, manual, result );
             handler( null, e );
             return e.Result;
         }
 
 
-        internal static void RaisePlayerPlacedBlockEvent( Player player, short x, short y, short h, Block block, bool manual ) {
+        internal static void RaisePlayerPlacedBlockEvent( Player player, short x, short y, short h,
+                                                          Block newBlock, Block oldBlock, bool manual ) {
             var handler = PlayerPlacedBlock;
-            if( handler != null ) handler( null, new PlayerPlacedBlockEventArgs( player, x, y, h, block, manual ) );
+            if( handler != null ) {
+                handler( null, new PlayerPlacedBlockEventArgs( player, x, y, h, newBlock, oldBlock, manual ) );
+            }
         }
 
 

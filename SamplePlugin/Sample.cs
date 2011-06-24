@@ -24,6 +24,9 @@ namespace fPlugin.Sample {
             get { return version;  }
         }
 
+        public string[] LoadDependencies { get { return null; } }
+        public string[] RunDependencies { get { return null; } }
+
 
         public bool Load() {
             Logger.Log( "Sample plugin loaded!", LogType.SystemActivity );

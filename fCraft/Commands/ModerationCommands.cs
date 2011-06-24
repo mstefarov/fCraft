@@ -9,7 +9,7 @@ namespace fCraft {
     /// <summary>
     /// Most commands for server moderation - kick, ban, rank change, etc - are here.
     /// </summary>
-    static class ModerationCommands {
+    public static class ModerationCommands {
         const string BanCommonHelp = "Ban information can be viewed with &H/baninfo";
 
         internal static void Init() {
@@ -214,7 +214,7 @@ namespace fCraft {
 
 
 
-        internal static void DoBan( Player player, string nameOrIP, string reason, bool banIP, bool banAll, bool unban ) {
+        public static void DoBan( Player player, string nameOrIP, string reason, bool banIP, bool banAll, bool unban ) {
             if( nameOrIP == null ) {
                 player.Message( "Please specify player name or IP to ban." );
                 return;
@@ -656,7 +656,7 @@ namespace fCraft {
         /// <param name="reason">Reason for promotion/demotion. May be null.</param>
         /// <param name="silent">Whether rank change should be announced or not.</param>
         /// <param name="automatic">Whether rank change should be marked as "automatic" or manual.</param>
-        internal static void DoChangeRank( Player player, PlayerInfo targetInfo, Rank newRank, string reason, bool silent, bool automatic ) {
+        public static void DoChangeRank( Player player, PlayerInfo targetInfo, Rank newRank, string reason, bool silent, bool automatic ) {
 
             if( player == null ) throw new ArgumentNullException( "player" );
             if( targetInfo == null ) throw new ArgumentNullException( "targetInfo" );
