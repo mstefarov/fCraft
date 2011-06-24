@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml.Linq;
 
 namespace fCraft.AutoRank {
@@ -16,7 +17,8 @@ namespace fCraft.AutoRank {
 
         public static void TaskCallback( SchedulerTask schedulerTask ) {
             if( ConfigKey.AutoRankEnabled.GetBool() ) {
-                MaintenanceCommands.DoAutoRankAll( Player.Console, PlayerDB.GetPlayerListCopy(), false, "~AutoRank" );
+                PlayerInfo[] onlinePlayers = Server.Players.Select( p => p.Info ).ToArray();
+                MaintenanceCommands.DoAutoRankAll( Player.Console, onlinePlayers, false, "~AutoRank" );
             }
         }
 
