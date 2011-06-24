@@ -609,35 +609,29 @@ namespace ConfigTool {
             }
 
             MapFormat format = MapUtility.Identify( fileName );
-            Map loadedMap;
-            Exception loadingError = null;
             try {
-                loadedMap = MapUtility.LoadHeader( fileName );
-            } catch( Exception ex ) {
-                loadingError = ex;
-                loadedMap = null;
-            }
-
-            if( loadedMap != null ) {
-                textBox.Text = String.Format(
+                Map loadedMap = MapUtility.LoadHeader( fileName );
+                string msgFormat =
 @"  Location: {0}
     Format: {1}
   Filesize: {2} KB
    Created: {3}
   Modified: {4}
 Dimensions: {5}×{6}×{7}
-    Blocks: {8}",
-                fileName,
-                format,
-                (fileSize / 1024),
-                creationTime.ToLongDateString(),
-                modificationTime.ToLongDateString(),
-                loadedMap.WidthX,
-                loadedMap.WidthY,
-                loadedMap.Height,
-                loadedMap.Volume );
-            } else {
-                textBox.Text = String.Format(
+    Blocks: {8}";
+                textBox.Text = String.Format( msgFormat,
+                                              fileName,
+                                              format,
+                                              (fileSize / 1024),
+                                              creationTime.ToLongDateString(),
+                                              modificationTime.ToLongDateString(),
+                                              loadedMap.WidthX,
+                                              loadedMap.WidthY,
+                                              loadedMap.Height,
+                                              loadedMap.Volume );
+
+            } catch( Exception ex ) {
+                string msgFormat =
 @"  Location: {0}
     Format: {1}
   Filesize: {2} KB
@@ -645,14 +639,15 @@ Dimensions: {5}×{6}×{7}
   Modified: {4}
 
 Could not load more information:
-{5}: {6}",
-                fileName,
-                format,
-                (fileSize / 1024),
-                creationTime.ToLongDateString(),
-                modificationTime.ToLongDateString(),
-                loadingError.GetType().Name,
-                loadingError.Message );
+{5}: {6}";
+                textBox.Text = String.Format( msgFormat,
+                                              fileName,
+                                              format,
+                                              (fileSize / 1024),
+                                              creationTime.ToLongDateString(),
+                                              modificationTime.ToLongDateString(),
+                                              ex.GetType().Name,
+                                              ex.Message );
             }
         }
 

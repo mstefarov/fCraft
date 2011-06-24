@@ -55,13 +55,13 @@ namespace ConfigTool {
             // Initialize fCraft's args, paths, and logging backend.
             Server.InitLibrary( Environment.GetCommandLineArgs() );
 
-            // Redraw chat preview when re-entering the tab.
-            // This ensured that changes to rank colors/prefixes are applied.
-            tabChat.Enter += ( o, e2 ) => UpdateChatPreview();
-
             dgvWorlds.DataError += WorldListErrorHandler;
 
             LoadConfig();
+
+            // Redraw chat preview when re-entering the tab.
+            // This ensured that changes to rank colors/prefixes are applied.
+            tabChat.Enter += ( o, e2 ) => UpdateChatPreview();
         }
 
 

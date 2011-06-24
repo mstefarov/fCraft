@@ -242,8 +242,8 @@ namespace ConfigTool {
 
         // Comparison method used to customize sorting
         public static object Compare( string propertyName, object a, object b ) {
-            WorldListEntry entry1 = a as WorldListEntry;
-            WorldListEntry entry2 = b as WorldListEntry;
+            WorldListEntry entry1 = (WorldListEntry)a;
+            WorldListEntry entry2 = (WorldListEntry)b;
             switch( propertyName ) {
                 case "Description":
                     if( entry1.MapHeader == null && entry2.MapHeader == null ) return null;
