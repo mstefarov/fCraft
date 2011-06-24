@@ -1236,7 +1236,7 @@ namespace fCraft {
 
             // Parse the list of worlds and ranks
             string arg;
-            while( (arg = cmd.Next()) != null ) {
+            while( ( arg = cmd.Next() ) != null ) {
                 if( arg.StartsWith( "@" ) ) {
                     Rank rank = RankManager.ParseRank( arg.Substring( 1 ) );
                     if( rank == null ) {
@@ -1272,7 +1272,7 @@ namespace fCraft {
             } else if( allWorlds ) {
                 targetPlayers = new HashSet<Player>();
                 foreach( Rank rank in targetRanks ) {
-                    foreach( Player rankPlayer in Server.Players.Where( p => (p.Info.Rank == rank) ) ) {
+                    foreach( Player rankPlayer in Server.Players.Ranked( rank ) ) {
                         targetPlayers.Add( rankPlayer );
                     }
                 }
@@ -1288,7 +1288,7 @@ namespace fCraft {
                 targetPlayers = new HashSet<Player>();
                 foreach( Rank rank in targetRanks ) {
                     foreach( World world in targetWorlds ) {
-                        foreach( Player rankWorldPlayer in world.Players.Where( p => (p.Info.Rank == rank) ) ) {
+                        foreach( Player rankWorldPlayer in world.Players.Ranked( rank ) ) {
                             targetPlayers.Add( rankWorldPlayer );
                         }
                     }

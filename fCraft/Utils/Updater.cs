@@ -192,6 +192,7 @@ namespace fCraft {
         public string[] ChangeLog { get; private set; }
 
         public static ReleaseFlags StringToReleaseFlags( string str ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
             ReleaseFlags flags = ReleaseFlags.None;
             for( int i = 0; i < str.Length; i++ ) {
                 switch( Char.ToUpper( str[i] ) ) {

@@ -82,6 +82,7 @@ namespace fCraft {
         }
 
         public MapGeneratorArgs( string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             XDocument doc = XDocument.Load( fileName );
             XElement root = doc.Root;
 
