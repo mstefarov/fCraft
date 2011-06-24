@@ -442,7 +442,21 @@ namespace fCraft {
 
 
         public static int CountLoadedWorlds() {
-            return WorldList.Count( world => (world.Map != null) );
+            return WorldList.Count( world => world.IsLoaded );
+        }
+
+
+        public static int CountLoadedWorlds( Player observer ) {
+            return ListLoadedWorlds( observer ).Count();
+        }
+
+
+        public static IEnumerable<World> ListLoadedWorlds() {
+            return WorldList.Where( world => world.IsLoaded );
+        }
+
+        public static IEnumerable<World> ListLoadedWorlds( Player observer ) {
+            return WorldList.Where( w => w.Players.Any( p => observer.CanSee( p ) ) );
         }
 
 

@@ -82,6 +82,7 @@ namespace fCraft {
             if( inputIndex > 0 && prefix.Length > 0 ) {
                 int preBufferInputIndex = inputIndex;
                 byte preBufferColor = color;
+                color = NoColor;
                 inputIndex = 0;
                 while( inputIndex < prefix.Length ) {
                     byte ch = prefix[inputIndex];

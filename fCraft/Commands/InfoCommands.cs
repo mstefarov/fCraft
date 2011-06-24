@@ -487,7 +487,7 @@ namespace fCraft {
 
         internal static void ServerInfo( Player player, Command cmd ) {
             Process.GetCurrentProcess().Refresh();
-            
+
             player.Message( "Servers stats: Up for {0:0.0} hours, using {1:0} MB of memory",
                             DateTime.UtcNow.Subtract( Server.ServerStart ).TotalHours,
                             (Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024)) );
@@ -524,7 +524,7 @@ namespace fCraft {
 
             player.Message( "   There are {0} worlds available ({1} loaded)",
                             WorldManager.WorldList.Length,
-                            WorldManager.CountLoadedWorlds(),
+                            WorldManager.CountLoadedWorlds( player ),
                             Server.CountVisiblePlayers( player ) );
         }
 
@@ -736,14 +736,14 @@ namespace fCraft {
                 }
 
             } else {
-                player.Message( "To see a list of all commands, write &H/help commands" );
-                player.Message( "To see detailed help for a command, write &H/help CommandName" );
+                player.Message( "  To see a list of all commands, write &H/commands" );
+                player.Message( "  To see detailed help for a command, write &H/help Command" );
                 if( player != Player.Console ) {
-                    player.Message( "To see your stats, write &H/info" );
+                    player.Message( "  To see your stats, write &H/info" );
                 }
-                player.Message( "To list available worlds, write &H/worlds" );
-                player.Message( "To send private messages, write &H@PlayerName Message" );
-                player.Message( "To message all players of a rank, write &H@@Rank Message" );
+                player.Message( "  To list available worlds, write &H/worlds" );
+                player.Message( "  To join a world, write &H/join WorldName" );
+                player.Message( "  To send private messages, write &H@PlayerName Message" );
             }
         }
 
