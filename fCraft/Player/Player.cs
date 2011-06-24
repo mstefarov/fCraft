@@ -548,7 +548,7 @@ namespace fCraft {
                         }
                         Info.ProcessBlockPlaced( (byte)Block.DoubleStair );
                         World.Map.QueueUpdate( blockUpdate );
-                        Server.RaisePlayerPlacedBlockEvent( this, x, y, (short)(h - 1), Block.DoubleStair, Block.Stair, true );
+                        Server.RaisePlayerPlacedBlockEvent( this, x, y, (short)(h - 1), Block.Stair, Block.DoubleStair, true );
                         Session.SendNow( PacketWriter.MakeSetBlock( x, y, h - 1, Block.DoubleStair ) );
                         RevertBlockNow( x, y, h );
                         break;
@@ -563,7 +563,7 @@ namespace fCraft {
                         Info.ProcessBlockPlaced( (byte)type );
                         Block old = World.Map.GetBlock( x, y, h );
                         World.Map.QueueUpdate( blockUpdate );
-                        Server.RaisePlayerPlacedBlockEvent( this, x, y, h, type,old,  true );
+                        Server.RaisePlayerPlacedBlockEvent( this, x, y, h, old, type, true );
                         if( requiresUpdate || RelayAllUpdates ) {
                             Session.SendNow( PacketWriter.MakeSetBlock( x, y, h, type ) );
                         }
@@ -764,7 +764,7 @@ namespace fCraft {
             }
 
         eventCheck:
-            return Server.RaisePlayerPlacingBlockEvent( this, (short)x, (short)y, (short)h, newBlock, block, isManual, result );
+            return Server.RaisePlayerPlacingBlockEvent( this, (short)x, (short)y, (short)h, block, newBlock, isManual, result );
         }
 
 

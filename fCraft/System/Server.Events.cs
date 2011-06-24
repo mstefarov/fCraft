@@ -227,7 +227,7 @@ namespace fCraft {
 
 
         internal static CanPlaceResult RaisePlayerPlacingBlockEvent( Player player, short x, short y, short h,
-                                                                     Block newBlock, Block oldBlock, bool manual,
+                                                                     Block oldBlock, Block newBlock, bool manual,
                                                                      CanPlaceResult result ) {
             var handler = PlayerPlacingBlock;
             if( handler == null ) return result;
@@ -238,10 +238,10 @@ namespace fCraft {
 
 
         internal static void RaisePlayerPlacedBlockEvent( Player player, short x, short y, short h,
-                                                          Block newBlock, Block oldBlock, bool manual ) {
+                                                          Block oldBlock, Block newBlock, bool manual ) {
             var handler = PlayerPlacedBlock;
             if( handler != null ) {
-                handler( null, new PlayerPlacedBlockEventArgs( player, x, y, h, newBlock, oldBlock, manual ) );
+                handler( null, new PlayerPlacedBlockEventArgs( player, x, y, h, oldBlock, newBlock, manual ) );
             }
         }
 
