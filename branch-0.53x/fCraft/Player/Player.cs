@@ -549,7 +549,7 @@ namespace fCraft {
                         }
                         Info.ProcessBlockPlaced( (byte)Block.DoubleStair );
                         World.Map.QueueUpdate( blockUpdate );
-                        Server.RaisePlayerPlacedBlockEvent( this, x, y, h, Block.DoubleStair, true );
+                        Server.RaisePlayerPlacedBlockEvent( this, x, y, (short)(h - 1), Block.Stair, Block.DoubleStair, true );
                         Session.SendNow( PacketWriter.MakeSetBlock( x, y, h - 1, Block.DoubleStair ) );
                         RevertBlockNow( x, y, h );
                         break;
@@ -562,8 +562,9 @@ namespace fCraft {
                             return false;
                         }
                         Info.ProcessBlockPlaced( (byte)type );
+                        Block old = World.Map.GetBlock(x, y, h);
                         World.Map.QueueUpdate( blockUpdate );
-                        Server.RaisePlayerPlacedBlockEvent( this, x, y, h, type, true );
+                        Server.RaisePlayerPlacedBlockEvent( this, x, y, h, old, type, true );
                         if( requiresUpdate || RelayAllUpdates ) {
                             Session.SendNow( PacketWriter.MakeSetBlock( x, y, h, type ) );
                         }
@@ -711,6 +712,8 @@ namespace fCraft {
 
         public CanPlaceResult CanPlace( int x, int y, int h, Block newBlock, bool isManual ) {
             CanPlaceResult result;
+            Block block = World.Map.GetBlock( x, y, h );
+
             // check special blocktypes
             if( newBlock == Block.Admincrete && !Can( Permission.PlaceAdmincrete ) ) {
                 result = CanPlaceResult.BlocktypeDenied;
@@ -724,7 +727,6 @@ namespace fCraft {
             }
 
             // check deleting admincrete
-            Block block = World.Map.GetBlock( x, y, h );
             if( block == Block.Admincrete && !Can( Permission.DeleteAdmincrete ) ) {
                 result = CanPlaceResult.BlocktypeDenied;
                 goto eventCheck;
@@ -761,7 +763,7 @@ namespace fCraft {
             }
 
         eventCheck:
-            return Server.RaisePlayerPlacingBlockEvent( this, (short)x, (short)y, (short)h, newBlock, isManual, result );
+            return Server.RaisePlayerPlacingBlockEvent( this, (short)x, (short)y, (short)h, block, newBlock, isManual, result );
         }
 
 
@@ -1010,8 +1012,8 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerPlacingBlockEventArgs : PlayerPlacedBlockEventArgs {
-        internal PlayerPlacingBlockEventArgs( Player player, short x, short y, short h, Block block, bool isManual, CanPlaceResult result )
-            : base( player, x, y, h, block, isManual ) {
+        internal PlayerPlacingBlockEventArgs( Player player, short x, short y, short h, Block oldBlock, Block newBlock, bool isManual, CanPlaceResult result )
+            : base( player, x, y, h, oldBlock, newBlock, isManual ) {
             Result = result;
         }
 
@@ -1020,20 +1022,22 @@ namespace fCraft.Events {
 
 
     public class PlayerPlacedBlockEventArgs : PlayerEventArgs {
-        internal PlayerPlacedBlockEventArgs( Player player, short x, short y, short h, Block block, bool isManual )
+        internal PlayerPlacedBlockEventArgs( Player player, short x, short y, short h, Block oldBlock, Block newBlock, bool isManual )
             : base( player ) {
             X = x;
             Y = y;
             H = h;
-            Block = block;
             IsManual = isManual;
+            OldBlock = oldBlock;
+            NewBlock = newBlock;
         }
 
         public short X { get; private set; }
         public short Y { get; private set; }
         public short H { get; private set; }
         public bool IsManual { get; private set; }
-        public Block Block { get; private set; }
+        public Block OldBlock { get; private set; }
+        public Block NewBlock { get; private set; }
     }
 
 
