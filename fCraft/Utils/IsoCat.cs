@@ -76,7 +76,7 @@ namespace fCraft {
 
         int x, y, h;
         byte block;
-        readonly int[] chunkCoords = new int[6];
+        public int[] chunkCoords = new int[6];
 
         readonly byte* image;
         readonly Bitmap imageBmp;
