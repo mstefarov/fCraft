@@ -109,7 +109,7 @@ namespace fCraft {
                 using( StreamWriter writer = new StreamWriter( fs ) ) {
                     infos = PlayerDB.GetPlayerListCopy();
                     if( infos.Length == 0 ) {
-                        writer.WriteLine( "{0} (0 players)", "(TOTAL)" );
+                        writer.WriteLine( "(TOTAL) (0 players)" );
                         writer.WriteLine();
                     } else {
                         DumpPlayerGroupStats( writer, infos, "(TOTAL)" );

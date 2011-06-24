@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace fCraft {
     public interface IPlugin {
@@ -9,6 +6,9 @@ namespace fCraft {
         string Description { get; }
         Uri Website { get; }
         Version Version { get; }
+
+        string[] LoadDependencies { get; }
+        string[] RunDependencies { get; }
 
         bool Load();
     }

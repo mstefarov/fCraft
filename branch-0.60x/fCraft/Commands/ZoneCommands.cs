@@ -420,7 +420,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdZoneInfo = new CommandDescriptor {
             Name = "zinfo",
             Category = CommandCategory.Zone | CommandCategory.Info,
-            Help = "Shows information about a zone",
+            Help = "Shows detailed information about a zone.",
             Usage = "/zinfo ZoneName",
             Handler = ZoneInfo
         };
@@ -444,17 +444,16 @@ namespace fCraft {
                             zone.Bounds.Volume,
                             zone.Controller.MinRank.GetClassyName() );
 
-            player.Message( "  Zone centre is at ({0},{1},{2}).",
+            player.Message( "  Zone center is at ({0},{1},{2}).",
                             (zone.Bounds.XMin + zone.Bounds.XMax) / 2,
                             (zone.Bounds.YMin + zone.Bounds.YMax) / 2,
                             (zone.Bounds.HMin + zone.Bounds.HMax) / 2 );
 
             if( zone.CreatedBy != null ) {
-                player.Message( "  Zone created by {0}&S on {1:MMM d} at {1:h:mm} ({2}d {3}h ago).",
+                player.Message( "  Zone created by {0}&S on {1:MMM d} at {1:h:mm} ({2} ago).",
                                 zone.CreatedBy.GetClassyName(),
                                 zone.CreatedDate,
-                                DateTime.UtcNow.Subtract( zone.CreatedDate ).Days,
-                                DateTime.UtcNow.Subtract( zone.CreatedDate ).Hours );
+                                DateTime.UtcNow.Subtract( zone.CreatedDate ).ToMiniString() );
             }
 
             if( zone.EditedBy != null ) {

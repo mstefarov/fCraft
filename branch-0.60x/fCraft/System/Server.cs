@@ -536,63 +536,63 @@ namespace fCraft {
 
         #region Plugins
 
-        static readonly Dictionary<string, IPlugin> plugins = new Dictionary<string, IPlugin>();
+static readonly Dictionary<string, IPlugin> plugins = new Dictionary<string, IPlugin>();
 
-        static void LoadAllPlugins() {
-            DirectoryInfo pluginDir = new DirectoryInfo( Paths.PluginDirectory );
-            if( pluginDir.Exists ) {
-                foreach( FileInfo file in pluginDir.GetFiles( "fPlugin.*.dll", SearchOption.TopDirectoryOnly ) ) {
-                    LoadPlugin( file );
+static void LoadAllPlugins() {
+    DirectoryInfo pluginDir = new DirectoryInfo( Paths.PluginDirectory );
+    if( pluginDir.Exists ) {
+        foreach( FileInfo file in pluginDir.GetFiles( "fPlugin.*.dll", SearchOption.TopDirectoryOnly ) ) {
+            LoadPlugin( file );
+        }
+    }
+}
+
+static void LoadPlugin( FileInfo file ) {
+    try {
+        Assembly assembly = Assembly.LoadFile( file.FullName );
+        foreach( Type type in assembly.GetTypes() ) {
+            if( type.GetInterfaces().Contains( typeof( IPlugin ) ) ) {
+                ConstructorInfo pluginConstructor = type.GetConstructor( Type.EmptyTypes );
+                IPlugin pluginObject = (IPlugin)pluginConstructor.Invoke( new object[0] );
+
+                if( String.IsNullOrEmpty( pluginObject.Name ) ) {
+                    Logger.Log( "Could not load plugin from \"{0}\": No name given.", LogType.Error,
+                                file.Name );
+                    continue;
                 }
+
+                if( pluginObject.Version == null ) {
+                    Logger.Log( "Could not load plugin from \"{0}\": No version given.", LogType.Error,
+                                file.Name );
+                    continue;
+                }
+
+                if( String.IsNullOrEmpty( pluginObject.Description ) ) {
+                    Logger.Log( "Could not load plugin \"{0}\" from \"{1}\": No description given.", LogType.Error,
+                                pluginObject.Name, file.Name );
+                    continue;
+                }
+
+                if( plugins.ContainsKey( pluginObject.Name ) ) {
+                    Logger.Log( "Could not load plugin \"{0}\" (version {1}) from \"{2}\": " +
+                                "A plugin with the same name (version {3}) is already loaded.", LogType.Error,
+                                pluginObject.Name,
+                                pluginObject.Version,
+                                file.Name,
+                                plugins[pluginObject.Name].Version );
+                    continue;
+                }
+
+                plugins.Add( pluginObject.Name, pluginObject );
+                Logger.Log( "Loaded plugin \"{0} {1}\" from \"{1}\"", LogType.SystemActivity,
+                            pluginObject.Name, pluginObject.Version, file.Name );
             }
         }
-
-        static void LoadPlugin( FileInfo file ) {
-            try {
-                Assembly assembly = Assembly.LoadFile( file.FullName );
-                foreach( Type type in assembly.GetTypes() ) {
-                    if( type.GetInterfaces().Contains( typeof( IPlugin ) ) ) {
-                        ConstructorInfo pluginConstructor = type.GetConstructor( Type.EmptyTypes );
-                        IPlugin pluginObject = (IPlugin)pluginConstructor.Invoke( new object[0] );
-
-                        if( String.IsNullOrEmpty( pluginObject.Name ) ) {
-                            Logger.Log( "Could not load plugin from \"{0}\": No name given.", LogType.Error,
-                                        file.Name );
-                            continue;
-                        }
-
-                        if( pluginObject.Version == null ) {
-                            Logger.Log( "Could not load plugin from \"{0}\": No version given.", LogType.Error,
-                                        file.Name );
-                            continue;
-                        }
-
-                        if( String.IsNullOrEmpty( pluginObject.Description ) ) {
-                            Logger.Log( "Could not load plugin \"{0}\" from \"{1}\": No description given.", LogType.Error,
-                                        pluginObject.Name, file.Name );
-                            continue;
-                        }
-
-                        if( plugins.ContainsKey( pluginObject.Name ) ) {
-                            Logger.Log( "Could not load plugin \"{0}\" (version {1}) from \"{2}\": " +
-                                        "A plugin with the same name (version {3}) is already loaded.", LogType.Error,
-                                        pluginObject.Name,
-                                        pluginObject.Version,
-                                        file.Name,
-                                        plugins[pluginObject.Name].Version );
-                            continue;
-                        }
-
-                        plugins.Add( pluginObject.Name, pluginObject );
-                        Logger.Log( "Loaded plugin \"{0} {1}\" from \"{1}\"", LogType.SystemActivity,
-                                    pluginObject.Name, pluginObject.Version, file.Name );
-                    }
-                }
-            } catch( Exception ex ) {
-                Logger.Log( "Could not load plugin from \"{0}\": {1}", LogType.Error,
-                            file.Name, ex );
-            }
-        }
+    } catch( Exception ex ) {
+        Logger.Log( "Could not load plugin from \"{0}\": {1}", LogType.Error,
+                    file.Name, ex );
+    }
+}
 
         #endregion
 
