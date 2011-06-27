@@ -1,7 +1,7 @@
-﻿using System;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Diagnostics;
 using System.Windows.Forms;
-using fCraft;
 
 namespace fCraft.ServerGUI {
     public sealed partial class AboutWindow : Form {

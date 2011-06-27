@@ -9,8 +9,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows.Forms;
-using fCraft;
-using Color = System.Drawing.Color;
 
 
 namespace fCraft.ConfigGUI {
@@ -474,7 +472,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         private void cIRCList_SelectedIndexChanged( object sender, EventArgs e ) {
             if( cIRCList.SelectedIndex < 0 ) return;
             string selectedNetwork = (string)cIRCList.Items[cIRCList.SelectedIndex];
-            IRCNetwork network = IRCNetworks.First( _network => ( _network.Name == selectedNetwork ) );
+            IRCNetwork network = IRCNetworks.First( n => ( n.Name == selectedNetwork ) );
             tIRCBotNetwork.Text = network.Host;
             nIRCBotPort.Value = network.Port;
         }
@@ -550,7 +548,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             selectedRank = rank;
             tRankName.Text = rank.Name;
 
-            ApplyColor( bColorRank, fCraft.Color.ParseToIndex( rank.Color ) );
+            ApplyColor( bColorRank, Color.ParseToIndex( rank.Color ) );
 
             tPrefix.Text = rank.Prefix;
 
@@ -1140,6 +1138,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                                  MessageBoxButtons.OKCancel ) != DialogResult.OK ) return;
             Config.LoadDefaults();
             Config.ResetRanks();
+            Config.ResetLogOptions();
 
             ApplyTabGeneral();
             ApplyTabChat();
@@ -1186,6 +1185,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                     break;
                 case 6:// Logging
                     Config.LoadDefaults( ConfigSection.Logging );
+                    Config.ResetLogOptions();
                     ApplyTabLogging();
                     break;
                 case 7:// IRC
@@ -1241,7 +1241,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         int colorSys, colorSay, colorHelp, colorAnnouncement, colorPM, colorIRC, colorMe, colorWarning;
 
         void ApplyColor( Button button, int color ) {
-            button.Text = fCraft.Color.GetName( color );
+            button.Text = Color.GetName( color );
             button.BackColor = ColorPicker.ColorPairs[color].Background;
             button.ForeColor = ColorPicker.ColorPairs[color].Foreground;
             bApply.Enabled = true;
@@ -1252,7 +1252,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             picker.ShowDialog();
             colorSys = picker.ColorIndex;
             ApplyColor( bColorSys, colorSys );
-            fCraft.Color.Sys = fCraft.Color.Parse( colorSys );
+            Color.Sys = Color.Parse( colorSys );
         }
 
         private void bColorHelp_Click( object sender, EventArgs e ) {
@@ -1260,7 +1260,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             picker.ShowDialog();
             colorHelp = picker.ColorIndex;
             ApplyColor( bColorHelp, colorHelp );
-            fCraft.Color.Help = fCraft.Color.Parse( colorHelp );
+            Color.Help = Color.Parse( colorHelp );
         }
 
         private void bColorSay_Click( object sender, EventArgs e ) {
@@ -1268,7 +1268,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             picker.ShowDialog();
             colorSay = picker.ColorIndex;
             ApplyColor( bColorSay, colorSay );
-            fCraft.Color.Say = fCraft.Color.Parse( colorSay );
+            Color.Say = Color.Parse( colorSay );
         }
 
         private void bColorAnnouncement_Click( object sender, EventArgs e ) {
@@ -1276,7 +1276,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             picker.ShowDialog();
             colorAnnouncement = picker.ColorIndex;
             ApplyColor( bColorAnnouncement, colorAnnouncement );
-            fCraft.Color.Announcement = fCraft.Color.Parse( colorAnnouncement );
+            Color.Announcement = Color.Parse( colorAnnouncement );
         }
 
         private void bColorPM_Click( object sender, EventArgs e ) {
@@ -1284,7 +1284,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             picker.ShowDialog();
             colorPM = picker.ColorIndex;
             ApplyColor( bColorPM, colorPM );
-            fCraft.Color.PM = fCraft.Color.Parse( colorPM );
+            Color.PM = Color.Parse( colorPM );
         }
 
         private void bColorWarning_Click( object sender, EventArgs e ) {
@@ -1292,7 +1292,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             picker.ShowDialog();
             colorWarning = picker.ColorIndex;
             ApplyColor( bColorWarning, colorWarning );
-            fCraft.Color.Warning = fCraft.Color.Parse( colorWarning );
+            Color.Warning = Color.Parse( colorWarning );
         }
 
         private void bColorMe_Click( object sender, EventArgs e ) {
@@ -1300,7 +1300,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             picker.ShowDialog();
             colorMe = picker.ColorIndex;
             ApplyColor( bColorMe, colorMe );
-            fCraft.Color.Me = fCraft.Color.Parse( colorMe );
+            Color.Me = Color.Parse( colorMe );
         }
 
         private void bColorIRC_Click( object sender, EventArgs e ) {
@@ -1308,14 +1308,14 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             picker.ShowDialog();
             colorIRC = picker.ColorIndex;
             ApplyColor( bColorIRC, colorIRC );
-            fCraft.Color.IRC = fCraft.Color.Parse( colorIRC );
+            Color.IRC = Color.Parse( colorIRC );
         }
 
         private void bColorRank_Click( object sender, EventArgs e ) {
-            ColorPicker picker = new ColorPicker( "Rank color for \"" + selectedRank.Name + "\"", fCraft.Color.ParseToIndex( selectedRank.Color ) );
+            ColorPicker picker = new ColorPicker( "Rank color for \"" + selectedRank.Name + "\"", Color.ParseToIndex( selectedRank.Color ) );
             picker.ShowDialog();
             ApplyColor( bColorRank, picker.ColorIndex );
-            selectedRank.Color = fCraft.Color.GetName( picker.ColorIndex );
+            selectedRank.Color = Color.GetName( picker.ColorIndex );
         }
 
 

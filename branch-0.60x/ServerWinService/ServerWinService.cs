@@ -3,8 +3,6 @@ using System;
 using System.IO;
 using System.ServiceProcess;
 using System.Text;
-using System.Threading;
-using fCraft;
 using fCraft.Events;
 
 namespace fCraft.ServerWinService {

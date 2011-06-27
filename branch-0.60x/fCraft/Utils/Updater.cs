@@ -279,7 +279,7 @@ namespace fCraft {
 
         /// <summary>
         /// Checks for updates and prompts to install them.
-        /// Behavior is frontend-specific: in fCraftUI, downloads the update and promots to install. In fCraftConsole, acts same as Notify.
+        /// Behavior is frontend-specific: in ServerGUI, downloads the update and promots to install. In ServerCLI, acts same as Notify.
         /// Note: Requires user interaction (if you restart the server remotely while unattended, it may get stuck on this dialog).
         /// </summary>
         Prompt,

@@ -236,8 +236,8 @@ namespace fCraft {
 #else
             // delete the old updater, if exists
             try {
-                if( File.Exists( Paths.UpdaterFile ) ) {
-                    File.Delete( Paths.UpdaterFile );
+                if( File.Exists( Paths.UpdaterFileName ) ) {
+                    File.Delete( Paths.UpdaterFileName );
                 }
             } catch { }
 #endif
@@ -519,10 +519,10 @@ namespace fCraft {
                                              MonoCompat.PrependMono( assemblyExecutable ),
                                              GetArgString() );
 
-                MonoCompat.StartDotNetProcess( Paths.UpdaterFile, args, true );
+                MonoCompat.StartDotNetProcess( Paths.UpdaterFileName, args, true );
 
             } else if( Updater.RunAtShutdown ) {
-                MonoCompat.StartDotNetProcess( Paths.UpdaterFile, GetArgString(), true );
+                MonoCompat.StartDotNetProcess( Paths.UpdaterFileName, GetArgString(), true );
 
             } else if( doRestart ) {
                 MonoCompat.StartDotNetProcess( assemblyExecutable, GetArgString(), true );
@@ -1339,7 +1339,7 @@ namespace fCraft {
         Config,
 
         /// <summary> If NoRestart flag is present, fCraft will shutdown instead of restarting.
-        /// This flag is used by AutoLauncher. </summary>
+        /// This flag is used by AutoRestarter. </summary>
         NoRestart,
 
         /// <summary> If ExitOnCrash flag is present, fCraft will exit

@@ -6,7 +6,7 @@ using System.Threading;
 
 
 namespace AutoRestarter {
-    class Program {
+    static class Program {
         const int Tick = 600000;
         const int Delay = 5000;
         const string BinaryName = "ServerCLI.exe";

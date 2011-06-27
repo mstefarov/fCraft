@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System;
-using fCraft;
 
 namespace fCraft.ServerGUI {
     sealed class ConsoleBox : TextBox {

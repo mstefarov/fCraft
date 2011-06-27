@@ -21,13 +21,15 @@ namespace fCraft {
             ConfigFileName = ConfigFileNameDefault;
 
             ProtectedFiles = new[]{
-                "AutoLauncher.exe",
-                "ConfigTool.exe",
+                "AutoRestarter.exe",
+                "ConfigGUI.exe",
+                "ConfigCLI.exe",
                 "fCraft.dll",
-                "fCraftConsole.exe",
-                "fCraftUI.exe",
-                "fCraftWinService.exe",
-                UpdaterFile,
+                "fCraftGUI.dll",
+                "ServerCLI.exe",
+                "ServerGUI.exe",
+                "ServerWinService.exe",
+                UpdaterFileName,
                 ConfigFileNameDefault,
                 PlayerDBFileName,
                 IPBanListFileName,
@@ -36,7 +38,7 @@ namespace fCraft {
                 GreetingFileName,
                 HeartbeatDataFileName,
                 WorldListFileName,
-                AutoRankFile
+                AutoRankFileName
             };
 
             DataFilesToBackup = new[]{
@@ -96,11 +98,11 @@ namespace fCraft {
 
         public const string HeartbeatDataFileName = "heartbeatdata.txt";
 
-        public const string UpdaterFile = "fCraftUpdater.exe";
+        public const string UpdaterFileName = "UpdateInstaller.exe";
 
         public const string WorldListFileName = "worlds.xml";
 
-        public const string AutoRankFile = "autorank.xml";
+        public const string AutoRankFileName = "autorank.xml";
 
         public const string PluginDirectory = "plugins";
 

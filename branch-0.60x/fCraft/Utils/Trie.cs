@@ -9,6 +9,7 @@ using System.Text;
 namespace fCraft {
     /// <summary> Specialized data structure for partial-matching of large sparse sets of words.
     /// Used as a searchable index of players for PlayerDB. </summary>
+    /// <typeparam name="T"> Payload type (reference types only). </typeparam>
     [DebuggerDisplay( "Count = {Count}" )]
     public class Trie<T> : IDictionary<string, T>, IDictionary, ICloneable where T : class {
         const byte LeafNode = 254,

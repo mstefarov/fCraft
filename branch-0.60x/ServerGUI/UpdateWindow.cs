@@ -5,26 +5,25 @@ using System.Net;
 using System.Windows.Forms;
 using System.Text;
 using System.IO;
-using fCraft;
 
 namespace fCraft.ServerGUI {
     public sealed partial class UpdateWindow : Form {
-        readonly UpdaterResult update;
+        readonly UpdaterResult updateResult;
         readonly string updaterFullPath;
         readonly WebClient downloader = new WebClient();
-        readonly bool auto;
+        readonly bool autoUpdate;
         bool closeFormWhenDownloaded;
 
-        public UpdateWindow( UpdaterResult _update, bool _auto ) {
+        public UpdateWindow( UpdaterResult update, bool auto ) {
             InitializeComponent();
             updaterFullPath = Path.Combine( Paths.WorkingPath, Paths.UpdaterFileName );
-            update = _update;
-            auto = _auto;
+            updateResult = update;
+            autoUpdate = auto;
             CreateDetailedChangeLog();
             lVersion.Text = String.Format( lVersion.Text,
                                            Updater.CurrentRelease.VersionString,
-                                           update.LatestRelease.VersionString,
-                                           update.LatestRelease.Age.TotalDays );
+                                           updateResult.LatestRelease.VersionString,
+                                           updateResult.LatestRelease.Age.TotalDays );
             Shown += Download;
         }
 
@@ -33,7 +32,7 @@ namespace fCraft.ServerGUI {
             xShowDetails.Focus();
             downloader.DownloadProgressChanged += DownloadProgress;
             downloader.DownloadFileCompleted += DownloadComplete;
-            downloader.DownloadFileAsync( new Uri( update.DownloadUrl ), updaterFullPath );
+            downloader.DownloadFileAsync( new Uri( updateResult.DownloadUrl ), updaterFullPath );
         }
 
 
@@ -52,7 +51,7 @@ namespace fCraft.ServerGUI {
                 progress.Value = 100;
                 if( e.Cancelled || e.Error != null ) {
                     MessageBox.Show( e.Error.ToString(), "Error occured while trying to download " + Paths.UpdaterFileName );
-                } else if( auto ) {
+                } else if( autoUpdate ) {
                     bUpdateNow_Click( null, null );
                 } else {
                     bUpdateNow.Enabled = true;
@@ -76,7 +75,7 @@ namespace fCraft.ServerGUI {
 
         void CreateDetailedChangeLog() {
             StringBuilder sb = new StringBuilder();
-            foreach( ReleaseInfo release in update.History ) {
+            foreach( ReleaseInfo release in updateResult.History ) {
                 sb.AppendFormat( "{0} - {1:0} days ago - {2}",
                                  release.VersionString,
                                  release.Age.TotalDays,

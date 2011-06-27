@@ -363,7 +363,10 @@ namespace fCraft {
             try {
                 Enum.Parse( ValueType, value, true );
             } catch( ArgumentException ) {
-                throw new FormatException( String.Format( "Could not parse value as {0}", ValueType.Name ) );
+                string message = String.Format( "Could not parse value as {0}. Valid values are: {1}",
+                                                ValueType.Name,
+                                                Enum.GetNames(ValueType).JoinToString() );
+                throw new FormatException( message );
             }
         }
 

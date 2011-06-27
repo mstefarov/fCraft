@@ -3,7 +3,6 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Forms;
-using fCraft;
 using fCraft.Events;
 using System.Linq;
 
@@ -12,10 +11,8 @@ namespace fCraft.ServerGUI {
     public sealed partial class MainForm : Form {
         bool shutdownPending, shutdownComplete;
         const int MaxLinesInLog = 2000;
-        readonly string[] args;
 
-        public MainForm( string[] _args ) {
-            args = _args;
+        public MainForm() {
             InitializeComponent();
             Shown += StartUp;
             FormClosing += HandleShutDown;
@@ -33,7 +30,7 @@ namespace fCraft.ServerGUI {
 #if !DEBUG
             try {
 #endif
-                Server.InitLibrary( args );
+                Server.InitLibrary( Environment.GetCommandLineArgs() );
                 Server.InitServer();
 
                 Text = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
