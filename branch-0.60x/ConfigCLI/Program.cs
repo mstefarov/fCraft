@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using fCraft;
 using fCraft.Events;
 
@@ -96,9 +97,12 @@ namespace ConfigCLI {
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine( "Keys in section {0}:", currentSection );
             Console.ResetColor();
-            Console.WriteLine( "  0. .." );
+            Console.WriteLine( "   0. .." );
 
             ConfigKey[] keys = Config.GetKeys( currentSection );
+
+            int maxLen = keys.Select( key => key.ToString().Length ).Max();
+
             for( int i = 0; i < keys.Length; i++ ) {
                 var meta = keys[i].GetMetadata();
                 string formattedValue;
@@ -108,7 +112,7 @@ namespace ConfigCLI {
                 } else {
                     formattedValue = "\"" + keys[i].GetString() + "\"";
                 }
-                string str = String.Format( "  {0:0}. {1} = {2}",
+                string str = String.Format( "  {0,2}. {1," + maxLen + "} = {2}",
                                             i + 1,
                                             keys[i],
                                             formattedValue );
