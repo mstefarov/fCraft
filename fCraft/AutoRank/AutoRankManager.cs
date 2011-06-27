@@ -49,9 +49,9 @@ namespace fCraft.AutoRank {
         public static void Init() {
             Criteria.Clear();
 
-            if( File.Exists( Paths.AutoRankFile ) ) {
+            if( File.Exists( Paths.AutoRankFileName ) ) {
                 try {
-                    XDocument doc = XDocument.Load( Paths.AutoRankFile );
+                    XDocument doc = XDocument.Load( Paths.AutoRankFileName );
                     if( doc.Root == null ) return;
                     foreach( XElement el in doc.Root.Elements( "Criterion" ) ) {
                         try {

@@ -7,9 +7,7 @@ using System.Linq;
 
 namespace fCraft {
 
-    /// <summary>
-    /// Vegetation generator for MapGenerator
-    /// </summary>
+    /// <summary> Vegetation generator for MapGenerator. </summary>
     public sealed class Forester {
 
         const int MaxTries = 1000;
@@ -846,7 +844,7 @@ namespace fCraft {
 
     }
 
-    // TODO: Add a UI to ConfigTool.AddWorldPopup to set these
+    // TODO: Add a UI to ConfigGUI.AddWorldPopup to set these
     public sealed class ForesterArgs {
         public Forester.ForesterOperation Operation = Forester.ForesterOperation.Replant;
         public int TreeCount = 15; // 0 = no limit if op=conserve/replant

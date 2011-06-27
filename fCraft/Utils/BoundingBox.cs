@@ -12,16 +12,19 @@ namespace fCraft {
         public int XMin, YMin, HMin, XMax, YMax, HMax;
 
 
+        /// <summary> Constructs a bounding box using two positions as opposite corners. </summary>
         public BoundingBox( Position p1, Position p2 ) :
             this( p1.X, p1.Y, p1.H, p2.X, p2.Y, p2.H ) {
         }
 
 
+        /// <summary> Constructs a bounding box at a given origin, with given dimensions. </summary>
         public BoundingBox( Position pos, int widthX, int widthY, int height ) :
             this( pos.X, pos.Y, pos.H, pos.X + widthX, pos.Y + widthY, pos.H + height ) {
         }
 
 
+        /// <summary> Constructs a bounding box between two given coordinates. </summary>
         public BoundingBox( int x1, int y1, int h1, int x2, int y2, int h2 ) {
             XMin = Math.Min( x1, x2 );
             XMax = Math.Max( x1, x2 );
@@ -58,10 +61,8 @@ namespace fCraft {
         }
 
 
-        /// <summary> Returns a BoundingBox object that describes the space shared between this and another box.
-        /// Returns BoundingBox.Empty if there is no intersection. </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
+        /// <summary> Returns a BoundingBox object that describes the space shared between this and another box. </summary>
+        /// <returns> Intersecting volume, or BoundingBox.Empty if there is no overlap. </returns>
         public BoundingBox GetIntersection( BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             if( Insersects( other ) ) {
@@ -93,14 +94,20 @@ namespace fCraft {
             get { return (HMax - HMin + 1); }
         }
 
+        /// <summary> Returns the vertex closest to the origin, opposite MaxVertex. </summary>
         public Position MinVertex {
             get { return new Position( XMin, YMin, HMin ); }
         }
 
+        /// <summary> Returns the vertex farthest from the origin, opposite MinVertex. </summary>
         public Position MaxVertex {
             get { return new Position( XMax, YMax, HMax ); }
         }
 
+
+        #region Serialization
+
+        public const string XmlRootElementName = "BoundingBox";
 
         public BoundingBox( XElement root ) {
             if( root == null ) throw new ArgumentNullException( "root" );
@@ -119,16 +126,16 @@ namespace fCraft {
             HMax = Math.Max( h1, h2 );
         }
 
-        public const string XmlRootElementName = "BoundingBox";
-
-        public XElement Serialize( string customElementName ) {
+        public XElement Serialize( string tagName ) {
             string data = String.Format( "{0} {1} {2} {3} {4} {5}",
                                          XMin, XMax, YMin, YMax, HMin, HMax );
-            return new XElement( customElementName, data );
+            return new XElement( tagName, data );
         }
 
         public XElement Serialize() {
             return Serialize( XmlRootElementName );
         }
+
+        #endregion
     }
 }

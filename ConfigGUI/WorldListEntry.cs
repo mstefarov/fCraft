@@ -2,7 +2,6 @@
 using System.IO;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using fCraft;
 using fCraft.MapConversion;
 
 namespace fCraft.ConfigGUI {

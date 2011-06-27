@@ -32,6 +32,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginSample", "PluginSampl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fCraftGUI", "fCraftGUI\fCraftGUI.csproj", "{AFAEE6CC-8B4F-40CD-9623-7FFDC8E52222}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigCLI", "ConfigCLI\ConfigCLI.csproj", "{A2963FAD-0DF5-4EC7-9367-3DD9C9E41AEB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_Events|Any CPU = Debug_Events|Any CPU
@@ -141,6 +143,16 @@ Global
 		{AFAEE6CC-8B4F-40CD-9623-7FFDC8E52222}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AFAEE6CC-8B4F-40CD-9623-7FFDC8E52222}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AFAEE6CC-8B4F-40CD-9623-7FFDC8E52222}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2963FAD-0DF5-4EC7-9367-3DD9C9E41AEB}.Debug_Events|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2963FAD-0DF5-4EC7-9367-3DD9C9E41AEB}.Debug_Events|Any CPU.Build.0 = Debug|Any CPU
+		{A2963FAD-0DF5-4EC7-9367-3DD9C9E41AEB}.Debug_IRC|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2963FAD-0DF5-4EC7-9367-3DD9C9E41AEB}.Debug_IRC|Any CPU.Build.0 = Debug|Any CPU
+		{A2963FAD-0DF5-4EC7-9367-3DD9C9E41AEB}.Debug_Scheduler|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2963FAD-0DF5-4EC7-9367-3DD9C9E41AEB}.Debug_Scheduler|Any CPU.Build.0 = Debug|Any CPU
+		{A2963FAD-0DF5-4EC7-9367-3DD9C9E41AEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2963FAD-0DF5-4EC7-9367-3DD9C9E41AEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2963FAD-0DF5-4EC7-9367-3DD9C9E41AEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2963FAD-0DF5-4EC7-9367-3DD9C9E41AEB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

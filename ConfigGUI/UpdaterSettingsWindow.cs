@@ -21,22 +21,22 @@ namespace fCraft.ConfigGUI {
             set { tRunAfterUpdate.Text = value; }
         }
 
-        public fCraft.UpdaterMode UpdaterMode {
+        public UpdaterMode UpdaterMode {
             get {
-                if( rDisabled.Checked ) return fCraft.UpdaterMode.Disabled;
-                if( rNotify.Checked ) return fCraft.UpdaterMode.Notify;
-                if( rPrompt.Checked ) return fCraft.UpdaterMode.Prompt;
-                return fCraft.UpdaterMode.Auto;
+                if( rDisabled.Checked ) return UpdaterMode.Disabled;
+                if( rNotify.Checked ) return UpdaterMode.Notify;
+                if( rPrompt.Checked ) return UpdaterMode.Prompt;
+                return UpdaterMode.Auto;
             }
             set {
                 switch( value ) {
-                    case fCraft.UpdaterMode.Disabled:
+                    case UpdaterMode.Disabled:
                         rDisabled.Checked = true; break;
-                    case fCraft.UpdaterMode.Notify:
+                    case UpdaterMode.Notify:
                         rNotify.Checked = true; break;
-                    case fCraft.UpdaterMode.Prompt:
+                    case UpdaterMode.Prompt:
                         rPrompt.Checked = true; break;
-                    case fCraft.UpdaterMode.Auto:
+                    case UpdaterMode.Auto:
                         rAutomatic.Checked = true; break;
                 }
             }
@@ -48,7 +48,7 @@ namespace fCraft.ConfigGUI {
         }
 
         string oldRunBeforeUpdate, oldRunAfterUpdate;
-        fCraft.UpdaterMode oldUpdaterMode;
+        UpdaterMode oldUpdaterMode;
         bool oldBackupBeforeUpdate;
 
         public UpdaterSettingsWindow() {

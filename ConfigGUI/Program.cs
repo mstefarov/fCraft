@@ -22,7 +22,6 @@
  */
 using System;
 using System.Windows.Forms;
-using fCraft;
 
 namespace fCraft.ConfigGUI {
     static class Program {
@@ -36,9 +35,9 @@ namespace fCraft.ConfigGUI {
             try {
                 Application.Run( new MainForm() );
             } catch( Exception ex ) {
-                Logger.LogAndReportCrash( "Error in ConfigTool", "ConfigTool", ex, true );
+                Logger.LogAndReportCrash( "Error in ConfigGUI", "ConfigGUI", ex, true );
                 if( !Server.HasArg( ArgKey.ExitOnCrash ) ) {
-                    MessageBox.Show( ex.ToString(), "fCraft ConfigTool has crashed" );
+                    MessageBox.Show( ex.ToString(), "fCraft ConfigGUI has crashed" );
                 }
             }
 #endif

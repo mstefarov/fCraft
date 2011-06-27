@@ -280,7 +280,7 @@ namespace fCraft {
             if( fromFile && (attr == null || !Int32.TryParse( attr.Value, out version ) || version != ConfigVersion) ) {
                 Logger.Log( "Config.Load: Your config.xml was made for a different version of fCraft. " +
                      "Some obsolete settings might be ignored, and some recently-added settings will be set to their default values. " +
-                     "It is recommended that you run ConfigTool to make sure everything is in order.", LogType.Warning );
+                     "It is recommended that you run ConfigGUI to make sure everything is in order.", LogType.Warning );
             }
 
             // read rank definitions
@@ -295,11 +295,7 @@ namespace fCraft {
                 LoadLogOptions( consoleOptions, Logger.ConsoleOptions );
             } else {
                 if( fromFile ) Logger.Log( "Config.Load: using default console options.", LogType.Warning );
-                for( int i = 0; i < Logger.ConsoleOptions.Length; i++ ) {
-                    Logger.ConsoleOptions[i] = true;
-                }
-                Logger.ConsoleOptions[(int)LogType.ConsoleInput] = false;
-                Logger.ConsoleOptions[(int)LogType.Debug] = false;
+                ResetLogOptions();
             }
 
             // read log options for logfile
@@ -343,6 +339,16 @@ namespace fCraft {
             return true;
         }
 
+
+
+        public static void ResetLogOptions() {
+            for( int i = 0; i < Logger.ConsoleOptions.Length; i++ ) {
+                Logger.ConsoleOptions[i] = true;
+                Logger.LogFileOptions[i] = true;
+            }
+            Logger.ConsoleOptions[(int)LogType.ConsoleInput] = false;
+            Logger.ConsoleOptions[(int)LogType.Debug] = false;
+        }
 
         static void ParseKeyElement( XElement element, string[] keyNames ) {
             if( element == null ) throw new ArgumentNullException( "element" );
@@ -432,7 +438,7 @@ namespace fCraft {
                                 rank.Permissions[(int)Permission.UseSpeedHack] = true;
                             }
                             Logger.Log( "Config.Load: All ranks were granted UseSpeedHack permission (default). " +
-                                 "Use ConfigTool to update config. If you are editing config.xml manually, " +
+                                 "Use ConfigGUI to update config. If you are editing config.xml manually, " +
                                  "set version=\"{0}\" to prevent permissions from resetting in the future.", LogType.Warning, ConfigVersion );
                         }
                     }
@@ -508,7 +514,6 @@ namespace fCraft {
                     if( !Paths.IgnoreMapPathConfigKey && GetString( ConfigKey.MapPath ).Length > 0 ) {
                         if( Paths.TestDirectory( "MapPath", GetString( ConfigKey.MapPath ), true ) ) {
                             Paths.MapPath = Path.GetFullPath( GetString( ConfigKey.MapPath ) );
-                            Logger.Log( "Maps are stored at: {0}", LogType.SystemActivity, Paths.MapPath );
                         }
                     }
                     break;
@@ -653,7 +658,7 @@ namespace fCraft {
         }
 
         public static TEnum GetEnum<TEnum>( this ConfigKey key ) where TEnum : struct {
-            if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required", "TEnum" );
+            if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required" );
             return (TEnum)Enum.Parse( typeof( TEnum ), GetString( key ), true );
         }
 
@@ -1014,6 +1019,11 @@ namespace fCraft {
         }
 
         #endregion
+
+
+        public static ConfigKey[] GetKeys( ConfigSection section ) {
+            return KeySections[section];
+        }
     }
 }
 

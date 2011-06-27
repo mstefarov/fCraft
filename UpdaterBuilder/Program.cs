@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.IO.Compression;
 
-namespace fCraftUpdaterBuilder {
+namespace fCraft.UpdateBuilder {
     static class Program {
 
         static readonly string[] FileList = {

@@ -24,7 +24,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using fCraft;
 using fCraft.Events;
 
 
@@ -83,8 +82,8 @@ namespace fCraft.ServerCLI {
                 }
 #if !DEBUG
             } catch( Exception ex ) {
-                ReportFailure( ShutdownReason.Crashed );
                 Logger.LogAndReportCrash( "Unhandled exception in ServerCLI", "ServerCLI", ex, true );
+                ReportFailure( ShutdownReason.Crashed );
             } finally {
                 Console.ResetColor();
             }

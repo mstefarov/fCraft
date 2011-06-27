@@ -58,7 +58,7 @@ changes if your computer's IP or server's port change." )]
 @"Port number on your local machine that fCraft uses to listen for
 incoming connections. If you are behind a router, you may need
 to set up port forwarding. You may also need to add a firewall 
-exception for fCraftUI/fCraftConsole/ConfigTool. Note that your
+exception for ServerGUI/ServerCLI/ConfigGUI. Note that your
 server's URL will change if you change the port number.",
             MinValue = 1, MaxValue = 65535 )]
         Port,

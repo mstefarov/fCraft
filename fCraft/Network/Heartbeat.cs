@@ -8,9 +8,7 @@ using System.Text;
 using fCraft.Events;
 
 namespace fCraft {
-    /// <summary>
-    /// Static class responsible for sending heartbeats.
-    /// </summary>
+    /// <summary> Static class responsible for sending heartbeats. </summary>
     public static class Heartbeat {
         const int HeartbeatDelay = 30000,
                   HeartbeatTimeout = 10000;
@@ -20,6 +18,7 @@ namespace fCraft {
         static SchedulerTask task;
         static HeartbeatData data;
 
+        /// <summary> Whether last attempt to send a heartbeat failed. </summary>
         public static bool LastHeartbeatFailed { get; private set; }
 
 
@@ -54,9 +53,15 @@ namespace fCraft {
                 ServerName = ConfigKey.ServerName.GetString()
             };
 
-            if( RaiseHeartbeatSendingEvent( data ) ) {
-                RescheduleHeartbeat();
-                return;
+            // This needs to be wrapped in try/catch because and exception in an event handler
+            // would permanently stop heartbeat sending.
+            try {
+                if( RaiseHeartbeatSendingEvent( data ) ) {
+                    RescheduleHeartbeat();
+                    return;
+                }
+            } catch( Exception ex ) {
+                Logger.LogAndReportCrash( "Heartbeat.Sending handler failed", "fCraft", ex, false );
             }
 
             if( ConfigKey.HeartbeatEnabled.GetBool() ) {

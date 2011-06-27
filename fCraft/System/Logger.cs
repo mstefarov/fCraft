@@ -33,9 +33,10 @@ namespace fCraft {
 
         static Logger() {
             Enabled = true;
-            ConsoleOptions = new bool[Enum.GetNames( typeof( LogType ) ).Length];
-            LogFileOptions = new bool[ConsoleOptions.Length];
-            for( int i = 0; i < ConsoleOptions.Length; i++ ) {
+            int typeCount = Enum.GetNames( typeof( LogType ) ).Length;
+            ConsoleOptions = new bool[typeCount];
+            LogFileOptions = new bool[typeCount];
+            for( int i = 0; i < typeCount; i++ ) {
                 ConsoleOptions[i] = true;
                 LogFileOptions[i] = true;
             }

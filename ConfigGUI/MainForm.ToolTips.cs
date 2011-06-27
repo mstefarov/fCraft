@@ -1,6 +1,5 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using fCraft;
 
 namespace fCraft.ConfigGUI {
     partial class MainForm {

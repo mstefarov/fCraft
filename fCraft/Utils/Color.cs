@@ -5,9 +5,8 @@ using System.Text;
 
 namespace fCraft {
 
-    /// <summary>
-    /// Static class with definitions of Minecraft color codes, parsers/converters, and utilities.
-    /// </summary>
+    /// <summary> Static class with definitions of Minecraft color codes,
+    /// parsers, converters, and utilities. </summary>
     public static class Color {
         public const string Black = "&0",
                             Navy = "&1",
@@ -60,8 +59,8 @@ namespace fCraft {
 
 
         /// <summary> Gets color name for hex color code. </summary>
-        /// <param name="code">Hexadecimal color code (between '0' and 'f')</param>
-        /// <returns>Lowercase color name</returns>
+        /// <param name="code"> Hexadecimal color code (between '0' and 'f'). </param>
+        /// <returns> Lowercase color name. </returns>
         public static string GetName( char code ) {
             code = Char.ToLower( code );
             if( IsValidColorCode( code ) ) {
@@ -76,7 +75,7 @@ namespace fCraft {
 
 
         /// <summary> Gets color name for a numeric color code. </summary>
-        /// <param name="index"> Ordinal numeric color code (between 0 and 15) </param>
+        /// <param name="index"> Ordinal numeric color code (between 0 and 15). </param>
         /// <returns> Lowercase color name. If input is out of range, returns null. </returns>
         public static string GetName( int index ) {
             if( index >= 0 && index <= 15 ) {
@@ -111,7 +110,7 @@ namespace fCraft {
 
         /// <summary> Parses a string to a format readable by Minecraft clients. 
         /// an accept color names and color codes (with or without the ampersand). </summary>
-        /// <param name="code"> Color code character </param>
+        /// <param name="code"> Color code character. </param>
         /// <returns> Two-character color string, readable by Minecraft client.
         /// If input is null or cannot be parsed, returns null. </returns>
         public static string Parse( char code ) {
@@ -136,7 +135,7 @@ namespace fCraft {
 
 
         /// <summary> Parses a numeric color code to a string readable by Minecraft clients </summary>
-        /// <param name="index"> Ordinal numeric color code (between 0 and 15) </param>
+        /// <param name="index"> Ordinal numeric color code (between 0 and 15). </param>
         /// <returns> Two-character color string, readable by Minecraft client.
         /// If input cannot be parsed, returns null. </returns>
         public static string Parse( int index ) {
@@ -150,7 +149,7 @@ namespace fCraft {
 
         /// <summary> Parses a string to a format readable by Minecraft clients. 
         /// an accept color names and color codes (with or without the ampersand). </summary>
-        /// <param name="color"> Ordinal numeric color code (between 0 and 15) </param>
+        /// <param name="color"> Ordinal numeric color code (between 0 and 15). </param>
         /// <returns> Two-character color string, readable by Minecraft client.
         /// If input is an empty string, returns empty string.
         /// If input is null or cannot be parsed, returns null. </returns>

@@ -1,57 +1,164 @@
-Thanks for checking out fCraft.
+Thank you for downloading fCraft, the custom Minecraft server.
+
+See www.fcraft.net for news and more detailed documentation.
+If you like fCraft, support its developer by donating! http://donate.fcraft.net
 
 
-== Installation ==
+=== Installation (Windows) ====================================================
 
-fCraft requires Microsoft .NET Framework 3.5 (on Windows) or Mono 2.6.4+
-(on Linux / Unix / Mac OS X). There are no other depenencies.
-
-Installation instructions:
-https://sourceforge.net/apps/mediawiki/fcraft/index.php?title=Installation
-
-Before starting the server, run ConfigTool.exe to choose your settings.
-To start a server, run any ONE of the front ends (fCraftConsole or fCraftUI).
+fCraft requires Microsoft .NET Framework 3.5. Your system may already have it
+installed, and you can download it from microsoft.com
+For more information, see http://www.fcraft.net/wiki/Installation_Instructions
 
 
-== List of Files ==
+=== Installation (Linux, Unix, MacOS X) =======================================
 
-    AutoLauncher.exe - EXPERIMENTAL. Automatically launches fCraftConsole, and
-                       restarts it if process dies.
+fCraft requires Mono 2.6.4 (minumum) or Mono 2.10 (recommended). You can
+download it from www.mono-project.org, or (on some Linux distributions) install
+it through your package manager.
 
-      ConfigTool.exe - GUI for editing fCraft's configuration, ranks, and world
-                       list. Also includes a map coverter and terrain generator.
-                       If you any configuration while the server is running,
-                       use /reloadconfig command. Note however that the world
-                       list cannot be edited while the server is running
-                       (it will get overwritten).
+To be able to use graphical fCraft components (ServerGUI and ConfigGUI) you
+will also need GDI+ library (libgdiplus). Before starting fCraft, make sure
+that it has read/write permissions in the fCraft directory.
 
-          fCraft.dll - Core of the server, used by all other programs.
+To run ".exe" files with Mono, use the following syntax:
+Mono 2.6.4: "mono SomeFile.exe"
+Mono 2.8+:  "mono -gc=sgen SomeFile.exe"
 
-   fCraftConsole.exe - Command-line interface for fCraft.
+For more information, see http://www.fcraft.net/wiki/Installation_Instructions
 
-        fCraftUI.exe - Graphical interface for fCraft.
 
-fCraftWinService.exe - EXPERIMENTAL. Windows service frontend for fCraft.
+
+=== Initial Setup =============================================================
+
+Before starting the server for the first time, run ConfigGUI.exe to choose
+your server's name and settings.
+
+You may need to add firewall exceptions for fCraft applications (ConfigGUI,
+ServerGUI, or ServerCLI, or ServerWinService) to allow incoming TCP connections
+on the listening port. Default port is 25565.
+
+If your server is behind a router, you may also need to set up port forwarding
+on the same port. See www.port-forward.com for further guidance.
+
+When you are ready to start the server, run ONE of the available server
+front-ends (GUI, CLI, or WinService).
+
+
+
+=== List of Files =============================================================
+
+   AutoRestarter.exe - EXPERIMENTAL. Automatically launches ServerCLI, and
+                       restarts it if needed (e.g. if it crashed).
+
+       ConfigGUI.exe - Graphical interface for editing your server's settings,
+                       rank setup, and world list. Also includes a map coverter
+                       and terrain generator. If you alter configuration while
+                       the server is running, use /reloadconfig command to
+                       apply the changes. Note that some changes (like changes
+                       to the rank list and IRC configuration) require a full
+                       server restart.
+       ConfigCLI.exe - A simple command-line configuration tool.
+
+          fCraft.dll - Core of the server, used by all other applications.
+       fCraftGUI.dll - Provides shared functionality for Config and Server GUI.
+
+       ServerCLI.exe - Command-line interface for the server.
+       ServerGUI.exe - Graphical interface for the server.
+
+ServerWinService.exe - Windows service frontend for fCraft.
                        After installing the service, it can be configured
                        to start automatically, and can be controlled
                        via "Services" Windows management console.
                        Usage (from command line): fCraftWinService.exe <action>
                        Where <action> can be:
                              install    to add to list of services
-                             start      to start service
-                             stop       to stop
+                             start      to start the server/service
+                             stop       to stop the server/service
                              uninstall  to remove from list of services
 
 
-== Help & Support ==
 
-Type "/help" in game or console to get started. Type "/commands" for a
-list of commands.
+=== Help & Support ============================================================
 
-See www.fcraft.net for news and more documentation.
+When you first join the server, promote yourself by typing...
+    /rank YourNameHere owner
+...in the server's console. Replace "owner" if you renamed your highest rank.
+
+Type "/help" in-game or in server console to get started. Type "/commands" for
+a list of available commands.
 
 For quick help/support, join #fCraft channel on Esper.net IRC:
-irc://irc.esper.net:5555/fCraft
+    irc://irc.esper.net:5555/fCraft
 
-If you like fCraft, support its developer by donating! http://donate.fcraft.net
+
+
+=== Licensing =================================================================
+
+fCraft is open-source and free for all uses. fCraft code and binaries are
+licensed and distributed under the permissive MIT License, reproduced here:
+
+----
+Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+----
+
+If you create fCraft plugins that do not include any substantial portions of
+fCraft's original code, they belong to you and you are free to do absolutely
+anything with them. However, if you would like to distribute whole modified
+copies of fCraft, please follow the MIT License terms.
+
+Original Minecraft was developed by Markus "Notch" Petersson of Mojang, and is 
+affiliated with fCraft in any way.
+
+
+
+=== Credits ===================================================================
+
+fCraft was developed by Matvei Stefarov (me@matvei.org) in 2009-2011
+
+Thanks to fCraft code contributors and modders:
+    SystemX17, Wootalyzer, TkTech, FontPeg, Redshift, Destroyer, Dag10, 
+    and Asiekierka
+
+Thanks to people who supported fCraft development through donations:
+    wtfmejt, Redshift, TkTech, Team9000, SpecialAttack.net, Destoned, D3M0N,
+    ven000m, Pandorum, DreamPhreak, Astelyn, and anonymous donors
+
+Thanks to people whose code has been ported to fCraft:
+    Dudecon (Forester), Osici (Omen), vLK (MinerCPP), Tim Van Wassenhove,
+    and Paul Bourke
+
+Thanks to Minecraft servers that helped test and improve fCraft:
+    TheOne's Zombie Survival, SpecialAttack.net Freebuild,
+    Team9000 Freebuild,  D3M0N's FreeBuild, ~The Best Freebuild 24/7~,
+    and fCraft Freebuild Official
+
+Thanks to people who submitted bug reports and suggestions:
+    Clhdrums87, Hellenion, Sunfall, Mavinstar, Dogwatch, Gamma-Metroid,
+    Epiclolwut, and all anonymous submitters.
+
+Special thanks for inspiration and suggestions:
+    PyroPyro, ElectricFuzzball, Zaneo, Voziv, LG_Legacy, CO2, Exe,
+    OpticaLza, iKJames,  Hearty0, Revenant, Varriount, Descension,
+    #mcc, MinerCPP team, OpenCraft team, and HyveBuild/iCraft team
+
+And thank You for using fCraft!
 
