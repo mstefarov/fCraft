@@ -104,6 +104,20 @@ namespace fCraft {
 
 
 
+        static readonly CommandDescriptor CdSpawn = new CommandDescriptor {
+            Name="spawn",
+            Category = CommandCategory.World,
+            Usage = "/spawn",
+            Help = "Teleports you to the current map's spawn.",
+            Handler = Spawn
+        };
+
+        static void Spawn( Player player, Command cmd ) {
+            player.StopSpectating();
+            player.Send( PacketWriter.MakeSelfTeleport( player.World.Map.Spawn ) );
+        }
+
+
         static readonly CommandDescriptor CdJoin = new CommandDescriptor {
             Name = "join",
             Aliases = new[] { "j", "load", "l", "goto", "map" },

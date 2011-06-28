@@ -221,7 +221,6 @@
     <Compile Include="Player\PlayerEnumerable.cs" />
     <Compile Include="System\ConfigKey.Metadata.cs" />
     <Compile Include="System\ConfigSection.cs" />
-    <Compile Include="System\IPlugin.cs" />
     <Compile Include="System\Server.Events.cs" />
     <Compile Include="Utils\ExtensionMethods.cs" />
     <Compile Include="Utils\INotifiesOnChange.cs" />
