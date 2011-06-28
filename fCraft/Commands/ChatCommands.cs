@@ -137,9 +137,9 @@ namespace fCraft {
                     return;
                 }
                 if( player.Ignore( targetInfo ) ) {
-                    player.MessageNow( "You are now ignoring {0}", targetInfo.GetClassyName() );
+                    player.MessageNow( "You are now ignoring {0}", targetInfo.ClassyName );
                 } else {
-                    player.MessageNow( "You are already ignoring {0}", targetInfo.GetClassyName() );
+                    player.MessageNow( "You are already ignoring {0}", targetInfo.ClassyName );
                 }
 
             } else {
@@ -183,9 +183,9 @@ namespace fCraft {
                     return;
                 }
                 if( player.Unignore( targetInfo ) ) {
-                    player.MessageNow( "You are no longer ignoring {0}", targetInfo.GetClassyName() );
+                    player.MessageNow( "You are no longer ignoring {0}", targetInfo.ClassyName );
                 } else {
-                    player.MessageNow( "You are not currently ignoring {0}", targetInfo.GetClassyName() );
+                    player.MessageNow( "You are not currently ignoring {0}", targetInfo.ClassyName );
                 }
             } else {
                 PlayerInfo[] ignoreList = player.GetIgnoreList();
@@ -271,7 +271,7 @@ namespace fCraft {
             }
             int num = rand.Next( min, max + 1 );
             Server.Message( "{0}{1} rolled {2} ({3}...{4})",
-                            player.GetClassyName(), Color.Silver, num, min, max );
+                            player.ClassyName, Color.Silver, num, min, max );
         }
 
         #endregion

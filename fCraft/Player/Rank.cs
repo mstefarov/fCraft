@@ -9,7 +9,7 @@ namespace fCraft {
     /// It was "classy" in a sense that it was colored based on "class" (rank) of a player/world/zone.
     /// </summary>
     public interface IClassy {
-        string GetClassyName();
+        string ClassyName { get; }
     }
 
     public sealed class Rank : IClassy, IComparable<Rank> {
@@ -389,15 +389,17 @@ namespace fCraft {
         }
 
 
-        public string GetClassyName() {
-            string displayedName = Name;
-            if( ConfigKey.RankPrefixesInChat.GetBool() ) {
-                displayedName = Prefix + displayedName;
+        public string ClassyName {
+            get {
+                string displayedName = Name;
+                if( ConfigKey.RankPrefixesInChat.GetBool() ) {
+                    displayedName = Prefix + displayedName;
+                }
+                if( ConfigKey.RankColorsInChat.GetBool() ) {
+                    displayedName = Color + displayedName;
+                }
+                return displayedName;
             }
-            if( ConfigKey.RankColorsInChat.GetBool() ) {
-                displayedName = Color + displayedName;
-            }
-            return displayedName;
         }
 
 

@@ -770,19 +770,21 @@ namespace fCraft {
 
 
         // implements IClassy interface
-        public string GetClassyName() {
-            StringBuilder sb = new StringBuilder();
-            if( ConfigKey.RankColorsInChat.GetBool() ) {
-                sb.Append( Rank.Color );
+        public string ClassyName {
+            get {
+                StringBuilder sb = new StringBuilder();
+                if( ConfigKey.RankColorsInChat.GetBool() ) {
+                    sb.Append( Rank.Color );
+                }
+                if( ConfigKey.RankPrefixesInChat.GetBool() ) {
+                    sb.Append( Rank.Prefix );
+                }
+                sb.Append( Name );
+                if( Banned ) {
+                    sb.Append( Color.Warning ).Append( "*" );
+                }
+                return sb.ToString();
             }
-            if( ConfigKey.RankPrefixesInChat.GetBool() ) {
-                sb.Append( Rank.Prefix );
-            }
-            sb.Append( Name );
-            if( Banned ) {
-                sb.Append( Color.Warning ).Append( "*" );
-            }
-            return sb.ToString();
         }
 
         #endregion

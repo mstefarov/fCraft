@@ -793,7 +793,7 @@ namespace fCraft {
                 if( player.Info.Rank.IdleKickTimer <= 0 ) continue;
                 if( DateTime.UtcNow.Subtract( player.IdleTimer ).TotalMinutes >= player.Info.Rank.IdleKickTimer ) {
                     Message( "{0}&S was kicked for being idle for {1} min",
-                             player.GetClassyName(),
+                             player.ClassyName,
                              player.Info.Rank.IdleKickTimer.ToString() );
                     ModerationCommands.DoKick( Player.Console,
                                                player,
@@ -1040,13 +1040,13 @@ namespace fCraft {
             if( firstTime ) {
                 return String.Format( "&S{0} ({1}&S) connected, joined {2}",
                                       player.Name,
-                                      player.Info.Rank.GetClassyName(),
-                                      world.GetClassyName() );
+                                      player.Info.Rank.ClassyName,
+                                      world.ClassyName );
             } else {
                 return String.Format( "&S{0} ({1}&S) connected again, joined {2}",
                                       player.Name,
-                                      player.Info.Rank.GetClassyName(),
-                                      world.GetClassyName() );
+                                      player.Info.Rank.ClassyName,
+                                      world.ClassyName );
             }
         }
 
@@ -1064,7 +1064,7 @@ namespace fCraft {
                             player.Name );
                 if( session.IsReady && ConfigKey.ShowConnectionMessages.GetBool() ) {
                     Players.CanSee( player ).Message( "&SPlayer {0}&S left the server.",
-                                                      player.GetClassyName() );
+                                                      player.ClassyName );
                 }
 
                 if( player.World != null ) {

@@ -144,52 +144,52 @@ namespace fCraft {
             }
 
             if( info.LastIP.Equals( IPAddress.None ) ) {
-                player.Message( "About {0}&S: Never seen before.", info.GetClassyName() );
+                player.Message( "About {0}&S: Never seen before.", info.ClassyName );
 
             } else {
                 if( target != null ) {
                     if( target.IsHidden ) {
                         if( player.Can( Permission.ViewPlayerIPs ) ) {
                             player.Message( "About {0}&S: HIDDEN. Online from {1}",
-                                            info.GetClassyName(),
+                                            info.ClassyName,
                                             info.LastIP );
                         } else {
                             player.Message( "About {0}&S: HIDDEN.",
-                                            info.GetClassyName() );
+                                            info.ClassyName );
                         }
                     } else {
                         if( player.Can( Permission.ViewPlayerIPs ) ) {
                             player.Message( "About {0}&S: Online now from {1}",
-                                            info.GetClassyName(),
+                                            info.ClassyName,
                                             info.LastIP );
                         } else {
                             player.Message( "About {0}&S: Online now.",
-                                            info.GetClassyName() );
+                                            info.ClassyName );
                         }
                     }
                 } else {
                     if( player.Can( Permission.ViewPlayerIPs ) ) {
                         if( info.LeaveReason != LeaveReason.Unknown ) {
                             player.Message( "About {0}&S: Last seen {1} ago from {2} ({3}).",
-                                            info.GetClassyName(),
+                                            info.ClassyName,
                                             info.TimeSinceLastSeen.ToMiniString(),
                                             info.LastIP,
                                             info.LeaveReason );
                         } else {
                             player.Message( "About {0}&S: Last seen {1} ago from {2}.",
-                                            info.GetClassyName(),
+                                            info.ClassyName,
                                             info.TimeSinceLastSeen.ToMiniString(),
                                             info.LastIP );
                         }
                     } else {
                         if( info.LeaveReason != LeaveReason.Unknown ) {
                             player.Message( "About {0}&S: Last seen {1} ago ({2}).",
-                                            info.GetClassyName(),
+                                            info.ClassyName,
                                             info.TimeSinceLastSeen.ToMiniString(),
                                             info.LeaveReason );
                         } else {
                             player.Message( "About {0}&S: Last seen {1} ago.",
-                                            info.GetClassyName(),
+                                            info.ClassyName,
                                             info.TimeSinceLastSeen.ToMiniString() );
                         }
                     }
@@ -291,13 +291,13 @@ namespace fCraft {
             if( !String.IsNullOrEmpty( info.RankChangedBy ) ) {
                 if( info.PreviousRank == null ) {
                     player.Message( "  Promoted to {0}&S by {1} {2} ago.",
-                                    info.Rank.GetClassyName(),
+                                    info.Rank.ClassyName,
                                     info.RankChangedBy,
                                     info.TimeSinceRankChange.ToMiniString() );
                 } else if( info.PreviousRank < info.Rank ) {
                     player.Message( "  Promoted from {0}&S to {1}&S by {2} {3} ago.",
-                                    info.PreviousRank.GetClassyName(),
-                                    info.Rank.GetClassyName(),
+                                    info.PreviousRank.ClassyName,
+                                    info.Rank.ClassyName,
                                     info.RankChangedBy,
                                     info.TimeSinceRankChange.ToMiniString() );
                     if( !string.IsNullOrEmpty( info.RankChangeReason ) ) {
@@ -305,8 +305,8 @@ namespace fCraft {
                     }
                 } else {
                     player.Message( "  Demoted from {0}&S to {1}&S by {2} {3} ago.",
-                                    info.PreviousRank.GetClassyName(),
-                                    info.Rank.GetClassyName(),
+                                    info.PreviousRank.ClassyName,
+                                    info.Rank.ClassyName,
                                     info.RankChangedBy,
                                     info.TimeSinceRankChange.ToMiniString() );
                     if( info.RankChangeReason.Length > 0 ) {
@@ -315,7 +315,7 @@ namespace fCraft {
                 }
             } else {
                 player.Message( "  Rank is {0}&S (default).",
-                                info.Rank.GetClassyName() );
+                                info.Rank.ClassyName );
             }
 
             if( info.LastIP.ToString() != IPAddress.None.ToString() ) {
@@ -382,9 +382,9 @@ namespace fCraft {
                     player.Message( "More than one player found matching \"{0}\"", name );
                 } else if( info != null ) {
                     if( info.Banned ) {
-                        player.Message( "Player {0}&S is &WBANNED", info.GetClassyName() );
+                        player.Message( "Player {0}&S is &WBANNED", info.ClassyName );
                     } else {
-                        player.Message( "Player {0}&S is NOT banned.", info.GetClassyName() );
+                        player.Message( "Player {0}&S is NOT banned.", info.ClassyName );
                     }
                     if( !String.IsNullOrEmpty( info.BannedBy ) ) {
                         player.Message( "  Last ban by {0} on {1:dd MMM yyyy} ({2} ago).",
@@ -461,7 +461,7 @@ namespace fCraft {
                                                             .OrderBy( s => s, StringComparer.OrdinalIgnoreCase ).ToArray();
 
                 player.Message( "Players of rank {0}&S can do the following: {1}",
-                                rank.GetClassyName(),
+                                rank.ClassyName,
                                 String.Join( ", ", sortedPermissionNames ) );
 
                 if( rank.Can( Permission.Draw ) ) {
@@ -545,7 +545,7 @@ namespace fCraft {
             player.Message( "Below is a list of ranks. For detail see &H{0}", CdRankInfo.Usage );
             foreach( Rank rank in RankManager.Ranks ) {
                 player.Message( "&S    {0}  ({1} players)",
-                                rank.GetClassyName(),
+                                rank.ClassyName,
                                 PlayerDB.CountPlayersByRank( rank ) );
             }
         }
@@ -626,7 +626,7 @@ namespace fCraft {
             if( players.Length > 0 ) {
 
                 string[] playerNameList = players.Where( player.CanSee )
-                                                 .Select( p => p.GetClassyName() ).ToArray();
+                                                 .Select( p => p.ClassyName ).ToArray();
 
                 if( playerNameList.Length > 0 ) {
                     player.Message( "There are {0} players online: {1}",
@@ -670,8 +670,8 @@ namespace fCraft {
             }
 
             player.Message( "Player {0}&S is on world {1}&S:",
-                            target.GetClassyName(),
-                            target.World.GetClassyName() );
+                            target.ClassyName,
+                            target.World.ClassyName );
 
 
             int offset = (int)(target.Position.R / 255f * 64f) + 32;
@@ -773,7 +773,7 @@ namespace fCraft {
                     player.Message( "Unknown rank: {0}", rankName );
                     return;
                 } else {
-                    player.Message( "List of commands available to {0}&S:", rank.GetClassyName() );
+                    player.Message( "List of commands available to {0}&S:", rank.ClassyName );
                     cd = CommandManager.GetCommands( rank, true );
                 }
 

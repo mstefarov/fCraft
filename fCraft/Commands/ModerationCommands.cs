@@ -79,9 +79,9 @@ namespace fCraft {
 
             if( !player.Can( Permission.Spectate, target.Info.Rank ) ) {
                 player.Message( "You can only spectate players ranked {0}&S or lower.",
-                player.Info.Rank.GetLimit( Permission.Spectate ).GetClassyName() );
+                player.Info.Rank.GetLimit( Permission.Spectate ).ClassyName );
                 player.Message( "{0}&S is ranked {1}",
-                                target.GetClassyName(), target.Info.Rank.GetClassyName() );
+                                target.ClassyName, target.Info.Rank.ClassyName );
                 return;
             }
 
@@ -235,7 +235,7 @@ namespace fCraft {
                 // freeze the target player to prevent further damage
                 if( !unban && target != null && !targetInfo.IsFrozen && player.Can( Permission.Freeze ) && player.Can( Permission.Ban, target.Info.Rank ) ) {
                     player.Message( "{0}&S has been frozen while you retry.",
-                                    target.GetClassyName() );
+                                    target.ClassyName );
                     Freeze( player, new Command( "/freeze " + target.Name ) );
                 }
 
@@ -261,7 +261,7 @@ namespace fCraft {
 
                             Server.Message( target,
                                             "{0}&W was banned by {1}",
-                                            target.GetClassyName(), player.GetClassyName() );
+                                            target.ClassyName, player.ClassyName );
                             if( !string.IsNullOrEmpty( reason ) ) {
                                 if( ConfigKey.AnnounceKickAndBanReasons.GetBool() ) {
                                     Server.Message( target, "&WBan reason: {0}", reason );
@@ -274,20 +274,20 @@ namespace fCraft {
                                 PlayerInfo[] bannedAlts = alts.Where( t => (t.Banned && t != target.Info) ).ToArray();
                                 if( bannedAlts.Length > 0 ) {
                                     player.Message( "Warning: {0}&S shares IP with other banned players: {1}&S. Consider adding an IP-ban.",
-                                                    target.GetClassyName(),
+                                                    target.ClassyName,
                                                     bannedAlts.JoinToClassyString() );
                                 }
                             }
 
                         } else {
-                            player.Message( "{0}&S is already banned.", target.GetClassyName() );
+                            player.Message( "{0}&S is already banned.", target.ClassyName );
                         }
                     }
                 } else {
                     player.Message( "You can only ban players ranked {0}&S or lower.",
-                                    player.Info.Rank.GetLimit( Permission.Ban ).GetClassyName() );
+                                    player.Info.Rank.GetLimit( Permission.Ban ).ClassyName );
                     player.Message( "{0}&S is ranked {1}",
-                                    target.GetClassyName(), target.Info.Rank.GetClassyName() );
+                                    target.ClassyName, target.Info.Rank.ClassyName );
                 }
 
                 // ban or unban offline players
@@ -302,12 +302,12 @@ namespace fCraft {
                                 Logger.Log( "{0} (offline) was unbanned by {1}", LogType.UserActivity,
                                             targetInfo.Name, player.Name );
                                 Server.Message( "{0}&W (offline) was unbanned by {1}",
-                                                  targetInfo.GetClassyName(), player.GetClassyName() );
+                                                  targetInfo.ClassyName, player.ClassyName );
                                 if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !string.IsNullOrEmpty( reason ) ) {
                                     Server.Message( "&WUnban reason: {0}", reason );
                                 }
                             } else {
-                                player.Message( "{0}&S (offline) is not currenty banned.", targetInfo.GetClassyName() );
+                                player.Message( "{0}&S (offline) is not currenty banned.", targetInfo.ClassyName );
                             }
                         } else {
                             if( targetInfo.ProcessBan( player, reason ) ) {
@@ -315,20 +315,20 @@ namespace fCraft {
                                 Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity,
                                             targetInfo.Name, player.Name );
                                 Server.Message( "{0}&W (offline) was banned by {1}",
-                                                  targetInfo.GetClassyName(), player.GetClassyName() );
+                                                  targetInfo.ClassyName, player.ClassyName );
                                 if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !string.IsNullOrEmpty( reason ) ) {
                                     Server.Message( "&WBan reason: {0}", reason );
                                 }
                             } else {
-                                player.Message( "{0}&S (offline) is already banned.", targetInfo.GetClassyName() );
+                                player.Message( "{0}&S (offline) is already banned.", targetInfo.ClassyName );
                             }
                         }
                     }
                 } else {
                     player.Message( "You can only ban players ranked {0}&S or lower.",
-                                    player.Info.Rank.GetLimit( Permission.Ban ).GetClassyName() );
+                                    player.Info.Rank.GetLimit( Permission.Ban ).ClassyName );
                     player.Message( "{0}&S is ranked {1}",
-                                    targetInfo.GetClassyName(), targetInfo.Rank.GetClassyName() );
+                                    targetInfo.ClassyName, targetInfo.Rank.ClassyName );
                 }
 
                 // ban players who are not in the database yet
@@ -350,7 +350,7 @@ namespace fCraft {
                     Logger.Log( "{0} (unrecognized) was banned by {1}", LogType.UserActivity,
                                 targetInfo.Name, player.Name );
                     Server.Message( "{0}&W (unrecognized) was banned by {1}",
-                                      targetInfo.GetClassyName(), player.GetClassyName() );
+                                      targetInfo.ClassyName, player.ClassyName );
 
                     if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !string.IsNullOrEmpty( reason ) ) {
                         Server.Message( "&WBan reason: {0}", reason );
@@ -390,14 +390,14 @@ namespace fCraft {
                     var cant = Server.Players.Cant( Permission.ViewPlayerIPs ).Except( player );
                     if( !String.IsNullOrEmpty( ipAssociatedName ) ) {
                         can.Message( "&W{0} (associated with {1}) was unbanned by {2}",
-                                     address, ipAssociatedName, player.GetClassyName() );
+                                     address, ipAssociatedName, player.ClassyName );
                         cant.Message( "&WIP associated with {0} was unbanned by {1}",
-                                      ipAssociatedName, player.GetClassyName() );
+                                      ipAssociatedName, player.ClassyName );
                     } else {
                         can.Message( "&W{0} was unbanned by {1}",
-                                     address, player.GetClassyName() );
+                                     address, player.ClassyName );
                         can.Message( "&WAn IP was unbanned by {0}",
-                                     player.GetClassyName() );
+                                     player.ClassyName );
                     }
                     if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !String.IsNullOrEmpty( reason ) ) {
                         Server.Message( player,
@@ -418,8 +418,8 @@ namespace fCraft {
                             Server.FirePlayerUnbannedEvent( otherInfo, player, reason + "~UnBanAll" );
                             Server.Message( player,
                                             "{0}&W was unbanned (UnbanAll) by {1}",
-                                            otherInfo.GetClassyName(), player.GetClassyName() );
-                            player.Message( "{0}&S matched IP and was also unbanned.", otherInfo.GetClassyName() );
+                                            otherInfo.ClassyName, player.ClassyName );
+                            player.Message( "{0}&S matched IP and was also unbanned.", otherInfo.ClassyName );
                         }
                     }
                 }
@@ -437,14 +437,14 @@ namespace fCraft {
                     var cant = Server.Players.Cant( Permission.ViewPlayerIPs ).Except( player );
                     if( !String.IsNullOrEmpty( targetName ) ) {
                         can.Message( "&W{0} (associated with {1}) was banned by {2}",
-                                     address, targetName, player.GetClassyName() );
+                                     address, targetName, player.ClassyName );
                         cant.Message( "&WIP associated with {0} was banned by {1}",
-                                      targetName, player.GetClassyName() );
+                                      targetName, player.ClassyName );
                     } else {
                         can.Message( "&W{0} was banned by {1}",
-                                     address, player.GetClassyName() );
+                                     address, player.ClassyName );
                         cant.Message( "&WAn IP was banned by {0}",
-                                      player.GetClassyName() );
+                                      player.ClassyName );
                     }
 
                     if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !String.IsNullOrEmpty( reason ) ) {
@@ -467,10 +467,10 @@ namespace fCraft {
                     foreach( PlayerInfo otherInfo in PlayerDB.FindPlayers( address ) ) {
                         if( otherInfo.ProcessBan( player, reason + "~BanAll" ) ) {
                             Server.FirePlayerBannedEvent( otherInfo, player, reason + "~BanAll" );
-                            player.Message( "{0}&S matched IP and was also banned.", otherInfo.GetClassyName() );
+                            player.Message( "{0}&S matched IP and was also banned.", otherInfo.ClassyName );
                             Server.Message( player,
                                             "{0}&W was banned (BanAll) by {1}",
-                                            otherInfo.GetClassyName(), player.GetClassyName() );
+                                            otherInfo.ClassyName, player.ClassyName );
                         }
                     }
 
@@ -515,7 +515,7 @@ namespace fCraft {
                     // freeze the target player to prevent further damage
                     if( !target.Info.IsFrozen && player.Can( Permission.Freeze ) && player.Can( Permission.Kick, target.Info.Rank ) ) {
                         player.Message( "{0}&S has been frozen while you retry.",
-                                        target.GetClassyName() );
+                                        target.ClassyName );
                         Freeze( player, new Command( "/freeze " + target.Name ) );
                     }
                     return;
@@ -524,7 +524,7 @@ namespace fCraft {
                 if( DoKick( player, target, reason, false, true, LeaveReason.Kick ) ) {
                     if( target.Info.TimesKicked > 1 ) {
                         player.Message( "Warning: {0}&S has been kicked {1} times before.",
-                                        target.GetClassyName(), target.Info.TimesKicked - 1 );
+                                        target.ClassyName, target.Info.TimesKicked - 1 );
                         if( previousKickDate != DateTime.MinValue ) {
                             player.Message( "Most recent kick was {0} ago, by {1}.",
                                             DateTime.UtcNow.Subtract( previousKickDate ).ToMiniString(),
@@ -554,8 +554,8 @@ namespace fCraft {
 
             if( !player.Can( Permission.Kick, target.Info.Rank ) ) {
                 player.Message( "You can only kick players ranked {0}&S or lower.",
-                                player.Info.Rank.GetLimit( Permission.Kick ).GetClassyName() );
-                player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.Info.Rank.GetClassyName() );
+                                player.Info.Rank.GetLimit( Permission.Kick ).ClassyName );
+                player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
                 return false;
 
             } else {
@@ -566,7 +566,7 @@ namespace fCraft {
 
                 if( !e.IsSilent ) {
                     Server.Message( "{0}&W was kicked by {1}",
-                                      target.GetClassyName(), player.GetClassyName() );
+                                      target.ClassyName, player.ClassyName );
                 }
 
                 if( e.RecordToPlayerDB ) {
@@ -580,12 +580,12 @@ namespace fCraft {
                     }
                     Logger.Log( "{0} was kicked by {1}. Reason: {2}", LogType.UserActivity,
                                 target.Name, player.Name, reason );
-                    target.Session.Kick( "Kicked by " + player.GetClassyName() + Color.White + ": " + reason, leaveReason );
+                    target.Session.Kick( "Kicked by " + player.ClassyName + Color.White + ": " + reason, leaveReason );
 
                 } else {
                     Logger.Log( "{0} was kicked by {1}", LogType.UserActivity,
                                 target.Name, player.Name );
-                    target.Session.Kick( "You were kicked by " + player.GetClassyName(), leaveReason );
+                    target.Session.Kick( "You were kicked by " + player.ClassyName, leaveReason );
                 }
                 return true;
             }
@@ -669,8 +669,8 @@ namespace fCraft {
             // Make sure it's not same rank
             if( targetInfo.Rank == newRank ) {
                 player.Message( "{0}&S is already ranked {1}",
-                                targetInfo.GetClassyName(),
-                                newRank.GetClassyName() );
+                                targetInfo.ClassyName,
+                                newRank.ClassyName );
                 return;
             }
 
@@ -686,17 +686,17 @@ namespace fCraft {
             // Make sure player has the specific permissions (including limits)
             if( promote && !player.Can( Permission.Promote, newRank ) ) {
                 player.Message( "You can only promote players up to {0}",
-                                player.Info.Rank.GetLimit( Permission.Promote ).GetClassyName() );
+                                player.Info.Rank.GetLimit( Permission.Promote ).ClassyName );
                 player.Message( "{0}&S is ranked {1}",
-                                targetInfo.GetClassyName(),
-                                targetInfo.Rank.GetClassyName() );
+                                targetInfo.ClassyName,
+                                targetInfo.Rank.ClassyName );
                 return;
             } else if( !promote && !player.Can( Permission.Demote, targetInfo.Rank ) ) {
                 player.Message( "You can only demote players ranked {0}&S or lower",
-                                player.Info.Rank.GetLimit( Permission.Demote ).GetClassyName() );
+                                player.Info.Rank.GetLimit( Permission.Demote ).ClassyName );
                 player.Message( "{0}&S is ranked {1}",
-                                targetInfo.GetClassyName(),
-                                targetInfo.Rank.GetClassyName() );
+                                targetInfo.ClassyName,
+                                targetInfo.Rank.ClassyName );
                 return;
             }
 
@@ -757,8 +757,8 @@ namespace fCraft {
                     // inform the player of the rank change
                     target.Message( "You have been {0} to {1}&S by {2}",
                                     verb,
-                                    newRank.GetClassyName(),
-                                    player.GetClassyName() );
+                                    newRank.ClassyName,
+                                    player.ClassyName );
 
                     // check if player is still patrollable by others
                     target.World.CheckIfPlayerIsPatrollable( target );
@@ -774,11 +774,11 @@ namespace fCraft {
                     if( ConfigKey.AnnounceRankChanges.GetBool() ) {
                         Server.Message( target,
                                         "{0}&S {1} {2} from {3}&S to {4}",
-                                        player.GetClassyName(),
+                                        player.ClassyName,
                                         verb,
                                         targetInfo.Name,
-                                        oldRank.GetClassyName(),
-                                        newRank.GetClassyName() );
+                                        oldRank.ClassyName,
+                                        newRank.ClassyName );
                         if( ConfigKey.AnnounceRankChangeReasons.GetBool() && !String.IsNullOrEmpty( reason ) ) {
                             Server.Message( "&S{0} reason: {1}",
                                               promote ? "Promotion" : "Demotion",
@@ -788,8 +788,8 @@ namespace fCraft {
                         player.Message( "You {0} {1} from {2}&S to {3}",
                                         verb,
                                         targetInfo.Name,
-                                        oldRank.GetClassyName(),
-                                        newRank.GetClassyName() );
+                                        oldRank.ClassyName,
+                                        newRank.ClassyName );
                         if( !String.IsNullOrEmpty( reason ) ) {
                             target.Message( "&S{0} reason: {1}",
                                             promote ? "Promotion" : "Demotion",
@@ -800,9 +800,9 @@ namespace fCraft {
 
             } else {
                 player.Message( "{0}&S is already same or {1} rank than {2}",
-                                targetInfo.GetClassyName(),
+                                targetInfo.ClassyName,
                                 (promote ? "higher" : "lower"),
-                                newRank.GetClassyName() );
+                                newRank.ClassyName );
             }
         }
 
@@ -843,7 +843,7 @@ namespace fCraft {
 
             if( !silent ) {
                 if( ConfigKey.ShowConnectionMessages.GetBool() ) {
-                    Server.Players.CantSee( player ).Message( "&SPlayer {0}&S left the server.", player.GetClassyName() );
+                    Server.Players.CantSee( player ).Message( "&SPlayer {0}&S left the server.", player.ClassyName );
                 }
                 if( ConfigKey.IRCBotAnnounceServerJoins.GetBool() ) {
                     IRC.PlayerDisconnectedHandler( null, new PlayerDisconnectedEventArgs( player, LeaveReason.ClientQuit ) );
@@ -851,7 +851,7 @@ namespace fCraft {
             }
 
             // for aware players: notify
-            Server.Players.CanSee( player ).Message( "&SPlayer {0}&S is now hidden.", player.GetClassyName() );
+            Server.Players.CanSee( player ).Message( "&SPlayer {0}&S is now hidden.", player.ClassyName );
 
             Server.RaisePlayerHideChangedEvent( player );
         }
@@ -882,7 +882,7 @@ namespace fCraft {
 
             // for aware players: notify
             Server.Players.CanSee( player ).Message( "&SPlayer {0}&S is no longer hidden.",
-                                                     player.GetClassyName() );
+                                                     player.ClassyName );
 
             if( !silent ) {
                 if( ConfigKey.ShowConnectionMessages.GetBool() ) {
@@ -930,8 +930,8 @@ namespace fCraft {
                         target.Send( PacketWriter.MakeAddEntity( 255, target.GetListName(), player.Position ) );
                     } else {
                         player.Message( "You can only set spawn of players ranked {0}&S or lower.",
-                                        player.Info.Rank.GetLimit( Permission.Bring ).GetClassyName() );
-                        player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.Info.Rank.GetClassyName() );
+                                        player.Info.Rank.GetLimit( Permission.Bring ).ClassyName );
+                        player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
                     }
 
                 } else if( infos.Length > 0 ) {
@@ -981,14 +981,14 @@ namespace fCraft {
             if( player.Can( Permission.Freeze, target.Info.Rank ) ) {
                 if( target.Info.Freeze( player.Name ) ) {
                     Server.Message( "{0}&S has been frozen by {1}",
-                                      target.GetClassyName(), player.GetClassyName() );
+                                      target.ClassyName, player.ClassyName );
                 } else {
-                    player.Message( "{0}&S is already frozen.", target.GetClassyName() );
+                    player.Message( "{0}&S is already frozen.", target.ClassyName );
                 }
             } else {
                 player.Message( "You can only freeze players ranked {0}&S or lower",
-                                player.Info.Rank.GetLimit( Permission.Kick ).GetClassyName() );
-                player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.Info.Rank.GetClassyName() );
+                                player.Info.Rank.GetLimit( Permission.Kick ).ClassyName );
+                player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
             }
         }
 
@@ -1017,14 +1017,14 @@ namespace fCraft {
 
             if( player.Can( Permission.Freeze, target.Info.Rank ) ) {
                 if( target.Info.Unfreeze() ) {
-                    Server.Message( "{0}&S is no longer frozen.", target.GetClassyName() );
+                    Server.Message( "{0}&S is no longer frozen.", target.ClassyName );
                 } else {
-                    player.Message( "{0}&S is currently not frozen.", target.GetClassyName() );
+                    player.Message( "{0}&S is currently not frozen.", target.ClassyName );
                 }
             } else {
                 player.Message( "You can only unfreeze players ranked {0}&S or lower",
-                                player.Info.Rank.GetLimit( Permission.Kick ).GetClassyName() );
-                player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.Info.Rank.GetClassyName() );
+                                player.Info.Rank.GetLimit( Permission.Kick ).ClassyName );
+                player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
             }
         }
 
@@ -1093,8 +1093,8 @@ namespace fCraft {
                             case SecurityCheckResult.WhiteListed:
                                 if( target.World.IsFull ) {
                                     player.Message( "Cannot teleport to {0}&S because world {1}&S is full.",
-                                                    target.GetClassyName(),
-                                                    target.World.GetClassyName() );
+                                                    target.ClassyName,
+                                                    target.World.ClassyName );
                                     return;
                                 }
                                 player.StopSpectating();
@@ -1102,14 +1102,14 @@ namespace fCraft {
                                 break;
                             case SecurityCheckResult.BlackListed:
                                 player.Message( "Cannot teleport to {0}&S because you are blacklisted on world {1}&S.",
-                                                target.GetClassyName(),
-                                                target.World.GetClassyName() );
+                                                target.ClassyName,
+                                                target.World.ClassyName );
                                 break;
                             case SecurityCheckResult.RankTooLow:
                                 player.Message( "Cannot teleport to {0}&S because world {1}&S requires {2}+&S to join.",
-                                                target.GetClassyName(),
-                                                target.World.GetClassyName(),
-                                                target.World.AccessSecurity.MinRank.GetClassyName() );
+                                                target.ClassyName,
+                                                target.World.ClassyName,
+                                                target.World.AccessSecurity.MinRank.ClassyName );
                                 break;
                             // TODO: case PermissionType.RankTooHigh:
                         }
@@ -1175,9 +1175,9 @@ namespace fCraft {
 
             if( !player.Can( Permission.Bring, target.Info.Rank ) ) {
                 player.Message( "You can only bring players ranked {0}&S or lower.",
-                                player.Info.Rank.GetLimit( Permission.Bring ).GetClassyName() );
+                                player.Info.Rank.GetLimit( Permission.Bring ).ClassyName );
                 player.Message( "{0}&S is ranked {1}",
-                                target.GetClassyName(), target.Info.Rank.GetClassyName() );
+                                target.ClassyName, target.Info.Rank.ClassyName );
                 return;
             }
 
@@ -1222,15 +1222,15 @@ namespace fCraft {
 
             if( !player.Can( Permission.Bring, target.Info.Rank ) ) {
                 player.Message( "You can only wbring players ranked {0}&S or lower.",
-                                player.Info.Rank.GetLimit( Permission.Bring ).GetClassyName() );
+                                player.Info.Rank.GetLimit( Permission.Bring ).ClassyName );
                 player.Message( "{0}&S is ranked {1}",
-                                target.GetClassyName(), target.Info.Rank.GetClassyName() );
+                                target.ClassyName, target.Info.Rank.ClassyName );
                 return;
             }
 
             if( world == target.World ) {
                 player.Message( "Player {0}&S is already in world {1}",
-                                target.GetClassyName(), world.GetClassyName() );
+                                target.ClassyName, world.ClassyName );
                 return;
             }
 
@@ -1268,7 +1268,7 @@ namespace fCraft {
                             targetRanks.Add( rank );
                         } else {
                             player.Message( "&WYou are not allowed to &H/bring&W players of rank {0}",
-                                            rank.GetClassyName() );
+                                            rank.ClassyName );
                         }
                         allRanks = false;
                     }
@@ -1341,8 +1341,8 @@ namespace fCraft {
                 case SecurityCheckResult.WhiteListed:
                     if( world.IsFull ) {
                         player.Message( "Cannot bring {0}&S because world {1}&S is full.",
-                                        target.GetClassyName(),
-                                        world.GetClassyName() );
+                                        target.ClassyName,
+                                        world.ClassyName );
                         return;
                     }
                     target.StopSpectating();
@@ -1350,14 +1350,14 @@ namespace fCraft {
                     break;
                 case SecurityCheckResult.BlackListed:
                     player.Message( "Cannot bring {0}&S because he/she is blacklisted on world {1}",
-                                    target.GetClassyName(),
-                                    world.GetClassyName() );
+                                    target.ClassyName,
+                                    world.ClassyName );
                     break;
                 case SecurityCheckResult.RankTooLow:
                     player.Message( "Cannot bring {0}&S because world {1}&S requires {2}+&S to join.",
-                                    target.GetClassyName(),
-                                    world.GetClassyName(),
-                                    world.AccessSecurity.MinRank.GetClassyName() );
+                                    target.ClassyName,
+                                    world.ClassyName,
+                                    world.AccessSecurity.MinRank.ClassyName );
                     break;
                 // TODO: case PermissionType.RankTooHigh:
             }
@@ -1393,7 +1393,7 @@ namespace fCraft {
             }
 
             player.StopSpectating();
-            player.Message( "Patrol: Teleporting to {0}", target.GetClassyName() );
+            player.Message( "Patrol: Teleporting to {0}", target.ClassyName );
             player.Send( PacketWriter.MakeSelfTeleport( target.Position ) );
         }
 
@@ -1423,7 +1423,7 @@ namespace fCraft {
             }
 
             player.Spectate( target );
-            player.Message( "SpecPatrol: Spectating {0}", target.GetClassyName() );
+            player.Message( "SpecPatrol: Spectating {0}", target.ClassyName );
         }
 
         #endregion
@@ -1450,21 +1450,21 @@ namespace fCraft {
 
                 if( !player.Can( Permission.Mute, target.Info.Rank ) ) {
                     player.Message( "You can only mute players ranked {0}&S or lower.",
-                                    player.Info.Rank.GetLimit( Permission.Mute ).GetClassyName() );
-                    player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.Info.Rank.GetClassyName() );
+                                    player.Info.Rank.GetLimit( Permission.Mute ).ClassyName );
+                    player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
                     return;
                 }
 
                 if( target.Info.Mute( player.Name, TimeSpan.FromSeconds( seconds ) ) ) {
-                    target.Message( "You were muted by {0}&S for {1} sec", player.GetClassyName(), seconds );
+                    target.Message( "You were muted by {0}&S for {1} sec", player.ClassyName, seconds );
                     Server.Message( target,
                                     "&SPlayer {0}&S was muted by {1}&S for {2} sec",
-                                    target.GetClassyName(), player.GetClassyName(), seconds );
+                                    target.ClassyName, player.ClassyName, seconds );
                     Logger.Log( "Player {0} was muted by {1} for {2} seconds.", LogType.UserActivity,
                                 target.Name, player.Name, seconds );
                 } else {
                     player.Message( "Player {0}&S is already muted by {1}&S for {2:0} more seconds.",
-                                    target.GetClassyName(),
+                                    target.ClassyName,
                                     target.Info.MutedBy,
                                     target.Info.MutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
                 }
@@ -1495,21 +1495,21 @@ namespace fCraft {
 
                 if( !player.Can( Permission.Mute, target.Info.Rank ) ) {
                     player.Message( "You can only unmute players ranked {0}&S or lower.",
-                                    player.Info.Rank.GetLimit( Permission.Mute ).GetClassyName() );
-                    player.Message( "{0}&S is ranked {1}", target.GetClassyName(), target.Info.Rank.GetClassyName() );
+                                    player.Info.Rank.GetLimit( Permission.Mute ).ClassyName );
+                    player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
                     return;
                 }
 
                 if( target.Info.MutedUntil >= DateTime.UtcNow ) {
                     target.Info.Unmute();
-                    target.Message( "You were unmuted by {0}", player.GetClassyName() );
+                    target.Message( "You were unmuted by {0}", player.ClassyName );
                     Server.Message( target,
                                     "&SPlayer {0}&S was unmuted by {1}",
-                                    target.GetClassyName(), player.GetClassyName() );
+                                    target.ClassyName, player.ClassyName );
                     Logger.Log( "Player {0} was unmuted by {1}.", LogType.UserActivity,
                                 target.Name, player.Name );
                 } else {
-                    player.Message( "Player {0}&S is not muted.", target.GetClassyName() );
+                    player.Message( "Player {0}&S is not muted.", target.ClassyName );
                 }
 
             } else {
