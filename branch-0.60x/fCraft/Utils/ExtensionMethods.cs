@@ -273,7 +273,7 @@ namespace fCraft {
 
 
         public static string JoinToClassyString( this IEnumerable<IClassy> list ) {
-            return list.JoinToString( "&S, ", p => p.GetClassyName() );
+            return list.JoinToString( "&S, ", p => p.ClassyName );
         }
     }
 }

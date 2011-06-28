@@ -176,12 +176,12 @@ namespace fCraft {
 
             if( HasRankRestriction ) {
                 message.AppendFormat( " {0}&S can only be {1} by {2}+&S",
-                                      target.GetClassyName(),
+                                      target.ClassyName,
                                       verb,
-                                      MinRank.GetClassyName() );
+                                      MinRank.ClassyName );
             } else {
                 message.AppendFormat( " {0}&S can be {1} by anyone",
-                                      target.GetClassyName(),
+                                      target.ClassyName,
                                       verb );
             }
 

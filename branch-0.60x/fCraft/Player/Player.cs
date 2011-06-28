@@ -26,7 +26,7 @@ namespace fCraft {
 
         public static bool RelayAllUpdates;
 
-        // use Player.GetClassyName() to get the colorful version
+        // use Player.ClassyName to get the colorful version
         public string Name { get { return Info.Name; } }
 
         public readonly Session Session;
@@ -202,7 +202,7 @@ namespace fCraft {
                             Player target = allPlayers[0];
                             if( target.IsIgnoring( Info ) ) {
                                 if( CanSee( target ) ) {
-                                    MessageNow( "&WCannot PM {0}&W: you are ignored.", target.GetClassyName() );
+                                    MessageNow( "&WCannot PM {0}&W: you are ignored.", target.ClassyName );
                                 }
                             } else {
                                 Chat.SendPM( this, target, messageText );
@@ -364,7 +364,7 @@ namespace fCraft {
             if( names == null ) throw new ArgumentNullException( "names" );
 
             string nameList = names.JoinToString( ", ",
-                                                  p => p.GetClassyName() );
+                                                  p => p.ClassyName );
             Message( "More than one {0} matched: {1}",
                      itemType, nameList );
         }
@@ -376,7 +376,7 @@ namespace fCraft {
                 Message( "This command is disabled on the server." );
             } else {
                 Message( "This command requires {0}+&S rank.",
-                         reqRank.GetClassyName() );
+                         reqRank.ClassyName );
             }
         }
 
@@ -452,7 +452,7 @@ namespace fCraft {
                     muteWarnings++;
                     if( muteWarnings > ConfigKey.AntispamMaxWarnings.GetInt() ) {
                         Session.KickNow( "You were kicked for repeated spamming.", LeaveReason.MessageSpamKick );
-                        Server.Message( "&W{0} was kicked for repeated spamming.", GetClassyName() );
+                        Server.Message( "&W{0} was kicked for repeated spamming.", ClassyName );
                     } else {
                         TimeSpan autoMuteDuration = TimeSpan.FromSeconds( ConfigKey.AntispamMuteDuration.GetInt() );
                         Info.Mute( "(antispam)", autoMuteDuration );
@@ -637,7 +637,7 @@ namespace fCraft {
                 double spamTimer = DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds;
                 if( spamTimer < Info.Rank.AntiGriefSeconds ) {
                     Session.KickNow( "You were kicked by antigrief system. Slow down.", LeaveReason.BlockSpamKick );
-                    Server.Message( "{0}&W was kicked for suspected griefing.", GetClassyName() );
+                    Server.Message( "{0}&W was kicked for suspected griefing.", ClassyName );
                     Logger.Log( "{0} was kicked for block spam ({1} blocks in {2} seconds)", LogType.SuspiciousActivity,
                                 Name, Info.Rank.AntiGriefBlocks, spamTimer );
                     return true;
@@ -875,8 +875,8 @@ namespace fCraft {
         }
 
 
-        public string GetClassyName() {
-            return Info.GetClassyName();
+        public string ClassyName {
+            get { return Info.ClassyName; }
         }
 
 
@@ -924,7 +924,7 @@ namespace fCraft {
         public bool Spectate( Player target ) {
             if( target == null ) throw new ArgumentNullException( "target" );
             if( target == this ) throw new ArgumentException( "Cannot spectate self.", "target" );
-            Message( "Now spectating {0}&S. Type &H/unspec&S to stop.", target.GetClassyName() );
+            Message( "Now spectating {0}&S. Type &H/unspec&S to stop.", target.ClassyName );
             return (Interlocked.Exchange( ref Session.SpectatedPlayer, target ) == null);
         }
 
@@ -932,7 +932,7 @@ namespace fCraft {
         public bool StopSpectating() {
             Player wasSpectating = Interlocked.Exchange( ref Session.SpectatedPlayer, null );
             if( wasSpectating != null ) {
-                Message( "Stopped spectating {0}", wasSpectating.GetClassyName() );
+                Message( "Stopped spectating {0}", wasSpectating.ClassyName );
                 return true;
             } else {
                 return false;

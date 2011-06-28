@@ -663,7 +663,7 @@ namespace fCraft {
                         if( ValidateInt( valName, 0, 1000 ) ) {
                             info.TimesKicked = Int32.Parse( valName );
                             player.Message( "TimesKicked for {0}&S changed from {1} to {2}",
-                                            info.GetClassyName(),
+                                            info.ClassyName,
                                             oldTimesKicked,
                                             info.TimesKicked );
                         } else {
@@ -677,9 +677,9 @@ namespace fCraft {
                         if( newPreviousRank != null ) {
                             info.PreviousRank = newPreviousRank;
                             player.Message( "PreviousRank for {0}&S changed from {1}&S to {2}",
-                                            info.GetClassyName(),
-                                            oldPreviousRank.GetClassyName(),
-                                            info.PreviousRank.GetClassyName() );
+                                            info.ClassyName,
+                                            oldPreviousRank.ClassyName,
+                                            info.PreviousRank.ClassyName );
                         } else {
                             player.MessageNoRank( valName );
                         }
@@ -691,7 +691,7 @@ namespace fCraft {
                         if( TimeSpan.TryParse( valName, out newTotalTime ) ) {
                             info.TotalTime = newTotalTime;
                             player.Message( "TotalTime for {0}&S changed from {1} to {2}",
-                                            info.GetClassyName(),
+                                            info.ClassyName,
                                             oldTotalTime.ToCompactString(),
                                             info.TotalTime.ToCompactString() );
                         } else {
@@ -705,7 +705,7 @@ namespace fCraft {
                             if( val.Equals( valName, StringComparison.OrdinalIgnoreCase ) ) {
                                 info.RankChangeType = (RankChangeType)Enum.Parse( typeof( RankChangeType ), valName, true );
                                 player.Message( "RankChangeType for {0}&S changed from {1} to {2}",
-                                                info.GetClassyName(),
+                                                info.ClassyName,
                                                 oldType,
                                                 info.RankChangeType );
                                 return;
@@ -719,7 +719,7 @@ namespace fCraft {
                         string oldBanReason = info.BanReason;
                         info.BanReason = valName;
                         player.Message( "BanReason for {0}&S changed from \"{1}\" to \"{2}\"",
-                                        info.GetClassyName(),
+                                        info.ClassyName,
                                         oldBanReason,
                                         info.BanReason );
                         return;
@@ -728,7 +728,7 @@ namespace fCraft {
                         string oldUnbanReason = info.UnbanReason;
                         info.UnbanReason = valName;
                         player.Message( "UnbanReason for {0}&S changed from \"{1}\" to \"{2}\"",
-                                        info.GetClassyName(),
+                                        info.ClassyName,
                                         oldUnbanReason,
                                         info.UnbanReason );
                         return;
@@ -737,7 +737,7 @@ namespace fCraft {
                         string oldRankChangeReason = info.RankChangeReason;
                         info.RankChangeReason = valName;
                         player.Message( "RankChangeReason for {0}&S changed from \"{1}\" to \"{2}\"",
-                                        info.GetClassyName(),
+                                        info.ClassyName,
                                         oldRankChangeReason,
                                         info.RankChangeReason );
                         return;
@@ -746,7 +746,7 @@ namespace fCraft {
                         string oldLastKickReason = info.LastKickReason;
                         info.LastKickReason = valName;
                         player.Message( "LastKickReason for {0}&S changed from \"{1}\" to \"{2}\"",
-                                        info.GetClassyName(),
+                                        info.ClassyName,
                                         oldLastKickReason,
                                         info.LastKickReason );
                         return;
@@ -823,7 +823,7 @@ namespace fCraft {
             if( reason.Equals( "abort", StringComparison.OrdinalIgnoreCase ) ) {
                 if( Server.CancelShutdown() ) {
                     Logger.Log( "Shutdown aborted by {0}.", LogType.UserActivity, player.Name );
-                    Server.Message( "&WShutdown aborted by {0}", player.GetClassyName() );
+                    Server.Message( "&WShutdown aborted by {0}", player.ClassyName );
                 } else {
                     player.MessageNow( "Cannot abort shutdown - too late." );
                 }

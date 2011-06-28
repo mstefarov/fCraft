@@ -218,7 +218,7 @@ namespace fCraft {
 
                 if( announce && ConfigKey.ShowJoinedWorldMessages.GetBool() ) {
                     Server.Players.CanSee( player ).Message( "&SPlayer {0}&S joined {1}",
-                                                             player.GetClassyName(), GetClassyName() );
+                                                             player.ClassyName, ClassyName );
                 }
 
                 Logger.Log( "Player {0} joined world {1}.", LogType.UserActivity,
@@ -470,7 +470,7 @@ namespace fCraft {
                     LockedDate = DateTime.UtcNow;
                     IsLocked = true;
                     if( Map != null ) Map.ClearUpdateQueue();
-                    SendToAll( "&WMap was locked by {0}", player.GetClassyName() );
+                    SendToAll( "&WMap was locked by {0}", player.ClassyName );
                     Logger.Log( "World {0} was locked by {1}", LogType.UserActivity,
                                 Name, player.Name );
                     return true;
@@ -486,7 +486,7 @@ namespace fCraft {
                     UnlockedBy = player.Name;
                     UnlockedDate = DateTime.UtcNow;
                     IsLocked = false;
-                    SendToAll( "&WMap was unlocked by {0}", player.GetClassyName() );
+                    SendToAll( "&WMap was unlocked by {0}", player.ClassyName );
                     Logger.Log( "World \"{0}\" was unlocked by {1}", LogType.UserActivity,
                                 Name, player.Name );
                     return true;
@@ -645,21 +645,23 @@ namespace fCraft {
         }
 
 
-        public string GetClassyName() {
-            string displayedName = Name;
-            if( ConfigKey.RankColorsInWorldNames.GetBool() ) {
-                if( ConfigKey.RankPrefixesInChat.GetBool() ) {
-                    displayedName = BuildSecurity.MinRank.Prefix + displayedName;
-                }
-                if( ConfigKey.RankColorsInChat.GetBool() ) {
-                    if( BuildSecurity.MinRank >= AccessSecurity.MinRank ) {
-                        displayedName = BuildSecurity.MinRank.Color + displayedName;
-                    } else {
-                        displayedName = AccessSecurity.MinRank.Color + displayedName;
+        public string ClassyName {
+            get {
+                string displayedName = Name;
+                if( ConfigKey.RankColorsInWorldNames.GetBool() ) {
+                    if( ConfigKey.RankPrefixesInChat.GetBool() ) {
+                        displayedName = BuildSecurity.MinRank.Prefix + displayedName;
+                    }
+                    if( ConfigKey.RankColorsInChat.GetBool() ) {
+                        if( BuildSecurity.MinRank >= AccessSecurity.MinRank ) {
+                            displayedName = BuildSecurity.MinRank.Color + displayedName;
+                        } else {
+                            displayedName = AccessSecurity.MinRank.Color + displayedName;
+                        }
                     }
                 }
+                return displayedName;
             }
-            return displayedName;
         }
 
 

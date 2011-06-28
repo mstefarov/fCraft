@@ -514,9 +514,9 @@ namespace fCraft {
             switch( args.MessageType ) {
                 case ChatMessageType.Global:
                     if( enabled ) {
-                        SendChannelMessage( args.Player.GetClassyName() + Color.IRCReset + ": " + args.Message );
+                        SendChannelMessage( args.Player.ClassyName + Color.IRCReset + ": " + args.Message );
                     } else if( args.Message.StartsWith( "#" ) ) {
-                        SendChannelMessage( args.Player.GetClassyName() + Color.IRCReset + ": " + args.Message.Substring( 1 ) );
+                        SendChannelMessage( args.Player.ClassyName + Color.IRCReset + ": " + args.Message.Substring( 1 ) );
                     }
                     break;
 
@@ -531,7 +531,7 @@ namespace fCraft {
             if( ConfigKey.IRCBotAnnounceServerJoins.GetBool() ) {
                 string message = String.Format( "\u0001ACTION {0}&S* {1}&S connected.\u0001",
                                                 Color.IRCBold,
-                                                e.Player.GetClassyName() );
+                                                e.Player.ClassyName );
                 SendChannelMessage( message );
             }
         }
@@ -540,7 +540,7 @@ namespace fCraft {
             if( e.Player.Session.IsReady && ConfigKey.IRCBotAnnounceServerJoins.GetBool() && !e.Player.IsHidden ) {
                 string message = String.Format( "{0}&S* {1}&S left the server ({2})",
                                  Color.IRCBold,
-                                 e.Player.GetClassyName(),
+                                 e.Player.ClassyName,
                                  e.LeaveReason );
                 SendAction( message );
             }
@@ -563,17 +563,17 @@ namespace fCraft {
         internal static void PlayerRankChangedHandler( object sender, PlayerInfoRankChangedEventArgs e ) {
             string actionString = String.Format( "{0} from {1}&W to {2}&W",
                                                  e.RankChangeType,
-                                                 e.OldRank.GetClassyName(),
-                                                 e.NewRank.GetClassyName() );
+                                                 e.OldRank.ClassyName,
+                                                 e.NewRank.ClassyName );
             PlayerSomethingMessage( e.RankChanger, actionString, e.PlayerInfo, e.Reason );
         }
 
         static void PlayerSomethingMessage( Player player, string action, PlayerInfo target, string reason ) {
             string message = String.Format( "{0}&W* {1}&W was {2} by {3}&W",
                     Color.IRCBold,
-                    target.GetClassyName(),
+                    target.ClassyName,
                     action,
-                    player.GetClassyName() );
+                    player.ClassyName );
             if( !String.IsNullOrEmpty( reason ) ) {
                 message += " Reason: " + reason;
             }

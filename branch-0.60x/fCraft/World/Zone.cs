@@ -112,8 +112,10 @@ namespace fCraft {
         }
 
 
-        public string GetClassyName() {
-            return Controller.MinRank.Color + Name;
+        public string ClassyName {
+            get {
+                return Controller.MinRank.Color + Name;
+            }
         }
 
         /*

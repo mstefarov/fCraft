@@ -18,7 +18,7 @@ namespace fCraft {
             var recepientList = Server.Players.NotIgnoring( player );
 
             string formattedMessage = String.Format( "{0}&F: {1}",
-                                                     player.GetClassyName(),
+                                                     player.ClassyName,
                                                      rawMessage );
 
             var e = new ChatSendingEventArgs( player,
@@ -102,7 +102,7 @@ namespace fCraft {
             var recepientList = rank.Players.NotIgnoring( player );
 
             string formattedMessage = String.Format( "&P({0}&P){1}: {2}",
-                                                     rank.GetClassyName(),
+                                                     rank.ClassyName,
                                                      player.Name,
                                                      rawMessage );
 
@@ -157,7 +157,7 @@ namespace fCraft {
                                               .NotIgnoring( player );
 
             string formattedMessage = String.Format( "&P(staff){0}&P: {1}",
-                                                     player.GetClassyName(),
+                                                     player.ClassyName,
                                                      rawMessage );
 
             var e = new ChatSendingEventArgs( player,
