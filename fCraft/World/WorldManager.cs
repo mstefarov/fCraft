@@ -280,9 +280,11 @@ namespace fCraft {
             if( matches.Count == 0 ) {
                 player.MessageNoWorld( worldName );
                 return null;
+
             } else if( matches.Count > 1 ) {
                 player.MessageManyMatches( "world", matches.ToArray() );
                 return null;
+
             } else {
                 return matches[0];
             }

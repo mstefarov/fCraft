@@ -75,15 +75,21 @@ namespace ConfigCLI {
             Console.WriteLine( "Config sections:" );
             Console.ResetColor();
             for( int i = 0; i < sections.Length; i++ ) {
-                Console.WriteLine( "  {0} {1}", i+1, sections[i] );
+                Console.WriteLine( "  {0}. {1}", i+1, sections[i] );
             }
+            //Console.WriteLine( "  Q. Quit" );
+            //Console.WriteLine( "  R. Reset All" );
+            //Console.WriteLine( "  S. Save" );
 
             string replyString;
             int reply;
             do {
-                Console.Write( "Enter section number: " );
+                Console.Write( "Enter your selection: " ); // TODO
                 replyString = Console.ReadLine();
-            } while( !Int32.TryParse( replyString, out reply ) ||
+                //!replyString.Equals("Q", StringComparison.OrdinalIgnoreCase) &&
+                //     !replyString.Equals( "R", StringComparison.OrdinalIgnoreCase ) &&
+                //     !replyString.Equals( "S", StringComparison.OrdinalIgnoreCase ) &&
+            } while( !Int32.TryParse( replyString, out reply ) &&
                      !Enum.IsDefined( typeof( ConfigSection ), reply - 1 ) );
 
             currentSection = (ConfigSection)(reply - 1);

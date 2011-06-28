@@ -1,3 +1,0 @@
-﻿namespace fCraft.PluginSample {
-    // TODO
-}

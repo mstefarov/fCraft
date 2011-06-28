@@ -76,7 +76,7 @@ namespace fCraft {
 
         int x, y, h;
         byte block;
-        public int[] chunkCoords = new int[6];
+        public int[] ChunkCoords = new int[6];
 
         readonly byte* image;
         readonly Bitmap imageBmp;
@@ -364,7 +364,7 @@ namespace fCraft {
                 return 0;
             } else if( Mode == IsoCatMode.Cut && xx > (Rot == 1 || Rot == 3 ? dimY2 : dimX2) && yy > (Rot == 1 || Rot == 3 ? dimX2 : dimY2) ) {
                 return 0;
-            } else if( Mode == IsoCatMode.Chunk && (realx < chunkCoords[0] || realy < chunkCoords[1] || hh < chunkCoords[2] || realx > chunkCoords[3] || realy > chunkCoords[4] || hh > chunkCoords[5]) ) {
+            } else if( Mode == IsoCatMode.Chunk && (realx < ChunkCoords[0] || realy < ChunkCoords[1] || hh < ChunkCoords[2] || realx > ChunkCoords[3] || realy > ChunkCoords[4] || hh > ChunkCoords[5]) ) {
                 return 0;
             }
 

@@ -188,9 +188,9 @@ namespace fCraft {
             Logger.Log( "Map path: {0}", LogType.Debug, Path.GetFullPath( Paths.MapPath ) );
             Logger.Log( "Config path: {0}", LogType.Debug, Path.GetFullPath( Paths.ConfigFileName ) );
 
-            if( ConfigKey.LoadPlugins.GetBool() ) {
-                LoadAllPlugins();
-            }
+            //if( ConfigKey.LoadPlugins.GetBool() ) { // TODO
+            //    LoadAllPlugins();
+            //}
 
             libraryInitialized = true;
         }
@@ -530,70 +530,6 @@ namespace fCraft {
 
             if( param.KillProcess ) {
                 Process.GetCurrentProcess().Kill();
-            }
-        }
-
-        #endregion
-
-
-        #region Plugins
-
-        static readonly Dictionary<string, IPlugin> Plugins = new Dictionary<string, IPlugin>();
-
-        static void LoadAllPlugins() {
-            DirectoryInfo pluginDir = new DirectoryInfo( Paths.PluginDirectory );
-            if( pluginDir.Exists ) {
-                foreach( FileInfo file in pluginDir.GetFiles( "fPlugin.*.dll", SearchOption.TopDirectoryOnly ) ) {
-                    LoadPlugin( file );
-                }
-            }
-        }
-
-        static void LoadPlugin( FileInfo file ) {
-            if( file == null ) throw new ArgumentNullException( "file" );
-            try {
-                Assembly assembly = Assembly.LoadFile( file.FullName );
-                foreach( Type type in assembly.GetTypes() ) {
-                    if( type.GetInterfaces().Contains( typeof( IPlugin ) ) ) {
-                        ConstructorInfo pluginConstructor = type.GetConstructor( Type.EmptyTypes );
-                        IPlugin pluginObject = (IPlugin)pluginConstructor.Invoke( new object[0] );
-
-                        if( String.IsNullOrEmpty( pluginObject.Name ) ) {
-                            Logger.Log( "Could not load plugin from \"{0}\": No name given.", LogType.Error,
-                                        file.Name );
-                            continue;
-                        }
-
-                        if( pluginObject.Version == null ) {
-                            Logger.Log( "Could not load plugin from \"{0}\": No version given.", LogType.Error,
-                                        file.Name );
-                            continue;
-                        }
-
-                        if( String.IsNullOrEmpty( pluginObject.Description ) ) {
-                            Logger.Log( "Could not load plugin \"{0}\" from \"{1}\": No description given.", LogType.Error,
-                                        pluginObject.Name, file.Name );
-                            continue;
-                        }
-
-                        if( Plugins.ContainsKey( pluginObject.Name ) ) {
-                            Logger.Log( "Could not load plugin \"{0}\" (version {1}) from \"{2}\": " +
-                                        "A plugin with the same name (version {3}) is already loaded.", LogType.Error,
-                                        pluginObject.Name,
-                                        pluginObject.Version,
-                                        file.Name,
-                                        Plugins[pluginObject.Name].Version );
-                            continue;
-                        }
-
-                        Plugins.Add( pluginObject.Name, pluginObject );
-                        Logger.Log( "Loaded plugin \"{0} {1}\" from \"{1}\"", LogType.SystemActivity,
-                                    pluginObject.Name, pluginObject.Version, file.Name );
-                    }
-                }
-            } catch( Exception ex ) {
-                Logger.Log( "Could not load plugin from \"{0}\": {1}", LogType.Error,
-                            file.Name, ex );
             }
         }
 
@@ -1207,12 +1143,12 @@ namespace fCraft {
         }
 
 
-        /// <summary>Find player by name using autocompletion (returns only whose whom player can see)
-        /// Returns null and prints message if none or multiple players matched.</summary>
-        /// <param name="player">Player who initiated the search. This is where messages are sent.</param>
-        /// <param name="name">Full or partial name of the search target.</param>
-        /// <param name="includeHidden">Whether to include hidden players in the search.</param>
-        /// <returns>Player object, or null if no player was found.</returns>
+        /// <summary> Find player by name using autocompletion.
+        /// Returns null and prints message if none or multiple players matched. </summary>
+        /// <param name="player"> Player who initiated the search. This is where messages are sent. </param>
+        /// <param name="name"> Full or partial name of the search target. </param>
+        /// <param name="includeHidden"> Whether to include hidden players in the search. </param>
+        /// <returns> Player object, or null if no player was found. </returns>
         public static Player FindPlayerOrPrintMatches( Player player, string name, bool includeHidden ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( name == null ) throw new ArgumentNullException( "name" );

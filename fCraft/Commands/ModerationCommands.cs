@@ -41,6 +41,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdTP );
             CommandManager.RegisterCommand( CdBring );
+            CommandManager.RegisterCommand( CdWorldBring );
             CommandManager.RegisterCommand( CdBringAll );
 
             CommandManager.RegisterCommand( CdPatrol );
@@ -1030,15 +1031,13 @@ namespace fCraft {
         #endregion
 
 
-        #region Teleport / Bring / BringAll
+        #region TP
 
         static readonly CommandDescriptor CdTP = new CommandDescriptor {
             Name = "tp",
-            Aliases = new[] { "spawn" },
             Category = CommandCategory.Moderation,
-            Usage = "/tp [PlayerName]&S or &H/tp X Y Z",
+            Usage = "/tp PlayerName&S or &H/tp X Y Z",
             Help = "Teleports you to a specified player's location. " +
-                   "If no name is given, teleports you to map spawn. " +
                    "If coordinates are given, teleports to that location.",
             Handler = TP
         };
@@ -1136,7 +1135,10 @@ namespace fCraft {
             }
         }
 
+        #endregion
 
+
+        #region Bring / WorldBring / BringAll
 
         static readonly CommandDescriptor CdBring = new CommandDescriptor {
             Name = "bring",
@@ -1150,7 +1152,7 @@ namespace fCraft {
             Handler = Bring
         };
 
-        internal static void Bring( Player player, Command cmd ) {
+        static void Bring( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
                 CdBring.PrintUsage( player );
@@ -1181,6 +1183,7 @@ namespace fCraft {
 
             if( target.World == toPlayer.World ) {
                 // teleport within the same world
+                target.StopSpectating();
                 target.Send( PacketWriter.MakeSelfTeleport( toPlayer.Position ) );
                 target.Position = toPlayer.Position;
                 if( target.Info.IsFrozen ) {
@@ -1189,31 +1192,49 @@ namespace fCraft {
 
             } else {
                 // teleport to a different world
-                switch( toPlayer.World.AccessSecurity.CheckDetailed( target.Info ) ) {
-                    case SecurityCheckResult.Allowed:
-                    case SecurityCheckResult.WhiteListed:
-                        if( toPlayer.World.IsFull ) {
-                            player.Message( "Cannot bring {0}&S because world {1}&S is full.",
-                                            target.GetClassyName(),
-                                            toPlayer.World.GetClassyName() );
-                            return;
-                        }
-                        target.Session.JoinWorld( toPlayer.World, toPlayer.Position );
-                        break;
-                    case SecurityCheckResult.BlackListed:
-                        player.Message( "Cannot bring {0}&S because he/she is blacklisted on world {1}",
-                                        target.GetClassyName(),
-                                        toPlayer.World.GetClassyName() );
-                        break;
-                    case SecurityCheckResult.RankTooLow:
-                        player.Message( "Cannot bring {0}&S because world {1}&S requires {2}+&S to join.",
-                                        target.GetClassyName(),
-                                        toPlayer.World.GetClassyName(),
-                                        toPlayer.World.AccessSecurity.MinRank.GetClassyName() );
-                        break;
-                    // TODO: case PermissionType.RankTooHigh:
-                }
+                BringPlayerToWorld( player, target, toPlayer.World );
             }
+        }
+
+
+        static readonly CommandDescriptor CdWorldBring = new CommandDescriptor {
+            Name = "wbring",
+            IsConsoleSafe = true,
+            Category = CommandCategory.Moderation,
+            Permissions = new[] { Permission.Bring },
+            Usage = "/wbring PlayerName WorldName",
+            Help = "Teleports a player to the given world's spawn.",
+            Handler = WorldBring
+        };
+
+        static void WorldBring( Player player, Command cmd ) {
+            string playerName = cmd.Next();
+            string worldName = cmd.Next();
+            if( playerName == null || worldName == null ) {
+                CdBring.PrintUsage( player );
+                return;
+            }
+
+            Player target = Server.FindPlayerOrPrintMatches( player, playerName, false );
+            World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
+
+            if( target == null || world == null ) return;
+
+            if( !player.Can( Permission.Bring, target.Info.Rank ) ) {
+                player.Message( "You can only wbring players ranked {0}&S or lower.",
+                                player.Info.Rank.GetLimit( Permission.Bring ).GetClassyName() );
+                player.Message( "{0}&S is ranked {1}",
+                                target.GetClassyName(), target.Info.Rank.GetClassyName() );
+                return;
+            }
+
+            if( world == target.World ) {
+                player.Message( "Player {0}&S is already in world {1}",
+                                target.GetClassyName(), world.GetClassyName() );
+                return;
+            }
+
+            BringPlayerToWorld( player, target, world );
         }
 
 
@@ -1308,6 +1329,37 @@ namespace fCraft {
             // Actually bring all the players
             foreach( Player targetPlayer in targetPlayers ) {
                 Bring( player, new Command( "/bring " + targetPlayer.Name ) );
+            }
+        }
+
+
+
+
+        static void BringPlayerToWorld( Player player, Player target, World world ) {
+            switch( world.AccessSecurity.CheckDetailed( target.Info ) ) {
+                case SecurityCheckResult.Allowed:
+                case SecurityCheckResult.WhiteListed:
+                    if( world.IsFull ) {
+                        player.Message( "Cannot bring {0}&S because world {1}&S is full.",
+                                        target.GetClassyName(),
+                                        world.GetClassyName() );
+                        return;
+                    }
+                    target.StopSpectating();
+                    target.Session.JoinWorld( world );
+                    break;
+                case SecurityCheckResult.BlackListed:
+                    player.Message( "Cannot bring {0}&S because he/she is blacklisted on world {1}",
+                                    target.GetClassyName(),
+                                    world.GetClassyName() );
+                    break;
+                case SecurityCheckResult.RankTooLow:
+                    player.Message( "Cannot bring {0}&S because world {1}&S requires {2}+&S to join.",
+                                    target.GetClassyName(),
+                                    world.GetClassyName(),
+                                    world.AccessSecurity.MinRank.GetClassyName() );
+                    break;
+                // TODO: case PermissionType.RankTooHigh:
             }
         }
 
