@@ -13,6 +13,7 @@ namespace fCraft {
     static class WorldCommands {
         internal static void Init() {
             CommandManager.RegisterCommand( CdJoin );
+            CommandManager.RegisterCommand( CdSpawn );
 
             CommandManager.RegisterCommand( CdWorldInfo );
 
