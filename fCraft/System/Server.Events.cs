@@ -158,16 +158,18 @@ namespace fCraft {
         /// <summary> Happens after a player has hidden or unhidden. </summary>
         public static event EventHandler<PlayerEventArgs> PlayerHideChanged;
 
-        /// <summary> Occurs when player is about to send a chat message (cancellable). </summary>
-        //public static event EventHandler<PlayerSendingMessageEventArgs> PlayerSendingMessage;
-
-
-        /// <summary> Occurs after player sent a chat message. </summary>
-        //public static event EventHandler<PlayerSentMessageEventArgs> PlayerSentMessage;
-
 
         /// <summary> Occurs when a player disconnects. </summary>
         public static event EventHandler<PlayerDisconnectedEventArgs> PlayerDisconnected;
+
+
+        /// <summary> Occurs when a player intends to join a world (cancellable). </summary>
+        public static event EventHandler<PlayerJoiningWorldEventArgs> PlayerJoiningWorld;
+
+
+        /// <summary> Occurs after a player has joined a world. </summary>
+        public static event EventHandler<PlayerJoinedWorldEventArgs> PlayerJoinedWorld;
+
 
 
 
@@ -264,9 +266,25 @@ namespace fCraft {
         }
 
 
-        internal static void RaisePlayerDisconnectedEventArgs( Player player, LeaveReason leaveReason ) {
+        internal static void RaisePlayerDisconnectedEvent( Player player, LeaveReason leaveReason ) {
             var h = PlayerDisconnected;
             if( h != null ) h( null, new PlayerDisconnectedEventArgs( player, leaveReason ) );
+        }
+
+
+        internal static bool RaisePlayerJoiningWorldEvent( Player player, ref World newWorld ) {
+            var h = PlayerJoiningWorld;
+            if( h == null ) return false;
+            var e = new PlayerJoiningWorldEventArgs( player, player.World, newWorld );
+            h( null, e );
+            newWorld = e.NewWorld;
+            return e.Cancel;
+        }
+
+
+        internal static void RaisePlayerJoinedWorldEvent( Player player, World oldWorld ) {
+            var h = PlayerJoinedWorld;
+            if( h != null ) h( null, new PlayerJoinedWorldEventArgs( player, oldWorld, player.World ) );
         }
 
         #endregion

@@ -195,7 +195,7 @@ namespace fCraft {
                 if( defaultRank == null ) {
                     return "";
                 } else {
-                    return defaultRank.GetFullName();
+                    return defaultRank.FullName;
                 }
             } else {
                 return value;

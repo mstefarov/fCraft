@@ -249,7 +249,7 @@ namespace fCraft {
                     temp = new XElement( ((Permission)i).ToString() );
 
                     if( PermissionLimits[i] != null ) {
-                        temp.Add( new XAttribute( "max", GetLimit( (Permission)i ).GetFullName() ) );
+                        temp.Add( new XAttribute( "max", GetLimit( (Permission)i ).FullName ) );
                     }
                     rankTag.Add( temp );
                 }
@@ -384,8 +384,10 @@ namespace fCraft {
         }
 
 
-        public string GetFullName() {
-            return Name + "#" + ID;
+        public string FullName {
+            get {
+                return Name + "#" + ID;
+            }
         }
 
 

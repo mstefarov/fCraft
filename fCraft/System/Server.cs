@@ -12,8 +12,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using ThreadState = System.Threading.ThreadState;
 using fCraft.AutoRank;
+using ThreadState = System.Threading.ThreadState;
 
 namespace fCraft {
     public static partial class Server {
@@ -720,18 +720,11 @@ namespace fCraft {
         #region Obsolete Events
 
         [Obsolete]
-        public static event PlayerChangedWorldEventHandler OnPlayerChangedWorld;
-
-        [Obsolete]
         public static event PlayerBanStatusChangedEventHandler OnPlayerBanned;
 
         [Obsolete]
         public static event PlayerBanStatusChangedEventHandler OnPlayerUnbanned;
 
-
-        internal static void FireWorldChangedEvent( Player player, World oldWorld, World newWorld ) {
-            if( OnPlayerChangedWorld != null ) OnPlayerChangedWorld( player, oldWorld, newWorld );
-        }
 
         internal static void FirePlayerBannedEvent( PlayerInfo player, Player banner, string reason ) {
             if( OnPlayerBanned != null ) {

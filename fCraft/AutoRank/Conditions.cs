@@ -208,7 +208,7 @@ namespace fCraft.AutoRank {
 
         public override XElement Serialize() {
             XElement el = new XElement( "ConditionPreviousRank" );
-            el.Add( new XAttribute( "val", Rank.GetFullName() ) );
+            el.Add( new XAttribute( "val", Rank.FullName ) );
             el.Add( new XAttribute( "op", Comparison.ToString() ) );
             return el;
         }

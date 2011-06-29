@@ -64,7 +64,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             Write( OpCode.AddEntity );
             Write( id );
-            Write( player.GetListName() );
+            Write( player.ListName );
             Write( pos.X );
             Write( pos.H );
             Write( pos.Y );

@@ -49,7 +49,7 @@ namespace fCraft {
 
             Ranks.Add( rank );
             RanksByName[rank.Name.ToLower()] = rank;
-            RanksByFullName[rank.GetFullName()] = rank;
+            RanksByFullName[rank.FullName] = rank;
             RanksByID[rank.ID] = rank;
             RebuildIndex();
         }
@@ -152,7 +152,7 @@ namespace fCraft {
             Ranks.Remove( deletedRank );
             RanksByName.Remove( deletedRank.Name.ToLower() );
             RanksByID.Remove( deletedRank.ID );
-            RanksByFullName.Remove( deletedRank.GetFullName() );
+            RanksByFullName.Remove( deletedRank.FullName );
             LegacyRankMapping.Add( deletedRank.ID, replacementRank.ID );
             foreach( Rank rank in Ranks ) {
                 for( int i = 0; i < rank.PermissionLimits.Length; i++ ) {

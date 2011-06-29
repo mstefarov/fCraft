@@ -26,9 +26,6 @@ namespace fCraft {
 
         public static bool RelayAllUpdates;
 
-        // use Player.ClassyName to get the colorful version
-        public string Name { get { return Info.Name; } }
-
         public readonly Session Session;
         public readonly PlayerInfo Info;
 
@@ -75,6 +72,45 @@ namespace fCraft {
         }
 
 
+        #region Name
+
+        /// <summary> Plain version of the name (no formatting). </summary>
+        public string Name {
+            get { return Info.Name; }
+        }
+
+
+        /// <summary> Name formatted for display in the player list. </summary>
+        public string ListName {
+            get {
+                string displayedName = Name;
+                if( ConfigKey.RankPrefixesInList.GetBool() ) {
+                    displayedName = Info.Rank.Prefix + displayedName;
+                }
+                if( ConfigKey.RankColorsInChat.GetBool() && Info.Rank.Color != Color.White ) {
+                    displayedName = Info.Rank.Color + displayedName;
+                }
+                return displayedName;
+            }
+        }
+
+
+        /// <summary> Name formatted for display in chat. </summary>
+        public string ClassyName {
+            get { return Info.ClassyName; }
+        }
+
+
+        /// <summary> Name formatted for the debugger. </summary>
+        public override string ToString() {
+            return String.Format( "Player({0})", Info.Name );
+        }
+
+        #endregion
+
+
+        #region Sending
+
         /// <summary> Send a packet to the player, thread-safe. </summary>
         public void Send( Packet packet ) {
             if( Session != null ) Session.Send( packet );
@@ -84,6 +120,12 @@ namespace fCraft {
         /// <summary> Send a packet to the player, thread-safe. </summary>
         public void SendLowPriority( Packet packet ) {
             if( Session != null ) Session.SendLowPriority( packet );
+        }
+
+        #endregion
+
+        public void ResetIdleTimer() {
+            IdleTimer = DateTime.UtcNow;
         }
 
 
@@ -401,11 +443,13 @@ namespace fCraft {
         readonly HashSet<PlayerInfo> ignoreList = new HashSet<PlayerInfo>();
         readonly object ignoreLock = new object();
 
+
         public bool IsIgnoring( PlayerInfo other ) {
             lock( ignoreLock ) {
                 return ignoreList.Contains( other );
             }
         }
+
 
         public bool Ignore( PlayerInfo other ) {
             lock( ignoreLock ) {
@@ -418,6 +462,7 @@ namespace fCraft {
             }
         }
 
+
         public bool Unignore( PlayerInfo other ) {
             lock( ignoreLock ) {
                 if( ignoreList.Contains( other ) ) {
@@ -429,9 +474,12 @@ namespace fCraft {
             }
         }
 
-        public PlayerInfo[] GetIgnoreList() {
-            lock( ignoreLock ) {
-                return ignoreList.ToArray();
+
+        public PlayerInfo[] IgnoreList {
+            get {
+                lock( ignoreLock ) {
+                    return ignoreList.ToArray();
+                }
             }
         }
 
@@ -848,70 +896,6 @@ namespace fCraft {
         #endregion
 
 
-        // ensures that player name has the correct length and character set
-        public static bool IsValidName( string name ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
-            if( name.Length < 2 || name.Length > 16 ) return false;
-            for( int i = 0; i < name.Length; i++ ) {
-                char ch = name[i];
-                if( (ch < '0' && ch != '.') || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') || ch > 'z' ) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-
-        // gets name with all the optional fluff (color/prefix) for player list
-        public string GetListName() {
-            string displayedName = Name;
-            if( ConfigKey.RankPrefixesInList.GetBool() ) {
-                displayedName = Info.Rank.Prefix + displayedName;
-            }
-            if( ConfigKey.RankColorsInChat.GetBool() && Info.Rank.Color != Color.White ) {
-                displayedName = Info.Rank.Color + displayedName;
-            }
-            return displayedName;
-        }
-
-
-        public string ClassyName {
-            get { return Info.ClassyName; }
-        }
-
-
-        internal void ResetIdleTimer() {
-            IdleTimer = DateTime.UtcNow;
-        }
-
-
-        const string PaidCheckUrl = "http://www.minecraft.net/haspaid.jsp?user=";
-        const int PaidCheckTimeout = 5000;
-
-        static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
-            return new IPEndPoint( Server.IP, 0 );
-        }
-        public static bool CheckPaidStatus( string name ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create( PaidCheckUrl + Uri.EscapeDataString( name ) );
-            request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
-            request.Timeout = PaidCheckTimeout;
-            request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
-
-            using( WebResponse response = request.GetResponse() ) {
-                using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
-                    string paidStatusString = responseReader.ReadToEnd();
-                    bool isPaid;
-                    return Boolean.TryParse( paidStatusString, out isPaid ) && isPaid;
-                }
-            }
-        }
-
-
-        public override string ToString() {
-            return String.Format( "Player({0})", Info.Name );
-        }
-
         #region Spectating
 
         public bool IsSpectating {
@@ -940,163 +924,51 @@ namespace fCraft {
         }
 
         #endregion
-    }
-}
 
 
-namespace fCraft.Events {
+        #region Static Utilities
 
-    public class PlayerEventArgs : EventArgs {
-        internal PlayerEventArgs( Player player ) {
-            Player = player;
+        const string PaidCheckUrl = "http://www.minecraft.net/haspaid.jsp?user=";
+        const int PaidCheckTimeout = 5000;
+
+        // binding delegate for checking the status
+        static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
+            return new IPEndPoint( Server.IP, 0 );
         }
 
-        public Player Player { get; private set; }
-    }
 
+        /// <summary> Checks whether a given player has a paid minecraft.net account. </summary>
+        /// <returns> True if the account is paid. False if it is not paid, or if information is unavailable. </returns>
+        public static bool CheckPaidStatus( string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create( PaidCheckUrl + Uri.EscapeDataString( name ) );
+            request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
+            request.Timeout = PaidCheckTimeout;
+            request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
 
-    public sealed class PlayerConnectingEventArgs : PlayerEventArgs, ICancellableEvent {
-        internal PlayerConnectingEventArgs( Player player )
-            : base( player ) {
+            using( WebResponse response = request.GetResponse() ) {
+                using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
+                    string paidStatusString = responseReader.ReadToEnd();
+                    bool isPaid;
+                    return Boolean.TryParse( paidStatusString, out isPaid ) && isPaid;
+                }
+            }
         }
 
-        public bool Cancel { get; set; }
-    }
 
-
-    public sealed class PlayerConnectedEventArgs : PlayerEventArgs {
-        internal PlayerConnectedEventArgs( Player player, World startingWorld )
-            : base( player ) {
-            StartingWorld = startingWorld;
+        /// <summary> Ensures that a player name has the correct length and character set. </summary>
+        public static bool IsValidName( string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( name.Length < 2 || name.Length > 16 ) return false;
+            for( int i = 0; i < name.Length; i++ ) {
+                char ch = name[i];
+                if( (ch < '0' && ch != '.') || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') || ch > 'z' ) {
+                    return false;
+                }
+            }
+            return true;
         }
 
-        public World StartingWorld { get; set; }
-    }
-
-
-    public sealed class PlayerMovingEventArgs : PlayerEventArgs, ICancellableEvent {
-        internal PlayerMovingEventArgs( Player player, Position newPos )
-            : base( player ) {
-            OldPosition = player.Position;
-            NewPosition = newPos;
-        }
-        public Position OldPosition { get; private set; }
-        public Position NewPosition { get; set; }
-        public bool Cancel { get; set; }
-    }
-
-
-    public sealed class PlayerMovedEventArgs : PlayerEventArgs {
-        internal PlayerMovedEventArgs( Player player, Position oldPos )
-            : base( player ) {
-            OldPosition = oldPos;
-            NewPosition = player.Position;
-        }
-
-        public Position OldPosition { get; private set; }
-        public Position NewPosition { get; private set; }
-    }
-
-
-    public sealed class PlayerClickingEventArgs : PlayerEventArgs, ICancellableEvent {
-        internal PlayerClickingEventArgs( Player player, short x, short y, short h, bool mode, Block block )
-            : base( player ) {
-            X = x;
-            Y = y;
-            H = h;
-            Block = block;
-            Mode = mode;
-        }
-
-        public short X { get; private set; }
-        public short Y { get; private set; }
-        public short H { get; private set; }
-        public Block Block { get; set; }
-        public bool Mode { get; set; }
-        public bool Cancel { get; set; }
-    }
-
-
-    public sealed class PlayerClickedEventArgs : PlayerEventArgs {
-        internal PlayerClickedEventArgs( Player player, short x, short y, short h, bool mode, Block block )
-            : base( player ) {
-            X = x;
-            Y = y;
-            H = h;
-            Block = block;
-            Mode = mode;
-        }
-
-        public short X { get; private set; }
-        public short Y { get; private set; }
-        public short H { get; private set; }
-        public Block Block { get; private set; }
-        public bool Mode { get; private set; }
-    }
-
-
-    public sealed class PlayerPlacingBlockEventArgs : PlayerPlacedBlockEventArgs {
-        internal PlayerPlacingBlockEventArgs( Player player, short x, short y, short h, Block oldBlock, Block newBlock, bool isManual, CanPlaceResult result )
-            : base( player, x, y, h, oldBlock,newBlock, isManual ) {
-            Result = result;
-        }
-
-        public CanPlaceResult Result { get; set; }
-    }
-
-
-    public class PlayerPlacedBlockEventArgs : PlayerEventArgs {
-        internal PlayerPlacedBlockEventArgs( Player player, short x, short y, short h, Block oldBlock, Block newBlock, bool isManual )
-            : base( player ) {
-            X = x;
-            Y = y;
-            H = h;
-            IsManual = isManual;
-            OldBlock = oldBlock;
-            NewBlock = newBlock;
-        }
-
-        public short X { get; private set; }
-        public short Y { get; private set; }
-        public short H { get; private set; }
-        public bool IsManual { get; private set; }
-        public Block OldBlock { get; private set; }
-        public Block NewBlock { get; private set; }
-    }
-
-
-    public sealed class PlayerBeingKickedEventArgs : PlayerKickedEventArgs, ICancellableEvent {
-        internal PlayerBeingKickedEventArgs( Player player, Player kicker, string reason, bool isSilent, bool recordToPlayerDB, LeaveReason context )
-            : base( player, kicker, reason, isSilent, recordToPlayerDB, context ) {
-        }
-
-        public bool Cancel { get; set; }
-    }
-
-
-    public class PlayerKickedEventArgs : PlayerEventArgs {
-        internal PlayerKickedEventArgs( Player player, Player kicker, string reason, bool isSilent, bool recordToPlayerDB, LeaveReason context )
-            : base( player ) {
-            Kicker = kicker;
-            Reason = reason;
-            IsSilent = isSilent;
-            RecordToPlayerDB = recordToPlayerDB;
-            Context = context;
-        }
-
-        public Player Kicker { get; protected set; }
-        public string Reason { get; protected set; }
-        public bool IsSilent { get; protected set; }
-        public bool RecordToPlayerDB { get; protected set; }
-        public LeaveReason Context { get; protected set; }
-    }
-
-
-    public sealed class PlayerDisconnectedEventArgs : PlayerEventArgs {
-        internal PlayerDisconnectedEventArgs( Player player, LeaveReason leaveReason )
-            : base( player ) {
-            LeaveReason = leaveReason;
-        }
-        public LeaveReason LeaveReason { get; private set; }
+        #endregion
     }
 }

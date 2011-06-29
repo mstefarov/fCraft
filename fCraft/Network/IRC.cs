@@ -527,7 +527,7 @@ namespace fCraft {
             }
         }
 
-        internal static void PlayerReadyHandler( object sender, PlayerEventArgs e ) {
+        internal static void PlayerReadyHandler( object sender, IPlayerEvent e ) {
             if( ConfigKey.IRCBotAnnounceServerJoins.GetBool() ) {
                 string message = String.Format( "\u0001ACTION {0}&S* {1}&S connected.\u0001",
                                                 Color.IRCBold,

@@ -224,8 +224,6 @@ namespace fCraft {
                 Logger.Log( "Player {0} joined world {1}.", LogType.UserActivity,
                             player.Name, Name );
 
-                if( OnPlayerJoined != null ) OnPlayerJoined( player, this );
-
                 if( IsLocked ) {
                     player.Message( "&WThis map is currently locked (read-only)." );
                 }
@@ -257,7 +255,6 @@ namespace fCraft {
 
                 // update player list
                 UpdatePlayerList();
-                if( OnPlayerLeft != null ) OnPlayerLeft( player, this );
 
                 // unload map (if needed)
                 if( playerIndex.Count == 0 && !NeverUnload ) {
@@ -432,12 +429,6 @@ namespace fCraft {
         [Obsolete]
         public event Action OnUnloaded;
         [Obsolete]
-        public event PlayerJoinedWorldEventHandler OnPlayerJoined;
-        [Obsolete]
-        public event PlayerTriedToJoinWorldEventHandler OnPlayerTriedToJoin;
-        [Obsolete]
-        public event PlayerLeftWorldEventHandler OnPlayerLeft;
-        [Obsolete]
         public event PlayerChangedBlockEventHandler OnPlayerChangedBlock;
 
         public bool FireChangedBlockEvent( ref BlockUpdate update ) {
@@ -448,13 +439,6 @@ namespace fCraft {
             return !cancel;
         }
 
-        public bool FirePlayerTriedToJoinEvent( Player player ) {
-            bool cancel = false;
-            if( OnPlayerTriedToJoin != null ) {
-                OnPlayerTriedToJoin( player, this, ref cancel );
-            }
-            return !cancel;
-        }
         #endregion
 
 
@@ -674,6 +658,11 @@ namespace fCraft {
 
 namespace fCraft.Events {
 
+    public interface IWorldEvent {
+        World World { get; }
+    }
+
+
     public sealed class WorldCreatingEventArgs : EventArgs, ICancellableEvent {
         public WorldCreatingEventArgs( Player player, string worldName, Map map ) {
             Player = player;
@@ -688,7 +677,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class WorldCreatedEventArgs : EventArgs {
+    public sealed class WorldCreatedEventArgs : EventArgs, IPlayerEvent, IWorldEvent {
         public WorldCreatedEventArgs( Player player, World world ) {
             Player = player;
             World = world;

@@ -143,7 +143,7 @@ namespace fCraft {
                 }
 
             } else {
-                PlayerInfo[] ignoreList = player.GetIgnoreList();
+                PlayerInfo[] ignoreList = player.IgnoreList;
                 if( ignoreList.Length > 0 ) {
                     player.MessageNow( "Ignored players: {0}", ignoreList.JoinToClassyString() );
                 } else {
@@ -188,7 +188,7 @@ namespace fCraft {
                     player.MessageNow( "You are not currently ignoring {0}", targetInfo.ClassyName );
                 }
             } else {
-                PlayerInfo[] ignoreList = player.GetIgnoreList();
+                PlayerInfo[] ignoreList = player.IgnoreList;
                 if( ignoreList.Length > 0 ) {
                     player.MessageNow( "Ignored players: {0}", ignoreList.JoinToClassyString() );
                 } else {
