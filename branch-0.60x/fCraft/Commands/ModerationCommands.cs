@@ -29,7 +29,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdKick );
 
-            CommandManager.RegisterCommand( CdChangeRank );
+            CommandManager.RegisterCommand( CdRank );
 
             CommandManager.RegisterCommand( CdHide );
             CommandManager.RegisterCommand( CdUnhide );
@@ -596,7 +596,7 @@ namespace fCraft {
 
         #region Changing Rank (Promotion / Demotion)
 
-        static readonly CommandDescriptor CdChangeRank = new CommandDescriptor {
+        static readonly CommandDescriptor CdRank = new CommandDescriptor {
             Name = "rank",
             Aliases = new[] { "user", "promote", "demote" },
             Category = CommandCategory.Moderation,
@@ -613,7 +613,7 @@ namespace fCraft {
 
             // Check arguments
             if( newRankName == null ) {
-                CdChangeRank.PrintUsage( player );
+                CdRank.PrintUsage( player );
                 player.Message( "See &H/ranks&S for list of ranks." );
                 return;
             }
@@ -651,12 +651,12 @@ namespace fCraft {
 
 
         /// <summary> Changes player's rank. This needs refactoring BADLY. </summary>
-        /// <param name="player">Player who originated the promotion/demotion action. Must not be null.</param>
-        /// <param name="targetInfo">PlayerInfo of the target player (the one getting promoted/demoted). Must not be null.</param>
-        /// <param name="newRank">New rank to give to target. Must not be null.</param>
-        /// <param name="reason">Reason for promotion/demotion. May be null.</param>
-        /// <param name="silent">Whether rank change should be announced or not.</param>
-        /// <param name="automatic">Whether rank change should be marked as "automatic" or manual.</param>
+        /// <param name="player"> Player who originated the promotion/demotion action. Must not be null. </param>
+        /// <param name="targetInfo"> PlayerInfo of the target player (the one getting promoted/demoted). Must not be null. </param>
+        /// <param name="newRank"> New rank to give to target. Must not be null. </param>
+        /// <param name="reason"> Reason for promotion/demotion. May be null. </param>
+        /// <param name="silent"> Whether rank change should be announced or not. </param>
+        /// <param name="automatic"> Whether rank change should be marked as "automatic" or manual. </param>
         public static void DoChangeRank( Player player, PlayerInfo targetInfo, Rank newRank, string reason, bool silent, bool automatic ) {
 
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -706,7 +706,7 @@ namespace fCraft {
                 } else {
                     player.Message( "&WPlease specify a demotion reason." );
                 }
-                CdChangeRank.PrintUsage( player );
+                CdRank.PrintUsage( player );
                 return;
             }
 
@@ -1036,6 +1036,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdTP = new CommandDescriptor {
             Name = "tp",
             Category = CommandCategory.Moderation,
+            Permissions = new[] { Permission.Teleport },
             Usage = "/tp PlayerName&S or &H/tp X Y Z",
             Help = "Teleports you to a specified player's location. " +
                    "If coordinates are given, teleports to that location.",
@@ -1044,15 +1045,8 @@ namespace fCraft {
 
         internal static void TP( Player player, Command cmd ) {
             string name = cmd.Next();
-
             if( name == null ) {
-                player.StopSpectating();
-                player.Send( PacketWriter.MakeSelfTeleport( player.World.Map.Spawn ) );
-                return;
-            }
-
-            if( !player.Can( Permission.Teleport ) ) {
-                player.MessageNoAccess( Permission.Teleport );
+                CdTP.PrintUsage( player );
                 return;
             }
 
@@ -1257,7 +1251,7 @@ namespace fCraft {
 
             // Parse the list of worlds and ranks
             string arg;
-            while( ( arg = cmd.Next() ) != null ) {
+            while( (arg = cmd.Next()) != null ) {
                 if( arg.StartsWith( "@" ) ) {
                     Rank rank = RankManager.ParseRank( arg.Substring( 1 ) );
                     if( rank == null ) {

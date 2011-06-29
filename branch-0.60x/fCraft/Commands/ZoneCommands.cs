@@ -488,6 +488,7 @@ namespace fCraft {
         };
 
         internal static void ZoneRename( Player player, Command cmd ) {
+            // make sure that both parameters are given
             string oldName = cmd.Next();
             string newName = cmd.Next();
             if( oldName == null || newName == null ) {
@@ -495,28 +496,40 @@ namespace fCraft {
                 return;
             }
 
+            // make sure that the new name is valid
             if( !World.IsValidName( newName ) ) {
                 player.Message( "\"{0}\" is not a valid zone name", newName );
                 return;
             }
 
+            // find the old zone
             var zones = player.World.Map.Zones;
-
             Zone oldZone = zones.Find( oldName );
             if( oldZone == null ) {
                 player.MessageNoZone( oldName );
                 return;
             }
 
+            // check if a zone with "newName" name already exists
             Zone newZone = zones.FindExact( newName );
-            if( newZone!=null && newZone != oldZone ) {
+            if( newZone != null && newZone != oldZone ) {
                 player.Message( "A zone with the name \"{0}\" already exists.", newName );
                 return;
             }
 
+            // check if any change is needed
             string fullOldName = oldZone.Name;
+            if( fullOldName == newName ) {
+                player.Message( "The zone is already named \"{0}\"", fullOldName );
+                return;
+            }
 
+            // actually rename the zone
             zones.Rename( oldZone, newName );
+
+            // announce the rename
+            player.World.Players.Message( "Zone \"{0}\" was renamed to \"{1}\" by player {2}",
+                                          fullOldName, newName, player.ClassyName );
             Logger.Log( "Player {0} renamed zone \"{1}\" to \"{2}\" on world {3}", LogType.UserActivity,
                         player.Name, fullOldName, newName, player.World.Name );
         }
