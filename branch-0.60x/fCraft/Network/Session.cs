@@ -385,7 +385,7 @@ namespace fCraft {
 
             if( IsRegistered ) {
                 Server.UnregisterPlayer( this );
-                Server.RaisePlayerDisconnectedEventArgs( Player, LeaveReason );
+                Server.RaisePlayerDisconnectedEvent( Player, LeaveReason );
                 Player = null;
             }
 
@@ -765,8 +765,8 @@ namespace fCraft {
                 return false;
             }
 
-            if( !newWorld.FirePlayerTriedToJoinEvent( Player ) ) {
-                Logger.Log( "Session.JoinWorldNow: FirePlayerTriedToJoinEvent prevented {0} from joining {1}", LogType.Warning,
+            if( Server.RaisePlayerJoiningWorldEvent( Player, ref newWorld ) ) {
+                Logger.Log( "Session.JoinWorldNow: Player {0} was prevented from joining world {1} by an event callback.", LogType.Warning,
                             Player.Name, newWorld.Name );
                 return false;
             }
@@ -870,7 +870,7 @@ namespace fCraft {
                 client.NoDelay = true;
             }
 
-            Server.FireWorldChangedEvent( Player, oldWorld, newWorld );
+            Server.RaisePlayerJoinedWorldEvent( Player, oldWorld );
 
             // Done.
             if( MonoCompat.IsMono ) {
@@ -1177,7 +1177,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             var pos = new VisibleEntity( newPos, freePlayerIDs.Pop(), player.Info.Rank );
             entities.Add( player, pos );
-            SendNow( PacketWriter.MakeAddEntity( pos.Id, player.GetListName(), newPos ) );
+            SendNow( PacketWriter.MakeAddEntity( pos.Id, player.ListName, newPos ) );
         }
 
 
@@ -1201,7 +1201,7 @@ namespace fCraft {
             if( entity == null ) throw new ArgumentNullException( "entity" );
             if( player == null ) throw new ArgumentNullException( "player" );
             SendNow( PacketWriter.MakeRemoveEntity( entity.Id ) );
-            SendNow( PacketWriter.MakeAddEntity( entity.Id, player.GetListName(), newPos ) );
+            SendNow( PacketWriter.MakeAddEntity( entity.Id, player.ListName, newPos ) );
             entity.LastKnownPosition = newPos;
         }
 

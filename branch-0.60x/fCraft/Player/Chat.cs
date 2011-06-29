@@ -244,16 +244,17 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
-    public sealed class ChatSendingEventArgs : PlayerEventArgs, ICancellableEvent {
+    public sealed class ChatSendingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
         internal ChatSendingEventArgs( Player player, string message, string formattedMessage,
-                                       ChatMessageType messageType, IEnumerable<Player> recepientList )
-            : base( player ) {
+                                       ChatMessageType messageType, IEnumerable<Player> recepientList ) {
+            Player = player;
             Message = message;
             MessageType = messageType;
             RecepientList = recepientList;
             FormattedMessage = formattedMessage;
         }
 
+        public Player Player { get; private set; }
         public string Message { get; private set; }
         public string FormattedMessage { get; set; }
         public ChatMessageType MessageType { get; private set; }
@@ -262,10 +263,10 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class ChatSentEventArgs : PlayerEventArgs {
+    public sealed class ChatSentEventArgs : EventArgs, IPlayerEvent {
         internal ChatSentEventArgs( Player player, string message, string formattedMessage,
-                                    ChatMessageType messageType, IEnumerable<Player> recepientList, int recepientCount )
-            : base( player ) {
+                                    ChatMessageType messageType, IEnumerable<Player> recepientList, int recepientCount ) {
+            Player = player;
             Message = message;
             MessageType = messageType;
             RecepientList = recepientList;
@@ -273,6 +274,7 @@ namespace fCraft.Events {
             RecepientCount = recepientCount;
         }
 
+        public Player Player { get; private set; }
         public string Message { get; private set; }
         public string FormattedMessage { get; private set; }
         public ChatMessageType MessageType { get; private set; }

@@ -410,7 +410,7 @@ namespace fCraft.ConfigGUI {
             if( cDefaultRank.SelectedIndex == 0 ) {
                 ConfigKey.DefaultRank.TrySetValue( "" );
             } else {
-                ConfigKey.DefaultRank.TrySetValue( RankManager.FindRank( cDefaultRank.SelectedIndex - 1 ).GetFullName() );
+                ConfigKey.DefaultRank.TrySetValue( RankManager.FindRank( cDefaultRank.SelectedIndex - 1 ).FullName );
             }
             ConfigKey.IsPublic.TrySetValue( cPublic.SelectedIndex == 0 );
             ConfigKey.Port.TrySetValue( nPort.Value );
@@ -451,7 +451,7 @@ namespace fCraft.ConfigGUI {
             if( cDefaultBuildRank.SelectedIndex == 0 ) {
                 ConfigKey.DefaultBuildRank.TrySetValue( "" );
             } else {
-                ConfigKey.DefaultBuildRank.TrySetValue( RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 ).GetFullName() );
+                ConfigKey.DefaultBuildRank.TrySetValue( RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 ).FullName );
             }
 
             if( xMapPath.Checked ) ConfigKey.MapPath.TrySetValue( tMapPath.Text );
@@ -485,7 +485,7 @@ namespace fCraft.ConfigGUI {
             if( cPatrolledRank.SelectedIndex == 0 ) {
                 ConfigKey.PatrolledRank.TrySetValue( "" );
             } else {
-                ConfigKey.PatrolledRank.TrySetValue( RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 ).GetFullName() );
+                ConfigKey.PatrolledRank.TrySetValue( RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 ).FullName );
             }
             ConfigKey.PaidPlayersOnly.TrySetValue( xPaidPlayersOnly.Checked );
 

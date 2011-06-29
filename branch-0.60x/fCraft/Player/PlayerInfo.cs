@@ -385,7 +385,7 @@ namespace fCraft {
             if( !LastIP.Equals( IPAddress.None ) ) sb.Append( LastIP.ToString() ); // 1
             sb.Append( ',' );
 
-            sb.Append( Rank.GetFullName() ).Append( ',' ); // 2
+            sb.Append( Rank.FullName ).Append( ',' ); // 2
             RankChangeDate.ToTickString( sb ).Append( ',' ); // 3
 
             Escape( RankChangedBy, sb ).Append( ',' ); // 4
@@ -425,7 +425,7 @@ namespace fCraft {
             if( MessagesWritten > 0 ) sb.Append( MessagesWritten ); // 21
             sb.Append( ',', 3 ); // 22-23 no longer in use
 
-            if( PreviousRank != null ) sb.Append( PreviousRank.GetFullName() ); // 24
+            if( PreviousRank != null ) sb.Append( PreviousRank.FullName ); // 24
             sb.Append( ',' );
 
             Escape( RankChangeReason, sb ).Append( ',' ); // 25
@@ -498,7 +498,7 @@ namespace fCraft {
                 fields[1] = "";
             }
 
-            fields[2] = Rank.GetFullName();
+            fields[2] = Rank.FullName;
             if( RankChangeDate == DateTime.MinValue ) fields[3] = "";
             else fields[3] = RankChangeDate.ToString();
             fields[4] = RankChangedBy;
@@ -554,7 +554,7 @@ namespace fCraft {
             fields[22] = "";
             fields[23] = "";
 
-            if( PreviousRank != null ) fields[24] = PreviousRank.GetFullName();
+            if( PreviousRank != null ) fields[24] = PreviousRank.FullName;
             else fields[24] = "";
 
             if( RankChangeReason.Length > 0 ) fields[25] = EscapeOldFormat( RankChangeReason );

@@ -237,7 +237,7 @@ namespace fCraft {
 
             XElement root = new XElement( tagName );
             if( HasRankRestriction ) {
-                root.Add( new XElement( "minRank", MinRank.GetFullName() ) );
+                root.Add( new XElement( "minRank", MinRank.FullName ) );
             }
             //root.Add( new XElement( "maxRank", maxRank ) );
 

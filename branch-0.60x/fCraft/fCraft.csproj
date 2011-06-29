@@ -83,7 +83,6 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
@@ -128,15 +127,9 @@
     <Compile Include="Network\IRCCommands.cs" />
     <Compile Include="Network\IRCMessage.cs" />
     <Compile Include="Player\PlayerConstants.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Utils\BoundingBox.cs" />
     <Compile Include="Utils\ConcurrentQueue.cs" />
     <Compile Include="System\ConfigKey.cs" />
-    <Compile Include="Utils\IsoCat.cs" />
     <Compile Include="Utils\Noise.cs" />
     <Compile Include="Utils\Updater.cs" />
     <Compile Include="Player\RankManager.cs" />
@@ -202,12 +195,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="AutoRank\Conditions.cs" />
     <Compile Include="AutoRank\Criterion.cs" />
     <Compile Include="Commands\ChatCommands.cs" />
@@ -218,6 +205,7 @@
     <Compile Include="MapConversion\MapXMap.cs" />
     <Compile Include="Network\LineWrapper.cs" />
     <Compile Include="Network\OpCode.cs" />
+    <Compile Include="Player\Player.Events.cs" />
     <Compile Include="Player\PlayerEnumerable.cs" />
     <Compile Include="System\ConfigKey.Metadata.cs" />
     <Compile Include="System\ConfigSection.cs" />

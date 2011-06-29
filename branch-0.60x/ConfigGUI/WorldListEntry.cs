@@ -152,7 +152,7 @@ namespace fCraft.ConfigGUI {
                 foreach( Rank rank in RankManager.Ranks ) {
                     if( rank.ToComboBoxOption() == value ) {
                         accessSecurity.MinRank = rank;
-                        accessRankString = rank.GetFullName();
+                        accessRankString = rank.FullName;
                         return;
                     }
                 }
@@ -176,7 +176,7 @@ namespace fCraft.ConfigGUI {
                 foreach( Rank rank in RankManager.Ranks ) {
                     if( rank.ToComboBoxOption() == value ) {
                         buildSecurity.MinRank = rank;
-                        buildRankString = rank.GetFullName();
+                        buildRankString = rank.FullName;
                         return;
                     }
                 }

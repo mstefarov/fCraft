@@ -293,7 +293,7 @@ namespace fCraft.MapConversion {
                                                  zone.Name,
                                                  zone.Bounds.XMin, zone.Bounds.YMin, zone.Bounds.HMin,
                                                  zone.Bounds.XMax, zone.Bounds.YMax, zone.Bounds.HMax,
-                                                 zone.Controller.MinRank.GetFullName() ),
+                                                 zone.Controller.MinRank.FullName ),
                                   zoneExceptions.Included.JoinToString( " ", p => p.Name ),
                                   zoneExceptions.Excluded.JoinToString( " ", p => p.Name ),
                                   xheader );
