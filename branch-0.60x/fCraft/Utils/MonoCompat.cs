@@ -7,16 +7,22 @@ namespace fCraft {
     /// <summary> Class dedicated to solving Mono compatibility issues </summary>
     public static class MonoCompat {
 
+        /// <summary> Whether the current filesystem is case-sensitive. </summary>
         public static bool IsCaseSensitive { get; private set; }
 
+        /// <summary> Whether we are currently running under Mono. </summary>
         public static bool IsMono { get; private set; }
 
+        /// <summary> Whether Mono's generational GC is available. </summary>
         public static bool IsSGen { get; private set; }
 
+        /// <summary> Full Mono version string. May be null if we are running a REALLY old version. </summary>
         public static string MonoVersionString { get; private set; }
 
+        /// <summary> Mono version number. May be null if we are running a REALLY old version. </summary>
         public static Version MonoVersion { get; private set; }
 
+        /// <summary> Whether we are under a Windows OS (under either .NET or Mono). </summary>
         public static bool IsWindows { get; private set; }
 
 
@@ -35,7 +41,7 @@ namespace fCraft {
                         int minor = Int32.Parse( parts[1] );
                         int revision = Int32.Parse( parts[2].Substring( 0, parts[2].IndexOf( ' ' ) ) );
                         MonoVersion = new Version( major, minor, revision );
-                        IsSGen = (major == 2 && minor > 6);
+                        IsSGen = (major == 2 && minor >= 8);
                     } catch( Exception ) {
                         Logger.Log( "Could not parse Mono version.", LogType.Error );
                         MonoVersion = null;
@@ -52,6 +58,7 @@ namespace fCraft {
             switch( Environment.OSVersion.Platform ) {
                 case PlatformID.MacOSX:
                 case PlatformID.Unix:
+                    IsMono = true;
                     IsWindows = false;
                     break;
                 default:
@@ -68,10 +75,10 @@ namespace fCraft {
             IsSGen = false;
         }
 
-        /// <summary>Starts a .NET process, using Mono if necessary.</summary>
-        /// <param name="assemblyLocation">.NET executable path</param>
-        /// <param name="assemblyArgs">Arguments to pass to the executable</param>
-        /// <param name="detachIfMono">If true, new process will be detached under Mono</param>
+        /// <summary> Starts a .NET process, using Mono if necessary. </summary>
+        /// <param name="assemblyLocation"> .NET executable path. </param>
+        /// <param name="assemblyArgs"> Arguments to pass to the executable. </param>
+        /// <param name="detachIfMono"> If true, new process will be detached under Mono. </param>
         /// <returns>Process object</returns>
         public static Process StartDotNetProcess( string assemblyLocation, string assemblyArgs, bool detachIfMono ) {
             string binaryName, args;

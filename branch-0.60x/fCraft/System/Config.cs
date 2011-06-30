@@ -136,15 +136,31 @@ namespace fCraft {
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
     /// and various configuration-related utilities. </summary>
     public static class Config {
+        /// <summary>  Supported version of the Minecraft classic protocol. </summary>
         public const int ProtocolVersion = 7;
-        public const int ConfigVersion = 143;
-        public const string ConfigXmlRootName = "fCraftConfig";
 
+        /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
+        /// Config.xml files saved with this build will have this version number embedded. </summary>
+        public const int ConfigVersion = 143;
+
+        const int FirstVersionWithMaxPlayersKey = 134, // LEGACY
+                  FirstVersionWithSectionTags = 139; // LEGACY
+
+        const string ConfigXmlRootName = "fCraftConfig";
+
+        // Mapping of keys to their values
         static readonly Dictionary<ConfigKey, string> Settings = new Dictionary<ConfigKey, string>();
+
+        // Mapping of keys to their metadata containers.
         static readonly Dictionary<ConfigKey, ConfigKeyAttribute> KeyMetadata = new Dictionary<ConfigKey, ConfigKeyAttribute>();
+
+        // Keys organized by sections
         static readonly Dictionary<ConfigSection, ConfigKey[]> KeySections = new Dictionary<ConfigSection, ConfigKey[]>();
 
+        // List of renamed/remapped keys.
         static readonly Dictionary<string, ConfigKey> LegacyConfigKeys = new Dictionary<string, ConfigKey>(); // LEGACY
+
+        // List of renamed/remapped key values.
         static readonly Dictionary<ConfigKey, KeyValuePair<string, string>> LegacyConfigValues =
                     new Dictionary<ConfigKey, KeyValuePair<string, string>>(); // LEGACY
 
@@ -170,14 +186,6 @@ namespace fCraft {
             LoadDefaults();
 
             // These keys were renamed at some point. LEGACY
-            LegacyConfigKeys.Add( "DefaultClass".ToLower(), ConfigKey.DefaultRank );
-            LegacyConfigKeys.Add( "ClassColorsInChat".ToLower(), ConfigKey.RankColorsInChat );
-            LegacyConfigKeys.Add( "ClassColorsInWorldNames".ToLower(), ConfigKey.RankColorsInWorldNames );
-            LegacyConfigKeys.Add( "ClassPrefixesInChat".ToLower(), ConfigKey.RankPrefixesInChat );
-            LegacyConfigKeys.Add( "ClassPrefixesInList".ToLower(), ConfigKey.RankPrefixesInList );
-            LegacyConfigKeys.Add( "PatrolledClass".ToLower(), ConfigKey.PatrolledRank );
-            LegacyConfigKeys.Add( "RequireClassChangeReason".ToLower(), ConfigKey.RequireRankChangeReason );
-            LegacyConfigKeys.Add( "AnnounceClassChanges".ToLower(), ConfigKey.AnnounceRankChanges );
             LegacyConfigKeys.Add( "SendRedundantBlockUpdates".ToLower(), ConfigKey.RelayAllBlockUpdates );
             LegacyConfigKeys.Add( "AutomaticUpdates".ToLower(), ConfigKey.UpdaterMode );
             LegacyConfigKeys.Add( "IRCBot".ToLower(), ConfigKey.IRCBotEnabled );
@@ -189,8 +197,10 @@ namespace fCraft {
         }
 
 
+#if DEBUG
+        // Makes sure that defaults and metadata containers are set.
+        // This is invoked by Server.InitServer() if built with DEBUG flag.
         internal static void RunSelfTest() {
-            // TESTS - ensure that all defaults are initialized
             foreach( ConfigKey key in Enum.GetValues( typeof( ConfigKey ) ) ) {
                 if( !Settings.ContainsKey( key ) ) {
                     throw new Exception( "One of the ConfigKey keys is missing a default: " + key );
@@ -207,6 +217,7 @@ namespace fCraft {
                 GetValueType( key );
             }
         }
+#endif
 
 
         #region Defaults
@@ -236,6 +247,16 @@ namespace fCraft {
         /// <summary> Provides the default value for a given ConfigKey. </summary>
         public static object GetDefault( this ConfigKey key ) {
             return KeyMetadata[key].DefaultValue;
+        }
+
+
+        public static void ResetLogOptions() {
+            for( int i = 0; i < Logger.ConsoleOptions.Length; i++ ) {
+                Logger.ConsoleOptions[i] = true;
+                Logger.LogFileOptions[i] = true;
+            }
+            Logger.ConsoleOptions[(int)LogType.ConsoleInput] = false;
+            Logger.ConsoleOptions[(int)LogType.Debug] = false;
         }
 
         #endregion
@@ -309,9 +330,10 @@ namespace fCraft {
                 }
             }
 
+
             // read the rest of the keys
             string[] keyNames = Enum.GetNames( typeof( ConfigKey ) );
-            if( version < 139 ) {
+            if( version < FirstVersionWithSectionTags ) {
                 foreach( XElement element in config.Elements() ) {
                     ParseKeyElement( element, keyNames );
                 }
@@ -324,7 +346,7 @@ namespace fCraft {
             }
 
             // key relation validation
-            if( version < 134 ) {
+            if( version < FirstVersionWithMaxPlayersKey ) {
                 ConfigKey.MaxPlayersPerWorld.TrySetValue( ConfigKey.MaxPlayers.GetInt() );
             }
             if( ConfigKey.MaxPlayersPerWorld.GetInt() > ConfigKey.MaxPlayers.GetInt() ) {
@@ -339,16 +361,6 @@ namespace fCraft {
             return true;
         }
 
-
-
-        public static void ResetLogOptions() {
-            for( int i = 0; i < Logger.ConsoleOptions.Length; i++ ) {
-                Logger.ConsoleOptions[i] = true;
-                Logger.LogFileOptions[i] = true;
-            }
-            Logger.ConsoleOptions[(int)LogType.ConsoleInput] = false;
-            Logger.ConsoleOptions[(int)LogType.Debug] = false;
-        }
 
         static void ParseKeyElement( XElement element, string[] keyNames ) {
             if( element == null ) throw new ArgumentNullException( "element" );
@@ -370,7 +382,6 @@ namespace fCraft {
 
             } else if( key != "consoleoptions" &&
                        key != "logfileoptions" &&
-                       key != "classes" && // LEGACY
                        key != "ranks" &&
                        key != "legacyrankmapping" ) {
                 // unknown key
@@ -393,70 +404,6 @@ namespace fCraft {
         }
 
 
-        static void LoadRankList( XContainer el, int version, bool fromFile ) {
-            if( el == null ) throw new ArgumentNullException( "el" );
-
-            XElement legacyRankMappingTag = el.Element( "LegacyRankMapping" );
-            if( legacyRankMappingTag != null ) {
-                foreach( XElement rankPair in legacyRankMappingTag.Elements( "LegacyRankPair" ) ) {
-                    XAttribute fromRankID = rankPair.Attribute( "from" );
-                    XAttribute toRankID = rankPair.Attribute( "to" );
-                    if( fromRankID == null || String.IsNullOrEmpty( fromRankID.Value ) ||
-                        toRankID == null || String.IsNullOrEmpty( toRankID.Value ) ) {
-                        Logger.Log( "Config.Load: Could not parse a LegacyRankMapping entry: {0}", LogType.Error, rankPair.ToString() );
-                    } else {
-                        RankManager.LegacyRankMapping.Add( fromRankID.Value, toRankID.Value );
-                    }
-                }
-            }
-
-            XElement rankList = el.Element( "Ranks" ) ?? el.Element( "Classes" );
-
-            if( rankList != null ) {
-                XElement[] rankDefinitionList = rankList.Elements( "Rank" ).ToArray();
-                if( rankDefinitionList.Length == 0 )
-                    rankDefinitionList = rankList.Elements( "PlayerClass" ).ToArray(); // LEGACY
-
-                foreach( XElement rankDefinition in rankDefinitionList ) {
-                    try {
-                        RankManager.AddRank( new Rank( rankDefinition ) );
-                    } catch( RankDefinitionException ex ) {
-                        Logger.Log( ex.Message, LogType.Error );
-                    }
-                }
-
-                if( RankManager.RanksByName.Count == 0 ) {
-                    Logger.Log( "Config.Load: No ranks were defined, or none were defined correctly. Using default ranks (guest, regular, op, and owner).", LogType.Warning );
-                    rankList.Remove();
-                    el.Add( DefineDefaultRanks() );
-
-                } else if( version < ConfigVersion ) { // start LEGACY code
-
-                    if( version < 103 ) { // speedhack permission
-                        if( !RankManager.RanksByID.Values.Any( rank => rank.Can( Permission.UseSpeedHack ) ) ) {
-                            foreach( Rank rank in RankManager.RanksByID.Values ) {
-                                rank.Permissions[(int)Permission.UseSpeedHack] = true;
-                            }
-                            Logger.Log( "Config.Load: All ranks were granted UseSpeedHack permission (default). " +
-                                 "Use ConfigGUI to update config. If you are editing config.xml manually, " +
-                                 "set version=\"{0}\" to prevent permissions from resetting in the future.", LogType.Warning, ConfigVersion );
-                        }
-                    }
-
-                    if( version < 111 ) {
-                        RankManager.SortRanksByLegacyNumericRank();
-                    }
-
-                } // end LEGACY code
-
-            } else {
-                if( fromFile ) Logger.Log( "Config.Load: using default player ranks.", LogType.Warning );
-                el.Add( DefineDefaultRanks() );
-            }
-
-            // parse rank-limit permissions
-            RankManager.ParsePermissionLimits();
-        }
 
 
         static void ApplyKeyChange( ConfigKey key ) {
@@ -527,7 +474,7 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.NoPartialPositionUpdates:
-                    if( key.GetBool() ) {
+                    if( key.Enabled() ) {
                         Session.FullPositionUpdateInterval = 0;
                     } else {
                         Session.FullPositionUpdateInterval = Session.FullPositionUpdateIntervalDefault;
@@ -539,7 +486,7 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.RelayAllBlockUpdates:
-                    Player.RelayAllUpdates = key.GetBool();
+                    Player.RelayAllUpdates = key.Enabled();
                     break;
 
                 case ConfigKey.SayColor:
@@ -645,39 +592,78 @@ namespace fCraft {
 
         #region Getters
 
+        /// <summary> Checks whether any value has been set for a given key. </summary>
         public static bool IsBlank( this ConfigKey key ) {
             return !Settings.ContainsKey( key ) || String.IsNullOrEmpty( Settings[key] );
         }
 
+
+        /// <summary> Returns raw value for the given key. </summary>
         public static string GetString( this ConfigKey key ) {
             return KeyMetadata[key].Process( Settings[key] );
         }
 
+
+        /// <summary> Attempts to parse given key's value as an integer.
+        /// Throws a FormatException on failure. </summary>
         public static int GetInt( this ConfigKey key ) {
             return Int32.Parse( GetString( key ) );
         }
 
+
+        /// <summary> Attempts to parse a given key's value as an integer. </summary>
+        /// <param name="value"> Will be set to the value on success, or to 0 on failure. </param>
+        /// <returns> Whether parsing succeeded. </returns>
+        public static bool TryGetInt( this ConfigKey key, out int result ) {
+            return Int32.TryParse( GetString( key ), out result );
+        }
+
+
+        /// <summary> Attempts to parse a given key's value as an enumeration.
+        /// An ArgumentException is thrown if value could not be parsed.
+        /// Note the parsing is done in a case-insensitive way. </summary>
+        /// <typeparam name="TEnum"> Enum to use for parsing.
+        /// An ArgumentException will be thrown if this is not an enum. </typeparam>
         public static TEnum GetEnum<TEnum>( this ConfigKey key ) where TEnum : struct {
             if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required" );
             return (TEnum)Enum.Parse( typeof( TEnum ), GetString( key ), true );
         }
 
-        public static bool GetBool( this ConfigKey key ) {
+
+        /// <summary> Attempts to parse given key's value as a boolean.
+        /// Throws a FormatException on failure. </summary>
+        public static bool Enabled( this ConfigKey key ) {
             return Boolean.Parse( GetString( key ) );
         }
 
+
+        /// <summary> Attempts to parse a given key's value as a boolean. </summary>
+        /// <param name="value"> Will be set to the value on success, or to false on failure. </param>
+        /// <returns> Whether parsing succeeded. </returns>
+        public static bool TryGetBool( this ConfigKey key, out bool result ) {
+            return Boolean.TryParse( GetString( key ), out result );
+        }
+
+
+        /// <summary> Returns the expected Type of the key's value, as specified in key metadata. </summary>
         public static Type GetValueType( this ConfigKey key ) {
             return KeyMetadata[key].ValueType;
         }
 
+
+        /// <summary> Returns the metadata container (ConfigKeyAttribute object) for a given key. </summary>
         public static ConfigKeyAttribute GetMetadata( this ConfigKey key ) {
             return KeyMetadata[key];
         }
 
+
+        /// <summary> Returns the ConfigSection that a given key is associated with. </summary>
         public static ConfigSection GetSection( this ConfigKey key ) {
             return KeyMetadata[key].Section;
         }
 
+
+        /// <summary> Returns the description text for a given config key. </summary>
         public static string GetDescription( this ConfigKey key ) {
             return KeyMetadata[key].Description;
         }
@@ -695,7 +681,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Sets value of a specified config key.
+        /// <summary> Sets value of a given config key.
         /// Note that this method may throw exceptions if the given value is not acceptible.
         /// Use Config.TrySetValue() if you'd like to suppress exceptions in favor of a boolean return value. </summary>
         /// <param name="key"> Config key to set. </param>
@@ -715,7 +701,6 @@ namespace fCraft {
                 throw new NullReferenceException( key + ": rawValue.ToString() returned null." );
             }
 
-            // LEGACY
             if( LegacyConfigValues.ContainsKey( key ) ) {
                 foreach( var pair in LegacyConfigValues.Values ) {
                     if( pair.Key.Equals( value, StringComparison.OrdinalIgnoreCase ) ) {
@@ -732,10 +717,16 @@ namespace fCraft {
         }
 
 
+        /// <summary> Attempts to set the value of a given config key.
+        /// Check the return value to make sure that the given value was acceptible. </summary>
+        /// <param name="key"> Config key to set. </param>
+        /// <param name="rawValue"> Value to assign to the key. If passed object is not a string, rawValue.ToString() is used. </param>
+        /// <exception cref="T:System.ArgumentNullException" />
+        /// <returns> True if value is valid and has been assigned.
+        /// False if value was invalid, or if assignment was cancelled by an event handler/plugin. </returns>
         public static bool TrySetValue( this ConfigKey key, object rawValue ) {
             try {
-                SetValue( key, rawValue );
-                return true;
+                return SetValue( key, rawValue );
             } catch( FormatException ex ) {
                 Logger.Log( "{0}.TrySetValue: {1}", LogType.Error, key, ex.Message );
                 return false;
@@ -764,8 +755,54 @@ namespace fCraft {
 
         #region Ranks
 
-        /// <summary> Resets the list of ranks to defaults (guest/regular/op/owner).
-        /// Warning: This method is not thread-safe. </summary>
+        static void LoadRankList( XContainer el, int version, bool fromFile ) {
+            if( el == null ) throw new ArgumentNullException( "el" );
+
+            XElement legacyRankMappingTag = el.Element( "LegacyRankMapping" );
+            if( legacyRankMappingTag != null ) {
+                foreach( XElement rankPair in legacyRankMappingTag.Elements( "LegacyRankPair" ) ) {
+                    XAttribute fromRankID = rankPair.Attribute( "from" );
+                    XAttribute toRankID = rankPair.Attribute( "to" );
+                    if( fromRankID == null || String.IsNullOrEmpty( fromRankID.Value ) ||
+                        toRankID == null || String.IsNullOrEmpty( toRankID.Value ) ) {
+                        Logger.Log( "Config.Load: Could not parse a LegacyRankMapping entry: {0}", LogType.Error, rankPair.ToString() );
+                    } else {
+                        RankManager.LegacyRankMapping.Add( fromRankID.Value, toRankID.Value );
+                    }
+                }
+            }
+
+            XElement rankList = el.Element( "Ranks" );
+
+            if( rankList != null ) {
+                XElement[] rankDefinitionList = rankList.Elements( "Rank" ).ToArray();
+
+                foreach( XElement rankDefinition in rankDefinitionList ) {
+                    try {
+                        RankManager.AddRank( new Rank( rankDefinition ) );
+                    } catch( RankDefinitionException ex ) {
+                        Logger.Log( ex.Message, LogType.Error );
+                    }
+                }
+
+                if( RankManager.RanksByName.Count == 0 ) {
+                    Logger.Log( "Config.Load: No ranks were defined, or none were defined correctly. Using default ranks (guest, builder, op, and owner).", LogType.Warning );
+                    rankList.Remove();
+                    el.Add( DefineDefaultRanks() );
+                }
+
+            } else {
+                if( fromFile ) Logger.Log( "Config.Load: using default player ranks.", LogType.Warning );
+                el.Add( DefineDefaultRanks() );
+            }
+
+            // parse rank-limit permissions
+            RankManager.ParsePermissionLimits();
+        }
+
+
+        /// <summary> Resets the list of ranks to defaults (guest/builder/op/owner).
+        /// Warning: This method is not thread-safe, and should never be used on a live server. </summary>
         public static void ResetRanks() {
             RankManager.Reset();
             DefineDefaultRanks();
@@ -880,15 +917,15 @@ namespace fCraft {
             temp.Add( new XAttribute( "max", "op" ) );
             op.Add( temp );
             temp = new XElement( Permission.Ban.ToString() );
-            temp.Add( new XAttribute( "max", "regular" ) );
+            temp.Add( new XAttribute( "max", "builder" ) );
             op.Add( temp );
             op.Add( new XElement( Permission.BanIP.ToString() ) );
 
             temp = new XElement( Permission.Promote.ToString() );
-            temp.Add( new XAttribute( "max", "regular" ) );
+            temp.Add( new XAttribute( "max", "builder" ) );
             op.Add( temp );
             temp = new XElement( Permission.Demote.ToString() );
-            temp.Add( new XAttribute( "max", "regular" ) );
+            temp.Add( new XAttribute( "max", "builder" ) );
             op.Add( temp );
             op.Add( new XElement( Permission.Hide.ToString() ) );
 
@@ -915,40 +952,40 @@ namespace fCraft {
             }
 
 
-            XElement regular = new XElement( "Rank" );
-            regular.Add( new XAttribute( "id", RankManager.GenerateID() ) );
-            regular.Add( new XAttribute( "name", "regular" ) );
-            regular.Add( new XAttribute( "rank", 30 ) );
-            regular.Add( new XAttribute( "color", "white" ) );
-            regular.Add( new XAttribute( "prefix", "" ) );
-            regular.Add( new XAttribute( "drawLimit", 4096 ) );
-            regular.Add( new XAttribute( "antiGriefBlocks", 47 ) );
-            regular.Add( new XAttribute( "antiGriefSeconds", 6 ) );
-            regular.Add( new XAttribute( "idleKickAfter", 20 ) );
+            XElement builder = new XElement( "Rank" );
+            builder.Add( new XAttribute( "id", RankManager.GenerateID() ) );
+            builder.Add( new XAttribute( "name", "builder" ) );
+            builder.Add( new XAttribute( "rank", 30 ) );
+            builder.Add( new XAttribute( "color", "white" ) );
+            builder.Add( new XAttribute( "prefix", "" ) );
+            builder.Add( new XAttribute( "drawLimit", 4096 ) );
+            builder.Add( new XAttribute( "antiGriefBlocks", 47 ) );
+            builder.Add( new XAttribute( "antiGriefSeconds", 6 ) );
+            builder.Add( new XAttribute( "idleKickAfter", 20 ) );
 
-            regular.Add( new XElement( Permission.Chat.ToString() ) );
-            regular.Add( new XElement( Permission.Build.ToString() ) );
-            regular.Add( new XElement( Permission.Delete.ToString() ) );
-            regular.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
+            builder.Add( new XElement( Permission.Chat.ToString() ) );
+            builder.Add( new XElement( Permission.Build.ToString() ) );
+            builder.Add( new XElement( Permission.Delete.ToString() ) );
+            builder.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
 
-            regular.Add( new XElement( Permission.PlaceGrass.ToString() ) );
-            regular.Add( new XElement( Permission.PlaceWater.ToString() ) );
-            regular.Add( new XElement( Permission.PlaceLava.ToString() ) );
-            regular.Add( new XElement( Permission.PlaceAdmincrete.ToString() ) );
-            regular.Add( new XElement( Permission.DeleteAdmincrete.ToString() ) );
+            builder.Add( new XElement( Permission.PlaceGrass.ToString() ) );
+            builder.Add( new XElement( Permission.PlaceWater.ToString() ) );
+            builder.Add( new XElement( Permission.PlaceLava.ToString() ) );
+            builder.Add( new XElement( Permission.PlaceAdmincrete.ToString() ) );
+            builder.Add( new XElement( Permission.DeleteAdmincrete.ToString() ) );
 
             temp = new XElement( Permission.Kick.ToString() );
-            temp.Add( new XAttribute( "max", "regular" ) );
-            regular.Add( temp );
+            temp.Add( new XAttribute( "max", "builder" ) );
+            builder.Add( temp );
 
-            regular.Add( new XElement( Permission.ViewOthersInfo.ToString() ) );
+            builder.Add( new XElement( Permission.ViewOthersInfo.ToString() ) );
 
-            regular.Add( new XElement( Permission.Teleport.ToString() ) );
+            builder.Add( new XElement( Permission.Teleport.ToString() ) );
 
-            regular.Add( new XElement( Permission.Draw.ToString() ) );
-            permissions.Add( regular );
+            builder.Add( new XElement( Permission.Draw.ToString() ) );
+            permissions.Add( builder );
             try {
-                RankManager.AddRank( new Rank( regular ) );
+                RankManager.AddRank( new Rank( builder ) );
             } catch( RankDefinitionException ex ) {
                 Logger.Log( ex.Message, LogType.Error );
             }
@@ -1021,7 +1058,8 @@ namespace fCraft {
         #endregion
 
 
-        public static ConfigKey[] GetKeys( ConfigSection section ) {
+        /// <summary> Returns a list of all keys in a section. </summary>
+        public static ConfigKey[] GetKeys( this ConfigSection section ) {
             return KeySections[section];
         }
     }

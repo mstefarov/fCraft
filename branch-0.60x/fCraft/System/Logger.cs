@@ -148,7 +148,7 @@ namespace fCraft {
 
             Log( "{0}: {1}", LogType.SeriousError, message, exception );
 
-            bool submitCrashReport = ConfigKey.SubmitCrashReports.GetBool();
+            bool submitCrashReport = ConfigKey.SubmitCrashReports.Enabled();
             bool isCommon = CheckForCommonErrors( exception );
 
             try {

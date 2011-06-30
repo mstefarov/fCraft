@@ -7,6 +7,7 @@ using System.Globalization;
 namespace fCraft {
 
     static class IPAddressUtil {
+        /// <summary> Checks whether an IP address may belong to LAN (192.168.0.0/16 or 10.0.0.0/24). </summary>
         public static bool IsLAN( this IPAddress addr ) {
             if( addr == null ) throw new ArgumentNullException( "addr" );
             byte[] bytes = addr.GetAddressBytes();
@@ -17,16 +18,25 @@ namespace fCraft {
 
 
     static class DateTimeUtil {
-        public static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1 );
+        public static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1, 0, 0, 0, DateTimeKind.Utc );
         public static readonly long TicksToUnixEpoch;
-        public const long TicksPerSecond = 10000;
+        const long TicksPerSecond = 10000;
 
         static DateTimeUtil() {
             TicksToUnixEpoch = UnixEpoch.Ticks;
         }
 
+        #region To Unix Time
 
-        public static string ToTickString( this DateTime date ) {
+        /// <summary> Converts a DateTime to Utc Unix Timestamp. </summary>
+        public static long ToUnixTime( this DateTime date ) {
+            return (date.Ticks - TicksToUnixEpoch) / TicksPerSecond;
+        }
+
+
+        /// <summary> Converts a DateTime to a string containing the Utc Unix Timestamp.
+        /// If the date equals DateTime.MinValue, returns an empty string. </summary>
+        public static string ToUnixTimeString( this DateTime date ) {
             if( date == DateTime.MinValue ) {
                 return "";
             } else {
@@ -35,34 +45,37 @@ namespace fCraft {
         }
 
 
-        public static StringBuilder ToTickString( this DateTime date, StringBuilder sb ) {
+        /// <summary> Appends a Utc Unix Timestamp to the given StringBuilder.
+        /// If the date equals DateTime.MinValue, nothing is appended. </summary>
+        public static StringBuilder ToUnixTimeString( this DateTime date, StringBuilder sb ) {
             if( date != DateTime.MinValue ) {
                 sb.Append( (date.Ticks - TicksToUnixEpoch) / TicksPerSecond );
             }
             return sb;
         }
 
-
-        public static long ToUnixTime( this DateTime date ) {
-            return (date.Ticks - TicksToUnixEpoch) / TicksPerSecond;
-        }
+        #endregion
 
 
-        #region ToDateTime
+        #region To Date Time
 
+        /// <summary> Creates a DateTime from a Utc Unix Timestamp. </summary>
         public static DateTime ToDateTime( this long timestamp ) {
             return UnixEpoch.AddSeconds( timestamp );
         }
 
 
+        /// <summary> Creates a DateTime from a Utc Unix Timestamp. </summary>
         public static DateTime ToDateTime( this uint timestamp ) {
             return UnixEpoch.AddSeconds( timestamp );
         }
 
 
-        public static bool ToDateTime( this string str, ref DateTime date ) {
+        /// <summary> Tries to create a DateTime from a string containing a Utc Unix Timestamp.
+        /// If the string was empty, returns false and does not affect result. </summary>
+        public static bool ToDateTime( this string str, ref DateTime result ) {
             if( str.Length > 1 ) {
-                date = new DateTime( Int64.Parse( str ) * TicksPerSecond + TicksToUnixEpoch, DateTimeKind.Utc );
+                result = new DateTime( Int64.Parse( str ) * TicksPerSecond + TicksToUnixEpoch, DateTimeKind.Utc );
                 return true;
             } else {
                 return false;
@@ -72,9 +85,22 @@ namespace fCraft {
         #endregion
 
 
-        public static bool ToTimeSpan( this string str, ref TimeSpan date ) {
+        /// <summary> Converts a TimeSpan to a string containing the number of seconds.
+        /// If the timestamp is zero seconds, returns an empty string. </summary>
+        public static string ToUnixTimeString( this TimeSpan time ) {
+            if( time == TimeSpan.Zero ) {
+                return "";
+            } else {
+                return (time.Ticks / TicksPerSecond).ToString();
+            }
+        }
+
+
+        /// <summary> Tries to create a TimeSpan from a string containing the number of seconds.
+        /// If the string was empty, returns false and does not affect result. </summary>
+        public static bool ToTimeSpan( this string str, ref TimeSpan result ) {
             if( str.Length > 1 ) {
-                date = new TimeSpan( Int64.Parse( str ) * TicksPerSecond );
+                result = new TimeSpan( Int64.Parse( str ) * TicksPerSecond );
                 return true;
             } else {
                 return false;
@@ -83,15 +109,6 @@ namespace fCraft {
 
 
         #region MiniString
-
-        public static string ToTickString( this TimeSpan time ) {
-            if( time == TimeSpan.Zero ) {
-                return "";
-            } else {
-                return (time.Ticks / TicksPerSecond).ToString();
-            }
-        }
-
 
         public static StringBuilder ToTickString( this TimeSpan time, StringBuilder sb ) {
             if( time != TimeSpan.Zero ) {
@@ -235,7 +252,8 @@ namespace fCraft {
 
 
     static class EnumerableUtil {
-
+        /// <summary> Joins all items in a collection into one comma-separated string.
+        /// If the items are not strings, .ToString() is called on them. </summary>
         public static string JoinToString<T>( this IEnumerable<T> items ) {
             StringBuilder sb = new StringBuilder();
             bool first = true;
@@ -248,6 +266,8 @@ namespace fCraft {
         }
 
 
+        /// <summary> Joins all items in a collection into one string separated with the given separator.
+        /// If the items are not strings, .ToString() is called on them. </summary>
         public static string JoinToString<T>( this IEnumerable<T> items, string separator ) {
             StringBuilder sb = new StringBuilder();
             bool first = true;
@@ -260,6 +280,8 @@ namespace fCraft {
         }
 
 
+        /// <summary> Joins all items in a collection into one string separated with the given separator.
+        /// A specified string conversion function is called on each item before contactenation. </summary>
         public static string JoinToString<T>( this IEnumerable<T> items, string separator, Func<T, string> stringConversionFunction ) {
             StringBuilder sb = new StringBuilder();
             bool first = true;
@@ -272,6 +294,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Joins formatted names of all IClassy objects in a collection into one comma-separated string. </summary>
         public static string JoinToClassyString( this IEnumerable<IClassy> list ) {
             return list.JoinToString( "&S, ", p => p.ClassyName );
         }

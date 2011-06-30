@@ -351,7 +351,7 @@ namespace fCraft {
         public void SaveBackup( string sourceName, string targetName, bool onlyIfChanged ) {
             if( sourceName == null ) throw new ArgumentNullException( "sourceName" );
             if( targetName == null ) throw new ArgumentNullException( "targetName" );
-            if( onlyIfChanged && !HasChangedSinceBackup && ConfigKey.BackupOnlyWhenChanged.GetBool() ) return;
+            if( onlyIfChanged && !HasChangedSinceBackup && ConfigKey.BackupOnlyWhenChanged.Enabled() ) return;
 
             lock( backupLock ) {
                 DirectoryInfo directory = new DirectoryInfo( Paths.BackupPath );

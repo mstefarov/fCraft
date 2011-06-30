@@ -62,7 +62,7 @@ namespace fCraft.ServerGUI {
                 }
             }
             if( Server.StartServer() ) {
-                if( !ConfigKey.HeartbeatEnabled.GetBool() ) {
+                if( !ConfigKey.HeartbeatEnabled.Enabled() ) {
                     urlDisplay.Text = "Heartbeat disabled. See externalurl.txt";
                 }
                 console.Enabled = true;

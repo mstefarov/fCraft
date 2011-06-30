@@ -298,12 +298,12 @@ namespace fCraft {
 
             fields[0] = Address.ToString();
             fields[1] = PlayerInfo.Escape( BannedBy );
-            fields[2] = BanDate.ToTickString();
+            fields[2] = BanDate.ToUnixTimeString();
             fields[3] = PlayerInfo.Escape( BanReason );
             fields[4] = PlayerInfo.Escape( PlayerName );
             fields[5] = Attempts.ToString();
             fields[6] = PlayerInfo.Escape( LastAttemptName );
-            fields[7] = LastAttemptDate.ToTickString();
+            fields[7] = LastAttemptDate.ToUnixTimeString();
 
             return String.Join( ",", fields );
         }

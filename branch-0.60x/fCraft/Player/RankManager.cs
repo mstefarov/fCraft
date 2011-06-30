@@ -264,12 +264,6 @@ namespace fCraft {
         }
 
 
-        internal static void SortRanksByLegacyNumericRank() {
-            Ranks = Ranks.OrderBy( rank => -rank.LegacyNumericRank ).ToList();
-            RebuildIndex();
-        }
-
-
         /// <summary> Finds the lowest rank that has all the required permissions. </summary>
         /// <param name="permissions"> One or more permissions to check for. </param>
         /// <returns> A relevant Rank object, or null of none were found. </returns>

@@ -16,38 +16,44 @@ namespace fCraft {
     /// <summary> Represents a connection to a Minecraft client.
     /// Handles low-level interactions (e.g. networking). </summary>
     public sealed class Session {
-        public Player Player;
-        public DateTime LoginTime = DateTime.UtcNow;
+        public static int SocketTimeout = 10000;
+        const int SleepDelay = 5; // milliseconds
+        const int SocketPollInterval = 200; // multiples of SleepDelay
+        const int PingInterval = 3; // multiples of SocketPollInterval
 
         const string NoSmpMessage = "This server is for Minecraft Classic only.";
+
+
+        /// <summary> Player object associated with this session. </summary>
+        public Player Player { get; private set; }
+
+        /// <summary> Time when the session connected. </summary>
+        public DateTime LoginTime { get; private set; }
 
         // status flags
         public bool CanReceive = true,
                     CanSend = true,
                     CanQueue = true,
-                    IsRegistered,
-                    IsReady;
-
+                    IsRegistered;
+        public bool IsReady { get; private set; }
 
         public LeaveReason LeaveReason { get; private set; }
 
-        Thread ioThread;
+        public IPAddress IP { get; private set; }
 
-        // networking
+
+        Thread ioThread;
         TcpClient client;
         BinaryReader reader;
         PacketWriter writer;
         readonly ConcurrentQueue<Packet> outputQueue = new ConcurrentQueue<Packet>(),
                                          priorityOutputQueue = new ConcurrentQueue<Packet>();
 
-        const int SocketTimeout = 10000;
-
-        public IPAddress IP { get; private set; }
 
 
         public Session( TcpClient tcpClient ) {
             if( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
-
+            LoginTime = DateTime.UtcNow;
             LeaveReason = LeaveReason.Unknown;
 
             client = tcpClient;
@@ -93,18 +99,15 @@ namespace fCraft {
                 // set up some temp variables
                 Packet packet = new Packet();
 
-                const int pollInterval = 200; // 2 seconds
-                int pollCounter = 0;
-
-                const int pingInterval = 3; // 6 seconds (3 * pollInterval)
-                int pingCounter = 0;
+                int pollCounter = 0,
+                    pingCounter = 0;
 
                 // main i/o loop
                 while( CanSend ) {
                     int packetsSent = 0;
 
                     // detect player disconnect
-                    if( pollCounter > pollInterval ) {
+                    if( pollCounter > SocketPollInterval ) {
                         if( !client.Connected ||
                             (client.Client.Poll( 1000, SelectMode.SelectRead ) && client.Client.Available == 0) ) {
                             if( Player != null ) {
@@ -115,7 +118,7 @@ namespace fCraft {
                             LeaveReason = LeaveReason.ClientQuit;
                             return;
                         }
-                        if( pingCounter > pingInterval ) {
+                        if( pingCounter > PingInterval ) {
                             writer.WritePing();
                             BytesSent++;
                             pingCounter = 0;
@@ -361,10 +364,16 @@ namespace fCraft {
             bool mode = (reader.ReadByte() == 1);
             byte type = reader.ReadByte();
 
+            // if a player is using InDev or SurvivalTest client, they may try to
+            // place blocks that are not found in MC Classic. Convert them!
             if( type > 49 ) {
                 type = MapDat.MapBlock( type );
             }
 
+            // If block is in bounds, count the click.
+            // Sometimes MC allows clicking out of bounds,
+            // like at map transitions or at the top layer of the world.
+            // Those clicks should be simply ignored.
             if( Player.World.Map.InBounds( x, y, h ) ) {
                 var e = new PlayerClickingEventArgs( Player, x, y, h, mode, (Block)type );
                 if( Server.RaisePlayerClickingEvent( e ) ) {
@@ -458,10 +467,6 @@ namespace fCraft {
             }
 
             string playerName = ReadString();
-            string verificationCode = ReadString();
-            reader.ReadByte(); // unused
-            BytesReceived += 131;
-
 
             // Check name for nonstandard characters
             if( !Player.IsValidName( playerName ) ) {
@@ -471,9 +476,12 @@ namespace fCraft {
                 return false;
             }
 
+            string verificationCode = ReadString();
+            reader.ReadByte(); // unused
+            BytesReceived += 131;
 
             // Verify name
-            Player = new Player( null, playerName, this, WorldManager.MainWorld.Map.Spawn );
+            Player = new Player( playerName, this, WorldManager.MainWorld.Map.Spawn );
             bool showVerifyNamesWarning = false;
             if( !Server.VerifyName( Player.Name, verificationCode, Server.Salt ) ) {
                 NameVerificationMode nameVerificationMode = ConfigKey.VerifyNames.GetEnum<NameVerificationMode>();
@@ -484,7 +492,7 @@ namespace fCraft {
                     Logger.Log( "{0} Player was identified as connecting from localhost and allowed in.", LogType.SuspiciousActivity,
                                 standardMessage );
 
-                } else if( IP.IsLAN() && ConfigKey.AllowUnverifiedLAN.GetBool() ) {
+                } else if( IP.IsLAN() && ConfigKey.AllowUnverifiedLAN.Enabled() ) {
                     Logger.Log( "{0} Player was identified as connecting from LAN and allowed in.", LogType.SuspiciousActivity,
                                 standardMessage );
                 } else if( Player.Info.TimesVisited > 1 && Player.Info.LastIP.Equals( IP ) ) {
@@ -529,7 +537,7 @@ namespace fCraft {
                 Player.Info.ProcessFailedLogin( this );
                 Logger.Log( "Banned player {0} tried to log in from {1}", LogType.SuspiciousActivity,
                             Player.Name, IP );
-                if( ConfigKey.ShowBannedConnectionMessages.GetBool() ) {
+                if( ConfigKey.ShowBannedConnectionMessages.Enabled() ) {
                     var can = Server.Players.Can( Permission.ViewPlayerIPs );
                     can.Message( "&SBanned player {0}&S tried to log in from {1}",
                                  Player.ClassyName, IP );
@@ -551,7 +559,7 @@ namespace fCraft {
             if( ipBanInfo != null ) {
                 Player.Info.ProcessFailedLogin( this );
                 ipBanInfo.ProcessAttempt( Player );
-                if( ConfigKey.ShowBannedConnectionMessages.GetBool() ) {
+                if( ConfigKey.ShowBannedConnectionMessages.Enabled() ) {
                     Server.Message( "{0}&S tried to log in from a banned IP.", Player.ClassyName );
                 }
                 Logger.Log( "{0} tried to log in from a banned IP.", LogType.SuspiciousActivity,
@@ -576,7 +584,7 @@ namespace fCraft {
 
 
             // Check if player is paid (if required)
-            if( ConfigKey.PaidPlayersOnly.GetBool() ) {
+            if( ConfigKey.PaidPlayersOnly.Enabled() ) {
                 SendNow( PacketWriter.MakeHandshake( Player,
                                                      ConfigKey.ServerName.GetString(),
                                                      "Please wait; Checking paid status..." ) );
@@ -618,7 +626,7 @@ namespace fCraft {
             SendNow( PacketWriter.MakeHandshake( Player, ConfigKey.ServerName.GetString(), ConfigKey.MOTD.GetString() ) );
 
             // AutoRank
-            if( ConfigKey.AutoRankEnabled.GetBool() ) {
+            if( ConfigKey.AutoRankEnabled.Enabled() ) {
                 Rank newRank = AutoRankManager.Check( Player.Info );
                 if( newRank != null ) {
                     ModerationCommands.DoChangeRank( Player.Console, Player.Info, newRank, "~AutoRank", false, true );
@@ -654,7 +662,7 @@ namespace fCraft {
             }
 
             // Announce join
-            if( ConfigKey.ShowConnectionMessages.GetBool() ) {
+            if( ConfigKey.ShowConnectionMessages.Enabled() ) {
                 Server.Message( Player, Server.MakePlayerConnectedMessage( Player, firstTime, Player.World ) );
             }
 
@@ -866,7 +874,7 @@ namespace fCraft {
             Player.Message( "Joined world {0}", newWorld.ClassyName );
 
             // Turn off Nagel's algorithm again for LowLatencyMode
-            if( ConfigKey.LowLatencyMode.GetBool() ) {
+            if( ConfigKey.LowLatencyMode.Enabled() ) {
                 client.NoDelay = true;
             }
 
@@ -988,7 +996,6 @@ namespace fCraft {
         int entityShowingThreshold, entityHidingThreshold;
         bool partialUpdates, skipUpdates;
 
-        const int SleepDelay = 5;
         DateTime lastMovementUpdate;
         TimeSpan movementUpdateInterval;
 

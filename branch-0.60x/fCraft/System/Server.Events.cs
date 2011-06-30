@@ -10,7 +10,7 @@ namespace fCraft {
         #region Global/Server events
 
         /// <summary> Occurs when the server is about to be initialized. </summary>
-        public static event EventHandler<ServerInitializingEventArgs> Initializing;
+        public static event EventHandler Initializing;
 
         /// <summary> Occurs when the server has been initialized. </summary>
         public static event EventHandler Initialized;
@@ -30,11 +30,6 @@ namespace fCraft {
         /// <summary> Occurs when the player list has just changed (any time players connected or disconnected). </summary>
         public static event EventHandler PlayerListChanged;
 
-
-        static void RaiseInitializingEvent( Dictionary<ArgKey, string> initializationArgs ) {
-            var h = Initializing;
-            if( h != null ) h( null, new ServerInitializingEventArgs( initializationArgs ) );
-        }
 
         internal static void RaiseEvent( EventHandler h ) {
             if( h != null ) h( null, EventArgs.Empty );
@@ -342,15 +337,6 @@ namespace fCraft {
 
 namespace fCraft.Events {
 
-    public sealed class ServerInitializingEventArgs : EventArgs {
-        internal ServerInitializingEventArgs( Dictionary<ArgKey, string> args ) {
-            Args = args;
-        }
-
-        public Dictionary<ArgKey, string> Args { get; private set; }
-    }
-
-
     public sealed class ShutdownEventArgs : EventArgs {
         internal ShutdownEventArgs( ShutdownParams shutdownParams ) {
             ShutdownParams = shutdownParams;
@@ -360,7 +346,4 @@ namespace fCraft.Events {
     }
 
 
-    public interface ICancellableEvent {
-        bool Cancel { get; set; }
-    }
 }

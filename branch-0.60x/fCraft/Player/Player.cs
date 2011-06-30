@@ -21,7 +21,11 @@ namespace fCraft {
     /// <summary> Object representing volatile state of connected player.
     /// For persistent state of a known player account, see PlayerInfo. </summary>
     public sealed class Player : IClassy {
-        // the godly pseudo-player for commands called from the server console
+
+        /// <summary> The godly pseudo-player for commands called from the server console.
+        /// Console has all the permissions granted.
+        /// Note that Player.Console.World is always null,
+        /// and that prevents console from calling certain commands (like /tp). </summary>
         public static Player Console;
 
         public static bool RelayAllUpdates;
@@ -38,21 +42,21 @@ namespace fCraft {
                     IsDisconnected;
 
         public World World;
-        internal DateTime IdleTimer = DateTime.UtcNow; // used for afk kicks
+        internal DateTime LastActiveTime = DateTime.UtcNow; // used for afk kicks
+        internal DateTime LastPatrolTime = DateTime.MinValue;
 
         // confirmation
-        public Command CommandToConfirm;
-        public DateTime CommandToConfirmDate;
+        public Command CommandToConfirm { get; private set; }
+        public DateTime ConfirmRequestTime { get; private set; }
 
-        // last command (to be able to repeat)
-        public Command LastCommand;
+        /// <summary> Last command called by the player. </summary>
+        public Command LastCommand { get; private set; }
 
 
         // This constructor is used to create dummy players (such as Console and /dummy)
         // It will soon be replaced by a generic Entity class
-        internal Player( World world, string name ) {
+        internal Player( string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            World = world;
             Info = new PlayerInfo( name, RankManager.HighestRank, true, RankChangeType.AutoPromoted );
             spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
             ResetAllBinds();
@@ -60,10 +64,9 @@ namespace fCraft {
 
 
         // Normal constructor
-        internal Player( World world, string name, Session session, Position position ) {
+        internal Player( string name, Session session, Position position ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( session == null ) throw new ArgumentNullException( "session" );
-            World = world;
             Session = session;
             Position = position;
             Info = PlayerDB.FindOrCreateInfoForPlayer( name, session.IP );
@@ -84,10 +87,10 @@ namespace fCraft {
         public string ListName {
             get {
                 string displayedName = Name;
-                if( ConfigKey.RankPrefixesInList.GetBool() ) {
+                if( ConfigKey.RankPrefixesInList.Enabled() ) {
                     displayedName = Info.Rank.Prefix + displayedName;
                 }
-                if( ConfigKey.RankColorsInChat.GetBool() && Info.Rank.Color != Color.White ) {
+                if( ConfigKey.RankColorsInChat.Enabled() && Info.Rank.Color != Color.White ) {
                     displayedName = Info.Rank.Color + displayedName;
                 }
                 return displayedName;
@@ -124,10 +127,6 @@ namespace fCraft {
 
         #endregion
 
-        public void ResetIdleTimer() {
-            IdleTimer = DateTime.UtcNow;
-        }
-
 
         #region Messaging
         
@@ -135,12 +134,6 @@ namespace fCraft {
 
         int muteWarnings;
         string partialMessage;
-
-
-        public void MutedMessage() {
-            Message( "You are muted for another {0:0} seconds.",
-                     Info.MutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
-        }
 
 
         // Parses message incoming from the player
@@ -157,7 +150,7 @@ namespace fCraft {
                         if( !Can( Permission.Chat ) ) return;
 
                         if( Info.IsMuted ) {
-                            MutedMessage();
+                            MessageMuted();
                             return;
                         }
 
@@ -209,7 +202,7 @@ namespace fCraft {
                         if( !Can( Permission.Chat ) ) return;
 
                         if( Info.IsMuted ) {
-                            MutedMessage();
+                            MessageMuted();
                             return;
                         }
 
@@ -272,7 +265,7 @@ namespace fCraft {
                         if( !Can( Permission.Chat ) ) return;
 
                         if( Info.IsMuted ) {
-                            MutedMessage();
+                            MessageMuted();
                             return;
                         }
 
@@ -301,7 +294,7 @@ namespace fCraft {
 
                 case MessageType.Confirmation: {
                         if( CommandToConfirm != null ) {
-                            if( DateTime.UtcNow.Subtract( CommandToConfirmDate ).TotalSeconds < ConfirmationTimeout ) {
+                            if( DateTime.UtcNow.Subtract( ConfirmRequestTime ).TotalSeconds < ConfirmationTimeout ) {
                                 CommandToConfirm.IsConfirmed = true;
                                 CommandManager.ParseCommand( this, CommandToConfirm, fromConsole );
                                 CommandToConfirm = null;
@@ -361,11 +354,6 @@ namespace fCraft {
         }
 
 
-        /// <summary>
-        /// Sends a text message
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="args"></param>
         internal void MessageNow( string message, params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args.Length > 0 ) {
@@ -385,7 +373,7 @@ namespace fCraft {
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( message == null ) throw new ArgumentNullException( "message" );
             CommandToConfirm = cmd;
-            CommandToConfirmDate = DateTime.UtcNow;
+            ConfirmRequestTime = DateTime.UtcNow;
             Message( "{0} Type &H/ok&S to continue.", String.Format( message, args ) );
             CommandToConfirm.Rewind();
         }
@@ -438,12 +426,19 @@ namespace fCraft {
         }
 
 
+        public void MessageMuted() {
+            Message( "You are muted for another {0:0} seconds.",
+                     Info.MutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
+        }
+
+
         #region Ignore
 
         readonly HashSet<PlayerInfo> ignoreList = new HashSet<PlayerInfo>();
         readonly object ignoreLock = new object();
 
 
+        /// <summary> Checks whether this player is currently ignoring a given PlayerInfo.</summary>
         public bool IsIgnoring( PlayerInfo other ) {
             lock( ignoreLock ) {
                 return ignoreList.Contains( other );
@@ -451,6 +446,11 @@ namespace fCraft {
         }
 
 
+        /// <summary> Adds a given PlayerInfo to the ignore list.
+        /// Not that ignores are not persistent, and are reset when a player disconnects. </summary>
+        /// <param name="other"> Player to ignore. </param>
+        /// <returns> True if the player is now ignored,
+        /// false is the player has already been ignored previously. </returns>
         public bool Ignore( PlayerInfo other ) {
             lock( ignoreLock ) {
                 if( !ignoreList.Contains( other ) ) {
@@ -463,18 +463,18 @@ namespace fCraft {
         }
 
 
+        /// <summary> Removes a given PlayerInfo from the ignore list. </summary>
+        /// <param name="other"> PlayerInfo to unignore. </param>
+        /// <returns> True if the player is no longer ignored,
+        /// false if the player was already not ignored. </returns>
         public bool Unignore( PlayerInfo other ) {
             lock( ignoreLock ) {
-                if( ignoreList.Contains( other ) ) {
-                    ignoreList.Remove( other );
-                    return true;
-                } else {
-                    return false;
-                }
+                return ignoreList.Remove( other );
             }
         }
 
 
+        /// <summary> Returns a list of all currently-ignored players. </summary>
         public PlayerInfo[] IgnoreList {
             get {
                 lock( ignoreLock ) {
@@ -970,5 +970,10 @@ namespace fCraft {
         }
 
         #endregion
+
+
+        public void ResetIdleTimer() {
+            LastActiveTime = DateTime.UtcNow;
+        }
     }
 }

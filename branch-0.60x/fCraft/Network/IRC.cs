@@ -180,7 +180,7 @@ namespace fCraft {
 
                 switch( msg.Type ) {
                     case IRCMessageType.Login:
-                        if( ConfigKey.IRCRegisteredNick.GetBool() ) {
+                        if( ConfigKey.IRCRegisteredNick.Enabled() ) {
                             Send( IRCCommands.Privmsg( ConfigKey.IRCNickServ.GetString(),
                                                        ConfigKey.IRCNickServMessage.GetString() ) );
                         }
@@ -214,7 +214,7 @@ namespace fCraft {
                             processedMessage = NonPrintableChars.Replace( processedMessage, "" );
                             processedMessage = Color.EscapeAmpersands( processedMessage ).Trim();
                             if( processedMessage.Length > 0 ) {
-                                if( ConfigKey.IRCBotForwardFromIRC.GetBool() ) {
+                                if( ConfigKey.IRCBotForwardFromIRC.Enabled() ) {
                                     if( msg.Type == IRCMessageType.ChannelAction ) {
                                         Server.Message( "{0}(IRC) * {1} {2}",
                                                         Color.IRC, msg.Nick, processedMessage );
@@ -233,7 +233,7 @@ namespace fCraft {
 
                     case IRCMessageType.Join:
                         if( !ResponsibleForInputParsing ) return;
-                        if( ConfigKey.IRCBotAnnounceIRCJoins.GetBool() ) {
+                        if( ConfigKey.IRCBotAnnounceIRCJoins.Enabled() ) {
                             Server.Message( "{0}(IRC) {1} joined {2}",
                                                     Color.IRC, msg.Nick, msg.Channel );
                         }
@@ -251,7 +251,7 @@ namespace fCraft {
                     case IRCMessageType.Part:
                     case IRCMessageType.Quit:
                         if( !ResponsibleForInputParsing ) return;
-                        if( ConfigKey.IRCBotAnnounceIRCJoins.GetBool() ) {
+                        if( ConfigKey.IRCBotAnnounceIRCJoins.Enabled() ) {
                             Server.Message( "{0}(IRC) {1} left {2}",
                                             Color.IRC, msg.Nick, msg.Channel );
                         }
@@ -396,7 +396,7 @@ namespace fCraft {
         static readonly Regex NonPrintableChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[\x00-\x1F\x7E-\xFF]", RegexOptions.Compiled );
 
         public static void Init() {
-            if( !ConfigKey.IRCBotEnabled.GetBool() ) return;
+            if( !ConfigKey.IRCBotEnabled.Enabled() ) return;
 
             hostName = ConfigKey.IRCBotNetwork.GetString();
             port = ConfigKey.IRCBotPort.GetInt();
@@ -445,7 +445,7 @@ namespace fCraft {
         public static void SendChannelMessage( string line ) {
             if( line == null ) throw new ArgumentNullException( "line" );
             if( channelNames == null ) return; // in case IRC bot is disabled.
-            if( ConfigKey.IRCUseColor.GetBool() ) {
+            if( ConfigKey.IRCUseColor.Enabled() ) {
                 line = Color.ToIRCColorCodes( line );
             } else {
                 line = NonPrintableChars.Replace( line, "" ).Trim();
@@ -465,7 +465,7 @@ namespace fCraft {
         public static void SendNotice( string line ) {
             if( line == null ) throw new ArgumentNullException( "line" );
             if( channelNames == null ) return; // in case IRC bot is disabled.
-            if( ConfigKey.IRCUseColor.GetBool() ) {
+            if( ConfigKey.IRCUseColor.Enabled() ) {
                 line = Color.ToIRCColorCodes( line );
             } else {
                 line = NonPrintableChars.Replace( line, "" ).Trim();
@@ -510,7 +510,7 @@ namespace fCraft {
         }
 
         internal static void ChatSentHandler( object sender, ChatSentEventArgs args ) {
-            bool enabled = ConfigKey.IRCBotForwardFromServer.GetBool();
+            bool enabled = ConfigKey.IRCBotForwardFromServer.Enabled();
             switch( args.MessageType ) {
                 case ChatMessageType.Global:
                     if( enabled ) {
@@ -528,7 +528,7 @@ namespace fCraft {
         }
 
         internal static void PlayerReadyHandler( object sender, IPlayerEvent e ) {
-            if( ConfigKey.IRCBotAnnounceServerJoins.GetBool() ) {
+            if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() ) {
                 string message = String.Format( "\u0001ACTION {0}&S* {1}&S connected.\u0001",
                                                 Color.IRCBold,
                                                 e.Player.ClassyName );
@@ -537,7 +537,7 @@ namespace fCraft {
         }
 
         internal static void PlayerDisconnectedHandler( object sender, PlayerDisconnectedEventArgs e ) {
-            if( e.Player.Session.IsReady && ConfigKey.IRCBotAnnounceServerJoins.GetBool() && !e.Player.IsHidden ) {
+            if( e.Player.Session.IsReady && ConfigKey.IRCBotAnnounceServerJoins.Enabled() && !e.Player.IsHidden ) {
                 string message = String.Format( "{0}&S* {1}&S left the server ({2})",
                                  Color.IRCBold,
                                  e.Player.ClassyName,
@@ -577,7 +577,7 @@ namespace fCraft {
             if( !String.IsNullOrEmpty( reason ) ) {
                 message += " Reason: " + reason;
             }
-            if( ConfigKey.IRCBotAnnounceServerEvents.GetBool() ) {
+            if( ConfigKey.IRCBotAnnounceServerEvents.Enabled() ) {
                 SendAction( message );
             }
         }

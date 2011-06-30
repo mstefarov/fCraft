@@ -425,7 +425,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdRankInfo = new CommandDescriptor {
             Name = "rankinfo",
-            Aliases = new[] { "class", "rinfo", "cinfo" },
+            Aliases = new[] { "rinfo" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             Usage = "/rinfo RankName",
@@ -534,7 +534,6 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdRanks = new CommandDescriptor {
             Name = "ranks",
-            Aliases = new[] { "classes" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             Help = "Shows a list of all defined ranks.",

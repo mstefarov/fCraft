@@ -664,7 +664,6 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             Rank rank = new Rank {
                  ID = RankManager.GenerateID(),
                  Name = "rank" + number,
-                 LegacyNumericRank = 0,
                  Prefix = "",
                  ReservedSlot = false,
                  Color = ""

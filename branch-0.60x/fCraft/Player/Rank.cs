@@ -4,19 +4,9 @@ using System.Xml.Linq;
 using System.Collections.Generic;
 
 namespace fCraft {
-    /// <summary>
-    /// Interface that provides a method for printing an object's name beautified with Minecraft color codes.
-    /// It was "classy" in a sense that it was colored based on "class" (rank) of a player/world/zone.
-    /// </summary>
-    public interface IClassy {
-        string ClassyName { get; }
-    }
-
     public sealed class Rank : IClassy, IComparable<Rank> {
 
         public string Name { get; set; }
-
-        public byte LegacyNumericRank;
 
         public string Color { get; set; }
 
@@ -90,12 +80,6 @@ namespace fCraft {
             } else {
                 ID = attr.Value.Trim();
                 // duplicate ID check is done in RankManager.AddRank()
-            }
-
-
-            // Rank
-            if( (attr = el.Attribute( "rank" )) != null ) {
-                Byte.TryParse( attr.Value, out LegacyNumericRank );
             }
 
 
@@ -394,10 +378,10 @@ namespace fCraft {
         public string ClassyName {
             get {
                 string displayedName = Name;
-                if( ConfigKey.RankPrefixesInChat.GetBool() ) {
+                if( ConfigKey.RankPrefixesInChat.Enabled() ) {
                     displayedName = Prefix + displayedName;
                 }
-                if( ConfigKey.RankColorsInChat.GetBool() ) {
+                if( ConfigKey.RankColorsInChat.Enabled() ) {
                     displayedName = Color + displayedName;
                 }
                 return displayedName;

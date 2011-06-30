@@ -128,7 +128,7 @@ namespace fCraft {
         internal static PlayerInfo Load( string[] fields ) {
             PlayerInfo info = new PlayerInfo { Name = fields[0] };
 
-            if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out info.LastIP ) ) { // LEGACY
+            if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out info.LastIP ) ) {
                 info.LastIP = IPAddress.None;
             }
 
@@ -232,7 +232,7 @@ namespace fCraft {
         internal static PlayerInfo LoadOldFormat( string[] fields, bool convertDatesToUtc ) {
             PlayerInfo info = new PlayerInfo { Name = fields[0] };
 
-            if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out info.LastIP ) ) { // LEGACY
+            if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out info.LastIP ) ) {
                 info.LastIP = IPAddress.None;
             }
 
@@ -386,21 +386,21 @@ namespace fCraft {
             sb.Append( ',' );
 
             sb.Append( Rank.FullName ).Append( ',' ); // 2
-            RankChangeDate.ToTickString( sb ).Append( ',' ); // 3
+            RankChangeDate.ToUnixTimeString( sb ).Append( ',' ); // 3
 
             Escape( RankChangedBy, sb ).Append( ',' ); // 4
 
             if( Banned ) sb.Append( 'b' ); // 5
             sb.Append( ',' );
 
-            BanDate.ToTickString( sb ).Append( ',' ); // 6
+            BanDate.ToUnixTimeString( sb ).Append( ',' ); // 6
             Escape( BannedBy, sb ).Append( ',' ); // 7
-            UnbanDate.ToTickString( sb ).Append( ',' ); // 8
+            UnbanDate.ToUnixTimeString( sb ).Append( ',' ); // 8
             Escape( UnbannedBy, sb ).Append( ',' ); // 9
             Escape( BanReason, sb ).Append( ',' ); // 10
             Escape( UnbanReason, sb ).Append( ',' ); // 11
 
-            LastFailedLoginDate.ToTickString( sb ).Append( ',' ); // 12
+            LastFailedLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 12
 
             if( !LastFailedLoginIP.Equals( IPAddress.None ) ) sb.Append( LastFailedLoginIP.ToString() ); // 13
             sb.Append( ',' );
@@ -408,8 +408,8 @@ namespace fCraft {
             if( FailedLoginCount > 0 ) sb.Append( FailedLoginCount ); // 14
             sb.Append( ',' );
 
-            FirstLoginDate.ToTickString( sb ).Append( ',' ); // 15
-            LastLoginDate.ToTickString( sb ).Append( ',' ); // 16
+            FirstLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 15
+            LastLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 16
             TotalTime.ToTickString( sb ).Append( ',' ); // 17
 
 
@@ -446,10 +446,10 @@ namespace fCraft {
             sb.Append( (int)RankChangeType ).Append( ',' ); // 30
 
 
-            LastKickDate.ToTickString( sb ).Append( ',' ); // 31
+            LastKickDate.ToUnixTimeString( sb ).Append( ',' ); // 31
 
-            if( Online ) DateTime.UtcNow.ToTickString( sb ); // 32
-            else LastSeen.ToTickString( sb );
+            if( Online ) DateTime.UtcNow.ToUnixTimeString( sb ); // 32
+            else LastSeen.ToUnixTimeString( sb );
             sb.Append( ',' );
 
             if( BlocksDrawn > 0 ) sb.Append( BlocksDrawn ); // 33
@@ -459,18 +459,18 @@ namespace fCraft {
 
             Escape( LastKickReason, sb ).Append( ',' ); // 35
 
-            BannedUntil.ToTickString( sb ); // 36
+            BannedUntil.ToUnixTimeString( sb ); // 36
 
             if( IsFrozen ) {
                 sb.Append( ',' ).Append( 'f' ).Append( ',' ); // 37
                 Escape( FrozenBy, sb ).Append( ',' ); // 38
-                FrozenOn.ToTickString( sb ).Append( ',' ); // 39
+                FrozenOn.ToUnixTimeString( sb ).Append( ',' ); // 39
             } else {
                 sb.Append( ',', 4 ); // 37-39
             }
 
             if( MutedUntil > DateTime.UtcNow ) {
-                MutedUntil.ToTickString( sb ).Append( ',' ); // 40
+                MutedUntil.ToUnixTimeString( sb ).Append( ',' ); // 40
                 Escape( MutedBy, sb ).Append( ',' ); // 41
             } else {
                 sb.Append( ',', 2 ); // 40-41
@@ -773,10 +773,10 @@ namespace fCraft {
         public string ClassyName {
             get {
                 StringBuilder sb = new StringBuilder();
-                if( ConfigKey.RankColorsInChat.GetBool() ) {
+                if( ConfigKey.RankColorsInChat.Enabled() ) {
                     sb.Append( Rank.Color );
                 }
-                if( ConfigKey.RankPrefixesInChat.GetBool() ) {
+                if( ConfigKey.RankPrefixesInChat.Enabled() ) {
                     sb.Append( Rank.Prefix );
                 }
                 sb.Append( Name );
