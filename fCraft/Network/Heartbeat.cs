@@ -144,8 +144,9 @@ namespace fCraft {
                     RaiseHeartbeatSentEvent( data, response, responseText );
                 }
                 string newUrl = responseText.Trim();
-                if( newUrl.Contains( "Bad heartbeat" ) ) {
+                if( newUrl.StartsWith( "bad heartbeat", StringComparison.OrdinalIgnoreCase ) ) {
                     LastHeartbeatFailed = true;
+                    Logger.Log( "Heartbeat: {0}", LogType.Error, newUrl );
                 } else if( newUrl.Length > 32 && newUrl != Server.Url ) {
                     string oldUrl = Server.Url;
                     Server.Url = newUrl;
