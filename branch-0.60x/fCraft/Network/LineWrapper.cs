@@ -23,6 +23,7 @@ namespace fCraft {
         }
 
         byte color, lastColor;
+        bool hadColor;
         int spaceCount, wordLength;
 
         readonly byte[] input;
@@ -63,6 +64,7 @@ namespace fCraft {
             if( inputIndex >= input.Length ) {
                 return false;
             }
+            hadColor = false;
 
             output = new byte[PacketSize];
             output[0] = (byte)OpCode.Message;
@@ -214,10 +216,11 @@ namespace fCraft {
             wordLength += bytesToInsert;
 
             // append color, if changed since last word
-            if( lastColor != color ) {
+            if( lastColor != color || (color == NoColor && !hadColor) ) {
                 output[outputIndex++] = (byte)'&';
                 output[outputIndex++] = color;
                 lastColor = color;
+                hadColor = true;
             }
 
             if( spaceCount > 0 && outputIndex > outputStart ) {

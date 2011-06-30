@@ -3,7 +3,6 @@ using System;
 
 namespace fCraft.Events {
 
-
     public class PlayerEventArgs : EventArgs, IPlayerEvent {
         public PlayerEventArgs( Player player ) {
             Player = player;
