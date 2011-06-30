@@ -204,7 +204,7 @@ namespace fCraft {
                     LoadMap();
                 }
 
-                if( ConfigKey.BackupOnJoin.GetBool() ) {
+                if( ConfigKey.BackupOnJoin.Enabled() ) {
                     string backupFileName = String.Format( "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm",
                                                            Name, DateTime.Now, player.Name ); // localized
                     Map.SaveBackup( Path.Combine( Paths.MapPath, GetMapName() ),
@@ -216,7 +216,7 @@ namespace fCraft {
 
                 UpdatePlayerList();
 
-                if( announce && ConfigKey.ShowJoinedWorldMessages.GetBool() ) {
+                if( announce && ConfigKey.ShowJoinedWorldMessages.Enabled() ) {
                     Server.Players.CanSee( player ).Message( "&SPlayer {0}&S joined {1}",
                                                              player.ClassyName, ClassyName );
                 }
@@ -487,18 +487,34 @@ namespace fCraft {
 
         readonly LinkedList<Player> patrolList = new LinkedList<Player>();
 
-        public Player GetNextPatrolTarget() {
+
+        public Player GetNextPatrolTarget( Player except ) {
             lock( patrolLock ) {
                 if( patrolList.Count == 0 ) {
                     return null;
                 } else {
-                    Player player = patrolList.First.Value;
+                    var node = patrolList.First;
+                    Player target = node.Value;
+
+                    while( target == except || target.LastPatrolTime > target.LastActiveTime ) {
+                        node = node.Next;
+                        if( node == null ) return null;
+                        target = node.Value;
+                    }
+
                     patrolList.RemoveFirst();
-                    patrolList.AddLast( player );
-                    return player;
+                    target.LastPatrolTime = DateTime.UtcNow;
+                    patrolList.AddLast( target );
+                    return target;
                 }
             }
         }
+
+
+        public Player GetNextPatrolTarget() {
+            return GetNextPatrolTarget( null );
+        }
+
 
         void RemovePlayerFromPatrol( Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -581,7 +597,7 @@ namespace fCraft {
                     TimeSpan interval = TimeSpan.FromMinutes( ConfigKey.BackupInterval.GetInt() );
                     backupTask.RunForever( this,
                                            interval,
-                                           (ConfigKey.BackupOnStartup.GetBool() ? TimeSpan.Zero : interval) );
+                                           (ConfigKey.BackupOnStartup.Enabled() ? TimeSpan.Zero : interval) );
                 }
             }
         }
@@ -632,11 +648,11 @@ namespace fCraft {
         public string ClassyName {
             get {
                 string displayedName = Name;
-                if( ConfigKey.RankColorsInWorldNames.GetBool() ) {
-                    if( ConfigKey.RankPrefixesInChat.GetBool() ) {
+                if( ConfigKey.RankColorsInWorldNames.Enabled() ) {
+                    if( ConfigKey.RankPrefixesInChat.Enabled() ) {
                         displayedName = BuildSecurity.MinRank.Prefix + displayedName;
                     }
-                    if( ConfigKey.RankColorsInChat.GetBool() ) {
+                    if( ConfigKey.RankColorsInChat.Enabled() ) {
                         if( BuildSecurity.MinRank >= AccessSecurity.MinRank ) {
                             displayedName = BuildSecurity.MinRank.Color + displayedName;
                         } else {
@@ -657,10 +673,6 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
-
-    public interface IWorldEvent {
-        World World { get; }
-    }
 
 
     public sealed class WorldCreatingEventArgs : EventArgs, ICancellableEvent {

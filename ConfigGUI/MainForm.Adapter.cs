@@ -114,7 +114,7 @@ namespace fCraft.ConfigGUI {
                 cDefaultRank.SelectedIndex = RankManager.GetIndex( RankManager.ParseRank( ConfigKey.DefaultRank.GetString() ) );
             }
 
-            cPublic.SelectedIndex = ConfigKey.IsPublic.GetBool() ? 0 : 1;
+            cPublic.SelectedIndex = ConfigKey.IsPublic.Enabled() ? 0 : 1;
             nPort.Value = ConfigKey.Port.GetInt();
             nUploadBandwidth.Value = ConfigKey.UploadBandwidth.GetInt();
 
@@ -126,7 +126,7 @@ namespace fCraft.ConfigGUI {
             }
 
             // UpdaterSettingsWindow
-            updaterWindow.BackupBeforeUpdate = ConfigKey.BackupBeforeUpdate.GetBool();
+            updaterWindow.BackupBeforeUpdate = ConfigKey.BackupBeforeUpdate.Enabled();
             updaterWindow.RunBeforeUpdate = ConfigKey.RunBeforeUpdate.GetString();
             updaterWindow.RunAfterUpdate = ConfigKey.RunAfterUpdate.GetString();
             updaterWindow.UpdaterMode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
@@ -134,12 +134,12 @@ namespace fCraft.ConfigGUI {
 
 
         void ApplyTabChat() {
-            xRankColorsInChat.Checked = ConfigKey.RankColorsInChat.GetBool();
-            xRankPrefixesInChat.Checked = ConfigKey.RankPrefixesInChat.GetBool();
-            xRankPrefixesInList.Checked = ConfigKey.RankPrefixesInList.GetBool();
-            xRankColorsInWorldNames.Checked = ConfigKey.RankColorsInWorldNames.GetBool();
-            xShowJoinedWorldMessages.Checked = ConfigKey.ShowJoinedWorldMessages.GetBool();
-            xShowConnectionMessages.Checked = ConfigKey.ShowConnectionMessages.GetBool();
+            xRankColorsInChat.Checked = ConfigKey.RankColorsInChat.Enabled();
+            xRankPrefixesInChat.Checked = ConfigKey.RankPrefixesInChat.Enabled();
+            xRankPrefixesInList.Checked = ConfigKey.RankPrefixesInList.Enabled();
+            xRankColorsInWorldNames.Checked = ConfigKey.RankColorsInWorldNames.Enabled();
+            xShowJoinedWorldMessages.Checked = ConfigKey.ShowJoinedWorldMessages.Enabled();
+            xShowConnectionMessages.Checked = ConfigKey.ShowConnectionMessages.Enabled();
 
             colorSys = Color.ParseToIndex( ConfigKey.SystemMessageColor.GetString() );
             ApplyColor( bColorSys, colorSys );
@@ -235,7 +235,7 @@ namespace fCraft.ConfigGUI {
 
             nMaxConnectionsPerIP.Value = ConfigKey.MaxConnectionsPerIP.GetInt();
             xMaxConnectionsPerIP.Checked = (nMaxConnectionsPerIP.Value > 0);
-            xAllowUnverifiedLAN.Checked = ConfigKey.AllowUnverifiedLAN.GetBool();
+            xAllowUnverifiedLAN.Checked = ConfigKey.AllowUnverifiedLAN.Enabled();
 
             nAntispamMessageCount.Value = ConfigKey.AntispamMessageCount.GetInt();
             nAntispamInterval.Value = ConfigKey.AntispamInterval.GetInt();
@@ -245,12 +245,12 @@ namespace fCraft.ConfigGUI {
             nAntispamMaxWarnings.Value = ConfigKey.AntispamMaxWarnings.GetInt();
             if( !xAntispamKicks.Checked ) nAntispamMaxWarnings.Enabled = false;
 
-            xRequireKickReason.Checked = ConfigKey.RequireKickReason.GetBool();
-            xRequireBanReason.Checked = ConfigKey.RequireBanReason.GetBool();
-            xRequireRankChangeReason.Checked = ConfigKey.RequireRankChangeReason.GetBool();
-            xAnnounceKickAndBanReasons.Checked = ConfigKey.AnnounceKickAndBanReasons.GetBool();
-            xAnnounceRankChanges.Checked = ConfigKey.AnnounceRankChanges.GetBool();
-            xAnnounceRankChangeReasons.Checked = ConfigKey.AnnounceRankChangeReasons.GetBool();
+            xRequireKickReason.Checked = ConfigKey.RequireKickReason.Enabled();
+            xRequireBanReason.Checked = ConfigKey.RequireBanReason.Enabled();
+            xRequireRankChangeReason.Checked = ConfigKey.RequireRankChangeReason.Enabled();
+            xAnnounceKickAndBanReasons.Checked = ConfigKey.AnnounceKickAndBanReasons.Enabled();
+            xAnnounceRankChanges.Checked = ConfigKey.AnnounceRankChanges.Enabled();
+            xAnnounceRankChangeReasons.Checked = ConfigKey.AnnounceRankChangeReasons.Enabled();
             xAnnounceRankChangeReasons.Enabled = xAnnounceRankChanges.Checked;
 
             FillRankList( cPatrolledRank, "(lowest rank)" );
@@ -260,7 +260,7 @@ namespace fCraft.ConfigGUI {
                 cPatrolledRank.SelectedIndex = RankManager.GetIndex( RankManager.ParseRank( ConfigKey.PatrolledRank.GetString() ) );
             }
 
-            xPaidPlayersOnly.Checked = ConfigKey.PaidPlayersOnly.GetBool();
+            xPaidPlayersOnly.Checked = ConfigKey.PaidPlayersOnly.Enabled();
         }
 
 
@@ -269,9 +269,9 @@ namespace fCraft.ConfigGUI {
             nSaveInterval.Value = ConfigKey.SaveInterval.GetInt();
             if( !xSaveInterval.Checked ) nSaveInterval.Enabled = false;
 
-            xBackupOnStartup.Checked = ConfigKey.BackupOnStartup.GetBool();
-            xBackupOnJoin.Checked = ConfigKey.BackupOnJoin.GetBool();
-            xBackupOnlyWhenChanged.Checked = ConfigKey.BackupOnlyWhenChanged.GetBool();
+            xBackupOnStartup.Checked = ConfigKey.BackupOnStartup.Enabled();
+            xBackupOnJoin.Checked = ConfigKey.BackupOnJoin.Enabled();
+            xBackupOnlyWhenChanged.Checked = ConfigKey.BackupOnlyWhenChanged.Enabled();
 
             xBackupInterval.Checked = (ConfigKey.BackupInterval.GetInt() > 0);
             nBackupInterval.Value = ConfigKey.BackupInterval.GetInt();
@@ -285,7 +285,7 @@ namespace fCraft.ConfigGUI {
             nMaxBackupSize.Value = ConfigKey.MaxBackupSize.GetInt();
             if( !xMaxBackupSize.Checked ) nMaxBackupSize.Enabled = false;
 
-            xBackupDataOnStartup.Checked = ConfigKey.BackupDataOnStartup.GetBool();
+            xBackupDataOnStartup.Checked = ConfigKey.BackupDataOnStartup.Enabled();
         }
 
 
@@ -306,7 +306,7 @@ namespace fCraft.ConfigGUI {
 
 
         void ApplyTabIRC() {
-            xIRCBotEnabled.Checked = ConfigKey.IRCBotEnabled.GetBool();
+            xIRCBotEnabled.Checked = ConfigKey.IRCBotEnabled.Enabled();
             gIRCNetwork.Enabled = xIRCBotEnabled.Checked;
             gIRCOptions.Enabled = xIRCBotEnabled.Checked;
 
@@ -317,29 +317,29 @@ namespace fCraft.ConfigGUI {
             tIRCBotChannels.Text = ConfigKey.IRCBotChannels.GetString();
 
             tIRCBotNick.Text = ConfigKey.IRCBotNick.GetString();
-            xIRCRegisteredNick.Checked = ConfigKey.IRCRegisteredNick.GetBool();
+            xIRCRegisteredNick.Checked = ConfigKey.IRCRegisteredNick.Enabled();
 
             tIRCNickServ.Text = ConfigKey.IRCNickServ.GetString();
             tIRCNickServMessage.Text = ConfigKey.IRCNickServMessage.GetString();
 
-            xIRCBotAnnounceIRCJoins.Checked = ConfigKey.IRCBotAnnounceIRCJoins.GetBool();
-            xIRCBotAnnounceServerJoins.Checked = ConfigKey.IRCBotAnnounceServerJoins.GetBool();
-            xIRCBotForwardFromIRC.Checked = ConfigKey.IRCBotForwardFromIRC.GetBool();
-            xIRCBotForwardFromServer.Checked = ConfigKey.IRCBotForwardFromServer.GetBool();
+            xIRCBotAnnounceIRCJoins.Checked = ConfigKey.IRCBotAnnounceIRCJoins.Enabled();
+            xIRCBotAnnounceServerJoins.Checked = ConfigKey.IRCBotAnnounceServerJoins.Enabled();
+            xIRCBotForwardFromIRC.Checked = ConfigKey.IRCBotForwardFromIRC.Enabled();
+            xIRCBotForwardFromServer.Checked = ConfigKey.IRCBotForwardFromServer.Enabled();
 
 
             colorIRC = Color.ParseToIndex( ConfigKey.IRCMessageColor.GetString() );
             ApplyColor( bColorIRC, colorIRC );
             Color.IRC = Color.Parse( colorIRC );
 
-            xIRCUseColor.Checked = ConfigKey.IRCUseColor.GetBool();
-            xIRCBotAnnounceServerEvents.Checked = ConfigKey.IRCBotAnnounceServerEvents.GetBool();
+            xIRCUseColor.Checked = ConfigKey.IRCUseColor.Enabled();
+            xIRCBotAnnounceServerEvents.Checked = ConfigKey.IRCBotAnnounceServerEvents.Enabled();
         }
 
 
         void ApplyTabAdvanced() {
-            xRelayAllBlockUpdates.Checked = ConfigKey.RelayAllBlockUpdates.GetBool();
-            xNoPartialPositionUpdates.Checked = ConfigKey.NoPartialPositionUpdates.GetBool();
+            xRelayAllBlockUpdates.Checked = ConfigKey.RelayAllBlockUpdates.Enabled();
+            xNoPartialPositionUpdates.Checked = ConfigKey.NoPartialPositionUpdates.Enabled();
             nTickInterval.Value = ConfigKey.TickInterval.GetInt();
 
             if( ConfigKey.ProcessPriority.IsBlank() ) {
@@ -362,8 +362,8 @@ namespace fCraft.ConfigGUI {
             ApplyEnum( cUpdaterMode, ConfigKey.UpdaterMode, UpdaterMode.Prompt );
 
             nThrottling.Value = ConfigKey.BlockUpdateThrottling.GetInt();
-            xLowLatencyMode.Checked = ConfigKey.LowLatencyMode.GetBool();
-            xSubmitCrashReports.Checked = ConfigKey.SubmitCrashReports.GetBool();
+            xLowLatencyMode.Checked = ConfigKey.LowLatencyMode.Enabled();
+            xSubmitCrashReports.Checked = ConfigKey.SubmitCrashReports.Enabled();
 
             xMaxUndo.Checked = (ConfigKey.MaxUndo.GetInt() > 0);
             nMaxUndo.Value = ConfigKey.MaxUndo.GetInt();

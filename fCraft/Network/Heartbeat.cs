@@ -43,7 +43,7 @@ namespace fCraft {
             if( Server.IsShuttingDown ) return;
 
             data = new HeartbeatData {
-                IsPublic = ConfigKey.IsPublic.GetBool(),
+                IsPublic = ConfigKey.IsPublic.Enabled(),
                 MaxPlayers = ConfigKey.MaxPlayers.GetInt(),
                 PlayerCount = Server.CountPlayers( false ),
                 ServerIP = Server.IP,
@@ -64,7 +64,7 @@ namespace fCraft {
                 Logger.LogAndReportCrash( "Heartbeat.Sending handler failed", "fCraft", ex, false );
             }
 
-            if( ConfigKey.HeartbeatEnabled.GetBool() ) {
+            if( ConfigKey.HeartbeatEnabled.Enabled() ) {
                 request = (HttpWebRequest)WebRequest.Create( PrimaryUrl );
                 request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
                 request.Method = "POST";

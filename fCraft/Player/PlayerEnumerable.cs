@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft {
+    /// <summary> Contains a set of utilities that simplify working with sets of players.
+    /// All the utilities are implemented as extension methods,
+    /// and it is recommended that you invoke them as extension methods. </summary>
     public static class PlayerEnumerable {
 
         #region Rank Filters
@@ -477,6 +480,10 @@ namespace fCraft {
 
         #region Packet Sending
 
+        /// <summary> Broadcasts a packet with normal priority. </summary>
+        /// <param name="source"> List of players who will receive the packet. </param>
+        /// <param name="packet"> Packet to send. </param>
+        /// <returns> Number of players who received the packet. </returns>
         public static int Send( this IEnumerable<Player> source, Packet packet ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             int i = 0;
@@ -487,6 +494,11 @@ namespace fCraft {
             return i;
         }
 
+
+        /// <summary> Broadcasts a packet with low priority. </summary>
+        /// <param name="source"> List of players who will receive the packet. </param>
+        /// <param name="packet"> Packet to send. </param>
+        /// <returns> Number of players who received the packet. </returns>
         public static int SendLowPriority( this IEnumerable<Player> source, Packet packet ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             int i = 0;

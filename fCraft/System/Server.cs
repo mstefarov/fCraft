@@ -204,7 +204,7 @@ namespace fCraft {
             if( !libraryInitialized ) {
                 throw new Exception( "Server.InitializeLibrary must be called before Server.InitServer" );
             }
-            RaiseInitializingEvent( Args );
+            RaiseEvent( Initializing );
 
             // warnings/disclaimers
             if( Updater.CurrentRelease.IsFlagged( ReleaseFlags.Dev ) ) {
@@ -259,7 +259,7 @@ namespace fCraft {
             // Init IRC
             IRC.Init();
 
-            if( ConfigKey.AutoRankEnabled.GetBool() ) {
+            if( ConfigKey.AutoRankEnabled.Enabled() ) {
                 AutoRankManager.Init();
             }
 
@@ -285,11 +285,11 @@ namespace fCraft {
 
             RaiseEvent( Starting );
 
-            if( ConfigKey.BackupDataOnStartup.GetBool() ) {
+            if( ConfigKey.BackupDataOnStartup.Enabled() ) {
                 BackupData();
             }
 
-            Player.Console = new Player( null, ConfigKey.ConsoleName.GetString() );
+            Player.Console = new Player( ConfigKey.ConsoleName.GetString() );
 
 
             // try to load the world list
@@ -387,7 +387,7 @@ namespace fCraft {
                 Logger.Log( "Will restart in {0}", LogType.SystemActivity, restartIn.ToCompactString() );
             }
 
-            if( ConfigKey.IRCBotEnabled.GetBool() ) IRC.Start();
+            if( ConfigKey.IRCBotEnabled.Enabled() ) IRC.Start();
 
             Scheduler.NewTask( AutoRankManager.TaskCallback ).RunForever( AutoRankManager.TickInterval );
 
@@ -780,11 +780,14 @@ namespace fCraft {
             }
         }
 
-        static void CheckIdles( object param ) {
+        static void CheckIdles( SchedulerTask task ) {
             Player[] tempPlayerList = Players;
-            foreach( Player player in tempPlayerList ) {
+            for( int i=0; i<tempPlayerList.Length; i++ ) {
+                Player player = tempPlayerList[i];
                 if( player.Info.Rank.IdleKickTimer <= 0 ) continue;
-                if( DateTime.UtcNow.Subtract( player.IdleTimer ).TotalMinutes >= player.Info.Rank.IdleKickTimer ) {
+
+                TimeSpan idleTime = DateTime.UtcNow.Subtract( player.LastActiveTime );
+                if( idleTime.TotalMinutes >= player.Info.Rank.IdleKickTimer ) {
                     Message( "{0}&S was kicked for being idle for {1} min",
                              player.ClassyName,
                              player.Info.Rank.IdleKickTimer.ToString() );
@@ -1055,7 +1058,7 @@ namespace fCraft {
 
                 Logger.Log( "{0} left the server.", LogType.UserActivity,
                             player.Name );
-                if( session.IsReady && ConfigKey.ShowConnectionMessages.GetBool() ) {
+                if( session.IsReady && ConfigKey.ShowConnectionMessages.Enabled() ) {
                     Players.CanSee( player ).Message( "&SPlayer {0}&S left the server.",
                                                       player.ClassyName );
                 }

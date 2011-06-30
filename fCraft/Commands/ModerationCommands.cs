@@ -230,7 +230,7 @@ namespace fCraft {
                 targetInfo = PlayerDB.FindPlayerInfoExact( nameOrIP );
             }
 
-            if( ConfigKey.RequireBanReason.GetBool() && string.IsNullOrEmpty( reason ) ) {
+            if( ConfigKey.RequireBanReason.Enabled() && string.IsNullOrEmpty( reason ) ) {
                 player.Message( "&WPlease specify a ban/unban reason." );
                 // freeze the target player to prevent further damage
                 if( !unban && target != null && !targetInfo.IsFrozen && player.Can( Permission.Freeze ) && player.Can( Permission.Ban, target.Info.Rank ) ) {
@@ -263,7 +263,7 @@ namespace fCraft {
                                             "{0}&W was banned by {1}",
                                             target.ClassyName, player.ClassyName );
                             if( !string.IsNullOrEmpty( reason ) ) {
-                                if( ConfigKey.AnnounceKickAndBanReasons.GetBool() ) {
+                                if( ConfigKey.AnnounceKickAndBanReasons.Enabled() ) {
                                     Server.Message( target, "&WBan reason: {0}", reason );
                                 }
                             }
@@ -303,7 +303,7 @@ namespace fCraft {
                                             targetInfo.Name, player.Name );
                                 Server.Message( "{0}&W (offline) was unbanned by {1}",
                                                   targetInfo.ClassyName, player.ClassyName );
-                                if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !string.IsNullOrEmpty( reason ) ) {
+                                if( ConfigKey.AnnounceKickAndBanReasons.Enabled() && !string.IsNullOrEmpty( reason ) ) {
                                     Server.Message( "&WUnban reason: {0}", reason );
                                 }
                             } else {
@@ -316,7 +316,7 @@ namespace fCraft {
                                             targetInfo.Name, player.Name );
                                 Server.Message( "{0}&W (offline) was banned by {1}",
                                                   targetInfo.ClassyName, player.ClassyName );
-                                if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !string.IsNullOrEmpty( reason ) ) {
+                                if( ConfigKey.AnnounceKickAndBanReasons.Enabled() && !string.IsNullOrEmpty( reason ) ) {
                                     Server.Message( "&WBan reason: {0}", reason );
                                 }
                             } else {
@@ -352,7 +352,7 @@ namespace fCraft {
                     Server.Message( "{0}&W (unrecognized) was banned by {1}",
                                       targetInfo.ClassyName, player.ClassyName );
 
-                    if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !string.IsNullOrEmpty( reason ) ) {
+                    if( ConfigKey.AnnounceKickAndBanReasons.Enabled() && !string.IsNullOrEmpty( reason ) ) {
                         Server.Message( "&WBan reason: {0}", reason );
                     }
                 }
@@ -399,7 +399,7 @@ namespace fCraft {
                         can.Message( "&WAn IP was unbanned by {0}",
                                      player.ClassyName );
                     }
-                    if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !String.IsNullOrEmpty( reason ) ) {
+                    if( ConfigKey.AnnounceKickAndBanReasons.Enabled() && !String.IsNullOrEmpty( reason ) ) {
                         Server.Message( player,
                                         "&WUnban reason: {0}",
                                         player, reason );
@@ -447,7 +447,7 @@ namespace fCraft {
                                       player.ClassyName );
                     }
 
-                    if( ConfigKey.AnnounceKickAndBanReasons.GetBool() && !String.IsNullOrEmpty( reason ) ) {
+                    if( ConfigKey.AnnounceKickAndBanReasons.Enabled() && !String.IsNullOrEmpty( reason ) ) {
                         Server.Message( player, "&WBan reason: {0}", reason );
                     }
 
@@ -510,7 +510,7 @@ namespace fCraft {
                 string previousKickedBy = target.Info.LastKickBy;
                 string previousKickReason = target.Info.LastKickReason;
 
-                if( ConfigKey.RequireKickReason.GetBool() && String.IsNullOrEmpty( reason ) ) {
+                if( ConfigKey.RequireKickReason.Enabled() && String.IsNullOrEmpty( reason ) ) {
                     player.Message( "&WPlease specify a kick reason: &H/k PlayerName Reason" );
                     // freeze the target player to prevent further damage
                     if( !target.Info.IsFrozen && player.Can( Permission.Freeze ) && player.Can( Permission.Kick, target.Info.Rank ) ) {
@@ -575,7 +575,7 @@ namespace fCraft {
 
                 Server.RaisePlayerKickedEvent( e );
                 if( !string.IsNullOrEmpty( reason ) ) {
-                    if( !e.IsSilent && ConfigKey.AnnounceKickAndBanReasons.GetBool() ) {
+                    if( !e.IsSilent && ConfigKey.AnnounceKickAndBanReasons.Enabled() ) {
                         Server.Message( "&WKick reason: {0}", reason );
                     }
                     Logger.Log( "{0} was kicked by {1}. Reason: {2}", LogType.UserActivity,
@@ -700,7 +700,7 @@ namespace fCraft {
                 return;
             }
 
-            if( ConfigKey.RequireRankChangeReason.GetBool() && String.IsNullOrEmpty( reason ) ) {
+            if( ConfigKey.RequireRankChangeReason.Enabled() && String.IsNullOrEmpty( reason ) ) {
                 if( promote ) {
                     player.Message( "&WPlease specify a promotion reason." );
                 } else {
@@ -771,7 +771,7 @@ namespace fCraft {
                 }
 
                 if( !silent ) {
-                    if( ConfigKey.AnnounceRankChanges.GetBool() ) {
+                    if( ConfigKey.AnnounceRankChanges.Enabled() ) {
                         Server.Message( target,
                                         "{0}&S {1} {2} from {3}&S to {4}",
                                         player.ClassyName,
@@ -779,7 +779,7 @@ namespace fCraft {
                                         targetInfo.Name,
                                         oldRank.ClassyName,
                                         newRank.ClassyName );
-                        if( ConfigKey.AnnounceRankChangeReasons.GetBool() && !String.IsNullOrEmpty( reason ) ) {
+                        if( ConfigKey.AnnounceRankChangeReasons.Enabled() && !String.IsNullOrEmpty( reason ) ) {
                             Server.Message( "&S{0} reason: {1}",
                                               promote ? "Promotion" : "Demotion",
                                               reason );
@@ -842,10 +842,10 @@ namespace fCraft {
             player.Info.LastSeen = DateTime.UtcNow;
 
             if( !silent ) {
-                if( ConfigKey.ShowConnectionMessages.GetBool() ) {
+                if( ConfigKey.ShowConnectionMessages.Enabled() ) {
                     Server.Players.CantSee( player ).Message( "&SPlayer {0}&S left the server.", player.ClassyName );
                 }
-                if( ConfigKey.IRCBotAnnounceServerJoins.GetBool() ) {
+                if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() ) {
                     IRC.PlayerDisconnectedHandler( null, new PlayerDisconnectedEventArgs( player, LeaveReason.ClientQuit ) );
                 }
             }
@@ -885,10 +885,10 @@ namespace fCraft {
                                                      player.ClassyName );
 
             if( !silent ) {
-                if( ConfigKey.ShowConnectionMessages.GetBool() ) {
+                if( ConfigKey.ShowConnectionMessages.Enabled() ) {
                     Server.Players.CantSee( player ).Message( Server.MakePlayerConnectedMessage( player, false, player.World ) );
                 }
-                if( ConfigKey.IRCBotAnnounceServerJoins.GetBool() ) {
+                if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() ) {
                     IRC.PlayerReadyHandler( null, new PlayerConnectedEventArgs( player, player.World ) );
                 }
             }
@@ -1372,18 +1372,10 @@ namespace fCraft {
         };
 
         internal static void Patrol( Player player, Command cmd ) {
-            Player target = player.World.GetNextPatrolTarget();
+            Player target = player.World.GetNextPatrolTarget( player );
             if( target == null ) {
                 player.Message( "Patrol: No one to patrol in this world." );
                 return;
-            }
-
-            if( target == player ) {
-                target = player.World.GetNextPatrolTarget();
-                if( target == player ) {
-                    player.Message( "Patrol: No one to patrol in this world (except yourself)." );
-                    return;
-                }
             }
 
             player.StopSpectating();
@@ -1402,20 +1394,13 @@ namespace fCraft {
         };
 
         internal static void SpecPatrol( Player player, Command cmd ) {
-            Player target = player.World.GetNextPatrolTarget();
+            Player target = player.World.GetNextPatrolTarget( player );
             if( target == null ) {
                 player.Message( "Patrol: No one to patrol in this world." );
                 return;
             }
 
-            if( target == player ) {
-                target = player.World.GetNextPatrolTarget();
-                if( target == player ) {
-                    player.Message( "Patrol: No one to patrol in this world (except yourself)." );
-                    return;
-                }
-            }
-
+            target.LastPatrolTime = DateTime.UtcNow;
             player.Spectate( target );
             player.Message( "SpecPatrol: Spectating {0}", target.ClassyName );
         }

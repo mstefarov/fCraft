@@ -105,7 +105,7 @@ namespace ConfigCLI {
             Console.ResetColor();
             Console.WriteLine( "   0. .." );
 
-            ConfigKey[] keys = Config.GetKeys( currentSection );
+            ConfigKey[] keys = currentSection.GetKeys();
 
             int maxLen = keys.Select( key => key.ToString().Length ).Max();
 

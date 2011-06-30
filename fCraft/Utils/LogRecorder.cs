@@ -4,23 +4,24 @@ using System.Collections.Generic;
 using fCraft.Events;
 
 namespace fCraft {
+    /// <summary> A simple way to temporarily hook into fCraft's Logger.
+    /// Make sure to dispose this class when you are done recording.
+    /// The easiest way to ensure that is with a using(){...} block. </summary>
     public sealed class LogRecorder : IDisposable {
         readonly object locker = new object();
         readonly List<string> messages = new List<string>();
         readonly LogType[] thingsToLog;
         bool disposed;
 
-        public bool HasMessages { get; private set; }
 
+        /// <summary> Creates a recorder for errors and warnings. </summary>
         public LogRecorder()
             : this( LogType.Error, LogType.Warning ) {
         }
 
-        ~LogRecorder() {
-            Dispose();
-        }
 
-
+        /// <summary> Creates a custom recorder. </summary>
+        /// <param name="thingsToLog"> A list or array of LogTypes to record. </param>
         public LogRecorder( params LogType[] thingsToLog ) {
             Logger.Logged += HandleLog;
             this.thingsToLog = thingsToLog;
@@ -39,6 +40,10 @@ namespace fCraft {
         }
 
 
+        /// <summary> Whether any messages have been recorded. </summary>
+        public bool HasMessages { get; private set; }
+
+        /// <summary> An array of individual recorded messages. </summary>
         public string[] MessageList {
             get {
                 lock( locker ) {
@@ -47,7 +52,8 @@ namespace fCraft {
             }
         }
 
-
+        
+        /// <summary> All messages in one block of text, separated by newlines. </summary>
         public string MessageString {
             get {
                 lock( locker ) {
@@ -57,10 +63,15 @@ namespace fCraft {
         }
 
 
+        /// <summary> Stops recording the messages (cannot be resumed).
+        /// This method should be called when you are done with the object.
+        /// If LogRecorder is in a using() block, this will be done for you. </summary>
         public void Dispose() {
-            if( !disposed ) {
-                Logger.Logged -= HandleLog;
-                disposed = true;
+            lock( locker ) {
+                if( !disposed ) {
+                    Logger.Logged -= HandleLog;
+                    disposed = true;
+                }
             }
         }
     }
