@@ -32,6 +32,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fCraftGUI", "fCraftGUI\fCra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigCLI", "ConfigCLI\ConfigCLI.csproj", "{A2963FAD-0DF5-4EC7-9367-3DD9C9E41AEB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoRankEditor", "AutoRankEditor\AutoRankEditor.csproj", "{A7E742E5-96F7-44AE-8BC9-B3C35F3690D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_Events|Any CPU = Debug_Events|Any CPU
@@ -141,6 +143,16 @@ Global
 		{A2963FAD-0DF5-4EC7-9367-3DD9C9E41AEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2963FAD-0DF5-4EC7-9367-3DD9C9E41AEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2963FAD-0DF5-4EC7-9367-3DD9C9E41AEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7E742E5-96F7-44AE-8BC9-B3C35F3690D5}.Debug_Events|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7E742E5-96F7-44AE-8BC9-B3C35F3690D5}.Debug_Events|Any CPU.Build.0 = Debug|Any CPU
+		{A7E742E5-96F7-44AE-8BC9-B3C35F3690D5}.Debug_IRC|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7E742E5-96F7-44AE-8BC9-B3C35F3690D5}.Debug_IRC|Any CPU.Build.0 = Debug|Any CPU
+		{A7E742E5-96F7-44AE-8BC9-B3C35F3690D5}.Debug_Scheduler|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7E742E5-96F7-44AE-8BC9-B3C35F3690D5}.Debug_Scheduler|Any CPU.Build.0 = Debug|Any CPU
+		{A7E742E5-96F7-44AE-8BC9-B3C35F3690D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7E742E5-96F7-44AE-8BC9-B3C35F3690D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7E742E5-96F7-44AE-8BC9-B3C35F3690D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7E742E5-96F7-44AE-8BC9-B3C35F3690D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
