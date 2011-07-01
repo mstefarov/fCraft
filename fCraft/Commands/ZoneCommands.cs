@@ -351,8 +351,8 @@ namespace fCraft {
                     return;
                 }
 
-                if( player.World.Map.Zones.Remove( zoneName ) ) {
-                    player.Message( "Zone \"{0}\" removed.", zoneName );
+                if( player.World.Map.Zones.Remove( zone.Name ) ) {
+                    player.Message( "Zone \"{0}\" removed.", zone.Name );
                 }
 
             } else {
