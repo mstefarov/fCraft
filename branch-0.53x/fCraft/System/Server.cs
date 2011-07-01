@@ -875,7 +875,9 @@ namespace fCraft {
             byte[] oneChar = new byte[1];
             while( sb.Length < 32 ) {
                 prng.GetBytes( oneChar );
-                if( oneChar[0] >= 33 && oneChar[0] <= 126 ) {
+                if( oneChar[0] >= 48 && oneChar[0] <= 57 ||
+                    oneChar[0] >= 65 && oneChar[0] <= 90 ||
+                    oneChar[0] >= 97 && oneChar[0] <= 122 ) {
                     sb.Append( (char)oneChar[0] );
                 }
             }
