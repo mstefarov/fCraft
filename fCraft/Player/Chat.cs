@@ -278,7 +278,7 @@ namespace fCraft.Events {
         public string Message { get; private set; }
         public string FormattedMessage { get; private set; }
         public ChatMessageType MessageType { get; private set; }
-        public readonly IEnumerable<Player> RecepientList;
+        public IEnumerable<Player> RecepientList { get; private set; }
         public int RecepientCount { get; private set; }
     }
 }

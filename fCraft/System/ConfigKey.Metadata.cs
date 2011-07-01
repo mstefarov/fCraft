@@ -214,7 +214,7 @@ namespace fCraft {
                 case BlankValueMeaning.Invalid:
                     throw new FormatException( "Value may not be blank." );
                 default:
-                    throw new ArgumentOutOfRangeException( "BlankMeaning" );
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -310,7 +310,7 @@ namespace fCraft {
                 case BlankValueMeaning.None:
                     return IPAddress.None;
                 default:
-                    throw new ArgumentOutOfRangeException( "BlankMeaning" );
+                    throw new ArgumentOutOfRangeException();
             }
         }
 

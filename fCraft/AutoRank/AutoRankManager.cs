@@ -10,28 +10,25 @@ namespace fCraft.AutoRank {
 
         internal static readonly TimeSpan TickInterval = TimeSpan.FromSeconds( 60 );
 
+        static readonly List<Criterion> Criteria = new List<Criterion>();
+
+        /// <summary> Whether any criteria are defined. </summary>
         public static bool HasCriteria {
             get { return Criteria.Count > 0; }
         }
 
 
-        public static void TaskCallback( SchedulerTask schedulerTask ) {
-            if( ConfigKey.AutoRankEnabled.Enabled() ) {
-                PlayerInfo[] onlinePlayers = Server.Players.Select( p => p.Info ).ToArray();
-                MaintenanceCommands.DoAutoRankAll( Player.Console, onlinePlayers, false, "~AutoRank" );
-            }
-        }
-
-
-        static readonly List<Criterion> Criteria = new List<Criterion>();
-
-
+        /// <summary> Adds a new criterion to the list. Throws an ArgumentException on duplicates. </summary>
         public static void Add( Criterion criterion ) {
             if( criterion == null ) throw new ArgumentNullException( "criterion" );
+            if( Criteria.Contains( criterion ) ) throw new ArgumentException( "This criterion has already been added." );
             Criteria.Add( criterion );
         }
 
 
+        /// <summary> Checks whether a given player is due for a promotion or demotion. </summary>
+        /// <param name="info"> PlayerInfo to check. </param>
+        /// <returns> Null if no rank change is needed, or a rank to promote/demote to. </returns>
         public static Rank Check( PlayerInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
             for( int i = 0; i < Criteria.Count; i++ ) {
@@ -46,13 +43,21 @@ namespace fCraft.AutoRank {
         }
 
 
-        public static void Init() {
+        internal static void TaskCallback( SchedulerTask schedulerTask ) {
+            if( ConfigKey.AutoRankEnabled.Enabled() ) {
+                PlayerInfo[] onlinePlayers = Server.Players.Select( p => p.Info ).ToArray();
+                MaintenanceCommands.DoAutoRankAll( Player.AutoRank, onlinePlayers, false, "~AutoRank" );
+            }
+        }
+
+
+        public static bool Init() {
             Criteria.Clear();
 
             if( File.Exists( Paths.AutoRankFileName ) ) {
                 try {
                     XDocument doc = XDocument.Load( Paths.AutoRankFileName );
-                    if( doc.Root == null ) return;
+                    if( doc.Root == null ) return false;
                     foreach( XElement el in doc.Root.Elements( "Criterion" ) ) {
                         try {
                             Add( new Criterion( el ) );
@@ -63,11 +68,14 @@ namespace fCraft.AutoRank {
                     if( Criteria.Count == 0 ) {
                         Logger.Log( "AutoRank.Init: No criteria loaded.", LogType.Warning );
                     }
+                    return true;
                 } catch( Exception ex ) {
                     Logger.Log( "AutoRank.Init: Could not parse the AutoRank file: {0}", LogType.Error, ex );
+                    return false;
                 }
             } else {
                 Logger.Log( "AutoRank.Init: autorank.xml not found. No criteria loaded.", LogType.Warning );
+                return false;
             }
         }
     }

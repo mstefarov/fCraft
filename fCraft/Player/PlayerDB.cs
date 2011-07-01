@@ -14,6 +14,9 @@ namespace fCraft {
     public static class PlayerDB {
         static readonly Trie<PlayerInfo> Trie = new Trie<PlayerInfo>();
         static readonly List<PlayerInfo> List = new List<PlayerInfo>();
+
+        /// <summary> Cached list of all players in the database.
+        /// May be quite long. </summary>
         public static PlayerInfo[] PlayerInfoList { get; private set; }
 
         static int maxID = 255;
@@ -35,6 +38,7 @@ namespace fCraft {
 
         static readonly object AddLocker = new object(),
                                SaveLoadLocker = new object();
+
         public static bool IsLoaded { get; private set; }
 
 
@@ -44,11 +48,15 @@ namespace fCraft {
             PlayerInfo info;
             lock( AddLocker ) {
                 info = Trie.Get( name );
-                if( info != null ) throw new ArgumentException( "A PlayerDB entry already exists for this name." );
+                if( info != null ) {
+                    throw new ArgumentException( "A PlayerDB entry already exists for this name.", "name" );
+                }
 
                 var e = new PlayerInfoCreatingEventArgs( name, IPAddress.None, RankManager.DefaultRank, true );
                 Server.RaisePlayerInfoCreatingEvent( e );
-                if( e.Cancel ) throw new OperationCanceledException( "Cancelled by a plugin." );
+                if( e.Cancel ) {
+                    throw new OperationCanceledException( "Cancelled by a plugin." );
+                }
 
                 info = new PlayerInfo( name, e.StartingRank, false, rankChangeType );
 
@@ -336,9 +344,14 @@ namespace fCraft {
             if( to == null ) throw new ArgumentNullException( "to" );
             int affected = 0;
             lock( AddLocker ) {
-                foreach( PlayerInfo info in List ) {
-                    if( info.Rank == from ) {
-                        ModerationCommands.DoChangeRank( player, info, to, "~MassRank", silent, false );
+                for( int i = 0; i < PlayerInfoList.Length; i++ ) {
+                    if( PlayerInfoList[i].Rank == from ) {
+                        ModerationCommands.DoChangeRank( player,
+                                                         PlayerInfoList[i],
+                                                         to,
+                                                         "~MassRank",
+                                                         silent,
+                                                         false );
                         affected++;
                     }
                 }

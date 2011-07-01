@@ -66,7 +66,7 @@ namespace fCraft {
 
             player.Message( "World {0}&S has {1} player(s) on.",
                             world.ClassyName,
-                            world.CountVisiblePlayers(player) );
+                            world.CountVisiblePlayers( player ) );
 
             Map map = world.Map;
 
@@ -106,7 +106,7 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdSpawn = new CommandDescriptor {
-            Name="spawn",
+            Name = "spawn",
             Category = CommandCategory.World,
             Usage = "/spawn",
             Help = "Teleports you to the current map's spawn.",
@@ -392,7 +392,7 @@ namespace fCraft {
 
             // Print information about the current world
             if( worldName == null ) {
-                if( player == Player.Console ) {
+                if( player.World == null ) {
                     player.Message( "When calling /waccess from console, you must specify a world name." );
                 } else {
                     player.Message( player.World.AccessSecurity.GetDescription( player.World, "world", "accessed" ) );
@@ -630,7 +630,7 @@ namespace fCraft {
 
             // Print information about the current world
             if( worldName == null ) {
-                if( player == Player.Console ) {
+                if( player.World == null ) {
                     player.Message( "When calling /wbuild from console, you must specify a world name." );
                 } else {
                     player.Message( player.World.BuildSecurity.GetDescription( player.World, "world", "modified" ) );

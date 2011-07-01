@@ -458,7 +458,7 @@ namespace fCraft {
         }
 
         public static IEnumerable<World> ListLoadedWorlds( Player observer ) {
-            return WorldList.Where( w => w.Players.Any( p => observer.CanSee( p ) ) );
+            return WorldList.Where( w => w.Players.Any( observer.CanSee ) );
         }
 
 

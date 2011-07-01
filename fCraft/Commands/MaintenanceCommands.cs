@@ -16,21 +16,18 @@ namespace fCraft {
         internal static void Init() {
             CommandManager.RegisterCommand( CdDumpStats );
 
-            CommandManager.RegisterCommand( CdAutoRankReload );
             CommandManager.RegisterCommand( CdMassRank );
             CommandManager.RegisterCommand( CdAutoRankAll );
             CommandManager.RegisterCommand( CdSetInfo );
 
-
-            CommandManager.RegisterCommand( CdReloadConfig );
+            CommandManager.RegisterCommand( CdReload );
 
             CommandManager.RegisterCommand( CdShutdown );
             CommandManager.RegisterCommand( CdRestart );
 
             CommandManager.RegisterCommand( CdPruneDB );
 
-            CommandManager.RegisterCommand( CdImportBans );
-            CommandManager.RegisterCommand( CdImportRanks );
+            CommandManager.RegisterCommand( CdImport );
 
             CommandManager.RegisterCommand( new CommandDescriptor {
                 Category = CommandCategory.Maintenance,
@@ -549,22 +546,6 @@ namespace fCraft {
             player.Message( "AutoRankAll: Worked for {0}ms, {1} players promoted, {2} demoted.", sw.ElapsedMilliseconds, promoted, demoted );
         }
 
-
-
-        static readonly CommandDescriptor CdAutoRankReload = new CommandDescriptor {
-            Name = "autorankreload",
-            Category = CommandCategory.Maintenance,
-            IsConsoleSafe = true,
-            IsHidden = true,
-            Permissions = new[] { Permission.EditPlayerDB },
-            Help = "",
-            Handler = AutoRankReload
-        };
-
-        internal static void AutoRankReload( Player player, Command cmd ) {
-            AutoRankManager.Init();
-        }
-
         #endregion
 
 
@@ -772,27 +753,61 @@ namespace fCraft {
         #endregion
 
 
-        #region ReloadConfig
+        #region Reload
 
-        static readonly CommandDescriptor CdReloadConfig = new CommandDescriptor {
-            Name = "reloadconfig",
+        static readonly CommandDescriptor CdReload = new CommandDescriptor {
+            Name = "reload",
+            Aliases = new[] { "configreload", "reloadconfig", "autorankreload", "reloadautorank" },
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.ReloadConfig },
             IsConsoleSafe = true,
-            Help = "Reloads most of server's configuration file. " +
-                   "NOTE: THIS COMMAND IS EXPERIMENTAL! Excludes rank changes and IRC bot settings. " +
-                   "Server has to be restarted to change those.",
-            Handler = ReloadConfig
+            Usage = "/reload config&S or &H/reload autorank",
+            Help = "Reloads a given configuration file. Note that changes to ranks " +
+                   "and IRC settings still require a full restart.",
+            Handler = Reload
         };
 
-        static void ReloadConfig( Player player, Command cmd ) {
-            player.Message( "Attempting to reload config..." );
-            if( Config.Load( true, true ) ) {
-                player.Message( "Config reloaded." );
-            } else {
-                player.Message( "An error occured while trying to reload the config. See server log for details." );
+        static void Reload( Player player, Command cmd ) {
+            string whatToReload = cmd.Next();
+            if( whatToReload == null ) {
+                CdReload.PrintUsage( player );
+                return;
+            }
+
+            whatToReload = whatToReload.ToLower();
+
+            using( LogRecorder rec = new LogRecorder() ) {
+                bool success;
+
+                switch( whatToReload ) {
+                    case "config":
+                        success = Config.Load( true, true );
+                        break;
+                    case "autorank":
+                        success = AutoRankManager.Init();
+                        break;
+
+                    default:
+                        CdReload.PrintUsage( player );
+                        return;
+                }
+
+                if( rec.HasMessages ) {
+                    foreach( string msg in rec.MessageList ) {
+                        player.Message( msg );
+                    }
+                }
+
+                if( success ) {
+                    player.Message( "Reload: reloaded {0}.", whatToReload );
+                } else {
+                    player.Message( "&WReload: Error(s) occured while reloading {0}.", whatToReload );
+                }
             }
         }
+    
+
+
 
         #endregion
 
@@ -916,15 +931,48 @@ namespace fCraft {
 
         #region Importing
 
-        static readonly CommandDescriptor CdImportBans = new CommandDescriptor {
-            Name = "importbans",
+        static readonly CommandDescriptor CdImport = new CommandDescriptor {
+            Name = "import",
+            Aliases = new[] { "importbans", "importranks" },
             Category = CommandCategory.Maintenance,
-            Permissions = new[] { Permission.Import, Permission.Ban },
-            Usage = "/importbans SoftwareName File",
-            Help = "Imports ban list from formats used by other servers. " +
+            IsConsoleSafe = true,
+            Permissions = new[] { Permission.Import },
+            Usage = "/import bans Software File&S or &H/import ranks Software File Rank",
+            Help = "Imports data from formats used by other servers. " +
                    "Currently only MCSharp/MCZall files are supported.",
-            Handler = ImportBans
+            Handler = Import
         };
+
+        static void Import( Player player, Command cmd ) {
+            string action = cmd.Next();
+            if( action == null ) {
+                CdImport.PrintUsage( player );
+                return;
+            }
+
+            switch( action.ToLower() ) {
+                case "bans":
+                    if( !player.Can( Permission.Ban ) ) {
+                        player.MessageNoAccess( Permission.Ban );
+                        return;
+                    }
+                    ImportBans( player, cmd );
+                    break;
+
+                case "ranks":
+                    if( !player.Can( Permission.Promote ) ) {
+                        player.MessageNoAccess( Permission.Promote );
+                        return;
+                    }
+                    ImportRanks( player, cmd );
+                    break;
+
+                default:
+                    CdImport.PrintUsage( player );
+                    break;
+            }
+        }
+
 
         static void ImportBans( Player player, Command cmd ) {
             string serverName = cmd.Next();
@@ -932,7 +980,7 @@ namespace fCraft {
 
             // Make sure all parameters are specified
             if( file == null ) {
-                CdImportBans.PrintUsage( player );
+                CdImport.PrintUsage( player );
                 return;
             }
 
@@ -986,18 +1034,6 @@ namespace fCraft {
         }
 
 
-
-        static readonly CommandDescriptor CdImportRanks = new CommandDescriptor {
-            Name = "importranks",
-            Category = CommandCategory.Maintenance,
-            Permissions = new[] { Permission.Import, Permission.Promote, Permission.Demote },
-            Usage = "/importranks SoftwareName File RankToAssign",
-            Help = "Imports player list from formats used by other servers. " +
-                   "All players listed in the specified file are added to PlayerDB with the specified rank. " +
-                   "Currently only MCSharp/MCZall files are supported.",
-            Handler = ImportRanks
-        };
-
         static void ImportRanks( Player player, Command cmd ) {
             string serverName = cmd.Next();
             string fileName = cmd.Next();
@@ -1007,7 +1043,7 @@ namespace fCraft {
 
             // Make sure all parameters are specified
             if( rankName == null ) {
-                CdImportRanks.PrintUsage( player );
+                CdImport.PrintUsage( player );
                 return;
             }
 
