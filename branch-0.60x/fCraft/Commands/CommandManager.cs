@@ -200,6 +200,7 @@ namespace fCraft {
                 if( descriptor.Permissions != null ) {
                     if( !descriptor.CanBeCalledBy( player.Info.Rank ) ) {
                         player.MessageNoAccess( descriptor.Permissions );
+                        return;
                     }
                     if( !descriptor.Call( player, cmd, true ) ) {
                         player.Message( "Command was cancelled." );
