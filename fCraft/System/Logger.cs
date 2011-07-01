@@ -205,7 +205,6 @@ namespace fCraft {
 
                     byte[] formData = Encoding.UTF8.GetBytes( sb.ToString() );
 
-                    ServicePointManager.Expect100Continue = false;
                     HttpWebRequest request = (HttpWebRequest)WebRequest.Create( CrashReportUrl );
                     request.Method = "POST";
                     request.Timeout = 15000; // 15s timeout
