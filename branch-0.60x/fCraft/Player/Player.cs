@@ -26,7 +26,8 @@ namespace fCraft {
         /// Console has all the permissions granted.
         /// Note that Player.Console.World is always null,
         /// and that prevents console from calling certain commands (like /tp). </summary>
-        public static Player Console;
+        public static Player Console, AutoRank;
+        bool isSuper;
 
         public static bool RelayAllUpdates;
 
@@ -60,6 +61,7 @@ namespace fCraft {
             Info = new PlayerInfo( name, RankManager.HighestRank, true, RankChangeType.AutoPromoted );
             spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
             ResetAllBinds();
+            isSuper = true;
         }
 
 
@@ -312,6 +314,11 @@ namespace fCraft {
                     MessageNow( "Partial: &F{0}", partialMessage );
                     break;
 
+                case MessageType.PartialMessageCancel:
+                    partialMessage = null;
+                    MessageNow( "Partial message cancelled." );
+                    break;
+
                 case MessageType.Invalid: {
                         Message( "Unknown command." );
                     } break;
@@ -493,7 +500,7 @@ namespace fCraft {
         readonly Queue<DateTime> spamChatLog = new Queue<DateTime>( AntispamMessageCount );
 
         bool DetectChatSpam() {
-            if( this == Console ) return false;
+            if( isSuper ) return false;
             if( spamChatLog.Count >= AntispamMessageCount ) {
                 DateTime oldestTime = spamChatLog.Dequeue();
                 if( DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds < AntispamInterval ) {
@@ -734,27 +741,31 @@ namespace fCraft {
         #region Permission Checks
 
         public bool Can( params Permission[] permissions ) {
-            return (this == Console) || permissions.All( permission => Info.Rank.Can( permission ) );
+            return isSuper || permissions.All( permission => Info.Rank.Can( permission ) );
+        }
+
+        public bool CanAny( params Permission[] permissions ) {
+            return isSuper || permissions.Any( permission => Info.Rank.Can( permission ) );
         }
 
         public bool Can( Permission permission ) {
-            return (this == Console) || Info.Rank.Can( permission );
+            return isSuper || Info.Rank.Can( permission );
         }
 
 
         public bool Can( Permission permission, Rank other ) {
-            return Info.Rank.Can( permission, other );
+            return isSuper || Info.Rank.Can( permission, other );
         }
 
 
         public bool CanDraw( int volume ) {
-            return (this == Console) || (Info.Rank.DrawLimit == 0) || (volume <= Info.Rank.DrawLimit);
+            return isSuper || (Info.Rank.DrawLimit == 0) || (volume <= Info.Rank.DrawLimit);
         }
 
 
         public bool CanJoin( World worldToJoin ) {
             if( worldToJoin == null ) throw new ArgumentNullException( "worldToJoin" );
-            return (this == Console) || worldToJoin.AccessSecurity.Check( Info );
+            return isSuper || worldToJoin.AccessSecurity.Check( Info );
         }
 
 
@@ -824,7 +835,7 @@ namespace fCraft {
 
         public bool CanSee( Player other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            if( this == Console ) return true;
+            if( isSuper ) return true;
             return !other.IsHidden || Info.Rank.CanSee( other.Info.Rank );
         }
 
@@ -946,12 +957,18 @@ namespace fCraft {
             request.Timeout = PaidCheckTimeout;
             request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
 
-            using( WebResponse response = request.GetResponse() ) {
-                using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
-                    string paidStatusString = responseReader.ReadToEnd();
-                    bool isPaid;
-                    return Boolean.TryParse( paidStatusString, out isPaid ) && isPaid;
+            try {
+                using( WebResponse response = request.GetResponse() ) {
+                    using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
+                        string paidStatusString = responseReader.ReadToEnd();
+                        bool isPaid;
+                        return Boolean.TryParse( paidStatusString, out isPaid ) && isPaid;
+                    }
                 }
+            } catch( WebException ex ) {
+                Logger.Log( "Could not check paid status of player {0}: {1}", LogType.Warning,
+                            name, ex.Message );
+                return false;
             }
         }
 

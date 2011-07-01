@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using fCraft.Events;
+using System.Threading;
 
 namespace fCraft {
     /// <summary> A simple way to temporarily hook into fCraft's Logger.
@@ -12,23 +13,30 @@ namespace fCraft {
         readonly List<string> messages = new List<string>();
         readonly LogType[] thingsToLog;
         bool disposed;
+        Thread creatingThread;
 
 
         /// <summary> Creates a recorder for errors and warnings. </summary>
         public LogRecorder()
-            : this( LogType.Error, LogType.Warning ) {
+            : this( true, LogType.Error, LogType.Warning ) {
         }
 
 
         /// <summary> Creates a custom recorder. </summary>
+        /// <param name="restrictToThisThread"> Whether this log recorder should limit
+        /// recording to messages emitted from the same thread that created this object. </param>
         /// <param name="thingsToLog"> A list or array of LogTypes to record. </param>
-        public LogRecorder( params LogType[] thingsToLog ) {
+        public LogRecorder( bool restrictToThisThread, params LogType[] thingsToLog ) {
             Logger.Logged += HandleLog;
             this.thingsToLog = thingsToLog;
+            if( restrictToThisThread ) {
+                creatingThread = Thread.CurrentThread;
+            }
         }
 
 
         void HandleLog( object sender, LogEventArgs e ) {
+            if( creatingThread != null && creatingThread != Thread.CurrentThread ) return;
             for( int i = 0; i < thingsToLog.Length; i++ ) {
                 if( thingsToLog[i] == e.MessageType ) {
                     HasMessages = true;

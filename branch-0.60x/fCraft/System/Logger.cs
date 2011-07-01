@@ -5,6 +5,7 @@ using System.IO;
 using System.Net;
 using System.Net.Cache;
 using System.Reflection;
+// ReSharper disable RedundantUsingDirective
 using System.Reflection.Emit;
 using System.Text;
 using System.Linq;

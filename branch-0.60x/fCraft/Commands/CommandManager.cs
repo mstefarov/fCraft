@@ -19,8 +19,11 @@ namespace fCraft {
         /// <summary> Confirmation (/ok) for a previous command. </summary>
         Confirmation,
 
-        /// <summary> Partial message (ends with " /") </summary>
+        /// <summary> Partial message (ends with " /"). </summary>
         PartialMessage,
+
+        /// <summary> Cancelled partial message ("/nvm"). </summary>
+        PartialMessageCancel,
 
         /// <summary> Private message. </summary>
         PrivateChat,
@@ -37,6 +40,8 @@ namespace fCraft {
     public static class CommandManager {
         static readonly SortedList<string, string> Aliases = new SortedList<string, string>();
         static readonly SortedList<string, CommandDescriptor> Commands = new SortedList<string, CommandDescriptor>();
+
+        public static readonly string[] ReservedCommandNames = new[] { "ok", "nvm" };
 
         // Sets up all the command hooks
         internal static void Init() {
@@ -58,46 +63,28 @@ namespace fCraft {
 
         /// <summary> Gets a list of ONLY hidden or non-hidden commands, not both. </summary>
         public static CommandDescriptor[] GetCommands( bool hidden ) {
-            return Commands.Values.Where( cmd => (cmd.IsHidden == hidden) ).ToArray();
+            return Commands.Values
+                           .Where( cmd => (cmd.IsHidden == hidden) )
+                           .ToArray();
         }
 
 
         /// <summary> Gets a list of commands available to a specified rank. </summary>
         public static CommandDescriptor[] GetCommands( Rank rank, bool includeHidden ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
-            List<CommandDescriptor> list = new List<CommandDescriptor>();
-            foreach( CommandDescriptor cmd in Commands.Values ) {
-                if( (!cmd.IsHidden || includeHidden) && (cmd.Permissions == null || cmd.Permissions.All( rank.Can )) ) {
-                    list.Add( cmd );
-                }
-            }
-            return list.ToArray();
-        }
-
-
-        /// <summary> Gets a list of commands that require a specified permission.
-        /// Note that commands may require more than one permission, or none at all. </summary>
-        public static CommandDescriptor[] GetCommands( Permission permission, bool includeHidden ) {
-            List<CommandDescriptor> list = new List<CommandDescriptor>();
-            foreach( CommandDescriptor cmd in Commands.Values ) {
-                if( (!cmd.IsHidden || includeHidden) && cmd.Permissions != null && cmd.Permissions.Contains( permission ) ) {
-                    list.Add( cmd );
-                }
-            }
-            return list.ToArray();
+            return Commands.Values
+                           .Where( cmd => cmd.IsVisibleTo( rank ) )
+                           .ToArray();
         }
 
 
         /// <summary> Gets a list of commands in a specified category.
         /// Note that commands may belong to more than one category. </summary>
         public static CommandDescriptor[] GetCommands( CommandCategory category, bool includeHidden ) {
-            List<CommandDescriptor> list = new List<CommandDescriptor>();
-            foreach( CommandDescriptor cmd in Commands.Values ) {
-                if( (!cmd.IsHidden || includeHidden) && (cmd.Category & category) == category ) {
-                    list.Add( cmd );
-                }
-            }
-            return list.ToArray();
+            return Commands.Values
+                           .Where( cmd => (includeHidden || !cmd.IsHidden ) &&
+                                          ( cmd.Category & category ) == category )
+                           .ToArray();
         }
 
 
@@ -117,12 +104,18 @@ namespace fCraft {
             }
 #endif
 
-            if( !IsValidCommandName(descriptor.Name) ) {
+            if( !IsValidCommandName( descriptor.Name ) ) {
                 throw new CommandRegistrationException( "All commands need a name, between 1 and 16 alphanumeric characters long." );
             }
 
-            if( Commands.ContainsKey( descriptor.Name ) ) {
+            string normalizedName = descriptor.Name.ToLower();
+
+            if( Commands.ContainsKey( normalizedName ) ) {
                 throw new CommandRegistrationException( "A command with the name \"{0}\" is already registered.", descriptor.Name );
+            }
+
+            if( ReservedCommandNames.Contains( normalizedName ) ) {
+                throw new CommandRegistrationException( "The command name is reserved." );
             }
 
             if( descriptor.Handler == null ) {
@@ -141,32 +134,38 @@ namespace fCraft {
 
             if( RaiseCommandRegisteringEvent( descriptor ) ) return;
 
-            if( Aliases.ContainsKey( descriptor.Name ) ) {
+            if( Aliases.ContainsKey( normalizedName ) ) {
                 Logger.Log( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden.", LogType.Warning,
                             descriptor.Name, Aliases[descriptor.Name] );
-                Aliases.Remove( descriptor.Name );
+                Aliases.Remove( normalizedName );
             }
 
             if( descriptor.Aliases != null ) {
                 foreach( string alias in descriptor.Aliases ) {
-                    if( Aliases.ContainsKey( alias ) ) {
+                    string normalizedAlias = alias.ToLower();
+                    if( ReservedCommandNames.Contains( normalizedAlias ) ) {
+                        Logger.Log( "Commands.RegisterCommand: Alias \"{0}\" for \"{1}\" ignored (reserved name).", LogType.Warning,
+                                    alias, descriptor.Name );
+                    } else if( Aliases.ContainsKey( normalizedAlias ) ) {
                         Logger.Log( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden to resolve to \"{2}\" instead.",
                                     LogType.Warning,
-                                    alias, Aliases[alias], descriptor.Name );
+                                    alias, Aliases[normalizedAlias], descriptor.Name );
                     } else {
-                        Aliases.Add( alias, descriptor.Name );
+                        Aliases.Add( normalizedAlias, normalizedName );
                     }
                 }
             }
 
-            Commands.Add( descriptor.Name, descriptor );
+            Commands.Add( normalizedName, descriptor );
 
             RaiseCommandRegisteredEvent( descriptor );
         }
 
 
-        /// <summary> Finds an instance of CommandDescriptor for a given command. </summary>
+        /// <summary> Finds an instance of CommandDescriptor for a given command.
+        /// Case-insensitive, but no autocompletion. </summary>
         /// <param name="commandName"> Command to find. </param>
+        /// <param name="alsoCheckAliases"> Whether to check command aliases. </param>
         /// <returns> CommandDesriptor object if found, null if not found. </returns>
         public static CommandDescriptor GetDescriptor( string commandName, bool alsoCheckAliases ) {
             if( commandName == null ) throw new ArgumentNullException( "commandName" );
@@ -199,12 +198,11 @@ namespace fCraft {
                 player.Message( "You cannot use this command from console." );
             } else {
                 if( descriptor.Permissions != null ) {
-                    if( player.Can( descriptor.Permissions ) ) {
-                        if( !descriptor.Call( player, cmd, true ) ) {
-                            player.Message( "Command was cancelled." );
-                        }
-                    } else {
+                    if( !descriptor.CanBeCalledBy( player.Info.Rank ) ) {
                         player.MessageNoAccess( descriptor.Permissions );
+                    }
+                    if( !descriptor.Call( player, cmd, true ) ) {
+                        player.Message( "Command was cancelled." );
                     }
                 } else {
                     if( !descriptor.Call( player, cmd, true ) ) {
@@ -220,6 +218,7 @@ namespace fCraft {
             if( string.IsNullOrEmpty( message ) ) return MessageType.Invalid;
             if( message == "/" ) return MessageType.RepeatCommand;
             if( message.Equals( "/ok", StringComparison.OrdinalIgnoreCase ) ) return MessageType.Confirmation;
+            if( message.Equals( "/nvm", StringComparison.OrdinalIgnoreCase ) ) return MessageType.PartialMessageCancel;
             if( message.EndsWith( " /" ) ) return MessageType.PartialMessage;
             if( message.EndsWith( " //" ) ) message = message.Substring( 0, message.Length - 1 );
             switch( message[0] ) {

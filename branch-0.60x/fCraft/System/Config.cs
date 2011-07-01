@@ -39,7 +39,8 @@ namespace fCraft {
      * 109 - r226 - Added PatrolledClass config key
      *              Added Patrol permission
      *
-     * 110 - r227 - Added ShutdownServer and Mute permissions
+     * 110 - r227 - Added ShutdownServer and Mute permissions.
+     *              NOTE: This build does not support loading config.xml of this or earlier versions.
      * 
      * 111 - r231 - Renamed config keys:
      *                  DefaultClass             -> DefaultRank
@@ -141,9 +142,10 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int ConfigVersion = 143;
+        public const int CurrentVersion = 143;
 
-        const int FirstVersionWithMaxPlayersKey = 134, // LEGACY
+        const int LowestSupportedVersion = 111,
+                  FirstVersionWithMaxPlayersKey = 134, // LEGACY
                   FirstVersionWithSectionTags = 139; // LEGACY
 
         const string ConfigXmlRootName = "fCraftConfig";
@@ -277,11 +279,13 @@ namespace fCraft {
                 try {
                     file = XDocument.Load( Paths.ConfigFileName );
                     if( file.Root == null || file.Root.Name != ConfigXmlRootName ) {
-                        Logger.Log( "Config.Load: Malformed or incompatible config file {0}. Loading defaults.", LogType.Warning, Paths.ConfigFileName );
+                        Logger.Log( "Config.Load: Malformed or incompatible config file {0}. Loading defaults.", LogType.Warning,
+                                    Paths.ConfigFileName );
                         file = new XDocument();
                         file.Add( new XElement( ConfigXmlRootName ) );
                     } else {
-                        Logger.Log( "Config.Load: Config file {0} loaded succesfully.", LogType.Debug, Paths.ConfigFileName );
+                        Logger.Log( "Config.Load: Config file {0} loaded succesfully.", LogType.Debug,
+                                    Paths.ConfigFileName );
                         fromFile = true;
                     }
                 } catch( Exception ex ) {
@@ -296,17 +300,28 @@ namespace fCraft {
 
             XElement config = file.Root;
 
-            XAttribute attr = config.Attribute( "version" );
             int version = 0;
-            if( fromFile && (attr == null || !Int32.TryParse( attr.Value, out version ) || version != ConfigVersion) ) {
-                Logger.Log( "Config.Load: Your config.xml was made for a different version of fCraft. " +
-                     "Some obsolete settings might be ignored, and some recently-added settings will be set to their default values. " +
-                     "It is recommended that you run ConfigGUI to make sure everything is in order.", LogType.Warning );
+            if( fromFile ){
+                XAttribute attr = config.Attribute( "version" );
+                if( attr != null && Int32.TryParse( attr.Value, out version ) ) {
+                    if( version < LowestSupportedVersion ) {
+                        Logger.Log( "Config.Load: Your copy of config.xml is too old to be loaded properly. " +
+                                    "Some settings will be lost of replaced with defaults. " +
+                                    "Please run ConfigGUI to make sure that everything is in order.", LogType.Warning );
+                    } else if( version != CurrentVersion ) {
+                        Logger.Log( "Config.Load: Your config.xml was made for a different version of fCraft. " +
+                                    "Some obsolete settings might be ignored, and some recently-added settings will be set to defaults. " +
+                                    "It is recommended that you run ConfigGUI to make sure that everything is in order.", LogType.Warning );
+                    }
+                } else {
+                    Logger.Log( "Config.Load: Unknown version of config.xml found. It might be corrupted. "+
+                                "Please run ConfigGUI to make sure that everything is in order.", LogType.Warning );
+                }
             }
 
             // read rank definitions
             if( !skipRankList ) {
-                LoadRankList( config, version, fromFile );
+                LoadRankList( config, fromFile );
                 RankManager.DefaultRank = RankManager.ParseRank( ConfigKey.DefaultRank.GetString() );
             }
 
@@ -425,6 +440,7 @@ namespace fCraft {
                     if( playerListCache != null ) {
                         foreach( Player p in playerListCache ) {
                             if( p.Session.BandwidthUseMode == BandwidthUseMode.Default ) {
+                                // resets the use tweaks
                                 p.Session.BandwidthUseMode = BandwidthUseMode.Default;
                             }
                         }
@@ -520,7 +536,7 @@ namespace fCraft {
             XDocument file = new XDocument();
 
             XElement config = new XElement( ConfigXmlRootName );
-            config.Add( new XAttribute( "version", ConfigVersion ) );
+            config.Add( new XAttribute( "version", CurrentVersion ) );
             if( saveSalt ) {
                 config.Add( new XAttribute( "salt", Server.Salt ) );
             }
@@ -612,7 +628,8 @@ namespace fCraft {
 
 
         /// <summary> Attempts to parse a given key's value as an integer. </summary>
-        /// <param name="value"> Will be set to the value on success, or to 0 on failure. </param>
+        /// <param name="key"> ConfigKey to get value from. </param>
+        /// <param name="result"> Will be set to the value on success, or to 0 on failure. </param>
         /// <returns> Whether parsing succeeded. </returns>
         public static bool TryGetInt( this ConfigKey key, out int result ) {
             return Int32.TryParse( GetString( key ), out result );
@@ -638,7 +655,8 @@ namespace fCraft {
 
 
         /// <summary> Attempts to parse a given key's value as a boolean. </summary>
-        /// <param name="value"> Will be set to the value on success, or to false on failure. </param>
+        /// <param name="key"> ConfigKey to get value from. </param>
+        /// <param name="result"> Will be set to the value on success, or to false on failure. </param>
         /// <returns> Whether parsing succeeded. </returns>
         public static bool TryGetBool( this ConfigKey key, out bool result ) {
             return Boolean.TryParse( GetString( key ), out result );
@@ -755,7 +773,7 @@ namespace fCraft {
 
         #region Ranks
 
-        static void LoadRankList( XContainer el, int version, bool fromFile ) {
+        static void LoadRankList( XContainer el, bool fromFile ) {
             if( el == null ) throw new ArgumentNullException( "el" );
 
             XElement legacyRankMappingTag = el.Element( "LegacyRankMapping" );

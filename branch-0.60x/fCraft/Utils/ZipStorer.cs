@@ -53,9 +53,9 @@ namespace System.IO.Compression {
 
         #region Public fields
         /// <summary>True if UTF8 encoding for filename and comments, false if default (CP 437)</summary>
-        public bool EncodeUTF8;
+        public bool EncodeUTF8 { get; set; }
         /// <summary>Force deflate algotithm even if it inflates the stored file. Off by default.</summary>
-        public bool ForceDeflating;
+        public bool ForceDeflating { get; set; }
         #endregion
 
         #region Private fields

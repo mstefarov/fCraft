@@ -290,6 +290,7 @@ namespace fCraft {
             }
 
             Player.Console = new Player( ConfigKey.ConsoleName.GetString() );
+            Player.AutoRank = new Player( "(AutoRank)" );
 
 
             // try to load the world list

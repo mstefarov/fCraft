@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Linq;
 
 namespace fCraft {
 
@@ -54,8 +55,22 @@ namespace fCraft {
         /// <summary> List of permissions required to call the command. May be empty or null. Default: null </summary>
         public Permission[] Permissions { get; set; }
 
+        /// <summary> Whether any permission from the list is enough.
+        /// If this is false, ALL permissions are required. </summary>
+        public bool AnyPermission { get; set; }
+
         /// <summary> Brief demonstration of command's usage syntax. Defaults to "/commandname". </summary>
         public string Usage { get; set; }
+
+        public bool CanBeCalledBy( Rank rank ) {
+            return Permissions == null ||
+                   Permissions.All( rank.Can ) ||
+                   AnyPermission && Permissions.Any( rank.Can );
+        }
+
+        public bool IsVisibleTo( Rank rank ) {
+            return !IsHidden && CanBeCalledBy( rank );
+        }
 
 
         public void PrintUsage( Player player ) {

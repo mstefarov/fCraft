@@ -536,6 +536,7 @@ namespace fCraft {
             }
         }
 
+
         internal static void PlayerDisconnectedHandler( object sender, PlayerDisconnectedEventArgs e ) {
             if( e.Player.Session.IsReady && ConfigKey.IRCBotAnnounceServerJoins.Enabled() && !e.Player.IsHidden ) {
                 string message = String.Format( "{0}&S* {1}&S left the server ({2})",
@@ -546,21 +547,25 @@ namespace fCraft {
             }
         }
 
-        internal static void PlayerKickedHandler( object sender, PlayerKickedEventArgs e ) {
+
+        static void PlayerKickedHandler( object sender, PlayerKickedEventArgs e ) {
             if( !e.IsSilent && e.Context == LeaveReason.Kick ) {
                 PlayerSomethingMessage( e.Kicker, "kicked", e.Player.Info, e.Reason );
             }
         }
 
-        internal static void PlayerBannedHandler( PlayerInfo player, Player banner, string reason ) {
+
+        static void PlayerBannedHandler( PlayerInfo player, Player banner, string reason ) {
             PlayerSomethingMessage( banner, "banned", player, reason );
         }
 
-        internal static void PlayerUnbannedHandler( PlayerInfo player, Player unbanner, string reason ) {
+
+        static void PlayerUnbannedHandler( PlayerInfo player, Player unbanner, string reason ) {
             PlayerSomethingMessage( unbanner, "unbanned", player, reason );
         }
 
-        internal static void PlayerRankChangedHandler( object sender, PlayerInfoRankChangedEventArgs e ) {
+
+        static void PlayerRankChangedHandler( object sender, PlayerInfoRankChangedEventArgs e ) {
             string actionString = String.Format( "{0} from {1}&W to {2}&W",
                                                  e.RankChangeType,
                                                  e.OldRank.ClassyName,
@@ -568,7 +573,12 @@ namespace fCraft {
             PlayerSomethingMessage( e.RankChanger, actionString, e.PlayerInfo, e.Reason );
         }
 
-        static void PlayerSomethingMessage( Player player, string action, PlayerInfo target, string reason ) {
+
+        static void PlayerSomethingMessage( IClassy player, string action, IClassy target, string reason ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( action == null ) throw new ArgumentNullException( "action" );
+            if( target == null ) throw new ArgumentNullException( "target" );
+            if( reason == null ) throw new ArgumentNullException( "reason" );
             string message = String.Format( "{0}&W* {1}&W was {2} by {3}&W",
                     Color.IRCBold,
                     target.ClassyName,

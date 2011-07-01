@@ -6,23 +6,23 @@ namespace fCraft {
     /// <summary>
     /// Integer 3D vector, used by Forester.
     /// </summary>
-    public struct Vector3i : IEquatable<Vector3i>, IComparable<Vector3i>, IComparable<Vector3f> {
+    public struct Vector3I : IEquatable<Vector3I>, IComparable<Vector3I>, IComparable<Vector3F> {
         public int X, Y, Z;
 
 
-        public Vector3i( int x, int y, int h ) {
+        public Vector3I( int x, int y, int h ) {
             X = x;
             Z = y;
             Y = h;
         }
 
-        public Vector3i( Vector3i other ) {
+        public Vector3I( Vector3I other ) {
             X = other.X;
             Z = other.Z;
             Y = other.Y;
         }
 
-        public Vector3i( Vector3f other ) {
+        public Vector3I( Vector3F other ) {
             X = (int)other.X;
             Z = (int)other.Y;
             Y = (int)other.Z;
@@ -62,28 +62,28 @@ namespace fCraft {
 
         #region Operations
 
-        public static Vector3i operator +( Vector3i a, Vector3i b ) {
-            return new Vector3i( a.X + b.X, a.Z + b.Z, a.Y + b.Y );
+        public static Vector3I operator +( Vector3I a, Vector3I b ) {
+            return new Vector3I( a.X + b.X, a.Z + b.Z, a.Y + b.Y );
         }
 
-        public static Vector3i operator +( Vector3i a, int scalar ) {
-            return new Vector3i( a.X + scalar, a.Z + scalar, a.Y + scalar );
+        public static Vector3I operator +( Vector3I a, int scalar ) {
+            return new Vector3I( a.X + scalar, a.Z + scalar, a.Y + scalar );
         }
 
-        public static Vector3i operator -( Vector3i a, Vector3i b ) {
-            return new Vector3i( a.X - b.X, a.Z - b.Z, a.Y - b.Y );
+        public static Vector3I operator -( Vector3I a, Vector3I b ) {
+            return new Vector3I( a.X - b.X, a.Z - b.Z, a.Y - b.Y );
         }
 
-        public static Vector3i operator -( Vector3i a, int scalar ) {
-            return new Vector3i( a.X - scalar, a.Z - scalar, a.Y - scalar );
+        public static Vector3I operator -( Vector3I a, int scalar ) {
+            return new Vector3I( a.X - scalar, a.Z - scalar, a.Y - scalar );
         }
 
-        public static Vector3i operator *( Vector3i a, double scalar ) {
-            return new Vector3i( (int)(a.X * scalar), (int)(a.Z * scalar), (int)(a.Y * scalar) );
+        public static Vector3I operator *( Vector3I a, double scalar ) {
+            return new Vector3I( (int)(a.X * scalar), (int)(a.Z * scalar), (int)(a.Y * scalar) );
         }
 
-        public static Vector3i operator /( Vector3i a, double scalar ) {
-            return new Vector3i( (int)(a.X / scalar), (int)(a.Z / scalar), (int)(a.Y / scalar) );
+        public static Vector3I operator /( Vector3I a, double scalar ) {
+            return new Vector3I( (int)(a.X / scalar), (int)(a.Z / scalar), (int)(a.Y / scalar) );
         }
 
         #endregion
@@ -92,23 +92,23 @@ namespace fCraft {
         #region Equality
 
         public override bool Equals( object obj ) {
-            if( obj is Vector3i ) {
-                return Equals( (Vector3i)obj );
+            if( obj is Vector3I ) {
+                return Equals( (Vector3I)obj );
             } else {
                 return base.Equals( obj );
             }
         }
 
-        public bool Equals( Vector3i other ) {
+        public bool Equals( Vector3I other ) {
             return (X == other.X) && (Y == other.Y) && (Z == other.Z);
         }
 
 
-        public static bool operator ==( Vector3i a, Vector3i b ) {
+        public static bool operator ==( Vector3I a, Vector3I b ) {
             return a.Equals( b );
         }
 
-        public static bool operator !=( Vector3i a, Vector3i b ) {
+        public static bool operator !=( Vector3I a, Vector3I b ) {
             return !a.Equals( b );
         }
 
@@ -122,28 +122,28 @@ namespace fCraft {
 
         #region Comparison
 
-        public int CompareTo( Vector3i other ) {
+        public int CompareTo( Vector3I other ) {
             return Math.Sign( LengthSquared - other.LengthSquared );
         }
 
-        public int CompareTo( Vector3f other ) {
+        public int CompareTo( Vector3F other ) {
             return Math.Sign( LengthSquared - other.LengthSquared );
         }
 
 
-        public static bool operator >( Vector3i a, Vector3i b ) {
+        public static bool operator >( Vector3I a, Vector3I b ) {
             return a.LengthSquared > b.LengthSquared;
         }
 
-        public static bool operator <( Vector3i a, Vector3i b ) {
+        public static bool operator <( Vector3I a, Vector3I b ) {
             return a.LengthSquared < b.LengthSquared;
         }
 
-        public static bool operator >=( Vector3i a, Vector3i b ) {
+        public static bool operator >=( Vector3I a, Vector3I b ) {
             return a.LengthSquared >= b.LengthSquared;
         }
 
-        public static bool operator <=( Vector3i a, Vector3i b ) {
+        public static bool operator <=( Vector3I a, Vector3I b ) {
             return a.LengthSquared <= b.LengthSquared;
         }
 
@@ -166,24 +166,24 @@ namespace fCraft {
     /// <summary>
     /// Floating-point (float) 3D vector, used by Forester
     /// </summary>
-    public struct Vector3f : IEquatable<Vector3f>, IComparable<Vector3i>, IComparable<Vector3f> {
+    public struct Vector3F : IEquatable<Vector3F>, IComparable<Vector3I>, IComparable<Vector3F> {
 
         public float X, Y, Z;
 
 
-        public Vector3f( float x, float y, float z ) {
+        public Vector3F( float x, float y, float z ) {
             X = x;
             Y = y;
             Z = z;
         }
 
-        public Vector3f( Vector3f other ) {
+        public Vector3F( Vector3F other ) {
             X = other.X;
             Y = other.Y;
             Z = other.Z;
         }
 
-        public Vector3f( Vector3i other ) {
+        public Vector3F( Vector3I other ) {
             X = other.X;
             Y = other.Z;
             Z = other.Y;
@@ -223,45 +223,45 @@ namespace fCraft {
 
         #region Operators
 
-        public static Vector3f operator +( Vector3f a, Vector3f b ) {
-            return new Vector3f( a.X + b.X, a.Y + b.Y, a.Z + b.Z );
+        public static Vector3F operator +( Vector3F a, Vector3F b ) {
+            return new Vector3F( a.X + b.X, a.Y + b.Y, a.Z + b.Z );
         }
 
-        public static Vector3f operator +( Vector3f a, float scalar ) {
-            return new Vector3f( a.X + scalar, a.Y + scalar, a.Z + scalar );
+        public static Vector3F operator +( Vector3F a, float scalar ) {
+            return new Vector3F( a.X + scalar, a.Y + scalar, a.Z + scalar );
         }
 
-        public static Vector3f operator -( Vector3f a, Vector3f b ) {
-            return new Vector3f( a.X - b.X, a.Y - b.Y, a.Z - b.Z );
+        public static Vector3F operator -( Vector3F a, Vector3F b ) {
+            return new Vector3F( a.X - b.X, a.Y - b.Y, a.Z - b.Z );
         }
 
-        public static Vector3f operator -( Vector3f a, float scalar ) {
-            return new Vector3f( a.X - scalar, a.Y - scalar, a.Z - scalar );
+        public static Vector3F operator -( Vector3F a, float scalar ) {
+            return new Vector3F( a.X - scalar, a.Y - scalar, a.Z - scalar );
         }
 
-        public static Vector3f operator *( Vector3f a, float scalar ) {
-            return new Vector3f( (a.X * scalar), (a.Y * scalar), (a.Z * scalar) );
+        public static Vector3F operator *( Vector3F a, float scalar ) {
+            return new Vector3F( (a.X * scalar), (a.Y * scalar), (a.Z * scalar) );
         }
 
-        public static Vector3f operator /( Vector3f a, double scalar ) {
-            return new Vector3f( (float)(a.X / scalar), (float)(a.Y / scalar), (float)(a.Z / scalar) );
+        public static Vector3F operator /( Vector3F a, double scalar ) {
+            return new Vector3F( (float)(a.X / scalar), (float)(a.Y / scalar), (float)(a.Z / scalar) );
         }
 
 
-        public static Vector3f operator +( Vector3i a, Vector3f b ) {
-            return new Vector3f( a.X + b.X, a.Z + b.Y, a.Y + b.Z );
+        public static Vector3F operator +( Vector3I a, Vector3F b ) {
+            return new Vector3F( a.X + b.X, a.Z + b.Y, a.Y + b.Z );
         }
 
-        public static Vector3f operator +( Vector3f a, Vector3i b ) {
-            return new Vector3f( a.X + b.X, a.Y + b.Z, a.Z + b.Y );
+        public static Vector3F operator +( Vector3F a, Vector3I b ) {
+            return new Vector3F( a.X + b.X, a.Y + b.Z, a.Z + b.Y );
         }
 
-        public static Vector3f operator -( Vector3i a, Vector3f b ) {
-            return new Vector3f( a.X - b.X, a.Z - b.Y, a.Y - b.Z );
+        public static Vector3F operator -( Vector3I a, Vector3F b ) {
+            return new Vector3F( a.X - b.X, a.Z - b.Y, a.Y - b.Z );
         }
 
-        public static Vector3f operator -( Vector3f a, Vector3i b ) {
-            return new Vector3f( a.X - b.X, a.Y - b.Z, a.Z - b.Y );
+        public static Vector3F operator -( Vector3F a, Vector3I b ) {
+            return new Vector3F( a.X - b.X, a.Y - b.Z, a.Z - b.Y );
         }
 
         #endregion
@@ -270,23 +270,23 @@ namespace fCraft {
         #region Equality
 
         public override bool Equals( object obj ) {
-            if( obj is Vector3f ) {
-                return Equals( (Vector3f)obj );
+            if( obj is Vector3F ) {
+                return Equals( (Vector3F)obj );
             } else {
                 return base.Equals( obj );
             }
         }
 
-        public bool Equals( Vector3f other ) {
+        public bool Equals( Vector3F other ) {
             return (X == other.X) && (Y == other.Y) && (Z == other.Z);
         }
 
 
-        public static bool operator ==( Vector3f a, Vector3f b ) {
+        public static bool operator ==( Vector3F a, Vector3F b ) {
             return a.Equals( b );
         }
 
-        public static bool operator !=( Vector3f a, Vector3f b ) {
+        public static bool operator !=( Vector3F a, Vector3F b ) {
             return !a.Equals( b );
         }
 
@@ -300,28 +300,28 @@ namespace fCraft {
 
         #region Comparison
 
-        public int CompareTo( Vector3i other ) {
+        public int CompareTo( Vector3I other ) {
             return Math.Sign( LengthSquared - LengthSquared );
         }
 
-        public int CompareTo( Vector3f other ) {
+        public int CompareTo( Vector3F other ) {
             return Math.Sign( LengthSquared - LengthSquared );
         }
 
 
-        public static bool operator >( Vector3f a, Vector3f b ) {
+        public static bool operator >( Vector3F a, Vector3F b ) {
             return (a.X * a.X + a.Z * a.Z + a.Y * a.Y) > (b.X * b.X + b.Z * b.Z + b.Y * b.Y);
         }
 
-        public static bool operator <( Vector3f a, Vector3f b ) {
+        public static bool operator <( Vector3F a, Vector3F b ) {
             return (a.X * a.X + a.Z * a.Z + a.Y * a.Y) < (b.X * b.X + b.Z * b.Z + b.Y * b.Y);
         }
 
-        public static bool operator >=( Vector3f a, Vector3f b ) {
+        public static bool operator >=( Vector3F a, Vector3F b ) {
             return (a.X * a.X + a.Z * a.Z + a.Y * a.Y) >= (b.X * b.X + b.Z * b.Z + b.Y * b.Y);
         }
 
-        public static bool operator <=( Vector3f a, Vector3f b ) {
+        public static bool operator <=( Vector3F a, Vector3F b ) {
             return (a.X * a.X + a.Z * a.Z + a.Y * a.Y) <= (b.X * b.X + b.Z * b.Z + b.Y * b.Y);
         }
 

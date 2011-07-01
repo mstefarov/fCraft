@@ -1,6 +1,8 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Net;
+// ReSharper disable LoopCanBeConvertedToQuery
 
 namespace fCraft {
     /// <summary> Contains a set of utilities that simplify working with sets of players.
@@ -384,6 +386,39 @@ namespace fCraft {
         public static IEnumerable<Player> Except( this IEnumerable<Player> source, Player excludedPlayer ) {
             foreach( Player player in source ) {
                 if( player != excludedPlayer ) {
+                    yield return player;
+                }
+            }
+        }
+
+        #endregion
+
+
+        #region IPAddress
+
+        /// <summary> Filters a collection of players, leaving only those connected from a given IP. </summary>
+        /// <param name="source"> Original collection of players. Will not get modified. </param>
+        /// <param name="ip"> IP that we are including. </param>
+        /// <returns> Filtered collection of players. </returns>
+        public static IEnumerable<Player> FromIP( this IEnumerable<Player> source, IPAddress ip ) {
+            if( source == null ) throw new ArgumentNullException( "source" );
+            if( ip == null ) throw new ArgumentNullException( "ip" );
+            foreach( Player player in source ) {
+                if( ip.Equals( player.Session.IP ) ) {
+                    yield return player;
+                }
+            }
+        }
+
+        /// <summary> Filters a collection of players, leaving only those NOT connected from a given IP. </summary>
+        /// <param name="source"> Original collection of players. Will not get modified. </param>
+        /// <param name="ip"> IP that we are excluding. </param>
+        /// <returns> Filtered collection of players. </returns>
+        public static IEnumerable<Player> NotFromIP( this IEnumerable<Player> source, IPAddress ip ) {
+            if( source == null ) throw new ArgumentNullException( "source" );
+            if( ip == null ) throw new ArgumentNullException( "ip" );
+            foreach( Player player in source ) {
+                if( !ip.Equals( player.Session.IP ) ) {
                     yield return player;
                 }
             }

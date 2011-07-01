@@ -600,6 +600,8 @@ namespace fCraft {
             Name = "rank",
             Aliases = new[] { "user", "promote", "demote" },
             Category = CommandCategory.Moderation,
+            Permissions = new[] { Permission.Promote, Permission.Demote },
+            AnyPermission = true,
             IsConsoleSafe = true,
             Usage = "/user PlayerName RankName [Reason]",
             Help = "Changes the rank of a player to a specified rank. " +

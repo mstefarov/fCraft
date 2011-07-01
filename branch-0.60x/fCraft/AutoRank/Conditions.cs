@@ -101,7 +101,7 @@ namespace fCraft.AutoRank {
                     givenValue = (int)info.TimeSinceLastKick.TotalSeconds;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException( "Field", "Unknown field type" );
+                    throw new ArgumentOutOfRangeException();
             }
 
             switch( Comparison ) {
@@ -118,7 +118,7 @@ namespace fCraft.AutoRank {
                 case ComparisonOp.Neq:
                     return (givenValue != Value);
                 default:
-                    throw new ArgumentOutOfRangeException( "Comparison", "Unknown comparison type" );
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
