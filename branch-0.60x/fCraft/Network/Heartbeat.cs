@@ -143,6 +143,7 @@ namespace fCraft {
                     LastHeartbeatFailed = false;
                     RaiseHeartbeatSentEvent( data, response, responseText );
                 }
+
                 string newUrl = responseText.Trim();
                 if( newUrl.StartsWith( "bad heartbeat", StringComparison.OrdinalIgnoreCase ) ) {
                     LastHeartbeatFailed = true;

@@ -101,6 +101,8 @@ namespace fCraft {
         public static void InitLibrary( IEnumerable<string> rawArgs ) {
             if( rawArgs == null ) throw new ArgumentNullException( "rawArgs" );
 
+            ServicePointManager.Expect100Continue = false;
+
             // try to parse arguments
             foreach( string arg in rawArgs ) {
                 if( arg.StartsWith( "--" ) ) {
@@ -882,7 +884,10 @@ namespace fCraft {
             byte[] oneChar = new byte[1];
             while( sb.Length < 32 ) {
                 prng.GetBytes( oneChar );
-                if( oneChar[0] >= 33 && oneChar[0] <= 126 ) {
+                if( oneChar[0] >= 48 && oneChar[0] <= 57 ||
+                    oneChar[0] >= 65 && oneChar[0] <= 90 ||
+                    oneChar[0] >= 97 && oneChar[0] <= 122 ) {
+                //if( oneChar[0] >= 33 && oneChar[0] <= 126 ) {
                     sb.Append( (char)oneChar[0] );
                 }
             }
