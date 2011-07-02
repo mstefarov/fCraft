@@ -39,6 +39,11 @@ namespace fCraft {
             if( creatingThread != null && creatingThread != Thread.CurrentThread ) return;
             for( int i = 0; i < thingsToLog.Length; i++ ) {
                 if( thingsToLog[i] == e.MessageType ) {
+                    if( e.MessageType == LogType.Error || e.MessageType == LogType.SeriousError ) {
+                        HasErrors = true;
+                    } else if( e.MessageType == LogType.Warning ) {
+                        HasWarnings = true;
+                    }
                     HasMessages = true;
                     lock( locker ) {
                         messages.Add( e.MessageType + ": " + e.RawMessage );
@@ -50,6 +55,13 @@ namespace fCraft {
 
         /// <summary> Whether any messages have been recorded. </summary>
         public bool HasMessages { get; private set; }
+
+        /// <summary> Whether any errors have been recorded. </summary>
+        public bool HasErrors { get; private set; }
+
+        /// <summary> Whether any errors have been recorded. </summary>
+        public bool HasWarnings { get; private set; }
+
 
         /// <summary> An array of individual recorded messages. </summary>
         public string[] MessageList {

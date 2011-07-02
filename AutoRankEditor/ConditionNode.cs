@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using fCraft.AutoRank;
 
 namespace AutoRankEditor {
     class ConditionNode : TreeNode {
         public ConditionField Field { get; set; }
-        public ComparisonOperation Op { get; set; }
+        public ComparisonOp Op { get; set; }
         public int Value { get; set; }
         public ConditionNode() : base() { }
         public ConditionNode( string conditionDesc )

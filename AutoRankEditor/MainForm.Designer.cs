@@ -62,15 +62,19 @@
             this.lConditionField = new System.Windows.Forms.Label();
             this.bDeleteCondition = new System.Windows.Forms.Button();
             this.gEditAction = new System.Windows.Forms.GroupBox();
-            this.tToRank = new System.Windows.Forms.TextBox();
+            this.lActionConnective = new System.Windows.Forms.Label();
+            this.cActionConnective = new System.Windows.Forms.ComboBox();
+            this.cToRank = new System.Windows.Forms.ComboBox();
+            this.cFromRank = new System.Windows.Forms.ComboBox();
             this.lToRank = new System.Windows.Forms.Label();
-            this.tFromRank = new System.Windows.Forms.TextBox();
             this.lFromRank = new System.Windows.Forms.Label();
             this.lActionType = new System.Windows.Forms.Label();
             this.cActionType = new System.Windows.Forms.ComboBox();
             this.bDeleteAction = new System.Windows.Forms.Button();
-            this.bAction = new System.Windows.Forms.Button();
             this.tHelp = new System.Windows.Forms.TextBox();
+            this.bAction = new System.Windows.Forms.Button();
+            this.bOK = new System.Windows.Forms.Button();
+            this.bCancel = new System.Windows.Forms.Button();
             this.cmAddGroup.SuspendLayout();
             this.cmAddCondition.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -89,7 +93,7 @@
             this.treeData.Location = new System.Drawing.Point( 12, 41 );
             this.treeData.Name = "treeData";
             this.treeData.PathSeparator = ".";
-            this.treeData.Size = new System.Drawing.Size( 250, 282 );
+            this.treeData.Size = new System.Drawing.Size( 267, 282 );
             this.treeData.TabIndex = 0;
             this.treeData.AfterSelect += new System.Windows.Forms.TreeViewEventHandler( this.treeData_AfterSelect );
             // 
@@ -98,7 +102,7 @@
             this.bAddGroup.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bAddGroup.Location = new System.Drawing.Point( 12, 329 );
             this.bAddGroup.Name = "bAddGroup";
-            this.bAddGroup.Size = new System.Drawing.Size( 90, 23 );
+            this.bAddGroup.Size = new System.Drawing.Size( 85, 23 );
             this.bAddGroup.TabIndex = 1;
             this.bAddGroup.Text = "Add Group";
             this.bAddGroup.UseVisualStyleBackColor = true;
@@ -142,9 +146,9 @@
             // bAddCondition
             // 
             this.bAddCondition.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bAddCondition.Location = new System.Drawing.Point( 108, 329 );
+            this.bAddCondition.Location = new System.Drawing.Point( 103, 329 );
             this.bAddCondition.Name = "bAddCondition";
-            this.bAddCondition.Size = new System.Drawing.Size( 90, 23 );
+            this.bAddCondition.Size = new System.Drawing.Size( 85, 23 );
             this.bAddCondition.TabIndex = 3;
             this.bAddCondition.Text = "Add Condition";
             this.bAddCondition.UseVisualStyleBackColor = true;
@@ -283,9 +287,9 @@
             this.flowLayoutPanel1.Controls.Add( this.gEditAction );
             this.flowLayoutPanel1.Controls.Add( this.tHelp );
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point( 268, 12 );
+            this.flowLayoutPanel1.Location = new System.Drawing.Point( 283, 12 );
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size( 229, 340 );
+            this.flowLayoutPanel1.Size = new System.Drawing.Size( 229, 311 );
             this.flowLayoutPanel1.TabIndex = 5;
             this.flowLayoutPanel1.WrapContents = false;
             // 
@@ -423,50 +427,75 @@
             // 
             // gEditAction
             // 
-            this.gEditAction.Controls.Add( this.tToRank );
+            this.gEditAction.Controls.Add( this.lActionConnective );
+            this.gEditAction.Controls.Add( this.cActionConnective );
+            this.gEditAction.Controls.Add( this.cToRank );
+            this.gEditAction.Controls.Add( this.cFromRank );
             this.gEditAction.Controls.Add( this.lToRank );
-            this.gEditAction.Controls.Add( this.tFromRank );
             this.gEditAction.Controls.Add( this.lFromRank );
             this.gEditAction.Controls.Add( this.lActionType );
             this.gEditAction.Controls.Add( this.cActionType );
             this.gEditAction.Controls.Add( this.bDeleteAction );
             this.gEditAction.Location = new System.Drawing.Point( 3, 250 );
             this.gEditAction.Name = "gEditAction";
-            this.gEditAction.Size = new System.Drawing.Size( 222, 126 );
+            this.gEditAction.Size = new System.Drawing.Size( 222, 159 );
             this.gEditAction.TabIndex = 2;
             this.gEditAction.TabStop = false;
             this.gEditAction.Text = "Edit Action";
             this.gEditAction.Visible = false;
             // 
-            // tToRank
+            // lActionConnective
             // 
-            this.tToRank.Location = new System.Drawing.Point( 88, 72 );
-            this.tToRank.Name = "tToRank";
-            this.tToRank.Size = new System.Drawing.Size( 128, 20 );
-            this.tToRank.TabIndex = 11;
-            this.tToRank.TextChanged += new System.EventHandler( this.tToRank_TextChanged );
+            this.lActionConnective.AutoSize = true;
+            this.lActionConnective.Location = new System.Drawing.Point( 21, 103 );
+            this.lActionConnective.Name = "lActionConnective";
+            this.lActionConnective.Size = new System.Drawing.Size( 61, 13 );
+            this.lActionConnective.TabIndex = 15;
+            this.lActionConnective.Text = "Connective";
+            // 
+            // cActionConnective
+            // 
+            this.cActionConnective.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cActionConnective.FormattingEnabled = true;
+            this.cActionConnective.Location = new System.Drawing.Point( 88, 100 );
+            this.cActionConnective.Name = "cActionConnective";
+            this.cActionConnective.Size = new System.Drawing.Size( 83, 21 );
+            this.cActionConnective.TabIndex = 14;
+            this.cActionConnective.SelectedIndexChanged += new System.EventHandler( this.cActionConnective_SelectedIndexChanged );
+            // 
+            // cToRank
+            // 
+            this.cToRank.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cToRank.FormattingEnabled = true;
+            this.cToRank.Location = new System.Drawing.Point( 88, 73 );
+            this.cToRank.Name = "cToRank";
+            this.cToRank.Size = new System.Drawing.Size( 128, 21 );
+            this.cToRank.TabIndex = 13;
+            this.cToRank.SelectedIndexChanged += new System.EventHandler( this.cToRank_SelectedIndexChanged );
+            // 
+            // cFromRank
+            // 
+            this.cFromRank.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cFromRank.FormattingEnabled = true;
+            this.cFromRank.Location = new System.Drawing.Point( 88, 46 );
+            this.cFromRank.Name = "cFromRank";
+            this.cFromRank.Size = new System.Drawing.Size( 128, 21 );
+            this.cFromRank.TabIndex = 12;
+            this.cFromRank.SelectedIndexChanged += new System.EventHandler( this.cFromRank_SelectedIndexChanged );
             // 
             // lToRank
             // 
             this.lToRank.AutoSize = true;
-            this.lToRank.Location = new System.Drawing.Point( 33, 75 );
+            this.lToRank.Location = new System.Drawing.Point( 33, 76 );
             this.lToRank.Name = "lToRank";
             this.lToRank.Size = new System.Drawing.Size( 49, 13 );
             this.lToRank.TabIndex = 10;
             this.lToRank.Text = "To Rank";
             // 
-            // tFromRank
-            // 
-            this.tFromRank.Location = new System.Drawing.Point( 88, 46 );
-            this.tFromRank.Name = "tFromRank";
-            this.tFromRank.Size = new System.Drawing.Size( 128, 20 );
-            this.tFromRank.TabIndex = 9;
-            this.tFromRank.TextChanged += new System.EventHandler( this.tFromRank_TextChanged );
-            // 
             // lFromRank
             // 
             this.lFromRank.AutoSize = true;
-            this.lFromRank.Location = new System.Drawing.Point( 23, 47 );
+            this.lFromRank.Location = new System.Drawing.Point( 23, 49 );
             this.lFromRank.Name = "lFromRank";
             this.lFromRank.Size = new System.Drawing.Size( 59, 13 );
             this.lFromRank.TabIndex = 8;
@@ -494,7 +523,7 @@
             // bDeleteAction
             // 
             this.bDeleteAction.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bDeleteAction.Location = new System.Drawing.Point( 160, 97 );
+            this.bDeleteAction.Location = new System.Drawing.Point( 160, 130 );
             this.bDeleteAction.Name = "bDeleteAction";
             this.bDeleteAction.Size = new System.Drawing.Size( 56, 23 );
             this.bDeleteAction.TabIndex = 5;
@@ -502,37 +531,64 @@
             this.bDeleteAction.UseVisualStyleBackColor = true;
             this.bDeleteAction.Click += new System.EventHandler( this.bDelete_Click );
             // 
-            // bAction
-            // 
-            this.bAction.Location = new System.Drawing.Point( 12, 12 );
-            this.bAction.Name = "bAction";
-            this.bAction.Size = new System.Drawing.Size( 90, 23 );
-            this.bAction.TabIndex = 6;
-            this.bAction.Text = "Add Action";
-            this.bAction.UseVisualStyleBackColor = true;
-            this.bAction.Click += new System.EventHandler( this.bAction_Click );
-            // 
             // tHelp
             // 
             this.tHelp.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.tHelp.Location = new System.Drawing.Point( 3, 382 );
+            this.tHelp.Location = new System.Drawing.Point( 3, 415 );
             this.tHelp.Multiline = true;
             this.tHelp.Name = "tHelp";
             this.tHelp.ReadOnly = true;
             this.tHelp.Size = new System.Drawing.Size( 222, 87 );
             this.tHelp.TabIndex = 7;
             // 
+            // bAction
+            // 
+            this.bAction.Location = new System.Drawing.Point( 12, 12 );
+            this.bAction.Name = "bAction";
+            this.bAction.Size = new System.Drawing.Size( 85, 23 );
+            this.bAction.TabIndex = 6;
+            this.bAction.Text = "New Action";
+            this.bAction.UseVisualStyleBackColor = true;
+            this.bAction.Click += new System.EventHandler( this.bAction_Click );
+            // 
+            // bOK
+            // 
+            this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bOK.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.bOK.Location = new System.Drawing.Point( 437, 329 );
+            this.bOK.Name = "bOK";
+            this.bOK.Size = new System.Drawing.Size( 75, 23 );
+            this.bOK.TabIndex = 7;
+            this.bOK.Text = "OK";
+            this.bOK.UseVisualStyleBackColor = true;
+            this.bOK.Click += new System.EventHandler( this.bOK_Click );
+            // 
+            // bCancel
+            // 
+            this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.bCancel.Location = new System.Drawing.Point( 356, 329 );
+            this.bCancel.Name = "bCancel";
+            this.bCancel.Size = new System.Drawing.Size( 75, 23 );
+            this.bCancel.TabIndex = 8;
+            this.bCancel.Text = "Cancel";
+            this.bCancel.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
+            this.AcceptButton = this.bOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size( 509, 364 );
+            this.CancelButton = this.bCancel;
+            this.ClientSize = new System.Drawing.Size( 524, 364 );
             this.Controls.Add( this.treeData );
             this.Controls.Add( this.flowLayoutPanel1 );
+            this.Controls.Add( this.bCancel );
+            this.Controls.Add( this.bOK );
             this.Controls.Add( this.bAction );
             this.Controls.Add( this.bAddGroup );
             this.Controls.Add( this.bAddCondition );
-            this.MinimumSize = new System.Drawing.Size( 525, 300 );
+            this.MinimumSize = new System.Drawing.Size( 540, 300 );
             this.Name = "MainForm";
             this.Text = "Tree Test";
             this.cmAddGroup.ResumeLayout( false );
@@ -592,13 +648,17 @@
         private System.Windows.Forms.Button bAction;
         private System.Windows.Forms.GroupBox gEditAction;
         private System.Windows.Forms.Button bDeleteAction;
-        private System.Windows.Forms.TextBox tToRank;
         private System.Windows.Forms.Label lToRank;
-        private System.Windows.Forms.TextBox tFromRank;
         private System.Windows.Forms.Label lFromRank;
         private System.Windows.Forms.Label lActionType;
         private System.Windows.Forms.ComboBox cActionType;
         private System.Windows.Forms.TextBox tHelp;
+        private System.Windows.Forms.ComboBox cFromRank;
+        private System.Windows.Forms.ComboBox cToRank;
+        private System.Windows.Forms.Button bOK;
+        private System.Windows.Forms.Button bCancel;
+        private System.Windows.Forms.Label lActionConnective;
+        private System.Windows.Forms.ComboBox cActionConnective;
     }
 }
 
