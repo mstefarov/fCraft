@@ -739,11 +739,13 @@ namespace fCraft {
                 }
             }
             DrawingFinished( player, "drawn", blocks, blocksDenied );
-            Logger.Log( "{0} drew a cuboid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
+            Logger.Log( "{0} drew a cuboid containing {1} blocks of type {2} (on world {3} @ {4},{5},{6} - {7},{8},{9})", LogType.UserActivity,
                         player.Name,
                         blocks,
                         (Block)drawBlock,
-                        player.World.Name );
+                        player.World.Name,
+                        sx, sy, sh,
+                        ex, ey, eh );
         }
 
 
@@ -815,11 +817,13 @@ namespace fCraft {
                 }
             }
 
-            Logger.Log( "{0} drew a hollow cuboid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
+            Logger.Log( "{0} drew a hollow cuboid containing {1} blocks of type {2} (on world {3} @ {4},{5},{6} - {7},{8},{9})", LogType.UserActivity,
                         player.Name,
                         blocks,
                         (Block)drawBlock,
-                        player.World.Name );
+                        player.World.Name,
+                        sx, sy, sh,
+                        ex, ey, eh );
             DrawingFinished( player, "drawn", blocks, blocksDenied );
         }
 
@@ -904,11 +908,13 @@ namespace fCraft {
                 }
             }
 
-            Logger.Log( "{0} drew a wireframe cuboid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
+            Logger.Log( "{0} drew a wireframe cuboid containing {1} blocks of type {2} (on world {3} @ {4},{5},{6} - {7},{8},{9})", LogType.UserActivity,
                         player.Name,
                         blocks,
                         (Block)drawBlock,
-                        player.World.Name );
+                        player.World.Name,
+                        sx, sy, sh,
+                        ex, ey, eh );
             DrawingFinished( player, "drawn", blocks, blocksDenied );
         }
 
@@ -989,13 +995,15 @@ namespace fCraft {
             }
 
 
-            Logger.Log( "{0} replaced {1} blocks {2} ({3}) with {4} (on world {5})", LogType.UserActivity,
+            Logger.Log( "{0} replaced {1} blocks {2} ({3}) with {4} (on world {5} @ {6},{7},{8} - {9},{10},{11})", LogType.UserActivity,
                         player.Name,
                         blocks,
                         (doExclude ? "except" : "of"),
                         args.Types.JoinToString(),
                         args.ReplacementBlock,
-                        player.World.Name );
+                        player.World.Name,
+                        sx, sy, sh,
+                        ex, ey, eh );
 
             DrawingFinished( player, "replaced", blocks, blocksDenied );
         }
@@ -1519,8 +1527,12 @@ namespace fCraft {
                                (copyInfo.WidthY > 0 ? "south" : "north"),
                                (copyInfo.WidthX > 0 ? "west" : "east") );
 
-            Logger.Log( "{0} cut {1} blocks from {2}, replacing {3} blocks with {4}.", LogType.UserActivity,
-                        player.Name, volume, player.World.Name, blocks, (Block)fillType );
+            Logger.Log( "{0} cut {1} blocks from world {2} (@{3},{4},{5} - {6},{7},{8}), replacing {9} blocks with {10}.", LogType.UserActivity,
+                        player.Name, volume,
+                        player.World.Name,
+                        sx, sy, sh,
+                        ex, ey, eh,
+                        blocks, (Block)fillType );
 
             player.UndoBuffer.TrimExcess();
             Server.RequestGC();
@@ -1698,8 +1710,10 @@ namespace fCraft {
                 }
             }
 
-            Logger.Log( "{0} pasted {1} blocks to {2}.", LogType.UserActivity,
-                        player.Name, blocks, player.World.Name );
+            Logger.Log( "{0} pasted {1} blocks to world {2} (@ {3},{4},{5} - {6},{7},{8}).", LogType.UserActivity,
+                        player.Name, blocks, player.World.Name,
+                        bounds.XMin, bounds.YMin, bounds.HMin,
+                        bounds.XMax, bounds.YMax, bounds.HMax );
             DrawingFinished( player, "pasted", blocks, blocksDenied );
         }
 
