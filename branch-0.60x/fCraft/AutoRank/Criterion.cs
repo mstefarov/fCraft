@@ -36,7 +36,7 @@ namespace fCraft.AutoRank {
             ToRank = RankManager.ParseRank( el.Attribute( "toRank" ).Value );
             if( ToRank == null ) throw new FormatException( "Could not parse \"toRank\"" );
 
-            Condition = (ConditionSet)ConditionSet.Parse( el.Elements().First() );
+            Condition = (ConditionSet)AutoRank.Condition.Parse( el.Elements().First() );
         }
 
         public object Clone() {

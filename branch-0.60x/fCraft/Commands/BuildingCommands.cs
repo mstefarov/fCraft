@@ -1073,92 +1073,16 @@ namespace fCraft {
                     }
                 }
             }
-            Logger.Log( "{0} drew an ellipsoid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
+            Logger.Log( "{0} drew an ellipsoid containing {1} blocks of type {2} (on world {3} @ {4},{5},{6} - {7},{8},{9})", LogType.UserActivity,
                         player.Name,
                         blocks,
                         (Block)drawBlock,
-                        player.World.Name );
+                        player.World.Name,
+                        sx, sy, sh,
+                        ex, ey, eh );
             DrawingFinished( player, "drawn", blocks, blocksDenied );
         }
 
-        /*
-        internal static void EllipsoidHollowCallback( Player player, Position[] marks, object tag ) {
-            byte drawBlock = (byte)tag;
-            if( drawBlock == (byte)Block.Undefined ) {
-                drawBlock = (byte)player.LastUsedBlockType;
-            }
-
-            // find start/end coordinates
-            int sx = Math.Min( marks[0].X, marks[1].X );
-            int ex = Math.Max( marks[0].X, marks[1].X );
-            int sy = Math.Min( marks[0].Y, marks[1].Y );
-            int ey = Math.Max( marks[0].Y, marks[1].Y );
-            int sh = Math.Min( marks[0].H, marks[1].H );
-            int eh = Math.Max( marks[0].H, marks[1].H );
-
-            // find axis lengths
-            double rx = (ex - sx + 1) / 2d;
-            double ry = (ey - sy + 1) / 2d;
-            double rh = (eh - sh + 1) / 2d;
-
-            double rx2 = 1 / (rx * rx);
-            double ry2 = 1 / (ry * ry);
-            double rh2 = 1 / (rh * rh);
-
-            // find center points
-            double cx = (ex + sx) / 2d;
-            double cy = (ey + sy) / 2d;
-            double ch = (eh + sh) / 2d;
-
-            // rougher estimation than the non-hollow form, a voxelized surface is a bit funky
-            int volume = (int)(4 / 3d * Math.PI * ((rx + .5) * (ry + .5) * (rh + .5) - (rx - .5) * (ry - .5) * (rh - .5)) * 0.85);
-            if( !player.CanDraw( volume ) ) {
-                player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
-                                   player.Info.Rank.DrawLimit,
-                                   volume );
-                return;
-            }
-
-            player.UndoBuffer.Clear();
-
-            int blocks = 0, blocksDenied = 0;
-            bool cannotUndo = false;
-
-            for( int x = sx; x <= ex; x++ ) {
-                for( int y = sy; y <= ey; y++ ) {
-                    for( int h = sh; h <= eh; h++ ) {
-
-                        double dx = (x - cx);
-                        double dy = (y - cy);
-                        double dh = (h - ch);
-
-                        if( (dx * dx) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 <= 1 ) {
-                            // we touched the surface
-                            // keep drilling until we hit an internal block
-                            do {
-                                DrawOneBlock( player, drawBlock, x, y, h, ref blocks, ref blocksDenied, ref cannotUndo );
-                                DrawOneBlock( player, drawBlock, x, y, (int)(ch - dh), ref blocks, ref blocksDenied, ref cannotUndo );
-                                dh = (++h - ch);
-                            } while( h <= (int)ch &&
-                                    ((dx + 1) * (dx + 1) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 > 1 ||
-                                     (dx - 1) * (dx - 1) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 > 1 ||
-                                     (dx * dx) * rx2 + (dy + 1) * (dy + 1) * ry2 + (dh * dh) * rh2 > 1 ||
-                                     (dx * dx) * rx2 + (dy - 1) * (dy - 1) * ry2 + (dh * dh) * rh2 > 1 ||
-                                     (dx * dx) * rx2 + (dy * dy) * ry2 + (dh + 1) * (dh + 1) * rh2 > 1 ||
-                                     (dx * dx) * rx2 + (dy * dy) * ry2 + (dh - 1) * (dh - 1) * rh2 > 1) );
-                            break;
-                        }
-                    }
-                }
-            }
-            Logger.Log( "{0} drew a hollow ellipsoid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
-                        player.Name,
-                        blocks,
-                        (Block)drawBlock,
-                        player.World.Name );
-            DrawingFinished( player, "drawn", blocks, blocksDenied );
-        }
-        */
 
         internal static void EllipsoidHollowCallback( Player player, Position[] marks, object tag ) {
 
@@ -1245,11 +1169,13 @@ namespace fCraft {
                     }
                 }
             }
-            Logger.Log( "{0} drew a hollow ellipsoid containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
+            Logger.Log( "{0} drew a hollow ellipsoid containing {1} blocks of type {2} (on world {3} @ {4},{5},{6} - {7},{8},{9})", LogType.UserActivity,
                         player.Name,
                         blocks,
                         (Block)drawBlock,
-                        player.World.Name );
+                        player.World.Name,
+                        sx, sy, sh,
+                        ex, ey, eh );
             DrawingFinished( player, "drawn", blocks, blocksDenied );
         }
 
@@ -1385,11 +1311,13 @@ namespace fCraft {
             }
 
             // END LINE CODE
-            Logger.Log( "{0} drew a line containing {1} blocks of type {2} (on world {3})", LogType.UserActivity,
+            Logger.Log( "{0} drew a line containing {1} blocks of type {2} (on world {3} @ {4},{5},{6} - {7},{8},{9})", LogType.UserActivity,
                         player.Name,
                         blocks,
                         (Block)drawBlock,
-                        player.World.Name );
+                        player.World.Name,
+                        x1, y1, z1,
+                        x2, y2, z2 );
             DrawingFinished( player, "drawn", blocks, blocksDenied );
         }
 
