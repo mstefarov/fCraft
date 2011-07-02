@@ -10,7 +10,9 @@ namespace fCraft.AutoRank {
 
         internal static readonly TimeSpan TickInterval = TimeSpan.FromSeconds( 60 );
 
-        static readonly List<Criterion> Criteria = new List<Criterion>();
+        public static readonly List<Criterion> Criteria = new List<Criterion>();
+
+        public const string TagName = "fCraftAutoRankConfig";
 
         /// <summary> Whether any criteria are defined. </summary>
         public static bool HasCriteria {
@@ -85,23 +87,24 @@ namespace fCraft.AutoRank {
 
     /// <summary>  Operators used to compare PlayerInfo fields. </summary>
     public enum ComparisonOp {
-        /// <summary> Less Than </summary>
-        Lt,
-
-        /// <summary> Less Than or Equal </summary>
-        Lte,
-
-        /// <summary> Greater Than or Equal </summary>
-        Gte,
-
-        /// <summary> Greater Than </summary>
-        Gt,
 
         /// <summary> EQuals to </summary>
         Eq,
 
         /// <summary> Not EQual to </summary>
-        Neq
+        Neq,
+
+        /// <summary> Greater Than </summary>
+        Gt,
+
+        /// <summary> Greater Than or Equal </summary>
+        Gte,
+
+        /// <summary> Less Than </summary>
+        Lt,
+
+        /// <summary> Less Than or Equal </summary>
+        Lte
     }
 
 

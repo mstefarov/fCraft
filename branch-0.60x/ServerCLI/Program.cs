@@ -30,6 +30,8 @@ using fCraft.Events;
 namespace fCraft.ServerCLI {
 
     static class Program {
+        static bool useColor = true;
+
         static void Main( string[] args ) {
             Logger.Logged += OnLogged;
             Heartbeat.UrlChanged += OnHeartbeatUrlChanged;
@@ -38,6 +40,7 @@ namespace fCraft.ServerCLI {
             try {
 #endif
                 Server.InitLibrary( args );
+                useColor = !Server.HasArg( ArgKey.NoConsoleColor );
 
                 Server.InitServer();
 
@@ -93,9 +96,9 @@ namespace fCraft.ServerCLI {
 
         static void ReportFailure( ShutdownReason reason ) {
             Console.Title = String.Format( "fCraft {0} {1}", Updater.CurrentRelease.VersionString, reason );
-            Console.ForegroundColor = ConsoleColor.Red;
+            if( useColor ) Console.ForegroundColor = ConsoleColor.Red;
             Console.Error.WriteLine( "** {0} **", reason );
-            Console.ResetColor();
+            if( useColor ) Console.ResetColor();
             Server.Shutdown( new ShutdownParams( reason, 0, false, false ), true );
             if( !Server.HasArg( ArgKey.ExitOnCrash ) ) {
                 Console.ReadLine();
@@ -108,28 +111,28 @@ namespace fCraft.ServerCLI {
             if( !e.WriteToConsole ) return;
             switch( e.MessageType ) {
                 case LogType.Error:
-                    Console.ForegroundColor = ConsoleColor.Red;
+                    if(useColor)Console.ForegroundColor = ConsoleColor.Red;
                     Console.Error.WriteLine( e.Message );
-                    Console.ResetColor();
+                    if( useColor ) Console.ResetColor();
                     return;
 
                 case LogType.SeriousError:
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.BackgroundColor = ConsoleColor.Red;
+                    if( useColor ) Console.ForegroundColor = ConsoleColor.White;
+                    if( useColor ) Console.BackgroundColor = ConsoleColor.Red;
                     Console.Error.WriteLine( e.Message );
-                    Console.ResetColor();
+                    if( useColor ) Console.ResetColor();
                     return;
 
                 case LogType.Warning:
-                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    if( useColor ) Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine( e.Message );
-                    Console.ResetColor();
+                    if( useColor ) Console.ResetColor();
                     return;
 
                 case LogType.Debug:
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    if( useColor ) Console.ForegroundColor = ConsoleColor.DarkGray;
                     Console.WriteLine( e.Message );
-                    Console.ResetColor();
+                    if( useColor ) Console.ResetColor();
                     return;
 
                 default:

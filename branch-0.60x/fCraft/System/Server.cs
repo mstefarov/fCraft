@@ -1284,8 +1284,10 @@ namespace fCraft {
         /// at once in the event of an unrecoverable crash, instead of showing a message. </summary>
         ExitOnCrash,
 
-
         /// <summary> Disables all logging. </summary>
-        NoLog
+        NoLog,
+
+        /// <summary>  Disables colors in CLI frontends. </summary>
+        NoConsoleColor
     };
 }

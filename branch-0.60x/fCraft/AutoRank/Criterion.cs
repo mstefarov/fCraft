@@ -7,7 +7,7 @@ namespace fCraft.AutoRank {
     public sealed class Criterion : ICloneable {
         public Rank FromRank { get; set; }
         public Rank ToRank { get; set; }
-        public Condition Condition { get; set; }
+        public ConditionSet Condition { get; set; }
 
         public Criterion() { }
 
@@ -18,7 +18,7 @@ namespace fCraft.AutoRank {
             Condition = other.Condition;
         }
 
-        public Criterion( Rank fromRank, Rank toRank, Condition condition ) {
+        public Criterion( Rank fromRank, Rank toRank, ConditionSet condition ) {
             if( fromRank == null ) throw new ArgumentNullException( "fromRank" );
             if( toRank == null ) throw new ArgumentNullException( "toRank" );
             if( condition == null ) throw new ArgumentNullException( "condition" );
@@ -36,19 +36,7 @@ namespace fCraft.AutoRank {
             ToRank = RankManager.ParseRank( el.Attribute( "toRank" ).Value );
             if( ToRank == null ) throw new FormatException( "Could not parse \"toRank\"" );
 
-            if( el.Elements().Count() == 1 ) {
-                Condition = Condition.Parse( el.Elements().First() );
-
-            } else if( el.Elements().Count() > 1 ) {
-                ConditionAND cand = new ConditionAND();
-                foreach( XElement cond in el.Elements() ) {
-                    cand.Add( Condition.Parse( cond ) );
-                }
-                Condition = cand;
-
-            } else {
-                throw new FormatException( "At least one condition required." );
-            }
+            Condition = (ConditionSet)ConditionSet.Parse( el.Elements().First() );
         }
 
         public object Clone() {
@@ -64,8 +52,8 @@ namespace fCraft.AutoRank {
 
         public XElement Serialize() {
             XElement el = new XElement( "Criterion" );
-            el.Add( new XAttribute( "fromRank", FromRank ) );
-            el.Add( new XAttribute( "toRank", ToRank ) );
+            el.Add( new XAttribute( "fromRank", FromRank.FullName ) );
+            el.Add( new XAttribute( "toRank", ToRank.FullName ) );
             if( Condition != null ) {
                 el.Add( Condition.Serialize() );
             }

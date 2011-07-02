@@ -21,7 +21,7 @@ namespace AutoRankEditor {
                 if( Parent.FirstNode == this ) {
                     Text = "Group (" + Op + ", " + Nodes.Count + ")";
                 } else {
-                    Text = (Parent as GroupNode).Op.GetShortString() + " Group (" + Nodes.Count + ")";
+                    Text = (Parent as GroupNode).Op.GetShortString() + " Group (" + Op + ", " + Nodes.Count + ")";
                 }
             } else {
                 Text = "Criterion";
