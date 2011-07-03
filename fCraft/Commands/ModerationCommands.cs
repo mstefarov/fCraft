@@ -1425,33 +1425,37 @@ namespace fCraft {
         internal static void Mute( Player player, Command cmd ) {
             string targetName = cmd.Next();
             int seconds;
-            if( targetName != null && Player.IsValidName( targetName ) && cmd.NextInt( out seconds ) && seconds > 0 ) {
-                Player target = Server.FindPlayerOrPrintMatches( player, targetName, false );
-                if( target == null ) return;
-
-                if( !player.Can( Permission.Mute, target.Info.Rank ) ) {
-                    player.Message( "You can only mute players ranked {0}&S or lower.",
-                                    player.Info.Rank.GetLimit( Permission.Mute ).ClassyName );
-                    player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
-                    return;
-                }
-
-                if( target.Info.Mute( player.Name, TimeSpan.FromSeconds( seconds ) ) ) {
-                    target.Message( "You were muted by {0}&S for {1} sec", player.ClassyName, seconds );
-                    Server.Message( target,
-                                    "&SPlayer {0}&S was muted by {1}&S for {2} sec",
-                                    target.ClassyName, player.ClassyName, seconds );
-                    Logger.Log( "Player {0} was muted by {1} for {2} seconds.", LogType.UserActivity,
-                                target.Name, player.Name, seconds );
-                } else {
-                    player.Message( "Player {0}&S is already muted by {1}&S for {2:0} more seconds.",
-                                    target.ClassyName,
-                                    target.Info.MutedBy,
-                                    target.Info.MutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
-                }
-
-            } else {
+            // validate command parameters
+            if( targetName == null || !Player.IsValidName( targetName ) || !cmd.NextInt( out seconds ) || seconds <= 0 ) {
                 CdMute.PrintUsage( player );
+                return;
+            }
+
+            // find the target
+            Player target = Server.FindPlayerOrPrintMatches( player, targetName, false );
+            if( target == null ) return;
+
+            // check permissions
+            if( !player.Can( Permission.Mute, target.Info.Rank ) ) {
+                player.Message( "You can only mute players ranked {0}&S or lower.",
+                                player.Info.Rank.GetLimit( Permission.Mute ).ClassyName );
+                player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
+                return;
+            }
+
+            // do the muting
+            if( target.Info.Mute( player.Name, TimeSpan.FromSeconds( seconds ) ) ) {
+                target.Message( "You were muted by {0}&S for {1} sec", player.ClassyName, seconds );
+                Server.Message( target,
+                                "&SPlayer {0}&S was muted by {1}&S for {2} sec",
+                                target.ClassyName, player.ClassyName, seconds );
+                Logger.Log( "Player {0} was muted by {1} for {2} seconds.", LogType.UserActivity,
+                            target.Name, player.Name, seconds );
+            } else {
+                player.Message( "Player {0}&S is already muted by {1}&S for {2:0} more seconds.",
+                                target.ClassyName,
+                                target.Info.MutedBy,
+                                target.Info.MutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
             }
         }
 

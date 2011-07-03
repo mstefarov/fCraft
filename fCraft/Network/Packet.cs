@@ -4,19 +4,30 @@ namespace fCraft {
 
     /// <summary> Packet struct, just a wrapper for a byte array. </summary>
     public struct Packet {
+
         public readonly byte[] Data;
+
+        public OpCode OpCode {
+            get { return (OpCode)Data[0]; }
+        }
 
         public Packet( byte[] data ) {
             Data = data;
         }
 
+
+        /// <summary> Creates a packet of correct size for a given opcode,
+        /// and sets the first (opcode) byte. </summary>
         public Packet( OpCode opcode ) {
             Data = new byte[PacketSizes[(int)opcode]];
             Data[0] = (byte)opcode;
         }
 
-        public OpCode OpCode {
-            get { return (OpCode)Data[0]; }
+
+        /// <summary> Returns packet size (in bytes) for a given opcode.
+        /// Size includes the opcode byte itself. </summary>
+        public static int GetSize( OpCode opcode ) {
+            return PacketSizes[(int)opcode];
         }
 
 

@@ -4,25 +4,21 @@ using System.Linq;
 
 namespace fCraft {
 
-    /// <summary>
-    /// Callback for a chat command.
-    /// </summary>
-    /// <param name="source">Player who called the command.</param>
-    /// <param name="message">Command and its arguments.</param>
-    public delegate void CommandHandler( Player source, Command message );
+    /// <summary> Delegate for command handlers/callbacks. </summary>
+    /// <param name="source"> Player who called the command. </param>
+    /// <param name="cmd"> Command arguments. </param>
+    public delegate void CommandHandler( Player source, Command cmd );
 
 
-    /// <summary>
-    /// Callback for displaying help information for chat commands that require a non-static/personalized help message.
-    /// </summary>
-    /// <param name="source">Player who is asking for help.</param>
-    /// <returns>String to print to player.</returns>
+    /// <summary> Callback for displaying help information for commands
+    /// that require a dynamic help message. </summary>
+    /// <param name="source"> Player who is asking for help. </param>
+    /// <returns> String to print to player. </returns>
     public delegate string HelpHandler( Player source );
 
 
-    /// <summary>
-    /// Describes a chat command handler. Defined properties and usage/help information, and specifies a callback.
-    /// </summary>
+    /// <summary> Describes a chat command.
+    /// Defines properties and usage information, and specifies a callback. </summary>
     public sealed class CommandDescriptor {
 
         /// <summary> List of aliases. May be null or empty. Default: null </summary>
@@ -62,17 +58,23 @@ namespace fCraft {
         /// <summary> Brief demonstration of command's usage syntax. Defaults to "/commandname". </summary>
         public string Usage { get; set; }
 
+
+        /// <summary> Checks whether this command may be called by players of a given rank. </summary>
         public bool CanBeCalledBy( Rank rank ) {
             return Permissions == null ||
                    Permissions.All( rank.Can ) ||
                    AnyPermission && Permissions.Any( rank.Can );
         }
 
+
+        /// <summary> Checks whether players of the given rank should see this command in /cmds list.
+        /// Takes permissions and the hidden flag into account. </summary>
         public bool IsVisibleTo( Rank rank ) {
             return !IsHidden && CanBeCalledBy( rank );
         }
 
 
+        /// <summary> Prints command usage syntax to the given player. </summary>
         public void PrintUsage( Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( Usage != null ) {
@@ -82,6 +84,13 @@ namespace fCraft {
             }
         }
 
+
+        /// <summary> Calls this command. </summary>
+        /// <param name="player"> Player who called the command. </param>
+        /// <param name="cmd"> Command arguments. </param>
+        /// <param name="raiseEvent"> Whether CommandCalling and CommandCalled events should be raised. </param>
+        /// <returns> True if the command was called succesfully.
+        /// False if the call was cancelled by the CommandCalling event. </returns>
         public bool Call( Player player, Command cmd, bool raiseEvent ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
@@ -90,6 +99,7 @@ namespace fCraft {
             if( raiseEvent ) CommandManager.RaiseCommandCalledEvent( cmd, this, player );
             return true;
         }
+
 
         public override string ToString() {
             return String.Format( "CommandDescriptor({0})", Name );

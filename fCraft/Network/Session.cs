@@ -16,12 +16,16 @@ namespace fCraft {
     /// <summary> Represents a connection to a Minecraft client.
     /// Handles low-level interactions (e.g. networking). </summary>
     public sealed class Session {
-        public static int SocketTimeout = 10000;
+        public static int SocketTimeout { get; set; }
         const int SleepDelay = 5; // milliseconds
         const int SocketPollInterval = 200; // multiples of SleepDelay
         const int PingInterval = 3; // multiples of SocketPollInterval
 
         const string NoSmpMessage = "This server is for Minecraft Classic only.";
+
+        static Session() {
+            SocketTimeout = 10000;
+        }
 
 
         /// <summary> Player object associated with this session. </summary>

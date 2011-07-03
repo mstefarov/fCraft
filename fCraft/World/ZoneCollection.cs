@@ -307,7 +307,7 @@ namespace fCraft {
         }
 
 
-        object syncRoot = new object();
+        readonly object syncRoot = new object();
         public object SyncRoot {
             get { return syncRoot; }
         }

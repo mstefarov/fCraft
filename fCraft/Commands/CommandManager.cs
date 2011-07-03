@@ -73,7 +73,8 @@ namespace fCraft {
         public static CommandDescriptor[] GetCommands( Rank rank, bool includeHidden ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             return Commands.Values
-                           .Where( cmd => cmd.IsVisibleTo( rank ) )
+                           .Where( cmd => (!cmd.IsHidden || includeHidden) &&
+                                          cmd.CanBeCalledBy( rank ) )
                            .ToArray();
         }
 
@@ -82,12 +83,14 @@ namespace fCraft {
         /// Note that commands may belong to more than one category. </summary>
         public static CommandDescriptor[] GetCommands( CommandCategory category, bool includeHidden ) {
             return Commands.Values
-                           .Where( cmd => (includeHidden || !cmd.IsHidden ) &&
-                                          ( cmd.Category & category ) == category )
+                           .Where( cmd => (includeHidden || !cmd.IsHidden) &&
+                                           (cmd.Category & category) == category )
                            .ToArray();
         }
 
 
+        /// <summary> Registers a custom command with fCraft.
+        /// CommandRegistrationException may be thrown if the given descriptor does not meet all the requirements. </summary>
         public static void RegisterCustomCommand( CommandDescriptor descriptor ) {
             if( descriptor == null ) throw new ArgumentNullException( "descriptor" );
             descriptor.IsCustom = true;
@@ -317,7 +320,6 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
-
     public class CommandRegisteredEventArgs : EventArgs {
         internal CommandRegisteredEventArgs( CommandDescriptor commandDescriptor ) {
             CommandDescriptor = commandDescriptor;
@@ -356,5 +358,4 @@ namespace fCraft.Events {
 
         public bool Cancel { get; set; }
     }
-
 }
