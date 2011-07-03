@@ -13,7 +13,7 @@ namespace fCraft {
         readonly List<string> messages = new List<string>();
         readonly LogType[] thingsToLog;
         bool disposed;
-        Thread creatingThread;
+        readonly Thread creatingThread;
 
 
         /// <summary> Creates a recorder for errors and warnings. </summary>

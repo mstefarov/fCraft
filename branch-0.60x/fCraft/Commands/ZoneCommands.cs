@@ -3,9 +3,7 @@ using System;
 using fCraft.MapConversion;
 
 namespace fCraft {
-    /// <summary>
-    /// Contains commands related to zone management.
-    /// </summary>
+    /// <summary> Contains commands related to zone management. </summary>
     static class ZoneCommands {
 
         internal static void Init() {
@@ -379,8 +377,10 @@ namespace fCraft {
                 if( world == null ) return;
                 player.Message( "List of zones on {0}&S:",
                                 world.ClassyName );
+
             } else if( world != null ) {
                 player.Message( "List of zones on this world:" );
+
             } else {
                 player.Message( "When used from console, &H/zones&S command requires a world name." );
                 return;

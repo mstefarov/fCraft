@@ -17,24 +17,28 @@ namespace fCraft {
             Write( (byte)opcode );
         }
 
+        /// <summary>  Writes a 16-bit short integer in Big-Endian order. </summary>
         public override void Write( short data ) {
             base.Write( IPAddress.HostToNetworkOrder( data ) );
         }
 
+        /// <summary>  Writes a 32-bit integer in Big-Endian order. </summary>
         public override void Write( int data ) {
             base.Write( IPAddress.HostToNetworkOrder( data ) );
         }
 
-        public override void Write( string data ) {
-            Write( Encoding.ASCII.GetBytes( data.PadRight( 64 ).Substring( 0, 64 ) ) );
+        /// <summary> Writes a string in Minecraft protocol format.
+        /// Maximum length: 64 characters. </summary>
+        public override void Write( string str ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
+            if( str.Length > 64 ) throw new ArgumentException( "String is too long (>64).", "str" );
+            Write( Encoding.ASCII.GetBytes( str.PadRight( 64 ) ) );
         }
 
         #endregion
 
 
         #region Direct Writing Whole Packets
-
-        // below are builders for specific packet codes
 
         public void WritePing() {
             Write( OpCode.Ping );

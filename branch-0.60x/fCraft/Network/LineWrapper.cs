@@ -5,6 +5,12 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace fCraft {
+    /// <summary> Intelligent line-wrapper for Minecraft protocol.
+    /// Splits long messages into 64-character chunks of ASCII.
+    /// Maintains colors between lines. Wraps at word boundaries and dashes.
+    /// Removes invalid characters and color sequences.
+    /// Supports optional line prefixes for second and consequent lines.
+    /// This class is implemented as IEnumerable of Packets, so it's usable with foreach() and Linq. </summary>
     sealed class LineWrapper : IEnumerable<Packet>, IEnumerator<Packet> {
         const string DefaultPrefixString = "> ";
         static readonly byte[] DefaultPrefix;
@@ -17,10 +23,7 @@ namespace fCraft {
         const int PacketSize = 66; // opcode + id + 64
         const byte NoColor = (byte)'f';
 
-        public Packet Current {
-            get;
-            private set;
-        }
+        public Packet Current { get; private set; }
 
         byte color, lastColor;
         bool hadColor;
@@ -310,11 +313,13 @@ namespace fCraft {
         #endregion
 
 
+        /// <summary> Creates a new line wrapper for a given raw string. </summary>
         public static LineWrapper Wrap( string message ) {
             return new LineWrapper( message );
         }
 
 
+        /// <summary> Creates a new line wrapper for a given raw string. </summary>
         public static LineWrapper WrapPrefixed( string prefix, string message ) {
             return new LineWrapper( prefix, message );
         }

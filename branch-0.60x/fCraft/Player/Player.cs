@@ -27,7 +27,8 @@ namespace fCraft {
         /// Note that Player.Console.World is always null,
         /// and that prevents console from calling certain commands (like /tp). </summary>
         public static Player Console, AutoRank;
-        bool isSuper;
+
+        readonly bool isSuper;
 
         public static bool RelayAllUpdates;
 

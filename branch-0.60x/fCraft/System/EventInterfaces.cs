@@ -1,4 +1,5 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+// ReSharper disable UnusedMemberInSuper.Global
 
 namespace fCraft {
     /// <summary> An EventArgs for an event that can be cancelled. </summary>
