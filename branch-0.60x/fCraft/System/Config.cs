@@ -151,10 +151,10 @@ namespace fCraft {
         const string ConfigXmlRootName = "fCraftConfig";
 
         // Mapping of keys to their values
-        static readonly Dictionary<ConfigKey, string> Settings = new Dictionary<ConfigKey, string>();
+        static readonly string[] Settings;
 
         // Mapping of keys to their metadata containers.
-        static readonly Dictionary<ConfigKey, ConfigKeyAttribute> KeyMetadata = new Dictionary<ConfigKey, ConfigKeyAttribute>();
+        static readonly ConfigKeyAttribute[] KeyMetadata;
 
         // Keys organized by sections
         static readonly Dictionary<ConfigSection, ConfigKey[]> KeySections = new Dictionary<ConfigSection, ConfigKey[]>();
@@ -168,21 +168,25 @@ namespace fCraft {
 
 
         static Config() {
+            int keyCount = Enum.GetValues( typeof( ConfigKey ) ).Length;
+            Settings = new string[keyCount];
+            KeyMetadata = new ConfigKeyAttribute[keyCount];
+
             // gather metadata for ConfigKeys
             foreach( var keyField in typeof( ConfigKey ).GetFields() ) {
                 foreach( var attribute in (ConfigKeyAttribute[])keyField.GetCustomAttributes( typeof( ConfigKeyAttribute ), false ) ) {
                     ConfigKey key = (ConfigKey)keyField.GetValue( null );
                     attribute.Key = key;
-                    KeyMetadata.Add( key, attribute );
+                    KeyMetadata[(int)key] = attribute;
                 }
             }
 
             // organize ConfigKeys into categories, based on metadata
             foreach( ConfigSection section in Enum.GetValues( typeof( ConfigSection ) ) ) {
                 ConfigSection sec = section;
-                KeySections.Add( section, KeyMetadata.Values.Where( meta => (meta.Section == sec) )
-                                                            .Select( meta => meta.Key )
-                                                            .ToArray() );
+                KeySections.Add( section, KeyMetadata.Where( meta => (meta.Section == sec) )
+                                                     .Select( meta => meta.Key )
+                                                     .ToArray() );
             }
 
             LoadDefaults();
@@ -204,15 +208,11 @@ namespace fCraft {
         // This is invoked by Server.InitServer() if built with DEBUG flag.
         internal static void RunSelfTest() {
             foreach( ConfigKey key in Enum.GetValues( typeof( ConfigKey ) ) ) {
-                if( !Settings.ContainsKey( key ) ) {
-                    throw new Exception( "One of the ConfigKey keys is missing a default: " + key );
-                }
-
-                if( Settings[key] == null ) {
+                if( Settings[(int)key] == null ) {
                     throw new Exception( "One of the ConfigKey keys is null: " + key );
                 }
 
-                if( !KeyMetadata.ContainsKey( key ) ) {
+                if( KeyMetadata[(int)key] == null ) {
                     throw new Exception( "One of the ConfigKey keys does not have metadata set: " + key );
                 }
 
@@ -226,8 +226,8 @@ namespace fCraft {
 
         /// <summary> Overwrites current settings with defaults. </summary>
         public static void LoadDefaults() {
-            foreach( var pair in KeyMetadata ) {
-                SetValue( pair.Key, pair.Value.DefaultValue );
+            for( int i = 0; i < KeyMetadata.Length; i++ ) {
+                SetValue( (ConfigKey)i, KeyMetadata[i].DefaultValue );
             }
         }
 
@@ -235,20 +235,20 @@ namespace fCraft {
         /// <summary> Loads defaults for keys in a given ConfigSection. </summary>
         public static void LoadDefaults( ConfigSection section ) {
             foreach( var key in KeySections[section] ) {
-                SetValue( key, KeyMetadata[key].DefaultValue );
+                SetValue( key, KeyMetadata[(int)key].DefaultValue );
             }
         }
 
 
         /// <summary> Checks whether given ConfigKey still has its default value. </summary>
         public static bool IsDefault( this ConfigKey key ) {
-            return (KeyMetadata[key].DefaultValue.ToString() == Settings[key]);
+            return (KeyMetadata[(int)key].DefaultValue.ToString() == Settings[(int)key]);
         }
 
 
         /// <summary> Provides the default value for a given ConfigKey. </summary>
         public static object GetDefault( this ConfigKey key ) {
-            return KeyMetadata[key].DefaultValue;
+            return KeyMetadata[(int)key].DefaultValue;
         }
 
 
@@ -547,9 +547,9 @@ namespace fCraft {
                 sectionEl.Add( new XAttribute( "name", section ) );
                 foreach( ConfigKey key in KeySections[section] ) {
                     if( IsDefault( key ) ) {
-                        sectionEl.Add( new XComment( new XElement( key.ToString(), Settings[key] ).ToString() ) );
+                        sectionEl.Add( new XComment( new XElement( key.ToString(), Settings[(int)key] ).ToString() ) );
                     } else {
-                        sectionEl.Add( new XElement( key.ToString(), Settings[key] ) );
+                        sectionEl.Add( new XElement( key.ToString(), Settings[(int)key] ) );
                     }
                 }
                 config.Add( sectionEl );
@@ -610,13 +610,13 @@ namespace fCraft {
 
         /// <summary> Checks whether any value has been set for a given key. </summary>
         public static bool IsBlank( this ConfigKey key ) {
-            return !Settings.ContainsKey( key ) || String.IsNullOrEmpty( Settings[key] );
+            return (Settings[(int)key].Length == 0);
         }
 
 
         /// <summary> Returns raw value for the given key. </summary>
         public static string GetString( this ConfigKey key ) {
-            return KeyMetadata[key].Process( Settings[key] );
+            return KeyMetadata[(int)key].Process( Settings[(int)key] );
         }
 
 
@@ -665,25 +665,25 @@ namespace fCraft {
 
         /// <summary> Returns the expected Type of the key's value, as specified in key metadata. </summary>
         public static Type GetValueType( this ConfigKey key ) {
-            return KeyMetadata[key].ValueType;
+            return KeyMetadata[(int)key].ValueType;
         }
 
 
         /// <summary> Returns the metadata container (ConfigKeyAttribute object) for a given key. </summary>
         public static ConfigKeyAttribute GetMetadata( this ConfigKey key ) {
-            return KeyMetadata[key];
+            return KeyMetadata[(int)key];
         }
 
 
         /// <summary> Returns the ConfigSection that a given key is associated with. </summary>
         public static ConfigSection GetSection( this ConfigKey key ) {
-            return KeyMetadata[key].Section;
+            return KeyMetadata[(int)key].Section;
         }
 
 
         /// <summary> Returns the description text for a given config key. </summary>
         public static string GetDescription( this ConfigKey key ) {
-            return KeyMetadata[key].Description;
+            return KeyMetadata[(int)key].Description;
         }
 
         #endregion
@@ -729,7 +729,7 @@ namespace fCraft {
             }
 
             // throws various exceptions (most commonly FormatException) if invalid
-            KeyMetadata[key].Validate( value );
+            KeyMetadata[(int)key].Validate( value );
 
             return DoSetValue( key, value );
         }
@@ -753,17 +753,12 @@ namespace fCraft {
 
 
         static bool DoSetValue( ConfigKey key, string newValue ) {
-            if( !Settings.ContainsKey( key ) ) {
-                Settings[key] = newValue;
+            string oldValue = Settings[(int)key];
+            if( oldValue != newValue ) {
+                if( RaiseKeyChangingEvent( key, oldValue, ref newValue ) ) return false;
+                Settings[(int)key] = newValue;
                 ApplyKeyChange( key );
-            } else {
-                string oldValue = Settings[key];
-                if( oldValue != newValue ) {
-                    if( RaiseKeyChangingEvent( key, oldValue, ref newValue ) ) return false;
-                    Settings[key] = newValue;
-                    ApplyKeyChange( key );
-                    RaiseKeyChangedEvent( key, oldValue, newValue );
-                }
+                RaiseKeyChangedEvent( key, oldValue, newValue );
             }
             return true;
         }

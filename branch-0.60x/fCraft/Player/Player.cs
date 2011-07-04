@@ -38,10 +38,17 @@ namespace fCraft {
         public Position Position,
                         LastValidPosition; // used in speedhack detection
 
-        public bool IsPainting,
-                    IsHidden,
-                    IsDeaf,
-                    IsDisconnected;
+        /// <summary> Whether the player is in paint mode (deleting blocks replaces them). Used by /paint. </summary>
+        public bool IsPainting { get; set; }
+
+        /// <summary> Whether player is hidden.
+        /// Visibility varies per-rank, so using Player.CanSee(Player) is recommended in most cases. </summary>
+        public bool IsHidden { get; set; }
+
+        /// <summary> Whether player has blocked all incoming chat.
+        /// Deaf players can't hear anything. </summary>
+        public bool IsDeaf { get; set; }
+
 
         public World World;
         internal DateTime LastActiveTime = DateTime.UtcNow; // used for afk kicks
@@ -242,7 +249,9 @@ namespace fCraft {
                                 if( CanSee( target ) ) {
                                     MessageNow( "&WCannot PM {0}&W: you are ignored.", target.ClassyName );
                                 }
-                            } else {
+                            } else if( target.IsDeaf ) {
+                                MessageNow( "&SCannot PM {0}&S: they are currently deaf.", target.ClassyName );
+                            }else{
                                 Chat.SendPM( this, target, messageText );
                                 if( !CanSee( target ) ) {
                                     // message was sent to a hidden player

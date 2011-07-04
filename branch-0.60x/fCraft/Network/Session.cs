@@ -648,7 +648,6 @@ namespace fCraft {
 
             // ==== Beyond this point, player is considered ready (has a world) ====
 
-
             if( showVerifyNamesWarning ) {
                 Server.Message( Player,
                                 "&WName and IP of {0}&W are unverified!",
@@ -1105,7 +1104,7 @@ namespace fCraft {
 
         void UpdateVisibleEntities() {
             if( SpectatedPlayer != null ) {
-                if( SpectatedPlayer.IsDisconnected || !Player.CanSee( SpectatedPlayer ) ) {
+                if( !SpectatedPlayer.Session.IsRegistered || !Player.CanSee( SpectatedPlayer ) ) {
                     Player.Message( "Stopped spectating {0}&S (disconnected)", SpectatedPlayer.ClassyName );
                     SpectatedPlayer = null;
                 } else {
