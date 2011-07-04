@@ -879,15 +879,19 @@ namespace fCraft {
         public static string Salt { get; private set; }
 
         static string GenerateSalt() {
+            return GetRandomString( 32 );
+        }
+
+        public static string GetRandomString( int chars ) {
             RandomNumberGenerator prng = RandomNumberGenerator.Create();
             StringBuilder sb = new StringBuilder();
             byte[] oneChar = new byte[1];
-            while( sb.Length < 32 ) {
+            while( sb.Length < chars ) {
                 prng.GetBytes( oneChar );
                 if( oneChar[0] >= 48 && oneChar[0] <= 57 ||
                     oneChar[0] >= 65 && oneChar[0] <= 90 ||
                     oneChar[0] >= 97 && oneChar[0] <= 122 ) {
-                //if( oneChar[0] >= 33 && oneChar[0] <= 126 ) {
+                    //if( oneChar[0] >= 33 && oneChar[0] <= 126 ) {
                     sb.Append( (char)oneChar[0] );
                 }
             }
@@ -1057,7 +1061,6 @@ namespace fCraft {
             if( session == null ) throw new ArgumentNullException( "session" );
 
             Player player = session.Player;
-            player.IsDisconnected = true;
             lock( PlayerListLock ) {
                 if( !session.IsRegistered ) return;
                 player.Info.ProcessLogout( session );
