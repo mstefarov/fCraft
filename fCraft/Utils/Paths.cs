@@ -96,6 +96,8 @@ namespace fCraft {
 
         public const string RulesFileName = "rules.txt";
 
+        public const string RulesDirectory = "rules";
+
         public const string HeartbeatDataFileName = "heartbeatdata.txt";
 
         public const string UpdaterFileName = "UpdateInstaller.exe";

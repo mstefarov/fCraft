@@ -215,8 +215,6 @@ namespace fCraft {
                 if( KeyMetadata[(int)key] == null ) {
                     throw new Exception( "One of the ConfigKey keys does not have metadata set: " + key );
                 }
-
-                GetValueType( key );
             }
         }
 #endif
