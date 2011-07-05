@@ -12,13 +12,13 @@ namespace fCraft {
 
         public World World { get; set; }
 
-        /// <summary> Map width, in blocks. Equivalent to Notch's X (horizontal)</summary>
+        /// <summary> Map width, in blocks. Equivalent to Notch's X (horizontal). </summary>
         public readonly int WidthX;
 
-        /// <summary> Map length, in blocks. Equivalent to Notch's Z (horizontal)</summary>
+        /// <summary> Map length, in blocks. Equivalent to Notch's Z (horizontal). </summary>
         public readonly int WidthY;
 
-        /// <summary> Map height, in blocks. Equivalent to Notch's Y (vertical)</summary>
+        /// <summary> Map height, in blocks. Equivalent to Notch's Y (vertical). </summary>
         public readonly int Height;
 
         /// <summary> Map boundaries. Can be useful for calculating volume or interesections. </summary>
@@ -74,6 +74,7 @@ namespace fCraft {
         /// <summary> Map metadata, excluding zones. </summary>
         public MetadataCollection Metadata { get; private set; }
 
+        /// <summary> All zones within a map. </summary>
         public ZoneCollection Zones { get; private set; }
 
 
