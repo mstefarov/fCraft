@@ -205,11 +205,9 @@ namespace fCraft.MapConversion {
                 using( DeflateStream ds = new DeflateStream( mapStream, CompressionMode.Compress, true ) ) {
                     using( BufferedStream bs = new BufferedStream( ds ) ) {
                         // write metadata
-                        metaCount = WriteMetadata( ds, mapToSave );
-                        ds.Flush();
-                        offset = mapStream.Position;
+                        metaCount = WriteMetadata( bs, mapToSave );
+                        offset = mapStream.Position; // inaccurate, but who cares
                         bs.Write( blocksCache, 0, blocksCache.Length );
-                        ds.Flush();
                         compressedLength = (int)(mapStream.Position - offset);
                     }
                 }

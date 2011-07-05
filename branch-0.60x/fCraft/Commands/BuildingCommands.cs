@@ -658,7 +658,6 @@ namespace fCraft {
             // if i set "origin" to player, he will not receive the block update. I tried.
             player.World.Map.QueueUpdate( new BlockUpdate( null, x, y, h, drawBlock ) );
             Server.RaisePlayerPlacedBlockEvent( player, (short)x, (short)y, (short)h, (Block)block, (Block)drawBlock, false );
-            //player.SendDelayed( PacketWriter.MakeSetBlock( x, y, h, drawBlock ) );
 
             if( MaxUndoCount < 1 || blocks < MaxUndoCount ) {
                 player.UndoBuffer.Enqueue( new BlockUpdate( null, x, y, h, block ) );
