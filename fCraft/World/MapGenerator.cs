@@ -416,7 +416,7 @@ namespace fCraft {
                     Rand = rand,
                     TreeCount = (int)(map.WidthX * map.WidthY * 4 / (1024f * (args.TreeSpacingMax + args.TreeSpacingMin) / 2)),
                     Operation = Forester.ForesterOperation.Add,
-                    GroundSurfaceBlock = bGroundSurface
+                    PlantOn = bGroundSurface
                 } );
                 treeGen.Generate();
                 map = outMap;

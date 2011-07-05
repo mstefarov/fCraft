@@ -865,7 +865,6 @@ namespace fCraft {
         public Map InMap;
         public Map OutMap;
 
-        public Block GroundSurfaceBlock = Block.Grass;
         public Block TrunkBlock = Block.Log;
         public Block FoliageBlock = Block.Leaves;
 
