@@ -85,7 +85,9 @@ namespace fCraft {
                 return;
             }
 
-            player.Spectate( target );
+            if( !player.Spectate( target ) ) {
+                player.Message( "Already spectating {0}", target.ClassyName );
+            }
         }
 
 
@@ -1404,7 +1406,6 @@ namespace fCraft {
 
             target.LastPatrolTime = DateTime.UtcNow;
             player.Spectate( target );
-            player.Message( "SpecPatrol: Spectating {0}", target.ClassyName );
         }
 
         #endregion

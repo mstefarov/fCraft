@@ -42,6 +42,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdColors );
         }
 
+
         static readonly CommandDescriptor CdColors = new CommandDescriptor {
             Name = "colors",
             Aliases = new[] { "colours" },
@@ -559,22 +560,93 @@ namespace fCraft {
             Handler = Rules
         };
 
+        const string DefaultRules = "Rules: Use common sense!";
 
-        // Prints rules (if any are defined)
-        internal static void Rules( Player player, Command cmd ) {
-            if( !File.Exists( Paths.RulesFileName ) ) {
-                player.Message( "Rules: Use common sense!" );
-            } else {
-                try {
-                    foreach( string ruleLine in File.ReadAllLines( Paths.RulesFileName ) ) {
-                        if( ruleLine.Trim().Length > 0 ) {
-                            player.Message( "&R{0}", ruleLine );
-                        }
-                    }
-                } catch( Exception ex ) {
-                    Logger.Log( "Error while trying to retrieve rules.txt: {0}", LogType.Error, ex.Message );
-                    player.Message( "Rules: Use common sense!" );
+        static string[] GetRuleSectionList() {
+            if( Directory.Exists( Paths.RulesDirectory ) ) {
+                string[] sections = Directory.GetFiles( Paths.RulesDirectory, "*.txt", SearchOption.TopDirectoryOnly )
+                                    .Select( name => Path.GetFileNameWithoutExtension( name ) )
+                                    .ToArray();
+                if( sections.Length != 0 ) {
+                    return sections;
                 }
+            }
+            return null;
+        }
+
+        static void PrintRuleFile( Player player, FileInfo ruleFile ) {
+            try {
+                foreach( string ruleLine in File.ReadAllLines( ruleFile.FullName ) ) {
+                    if( ruleLine.Trim().Length > 0 ) {
+                        player.Message( "&R{0}", ruleLine );
+                    }
+                }
+            } catch( Exception ex ) {
+                Logger.Log( "InfoCommands.PrintRuleFile: An error occured while trying to read {0}: {1}", LogType.Error,
+                            ruleFile.FullName, ex );
+                player.Message( "&WError reading the rule file. Error details logged." );
+            }
+        }
+
+        internal static void Rules( Player player, Command cmd ) {
+            string sectionName = cmd.Next();
+
+            // if no section name is given
+            if( sectionName == null ) {
+                FileInfo ruleFile = new FileInfo( Paths.RulesFileName );
+
+                if( ruleFile.Exists ) {
+                    PrintRuleFile( player, ruleFile );
+                } else {
+                    player.Message( DefaultRules );
+                }
+
+                // print a list of available sections
+                string[] sections = GetRuleSectionList();
+                if( sections != null ) {
+                    player.Message( "Rule sections: {0}. Type &H/rules SectionName&S to read.", sections.JoinToString() );
+                }
+                return;
+            }
+
+            // if a section name is given, but no section files exist
+            if( !Directory.Exists( Paths.RulesDirectory ) ) {
+                player.Message( "There are no rule sections defined.", sectionName );
+                return;
+            }
+
+            string ruleFileName = null;
+            string[] sectionFiles = Directory.GetFiles( Paths.RulesDirectory, "*.txt", SearchOption.TopDirectoryOnly );
+
+            for( int i = 0; i < sectionFiles.Length; i++ ) {
+                string sectionFullName = Path.GetFileNameWithoutExtension( sectionFiles[i] );
+                if( sectionFullName.StartsWith( sectionName, StringComparison.OrdinalIgnoreCase ) ) {
+                    if( sectionFullName.Equals( sectionName, StringComparison.OrdinalIgnoreCase ) ) {
+                        // if there is an exact match, break out of the loop early
+                        ruleFileName = sectionFiles[i];
+                        break;
+
+                    } else if( ruleFileName == null ) {
+                        // if there is a partial match, keep going to check for multiple matches
+                        ruleFileName = sectionFiles[i];
+
+                    } else {
+                        // if there are multiple matches, print a list
+                        player.Message( "Multiple rule sections matched \"{0}\": {1}",
+                                        sectionFiles.Select( f => Path.GetFileNameWithoutExtension( f )
+                                                                      .StartsWith( sectionName ) )
+                                                    .JoinToString() );
+                    }
+                }
+            }
+
+            if( ruleFileName == null ) {
+                player.Message( "No rule section defined for \"{0}\". Available sections: {1}",
+                                sectionName, GetRuleSectionList().JoinToString() );
+            } else {
+                player.Message( "Rule section \"{0}\":",
+                                Path.GetFileNameWithoutExtension( ruleFileName ) );
+                PrintRuleFile( player, new FileInfo( ruleFileName ) );
             }
         }
 
@@ -753,7 +825,8 @@ namespace fCraft {
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             Usage = "/commands [Category|@RankName]",
-            Help = "Shows a list of commands, by category, permission, or rank.",
+            Help = "Shows a list of commands, by category, permission, or rank. " +
+                   "Categories are: Building, Chat, Info, Maintenance, Moderation, World, and Zone.",
             Handler = Commands
         };
 
