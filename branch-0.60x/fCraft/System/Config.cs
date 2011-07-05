@@ -437,9 +437,9 @@ namespace fCraft {
                     Player[] playerListCache = Server.Players;
                     if( playerListCache != null ) {
                         foreach( Player p in playerListCache ) {
-                            if( p.Session.BandwidthUseMode == BandwidthUseMode.Default ) {
+                            if( p.BandwidthUseMode == BandwidthUseMode.Default ) {
                                 // resets the use tweaks
-                                p.Session.BandwidthUseMode = BandwidthUseMode.Default;
+                                p.BandwidthUseMode = BandwidthUseMode.Default;
                             }
                         }
                     }
@@ -489,9 +489,9 @@ namespace fCraft {
 
                 case ConfigKey.NoPartialPositionUpdates:
                     if( key.Enabled() ) {
-                        Session.FullPositionUpdateInterval = 0;
+                        Player.FullPositionUpdateInterval = 0;
                     } else {
-                        Session.FullPositionUpdateInterval = Session.FullPositionUpdateIntervalDefault;
+                        Player.FullPositionUpdateInterval = Player.FullPositionUpdateIntervalDefault;
                     }
                     break;
 

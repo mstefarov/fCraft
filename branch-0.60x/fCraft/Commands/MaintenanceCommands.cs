@@ -35,14 +35,14 @@ namespace fCraft {
                     string newModeName = cmd.Next();
                     if( newModeName == null ) {
                         player.Message( "{0}: S: {1}  R: {2}  S/s: {3:0.0}  R/s: {4:0.0}",
-                                        player.Session.BandwidthUseMode,
-                                        player.Session.BytesSent,
-                                        player.Session.BytesReceived,
-                                        player.Session.BytesSentRate,
-                                        player.Session.BytesReceivedRate );
+                                        player.BandwidthUseMode,
+                                        player.BytesSent,
+                                        player.BytesReceived,
+                                        player.BytesSentRate,
+                                        player.BytesReceivedRate );
                     } else {
                         var newMode = (BandwidthUseMode)Enum.Parse( typeof( BandwidthUseMode ), newModeName, true );
-                        player.Session.BandwidthUseMode = newMode;
+                        player.BandwidthUseMode = newMode;
                         player.Info.BandwidthUseMode = newMode;
                     }
                 },

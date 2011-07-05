@@ -154,7 +154,7 @@ namespace fCraft {
                             return;
                         }
                         player.StopSpectating();
-                        if( !player.Session.JoinWorldNow( world, false, true ) ) {
+                        if( !player.JoinWorldNow( world, false, true ) ) {
                             player.Message( "ERROR: Failed to join world. See log for details." );
                         }
                         break;

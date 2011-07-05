@@ -630,7 +630,7 @@ namespace fCraft {
         }
 
         public void ProcessLogin( Player player ) {
-            LastIP = player.Session.IP;
+            LastIP = player.IP;
             LastLoginDate = DateTime.UtcNow;
             LastSeen = DateTime.UtcNow;
             Interlocked.Increment( ref TimesVisited );
@@ -639,19 +639,19 @@ namespace fCraft {
         }
 
 
-        public void ProcessFailedLogin( Session session ) {
+        public void ProcessFailedLogin( Player player ) {
             LastFailedLoginDate = DateTime.UtcNow;
-            LastFailedLoginIP = session.IP;
+            LastFailedLoginIP = player.IP;
             Interlocked.Increment( ref FailedLoginCount );
         }
 
 
-        public void ProcessLogout( Session session ) {
-            TotalTime += DateTime.UtcNow.Subtract( session.LoginTime );
+        public void ProcessLogout( Player player ) {
+            TotalTime += DateTime.UtcNow.Subtract( player.LoginTime );
             LastSeen = DateTime.UtcNow;
             Online = false;
             PlayerObject = null;
-            LeaveReason = session.LeaveReason;
+            LeaveReason = player.LeaveReason;
         }
 
 

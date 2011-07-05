@@ -60,11 +60,12 @@ namespace fCraft {
 
 
         /// <summary> Occurs any time a new session has connected, but before any communication is done. </summary>
-        public static event EventHandler<SessionConnectedEventArgs> SessionConnected;
+        public static event EventHandler<PlayerEventArgs> SessionConnected;
 
 
         /// <summary> Occurs when a connection is closed or lost. </summary>
         public static event EventHandler<SessionDisconnectedEventArgs> SessionDisconnected;
+
 
 
         internal static bool RaiseSessionConnectingEvent( IPAddress ip ) {
@@ -76,15 +77,15 @@ namespace fCraft {
         }
 
 
-        internal static void RaiseSessionConnectedEvent( Session session ) {
+        internal static void RaiseSessionConnectedEvent( Player player ) {
             var h = SessionConnected;
-            if( h != null ) h( null, new SessionConnectedEventArgs( session ) );
+            if( h != null ) h( null, new PlayerEventArgs( player ) );
         }
 
 
-        internal static void RaiseSessionDisconnectedEvent( Session session, LeaveReason leaveReason ) {
+        internal static void RaiseSessionDisconnectedEvent( Player player, LeaveReason leaveReason ) {
             var h = SessionDisconnected;
-            if( h != null ) h( null, new SessionDisconnectedEventArgs( session, leaveReason ) );
+            if( h != null ) h( null, new SessionDisconnectedEventArgs( player, leaveReason ) );
         }
 
         #endregion
@@ -343,6 +344,5 @@ namespace fCraft.Events {
 
         public ShutdownParams ShutdownParams { get; private set; }
     }
-
 
 }

@@ -438,7 +438,7 @@ namespace fCraft {
 
                 // kick all players
                 lock( SessionLock ) {
-                    foreach( Session s in Sessions ) {
+                    foreach( Player s in Sessions ) {
                         // NOTE: kick packet delivery here is not currently guaranteed
                         s.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")", LeaveReason.ServerShutdown );
                     }
@@ -762,7 +762,7 @@ namespace fCraft {
             TcpListener listenerCache = listener;
             if( listenerCache != null && listenerCache.Pending() ) {
                 try {
-                    Session newSession = new Session( listenerCache.AcceptTcpClient() );
+                    Player newSession = new Player( listenerCache.AcceptTcpClient() );
                     newSession.Start();
                 } catch( Exception ex ) {
                     Logger.Log( "Server.CheckConnections: Could not accept incoming connection: " + ex, LogType.Error );
@@ -977,17 +977,17 @@ namespace fCraft {
         static readonly object PlayerListLock = new object();
 
         // session list
-        static readonly List<Session> Sessions = new List<Session>();
+        static readonly List<Player> Sessions = new List<Player>();
         static readonly object SessionLock = new object();
 
 
-        internal static bool RegisterSessionAndCheckConnectionCount( Session session ) {
+        internal static bool RegisterSessionAndCheckConnectionCount( Player session ) {
             if( session == null ) throw new ArgumentNullException( "session" );
             int maxSessions = ConfigKey.MaxConnectionsPerIP.GetInt();
             lock( SessionLock ) {
                 if( maxSessions > 0 ) {
                     int sessionCount = 0;
-                    foreach( Session s in Sessions ) {
+                    foreach( Player s in Sessions ) {
                         if( s.IP.Equals( session.IP ) ) {
                             sessionCount++;
                             if( sessionCount >= maxSessions ) {
@@ -1002,27 +1002,25 @@ namespace fCraft {
         }
 
 
-        public static bool RegisterPlayerAndCheckIfFull( Session session ) {
-            if( session == null ) throw new ArgumentNullException( "session" );
-
-            Player player = session.Player;
+        public static bool RegisterPlayerAndCheckIfFull( Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
 
             // Kick other sessions with same player name
-            List<Session> sessionsToKick = new List<Session>();
+            List<Player> sessionsToKick = new List<Player>();
             lock( SessionLock ) {
-                foreach( Session s in Sessions ) {
-                    if( s == session ) continue;
-                    if( s.Player.Name.Equals( player.Name, StringComparison.OrdinalIgnoreCase ) ) {
+                foreach( Player s in Sessions ) {
+                    if( s == player ) continue;
+                    if( s.Name.Equals( player.Name, StringComparison.OrdinalIgnoreCase ) ) {
                         sessionsToKick.Add( s );
                         s.Kick( "Connected from elsewhere!", LeaveReason.ClientReconnect );
                         Logger.Log( "Session.LoginSequence: Player {0} logged in. Ghost was kicked.", LogType.SuspiciousActivity,
-                                    s.Player.Name );
+                                    s.Name );
                     }
                 }
             }
 
             // Wait for other sessions to exit/unregister (if any)
-            foreach( Session ses in sessionsToKick ) {
+            foreach( Player ses in sessionsToKick ) {
                 ses.WaitForDisconnect();
             }
 
@@ -1034,7 +1032,7 @@ namespace fCraft {
                 PlayerIndex.Add( player.Name, player );
                 UpdatePlayerList();
                 RaiseEvent( PlayerListChanged );
-                session.IsRegistered = true;
+                player.IsRegistered = true;
             }
             return true;
         }
@@ -1057,17 +1055,16 @@ namespace fCraft {
         }
 
         // Remove player from the list, and notify remaining players
-        public static void UnregisterPlayer( Session session ) {
-            if( session == null ) throw new ArgumentNullException( "session" );
+        public static void UnregisterPlayer( Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
 
-            Player player = session.Player;
             lock( PlayerListLock ) {
-                if( !session.IsRegistered ) return;
-                player.Info.ProcessLogout( session );
+                if( !player.IsRegistered ) return;
+                player.Info.ProcessLogout( player );
 
                 Logger.Log( "{0} left the server.", LogType.UserActivity,
                             player.Name );
-                if( session.IsReady && ConfigKey.ShowConnectionMessages.Enabled() ) {
+                if( player.IsReady && ConfigKey.ShowConnectionMessages.Enabled() ) {
                     Players.CanSee( player ).Message( "&SPlayer {0}&S left the server.",
                                                       player.ClassyName );
                 }
@@ -1082,11 +1079,11 @@ namespace fCraft {
         }
 
 
-        internal static void UnregisterSession( Session session ) {
-            if( session == null ) throw new ArgumentNullException( "session" );
+        internal static void UnregisterSession( Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             lock( SessionLock ) {
-                if( Sessions.Contains( session ) ) {
-                    Sessions.Remove( session );
+                if( Sessions.Contains( player ) ) {
+                    Sessions.Remove( player );
                 }
             }
         }
@@ -1184,7 +1181,7 @@ namespace fCraft {
         public static Player[] FindPlayers( IPAddress ip ) {
             if( ip == null ) throw new ArgumentNullException( "ip" );
             return Players.Where( t => t != null &&
-                                          t.Session.IP.Equals( ip ) ).ToArray();
+                                          t.IP.Equals( ip ) ).ToArray();
         }
 
 

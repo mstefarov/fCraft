@@ -20,7 +20,7 @@ namespace fCraft {
 
     /// <summary> Object representing volatile state of connected player.
     /// For persistent state of a known player account, see PlayerInfo. </summary>
-    public sealed class Player : IClassy {
+    public sealed partial class Player : IClassy {
 
         /// <summary> The godly pseudo-player for commands called from the server console.
         /// Console has all the permissions granted.
@@ -32,8 +32,7 @@ namespace fCraft {
 
         public static bool RelayAllUpdates;
 
-        public readonly Session Session;
-        public readonly PlayerInfo Info;
+        public PlayerInfo Info { get; private set; }
 
         public Position Position,
                         LastValidPosition; // used in speedhack detection
@@ -73,18 +72,6 @@ namespace fCraft {
         }
 
 
-        // Normal constructor
-        internal Player( string name, Session session, Position position ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
-            if( session == null ) throw new ArgumentNullException( "session" );
-            Session = session;
-            Position = position;
-            Info = PlayerDB.FindOrCreateInfoForPlayer( name, session.IP );
-            spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
-            ResetAllBinds();
-        }
-
-
         #region Name
 
         /// <summary> Plain version of the name (no formatting). </summary>
@@ -117,22 +104,6 @@ namespace fCraft {
         /// <summary> Name formatted for the debugger. </summary>
         public override string ToString() {
             return String.Format( "Player({0})", Info.Name );
-        }
-
-        #endregion
-
-
-        #region Sending
-
-        /// <summary> Send a packet to the player, thread-safe. </summary>
-        public void Send( Packet packet ) {
-            if( Session != null ) Session.Send( packet );
-        }
-
-
-        /// <summary> Send a packet to the player, thread-safe. </summary>
-        public void SendLowPriority( Packet packet ) {
-            if( Session != null ) Session.SendLowPriority( packet );
         }
 
         #endregion
@@ -342,7 +313,7 @@ namespace fCraft {
                 Logger.LogToConsole( message );
             } else {
                 foreach( Packet p in LineWrapper.Wrap( Color.Sys + message ) ) {
-                    Session.Send( p );
+                    Send( p );
                 }
             }
         }
@@ -365,7 +336,7 @@ namespace fCraft {
                 Logger.LogToConsole( message );
             } else {
                 foreach( Packet p in LineWrapper.WrapPrefixed( prefix, Color.Sys + message ) ) {
-                    Session.Send( p );
+                    Send( p );
                 }
             }
         }
@@ -376,11 +347,11 @@ namespace fCraft {
             if( args.Length > 0 ) {
                 message = String.Format( message, args );
             }
-            if( Session == null ) {
+            if( this == Console ) {
                 Logger.LogToConsole( message );
             } else {
                 foreach( Packet p in LineWrapper.Wrap( Color.Sys + message ) ) {
-                    Session.SendNow( p );
+                    SendNow( p );
                 }
             }
         }
@@ -516,7 +487,7 @@ namespace fCraft {
                 if( DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds < AntispamInterval ) {
                     muteWarnings++;
                     if( muteWarnings > ConfigKey.AntispamMaxWarnings.GetInt() ) {
-                        Session.KickNow( "You were kicked for repeated spamming.", LeaveReason.MessageSpamKick );
+                        KickNow( "You were kicked for repeated spamming.", LeaveReason.MessageSpamKick );
                         Server.Message( "&W{0} was kicked for repeated spamming.", ClassyName );
                     } else {
                         TimeSpan autoMuteDuration = TimeSpan.FromSeconds( ConfigKey.AntispamMuteDuration.GetInt() );
@@ -614,7 +585,7 @@ namespace fCraft {
                         Info.ProcessBlockPlaced( (byte)Block.DoubleStair );
                         World.Map.QueueUpdate( blockUpdate );
                         Server.RaisePlayerPlacedBlockEvent( this, x, y, (short)(h - 1), Block.Stair, Block.DoubleStair, true );
-                        Session.SendNow( PacketWriter.MakeSetBlock( x, y, h - 1, Block.DoubleStair ) );
+                        SendNow( PacketWriter.MakeSetBlock( x, y, h - 1, Block.DoubleStair ) );
                         RevertBlockNow( x, y, h );
                         break;
 
@@ -630,7 +601,7 @@ namespace fCraft {
                         World.Map.QueueUpdate( blockUpdate );
                         Server.RaisePlayerPlacedBlockEvent( this, x, y, h, old, type, true );
                         if( requiresUpdate || RelayAllUpdates ) {
-                            Session.SendNow( PacketWriter.MakeSetBlock( x, y, h, type ) );
+                            SendNow( PacketWriter.MakeSetBlock( x, y, h, type ) );
                         }
                     }
                     break;
@@ -683,7 +654,7 @@ namespace fCraft {
         /// and sends it (async) to the player.
         /// Used to undo player's attempted block placement/deletion. </summary>
         public void RevertBlock( short x, short y, short h ) {
-            Session.SendLowPriority( PacketWriter.MakeSetBlock( x, y, h, World.Map.GetBlockByte( x, y, h ) ) );
+            SendLowPriority( PacketWriter.MakeSetBlock( x, y, h, World.Map.GetBlockByte( x, y, h ) ) );
         }
 
 
@@ -691,7 +662,7 @@ namespace fCraft {
         /// Used to undo player's attempted block placement/deletion.
         /// To avoid threading issues, only use this from this player's IoThread. </summary>
         internal void RevertBlockNow( short x, short y, short h ) {
-            Session.SendNow( PacketWriter.MakeSetBlock( x, y, h, World.Map.GetBlockByte( x, y, h ) ) );
+            SendNow( PacketWriter.MakeSetBlock( x, y, h, World.Map.GetBlockByte( x, y, h ) ) );
         }
 
 
@@ -701,7 +672,7 @@ namespace fCraft {
                 DateTime oldestTime = spamBlockLog.Dequeue();
                 double spamTimer = DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds;
                 if( spamTimer < Info.Rank.AntiGriefSeconds ) {
-                    Session.KickNow( "You were kicked by antigrief system. Slow down.", LeaveReason.BlockSpamKick );
+                    KickNow( "You were kicked by antigrief system. Slow down.", LeaveReason.BlockSpamKick );
                     Server.Message( "{0}&W was kicked for suspected griefing.", ClassyName );
                     Logger.Log( "{0} was kicked for block spam ({1} blocks in {2} seconds)", LogType.SuspiciousActivity,
                                 Name, Info.Rank.AntiGriefBlocks, spamTimer );
@@ -919,9 +890,15 @@ namespace fCraft {
 
         #region Spectating
 
+        Player spectatedPlayer;
+        public Player SpectatedPlayer {
+            get { return spectatedPlayer; }
+        }
+
+
         public bool IsSpectating {
             get {
-                return (Session != null) && (Session.SpectatedPlayer != null);
+                return (spectatedPlayer != null);
             }
         }
 
@@ -930,12 +907,12 @@ namespace fCraft {
             if( target == null ) throw new ArgumentNullException( "target" );
             if( target == this ) throw new ArgumentException( "Cannot spectate self.", "target" );
             Message( "Now spectating {0}&S. Type &H/unspec&S to stop.", target.ClassyName );
-            return (Interlocked.Exchange( ref Session.SpectatedPlayer, target ) == null);
+            return (Interlocked.Exchange( ref spectatedPlayer, target ) == null);
         }
 
 
         public bool StopSpectating() {
-            Player wasSpectating = Interlocked.Exchange( ref Session.SpectatedPlayer, null );
+            Player wasSpectating = Interlocked.Exchange( ref spectatedPlayer, null );
             if( wasSpectating != null ) {
                 Message( "Stopped spectating {0}", wasSpectating.ClassyName );
                 return true;

@@ -510,9 +510,9 @@ namespace fCraft {
             }
 
             double bytesReceivedRate = Server.Players.Aggregate( (double)0,
-                                                                    ( i, p ) => i + p.Session.BytesReceivedRate );
+                                                                    ( i, p ) => i + p.BytesReceivedRate );
             double bytesSentRate = Server.Players.Aggregate( (double)0,
-                                                                ( i, p ) => i + p.Session.BytesSentRate );
+                                                                ( i, p ) => i + p.BytesSentRate );
             player.Message( "   Upstream {0:0.0} KB/s, downstream {1:0.0} KB/s",
                             bytesSentRate / 1000, bytesReceivedRate / 1000 );
 
