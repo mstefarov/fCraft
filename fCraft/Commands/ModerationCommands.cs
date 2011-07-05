@@ -582,12 +582,12 @@ namespace fCraft {
                     }
                     Logger.Log( "{0} was kicked by {1}. Reason: {2}", LogType.UserActivity,
                                 target.Name, player.Name, reason );
-                    target.Session.Kick( "Kicked by " + player.ClassyName + Color.White + ": " + reason, leaveReason );
+                    target.Kick( "Kicked by " + player.ClassyName + Color.White + ": " + reason, leaveReason );
 
                 } else {
                     Logger.Log( "{0} was kicked by {1}", LogType.UserActivity,
                                 target.Name, player.Name );
-                    target.Session.Kick( "You were kicked by " + player.ClassyName, leaveReason );
+                    target.Kick( "You were kicked by " + player.ClassyName, leaveReason );
                 }
                 return true;
             }
@@ -1096,7 +1096,7 @@ namespace fCraft {
                                     return;
                                 }
                                 player.StopSpectating();
-                                player.Session.JoinWorld( target.World, target.Position );
+                                player.JoinWorld( target.World, target.Position );
                                 break;
                             case SecurityCheckResult.BlackListed:
                                 player.Message( "Cannot teleport to {0}&S because you are blacklisted on world {1}&S.",
@@ -1344,7 +1344,7 @@ namespace fCraft {
                         return;
                     }
                     target.StopSpectating();
-                    target.Session.JoinWorld( world );
+                    target.JoinWorld( world );
                     break;
                 case SecurityCheckResult.BlackListed:
                     player.Message( "Cannot bring {0}&S because he/she is blacklisted on world {1}",

@@ -136,7 +136,7 @@ namespace fCraft {
                 WorldManager.ReplaceWorld( this, newWorld );
                 Map = null;
                 foreach( Player player in Players ) {
-                    player.Session.JoinWorld( newWorld );
+                    player.JoinWorld( newWorld );
                 }
             }
         }
@@ -169,7 +169,7 @@ namespace fCraft {
                 IsFlushing = false;
                 SendToAll( "&WMap flushed. Reloading..." );
                 foreach( Player player in Players ) {
-                    player.Session.JoinWorld( this, player.Position );
+                    player.JoinWorld( this, player.Position );
                 }
             }
         }

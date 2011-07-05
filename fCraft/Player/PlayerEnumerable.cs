@@ -404,7 +404,7 @@ namespace fCraft {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( ip == null ) throw new ArgumentNullException( "ip" );
             foreach( Player player in source ) {
-                if( ip.Equals( player.Session.IP ) ) {
+                if( ip.Equals( player.IP ) ) {
                     yield return player;
                 }
             }
@@ -418,7 +418,7 @@ namespace fCraft {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( ip == null ) throw new ArgumentNullException( "ip" );
             foreach( Player player in source ) {
-                if( !ip.Equals( player.Session.IP ) ) {
+                if( !ip.Equals( player.IP ) ) {
                     yield return player;
                 }
             }
