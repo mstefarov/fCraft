@@ -2,12 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace fCraft {
     public static class RankManager {
         public static Dictionary<string, Rank> RanksByName { get; private set; }
-        public static Dictionary<string, Rank> RanksByFullName { get; private set; }
+        static Dictionary<string, Rank> ranksByFullName;
         public static Dictionary<string, Rank> RanksByID { get; private set; }
         public static Dictionary<string, string> LegacyRankMapping { get; private set; }
         public static List<Rank> Ranks { get; private set; }
@@ -26,7 +25,7 @@ namespace fCraft {
                 throw new InvalidOperationException( "You may not reset ranks after PlayerDB has already been loaded." );
             }
             RanksByName = new Dictionary<string, Rank>();
-            RanksByFullName = new Dictionary<string, Rank>();
+            ranksByFullName = new Dictionary<string, Rank>();
             RanksByID = new Dictionary<string, Rank>();
             Ranks = new List<Rank>();
         }
@@ -49,7 +48,7 @@ namespace fCraft {
 
             Ranks.Add( rank );
             RanksByName[rank.Name.ToLower()] = rank;
-            RanksByFullName[rank.FullName] = rank;
+            ranksByFullName[rank.FullName] = rank;
             RanksByID[rank.ID] = rank;
             RebuildIndex();
         }
@@ -62,8 +61,8 @@ namespace fCraft {
         public static Rank ParseRank( string name ) {
             if( name == null ) return null;
 
-            if( RanksByFullName.ContainsKey( name ) ) {
-                return RanksByFullName[name];
+            if( ranksByFullName.ContainsKey( name ) ) {
+                return ranksByFullName[name];
             }
 
             if( name.Contains( "#" ) ) {
@@ -152,7 +151,7 @@ namespace fCraft {
             Ranks.Remove( deletedRank );
             RanksByName.Remove( deletedRank.Name.ToLower() );
             RanksByID.Remove( deletedRank.ID );
-            RanksByFullName.Remove( deletedRank.FullName );
+            ranksByFullName.Remove( deletedRank.FullName );
             LegacyRankMapping.Add( deletedRank.ID, replacementRank.ID );
             foreach( Rank rank in Ranks ) {
                 for( int i = 0; i < rank.PermissionLimits.Length; i++ ) {
