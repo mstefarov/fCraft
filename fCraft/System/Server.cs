@@ -438,11 +438,11 @@ namespace fCraft {
 
                 // kick all players
                 lock( SessionLock ) {
-                    foreach( Player s in Sessions ) {
-                        // NOTE: kick packet delivery here is not currently guaranteed
-                        s.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")", LeaveReason.ServerShutdown );
-                    }
                     if( Sessions.Count > 0 ) {
+                        foreach( Player p in Sessions ) {
+                            // NOTE: kick packet delivery here is not currently guaranteed
+                            p.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")", LeaveReason.ServerShutdown );
+                        }
                         // increase the chances of kick packets being delivered
                         Thread.Sleep( 1000 );
                     }
@@ -842,7 +842,6 @@ namespace fCraft {
 
 
         // measures CPU usage
-
         public static bool IsMonitoringCPUUsage { get; private set; }
         static TimeSpan cpuUsageStartingOffset;
         public static double CPUUsageTotal { get; private set; }
@@ -970,24 +969,27 @@ namespace fCraft {
 
         #region Player and Session Management
 
-        // player list
+        // list of registered players
         static readonly SortedDictionary<string, Player> PlayerIndex = new SortedDictionary<string, Player>();
         public static Player[] Players { get; private set; }
         static readonly object PlayerListLock = new object();
 
-        // session list
+        // list of all connected sessions
         static readonly List<Player> Sessions = new List<Player>();
         static readonly object SessionLock = new object();
 
 
-        internal static bool RegisterSessionAndCheckConnectionCount( Player session ) {
+        // Registers a new session, and checks the number of connections from this IP.
+        // Returns true if the session was registered succesfully.
+        // Returns false if the max number of connections was reached.
+        internal static bool RegisterSession( Player session ) {
             if( session == null ) throw new ArgumentNullException( "session" );
             int maxSessions = ConfigKey.MaxConnectionsPerIP.GetInt();
             lock( SessionLock ) {
                 if( maxSessions > 0 ) {
                     int sessionCount = 0;
-                    foreach( Player s in Sessions ) {
-                        if( s.IP.Equals( session.IP ) ) {
+                    foreach( Player p in Sessions ) {
+                        if( p.IP.Equals( session.IP ) ) {
                             sessionCount++;
                             if( sessionCount >= maxSessions ) {
                                 return false;
@@ -1001,7 +1003,11 @@ namespace fCraft {
         }
 
 
-        public static bool RegisterPlayerAndCheckIfFull( Player player ) {
+        // Registers a player and checks if the server is full.
+        // Also kicks any existing connections for this player account.
+        // Returns true if player was registered succesfully.
+        // Returns false if the server was full.
+        internal static bool RegisterPlayer( Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             // Kick other sessions with same player name
@@ -1011,9 +1017,9 @@ namespace fCraft {
                     if( s == player ) continue;
                     if( s.Name.Equals( player.Name, StringComparison.OrdinalIgnoreCase ) ) {
                         sessionsToKick.Add( s );
+                        Logger.Log( "Server.RegisterPlayer: Player {0} logged in twice. Ghost from {1} was kicked.", LogType.SuspiciousActivity,
+                                    s.Name, s.IP );
                         s.Kick( "Connected from elsewhere!", LeaveReason.ClientReconnect );
-                        Logger.Log( "Session.LoginSequence: Player {0} logged in. Ghost was kicked.", LogType.SuspiciousActivity,
-                                    s.Name );
                     }
                 }
             }
@@ -1031,7 +1037,7 @@ namespace fCraft {
                 PlayerIndex.Add( player.Name, player );
                 UpdatePlayerList();
                 RaiseEvent( PlayerListChanged );
-                player.IsLoggedIn = true;
+                player.IsRegistered = true;
             }
             return true;
         }
@@ -1053,12 +1059,13 @@ namespace fCraft {
             }
         }
 
-        // Remove player from the list, and notify remaining players
+
+        // Removes player from the list, and announced them leaving
         public static void UnregisterPlayer( Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             lock( PlayerListLock ) {
-                if( !player.IsLoggedIn ) return;
+                if( !player.IsRegistered ) return;
                 player.Info.ProcessLogout( player );
 
                 Logger.Log( "{0} left the server.", LogType.UserActivity,
@@ -1078,12 +1085,11 @@ namespace fCraft {
         }
 
 
+        // Removes a session from the list
         internal static void UnregisterSession( Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             lock( SessionLock ) {
-                if( Sessions.Contains( player ) ) {
-                    Sessions.Remove( player );
-                }
+                Sessions.Remove( player );
             }
         }
 
@@ -1095,10 +1101,9 @@ namespace fCraft {
         }
 
 
-        /// <summary>Finds a player by name, using autocompletion.
-        /// Count ALL players, including hidden ones.</summary>
-        /// <returns>An array of matches. List length of 0 means "no matches";
-        /// 1 is an exact match; over 1 for multiple matches.</returns>
+        /// <summary> Finds a player by name, using autocompletion. Count ALL players, including hidden ones. </summary>
+        /// <returns> An array of matches. List length of 0 means "no matches";
+        /// 1 is an exact match; over 1 for multiple matches. </returns>
         public static Player[] FindPlayers( string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             Player[] tempList = Players;
@@ -1117,13 +1122,12 @@ namespace fCraft {
         }
 
 
-        /// <summary>Finds a player by name, using autocompletion.
-        /// Does not count hidden players.</summary>
-        /// <param name="player">Player who initiated the search.
-        /// Used to determine whether others are hidden or not.</param>
-        /// <param name="name">Full or partial name of the search target.</param>
-        /// <returns>An array of matches. List length of 0 means "no matches";
-        /// 1 is an exact match; over 1 for multiple matches.</returns>
+        /// <summary> Finds a player by name, using autocompletion. Does not include hidden players. </summary>
+        /// <param name="player"> Player who initiated the search.
+        /// Used to determine whether others are hidden or not. </param>
+        /// <param name="name"> Full or partial name of the search target. </param>
+        /// <returns> An array of matches. List length of 0 means "no matches";
+        /// 1 is an exact match; over 1 for multiple matches. </returns>
         public static Player[] FindPlayers( Player player, string name ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -1174,19 +1178,20 @@ namespace fCraft {
         }
 
 
-        /// <summary>Finds any player(s) online from given IP address.</summary>
-        /// <returns>An array of matches. List length of 0 means "no matches";
-        /// 1 is an exact match; over 1 for multiple matches.</returns>
+        /// <summary> Finds any player(s) online from given IP address. </summary>
+        /// <returns> An array of matches. List length of 0 means "no matches";
+        /// 1 is an exact match; over 1 for multiple matches. </returns>
+        [Obsolete("Use Players.FromIP() instead")]
         public static Player[] FindPlayers( IPAddress ip ) {
             if( ip == null ) throw new ArgumentNullException( "ip" );
-            return Players.Where( t => t != null &&
-                                          t.IP.Equals( ip ) ).ToArray();
+            return Players.Where( p => p != null &&
+                                       p.IP.Equals( ip ) ).ToArray();
         }
 
 
-        /// <summary>Finds a player by name, without any kind of autocompletion.</summary>
-        /// <param name="name">Name of the player (case-insensitive).</param>
-        /// <returns>Player object, or null if player was not found.</returns>
+        /// <summary> Finds a player by name, without any kind of autocompletion. </summary>
+        /// <param name="name"> Name of the player (case-insensitive). </param>
+        /// <returns> Player object, or null if player was not found. </returns>
         public static Player FindPlayerExact( string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             return Players.FirstOrDefault( t => t != null &&
@@ -1194,6 +1199,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Counts online players, optionally including hidden ones. </summary>
         public static int CountPlayers( bool includeHiddenPlayers ) {
             if( includeHiddenPlayers ) {
                 return Players.Length;
@@ -1202,6 +1208,8 @@ namespace fCraft {
             }
         }
 
+
+        /// <summary> Counts online players whom the given observer can see. </summary>
         public static int CountVisiblePlayers( Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
             return Players.Count( observer.CanSee );

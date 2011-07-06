@@ -28,14 +28,12 @@ namespace fCraft {
         /// and that prevents console from calling certain commands (like /tp). </summary>
         public static Player Console, AutoRank;
 
-        readonly bool isSuper;
+        public readonly bool IsSuper;
 
-        public static bool RelayAllUpdates;
-
+        /// <summary> Persistent information record associated with this player. </summary>
         public PlayerInfo Info { get; private set; }
 
-        public Position Position,
-                        LastValidPosition; // used in speedhack detection
+        public Position Position;
 
         /// <summary> Whether the player is in paint mode (deleting blocks replaces them). Used by /paint. </summary>
         public bool IsPainting { get; set; }
@@ -48,15 +46,15 @@ namespace fCraft {
         /// Deaf players can't hear anything. </summary>
         public bool IsDeaf { get; set; }
 
-        /// <summary> The world that the player is currently on. May be null. </summary>
+        /// <summary> The world that the player is currently on. May be null.
+        /// Use .JoinWorld() to make players teleport to another world. </summary>
         public World World { get; private set; }
 
         /// <summary> Last time when the player was active (moving/messaging). UTC. </summary>
         public DateTime LastActiveTime { get; private set; }
 
         /// <summary> Last time when this player was patrolled by someone. </summary>
-        public DateTime LastPatrolTime { get; private set; }
-
+        public DateTime LastPatrolTime { get; set; }
 
         /// <summary> Last command called by the player. </summary>
         public Command LastCommand { get; private set; }
@@ -69,7 +67,7 @@ namespace fCraft {
             Info = new PlayerInfo( name, RankManager.HighestRank, true, RankChangeType.AutoPromoted );
             spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
             ResetAllBinds();
-            isSuper = true;
+            IsSuper = true;
         }
 
 
@@ -501,7 +499,7 @@ namespace fCraft {
         readonly Queue<DateTime> spamChatLog = new Queue<DateTime>( AntispamMessageCount );
 
         bool DetectChatSpam() {
-            if( isSuper ) return false;
+            if( IsSuper ) return false;
             if( spamChatLog.Count >= AntispamMessageCount ) {
                 DateTime oldestTime = spamChatLog.Dequeue();
                 if( DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds < AntispamInterval ) {
@@ -742,31 +740,31 @@ namespace fCraft {
         #region Permission Checks
 
         public bool Can( params Permission[] permissions ) {
-            return isSuper || permissions.All( permission => Info.Rank.Can( permission ) );
+            return IsSuper || permissions.All( permission => Info.Rank.Can( permission ) );
         }
 
         public bool CanAny( params Permission[] permissions ) {
-            return isSuper || permissions.Any( permission => Info.Rank.Can( permission ) );
+            return IsSuper || permissions.Any( permission => Info.Rank.Can( permission ) );
         }
 
         public bool Can( Permission permission ) {
-            return isSuper || Info.Rank.Can( permission );
+            return IsSuper || Info.Rank.Can( permission );
         }
 
 
         public bool Can( Permission permission, Rank other ) {
-            return isSuper || Info.Rank.Can( permission, other );
+            return IsSuper || Info.Rank.Can( permission, other );
         }
 
 
         public bool CanDraw( int volume ) {
-            return isSuper || (Info.Rank.DrawLimit == 0) || (volume <= Info.Rank.DrawLimit);
+            return IsSuper || (Info.Rank.DrawLimit == 0) || (volume <= Info.Rank.DrawLimit);
         }
 
 
         public bool CanJoin( World worldToJoin ) {
             if( worldToJoin == null ) throw new ArgumentNullException( "worldToJoin" );
-            return isSuper || worldToJoin.AccessSecurity.Check( Info );
+            return IsSuper || worldToJoin.AccessSecurity.Check( Info );
         }
 
 
@@ -836,7 +834,7 @@ namespace fCraft {
 
         public bool CanSee( Player other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            if( isSuper ) return true;
+            if( IsSuper ) return true;
             return !other.IsHidden || Info.Rank.CanSee( other.Info.Rank );
         }
 

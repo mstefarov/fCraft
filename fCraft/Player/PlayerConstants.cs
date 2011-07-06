@@ -23,6 +23,7 @@ namespace fCraft {
         InvalidMessageKick = 0x12,
 
         /// <summary> Attempted to place invalid blocktype </summary>
+        [System.Obsolete]
         InvalidSetTileKick = 0x13,
 
         /// <summary> Unknown opcode or packet </summary>

@@ -52,8 +52,6 @@ namespace fCraft {
 
 
         #region Session-related
-        // See the end of Session.cs for these EventArgs definitions
-
 
         /// <summary> Occurs any time the server receives an incoming connection (cancellable). </summary>
         public static event EventHandler<SessionConnectingEventArgs> SessionConnecting;

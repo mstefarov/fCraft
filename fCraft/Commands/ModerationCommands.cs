@@ -453,7 +453,7 @@ namespace fCraft {
                         Server.Message( player, "&WBan reason: {0}", reason );
                     }
 
-                    foreach( Player other in Server.FindPlayers( address ) ) {
+                    foreach( Player other in Server.Players.FromIP( address ) ) {
                         DoKick( player, other, reason, true, false, LeaveReason.BanIP );
                     }
 
@@ -476,7 +476,7 @@ namespace fCraft {
                         }
                     }
 
-                    foreach( Player other in Server.FindPlayers( address ) ) {
+                    foreach( Player other in Server.Players.FromIP( address ) ) {
                         DoKick( player, other, reason, true, false, LeaveReason.BanAll );
                     }
                 }
