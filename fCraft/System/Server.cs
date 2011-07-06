@@ -762,8 +762,7 @@ namespace fCraft {
             TcpListener listenerCache = listener;
             if( listenerCache != null && listenerCache.Pending() ) {
                 try {
-                    Player newSession = new Player( listenerCache.AcceptTcpClient() );
-                    newSession.Start();
+                    Player.StartSession( listenerCache.AcceptTcpClient() );
                 } catch( Exception ex ) {
                     Logger.Log( "Server.CheckConnections: Could not accept incoming connection: " + ex, LogType.Error );
                 }
@@ -1032,7 +1031,7 @@ namespace fCraft {
                 PlayerIndex.Add( player.Name, player );
                 UpdatePlayerList();
                 RaiseEvent( PlayerListChanged );
-                player.IsRegistered = true;
+                player.IsLoggedIn = true;
             }
             return true;
         }
@@ -1059,7 +1058,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             lock( PlayerListLock ) {
-                if( !player.IsRegistered ) return;
+                if( !player.IsLoggedIn ) return;
                 player.Info.ProcessLogout( player );
 
                 Logger.Log( "{0} left the server.", LogType.UserActivity,

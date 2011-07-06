@@ -30,14 +30,24 @@ namespace fCraft {
         /// <summary> Time when the session connected. </summary>
         public DateTime LoginTime { get; private set; }
 
-        // status flags
-        public bool CanReceive = true,
-                    CanSend = true,
-                    CanQueue = true,
-                    IsRegistered;
+        /// <summary> Whether we can receive packets/messages from the player. </summary>
+        public bool CanReceive { get; private set; }
+
+        /// <summary> Whether we can send packets/message to the player. </summary>
+        public bool CanSend { get; private set; }
+
+        /// <summary> Whether new packets can be queued for sending to the player. </summary>
+        public bool CanQueue { get; private set; }
+
+        /// <summary> Whether the player has completed the login sequence, and is currently considered online. </summary>
+        public bool IsLoggedIn { get; internal set; }
+
+        /// <summary> Whether the client finished loading the world. </summary>
         public bool IsReady { get; private set; }
 
+        /// <summary> Whether the player name was verified at login. </summary>
         public bool IsVerified { get; private set; }
+
 
         public LeaveReason LeaveReason { get; private set; }
 
@@ -53,7 +63,11 @@ namespace fCraft {
 
 
 
-        public Player( TcpClient tcpClient ) {
+        internal static void StartSession( TcpClient tcpClient ) {
+            new Player( tcpClient );
+        }
+
+        Player( TcpClient tcpClient ) {
             if( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
             LoginTime = DateTime.UtcNow;
             LeaveReason = LeaveReason.Unknown;
@@ -63,10 +77,7 @@ namespace fCraft {
             client.ReceiveTimeout = SocketTimeout;
 
             spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
-        }
 
-
-        public void Start() {
             try {
                 IP = ((IPEndPoint)(client.Client.RemoteEndPoint)).Address;
                 if( Server.RaiseSessionConnectingEvent( IP ) ) return;
@@ -396,7 +407,7 @@ namespace fCraft {
             Server.UnregisterSession( this );
             Server.RaiseSessionDisconnectedEvent( this, LeaveReason );
 
-            if( IsRegistered ) {
+            if( IsLoggedIn ) {
                 Server.UnregisterPlayer( this );
                 Server.RaisePlayerDisconnectedEvent( this, LeaveReason );
             }
@@ -492,7 +503,7 @@ namespace fCraft {
             if( Server.VerifyName( Name, verificationCode, Server.Salt ) ) {
                 IsVerified = true;
 
-            }else{
+            } else {
                 NameVerificationMode nameVerificationMode = ConfigKey.VerifyNames.GetEnum<NameVerificationMode>();
 
                 string standardMessage = String.Format( "Session.LoginSequence: Could not verify player name for {0} ({1}).",
@@ -911,9 +922,9 @@ namespace fCraft {
         /// Should NEVER be used from any thread other than this session's IoThread.
         /// Not thread-safe (for performance reason). </summary>
         public void SendNow( Packet packet ) {
-#if DEBUG
-            if( Thread.CurrentThread != ioThread ) throw new InvalidOperationException();
-#endif
+            if( Thread.CurrentThread != ioThread ) {
+                throw new InvalidOperationException( "SendNow may only be called from player's own thread." );
+            }
             writer.Write( packet.Data );
             BytesSent += packet.Data.Length;
         }
@@ -952,10 +963,8 @@ namespace fCraft {
 
         #region Kicking
 
-        /// <summary>
-        /// Kick (asynchronous). Immediately blocks all client input, but waits
-        /// until client thread sends the kick packet.
-        /// </summary>
+        /// <summary> Kick (asynchronous). Immediately blocks all client input, but waits
+        /// until client thread sends the kick packet. </summary>
         public void Kick( string message, LeaveReason leaveReason ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             LeaveReason = leaveReason;
@@ -978,6 +987,9 @@ namespace fCraft {
         /// </summary>
         public void KickNow( string message, LeaveReason leaveReason ) {
             if( message == null ) throw new ArgumentNullException( "message" );
+            if( Thread.CurrentThread != ioThread ) {
+                throw new InvalidOperationException( "KickNow may only be called from player's own thread." );
+            }
             LeaveReason = leaveReason;
 
             CanQueue = false;
@@ -997,74 +1009,6 @@ namespace fCraft {
                     ioThread.Join();
                 } catch( NullReferenceException ) {
                 } catch( ThreadStateException ) { }
-            }
-        }
-
-        #endregion
-
-
-        #region Bandwidth Use Tweaks
-
-        BandwidthUseMode bandwidthUseMode;
-        int entityShowingThreshold, entityHidingThreshold;
-        bool partialUpdates, skipUpdates;
-
-        DateTime lastMovementUpdate;
-        TimeSpan movementUpdateInterval;
-
-
-        public BandwidthUseMode BandwidthUseMode {
-            get {
-                return bandwidthUseMode;
-            }
-
-            set {
-                bandwidthUseMode = value;
-                BandwidthUseMode actualValue = value;
-                if( value == BandwidthUseMode.Default ) {
-                    actualValue = ConfigKey.BandwidthUseMode.GetEnum<BandwidthUseMode>();
-                }
-                switch( actualValue ) {
-                    case BandwidthUseMode.VeryLow:
-                        entityShowingThreshold = (40 * 32) * (40 * 32);
-                        entityHidingThreshold = (42 * 32) * (42 * 32);
-                        partialUpdates = true;
-                        skipUpdates = true;
-                        movementUpdateInterval = TimeSpan.FromMilliseconds( 100 );
-                        break;
-
-                    case BandwidthUseMode.Low:
-                        entityShowingThreshold = (50 * 32) * (50 * 32);
-                        entityHidingThreshold = (52 * 32) * (52 * 32);
-                        partialUpdates = true;
-                        skipUpdates = true;
-                        movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
-                        break;
-
-                    case BandwidthUseMode.Normal:
-                        entityShowingThreshold = (68 * 32) * (68 * 32);
-                        entityHidingThreshold = (70 * 32) * (70 * 32);
-                        partialUpdates = true;
-                        skipUpdates = false;
-                        movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
-                        break;
-
-                    case BandwidthUseMode.High:
-                        entityShowingThreshold = (128 * 32) * (128 * 32);
-                        entityHidingThreshold = (130 * 32) * (130 * 32);
-                        partialUpdates = true;
-                        skipUpdates = false;
-                        movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
-                        break;
-
-                    case BandwidthUseMode.VeryHigh:
-                        entityShowingThreshold = int.MaxValue;
-                        entityHidingThreshold = int.MaxValue;
-                        partialUpdates = false;
-                        skipUpdates = false;
-                        movementUpdateInterval = TimeSpan.FromMilliseconds( 25 );
-                        break;
-                }
             }
         }
 
@@ -1112,7 +1056,7 @@ namespace fCraft {
 
         void UpdateVisibleEntities() {
             if( SpectatedPlayer != null ) {
-                if( !SpectatedPlayer.IsRegistered || !CanSee( spectatedPlayer ) ) {
+                if( !SpectatedPlayer.IsLoggedIn || !CanSee( spectatedPlayer ) ) {
                     Message( "Stopped spectating {0}&S (disconnected)", spectatedPlayer.ClassyName );
                     spectatedPlayer = null;
                 } else {
@@ -1338,15 +1282,92 @@ namespace fCraft {
         #endregion
 
 
+        #region Bandwidth Use Tweaks
+
+        BandwidthUseMode bandwidthUseMode;
+        int entityShowingThreshold, entityHidingThreshold;
+        bool partialUpdates, skipUpdates;
+
+        DateTime lastMovementUpdate;
+        TimeSpan movementUpdateInterval;
+
+
+        public BandwidthUseMode BandwidthUseMode {
+            get {
+                return bandwidthUseMode;
+            }
+
+            set {
+                bandwidthUseMode = value;
+                BandwidthUseMode actualValue = value;
+                if( value == BandwidthUseMode.Default ) {
+                    actualValue = ConfigKey.BandwidthUseMode.GetEnum<BandwidthUseMode>();
+                }
+                switch( actualValue ) {
+                    case BandwidthUseMode.VeryLow:
+                        entityShowingThreshold = (40 * 32) * (40 * 32);
+                        entityHidingThreshold = (42 * 32) * (42 * 32);
+                        partialUpdates = true;
+                        skipUpdates = true;
+                        movementUpdateInterval = TimeSpan.FromMilliseconds( 100 );
+                        break;
+
+                    case BandwidthUseMode.Low:
+                        entityShowingThreshold = (50 * 32) * (50 * 32);
+                        entityHidingThreshold = (52 * 32) * (52 * 32);
+                        partialUpdates = true;
+                        skipUpdates = true;
+                        movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
+                        break;
+
+                    case BandwidthUseMode.Normal:
+                        entityShowingThreshold = (68 * 32) * (68 * 32);
+                        entityHidingThreshold = (70 * 32) * (70 * 32);
+                        partialUpdates = true;
+                        skipUpdates = false;
+                        movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
+                        break;
+
+                    case BandwidthUseMode.High:
+                        entityShowingThreshold = (128 * 32) * (128 * 32);
+                        entityHidingThreshold = (130 * 32) * (130 * 32);
+                        partialUpdates = true;
+                        skipUpdates = false;
+                        movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
+                        break;
+
+                    case BandwidthUseMode.VeryHigh:
+                        entityShowingThreshold = int.MaxValue;
+                        entityHidingThreshold = int.MaxValue;
+                        partialUpdates = false;
+                        skipUpdates = false;
+                        movementUpdateInterval = TimeSpan.FromMilliseconds( 25 );
+                        break;
+                }
+            }
+        }
+
+        #endregion
+
+
         #region Bandwidth Use Metering
 
         DateTime lastMeasurementDate = DateTime.UtcNow;
         int lastBytesSent, lastBytesReceived;
 
+
+        /// <summary> Total bytes sent (to the client) this session. </summary>
         public int BytesSent { get; private set; }
+
+        /// <summary> Total bytes received (from the client) this session. </summary>
         public int BytesReceived { get; private set; }
+
+        /// <summary> Bytes sent (to the client) per second, averaged over the last several seconds. </summary>
         public double BytesSentRate { get; private set; }
+
+        /// <summary> Bytes received (from the client) per second, averaged over the last several seconds. </summary>
         public double BytesReceivedRate { get; private set; }
+
 
         void MeasureBandwidthUseRates() {
             int sentDelta = BytesSent - lastBytesSent;
