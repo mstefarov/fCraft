@@ -17,9 +17,10 @@ namespace fCraft {
     /// Handles low-level interactions (e.g. networking). </summary>
     public sealed partial class Player {
         public static int SocketTimeout { get; set; }
+        public static bool RelayAllUpdates { get; set; }
         const int SleepDelay = 5; // milliseconds
-        const int SocketPollInterval = 200; // multiples of SleepDelay
-        const int PingInterval = 3; // multiples of SocketPollInterval
+        const int SocketPollInterval = 200; // multiples of SleepDelay, approx. 1 second
+        const int PingInterval = 3; // multiples of SocketPollInterval, approx. 3 seconds
 
         const string NoSmpMessage = "This server is for Minecraft Classic only.";
 
@@ -30,17 +31,8 @@ namespace fCraft {
         /// <summary> Time when the session connected. </summary>
         public DateTime LoginTime { get; private set; }
 
-        /// <summary> Whether we can receive packets/messages from the player. </summary>
-        public bool CanReceive { get; private set; }
-
-        /// <summary> Whether we can send packets/message to the player. </summary>
-        public bool CanSend { get; private set; }
-
-        /// <summary> Whether new packets can be queued for sending to the player. </summary>
-        public bool CanQueue { get; private set; }
-
         /// <summary> Whether the player has completed the login sequence, and is currently considered online. </summary>
-        public bool IsLoggedIn { get; internal set; }
+        public bool IsRegistered { get; internal set; }
 
         /// <summary> Whether the client finished loading the world. </summary>
         public bool IsReady { get; private set; }
@@ -54,13 +46,16 @@ namespace fCraft {
         public IPAddress IP { get; private set; }
 
 
+        bool CanReceive = true,
+             CanSend = true,
+             CanQueue = true;
+
         Thread ioThread;
         TcpClient client;
         BinaryReader reader;
         PacketWriter writer;
         readonly ConcurrentQueue<Packet> outputQueue = new ConcurrentQueue<Packet>(),
                                          priorityOutputQueue = new ConcurrentQueue<Packet>();
-
 
 
         internal static void StartSession( TcpClient tcpClient ) {
@@ -70,6 +65,8 @@ namespace fCraft {
         Player( TcpClient tcpClient ) {
             if( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
             LoginTime = DateTime.UtcNow;
+            LastActiveTime = DateTime.UtcNow;
+            LastPatrolTime = DateTime.MinValue;
             LeaveReason = LeaveReason.Unknown;
 
             client = tcpClient;
@@ -85,8 +82,7 @@ namespace fCraft {
                 reader = new BinaryReader( client.GetStream() );
                 writer = new PacketWriter( client.GetStream() );
 
-                Logger.Log( "Session.Start: Incoming connection from {0}", LogType.Debug,
-                            IP );
+                Logger.Log( "Incoming connection from {0}", LogType.Debug, IP );
 
                 ioThread = new Thread( IoLoop ) {
                     Name = "fCraft.Session",
@@ -126,9 +122,9 @@ namespace fCraft {
                         if( !client.Connected ||
                             (client.Client.Poll( 1000, SelectMode.SelectRead ) && client.Client.Available == 0) ) {
                             if( Info != null ) {
-                                Logger.Log( "Session.IoLoop: Lost connection to player {0} ({1}).", LogType.Debug, Name, IP );
+                                Logger.Log( "Player.IoLoop: Lost connection to player {0} ({1}).", LogType.Debug, Name, IP );
                             } else {
-                                Logger.Log( "Session.IoLoop: Lost connection to unidentified player at {0}.", LogType.Debug, IP );
+                                Logger.Log( "Player.IoLoop: Lost connection to unidentified player at {0}.", LogType.Debug, IP );
                             }
                             LeaveReason = LeaveReason.ClientQuit;
                             return;
@@ -162,8 +158,6 @@ namespace fCraft {
 
                         if( packet.OpCode == OpCode.Kick ) {
                             writer.Flush();
-                            Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug,
-                                        Name );
                             if( LeaveReason == LeaveReason.Unknown ) LeaveReason = LeaveReason.Kick;
                             return;
                         }
@@ -184,14 +178,12 @@ namespace fCraft {
                                     packetsSent++;
                                     if( packet.OpCode == OpCode.Kick ) {
                                         writer.Flush();
-                                        Logger.Log( "Session.IoLoop: Kick packet delivered to {0}.", LogType.Debug,
-                                                    Name );
                                         if( LeaveReason == LeaveReason.Unknown ) LeaveReason = LeaveReason.Kick;
                                         return;
                                     }
                                 }
                                 if( !JoinWorldNow( forcedWorldToJoin, false, useWorldSpawn ) ) {
-                                    Logger.Log( "Session.IoLoop: Player was asked to force-join a world, but it was full.", LogType.Warning );
+                                    Logger.Log( "Player.IoLoop: Player was asked to force-join a world, but it was full.", LogType.Warning );
                                     KickNow( "World is full.", LeaveReason.ServerFull );
                                 }
                                 forcedWorldToJoin = null;
@@ -251,7 +243,7 @@ namespace fCraft {
 #if !DEBUG
             } catch( Exception ex ) {
                 LeaveReason = LeaveReason.ServerError;
-                Logger.LogAndReportCrash( "Error in Session.IoLoop", "fCraft", ex, false );
+                Logger.LogAndReportCrash( "Error in Player.IoLoop", "fCraft", ex, false );
 #endif
             } finally {
                 CanQueue = false;
@@ -346,7 +338,7 @@ namespace fCraft {
                            speedHackDetectionCounter >= 0 ) {
 
                     if( speedHackDetectionCounter == 0 ) {
-                        LastValidPosition = Position;
+                        lastValidPosition = Position;
                     } else if( speedHackDetectionCounter > 1 ) {
                         DenyMovement();
                         speedHackDetectionCounter = 0;
@@ -407,7 +399,7 @@ namespace fCraft {
             Server.UnregisterSession( this );
             Server.RaiseSessionDisconnectedEvent( this, LeaveReason );
 
-            if( IsLoggedIn ) {
+            if( IsRegistered ) {
                 Server.UnregisterPlayer( this );
                 Server.RaisePlayerDisconnectedEvent( this, LeaveReason );
             }
@@ -442,7 +434,7 @@ namespace fCraft {
                     if( strLen >= 2 && strLen <= 16 ) {
                         string smpPlayerName = Encoding.UTF8.GetString( reader.ReadBytes( strLen ) );
 
-                        Logger.Log( "Session.LoginSequence: Player \"{0}\" tried connecting with SMP/Beta client from {1}. " +
+                        Logger.Log( "Player.LoginSequence: Player \"{0}\" tried connecting with SMP/Beta client from {1}. " +
                                     "fCraft does not support SMP/Beta.", LogType.Warning,
                                     smpPlayerName, IP );
 
@@ -456,16 +448,16 @@ namespace fCraft {
 
                     } else {
                         // Not SMP client (invalid player name length)
-                        Logger.Log( "Session.LoginSequence: Unexpected opcode in the first packet from {0}: {1}.", LogType.Error,
+                        Logger.Log( "Player.LoginSequence: Unexpected opcode in the first packet from {0}: {1}.", LogType.Error,
                                     IP, opcode );
                         KickNow( "Unexpected handshake message - possible protocol mismatch!", LeaveReason.ProtocolViolation );
                     }
                     return false;
 
                 } else {
-                    Logger.Log( "Session.LoginSequence: Unexpected opcode in the first packet from {0}: {1}.", LogType.Error,
+                    Logger.Log( "Player.LoginSequence: Unexpected opcode in the first packet from {0}: {1}.", LogType.Error,
                                 IP, opcode );
-                    KickNow( "Unexpected handshake message - possible protocol mismatch!", LeaveReason.ProtocolViolation );
+                    KickNow( "Incompatible client, or a network error.", LeaveReason.ProtocolViolation );
                     return false;
                 }
             }
@@ -474,7 +466,7 @@ namespace fCraft {
             // Check protocol version
             int clientProtocolVersion = reader.ReadByte();
             if( clientProtocolVersion != Config.ProtocolVersion ) {
-                Logger.Log( "Session.LoginSequence: Wrong protocol version: {0}.", LogType.Error,
+                Logger.Log( "Player.LoginSequence: Wrong protocol version: {0}.", LogType.Error,
                             clientProtocolVersion );
                 KickNow( "Incompatible protocol version!", LeaveReason.ProtocolViolation );
                 return false;
@@ -483,8 +475,8 @@ namespace fCraft {
             string playerName = ReadString();
 
             // Check name for nonstandard characters
-            if( !Player.IsValidName( playerName ) ) {
-                Logger.Log( "Session.LoginSequence: Unacceptible player name: {0} ({1})", LogType.SuspiciousActivity,
+            if( !IsValidName( playerName ) ) {
+                Logger.Log( "Player.LoginSequence: Unacceptible player name: {0} ({1})", LogType.SuspiciousActivity,
                             playerName, IP );
                 KickNow( "Invalid characters in player name!", LeaveReason.ProtocolViolation );
                 return false;
@@ -506,7 +498,7 @@ namespace fCraft {
             } else {
                 NameVerificationMode nameVerificationMode = ConfigKey.VerifyNames.GetEnum<NameVerificationMode>();
 
-                string standardMessage = String.Format( "Session.LoginSequence: Could not verify player name for {0} ({1}).",
+                string standardMessage = String.Format( "Player.LoginSequence: Could not verify player name for {0} ({1}).",
                                                         Name, IP );
                 if( IP.Equals( IPAddress.Loopback ) && nameVerificationMode != NameVerificationMode.Always ) {
                     Logger.Log( "{0} Player was identified as connecting from localhost and allowed in.", LogType.SuspiciousActivity,
@@ -599,9 +591,9 @@ namespace fCraft {
 
 
             // Check if max number of connections is reached for IP
-            if( !Server.RegisterSessionAndCheckConnectionCount( this ) ) {
+            if( !Server.RegisterSession( this ) ) {
                 Info.ProcessFailedLogin( this );
-                Logger.Log( "Session.LoginSequence: Denied player {0}: maximum number of connections was reached for {1}", LogType.SuspiciousActivity,
+                Logger.Log( "Player.LoginSequence: Denied player {0}: maximum number of connections was reached for {1}", LogType.SuspiciousActivity,
                             playerName, IP );
                 KickNow( String.Format( "Max connection count reached for {0}", IP ), LeaveReason.LoginFailed );
                 return false;
@@ -615,7 +607,7 @@ namespace fCraft {
                                                      "Please wait; Checking paid status..." ) );
                 writer.Flush();
 
-                if( !Player.CheckPaidStatus( Name ) ) {
+                if( !CheckPaidStatus( Name ) ) {
                     Logger.Log( "Player {0} was kicked because their account is not paid, and PaidOnly setting is enabled.", LogType.SystemActivity,
                                 Name );
                     KickNow( "Paid players allowed only.", LeaveReason.LoginFailed );
@@ -631,7 +623,7 @@ namespace fCraft {
             // ----==== beyond this point, player is considered connecting (allowed to join) ====----
 
             // Register player for future block updates
-            if( !Server.RegisterPlayerAndCheckIfFull( this ) ) {
+            if( !Server.RegisterPlayer( this ) ) {
                 Logger.Log( "Player {0} was kicked because server is full.", LogType.SystemActivity,
                             Name );
                 string kickMessage = String.Format( "Sorry, server is full ({0}/{1})",
@@ -654,7 +646,7 @@ namespace fCraft {
             if( ConfigKey.AutoRankEnabled.Enabled() ) {
                 Rank newRank = AutoRankManager.Check( Info );
                 if( newRank != null ) {
-                    ModerationCommands.DoChangeRank( Player.Console, Info, newRank, "~AutoRank", false, true );
+                    ModerationCommands.DoChangeRank( Console, Info, newRank, "~AutoRank", false, true );
                 }
             }
 
@@ -792,13 +784,13 @@ namespace fCraft {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
 
             if( !CanJoin( newWorld ) ) {
-                Logger.Log( "Session.JoinWorldNow: Access limits prevented {0} from joining {1}.", LogType.Error,
+                Logger.Log( "Player.JoinWorldNow: Access limits prevented {0} from joining {1}.", LogType.Error,
                             Name, newWorld.Name );
                 return false;
             }
 
             if( Server.RaisePlayerJoiningWorldEvent( this, ref newWorld ) ) {
-                Logger.Log( "Session.JoinWorldNow: Player {0} was prevented from joining world {1} by an event callback.", LogType.Warning,
+                Logger.Log( "Player.JoinWorldNow: Player {0} was prevented from joining world {1} by an event callback.", LogType.Warning,
                             Name, newWorld.Name );
                 return false;
             }
@@ -808,7 +800,7 @@ namespace fCraft {
             // remove player from the old world
             if( oldWorld != null && oldWorld != newWorld ) {
                 if( !oldWorld.ReleasePlayer( this ) ) {
-                    Logger.Log( "Session.JoinWorldNow: Player asked to be released from its world, " +
+                    Logger.Log( "Player.JoinWorldNow: Player asked to be released from its world, " +
                                 "but the world did not contain the player.", LogType.Error );
                 }
             }
@@ -862,7 +854,7 @@ namespace fCraft {
                 map.GetCompressedCopy( stream, true );
                 blockData = stream.ToArray();
             }
-            Logger.Log( "Session.JoinWorldNow: Sending compressed level copy ({0} bytes) to {1}.", LogType.Debug,
+            Logger.Log( "Player.JoinWorldNow: Sending compressed level copy ({0} bytes) to {1}.", LogType.Debug,
                         blockData.Length, Name );
 
             // Transfer the map copy
@@ -919,7 +911,7 @@ namespace fCraft {
         #region Sending
 
         /// <summary> Send packet to player (not thread safe, sync, immediate).
-        /// Should NEVER be used from any thread other than this session's IoThread.
+        /// Should NEVER be used from any thread other than this session's ioThread.
         /// Not thread-safe (for performance reason). </summary>
         public void SendNow( Packet packet ) {
             if( Thread.CurrentThread != ioThread ) {
@@ -1000,10 +992,11 @@ namespace fCraft {
         }
 
 
-        /// <summary>
-        /// Blocks the calling thread until this session disconnects.
-        /// </summary>
+        /// <summary> Blocks the calling thread until this session disconnects. </summary>
         public void WaitForDisconnect() {
+            if( Thread.CurrentThread == ioThread ) {
+                throw new InvalidOperationException( "Cannot call WaitForDisconnect from IoThread." );
+            }
             if( ioThread != null && ioThread.IsAlive ) {
                 try {
                     ioThread.Join();
@@ -1056,7 +1049,7 @@ namespace fCraft {
 
         void UpdateVisibleEntities() {
             if( SpectatedPlayer != null ) {
-                if( !SpectatedPlayer.IsLoggedIn || !CanSee( spectatedPlayer ) ) {
+                if( !SpectatedPlayer.IsRegistered || !CanSee( spectatedPlayer ) ) {
                     Message( "Stopped spectating {0}&S (disconnected)", spectatedPlayer.ClassyName );
                     spectatedPlayer = null;
                 } else {
@@ -1257,6 +1250,8 @@ namespace fCraft {
         }
 
 
+        Position lastValidPosition; // used in speedhack detection
+
         bool DetectMovementPacketSpam() {
             if( antiSpeedPacketLog.Count >= AntiSpeedMaxPacketCount ) {
                 DateTime oldestTime = antiSpeedPacketLog.Dequeue();
@@ -1272,7 +1267,7 @@ namespace fCraft {
 
 
         void DenyMovement() {
-            SendNow( PacketWriter.MakeSelfTeleport( LastValidPosition ) );
+            SendNow( PacketWriter.MakeSelfTeleport( lastValidPosition ) );
             if( DateTime.UtcNow.Subtract( antiSpeedLastNotification ).Seconds > 1 ) {
                 Message( "&WYou are not allowed to speedhack." );
                 antiSpeedLastNotification = DateTime.UtcNow;
@@ -1381,27 +1376,5 @@ namespace fCraft {
         }
 
         #endregion
-    }
-}
-
-
-namespace fCraft.Events {
-
-    public sealed class SessionConnectingEventArgs : EventArgs, ICancellableEvent {
-        public SessionConnectingEventArgs( IPAddress ip ) {
-            IP = ip;
-        }
-        public bool Cancel { get; set; }
-        public IPAddress IP { get; private set; }
-    }
-
-
-    public sealed class SessionDisconnectedEventArgs : EventArgs {
-        public SessionDisconnectedEventArgs( Player session, LeaveReason leaveReason ) {
-            Player = session;
-            LeaveReason = leaveReason;
-        }
-        public Player Player { get; private set; }
-        public LeaveReason LeaveReason { get; private set; }
     }
 }

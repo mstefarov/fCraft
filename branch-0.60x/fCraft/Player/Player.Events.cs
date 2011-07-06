@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Net;
 
 namespace fCraft.Events {
 
@@ -9,6 +10,25 @@ namespace fCraft.Events {
         }
 
         public Player Player { get; private set; }
+    }
+
+
+    public sealed class SessionConnectingEventArgs : EventArgs, ICancellableEvent {
+        public SessionConnectingEventArgs( IPAddress ip ) {
+            IP = ip;
+        }
+        public bool Cancel { get; set; }
+        public IPAddress IP { get; private set; }
+    }
+
+
+    public sealed class SessionDisconnectedEventArgs : EventArgs {
+        public SessionDisconnectedEventArgs( Player player, LeaveReason leaveReason ) {
+            Player = player;
+            LeaveReason = leaveReason;
+        }
+        public Player Player { get; private set; }
+        public LeaveReason LeaveReason { get; private set; }
     }
 
 
