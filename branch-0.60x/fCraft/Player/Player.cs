@@ -48,14 +48,15 @@ namespace fCraft {
         /// Deaf players can't hear anything. </summary>
         public bool IsDeaf { get; set; }
 
+        /// <summary> The world that the player is currently on. May be null. </summary>
+        public World World { get; private set; }
 
-        public World World;
-        internal DateTime LastActiveTime = DateTime.UtcNow; // used for afk kicks
-        internal DateTime LastPatrolTime = DateTime.MinValue;
+        /// <summary> Last time when the player was active (moving/messaging). UTC. </summary>
+        public DateTime LastActiveTime { get; private set; }
 
-        // confirmation
-        public Command CommandToConfirm { get; private set; }
-        public DateTime ConfirmRequestTime { get; private set; }
+        /// <summary> Last time when this player was patrolled by someone. </summary>
+        public DateTime LastPatrolTime { get; private set; }
+
 
         /// <summary> Last command called by the player. </summary>
         public Command LastCommand { get; private set; }
@@ -276,11 +277,11 @@ namespace fCraft {
 
 
                 case MessageType.Confirmation: {
-                        if( CommandToConfirm != null ) {
+                        if( ConfirmCommand != null ) {
                             if( DateTime.UtcNow.Subtract( ConfirmRequestTime ).TotalSeconds < ConfirmationTimeout ) {
-                                CommandToConfirm.IsConfirmed = true;
-                                CommandManager.ParseCommand( this, CommandToConfirm, fromConsole );
-                                CommandToConfirm = null;
+                                ConfirmCommand.IsConfirmed = true;
+                                CommandManager.ParseCommand( this, ConfirmCommand, fromConsole );
+                                ConfirmCommand = null;
                             } else {
                                 MessageNow( "Confirmation timed out. Enter the command again." );
                             }
@@ -344,6 +345,9 @@ namespace fCraft {
 
         internal void MessageNow( string message, params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
+            if( Thread.CurrentThread != ioThread ) {
+                throw new InvalidOperationException( "SendNow may only be called from player's own thread." );
+            }
             if( args.Length > 0 ) {
                 message = String.Format( message, args );
             }
@@ -354,16 +358,6 @@ namespace fCraft {
                     SendNow( p );
                 }
             }
-        }
-
-
-        public void AskForConfirmation( Command cmd, string message, params object[] args ) {
-            if( cmd == null ) throw new ArgumentNullException( "cmd" );
-            if( message == null ) throw new ArgumentNullException( "message" );
-            CommandToConfirm = cmd;
-            ConfirmRequestTime = DateTime.UtcNow;
-            Message( "{0} Type &H/ok&S to continue.", String.Format( message, args ) );
-            CommandToConfirm.Rewind();
         }
 
 
@@ -469,6 +463,32 @@ namespace fCraft {
                     return ignoreList.ToArray();
                 }
             }
+        }
+
+        #endregion
+
+
+        #region Confirmation
+
+        /// <summary> Most recent command that needed confirmation. May be null. </summary>
+        public Command ConfirmCommand { get; private set; }
+
+        /// <summary> Time when the confirmation was requested. UTC. </summary>
+        public DateTime ConfirmRequestTime { get; private set; }
+
+        /// <summary> Request player to confirm continuing with the command.
+        /// Player is prompted to type "/ok", and when he/she does,
+        /// the command is called again with IsConfirmed flag set. </summary>
+        /// <param name="cmd"> Command that needs confirmation. </param>
+        /// <param name="message"> Message to print before "Type /ok to continue". </param>
+        /// <param name="args"> Optional String.Format() arguments, for the message. </param>
+        public void AskForConfirmation( Command cmd, string message, params object[] args ) {
+            if( cmd == null ) throw new ArgumentNullException( "cmd" );
+            if( message == null ) throw new ArgumentNullException( "message" );
+            ConfirmCommand = cmd;
+            ConfirmRequestTime = DateTime.UtcNow;
+            Message( "{0} Type &H/ok&S to continue.", String.Format( message, args ) );
+            ConfirmCommand.Rewind();
         }
 
         #endregion
