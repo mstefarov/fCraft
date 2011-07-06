@@ -35,7 +35,7 @@ namespace fCraft.ServerWinService {
 
         protected override void OnStop() {
             Logger.Log( "ServerWinService.OnStop: Stopping.", LogType.SystemActivity );
-            Server.Shutdown( new ShutdownParams( ShutdownReason.ProcessClosing, 0, false, false ), true );
+            Server.Shutdown( new ShutdownParams( ShutdownReason.ProcessClosing, TimeSpan.Zero, false, false ), true );
             base.OnStop();
         }
 

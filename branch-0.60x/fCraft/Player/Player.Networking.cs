@@ -13,8 +13,7 @@ using fCraft.MapConversion;
 using fCraft.AutoRank;
 
 namespace fCraft {
-    /// <summary> Represents a connection to a Minecraft client.
-    /// Handles low-level interactions (e.g. networking). </summary>
+    /// <summary> Represents a connection to a Minecraft client. Handles low-level interactions (e.g. networking). </summary>
     public sealed partial class Player {
         public static int SocketTimeout { get; set; }
         public static bool RelayAllUpdates { get; set; }
@@ -27,18 +26,6 @@ namespace fCraft {
         static Player() {
             SocketTimeout = 10000;
         }
-
-        /// <summary> Time when the session connected. </summary>
-        public DateTime LoginTime { get; private set; }
-
-        /// <summary> Whether the player has completed the login sequence, and is currently considered online. </summary>
-        public bool IsRegistered { get; internal set; }
-
-        /// <summary> Whether the client finished loading the world. </summary>
-        public bool IsReady { get; private set; }
-
-        /// <summary> Whether the player name was verified at login. </summary>
-        public bool IsVerified { get; private set; }
 
 
         public LeaveReason LeaveReason { get; private set; }
