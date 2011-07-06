@@ -30,10 +30,18 @@ namespace fCraft {
 
         public readonly bool IsSuper;
 
+
+        /// <summary> Whether the player has completed the login sequence, and is currently considered online. </summary>
+        public bool IsRegistered { get; internal set; }
+
+        /// <summary> Whether the client finished loading the world. </summary>
+        public bool IsReady { get; private set; }
+
+        /// <summary> Whether the player name was verified at login. </summary>
+        public bool IsVerified { get; private set; }
+
         /// <summary> Persistent information record associated with this player. </summary>
         public PlayerInfo Info { get; private set; }
-
-        public Position Position;
 
         /// <summary> Whether the player is in paint mode (deleting blocks replaces them). Used by /paint. </summary>
         public bool IsPainting { get; set; }
@@ -46,9 +54,17 @@ namespace fCraft {
         /// Deaf players can't hear anything. </summary>
         public bool IsDeaf { get; set; }
 
+
         /// <summary> The world that the player is currently on. May be null.
         /// Use .JoinWorld() to make players teleport to another world. </summary>
         public World World { get; private set; }
+
+        /// <summary> Player's position in the current world. </summary>
+        public Position Position;
+
+
+        /// <summary> Time when the session connected. </summary>
+        public DateTime LoginTime { get; private set; }
 
         /// <summary> Last time when the player was active (moving/messaging). UTC. </summary>
         public DateTime LastActiveTime { get; private set; }
@@ -56,28 +72,15 @@ namespace fCraft {
         /// <summary> Last time when this player was patrolled by someone. </summary>
         public DateTime LastPatrolTime { get; set; }
 
+
         /// <summary> Last command called by the player. </summary>
         public Command LastCommand { get; private set; }
 
-
-        // This constructor is used to create dummy players (such as Console and /dummy)
-        // It will soon be replaced by a generic Entity class
-        internal Player( string name ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
-            Info = new PlayerInfo( name, RankManager.HighestRank, true, RankChangeType.AutoPromoted );
-            spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
-            ResetAllBinds();
-            IsSuper = true;
-        }
-
-
-        #region Name
 
         /// <summary> Plain version of the name (no formatting). </summary>
         public string Name {
             get { return Info.Name; }
         }
-
 
         /// <summary> Name formatted for display in the player list. </summary>
         public string ListName {
@@ -93,19 +96,21 @@ namespace fCraft {
             }
         }
 
-
         /// <summary> Name formatted for display in chat. </summary>
         public string ClassyName {
             get { return Info.ClassyName; }
         }
 
 
-        /// <summary> Name formatted for the debugger. </summary>
-        public override string ToString() {
-            return String.Format( "Player({0})", Info.Name );
+        // This constructor is used to create dummy players (such as Console and /dummy)
+        // It will soon be replaced by a generic Entity class
+        internal Player( string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            Info = new PlayerInfo( name, RankManager.HighestRank, true, RankChangeType.AutoPromoted );
+            spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
+            ResetAllBinds();
+            IsSuper = true;
         }
-
-        #endregion
 
 
         #region Messaging
@@ -739,35 +744,47 @@ namespace fCraft {
 
         #region Permission Checks
 
+        /// <summary> Returns true if player has ALL of the given permissions. </summary>
         public bool Can( params Permission[] permissions ) {
             return IsSuper || permissions.All( permission => Info.Rank.Can( permission ) );
         }
 
+
+        /// <summary> Returns true if player has ANY of the given permissions. </summary>
         public bool CanAny( params Permission[] permissions ) {
             return IsSuper || permissions.Any( permission => Info.Rank.Can( permission ) );
         }
 
+
+        /// <summary> Returns true if player has the given permission. </summary>
         public bool Can( Permission permission ) {
             return IsSuper || Info.Rank.Can( permission );
         }
 
 
+        /// <summary> Returns true if player has the given permission,
+        /// and is allowed to affect players of the given rank. </summary>
         public bool Can( Permission permission, Rank other ) {
             return IsSuper || Info.Rank.Can( permission, other );
         }
 
 
+        /// <summary> Returns true if player is allowed to run
+        /// draw commands that affect a given number of blocks. </summary>
         public bool CanDraw( int volume ) {
             return IsSuper || (Info.Rank.DrawLimit == 0) || (volume <= Info.Rank.DrawLimit);
         }
 
 
+        /// <summary> Returns true if player is allowed to join a given world. </summary>
         public bool CanJoin( World worldToJoin ) {
             if( worldToJoin == null ) throw new ArgumentNullException( "worldToJoin" );
             return IsSuper || worldToJoin.AccessSecurity.Check( Info );
         }
 
 
+        /// <summary> Checks whether player is allowed to place a block on the current world at given coordinates.
+        /// Raises the PlayerPlacingBlock event. </summary>
         public CanPlaceResult CanPlace( int x, int y, int h, Block newBlock, bool isManual ) {
             CanPlaceResult result;
 
@@ -826,12 +843,8 @@ namespace fCraft {
         }
 
 
-        // Determines what OP-code to send to the player. It only matters for deleting admincrete.
-        public byte GetOpPacketCode() {
-            return (byte)(Can( Permission.DeleteAdmincrete ) ? 100 : 0);
-        }
-
-
+        /// <summary> Checks whether this player can currently see another.
+        /// Visibility is determined by whether the other player is hiding or spectating. </summary>
         public bool CanSee( Player other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             if( IsSuper ) return true;
@@ -845,7 +858,6 @@ namespace fCraft {
 
         internal Queue<BlockUpdate> UndoBuffer = new Queue<BlockUpdate>();
 
-
         public SelectionCallback SelectionCallback { get; private set; }
         public readonly Queue<Position> SelectionMarks = new Queue<Position>();
         public int SelectionMarkCount,
@@ -854,6 +866,7 @@ namespace fCraft {
         internal Permission[] SelectionPermissions;
 
         internal BuildingCommands.CopyInformation CopyInformation;
+
 
         public void SelectionAddMark( Position pos, bool executeCallbackIfNeeded ) {
             SelectionMarks.Enqueue( pos );
@@ -871,6 +884,7 @@ namespace fCraft {
             }
         }
 
+
         public void SelectionExecute() {
             SelectionMarksExpected = 0;
             if( SelectionPermissions == null || Can( SelectionPermissions ) ) {
@@ -881,6 +895,7 @@ namespace fCraft {
             }
         }
 
+
         public void SelectionSetCallback( int marksExpected, SelectionCallback callback, object args, params Permission[] requiredPermissions ) {
             SelectionArgs = args;
             SelectionMarksExpected = marksExpected;
@@ -890,14 +905,17 @@ namespace fCraft {
             SelectionPermissions = requiredPermissions;
         }
 
+
         public void SelectionResetMarks() {
             SelectionMarks.Clear();
             SelectionMarkCount = 0;
         }
 
+
         public void SelectionCancel() {
             SelectionMarksExpected = 0;
         }
+
 
         public bool IsMakingSelection {
             get { return SelectionMarksExpected > 0; }
@@ -909,6 +927,7 @@ namespace fCraft {
         #region Spectating
 
         Player spectatedPlayer;
+        /// <summary> Player currently being spectated. Use Spectate/StopSpectate methods to set. </summary>
         public Player SpectatedPlayer {
             get { return spectatedPlayer; }
         }
@@ -994,8 +1013,21 @@ namespace fCraft {
         #endregion
 
 
+        public TimeSpan IdleTimer {
+            get {
+                return DateTime.UtcNow.Subtract( LastActiveTime );
+            }
+        }
+
+
         public void ResetIdleTimer() {
             LastActiveTime = DateTime.UtcNow;
+        }
+
+
+        /// <summary> Name formatted for the debugger. </summary>
+        public override string ToString() {
+            return String.Format( "Player({0})", Info.Name );
         }
     }
 }

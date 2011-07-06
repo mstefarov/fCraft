@@ -100,7 +100,7 @@ namespace fCraft {
             packet.Data[1] = Config.ProtocolVersion;
             Encoding.ASCII.GetBytes( serverName.PadRight( 64 ), 0, 64, packet.Data, 2 );
             Encoding.ASCII.GetBytes( motd.PadRight( 64 ), 0, 64, packet.Data, 66 );
-            packet.Data[130] = player.GetOpPacketCode();
+            packet.Data[130] = (byte)(player.Can( Permission.DeleteAdmincrete ) ? 100 : 0);
             return packet;
         }
 
@@ -218,7 +218,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             Packet packet = new Packet( OpCode.SetPermission );
-            packet.Data[1] = player.GetOpPacketCode();
+            packet.Data[1] = (byte)(player.Can( Permission.DeleteAdmincrete ) ? 100 : 0);
             return packet;
         }
 

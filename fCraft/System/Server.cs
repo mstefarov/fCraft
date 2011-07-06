@@ -401,7 +401,10 @@ namespace fCraft {
 
         static void AutoRestartCallback( SchedulerTask task ) {
             if( task == null ) throw new ArgumentNullException( "task" );
-            var shutdownParams = new ShutdownParams( ShutdownReason.Restarting, 5, true, true );
+            var shutdownParams = new ShutdownParams( ShutdownReason.Restarting,
+                                                     ShutdownParams.DefaultDelay,
+                                                     true,
+                                                     true );
             Shutdown( shutdownParams, false );
         }
 
@@ -510,7 +513,7 @@ namespace fCraft {
         static void ShutdownThread( object obj ) {
             if( obj == null ) throw new ArgumentNullException( "obj" );
             ShutdownParams param = (ShutdownParams)obj;
-            Thread.Sleep( param.Delay * 1000 );
+            Thread.Sleep( param.Delay );
             ShutdownNow( param );
             ShutdownWaiter.Set();
 
@@ -788,8 +791,7 @@ namespace fCraft {
                 Player player = tempPlayerList[i];
                 if( player.Info.Rank.IdleKickTimer <= 0 ) continue;
 
-                TimeSpan idleTime = DateTime.UtcNow.Subtract( player.LastActiveTime );
-                if( idleTime.TotalMinutes >= player.Info.Rank.IdleKickTimer ) {
+                if( player.IdleTimer.TotalMinutes >= player.Info.Rank.IdleKickTimer ) {
                     Message( "{0}&S was kicked for being idle for {1} min",
                              player.ClassyName,
                              player.Info.Rank.IdleKickTimer.ToString() );
@@ -1221,14 +1223,16 @@ namespace fCraft {
 
     /// <summary> Describes the circumstances of server shutdown. </summary>
     public sealed class ShutdownParams {
-        public ShutdownParams( ShutdownReason reason, int delay, bool killProcess, bool restart ) {
+        public static readonly TimeSpan DefaultDelay = new TimeSpan( 0, 0, 5 );
+
+        public ShutdownParams( ShutdownReason reason, TimeSpan delay, bool killProcess, bool restart ) {
             Reason = reason;
             Delay = delay;
             KillProcess = killProcess;
             Restart = restart;
         }
 
-        public ShutdownParams( ShutdownReason reason, int delay, bool killProcess,
+        public ShutdownParams( ShutdownReason reason, TimeSpan delay, bool killProcess,
                                bool restart, string customReason, Player initiatedBy ) :
             this( reason, delay, killProcess, restart ) {
             customReasonString = customReason;
@@ -1243,7 +1247,9 @@ namespace fCraft {
                 return customReasonString ?? Reason.ToString();
             }
         }
-        public int Delay { get; private set; }
+
+        /// <summary> Delay, in seconds, before shutting down. </summary>
+        public TimeSpan Delay { get; private set; }
 
         public bool KillProcess { get; private set; }
 

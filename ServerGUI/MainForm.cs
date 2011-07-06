@@ -85,7 +85,7 @@ namespace fCraft.ServerGUI {
             shutdownPending = true;
             urlDisplay.Enabled = false;
             console.Enabled = false;
-            Server.Shutdown( new ShutdownParams( reason, 0, quit, false ), false );
+            Server.Shutdown( new ShutdownParams( reason, TimeSpan.Zero, quit, false ), false );
         }
 
 

@@ -99,7 +99,7 @@ namespace fCraft.ServerCLI {
             if( useColor ) Console.ForegroundColor = ConsoleColor.Red;
             Console.Error.WriteLine( "** {0} **", reason );
             if( useColor ) Console.ResetColor();
-            Server.Shutdown( new ShutdownParams( reason, 0, false, false ), true );
+            Server.Shutdown( new ShutdownParams( reason, TimeSpan.Zero, false, false ), true );
             if( !Server.HasArg( ArgKey.ExitOnCrash ) ) {
                 Console.ReadLine();
             }
