@@ -12,12 +12,12 @@ namespace fCraft {
         Chat,
 
         /// <summary> Ability to place blocks on maps.
-        /// This is a baseline permission that can be overriden by
+        /// This is a baseline permission that can be overridden by
         /// world-specific and zone-specific permissions. </summary>
         Build,
 
         /// <summary> Ability to delete or replace blocks on maps.
-        /// This is a baseline permission that can be overriden by
+        /// This is a baseline permission that can be overridden by
         /// world-specific and zone-specific permissions. </summary>
         Delete,
 
@@ -85,10 +85,9 @@ namespace fCraft {
         /// Hidden players are completely invisible to other players. </summary>
         Hide,
 
-        /// <summary>
-        /// Ability to use drawing tools (commands capable of affecting many blocks
-        /// at once). This permission can be overriden by world-specific and
-        /// zone-specific building permissions. </summary>
+        /// <summary> Ability to use drawing tools (commands capable of affecting
+        /// many blocks at once). This permission can be overridden by world-specific
+        /// and zone-specific building permissions. </summary>
         Draw,
 
         /// <summary> Ability to copy (or cut) and paste blocks. The total number of
@@ -115,7 +114,7 @@ namespace fCraft {
         Spectate,
 
         /// <summary> Ability to freeze/unfreeze players.
-        /// Frozen players cannot move or build/delete.</summary>
+        /// Frozen players cannot move or build/delete. </summary>
         Freeze,
 
         /// <summary> Ability to temporarily mute players.

@@ -272,7 +272,7 @@ Affected command:
 
             vPermissions.Items[(int)Permission.Build].ToolTipText =
 @"Ability to place blocks on maps. This is a baseline permission
-that can be overriden by world-specific and zone-specific permissions.";
+that can be overridden by world-specific and zone-specific permissions.";
 
             vPermissions.Items[(int)Permission.Chat].ToolTipText =
 @"Ability to chat and PM players. Note that players without this
@@ -295,30 +295,30 @@ Affected commands:
 
             vPermissions.Items[(int)Permission.Delete].ToolTipText =
 @"Ability to delete or replace blocks on maps. This is a baseline permission
-that can be overriden by world-specific and zone-specific permissions.";
+that can be overridden by world-specific and zone-specific permissions.";
 
             vPermissions.Items[(int)Permission.DeleteAdmincrete].ToolTipText =
 @"Ability to delete admincrete (aka adminium) blocks. Even if someone
-has this permission, it can be overriden by world-specific and
+has this permission, it can be overridden by world-specific and
 zone-specific permissions.
 Required permission: Delete";
 
             vPermissions.Items[(int)Permission.Demote].ToolTipText =
 @"Ability to demote other players to a lower rank.
 Affected commands:
-    /rank";
+    /rank
+    /massrank";
 
             vPermissions.Items[(int)Permission.Draw].ToolTipText =
 @"Ability to use drawing tools (commands capable of affecting many blocks
-at once). This permission can be overriden by world-specific and
+at once). This permission can be overridden by world-specific and
 zone-specific permissions.
 Required permission: Build, Delete
 Affected commands:
-    /cancel
     /cuboid, /cuboidh, and /cuboidw
     /ellipsoid
     /line
-    /mark
+    /sphere and /sphereh
     /replace and /replacenot
     /undo";
 
@@ -351,8 +351,7 @@ Affected commands:
 @"Ability to import rank and ban lists from files. Useful if you
 are switching from another server software.
 Affected commands:
-    /importranks
-    /importbans";
+    /import";
 
             vPermissions.Items[(int)Permission.Kick].ToolTipText =
 @"Ability to kick players from the server.
@@ -384,7 +383,8 @@ Affected commands:
 Affected commands:
     /zadd
     /zedit
-    /zremove";
+    /zremove
+    /zrename";
 
             vPermissions.Items[(int)Permission.Mute].ToolTipText =
 @"Ability to temporarily mute players. Muted players cannot write chat or 
@@ -439,7 +439,7 @@ Affected commands:
             vPermissions.Items[(int)Permission.ReloadConfig].ToolTipText =
 @"Ability to reload the configuration file without restarting.
 Affected commands:
-    /reloadconfig";
+    /reload";
 
             vPermissions.Items[(int)Permission.Say].ToolTipText =
 @"Ability to use /say command.
