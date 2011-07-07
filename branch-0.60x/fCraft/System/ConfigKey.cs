@@ -123,7 +123,7 @@ will not show custom skins for players with prefixed names." )]
 
         [ColorKey( ConfigSection.Chat, Color.AnnouncementDefault,
 @"Color of announcements and rules. Default is dark-green.
-Note that this default color can be overriden by
+Note that this default color can be overridden by
 colorcodes in announcement and rule files." )]
         AnnouncementColor,
 
