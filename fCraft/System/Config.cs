@@ -375,7 +375,7 @@ namespace fCraft {
         }
 
 
-        static void ParseKeyElement( XElement element, string[] keyNames ) {
+        static void ParseKeyElement( XElement element, IEnumerable<string> keyNames ) {
             if( element == null ) throw new ArgumentNullException( "element" );
             if( keyNames == null ) throw new ArgumentNullException( "keyNames" );
 

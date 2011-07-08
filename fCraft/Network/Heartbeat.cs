@@ -10,8 +10,8 @@ using fCraft.Events;
 namespace fCraft {
     /// <summary> Static class responsible for sending heartbeats. </summary>
     public static class Heartbeat {
-        const int HeartbeatDelay = 30000,
-                  HeartbeatTimeout = 10000;
+        public static int Delay { get; set; }
+        public static int Timeout { get; set; }
         public static string PrimaryUrl { get; set; }
 
         static HttpWebRequest request;
@@ -24,10 +24,12 @@ namespace fCraft {
 
         static Heartbeat() {
             PrimaryUrl = "http://www.minecraft.net/heartbeat.jsp";
+            Delay = 30000;
+            Timeout = 10000;
         }
 
 
-        /// <summary> Callback for setting the local IP binding. Implements System.Net.BindIPEndPoint delegate. </summary>
+        // Callback for setting the local IP binding. Implements System.Net.BindIPEndPoint delegate.
         static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
             return new IPEndPoint( data.ServerIP, 0 );
         }
@@ -68,7 +70,7 @@ namespace fCraft {
                 request = (HttpWebRequest)WebRequest.Create( PrimaryUrl );
                 request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
                 request.Method = "POST";
-                request.Timeout = HeartbeatTimeout;
+                request.Timeout = Timeout;
                 request.ContentType = "application/x-www-form-urlencoded";
                 request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
 
@@ -167,7 +169,7 @@ namespace fCraft {
 
 
         static void RescheduleHeartbeat() {
-            task.RunManual( TimeSpan.FromMilliseconds( HeartbeatDelay ) );
+            task.RunManual( TimeSpan.FromMilliseconds( Delay ) );
         }
 
 

@@ -804,10 +804,6 @@ namespace fCraft {
             get { return DateTime.UtcNow.Subtract( UnbanDate ); }
         }
 
-        public TimeSpan TimeSinceLastFailedLogin {
-            get { return DateTime.UtcNow.Subtract( LastFailedLoginDate ); }
-        }
-
         public TimeSpan TimeSinceFirstLogin {
             get { return DateTime.UtcNow.Subtract( FirstLoginDate ); }
         }

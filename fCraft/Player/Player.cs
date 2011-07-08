@@ -102,8 +102,9 @@ namespace fCraft {
         }
 
 
-        // This constructor is used to create dummy players (such as Console and /dummy)
-        // It will soon be replaced by a generic Entity class
+        // This constructor is used to create pseudoplayers (such as Console and /dummy).
+        // Such players have unlimited permissions, but no world.
+        // This should be replaced by a more generic solution, like an IEntity interface.
         internal Player( string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             Info = new PlayerInfo( name, RankManager.HighestRank, true, RankChangeType.AutoPromoted );
@@ -532,14 +533,14 @@ namespace fCraft {
         #region Placing Blocks
 
         // for grief/spam detection
-        readonly Queue<DateTime> spamBlockLog;
+        readonly Queue<DateTime> spamBlockLog = new Queue<DateTime>();
 
         /// <summary> Last blocktype used by the player.
         /// Make sure to use in conjunction with Player.GetBind() to ensure that bindings are properly applied. </summary>
         public Block LastUsedBlockType { get; private set; }
 
         /// <summary> Max distance that player may be from a block to reach it (hack detection). </summary>
-        const int MaxRange = 6 * 32;
+        const int MaxRange = 7 * 32;
 
 
         /// <summary> Handles manually-placed/deleted blocks.
@@ -689,6 +690,7 @@ namespace fCraft {
         }
 
 
+        // returns true if the player is spamming and should be kicked.
         bool CheckBlockSpam() {
             if( Info.Rank.AntiGriefBlocks == 0 || Info.Rank.AntiGriefSeconds == 0 ) return false;
             if( spamBlockLog.Count >= Info.Rank.AntiGriefBlocks ) {
@@ -746,13 +748,13 @@ namespace fCraft {
 
         /// <summary> Returns true if player has ALL of the given permissions. </summary>
         public bool Can( params Permission[] permissions ) {
-            return IsSuper || permissions.All( permission => Info.Rank.Can( permission ) );
+            return IsSuper || permissions.All( Info.Rank.Can );
         }
 
 
         /// <summary> Returns true if player has ANY of the given permissions. </summary>
         public bool CanAny( params Permission[] permissions ) {
-            return IsSuper || permissions.Any( permission => Info.Rank.Can( permission ) );
+            return IsSuper || permissions.Any( Info.Rank.Can );
         }
 
 
@@ -803,6 +805,7 @@ namespace fCraft {
                 goto eventCheck;
             }
 
+            // check admincrete-related permissions
             if( block == Block.Admincrete && !Can( Permission.DeleteAdmincrete ) ) {
                 result = CanPlaceResult.BlocktypeDenied;
                 goto eventCheck;
@@ -821,21 +824,22 @@ namespace fCraft {
             // Check world permissions
             switch( World.BuildSecurity.CheckDetailed( Info ) ) {
                 case SecurityCheckResult.Allowed:
-                    // Check rank permissions
+                    // Check world's rank permissions
                     if( (Can( Permission.Build ) || newBlock == Block.Air) &&
                         (Can( Permission.Delete ) || block == Block.Air) ) {
                         result = CanPlaceResult.Allowed;
-                        goto eventCheck;
                     } else {
                         result = CanPlaceResult.RankDenied;
-                        goto eventCheck;
                     }
+                    break;
+
                 case SecurityCheckResult.WhiteListed:
                     result = CanPlaceResult.Allowed;
-                    goto eventCheck;
+                    break;
+
                 default:
                     result = CanPlaceResult.WorldDenied;
-                    goto eventCheck;
+                    break;
             }
 
         eventCheck:
@@ -856,21 +860,32 @@ namespace fCraft {
 
         #region Drawing, Selection, and Undo
 
-        internal Queue<BlockUpdate> UndoBuffer = new Queue<BlockUpdate>();
+        /// <summary> Whether player is currently making a selection. </summary>
+        public bool IsMakingSelection {
+            get { return SelectionMarksExpected > 0; }
+        }
 
-        public SelectionCallback SelectionCallback { get; private set; }
-        public readonly Queue<Position> SelectionMarks = new Queue<Position>();
-        public int SelectionMarkCount,
-                   SelectionMarksExpected;
-        internal object SelectionArgs { get; private set; } // can be used for 'block' or 'zone' or whatever
-        internal Permission[] SelectionPermissions;
+        /// <summary> Number of selection marks so far. </summary>
+        public int SelectionMarkCount {
+            get { return SelectionMarks.Count; }
+        }
+
+        /// <summary> Number of marks expected to complete the selection. </summary>
+        public int SelectionMarksExpected { get; private set; }
+
+        SelectionCallback SelectionCallback;
+
+        public Queue<BlockUpdate> UndoBuffer = new Queue<BlockUpdate>();
+        readonly Queue<Position> SelectionMarks = new Queue<Position>();
+        object SelectionArgs;
+        Permission[] SelectionPermissions;
 
         internal BuildingCommands.CopyInformation CopyInformation;
 
 
         public void SelectionAddMark( Position pos, bool executeCallbackIfNeeded ) {
+            if( !IsMakingSelection ) throw new InvalidOperationException( "No selection in progress." );
             SelectionMarks.Enqueue( pos );
-            SelectionMarkCount++;
             if( SelectionMarkCount >= SelectionMarksExpected ) {
                 if( executeCallbackIfNeeded ) {
                     SelectionExecute();
@@ -886,21 +901,24 @@ namespace fCraft {
 
 
         public void SelectionExecute() {
+            if( !IsMakingSelection ) throw new InvalidOperationException( "No selection in progress." );
             SelectionMarksExpected = 0;
+            // check if player still has the permissions required to complete the selection.
             if( SelectionPermissions == null || Can( SelectionPermissions ) ) {
                 SelectionCallback( this, SelectionMarks.ToArray(), SelectionArgs );
             } else {
+                // More complex permission checks can be done in the callback function itself.
                 Message( "&WYou are no longer allowed to complete this action." );
                 MessageNoAccess( SelectionPermissions );
             }
         }
 
 
-        public void SelectionSetCallback( int marksExpected, SelectionCallback callback, object args, params Permission[] requiredPermissions ) {
+        public void SelectionStart( int marksExpected, SelectionCallback callback, object args, params Permission[] requiredPermissions ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
             SelectionArgs = args;
             SelectionMarksExpected = marksExpected;
             SelectionMarks.Clear();
-            SelectionMarkCount = 0;
             SelectionCallback = callback;
             SelectionPermissions = requiredPermissions;
         }
@@ -908,17 +926,14 @@ namespace fCraft {
 
         public void SelectionResetMarks() {
             SelectionMarks.Clear();
-            SelectionMarkCount = 0;
         }
 
 
         public void SelectionCancel() {
+            SelectionMarks.Clear();
             SelectionMarksExpected = 0;
-        }
-
-
-        public bool IsMakingSelection {
-            get { return SelectionMarksExpected > 0; }
+            SelectionCallback = null;
+            SelectionArgs = null;
         }
 
         #endregion
@@ -934,9 +949,7 @@ namespace fCraft {
 
 
         public bool IsSpectating {
-            get {
-                return (spectatedPlayer != null);
-            }
+            get { return (spectatedPlayer != null); }
         }
 
 
@@ -1013,6 +1026,7 @@ namespace fCraft {
         #endregion
 
 
+        /// <summary> Time since the player was last active (moved, talked, or clicked). </summary>
         public TimeSpan IdleTimer {
             get {
                 return DateTime.UtcNow.Subtract( LastActiveTime );
@@ -1020,6 +1034,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Resets the IdleTimer to 0. </summary>
         public void ResetIdleTimer() {
             LastActiveTime = DateTime.UtcNow;
         }

@@ -246,12 +246,10 @@ namespace fCraft {
 
                 RemovePlayerFromPatrol( player );
 
-                // clear drawing status
+                // clear undo & selection
                 player.UndoBuffer.Clear();
                 player.UndoBuffer.TrimExcess();
-                player.SelectionMarksExpected = 0;
-                player.SelectionMarks.Clear();
-                player.SelectionMarkCount = 0;
+                player.SelectionCancel();
 
                 // update player list
                 UpdatePlayerList();
