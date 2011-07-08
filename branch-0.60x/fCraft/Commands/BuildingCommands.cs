@@ -589,7 +589,7 @@ namespace fCraft {
                     throw new ArgumentOutOfRangeException( "mode" );
             }
 
-            player.SelectionSetCallback( 2, callback, selectionArgs, Permission.Draw );
+            player.SelectionStart( 2, callback, selectionArgs, Permission.Draw );
 
             if( block != Block.Undefined ) {
                 player.MessageNow( "{0} ({1}): Click a block or use &H/mark",
@@ -1336,7 +1336,7 @@ namespace fCraft {
         };
 
         internal static void Copy( Player player, Command cmd ) {
-            player.SelectionSetCallback( 2, CopyCallback, null, CdCopy.Permissions );
+            player.SelectionStart( 2, CopyCallback, null, CdCopy.Permissions );
             player.MessageNow( "Copy: Place a block or type /mark to use your location." );
         }
 
@@ -1405,7 +1405,7 @@ namespace fCraft {
                     return;
                 }
             }
-            player.SelectionSetCallback( 2, CutCallback, fillBlock, CdCut.Permissions );
+            player.SelectionStart( 2, CutCallback, fillBlock, CdCut.Permissions );
             player.MessageNow( "Cut: Place a block or type /mark to use your location." );
         }
 
@@ -1512,7 +1512,7 @@ namespace fCraft {
                 return;
             }
 
-            player.SelectionSetCallback( 1, PasteCallback, args, CdPasteNot.Permissions );
+            player.SelectionStart( 1, PasteCallback, args, CdPasteNot.Permissions );
 
             player.MessageNow( "PasteNot: Place a block or type /mark to use your location. " );
         }
@@ -1562,7 +1562,7 @@ namespace fCraft {
                 };
             }
 
-            player.SelectionSetCallback( 1, PasteCallback, args, CdPaste.Permissions );
+            player.SelectionStart( 1, PasteCallback, args, CdPaste.Permissions );
 
             player.MessageNow( "Paste: Place a block or type /mark to use your location. " );
         }

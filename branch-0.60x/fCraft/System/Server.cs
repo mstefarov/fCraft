@@ -331,7 +331,7 @@ namespace fCraft {
                 return false;
             }
 
-            IP = ( (IPEndPoint)listener.LocalEndpoint ).Address;
+            IP = ((IPEndPoint)listener.LocalEndpoint).Address;
 
             if( IP.Equals( IPAddress.Any ) ) {
                 Logger.Log( "Server.Run: now accepting connections at port {0}.", LogType.SystemActivity,
@@ -426,49 +426,49 @@ namespace fCraft {
 #else
             try {
 #endif
-                RaiseShutdownBeganEvent( shutdownParams );
+            RaiseShutdownBeganEvent( shutdownParams );
 
-                Scheduler.BeginShutdown();
+            Scheduler.BeginShutdown();
 
-                Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
-                            shutdownParams.ReasonString );
+            Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
+                        shutdownParams.ReasonString );
 
-                // stop accepting new players
-                if( listener != null ) {
-                    listener.Stop();
-                    listener = null;
+            // stop accepting new players
+            if( listener != null ) {
+                listener.Stop();
+                listener = null;
+            }
+
+            // kick all players
+            lock( SessionLock ) {
+                if( Sessions.Count > 0 ) {
+                    foreach( Player p in Sessions ) {
+                        // NOTE: kick packet delivery here is not currently guaranteed
+                        p.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")", LeaveReason.ServerShutdown );
+                    }
+                    // increase the chances of kick packets being delivered
+                    Thread.Sleep( 1000 );
                 }
+            }
 
-                // kick all players
-                lock( SessionLock ) {
-                    if( Sessions.Count > 0 ) {
-                        foreach( Player p in Sessions ) {
-                            // NOTE: kick packet delivery here is not currently guaranteed
-                            p.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")", LeaveReason.ServerShutdown );
-                        }
-                        // increase the chances of kick packets being delivered
-                        Thread.Sleep( 1000 );
+            // kill IRC bot
+            IRC.Disconnect();
+
+            if( WorldManager.WorldList != null ) {
+                lock( WorldManager.WorldListLock ) {
+                    // unload all worlds (includes saving)
+                    foreach( World world in WorldManager.WorldList ) {
+                        world.SaveMap();
                     }
                 }
+            }
 
-                // kill IRC bot
-                IRC.Disconnect();
+            Scheduler.EndShutdown();
 
-                if( WorldManager.WorldList != null ) {
-                    lock( WorldManager.WorldListLock ) {
-                        // unload all worlds (includes saving)
-                        foreach( World world in WorldManager.WorldList ) {
-                            world.SaveMap();
-                        }
-                    }
-                }
+            if( PlayerDB.IsLoaded ) PlayerDB.Save();
+            if( IPBanList.IsLoaded ) IPBanList.Save();
 
-                Scheduler.EndShutdown();
-
-                if( PlayerDB.IsLoaded ) PlayerDB.Save();
-                if( IPBanList.IsLoaded ) IPBanList.Save();
-
-                RaiseShutdownEndedEvent( shutdownParams );
+            RaiseShutdownEndedEvent( shutdownParams );
 #if DEBUG
 #else
             } catch( Exception ex ) {
@@ -517,7 +517,7 @@ namespace fCraft {
             ShutdownNow( param );
             ShutdownWaiter.Set();
 
-            bool doRestart = ( param.Restart && !HasArg( ArgKey.NoRestart ) );
+            bool doRestart = (param.Restart && !HasArg( ArgKey.NoRestart ));
             string assemblyExecutable = Assembly.GetEntryAssembly().Location;
 
             if( Updater.RunAtShutdown && doRestart ) {
@@ -787,7 +787,7 @@ namespace fCraft {
 
         static void CheckIdles( SchedulerTask task ) {
             Player[] tempPlayerList = Players;
-            for( int i=0; i<tempPlayerList.Length; i++ ) {
+            for( int i = 0; i < tempPlayerList.Length; i++ ) {
                 Player player = tempPlayerList[i];
                 if( player.Info.Rank.IdleKickTimer <= 0 ) continue;
 
@@ -855,11 +855,11 @@ namespace fCraft {
 
         static void MonitorProcessorUsage( SchedulerTask task ) {
             TimeSpan newCPUTime = Process.GetCurrentProcess().TotalProcessorTime - cpuUsageStartingOffset;
-            CPUUsageLastMinute = ( newCPUTime - oldCPUTime ).TotalSeconds /
-                                 ( Environment.ProcessorCount * DateTime.UtcNow.Subtract( lastMonitorTime ).TotalSeconds );
+            CPUUsageLastMinute = (newCPUTime - oldCPUTime).TotalSeconds /
+                                 (Environment.ProcessorCount * DateTime.UtcNow.Subtract( lastMonitorTime ).TotalSeconds);
             lastMonitorTime = DateTime.UtcNow;
             CPUUsageTotal = newCPUTime.TotalSeconds /
-                            ( Environment.ProcessorCount * DateTime.UtcNow.Subtract( ServerStart ).TotalSeconds );
+                            (Environment.ProcessorCount * DateTime.UtcNow.Subtract( ServerStart ).TotalSeconds);
             oldCPUTime = newCPUTime;
             IsMonitoringCPUUsage = true;
         }
@@ -917,8 +917,8 @@ namespace fCraft {
 
         public static int CalculateMaxPacketsPerUpdate( World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );
-            int packetsPerTick = (int)( BlockUpdateThrottling / TicksPerSecond );
-            int maxPacketsPerUpdate = (int)( MaxUploadSpeed / TicksPerSecond * 128 );
+            int packetsPerTick = (int)(BlockUpdateThrottling / TicksPerSecond);
+            int maxPacketsPerUpdate = (int)(MaxUploadSpeed / TicksPerSecond * 128);
 
             int playerCount = world.Players.Length;
             if( playerCount > 0 && !world.IsFlushing ) {
@@ -1183,7 +1183,7 @@ namespace fCraft {
         /// <summary> Finds any player(s) online from given IP address. </summary>
         /// <returns> An array of matches. List length of 0 means "no matches";
         /// 1 is an exact match; over 1 for multiple matches. </returns>
-        [Obsolete("Use Players.FromIP() instead")]
+        [Obsolete( "Use Players.FromIP() instead" )]
         public static Player[] FindPlayers( IPAddress ip ) {
             if( ip == null ) throw new ArgumentNullException( "ip" );
             return Players.Where( p => p != null &&
@@ -1248,59 +1248,44 @@ namespace fCraft {
             }
         }
 
-        /// <summary> Delay, in seconds, before shutting down. </summary>
+        /// <summary> Delay before shutting down. </summary>
         public TimeSpan Delay { get; private set; }
 
+        /// <summary> Whether fCraft should try to forcefully kill the current process. </summary>
         public bool KillProcess { get; private set; }
 
+        /// <summary> Whether the server is expected to restart itself after shutting down. </summary>
         public bool Restart { get; private set; }
 
+        /// <summary> Player who initiated the shutdown. May be null or Console. </summary>
         public Player InitiatedBy { get; private set; }
     }
 
 
-    /// <summary> Categorizes conditions that lead to server shutdowns.
-    /// Use "Other" for plugin-triggered shutdowns. </summary>
+    /// <summary> Categorizes conditions that lead to server shutdowns. </summary>
     public enum ShutdownReason {
         Unknown,
+
+        /// <summary> Use for mod- or plugin-triggered shutdowns. </summary>
         Other,
 
+        /// <summary> InitLibrary or InitServer failed. </summary>
         FailedToInitialize,
+
+        /// <summary> StartServer failed. </summary>
         FailedToStart,
+
+        /// <summary> Server is restarting, usually because someone called /restart. </summary>
         Restarting,
+
+        /// <summary> Server has experienced a non-recoverable crash. </summary>
         Crashed,
+
+        /// <summary> Server is shutting down, usually because someone called /shutdown. </summary>
         ShuttingDown,
+
+        /// <summary> Server process is being closed/killed. </summary>
         ProcessClosing
     }
 
-
-    /// <summary> Enumerates the recognized command-line switches/arguments.
-    /// Args are parsed in Server.InitLibrary </summary>
-    public enum ArgKey {
-        /// <summary> Working path (directory) that fCraft should use. </summary>
-        Path,
-
-        /// <summary> Path (directory) where the log files should be placed. </summary>
-        LogPath,
-
-        /// <summary> Path (directory) where the map files should be loaded from/saved to. </summary>
-        MapPath,
-
-        /// <summary> Path (file) of the configuration file. </summary>
-        Config,
-
-        /// <summary> If NoRestart flag is present, fCraft will shutdown instead of restarting.
-        /// This flag is used by AutoRestarter. </summary>
-        NoRestart,
-
-        /// <summary> If ExitOnCrash flag is present, fCraft will exit
-        /// at once in the event of an unrecoverable crash, instead of showing a message. </summary>
-        ExitOnCrash,
-
-        /// <summary> Disables all logging. </summary>
-        NoLog,
-
-        /// <summary>  Disables colors in CLI frontends. </summary>
-        NoConsoleColor
-    };
 }

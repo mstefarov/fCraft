@@ -885,6 +885,7 @@ namespace fCraft {
     }
 
 
+    // ReSharper disable UnusedMember.Global
     /// <summary> IRC protocol reply codes. </summary>
     public enum IRCReplyCode {
         Null = 000,

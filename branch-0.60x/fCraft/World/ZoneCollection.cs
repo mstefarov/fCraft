@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,6 +74,18 @@ namespace fCraft {
         }
 
 
+        /// <summary> Checks whether any zone with a given name is in the collection. </summary>
+        public bool Contains( string zoneName ) {
+            if( zoneName == null ) throw new ArgumentNullException( "zoneName" );
+            Zone[] cache = Cache;
+            for( int i = 0; i < cache.Length; i++ ) {
+                if( cache[i].Name.Equals( zoneName, StringComparison.OrdinalIgnoreCase ) ) return true;
+            }
+            return false;
+        }
+
+
+        /// <summary> Returns the total number of zones in this collection. </summary>
         public int Count {
             get { return store.Count; }
         }
@@ -219,7 +232,7 @@ namespace fCraft {
 
         /// <summary> Finds a zone by name, with autocompletion.
         /// Zone names are case-insensitive. </summary>
-        /// <remarks> Note that this method is a lot slower than FindZoneExact. </remarks>
+        /// <remarks> Note that this method is a lot slower than FindExact. </remarks>
         /// <param name="name"> Full zone name. </param>
         /// <returns> Zone object if it was found.
         /// null if no Zone with the given name could be found. </returns>
@@ -289,7 +302,7 @@ namespace fCraft {
         }
 
 
-        public void CopyTo( Array array, int index ) {
+        void ICollection.CopyTo( Array array, int index ) {
             if( array == null ) throw new ArgumentNullException( "array" );
             if( index < 0 || index > array.Length ) throw new ArgumentOutOfRangeException( "index" );
             Zone[] cache = Cache;

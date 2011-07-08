@@ -194,44 +194,56 @@ namespace fCraft {
         };
 
         internal static void ZoneAdd( Player player, Command cmd ) {
-            string zoneName = cmd.Next();
-            if( zoneName == null ) {
+            string givenZoneName = cmd.Next();
+            if( givenZoneName == null ) {
                 CdZoneAdd.PrintUsage( player );
                 return;
             }
 
             Zone zone = new Zone();
+            ZoneCollection zoneCollection = player.World.Map.Zones;
 
-            if( zoneName.StartsWith( "+" ) ) {
+            if( givenZoneName.StartsWith( "+" ) ) {
+                // personal zone (/zadd +Name)
+                givenZoneName = givenZoneName.Substring( 1 );
+
+                // Find the target player
                 PlayerInfo info;
-                if( !PlayerDB.FindPlayerInfo( zoneName.Substring( 1 ), out info ) ) {
-                    player.Message( "More than one player found matching \"{0}\"", zoneName.Substring( 1 ) );
+                if( !PlayerDB.FindPlayerInfo( givenZoneName.Substring( 1 ), out info ) ) {
+                    player.Message( "More than one player found matching \"{0}\"", givenZoneName.Substring( 1 ) );
                     return;
                 }
                 if( info == null ) {
-                    player.MessageNoPlayer( zoneName.Substring( 1 ) );
+                    player.MessageNoPlayer( givenZoneName.Substring( 1 ) );
                     return;
                 }
 
-                zone.Name = info.Name;
+                // Make sure that the name is not taken already.
+                // If a zone named after the player already exists, try adding a number after the name (e.g. "Notch2")
+                zone.Name = givenZoneName;
+                for( int i = 2; zoneCollection.Contains( zone.Name ); i++ ) {
+                    zone.Name = givenZoneName + i;
+                }
+
                 zone.Controller.MinRank = info.Rank.NextRankUp ?? info.Rank;
                 zone.Controller.Include( info );
                 player.Message( "Zone: Creating a {0}+&S zone for player {1}&S. Place a block or type /mark to use your location.",
                                 zone.Controller.MinRank.ClassyName, info.ClassyName );
-                player.SelectionSetCallback( 2, ZoneAddCallback, zone, CdZoneAdd.Permissions );
+                player.SelectionStart( 2, ZoneAddCallback, zone, CdZoneAdd.Permissions );
 
             } else {
-                if( !World.IsValidName( zoneName ) ) {
-                    player.Message( "\"{0}\" is not a valid zone name", zoneName );
+                // Adding an ordinary, rank-restricted zone.
+                if( !World.IsValidName( givenZoneName ) ) {
+                    player.Message( "\"{0}\" is not a valid zone name", givenZoneName );
                     return;
                 }
 
-                if( player.World.Map.Zones.FindExact( zoneName ) != null ) {
+                if( zoneCollection.Contains( givenZoneName ) ) {
                     player.Message( "A zone with this name already exists. Use &H/zedit&S to edit." );
                     return;
                 }
 
-                zone.Name = zoneName;
+                zone.Name = givenZoneName;
 
                 string rankName = cmd.Next();
                 if( rankName == null ) {
@@ -264,7 +276,7 @@ namespace fCraft {
                     }
 
                     zone.Controller.MinRank = minRank;
-                    player.SelectionSetCallback( 2, ZoneAddCallback, zone, CdZoneAdd.Permissions );
+                    player.SelectionStart( 2, ZoneAddCallback, zone, CdZoneAdd.Permissions );
                     player.Message( "Zone: Place a block or type /mark to use your location." );
 
                 } else {
@@ -299,7 +311,7 @@ namespace fCraft {
         };
 
         static void ZoneTest( Player player, Command cmd ) {
-            player.SelectionSetCallback( 1, ZoneTestCallback, null );
+            player.SelectionStart( 1, ZoneTestCallback, null );
             player.Message( "Click the block that you would like to test." );
         }
 
@@ -510,7 +522,7 @@ namespace fCraft {
                 return;
             }
 
-            // check if a zone with "newName" name already exists
+            // Check if a zone with "newName" name already exists
             Zone newZone = zones.FindExact( newName );
             if( newZone != null && newZone != oldZone ) {
                 player.Message( "A zone with the name \"{0}\" already exists.", newName );

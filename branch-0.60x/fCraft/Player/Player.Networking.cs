@@ -60,8 +60,6 @@ namespace fCraft {
             client.SendTimeout = SocketTimeout;
             client.ReceiveTimeout = SocketTimeout;
 
-            spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
-
             try {
                 IP = ((IPEndPoint)(client.Client.RemoteEndPoint)).Address;
                 if( Server.RaiseSessionConnectingEvent( IP ) ) return;
