@@ -1,3 +1,6 @@
+0.535
+ Workaround for minecraft.net heartbeat changes.
+
 0.534
  Feature: Added <RestartInterval> config key (in seconds). It should help people who are suffering from Mono memory leaks. This setting can only currently be modified by editing config.xml
  Fix: Fixed /wload and /gen resetting the world's hidden status.
