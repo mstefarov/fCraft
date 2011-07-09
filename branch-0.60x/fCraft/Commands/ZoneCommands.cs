@@ -209,12 +209,12 @@ namespace fCraft {
 
                 // Find the target player
                 PlayerInfo info;
-                if( !PlayerDB.FindPlayerInfo( givenZoneName.Substring( 1 ), out info ) ) {
+                if( !PlayerDB.FindPlayerInfo( givenZoneName, out info ) ) {
                     player.Message( "More than one player found matching \"{0}\"", givenZoneName.Substring( 1 ) );
                     return;
                 }
                 if( info == null ) {
-                    player.MessageNoPlayer( givenZoneName.Substring( 1 ) );
+                    player.MessageNoPlayer( givenZoneName );
                     return;
                 }
 
@@ -320,11 +320,11 @@ namespace fCraft {
             if( player.World.Map.Zones.CheckDetailed( marks[0].X, marks[0].Y, marks[0].H, player, out allowed, out denied ) ) {
                 foreach( Zone zone in allowed ) {
                     SecurityCheckResult status = zone.Controller.CheckDetailed( player.Info );
-                    player.Message( "> {0}: {1}{2}", zone.Name, Color.Lime, status );
+                    player.Message( "> Zone {0}&S: {1}{2}", zone.ClassyName, Color.Lime, status );
                 }
                 foreach( Zone zone in denied ) {
                     SecurityCheckResult status = zone.Controller.CheckDetailed( player.Info );
-                    player.Message( "> {0}: {1}{2}", zone.Name, Color.Red, status );
+                    player.Message( "> Zone {0}&S: {1}{2}", zone.ClassyName, Color.Red, status );
                 }
             } else {
                 player.Message( "No zones affect this block." );
