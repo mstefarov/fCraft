@@ -1338,7 +1338,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                                       xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "" ) );
             lines.Add( "&Pfrom Notch: This is a private message / whisper");
             lines.Add( "* &MNotch is using /me to write this");
-            lines.Add( "&SUnknown command \"kic\", see &H/help commands");
+            lines.Add( "&SUnknown command \"kic\", see &H/commands");
             lines.Add( String.Format( "&W{0}{1}Notch&W was kicked by {0}{1}gamer1",
                                       xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
                                       xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "" ));
