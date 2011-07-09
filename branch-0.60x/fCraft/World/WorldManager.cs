@@ -26,9 +26,9 @@ namespace fCraft {
             if( RaiseMainWorldChangingEvent( MainWorld, newWorld ) ) return false;
             World oldWorld;
             lock( WorldListLock ) {
-                newWorld.ToggleNeverUnloadFlag( true );
+                newWorld.NeverUnload = true;
                 oldWorld = MainWorld;
-                oldWorld.ToggleNeverUnloadFlag( false );
+                oldWorld.NeverUnload = false;
                 MainWorld = newWorld;
             }
             RaiseMainWorldChangedEvent( oldWorld, newWorld );
@@ -53,14 +53,14 @@ namespace fCraft {
                 MainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
             }
 
-            if( Worlds.Count == 0 ) {
+            if( MainWorld == null || MainWorld.Map == null ) {
                 Logger.Log( "Server.Start: Could not load any of the specified worlds, or no worlds were specified. " +
                             "Creating default \"main\" world.", LogType.Error );
                 MainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
             }
 
             // if there is no default world still, die.
-            if( MainWorld == null ) {
+            if( MainWorld == null || MainWorld.Map == null ) {
                 throw new Exception( "Could not create any worlds" );
             } else {
                 if( MainWorld.AccessSecurity.HasRestrictions ) {
@@ -69,7 +69,7 @@ namespace fCraft {
                                  MainWorld.Name );
                     MainWorld.AccessSecurity.Reset();
                 }
-                MainWorld.ToggleNeverUnloadFlag( true );
+                MainWorld.NeverUnload = true;
             }
 
             return true;

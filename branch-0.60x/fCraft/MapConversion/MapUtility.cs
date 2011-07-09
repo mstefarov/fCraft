@@ -11,12 +11,13 @@ namespace fCraft.MapConversion {
 
 
         static MapUtility() {
-            AvailableConverters.Add( MapFormat.D3, new MapD3() );
-            AvailableConverters.Add( MapFormat.Creative, new MapDat() );
-            AvailableConverters.Add( MapFormat.FCMv2, new MapFCMv2() );
+            AvailableConverters.Add( MapFormat.FCMv4, new MapFCMv4() );
             AvailableConverters.Add( MapFormat.FCMv3, new MapFCMv3() );
-            AvailableConverters.Add( MapFormat.JTE, new MapJTE() );
+            AvailableConverters.Add( MapFormat.FCMv2, new MapFCMv2() );
+            AvailableConverters.Add( MapFormat.Creative, new MapDat() );
             AvailableConverters.Add( MapFormat.MCSharp, new MapMCSharp() );
+            AvailableConverters.Add( MapFormat.D3, new MapD3() );
+            AvailableConverters.Add( MapFormat.JTE, new MapJTE() );
             AvailableConverters.Add( MapFormat.MinerCPP, new MapMinerCPP() );
             AvailableConverters.Add( MapFormat.Myne, new MapMyne() );
             AvailableConverters.Add( MapFormat.NBT, new MapNBT() );
@@ -26,10 +27,10 @@ namespace fCraft.MapConversion {
 
         public static MapFormat Identify( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            MapFormatType targetType = MapFormatType.SingleFile;
+            MapStorageType targetType = MapStorageType.SingleFile;
             if( !File.Exists( fileName ) ) {
                 if( Directory.Exists( fileName ) ) {
-                    targetType = MapFormatType.Directory;
+                    targetType = MapStorageType.Directory;
                 } else {
                     throw new FileNotFoundException();
                 }
@@ -38,7 +39,7 @@ namespace fCraft.MapConversion {
             List<IMapConverter> fallbackConverters = new List<IMapConverter>();
             foreach( IMapConverter converter in AvailableConverters.Values ) {
                 try {
-                    if( converter.FormatType == targetType && converter.ClaimsName( fileName ) ) {
+                    if( converter.StorageType == targetType && converter.ClaimsName( fileName ) ) {
                         if( converter.Claims( fileName ) ) {
                             return converter.Format;
                         }
@@ -77,10 +78,10 @@ namespace fCraft.MapConversion {
         public static Map LoadHeader( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
 
-            MapFormatType targetType = MapFormatType.SingleFile;
+            MapStorageType targetType = MapStorageType.SingleFile;
             if( !File.Exists( fileName ) ) {
                 if( Directory.Exists( fileName ) ) {
-                    targetType = MapFormatType.Directory;
+                    targetType = MapStorageType.Directory;
                 } else {
                     throw new FileNotFoundException();
                 }
@@ -92,7 +93,7 @@ namespace fCraft.MapConversion {
             foreach( IMapConverter converter in AvailableConverters.Values ) {
                 bool claims = false;
                 try {
-                    claims = (converter.FormatType == targetType) &&
+                    claims = (converter.StorageType == targetType) &&
                              converter.ClaimsName( fileName ) &&
                              converter.Claims( fileName );
                 } catch( Exception ) { }
@@ -135,10 +136,10 @@ namespace fCraft.MapConversion {
 
         public static Map Load( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            MapFormatType targetType = MapFormatType.SingleFile;
+            MapStorageType targetType = MapStorageType.SingleFile;
             if( !File.Exists( fileName ) ) {
                 if( Directory.Exists( fileName ) ) {
-                    targetType = MapFormatType.Directory;
+                    targetType = MapStorageType.Directory;
                 } else {
                     throw new FileNotFoundException();
                 }
@@ -150,7 +151,7 @@ namespace fCraft.MapConversion {
             foreach( IMapConverter converter in AvailableConverters.Values ) {
                 bool claims = false;
                 try {
-                    claims = (converter.FormatType == targetType) &&
+                    claims = (converter.StorageType == targetType) &&
                              converter.ClaimsName( fileName ) &&
                              converter.Claims( fileName );
                 } catch { }

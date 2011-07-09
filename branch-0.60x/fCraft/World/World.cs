@@ -25,9 +25,8 @@ namespace fCraft {
                     IsHidden,
                     PendingUnload,
                     IsFlushing;
-        public bool NeverUnload { get; private set; }
-        public SecurityController AccessSecurity = new SecurityController(),
-                                  BuildSecurity = new SecurityController();
+        public SecurityController AccessSecurity { get; internal set; }
+        public SecurityController BuildSecurity { get; internal set; }
 
         public string LockedBy, UnlockedBy;
         public DateTime LockedDate, UnlockedDate;
@@ -45,6 +44,8 @@ namespace fCraft {
             if( !IsValidName( name ) ) {
                 throw new ArgumentException( "Incorrect world name format" );
             }
+            AccessSecurity = new SecurityController();
+            BuildSecurity = new SecurityController();
             Name = name;
             NeverUnload = neverUnload;
             UpdatePlayerList();
@@ -142,14 +143,20 @@ namespace fCraft {
         }
 
 
-        public void ToggleNeverUnloadFlag( bool newValue ) {
-            lock( WorldLock ) {
-                if( NeverUnload == newValue ) return;
-                NeverUnload = newValue;
-                if( NeverUnload ) {
-                    if( Map == null ) LoadMap();
-                } else {
-                    if( Map != null && playerIndex.Count == 0 ) UnloadMap( false );
+        bool neverUnload;
+        public bool NeverUnload {
+            get {
+                return neverUnload;
+            }
+            set {
+                lock( WorldLock ) {
+                    if( neverUnload == value ) return;
+                    neverUnload = value;
+                    if( neverUnload ) {
+                        if( Map == null ) LoadMap();
+                    } else {
+                        if( Map != null && playerIndex.Count == 0 ) UnloadMap( false );
+                    }
                 }
             }
         }
@@ -426,16 +433,6 @@ namespace fCraft {
         public event Action OnLoaded;
         [Obsolete]
         public event Action OnUnloaded;
-        [Obsolete]
-        public event PlayerChangedBlockEventHandler OnPlayerChangedBlock;
-
-        public bool FireChangedBlockEvent( ref BlockUpdate update ) {
-            bool cancel = false;
-            if( OnPlayerChangedBlock != null ) {
-                OnPlayerChangedBlock( this, ref update, ref cancel );
-            }
-            return !cancel;
-        }
 
         #endregion
 

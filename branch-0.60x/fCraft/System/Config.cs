@@ -130,7 +130,7 @@ namespace fCraft {
      * 
      * 142 - r638 - Added BackupDataOnStartup key.
      * 
-     * 143 - r676 - Added LoadPlugins key.
+     * 143 - r676 - Added LoadPlugins key (currently unused).
      * 
      */
 

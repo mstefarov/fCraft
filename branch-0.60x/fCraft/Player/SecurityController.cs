@@ -14,7 +14,7 @@ namespace fCraft {
         readonly Dictionary<string, PlayerInfo> excludedPlayers = new Dictionary<string, PlayerInfo>();
 
         public PlayerExceptions ExceptionList { get; private set; }
-        readonly object exceptionListLock = new object();
+        readonly object locker = new object();
 
         Rank minRank;
         /// <summary> Lowest allowed player rank. </summary>
@@ -56,7 +56,7 @@ namespace fCraft {
 
 
         void UpdatePlayerListCache() {
-            lock( exceptionListLock ) {
+            lock( locker ) {
                 ExceptionList = new PlayerExceptions( includedPlayers.Values.ToArray(),
                                                       excludedPlayers.Values.ToArray() );
             }
@@ -69,7 +69,7 @@ namespace fCraft {
         /// <returns> Previous exception state of the player. </returns>
         public PermissionOverride Include( PlayerInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
-            lock( exceptionListLock ) {
+            lock( locker ) {
                 if( includedPlayers.ContainsValue( info ) ) {
                     return PermissionOverride.Allow;
                 } else if( excludedPlayers.ContainsValue( info ) ) {
@@ -93,7 +93,7 @@ namespace fCraft {
         /// <returns> Previous exception state of the player. </returns>
         public PermissionOverride Exclude( PlayerInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
-            lock( exceptionListLock ) {
+            lock( locker ) {
                 if( excludedPlayers.ContainsValue( info ) ) {
                     return PermissionOverride.Deny;
                 } else if( includedPlayers.ContainsValue( info ) ) {
@@ -241,7 +241,7 @@ namespace fCraft {
             }
             //root.Add( new XElement( "maxRank", maxRank ) );
 
-            lock( exceptionListLock ) {
+            lock( locker ) {
                 foreach( string playerName in includedPlayers.Keys ) {
                     root.Add( new XElement( "included", playerName ) );
                 }
@@ -259,7 +259,7 @@ namespace fCraft {
 
         /// <summary> Clears the list of specifically included players. </summary>
         public void ResetIncludedList() {
-            lock( exceptionListLock ) {
+            lock( locker ) {
                 includedPlayers.Clear();
                 UpdatePlayerListCache();
             }
@@ -268,7 +268,7 @@ namespace fCraft {
 
         /// <summary> Clears the list of specifically excluded players. </summary>
         public void ResetExcludedList() {
-            lock( exceptionListLock ) {
+            lock( locker ) {
                 excludedPlayers.Clear();
                 UpdatePlayerListCache();
             }
@@ -292,7 +292,7 @@ namespace fCraft {
         public SecurityController( SecurityController other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             MinRank = other.minRank;
-            lock( other.exceptionListLock ) {
+            lock( other.locker ) {
                 includedPlayers = new Dictionary<string, PlayerInfo>( other.includedPlayers );
                 excludedPlayers = new Dictionary<string, PlayerInfo>( other.excludedPlayers );
             }

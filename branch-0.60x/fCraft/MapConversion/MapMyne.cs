@@ -18,8 +18,8 @@ namespace fCraft.MapConversion {
         }
 
 
-        public MapFormatType FormatType {
-            get { return MapFormatType.Directory; }
+        public MapStorageType StorageType {
+            get { return MapStorageType.Directory; }
         }
 
 

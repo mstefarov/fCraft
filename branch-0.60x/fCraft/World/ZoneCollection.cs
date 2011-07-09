@@ -12,7 +12,7 @@ namespace fCraft {
         public Zone[] Cache { get; private set; }
 
         public ZoneCollection() {
-            UpdateCache();
+            Cache = new Zone[0];
         }
 
         public ZoneCollection( ZoneCollection other ) {

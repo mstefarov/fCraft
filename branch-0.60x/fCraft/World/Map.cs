@@ -10,6 +10,8 @@ using fCraft.MapConversion;
 namespace fCraft {
     public unsafe sealed class Map {
 
+        public const MapFormat SaveFormat = MapFormat.FCMv3;
+
         public World World { get; set; }
 
         /// <summary> Map width, in blocks. Equivalent to Notch's X (horizontal). </summary>
@@ -81,11 +83,15 @@ namespace fCraft {
         /// <summary> Creates an empty new map of given dimensions.
         /// Dimensions cannot be changed after creation. </summary>
         /// <param name="world"> World that owns this map. May be null, and may be changed later. </param>
-        /// <param name="widthX"> Width (horizontal, Notch's X). </param>
-        /// <param name="widthY"> Length (horizontal, Notch's Z). </param>
+        /// <param name="widthX"> WidthX (horizontal, Notch's X). </param>
+        /// <param name="widthY"> WidthY/Length (horizontal, Notch's Z). </param>
         /// <param name="height"> Height (vertical, Notch's Y). </param>
         /// <param name="initBlockArray"> If true, the Blocks array will be created. </param>
         public Map( World world, int widthX, int widthY, int height, bool initBlockArray ) {
+            if( !IsValidDimension( widthX ) ) throw new ArgumentException( "Invalid map dimension.", "widthX" );
+            if( !IsValidDimension( widthY ) ) throw new ArgumentException( "Invalid map dimension.", "widthY" );
+            if( !IsValidDimension( height ) ) throw new ArgumentException( "Invalid map dimension.", "height" );
+
             Metadata = new MetadataCollection();
             Metadata.Changed += OnMetaOrZoneChange;
 
@@ -121,7 +127,7 @@ namespace fCraft {
             // save to a temporary file
             try {
                 HasChangedSinceSave = false;
-                if( !MapUtility.TrySave( this, tempFileName, MapFormat.FCMv3 ) ) {
+                if( !MapUtility.TrySave( this, tempFileName, SaveFormat ) ) {
                     HasChangedSinceSave = true;
                 }
 
@@ -717,7 +723,7 @@ namespace fCraft {
                     // convert block count to big-endian
                     int convertedBlockCount = IPAddress.HostToNetworkOrder( Blocks.Length );
                     // write block count to gzip stream
-                    compressor.Write( BitConverter.GetBytes( convertedBlockCount ), 0, sizeof( int ) );
+                    compressor.Write( BitConverter.GetBytes( convertedBlockCount ), 0, 4 );
                 }
                 compressor.Write( Blocks, 0, Blocks.Length );
             }

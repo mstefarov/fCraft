@@ -349,15 +349,15 @@ namespace fCraft {
 
         internal void MessageNow( string message, params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
-            if( Thread.CurrentThread != ioThread ) {
-                throw new InvalidOperationException( "SendNow may only be called from player's own thread." );
-            }
             if( args.Length > 0 ) {
                 message = String.Format( message, args );
             }
             if( this == Console ) {
                 Logger.LogToConsole( message );
             } else {
+                if( Thread.CurrentThread != ioThread ) {
+                    throw new InvalidOperationException( "SendNow may only be called from player's own thread." );
+                }
                 foreach( Packet p in LineWrapper.Wrap( Color.Sys + message ) ) {
                     SendNow( p );
                 }
@@ -602,10 +602,6 @@ namespace fCraft {
                     if( type == Block.Stair && h > 0 && World.Map.GetBlock( x, y, h - 1 ) == Block.Stair ) {
                         // handle stair stacking
                         blockUpdate = new BlockUpdate( this, x, y, h - 1, Block.DoubleStair );
-                        if( !World.FireChangedBlockEvent( ref blockUpdate ) ) {
-                            RevertBlockNow( x, y, h );
-                            return false;
-                        }
                         Info.ProcessBlockPlaced( (byte)Block.DoubleStair );
                         World.Map.QueueUpdate( blockUpdate );
                         Server.RaisePlayerPlacedBlockEvent( this, x, y, (short)(h - 1), Block.Stair, Block.DoubleStair, true );
@@ -616,10 +612,6 @@ namespace fCraft {
                     } else {
                         // handle normal blocks
                         blockUpdate = new BlockUpdate( this, x, y, h, type );
-                        if( !World.FireChangedBlockEvent( ref blockUpdate ) ) {
-                            RevertBlockNow( x, y, h );
-                            return false;
-                        }
                         Info.ProcessBlockPlaced( (byte)type );
                         Block old = World.Map.GetBlock( x, y, h );
                         World.Map.QueueUpdate( blockUpdate );

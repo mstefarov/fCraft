@@ -61,8 +61,8 @@ namespace fCraft.MapConversion {
         }
 
 
-        public MapFormatType FormatType {
-            get { return MapFormatType.SingleFile; }
+        public MapStorageType StorageType {
+            get { return MapStorageType.SingleFile; }
         }
 
 
@@ -82,7 +82,7 @@ namespace fCraft.MapConversion {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
                     byte[] temp = new byte[8];
                     mapStream.Seek( -4, SeekOrigin.End );
-                    mapStream.Read( temp, 0, sizeof( int ) );
+                    mapStream.Read( temp, 0, 4 );
                     mapStream.Seek( 0, SeekOrigin.Begin );
                     int length = BitConverter.ToInt32( temp, 0 );
                     byte[] data = new byte[length];
@@ -124,7 +124,7 @@ namespace fCraft.MapConversion {
                 Map map = null;
 
                 mapStream.Seek( -4, SeekOrigin.End );
-                mapStream.Read( temp, 0, sizeof( int ) );
+                mapStream.Read( temp, 0, 4 );
                 mapStream.Seek( 0, SeekOrigin.Begin );
                 int length = BitConverter.ToInt32( temp, 0 );
                 byte[] data = new byte[length];
@@ -137,7 +137,7 @@ namespace fCraft.MapConversion {
 
                     // bypassing the header crap
                     int pointer = i + 6;
-                    Array.Copy( data, pointer, temp, 0, sizeof( short ) );
+                    Array.Copy( data, pointer, temp, 0, 2 );
                     pointer += IPAddress.HostToNetworkOrder( BitConverter.ToInt16( temp, 0 ) );
                     pointer += 13;
 
@@ -169,12 +169,12 @@ namespace fCraft.MapConversion {
                         }
 
                         pointer += 1;
-                        Array.Copy( data, pointer, temp, 0, sizeof( short ) );
+                        Array.Copy( data, pointer, temp, 0, 2 );
                         short skip = IPAddress.HostToNetworkOrder( BitConverter.ToInt16( temp, 0 ) );
                         pointer += 2;
 
                         // look for relevant variables
-                        Array.Copy( data, headerEnd + offset - 4, temp, 0, sizeof( int ) );
+                        Array.Copy( data, headerEnd + offset - 4, temp, 0, 4 );
                         if( MemCmp( data, pointer, "width" ) ) {
                             widthX = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
                         } else if( MemCmp( data, pointer, "depth" ) ) {
