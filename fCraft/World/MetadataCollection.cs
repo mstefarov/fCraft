@@ -54,8 +54,30 @@ namespace fCraft {
         }
 
 
+        /// <summary> The total number of entries in this collection. </summary>
         public int Count {
+            get {
+                lock( syncRoot ) {
+                    int total = 0;
+                    foreach( var group in store ) {
+                        total += group.Value.Count;
+                    }
+                    return total;
+                }
+            }
+        }
+
+
+        /// <summary> Number of groups in this collection. </summary>
+        public int GroupCount {
             get { return store.Count; }
+        }
+
+
+        /// <summary> Number of keys within a given group. </summary>
+        public int GetKeyCount( string group ) {
+            if( group == null ) throw new ArgumentNullException( "group" );
+            return store[group].Count;
         }
 
 
@@ -308,6 +330,7 @@ namespace fCraft {
 
 
         readonly object syncRoot = new object();
+        /// <summary> Internal lock object used by this collection to ensure thread safety. </summary>
         public object SyncRoot {
             get { return syncRoot; }
         }

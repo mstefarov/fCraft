@@ -5,9 +5,7 @@ using System.IO.Compression;
 using System.Text;
 
 namespace fCraft.MapConversion {
-    /// <summary>
-    /// fCraft map format converter, for format version #2 (2010)
-    /// </summary>
+    /// <summary> fCraft map format converter, for obsolete format version #2 (2010). </summary>
     public sealed class MapFCMv2 : IMapConverter {
         public const uint Identifier = 0xfc000002;
 
@@ -16,8 +14,8 @@ namespace fCraft.MapConversion {
         }
 
 
-        public MapFormatType FormatType {
-            get { return MapFormatType.SingleFile; }
+        public MapStorageType StorageType {
+            get { return MapStorageType.SingleFile; }
         }
 
 

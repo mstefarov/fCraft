@@ -20,7 +20,7 @@ namespace fCraft {
 
         /// <summary> Constructs a bounding box at a given origin, with given dimensions. </summary>
         public BoundingBox( Position pos, int widthX, int widthY, int height ) :
-            this( pos.X, pos.Y, pos.H, pos.X + widthX, pos.Y + widthY, pos.H + height ) {
+            this( pos.X, pos.Y, pos.H, pos.X + widthX - 1, pos.Y + widthY - 1, pos.H + height - 1 ) {
         }
 
 

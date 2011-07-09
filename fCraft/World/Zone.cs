@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Xml.Linq;
 
 namespace fCraft {
 
@@ -16,9 +17,7 @@ namespace fCraft {
 
         /// <summary> List of exceptions (included and excluded players). </summary>
         public PlayerExceptions ExceptionList {
-            get {
-                return Controller.ExceptionList;
-            }
+            get { return Controller.ExceptionList; }
         }
 
         /// <summary> Zone creation date, UTC. </summary>
@@ -118,7 +117,7 @@ namespace fCraft {
             }
         }
 
-        /*
+        
         #region Xml Serialization
 
         const string XmlRootElementName = "Zone";
@@ -167,7 +166,6 @@ namespace fCraft {
         }
 
         #endregion
-         */
 
 
         public event EventHandler Changed;

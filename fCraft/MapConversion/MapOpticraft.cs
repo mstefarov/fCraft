@@ -79,8 +79,8 @@ namespace fCraft.MapConversion {
             get { return MapFormat.Opticraft; }
         }
 
-        public MapFormatType FormatType {
-            get { return MapFormatType.SingleFile; }
+        public MapStorageType StorageType {
+            get { return MapStorageType.SingleFile; }
         }
 
 

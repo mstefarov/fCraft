@@ -6,8 +6,8 @@ namespace fCraft.MapConversion {
         string ServerName { get; }
         
 
-        /// <summary> Returns the format type (file-based or directory-based). </summary>
-        MapFormatType FormatType { get; }
+        /// <summary> Returns the map storage type (file-based or directory-based). </summary>
+        MapStorageType StorageType { get; }
 
 
         /// <summary> Returns the format name. </summary>
