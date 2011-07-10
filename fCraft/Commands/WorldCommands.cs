@@ -302,15 +302,14 @@ namespace fCraft {
                 return;
             }
 
-            if( world.Map == null ) {
+            if( world.Map == null || world.Map.UpdateQueueLength == 0 ) {
                 player.MessageNow( "WFlush: {0}&S has no updates to process.",
                                    world.ClassyName );
             } else {
                 player.MessageNow( "WFlush: Flushing {0}&S ({1} blocks in queue)...",
                                    world.ClassyName,
                                    world.Map.UpdateQueueLength );
-
-                world.BeginFlushMapBuffer();
+                world.Flush();
             }
         }
 
@@ -360,10 +359,13 @@ namespace fCraft {
                                     world.ClassyName );
                 }
 
-                if( !world.SetMainWorld() ) {
-                    player.Message( "Main world was not changed." );
+                try {
+                    WorldManager.MainWorld = world;
+                } catch( WorldOpException ex ) {
+                    player.Message( ex.Message );
                     return;
                 }
+
                 WorldManager.SaveWorldList();
 
                 Server.Message( "{0}&S set {1}&S to be the main world.",
