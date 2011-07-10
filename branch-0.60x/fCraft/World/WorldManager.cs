@@ -53,14 +53,14 @@ namespace fCraft {
                 MainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
             }
 
-            if( MainWorld == null || MainWorld.Map == null ) {
+            if( MainWorld == null ) {
                 Logger.Log( "Server.Start: Could not load any of the specified worlds, or no worlds were specified. " +
                             "Creating default \"main\" world.", LogType.Error );
                 MainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
             }
 
             // if there is no default world still, die.
-            if( MainWorld == null || MainWorld.Map == null ) {
+            if( MainWorld == null ) {
                 throw new Exception( "Could not create any worlds" );
             } else {
                 if( MainWorld.AccessSecurity.HasRestrictions ) {
@@ -310,7 +310,7 @@ namespace fCraft {
                     throw new WorldOpException( name, WorldOpExceptionCode.PluginDenied );
                 }
 
-                World newWorld = new World( name, neverUnload );
+                World newWorld = new World( name );
 
                 // If no map is given, and no file exists: make a flatgrass
                 if( map == null && neverUnload && !File.Exists( newWorld.GetMapName() ) ) {
@@ -323,16 +323,8 @@ namespace fCraft {
                 if( map != null ) {
                     newWorld.Map = map;
                     map.World = newWorld;
-                    if( neverUnload ) {
-                        newWorld.StartTasks();
-                        newWorld.SaveMap();
-                    }else{
-                        newWorld.UnloadMap( false );
-                    }
-
-                } else if( neverUnload ) {
-                    newWorld.LoadMap();
                 }
+                newWorld.NeverUnload = neverUnload;
 
                 Worlds.Add( name.ToLower(), newWorld );
                 UpdateWorldList();

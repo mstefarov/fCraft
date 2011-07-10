@@ -70,6 +70,8 @@ namespace fCraft {
 
         public BandwidthUseMode BandwidthUseMode { get; set; }
 
+        public bool IsHidden;
+
 
         #region Constructors and Serialization
 
@@ -216,6 +218,14 @@ namespace fCraft {
                 }
             } else {
                 info.BandwidthUseMode = BandwidthUseMode.Default;
+            }
+
+            if( fields.Length > 45 ) {
+                if( fields[45].Length == 0 ) {
+                    info.IsHidden = false;
+                } else {
+                    info.IsHidden = info.Rank.Can( Permission.Hide );
+                }
             }
 
             if( info.LastSeen < info.FirstLoginDate ) {
@@ -482,6 +492,9 @@ namespace fCraft {
             sb.Append( ',' );
 
             if( BandwidthUseMode != BandwidthUseMode.Default ) sb.Append( (int)BandwidthUseMode ); // 44
+            sb.Append( ',' );
+
+            if( IsHidden ) sb.Append( 'h' ); // 45
         }
 
 

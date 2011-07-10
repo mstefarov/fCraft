@@ -37,7 +37,7 @@ namespace fCraft {
         internal readonly object WorldLock = new object();
 
 
-        internal World( string name, bool neverUnload ) {
+        internal World( string name ) {
             if( name == null ) {
                 throw new ArgumentException( "name" );
             }
@@ -47,7 +47,6 @@ namespace fCraft {
             AccessSecurity = new SecurityController();
             BuildSecurity = new SecurityController();
             Name = name;
-            NeverUnload = neverUnload;
             UpdatePlayerList();
         }
 
@@ -127,13 +126,14 @@ namespace fCraft {
         public void ChangeMap( Map newMap ) {
             if( newMap == null ) throw new ArgumentNullException( "newMap" );
             lock( WorldLock ) {
-                World newWorld = new World( Name, NeverUnload ) {
+                World newWorld = new World( Name ) {
                     Map = newMap,
                     AccessSecurity = (SecurityController)AccessSecurity.Clone(),
                     BuildSecurity = (SecurityController)BuildSecurity.Clone(),
                     IsHidden = IsHidden
                 };
                 newMap.World = newWorld;
+                newWorld.NeverUnload = NeverUnload;
                 WorldManager.ReplaceWorld( this, newWorld );
                 Map = null;
                 foreach( Player player in Players ) {
