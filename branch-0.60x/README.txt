@@ -126,7 +126,7 @@ anything with them. However, if you would like to distribute whole modified
 copies of fCraft, please follow the MIT License terms.
 
 Original Minecraft was developed by Markus "Notch" Petersson of Mojang, and is 
-affiliated with fCraft in any way.
+not affiliated with fCraft in any way.
 
 
 
