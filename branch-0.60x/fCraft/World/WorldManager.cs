@@ -16,26 +16,33 @@ namespace fCraft {
         internal static readonly object WorldListLock = new object();
 
 
-        #region Main World
-
-        public static World MainWorld { get; private set; }
-
-
-        public static bool SetMainWorld( this World newWorld ) {
-            if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
-            if( RaiseMainWorldChangingEvent( MainWorld, newWorld ) ) return false;
-            World oldWorld;
-            lock( WorldListLock ) {
-                newWorld.NeverUnload = true;
-                oldWorld = MainWorld;
-                oldWorld.NeverUnload = false;
-                MainWorld = newWorld;
+        static World mainWorld;
+        /// <summary> Gets or sets the default main world.
+        /// That's the world that players first join upon connecting. </summary>
+        /// <exception cref="System.ArgumentNullException" />
+        /// <exception cref="fCraft.WorldOpException" />
+        public static World MainWorld {
+            get { return mainWorld; }
+            set {
+                if( value == null ) throw new ArgumentNullException("value");
+                if( value == mainWorld ) return;
+                if( mainWorld == null ) {
+                    mainWorld = value;
+                    return;
+                }
+                if( RaiseMainWorldChangingEvent( mainWorld, value ) ) {
+                    throw new WorldOpException( value.Name, WorldOpExceptionCode.PluginDenied );
+                }
+                World oldWorld;
+                lock( WorldListLock ) {
+                    value.NeverUnload = true;
+                    oldWorld = mainWorld;
+                    oldWorld.NeverUnload = false;
+                    mainWorld = value;
+                }
+                RaiseMainWorldChangedEvent( oldWorld, value );
             }
-            RaiseMainWorldChangedEvent( oldWorld, newWorld );
-            return true;
         }
-
-        #endregion
 
 
         #region World List Saving/Loading
@@ -88,6 +95,7 @@ namespace fCraft {
                         Logger.Log( "Server.ParseWorldListXML: World tag with no name skipped.", LogType.Error );
                         continue;
                     }
+
                     string worldName = temp.Value;
                     if( !World.IsValidName( worldName ) ) {
                         Logger.Log( "Server.ParseWorldListXML: Invalid world name skipped: \"{0}\"", LogType.Error, worldName );
@@ -118,14 +126,10 @@ namespace fCraft {
 
                     if( el.Element( "accessSecurity" ) != null ) {
                         world.AccessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
-                    } else {
-                        world.AccessSecurity.MinRank = LoadWorldRankRestriction( world, "access", el ); // LEGACY
                     }
 
                     if( el.Element( "buildSecurity" ) != null ) {
                         world.BuildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
-                    } else {
-                        world.BuildSecurity.MinRank = LoadWorldRankRestriction( world, "build", el ); // LEGACY
                     }
 
                     // Check the world's map file
@@ -217,8 +221,6 @@ namespace fCraft {
                 foreach( World world in worldListCache ) {
                     temp = new XElement( "World" );
                     temp.Add( new XAttribute( "name", world.Name ) );
-                    temp.Add( new XAttribute( "access", world.AccessSecurity.MinRank ) ); // LEGACY
-                    temp.Add( new XAttribute( "build", world.BuildSecurity.MinRank ) ); // LEGACY
                     temp.Add( world.AccessSecurity.Serialize( "accessSecurity" ) );
                     temp.Add( world.BuildSecurity.Serialize( "buildSecurity" ) );
                     if( world.NeverUnload ) {

@@ -64,14 +64,10 @@ namespace fCraft.ConfigGUI {
 
             if( el.Element( "accessSecurity" ) != null ) {
                 accessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
-            } else if( (temp = el.Attribute( "access" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
-                accessSecurity.MinRank = RankManager.ParseRank( temp.Value );
             }
 
             if( el.Element( "buildSecurity" ) != null ) {
                 buildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
-            } else if( (temp = el.Attribute( "build" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
-                buildSecurity.MinRank = RankManager.ParseRank( temp.Value );
             }
         }
 

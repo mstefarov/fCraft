@@ -17,23 +17,15 @@ namespace fCraft {
             "4 Hours", "6 Hours", "8 Hours", "12 Hours", "24 Hours"
         };
 
-        public Map Map;
         public string Name;
-        readonly SortedDictionary<string, Player> playerIndex = new SortedDictionary<string, Player>();
-        public Player[] Players { get; private set; }
-        public bool IsLocked,
-                    IsHidden,
-                    PendingUnload,
-                    IsFlushing;
+        public bool IsHidden;
+
+        public bool PendingUnload { get; private set; }
+
         public SecurityController AccessSecurity { get; internal set; }
         public SecurityController BuildSecurity { get; internal set; }
 
-        public string LockedBy, UnlockedBy;
-        public DateTime LockedDate, UnlockedDate;
-
-        readonly object lockLock = new object(),
-                        patrolLock = new object();
-
+        // used to synchronize player joining/parting with map loading/saving
         internal readonly object WorldLock = new object();
 
 
@@ -53,6 +45,7 @@ namespace fCraft {
 
         #region Map
 
+        public Map Map;
         public bool IsLoaded {
             get { return Map != null; }
         }
@@ -70,17 +63,17 @@ namespace fCraft {
             }
         }
 
-        
+
         public void LoadMap() {
             lock( WorldLock ) {
                 if( Map != null ) return;
 
-                    try {
-                        Map = MapUtility.Load( GetMapName() );
-                    } catch( Exception ex ) {
-                        Logger.Log( "World.LoadMap: Failed to load map ({0}): {1}", LogType.Error,
-                                    GetMapName(), ex );
-                    }
+                try {
+                    Map = MapUtility.Load( GetMapName() );
+                } catch( Exception ex ) {
+                    Logger.Log( "World.LoadMap: Failed to load map ({0}): {1}", LogType.Error,
+                                GetMapName(), ex );
+                }
 
                 // or generate a default one
                 if( Map != null ) {
@@ -161,8 +154,14 @@ namespace fCraft {
             }
         }
 
+        #endregion
 
-        public void BeginFlushMapBuffer() {
+
+        #region Flush
+
+        public bool IsFlushing { get; private set; }
+
+        public void Flush() {
             lock( WorldLock ) {
                 if( Map == null ) return;
                 SendToAll( "&WMap is being flushed. Stay put, world will reload shortly." );
@@ -171,7 +170,7 @@ namespace fCraft {
         }
 
 
-        public void EndFlushMapBuffer() {
+        internal void EndFlushMapBuffer() {
             lock( WorldLock ) {
                 IsFlushing = false;
                 SendToAll( "&WMap flushed. Reloading..." );
@@ -186,6 +185,9 @@ namespace fCraft {
 
 
         #region PlayerList
+
+        readonly SortedDictionary<string, Player> playerIndex = new SortedDictionary<string, Player>();
+        public Player[] Players { get; private set; }
 
         public Map AcceptPlayer( Player player, bool announce ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -439,6 +441,13 @@ namespace fCraft {
 
         #region Lock / Unlock
 
+        readonly object lockLock = new object();
+        public bool IsLocked { get; private set; }
+
+        public string LockedBy, UnlockedBy;
+        public DateTime LockedDate, UnlockedDate;
+
+
         public bool Lock( Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             lock( lockLock ) {
@@ -480,6 +489,7 @@ namespace fCraft {
 
         #region Patrol
 
+        readonly object patrolLock = new object();
         readonly LinkedList<Player> patrolList = new LinkedList<Player>();
 
 
