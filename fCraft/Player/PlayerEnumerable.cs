@@ -167,7 +167,8 @@ namespace fCraft {
         }
 
 
-        /// <summary> Filters a collection of players, leaving only those who can see the target. </summary>
+        /// <summary> Filters a collection of players, leaving only those who can see the target.
+        /// Does not include the target itself. </summary>
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="targetPlayer"> Player whose visibility is being tested. </param>
         /// <returns> Filtered collection of players. </returns>
@@ -182,7 +183,8 @@ namespace fCraft {
         }
 
 
-        /// <summary> Filters a collection of players, leaving only those who can NOT see the target. </summary>
+        /// <summary> Filters a collection of players, leaving only those who can NOT see the target.
+        /// Does not include the target itself. </summary>
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="targetPlayer"> Player whose visibility is being tested. </param>
         /// <returns> Filtered collection of players. </returns>

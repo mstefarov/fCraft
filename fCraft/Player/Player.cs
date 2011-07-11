@@ -46,10 +46,6 @@ namespace fCraft {
         /// <summary> Whether the player is in paint mode (deleting blocks replaces them). Used by /paint. </summary>
         public bool IsPainting { get; set; }
 
-        /// <summary> Whether player is hidden.
-        /// Visibility varies per-rank, so using Player.CanSee(Player) is recommended in most cases. </summary>
-        public bool IsHidden { get; set; }
-
         /// <summary> Whether player has blocked all incoming chat.
         /// Deaf players can't hear anything. </summary>
         public bool IsDeaf { get; set; }
@@ -844,13 +840,18 @@ namespace fCraft {
         public bool CanSee( Player other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             if( IsSuper ) return true;
-            return !other.IsHidden || Info.Rank.CanSee( other.Info.Rank );
+            return !other.Info.IsHidden || Info.Rank.CanSee( other.Info.Rank );
         }
 
         #endregion
 
 
         #region Drawing, Selection, and Undo
+
+        public Queue<BlockUpdate> UndoBuffer = new Queue<BlockUpdate>();
+
+        internal BuildingCommands.CopyInformation CopyInformation;
+
 
         /// <summary> Whether player is currently making a selection. </summary>
         public bool IsMakingSelection {
@@ -859,25 +860,22 @@ namespace fCraft {
 
         /// <summary> Number of selection marks so far. </summary>
         public int SelectionMarkCount {
-            get { return SelectionMarks.Count; }
+            get { return selectionMarks.Count; }
         }
 
         /// <summary> Number of marks expected to complete the selection. </summary>
         public int SelectionMarksExpected { get; private set; }
 
-        SelectionCallback SelectionCallback;
 
-        public Queue<BlockUpdate> UndoBuffer = new Queue<BlockUpdate>();
-        readonly Queue<Position> SelectionMarks = new Queue<Position>();
-        object SelectionArgs;
-        Permission[] SelectionPermissions;
-
-        internal BuildingCommands.CopyInformation CopyInformation;
+        SelectionCallback selectionCallback;
+        readonly Queue<Position> selectionMarks = new Queue<Position>();
+        object selectionArgs;
+        Permission[] selectionPermissions;
 
 
         public void SelectionAddMark( Position pos, bool executeCallbackIfNeeded ) {
             if( !IsMakingSelection ) throw new InvalidOperationException( "No selection in progress." );
-            SelectionMarks.Enqueue( pos );
+            selectionMarks.Enqueue( pos );
             if( SelectionMarkCount >= SelectionMarksExpected ) {
                 if( executeCallbackIfNeeded ) {
                     SelectionExecute();
@@ -896,36 +894,36 @@ namespace fCraft {
             if( !IsMakingSelection ) throw new InvalidOperationException( "No selection in progress." );
             SelectionMarksExpected = 0;
             // check if player still has the permissions required to complete the selection.
-            if( SelectionPermissions == null || Can( SelectionPermissions ) ) {
-                SelectionCallback( this, SelectionMarks.ToArray(), SelectionArgs );
+            if( selectionPermissions == null || Can( selectionPermissions ) ) {
+                selectionCallback( this, selectionMarks.ToArray(), selectionArgs );
             } else {
                 // More complex permission checks can be done in the callback function itself.
                 Message( "&WYou are no longer allowed to complete this action." );
-                MessageNoAccess( SelectionPermissions );
+                MessageNoAccess( selectionPermissions );
             }
         }
 
 
         public void SelectionStart( int marksExpected, SelectionCallback callback, object args, params Permission[] requiredPermissions ) {
             if( callback == null ) throw new ArgumentNullException( "callback" );
-            SelectionArgs = args;
+            selectionArgs = args;
             SelectionMarksExpected = marksExpected;
-            SelectionMarks.Clear();
-            SelectionCallback = callback;
-            SelectionPermissions = requiredPermissions;
+            selectionMarks.Clear();
+            selectionCallback = callback;
+            selectionPermissions = requiredPermissions;
         }
 
 
         public void SelectionResetMarks() {
-            SelectionMarks.Clear();
+            selectionMarks.Clear();
         }
 
 
         public void SelectionCancel() {
-            SelectionMarks.Clear();
+            selectionMarks.Clear();
             SelectionMarksExpected = 0;
-            SelectionCallback = null;
-            SelectionArgs = null;
+            selectionCallback = null;
+            selectionArgs = null;
         }
 
         #endregion

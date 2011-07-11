@@ -154,7 +154,7 @@ namespace fCraft {
                             return;
                         }
                         player.StopSpectating();
-                        if( !player.JoinWorldNow( world, false, true ) ) {
+                        if( !player.JoinWorldNow( world, true ) ) {
                             player.Message( "ERROR: Failed to join world. See log for details." );
                         }
                         break;
@@ -1071,9 +1071,8 @@ namespace fCraft {
                             return;
                         }
 
-                        Map map;
                         try {
-                            map = MapUtility.Load( sourceFullFileName );
+                            MapUtility.Load( sourceFullFileName );
                         } catch( Exception ex ) {
                             player.MessageNow( "Could not load \"{0}\": {1}: {2}",
                                                fileName, ex.GetType().Name, ex.Message );

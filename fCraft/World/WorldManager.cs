@@ -18,7 +18,8 @@ namespace fCraft {
 
         static World mainWorld;
         /// <summary> Gets or sets the default main world.
-        /// That's the world that players first join upon connecting. </summary>
+        /// That's the world that players first join upon connecting.
+        /// The map of the new main world is preloaded, and old one is unloaded, if needed. </summary>
         /// <exception cref="System.ArgumentNullException" />
         /// <exception cref="fCraft.WorldOpException" />
         public static World MainWorld {
@@ -202,50 +203,34 @@ namespace fCraft {
         }
 
 
-        static Rank LoadWorldRankRestriction( World world, string fieldType, XElement element ) {
-            if( world == null ) throw new ArgumentNullException( "world" );
-            if( element == null ) throw new ArgumentNullException( "element" );
-            XAttribute temp;
-            if( (temp = element.Attribute( fieldType )) == null ) {
-                return RankManager.LowestRank;
-            }
-            Rank rank;
-            if( (rank = RankManager.ParseRank( temp.Value )) != null ) {
-                return rank;
-            }
-            Logger.Log( "Server.ParseWorldListXML: Could not parse the specified {0} rank for world \"{1}\": \"{2}\". No {0} limit was set.",
-                        LogType.Error, fieldType, world.Name, temp.Value );
-            return RankManager.LowestRank;
-        }
-
-
         public static void SaveWorldList() {
             const string worldListTempFileName = Paths.WorldListFileName + ".tmp";
             // Save world list
             try {
-                XDocument doc = new XDocument();
-                XElement root = new XElement( "fCraftWorldList" );
-                XElement temp;
-                World[] worldListCache = WorldList;
+                lock( WorldListLock ) {
+                    XDocument doc = new XDocument();
+                    XElement root = new XElement( "fCraftWorldList" );
+                    XElement temp;
 
-                foreach( World world in worldListCache ) {
-                    temp = new XElement( "World" );
-                    temp.Add( new XAttribute( "name", world.Name ) );
-                    temp.Add( world.AccessSecurity.Serialize( "accessSecurity" ) );
-                    temp.Add( world.BuildSecurity.Serialize( "buildSecurity" ) );
-                    if( world.NeverUnload ) {
-                        temp.Add( new XAttribute( "noUnload", true ) );
+                    foreach( World world in WorldList ) {
+                        temp = new XElement( "World" );
+                        temp.Add( new XAttribute( "name", world.Name ) );
+                        temp.Add( world.AccessSecurity.Serialize( "accessSecurity" ) );
+                        temp.Add( world.BuildSecurity.Serialize( "buildSecurity" ) );
+                        if( world.NeverUnload ) {
+                            temp.Add( new XAttribute( "noUnload", true ) );
+                        }
+                        if( world.IsHidden ) {
+                            temp.Add( new XAttribute( "hidden", true ) );
+                        }
+                        root.Add( temp );
                     }
-                    if( world.IsHidden ) {
-                        temp.Add( new XAttribute( "hidden", true ) );
-                    }
-                    root.Add( temp );
+                    root.Add( new XAttribute( "main", MainWorld.Name ) );
+
+                    doc.Add( root );
+                    doc.Save( worldListTempFileName );
+                    Paths.MoveOrReplace( worldListTempFileName, Paths.WorldListFileName );
                 }
-                root.Add( new XAttribute( "main", MainWorld.Name ) );
-
-                doc.Add( root );
-                doc.Save( worldListTempFileName );
-                Paths.MoveOrReplace( worldListTempFileName, Paths.WorldListFileName );
             } catch( Exception ex ) {
                 Logger.Log( "Server.SaveWorldList: An error occured while trying to save the world list: {0}", LogType.Error, ex );
             }
@@ -285,17 +270,21 @@ namespace fCraft {
         public static World FindWorldOrPrintMatches( Player player, string worldName ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
-            List<World> matches = new List<World>( FindWorlds( worldName ) );
-            SearchingForWorldEventArgs e = new SearchingForWorldEventArgs( player, worldName, matches, false );
-            RaiseSearchingForWorldEvent( e );
-            matches = e.Matches;
 
-            if( matches.Count == 0 ) {
+            var h = SearchingForWorld;
+            World[] matches = FindWorlds( worldName );
+            if( h != null ) {
+                SearchingForWorldEventArgs e = new SearchingForWorldEventArgs( player, worldName, new List<World>(matches), false );
+                h( null, e );
+                matches = e.Matches.ToArray();
+            }
+
+            if( matches.Length == 0 ) {
                 player.MessageNoWorld( worldName );
                 return null;
 
-            } else if( matches.Count > 1 ) {
-                player.MessageManyMatches( "world", matches.ToArray() );
+            } else if( matches.Length > 1 ) {
+                player.MessageManyMatches( "world", matches );
                 return null;
 
             } else {
@@ -450,6 +439,7 @@ namespace fCraft {
         public static IEnumerable<World> ListLoadedWorlds() {
             return WorldList.Where( world => world.IsLoaded );
         }
+
 
         public static IEnumerable<World> ListLoadedWorlds( Player observer ) {
             return WorldList.Where( w => w.Players.Any( observer.CanSee ) );

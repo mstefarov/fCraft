@@ -64,7 +64,7 @@ namespace fCraft {
         }
 
 
-        void FindTrees( List<Tree> treelist ) {
+        void FindTrees( ICollection<Tree> treelist ) {
             int treeheight = args.Height;
 
             for( int x = 0; x < args.InMap.WidthX; x++ ) {
@@ -97,7 +97,7 @@ namespace fCraft {
         }
 
 
-        void PlantTrees( List<Tree> treelist ) {
+        void PlantTrees( ICollection<Tree> treelist ) {
             int treeheight = args.Height;
 
             int attempts = 0;
@@ -131,7 +131,7 @@ namespace fCraft {
         }
 
 
-        void PlantRainForestTrees( List<Tree> treelist ) {
+        void PlantRainForestTrees( ICollection<Tree> treelist ) {
             int treeheight = args.Height;
 
             int existingtreenum = treelist.Count;
@@ -177,7 +177,7 @@ namespace fCraft {
         }
 
 
-        void PlantMangroves( List<Tree> treelist ) {
+        void PlantMangroves( ICollection<Tree> treelist ) {
             int treeheight = args.Height;
 
             int attempts = 0;
@@ -211,7 +211,7 @@ namespace fCraft {
         }
 
 
-        void ProcessTrees( List<Tree> treelist ) {
+        void ProcessTrees( IList<Tree> treelist ) {
             TreeShape[] shapeChoices;
             switch( args.Shape ) {
                 case TreeShape.Stickly:
@@ -507,15 +507,15 @@ namespace fCraft {
                 public float Radius;
             }
 
-            void MakeRoots( RootBase[] rootbases ) {
-                if( rootbases.Length == 0 ) return;
+            void MakeRoots( IList<RootBase> rootbases ) {
+                if( rootbases.Count == 0 ) return;
                 foreach( Vector3I coord in FoliageCoords ) {
                     float dist = (float)Math.Sqrt( Sqr( coord[0] - Pos[0] ) + Sqr( coord[2] - Pos[2] ) );
                     float ydist = coord[1] - Pos[1];
                     float value = (BranchDensity * 220 * Height) / Cub( ydist + dist );
                     if( value < Args.Rand.NextDouble() ) continue;
 
-                    RootBase rootbase = rootbases[Args.Rand.Next( 0, rootbases.Length )];
+                    RootBase rootbase = rootbases[Args.Rand.Next( 0, rootbases.Count )];
                     int rootx = rootbase.X;
                     int rootz = rootbase.Z;
                     float rootbaseradius = rootbase.Radius;
@@ -845,6 +845,7 @@ namespace fCraft {
     }
 
     // TODO: Add a UI to ConfigGUI.AddWorldPopup to set these
+    // ReSharper disable ConvertToConstant.Global
     public sealed class ForesterArgs {
         public Forester.ForesterOperation Operation = Forester.ForesterOperation.Replant;
         public int TreeCount = 15; // 0 = no limit if op=conserve/replant

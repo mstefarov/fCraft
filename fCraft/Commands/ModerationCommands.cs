@@ -54,59 +54,6 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdUnspectate );
         }
 
-        static readonly CommandDescriptor CdSpectate = new CommandDescriptor {
-            Name = "spectate",
-            Aliases = new[] { "follow", "spec" },
-            Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.Spectate },
-            Handler = Spectate
-        };
-
-        internal static void Spectate( Player player, Command cmd ) {
-            string targetName = cmd.Next();
-            if( targetName == null ) {
-                CdSpectate.PrintUsage( player );
-                return;
-            }
-
-            Player target = Server.FindPlayerOrPrintMatches( player, targetName, false );
-            if( target == null ) return;
-
-            if( target == player ) {
-                player.Message( "You cannot spectate yourself." );
-                return;
-            }
-
-            if( !player.Can( Permission.Spectate, target.Info.Rank ) ) {
-                player.Message( "You can only spectate players ranked {0}&S or lower.",
-                player.Info.Rank.GetLimit( Permission.Spectate ).ClassyName );
-                player.Message( "{0}&S is ranked {1}",
-                                target.ClassyName, target.Info.Rank.ClassyName );
-                return;
-            }
-
-            if( !player.Spectate( target ) ) {
-                player.Message( "Already spectating {0}", target.ClassyName );
-            }
-        }
-
-
-
-        static readonly CommandDescriptor CdUnspectate = new CommandDescriptor {
-            Name = "unspectate",
-            Aliases = new[] { "unfollow", "unspec" },
-            Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.Spectate },
-            Handler = Unspectate
-        };
-
-        internal static void Unspectate( Player player, Command cmd ) {
-            if( !player.StopSpectating() ) {
-                player.Message( "You are not currently spectating anyone." );
-            }
-        }
-
-
 
         #region Ban
 
@@ -828,7 +775,7 @@ namespace fCraft {
         };
 
         internal static void Hide( Player player, Command cmd ) {
-            if( player.IsHidden ) {
+            if( player.Info.IsHidden ) {
                 player.Message( "You are already hidden." );
                 return;
             }
@@ -839,8 +786,8 @@ namespace fCraft {
                 silent = silentString.Equals( "silent", StringComparison.OrdinalIgnoreCase );
             }
 
-            player.IsHidden = true;
-            player.Message( "{0}You are now hidden.", Color.Gray );
+            player.Info.IsHidden = true;
+            player.Message( "&8You are now hidden." );
 
             // to make it look like player just logged out in /info
             player.Info.LastSeen = DateTime.UtcNow;
@@ -873,7 +820,7 @@ namespace fCraft {
         };
 
         internal static void Unhide( Player player, Command cmd ) {
-            if( !player.IsHidden ) {
+            if( !player.Info.IsHidden ) {
                 player.Message( "You are not currently hidden." );
                 return;
             }
@@ -897,8 +844,8 @@ namespace fCraft {
                 }
             }
 
-            player.Message( "You are no longer hidden.", Color.Gray );
-            player.IsHidden = false;
+            player.Message( "&8You are no longer hidden." );
+            player.Info.IsHidden = false;
             Server.RaisePlayerHideChangedEvent( player );
         }
 
@@ -1500,6 +1447,63 @@ namespace fCraft {
 
             } else {
                 CdUnmute.PrintUsage( player );
+            }
+        }
+
+        #endregion
+
+
+        #region Spectate / Unspectate
+
+        static readonly CommandDescriptor CdSpectate = new CommandDescriptor {
+            Name = "spectate",
+            Aliases = new[] { "follow", "spec" },
+            Category = CommandCategory.Moderation,
+            Permissions = new[] { Permission.Spectate },
+            Handler = Spectate
+        };
+
+        internal static void Spectate( Player player, Command cmd ) {
+            string targetName = cmd.Next();
+            if( targetName == null ) {
+                CdSpectate.PrintUsage( player );
+                return;
+            }
+
+            Player target = Server.FindPlayerOrPrintMatches( player, targetName, false );
+            if( target == null ) return;
+
+            if( target == player ) {
+                player.Message( "You cannot spectate yourself." );
+                return;
+            }
+
+            if( !player.Can( Permission.Spectate, target.Info.Rank ) ) {
+                player.Message( "You can only spectate players ranked {0}&S or lower.",
+                player.Info.Rank.GetLimit( Permission.Spectate ).ClassyName );
+                player.Message( "{0}&S is ranked {1}",
+                                target.ClassyName, target.Info.Rank.ClassyName );
+                return;
+            }
+
+            if( !player.Spectate( target ) ) {
+                player.Message( "Already spectating {0}", target.ClassyName );
+            }
+        }
+
+
+
+        static readonly CommandDescriptor CdUnspectate = new CommandDescriptor {
+            Name = "unspectate",
+            Aliases = new[] { "unfollow", "unspec" },
+            Category = CommandCategory.Moderation,
+            Permissions = new[] { Permission.Spectate },
+            Handler = Unspectate
+        };
+
+        internal static void Unspectate( Player player, Command cmd ) {
+            if( !player.StopSpectating() ) {
+                player.Message( "You are not currently spectating anyone." );
             }
         }
 

@@ -33,9 +33,9 @@ namespace fCraft {
         public IPAddress IP { get; private set; }
 
 
-        bool CanReceive = true,
-             CanSend = true,
-             CanQueue = true;
+        bool canReceive = true,
+             canSend = true,
+             canQueue = true;
 
         Thread ioThread;
         TcpClient client;
@@ -99,7 +99,7 @@ namespace fCraft {
                     pingCounter = 0;
 
                 // main i/o loop
-                while( CanSend ) {
+                while( canSend ) {
                     int packetsSent = 0;
 
                     // detect player disconnect
@@ -131,7 +131,7 @@ namespace fCraft {
                     }
 
                     // send output to player
-                    while( CanSend && packetsSent < Server.MaxSessionPacketsPerTick ) {
+                    while( canSend && packetsSent < Server.MaxSessionPacketsPerTick ) {
                         if( !priorityOutputQueue.Dequeue( ref packet ) )
                             if( !outputQueue.Dequeue( ref packet ) ) break;
 
@@ -154,7 +154,7 @@ namespace fCraft {
                     }
 
                     // check if player needs to change worlds
-                    if( CanSend ) {
+                    if( canSend ) {
                         lock( joinWorldLock ) {
                             if( forcedWorldToJoin != null ) {
                                 while( priorityOutputQueue.Dequeue( ref packet ) ) {
@@ -167,7 +167,7 @@ namespace fCraft {
                                         return;
                                     }
                                 }
-                                if( !JoinWorldNow( forcedWorldToJoin, false, useWorldSpawn ) ) {
+                                if( !JoinWorldNow( forcedWorldToJoin, useWorldSpawn ) ) {
                                     Logger.Log( "Player.IoLoop: Player was asked to force-join a world, but it was full.", LogType.Warning );
                                     KickNow( "World is full.", LeaveReason.ServerFull );
                                 }
@@ -183,7 +183,7 @@ namespace fCraft {
 
 
                     // get input from player
-                    while( CanReceive && client.GetStream().DataAvailable ) {
+                    while( canReceive && client.GetStream().DataAvailable ) {
                         byte opcode = reader.ReadByte();
                         switch( (OpCode)opcode ) {
 
@@ -231,8 +231,8 @@ namespace fCraft {
                 Logger.LogAndReportCrash( "Error in Player.IoLoop", "fCraft", ex, false );
 #endif
             } finally {
-                CanQueue = false;
-                CanSend = false;
+                canQueue = false;
+                canSend = false;
                 Disconnect();
             }
         }
@@ -580,7 +580,7 @@ namespace fCraft {
                 Info.ProcessFailedLogin( this );
                 Logger.Log( "Player.LoginSequence: Denied player {0}: maximum number of connections was reached for {1}", LogType.SuspiciousActivity,
                             playerName, IP );
-                KickNow( String.Format( "Max connection count reached for {0}", IP ), LeaveReason.LoginFailed );
+                KickNow( String.Format( "Max connections reached for {0}", IP ), LeaveReason.LoginFailed );
                 return false;
             }
 
@@ -636,7 +636,7 @@ namespace fCraft {
             }
 
             bool firstTime = (Info.TimesVisited == 1);
-            if( !JoinWorldNow( startingWorld, true, true ) ) {
+            if( !JoinWorldNow( startingWorld, true ) ) {
                 Logger.Log( "Failed to load main world ({0}) for connecting player {1} (from {2})", LogType.Error,
                             startingWorld.Name, Name, IP );
                 KickNow( "Unable to join the main world.", LeaveReason.WorldFull );
@@ -646,10 +646,20 @@ namespace fCraft {
 
             // ==== Beyond this point, player is considered ready (has a world) ====
 
+            var canSee = Server.Players.CanSee( this );
+
+            // Announce join
+            if( ConfigKey.ShowConnectionMessages.Enabled() ) {
+                string message = Server.MakePlayerConnectedMessage( this, firstTime, World );
+                canSee.Message( message );
+            }
+
             if( !IsVerified ) {
-                Server.Message( this,
-                                "&WName and IP of {0}&W are unverified!",
-                                ClassyName );
+                canSee.Message( "&WName and IP of {0}&W are unverified!", ClassyName );
+            }
+
+            if( Info.IsHidden ) {
+                canSee.Message( "&8Player {0}&8 logged in hidden. Pssst.", ClassyName );
             }
 
             // Check if other banned players logged in from this IP
@@ -658,13 +668,8 @@ namespace fCraft {
                 string logString = String.Format( "&WPlayer {0}&W logged in from an IP previously used by banned players: {1}",
                                                   ClassyName,
                                                   bannedPlayerNames.JoinToClassyString() );
-                Server.Message( logString );
+                canSee.Message( logString );
                 Logger.Log( logString, LogType.SuspiciousActivity );
-            }
-
-            // Announce join
-            if( ConfigKey.ShowConnectionMessages.Enabled() ) {
-                Server.Message( this, Server.MakePlayerConnectedMessage( this, firstTime, World ) );
             }
 
             // check if player is still muted
@@ -672,8 +677,7 @@ namespace fCraft {
                 int secondsLeft = (int)Info.MutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds;
                 Message( "&WYou were previously muted by {0}, {1} seconds left.",
                          Info.MutedBy, secondsLeft );
-                Server.Message( this,
-                                "&WPlayer {0}&W was previously muted by {1}&W, {2} seconds left.",
+                canSee.Message( "&WPlayer {0}&W was previously muted by {1}&W, {2} seconds left.",
                                 ClassyName, Info.MutedBy, secondsLeft );
             }
 
@@ -683,16 +687,14 @@ namespace fCraft {
                     Message( "&WYou were previously frozen {0} ago by {1}",
                              Info.TimeSinceFrozen.ToMiniString(),
                              Info.FrozenBy );
-                    Server.Message( this,
-                                    "&WPlayer {0}&W was previously frozen {1} ago by {2}.",
+                    canSee.Message( "&WPlayer {0}&W was previously frozen {1} ago by {2}.",
                                     ClassyName,
                                     Info.TimeSinceFrozen.ToMiniString(),
                                     Info.FrozenBy );
                 } else {
                     Message( "&WYou were previously frozen by {0}",
                              Info.FrozenBy );
-                    Server.Message( this,
-                                    "&WPlayer {0}&W was previously frozen by {1}.",
+                    canSee.Message( "&WPlayer {0}&W was previously frozen by {1}.",
                                     ClassyName, Info.FrozenBy );
                 }
             }
@@ -765,7 +767,7 @@ namespace fCraft {
 
 
 
-        internal bool JoinWorldNow( World newWorld, bool firstTime, bool doUseWorldSpawn ) {
+        internal bool JoinWorldNow( World newWorld, bool doUseWorldSpawn ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
 
             if( !CanJoin( newWorld ) ) {
@@ -792,33 +794,31 @@ namespace fCraft {
 
             ResetVisibleEntities();
 
-            ClearBlockUpdateQueue();
+            ClearLowPriotityOutputQueue();
 
             Map map;
 
             // try to join the new world
             if( oldWorld != newWorld ) {
-                bool announce = !firstTime && (oldWorld.Name != newWorld.Name);
+                bool announce = ( oldWorld == null ) || ( oldWorld.Name != newWorld.Name );
                 map = newWorld.AcceptPlayer( this, announce );
                 if( map == null ) {
                     return false;
                 }
             } else {
-                map = oldWorld.EnsureMapLoaded();
+                map = newWorld.EnsureMapLoaded();
             }
             World = newWorld;
 
             // Set spawn point
-            Position spawn;
             if( doUseWorldSpawn ) {
-                spawn = map.Spawn;
+                Position = map.Spawn;
             } else {
-                spawn = postJoinPosition;
+                Position = postJoinPosition;
             }
-            Position = spawn;
 
             // Start sending over the level copy
-            if( !firstTime ) {
+            if( oldWorld != null ) {
                 SendNow( PacketWriter.MakeHandshake( this,
                                                      ConfigKey.ServerName.GetString(),
                                                      "Loading world " + newWorld.ClassyName ) );
@@ -866,13 +866,21 @@ namespace fCraft {
             writer.WriteLevelEnd( map );
             BytesSent += 7;
 
-            // Send spawn point
+            // Sets player's spawn point to map spawn
             writer.WriteAddEntity( 255, this, map.Spawn );
             BytesSent += 74;
-            writer.WriteTeleport( 255, spawn );
+
+            // Teleport player to the target location
+            // This allows preserving spawn rotation/look, and allows
+            // teleporting player to a specific location (e.g. /tp or /bring)
+            writer.WriteTeleport( 255, Position );
             BytesSent += 10;
 
-            Message( "Joined world {0}", newWorld.ClassyName );
+            if( oldWorld == newWorld ) {
+                Message( "Rejoined world {0}", newWorld.ClassyName );
+            } else {
+                Message( "Joined world {0}", newWorld.ClassyName );
+            }
 
             // Turn off Nagel's algorithm again for LowLatencyMode
             if( ConfigKey.LowLatencyMode.Enabled() ) {
@@ -910,14 +918,14 @@ namespace fCraft {
         /// <summary> Send packet (thread-safe, async, priority queue).
         /// This is used for most packets (movement, chat, etc). </summary>
         public void Send( Packet packet ) {
-            if( CanQueue ) priorityOutputQueue.Enqueue( packet );
+            if( canQueue ) priorityOutputQueue.Enqueue( packet );
         }
 
 
         /// <summary> Send packet (thread-safe, asynchronous, delayed queue).
         /// This is currently only used for block updates. </summary>
         public void SendLowPriority( Packet packet ) {
-            if( CanQueue ) outputQueue.Enqueue( packet );
+            if( canQueue ) outputQueue.Enqueue( packet );
         }
 
         #endregion
@@ -928,7 +936,7 @@ namespace fCraft {
         }
 
 
-        public void ClearBlockUpdateQueue() {
+        public void ClearLowPriotityOutputQueue() {
             outputQueue.Clear();
         }
 
@@ -946,11 +954,11 @@ namespace fCraft {
             if( message == null ) throw new ArgumentNullException( "message" );
             LeaveReason = leaveReason;
 
-            CanReceive = false;
-            CanQueue = false;
+            canReceive = false;
+            canQueue = false;
 
             // clear all pending output to be written to client (it won't matter after the kick)
-            ClearBlockUpdateQueue();
+            ClearLowPriotityOutputQueue();
             ClearPriorityOutputQueue();
 
             // bypassing Send() because canQueue is false
@@ -967,9 +975,9 @@ namespace fCraft {
             }
             LeaveReason = leaveReason;
 
-            CanQueue = false;
-            CanReceive = false;
-            CanSend = false;
+            canQueue = false;
+            canReceive = false;
+            canSend = false;
             SendNow( PacketWriter.MakeDisconnect( message ) );
             writer.Flush();
         }
@@ -1043,7 +1051,7 @@ namespace fCraft {
                         Message( "Joined {0}&S to continue spectating {1}",
                                  spectateWorld.ClassyName,
                                  SpectatedPlayer.ClassyName );
-                        JoinWorldNow( spectateWorld, false, false );
+                        JoinWorldNow( spectateWorld, false );
                     } else if( spectatePos != Position ) {
                         SendNow( PacketWriter.MakeSelfTeleport( spectatePos ) );
                     }
