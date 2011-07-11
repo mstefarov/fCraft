@@ -79,7 +79,7 @@ namespace fCraft {
         }
 
 
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static void Log( string message, LogType type ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( !Enabled ) return;

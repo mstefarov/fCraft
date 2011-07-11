@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Diagnostics;
 
 namespace fCraft {
     /// <summary>
@@ -39,6 +40,7 @@ namespace fCraft {
         /// A single "argument" is either a word that ends with whitespace,
         /// or several words in double quotes (""). </summary>
         /// <returns> Next argument (string), or null if there are no more arguments. </returns>
+        [DebuggerStepThrough]
         public string Next() {
             for( ; offset < Message.Length; offset++ ) {
                 int t, j;
@@ -62,6 +64,7 @@ namespace fCraft {
 
         /// <summary> Checks whether there is another argument available.
         /// Does not modify the offset. </summary>
+        [DebuggerStepThrough]
         public bool HasNext() {
             return offset < Message.Length;
         }
@@ -72,6 +75,7 @@ namespace fCraft {
         /// or zero if parsing failed or if there are no more arguments. </param>
         /// <returns> Returns true if parsing succeeded,
         /// and false if parsing failed or if there are no more arguments. </returns>
+        [DebuggerStepThrough]
         public bool NextInt( out int number ) {
             string nextVal = Next();
             if( nextVal == null ) {
@@ -85,6 +89,7 @@ namespace fCraft {
 
         /// <summary> Checks whether there there is an int argument available.
         /// Does not modify the offset. </summary>
+        [DebuggerStepThrough]
         public bool HasInt() {
             if( offset < Message.Length ) {
                 int startOffset = offset;
@@ -108,6 +113,7 @@ namespace fCraft {
         /// If there is nothing to return (i.e. if string ends at the current offset),
         /// returns empty string. </summary>
         /// <returns> The rest of the command, or an empty string. </returns>
+        [DebuggerStepThrough]
         public string NextAll() {
             for( ; offset < Message.Length; offset++ ) {
                 if( Message[offset] != ' ' )
