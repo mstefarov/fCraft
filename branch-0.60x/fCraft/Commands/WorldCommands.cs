@@ -1082,7 +1082,7 @@ namespace fCraft {
 
                         World newWorld;
                         try {
-                            newWorld = WorldManager.AddWorld( player, worldName, map, false );
+                            newWorld = WorldManager.AddWorld( player, worldName, null, false );
                         } catch( WorldOpException ex ) {
                             player.Message( "WLoad: {0}", ex.Message );
                             return;
