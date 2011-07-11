@@ -73,7 +73,7 @@ namespace fCraft {
             // If map is not currently loaded, grab its header from disk
             if( map == null ) {
                 try {
-                    map = MapUtility.LoadHeader( Path.Combine( Paths.MapPath, world.GetMapName() ) );
+                    map = MapUtility.LoadHeader( Path.Combine( Paths.MapPath, world.MapFileName ) );
                 } catch( Exception ex ) {
                     player.Message( "Map information could not be loaded: {0}: {1}",
                                     ex.GetType().Name, ex.Message );
@@ -237,7 +237,7 @@ namespace fCraft {
             // Ask for confirmation if overwriting
             if( File.Exists( fullFileName ) ) {
                 FileInfo targetFile = new FileInfo( fullFileName );
-                FileInfo sourceFile = new FileInfo( world.GetMapName() );
+                FileInfo sourceFile = new FileInfo( world.MapFileName );
                 if( !targetFile.FullName.Equals( sourceFile.FullName, StringComparison.OrdinalIgnoreCase ) ) {
                     if( !cmd.IsConfirmed ) {
                         player.AskForConfirmation( cmd, "Target file \"{0}\" already exists, and will be overwritten.", targetFile.Name );
@@ -257,9 +257,9 @@ namespace fCraft {
             const string mapSavingErrorMessage = "Map saving failed. See server logs for details.";
             Map map = world.Map;
             if( map == null ) {
-                if( File.Exists( world.GetMapName() ) ) {
+                if( File.Exists( world.MapFileName ) ) {
                     try {
-                        File.Copy( world.GetMapName(), fullFileName, true );
+                        File.Copy( world.MapFileName, fullFileName, true );
                     } catch( Exception ex ) {
                         Logger.Log( "StandardCommands.Save: Error occured while trying to copy an unloaded map: {0}", LogType.Error, ex );
                         player.Message( mapSavingErrorMessage );
