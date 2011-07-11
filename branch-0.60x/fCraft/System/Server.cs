@@ -204,7 +204,7 @@ namespace fCraft {
         /// Throws exceptions on failure. </summary>
         public static void InitServer() {
             if( !libraryInitialized ) {
-                throw new Exception( "Server.InitializeLibrary must be called before Server.InitServer" );
+                throw new Exception( "Server.InitLibrary must be called before Server.InitServer" );
             }
             RaiseEvent( Initializing );
 
@@ -227,7 +227,7 @@ namespace fCraft {
 #endif
             }
 
-            if( MonoCompat.IsMono && !MonoCompat.IsSGen ) {
+            if( MonoCompat.IsMono && !MonoCompat.IsSGenCapable ) {
                 Logger.Log( "You are using a relatively old version of the Mono runtime ({0}). " +
                             "It is recommended that you upgrade to at least 2.8+", LogType.Warning,
                             MonoCompat.MonoVersion );
@@ -279,7 +279,7 @@ namespace fCraft {
         /// <returns> True if server started normally, false on soft failure. </returns>
         public static bool StartServer() {
             if( !serverInitialized ) {
-                throw new Exception( "Server.InitServer() must be called before Server.StartServer()" );
+                throw new Exception( "Server.InitServer must be called before Server.StartServer" );
             }
 
             ServerStart = DateTime.UtcNow;
@@ -1197,7 +1197,7 @@ namespace fCraft {
         public static Player FindPlayerExact( string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             return Players.FirstOrDefault( t => t != null &&
-                                                   t.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
+                                                t.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
         }
 
 
@@ -1206,7 +1206,7 @@ namespace fCraft {
             if( includeHiddenPlayers ) {
                 return Players.Length;
             } else {
-                return Players.Count( player => !player.IsHidden );
+                return Players.Count( player => !player.Info.IsHidden );
             }
         }
 

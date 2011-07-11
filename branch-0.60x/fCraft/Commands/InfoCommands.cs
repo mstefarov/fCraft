@@ -137,7 +137,7 @@ namespace fCraft {
 
 
         public static void PrintPlayerInfo( Player player, PlayerInfo info ) {
-            Player target = Server.FindPlayerExact( info.Name );
+            Player target = info.PlayerObject;
 
             // hide online status when hidden
             if( target != null && !player.CanSee( target ) ) {
@@ -149,7 +149,7 @@ namespace fCraft {
 
             } else {
                 if( target != null ) {
-                    if( target.IsHidden ) {
+                    if( info.IsHidden ) {
                         if( player.Can( Permission.ViewPlayerIPs ) ) {
                             player.Message( "About {0}&S: HIDDEN. Online from {1}",
                                             info.ClassyName,
@@ -574,7 +574,7 @@ namespace fCraft {
             return null;
         }
 
-        static void PrintRuleFile( Player player, FileInfo ruleFile ) {
+        static void PrintRuleFile( Player player, FileSystemInfo ruleFile ) {
             try {
                 foreach( string ruleLine in File.ReadAllLines( ruleFile.FullName ) ) {
                     if( ruleLine.Trim().Length > 0 ) {

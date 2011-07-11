@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 namespace fCraft.MapConversion {
     /// <summary> Next file format that fCraft shall use. </summary>
-    public class MapFCMv4 : IMapConverter {
+    public sealed class MapFCMv4 : IMapConverter {
         public const int FormatID = 0x00FC0004;
         const string ZoneMetaGroupName = "fCraft.Zones",
                      SecurityMetaGroupName = "fCraft.Security",

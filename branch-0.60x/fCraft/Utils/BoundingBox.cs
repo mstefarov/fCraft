@@ -9,7 +9,9 @@ namespace fCraft {
     /// </summary>
     public sealed class BoundingBox {
         public static readonly BoundingBox Empty = new BoundingBox( 0, 0, 0, 0, 0, 0 );
+// ReSharper disable FieldCanBeMadeReadOnly.Global
         public int XMin, YMin, HMin, XMax, YMax, HMax;
+// ReSharper restore FieldCanBeMadeReadOnly.Global
 
 
         /// <summary> Constructs a bounding box using two positions as opposite corners. </summary>

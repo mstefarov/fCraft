@@ -14,7 +14,7 @@ namespace fCraft {
         public static bool IsMono { get; private set; }
 
         /// <summary> Whether Mono's generational GC is available. </summary>
-        public static bool IsSGen { get; private set; }
+        public static bool IsSGenCapable { get; private set; }
 
         /// <summary> Full Mono version string. May be null if we are running a REALLY old version. </summary>
         public static string MonoVersionString { get; private set; }
@@ -25,6 +25,8 @@ namespace fCraft {
         /// <summary> Whether we are under a Windows OS (under either .NET or Mono). </summary>
         public static bool IsWindows { get; private set; }
 
+
+        const string unsupportedMessage = "Your Mono version is not supported. Update to at least Mono 2.6+ (recommended 2.10+)";
 
         const BindingFlags MonoMethodFlags = BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.ExactBinding;
         static MonoCompat() {
@@ -41,18 +43,18 @@ namespace fCraft {
                         int minor = Int32.Parse( parts[1] );
                         int revision = Int32.Parse( parts[2].Substring( 0, parts[2].IndexOf( ' ' ) ) );
                         MonoVersion = new Version( major, minor, revision );
-                        IsSGen = (major == 2 && minor >= 8);
-                    } catch( Exception ) {
-                        Logger.Log( "Could not parse Mono version.", LogType.Error );
-                        MonoVersion = null;
-                        IsSGen = false;
+                        IsSGenCapable = (major == 2 && minor >= 8);
+                    } catch( Exception ex ) {
+                        throw new Exception( unsupportedMessage, ex );
                     }
+
+                    if( MonoVersion.Major < 2 && MonoVersion.Major < 6 ) {
+                        throw new Exception( unsupportedMessage );
+                    }
+
                 } else {
-                    AssumeUnknownMonoVersion();
+                    throw new Exception( unsupportedMessage );
                 }
-            } else {
-                IsMono = false;
-                AssumeUnknownMonoVersion();
             }
 
             switch( Environment.OSVersion.Platform ) {
@@ -67,12 +69,7 @@ namespace fCraft {
             }
 
             IsCaseSensitive = !IsWindows;
-        }
 
-        static void AssumeUnknownMonoVersion() {
-            MonoVersionString = "Unknown";
-            MonoVersion = null;
-            IsSGen = false;
         }
 
         /// <summary> Starts a .NET process, using Mono if necessary. </summary>
@@ -83,7 +80,7 @@ namespace fCraft {
         public static Process StartDotNetProcess( string assemblyLocation, string assemblyArgs, bool detachIfMono ) {
             string binaryName, args;
             if( IsMono ) {
-                if( IsSGen ) {
+                if( IsSGenCapable ) {
                     binaryName = "mono-sgen";
                 } else {
                     binaryName = "mono";
@@ -108,7 +105,7 @@ namespace fCraft {
         /// <returns></returns>
         public static string PrependMono( string dotNetExecutable ) {
             if( IsMono ) {
-                if( IsSGen ) {
+                if( IsSGenCapable ) {
                     return "mono-sgen " + dotNetExecutable;
                 } else {
                     return "mono " + dotNetExecutable;

@@ -242,7 +242,7 @@ namespace fCraft {
                     player.Message( "&WThis map is currently locked (read-only)." );
                 }
 
-                if( player.IsHidden ) {
+                if( player.Info.IsHidden ) {
                     player.Message( "Reminder: You are still hidden." );
                 }
 
@@ -346,7 +346,7 @@ namespace fCraft {
             if( includeHiddenPlayers ) {
                 return Players.Length;
             } else {
-                return Players.Count( player => !player.IsHidden );
+                return Players.Count( player => !player.Info.IsHidden );
             }
         }
 
