@@ -24,7 +24,7 @@ namespace fCraft {
         public static World MainWorld {
             get { return mainWorld; }
             set {
-                if( value == null ) throw new ArgumentNullException("value");
+                if( value == null ) throw new ArgumentNullException( "value" );
                 if( value == mainWorld ) return;
                 if( mainWorld == null ) {
                     mainWorld = value;
@@ -45,6 +45,12 @@ namespace fCraft {
         }
 
 
+        static void AddDefaultMainWorld() {
+            Map map = MapGenerator.GenerateFlatgrass( 128, 128, 64 );
+            World world = AddWorld( null, "main", map, true );
+        }
+
+
         #region World List Saving/Loading
 
         internal static bool LoadWorldList() {
@@ -55,14 +61,15 @@ namespace fCraft {
                     Logger.LogAndReportCrash( "Error occured while trying to load the world list.", "fCraft", ex, true );
                     return false;
                 }
+
+                if( MainWorld == null ) {
+                    Logger.Log( "Server.Start: Could not load any of the specified worlds, or no worlds were specified. " +
+                                "Creating default \"main\" world.", LogType.Error );
+                    MainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
+                }
+
             } else {
                 Logger.Log( "Server.Start: No world list found. Creating default \"main\" world.", LogType.SystemActivity );
-                MainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
-            }
-
-            if( MainWorld == null ) {
-                Logger.Log( "Server.Start: Could not load any of the specified worlds, or no worlds were specified. " +
-                            "Creating default \"main\" world.", LogType.Error );
                 MainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
             }
 
@@ -76,7 +83,6 @@ namespace fCraft {
                                  MainWorld.Name );
                     MainWorld.AccessSecurity.Reset();
                 }
-                MainWorld.NeverUnload = true;
             }
 
             return true;
@@ -92,32 +98,34 @@ namespace fCraft {
             foreach( XElement el in root.Elements( "World" ) ) {
                 try {
                     if( (temp = el.Attribute( "name" )) == null ) {
-                        Logger.Log( "Server.ParseWorldListXML: World tag with no name skipped.", LogType.Error );
+                        Logger.Log( "WorldManager: World tag with no name skipped.", LogType.Error );
                         continue;
                     }
 
                     string worldName = temp.Value;
                     if( !World.IsValidName( worldName ) ) {
-                        Logger.Log( "Server.ParseWorldListXML: Invalid world name skipped: \"{0}\"", LogType.Error, worldName );
+                        Logger.Log( "WorldManager: Invalid world name skipped: \"{0}\"", LogType.Error, worldName );
                         continue;
                     }
 
                     if( Worlds.ContainsKey( worldName.ToLower() ) ) {
-                        Logger.Log( "Server.ParseWorldListXML: Duplicate world name ignored: \"{0}\"", LogType.Error, worldName );
+                        Logger.Log( "WorldManager: Duplicate world name ignored: \"{0}\"", LogType.Error, worldName );
                         continue;
                     }
 
+                    bool neverUnload = (el.Attribute( "noUnload" ) != null);
+
                     World world;
                     try {
-                        world = AddWorld( null, worldName, null, (el.Attribute( "noUnload" ) != null) );
+                        world = AddWorld( null, worldName, null, neverUnload );
                     } catch( WorldOpException ex ) {
-                        Logger.Log( "Server.ParseWorldListXML: Error loading world \"{0}\": {1}", LogType.Error, worldName, ex.Message );
+                        Logger.Log( "WorldManager: Error adding world \"{0}\": {1}", LogType.Error, worldName, ex.Message );
                         continue;
                     }
 
                     if( (temp = el.Attribute( "hidden" )) != null ) {
                         if( !Boolean.TryParse( temp.Value, out world.IsHidden ) ) {
-                            Logger.Log( "Server.ParseWorldListXML: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
+                            Logger.Log( "WorldManager: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
                                         LogType.Warning, worldName );
                             world.IsHidden = false;
                         }
@@ -132,43 +140,8 @@ namespace fCraft {
                         world.BuildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
                     }
 
-                    // Check the world's map file
-                    string mapFullName = world.GetMapName();
-                    string mapName = Path.GetFileName( mapFullName );
+                    CheckMapFile( world );
 
-                    if( Paths.FileExists( mapFullName, false ) ) {
-                        if( !Paths.FileExists( mapFullName, true ) ) {
-                            // Map file has wrong capitalization
-                            FileInfo[] matches = Paths.FindFiles( mapFullName );
-                            if( matches.Length == 1 ) {
-                                // Try to rename the map file to match world's capitalization
-                                Paths.ForceRename( matches[0].FullName, mapName );
-                                if( Paths.FileExists( mapFullName, true ) ) {
-                                    Logger.Log( "Server.LoadWorldListXML: Map file for world \"{0}\" was renamed from \"{1}\" to \"{2}\"", LogType.Warning,
-                                                world.Name, matches[0].Name, mapName );
-                                } else {
-                                    Logger.Log( "Server.LoadWorldListXML: Failed to rename map file of \"{0}\" from \"{1}\" to \"{2}\"", LogType.Error,
-                                                world.Name, matches[0].Name, mapName );
-                                    continue;
-                                }
-                            } else {
-                                Logger.Log( "Server.LoadWorldListXML: More than one map file exists matching the world name \"{0}\". " +
-                                            "Please check the map directory and use /wload to load the correct file.", LogType.Warning,
-                                            world.Name );
-                                continue;
-                            }
-                        }
-                        // Try loading the map header
-                        try {
-                            MapUtility.LoadHeader( world.GetMapName() );
-                        } catch( Exception ex ) {
-                            Logger.Log( "Server.LoadWorldListXML: Could not load map file for world \"{0}\": {1}", LogType.Warning,
-                                        world.Name, ex );
-                        }
-                    } else {
-                        Logger.Log( "Server.LoadWorldListXML: Map file for world \"{0}\" was not found.", LogType.Warning,
-                                    world.Name );
-                    }
                 } catch( Exception ex ) {
                     Logger.LogAndReportCrash( "An error occured while trying to parse one of the entries on the world list",
                                               "fCraft", ex, false );
@@ -176,9 +149,12 @@ namespace fCraft {
             }
 
             if( (temp = root.Attribute( "main" )) != null ) {
-                MainWorld = FindWorldExact( temp.Value );
-                // if specified main world does not exist, use first-defined world
-                if( MainWorld == null && firstWorld != null ) {
+                World suggestedMainWorld = FindWorldExact( temp.Value );
+
+                if( suggestedMainWorld != null ) {
+                    MainWorld = suggestedMainWorld;
+                } else if( firstWorld != null ) {
+                    // if specified main world does not exist, use first-defined world
                     Logger.Log( "The specified main world \"{0}\" does not exist. " +
                                 "\"{1}\" was designated main instead. You can use /wmain to change it.",
                                 LogType.Warning, temp.Value, firstWorld.Name );
@@ -188,6 +164,47 @@ namespace fCraft {
 
             } else {
                 MainWorld = firstWorld;
+            }
+        }
+
+
+        static void CheckMapFile( World world ) {
+            // Check the world's map file
+            string fullMapFileName = world.GetMapName();
+            string fileName = Path.GetFileName( fullMapFileName );
+
+            if( Paths.FileExists( fullMapFileName, false ) ) {
+                if( !Paths.FileExists( fullMapFileName, true ) ) {
+                    // Map file has wrong capitalization
+                    FileInfo[] matches = Paths.FindFiles( fullMapFileName );
+                    if( matches.Length == 1 ) {
+                        // Try to rename the map file to match world's capitalization
+                        Paths.ForceRename( matches[0].FullName, fileName );
+                        if( Paths.FileExists( fullMapFileName, true ) ) {
+                            Logger.Log( "WorldManager.CheckMapFile: Map file for world \"{0}\" was renamed from \"{1}\" to \"{2}\"", LogType.Warning,
+                                        world.Name, matches[0].Name, fileName );
+                        } else {
+                            Logger.Log( "WorldManager.CheckMapFile: Failed to rename map file of \"{0}\" from \"{1}\" to \"{2}\"", LogType.Error,
+                                        world.Name, matches[0].Name, fileName );
+                            return;
+                        }
+                    } else {
+                        Logger.Log( "WorldManager.CheckMapFile: More than one map file exists matching the world name \"{0}\". " +
+                                    "Please check the map directory and use /wload to load the correct file.", LogType.Warning,
+                                    world.Name );
+                        return;
+                    }
+                }
+                // Try loading the map header
+                try {
+                    MapUtility.LoadHeader( world.GetMapName() );
+                } catch( Exception ex ) {
+                    Logger.Log( "WorldManager.CheckMapFile: Could not load map file for world \"{0}\": {1}", LogType.Warning,
+                                world.Name, ex );
+                }
+            } else {
+                Logger.Log( "WorldManager.CheckMapFile: Map file for world \"{0}\" was not found.", LogType.Warning,
+                            world.Name );
             }
         }
 
@@ -314,18 +331,7 @@ namespace fCraft {
 
                 World newWorld = new World( name );
 
-                // If no map is given, and no file exists: make a flatgrass
-                if( map == null && neverUnload && !File.Exists( newWorld.GetMapName() ) ) {
-                    Logger.Log( "No mapfile found for world \"{0}\". A blank map will be generated.", LogType.Warning,
-                                name );
-                    map = MapGenerator.GenerateFlatgrass( 128, 128, 64 );
-                }
-
-                // if a map is given (or was generated)
-                if( map != null ) {
-                    newWorld.Map = map;
-                    map.World = newWorld;
-                }
+                newWorld.Map = map;
                 newWorld.NeverUnload = neverUnload;
 
                 Worlds.Add( name.ToLower(), newWorld );
