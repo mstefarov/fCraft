@@ -745,24 +745,24 @@ namespace fCraft {
         bool useWorldSpawn;
 
         public void JoinWorld( World newWorld ) {
-            JoinWorldInternal( newWorld, Position.Zero, true );
+            if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
+            lock( joinWorldLock ) {
+                useWorldSpawn = true;
+                postJoinPosition = Position.Zero;
+                forcedWorldToJoin = newWorld;
+            }
         }
 
 
         public void JoinWorld( World newWorld, Position position ) {
-            JoinWorldInternal( newWorld, position, false );
-        }
-
-
-        void JoinWorldInternal( World newWorld, Position position, bool doUseWorldPosition ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
-
             lock( joinWorldLock ) {
-                useWorldSpawn = doUseWorldPosition;
+                useWorldSpawn = false;
                 postJoinPosition = position;
                 forcedWorldToJoin = newWorld;
             }
         }
+
 
 
         internal bool JoinWorldNow( World newWorld, bool firstTime, bool doUseWorldSpawn ) {
@@ -941,7 +941,7 @@ namespace fCraft {
         #region Kicking
 
         /// <summary> Kick (asynchronous). Immediately blocks all client input, but waits
-        /// until client thread sends the kick packet. </summary>
+        /// until client thread has sent the kick packet. </summary>
         public void Kick( string message, LeaveReason leaveReason ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             LeaveReason = leaveReason;
@@ -958,10 +958,8 @@ namespace fCraft {
         }
 
 
-        /// <summary>
-        /// Kick (synchronous). Immediately sends the kick packet.
-        /// Can only be used from IoThread (this is not thread-safe).
-        /// </summary>
+        /// <summary> Kick (synchronous). Immediately sends the kick packet.
+        /// Can only be used from IoThread (this is not thread-safe). </summary>
         public void KickNow( string message, LeaveReason leaveReason ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( Thread.CurrentThread != ioThread ) {

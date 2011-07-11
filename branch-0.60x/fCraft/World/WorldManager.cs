@@ -45,12 +45,6 @@ namespace fCraft {
         }
 
 
-        static void AddDefaultMainWorld() {
-            Map map = MapGenerator.GenerateFlatgrass( 128, 128, 64 );
-            World world = AddWorld( null, "main", map, true );
-        }
-
-
         #region World List Saving/Loading
 
         internal static bool LoadWorldList() {
@@ -76,13 +70,12 @@ namespace fCraft {
             // if there is no default world still, die.
             if( MainWorld == null ) {
                 throw new Exception( "Could not create any worlds" );
-            } else {
-                if( MainWorld.AccessSecurity.HasRestrictions ) {
-                    Logger.Log( "Server.LoadWorldList: Main world cannot have any access restrictions. " +
-                                "Access permission for \"{0}\" has been reset.", LogType.Warning,
-                                 MainWorld.Name );
-                    MainWorld.AccessSecurity.Reset();
-                }
+
+            } else if( MainWorld.AccessSecurity.HasRestrictions ) {
+                Logger.Log( "Server.LoadWorldList: Main world cannot have any access restrictions. " +
+                            "Access permission for \"{0}\" has been reset.", LogType.Warning,
+                             MainWorld.Name );
+                MainWorld.AccessSecurity.Reset();
             }
 
             return true;
@@ -153,6 +146,7 @@ namespace fCraft {
 
                 if( suggestedMainWorld != null ) {
                     MainWorld = suggestedMainWorld;
+
                 } else if( firstWorld != null ) {
                     // if specified main world does not exist, use first-defined world
                     Logger.Log( "The specified main world \"{0}\" does not exist. " +
@@ -162,12 +156,13 @@ namespace fCraft {
                 }
                 // if firstWorld was also null, LoadWorldList() should try creating a new mainWorld
 
-            } else {
+            } else if( firstWorld != null ) {
                 MainWorld = firstWorld;
             }
         }
 
 
+        // Make sure that the map file exists, is properly named, and is loadable.
         static void CheckMapFile( World world ) {
             // Check the world's map file
             string fullMapFileName = world.GetMapName();

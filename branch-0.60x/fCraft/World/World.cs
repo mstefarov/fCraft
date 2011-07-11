@@ -76,12 +76,12 @@ namespace fCraft {
                 }
 
                 // or generate a default one
-                if( Map != null ) {
-                    Map.World = this;
-                } else {
+                if( Map == null ) {
+                    Server.Message( "&WMapfile is missing for world {0}&W. A new map has been created.", ClassyName );
                     Logger.Log( "World.LoadMap: Generating default flatgrass level.", LogType.SystemActivity );
                     Map = MapGenerator.GenerateFlatgrass( 128, 128, 64 );
                 }
+                Map.World = this;
                 StartTasks();
 
                 if( OnLoaded != null ) OnLoaded();
@@ -126,7 +126,7 @@ namespace fCraft {
                     IsHidden = IsHidden
                 };
                 newMap.World = newWorld;
-                newWorld.NeverUnload = NeverUnload;
+                newWorld.NeverUnload = neverUnload;
                 WorldManager.ReplaceWorld( this, newWorld );
                 Map = null;
                 foreach( Player player in Players ) {
@@ -264,7 +264,7 @@ namespace fCraft {
                 UpdatePlayerList();
 
                 // unload map (if needed)
-                if( playerIndex.Count == 0 && !NeverUnload ) {
+                if( playerIndex.Count == 0 && !neverUnload ) {
                     PendingUnload = true;
                 }
                 return true;
@@ -524,9 +524,7 @@ namespace fCraft {
         void RemovePlayerFromPatrol( Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             lock( patrolLock ) {
-                if( patrolList.Contains( player ) ) {
-                    patrolList.Remove( player );
-                }
+                patrolList.Remove( player );
             }
         }
 
