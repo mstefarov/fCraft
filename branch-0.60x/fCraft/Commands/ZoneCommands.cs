@@ -403,7 +403,7 @@ namespace fCraft {
                 lock( world.WorldLock ) {
                     map = world.Map;
                     if( map == null ) {
-                        if( !MapUtility.TryLoadHeader( world.GetMapName(), out map ) ) {
+                        if( !MapUtility.TryLoadHeader( world.MapFileName, out map ) ) {
                             player.Message( "&WERROR:Could not load mapfile for world {0}.",
                                             world.ClassyName );
                         }

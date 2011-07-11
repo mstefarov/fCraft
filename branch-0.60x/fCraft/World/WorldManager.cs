@@ -26,10 +26,6 @@ namespace fCraft {
             set {
                 if( value == null ) throw new ArgumentNullException( "value" );
                 if( value == mainWorld ) return;
-                if( mainWorld == null ) {
-                    mainWorld = value;
-                    return;
-                }
                 if( RaiseMainWorldChangingEvent( mainWorld, value ) ) {
                     throw new WorldOpException( value.Name, WorldOpExceptionCode.PluginDenied );
                 }
@@ -37,7 +33,9 @@ namespace fCraft {
                 lock( WorldListLock ) {
                     value.NeverUnload = true;
                     oldWorld = mainWorld;
-                    oldWorld.NeverUnload = false;
+                    if( oldWorld != null ) {
+                        oldWorld.NeverUnload = false;
+                    }
                     mainWorld = value;
                 }
                 RaiseMainWorldChangedEvent( oldWorld, value );
@@ -165,7 +163,7 @@ namespace fCraft {
         // Make sure that the map file exists, is properly named, and is loadable.
         static void CheckMapFile( World world ) {
             // Check the world's map file
-            string fullMapFileName = world.GetMapName();
+            string fullMapFileName = world.MapFileName;
             string fileName = Path.GetFileName( fullMapFileName );
 
             if( Paths.FileExists( fullMapFileName, false ) ) {
@@ -192,7 +190,7 @@ namespace fCraft {
                 }
                 // Try loading the map header
                 try {
-                    MapUtility.LoadHeader( world.GetMapName() );
+                    MapUtility.LoadHeader( world.MapFileName );
                 } catch( Exception ex ) {
                     Logger.Log( "WorldManager.CheckMapFile: Could not load map file for world \"{0}\": {1}", LogType.Warning,
                                 world.Name, ex );

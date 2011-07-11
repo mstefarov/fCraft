@@ -68,17 +68,20 @@ namespace fCraft {
             lock( WorldLock ) {
                 if( Map != null ) return;
 
-                try {
-                    Map = MapUtility.Load( GetMapName() );
-                } catch( Exception ex ) {
-                    Logger.Log( "World.LoadMap: Failed to load map ({0}): {1}", LogType.Error,
-                                GetMapName(), ex );
+                if( File.Exists( MapFileName ) ) {
+                    try {
+                        Map = MapUtility.Load( MapFileName );
+                    } catch( Exception ex ) {
+                        Logger.Log( "World.LoadMap: Failed to load map ({0}): {1}", LogType.Error,
+                                    MapFileName, ex );
+                    }
                 }
 
                 // or generate a default one
                 if( Map == null ) {
                     Server.Message( "&WMapfile is missing for world {0}&W. A new map has been created.", ClassyName );
-                    Logger.Log( "World.LoadMap: Generating default flatgrass level.", LogType.SystemActivity );
+                    Logger.Log( "World.LoadMap: Map file missing for world {0}. Generating default flatgrass map.", LogType.SystemActivity,
+                                Name );
                     Map = MapGenerator.GenerateFlatgrass( 128, 128, 64 );
                 }
                 Map.World = this;
@@ -102,15 +105,17 @@ namespace fCraft {
         }
 
 
-        public string GetMapName() {
-            return Path.Combine( Paths.MapPath, Name + ".fcm" );
+        public string MapFileName {
+            get {
+                return Path.Combine( Paths.MapPath, Name + ".fcm" );
+            }
         }
 
 
         public void SaveMap() {
             lock( WorldLock ) {
                 if( Map != null ) {
-                    Map.Save( GetMapName() );
+                    Map.Save( MapFileName );
                 }
             }
         }
@@ -216,7 +221,7 @@ namespace fCraft {
                 if( ConfigKey.BackupOnJoin.Enabled() ) {
                     string backupFileName = String.Format( "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm",
                                                            Name, DateTime.Now, player.Name ); // localized
-                    Map.SaveBackup( Path.Combine( Paths.MapPath, GetMapName() ),
+                    Map.SaveBackup( MapFileName,
                                     Path.Combine( Paths.BackupPath, backupFileName ),
                                     true );
                 }
@@ -617,8 +622,9 @@ namespace fCraft {
         void BackupTask( SchedulerTask task ) {
             Map tempMap = Map;
             if( tempMap != null ) {
-                tempMap.SaveBackup( Path.Combine( Paths.MapPath, GetMapName() ),
-                                    Path.Combine( Paths.BackupPath, String.Format( "{0}_{1:yyyy-MM-dd_HH-mm}.fcm", Name, DateTime.Now ) ), // localized
+                string backupFileName = String.Format( "{0}_{1:yyyy-MM-dd_HH-mm}.fcm", Name, DateTime.Now ); // localized
+                tempMap.SaveBackup( MapFileName,
+                                    Path.Combine( Paths.BackupPath, backupFileName ),
                                     true );
             }
         }

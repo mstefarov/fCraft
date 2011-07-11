@@ -284,6 +284,7 @@ namespace fCraft {
 
             ServerStart = DateTime.UtcNow;
             cpuUsageStartingOffset = Process.GetCurrentProcess().TotalProcessorTime;
+            Players = new Player[0];
 
             RaiseEvent( Starting );
 
@@ -293,7 +294,6 @@ namespace fCraft {
 
             Player.Console = new Player( ConfigKey.ConsoleName.GetString() );
             Player.AutoRank = new Player( "(AutoRank)" );
-
 
             // try to load the world list
             if( !WorldManager.LoadWorldList() ) return false;
