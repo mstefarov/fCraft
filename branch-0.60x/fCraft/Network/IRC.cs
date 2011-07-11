@@ -509,6 +509,7 @@ namespace fCraft {
             Server.PlayerInfoRankChanged += PlayerRankChangedHandler;
         }
 
+
         internal static void ChatSentHandler( object sender, ChatSentEventArgs args ) {
             bool enabled = ConfigKey.IRCBotForwardFromServer.Enabled();
             switch( args.MessageType ) {
@@ -527,8 +528,9 @@ namespace fCraft {
             }
         }
 
+
         internal static void PlayerReadyHandler( object sender, IPlayerEvent e ) {
-            if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() ) {
+            if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() && !e.Player.Info.IsHidden ) {
                 string message = String.Format( "\u0001ACTION {0}&S* {1}&S connected.\u0001",
                                                 Color.IRCBold,
                                                 e.Player.ClassyName );

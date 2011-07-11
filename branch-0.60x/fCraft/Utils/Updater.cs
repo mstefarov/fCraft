@@ -17,14 +17,14 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             600,
-            728,
-            new DateTime( 2011, 7, 11, 4, 10, 0, DateTimeKind.Utc ),
+            730,
+            new DateTime( 2011, 7, 11, 18, 50, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.Dev
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
-        );
+ );
 
         public static string UserAgent {
             get { return "fCraft " + CurrentRelease.VersionString; }
