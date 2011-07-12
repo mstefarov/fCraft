@@ -31,10 +31,13 @@ namespace fCraft {
         public readonly bool IsSuper;
 
 
-        /// <summary> Whether the player has completed the login sequence, and is currently considered online. </summary>
-        public bool IsRegistered { get; internal set; }
+        /// <summary> Whether the player has completed the login sequence. </summary>
+        public bool HasRegistered { get; internal set; }
 
-        /// <summary> Whether the client finished loading the world. </summary>
+        /// <summary> Whether the player registered and then finished loading the world. </summary>
+        public bool HasFullyConnected { get; private set; }
+
+        /// <summary> Whether the client is currently connected. </summary>
         public bool IsOnline { get; private set; }
 
         /// <summary> Whether the player name was verified at login. </summary>

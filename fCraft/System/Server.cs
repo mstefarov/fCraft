@@ -1041,7 +1041,7 @@ namespace fCraft {
                 PlayerIndex.Add( player.Name, player );
                 UpdatePlayerList();
                 RaiseEvent( PlayerListChanged );
-                player.IsRegistered = true;
+                player.HasRegistered = true;
             }
             return true;
         }
@@ -1069,12 +1069,12 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             lock( PlayerListLock ) {
-                if( !player.IsRegistered ) return;
+                if( !player.HasRegistered ) return;
                 player.Info.ProcessLogout( player );
 
                 Logger.Log( "{0} left the server.", LogType.UserActivity,
                             player.Name );
-                if( player.IsOnline && ConfigKey.ShowConnectionMessages.Enabled() ) {
+                if( player.HasRegistered && ConfigKey.ShowConnectionMessages.Enabled() ) {
                     Players.CanSee( player ).Message( "&SPlayer {0}&S left the server.",
                                                       player.ClassyName );
                 }
