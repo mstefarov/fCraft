@@ -22,9 +22,6 @@ namespace fCraft {
         /// <summary> Partial message (ends with " /"). </summary>
         PartialMessage,
 
-        /// <summary> Cancelled partial message ("/nvm"). </summary>
-        PartialMessageCancel,
-
         /// <summary> Private message. </summary>
         PrivateChat,
 
@@ -222,7 +219,6 @@ namespace fCraft {
             if( string.IsNullOrEmpty( message ) ) return MessageType.Invalid;
             if( message == "/" ) return MessageType.RepeatCommand;
             if( message.Equals( "/ok", StringComparison.OrdinalIgnoreCase ) ) return MessageType.Confirmation;
-            if( message.Equals( "/nvm", StringComparison.OrdinalIgnoreCase ) ) return MessageType.PartialMessageCancel;
             if( message.EndsWith( " /" ) ) return MessageType.PartialMessage;
             if( message.EndsWith( " //" ) ) message = message.Substring( 0, message.Length - 1 );
             switch( message[0] ) {

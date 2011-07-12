@@ -381,6 +381,7 @@ namespace fCraft {
 
 
         public void Disconnect() {
+            IsOnline = false;
             Server.UnregisterSession( this );
             Server.RaiseSessionDisconnectedEvent( this, LeaveReason );
 
@@ -732,7 +733,7 @@ namespace fCraft {
             }
 
             Server.RaisePlayerReadyEvent( this );
-            IsReady = true;
+            IsOnline = true;
 
             return true;
         }
@@ -800,7 +801,7 @@ namespace fCraft {
 
             // try to join the new world
             if( oldWorld != newWorld ) {
-                bool announce = ( oldWorld == null ) || ( oldWorld.Name != newWorld.Name );
+                bool announce = ( oldWorld != null ) && ( oldWorld.Name != newWorld.Name );
                 map = newWorld.AcceptPlayer( this, announce );
                 if( map == null ) {
                     return false;
@@ -1039,8 +1040,8 @@ namespace fCraft {
 
 
         void UpdateVisibleEntities() {
-            if( SpectatedPlayer != null ) {
-                if( !SpectatedPlayer.IsRegistered || !CanSee( spectatedPlayer ) ) {
+            if( spectatedPlayer != null ) {
+                if( !spectatedPlayer.IsOnline || !CanSee( spectatedPlayer ) ) {
                     Message( "Stopped spectating {0}&S (disconnected)", spectatedPlayer.ClassyName );
                     spectatedPlayer = null;
                 } else {

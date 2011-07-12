@@ -35,7 +35,7 @@ namespace fCraft {
         public bool IsRegistered { get; internal set; }
 
         /// <summary> Whether the client finished loading the world. </summary>
-        public bool IsReady { get; private set; }
+        public bool IsOnline { get; private set; }
 
         /// <summary> Whether the player name was verified at login. </summary>
         public bool IsVerified { get; private set; }
@@ -122,7 +122,13 @@ namespace fCraft {
         public void ParseMessage( string rawMessage, bool fromConsole ) {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
+
             if( partialMessage != null ) {
+                if( rawMessage.Equals( "/nvm", StringComparison.OrdinalIgnoreCase ) ) {
+                    MessageNow( "Partial message cancelled." );
+                    partialMessage = null;
+                    return;
+                }
                 rawMessage = partialMessage + rawMessage;
                 partialMessage = null;
             }
@@ -294,11 +300,6 @@ namespace fCraft {
                 case MessageType.PartialMessage:
                     partialMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
                     MessageNow( "Partial: &F{0}", partialMessage );
-                    break;
-
-                case MessageType.PartialMessageCancel:
-                    partialMessage = null;
-                    MessageNow( "Partial message cancelled." );
                     break;
 
                 case MessageType.Invalid: {

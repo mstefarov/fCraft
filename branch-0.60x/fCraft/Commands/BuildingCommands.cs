@@ -1579,7 +1579,13 @@ namespace fCraft {
             }
             Map map = player.World.Map;
 
-            BoundingBox bounds = new BoundingBox( marks[0], info.WidthX, info.WidthY, info.Height );
+            Position mark2 = new Position {
+                X = (short)(marks[0].X + info.WidthX),
+                Y = (short)(marks[0].Y + info.WidthY),
+                H = (short)(marks[0].H + info.Height)
+            };
+
+            BoundingBox bounds = new BoundingBox( marks[0], mark2 );
 
             int pasteVolume = bounds.GetIntersection( map.Bounds ).Volume;
             if( !player.CanDraw( pasteVolume ) ) {
