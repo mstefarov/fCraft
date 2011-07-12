@@ -135,6 +135,18 @@ namespace fCraft {
                         world.BuildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
                     }
 
+                    foreach( XElement mainedRankEl in el.Elements( "RankMainWorld" ) ) {
+                        Rank rank = RankManager.ParseRank( mainedRankEl.Value );
+                        if( rank != null ) {
+                            if( rank < world.AccessSecurity.MinRank ) {
+                                world.AccessSecurity.MinRank = rank;
+                                Logger.Log( "Lowered MinRank required to access world {0} to allow it to be the main world for that rank.",
+                                            LogType.Warning, rank.Name );
+                            }
+                            rank.MainWorld = world;
+                        }
+                    }
+
                     CheckMapFile( world );
 
                 } catch( Exception ex ) {
@@ -226,6 +238,11 @@ namespace fCraft {
                         if( world.IsHidden ) {
                             temp.Add( new XAttribute( "hidden", true ) );
                         }
+
+                        foreach( Rank mainedRank in RankManager.Ranks.Where( r => r.MainWorld == world )){
+                            temp.Add( new XElement( "RankMainWorld", mainedRank.FullName ) );
+                        }
+
                         root.Add( temp );
                     }
                     root.Add( new XAttribute( "main", MainWorld.Name ) );
