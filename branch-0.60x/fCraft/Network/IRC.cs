@@ -216,15 +216,15 @@ namespace fCraft {
                             if( processedMessage.Length > 0 ) {
                                 if( ConfigKey.IRCBotForwardFromIRC.Enabled() ) {
                                     if( msg.Type == IRCMessageType.ChannelAction ) {
-                                        Server.Message( "{0}(IRC) * {1} {2}",
-                                                        Color.IRC, msg.Nick, processedMessage );
+                                        Server.Message( "&i(IRC) * {0} {1}",
+                                                        msg.Nick, processedMessage );
                                     } else {
-                                        Server.Message( "{0}(IRC) {1}{2}: {3}",
-                                                        Color.IRC, msg.Nick, Color.White, processedMessage );
+                                        Server.Message( "&i(IRC) {0}{1}: {2}",
+                                                        msg.Nick, Color.White, processedMessage );
                                     }
                                 } else if( msg.Message.StartsWith( "#" ) ) {
-                                    Server.Message( "{0}(IRC) {1}{2}: {3}",
-                                                    Color.IRC, msg.Nick, Color.White, processedMessage.Substring( 1 ) );
+                                    Server.Message( "&i(IRC) {0}{1}: {2}",
+                                                    msg.Nick, Color.White, processedMessage.Substring( 1 ) );
                                 }
                             }
                         }
@@ -234,8 +234,8 @@ namespace fCraft {
                     case IRCMessageType.Join:
                         if( !ResponsibleForInputParsing ) return;
                         if( ConfigKey.IRCBotAnnounceIRCJoins.Enabled() ) {
-                            Server.Message( "{0}(IRC) {1} joined {2}",
-                                                    Color.IRC, msg.Nick, msg.Channel );
+                            Server.Message( "&i(IRC) {0} joined {1}",
+                                            msg.Nick, msg.Channel );
                         }
                         return;
 
@@ -260,7 +260,7 @@ namespace fCraft {
 
                     case IRCMessageType.NickChange:
                         if( !ResponsibleForInputParsing ) return;
-                        Server.Message( "&i(IRC) {1} is now known as {2}",
+                        Server.Message( "&i(IRC) {0} is now known as {1}",
                                         msg.Nick, msg.Message );
                         return;
 
