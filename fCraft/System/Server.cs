@@ -1072,7 +1072,7 @@ namespace fCraft {
 
                 Logger.Log( "{0} left the server.", LogType.UserActivity,
                             player.Name );
-                if( player.IsReady && ConfigKey.ShowConnectionMessages.Enabled() ) {
+                if( player.IsOnline && ConfigKey.ShowConnectionMessages.Enabled() ) {
                     Players.CanSee( player ).Message( "&SPlayer {0}&S left the server.",
                                                       player.ClassyName );
                 }
