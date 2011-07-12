@@ -768,7 +768,7 @@ namespace fCraft {
                                         targetInfo.Name,
                                         oldRank.GetClassyName(),
                                         newRank.GetClassyName() );
-                        if( !String.IsNullOrEmpty( reason ) ) {
+                        if( target != null && !String.IsNullOrEmpty( reason ) ) {
                             target.Message( "&S{0} reason: {1}",
                                             promote ? "Promotion" : "Demotion",
                                             reason );
