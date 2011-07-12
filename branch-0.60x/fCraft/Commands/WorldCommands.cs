@@ -378,6 +378,7 @@ namespace fCraft {
                                     rank.ClassyName, world.ClassyName );
                 } else {
                     rank.MainWorld = null;
+                    WorldManager.SaveWorldList();
                     Server.Message( "Player {0}&S has reset the main world for rank {1}&S.",
                                     player.ClassyName, rank.ClassyName );
                     Logger.Log( "{0} reset the main world for rank {1}.", LogType.UserActivity,
@@ -393,6 +394,7 @@ namespace fCraft {
             }
 
             rank.MainWorld = world;
+            WorldManager.SaveWorldList();
             Server.Message( "Player {0}&S designated {1}&S to be the main world for rank {2}",
                             player.ClassyName, world.ClassyName, rank.ClassyName );
             Logger.Log( "{0} set {1} to be the main world for rank {2}.", LogType.UserActivity,
