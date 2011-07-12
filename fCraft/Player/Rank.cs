@@ -30,6 +30,8 @@ namespace fCraft {
         public Rank NextRankUp { get; internal set; }
         public Rank NextRankDown { get; internal set; }
 
+        public World MainWorld { get; set; }
+
 
         public int CompareTo( Rank other ) {
             if( other == null ) throw new ArgumentNullException( "other" );

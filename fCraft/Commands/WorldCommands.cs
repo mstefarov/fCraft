@@ -326,17 +326,82 @@ namespace fCraft {
         };
 
         internal static void WorldMain( Player player, Command cmd ) {
-            string worldName = cmd.Next();
-            if( worldName == null ) {
+            string param = cmd.Next();
+            if( param == null ) {
                 player.Message( "Main world is {0}", WorldManager.MainWorld.ClassyName );
                 return;
             }
 
-            World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-            if( world == null ) {
-                return;
+            if( param.StartsWith( "@" ) ) {
+                string rankName = param.Substring( 1 );
+                Rank rank = RankManager.ParseRank( rankName );
+                if( rank == null ) {
+                    player.MessageNoRank( rankName );
+                    return;
+                }
+                string worldName = cmd.Next();
+                if( worldName == null ) {
+                    if( rank.MainWorld != null ) {
+                        player.Message( "Main world for rank {0}&S is {1}",
+                                        rank.ClassyName,
+                                        rank.MainWorld.ClassyName );
+                    } else {
+                        player.Message( "Main world for rank {0}&S is {1}&S (default)",
+                                        rank.ClassyName,
+                                        WorldManager.MainWorld.ClassyName );
+                    }
+                } else {
+                    World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
+                    if( world != null ) {
+                        SetRankMainWorld( player, rank, world );
+                    }
+                }
+            } else {
+                World world = WorldManager.FindWorldOrPrintMatches( player, param );
+                if( world != null ) {
+                    SetMainWorld( player, world );
+                }
+            }
+        }
 
-            } else if( world == WorldManager.MainWorld ) {
+
+        static void SetRankMainWorld( Player player, Rank rank, World world ) {
+            if( world == rank.MainWorld ) {
+                player.Message( "World {0}&S is already set as main for {0}&S.",
+                                world.ClassyName, rank.ClassyName );
+                return;
+            }
+
+            if( world == WorldManager.MainWorld ) {
+                if( rank.MainWorld == null ) {
+                    player.Message( "The main world for rank {0}&S is already {1}&S (default).",
+                                    rank.ClassyName, world.ClassyName );
+                } else {
+                    rank.MainWorld = null;
+                    Server.Message( "Player {0}&S has reset the main world for rank {1}&S.",
+                                    player.ClassyName, rank.ClassyName );
+                    Logger.Log( "{0} reset the main world for rank {1}.", LogType.UserActivity,
+                                player.Name, rank.Name );
+                }
+                return;
+            }
+
+            if( world.AccessSecurity.MinRank > rank ) {
+                player.Message( "World {0}&S requires {1}+&S to join, so it cannot be used as the main world for rank {2}&S.",
+                                world.ClassyName, world.AccessSecurity.MinRank, rank.ClassyName );
+                return;
+            }
+
+            rank.MainWorld = world;
+            Server.Message( "Player {0}&S designated {1}&S to be the main world for rank {2}",
+                            player.ClassyName, world.ClassyName, rank.ClassyName );
+            Logger.Log( "{0} set {1} to be the main world for rank {2}.", LogType.UserActivity,
+                        player.Name, world.Name, rank.Name );
+        }
+
+
+        static void SetMainWorld( Player player, World world ) {
+            if( world == WorldManager.MainWorld ) {
                 player.Message( "World {0}&S is already set as main.", world.ClassyName );
 
             } else if( !player.Info.Rank.AllowSecurityCircumvention && !player.CanJoin( world ) ) {
