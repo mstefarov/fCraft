@@ -385,7 +385,7 @@ namespace fCraft {
             Server.UnregisterSession( this );
             Server.RaiseSessionDisconnectedEvent( this, LeaveReason );
 
-            if( IsRegistered ) {
+            if( HasRegistered ) {
                 Server.UnregisterPlayer( this );
                 Server.RaisePlayerDisconnectedEvent( this, LeaveReason );
             }
@@ -733,6 +733,7 @@ namespace fCraft {
             }
 
             Server.RaisePlayerReadyEvent( this );
+            HasFullyConnected = true;
             IsOnline = true;
 
             return true;
