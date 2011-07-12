@@ -115,6 +115,7 @@ namespace fCraft {
         /// <param name="info"> Player to check. </param>
         /// <returns> True if player is allowed. </returns>
         public bool Check( PlayerInfo info ) {
+            // ReSharper disable LoopCanBeConvertedToQuery
             if( info == null ) throw new ArgumentNullException( "info" );
             PlayerExceptions listCache = ExceptionList;
             for( int i = 0; i < listCache.Excluded.Length; i++ ) {
@@ -132,6 +133,7 @@ namespace fCraft {
             }
 
             return false;
+            // ReSharper restore LoopCanBeConvertedToQuery
         }
 
 
@@ -139,6 +141,7 @@ namespace fCraft {
         /// <param name="info"> Player to check. </param>
         /// <returns> Security check result. </returns>
         public SecurityCheckResult CheckDetailed( PlayerInfo info ) {
+            // ReSharper disable LoopCanBeConvertedToQuery
             if( info == null ) throw new ArgumentNullException( "info" );
             PlayerExceptions listCache = ExceptionList;
             for( int i = 0; i < listCache.Excluded.Length; i++ ) {
@@ -157,6 +160,7 @@ namespace fCraft {
             }
 
             return SecurityCheckResult.RankTooLow;
+            // ReSharper restore LoopCanBeConvertedToQuery
         }
 
 
@@ -203,6 +207,7 @@ namespace fCraft {
         public const string XmlRootElementName = "PermissionController";
 
 
+        // ReSharper disable PossibleNullReferenceException
         public SecurityController( XContainer el ) {
             if( el == null ) throw new ArgumentNullException( "el" );
             if( el.Element( "minRank" ) != null ) {
@@ -225,6 +230,7 @@ namespace fCraft {
             }
             UpdatePlayerListCache();
         }
+        // ReSharper restore PossibleNullReferenceException
 
 
         public XElement Serialize() {

@@ -352,7 +352,12 @@ namespace fCraft {
                         }
 
                     } else {
-                        float height = (args.MaxHeightVariation != 0 ? (args.MaxHeight + altmap[x, y] * args.MaxHeightVariation) : args.MaxHeight);
+                        float height;
+                        if( altmap != null ) {
+                            height = args.MaxHeight + altmap[x, y] * args.MaxHeightVariation;
+                        } else {
+                            height = args.MaxHeight;
+                        }
                         slope = slopemap[x, y] * height;
                         if( height != 0 ) {
                             level = args.WaterLevel + (int)Math.Round( Math.Pow( heightmap[x, y] - desiredWaterLevel, args.AboveFuncExponent ) * aboveWaterMultiplier / args.MaxHeight * height );

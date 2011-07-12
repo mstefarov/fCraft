@@ -297,6 +297,7 @@ namespace fCraft {
             }
 
             XElement config = file.Root;
+            if( config == null ) throw new Exception( "Config.xml has no root. Never happens." );
 
             int version = 0;
             if( fromFile ){
@@ -403,11 +404,11 @@ namespace fCraft {
         }
 
 
-        static void LoadLogOptions( XContainer el, bool[] list ) {
+        static void LoadLogOptions( XContainer el, IList<bool> list ) {
             if( el == null ) throw new ArgumentNullException( "el" );
             if( list == null ) throw new ArgumentNullException( "list" );
 
-            for( int i = 0; i < list.Length; i++ ) {
+            for( int i = 0; i < list.Count; i++ ) {
                 if( el.Element( ((LogType)i).ToString() ) != null ) {
                     list[i] = true;
                 } else {

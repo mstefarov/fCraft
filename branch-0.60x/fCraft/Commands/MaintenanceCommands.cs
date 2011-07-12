@@ -85,8 +85,8 @@ namespace fCraft {
                 return;
             }
 
-            if( Path.HasExtension( fileName ) &&
-                !Path.GetExtension( fileName ).Equals( ".txt", StringComparison.OrdinalIgnoreCase ) ) {
+            string extension = Path.GetExtension( fileName );
+            if( extension == null || !extension.Equals( ".txt", StringComparison.OrdinalIgnoreCase ) ) {
                 player.Message( "Stats filename must end with .txt" );
                 return;
             }
@@ -682,18 +682,17 @@ namespace fCraft {
 
                     case "rankchangetype":
                         RankChangeType oldType = info.RankChangeType;
-                        foreach( string val in Enum.GetNames( typeof( RankChangeType ) ) ) {
-                            if( val.Equals( valName, StringComparison.OrdinalIgnoreCase ) ) {
-                                info.RankChangeType = (RankChangeType)Enum.Parse( typeof( RankChangeType ), valName, true );
-                                player.Message( "RankChangeType for {0}&S changed from {1} to {2}",
-                                                info.ClassyName,
-                                                oldType,
-                                                info.RankChangeType );
-                                return;
-                            }
+                        try {
+                            info.RankChangeType = (RankChangeType)Enum.Parse( typeof( RankChangeType ), valName, true );
+                        } catch( ArgumentException ) {
+                            player.Message( "Could not parse RankChangeType. Allowed values: {0}",
+                                            String.Join( ", ", Enum.GetNames( typeof( RankChangeType ) ) ) );
+                            return;
                         }
-                        player.Message( "Could not parse RankChangeType. Allowed values: {0}",
-                                        String.Join( ", ", Enum.GetNames( typeof( RankChangeType ) ) ) );
+                        player.Message( "RankChangeType for {0}&S changed from {1} to {2}",
+                                        info.ClassyName,
+                                        oldType,
+                                        info.RankChangeType );
                         return;
 
                     case "banreason":

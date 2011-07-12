@@ -27,7 +27,9 @@ namespace fCraft {
                     int version = ParseHeader( headerText );
 
                     while( !reader.EndOfStream ) {
-                        string[] fields = reader.ReadLine().Split( ',' );
+                        string line = reader.ReadLine();
+                        if( line == null ) break;
+                        string[] fields = line.Split( ',' );
                         if( fields.Length == IPBanInfo.FieldCount ) {
                             try {
                                 IPBanInfo ban;
@@ -43,12 +45,14 @@ namespace fCraft {
                                     Bans.Add( ban.Address.ToString(), ban );
                                 }
                             } catch( IOException ex ) {
-                                Logger.Log( "IPBanList.Load: Error while trying to read from file: {0}", LogType.Error, ex.Message );
+                                Logger.Log( "IPBanList.Load: Error while trying to read from file: {0}", LogType.Error,
+                                            ex.Message );
                             } catch( Exception ex ) {
                                 Logger.Log( "IPBanList.Load: Could not parse a record: {0}", LogType.Error, ex.Message );
                             }
                         } else {
-                            Logger.Log( "IPBanList.Load: Corrupt record skipped ({0} fields instead of {1}): {2}", LogType.Error,
+                            Logger.Log( "IPBanList.Load: Corrupt record skipped ({0} fields instead of {1}): {2}",
+                                        LogType.Error,
                                         fields.Length, IPBanInfo.FieldCount, String.Join( ",", fields ) );
                         }
                     }
@@ -57,7 +61,8 @@ namespace fCraft {
                         Logger.Log( "IPBanList.Load: Attempting to recover IP bans...", LogType.SystemActivity );
                         int oldBanCount = Bans.Count;
                         PlayerDB.RecoverIPBans();
-                        Logger.Log( "IPBanList.Load: {0} IP bans recovered.", LogType.SystemActivity, Bans.Count - oldBanCount );
+                        Logger.Log( "IPBanList.Load: {0} IP bans recovered.", LogType.SystemActivity,
+                                    Bans.Count - oldBanCount );
                     }
                 }
 

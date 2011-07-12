@@ -33,8 +33,12 @@ namespace System.IO.Compression {
             public uint HeaderOffset;
             /// <summary>Offset of file inside Zip storage</summary>
             public uint FileOffset;
+
+            // ReSharper disable UnaccessedField.Global
             /// <summary>Size of header information</summary>
             public uint HeaderSize;
+            // ReSharper restore UnaccessedField.Global
+
             /// <summary>32-bit checksum of entire file</summary>
             public uint Crc32;
             /// <summary>Last modification time of file</summary>
@@ -305,6 +309,7 @@ namespace System.IO.Compression {
         public bool ExtractFile( ZipFileEntry zfe, string filename ) {
             // Make sure the parent directory exist
             string path = Path.GetDirectoryName( filename );
+            if( path == null ) throw new NotImplementedException();
 
             if( !Directory.Exists( path ) ) {
                 Directory.CreateDirectory( path );
@@ -324,9 +329,9 @@ namespace System.IO.Compression {
 
             return result;
         }
-        /// <summary>
-        /// Copy the contents of a stored file into an opened stream
-        /// </summary>
+
+
+        /// <summary> Copy the contents of a stored file into an opened stream </summary>
         /// <param name="zfe">Entry information of file to extract</param>
         /// <param name="stream">Stream to store the uncompressed data</param>
         /// <returns>True if success, false if not.</returns>
@@ -680,7 +685,9 @@ namespace System.IO.Compression {
                     zipFileStream.Seek( centralDirOffset, SeekOrigin.Begin );
                     return true;
                 } while( zipFileStream.Position > 0 );
+// ReSharper disable EmptyGeneralCatchClause
             } catch { }
+// ReSharper restore EmptyGeneralCatchClause
 
             return false;
         }

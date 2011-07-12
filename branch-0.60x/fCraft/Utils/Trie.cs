@@ -11,6 +11,7 @@ namespace fCraft {
     /// Used as a searchable index of players for PlayerDB. </summary>
     /// <typeparam name="T"> Payload type (reference types only). </typeparam>
     [DebuggerDisplay( "Count = {Count}" )]
+    // ReSharper disable ClassCanBeSealed.Global
     public class Trie<T> : IDictionary<string, T>, IDictionary, ICloneable where T : class {
         const byte LeafNode = 254,
                    MultiNode = 255;
@@ -1303,7 +1304,7 @@ namespace fCraft {
             }
 
 
-            public bool GetAllChildren( IList<T> list, int limit ) {
+            public bool GetAllChildren( ICollection<T> list, int limit ) {
                 if( list.Count >= limit ) return false;
                 if( Payload != null ) {
                     list.Add( Payload );
@@ -1312,10 +1313,12 @@ namespace fCraft {
 
                 switch( Tag ) {
                     case MultiNode:
+                        // ReSharper disable LoopCanBeConvertedToQuery
                         for( int i = 0; i < Children.Length; i++ ) {
                             if( Children[i] == null ) continue;
                             if( !Children[i].GetAllChildren( list, limit ) ) return false;
                         }
+                        // ReSharper restore LoopCanBeConvertedToQuery
                         return true;
 
                     case LeafNode:

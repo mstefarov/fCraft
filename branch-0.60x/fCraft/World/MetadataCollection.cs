@@ -2,9 +2,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 namespace fCraft {
     /// <summary> A string metadata entry. </summary>
+    [DebuggerDisplay( "Count = {Count}" )]
     public struct MetadataEntry {
         string group;
         public string Group {
@@ -58,11 +61,7 @@ namespace fCraft {
         public int Count {
             get {
                 lock( syncRoot ) {
-                    int total = 0;
-                    foreach( var group in store ) {
-                        total += group.Value.Count;
-                    }
-                    return total;
+                    return store.Sum( group => group.Value.Count );
                 }
             }
         }
@@ -247,17 +246,12 @@ namespace fCraft {
                 throw new ArgumentException( "arrayIndex" );
             }
 
-            int total = 0;
-            foreach( var group in store.Values ) {
-                total += group.Count;
-            }
-
-            if( array.Length < arrayIndex + total ) {
-                throw new ArgumentException( "array" );
-            }
-
-            int i = 0;
             lock( syncRoot ) {
+                if( array.Length < arrayIndex + Count ) {
+                    throw new ArgumentException( "array" );
+                }
+
+                int i = 0;
                 foreach( var group in store ) {
                     foreach( var pair in group.Value ) {
                         array[i] = new MetadataEntry {
@@ -289,6 +283,7 @@ namespace fCraft {
         /// <summary> Enumerates all keys in this collection. </summary>
         /// <remarks> Lock SyncRoot if this is used in a loop. </remarks>
         public IEnumerator<MetadataEntry> GetEnumerator() {
+            // ReSharper disable LoopCanBeConvertedToQuery
             foreach( var group in store ) {
                 foreach( var key in group.Value ) {
                     yield return new MetadataEntry {
@@ -298,6 +293,7 @@ namespace fCraft {
                     };
                 }
             }
+            // ReSharper restore LoopCanBeConvertedToQuery
         }
 
         #endregion

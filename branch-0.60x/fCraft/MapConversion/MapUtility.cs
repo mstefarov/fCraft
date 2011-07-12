@@ -25,6 +25,7 @@ namespace fCraft.MapConversion {
         }
 
 
+        // ReSharper disable EmptyGeneralCatchClause
         public static MapFormat Identify( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             MapStorageType targetType = MapStorageType.SingleFile;
@@ -59,6 +60,7 @@ namespace fCraft.MapConversion {
 
             return MapFormat.Unknown;
         }
+        // ReSharper restore EmptyGeneralCatchClause
 
 
         public static bool TryLoadHeader( string fileName, out Map map ) {
@@ -76,6 +78,7 @@ namespace fCraft.MapConversion {
 
 
         public static Map LoadHeader( string fileName ) {
+            // ReSharper disable EmptyGeneralCatchClause
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
 
             MapStorageType targetType = MapStorageType.SingleFile;
@@ -96,7 +99,7 @@ namespace fCraft.MapConversion {
                     claims = (converter.StorageType == targetType) &&
                              converter.ClaimsName( fileName ) &&
                              converter.Claims( fileName );
-                } catch( Exception ) { }
+                } catch{ }
                 if( claims ) {
                     try {
                         Map map = converter.LoadHeader( fileName );
@@ -117,6 +120,7 @@ namespace fCraft.MapConversion {
             }
 
             throw new MapFormatException( "Unknown map format." );
+            // ReSharper restore EmptyGeneralCatchClause
         }
 
 
@@ -134,6 +138,7 @@ namespace fCraft.MapConversion {
         }
 
 
+        // ReSharper disable EmptyGeneralCatchClause
         public static Map Load( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             MapStorageType targetType = MapStorageType.SingleFile;
@@ -174,6 +179,7 @@ namespace fCraft.MapConversion {
 
             throw new MapFormatException( "Unknown map format." );
         }
+        // ReSharper restore EmptyGeneralCatchClause
 
 
         public static bool TrySave( Map mapToSave, string fileName, MapFormat format ) {

@@ -77,8 +77,10 @@ namespace fCraft {
                 } else {
                     Controller.MinRank = null;
                 }
+                // ReSharper disable PossibleNullReferenceException
                 Logger.Log( "Zone: Error parsing zone definition: unknown rank \"{0}\". Permission reset to default ({1}).", LogType.Error,
                             header[7], Controller.MinRank.Name );
+                // ReSharper restore PossibleNullReferenceException
             } else {
                 Controller.MinRank = buildRank;
             }
@@ -122,7 +124,9 @@ namespace fCraft {
 
         const string XmlRootElementName = "Zone";
 
-        public Zone( XElement root ) {
+        // ReSharper disable PossibleNullReferenceException
+        public Zone( XContainer root ) {
+            if( root == null ) throw new ArgumentNullException( "root" );
             Name = root.Element( "name" ).Value;
 
             if( root.Element( "created" ) != null ) {
@@ -140,6 +144,7 @@ namespace fCraft {
             Bounds = new BoundingBox( root.Element( BoundingBox.XmlRootElementName ) );
             Controller = new SecurityController( root.Element( XmlRootElementName ) );
         }
+        // ReSharper restore PossibleNullReferenceException
 
 
         public XElement Serialize() {

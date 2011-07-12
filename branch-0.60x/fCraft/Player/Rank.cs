@@ -106,9 +106,10 @@ namespace fCraft {
 
             // AntiGrief block limit (assuming unlimited if not given)
             int value;
-            if( (el.Attribute( "antiGriefBlocks" ) != null) && (el.Attribute( "antiGriefSeconds" ) != null) ) {
-                attr = el.Attribute( "antiGriefBlocks" );
-                if( Int32.TryParse( attr.Value, out value ) ) {
+            XAttribute agBlocks =  el.Attribute( "antiGriefBlocks" );
+            XAttribute agSeconds = el.Attribute( "antiGriefSeconds" );
+            if( agBlocks != null && agSeconds != null ) {
+                if( Int32.TryParse( agBlocks.Value, out value ) ) {
                     if( value >= 0 && value < 1000 ) {
                         AntiGriefBlocks = value;
 
@@ -121,8 +122,7 @@ namespace fCraft {
                                 Name, AntiGriefBlocks );
                 }
 
-                attr = el.Attribute( "antiGriefSeconds" );
-                if( Int32.TryParse( attr.Value, out value ) ) {
+                if( Int32.TryParse( agSeconds.Value, out value ) ) {
                     if( value >= 0 && value < 100 ) {
                         AntiGriefSeconds = value;
                     } else {
@@ -327,26 +327,33 @@ namespace fCraft {
         public static bool IsValidRankName( string rankName ) {
             if( rankName == null ) throw new ArgumentNullException( "rankName" );
             if( rankName.Length < 1 || rankName.Length > 16 ) return false;
+            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < rankName.Length; i++ ) {
                 char ch = rankName[i];
-                if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') || ch > 'z' ) {
+                if( ch < '0' || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < '_' ) || ( ch > '_' && ch < 'a' ) ||
+                    ch > 'z' ) {
                     return false;
                 }
             }
+            // ReSharper restore LoopCanBeConvertedToQuery
             return true;
         }
+
 
         public static bool IsValidID( string id ) {
             if( id == null ) throw new ArgumentNullException( "id" );
             if( id.Length != 16 ) return false;
+            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < id.Length; i++ ) {
                 char ch = id[i];
-                if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < 'a') || ch > 'z' ) {
+                if( ch < '0' || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < 'a' ) || ch > 'z' ) {
                     return false;
                 }
             }
+            // ReSharper restore LoopCanBeConvertedToQuery
             return true;
         }
+
 
         public static bool IsValidPrefix( string prefix ) {
             if( prefix == null ) throw new ArgumentNullException( "prefix" );

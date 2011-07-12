@@ -14,7 +14,13 @@ namespace fCraft {
         internal static readonly string[] DataFilesToBackup;
 
         static Paths() {
-            WorkingPathDefault = Path.GetFullPath( Path.GetDirectoryName( Assembly.GetExecutingAssembly().Location ) );
+            string assemblyDir = Path.GetDirectoryName( Assembly.GetExecutingAssembly().Location );
+            if( assemblyDir != null ) {
+                WorkingPathDefault = Path.GetFullPath( assemblyDir );
+            } else {
+                WorkingPathDefault = Path.GetPathRoot( assemblyDir );
+            }
+
             WorkingPath = WorkingPathDefault;
             MapPath = MapPathDefault;
             LogPath = LogPathDefault;
@@ -284,10 +290,8 @@ namespace fCraft {
             } else {
                 DirectoryInfo parentDir = fileInfo.Directory;
                 StringComparison sc = (caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
-                foreach( FileInfo file in parentDir.GetFiles( "*", SearchOption.TopDirectoryOnly ) ) {
-                    if( file.Name.Equals( fileInfo.Name, sc ) ) return true;
-                }
-                return false;
+                return parentDir.GetFiles( "*", SearchOption.TopDirectoryOnly )
+                                .Any( file => file.Name.Equals( fileInfo.Name, sc ) );
             }
         }
 
@@ -318,10 +322,7 @@ namespace fCraft {
 
 
         public static bool IsProtectedFileName( string fileName ) {
-            for( int i = 0; i < ProtectedFiles.Length; i++ ) {
-                if( Compare( ProtectedFiles[i], fileName ) ) return true;
-            }
-            return false;
+            return ProtectedFiles.Any( t => Compare( t, fileName ) );
         }
 
         #endregion

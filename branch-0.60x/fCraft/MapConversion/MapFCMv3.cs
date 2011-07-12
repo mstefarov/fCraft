@@ -146,7 +146,9 @@ namespace fCraft.MapConversion {
             int height = reader.ReadInt16();
             int widthY = reader.ReadInt16();
 
+// ReSharper disable UseObjectOrCollectionInitializer
             Map map = new Map( null, widthX, widthY, height, false );
+// ReSharper restore UseObjectOrCollectionInitializer
 
             // read spawn
             map.Spawn = new Position {

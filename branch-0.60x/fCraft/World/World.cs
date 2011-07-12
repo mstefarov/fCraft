@@ -17,13 +17,25 @@ namespace fCraft {
             "4 Hours", "6 Hours", "8 Hours", "12 Hours", "24 Hours"
         };
 
-        public string Name;
-        public bool IsHidden;
+        /// <summary> World name (no formatting).
+        /// Use WorldManager.RenameWorld() method to change this. </summary>
+        public string Name { get; internal set; }
 
+
+        /// <summary> Whether the world shows up on the /worlds list.
+        /// Can be assigned directly. </summary>
+        public bool IsHidden { get; set; }
+
+
+        /// <summary> Whether this world is currently pending unload 
+        /// (waiting for block updates to finish processing before unloading). </summary>
         public bool PendingUnload { get; private set; }
 
+
         public SecurityController AccessSecurity { get; internal set; }
+
         public SecurityController BuildSecurity { get; internal set; }
+
 
         // used to synchronize player joining/parting with map loading/saving
         internal readonly object WorldLock = new object();
@@ -45,28 +57,21 @@ namespace fCraft {
 
         #region Map
 
+        /// <summary> Map of this world. May be null if world is not loaded. </summary>
         public Map Map;
+
+        /// <summary> Whether the map is currently loaded. </summary>
         public bool IsLoaded {
             get { return Map != null; }
         }
 
 
-        public Map EnsureMapLoaded() {
-            Map map = Map;
-            if( map != null ) {
-                return map;
-            } else {
-                lock( WorldLock ) {
-                    LoadMap();
-                    return Map;
-                }
-            }
-        }
-
-
-        public void LoadMap() {
+        /// <summary> Loads the map file, if needed.
+        /// Generates a default map if mapfile is missing or not loadable.
+        /// Guaranteed to return a Map object. </summary>
+        public Map LoadMap() {
             lock( WorldLock ) {
-                if( Map != null ) return;
+                if( Map != null ) return Map;
 
                 if( File.Exists( MapFileName ) ) {
                     try {
@@ -87,7 +92,7 @@ namespace fCraft {
                 Map.World = this;
                 StartTasks();
 
-                if( OnLoaded != null ) OnLoaded();
+                return Map;
             }
         }
 
@@ -99,12 +104,12 @@ namespace fCraft {
                 Map = null;
                 StopTasks();
                 PendingUnload = false;
-                if( OnUnloaded != null ) OnUnloaded();
             }
             Server.RequestGC();
         }
 
 
+        /// <summary> Returns the map filename, including MapPath. </summary>
         public string MapFileName {
             get {
                 return Path.Combine( Paths.MapPath, Name + ".fcm" );
@@ -221,7 +226,9 @@ namespace fCraft {
                 if( ConfigKey.BackupOnJoin.Enabled() ) {
                     string backupFileName = String.Format( "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm",
                                                            Name, DateTime.Now, player.Name ); // localized
+// ReSharper disable PossibleNullReferenceException
                     Map.SaveBackup( MapFileName,
+// ReSharper restore PossibleNullReferenceException
                                     Path.Combine( Paths.BackupPath, backupFileName ),
                                     true );
                 }
@@ -319,11 +326,13 @@ namespace fCraft {
         public Player FindPlayerExact( string playerName ) {
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
             Player[] tempList = Players;
+            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && tempList[i].Name.Equals( playerName, StringComparison.OrdinalIgnoreCase ) ) {
                     return tempList[i];
                 }
             }
+            // ReSharper restore LoopCanBeConvertedToQuery
             return null;
         }
 
@@ -331,12 +340,7 @@ namespace fCraft {
         /// <summary> Caches the player list to an array (Players -> PlayerList) </summary>
         public void UpdatePlayerList() {
             lock( WorldLock ) {
-                Player[] newPlayerList = new Player[playerIndex.Count];
-                int i = 0;
-                foreach( Player player in playerIndex.Values ) {
-                    newPlayerList[i++] = player;
-                }
-                Players = newPlayerList;
+                Players = playerIndex.Values.ToArray();
             }
         }
 
@@ -435,22 +439,15 @@ namespace fCraft {
         #endregion
 
 
-        #region Obsolete Events
-        [Obsolete]
-        public event Action OnLoaded;
-        [Obsolete]
-        public event Action OnUnloaded;
-
-        #endregion
-
-
         #region Lock / Unlock
 
-        readonly object lockLock = new object();
+        /// <summary> Whether the world is currently locked (in read-only mode). </summary>
         public bool IsLocked { get; private set; }
 
         public string LockedBy, UnlockedBy;
         public DateTime LockedDate, UnlockedDate;
+
+        readonly object lockLock = new object();
 
 
         public bool Lock( Player player ) {
@@ -640,36 +637,44 @@ namespace fCraft {
         #endregion
 
 
-        // ensures that player name has the correct length and character set
+        /// <summary> Ensures that player name has the correct length (2-16 characters)
+        /// and character set (alphanumeric chars and underscores allowed). </summary>
         public static bool IsValidName( string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( name.Length < 2 || name.Length > 16 ) return false;
+            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < name.Length; i++ ) {
                 char ch = name[i];
-                if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') || ch > 'z' ) {
+                if( ch < '0' ||
+                    ch > '9' && ch < 'A' ||
+                    ch > 'Z' && ch < '_' ||
+                    ch > '_' && ch < 'a' ||
+                    ch > 'z' ) {
                     return false;
                 }
             }
+            // ReSharper restore LoopCanBeConvertedToQuery
             return true;
         }
 
 
+        /// <summary> Returns a nicely formatted name, with optional color codes. </summary>
         public string ClassyName {
             get {
-                string displayedName = Name;
                 if( ConfigKey.RankColorsInWorldNames.Enabled() ) {
+                    string displayedName = Name;
                     if( ConfigKey.RankPrefixesInChat.Enabled() ) {
                         displayedName = BuildSecurity.MinRank.Prefix + displayedName;
                     }
-                    if( ConfigKey.RankColorsInChat.Enabled() ) {
-                        if( BuildSecurity.MinRank >= AccessSecurity.MinRank ) {
-                            displayedName = BuildSecurity.MinRank.Color + displayedName;
-                        } else {
-                            displayedName = AccessSecurity.MinRank.Color + displayedName;
-                        }
+                    if( BuildSecurity.MinRank >= AccessSecurity.MinRank ) {
+                        displayedName = BuildSecurity.MinRank.Color + displayedName;
+                    } else {
+                        displayedName = AccessSecurity.MinRank.Color + displayedName;
                     }
+                    return displayedName;
+                } else {
+                    return Name;
                 }
-                return displayedName;
             }
         }
 

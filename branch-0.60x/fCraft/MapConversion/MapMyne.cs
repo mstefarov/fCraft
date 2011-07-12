@@ -145,8 +145,11 @@ namespace fCraft.MapConversion {
         public INIFile( Stream fileStream ) {
             StreamReader reader = new StreamReader( fileStream );
             Dictionary<string, string> section = null;
-            while( !reader.EndOfStream ) {
-                string line = reader.ReadLine().Trim();
+            while( true ) {
+                string line = reader.ReadLine();
+                if( line == null ) break;
+
+                line = line.Trim();
                 if( line.StartsWith( "#" ) ) continue;
                 if( line.StartsWith( "[" ) ) {
                     string sectionName = line.Substring( 1, line.IndexOf( ']' ) - 1 ).Trim().ToLower();
@@ -159,6 +162,7 @@ namespace fCraft.MapConversion {
                 }
             }
         }
+
 
         public bool ContainsSection( string section ) {
             return contents.ContainsKey( section.ToLower() );

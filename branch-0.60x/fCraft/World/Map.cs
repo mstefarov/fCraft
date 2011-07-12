@@ -121,6 +121,7 @@ namespace fCraft {
         #region Saving
 
         public bool Save( string fileName ) {
+            // ReSharper disable EmptyGeneralCatchClause
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             string tempFileName = fileName + ".temp";
 
@@ -154,6 +155,7 @@ namespace fCraft {
                 return false;
             }
             return true;
+            // ReSharper restore EmptyGeneralCatchClause
         }
 
         #endregion

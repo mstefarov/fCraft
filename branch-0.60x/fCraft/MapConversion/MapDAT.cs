@@ -1,5 +1,6 @@
 // Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
@@ -182,11 +183,11 @@ namespace fCraft.MapConversion {
                         } else if( MemCmp( data, pointer, "height" ) ) {
                             widthY = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
                         } else if( MemCmp( data, pointer, "xSpawn" ) ) {
-                            spawn.X = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
+                            spawn.X = (short)( IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16 );
                         } else if( MemCmp( data, pointer, "ySpawn" ) ) {
-                            spawn.H = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
+                            spawn.H = (short)( IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16 );
                         } else if( MemCmp( data, pointer, "zSpawn" ) ) {
-                            spawn.Y = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16);
+                            spawn.Y = (short)( IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16 );
                         }
 
                         pointer += skip;
@@ -229,10 +230,14 @@ namespace fCraft.MapConversion {
         }
 
 
-        static bool MemCmp( byte[] data, int offset, string value ) {
+        static bool MemCmp( IList<byte> data, int offset, string value ) {
+            if( data == null ) throw new ArgumentNullException( "data" );
+            if( value == null ) throw new ArgumentNullException( "value" );
+            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < value.Length; i++ ) {
-                if( offset + i >= data.Length || data[offset + i] != value[i] ) return false;
+                if( offset + i >= data.Count || data[offset + i] != value[i] ) return false;
             }
+            // ReSharper restore LoopCanBeConvertedToQuery
             return true;
         }
     }

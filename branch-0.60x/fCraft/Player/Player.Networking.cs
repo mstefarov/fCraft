@@ -713,17 +713,17 @@ namespace fCraft {
                     sb.Replace( "{PLAYERS}", Server.CountVisiblePlayers( this ).ToString() );
                     sb.Replace( "{WORLDS}", WorldManager.WorldList.Length.ToString() );
                     sb.Replace( "{MOTD}", ConfigKey.MOTD.GetString() );
-                    Message( sb.ToString() );
+                    MessageNow( sb.ToString() );
                 }
             } else {
                 if( firstTime ) {
-                    Message( "Welcome to {0}", ConfigKey.ServerName.GetString() );
+                    MessageNow( "Welcome to {0}", ConfigKey.ServerName.GetString() );
                 } else {
-                    Message( "Welcome back to {0}", ConfigKey.ServerName.GetString() );
+                    MessageNow( "Welcome back to {0}", ConfigKey.ServerName.GetString() );
                 }
 
-                Message( "Your rank is {0}&S. Type &H/help&S for help.",
-                         Info.Rank.ClassyName );
+                MessageNow( "Your rank is {0}&S. Type &H/help&S for help.",
+                            Info.Rank.ClassyName );
             }
 
             // A reminder for first-time users
@@ -777,7 +777,7 @@ namespace fCraft {
                 return false;
             }
 
-            if( Server.RaisePlayerJoiningWorldEvent( this, ref newWorld ) ) {
+            if( Server.RaisePlayerJoiningWorldEvent( this, newWorld ) ) {
                 Logger.Log( "Player.JoinWorldNow: Player {0} was prevented from joining world {1} by an event callback.", LogType.Warning,
                             Name, newWorld.Name );
                 return false;
@@ -807,7 +807,7 @@ namespace fCraft {
                     return false;
                 }
             } else {
-                map = newWorld.EnsureMapLoaded();
+                map = newWorld.LoadMap();
             }
             World = newWorld;
 

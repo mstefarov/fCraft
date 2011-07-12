@@ -565,8 +565,9 @@ namespace fCraft {
         static string[] GetRuleSectionList() {
             if( Directory.Exists( Paths.RulesDirectory ) ) {
                 string[] sections = Directory.GetFiles( Paths.RulesDirectory, "*.txt", SearchOption.TopDirectoryOnly )
-                                    .Select( name => Path.GetFileNameWithoutExtension( name ) )
-                                    .ToArray();
+                                             .Select( name => Path.GetFileNameWithoutExtension( name ) )
+                                             .Where( name => !String.IsNullOrEmpty( name ) )
+                                             .ToArray();
                 if( sections.Length != 0 ) {
                     return sections;
                 }
@@ -616,10 +617,13 @@ namespace fCraft {
             }
 
             string ruleFileName = null;
-            string[] sectionFiles = Directory.GetFiles( Paths.RulesDirectory, "*.txt", SearchOption.TopDirectoryOnly );
+            string[] sectionFiles = Directory.GetFiles( Paths.RulesDirectory,
+                                                        "*.txt",
+                                                        SearchOption.TopDirectoryOnly );
 
             for( int i = 0; i < sectionFiles.Length; i++ ) {
                 string sectionFullName = Path.GetFileNameWithoutExtension( sectionFiles[i] );
+                if( sectionFullName == null ) continue;
                 if( sectionFullName.StartsWith( sectionName, StringComparison.OrdinalIgnoreCase ) ) {
                     if( sectionFullName.Equals( sectionName, StringComparison.OrdinalIgnoreCase ) ) {
                         // if there is an exact match, break out of the loop early
@@ -631,11 +635,11 @@ namespace fCraft {
                         ruleFileName = sectionFiles[i];
 
                     } else {
+                        var matches = sectionFiles.Select( f => Path.GetFileNameWithoutExtension( f ) )
+                                                  .Where( sn => sn != null && sn.StartsWith( sectionName ) );
                         // if there are multiple matches, print a list
                         player.Message( "Multiple rule sections matched \"{0}\": {1}",
-                                        sectionFiles.Select( f => Path.GetFileNameWithoutExtension( f )
-                                                                      .StartsWith( sectionName ) )
-                                                    .JoinToString() );
+                                        sectionName, matches.JoinToString() );
                     }
                 }
             }

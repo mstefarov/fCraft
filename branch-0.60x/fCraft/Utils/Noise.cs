@@ -22,7 +22,7 @@ namespace fCraft {
     /// <summary> Class for generating and filtering 2D noise, extensively used by MapGenerator. </summary>
     public sealed class Noise {
         public readonly int Seed;
-        public NoiseInterpolationMode InterpolationMode;
+        public readonly NoiseInterpolationMode InterpolationMode;
 
         public Noise( int seed, NoiseInterpolationMode interpolationMode ) {
             Seed = seed;

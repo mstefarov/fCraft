@@ -84,6 +84,7 @@ namespace fCraft {
         static void LoadWorldListXml() {
             XDocument doc = XDocument.Load( Paths.WorldListFileName );
             XElement root = doc.Root;
+            if( root == null ) return; // no worlds defined, empty xml file
             World firstWorld = null;
             XAttribute temp;
 
@@ -116,10 +117,12 @@ namespace fCraft {
                     }
 
                     if( (temp = el.Attribute( "hidden" )) != null ) {
-                        if( !Boolean.TryParse( temp.Value, out world.IsHidden ) ) {
+                        bool isHidden;
+                        if( Boolean.TryParse( temp.Value, out isHidden ) ) {
+                            world.IsHidden = isHidden;
+                        } else {
                             Logger.Log( "WorldManager: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
                                         LogType.Warning, worldName );
-                            world.IsHidden = false;
                         }
                     }
                     if( firstWorld == null ) firstWorld = world;
@@ -274,7 +277,7 @@ namespace fCraft {
             var h = SearchingForWorld;
             World[] matches = FindWorlds( worldName );
             if( h != null ) {
-                SearchingForWorldEventArgs e = new SearchingForWorldEventArgs( player, worldName, new List<World>(matches), false );
+                SearchingForWorldEventArgs e = new SearchingForWorldEventArgs( player, worldName, new List<World>( matches ), false );
                 h( null, e );
                 matches = e.Matches.ToArray();
             }
@@ -311,10 +314,10 @@ namespace fCraft {
                     throw new WorldOpException( name, WorldOpExceptionCode.PluginDenied );
                 }
 
-                World newWorld = new World( name );
-
-                newWorld.Map = map;
-                newWorld.NeverUnload = neverUnload;
+                World newWorld = new World( name ) {
+                    Map = map,
+                    NeverUnload = neverUnload
+                };
 
                 Worlds.Add( name.ToLower(), newWorld );
                 UpdateWorldList();

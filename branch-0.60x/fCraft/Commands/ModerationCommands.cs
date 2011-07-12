@@ -732,8 +732,8 @@ namespace fCraft {
                                         newRank.ClassyName );
                         if( ConfigKey.AnnounceRankChangeReasons.Enabled() && !String.IsNullOrEmpty( reason ) ) {
                             Server.Message( "&S{0} reason: {1}",
-                                              promote ? "Promotion" : "Demotion",
-                                              reason );
+                                            promote ? "Promotion" : "Demotion",
+                                            reason );
                         }
                     } else {
                         player.Message( "You {0} {1} from {2}&S to {3}",
@@ -741,7 +741,7 @@ namespace fCraft {
                                         targetInfo.Name,
                                         oldRank.ClassyName,
                                         newRank.ClassyName );
-                        if( !String.IsNullOrEmpty( reason ) ) {
+                        if( target != null && !String.IsNullOrEmpty( reason ) ) {
                             target.Message( "&S{0} reason: {1}",
                                             promote ? "Promotion" : "Demotion",
                                             reason );
