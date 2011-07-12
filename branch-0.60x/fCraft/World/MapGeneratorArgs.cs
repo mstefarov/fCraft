@@ -81,6 +81,7 @@ namespace fCraft {
             Seed = (new Random()).Next();
         }
 
+        // ReSharper disable PossibleNullReferenceException
         public MapGeneratorArgs( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             XDocument doc = XDocument.Load( fileName );
@@ -159,6 +160,7 @@ namespace fCraft {
 
             Validate();
         }
+        // ReSharper restore PossibleNullReferenceException
 
 
         const string RootTagName = "fCraftMapGeneratorArgs";

@@ -252,9 +252,16 @@ namespace fCraft {
                     case IRCMessageType.Quit:
                         if( !ResponsibleForInputParsing ) return;
                         if( ConfigKey.IRCBotAnnounceIRCJoins.Enabled() ) {
-                            Server.Message( "{0}(IRC) {1} left {2}",
-                                            Color.IRC, msg.Nick, msg.Channel );
+                            Server.Message( "&i(IRC) {0} left {1}",
+                                            msg.Nick, msg.Channel );
                         }
+                        return;
+
+
+                    case IRCMessageType.NickChange:
+                        if( !ResponsibleForInputParsing ) return;
+                        Server.Message( "&i(IRC) {1} is now known as {2}",
+                                        msg.Nick, msg.Message );
                         return;
 
 
