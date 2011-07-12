@@ -60,29 +60,36 @@ namespace fCraft {
                 request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
 
                 using( WebResponse response = request.GetResponse() ) {
+                    // ReSharper disable PossibleNullReferenceException
                     using( XmlTextReader reader = new XmlTextReader( response.GetResponseStream() ) ) {
                         XDocument doc = XDocument.Load( reader );
                         XElement root = doc.Root;
                         if( root.Attribute( "result" ).Value == "update" ) {
                             string downloadUrl = root.Attribute( "url" ).Value;
                             var releases = new List<ReleaseInfo>();
+                            // ReSharper disable LoopCanBeConvertedToQuery
                             foreach( XElement el in root.Elements( "Release" ) ) {
-                                releases.Add( new ReleaseInfo(
-                                    Int32.Parse( el.Attribute( "v" ).Value ),
-                                    Int32.Parse( el.Attribute( "r" ).Value ),
-                                    Int64.Parse( el.Attribute( "date" ).Value ).ToDateTime(),
-                                    el.Element( "Summary" ).Value,
-                                    el.Element( "ChangeLog" ).Value,
-                                    ReleaseInfo.StringToReleaseFlags( el.Attribute( "flags" ).Value )
-                                ) );
+                                releases.Add(
+                                    new ReleaseInfo(
+                                        Int32.Parse( el.Attribute( "v" ).Value ),
+                                        Int32.Parse( el.Attribute( "r" ).Value ),
+                                        Int64.Parse( el.Attribute( "date" ).Value ).ToDateTime(),
+                                        el.Element( "Summary" ).Value,
+                                        el.Element( "ChangeLog" ).Value,
+                                        ReleaseInfo.StringToReleaseFlags( el.Attribute( "flags" ).Value )
+                                    )
+                                );
                             }
-                            UpdaterResult result = new UpdaterResult( (releases.Count > 0), downloadUrl, releases.ToArray() );
+                            // ReSharper restore LoopCanBeConvertedToQuery
+                            UpdaterResult result = new UpdaterResult( ( releases.Count > 0 ), downloadUrl,
+                                                                      releases.ToArray() );
                             FireCheckedForUpdatesEvent( UpdateUrl, result );
                             return result;
                         } else {
                             return UpdaterResult.NoUpdate;
                         }
                     }
+                    // ReSharper restore PossibleNullReferenceException
                 }
             } catch( Exception ex ) {
                 Logger.Log( "An error occured while trying to check for updates: {0}: {1}", LogType.Error,

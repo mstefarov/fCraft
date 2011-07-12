@@ -197,7 +197,7 @@ namespace fCraft.Events {
 
         public Player Player { get; private set; }
         public World OldWorld { get; private set; }
-        public World NewWorld { get; set; }
+        public World NewWorld { get; private set; }
         public bool Cancel { get; set; }
     }
 

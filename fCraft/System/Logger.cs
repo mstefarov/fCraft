@@ -152,11 +152,18 @@ namespace fCraft {
             bool submitCrashReport = ConfigKey.SubmitCrashReports.Enabled();
             bool isCommon = CheckForCommonErrors( exception );
 
+            // ReSharper disable EmptyGeneralCatchClause
             try {
-                CrashEventArgs eventArgs = new CrashEventArgs( message, assembly, exception, submitCrashReport && !isCommon, isCommon, shutdownImminent );
+                CrashedEventArgs eventArgs = new CrashedEventArgs( message,
+                                                               assembly,
+                                                               exception,
+                                                               submitCrashReport && !isCommon,
+                                                               isCommon,
+                                                               shutdownImminent );
                 RaiseCrashedEvent( eventArgs );
                 isCommon = eventArgs.IsCommonProblem;
             } catch { }
+            // ReSharper restore EmptyGeneralCatchClause
 
             if( !submitCrashReport || isCommon ) {
                 return;
@@ -436,7 +443,7 @@ namespace fCraft {
         /// <summary> Occurs when the server "crashes" (has an unhandled exception).
         /// Note that such occurences will not always cause shutdowns - check ShutdownImminent property.
         /// Reporting of the crash may be suppressed. </summary>
-        public static event EventHandler<CrashEventArgs> Crashed;
+        public static event EventHandler<CrashedEventArgs> Crashed;
 
 
         [DebuggerStepThrough]
@@ -450,7 +457,7 @@ namespace fCraft {
         }
 
 
-        static void RaiseCrashedEvent( CrashEventArgs e ) {
+        static void RaiseCrashedEvent( CrashedEventArgs e ) {
             var h = Crashed;
             if( h != null ) h( null, e );
         }
@@ -546,8 +553,8 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class CrashEventArgs : EventArgs {
-        internal CrashEventArgs( string message, string location, Exception exception, bool submitCrashReport, bool isCommonProblem, bool shutdownImminent ) {
+    public sealed class CrashedEventArgs : EventArgs {
+        internal CrashedEventArgs( string message, string location, Exception exception, bool submitCrashReport, bool isCommonProblem, bool shutdownImminent ) {
             Message = message;
             Location = location;
             Exception = exception;

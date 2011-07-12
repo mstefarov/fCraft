@@ -33,6 +33,7 @@ namespace fCraft.AutoRank {
         /// <returns> Null if no rank change is needed, or a rank to promote/demote to. </returns>
         public static Rank Check( PlayerInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
+            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < Criteria.Count; i++ ) {
                 if( Criteria[i].FromRank == info.Rank &&
                     !info.Banned &&
@@ -41,15 +42,15 @@ namespace fCraft.AutoRank {
                     return Criteria[i].ToRank;
                 }
             }
+            // ReSharper restore LoopCanBeConvertedToQuery
             return null;
         }
 
 
         internal static void TaskCallback( SchedulerTask schedulerTask ) {
-            if( ConfigKey.AutoRankEnabled.Enabled() ) {
-                PlayerInfo[] onlinePlayers = Server.Players.Select( p => p.Info ).ToArray();
-                MaintenanceCommands.DoAutoRankAll( Player.AutoRank, onlinePlayers, false, "~AutoRank" );
-            }
+            if( !ConfigKey.AutoRankEnabled.Enabled() ) return;
+            PlayerInfo[] onlinePlayers = Server.Players.Select( p => p.Info ).ToArray();
+            MaintenanceCommands.DoAutoRankAll( Player.AutoRank, onlinePlayers, false, "~AutoRank" );
         }
 
 

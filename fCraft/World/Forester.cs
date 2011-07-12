@@ -140,13 +140,14 @@ namespace fCraft {
             const int shortTreeFraction = 6;
             int attempts = 0;
             for( int i = 0; i < remainingtrees && attempts < MaxTries; attempts++ ) {
-                float randomfac = (float)((Math.Sqrt( args.Rand.NextDouble() ) * 1.618 - .618) * args.HeightVariation + .5);
+                float randomfac =
+                    (float)( ( Math.Sqrt( args.Rand.NextDouble() ) * 1.618 - .618 ) * args.HeightVariation + .5 );
 
                 int height;
                 if( i % shortTreeFraction == 0 ) {
-                    height = (int)(treeheight + randomfac);
+                    height = (int)( treeheight + randomfac );
                 } else {
-                    height = (int)(treeheight - randomfac);
+                    height = (int)( treeheight - randomfac );
                 }
                 Vector3I xyz = FindRandomTreeLocation( height );
                 if( xyz.Y < 0 ) continue;
@@ -154,18 +155,20 @@ namespace fCraft {
                 xyz.Y++;
 
                 bool displaced = false;
+                // ReSharper disable LoopCanBeConvertedToQuery
                 foreach( Tree otherTree in treelist ) {
                     Vector3I otherLoc = otherTree.Pos;
                     float otherheight = otherTree.Height;
                     int tallx = otherLoc[0];
                     int tallz = otherLoc[2];
                     float dist = (float)Math.Sqrt( Sqr( tallx - xyz.X + .5 ) + Sqr( tallz - xyz.Z + .5 ) );
-                    float threshold = (otherheight + height) * .193f;
+                    float threshold = ( otherheight + height ) * .193f;
                     if( dist < threshold ) {
                         displaced = true;
                         break;
                     }
                 }
+                // ReSharper restore LoopCanBeConvertedToQuery
                 if( displaced ) continue;
                 treelist.Add( new RainforestTree {
                     Args = args,
@@ -369,12 +372,16 @@ namespace fCraft {
 
         class ProceduralTree : Tree {
 
+            // ReSharper disable MemberCanBePrivate.Local
+            // ReSharper disable MemberCanBeProtected.Local
             public float TrunkRadius { get; set; }
             public float BranchSlope { get; set; }
             public float TrunkHeight { get; set; }
             public float BranchDensity { get; set; }
             public float[] FoliageShape { get; set; }
             public Vector3I[] FoliageCoords { get; set; }
+            // ReSharper restore MemberCanBeProtected.Local
+            // ReSharper restore MemberCanBePrivate.Local
 
 
             void CrossSection( Vector3I center, float radius, int diraxis, Block matidx ) {
@@ -400,7 +407,8 @@ namespace fCraft {
                 }
             }
 
-            public virtual float ShapeFunc( int y ) {
+
+            protected virtual float ShapeFunc( int y ) {
                 if( Args.Rand.NextDouble() < 100f / Sqr( Height ) && y < TrunkHeight ) {
                     return Height * .12f;
                 } else {
@@ -678,7 +686,8 @@ namespace fCraft {
                 TrunkHeight = Args.TrunkHeight * Height;
             }
 
-            public override float ShapeFunc( int y ) {
+
+            protected override float ShapeFunc( int y ) {
                 float twigs = base.ShapeFunc( y );
                 if( twigs >= 0 ) return twigs;
 
@@ -711,7 +720,8 @@ namespace fCraft {
                 TrunkHeight = Height;
             }
 
-            public override float ShapeFunc( int y ) {
+
+            protected override float ShapeFunc( int y ) {
                 float twigs = base.ShapeFunc( y );
                 if( twigs >= 0 ) return twigs;
                 if( y < Height * (.25 + .05 * Math.Sqrt( Args.Rand.NextDouble() )) ) {
@@ -733,7 +743,8 @@ namespace fCraft {
                 TrunkHeight = Height * .9f;
             }
 
-            public override float ShapeFunc( int y ) {
+
+            protected override float ShapeFunc( int y ) {
                 if( y < Height * .8 ) {
                     if( Args.Height < Height ) {
                         float twigs = base.ShapeFunc( y );
@@ -759,7 +770,8 @@ namespace fCraft {
                 TrunkRadius *= .618f;
             }
 
-            public override float ShapeFunc( int y ) {
+
+            protected override float ShapeFunc( int y ) {
                 float val = base.ShapeFunc( y );
                 if( val < 0 ) return -1;
                 val *= 1.618f;

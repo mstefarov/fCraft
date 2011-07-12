@@ -36,13 +36,17 @@ namespace fCraft.AutoRank {
 
     /// <summary> Class for checking ranges of countable PlayerInfo fields (see ConditionField enum). </summary>
     public sealed class ConditionIntRange : Condition {
-        public ConditionField Field;
-        public ComparisonOp Comparison = ComparisonOp.Eq;
-        public int Value;
+        public ConditionField Field { get; set; }
+        public ComparisonOp Comparison { get; set; }
+        public int Value { get; set; }
 
-        public ConditionIntRange() { }
+        public ConditionIntRange() {
+            Comparison = ComparisonOp.Eq;
+        }
 
-        public ConditionIntRange( XElement el ) {
+        // ReSharper disable PossibleNullReferenceException
+        public ConditionIntRange( XElement el )
+            : this() {
             if( el == null ) throw new ArgumentNullException( "el" );
             Field = (ConditionField)Enum.Parse( typeof( ConditionField ), el.Attribute( "field" ).Value, true );
             Value = Int32.Parse( el.Attribute( "val" ).Value );
@@ -50,6 +54,9 @@ namespace fCraft.AutoRank {
                 Comparison = (ComparisonOp)Enum.Parse( typeof( ComparisonOp ), el.Attribute( "op" ).Value, true );
             }
         }
+
+
+        // ReSharper restore PossibleNullReferenceException
 
         public ConditionIntRange( ConditionField field, ComparisonOp comparison, int value ) {
             Field = field;
@@ -141,16 +148,18 @@ namespace fCraft.AutoRank {
 
     /// <summary> Checks what caused player's last rank change (see RankChangeType enum). </summary>
     public sealed class ConditionRankChangeType : Condition {
-        public RankChangeType Type;
+        public RankChangeType Type { get; set; }
 
         public ConditionRankChangeType( RankChangeType type ) {
             Type = type;
         }
 
+        // ReSharper disable PossibleNullReferenceException
         public ConditionRankChangeType( XElement el ) {
             if( el == null ) throw new ArgumentNullException( "el" );
             Type = (RankChangeType)Enum.Parse( typeof( RankChangeType ), el.Attribute( "val" ).Value, true );
         }
+        // ReSharper restore PossibleNullReferenceException
 
         public override bool Eval( PlayerInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
@@ -167,8 +176,8 @@ namespace fCraft.AutoRank {
 
     /// <summary> Checks what rank the player held previously. </summary>
     public sealed class ConditionPreviousRank : Condition {
-        public Rank Rank;
-        public ComparisonOp Comparison;
+        public Rank Rank { get; set; }
+        public ComparisonOp Comparison { get; set; }
 
         public ConditionPreviousRank( Rank rank, ComparisonOp comparison ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
@@ -179,11 +188,13 @@ namespace fCraft.AutoRank {
             Comparison = comparison;
         }
 
+        // ReSharper disable PossibleNullReferenceException
         public ConditionPreviousRank( XElement el ) {
             if( el == null ) throw new ArgumentNullException( "el" );
             Rank = RankManager.ParseRank( el.Attribute( "val" ).Value );
             Comparison = (ComparisonOp)Enum.Parse( typeof( ComparisonOp ), el.Attribute( "op" ).Value, true );
         }
+        // ReSharper restore PossibleNullReferenceException
 
         public override bool Eval( PlayerInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );

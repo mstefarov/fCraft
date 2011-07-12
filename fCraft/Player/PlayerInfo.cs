@@ -906,12 +906,14 @@ namespace fCraft {
 
 namespace fCraft.Events {
 
+    // ReSharper disable MemberCanBeProtected.Global
     public class PlayerInfoEventArgs : EventArgs {
         public PlayerInfoEventArgs( PlayerInfo playerInfo ) {
             PlayerInfo = playerInfo;
         }
         public PlayerInfo PlayerInfo { get; protected set; }
     }
+    // ReSharper restore MemberCanBeProtected.Global
 
 
     public sealed class PlayerInfoCreatingEventArgs : EventArgs, ICancellableEvent {

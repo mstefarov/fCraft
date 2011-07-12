@@ -27,6 +27,7 @@ namespace fCraft.AutoRank {
             Condition = condition;
         }
 
+        // ReSharper disable PossibleNullReferenceException
         public Criterion( XElement el ) {
             if( el == null ) throw new ArgumentNullException( "el" );
 
@@ -38,6 +39,7 @@ namespace fCraft.AutoRank {
 
             Condition = (ConditionSet)AutoRank.Condition.Parse( el.Elements().First() );
         }
+        // ReSharper restore PossibleNullReferenceException
 
         public object Clone() {
             return new Criterion( this );

@@ -84,8 +84,10 @@ namespace fCraft {
                         lock( AddLocker ) {
                             int version = IdentifyFormatVersion( header );
 
-                            while( !reader.EndOfStream ) {
-                                string[] fields = reader.ReadLine().Split( ',' );
+                            while( true ) {
+                                string line = reader.ReadLine();
+                                if( line == null ) break;
+                                string[] fields = line.Split( ',' );
                                 if( fields.Length >= PlayerInfo.MinFieldCount ) {
 #if !DEBUG
                                     try {
@@ -97,20 +99,24 @@ namespace fCraft {
                                             info = PlayerInfo.Load( fields );
                                         }
                                         if( Trie.ContainsKey( info.Name ) ) {
-                                            Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.", LogType.Error, info.Name );
+                                            Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.",
+                                                        LogType.Error, info.Name );
                                         } else {
                                             Trie.Add( info.Name, info );
                                             List.Add( info );
                                         }
 #if !DEBUG
                                     } catch( Exception ex ) {
-                                        Logger.LogAndReportCrash( "Error while parsing PlayerInfo record", "fCraft", ex, false );
+                                        Logger.LogAndReportCrash( "Error while parsing PlayerInfo record", "fCraft", ex,
+                                                                  false );
                                     }
 #endif
                                 } else {
-                                    Logger.Log( "PlayerDB.Load: Unexpected field count ({0}), expecting at least {1} fields for a PlayerDB entry.", LogType.Error,
-                                                fields.Length,
-                                                PlayerInfo.MinFieldCount );
+                                    Logger.Log(
+                                        "PlayerDB.Load: Unexpected field count ({0}), expecting at least {1} fields for a PlayerDB entry.",
+                                        LogType.Error,
+                                        fields.Length,
+                                        PlayerInfo.MinFieldCount );
                                 }
                             }
                         }

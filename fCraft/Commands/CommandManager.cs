@@ -250,12 +250,15 @@ namespace fCraft {
         public static bool IsValidCommandName( string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( name.Length == 0 || name.Length > 16 ) return false;
+            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < name.Length; i++ ) {
                 char ch = name[i];
-                if( (ch < '0' && ch != '.') || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') || ch > 'z' ) {
+                if( ( ch < '0' && ch != '.' ) || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < '_' ) ||
+                    ( ch > '_' && ch < 'a' ) || ch > 'z' ) {
                     return false;
                 }
             }
+            // ReSharper restore LoopCanBeConvertedToQuery
             return true;
         }
 

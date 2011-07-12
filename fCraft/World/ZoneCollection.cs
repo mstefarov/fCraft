@@ -2,10 +2,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace fCraft {
     /// <summary> A collection of zones within a map. </summary>
+    [DebuggerDisplay( "Count = {Count}" )]
     public sealed class ZoneCollection : ICollection<Zone>, ICollection, ICloneable, INotifiesOnChange {
         readonly Dictionary<string, Zone> store = new Dictionary<string, Zone>();
 
@@ -67,10 +69,7 @@ namespace fCraft {
         public bool Contains( Zone item ) {
             if( item == null ) throw new ArgumentNullException( "item" );
             Zone[] cache = Cache;
-            for( int i = 0; i < cache.Length; i++ ) {
-                if( cache[i] == item ) return true;
-            }
-            return false;
+            return cache.Any( t => t == item );
         }
 
 
@@ -78,10 +77,7 @@ namespace fCraft {
         public bool Contains( string zoneName ) {
             if( zoneName == null ) throw new ArgumentNullException( "zoneName" );
             Zone[] cache = Cache;
-            for( int i = 0; i < cache.Length; i++ ) {
-                if( cache[i].Name.Equals( zoneName, StringComparison.OrdinalIgnoreCase ) ) return true;
-            }
-            return false;
+            return cache.Any( t => t.Name.Equals( zoneName, StringComparison.OrdinalIgnoreCase ) );
         }
 
 
@@ -201,6 +197,7 @@ namespace fCraft {
         /// <returns> First zone to deny the player.
         /// null if none of the zones deny the player. </returns>
         public Zone FindDenied( int x, int y, int h, Player player ) {
+            // ReSharper disable LoopCanBeConvertedToQuery
             if( player == null ) throw new ArgumentNullException( "player" );
             Zone[] zoneListCache = Cache;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
@@ -210,6 +207,7 @@ namespace fCraft {
                 }
             }
             return null;
+            // ReSharper restore LoopCanBeConvertedToQuery
         }
 
 

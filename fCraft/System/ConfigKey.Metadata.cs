@@ -21,8 +21,10 @@ namespace fCraft {
         }
         public Type ValueType { get; protected set; }
         public object DefaultValue { get; protected set; }
-        public ConfigSection Section { get; protected set; }
+        public ConfigSection Section { get; private set; }
+        // ReSharper disable MemberCanBeProtected.Global
         public bool NotBlank { get; set; }
+        // ReSharper restore MemberCanBeProtected.Global
         public ConfigKey Key { get; internal set; }
 
 

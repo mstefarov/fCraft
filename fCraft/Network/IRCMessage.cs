@@ -27,6 +27,7 @@
 
 namespace fCraft {
     // ReSharper disable FieldCanBeMadeReadOnly.Global
+    // ReSharper disable UnaccessedField.Global
     public sealed class IRCMessage {
         public string From;
         public string Nick;
