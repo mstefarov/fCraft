@@ -26,7 +26,7 @@ namespace fCraft {
         public static bool IsWindows { get; private set; }
 
 
-        const string unsupportedMessage = "Your Mono version is not supported. Update to at least Mono 2.6+ (recommended 2.10+)";
+        const string UnsupportedMessage = "Your Mono version is not supported. Update to at least Mono 2.6+ (recommended 2.10+)";
 
         const BindingFlags MonoMethodFlags = BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.ExactBinding;
         static MonoCompat() {
@@ -45,15 +45,15 @@ namespace fCraft {
                         MonoVersion = new Version( major, minor, revision );
                         IsSGenCapable = (major == 2 && minor >= 8);
                     } catch( Exception ex ) {
-                        throw new Exception( unsupportedMessage, ex );
+                        throw new Exception( UnsupportedMessage, ex );
                     }
 
                     if( MonoVersion.Major < 2 && MonoVersion.Major < 6 ) {
-                        throw new Exception( unsupportedMessage );
+                        throw new Exception( UnsupportedMessage );
                     }
 
                 } else {
-                    throw new Exception( unsupportedMessage );
+                    throw new Exception( UnsupportedMessage );
                 }
             }
 
