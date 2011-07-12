@@ -526,7 +526,7 @@ namespace fCraft {
         void RemovePlayerFromPatrol( Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             lock( patrolLock ) {
-                patrolList.Remove( player );
+                while( patrolList.Remove( player ) ) { }
             }
         }
 
@@ -536,7 +536,9 @@ namespace fCraft {
             Rank rankToPatrol = RankManager.ParseRank( ConfigKey.PatrolledRank.GetString() );
             if( player.Info.Rank <= rankToPatrol ) {
                 lock( patrolLock ) {
-                    patrolList.AddLast( player );
+                    if( !patrolList.Contains( player ) ) {
+                        patrolList.AddLast( player );
+                    }
                 }
             }
         }
