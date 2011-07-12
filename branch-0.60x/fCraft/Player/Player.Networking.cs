@@ -623,7 +623,10 @@ namespace fCraft {
             // ----==== Beyond this point, player is considered connected (authenticated and registered) ====----
 
 
-            World startingWorld = Server.RaisePlayerConnectedEvent( this, WorldManager.MainWorld );
+            // Figure out what the starting world should be
+            World startingWorld = Info.Rank.MainWorld;
+            if( startingWorld == null ) startingWorld = WorldManager.MainWorld;
+            startingWorld = Server.RaisePlayerConnectedEvent( this, startingWorld );
 
             // Send server information
             SendNow( PacketWriter.MakeHandshake( this, ConfigKey.ServerName.GetString(), ConfigKey.MOTD.GetString() ) );
