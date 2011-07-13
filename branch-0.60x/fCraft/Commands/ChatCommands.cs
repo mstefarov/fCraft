@@ -254,24 +254,24 @@ namespace fCraft {
             }
 
             Random rand = new Random();
-            int min = 1, max = 100, t1;
+            int t1, t2, min, max;
             if( cmd.NextInt( out t1 ) ) {
-                int t2;
-                if( cmd.NextInt( out t2 ) ) {
-                    if( t2 < t1 ) {
-                        min = t2;
-                        max = t1;
-                    } else {
-                        min = t1;
-                        max = t2;
-                    }
-                } else if( t1 >= 1 ) {
-                    max = t1;
+                if( !cmd.NextInt( out t2 ) ) {
+                    t2 = 1;
                 }
+                min = Math.Min( t1, t2 );
+                max = Math.Max( t1, t2 );
+            } else {
+                min = 1;
+                max = 100;
             }
+
             int num = rand.Next( min, max + 1 );
-            Server.Message( "{0}{1} rolled {2} ({3}...{4})",
+            Server.Message( player,
+                            "{0}{1} rolled {2} ({3}...{4})",
                             player.ClassyName, Color.Silver, num, min, max );
+            player.Message( "{0}You rolled {1} ({2}...{3})",
+                            Color.Silver, num, min, max );
         }
 
         #endregion
