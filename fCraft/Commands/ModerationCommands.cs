@@ -182,7 +182,8 @@ namespace fCraft {
             if( ConfigKey.RequireBanReason.Enabled() && string.IsNullOrEmpty( reason ) ) {
                 player.Message( "&WPlease specify a ban/unban reason." );
                 // freeze the target player to prevent further damage
-                if( !unban && target != null && !targetInfo.IsFrozen && player.Can( Permission.Freeze ) && player.Can( Permission.Ban, target.Info.Rank ) ) {
+                if( !unban && target != null && !targetInfo.IsFrozen &&
+                    player.Can( Permission.Freeze ) && player.Can( Permission.Ban, target.Info.Rank ) ) {
                     player.Message( "{0}&S has been frozen while you retry.",
                                     target.ClassyName );
                     Freeze( player, new Command( "/freeze " + target.Name ) );
@@ -491,7 +492,8 @@ namespace fCraft {
         }
 
 
-        internal static bool DoKick( Player player, Player target, string reason, bool silent, bool recordToPlayerDB, LeaveReason leaveReason ) {
+        internal static bool DoKick( Player player, Player target, string reason,
+                                     bool silent, bool recordToPlayerDB, LeaveReason leaveReason ) {
 
             if( player == null ) throw new ArgumentNullException( "player" );
             if( target == null ) throw new ArgumentNullException( "target" );
@@ -586,9 +588,15 @@ namespace fCraft {
                 }
                 if( Player.IsValidName( name ) ) {
                     if( cmd.IsConfirmed ) {
-                        targetInfo = PlayerDB.AddFakeEntry( name, (newRank > RankManager.DefaultRank ? RankChangeType.Promoted : RankChangeType.Demoted) );
+                        if( newRank > RankManager.DefaultRank ) {
+                            targetInfo = PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
+                        } else {
+                            targetInfo = PlayerDB.AddFakeEntry( name, RankChangeType.Demoted );
+                        }
                     } else {
-                        player.AskForConfirmation( cmd, "Warning: Player \"{0}\" is not in the database (possible typo). Type out the full name or", name );
+                        player.AskForConfirmation( cmd,
+                                                   "Warning: Player \"{0}\" is not in the database (possible typo). Type the full name or",
+                                                   name );
                         return;
                     }
                 } else {
@@ -1065,10 +1073,7 @@ namespace fCraft {
 
                 } else {
                     // Try to guess if player typed "/tp" instead of "/join"
-                    World[] worlds = WorldManager.FindWorlds( name );
-                    SearchingForWorldEventArgs e = new SearchingForWorldEventArgs( player, name, worlds.ToList(), true );
-                    WorldManager.RaiseSearchingForWorldEvent( e );
-                    worlds = e.Matches.ToArray();
+                    World[] worlds = WorldManager.FindWorlds( player, name );
 
                     if( worlds.Length == 1 ) {
                         player.StopSpectating();

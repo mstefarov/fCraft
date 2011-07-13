@@ -238,7 +238,7 @@ namespace fCraft.MapConversion {
                             //long blockStart = stream.Position;
                             map.Blocks = new byte[map.Volume];
                             using( GZipStream gs = new GZipStream( stream, CompressionMode.Decompress ) ) {
-                                gs.Read( map.Blocks, 0, 4 );
+                                gs.Read( map.Blocks, 0, 4 ); // skip the 4-byte header
                                 gs.Read( map.Blocks, 0, layerSize );
                             }
                             // TODO: get a cached compressed copy
