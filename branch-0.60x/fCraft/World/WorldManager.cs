@@ -140,8 +140,10 @@ namespace fCraft {
                         if( rank != null ) {
                             if( rank < world.AccessSecurity.MinRank ) {
                                 world.AccessSecurity.MinRank = rank;
-                                Logger.Log( "Lowered MinRank required to access world {0} to allow it to be the main world for that rank.",
-                                            LogType.Warning, rank.Name );
+                                Logger.Log( "LoadWorldListXml: Lowered access MinRank of world {0} to " +
+                                            "allow it to be the main world for that rank.",
+                                            LogType.Warning,
+                                            rank.Name );
                             }
                             rank.MainWorld = world;
                         }
@@ -176,7 +178,7 @@ namespace fCraft {
         }
 
 
-        // Make sure that the map file exists, is properly named, and is loadable.
+        // Makes sure that the map file exists, is properly named, and is loadable.
         static void CheckMapFile( World world ) {
             // Check the world's map file
             string fullMapFileName = world.MapFileName;
@@ -190,10 +192,12 @@ namespace fCraft {
                         // Try to rename the map file to match world's capitalization
                         Paths.ForceRename( matches[0].FullName, fileName );
                         if( Paths.FileExists( fullMapFileName, true ) ) {
-                            Logger.Log( "WorldManager.CheckMapFile: Map file for world \"{0}\" was renamed from \"{1}\" to \"{2}\"", LogType.Warning,
+                            Logger.Log( "WorldManager.CheckMapFile: Map file for world \"{0}\" was renamed from \"{1}\" to \"{2}\"",
+                                        LogType.Warning,
                                         world.Name, matches[0].Name, fileName );
                         } else {
-                            Logger.Log( "WorldManager.CheckMapFile: Failed to rename map file of \"{0}\" from \"{1}\" to \"{2}\"", LogType.Error,
+                            Logger.Log( "WorldManager.CheckMapFile: Failed to rename map file of \"{0}\" from \"{1}\" to \"{2}\"",
+                                        LogType.Error,
                                         world.Name, matches[0].Name, fileName );
                             return;
                         }
@@ -218,41 +222,38 @@ namespace fCraft {
         }
 
 
+        /// <summary> Saves the current world list to worlds.xml. Thread-safe. </summary>
         public static void SaveWorldList() {
             const string worldListTempFileName = Paths.WorldListFileName + ".tmp";
             // Save world list
-            try {
-                lock( WorldListLock ) {
-                    XDocument doc = new XDocument();
-                    XElement root = new XElement( "fCraftWorldList" );
-                    XElement temp;
+            lock( WorldListLock ) {
+                XDocument doc = new XDocument();
+                XElement root = new XElement( "fCraftWorldList" );
+                XElement temp;
 
-                    foreach( World world in WorldList ) {
-                        temp = new XElement( "World" );
-                        temp.Add( new XAttribute( "name", world.Name ) );
-                        temp.Add( world.AccessSecurity.Serialize( "accessSecurity" ) );
-                        temp.Add( world.BuildSecurity.Serialize( "buildSecurity" ) );
-                        if( world.NeverUnload ) {
-                            temp.Add( new XAttribute( "noUnload", true ) );
-                        }
-                        if( world.IsHidden ) {
-                            temp.Add( new XAttribute( "hidden", true ) );
-                        }
-
-                        foreach( Rank mainedRank in RankManager.Ranks.Where( r => r.MainWorld == world )){
-                            temp.Add( new XElement( "RankMainWorld", mainedRank.FullName ) );
-                        }
-
-                        root.Add( temp );
+                foreach( World world in WorldList ) {
+                    temp = new XElement( "World" );
+                    temp.Add( new XAttribute( "name", world.Name ) );
+                    temp.Add( world.AccessSecurity.Serialize( "accessSecurity" ) );
+                    temp.Add( world.BuildSecurity.Serialize( "buildSecurity" ) );
+                    if( world.NeverUnload ) {
+                        temp.Add( new XAttribute( "noUnload", true ) );
                     }
-                    root.Add( new XAttribute( "main", MainWorld.Name ) );
+                    if( world.IsHidden ) {
+                        temp.Add( new XAttribute( "hidden", true ) );
+                    }
 
-                    doc.Add( root );
-                    doc.Save( worldListTempFileName );
-                    Paths.MoveOrReplace( worldListTempFileName, Paths.WorldListFileName );
+                    foreach( Rank mainedRank in RankManager.Ranks.Where( r => r.MainWorld == world ) ) {
+                        temp.Add( new XElement( "RankMainWorld", mainedRank.FullName ) );
+                    }
+
+                    root.Add( temp );
                 }
-            } catch( Exception ex ) {
-                Logger.Log( "Server.SaveWorldList: An error occured while trying to save the world list: {0}", LogType.Error, ex );
+                root.Add( new XAttribute( "main", MainWorld.Name ) );
+
+                doc.Add( root );
+                doc.Save( worldListTempFileName );
+                Paths.MoveOrReplace( worldListTempFileName, Paths.WorldListFileName );
             }
         }
 
@@ -261,13 +262,19 @@ namespace fCraft {
 
         #region Finding Worlds
 
+        /// <summary> Finds a world by full name.
+        /// Target world is not guaranteed to have a loaded map. </summary>
+        /// <returns> World if found, or null if not found. </returns>
         public static World FindWorldExact( string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             return WorldList.FirstOrDefault( w => w.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
         }
 
 
-        public static World[] FindWorlds( string name ) {
+        /// <summary> Finds all worlds that match the given world name.
+        /// Autocompletes. Does not raise SearchingForWorld event.
+        /// Target worlds are not guaranteed to have a loaded map. </summary>
+        public static World[] FindWorldsNoEvent( string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             World[] worldListCache = WorldList;
 
@@ -287,17 +294,34 @@ namespace fCraft {
         }
 
 
+        /// <summary> Finds all worlds that match the given name.
+        /// Autocompletes. Raises SearchingForWorld event.
+        /// Target worlds are not guaranteed to have a loaded map.</summary>
+        /// <param name="player"> Player who is calling the query. May be null. </param>
+        /// <param name="name"> Full or partial world name. </param>
+        /// <returns> An array of 0 or more worlds that matched the name. </returns>
+        public static World[] FindWorlds( Player player, string name ) {
+            World[] matches = FindWorldsNoEvent( name );
+            var h = SearchingForWorld;
+            if( h != null ) {
+                SearchingForWorldEventArgs e = new SearchingForWorldEventArgs( player, name, matches );
+                h( null, e );
+                matches = e.Matches.ToArray();
+            }
+            return matches;
+        }
+
+
+        /// <summary> Tries to find a single world by full or partial name.
+        /// Returns null if zero or multiple worlds matched. </summary>
+        /// <param name="player"> Player who will receive messages regarding zero or multiple matches. </param>
+        /// <param name="worldName"> Full or partial world name. </param>
         public static World FindWorldOrPrintMatches( Player player, string worldName ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
 
             var h = SearchingForWorld;
-            World[] matches = FindWorlds( worldName );
-            if( h != null ) {
-                SearchingForWorldEventArgs e = new SearchingForWorldEventArgs( player, worldName, new List<World>( matches ), false );
-                h( null, e );
-                matches = e.Matches.ToArray();
-            }
+            World[] matches = FindWorlds( player, worldName );
 
             if( matches.Length == 0 ) {
                 player.MessageNoWorld( worldName );
@@ -509,11 +533,6 @@ namespace fCraft {
             if( h != null ) h( null, new MainWorldChangedEventArgs( oldWorld, newWorld ) );
         }
 
-        internal static void RaiseSearchingForWorldEvent( SearchingForWorldEventArgs e ) {
-            var h = SearchingForWorld;
-            if( h != null ) h( null, e );
-        }
-
         static bool RaiseWorldCreatingEvent( Player player, string worldName, Map map ) {
             var h = WorldCreating;
             if( h == null ) return false;
@@ -551,16 +570,14 @@ namespace fCraft.Events {
 
 
     public sealed class SearchingForWorldEventArgs : EventArgs {
-        internal SearchingForWorldEventArgs( Player player, string searchTerm, List<World> matches, bool toJoin ) {
+        internal SearchingForWorldEventArgs( Player player, string searchTerm, IList<World> matches ) {
             Player = player;
             SearchTerm = searchTerm;
             Matches = matches;
-            ToJoin = toJoin;
         }
         public Player Player { get; private set; }
         public string SearchTerm { get; private set; }
-        public List<World> Matches { get; set; }
-        public bool ToJoin { get; private set; }
+        public IList<World> Matches { get; set; }
     }
 
 }

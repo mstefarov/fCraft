@@ -135,11 +135,7 @@ namespace fCraft {
                 return;
             }
 
-            World[] worlds = WorldManager.FindWorlds( worldName );
-
-            SearchingForWorldEventArgs e = new SearchingForWorldEventArgs( player, worldName, worlds.ToList(), true );
-            WorldManager.RaiseSearchingForWorldEvent( e );
-            worlds = e.Matches.ToArray();
+            World[] worlds = WorldManager.FindWorlds( player, worldName );
 
             if( worlds.Length > 1 ) {
                 player.MessageManyMatches( "world", worlds );
@@ -320,8 +316,10 @@ namespace fCraft {
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/wmain [WorldName]",
-            Help = "Sets the specified world as the new main world. Main world is what newly-connected players join first.",
+            Usage = "/wmain [@RankName] [WorldName]",
+            Help = "Sets the specified world as the new main world. " +
+                   "Main world is what newly-connected players join first. " +
+                   "You can specify a rank name to set a different starting world for that particular rank.",
             Handler = WorldMain
         };
 

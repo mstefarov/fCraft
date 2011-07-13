@@ -12,6 +12,7 @@ namespace fCraft {
 
         public const MapFormat SaveFormat = MapFormat.FCMv3;
 
+        /// <summary> The world associated with this map, if any. May be null. </summary>
         public World World { get; set; }
 
         /// <summary> Map width, in blocks. Equivalent to Notch's X (horizontal). </summary>
@@ -26,7 +27,9 @@ namespace fCraft {
         /// <summary> Map boundaries. Can be useful for calculating volume or interesections. </summary>
         public readonly BoundingBox Bounds;
 
+        /// <summary> Map volume, in terms of blocks. </summary>
         public readonly int Volume;
+
 
         /// <summary> Default spawning point on the map. </summary>
         Position spawn;
@@ -120,6 +123,8 @@ namespace fCraft {
 
         #region Saving
 
+        /// <summary> Saves this map to a file in the default format (FCMv3). </summary>
+        /// <returns> Whether the saving succeeded. </returns>
         public bool Save( string fileName ) {
             // ReSharper disable EmptyGeneralCatchClause
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
@@ -289,10 +294,9 @@ namespace fCraft {
         readonly ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
 
 
+        /// <summary> Number of blocks that are waiting to be processed. </summary>
         public int UpdateQueueLength {
-            get {
-                return updates.Length;
-            }
+            get { return updates.Length; }
         }
 
 
@@ -442,7 +446,7 @@ namespace fCraft {
 
         #region Utilities
 
-        internal bool ValidateHeader() {
+        public bool ValidateHeader() {
             if( !IsValidDimension( WidthX ) ) {
                 Logger.Log( "Map.ValidateHeader: Invalid dimension specified for widthX: {0}.", LogType.Error, WidthX );
                 return false;
@@ -468,7 +472,8 @@ namespace fCraft {
         }
 
 
-        // Only multiples of 16 are allowed, between 16 and 2032
+        /// <summary> Checks if a given map dimension (width, height, or length) is valid.
+        /// Only multiples of 16 are allowed, between 16 and 2032. </summary>
         public static bool IsValidDimension( int dimension ) {
             return dimension > 0 && dimension % 16 == 0 && dimension < 2048;
         }
