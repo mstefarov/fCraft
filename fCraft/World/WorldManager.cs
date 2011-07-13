@@ -47,6 +47,7 @@ namespace fCraft {
         #region World List Saving/Loading
 
         internal static bool LoadWorldList() {
+            WorldList = new World[0];
             if( File.Exists( Paths.WorldListFileName ) ) {
                 try {
                     LoadWorldListXml();
