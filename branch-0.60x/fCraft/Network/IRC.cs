@@ -36,18 +36,14 @@ using fCraft.Events;
 
 namespace fCraft {
 
-    /// <summary>
-    /// IRC control class. 
-    /// </summary>
+    /// <summary> IRC control class. </summary>
     public static class IRC {
 
-        /// <summary>
-        /// Class represents an IRC connection/thread.
+        /// <summary> Class represents an IRC connection/thread.
         /// There is an undocumented option (IRCThreads) to "load balance" the outgoing
         /// messages between multiple bots. If that's the case, several IRCThread objects
         /// are created. The bots grab messages from IRC.outputQueue whenever they are
-        /// not on cooldown (a bit of an intentional race condition).
-        /// </summary>
+        /// not on cooldown (a bit of an intentional race condition). </summary>
         sealed class IRCThread : IDisposable {
             TcpClient client;
             StreamReader reader;
@@ -241,10 +237,17 @@ namespace fCraft {
 
 
                     case IRCMessageType.Kick:
-                        Logger.Log( "Bot was kicked from {0} by {1} ({2}), rejoining.", LogType.IRC,
-                                    msg.Channel, msg.Nick, msg.Message );
-                        Thread.Sleep( ReconnectDelay );
-                        Send( IRCCommands.Join( msg.Channel ) );
+                        string kicked = msg.RawMessageArray[3];
+                        if( kicked == ActualBotNick ) {
+                            Logger.Log( "Bot was kicked from {0} by {1} ({2}), rejoining.", LogType.IRC,
+                                        msg.Channel, msg.Nick, msg.Message );
+                            Thread.Sleep( ReconnectDelay );
+                            Send( IRCCommands.Join( msg.Channel ) );
+                        } else {
+                            if( !ResponsibleForInputParsing ) return;
+                            Server.Message( "&i(IRC) {0} kicked {1} from {2} ({3})",
+                                            msg.Nick, kicked, msg.Channel, msg.Message );
+                        }
                         return;
 
 
