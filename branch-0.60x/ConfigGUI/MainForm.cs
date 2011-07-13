@@ -70,6 +70,7 @@ namespace fCraft.ConfigGUI {
             }
 
             foreach( LogType type in Enum.GetValues( typeof( LogType ) ) ) {
+                if( type == LogType.Trace ) continue;
                 ListViewItem item = new ListViewItem( type.ToString() ) { Tag = type };
                 vLogFileOptions.Items.Add( item );
                 vConsoleOptions.Items.Add( (ListViewItem)item.Clone() );

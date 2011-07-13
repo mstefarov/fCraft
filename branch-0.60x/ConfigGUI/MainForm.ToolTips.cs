@@ -581,8 +581,8 @@ Does not include IRC chatter (see IRCChat).";
             vLogFileOptions.Items[(int)LogType.UserCommand].ToolTipText = "Commands types in by players.";
             vLogFileOptions.Items[(int)LogType.Warning].ToolTipText = "Minor, recoverable errors and problems.";
 
-            foreach( LogType type in Enum.GetValues( typeof( LogType ) ) ) {
-                vConsoleOptions.Items[(int)type].ToolTipText = vLogFileOptions.Items[(int)type].ToolTipText;
+            for( int i = 0; i < vConsoleOptions.Items.Count; i++ ) {
+                vConsoleOptions.Items[i].ToolTipText = vLogFileOptions.Items[i].ToolTipText;
             }
         }
 
