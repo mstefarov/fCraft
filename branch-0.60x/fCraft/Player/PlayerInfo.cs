@@ -911,9 +911,9 @@ namespace fCraft {
 
         public int Compare( PlayerInfo x, PlayerInfo y ) {
             if( !x.Online && y.Online ) {
-                return -1;
-            } else if( x.Online && !y.Online ) {
                 return 1;
+            } else if( x.Online && !y.Online ) {
+                return -1;
             }
 
             if( x.Rank == y.Rank ) {
