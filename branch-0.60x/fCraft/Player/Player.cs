@@ -1041,4 +1041,17 @@ namespace fCraft {
             return String.Format( "Player({0})", Info.Name );
         }
     }
+
+
+    sealed class PlayerComparer : IComparer<Player> {
+        public static readonly PlayerComparer Instance = new PlayerComparer();
+
+        public int Compare( Player x, Player y ) {
+            if( x.Info.Rank == y.Info.Rank ) {
+                return StringComparer.OrdinalIgnoreCase.Compare( x.Name, y.Name );
+            } else {
+                return x.Info.Rank.Index - y.Info.Rank.Index;
+            }
+        }
+    }
 }
