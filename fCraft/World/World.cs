@@ -10,6 +10,9 @@ namespace fCraft {
 
     public sealed class World : IClassy {
 
+        const string TimedBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}.fcm",
+                     JoinBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm";
+
         [Obsolete]
         public static readonly string[] BackupEnum = new[] {
             "Never", "5 Minutes", "10 Minutes", "15 Minutes", "20 Minutes",
@@ -219,16 +222,12 @@ namespace fCraft {
 
                 // load the map, if it's not yet loaded
                 PendingUnload = false;
-                if( Map == null ) {
-                    LoadMap();
-                }
+                Map = LoadMap();
 
                 if( ConfigKey.BackupOnJoin.Enabled() ) {
-                    string backupFileName = String.Format( "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm",
+                    string backupFileName = String.Format( JoinBackupFormat,
                                                            Name, DateTime.Now, player.Name ); // localized
-// ReSharper disable PossibleNullReferenceException
                     Map.SaveBackup( MapFileName,
-// ReSharper restore PossibleNullReferenceException
                                     Path.Combine( Paths.BackupPath, backupFileName ),
                                     true );
                 }
@@ -621,7 +620,7 @@ namespace fCraft {
         void BackupTask( SchedulerTask task ) {
             Map tempMap = Map;
             if( tempMap != null ) {
-                string backupFileName = String.Format( "{0}_{1:yyyy-MM-dd_HH-mm}.fcm", Name, DateTime.Now ); // localized
+                string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
                 tempMap.SaveBackup( MapFileName,
                                     Path.Combine( Paths.BackupPath, backupFileName ),
                                     true );

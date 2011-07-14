@@ -254,13 +254,15 @@ namespace fCraft {
             }
 
             Random rand = new Random();
-            int t1, t2, min, max;
-            if( cmd.NextInt( out t1 ) ) {
-                if( !cmd.NextInt( out t2 ) ) {
-                    t2 = 1;
+            int n1;
+            int min, max;
+            if( cmd.NextInt( out n1 ) ) {
+                int n2;
+                if( !cmd.NextInt( out n2 ) ) {
+                    n2 = 1;
                 }
-                min = Math.Min( t1, t2 );
-                max = Math.Max( t1, t2 );
+                min = Math.Min( n1, n2 );
+                max = Math.Max( n1, n2 );
             } else {
                 min = 1;
                 max = 100;

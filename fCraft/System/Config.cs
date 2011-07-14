@@ -175,7 +175,9 @@ namespace fCraft {
             // gather metadata for ConfigKeys
             foreach( var keyField in typeof( ConfigKey ).GetFields() ) {
                 foreach( var attribute in (ConfigKeyAttribute[])keyField.GetCustomAttributes( typeof( ConfigKeyAttribute ), false ) ) {
+// ReSharper disable AssignNullToNotNullAttribute
                     ConfigKey key = (ConfigKey)keyField.GetValue( null );
+// ReSharper restore AssignNullToNotNullAttribute
                     attribute.Key = key;
                     KeyMetadata[(int)key] = attribute;
                 }

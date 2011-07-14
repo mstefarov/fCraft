@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using fCraft.MapConversion;
 
 namespace fCraft {
     /// <summary> Commands for placing specific blocks (solid, water, grass),
@@ -80,6 +81,7 @@ namespace fCraft {
             CdCut.Help += GeneralDrawingHelp;
             CdPasteNot.Help += GeneralDrawingHelp;
             CdPaste.Help += GeneralDrawingHelp;
+            CdRestore.Help += GeneralDrawingHelp;
 
             CommandManager.RegisterCommand( CdCuboid );
             CommandManager.RegisterCommand( CdCuboidHollow );
@@ -102,6 +104,8 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdPaste );
             CommandManager.RegisterCommand( CdMirror );
             CommandManager.RegisterCommand( CdRotate );
+
+            CommandManager.RegisterCommand( CdRestore );
         }
 
 
@@ -920,7 +924,7 @@ namespace fCraft {
         #endregion
 
 
-        unsafe internal static void ReplaceCallback( Player player, Position[] marks, object drawArgs ) {
+        unsafe static void ReplaceCallback( Player player, Position[] marks, object drawArgs ) {
             ReplaceArgs args = (ReplaceArgs)drawArgs;
 
             byte* specialTypes = stackalloc byte[args.Types.Length];
@@ -1216,7 +1220,7 @@ namespace fCraft {
         #endregion
 
 
-        internal static void LineCallback( Player player, Position[] marks, object tag ) {
+        static void LineCallback( Player player, Position[] marks, object tag ) {
             byte drawBlock = (byte)tag;
             if( drawBlock == (byte)Block.Undefined ) {
                 drawBlock = (byte)player.GetBind( player.LastUsedBlockType );
@@ -1514,7 +1518,7 @@ namespace fCraft {
 
             player.SelectionStart( 1, PasteCallback, args, CdPasteNot.Permissions );
 
-            player.MessageNow( "PasteNot: Place a block or type /mark to use your location. " );
+            player.MessageNow( "PasteNot: Place a block or type /mark to use your location." );
         }
 
 
@@ -1564,7 +1568,7 @@ namespace fCraft {
 
             player.SelectionStart( 1, PasteCallback, args, CdPaste.Permissions );
 
-            player.MessageNow( "Paste: Place a block or type /mark to use your location. " );
+            player.MessageNow( "Paste: Place a block or type /mark to use your location." );
         }
 
 
@@ -1902,6 +1906,84 @@ namespace fCraft {
         }
 
         #endregion
+
+
+
+
+        static readonly CommandDescriptor CdRestore = new CommandDescriptor {
+            Name = "restore",
+            Category = CommandCategory.World,
+            Permissions = new[] { Permission.CopyAndPaste },
+            Usage = "/restore FileName",
+            Help = "Selectively restores/pastes part of mapfile into the current world.",
+            Handler = Restore
+        };
+
+        internal static void Restore( Player player, Command cmd ) {
+            string fileName = cmd.Next();
+            if( fileName == null ) {
+                CdRestore.PrintUsage( player );
+                return;
+            }
+
+            string fullFileName = WorldManager.FindMapFile( player, fileName );
+            if( fullFileName == null ) return;
+
+            Map map;
+            if( !MapUtility.TryLoad( fullFileName, out map ) ) {
+                player.Message( "Could not load the given map file ({0})", fileName );
+                return;
+            }
+
+            Map playerMap = player.World.Map;
+            if( playerMap.WidthX != map.WidthX || playerMap.WidthY != map.WidthY || playerMap.Height != map.Height ) {
+                player.Message( "Mapfile dimensions must match your current world's dimensions ({0}x{1}x{2})",
+                                playerMap.WidthX,
+                                playerMap.WidthY,
+                                playerMap.Height );
+                return;
+            }
+
+            map.Metadata["fCraft.Temp", "FileName"] = fullFileName;
+            player.SelectionStart( 2, RestoreCallback, map, CdRestore.Permissions );
+            player.MessageNow( "Restore: Select the area to restore. To mark a corner, place/click a block or type &H/mark" );
+        }
+
+        static void RestoreCallback( Player player, Position[] marks, object tag ) {
+            BoundingBox selection = new BoundingBox( marks[0], marks[1] );
+            Map map = (Map)tag;
+
+            if( !player.CanDraw( selection.Volume ) ) {
+                player.MessageNow( "You are only allowed to restore up to {0} blocks at a time. This would affect {1} blocks.",
+                                   player.Info.Rank.DrawLimit,
+                                   selection.Volume );
+                return;
+            }
+
+            int blocksDrawn = 0,
+                blocksSkipped = 0;
+            bool cannotUndo = false;
+            player.UndoBuffer.Clear();
+
+            for( int x = selection.XMin; x <= selection.XMax; x++ ) {
+                for( int y = selection.YMin; y <= selection.YMax; y++ ) {
+                    for( int h = selection.HMin; h <= selection.HMax; h++ ) {
+                        DrawOneBlock( player, map.GetBlockByte( x, y, h ), x, y, h,
+                                                       ref blocksDrawn, ref blocksSkipped, ref cannotUndo );
+                    }
+                }
+            }
+
+            Logger.Log( "{0} restored {1} blocks on world {2} (@{3},{4},{5} - {6},{7},{8}) from file {9}.", LogType.UserActivity,
+                        player.Name, blocksDrawn,
+                        player.World.Name,
+                        selection.XMin, selection.YMin, selection.HMin,
+                        selection.XMax, selection.YMax, selection.HMax,
+                        map.Metadata["fCraft.Temp", "FileName"] );
+
+            DrawingFinished( player, "restored", blocksDrawn, blocksSkipped );
+        }
+
 
 
         #region Mark, Cancel

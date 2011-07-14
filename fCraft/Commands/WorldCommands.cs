@@ -3,7 +3,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using fCraft.Events;
 using fCraft.MapConversion;
 
 namespace fCraft {
@@ -377,7 +376,7 @@ namespace fCraft {
                 } else {
                     rank.MainWorld = null;
                     WorldManager.SaveWorldList();
-                    Server.Message( "Player {0}&S has reset the main world for rank {1}&S.",
+                    Server.Message( "&SPlayer {0}&S has reset the main world for rank {1}&S.",
                                     player.ClassyName, rank.ClassyName );
                     Logger.Log( "{0} reset the main world for rank {1}.", LogType.UserActivity,
                                 player.Name, rank.Name );
@@ -393,7 +392,7 @@ namespace fCraft {
 
             rank.MainWorld = world;
             WorldManager.SaveWorldList();
-            Server.Message( "Player {0}&S designated {1}&S to be the main world for rank {2}",
+            Server.Message( "&SPlayer {0}&S designated {1}&S to be the main world for rank {2}",
                             player.ClassyName, world.ClassyName, rank.ClassyName );
             Logger.Log( "{0} set {1} to be the main world for rank {2}.", LogType.UserActivity,
                         player.Name, world.Name, rank.Name );
@@ -994,6 +993,7 @@ namespace fCraft {
             Handler = WorldLoad
         };
 
+
         internal static void WorldLoad( Player player, Command cmd ) {
             string fileName = cmd.Next();
             string worldName = cmd.Next();
@@ -1009,58 +1009,8 @@ namespace fCraft {
                 return;
             }
 
-            // Check if path contains missing drives or invalid characters
-            if( !Paths.IsValidPath( fileName ) ) {
-                player.Message( "Invalid filename or path." );
-                return;
-            }
-
-            player.MessageNow( "Looking for \"{0}\"...", fileName );
-
-            // Look for the file
-            string sourceFullFileName = Path.Combine( Paths.MapPath, fileName );
-            if( !File.Exists( sourceFullFileName ) && !Directory.Exists( sourceFullFileName ) ) {
-
-                if( File.Exists( sourceFullFileName + ".fcm" ) ) {
-                    // Try with extension added
-                    fileName += ".fcm";
-                    sourceFullFileName += ".fcm";
-
-                } else if( MonoCompat.IsCaseSensitive ) {
-                    try {
-                        // If we're on a case-sensitive OS, try case-insensitive search
-                        FileInfo[] candidates = Paths.FindFiles( sourceFullFileName + ".fcm" );
-                        if( candidates.Length == 0 ) {
-                            candidates = Paths.FindFiles( sourceFullFileName );
-                        }
-
-                        if( candidates.Length == 0 ) {
-                            player.Message( "File/directory not found: {0}", fileName );
-
-                        } else if( candidates.Length == 1 ) {
-                            player.Message( "Filenames are case-sensitive! Did you mean to load \"{0}\"?", candidates[0].Name );
-
-                        } else {
-                            player.Message( "Filenames are case-sensitive! Did you mean to load one of these: {0}",
-                                            String.Join( ", ", candidates.Select( c => c.Name ).ToArray() ) );
-                        }
-                    } catch( DirectoryNotFoundException ex ) {
-                        player.Message( ex.Message );
-                    }
-                    return;
-
-                } else {
-                    // Nothing found!
-                    player.Message( "File/directory not found: {0}", fileName );
-                    return;
-                }
-            }
-
-            // Make sure that the given file is within the map directory
-            if( !Paths.Contains( Paths.MapPath, sourceFullFileName ) ) {
-                player.MessageUnsafePath();
-                return;
-            }
+            string fullFileName = WorldManager.FindMapFile( player, fileName );
+            if( fullFileName == null ) return;
 
             // Loading map into current world
             if( worldName == null ) {
@@ -1070,7 +1020,7 @@ namespace fCraft {
                 }
                 Map map;
                 try {
-                    map = MapUtility.Load( sourceFullFileName );
+                    map = MapUtility.Load( fullFileName );
                 } catch( Exception ex ) {
                     player.MessageNow( "Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message );
                     return;
@@ -1105,7 +1055,7 @@ namespace fCraft {
 
                         Map map;
                         try {
-                            map = MapUtility.Load( sourceFullFileName );
+                            map = MapUtility.Load( fullFileName );
                         } catch( Exception ex ) {
                             player.MessageNow( "Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message );
                             return;
@@ -1123,21 +1073,21 @@ namespace fCraft {
                                                player.ClassyName, world.ClassyName );
                         player.MessageNow( "New map for the world {0}&S has been loaded.", world.ClassyName );
                         Logger.Log( "{0} loaded new map for world \"{1}\" from {2}", LogType.UserActivity,
-                                    player.Name, world.Name, sourceFullFileName );
+                                    player.Name, world.Name, fullFileName );
 
                     } else {
                         // Adding a new world
                         string targetFullFileName = Path.Combine( Paths.MapPath, worldName + ".fcm" );
                         if( !cmd.IsConfirmed &&
                             File.Exists( targetFullFileName ) && // target file already exists
-                            !Paths.Compare( targetFullFileName, sourceFullFileName ) ) { // and is different from sourceFile
+                            !Paths.Compare( targetFullFileName, fullFileName ) ) { // and is different from sourceFile
                             player.AskForConfirmation( cmd, "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
-                                                       Path.GetFileName( targetFullFileName ), Path.GetFileName( sourceFullFileName ) );
+                                                       Path.GetFileName( targetFullFileName ), Path.GetFileName( fullFileName ) );
                             return;
                         }
 
                         try {
-                            MapUtility.Load( sourceFullFileName );
+                            MapUtility.Load( fullFileName );
                         } catch( Exception ex ) {
                             player.MessageNow( "Could not load \"{0}\": {1}: {2}",
                                                fileName, ex.GetType().Name, ex.Message );
