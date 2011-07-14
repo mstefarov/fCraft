@@ -916,7 +916,7 @@ namespace fCraft {
                 return 1;
             }
 
-            return Math.Sign( x.LastSeen.Ticks - y.LastSeen.Ticks );
+            return Math.Sign( y.LastSeen.Ticks - x.LastSeen.Ticks );
         }
     }
 }

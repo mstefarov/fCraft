@@ -137,18 +137,20 @@ namespace fCraft {
                     player.MessageManyMatches( "player", infos );
                 } else {
                     int offset;
-                    if( cmd.NextInt( out offset ) ) offset = 0;
+                    if( !cmd.NextInt( out offset ) ) offset = 0;
                     if( offset >= infos.Length ) {
                         player.Message( "Info: Given offset ({0}) is greater than the number of matches ({1})",
                                         offset, infos.Length );
                     } else {
                         PlayerInfo[] infosPart = infos.Skip( offset ).Take( PlayerDB.NumberOfMatchesToPrint ).ToArray();
                         player.MessageManyMatches( "player", infosPart );
-                        player.Message( "Showing matches {0}-{1} (out of {2}).",
-                                        offset + 1, offset + infosPart.Length, infos.Length );
                         if( offset + infosPart.Length < infos.Length ) {
-                            player.Message( "Type &H/info {0} {1}&S to see the rest.",
+                            player.Message( "Showing {0}-{1} (out of {2}). Next: &H/info {3} {4}",
+                                            offset + 1, offset + infosPart.Length, infos.Length,
                                             name, offset + infosPart.Length );
+                        } else {
+                            player.Message( "Showing matches {0}-{1} (out of {2}).",
+                                            offset + 1, offset + infosPart.Length, infos.Length );
                         }
                     }
                 }
