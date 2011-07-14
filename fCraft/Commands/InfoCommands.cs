@@ -128,7 +128,7 @@ namespace fCraft {
                 }
             }
 
-            Array.Sort<PlayerInfo>( infos, PlayerInfoComparer.Instance );
+            Array.Sort( infos, new PlayerInfoComparer( player ) );
 
             if( infos.Length == 1 ) {
                 PrintPlayerInfo( player, infos[0] );
@@ -726,7 +726,7 @@ namespace fCraft {
             if( players.Length > 0 ) {
 
                 string[] playerNameList = players.Where( player.CanSee )
-                                                 .OrderBy<Player,Player>( p => p, PlayerInfoComparer.Instance )
+                                                 .OrderBy( p => p, PlayerComparer.Instance )
                                                  .Select( p => p.ClassyName )
                                                  .ToArray();
 

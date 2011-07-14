@@ -904,15 +904,18 @@ namespace fCraft {
     }
 
 
-    sealed class PlayerInfoComparer : IComparer<PlayerInfo>, IComparer<Player> {
-        public static readonly PlayerInfoComparer Instance = new PlayerInfoComparer();
-
-        private PlayerInfoComparer() { }
+    sealed class PlayerInfoComparer : IComparer<PlayerInfo> {
+        Player observer;
+        public PlayerInfoComparer( Player observer ) {
+            this.observer = observer;
+        }
 
         public int Compare( PlayerInfo x, PlayerInfo y ) {
-            if( !x.Online && y.Online ) {
+            bool xIsOnline = x.Online && observer.CanSee( x.PlayerObject );
+            bool yIsOnline = y.Online && observer.CanSee( y.PlayerObject );
+            if( !xIsOnline && y.Online ) {
                 return 1;
-            } else if( x.Online && !y.Online ) {
+            } else if( xIsOnline && !y.Online ) {
                 return -1;
             }
 
@@ -920,14 +923,6 @@ namespace fCraft {
                 return Math.Sign( y.LastSeen.Ticks - x.LastSeen.Ticks );
             } else {
                 return x.Rank.Index - y.Rank.Index;
-            }
-        }
-
-        public int Compare( Player x, Player y ) {
-            if( x.Info.Rank == y.Info.Rank ) {
-                return StringComparer.OrdinalIgnoreCase.Compare( x.Name, y.Name );
-            } else {
-                return x.Info.Rank.Index - y.Info.Rank.Index;
             }
         }
     }
