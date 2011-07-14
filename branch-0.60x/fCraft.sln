@@ -18,7 +18,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoRestarter", "AutoRestar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerWinService", "ServerWinService\ServerWinService.csproj", "{81965D3A-7479-4315-9B72-664709BA0877}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdaterBuilder", "UpdaterBuilder\UpdaterBuilder.csproj", "{E5719EAF-5ECF-4BBD-842B-39DDFBCE8FE7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateBuilder", "UpdaterBuilder\UpdateBuilder.csproj", "{E5719EAF-5ECF-4BBD-842B-39DDFBCE8FE7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{3016BB07-87C4-4CA4-9DA7-492404D1FEE7} = {3016BB07-87C4-4CA4-9DA7-492404D1FEE7}
 		{7FBE7809-6F77-415C-ABEB-A3F627E817B0} = {7FBE7809-6F77-415C-ABEB-A3F627E817B0}

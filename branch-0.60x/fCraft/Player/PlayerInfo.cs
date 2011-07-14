@@ -3,6 +3,7 @@ using System;
 using System.Net;
 using System.Text;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace fCraft {
     public sealed class PlayerInfo : IClassy {
@@ -899,6 +900,23 @@ namespace fCraft {
 
         public override string ToString() {
             return String.Format( "PlayerInfo({0},{1})", Name, Rank.Name );
+        }
+    }
+
+
+    public sealed class PlayerInfoComparer : IComparer<PlayerInfo> {
+        public static readonly PlayerInfoComparer Instance = new PlayerInfoComparer();
+
+        private PlayerInfoComparer() { }
+
+        public int Compare( PlayerInfo x, PlayerInfo y ) {
+            if( !x.Online && y.Online ) {
+                return -1;
+            } else if( x.Online && !y.Online ) {
+                return 1;
+            }
+
+            return Math.Sign( x.LastSeen.Ticks - y.LastSeen.Ticks );
         }
     }
 }

@@ -82,9 +82,10 @@ namespace fCraft {
             Aliases = new[] { "pinfo" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
-            Usage = "/info [PlayerName]",
-            Help = "Displays some information and stats about the player. " +
-                   "If no name is given, shows your own stats.",
+            Usage = "/info [PlayerName or IP [Offset]]",
+            Help = "Prints information and stats for a given player. " +
+                   "Prints your own stats if no name is given. " +
+                   "Prints a list of names if a partial name or an IP is given. ",
             Handler = Info
         };
 
@@ -92,29 +93,32 @@ namespace fCraft {
         internal static void Info( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
-                name = player.Name;
+                PrintPlayerInfo( player, player.Info );
+                return;
+
             } else if( !player.Can( Permission.ViewOthersInfo ) ) {
                 player.MessageNoAccess( Permission.ViewOthersInfo );
                 return;
             }
 
-            IPAddress ip;
+
             PlayerInfo[] infos;
+            IPAddress ip;
             if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
                 // find players by IP
-                infos = PlayerDB.FindPlayers( ip, PlayerDB.NumberOfMatchesToPrint );
+                infos = PlayerDB.FindPlayers( ip );
 
             } else if( name.Contains( "*" ) || name.Contains( "." ) ) {
                 // find players by regex/wildcard
                 string regexString = "^" + RegexNonNameChars.Replace( name, "" ).Replace( "*", ".*" ) + "$";
                 Regex regex = new Regex( regexString, RegexOptions.IgnoreCase | RegexOptions.Compiled );
-                infos = PlayerDB.FindPlayers( regex, PlayerDB.NumberOfMatchesToPrint );
+                infos = PlayerDB.FindPlayers( regex );
 
             } else {
                 // find players by partial matching
                 PlayerInfo tempInfo;
                 if( !PlayerDB.FindPlayerInfo( name, out tempInfo ) ) {
-                    infos = PlayerDB.FindPlayers( name, PlayerDB.NumberOfMatchesToPrint );
+                    infos = PlayerDB.FindPlayers( name );
                 } else if( tempInfo == null ) {
                     player.MessageNoPlayer( name );
                     return;
@@ -123,12 +127,30 @@ namespace fCraft {
                 }
             }
 
+            Array.Sort( infos, PlayerInfoComparer.Instance );
+
             if( infos.Length == 1 ) {
                 PrintPlayerInfo( player, infos[0] );
+
             } else if( infos.Length > 1 ) {
-                player.MessageManyMatches( "player", infos );
-                if( infos.Length == PlayerDB.NumberOfMatchesToPrint ) {
-                    player.Message( "NOTE: Only first {0} matches are shown.", PlayerDB.NumberOfMatchesToPrint );
+                if( infos.Length <= PlayerDB.NumberOfMatchesToPrint ) {
+                    player.MessageManyMatches( "player", infos );
+                } else {
+                    int offset;
+                    if( cmd.NextInt( out offset ) ) offset = 0;
+                    if( offset >= infos.Length ) {
+                        player.Message( "Info: Given offset ({0}) is greater than the number of matches ({1})",
+                                        offset, infos.Length );
+                    } else {
+                        PlayerInfo[] infosPart = infos.Skip( offset ).Take( PlayerDB.NumberOfMatchesToPrint ).ToArray();
+                        player.MessageManyMatches( "player", infosPart );
+                        player.Message( "Showing matches {0}-{1} (out of {2}).",
+                                        offset + 1, offset + infosPart.Length, infos.Length );
+                        if( offset + infosPart.Length < infos.Length ) {
+                            player.Message( "Type &H/info {0} {1}&S to see the rest.",
+                                            name, offset + infosPart.Length );
+                        }
+                    }
                 }
             } else {
                 player.MessageNoPlayer( name );
