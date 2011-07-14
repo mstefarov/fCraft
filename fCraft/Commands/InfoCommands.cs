@@ -89,6 +89,8 @@ namespace fCraft {
             Handler = Info
         };
 
+        const int MatchesToShow = 25;
+
         static readonly Regex RegexNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\.]", RegexOptions.Compiled );
         internal static void Info( Player player, Command cmd ) {
             string name = cmd.Next();
@@ -100,7 +102,6 @@ namespace fCraft {
                 player.MessageNoAccess( Permission.ViewOthersInfo );
                 return;
             }
-
 
             PlayerInfo[] infos;
             IPAddress ip;
@@ -127,13 +128,13 @@ namespace fCraft {
                 }
             }
 
-            Array.Sort( infos, PlayerInfoComparer.Instance );
+            Array.Sort<PlayerInfo>( infos, PlayerInfoComparer.Instance );
 
             if( infos.Length == 1 ) {
                 PrintPlayerInfo( player, infos[0] );
 
             } else if( infos.Length > 1 ) {
-                if( infos.Length <= PlayerDB.NumberOfMatchesToPrint ) {
+                if( infos.Length <= MatchesToShow ) {
                     player.MessageManyMatches( "player", infos );
                 } else {
                     int offset;
@@ -142,7 +143,7 @@ namespace fCraft {
                         player.Message( "Info: Given offset ({0}) is greater than the number of matches ({1})",
                                         offset, infos.Length );
                     } else {
-                        PlayerInfo[] infosPart = infos.Skip( offset ).Take( PlayerDB.NumberOfMatchesToPrint ).ToArray();
+                        PlayerInfo[] infosPart = infos.Skip( offset ).Take( MatchesToShow ).ToArray();
                         player.MessageManyMatches( "player", infosPart );
                         if( offset + infosPart.Length < infos.Length ) {
                             player.Message( "Showing {0}-{1} (out of {2}). Next: &H/info {3} {4}",
@@ -725,7 +726,9 @@ namespace fCraft {
             if( players.Length > 0 ) {
 
                 string[] playerNameList = players.Where( player.CanSee )
-                                                 .Select( p => p.ClassyName ).ToArray();
+                                                 .OrderBy<Player,Player>( p => p, PlayerInfoComparer.Instance )
+                                                 .Select( p => p.ClassyName )
+                                                 .ToArray();
 
                 if( playerNameList.Length > 0 ) {
                     player.Message( "There are {0} players online: {1}",

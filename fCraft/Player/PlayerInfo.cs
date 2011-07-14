@@ -904,7 +904,7 @@ namespace fCraft {
     }
 
 
-    public sealed class PlayerInfoComparer : IComparer<PlayerInfo> {
+    sealed class PlayerInfoComparer : IComparer<PlayerInfo>, IComparer<Player> {
         public static readonly PlayerInfoComparer Instance = new PlayerInfoComparer();
 
         private PlayerInfoComparer() { }
@@ -916,7 +916,19 @@ namespace fCraft {
                 return 1;
             }
 
-            return Math.Sign( y.LastSeen.Ticks - x.LastSeen.Ticks );
+            if( x.Rank == y.Rank ) {
+                return Math.Sign( y.LastSeen.Ticks - x.LastSeen.Ticks );
+            } else {
+                return x.Rank.Index - y.Rank.Index;
+            }
+        }
+
+        public int Compare( Player x, Player y ) {
+            if( x.Info.Rank == y.Info.Rank ) {
+                return StringComparer.OrdinalIgnoreCase.Compare( x.Name, y.Name );
+            } else {
+                return x.Info.Rank.Index - y.Info.Rank.Index;
+            }
         }
     }
 }
