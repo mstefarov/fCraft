@@ -21,8 +21,6 @@ namespace fCraft {
 
         static int maxID = 255;
 
-        public const int NumberOfMatchesToPrint = 20;
-
         public const int FormatVersion = 1;
 
         const string Header = "fCraft PlayerDB | Row format: " +
