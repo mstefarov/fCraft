@@ -154,6 +154,37 @@ namespace fCraft {
         }
 
 
+        public Block NextOrLastUsedBlock( Player player ) {
+            string blockName = Next();
+            Block targetBlock;
+            if( blockName != null ) {
+                targetBlock = Map.GetBlockByName( blockName );
+                if( targetBlock == Block.Undefined ) {
+                    player.Message( "Unrecognized blocktype \"{0}\"", targetBlock );
+                }
+            } else {
+                targetBlock = player.LastUsedBlockType;
+                if( targetBlock == Block.Undefined ) {
+                    player.Message( "Cannot imply desired blocktype. Click a block or type out the blocktype name." );
+                }
+            }
+            return targetBlock;
+        }
+
+
+        public Block NextBlock( Player player ) {
+            string blockName = Next();
+            Block targetBlock = Block.Undefined;
+            if( blockName != null ) {
+                targetBlock = Map.GetBlockByName( blockName );
+                if( targetBlock == Block.Undefined ) {
+                    player.Message( "Unrecognized blocktype \"{0}\"", targetBlock );
+                }
+            }
+            return targetBlock;
+        }
+
+
         public override string ToString() {
             if( IsConfirmed ) {
                 return String.Format( "Command(\"{0}\",{1},confirmed)", Message, offset );

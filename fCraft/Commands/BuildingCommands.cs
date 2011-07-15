@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using fCraft.MapConversion;
+using fCraft.Drawing;
 
 namespace fCraft {
     /// <summary> Commands for placing specific blocks (solid, water, grass),
@@ -106,6 +107,31 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdRotate );
 
             CommandManager.RegisterCommand( CdRestore );
+
+            //CommandManager.RegisterCommand( CdSetBrush );
+        }
+
+
+        static readonly CommandDescriptor CdSetBrush = new CommandDescriptor {
+            Name = "setbrush",
+            Category = CommandCategory.Building,
+            Permissions =new[]{ Permission.Draw},
+            Help = "Gets or sets the current brush.",
+            Handler = SetBrush
+        };
+
+        static void SetBrush( Player player, Command cmd ) {
+            string brushName = cmd.Next();
+            if( brushName == null ) {
+                player.Message( player.Brush.Description );
+            } else {
+                IBrush brush = BrushManager.GetBrush( brushName );
+                if( brush == null ) {
+                    player.Message( "Unrecognized brush \"{0}\"", brushName );
+                } else {
+                    player.Brush = brush;
+                }
+            }
         }
 
 
@@ -1777,9 +1803,6 @@ namespace fCraft {
             Handler = Rotate
         };
 
-        enum RotationAxis {
-            X, Y, Z
-        }
         internal static void Rotate( Player player, Command cmd ) {
             if( player.CopyInformation == null ) {
                 player.MessageNow( "Nothing to rotate! Copy something first." );
@@ -2039,5 +2062,10 @@ namespace fCraft {
         }
 
         #endregion
+    }
+
+
+    public enum RotationAxis {
+        X, Y, Z
     }
 }

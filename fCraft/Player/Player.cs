@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Cache;
 using System.Threading;
+using fCraft.Drawing;
 
 namespace fCraft {
     /// <summary> Callback for a player-made selection of one or more blocks on a map.
@@ -855,6 +856,8 @@ namespace fCraft {
         public Queue<BlockUpdate> UndoBuffer = new Queue<BlockUpdate>();
 
         internal BuildingCommands.CopyInformation CopyInformation;
+
+        public IBrush Brush { get; set; }
 
 
         /// <summary> Whether player is currently making a selection. </summary>

@@ -306,7 +306,7 @@ namespace fCraft {
             World[] matches = FindWorldsNoEvent( name );
             var h = SearchingForWorld;
             if( h != null ) {
-                SearchingForWorldEventArgs e = new SearchingForWorldEventArgs( player, name, matches );
+                SearchingForWorldEventArgs e = new SearchingForWorldEventArgs( player, name, matches.ToList() );
                 h( null, e );
                 matches = e.Matches.ToArray();
             }
@@ -628,14 +628,14 @@ namespace fCraft.Events {
 
 
     public sealed class SearchingForWorldEventArgs : EventArgs {
-        internal SearchingForWorldEventArgs( Player player, string searchTerm, IList<World> matches ) {
+        internal SearchingForWorldEventArgs( Player player, string searchTerm, List<World> matches ) {
             Player = player;
             SearchTerm = searchTerm;
             Matches = matches;
         }
         public Player Player { get; private set; }
         public string SearchTerm { get; private set; }
-        public IList<World> Matches { get; set; }
+        public List<World> Matches { get; set; }
     }
 
 }
