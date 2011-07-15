@@ -49,7 +49,7 @@ namespace fCraft {
             new Player( tcpClient );
         }
 
-        Player( TcpClient tcpClient ) {
+        Player( TcpClient tcpClient ){
             if( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
             LoginTime = DateTime.UtcNow;
             LastActiveTime = DateTime.UtcNow;
