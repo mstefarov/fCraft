@@ -357,9 +357,14 @@ namespace fCraft {
                 }
 
                 World newWorld = new World( name ) {
-                    Map = map,
-                    NeverUnload = neverUnload
+                    Map = map
                 };
+
+                if( neverUnload ) {
+                    newWorld.NeverUnload = true;
+                } else if( map != null ) {
+                    newWorld.SaveMap();
+                }
 
                 Worlds.Add( name.ToLower(), newWorld );
                 UpdateWorldList();
