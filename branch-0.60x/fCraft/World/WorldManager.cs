@@ -362,7 +362,9 @@ namespace fCraft {
 
                 if( neverUnload ) {
                     newWorld.NeverUnload = true;
-                } else if( map != null ) {
+                }
+                
+                if( map != null ) {
                     newWorld.SaveMap();
                 }
 
