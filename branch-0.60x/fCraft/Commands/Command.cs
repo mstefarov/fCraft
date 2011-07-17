@@ -64,9 +64,10 @@ namespace fCraft {
 
         /// <summary> Checks whether there is another argument available.
         /// Does not modify the offset. </summary>
-        [DebuggerStepThrough]
-        public bool HasNext() {
-            return offset < Message.Length;
+        public bool HasNext {
+            get {
+                return offset < Message.Length;
+            }
         }
 
 
@@ -89,22 +90,24 @@ namespace fCraft {
 
         /// <summary> Checks whether there there is an int argument available.
         /// Does not modify the offset. </summary>
-        [DebuggerStepThrough]
-        public bool HasInt() {
-            if( offset < Message.Length ) {
-                int startOffset = offset;
-                string nextVal = Next();
-                if( nextVal != null ) {
-                    int number;
-                    if( Int32.TryParse( nextVal, out number ) ) {
-                        offset = startOffset;
-                        return true;
+        public bool HasInt {
+            [DebuggerStepThrough]
+            get {
+                if( HasNext ) {
+                    int startOffset = offset;
+                    string nextVal = Next();
+                    if( nextVal != null ) {
+                        int number;
+                        if( Int32.TryParse( nextVal, out number ) ) {
+                            offset = startOffset;
+                            return true;
+                        }
                     }
+                    offset = startOffset;
+                    return false;
+                } else {
+                    return false;
                 }
-                offset = startOffset;
-                return false;
-            } else {
-                return false;
             }
         }
 
@@ -125,24 +128,32 @@ namespace fCraft {
 
         /// <summary> Counts the number of arguments left in this command.
         /// Does not modify the offset. </summary>
-        public int CountRemaining() {
-            int startOffset = offset;
-            int i = 1;
-            while( Next() != null ) i++;
-            offset = startOffset;
-            return i;
+        public int CountRemaining {
+            get {
+                if( HasNext ) {
+                    int startOffset = offset;
+                    int i = 1;
+                    while( Next() != null ) i++;
+                    offset = startOffset;
+                    return i;
+                } else {
+                    return 0;
+                }
+            }
         }
 
 
         /// <summary> Counts the total number of arguments.
         /// Does not modify the offset. </summary>
-        public int Count() {
-            int startOffset = offset;
-            Rewind();
-            int i = 1;
-            while( Next() != null ) i++;
-            offset = startOffset;
-            return i;
+        public int Count {
+            get {
+                int startOffset = offset;
+                Rewind();
+                int i = 1;
+                while( Next() != null ) i++;
+                offset = startOffset;
+                return i;
+            }
         }
 
 
@@ -151,24 +162,6 @@ namespace fCraft {
         public void Rewind() {
             offset = 1;
             Next();
-        }
-
-
-        public Block NextOrLastUsedBlock( Player player ) {
-            string blockName = Next();
-            Block targetBlock;
-            if( blockName != null ) {
-                targetBlock = Map.GetBlockByName( blockName );
-                if( targetBlock == Block.Undefined ) {
-                    player.Message( "Unrecognized blocktype \"{0}\"", targetBlock );
-                }
-            } else {
-                targetBlock = player.LastUsedBlockType;
-                if( targetBlock == Block.Undefined ) {
-                    player.Message( "Cannot imply desired blocktype. Click a block or type out the blocktype name." );
-                }
-            }
-            return targetBlock;
         }
 
 

@@ -5,50 +5,97 @@ using System.Linq;
 using System.Text;
 
 namespace fCraft.Drawing {
-    public class CheckeredBrush : IBrush {
-        public readonly Block Block1, Block2;
-        
+    public class CheckeredBrushFactory : IBrushFactory {
+        public static readonly CheckeredBrushFactory Instance = new CheckeredBrushFactory();
+
+        CheckeredBrushFactory() { }
+
         public string Name {
             get { return "Checkered"; }
         }
 
+
+        public IBrush MakeBrush( Player player, Command cmd ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( cmd == null ) throw new ArgumentNullException( "cmd" );
+            Block block = cmd.NextBlock( player );
+            if( block == Block.Undefined ) return null;
+            Block altBlock = cmd.NextBlock( player );
+            if( block == Block.Undefined ) return null;
+            return new CheckeredBrush( block, altBlock );
+        }
+    }
+
+
+    public class CheckeredBrush : IBrushInstance, IBrush {
+        Block Block, AltBlock;
+
+        public IBrushFactory Factory {
+            get { return CheckeredBrushFactory.Instance; }
+        }
+
         public string Description {
             get {
-                return String.Format( "Checkered({0},{1})", Block1, Block2 );
+                return String.Format( "{0}({1},{2})", Factory.Name, Block, AltBlock );
             }
         }
 
-        public CheckeredBrush( Block block1, Block block2 ) {
-            if( block1 == Block.Undefined ) {
-                throw new ArgumentException( "Undefined blocktype given.", "block1" );
-            }
-            if( block2 == Block.Undefined ) {
-                throw new ArgumentException( "Undefined blocktype given.", "block2" );
-            }
-            Block1 = block1;
-            Block2 = block2;
+        public IBrush Brush {
+            get { return this; }
         }
 
-        public IBrush MakeBrush( Player player, Command cmd, DrawOperationState op ) {
-            if( cmd.HasNext() ) {
-                Block targetBlock1 = cmd.NextBlock( player );
-                Block targetBlock2 = cmd.NextBlock( player );
-                if( targetBlock1 == Block.Undefined || targetBlock2 == Block.Undefined ) {
-                    return null;
-                } else {
-                    return new CheckeredBrush( targetBlock1, targetBlock2 );
-                }
+
+        public CheckeredBrush( Block block, Block altBlock ) {
+            if( block == Block.Undefined ) {
+                throw new ArgumentException( "Block must not be undefined.", "block" );
+            }
+            if( altBlock == Block.Undefined ) {
+                throw new ArgumentException( "AltBlock must not be undefined.", "altBlock" );
+            }
+            Block = block;
+            AltBlock = altBlock;
+        }
+
+        public CheckeredBrush( CheckeredBrush other ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
+            Block = other.Block;
+            AltBlock = other.AltBlock;
+        }
+
+
+        public IBrushInstance MakeInstance( Player player, Command cmd, DrawOperationState state ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( cmd == null ) throw new ArgumentNullException( "cmd" );
+            if( state == null ) throw new ArgumentNullException( "state" );
+            if( cmd.HasNext ) {
+                Block block = cmd.NextBlock( player );
+                if( block == Block.Undefined ) return null;
+                Block altBlock = cmd.NextBlock( player );
+                if( block == Block.Undefined ) return null;
+                Block = block;
+                AltBlock = altBlock;
+            }
+            return new CheckeredBrush( this );
+        }
+
+
+        public bool Begin( Player player, DrawOperationState state ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( state == null ) throw new ArgumentNullException( "state" );
+            return true;
+        }
+
+
+        public Block NextBlock( DrawOperationState state ) {
+            if( state == null ) throw new ArgumentNullException( "state" );
+            if( ((state.Coords.X + state.Coords.Y + state.Coords.Z) & 1) == 1 ) {
+                return Block;
             } else {
-                return this;
+                return AltBlock;
             }
         }
 
-        public Block NextBlock( DrawOperationState op ) {
-            if( ((op.Coords.X + op.Coords.Y + op.Coords.Z) & 1) == 1 ) {
-                return Block1;
-            } else {
-                return Block2;
-            }
-        }
+
+        public void End() { }
     }
 }

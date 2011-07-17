@@ -13,6 +13,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using fCraft.AutoRank;
+using fCraft.Drawing;
 using ThreadState = System.Threading.ThreadState;
 
 namespace fCraft {
@@ -259,6 +260,9 @@ namespace fCraft {
 
             // prepare the list of commands
             CommandManager.Init();
+
+            // prepare the brushes
+            BrushManager.Init();
 
             // Init IRC
             IRC.Init();
