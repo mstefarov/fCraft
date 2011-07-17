@@ -19,6 +19,8 @@ namespace fCraft.Drawing {
 
         public Vector3I Coords;
 
+        public bool UseAlternateBlock;
+
         public abstract bool DrawBatch( int maxBlocksToDraw );
     }
 }
