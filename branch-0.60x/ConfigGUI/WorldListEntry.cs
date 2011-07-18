@@ -199,8 +199,8 @@ namespace fCraft.ConfigGUI {
 
 
         public void ReparseRanks() {
-            accessSecurity.MinRank = RankManager.ParseRank( accessRankString );
-            buildSecurity.MinRank = RankManager.ParseRank( buildRankString );
+            accessSecurity.MinRank = Rank.Parse( accessRankString );
+            buildSecurity.MinRank = Rank.Parse( buildRankString );
         }
 
 

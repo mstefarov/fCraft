@@ -323,7 +323,8 @@ namespace fCraft {
             // read rank definitions
             if( !skipRankList ) {
                 LoadRankList( config, fromFile );
-                RankManager.DefaultRank = RankManager.ParseRank( ConfigKey.DefaultRank.GetString() );
+                RankManager.DefaultRank = Rank.Parse( ConfigKey.DefaultRank.GetString() );
+                RankManager.PatrolledRank = Rank.Parse( ConfigKey.PatrolledRank.GetString() );
             }
 
             // read log options for console
@@ -418,8 +419,6 @@ namespace fCraft {
                 }
             }
         }
-
-
 
 
         static void ApplyKeyChange( ConfigKey key ) {

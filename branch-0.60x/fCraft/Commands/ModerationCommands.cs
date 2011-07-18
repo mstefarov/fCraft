@@ -719,9 +719,6 @@ namespace fCraft {
                                     newRank.ClassyName,
                                     player.ClassyName );
 
-                    // check if player is still patrollable by others
-                    target.World.CheckIfPlayerIsPatrollable( target );
-
                 } else {
                     // ==== Actual rank change happens here (offline) ====
                     targetInfo.ProcessRankChange( newRank, player, reason, changeType );
@@ -1209,7 +1206,7 @@ namespace fCraft {
             string arg;
             while( (arg = cmd.Next()) != null ) {
                 if( arg.StartsWith( "@" ) ) {
-                    Rank rank = RankManager.ParseRank( arg.Substring( 1 ) );
+                    Rank rank = Rank.Parse( arg.Substring( 1 ) );
                     if( rank == null ) {
                         player.Message( "Unknown rank: {0}", arg.Substring( 1 ) );
                         return;

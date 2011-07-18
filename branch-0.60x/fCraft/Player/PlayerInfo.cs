@@ -135,7 +135,7 @@ namespace fCraft {
                 info.LastIP = IPAddress.None;
             }
 
-            info.Rank = RankManager.ParseRank( fields[2] ) ?? RankManager.DefaultRank;
+            info.Rank = Rank.Parse( fields[2] ) ?? RankManager.DefaultRank;
             fields[3].ToDateTime( ref info.RankChangeDate );
             info.RankChangedBy = fields[4];
 
@@ -173,7 +173,7 @@ namespace fCraft {
             if( fields[20].Length > 0 ) Int32.TryParse( fields[21], out info.MessagesWritten );
             // fields 22-23 are no longer in use
 
-            if( fields[24].Length > 0 ) info.PreviousRank = RankManager.ParseRank( fields[24] );
+            if( fields[24].Length > 0 ) info.PreviousRank = Rank.Parse( fields[24] );
             if( fields[25].Length > 0 ) info.RankChangeReason = Unescape( fields[25] );
             Int32.TryParse( fields[26], out info.TimesKicked );
             Int32.TryParse( fields[27], out info.TimesKickedOthers );
@@ -247,7 +247,7 @@ namespace fCraft {
                 info.LastIP = IPAddress.None;
             }
 
-            info.Rank = RankManager.ParseRank( fields[2] ) ?? RankManager.DefaultRank;
+            info.Rank = Rank.Parse( fields[2] ) ?? RankManager.DefaultRank;
             DateTimeUtil.TryParseLocalDate( fields[3], out info.RankChangeDate );
             info.RankChangedBy = fields[4];
             if( info.RankChangedBy == "-" ) info.RankChangedBy = "";
@@ -290,7 +290,7 @@ namespace fCraft {
             // fields 22-23 are no longer in use
 
             if( fields.Length > MinFieldCount ) {
-                if( fields[24].Length > 0 ) info.PreviousRank = RankManager.ParseRank( fields[24] );
+                if( fields[24].Length > 0 ) info.PreviousRank = Rank.Parse( fields[24] );
                 if( fields[25].Length > 0 ) info.RankChangeReason = UnescapeOldFormat( fields[25] );
                 Int32.TryParse( fields[26], out info.TimesKicked );
                 Int32.TryParse( fields[27], out info.TimesKickedOthers );

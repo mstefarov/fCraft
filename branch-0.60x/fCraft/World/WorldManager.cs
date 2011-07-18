@@ -137,7 +137,7 @@ namespace fCraft {
                     }
 
                     foreach( XElement mainedRankEl in el.Elements( "RankMainWorld" ) ) {
-                        Rank rank = RankManager.ParseRank( mainedRankEl.Value );
+                        Rank rank = Rank.Parse( mainedRankEl.Value );
                         if( rank != null ) {
                             if( rank < world.AccessSecurity.MinRank ) {
                                 world.AccessSecurity.MinRank = rank;
