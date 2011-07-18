@@ -501,7 +501,7 @@ namespace fCraft {
             string rankName = cmd.Next();
             Rank rank = null;
             if( rankName != null ) {
-                rank = RankManager.ParseRank( rankName );
+                rank = Rank.Parse( rankName );
                 if( rank == null ) {
                     player.MessageNoRank( rankName );
                     return;
@@ -571,13 +571,13 @@ namespace fCraft {
                 return;
             }
 
-            Rank fromRank = RankManager.ParseRank( fromRankName );
+            Rank fromRank = Rank.Parse( fromRankName );
             if( fromRank == null ) {
                 player.MessageNoRank( fromRankName );
                 return;
             }
 
-            Rank toRank = RankManager.ParseRank( toRankName );
+            Rank toRank = Rank.Parse( toRankName );
             if( toRank == null ) {
                 player.MessageNoRank( toRankName );
                 return;
@@ -653,7 +653,7 @@ namespace fCraft {
                         return;
 
                     case "previousrank":
-                        Rank newPreviousRank = RankManager.ParseRank( valName );
+                        Rank newPreviousRank = Rank.Parse( valName );
                         Rank oldPreviousRank = info.PreviousRank;
                         if( newPreviousRank != null ) {
                             info.PreviousRank = newPreviousRank;
@@ -1055,7 +1055,7 @@ namespace fCraft {
                 return;
             }
 
-            Rank targetRank = RankManager.ParseRank( rankName );
+            Rank targetRank = Rank.Parse( rankName );
             if( targetRank == null ) {
                 player.MessageNoRank( rankName );
                 return;

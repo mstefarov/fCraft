@@ -232,8 +232,6 @@ namespace fCraft {
                                     true );
                 }
 
-                AddPlayerForPatrol( player );
-
                 UpdatePlayerList();
 
                 if( announce && ConfigKey.ShowJoinedWorldMessages.Enabled() ) {
@@ -263,8 +261,6 @@ namespace fCraft {
                 if( !playerIndex.Remove( player.Name.ToLower() ) ) {
                     return false;
                 }
-
-                RemovePlayerFromPatrol( player );
 
                 // clear undo & selection
                 player.UndoBuffer.Clear();
@@ -491,69 +487,20 @@ namespace fCraft {
         #region Patrol
 
         readonly object patrolLock = new object();
-        readonly LinkedList<Player> patrolList = new LinkedList<Player>();
+        static readonly TimeSpan MinPatrolInterval = TimeSpan.FromSeconds( 15 );
 
-
-        public Player GetNextPatrolTarget( Player except ) {
+        public Player GetNextPatrolTarget( Player observer ) {
             lock( patrolLock ) {
-                if( patrolList.Count == 0 ) {
-                    return null;
-                } else {
-                    var node = patrolList.First;
-                    Player target = node.Value;
-
-                    while( target == except || target.LastPatrolTime > target.LastActiveTime ) {
-                        node = node.Next;
-                        if( node == null ) return null;
-                        target = node.Value;
-                    }
-
-                    patrolList.RemoveFirst();
-                    target.LastPatrolTime = DateTime.UtcNow;
-                    patrolList.AddLast( target );
-                    return target;
+                Rank patrolledRank = Rank.Parse( ConfigKey.PatrolledRank.GetString() );
+                Player candidate = Players.RankedAtMost( RankManager.PatrolledRank )
+                                          .CanBeSeen( observer )
+                                          .Where( p => p.LastActiveTime > p.LastPatrolTime &&
+                                                       DateTime.UtcNow.Subtract( p.LastPatrolTime ) < MinPatrolInterval )
+                                          .FirstOrDefault();
+                if( candidate != null ) {
+                    candidate.LastPatrolTime = DateTime.UtcNow;
                 }
-            }
-        }
-
-
-        public Player GetNextPatrolTarget() {
-            return GetNextPatrolTarget( null );
-        }
-
-
-        void RemovePlayerFromPatrol( Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            lock( patrolLock ) {
-                while( patrolList.Remove( player ) ) { }
-            }
-        }
-
-
-        void AddPlayerForPatrol( Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            Rank rankToPatrol = RankManager.ParseRank( ConfigKey.PatrolledRank.GetString() );
-            if( player.Info.Rank <= rankToPatrol ) {
-                lock( patrolLock ) {
-                    if( !patrolList.Contains( player ) ) {
-                        patrolList.AddLast( player );
-                    }
-                }
-            }
-        }
-
-
-        internal void CheckIfPlayerIsPatrollable( Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            Rank rankToPatrol = RankManager.ParseRank( ConfigKey.PatrolledRank.GetString() );
-            lock( patrolLock ) {
-                if( patrolList.Contains( player ) ) {
-                    if( player.Info.Rank > rankToPatrol ) {
-                        RemovePlayerFromPatrol( player );
-                    }
-                } else if( player.Info.Rank <= rankToPatrol ) {
-                    AddPlayerForPatrol( player );
-                }
+                return candidate;
             }
         }
 

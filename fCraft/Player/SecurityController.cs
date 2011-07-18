@@ -211,12 +211,12 @@ namespace fCraft {
         public SecurityController( XContainer el ) {
             if( el == null ) throw new ArgumentNullException( "el" );
             if( el.Element( "minRank" ) != null ) {
-                minRank = RankManager.ParseRank( el.Element( "minRank" ).Value );
+                minRank = Rank.Parse( el.Element( "minRank" ).Value );
             } else {
                 minRank = null;
             }
 
-            //maxRank = RankManager.ParseRank( root.Element( "maxRank" ).Value );
+            //maxRank = Rank.Parse( root.Element( "maxRank" ).Value );
             foreach( XElement player in el.Elements( "included" ) ) {
                 if( !Player.IsValidName( player.Value ) ) continue;
                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );

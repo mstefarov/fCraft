@@ -176,7 +176,7 @@ namespace fCraft {
                 rank = GetBlankValueSubstitute();
                 if( rank == null ) return; // ranks must not have loaded yet; can't validate
             } else {
-                rank = RankManager.ParseRank( value );
+                rank = Rank.Parse( value );
                 if( rank == null ) {
                     throw new FormatException( "Value cannot be parsed as a rank." );
                 }

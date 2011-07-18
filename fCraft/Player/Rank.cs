@@ -402,7 +402,7 @@ namespace fCraft {
             bool ok = true;
             for( int i = 0; i < PermissionLimits.Length; i++ ) {
                 if( PermissionLimitStrings[i] == null ) continue;
-                SetLimit( (Permission)i, RankManager.ParseRank( PermissionLimitStrings[i] ) );
+                SetLimit( (Permission)i, Rank.Parse( PermissionLimitStrings[i] ) );
                 ok &= (GetLimit( (Permission)i ) != null);
             }
             return ok;
@@ -412,6 +412,58 @@ namespace fCraft {
         public IEnumerable<Player> Players {
             get {
                 return Server.Players.Ranked( this );
+            }
+        }
+
+
+
+
+
+        /// <summary> Parses serialized rank. Accepts either the "name" or "name#ID" format.
+        /// Uses legacy rank mapping table for unrecognized ranks. Does not autocomple. </summary>
+        /// <param name="name"> Full rank name </param>
+        /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. </returns>
+        public static Rank Parse( string name ) {
+            if( name == null ) return null;
+
+            if( RankManager.RanksByFullName.ContainsKey( name ) ) {
+                return RankManager.RanksByFullName[name];
+            }
+
+            if( name.Contains( "#" ) ) {
+                // new format
+                string id = name.Substring( name.IndexOf( "#" ) + 1 );
+
+                if( RankManager.RanksByID.ContainsKey( id ) ) {
+                    // current class
+                    return RankManager.RanksByID[id];
+
+                } else {
+                    // unknown class
+                    int tries = 0;
+                    while( RankManager.LegacyRankMapping.ContainsKey( id ) ) {
+                        id = RankManager.LegacyRankMapping[id];
+                        if( RankManager.RanksByID.ContainsKey( id ) ) {
+                            return RankManager.RanksByID[id];
+                        }
+                        // avoid infinite loops due to recursive definitions
+                        tries++;
+                        if( tries > 100 ) {
+                            throw new RankDefinitionException( "Recursive legacy rank definition" );
+                        }
+                    }
+                    // try to fall back to name-only
+                    name = name.Substring( 0, name.IndexOf( '#' ) ).ToLower();
+                    return RankManager.RanksByName.ContainsKey( name ) ? RankManager.RanksByName[name] : null;
+                }
+
+            } else if( RankManager.RanksByName.ContainsKey( name.ToLower() ) ) {
+                // old format
+                return RankManager.RanksByName[name.ToLower()]; // LEGACY
+
+            } else {
+                // totally unknown rank
+                return null;
             }
         }
     }

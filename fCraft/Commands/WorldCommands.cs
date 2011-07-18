@@ -331,7 +331,7 @@ namespace fCraft {
 
             if( param.StartsWith( "@" ) ) {
                 string rankName = param.Substring( 1 );
-                Rank rank = RankManager.ParseRank( rankName );
+                Rank rank = Rank.Parse( rankName );
                 if( rank == null ) {
                     player.MessageNoRank( rankName );
                     return;
@@ -1103,7 +1103,7 @@ namespace fCraft {
                         }
 
                         if( newWorld != null ) {
-                            newWorld.BuildSecurity.MinRank = RankManager.ParseRank( ConfigKey.DefaultBuildRank.GetString() );
+                            newWorld.BuildSecurity.MinRank = Rank.Parse( ConfigKey.DefaultBuildRank.GetString() );
                             Server.Message( "{0}&S created a new world named {1}",
                                               player.ClassyName, newWorld.ClassyName );
                             Logger.Log( "{0} created a new world named \"{1}\" (loaded from \"{2}\")", LogType.UserActivity,

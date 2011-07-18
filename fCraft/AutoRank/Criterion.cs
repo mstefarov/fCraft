@@ -31,10 +31,10 @@ namespace fCraft.AutoRank {
         public Criterion( XElement el ) {
             if( el == null ) throw new ArgumentNullException( "el" );
 
-            FromRank = RankManager.ParseRank( el.Attribute( "fromRank" ).Value );
+            FromRank = Rank.Parse( el.Attribute( "fromRank" ).Value );
             if( FromRank == null ) throw new FormatException( "Could not parse \"fromRank\"" );
 
-            ToRank = RankManager.ParseRank( el.Attribute( "toRank" ).Value );
+            ToRank = Rank.Parse( el.Attribute( "toRank" ).Value );
             if( ToRank == null ) throw new FormatException( "Could not parse \"toRank\"" );
 
             Condition = (ConditionSet)AutoRank.Condition.Parse( el.Elements().First() );

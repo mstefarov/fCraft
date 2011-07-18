@@ -6,11 +6,11 @@ using System.Linq;
 namespace fCraft {
     public static class RankManager {
         public static Dictionary<string, Rank> RanksByName { get; private set; }
-        static Dictionary<string, Rank> ranksByFullName;
+        public static Dictionary<string, Rank> RanksByFullName { get; private set; }
         public static Dictionary<string, Rank> RanksByID { get; private set; }
         public static Dictionary<string, string> LegacyRankMapping { get; private set; }
         public static List<Rank> Ranks { get; private set; }
-        public static Rank DefaultRank, LowestRank, HighestRank;
+        public static Rank DefaultRank, LowestRank, HighestRank, PatrolledRank;
 
 
         static RankManager() {
@@ -25,7 +25,7 @@ namespace fCraft {
                 throw new InvalidOperationException( "You may not reset ranks after PlayerDB has already been loaded." );
             }
             RanksByName = new Dictionary<string, Rank>();
-            ranksByFullName = new Dictionary<string, Rank>();
+            RanksByFullName = new Dictionary<string, Rank>();
             RanksByID = new Dictionary<string, Rank>();
             Ranks = new List<Rank>();
         }
@@ -48,58 +48,9 @@ namespace fCraft {
 
             Ranks.Add( rank );
             RanksByName[rank.Name.ToLower()] = rank;
-            ranksByFullName[rank.FullName] = rank;
+            RanksByFullName[rank.FullName] = rank;
             RanksByID[rank.ID] = rank;
             RebuildIndex();
-        }
-
-
-        /// <summary> Parses serialized rank. Accepts either the "name" or "name#ID" format.
-        /// Uses legacy rank mapping table for unrecognized ranks. Does not autocomple. </summary>
-        /// <param name="name"> Full rank name </param>
-        /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. </returns>
-        public static Rank ParseRank( string name ) {
-            if( name == null ) return null;
-
-            if( ranksByFullName.ContainsKey( name ) ) {
-                return ranksByFullName[name];
-            }
-
-            if( name.Contains( "#" ) ) {
-                // new format
-                string id = name.Substring( name.IndexOf( "#" ) + 1 );
-
-                if( RanksByID.ContainsKey( id ) ) {
-                    // current class
-                    return RanksByID[id];
-
-                } else {
-                    // unknown class
-                    int tries = 0;
-                    while( LegacyRankMapping.ContainsKey( id ) ) {
-                        id = LegacyRankMapping[id];
-                        if( RanksByID.ContainsKey( id ) ) {
-                            return RanksByID[id];
-                        }
-                        // avoid infinite loops due to recursive definitions
-                        tries++;
-                        if( tries > 100 ) {
-                            throw new RankDefinitionException( "Recursive legacy rank definition" );
-                        }
-                    }
-                    // try to fall back to name-only
-                    name = name.Substring( 0, name.IndexOf( '#' ) ).ToLower();
-                    return RanksByName.ContainsKey( name ) ? RanksByName[name] : null;
-                }
-
-            } else if( RanksByName.ContainsKey( name.ToLower() ) ) {
-                // old format
-                return RanksByName[name.ToLower()]; // LEGACY
-
-            } else {
-                // totally unknown rank
-                return null;
-            }
         }
 
 
@@ -151,7 +102,7 @@ namespace fCraft {
             Ranks.Remove( deletedRank );
             RanksByName.Remove( deletedRank.Name.ToLower() );
             RanksByID.Remove( deletedRank.ID );
-            ranksByFullName.Remove( deletedRank.FullName );
+            RanksByFullName.Remove( deletedRank.FullName );
             LegacyRankMapping.Add( deletedRank.ID, replacementRank.ID );
             foreach( Rank rank in Ranks ) {
                 for( int i = 0; i < rank.PermissionLimits.Length; i++ ) {
