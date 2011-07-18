@@ -894,9 +894,7 @@ namespace fCraft {
             Server.RaisePlayerJoinedWorldEvent( this, oldWorld );
 
             // Done.
-            if( MonoCompat.IsMono ) {
-                Server.RequestGC();
-            }
+            Server.RequestGC();
 
             return true;
         }
