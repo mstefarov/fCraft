@@ -53,7 +53,9 @@ namespace fCraft.Drawing {
 
         public string InstanceDescription {
             get {
-                if( AltBlock == Block.Undefined ) {
+                if( Block == Block.Undefined ) {
+                    return Brush.Factory.Name;
+                }else if( AltBlock == Block.Undefined ) {
                     return String.Format( "{0}({1})", Brush.Factory.Name, Block );
                 } else {
                     return String.Format( "{0}({1},{2})", Brush.Factory.Name, Block, AltBlock );

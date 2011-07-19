@@ -389,6 +389,9 @@ namespace fCraft {
                 }
                 maxTotalUpdates -= blocksDrawn;
                 if( op.IsDone ) {
+                    op.Player.Message( "{0}/{1}: Finished. {2} blocks updated, {3} skipped, {4} denied",
+                                       op.Description, op.Brush.InstanceDescription,
+                                       op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
                     op.End();
                     DrawOps.RemoveAt( i );
                     i--;
