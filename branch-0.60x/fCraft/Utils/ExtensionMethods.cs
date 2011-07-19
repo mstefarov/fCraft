@@ -283,6 +283,19 @@ namespace fCraft {
 
         /// <summary> Joins all items in a collection into one string separated with the given separator.
         /// A specified string conversion function is called on each item before contactenation. </summary>
+        public static string JoinToString<T>( this IEnumerable<T> items, Func<T, string> stringConversionFunction ) {
+            StringBuilder sb = new StringBuilder();
+            bool first = true;
+            foreach( T item in items ) {
+                if( !first ) sb.Append( ',' ).Append( ' ' ); ;
+                sb.Append( stringConversionFunction( item ) );
+                first = false;
+            }
+            return sb.ToString();
+        }
+
+        /// <summary> Joins all items in a collection into one string separated with the given separator.
+        /// A specified string conversion function is called on each item before contactenation. </summary>
         public static string JoinToString<T>( this IEnumerable<T> items, string separator, Func<T, string> stringConversionFunction ) {
             StringBuilder sb = new StringBuilder();
             bool first = true;

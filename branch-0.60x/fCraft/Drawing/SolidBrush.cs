@@ -1,8 +1,5 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace fCraft.Drawing {
     public class SolidBrushFactory : IBrushFactory, IBrush {
@@ -29,7 +26,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public IBrushInstance MakeInstance( Player player, Command cmd, DrawOperationState state ) {
+        public IBrushInstance MakeInstance( Player player, Command cmd, DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( state == null ) throw new ArgumentNullException( "state" );
@@ -54,6 +51,16 @@ namespace fCraft.Drawing {
     public class SolidBrush : IBrushInstance {
         Block Block, AltBlock;
 
+        public string InstanceDescription {
+            get {
+                if( AltBlock == Block.Undefined ) {
+                    return String.Format( "{0}({1})", Brush.Factory.Name, Block );
+                } else {
+                    return String.Format( "{0}({1},{2})", Brush.Factory.Name, Block, AltBlock );
+                }
+            }
+        }
+
         public IBrush Brush {
             get { return SolidBrushFactory.Instance; }
         }
@@ -68,7 +75,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public bool Begin( Player player, DrawOperationState state ) {
+        public bool Begin( Player player, DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( state == null ) throw new ArgumentNullException( "state" );
             if( Block == Block.Undefined ) {
@@ -83,7 +90,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public Block NextBlock( DrawOperationState state ) {
+        public Block NextBlock( DrawOperation state ) {
             if( state == null ) throw new ArgumentNullException( "state" );
             if( state.UseAlternateBlock ) {
                 return AltBlock;

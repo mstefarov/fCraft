@@ -1,8 +1,5 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace fCraft.Drawing {
     public class CheckeredBrushFactory : IBrushFactory {
@@ -34,6 +31,12 @@ namespace fCraft.Drawing {
             get { return CheckeredBrushFactory.Instance; }
         }
 
+        public string InstanceDescription {
+            get {
+                return Description;
+            }
+        }
+
         public string Description {
             get {
                 return String.Format( "{0}({1},{2})", Factory.Name, Block, AltBlock );
@@ -63,7 +66,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public IBrushInstance MakeInstance( Player player, Command cmd, DrawOperationState state ) {
+        public IBrushInstance MakeInstance( Player player, Command cmd, DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( state == null ) throw new ArgumentNullException( "state" );
@@ -79,14 +82,14 @@ namespace fCraft.Drawing {
         }
 
 
-        public bool Begin( Player player, DrawOperationState state ) {
+        public bool Begin( Player player, DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( state == null ) throw new ArgumentNullException( "state" );
             return true;
         }
 
 
-        public Block NextBlock( DrawOperationState state ) {
+        public Block NextBlock( DrawOperation state ) {
             if( state == null ) throw new ArgumentNullException( "state" );
             if( ((state.Coords.X + state.Coords.Y + state.Coords.Z) & 1) == 1 ) {
                 return Block;
