@@ -95,7 +95,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Drawing\DrawOperationState.cs" />
+    <Compile Include="Drawing\DrawOperation.cs" />
     <Compile Include="AutoRank\AutoRankManager.cs" />
     <Compile Include="Commands\ModerationCommands.cs" />
     <Compile Include="Commands\MaintenanceCommands.cs" />
@@ -200,6 +200,7 @@
     <Compile Include="Commands\ChatCommands.cs" />
     <Compile Include="Drawing\CheckeredBrush.cs" />
     <Compile Include="Drawing\BrushManager.cs" />
+    <Compile Include="Drawing\CuboidDrawOperation.cs" />
     <Compile Include="Drawing\IBrush.cs" />
     <Compile Include="Drawing\SolidBrush.cs" />
     <Compile Include="Player\Chat.cs" />

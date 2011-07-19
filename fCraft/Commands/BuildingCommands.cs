@@ -109,13 +109,14 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdRestore );
 
             //CommandManager.RegisterCommand( CdSetBrush );
+            //CommandManager.RegisterCommand( CdCuboidX );
         }
 
 
         static readonly CommandDescriptor CdSetBrush = new CommandDescriptor {
             Name = "setbrush",
             Category = CommandCategory.Building,
-            Permissions =new[]{ Permission.Draw},
+            Permissions = new[] { Permission.Draw },
             Help = "Gets or sets the current brush.",
             Handler = SetBrush
         };
@@ -134,6 +135,30 @@ namespace fCraft {
                 }
             }
         }
+
+
+        static readonly CommandDescriptor CdCuboidX = new CommandDescriptor {
+            Name = "cx",
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Draw },
+            Help = "New and improved cuboid, with brush support and low overhead. Work in progress, may be crashy.",
+            Handler = CuboidX
+        };
+
+        static void CuboidX( Player player, Command cmd ) {
+            CuboidDrawOperation op = new CuboidDrawOperation( player );
+            op.Brush = player.Brush.MakeInstance( player, cmd, op );
+            player.SelectionStart( 2, CuboidXCallback, op, Permission.Draw );
+            player.MessageNow( "CuboidX / {0}: Click a block or use &H/mark&S to make a selection.", op.Brush.InstanceDescription );
+        }
+
+        static void CuboidXCallback( Player player, Position[] marks, object tag ) {
+            CuboidDrawOperation op = (CuboidDrawOperation)tag;
+            op.Marks = marks;
+            op.Map.QueueDrawOp( op );
+            player.Message( "CuboidX: Now drawing ~{0} blocks.", op.BlocksTotalEstimate );
+        }
+
 
 
         #region Block Commands
@@ -873,7 +898,7 @@ namespace fCraft {
             int eh = Math.Max( marks[0].H, marks[1].H );
 
             // Calculate the upper limit on the volume
-            int solidVolume = (ex - sx + 1) *  (ey - sy + 1) *  (eh - sh + 1);
+            int solidVolume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
             int hollowVolume = Math.Max( 0, ex - sx - 1 ) * Math.Max( 0, ey - sy - 1 ) * Math.Max( 0, eh - sh - 1 );
             int sideVolume = Math.Max( 0, ex - sx - 1 ) * Math.Max( 0, ey - sy - 1 ) * (ex != sx ? 2 : 1) +
                              Math.Max( 0, ey - sy - 1 ) * Math.Max( 0, eh - sh - 1 ) * (ey != sy ? 2 : 1) +

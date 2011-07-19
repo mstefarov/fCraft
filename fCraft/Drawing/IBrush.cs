@@ -1,8 +1,4 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace fCraft.Drawing {
 
@@ -14,13 +10,14 @@ namespace fCraft.Drawing {
     public interface IBrush {
         IBrushFactory Factory { get; }
         string Description { get; }
-        IBrushInstance MakeInstance( Player player, Command cmd, DrawOperationState state );
+        IBrushInstance MakeInstance( Player player, Command cmd, DrawOperation state );
     }
 
     public interface IBrushInstance {
         IBrush Brush { get; }
-        bool Begin( Player player, DrawOperationState state );
-        Block NextBlock( DrawOperationState state );
+        string InstanceDescription { get; }
+        bool Begin( Player player, DrawOperation state );
+        Block NextBlock( DrawOperation state );
         void End();
     }
 }

@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using fCraft.MapConversion;
+using fCraft.Drawing;
 
 namespace fCraft {
     public unsafe sealed class Map {
@@ -115,6 +116,7 @@ namespace fCraft {
 
             ResetSpawn();
         }
+
 
         void OnMetaOrZoneChange( object sender, EventArgs args ) {
             HasChangedSinceSave = true;
@@ -348,8 +350,49 @@ namespace fCraft {
                 packetsSent++;
             }
 
+            if( DrawOps.Count > 0 ) {
+                lock( DrawOpLock ) {
+                    if( DrawOps.Count > 0 ) {
+                        ProcessDrawOps( maxPacketsPerUpdate - packetsSent );
+                    }
+                }
+            }
+
             if( packetsSent == 0 && World.PendingUnload ) {
                 World.UnloadMap( true );
+            }
+        }
+
+        #endregion
+
+
+        #region Draw Operations
+
+        List<DrawOperation> DrawOps = new List<DrawOperation>();
+        readonly object DrawOpLock = new object();
+
+        public void QueueDrawOp( DrawOperation op ) {
+            if( op == null ) throw new ArgumentNullException( "op" );
+            lock( DrawOpLock ) {
+                DrawOps.Add( op );
+                op.Begin();
+            }
+        }
+
+        void ProcessDrawOps( int maxTotalUpdates ) {
+            for( int i = 0; i < DrawOps.Count; i++ ) {
+                int blocksToDraw = maxTotalUpdates / (DrawOps.Count - i);
+                DrawOperation op = DrawOps[i];
+                int blocksDrawn = op.DrawBatch( blocksToDraw );
+                if( blocksDrawn > 0 ) {
+                    HasChangedSinceSave = true;
+                }
+                maxTotalUpdates -= blocksDrawn;
+                if( op.IsDone ) {
+                    op.End();
+                    DrawOps.RemoveAt( i );
+                    i--;
+                }
             }
         }
 
