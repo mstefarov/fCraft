@@ -108,8 +108,8 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdRestore );
 
-            //CommandManager.RegisterCommand( CdSetBrush );
-            //CommandManager.RegisterCommand( CdCuboidX );
+            CommandManager.RegisterCommand( CdSetBrush );
+            CommandManager.RegisterCommand( CdCuboidX );
         }
 
 
@@ -132,6 +132,7 @@ namespace fCraft {
                 } else {
                     player.Brush = brush.MakeBrush( player, cmd );
                     if( player.Brush == null ) return;
+                    player.Message( "Brush set to {0}", player.Brush.Description );
                 }
             }
         }

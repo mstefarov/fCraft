@@ -19,6 +19,7 @@ namespace fCraft.Drawing {
         public int BlocksChecked,
                    BlocksUpdated,
                    BlocksDenied,
+                   BlocksSkipped,
                    BlocksTotalEstimate;
 
         public bool CannotUndo;
@@ -27,6 +28,9 @@ namespace fCraft.Drawing {
 
         public bool UseAlternateBlock;
 
+        public abstract string Name { get; }
+
+        public abstract string Description { get; }
 
 
         protected DrawOperation( Player player ) {
@@ -65,13 +69,20 @@ namespace fCraft.Drawing {
 
 
         public virtual bool DrawOneBlock() {
+            BlocksChecked++;
             Block newBlock = Brush.NextBlock( this );
 
-            if( !Map.InBounds( Coords ) ) return false;
-            int blockIndex = Map.Index( Coords );
+            if( !Map.InBounds( Coords.X, Coords.Y, Coords.Z ) ) {
+                BlocksSkipped++;
+                return false;
+            }
+            int blockIndex = Map.Index( Coords.X, Coords.Y, Coords.Z );
 
             Block oldBlock = (Block)Map.Blocks[blockIndex];
-            if( oldBlock == newBlock ) return false;
+            if( oldBlock == newBlock ) {
+                BlocksSkipped++;
+                return false;
+            }
 
             if( Player.CanPlace( Coords.X, Coords.Y, Coords.Z, newBlock, false ) != CanPlaceResult.Allowed ) {
                 BlocksDenied++;
