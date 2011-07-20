@@ -60,6 +60,8 @@ namespace fCraft {
             client.SendTimeout = SocketTimeout;
             client.ReceiveTimeout = SocketTimeout;
 
+            Brush = fCraft.Drawing.SolidBrushFactory.Instance;
+
             try {
                 IP = ((IPEndPoint)(client.Client.RemoteEndPoint)).Address;
                 if( Server.RaiseSessionConnectingEvent( IP ) ) return;

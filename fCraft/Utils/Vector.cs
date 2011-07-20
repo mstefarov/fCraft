@@ -10,22 +10,22 @@ namespace fCraft {
         public int X, Y, Z;
 
 
-        public Vector3I( int x, int y, int h ) {
+        public Vector3I( int x, int y, int z ) {
             X = x;
-            Z = y;
-            Y = h;
+            Z = z;
+            Y = y;
         }
 
         public Vector3I( Vector3I other ) {
             X = other.X;
-            Z = other.Z;
             Y = other.Y;
+            Z = other.Z;
         }
 
         public Vector3I( Vector3F other ) {
             X = (int)other.X;
-            Z = (int)other.Y;
             Y = (int)other.Z;
+            Z = (int)other.Y;
         }
 
 
@@ -63,27 +63,27 @@ namespace fCraft {
         #region Operations
 
         public static Vector3I operator +( Vector3I a, Vector3I b ) {
-            return new Vector3I( a.X + b.X, a.Z + b.Z, a.Y + b.Y );
+            return new Vector3I( a.X + b.X, a.Y + b.Y, a.Z + b.Z );
         }
 
         public static Vector3I operator +( Vector3I a, int scalar ) {
-            return new Vector3I( a.X + scalar, a.Z + scalar, a.Y + scalar );
+            return new Vector3I( a.X + scalar, a.Y + scalar, a.Z + scalar );
         }
 
         public static Vector3I operator -( Vector3I a, Vector3I b ) {
-            return new Vector3I( a.X - b.X, a.Z - b.Z, a.Y - b.Y );
+            return new Vector3I( a.X - b.X, a.Y - b.Y, a.Z - b.Z );
         }
 
         public static Vector3I operator -( Vector3I a, int scalar ) {
-            return new Vector3I( a.X - scalar, a.Z - scalar, a.Y - scalar );
+            return new Vector3I( a.X - scalar, a.Y - scalar, a.Z - scalar );
         }
 
         public static Vector3I operator *( Vector3I a, double scalar ) {
-            return new Vector3I( (int)(a.X * scalar), (int)(a.Z * scalar), (int)(a.Y * scalar) );
+            return new Vector3I( (int)(a.X * scalar), (int)(a.Y * scalar), (int)(a.Z * scalar) );
         }
 
         public static Vector3I operator /( Vector3I a, double scalar ) {
-            return new Vector3I( (int)(a.X / scalar), (int)(a.Z / scalar), (int)(a.Y / scalar) );
+            return new Vector3I( (int)(a.X / scalar), (int)(a.Y / scalar), (int)(a.Z / scalar) );
         }
 
         #endregion

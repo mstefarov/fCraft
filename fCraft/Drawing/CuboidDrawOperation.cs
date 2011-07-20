@@ -19,8 +19,8 @@ namespace fCraft.Drawing {
         }
 
 
-        public override void Begin( Position[] marks ) {
-            base.Begin( marks );
+        public override bool Begin( Position[] marks ) {
+            if( !base.Begin( marks ) ) return false;
 
             BlocksTotalEstimate = Bounds.Volume;
 
@@ -29,6 +29,7 @@ namespace fCraft.Drawing {
             h = Bounds.HMin;
             strideX = 0;
             strideY = 0;
+            return true;
         }
 
 

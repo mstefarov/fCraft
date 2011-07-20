@@ -74,7 +74,7 @@ namespace fCraft {
                         int foliagetop = args.InMap.SearchColumn( x, z, args.FoliageBlock, y );
                         if( foliagetop < 0 ) break;
                         y = foliagetop;
-                        Vector3I trunktop = new Vector3I( x, z, y - 1 );
+                        Vector3I trunktop = new Vector3I( x, y - 1, z );
                         int height = DistanceToBlock( args.InMap, new Vector3F( trunktop ), new Vector3F( 0, 0, -1 ), args.TrunkBlock, true );
                         if( height == 0 ) {
                             y--;
@@ -87,7 +87,7 @@ namespace fCraft {
                         }
                         treelist.Add( new Tree {
                             Args = args,
-                            Pos = new Vector3I( x, z, y ),
+                            Pos = new Vector3I( x, y, z ),
                             Height = height
                         } );
                         y--;
@@ -127,7 +127,7 @@ namespace fCraft {
             int x = args.Rand.Next( padding, args.InMap.WidthX - padding - 1 );
             int z = args.Rand.Next( padding, args.InMap.WidthY - padding - 1 );
             int y = args.InMap.SearchColumn( x, z, args.PlantOn );
-            return new Vector3I( x, z, y );
+            return new Vector3I( x, y, z);
         }
 
 
@@ -208,7 +208,7 @@ namespace fCraft {
                 treelist.Add( new Tree {
                     Args = args,
                     Height = height,
-                    Pos = new Vector3I( x, z, y )
+                    Pos = new Vector3I( x, y, z )
                 } );
             }
         }
@@ -408,8 +408,8 @@ namespace fCraft {
             }
 
 
-            protected virtual float ShapeFunc( int y ) {
-                if( Args.Rand.NextDouble() < 100f / Sqr( Height ) && y < TrunkHeight ) {
+            protected virtual float ShapeFunc( int z ) {
+                if( Args.Rand.NextDouble() < 100f / Sqr( Height ) && z < TrunkHeight ) {
                     return Height * .12f;
                 } else {
                     return -1;
@@ -417,10 +417,10 @@ namespace fCraft {
             }
 
             void FoliageCluster( Vector3I center ) {
-                int y = center[1];
+                int z = center[1];
                 foreach( float i in FoliageShape ) {
-                    CrossSection( new Vector3I( center[0], center[2], y ), i, 1, Args.FoliageBlock );
-                    y++;
+                    CrossSection( new Vector3I( center[0], z, center[2] ), i, 1, Args.FoliageBlock );
+                    z++;
                 }
             }
 
@@ -623,7 +623,7 @@ namespace fCraft {
                         float thisbuttressradius = (float)(buttressRadius * (.618 + Args.Rand.NextDouble()));
                         if( thisbuttressradius < 1 ) thisbuttressradius = 1;
 
-                        TaperedLimb( new Vector3I( thisx, thisz, starty ), new Vector3I( x, z, midy ),
+                        TaperedLimb( new Vector3I( thisx, starty, thisz ), new Vector3I( x, midy, z ),
                                      thisbuttressradius, thisbuttressradius );
                         rootbases.Add( new RootBase {
                             X = thisx,
@@ -639,8 +639,8 @@ namespace fCraft {
                         Radius = startrad
                     } );
                 }
-                TaperedLimb( new Vector3I( x, z, starty ), new Vector3I( x, z, midy ), startrad, midrad );
-                TaperedLimb( new Vector3I( x, z, midy ), new Vector3I( x, z, topy ), midrad, endrad );
+                TaperedLimb( new Vector3I( x, starty, z ), new Vector3I( x, midy, z ), startrad, midrad );
+                TaperedLimb( new Vector3I( x, midy, z ), new Vector3I( x, topy, z ), midrad, endrad );
                 MakeBranches();
                 if( Args.Roots != RootMode.None ) {
                     MakeRoots( rootbases.ToArray() );
@@ -669,7 +669,7 @@ namespace fCraft {
                         float theta = (float)(Args.Rand.NextDouble() * 2 * Math.PI);
                         int x = (int)(r * Math.Sin( theta )) + Pos[0];
                         int z = (int)(r * Math.Cos( theta )) + Pos[2];
-                        foliageCoords.Add( new Vector3I( x, z, y ) );
+                        foliageCoords.Add( new Vector3I( x, y, z ) );
                     }
                 }
                 FoliageCoords = foliageCoords.ToArray();
