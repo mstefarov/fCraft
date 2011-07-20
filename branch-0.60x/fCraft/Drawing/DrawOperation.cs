@@ -13,10 +13,9 @@ namespace fCraft.Drawing {
 
         public bool IsDone;
 
-        public byte[] UndoBuffer;
         public IBrushInstance Brush;
 
-        public int BlocksChecked,
+        public int BlocksProcessed,
                    BlocksUpdated,
                    BlocksDenied,
                    BlocksSkipped,
@@ -28,7 +27,9 @@ namespace fCraft.Drawing {
 
         public bool UseAlternateBlock;
 
+// ReSharper disable UnusedMemberInSuper.Global
         public abstract string Name { get; }
+// ReSharper restore UnusedMemberInSuper.Global
 
         public abstract string Description { get; }
 
@@ -44,12 +45,15 @@ namespace fCraft.Drawing {
         }
 
 
-        public virtual void Begin() {
+        public virtual void Begin( Position[] marks ) {
+            if( marks == null ) throw new ArgumentNullException( "marks" );
+            Marks = marks;
             if( Player == null ) throw new InvalidOperationException( "Player not set" );
             if( Map == null ) throw new InvalidOperationException( "Map not set" );
-            if( Marks == null ) throw new InvalidOperationException( "Marks not set" );
             if( Bounds == null ) throw new InvalidOperationException( "Bounds not set" );
             Brush.Begin( Player, this );
+            Player.UndoBuffer.Clear();
+            Bounds = new BoundingBox( Marks[0], Marks[1] );
             StartTime = DateTime.UtcNow;
         }
 
@@ -68,8 +72,8 @@ namespace fCraft.Drawing {
         }
 
 
-        public virtual bool DrawOneBlock() {
-            BlocksChecked++;
+        protected virtual bool DrawOneBlock() {
+            BlocksProcessed++;
             Block newBlock = Brush.NextBlock( this );
 
             if( !Map.InBounds( Coords.X, Coords.Y, Coords.Z ) ) {

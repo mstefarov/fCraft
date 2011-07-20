@@ -113,8 +113,10 @@ namespace fCraft {
         }
 
 
+        #region DrawOperations & Brushes
+
         static readonly CommandDescriptor CdSetBrush = new CommandDescriptor {
-            Name = "setbrush",
+            Name = "brush",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
             Help = "Gets or sets the current brush.",
@@ -147,19 +149,47 @@ namespace fCraft {
         };
 
         static void CuboidX( Player player, Command cmd ) {
-            CuboidDrawOperation op = new CuboidDrawOperation( player );
+            DrawOperationBegin( player, cmd, new CuboidDrawOperation( player ) );
+        }
+
+
+
+        static readonly CommandDescriptor CdCuboidWireframeX = new CommandDescriptor {
+            Name = "cwx",
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Draw },
+            Help = "New and improved wireframe cuboid, with brush support and low overhead. Work in progress, may be crashy.",
+            Handler = CuboidWireframeX
+        };
+
+        static void CuboidWireframeX( Player player, Command cmd ) {
+            DrawOperationBegin( player, cmd, new CuboidWireframeDrawOperation( player ) );
+        }
+
+
+        static void DrawOperationBegin( Player player, Command cmd, DrawOperation op ) {
             op.Brush = player.Brush.MakeInstance( player, cmd, op );
-            player.SelectionStart( 2, CuboidXCallback, op, Permission.Draw );
-            player.MessageNow( "CuboidX / {0}: Click a block or use &H/mark&S to make a selection.", op.Brush.InstanceDescription );
+            player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
+            player.MessageNow( "{0}: Click 2 blocks or use &H/mark&S to make a selection.",
+                               op.Description );
         }
 
-        static void CuboidXCallback( Player player, Position[] marks, object tag ) {
-            CuboidDrawOperation op = (CuboidDrawOperation)tag;
-            op.Marks = marks;
+
+        static void DrawOperationCallback( Player player, Position[] marks, object tag ) {
+            DrawOperation op = (DrawOperation)tag;
+            op.Begin( marks );
+            if( !player.CanDraw( op.BlocksTotalEstimate ) ) {
+                player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                   player.Info.Rank.DrawLimit,
+                                   op.Bounds.Volume );
+                return;
+            }
             op.Map.QueueDrawOp( op );
-            player.Message( "CuboidX: Now drawing ~{0} blocks.", op.BlocksTotalEstimate );
+            player.Message( "{0}: Now processing ~{1} blocks.",
+                            op.Description, op.BlocksTotalEstimate );
         }
 
+        #endregion
 
 
         #region Block Commands
@@ -1958,7 +1988,7 @@ namespace fCraft {
         #endregion
 
 
-
+        #region Restore
 
         static readonly CommandDescriptor CdRestore = new CommandDescriptor {
             Name = "restore",
@@ -1968,6 +1998,7 @@ namespace fCraft {
             Help = "Selectively restores/pastes part of mapfile into the current world.",
             Handler = Restore
         };
+
 
         internal static void Restore( Player player, Command cmd ) {
             string fileName = cmd.Next();
@@ -1998,6 +2029,7 @@ namespace fCraft {
             player.SelectionStart( 2, RestoreCallback, map, CdRestore.Permissions );
             player.MessageNow( "Restore: Select the area to restore. To mark a corner, place/click a block or type &H/mark" );
         }
+
 
         static void RestoreCallback( Player player, Position[] marks, object tag ) {
             BoundingBox selection = new BoundingBox( marks[0], marks[1] );
@@ -2034,6 +2066,7 @@ namespace fCraft {
             DrawingFinished( player, "restored", blocksDrawn, blocksSkipped );
         }
 
+        #endregion
 
 
         #region Mark, Cancel

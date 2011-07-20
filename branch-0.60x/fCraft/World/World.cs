@@ -32,7 +32,7 @@ namespace fCraft {
 
         /// <summary> Whether this world is currently pending unload 
         /// (waiting for block updates to finish processing before unloading). </summary>
-        public bool PendingUnload { get; private set; }
+        public bool IsPendingMapUnload { get; private set; }
 
 
         public SecurityController AccessSecurity { get; internal set; }
@@ -102,11 +102,11 @@ namespace fCraft {
 
         public void UnloadMap( bool expectedPendingFlag ) {
             lock( WorldLock ) {
-                if( expectedPendingFlag != PendingUnload ) return;
+                if( expectedPendingFlag != IsPendingMapUnload ) return;
                 SaveMap();
                 Map = null;
                 StopTasks();
-                PendingUnload = false;
+                IsPendingMapUnload = false;
             }
             Server.RequestGC();
         }
@@ -221,7 +221,7 @@ namespace fCraft {
                 playerIndex.Add( player.Name.ToLower(), player );
 
                 // load the map, if it's not yet loaded
-                PendingUnload = false;
+                IsPendingMapUnload = false;
                 Map = LoadMap();
 
                 if( ConfigKey.BackupOnJoin.Enabled() ) {
@@ -272,7 +272,7 @@ namespace fCraft {
 
                 // unload map (if needed)
                 if( playerIndex.Count == 0 && !neverUnload ) {
-                    PendingUnload = true;
+                    IsPendingMapUnload = true;
                 }
                 return true;
             }
@@ -487,15 +487,14 @@ namespace fCraft {
         #region Patrol
 
         readonly object patrolLock = new object();
-        static readonly TimeSpan MinPatrolInterval = TimeSpan.FromSeconds( 15 );
+        static readonly TimeSpan MinPatrolInterval = TimeSpan.FromSeconds( 20 );
 
         public Player GetNextPatrolTarget( Player observer ) {
             lock( patrolLock ) {
-                Rank patrolledRank = Rank.Parse( ConfigKey.PatrolledRank.GetString() );
                 Player candidate = Players.RankedAtMost( RankManager.PatrolledRank )
                                           .CanBeSeen( observer )
                                           .Where( p => p.LastActiveTime > p.LastPatrolTime &&
-                                                       DateTime.UtcNow.Subtract( p.LastPatrolTime ) < MinPatrolInterval )
+                                                       DateTime.UtcNow.Subtract( p.LastPatrolTime ) > MinPatrolInterval )
                                           .FirstOrDefault();
                 if( candidate != null ) {
                     candidate.LastPatrolTime = DateTime.UtcNow;

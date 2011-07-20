@@ -4,10 +4,13 @@ using System.Collections.Generic;
 
 namespace fCraft.Drawing {
     public static class BrushManager {
-        static Dictionary<string, IBrushFactory> BrushFactories = new Dictionary<string, IBrushFactory>();
+        static readonly Dictionary<string, IBrushFactory> BrushFactories = new Dictionary<string, IBrushFactory>();
 
         internal static void Init() {
             RegisterBrush( SolidBrushFactory.Instance );
+            RegisterBrush( CheckeredBrushFactory.Instance );
+            RegisterBrush( RandomBrushFactory.Instance );
+            RegisterBrush( RainbowBrush.Instance );
         }
 
         public static void RegisterBrush( IBrushFactory factory ) {

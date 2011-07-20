@@ -14,7 +14,9 @@ namespace fCraft.Drawing {
     }
 
     public interface IBrushInstance {
+// ReSharper disable UnusedMemberInSuper.Global
         IBrush Brush { get; }
+// ReSharper restore UnusedMemberInSuper.Global
         string InstanceDescription { get; }
         bool Begin( Player player, DrawOperation state );
         Block NextBlock( DrawOperation state );
@@ -58,20 +60,5 @@ public class StripedDrawBrush : IDrawBrush {
     public object Clone() {
         return new StripedDrawBrush( Axis );
     }
-}
-
-
-public class RandomDrawBrush : IDrawBrush {
-    public string Name {
-        get { return "Random"; }
-    }
-
-    Random rand = new Random();
-
-    public Block NextBlock( DrawOperation op ) {
-        return op.UserBlocks[rand.Next( op.UserBlocks.Length )];
-    }
-
-    public object Clone() { return this; }
 }
 */

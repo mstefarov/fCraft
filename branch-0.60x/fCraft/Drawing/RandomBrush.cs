@@ -2,13 +2,13 @@
 using System;
 
 namespace fCraft.Drawing {
-    public sealed class CheckeredBrushFactory : IBrushFactory {
-        public static readonly CheckeredBrushFactory Instance = new CheckeredBrushFactory();
+    public sealed class RandomBrushFactory : IBrushFactory {
+        public static readonly RandomBrushFactory Instance = new RandomBrushFactory();
 
-        CheckeredBrushFactory() { }
+        RandomBrushFactory() { }
 
         public string Name {
-            get { return "Checkered"; }
+            get { return "Random"; }
         }
 
 
@@ -19,17 +19,17 @@ namespace fCraft.Drawing {
             if( block == Block.Undefined ) return null;
             Block altBlock = cmd.NextBlock( player );
             if( block == Block.Undefined ) return null;
-            return new CheckeredBrush( block, altBlock );
+            return new RandomBrush( block, altBlock );
         }
     }
 
 
-    public sealed class CheckeredBrush : IBrushInstance, IBrush {
-        public Block Block{get;private set;}
+    public sealed class RandomBrush : IBrushInstance, IBrush {
+        public Block Block { get; private set; }
         public Block AltBlock { get; private set; }
 
         public IBrushFactory Factory {
-            get { return CheckeredBrushFactory.Instance; }
+            get { return RandomBrushFactory.Instance; }
         }
 
         public string InstanceDescription {
@@ -49,7 +49,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public CheckeredBrush( Block block, Block altBlock ) {
+        public RandomBrush( Block block, Block altBlock ) {
             if( block == Block.Undefined ) {
                 throw new ArgumentException( "Block must not be undefined.", "block" );
             }
@@ -60,7 +60,7 @@ namespace fCraft.Drawing {
             AltBlock = altBlock;
         }
 
-        public CheckeredBrush( CheckeredBrush other ) {
+        public RandomBrush( RandomBrush other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             Block = other.Block;
             AltBlock = other.AltBlock;
@@ -79,7 +79,7 @@ namespace fCraft.Drawing {
                 Block = block;
                 AltBlock = altBlock;
             }
-            return new CheckeredBrush( this );
+            return new RandomBrush( this );
         }
 
 
@@ -90,9 +90,10 @@ namespace fCraft.Drawing {
         }
 
 
+        readonly Random rand = new Random();
         public Block NextBlock( DrawOperation state ) {
             if( state == null ) throw new ArgumentNullException( "state" );
-            if( ((state.Coords.X + state.Coords.Y + state.Coords.Z) & 1) == 1 ) {
+            if( rand.Next( 2 ) == 0 ) {
                 return Block;
             } else {
                 return AltBlock;
