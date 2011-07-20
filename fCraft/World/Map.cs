@@ -323,7 +323,7 @@ namespace fCraft {
             }
 
             if( World.IsLocked ) {
-                if( World.PendingUnload ) {
+                if( World.IsPendingMapUnload ) {
                     World.UnloadMap( true );
                 }
                 return;
@@ -350,15 +350,15 @@ namespace fCraft {
                 packetsSent++;
             }
 
-            if( DrawOps.Count > 0 ) {
-                lock( DrawOpLock ) {
-                    if( DrawOps.Count > 0 ) {
+            if( drawOps.Count > 0 ) {
+                lock( drawOpLock ) {
+                    if( drawOps.Count > 0 ) {
                         ProcessDrawOps( maxPacketsPerUpdate - packetsSent );
                     }
                 }
             }
 
-            if( packetsSent == 0 && World.PendingUnload ) {
+            if( packetsSent == 0 && World.IsPendingMapUnload ) {
                 World.UnloadMap( true );
             }
         }
@@ -368,32 +368,32 @@ namespace fCraft {
 
         #region Draw Operations
 
-        List<DrawOperation> DrawOps = new List<DrawOperation>();
-        readonly object DrawOpLock = new object();
+        readonly List<DrawOperation> drawOps = new List<DrawOperation>();
+        readonly object drawOpLock = new object();
 
         public void QueueDrawOp( DrawOperation op ) {
             if( op == null ) throw new ArgumentNullException( "op" );
-            lock( DrawOpLock ) {
-                DrawOps.Add( op );
-                op.Begin();
+            lock( drawOpLock ) {
+                drawOps.Add( op );
             }
         }
 
         void ProcessDrawOps( int maxTotalUpdates ) {
-            for( int i = 0; i < DrawOps.Count; i++ ) {
-                int blocksToDraw = maxTotalUpdates / (DrawOps.Count - i);
-                DrawOperation op = DrawOps[i];
+            for( int i = 0; i < drawOps.Count; i++ ) {
+                int blocksToDraw = maxTotalUpdates / (drawOps.Count - i);
+                DrawOperation op = drawOps[i];
                 int blocksDrawn = op.DrawBatch( blocksToDraw );
                 if( blocksDrawn > 0 ) {
                     HasChangedSinceSave = true;
                 }
                 maxTotalUpdates -= blocksDrawn;
                 if( op.IsDone ) {
-                    op.Player.Message( "{0}/{1}: Finished. {2} blocks updated, {3} skipped, {4} denied",
+                    op.Player.Message( "{0}/{1}: Finished in {2}. P={3} U={4} S={5} D={6}",
                                        op.Description, op.Brush.InstanceDescription,
-                                       op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
+                                       DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
+                                       op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
                     op.End();
-                    DrawOps.RemoveAt( i );
+                    drawOps.RemoveAt( i );
                     i--;
                 }
             }

@@ -402,7 +402,7 @@ namespace fCraft {
             bool ok = true;
             for( int i = 0; i < PermissionLimits.Length; i++ ) {
                 if( PermissionLimitStrings[i] == null ) continue;
-                SetLimit( (Permission)i, Rank.Parse( PermissionLimitStrings[i] ) );
+                SetLimit( (Permission)i, Parse( PermissionLimitStrings[i] ) );
                 ok &= (GetLimit( (Permission)i ) != null);
             }
             return ok;

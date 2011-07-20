@@ -287,7 +287,7 @@ namespace fCraft {
             StringBuilder sb = new StringBuilder();
             bool first = true;
             foreach( T item in items ) {
-                if( !first ) sb.Append( ',' ).Append( ' ' ); ;
+                if( !first ) sb.Append( ',' ).Append( ' ' );
                 sb.Append( stringConversionFunction( item ) );
                 first = false;
             }

@@ -2,7 +2,7 @@
 using System;
 
 namespace fCraft.Drawing {
-    public class SolidBrushFactory : IBrushFactory, IBrush {
+    public sealed class SolidBrushFactory : IBrushFactory, IBrush {
         public static readonly SolidBrushFactory Instance = new SolidBrushFactory();
         SolidBrushFactory() { }
 
@@ -48,8 +48,9 @@ namespace fCraft.Drawing {
     }
 
 
-    public class SolidBrush : IBrushInstance {
-        Block Block, AltBlock;
+    public sealed class SolidBrush : IBrushInstance {
+        public Block Block{get;private set;}
+        public Block AltBlock { get; private set; }
 
         public string InstanceDescription {
             get {

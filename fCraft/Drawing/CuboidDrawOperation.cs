@@ -1,8 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
-using System;
 
 namespace fCraft.Drawing {
-    public class CuboidDrawOperation : DrawOperation {
+    public sealed class CuboidDrawOperation : DrawOperation {
         const int DrawStride = 16;
 
         int x, y, h, strideX, strideY;
@@ -20,8 +19,9 @@ namespace fCraft.Drawing {
         }
 
 
-        public override void Begin() {
-            Bounds = new BoundingBox( Marks[0], Marks[1] );
+        public override void Begin( Position[] marks ) {
+            base.Begin( marks );
+
             BlocksTotalEstimate = Bounds.Volume;
 
             x = Bounds.XMin;
@@ -29,8 +29,6 @@ namespace fCraft.Drawing {
             h = Bounds.HMin;
             strideX = 0;
             strideY = 0;
-
-            base.Begin();
         }
 
 
@@ -53,7 +51,9 @@ namespace fCraft.Drawing {
                         }
                         strideY = 0;
                     }
+                    h = Bounds.HMin;
                 }
+                y = Bounds.YMin;
             }
             IsDone = true;
             return blocksDone;
