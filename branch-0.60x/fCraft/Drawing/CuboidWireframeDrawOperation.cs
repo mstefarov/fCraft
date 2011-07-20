@@ -20,8 +20,8 @@ namespace fCraft.Drawing {
         }
 
 
-        public override void Begin( Position[] marks ) {
-            base.Begin( marks );
+        public override bool Begin( Position[] marks ) {
+            if( !base.Begin( marks ) ) return false;
 
             int hollowVolume = Math.Max( 0, Bounds.WidthX - 2 ) * Math.Max( 0, Bounds.WidthY - 2 ) * Math.Max( 0, Bounds.Height - 2 );
             int sideVolume = Math.Max( 0, Bounds.WidthX - 2 ) * Math.Max( 0, Bounds.WidthY - 2 ) * (Bounds.XMax != Bounds.XMin ? 2 : 1) +
@@ -30,7 +30,8 @@ namespace fCraft.Drawing {
 
             BlocksTotalEstimate = Bounds.Volume - hollowVolume - sideVolume;
 
-            coordEnumerator = GetNextBlock().GetEnumerator();
+            coordEnumerator = BlockEnumerator().GetEnumerator();
+            return true;
         }
 
 
@@ -49,7 +50,7 @@ namespace fCraft.Drawing {
         }
 
 
-        IEnumerable<Vector3I> GetNextBlock() {
+        IEnumerable<Vector3I> BlockEnumerator() {
             // Draw cuboid vertices
             yield return new Vector3I( Bounds.XMin, Bounds.YMin, Bounds.HMin );
 

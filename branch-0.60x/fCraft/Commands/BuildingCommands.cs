@@ -110,6 +110,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdSetBrush );
             CommandManager.RegisterCommand( CdCuboidX );
+            CommandManager.RegisterCommand( CdCuboidWireframeX );
         }
 
 
@@ -177,7 +178,7 @@ namespace fCraft {
 
         static void DrawOperationCallback( Player player, Position[] marks, object tag ) {
             DrawOperation op = (DrawOperation)tag;
-            op.Begin( marks );
+            if( !op.Begin( marks ) ) return;
             if( !player.CanDraw( op.BlocksTotalEstimate ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                    player.Info.Rank.DrawLimit,

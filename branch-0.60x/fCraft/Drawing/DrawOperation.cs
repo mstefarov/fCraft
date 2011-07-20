@@ -45,16 +45,17 @@ namespace fCraft.Drawing {
         }
 
 
-        public virtual void Begin( Position[] marks ) {
+        public virtual bool Begin( Position[] marks ) {
             if( marks == null ) throw new ArgumentNullException( "marks" );
             Marks = marks;
             if( Player == null ) throw new InvalidOperationException( "Player not set" );
             if( Map == null ) throw new InvalidOperationException( "Map not set" );
+            Bounds = new BoundingBox( marks[0], marks[1] );
             if( Bounds == null ) throw new InvalidOperationException( "Bounds not set" );
-            Brush.Begin( Player, this );
+            if( !Brush.Begin( Player, this ) ) return false;
             Player.UndoBuffer.Clear();
-            Bounds = new BoundingBox( Marks[0], Marks[1] );
             StartTime = DateTime.UtcNow;
+            return true;
         }
 
 
