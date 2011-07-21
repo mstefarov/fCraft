@@ -828,8 +828,18 @@ namespace fCraft {
         static void DoGC( SchedulerTask task ) {
             if( !gcRequested ) return;
             gcRequested = false;
+
+            Process proc = Process.GetCurrentProcess();
+            proc.Refresh();
+            long usageBefore = proc.PrivateMemorySize64 / (1024 * 1024);
+
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
-            Logger.Log( "Server.DoGC: Collected on schedule.", LogType.Debug );
+
+            proc.Refresh();
+            long usageAfter = proc.PrivateMemorySize64 / (1024 * 1024);
+
+            Logger.Log( "Server.DoGC: Collected on schedule ({0}->{1} MB).", LogType.Debug,
+                        usageBefore, usageAfter );
         }
 
 
