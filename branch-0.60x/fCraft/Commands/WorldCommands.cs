@@ -81,7 +81,7 @@ namespace fCraft {
 
             if( map != null ) {
                 player.Message( "Map dimensions are {0} x {1} x {2}",
-                                map.WidthX, map.WidthY, map.Height );
+                                map.Width, map.Length, map.Height );
             }
 
             // Print access/build limits
@@ -1352,8 +1352,8 @@ namespace fCraft {
             int wx, wy, height;
             if( !(cmd.NextInt( out wx ) && cmd.NextInt( out wy ) && cmd.NextInt( out height )) ) {
                 if( player.World != null ) {
-                    wx = player.World.Map.WidthX;
-                    wy = player.World.Map.WidthY;
+                    wx = player.World.Map.Width;
+                    wy = player.World.Map.Length;
                     height = player.World.Map.Height;
                 } else {
                     player.Message( "When used from console, /gen requires map dimensions." );
@@ -1444,9 +1444,9 @@ namespace fCraft {
             }
 
             MapGeneratorArgs args = MapGenerator.MakeTemplate( template );
-            args.WidthX = wx;
-            args.WidthY = wy;
-            args.Height = height;
+            args.MapWidth = wx;
+            args.MapLength = wy;
+            args.MapHeight = height;
             args.MaxHeight = (int)(args.MaxHeight / 80d * height);
             args.MaxDepth = (int)(args.MaxDepth / 80d * height);
             args.Theme = theme;
@@ -1460,7 +1460,7 @@ namespace fCraft {
                     player.MessageNow( "Generating {0} {1}...", theme, template );
                 }
                 if( theme == MapGenTheme.Forest && noTrees && template == MapGenTemplate.Flat ) {
-                    map = MapGenerator.GenerateFlatgrass( args.WidthX, args.WidthY, args.Height );
+                    map = MapGenerator.GenerateFlatgrass( args.MapWidth, args.MapLength, args.MapHeight );
                 } else {
                     MapGenerator generator = new MapGenerator( args );
                     map = generator.Generate();

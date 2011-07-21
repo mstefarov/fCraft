@@ -131,12 +131,12 @@ namespace fCraft {
         /// a block at given coordinates. </summary>
         /// <param name="x"> Block's X coordinate. </param>
         /// <param name="y"> Block's Y coordinate. </param>
-        /// <param name="h"> Block's H coordinate. </param>
+        /// <param name="z"> Block's Z coordinate. </param>
         /// <param name="player"> Player to check. </param>
         /// <returns> None if no zones affect the coordinate.
         /// Allow if ALL affecting zones allow the player.
         /// Deny if ANY affecting zone denies the player. </returns>
-        public PermissionOverride Check( int x, int y, int h, Player player ) {
+        public PermissionOverride Check( int x, int y, int z, Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             PermissionOverride result = PermissionOverride.None;
@@ -144,7 +144,7 @@ namespace fCraft {
 
             Zone[] zoneListCache = Cache;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
-                if( zoneListCache[i].Bounds.Contains( x, y, h ) ) {
+                if( zoneListCache[i].Bounds.Contains( x, y, z ) ) {
                     if( zoneListCache[i].Controller.Check( player.Info ) ) {
                         result = PermissionOverride.Allow;
                     } else {
@@ -160,12 +160,12 @@ namespace fCraft {
         /// a block at given coordinates, in detail. </summary>
         /// <param name="x"> Block's X coordinate. </param>
         /// <param name="y"> Block's Y coordinate. </param>
-        /// <param name="h"> Block's H coordinate. </param>
+        /// <param name="z"> Block's Z coordinate. </param>
         /// <param name="player"> Player to check. </param>
         /// <param name="allowedZones"> Array of zones that allow the player to build. </param>
         /// <param name="deniedZones"> Array of zones that deny the player from building. </param>
         /// <returns> True if any zones were found. False if none affect the given coordinate. </returns>
-        public bool CheckDetailed( short x, short y, short h, Player player, out Zone[] allowedZones, out Zone[] deniedZones ) {
+        public bool CheckDetailed( short x, short y, short z, Player player, out Zone[] allowedZones, out Zone[] deniedZones ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             var allowedList = new List<Zone>();
             var deniedList = new List<Zone>();
@@ -173,7 +173,7 @@ namespace fCraft {
 
             Zone[] zoneListCache = Cache;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
-                if( zoneListCache[i].Bounds.Contains( x, y, h ) ) {
+                if( zoneListCache[i].Bounds.Contains( x, y, z ) ) {
                     found = true;
                     if( zoneListCache[i].Controller.Check( player.Info ) ) {
                         allowedList.Add( zoneListCache[i] );
@@ -192,16 +192,16 @@ namespace fCraft {
         /// a block at given coordinates. Used in conjunction with CheckZones(). </summary>
         /// <param name="x"> Block's X coordinate. </param>
         /// <param name="y"> Block's Y coordinate. </param>
-        /// <param name="h"> Block's H coordinate. </param>
+        /// <param name="z"> Block's Z coordinate. </param>
         /// <param name="player"> Player to check. </param>
         /// <returns> First zone to deny the player.
         /// null if none of the zones deny the player. </returns>
-        public Zone FindDenied( int x, int y, int h, Player player ) {
+        public Zone FindDenied( int x, int y, int z, Player player ) {
             // ReSharper disable LoopCanBeConvertedToQuery
             if( player == null ) throw new ArgumentNullException( "player" );
             Zone[] zoneListCache = Cache;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
-                if( zoneListCache[i].Bounds.Contains( x, y, h ) &&
+                if( zoneListCache[i].Bounds.Contains( x, y, z ) &&
                     !zoneListCache[i].Controller.Check( player.Info ) ) {
                     return zoneListCache[i];
                 }

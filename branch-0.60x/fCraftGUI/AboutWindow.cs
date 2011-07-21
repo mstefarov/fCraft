@@ -3,7 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Windows.Forms;
 
-namespace fCraft.ServerGUI {
+namespace fCraft.GUI {
     public sealed partial class AboutWindow : Form {
         public AboutWindow() {
             InitializeComponent();

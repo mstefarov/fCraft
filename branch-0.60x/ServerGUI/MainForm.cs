@@ -2,9 +2,10 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows.Forms;
 using fCraft.Events;
-using System.Linq;
+using fCraft.GUI;
 
 namespace fCraft.ServerGUI {
 

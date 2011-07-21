@@ -7,6 +7,10 @@ namespace fCraft.Drawing {
 
         RainbowBrush() { }
 
+        public bool HasAlternateBlock {
+            get { return false; }
+        }
+
         public string Name {
             get { return "Rainbow"; }
         }

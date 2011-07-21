@@ -1,4 +1,4 @@
-﻿namespace fCraft.ServerGUI {
+﻿namespace fCraft.GUI {
     sealed partial class AboutWindow {
         /// <summary>
         /// Required designer variable.

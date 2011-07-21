@@ -18,7 +18,6 @@ namespace fCraft.Drawing {
             Block block = cmd.NextBlock( player );
             if( block == Block.Undefined ) return null;
             Block altBlock = cmd.NextBlock( player );
-            if( block == Block.Undefined ) return null;
             return new RandomBrush( block, altBlock );
         }
     }
@@ -27,6 +26,9 @@ namespace fCraft.Drawing {
     public sealed class RandomBrush : IBrushInstance, IBrush {
         public Block Block { get; private set; }
         public Block AltBlock { get; private set; }
+        public bool HasAlternateBlock {
+            get { return false; }
+        }
 
         public IBrushFactory Factory {
             get { return RandomBrushFactory.Instance; }
@@ -53,9 +55,6 @@ namespace fCraft.Drawing {
             if( block == Block.Undefined ) {
                 throw new ArgumentException( "Block must not be undefined.", "block" );
             }
-            if( altBlock == Block.Undefined ) {
-                throw new ArgumentException( "AltBlock must not be undefined.", "altBlock" );
-            }
             Block = block;
             AltBlock = altBlock;
         }
@@ -75,7 +74,6 @@ namespace fCraft.Drawing {
                 Block block = cmd.NextBlock( player );
                 if( block == Block.Undefined ) return null;
                 Block altBlock = cmd.NextBlock( player );
-                if( block == Block.Undefined ) return null;
                 Block = block;
                 AltBlock = altBlock;
             }

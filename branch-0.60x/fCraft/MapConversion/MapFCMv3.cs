@@ -142,18 +142,18 @@ namespace fCraft.MapConversion {
             }
 
             // read dimensions
-            int widthX = reader.ReadInt16();
+            int width = reader.ReadInt16();
             int height = reader.ReadInt16();
-            int widthY = reader.ReadInt16();
+            int length = reader.ReadInt16();
 
 // ReSharper disable UseObjectOrCollectionInitializer
-            Map map = new Map( null, widthX, widthY, height, false );
+            Map map = new Map( null, width, length, height, false );
 // ReSharper restore UseObjectOrCollectionInitializer
 
             // read spawn
             map.Spawn = new Position {
                 X = (short)reader.ReadInt32(),
-                H = (short)reader.ReadInt32(),
+                Z = (short)reader.ReadInt32(),
                 Y = (short)reader.ReadInt32(),
                 R = reader.ReadByte(),
                 L = reader.ReadByte()
@@ -177,12 +177,12 @@ namespace fCraft.MapConversion {
                 writer.Write( Identifier );
                 writer.Write( Revision );
 
-                writer.Write( (short)mapToSave.WidthX );
+                writer.Write( (short)mapToSave.Width );
                 writer.Write( (short)mapToSave.Height );
-                writer.Write( (short)mapToSave.WidthY );
+                writer.Write( (short)mapToSave.Length );
 
                 writer.Write( (int)mapToSave.Spawn.X );
-                writer.Write( (int)mapToSave.Spawn.H );
+                writer.Write( (int)mapToSave.Spawn.Z );
                 writer.Write( (int)mapToSave.Spawn.Y );
 
                 writer.Write( mapToSave.Spawn.R );
@@ -288,8 +288,8 @@ namespace fCraft.MapConversion {
             return String.Format( "{0},{1},{2},{3}",
                                   String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
                                                  zone.Name,
-                                                 zone.Bounds.XMin, zone.Bounds.YMin, zone.Bounds.HMin,
-                                                 zone.Bounds.XMax, zone.Bounds.YMax, zone.Bounds.HMax,
+                                                 zone.Bounds.XMin, zone.Bounds.YMin, zone.Bounds.ZMin,
+                                                 zone.Bounds.XMax, zone.Bounds.YMax, zone.Bounds.ZMax,
                                                  zone.Controller.MinRank.FullName ),
                                   zoneExceptions.Included.JoinToString( " ", p => p.Name ),
                                   zoneExceptions.Excluded.JoinToString( " ", p => p.Name ),

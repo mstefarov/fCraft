@@ -317,7 +317,7 @@ namespace fCraft {
 
         internal static void ZoneTestCallback( Player player, Position[] marks, object tag ) {
             Zone[] allowed, denied;
-            if( player.World.Map.Zones.CheckDetailed( marks[0].X, marks[0].Y, marks[0].H, player, out allowed, out denied ) ) {
+            if( player.World.Map.Zones.CheckDetailed( marks[0].X, marks[0].Y, marks[0].Z, player, out allowed, out denied ) ) {
                 foreach( Zone zone in allowed ) {
                     SecurityCheckResult status = zone.Controller.CheckDetailed( player.Info );
                     player.Message( "> Zone {0}&S: {1}{2}", zone.ClassyName, Color.Lime, status );
@@ -417,8 +417,8 @@ namespace fCraft {
                     player.Message( "   {0} ({1}&S) - {2} x {3} x {4}",
                                     zone.Name,
                                     zone.Controller.MinRank.ClassyName,
-                                    zone.Bounds.WidthX,
-                                    zone.Bounds.WidthY,
+                                    zone.Bounds.Width,
+                                    zone.Bounds.Length,
                                     zone.Bounds.Height );
                 }
                 player.Message( "   Type &H/zinfo ZoneName&S for details." );
@@ -452,14 +452,14 @@ namespace fCraft {
 
             player.Message( "About zone \"{0}\": size {1} x {2} x {3}, contains {4} blocks, editable by {5}+.",
                             zone.Name,
-                            zone.Bounds.WidthX, zone.Bounds.WidthY, zone.Bounds.Height,
+                            zone.Bounds.Width, zone.Bounds.Length, zone.Bounds.Height,
                             zone.Bounds.Volume,
                             zone.Controller.MinRank.ClassyName );
 
             player.Message( "  Zone center is at ({0},{1},{2}).",
                             (zone.Bounds.XMin + zone.Bounds.XMax) / 2,
                             (zone.Bounds.YMin + zone.Bounds.YMax) / 2,
-                            (zone.Bounds.HMin + zone.Bounds.HMax) / 2 );
+                            (zone.Bounds.ZMin + zone.Bounds.ZMax) / 2 );
 
             if( zone.CreatedBy != null ) {
                 player.Message( "  Zone created by {0}&S on {1:MMM d} at {1:h:mm} ({2} ago).",

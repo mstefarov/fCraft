@@ -24,39 +24,39 @@ namespace fCraft {
 
 
         public void Generate() {
-            List<Tree> treelist = new List<Tree>();
+            List<Tree> treeList = new List<Tree>();
 
             if( args.Operation == ForesterOperation.Conserve ) {
-                FindTrees( treelist );
+                FindTrees( treeList );
             }
 
-            if( args.TreeCount > 0 && treelist.Count > args.TreeCount ) {
-                treelist = treelist.Take( args.TreeCount ).ToList();
+            if( args.TreeCount > 0 && treeList.Count > args.TreeCount ) {
+                treeList = treeList.Take( args.TreeCount ).ToList();
             }
 
             if( args.Operation == ForesterOperation.Replant || args.Operation == ForesterOperation.Add ) {
                 switch( args.Shape ) {
                     case TreeShape.Rainforest:
-                        PlantRainForestTrees( treelist );
+                        PlantRainForestTrees( treeList );
                         break;
                     case TreeShape.Mangrove:
-                        PlantMangroves( treelist );
+                        PlantMangroves( treeList );
                         break;
                     default:
-                        PlantTrees( treelist );
+                        PlantTrees( treeList );
                         break;
                 }
             }
 
             if( args.Operation != ForesterOperation.ClearCut ) {
-                ProcessTrees( treelist );
+                ProcessTrees( treeList );
                 if( args.Foliage ) {
-                    foreach( Tree tree in treelist ) {
+                    foreach( Tree tree in treeList ) {
                         tree.MakeFoliage();
                     }
                 }
                 if( args.Wood ) {
-                    foreach( Tree tree in treelist ) {
+                    foreach( Tree tree in treeList ) {
                         tree.MakeTrunk();
                     }
                 }
@@ -67,8 +67,8 @@ namespace fCraft {
         void FindTrees( ICollection<Tree> treelist ) {
             int treeheight = args.Height;
 
-            for( int x = 0; x < args.InMap.WidthX; x++ ) {
-                for( int z = 0; z < args.InMap.WidthY; z++ ) {
+            for( int x = 0; x < args.InMap.Width; x++ ) {
+                for( int z = 0; z < args.InMap.Length; z++ ) {
                     int y = args.InMap.Height - 1;
                     while( true ) {
                         int foliagetop = args.InMap.SearchColumn( x, z, args.FoliageBlock, y );
@@ -120,34 +120,34 @@ namespace fCraft {
 
         Vector3I FindRandomTreeLocation( int height ) {
             int padding = (int)(height / 3f + 1);
-            int mindim = Math.Min( args.InMap.WidthX, args.InMap.WidthY );
+            int mindim = Math.Min( args.InMap.Width, args.InMap.Length );
             if( padding > mindim / 2.2 ) {
                 padding = (int)(mindim / 2.2);
             }
-            int x = args.Rand.Next( padding, args.InMap.WidthX - padding - 1 );
-            int z = args.Rand.Next( padding, args.InMap.WidthY - padding - 1 );
+            int x = args.Rand.Next( padding, args.InMap.Width - padding - 1 );
+            int z = args.Rand.Next( padding, args.InMap.Length - padding - 1 );
             int y = args.InMap.SearchColumn( x, z, args.PlantOn );
             return new Vector3I( x, y, z);
         }
 
 
         void PlantRainForestTrees( ICollection<Tree> treelist ) {
-            int treeheight = args.Height;
+            int treeHeight = args.Height;
 
-            int existingtreenum = treelist.Count;
-            int remainingtrees = args.TreeCount - existingtreenum;
+            int existingTreeNum = treelist.Count;
+            int remainingTrees = args.TreeCount - existingTreeNum;
 
             const int shortTreeFraction = 6;
             int attempts = 0;
-            for( int i = 0; i < remainingtrees && attempts < MaxTries; attempts++ ) {
+            for( int i = 0; i < remainingTrees && attempts < MaxTries; attempts++ ) {
                 float randomfac =
                     (float)( ( Math.Sqrt( args.Rand.NextDouble() ) * 1.618 - .618 ) * args.HeightVariation + .5 );
 
                 int height;
                 if( i % shortTreeFraction == 0 ) {
-                    height = (int)( treeheight + randomfac );
+                    height = (int)( treeHeight + randomfac );
                 } else {
-                    height = (int)( treeheight - randomfac );
+                    height = (int)( treeHeight - randomfac );
                 }
                 Vector3I xyz = FindRandomTreeLocation( height );
                 if( xyz.Y < 0 ) continue;
@@ -189,12 +189,12 @@ namespace fCraft {
                 int height = args.Rand.Next( treeheight - args.HeightVariation,
                                              treeheight + args.HeightVariation + 1 );
                 int padding = (int)(height / 3f + 1);
-                int mindim = Math.Min( args.InMap.WidthX, args.InMap.WidthY );
+                int mindim = Math.Min( args.InMap.Width, args.InMap.Length );
                 if( padding > mindim / 2.2 ) {
                     padding = (int)(mindim / 2.2);
                 }
-                int x = args.Rand.Next( padding, args.InMap.WidthX - padding - 1 );
-                int z = args.Rand.Next( padding, args.InMap.WidthY - padding - 1 );
+                int x = args.Rand.Next( padding, args.InMap.Width - padding - 1 );
+                int z = args.Rand.Next( padding, args.InMap.Length - padding - 1 );
                 int top = args.InMap.Height - 1;
 
                 int y = top - DistanceToBlock( args.InMap, new Vector3F( x, z, top ), new Vector3F( 0, 0, -1 ), Block.Air, true );
@@ -233,52 +233,52 @@ namespace fCraft {
 
             for( int i = 0; i < treelist.Count; i++ ) {
                 TreeShape newshape = shapeChoices[args.Rand.Next( 0, shapeChoices.Length )];
-                Tree newtree;
+                Tree newTree;
                 switch( newshape ) {
                     case TreeShape.Normal:
-                        newtree = new NormalTree();
+                        newTree = new NormalTree();
                         break;
                     case TreeShape.Bamboo:
-                        newtree = new BambooTree();
+                        newTree = new BambooTree();
                         break;
                     case TreeShape.Palm:
-                        newtree = new PalmTree();
+                        newTree = new PalmTree();
                         break;
                     case TreeShape.Round:
-                        newtree = new RoundTree();
+                        newTree = new RoundTree();
                         break;
                     case TreeShape.Cone:
-                        newtree = new ConeTree();
+                        newTree = new ConeTree();
                         break;
                     case TreeShape.Rainforest:
-                        newtree = new RainforestTree();
+                        newTree = new RainforestTree();
                         break;
                     case TreeShape.Mangrove:
-                        newtree = new MangroveTree();
+                        newTree = new MangroveTree();
                         break;
                     default:
                         throw new ArgumentException( "Unknown tree shape type" );
                 }
-                newtree.Copy( treelist[i] );
+                newTree.Copy( treelist[i] );
 
                 if( args.MapHeightLimit ) {
-                    int height = newtree.Height;
-                    int ybase = newtree.Pos[1];
-                    int mapheight = args.InMap.Height;
-                    int foliageheight;
+                    int height = newTree.Height;
+                    int ybase = newTree.Pos[1];
+                    int mapHeight = args.InMap.Height;
+                    int foliageHeight;
                     if( args.Shape == TreeShape.Rainforest ) {
-                        foliageheight = 2;
+                        foliageHeight = 2;
                     } else {
-                        foliageheight = 4;
+                        foliageHeight = 4;
                     }
-                    if( ybase + height + foliageheight > mapheight ) {
-                        newtree.Height = mapheight - ybase - foliageheight;
+                    if( ybase + height + foliageHeight > mapHeight ) {
+                        newTree.Height = mapHeight - ybase - foliageHeight;
                     }
                 }
 
-                if( newtree.Height < 1 ) newtree.Height = 1;
-                newtree.Prepare();
-                treelist[i] = newtree;
+                if( newTree.Height < 1 ) newTree.Height = 1;
+                newTree.Prepare();
+                treelist[i] = newTree;
             }
         }
 

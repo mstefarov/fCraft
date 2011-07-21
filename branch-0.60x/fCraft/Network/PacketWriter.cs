@@ -59,9 +59,9 @@ namespace fCraft {
         internal void WriteLevelEnd( Map map ) {
             if( map == null ) throw new ArgumentNullException( "map" );
             Write( OpCode.MapEnd );
-            Write( (short)map.WidthX );
+            Write( (short)map.Width );
             Write( (short)map.Height );
-            Write( (short)map.WidthY );
+            Write( (short)map.Length );
         }
 
         public void WriteAddEntity( byte id, Player player, Position pos ) {
@@ -70,7 +70,7 @@ namespace fCraft {
             Write( id );
             Write( player.ListName );
             Write( pos.X );
-            Write( pos.H );
+            Write( pos.Z );
             Write( pos.Y );
             Write( pos.R );
             Write( pos.L );
@@ -80,7 +80,7 @@ namespace fCraft {
             Write( OpCode.Teleport );
             Write( id );
             Write( pos.X );
-            Write( pos.H );
+            Write( pos.Z );
             Write( pos.Y );
             Write( pos.R );
             Write( pos.L );
@@ -122,7 +122,7 @@ namespace fCraft {
             packet.Data[1] = (byte)id;
             Encoding.ASCII.GetBytes( name.PadRight( 64 ), 0, 64, packet.Data, 2 );
             ToNetOrder( pos.X, packet.Data, 66 );
-            ToNetOrder( pos.H, packet.Data, 68 );
+            ToNetOrder( pos.Z, packet.Data, 68 );
             ToNetOrder( pos.Y, packet.Data, 70 );
             packet.Data[72] = pos.R;
             packet.Data[73] = pos.L;
@@ -150,7 +150,7 @@ namespace fCraft {
             Packet packet = new Packet( OpCode.Teleport );
             packet.Data[1] = (byte)id;
             ToNetOrder( pos.X, packet.Data, 2 );
-            ToNetOrder( pos.H, packet.Data, 4 );
+            ToNetOrder( pos.Z, packet.Data, 4 );
             ToNetOrder( pos.Y, packet.Data, 6 );
             packet.Data[8] = pos.R;
             packet.Data[9] = pos.L;
@@ -167,7 +167,7 @@ namespace fCraft {
             Packet packet = new Packet( OpCode.MoveRotate );
             packet.Data[1] = (byte)id;
             packet.Data[2] = (byte)(pos.X & 0xFF);
-            packet.Data[3] = (byte)(pos.H & 0xFF);
+            packet.Data[3] = (byte)(pos.Z & 0xFF);
             packet.Data[4] = (byte)(pos.Y & 0xFF);
             packet.Data[5] = pos.R;
             packet.Data[6] = pos.L;
@@ -179,7 +179,7 @@ namespace fCraft {
             Packet packet = new Packet( OpCode.Move );
             packet.Data[1] = (byte)id;
             packet.Data[2] = (byte)pos.X;
-            packet.Data[3] = (byte)pos.H;
+            packet.Data[3] = (byte)pos.Z;
             packet.Data[4] = (byte)pos.Y;
             return packet;
         }
@@ -194,20 +194,20 @@ namespace fCraft {
         }
 
 
-        internal static Packet MakeSetBlock( int x, int y, int h, byte type ) {
+        internal static Packet MakeSetBlock( int x, int y, int z, byte type ) {
             Packet packet = new Packet( OpCode.SetBlockServer );
             ToNetOrder( x, packet.Data, 1 );
-            ToNetOrder( h, packet.Data, 3 );
+            ToNetOrder( z, packet.Data, 3 );
             ToNetOrder( y, packet.Data, 5 );
             packet.Data[7] = type;
             return packet;
         }
 
 
-        internal static Packet MakeSetBlock( int x, int y, int h, Block type ) {
+        internal static Packet MakeSetBlock( int x, int y, int z, Block type ) {
             Packet packet = new Packet( OpCode.SetBlockServer );
             ToNetOrder( x, packet.Data, 1 );
-            ToNetOrder( h, packet.Data, 3 );
+            ToNetOrder( z, packet.Data, 3 );
             ToNetOrder( y, packet.Data, 5 );
             packet.Data[7] = (byte)type;
             return packet;

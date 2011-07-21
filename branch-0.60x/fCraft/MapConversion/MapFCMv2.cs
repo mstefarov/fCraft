@@ -58,19 +58,19 @@ namespace fCraft.MapConversion {
             }
 
             // Read in the map dimesions
-            int widthX = reader.ReadInt16();
-            int widthY = reader.ReadInt16();
+            int width = reader.ReadInt16();
+            int length = reader.ReadInt16();
             int height = reader.ReadInt16();
 
 // ReSharper disable UseObjectOrCollectionInitializer
-            Map map = new Map( null, widthX, widthY, height, false );
+            Map map = new Map( null, width, length, height, false );
 // ReSharper restore UseObjectOrCollectionInitializer
 
             // Read in the spawn location
             map.Spawn = new Position {
                 X = reader.ReadInt16(),
                 Y = reader.ReadInt16(),
-                H = reader.ReadInt16(),
+                Z = reader.ReadInt16(),
                 R = reader.ReadByte(),
                 L = reader.ReadByte()
             };

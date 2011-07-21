@@ -60,7 +60,7 @@ namespace fCraft {
             client.SendTimeout = SocketTimeout;
             client.ReceiveTimeout = SocketTimeout;
 
-            Brush = fCraft.Drawing.SolidBrushFactory.Instance;
+            Brush = Drawing.SolidBrushFactory.Instance;
 
             try {
                 IP = ((IPEndPoint)(client.Client.RemoteEndPoint)).Address;
@@ -274,7 +274,7 @@ namespace fCraft {
             reader.ReadByte();
             Position newPos = new Position {
                 X = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
-                H = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
+                Z = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
                 Y = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
                 R = reader.ReadByte(),
                 L = reader.ReadByte()
@@ -286,7 +286,7 @@ namespace fCraft {
             Position delta = new Position {
                 X = (short)(newPos.X - oldPos.X),
                 Y = (short)(newPos.Y - oldPos.Y),
-                H = (short)(newPos.H - oldPos.H),
+                Z = (short)(newPos.Z - oldPos.Z),
                 R = (byte)Math.Abs( newPos.R - oldPos.R ),
                 L = (byte)Math.Abs( newPos.L - oldPos.L )
             };
@@ -303,25 +303,25 @@ namespace fCraft {
             if( Info.IsFrozen ) {
                 // special handling for frozen players
                 if( delta.X * delta.X + delta.Y * delta.Y > AntiSpeedMaxDistanceSquared ||
-                    Math.Abs( delta.H ) > 40 ) {
+                    Math.Abs( delta.Z ) > 40 ) {
                     SendNow( PacketWriter.MakeSelfTeleport( Position ) );
                 }
                 newPos.X = Position.X;
                 newPos.Y = Position.Y;
-                newPos.H = Position.H;
+                newPos.Z = Position.Z;
 
                 // recalculate deltas
                 delta.X = 0;
                 delta.Y = 0;
-                delta.H = 0;
+                delta.Z = 0;
 
             } else if( !Can( Permission.UseSpeedHack ) ) {
-                int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.H * delta.H;
+                int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.Z * delta.Z;
                 // speedhack detection
                 if( DetectMovementPacketSpam() ) {
                     return;
 
-                } else if( (distSquared - delta.H * delta.H > AntiSpeedMaxDistanceSquared || delta.H > AntiSpeedMaxJumpDelta) &&
+                } else if( (distSquared - delta.Z * delta.Z > AntiSpeedMaxDistanceSquared || delta.Z > AntiSpeedMaxJumpDelta) &&
                            speedHackDetectionCounter >= 0 ) {
 
                     if( speedHackDetectionCounter == 0 ) {
@@ -353,7 +353,7 @@ namespace fCraft {
             if( World == null || World.Map == null ) return;
             ResetIdleTimer();
             short x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
-            short h = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
+            short z = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
             short y = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
             bool mode = (reader.ReadByte() == 1);
             byte type = reader.ReadByte();
@@ -368,13 +368,13 @@ namespace fCraft {
             // Sometimes MC allows clicking out of bounds,
             // like at map transitions or at the top layer of the world.
             // Those clicks should be simply ignored.
-            if( World.Map.InBounds( x, y, h ) ) {
-                var e = new PlayerClickingEventArgs( this, x, y, h, mode, (Block)type );
+            if( World.Map.InBounds( x, y, z ) ) {
+                var e = new PlayerClickingEventArgs( this, x, y, z, mode, (Block)type );
                 if( Server.RaisePlayerClickingEvent( e ) ) {
-                    RevertBlockNow( x, y, h );
+                    RevertBlockNow( x, y, z );
                 } else {
-                    Server.RaisePlayerClickedEvent( this, x, y, h, e.Mode, e.Block );
-                    PlaceBlock( x, y, h, e.Mode, e.Block );
+                    Server.RaisePlayerClickedEvent( this, x, y, z, e.Mode, e.Block );
+                    PlaceBlock( x, y, z, e.Mode, e.Block );
                 }
             }
         }
@@ -1172,16 +1172,16 @@ namespace fCraft {
             Position delta = new Position {
                 X = (short)(newPos.X - oldPos.X),
                 Y = (short)(newPos.Y - oldPos.Y),
-                H = (short)(newPos.H - oldPos.H),
+                Z = (short)(newPos.Z - oldPos.Z),
                 R = (byte)Math.Abs( newPos.R - oldPos.R ),
                 L = (byte)Math.Abs( newPos.L - oldPos.L )
             };
 
-            bool posChanged = (delta.X != 0) || (delta.Y != 0) || (delta.H != 0);
+            bool posChanged = (delta.X != 0) || (delta.Y != 0) || (delta.Z != 0);
             bool rotChanged = (delta.R != 0) || (delta.L != 0);
 
             if( skipUpdates ) {
-                int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.H * delta.H;
+                int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.Z * delta.Z;
                 // movement optimization
                 if( distSquared < SkipMovementThresholdSquared &&
                     (delta.R * delta.R + delta.L * delta.L) < SkipRotationThresholdSquared &&
@@ -1201,7 +1201,7 @@ namespace fCraft {
                     packet = PacketWriter.MakeMoveRotate( entity.Id, new Position {
                         X = delta.X,
                         Y = delta.Y,
-                        H = delta.H,
+                        Z = delta.Z,
                         R = newPos.R,
                         L = newPos.L
                     } );

@@ -1008,10 +1008,10 @@ namespace fCraft {
 
             if( cmd.Next() != null ) {
                 cmd.Rewind();
-                int x, y, h;
-                if( cmd.NextInt( out x ) && cmd.NextInt( out y ) && cmd.NextInt( out h ) ) {
+                int x, y, z;
+                if( cmd.NextInt( out x ) && cmd.NextInt( out y ) && cmd.NextInt( out z ) ) {
 
-                    if( x <= -1024 || x >= 1024 || y <= -1024 || y >= 1024 || h <= -1024 || h >= 1024 ) {
+                    if( x <= -1024 || x >= 1024 || y <= -1024 || y >= 1024 || z <= -1024 || z >= 1024 ) {
                         player.Message( "Coordinates are outside the valid range!" );
 
                     } else {
@@ -1019,7 +1019,7 @@ namespace fCraft {
                         player.Send( PacketWriter.MakeTeleport( 255, new Position {
                             X = (short)(x * 32 + 16),
                             Y = (short)(y * 32 + 16),
-                            H = (short)(h * 32 + 16),
+                            Z = (short)(z * 32 + 16),
                             R = player.Position.R,
                             L = player.Position.L
                         } ) );

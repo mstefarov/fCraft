@@ -88,18 +88,18 @@ namespace fCraft.MapConversion {
             // read spawn location and orientation
             Position spawn = new Position {
                 X = (short)( IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32 ),
-                H = (short)( IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32 ),
+                Z = (short)( IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32 ),
                 Y = (short)( IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32 ),
                 R = bs.ReadByte(),
                 L = bs.ReadByte()
             };
 
             // Read in the map dimesions
-            int widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-            int widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+            int width = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+            int length = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
             int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
 
-            return new Map( null, widthX, widthY, height, false ) { Spawn = spawn };
+            return new Map( null, width, length, height, false ) { Spawn = spawn };
         }
 
 
@@ -135,7 +135,7 @@ namespace fCraft.MapConversion {
 
                     // Write the spawn location
                     bs.Write( IPAddress.NetworkToHostOrder( (short)(mapToSave.Spawn.X / 32) ) );
-                    bs.Write( IPAddress.NetworkToHostOrder( (short)(mapToSave.Spawn.H / 32) ) );
+                    bs.Write( IPAddress.NetworkToHostOrder( (short)(mapToSave.Spawn.Z / 32) ) );
                     bs.Write( IPAddress.NetworkToHostOrder( (short)(mapToSave.Spawn.Y / 32) ) );
 
                     //Write the spawn orientation
@@ -143,8 +143,8 @@ namespace fCraft.MapConversion {
                     bs.Write( mapToSave.Spawn.L );
 
                     // Write the map dimensions
-                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.WidthX ) );
-                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.WidthY ) );
+                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.Width ) );
+                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.Length ) );
                     bs.Write( IPAddress.NetworkToHostOrder( mapToSave.Height ) );
 
                     // Write the map data

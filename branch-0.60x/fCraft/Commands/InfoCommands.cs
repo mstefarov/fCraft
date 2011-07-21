@@ -696,17 +696,17 @@ namespace fCraft {
         internal static void MeasureCallback( Player player, Position[] marks, object tag ) {
             BoundingBox box = new BoundingBox( marks[0], marks[1] );
             player.Message( "Measure: {0} x {1} wide, {2} tall, {3} blocks.",
-                            box.WidthX,
-                            box.WidthY,
+                            box.Width,
+                            box.Length,
                             box.Height,
                             box.Volume );
             player.Message( "Measure: Located between ({0},{1},{2}) and ({3},{4},{5}).",
                             box.XMin,
                             box.YMin,
-                            box.HMin,
+                            box.ZMin,
                             box.XMax,
                             box.YMax,
-                            box.HMax );
+                            box.ZMax );
         }
 
 
@@ -782,7 +782,7 @@ namespace fCraft {
                             Color.Silver,
                             target.Position.X / 32,
                             target.Position.Y / 32,
-                            target.Position.H / 32,
+                            target.Position.Z / 32,
                             Color.White,
                             Compass.Substring( offset - 12, 11 ),
                             Color.Red,
