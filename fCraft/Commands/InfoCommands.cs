@@ -745,7 +745,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdWhere = new CommandDescriptor {
             Name = "where",
-            Aliases = new[] { "compass" },
+            Aliases = new[] { "compass", "whereis", "whereami" },
             Category = CommandCategory.Info,
             Permissions = new[] { Permission.ViewOthersInfo },
             IsConsoleSafe = true,
