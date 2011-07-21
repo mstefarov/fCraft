@@ -95,10 +95,11 @@ namespace fCraft.MapConversion {
                 Map map = LoadHeaderInternal( reader );
 
                 // read the layer index
-                if( reader.ReadByte() != 1 ) {
-                    throw new MapFormatException( "Multiple layers are no longer supported in FCMv3" );
+                int layerCount = reader.ReadByte();
+                if( layerCount < 1 ) {
+                    throw new MapFormatException( "No data layers found." );
                 }
-                mapStream.Seek( 25, SeekOrigin.Current );
+                mapStream.Seek( 25 * layerCount, SeekOrigin.Current );
 
                 // read metadata
                 int metaSize = reader.ReadInt32();
@@ -129,7 +130,6 @@ namespace fCraft.MapConversion {
                     map.Blocks = new byte[map.Volume];
                     ds.Read( map.Blocks, 0, map.Blocks.Length );
                     map.RemoveUnknownBlocktypes();
-
                 }
                 return map;
             }
