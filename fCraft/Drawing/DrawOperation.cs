@@ -50,7 +50,7 @@ namespace fCraft.Drawing {
             Marks = marks;
             if( Player == null ) throw new InvalidOperationException( "Player not set" );
             if( Map == null ) throw new InvalidOperationException( "Map not set" );
-            Bounds = new BoundingBox( marks[0], marks[1] );
+            Bounds = new BoundingBox( Marks[0], Marks[1] );
             if( Bounds == null ) throw new InvalidOperationException( "Bounds not set" );
             if( !Brush.Begin( Player, this ) ) return false;
             Player.UndoBuffer.Clear();
@@ -75,12 +75,15 @@ namespace fCraft.Drawing {
 
         protected virtual bool DrawOneBlock() {
             BlocksProcessed++;
-            Block newBlock = Brush.NextBlock( this );
 
             if( !Map.InBounds( Coords.X, Coords.Y, Coords.Z ) ) {
                 BlocksSkipped++;
                 return false;
             }
+
+            Block newBlock = Brush.NextBlock( this );
+            if( newBlock == Block.Undefined ) return false;
+
             int blockIndex = Map.Index( Coords.X, Coords.Y, Coords.Z );
 
             Block oldBlock = (Block)Map.Blocks[blockIndex];

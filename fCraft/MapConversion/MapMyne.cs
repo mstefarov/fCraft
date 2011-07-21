@@ -97,11 +97,11 @@ namespace fCraft.MapConversion {
                 throw new Exception( "Metadata file is missing map dimensions." );
             }
 
-            int widthX = Int32.Parse( metaFile["size", "x"] );
-            int widthY = Int32.Parse( metaFile["size", "z"] );
+            int width = Int32.Parse( metaFile["size", "x"] );
+            int length = Int32.Parse( metaFile["size", "z"] );
             int height = Int32.Parse( metaFile["size", "y"] );
 
-            Map map = new Map( null, widthX, widthY, height, false );
+            Map map = new Map( null, width, length, height, false );
 
             if( !map.ValidateHeader() ) {
                 throw new MapFormatException( "One or more of the map dimensions are invalid." );
@@ -111,7 +111,7 @@ namespace fCraft.MapConversion {
                 map.Spawn = new Position {
                     X = (short)(Int16.Parse( metaFile["spawn", "x"] ) * 32 + 16),
                     Y = (short)(Int16.Parse( metaFile["spawn", "z"] ) * 32 + 16),
-                    H = (short)(Int16.Parse( metaFile["spawn", "y"] ) * 32 + 16),
+                    Z = (short)(Int16.Parse( metaFile["spawn", "y"] ) * 32 + 16),
                     R = Byte.Parse( metaFile["spawn", "h"] ),
                     L = 0
                 };

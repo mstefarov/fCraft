@@ -127,13 +127,13 @@ namespace fCraft.MapConversion {
                 mapStream.Seek( -4, SeekOrigin.End );
                 mapStream.Read( temp, 0, 4 );
                 mapStream.Seek( 0, SeekOrigin.Begin );
-                int length = BitConverter.ToInt32( temp, 0 );
-                byte[] data = new byte[length];
+                int uncompressedLength = BitConverter.ToInt32( temp, 0 );
+                byte[] data = new byte[uncompressedLength];
                 using( GZipStream reader = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
-                    reader.Read( data, 0, length );
+                    reader.Read( data, 0, uncompressedLength );
                 }
 
-                for( int i = 0; i < length - 1; i++ ) {
+                for( int i = 0; i < uncompressedLength - 1; i++ ) {
                     if( data[i] != 0xAC || data[i + 1] != 0xED ) continue;
 
                     // bypassing the header crap
@@ -153,7 +153,7 @@ namespace fCraft.MapConversion {
 
                     // start parsing serialization listing
                     int offset = 0;
-                    int widthX = 0, widthY = 0, height = 0;
+                    int width = 0, length = 0, height = 0;
                     Position spawn = new Position();
                     while( pointer < headerEnd ) {
                         switch( (char)data[pointer] ) {
@@ -177,15 +177,15 @@ namespace fCraft.MapConversion {
                         // look for relevant variables
                         Array.Copy( data, headerEnd + offset - 4, temp, 0, 4 );
                         if( MemCmp( data, pointer, "width" ) ) {
-                            widthX = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
+                            width = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
                         } else if( MemCmp( data, pointer, "depth" ) ) {
                             height = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
                         } else if( MemCmp( data, pointer, "height" ) ) {
-                            widthY = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
+                            length = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
                         } else if( MemCmp( data, pointer, "xSpawn" ) ) {
                             spawn.X = (short)( IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16 );
                         } else if( MemCmp( data, pointer, "ySpawn" ) ) {
-                            spawn.H = (short)( IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16 );
+                            spawn.Z = (short)( IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16 );
                         } else if( MemCmp( data, pointer, "zSpawn" ) ) {
                             spawn.Y = (short)( IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16 );
                         }
@@ -193,7 +193,7 @@ namespace fCraft.MapConversion {
                         pointer += skip;
                     }
 
-                    map = new Map( null, widthX, widthY, height, false ) { Spawn = spawn };
+                    map = new Map( null, width, length, height, false ) { Spawn = spawn };
 
                     if( !map.ValidateHeader() ) {
                         throw new MapFormatException( "One or more of the map dimensions are invalid." );

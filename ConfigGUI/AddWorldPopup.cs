@@ -77,9 +77,9 @@ namespace fCraft.ConfigGUI {
             bwRenderer.ProgressChanged += AsyncDrawProgress;
             bwRenderer.RunWorkerCompleted += AsyncDrawCompleted;
 
-            nWidthX.Validating += MapDimensionValidating;
-            nWidthY.Validating += MapDimensionValidating;
-            nHeight.Validating += MapDimensionValidating;
+            nMapWidth.Validating += MapDimensionValidating;
+            nMapLength.Validating += MapDimensionValidating;
+            nMapHeight.Validating += MapDimensionValidating;
 
             cAccess.Items.Add( "(everyone)" );
             cBuild.Items.Add( "(everyone)" );
@@ -341,7 +341,7 @@ namespace fCraft.ConfigGUI {
             } else {
                 generatedMap = MapGenerator.GenerateFlatgrass( Convert.ToInt32( nFlatgrassDimX.Value ),
                                                                Convert.ToInt32( nFlatgrassDimY.Value ),
-                                                               Convert.ToInt32( nFlatgrassDimH.Value ) );
+                                                               Convert.ToInt32( nFlatgrassDimZ.Value ) );
             }
 
             if( floodBarrier ) generatedMap.MakeFloodBarrier();
@@ -456,7 +456,7 @@ namespace fCraft.ConfigGUI {
 
 
         void MapDimensionChanged( object sender, EventArgs e ) {
-            sFeatureScale.Maximum = (int)Math.Log( (double)Math.Max( nWidthX.Value, nWidthY.Value ), 2 );
+            sFeatureScale.Maximum = (int)Math.Log( (double)Math.Max( nMapWidth.Value, nMapLength.Value ), 2 );
             int value = sDetailScale.Maximum - sDetailScale.Value;
             sDetailScale.Maximum = sFeatureScale.Maximum;
             sDetailScale.Value = sDetailScale.Maximum - value;
@@ -624,8 +624,8 @@ Dimensions: {5}×{6}×{7}
                                               (fileSize / 1024),
                                               creationTime.ToLongDateString(),
                                               modificationTime.ToLongDateString(),
-                                              loadedMap.WidthX,
-                                              loadedMap.WidthY,
+                                              loadedMap.Width,
+                                              loadedMap.Length,
                                               loadedMap.Height,
                                               loadedMap.Volume );
 
@@ -719,9 +719,9 @@ Could not load more information:
         }
 
         void LoadGeneratorArgs() {
-            nHeight.Value = generatorArgs.Height;
-            nWidthX.Value = generatorArgs.WidthX;
-            nWidthY.Value = generatorArgs.WidthY;
+            nMapHeight.Value = generatorArgs.MapHeight;
+            nMapWidth.Value = generatorArgs.MapWidth;
+            nMapLength.Value = generatorArgs.MapLength;
 
             sDetailScale.Value = generatorArgs.DetailScale;
             sFeatureScale.Value = generatorArgs.FeatureScale;
@@ -761,12 +761,12 @@ Could not load more information:
             sCaveSize.Value = (int)(generatorArgs.CaveSize * 100);
 
             xWaterLevel.Checked = generatorArgs.CustomWaterLevel;
-            nWaterLevel.Maximum = generatorArgs.Height;
-            nWaterLevel.Value = Math.Min( generatorArgs.WaterLevel, generatorArgs.Height );
+            nWaterLevel.Maximum = generatorArgs.MapHeight;
+            nWaterLevel.Value = Math.Min( generatorArgs.WaterLevel, generatorArgs.MapHeight );
 
             xAddSnow.Checked = generatorArgs.AddSnow;
 
-            nSnowAltitude.Value = generatorArgs.SnowAltitude - (generatorArgs.CustomWaterLevel ? generatorArgs.WaterLevel : generatorArgs.Height / 2);
+            nSnowAltitude.Value = generatorArgs.SnowAltitude - (generatorArgs.CustomWaterLevel ? generatorArgs.WaterLevel : generatorArgs.MapHeight / 2);
             nSnowTransition.Value = generatorArgs.SnowTransition;
 
             xAddCliffs.Checked = generatorArgs.AddCliffs;
@@ -788,9 +788,9 @@ Could not load more information:
             generatorArgs = new MapGeneratorArgs {
                 DetailScale = sDetailScale.Value,
                 FeatureScale = sFeatureScale.Value,
-                Height = (int)nHeight.Value,
-                WidthX = (int)nWidthX.Value,
-                WidthY = (int)nWidthY.Value,
+                MapHeight = (int)nMapHeight.Value,
+                MapWidth = (int)nMapWidth.Value,
+                MapLength = (int)nMapLength.Value,
                 LayeredHeightmap = xLayeredHeightmap.Checked,
                 MarbledHeightmap = xMarbledMode.Checked,
                 MatchWaterCoverage = xMatchWaterCoverage.Checked,
@@ -820,10 +820,10 @@ Could not load more information:
                 CaveDensity = sCaveDensity.Value / 100f,
                 CaveSize = sCaveSize.Value / 100f,
                 CustomWaterLevel = xWaterLevel.Checked,
-                WaterLevel = (int)(xWaterLevel.Checked ? nWaterLevel.Value : nHeight.Value / 2),
+                WaterLevel = (int)(xWaterLevel.Checked ? nWaterLevel.Value : nMapHeight.Value / 2),
                 AddSnow = xAddSnow.Checked,
                 SnowTransition = (int)nSnowTransition.Value,
-                SnowAltitude = (int)(nSnowAltitude.Value + (xWaterLevel.Checked ? nWaterLevel.Value : nHeight.Value / 2)),
+                SnowAltitude = (int)(nSnowAltitude.Value + (xWaterLevel.Checked ? nWaterLevel.Value : nMapHeight.Value / 2)),
                 AddCliffs = xAddCliffs.Checked,
                 CliffThreshold = sCliffThreshold.Value / 100f,
                 CliffSmoothing = xCliffSmoothing.Checked,
@@ -872,8 +872,8 @@ Could not load more information:
         }
 
         private void nHeight_ValueChanged( object sender, EventArgs e ) {
-            nWaterLevel.Value = Math.Min( nWaterLevel.Value, nHeight.Value );
-            nWaterLevel.Maximum = nHeight.Value;
+            nWaterLevel.Value = Math.Min( nWaterLevel.Value, nMapHeight.Value );
+            nWaterLevel.Maximum = nMapHeight.Value;
         }
 
         private void xAddTrees_CheckedChanged( object sender, EventArgs e ) {

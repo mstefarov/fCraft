@@ -189,18 +189,18 @@ namespace fCraft.MapConversion {
             }
 
             // Read in the map dimesions
-            int widthX = bs.ReadInt16();
-            int widthY = bs.ReadInt16();
+            int width = bs.ReadInt16();
+            int length = bs.ReadInt16();
             int height = bs.ReadInt16();
 
 // ReSharper disable UseObjectOrCollectionInitializer
-            Map map = new Map( null, widthX, widthY, height, false );
+            Map map = new Map( null, width, length, height, false );
 // ReSharper restore UseObjectOrCollectionInitializer
 
             // Read in the spawn location
             map.Spawn = new Position {
                 X = (short)(bs.ReadInt16() * 32),
-                H = (short)(bs.ReadInt16() * 32),
+                Z = (short)(bs.ReadInt16() * 32),
                 Y = (short)(bs.ReadInt16() * 32),
                 R = 0,
                 L = 0
@@ -245,13 +245,13 @@ namespace fCraft.MapConversion {
                     bs.Write( (ushort)0x752 );
 
                     // Write the map dimensions
-                    bs.Write( mapToSave.WidthX );
-                    bs.Write( mapToSave.WidthY );
+                    bs.Write( mapToSave.Width );
+                    bs.Write( mapToSave.Length );
                     bs.Write( mapToSave.Height );
 
                     // Write the spawn location
                     bs.Write( mapToSave.Spawn.X / 32 );
-                    bs.Write( mapToSave.Spawn.H / 32 );
+                    bs.Write( mapToSave.Spawn.Z / 32 );
                     bs.Write( mapToSave.Spawn.Y / 32 );
 
                     //Write the spawn orientation

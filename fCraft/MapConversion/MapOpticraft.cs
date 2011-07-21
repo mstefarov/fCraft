@@ -125,7 +125,7 @@ namespace fCraft.MapConversion {
             mapFile.Spawn = new Position {
                 X = (short)(metaData.SpawnX),
                 Y = (short)(metaData.SpawnY),
-                H = (short)(metaData.SpawnZ),
+                Z = (short)(metaData.SpawnZ),
                 R = metaData.SpawnOrientation,
                 L = metaData.SpawnPitch
             };
@@ -221,12 +221,12 @@ namespace fCraft.MapConversion {
                 DataContractJsonSerializer serializer = new DataContractJsonSerializer( typeof( OpticraftMetaData ) );
                 //Create and serialize core meta data
                 OpticraftMetaData oMetadate = new OpticraftMetaData {
-                    X = mapToSave.WidthX,
-                    Y = mapToSave.WidthY,
+                    X = mapToSave.Width,
+                    Y = mapToSave.Length,
                     Z = mapToSave.Height,
                     SpawnX = mapToSave.Spawn.X,
                     SpawnY = mapToSave.Spawn.Y,
-                    SpawnZ = mapToSave.Spawn.H,
+                    SpawnZ = mapToSave.Spawn.Z,
                     SpawnOrientation = mapToSave.Spawn.R,
                     SpawnPitch = mapToSave.Spawn.L
                 };
@@ -262,8 +262,8 @@ namespace fCraft.MapConversion {
                         X2 = zone.Bounds.XMax,
                         Y1 = zone.Bounds.YMin,
                         Y2 = zone.Bounds.YMax,
-                        Z1 = zone.Bounds.HMin,
-                        Z2 = zone.Bounds.HMax,
+                        Z1 = zone.Bounds.ZMin,
+                        Z2 = zone.Bounds.ZMax,
                         Builders = new string[zone.Controller.ExceptionList.Included.Length]
                     };
 

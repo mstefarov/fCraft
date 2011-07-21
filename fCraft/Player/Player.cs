@@ -546,7 +546,7 @@ namespace fCraft {
 
         /// <summary> Handles manually-placed/deleted blocks.
         /// Returns true if player's action should result in a kick. </summary>
-        public bool PlaceBlock( short x, short y, short h, bool buildMode, Block type ) {
+        public bool PlaceBlock( short x, short y, short z, bool buildMode, Block type ) {
 
             LastUsedBlockType = type;
 
@@ -554,19 +554,19 @@ namespace fCraft {
             if( Info.IsFrozen ||
                 Math.Abs( x * 32 - Position.X ) > MaxRange ||
                 Math.Abs( y * 32 - Position.Y ) > MaxRange ||
-                Math.Abs( h * 32 - Position.H ) > MaxRange ) {
-                RevertBlockNow( x, y, h );
+                Math.Abs( z * 32 - Position.Z ) > MaxRange ) {
+                RevertBlockNow( x, y, z );
                 return false;
             }
 
             if( IsSpectating ) {
                 Message( "You cannot build or delete while spectating." );
-                RevertBlockNow( x, y, h );
+                RevertBlockNow( x, y, z );
                 return false;
             }
 
             if( World.IsLocked ) {
-                RevertBlockNow( x, y, h );
+                RevertBlockNow( x, y, z );
                 Message( "This map is currently locked (read-only)." );
                 return false;
             }
@@ -582,55 +582,55 @@ namespace fCraft {
 
             // selection handling
             if( SelectionMarksExpected > 0 ) {
-                RevertBlockNow( x, y, h );
-                SelectionAddMark( new Position( x, y, h ), true );
+                RevertBlockNow( x, y, z );
+                SelectionAddMark( new Position( x, y, z ), true );
                 return false;
             }
 
             CanPlaceResult canPlaceResult;
-            if( type == Block.Stair && h > 0 && World.Map.GetBlock( x, y, h - 1 ) == Block.Stair ) {
+            if( type == Block.Stair && z > 0 && World.Map.GetBlock( x, y, z - 1 ) == Block.Stair ) {
                 // stair stacking
-                canPlaceResult = CanPlace( x, y, h - 1, Block.DoubleStair, true );
+                canPlaceResult = CanPlace( x, y, z - 1, Block.DoubleStair, true );
             } else {
                 // normal placement
-                canPlaceResult = CanPlace( x, y, h, type, true );
+                canPlaceResult = CanPlace( x, y, z, type, true );
             }
 
             // if all is well, try placing it
             switch( canPlaceResult ) {
                 case CanPlaceResult.Allowed:
                     BlockUpdate blockUpdate;
-                    if( type == Block.Stair && h > 0 && World.Map.GetBlock( x, y, h - 1 ) == Block.Stair ) {
+                    if( type == Block.Stair && z > 0 && World.Map.GetBlock( x, y, z - 1 ) == Block.Stair ) {
                         // handle stair stacking
-                        blockUpdate = new BlockUpdate( this, x, y, h - 1, Block.DoubleStair );
+                        blockUpdate = new BlockUpdate( this, x, y, z - 1, Block.DoubleStair );
                         Info.ProcessBlockPlaced( (byte)Block.DoubleStair );
                         World.Map.QueueUpdate( blockUpdate );
-                        Server.RaisePlayerPlacedBlockEvent( this, x, y, (short)(h - 1), Block.Stair, Block.DoubleStair, true );
-                        SendNow( PacketWriter.MakeSetBlock( x, y, h - 1, Block.DoubleStair ) );
-                        RevertBlockNow( x, y, h );
+                        Server.RaisePlayerPlacedBlockEvent( this, x, y, (short)(z - 1), Block.Stair, Block.DoubleStair, true );
+                        SendNow( PacketWriter.MakeSetBlock( x, y, z - 1, Block.DoubleStair ) );
+                        RevertBlockNow( x, y, z );
                         break;
 
                     } else {
                         // handle normal blocks
-                        blockUpdate = new BlockUpdate( this, x, y, h, type );
+                        blockUpdate = new BlockUpdate( this, x, y, z, type );
                         Info.ProcessBlockPlaced( (byte)type );
-                        Block old = World.Map.GetBlock( x, y, h );
+                        Block old = World.Map.GetBlock( x, y, z );
                         World.Map.QueueUpdate( blockUpdate );
-                        Server.RaisePlayerPlacedBlockEvent( this, x, y, h, old, type, true );
+                        Server.RaisePlayerPlacedBlockEvent( this, x, y, z, old, type, true );
                         if( requiresUpdate || RelayAllUpdates ) {
-                            SendNow( PacketWriter.MakeSetBlock( x, y, h, type ) );
+                            SendNow( PacketWriter.MakeSetBlock( x, y, z, type ) );
                         }
                     }
                     break;
 
                 case CanPlaceResult.BlocktypeDenied:
                     Message( "&WYou are not permitted to affect this block type." );
-                    RevertBlockNow( x, y, h );
+                    RevertBlockNow( x, y, z );
                     break;
 
                 case CanPlaceResult.RankDenied:
                     Message( "&WYour rank is not allowed to build." );
-                    RevertBlockNow( x, y, h );
+                    RevertBlockNow( x, y, z );
                     break;
 
                 case CanPlaceResult.WorldDenied:
@@ -643,21 +643,21 @@ namespace fCraft {
                             Message( "&WYou are not allowed to build in this world." );
                             break;
                     }
-                    RevertBlockNow( x, y, h );
+                    RevertBlockNow( x, y, z );
                     break;
 
                 case CanPlaceResult.ZoneDenied:
-                    Zone deniedZone = World.Map.Zones.FindDenied( x, y, h, this );
+                    Zone deniedZone = World.Map.Zones.FindDenied( x, y, z, this );
                     if( deniedZone != null ) {
                         Message( "&WYou are not allowed to build in zone \"{0}\".", deniedZone.Name );
                     } else {
                         Message( "&WYou are not allowed to build here." );
                     }
-                    RevertBlockNow( x, y, h );
+                    RevertBlockNow( x, y, z );
                     break;
 
                 case CanPlaceResult.PluginDenied:
-                    RevertBlockNow( x, y, h );
+                    RevertBlockNow( x, y, z );
                     break;
 
                 //case CanPlaceResult.PluginDeniedNoUpdate:
@@ -670,16 +670,16 @@ namespace fCraft {
         /// <summary>  Gets the block from given location in player's world,
         /// and sends it (async) to the player.
         /// Used to undo player's attempted block placement/deletion. </summary>
-        public void RevertBlock( short x, short y, short h ) {
-            SendLowPriority( PacketWriter.MakeSetBlock( x, y, h, World.Map.GetBlockByte( x, y, h ) ) );
+        public void RevertBlock( short x, short y, short z ) {
+            SendLowPriority( PacketWriter.MakeSetBlock( x, y, z, World.Map.GetBlockByte( x, y, z ) ) );
         }
 
 
         /// <summary>  Gets the block from given location in player's world, and sends it (sync) to the player.
         /// Used to undo player's attempted block placement/deletion.
         /// To avoid threading issues, only use this from this player's IoThread. </summary>
-        internal void RevertBlockNow( short x, short y, short h ) {
-            SendNow( PacketWriter.MakeSetBlock( x, y, h, World.Map.GetBlockByte( x, y, h ) ) );
+        internal void RevertBlockNow( short x, short y, short z ) {
+            SendNow( PacketWriter.MakeSetBlock( x, y, z, World.Map.GetBlockByte( x, y, z ) ) );
         }
 
 
@@ -780,11 +780,11 @@ namespace fCraft {
 
         /// <summary> Checks whether player is allowed to place a block on the current world at given coordinates.
         /// Raises the PlayerPlacingBlock event. </summary>
-        public CanPlaceResult CanPlace( int x, int y, int h, Block newBlock, bool isManual ) {
+        public CanPlaceResult CanPlace( int x, int y, int z, Block newBlock, bool isManual ) {
             CanPlaceResult result;
 
             // check deleting admincrete
-            Block block = World.Map.GetBlock( x, y, h );
+            Block block = World.Map.GetBlock( x, y, z );
 
             // check special blocktypes
             if( newBlock == Block.Admincrete && !Can( Permission.PlaceAdmincrete ) ) {
@@ -805,7 +805,7 @@ namespace fCraft {
             }
 
             // check zones & world permissions
-            PermissionOverride zoneCheckResult = World.Map.Zones.Check( x, y, h, this );
+            PermissionOverride zoneCheckResult = World.Map.Zones.Check( x, y, z, this );
             if( zoneCheckResult == PermissionOverride.Allow ) {
                 result = CanPlaceResult.Allowed;
                 goto eventCheck;
@@ -836,7 +836,7 @@ namespace fCraft {
             }
 
         eventCheck:
-            return Server.RaisePlayerPlacingBlockEvent( this, (short)x, (short)y, (short)h, block, newBlock, isManual, result );
+            return Server.RaisePlayerPlacingBlockEvent( this, (short)x, (short)y, (short)z, block, newBlock, isManual, result );
         }
 
 
@@ -888,11 +888,11 @@ namespace fCraft {
                     SelectionExecute();
                 } else {
                     Message( "Last block marked at ({0},{1},{2}). Type &H/mark&S or click any block to continue.",
-                             pos.X, pos.Y, pos.H );
+                             pos.X, pos.Y, pos.Z );
                 }
             } else {
                 Message( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
-                         SelectionMarkCount, pos.X, pos.Y, pos.H, SelectionMarkCount + 1 );
+                         SelectionMarkCount, pos.X, pos.Y, pos.Z, SelectionMarkCount + 1 );
             }
         }
 

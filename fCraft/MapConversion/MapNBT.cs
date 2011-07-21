@@ -61,7 +61,7 @@ namespace fCraft.MapConversion {
                                    false );
                 map.Spawn = new Position {
                     X = mapTag["Spawn"][0].GetShort(),
-                    H = mapTag["Spawn"][1].GetShort(),
+                    Z = mapTag["Spawn"][1].GetShort(),
                     Y = mapTag["Spawn"][2].GetShort(),
                     R = 0,
                     L = 0

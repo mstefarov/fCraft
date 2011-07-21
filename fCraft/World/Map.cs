@@ -17,10 +17,10 @@ namespace fCraft {
         public World World { get; set; }
 
         /// <summary> Map width, in blocks. Equivalent to Notch's X (horizontal). </summary>
-        public readonly int WidthX;
+        public readonly int Width;
 
         /// <summary> Map length, in blocks. Equivalent to Notch's Z (horizontal). </summary>
-        public readonly int WidthY;
+        public readonly int Length;
 
         /// <summary> Map height, in blocks. Equivalent to Notch's Y (vertical). </summary>
         public readonly int Height;
@@ -47,9 +47,9 @@ namespace fCraft {
         /// <summary> Resets spawn to the default location (top center of the map). </summary>
         public void ResetSpawn() {
             Spawn = new Position {
-                X = (short)(WidthX * 16),
-                Y = (short)(WidthY * 16),
-                H = (short)Math.Min( short.MaxValue, Height * 32 ),
+                X = (short)(Width * 16),
+                Y = (short)(Length * 16),
+                Z = (short)Math.Min( short.MaxValue, Height * 32 ),
                 R = 0,
                 L = 0
             };
@@ -87,13 +87,13 @@ namespace fCraft {
         /// <summary> Creates an empty new map of given dimensions.
         /// Dimensions cannot be changed after creation. </summary>
         /// <param name="world"> World that owns this map. May be null, and may be changed later. </param>
-        /// <param name="widthX"> WidthX (horizontal, Notch's X). </param>
-        /// <param name="widthY"> WidthY/Length (horizontal, Notch's Z). </param>
+        /// <param name="width"> Width (horizontal, Notch's X). </param>
+        /// <param name="length"> Length (horizontal, Notch's Z). </param>
         /// <param name="height"> Height (vertical, Notch's Y). </param>
         /// <param name="initBlockArray"> If true, the Blocks array will be created. </param>
-        public Map( World world, int widthX, int widthY, int height, bool initBlockArray ) {
-            if( !IsValidDimension( widthX ) ) throw new ArgumentException( "Invalid map dimension.", "widthX" );
-            if( !IsValidDimension( widthY ) ) throw new ArgumentException( "Invalid map dimension.", "widthY" );
+        public Map( World world, int width, int length, int height, bool initBlockArray ) {
+            if( !IsValidDimension( width ) ) throw new ArgumentException( "Invalid map dimension.", "width" );
+            if( !IsValidDimension( length ) ) throw new ArgumentException( "Invalid map dimension.", "length" );
             if( !IsValidDimension( height ) ) throw new ArgumentException( "Invalid map dimension.", "height" );
 
             Metadata = new MetadataCollection();
@@ -104,10 +104,10 @@ namespace fCraft {
 
             World = world;
 
-            WidthX = widthX;
-            WidthY = widthY;
+            Width = width;
+            Length = length;
             Height = height;
-            Bounds = new BoundingBox( Position.Zero, WidthX, WidthY, Height );
+            Bounds = new BoundingBox( Position.Zero, Width, Length, Height );
             Volume = Bounds.Volume;
 
             if( initBlockArray ) {
@@ -173,10 +173,10 @@ namespace fCraft {
         /// <summary> Converts given coordinates to a block array index. </summary>
         /// <param name="x"> X coordinate (width). </param>
         /// <param name="y"> Y coordinate (length, Notch's Z). </param>
-        /// <param name="h"> H coordinate (height, Notch's Y). </param>
+        /// <param name="z"> Z coordinate (height, Notch's Y). </param>
         /// <returns> Index of the block in Map.Blocks array. </returns>
-        public int Index( int x, int y, int h ) {
-            return (h * WidthY + y) * WidthX + x;
+        public int Index( int x, int y, int z ) {
+            return (z * Length + y) * Width + x;
         }
 
 
@@ -184,7 +184,7 @@ namespace fCraft {
         /// <param name="coords"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
         /// <returns> Index of the block in Map.Blocks array. </returns>
         public int Index( Vector3I coords ) {
-            return (coords.Y * WidthY + coords.Z) * WidthX + coords.X;
+            return (coords.Y * Length + coords.Z) * Width + coords.X;
         }
 
 
@@ -193,11 +193,11 @@ namespace fCraft {
         /// Use QueueUpdate() for changing blocks on live maps/worlds. </summary>
         /// <param name="x"> X coordinate (width). </param>
         /// <param name="y"> Y coordinate (length, Notch's Z). </param>
-        /// <param name="h"> H coordinate (height, Notch's Y). </param>
+        /// <param name="z"> Z coordinate (height, Notch's Y). </param>
         /// <param name="type"> Block type to set. </param>
-        public void SetBlock( int x, int y, int h, Block type ) {
-            if( x < WidthX && y < WidthY && h < Height && x >= 0 && y >= 0 && h >= 0 ) {
-                Blocks[Index( x, y, h )] = (byte)type;
+        public void SetBlock( int x, int y, int z, Block type ) {
+            if( x < Width && y < Length && z < Height && x >= 0 && y >= 0 && z >= 0 ) {
+                Blocks[Index( x, y, z )] = (byte)type;
                 HasChangedSinceSave = true;
             }
         }
@@ -206,11 +206,11 @@ namespace fCraft {
         /// <summary> Sets a block at given coordinates. Checks bounds. </summary>
         /// <param name="x"> X coordinate (width). </param>
         /// <param name="y"> Y coordinate (length, Notch's Z). </param>
-        /// <param name="h"> H coordinate (height, Notch's Y). </param>
+        /// <param name="z"> Z coordinate (height, Notch's Y). </param>
         /// <param name="type"> Block type to set. </param>
-        public void SetBlock( int x, int y, int h, byte type ) {
-            if( h < Height && x < WidthX && y < WidthY && x >= 0 && y >= 0 && h >= 0 && type < 50 ) {
-                Blocks[Index( x, y, h )] = type;
+        public void SetBlock( int x, int y, int z, byte type ) {
+            if( z < Height && x < Width && y < Length && x >= 0 && y >= 0 && z >= 0 && type < 50 ) {
+                Blocks[Index( x, y, z )] = type;
                 HasChangedSinceSave = true;
             }
         }
@@ -220,7 +220,7 @@ namespace fCraft {
         /// <param name="coords"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
         /// <param name="type"> Block type to set. </param>
         public void SetBlock( Vector3I coords, Block type ) {
-            if( coords.X < WidthX && coords.Z < WidthY && coords.Y < Height && coords.X >= 0 && coords.Z >= 0 && coords.Y >= 0 && (byte)type < 50 ) {
+            if( coords.X < Width && coords.Z < Length && coords.Y < Height && coords.X >= 0 && coords.Z >= 0 && coords.Y >= 0 && (byte)type < 50 ) {
                 Blocks[Index( coords.X, coords.Z, coords.Y )] = (byte)type;
                 HasChangedSinceSave = true;
             }
@@ -231,7 +231,7 @@ namespace fCraft {
         /// <param name="coords"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
         /// <param name="type"> Block type to set. </param>
         public void SetBlock( Vector3I coords, byte type ) {
-            if( coords.X < WidthX && coords.Z < WidthY && coords.Y < Height && coords.X >= 0 && coords.Z >= 0 && coords.Y >= 0 && type < 50 ) {
+            if( coords.X < Width && coords.Z < Length && coords.Y < Height && coords.X >= 0 && coords.Z >= 0 && coords.Y >= 0 && type < 50 ) {
                 Blocks[Index( coords.X, coords.Z, coords.Y )] = type;
                 HasChangedSinceSave = true;
             }
@@ -241,11 +241,11 @@ namespace fCraft {
         /// <summary> Gets a block at given coordinates. Checks bounds. </summary>
         /// <param name="x"> X coordinate (width). </param>
         /// <param name="y"> Y coordinate (length, Notch's Z). </param>
-        /// <param name="h"> H coordinate (height, Notch's Y). </param>
+        /// <param name="z"> Z coordinate (height, Notch's Y). </param>
         /// <returns> Block type, as a byte. 255 if coordinates were out of bounds. </returns>
-        public byte GetBlockByte( int x, int y, int h ) {
-            if( x < WidthX && y < WidthY && h < Height && x >= 0 && y >= 0 && h >= 0 )
-                return Blocks[Index( x, y, h )];
+        public byte GetBlockByte( int x, int y, int z ) {
+            if( x < Width && y < Length && z < Height && x >= 0 && y >= 0 && z >= 0 )
+                return Blocks[Index( x, y, z )];
             return (byte)Block.Undefined;
         }
 
@@ -253,11 +253,11 @@ namespace fCraft {
         /// <summary> Gets a block at given coordinates. Checks bounds. </summary>
         /// <param name="x"> X coordinate (width). </param>
         /// <param name="y"> Y coordinate (length, Notch's Z). </param>
-        /// <param name="h"> H coordinate (height, Notch's Y). </param>
+        /// <param name="z"> Z coordinate (height, Notch's Y). </param>
         /// <returns> Block type, as a Block enumeration. Undefined if coordinates were out of bounds. </returns>
-        public Block GetBlock( int x, int y, int h ) {
-            if( x < WidthX && y < WidthY && h < Height && x >= 0 && y >= 0 && h >= 0 )
-                return (Block)Blocks[Index( x, y, h )];
+        public Block GetBlock( int x, int y, int z ) {
+            if( x < Width && y < Length && z < Height && x >= 0 && y >= 0 && z >= 0 )
+                return (Block)Blocks[Index( x, y, z )];
             return Block.Undefined;
         }
 
@@ -266,7 +266,7 @@ namespace fCraft {
         /// <param name="coords"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
         /// <returns> Block type, as a Block enumeration. Undefined if coordinates were out of bounds. </returns>
         public byte GetBlockByte( Vector3I coords ) {
-            if( coords.X < WidthX && coords.Z < WidthY && coords.Y < Height && coords.X >= 0 && coords.Z >= 0 && coords.Y >= 0 )
+            if( coords.X < Width && coords.Z < Length && coords.Y < Height && coords.X >= 0 && coords.Z >= 0 && coords.Y >= 0 )
                 return Blocks[Index( coords.X, coords.Z, coords.Y )];
             return (byte)Block.Undefined;
         }
@@ -275,16 +275,16 @@ namespace fCraft {
         /// <summary> Checks whether the given coordinate (in block units) is within the bounds of the map. </summary>
         /// <param name="x"> X coordinate (width). </param>
         /// <param name="y"> Y coordinate (length, Notch's Z). </param>
-        /// <param name="h"> H coordinate (height, Notch's Y). </param>
-        public bool InBounds( int x, int y, int h ) {
-            return x < WidthX && y < WidthY && h < Height && x >= 0 && y >= 0 && h >= 0;
+        /// <param name="z"> Z coordinate (height, Notch's Y). </param>
+        public bool InBounds( int x, int y, int z ) {
+            return x < Width && y < Length && z < Height && x >= 0 && y >= 0 && z >= 0;
         }
 
 
         /// <summary> Checks whether the given coordinate (in block units) is within the bounds of the map. </summary>
         /// <param name="vec"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
         public bool InBounds( Vector3I vec ) {
-            return vec.X < WidthX && vec.Z < WidthY && vec.Y < Height && vec.X >= 0 && vec.Z >= 0 && vec.Y >= 0;
+            return vec.X < Width && vec.Z < Length && vec.Y < Height && vec.X >= 0 && vec.Z >= 0 && vec.Y >= 0;
         }
 
         #endregion
@@ -340,12 +340,12 @@ namespace fCraft {
                     break;
                 }
                 HasChangedSinceSave = true;
-                if( !InBounds( update.X, update.Y, update.H ) ) continue;
-                int blockIndex = Index( update.X, update.Y, update.H );
+                if( !InBounds( update.X, update.Y, update.Z ) ) continue;
+                int blockIndex = Index( update.X, update.Y, update.Z );
                 Blocks[blockIndex] = update.BlockType; // TODO: investigate IndexOutOfRangeException here
 
                 if( !World.IsFlushing ) {
-                    World.SendToAllDelayed( PacketWriter.MakeSetBlock( update.X, update.Y, update.H, update.BlockType ), update.Origin );
+                    World.SendToAllDelayed( PacketWriter.MakeSetBlock( update.X, update.Y, update.Z, update.BlockType ), update.Origin );
                 }
                 packetsSent++;
             }
@@ -493,22 +493,22 @@ namespace fCraft {
         #region Utilities
 
         public bool ValidateHeader() {
-            if( !IsValidDimension( WidthX ) ) {
-                Logger.Log( "Map.ValidateHeader: Invalid dimension specified for widthX: {0}.", LogType.Error, WidthX );
+            if( !IsValidDimension( Width ) ) {
+                Logger.Log( "Map.ValidateHeader: Unsupported map width: {0}.", LogType.Error, Width );
                 return false;
             }
 
-            if( !IsValidDimension( WidthY ) ) {
-                Logger.Log( "Map.ValidateHeader: Invalid dimension specified for widthY: {0}.", LogType.Error, WidthY );
+            if( !IsValidDimension( Length ) ) {
+                Logger.Log( "Map.ValidateHeader: Unsupported map length: {0}.", LogType.Error, Length );
                 return false;
             }
 
             if( !IsValidDimension( Height ) ) {
-                Logger.Log( "Map.ValidateHeader: Invalid dimension specified for height: {0}.", LogType.Error, Height );
+                Logger.Log( "Map.ValidateHeader: Unsupported map height: {0}.", LogType.Error, Height );
                 return false;
             }
 
-            if( Spawn.X > WidthX * 32 || Spawn.Y > WidthY * 32 || Spawn.H > Height * 32 || Spawn.X < 0 || Spawn.Y < 0 || Spawn.H < 0 ) {
+            if( Spawn.X > Width * 32 || Spawn.Y > Length * 32 || Spawn.Z > Height * 32 || Spawn.X < 0 || Spawn.Y < 0 || Spawn.Z < 0 ) {
                 Logger.Log( "Map.ValidateHeader: Spawn coordinates are outside the valid range! Using center of the map instead.",
                             LogType.Warning );
                 ResetSpawn();
@@ -728,11 +728,11 @@ namespace fCraft {
         public void CalculateShadows() {
             if( Shadows != null ) return;
 
-            Shadows = new short[WidthX, WidthY];
-            for( int x = 0; x < WidthX; x++ ) {
-                for( int y = 0; y < WidthY; y++ ) {
-                    for( short h = (short)(Height - 1); h >= 0; h-- ) {
-                        switch( GetBlock( x, y, h ) ) {
+            Shadows = new short[Width, Length];
+            for( int x = 0; x < Width; x++ ) {
+                for( int y = 0; y < Length; y++ ) {
+                    for( short z = (short)(Height - 1); z >= 0; z-- ) {
+                        switch( GetBlock( x, y, z ) ) {
                             case Block.Air:
                             case Block.BrownMushroom:
                             case Block.Glass:
@@ -742,7 +742,7 @@ namespace fCraft {
                             case Block.YellowFlower:
                                 continue;
                             default:
-                                Shadows[x, y] = h;
+                                Shadows[x, y] = z;
                                 break;
                         }
                         break;
@@ -784,23 +784,23 @@ namespace fCraft {
 
 
         public void MakeFloodBarrier() {
-            for( int x = 0; x < WidthX; x++ ) {
-                for( int y = 0; y < WidthY; y++ ) {
+            for( int x = 0; x < Width; x++ ) {
+                for( int y = 0; y < Length; y++ ) {
                     SetBlock( x, y, 0, Block.Admincrete );
                 }
             }
 
-            for( int x = 0; x < WidthX; x++ ) {
-                for( int h = 0; h < Height / 2; h++ ) {
-                    SetBlock( x, 0, h, Block.Admincrete );
-                    SetBlock( x, WidthY - 1, h, Block.Admincrete );
+            for( int x = 0; x < Width; x++ ) {
+                for( int z = 0; z < Height / 2; z++ ) {
+                    SetBlock( x, 0, z, Block.Admincrete );
+                    SetBlock( x, Length - 1, z, Block.Admincrete );
                 }
             }
 
-            for( int y = 0; y < WidthY; y++ ) {
-                for( int h = 0; h < Height / 2; h++ ) {
-                    SetBlock( 0, y, h, Block.Admincrete );
-                    SetBlock( WidthX - 1, y, h, Block.Admincrete );
+            for( int y = 0; y < Length; y++ ) {
+                for( int z = 0; z < Height / 2; z++ ) {
+                    SetBlock( 0, y, z, Block.Admincrete );
+                    SetBlock( Width - 1, y, z, Block.Admincrete );
                 }
             }
         }
@@ -811,10 +811,10 @@ namespace fCraft {
         }
 
 
-        public int SearchColumn( int x, int y, Block id, int startH ) {
-            for( int h = startH; h > 0; h-- ) {
-                if( GetBlock( x, y, h ) == id ) {
-                    return h;
+        public int SearchColumn( int x, int y, Block id, int zStart ) {
+            for( int z = zStart; z > 0; z-- ) {
+                if( GetBlock( x, y, z ) == id ) {
+                    return z;
                 }
             }
             return -1; // -1 means 'not found'

@@ -63,19 +63,19 @@ namespace fCraft.MapConversion {
             // Read in the map dimesions
             // Saved in big endian for who-know-what reason.
             // XYZ(?)
-            int widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+            int width = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
             int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-            int widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+            int length = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
 
 // ReSharper disable UseObjectOrCollectionInitializer
-            Map map = new Map( null, widthX, widthY, height, false );
+            Map map = new Map( null, width, length, height, false );
 // ReSharper restore UseObjectOrCollectionInitializer
 
             // Read in the spawn location
             // XYZ(?)
             map.Spawn = new Position {
                 X = IPAddress.NetworkToHostOrder( bs.ReadInt16() ),
-                H = IPAddress.NetworkToHostOrder( bs.ReadInt16() ),
+                Z = IPAddress.NetworkToHostOrder( bs.ReadInt16() ),
                 Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() ),
                 R = bs.ReadByte(),
                 L = bs.ReadByte()
@@ -119,13 +119,13 @@ namespace fCraft.MapConversion {
 
                     // Save the map dimensions
                     // XYZ(?)
-                    bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)mapToSave.WidthX ) );
+                    bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)mapToSave.Width ) );
                     bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)mapToSave.Height ) );
-                    bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)mapToSave.WidthY ) );
+                    bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)mapToSave.Length ) );
 
                     // Save the spawn location
                     bs.Write( IPAddress.HostToNetworkOrder( mapToSave.Spawn.X ) );
-                    bs.Write( IPAddress.HostToNetworkOrder( mapToSave.Spawn.H ) );
+                    bs.Write( IPAddress.HostToNetworkOrder( mapToSave.Spawn.Z ) );
                     bs.Write( IPAddress.HostToNetworkOrder( mapToSave.Spawn.Y ) );
 
                     // Save the spawn orientation

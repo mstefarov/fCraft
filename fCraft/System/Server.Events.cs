@@ -213,30 +213,30 @@ namespace fCraft {
         }
 
 
-        internal static void RaisePlayerClickedEvent( Player player, short x, short y, short h, bool mode, Block block ) {
+        internal static void RaisePlayerClickedEvent( Player player, short x, short y, short z, bool mode, Block block ) {
             var handler = PlayerClicked;
             if( handler != null ) {
-                handler( null, new PlayerClickedEventArgs( player, x, y, h, mode, block ) );
+                handler( null, new PlayerClickedEventArgs( player, x, y, z, mode, block ) );
             }
         }
 
 
-        internal static CanPlaceResult RaisePlayerPlacingBlockEvent( Player player, short x, short y, short h,
+        internal static CanPlaceResult RaisePlayerPlacingBlockEvent( Player player, short x, short y, short z,
                                                                      Block oldBlock, Block newBlock, bool manual,
                                                                      CanPlaceResult result ) {
             var handler = PlayerPlacingBlock;
             if( handler == null ) return result;
-            var e = new PlayerPlacingBlockEventArgs( player, x, y, h, oldBlock, newBlock, manual, result );
+            var e = new PlayerPlacingBlockEventArgs( player, x, y, z, oldBlock, newBlock, manual, result );
             handler( null, e );
             return e.Result;
         }
 
 
-        internal static void RaisePlayerPlacedBlockEvent( Player player, short x, short y, short h,
+        internal static void RaisePlayerPlacedBlockEvent( Player player, short x, short y, short z,
                                                           Block oldBlock, Block newBlock, bool manual ) {
             var handler = PlayerPlacedBlock;
             if( handler != null ) {
-                handler( null, new PlayerPlacedBlockEventArgs( player, x, y, h, oldBlock, newBlock, manual ) );
+                handler( null, new PlayerPlacedBlockEventArgs( player, x, y, z, oldBlock, newBlock, manual ) );
             }
         }
 

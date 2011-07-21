@@ -10,13 +10,13 @@ namespace fCraft {
     public struct Position : IEquatable<Position> {
         public readonly static Position Zero = new Position( 0, 0, 0 );
 
-        public short X, Y, H;
+        public short X, Y, Z;
         public byte R, L;
 
-        public Position( int x, int y, int h ) {
+        public Position( int x, int y, int z ) {
             X = (short)x;
             Y = (short)y;
-            H = (short)h;
+            Z = (short)z;
             R = 0;
             L = 0;
         }
@@ -24,12 +24,12 @@ namespace fCraft {
         public bool FitsIntoByte() {
             return X >= SByte.MinValue && X <= SByte.MaxValue &&
                    Y >= SByte.MinValue && Y <= SByte.MaxValue &&
-                   H >= SByte.MinValue && H <= SByte.MaxValue;
+                   Z >= SByte.MinValue && Z <= SByte.MaxValue;
         }
 
 
         public bool IsZero() {
-            return X == 0 && Y == 0 && H == 0 && R == 0 && L == 0;
+            return X == 0 && Y == 0 && Z == 0 && R == 0 && L == 0;
         }
 
 
@@ -38,7 +38,7 @@ namespace fCraft {
             return new Position {
                 X = (X),
                 Y = (Y),
-                H = (short)(H - 22),
+                Z = (short)(Z - 22),
                 R = R,
                 L = L
             };
@@ -46,7 +46,7 @@ namespace fCraft {
 
 
         public int DistanceSquaredTo( Position other ) {
-            return (X - other.X) * (X - other.X) + (Y - other.Y) * (Y - other.Y) + (H - other.H) * (H - other.H);
+            return (X - other.X) * (X - other.X) + (Y - other.Y) * (Y - other.Y) + (Z - other.Z) * (Z - other.Z);
         }
 
 
@@ -61,7 +61,7 @@ namespace fCraft {
         }
 
         public bool Equals( Position other ) {
-            return (X == other.X) && (Y == other.Y) && (H == other.H) && (R == other.R) && (L == other.R);
+            return (X == other.X) && (Y == other.Y) && (Z == other.Z) && (R == other.R) && (L == other.R);
         }
 
         public override bool Equals( object obj ) {
@@ -73,14 +73,14 @@ namespace fCraft {
         }
 
         public override int GetHashCode() {
-            return (X + Y * short.MaxValue) ^ (R + L * short.MaxValue) + H;
+            return (X + Y * short.MaxValue) ^ (R + L * short.MaxValue) + Z;
         }
 
         #endregion
 
 
         public override string ToString() {
-            return String.Format( "Position({0},{1},{2},{3},{4})", X, Y, H, R, L );
+            return String.Format( "Position({0},{1},{2},{3},{4})", X, Y, Z, R, L );
         }
     }
 }

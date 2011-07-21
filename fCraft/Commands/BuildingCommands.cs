@@ -29,7 +29,7 @@ namespace fCraft {
 
         public sealed class CopyInformation {
             public byte[, ,] Buffer;
-            public int WidthX, WidthY, Height;
+            public int Width, Length, Height;
         }
 
 
@@ -111,6 +111,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdSetBrush );
             CommandManager.RegisterCommand( CdCuboidX );
             CommandManager.RegisterCommand( CdCuboidWireframeX );
+            CommandManager.RegisterCommand( CdCuboidHollowX );
         }
 
 
@@ -119,6 +120,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdSetBrush = new CommandDescriptor {
             Name = "brush",
             Category = CommandCategory.Building,
+            IsHidden = true,
             Permissions = new[] { Permission.Draw },
             Help = "Gets or sets the current brush.",
             Handler = SetBrush
@@ -144,6 +146,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdCuboidX = new CommandDescriptor {
             Name = "cx",
             Category = CommandCategory.Building,
+            IsHidden = true,
             Permissions = new[] { Permission.Draw },
             Help = "New and improved cuboid, with brush support and low overhead. Work in progress, may be crashy.",
             Handler = CuboidX
@@ -158,6 +161,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdCuboidWireframeX = new CommandDescriptor {
             Name = "cwx",
             Category = CommandCategory.Building,
+            IsHidden = true,
             Permissions = new[] { Permission.Draw },
             Help = "New and improved wireframe cuboid, with brush support and low overhead. Work in progress, may be crashy.",
             Handler = CuboidWireframeX
@@ -166,6 +170,22 @@ namespace fCraft {
         static void CuboidWireframeX( Player player, Command cmd ) {
             DrawOperationBegin( player, cmd, new CuboidWireframeDrawOperation( player ) );
         }
+
+
+
+        static readonly CommandDescriptor CdCuboidHollowX = new CommandDescriptor {
+            Name = "chx",
+            Category = CommandCategory.Building,
+            IsHidden = true,
+            Permissions = new[] { Permission.Draw },
+            Help = "New and improved hollow cuboid, with brush support and low overhead. Work in progress, may be crashy.",
+            Handler = CuboidHollowX
+        };
+
+        static void CuboidHollowX( Player player, Command cmd ) {
+            DrawOperationBegin( player, cmd, new CuboidHollowDrawOperation( player ) );
+        }
+
 
 
         static void DrawOperationBegin( Player player, Command cmd, DrawOperation op ) {
@@ -712,8 +732,8 @@ namespace fCraft {
                 Queue<BlockUpdate> redoBuffer = new Queue<BlockUpdate>();
                 while( player.UndoBuffer.Count > 0 ) {
                     BlockUpdate newBlock = player.UndoBuffer.Dequeue();
-                    BlockUpdate oldBlock = new BlockUpdate( null, newBlock.X, newBlock.Y, newBlock.H,
-                                                            player.World.Map.GetBlock( newBlock.X, newBlock.Y, newBlock.H ) );
+                    BlockUpdate oldBlock = new BlockUpdate( null, newBlock.X, newBlock.Y, newBlock.Z,
+                                                            player.World.Map.GetBlock( newBlock.X, newBlock.Y, newBlock.Z ) );
                     player.World.Map.QueueUpdate( newBlock );
                     redoBuffer.Enqueue( oldBlock );
                 }
@@ -732,23 +752,23 @@ namespace fCraft {
 
         #region Draw Callbacks
 
-        static void DrawOneBlock( Player player, byte drawBlock, int x, int y, int h, ref int blocks, ref int blocksDenied, ref bool cannotUndo ) {
-            if( !player.World.Map.InBounds( x, y, h ) ) return;
-            byte block = player.World.Map.GetBlockByte( x, y, h );
+        static void DrawOneBlock( Player player, byte drawBlock, int x, int y, int z, ref int blocks, ref int blocksDenied, ref bool cannotUndo ) {
+            if( !player.World.Map.InBounds( x, y, z ) ) return;
+            byte block = player.World.Map.GetBlockByte( x, y, z );
             if( block == drawBlock ) return;
 
-            if( player.CanPlace( x, y, h, (Block)drawBlock, false ) != CanPlaceResult.Allowed ) {
+            if( player.CanPlace( x, y, z, (Block)drawBlock, false ) != CanPlaceResult.Allowed ) {
                 blocksDenied++;
                 return;
             }
 
             // this would've been an easy way to do block tracking for draw commands BUT
             // if i set "origin" to player, he will not receive the block update. I tried.
-            player.World.Map.QueueUpdate( new BlockUpdate( null, x, y, h, drawBlock ) );
-            Server.RaisePlayerPlacedBlockEvent( player, (short)x, (short)y, (short)h, (Block)block, (Block)drawBlock, false );
+            player.World.Map.QueueUpdate( new BlockUpdate( null, x, y, z, drawBlock ) );
+            Server.RaisePlayerPlacedBlockEvent( player, (short)x, (short)y, (short)z, (Block)block, (Block)drawBlock, false );
 
             if( MaxUndoCount < 1 || blocks < MaxUndoCount ) {
-                player.UndoBuffer.Enqueue( new BlockUpdate( null, x, y, h, block ) );
+                player.UndoBuffer.Enqueue( new BlockUpdate( null, x, y, z, block ) );
             } else if( !cannotUndo ) {
                 player.UndoBuffer.Clear();
                 player.UndoBuffer.TrimExcess();
@@ -798,10 +818,10 @@ namespace fCraft {
             int ex = Math.Max( marks[0].X, marks[1].X );
             int sy = Math.Min( marks[0].Y, marks[1].Y );
             int ey = Math.Max( marks[0].Y, marks[1].Y );
-            int sh = Math.Min( marks[0].H, marks[1].H );
-            int eh = Math.Max( marks[0].H, marks[1].H );
+            int sz = Math.Min( marks[0].Z, marks[1].Z );
+            int ez = Math.Max( marks[0].Z, marks[1].Z );
 
-            int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
+            int volume = (ex - sx + 1) * (ey - sy + 1) * (ez - sz + 1);
             if( !player.CanDraw( volume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                    player.Info.Rank.DrawLimit,
@@ -816,10 +836,10 @@ namespace fCraft {
 
             for( int x = sx; x <= ex; x += DrawStride ) {
                 for( int y = sy; y <= ey; y += DrawStride ) {
-                    for( int h = sh; h <= eh; h++ ) {
+                    for( int z = sz; z <= ez; z++ ) {
                         for( int y3 = 0; y3 < DrawStride && y + y3 <= ey; y3++ ) {
                             for( int x3 = 0; x3 < DrawStride && x + x3 <= ex; x3++ ) {
-                                DrawOneBlock( player, drawBlock, x + x3, y + y3, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                                DrawOneBlock( player, drawBlock, x + x3, y + y3, z, ref blocks, ref blocksDenied, ref cannotUndo );
                             }
                         }
                     }
@@ -831,8 +851,8 @@ namespace fCraft {
                         blocks,
                         (Block)drawBlock,
                         player.World.Name,
-                        sx, sy, sh,
-                        ex, ey, eh );
+                        sx, sy, sz,
+                        ex, ey, ez );
         }
 
 
@@ -848,15 +868,15 @@ namespace fCraft {
             int ex = Math.Max( marks[0].X, marks[1].X );
             int sy = Math.Min( marks[0].Y, marks[1].Y );
             int ey = Math.Max( marks[0].Y, marks[1].Y );
-            int sh = Math.Min( marks[0].H, marks[1].H );
-            int eh = Math.Max( marks[0].H, marks[1].H );
+            int sz = Math.Min( marks[0].Z, marks[1].Z );
+            int ez = Math.Max( marks[0].Z, marks[1].Z );
 
-            bool fillInner = (args.InnerBlock != Block.Undefined && (ex - sx) > 1 && (ey - sy) > 1 && (eh - sh) > 1);
+            bool fillInner = (args.InnerBlock != Block.Undefined && (ex - sx) > 1 && (ey - sy) > 1 && (ez - sz) > 1);
 
 
-            int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
+            int volume = (ex - sx + 1) * (ey - sy + 1) * (ez - sz + 1);
             if( !fillInner ) {
-                volume -= (ex - sx - 1) * (ey - sy - 1) * (eh - sh - 1);
+                volume -= (ex - sx - 1) * (ey - sy - 1) * (ez - sz - 1);
             }
 
             if( !player.CanDraw( volume ) ) {
@@ -873,30 +893,30 @@ namespace fCraft {
 
             for( int x = sx; x <= ex; x++ ) {
                 for( int y = sy; y <= ey; y++ ) {
-                    DrawOneBlock( player, drawBlock, x, y, sh, ref blocks, ref blocksDenied, ref cannotUndo );
-                    DrawOneBlock( player, drawBlock, x, y, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+                    DrawOneBlock( player, drawBlock, x, y, sz, ref blocks, ref blocksDenied, ref cannotUndo );
+                    DrawOneBlock( player, drawBlock, x, y, ez, ref blocks, ref blocksDenied, ref cannotUndo );
                 }
             }
             for( int x = sx; x <= ex; x++ ) {
-                for( int h = sh; h <= eh; h++ ) {
-                    DrawOneBlock( player, drawBlock, x, sy, h, ref blocks, ref blocksDenied, ref cannotUndo );
-                    DrawOneBlock( player, drawBlock, x, ey, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                for( int z = sz; z <= ez; z++ ) {
+                    DrawOneBlock( player, drawBlock, x, sy, z, ref blocks, ref blocksDenied, ref cannotUndo );
+                    DrawOneBlock( player, drawBlock, x, ey, z, ref blocks, ref blocksDenied, ref cannotUndo );
                 }
             }
             for( int y = sy; y <= ey; y++ ) {
-                for( int h = sh; h <= eh; h++ ) {
-                    DrawOneBlock( player, drawBlock, sx, y, h, ref blocks, ref blocksDenied, ref cannotUndo );
-                    DrawOneBlock( player, drawBlock, ex, y, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                for( int z = sz; z <= ez; z++ ) {
+                    DrawOneBlock( player, drawBlock, sx, y, z, ref blocks, ref blocksDenied, ref cannotUndo );
+                    DrawOneBlock( player, drawBlock, ex, y, z, ref blocks, ref blocksDenied, ref cannotUndo );
                 }
             }
 
             if( fillInner ) {
                 for( int x = sx + 1; x < ex; x += DrawStride ) {
                     for( int y = sy + 1; y < ey; y += DrawStride ) {
-                        for( int h = sh + 1; h < eh; h++ ) {
+                        for( int z = sz + 1; z < ez; z++ ) {
                             for( int y3 = 0; y3 < DrawStride && y + y3 < ey; y3++ ) {
                                 for( int x3 = 0; x3 < DrawStride && x + x3 < ex; x3++ ) {
-                                    DrawOneBlock( player, (byte)args.InnerBlock, x + x3, y + y3, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                                    DrawOneBlock( player, (byte)args.InnerBlock, x + x3, y + y3, z, ref blocks, ref blocksDenied, ref cannotUndo );
                                 }
                             }
                         }
@@ -909,8 +929,8 @@ namespace fCraft {
                         blocks,
                         (Block)drawBlock,
                         player.World.Name,
-                        sx, sy, sh,
-                        ex, ey, eh );
+                        sx, sy, sz,
+                        ex, ey, ez );
             DrawingFinished( player, "drawn", blocks, blocksDenied );
         }
 
@@ -926,15 +946,15 @@ namespace fCraft {
             int ex = Math.Max( marks[0].X, marks[1].X );
             int sy = Math.Min( marks[0].Y, marks[1].Y );
             int ey = Math.Max( marks[0].Y, marks[1].Y );
-            int sh = Math.Min( marks[0].H, marks[1].H );
-            int eh = Math.Max( marks[0].H, marks[1].H );
+            int sz = Math.Min( marks[0].Z, marks[1].Z );
+            int ez = Math.Max( marks[0].Z, marks[1].Z );
 
             // Calculate the upper limit on the volume
-            int solidVolume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
-            int hollowVolume = Math.Max( 0, ex - sx - 1 ) * Math.Max( 0, ey - sy - 1 ) * Math.Max( 0, eh - sh - 1 );
+            int solidVolume = (ex - sx + 1) * (ey - sy + 1) * (ez - sz + 1);
+            int hollowVolume = Math.Max( 0, ex - sx - 1 ) * Math.Max( 0, ey - sy - 1 ) * Math.Max( 0, ez - sz - 1 );
             int sideVolume = Math.Max( 0, ex - sx - 1 ) * Math.Max( 0, ey - sy - 1 ) * (ex != sx ? 2 : 1) +
-                             Math.Max( 0, ey - sy - 1 ) * Math.Max( 0, eh - sh - 1 ) * (ey != sy ? 2 : 1) +
-                             Math.Max( 0, eh - sh - 1 ) * Math.Max( 0, ex - sx - 1 ) * (eh != sh ? 2 : 1);
+                             Math.Max( 0, ey - sy - 1 ) * Math.Max( 0, ez - sz - 1 ) * (ey != sy ? 2 : 1) +
+                             Math.Max( 0, ez - sz - 1 ) * Math.Max( 0, ex - sx - 1 ) * (ez != sz ? 2 : 1);
             int volume = solidVolume - hollowVolume - sideVolume;
 
             if( !player.CanDraw( volume ) ) {
@@ -950,23 +970,23 @@ namespace fCraft {
             bool cannotUndo = false;
 
             // Draw cuboid vertices
-            DrawOneBlock( player, drawBlock, sx, sy, sh, ref blocks, ref blocksDenied, ref cannotUndo );
-            if( sx != ex ) DrawOneBlock( player, drawBlock, ex, sy, sh, ref blocks, ref blocksDenied, ref cannotUndo );
-            if( sy != ey ) DrawOneBlock( player, drawBlock, sx, ey, sh, ref blocks, ref blocksDenied, ref cannotUndo );
-            if( sx != ex && sy != ey ) DrawOneBlock( player, drawBlock, ex, ey, sh, ref blocks, ref blocksDenied, ref cannotUndo );
-            if( sh != eh ) DrawOneBlock( player, drawBlock, sx, sy, eh, ref blocks, ref blocksDenied, ref cannotUndo );
-            if( sx != ex && sh != eh ) DrawOneBlock( player, drawBlock, ex, sy, eh, ref blocks, ref blocksDenied, ref cannotUndo );
-            if( sy != ey && sh != eh ) DrawOneBlock( player, drawBlock, sx, ey, eh, ref blocks, ref blocksDenied, ref cannotUndo );
-            if( sx != ex && sy != ey && sh != eh ) DrawOneBlock( player, drawBlock, ex, ey, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+            DrawOneBlock( player, drawBlock, sx, sy, sz, ref blocks, ref blocksDenied, ref cannotUndo );
+            if( sx != ex ) DrawOneBlock( player, drawBlock, ex, sy, sz, ref blocks, ref blocksDenied, ref cannotUndo );
+            if( sy != ey ) DrawOneBlock( player, drawBlock, sx, ey, sz, ref blocks, ref blocksDenied, ref cannotUndo );
+            if( sx != ex && sy != ey ) DrawOneBlock( player, drawBlock, ex, ey, sz, ref blocks, ref blocksDenied, ref cannotUndo );
+            if( sz != ez ) DrawOneBlock( player, drawBlock, sx, sy, ez, ref blocks, ref blocksDenied, ref cannotUndo );
+            if( sx != ex && sz != ez ) DrawOneBlock( player, drawBlock, ex, sy, ez, ref blocks, ref blocksDenied, ref cannotUndo );
+            if( sy != ey && sz != ez ) DrawOneBlock( player, drawBlock, sx, ey, ez, ref blocks, ref blocksDenied, ref cannotUndo );
+            if( sx != ex && sy != ey && sz != ez ) DrawOneBlock( player, drawBlock, ex, ey, ez, ref blocks, ref blocksDenied, ref cannotUndo );
 
             // Draw edges along the X axis
             if( ex - sx > 1 ) {
                 for( int x = sx + 1; x < ex; x++ ) {
-                    DrawOneBlock( player, drawBlock, x, sy, sh, ref blocks, ref blocksDenied, ref cannotUndo );
-                    if( sh != eh ) DrawOneBlock( player, drawBlock, x, sy, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+                    DrawOneBlock( player, drawBlock, x, sy, sz, ref blocks, ref blocksDenied, ref cannotUndo );
+                    if( sz != ez ) DrawOneBlock( player, drawBlock, x, sy, ez, ref blocks, ref blocksDenied, ref cannotUndo );
                     if( sy != ey ) {
-                        DrawOneBlock( player, drawBlock, x, ey, sh, ref blocks, ref blocksDenied, ref cannotUndo );
-                        if( sh != eh ) DrawOneBlock( player, drawBlock, x, ey, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+                        DrawOneBlock( player, drawBlock, x, ey, sz, ref blocks, ref blocksDenied, ref cannotUndo );
+                        if( sz != ez ) DrawOneBlock( player, drawBlock, x, ey, ez, ref blocks, ref blocksDenied, ref cannotUndo );
                     }
                 }
             }
@@ -974,23 +994,23 @@ namespace fCraft {
             // Draw edges along the Y axis
             if( ey - sy > 1 ) {
                 for( int y = sy + 1; y < ey; y++ ) {
-                    DrawOneBlock( player, drawBlock, sx, y, sh, ref blocks, ref blocksDenied, ref cannotUndo );
-                    if( sh != eh ) DrawOneBlock( player, drawBlock, sx, y, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+                    DrawOneBlock( player, drawBlock, sx, y, sz, ref blocks, ref blocksDenied, ref cannotUndo );
+                    if( sz != ez ) DrawOneBlock( player, drawBlock, sx, y, ez, ref blocks, ref blocksDenied, ref cannotUndo );
                     if( sx != ex ) {
-                        DrawOneBlock( player, drawBlock, ex, y, sh, ref blocks, ref blocksDenied, ref cannotUndo );
-                        if( sh != eh ) DrawOneBlock( player, drawBlock, ex, y, eh, ref blocks, ref blocksDenied, ref cannotUndo );
+                        DrawOneBlock( player, drawBlock, ex, y, sz, ref blocks, ref blocksDenied, ref cannotUndo );
+                        if( sz != ez ) DrawOneBlock( player, drawBlock, ex, y, ez, ref blocks, ref blocksDenied, ref cannotUndo );
                     }
                 }
             }
 
             // Draw edges along the H axis
-            if( eh - sh > 1 ) {
-                for( int h = sh + 1; h < eh; h++ ) {
-                    DrawOneBlock( player, drawBlock, sx, sy, h, ref blocks, ref blocksDenied, ref cannotUndo );
-                    if( sy != ey ) DrawOneBlock( player, drawBlock, sx, ey, h, ref blocks, ref blocksDenied, ref cannotUndo );
+            if( ez - sz > 1 ) {
+                for( int z = sz + 1; z < ez; z++ ) {
+                    DrawOneBlock( player, drawBlock, sx, sy, z, ref blocks, ref blocksDenied, ref cannotUndo );
+                    if( sy != ey ) DrawOneBlock( player, drawBlock, sx, ey, z, ref blocks, ref blocksDenied, ref cannotUndo );
                     if( sx != ex ) {
-                        DrawOneBlock( player, drawBlock, ex, ey, h, ref blocks, ref blocksDenied, ref cannotUndo );
-                        if( sy != ey ) DrawOneBlock( player, drawBlock, ex, sy, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                        DrawOneBlock( player, drawBlock, ex, ey, z, ref blocks, ref blocksDenied, ref cannotUndo );
+                        if( sy != ey ) DrawOneBlock( player, drawBlock, ex, sy, z, ref blocks, ref blocksDenied, ref cannotUndo );
                     }
                 }
             }
@@ -1000,8 +1020,8 @@ namespace fCraft {
                         blocks,
                         (Block)drawBlock,
                         player.World.Name,
-                        sx, sy, sh,
-                        ex, ey, eh );
+                        sx, sy, sz,
+                        ex, ey, ez );
             DrawingFinished( player, "drawn", blocks, blocksDenied );
         }
 
@@ -1024,10 +1044,10 @@ namespace fCraft {
             int ex = Math.Max( marks[0].X, marks[1].X );
             int sy = Math.Min( marks[0].Y, marks[1].Y );
             int ey = Math.Max( marks[0].Y, marks[1].Y );
-            int sh = Math.Min( marks[0].H, marks[1].H );
-            int eh = Math.Max( marks[0].H, marks[1].H );
+            int sz = Math.Min( marks[0].Z, marks[1].Z );
+            int ez = Math.Max( marks[0].Z, marks[1].Z );
 
-            int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
+            int volume = (ex - sx + 1) * (ey - sy + 1) * (ez - sz + 1);
             if( !player.CanDraw( volume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                     player.Info.Rank.DrawLimit,
@@ -1041,11 +1061,11 @@ namespace fCraft {
             int blocks = 0, blocksDenied = 0;
             for( int x = sx; x <= ex; x += DrawStride ) {
                 for( int y = sy; y <= ey; y += DrawStride ) {
-                    for( int h = sh; h <= eh; h++ ) {
+                    for( int z = sz; z <= ez; z++ ) {
                         for( int y3 = 0; y3 < DrawStride && y + y3 <= ey; y3++ ) {
                             for( int x3 = 0; x3 < DrawStride && x + x3 <= ex; x3++ ) {
 
-                                byte block = player.World.Map.GetBlockByte( x + x3, y + y3, h );
+                                byte block = player.World.Map.GetBlockByte( x + x3, y + y3, z );
 
                                 bool skip = !args.DoExclude;
                                 for( int i = 0; i < specialTypeCount; i++ ) {
@@ -1056,14 +1076,14 @@ namespace fCraft {
                                 }
                                 if( skip ) continue;
 
-                                if( player.CanPlace( x + x3, y + y3, h, args.ReplacementBlock, false ) != CanPlaceResult.Allowed ) {
+                                if( player.CanPlace( x + x3, y + y3, z, args.ReplacementBlock, false ) != CanPlaceResult.Allowed ) {
                                     blocksDenied++;
                                     continue;
                                 }
-                                player.World.Map.QueueUpdate( new BlockUpdate( null, x + x3, y + y3, h, args.ReplacementBlock ) );
-                                Server.RaisePlayerPlacedBlockEvent( player, (short)x, (short)y, (short)h, (Block)block, args.ReplacementBlock, false );
+                                player.World.Map.QueueUpdate( new BlockUpdate( null, x + x3, y + y3, z, args.ReplacementBlock ) );
+                                Server.RaisePlayerPlacedBlockEvent( player, (short)x, (short)y, (short)z, (Block)block, args.ReplacementBlock, false );
                                 if( MaxUndoCount < 1 || blocks < MaxUndoCount ) {
-                                    player.UndoBuffer.Enqueue( new BlockUpdate( null, x + x3, y + y3, h, block ) );
+                                    player.UndoBuffer.Enqueue( new BlockUpdate( null, x + x3, y + y3, z, block ) );
                                 } else if( !cannotUndo ) {
                                     player.UndoBuffer.Clear();
                                     player.UndoBuffer.TrimExcess();
@@ -1089,8 +1109,8 @@ namespace fCraft {
                         args.Types.JoinToString(),
                         args.ReplacementBlock,
                         player.World.Name,
-                        sx, sy, sh,
-                        ex, ey, eh );
+                        sx, sy, sz,
+                        ex, ey, ez );
 
             DrawingFinished( player, "replaced", blocks, blocksDenied );
         }
@@ -1109,13 +1129,13 @@ namespace fCraft {
             int ex = Math.Max( marks[0].X, marks[1].X );
             int sy = Math.Min( marks[0].Y, marks[1].Y );
             int ey = Math.Max( marks[0].Y, marks[1].Y );
-            int sh = Math.Min( marks[0].H, marks[1].H );
-            int eh = Math.Max( marks[0].H, marks[1].H );
+            int sz = Math.Min( marks[0].Z, marks[1].Z );
+            int ez = Math.Max( marks[0].Z, marks[1].Z );
 
             // find axis lengths
             double rx = (ex - sx + 1) / 2d;
             double ry = (ey - sy + 1) / 2d;
-            double rh = (eh - sh + 1) / 2d;
+            double rh = (ez - sz + 1) / 2d;
 
             double rx2 = 1 / (rx * rx);
             double ry2 = 1 / (ry * ry);
@@ -1124,7 +1144,7 @@ namespace fCraft {
             // find center points
             double cx = (ex + sx) / 2d;
             double cy = (ey + sy) / 2d;
-            double ch = (eh + sh) / 2d;
+            double ch = (ez + sz) / 2d;
 
 
             int volume = (int)(4 / 3d * Math.PI * rx * ry * rh);
@@ -1142,18 +1162,18 @@ namespace fCraft {
 
             for( int x = sx; x <= ex; x += DrawStride ) {
                 for( int y = sy; y <= ey; y += DrawStride ) {
-                    for( int h = sh; h <= eh; h++ ) {
+                    for( int z = sz; z <= ez; z++ ) {
                         for( int y3 = 0; y3 < DrawStride && y + y3 <= ey; y3++ ) {
                             for( int x3 = 0; x3 < DrawStride && x + x3 <= ex; x3++ ) {
 
                                 // get relative coordinates
                                 double dx = (x + x3 - cx);
                                 double dy = (y + y3 - cy);
-                                double dh = (h - ch);
+                                double dh = (z - ch);
 
                                 // test if it's inside ellipse
                                 if( (dx * dx) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 <= 1 ) {
-                                    DrawOneBlock( player, drawBlock, x + x3, y + y3, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                                    DrawOneBlock( player, drawBlock, x + x3, y + y3, z, ref blocks, ref blocksDenied, ref cannotUndo );
                                 }
                             }
                         }
@@ -1165,8 +1185,8 @@ namespace fCraft {
                         blocks,
                         (Block)drawBlock,
                         player.World.Name,
-                        sx, sy, sh,
-                        ex, ey, eh );
+                        sx, sy, sz,
+                        ex, ey, ez );
             DrawingFinished( player, "drawn", blocks, blocksDenied );
         }
 
@@ -1184,31 +1204,31 @@ namespace fCraft {
             int ex = Math.Max( marks[0].X, marks[1].X );
             int sy = Math.Min( marks[0].Y, marks[1].Y );
             int ey = Math.Max( marks[0].Y, marks[1].Y );
-            int sh = Math.Min( marks[0].H, marks[1].H );
-            int eh = Math.Max( marks[0].H, marks[1].H );
+            int sz = Math.Min( marks[0].Z, marks[1].Z );
+            int ez = Math.Max( marks[0].Z, marks[1].Z );
 
-            bool fillInner = (args.InnerBlock != Block.Undefined && (ex - sx) > 1 && (ey - sy) > 1 && (eh - sh) > 1);
+            bool fillInner = (args.InnerBlock != Block.Undefined && (ex - sx) > 1 && (ey - sy) > 1 && (ez - sz) > 1);
 
             // find axis lengths
             double rx = (ex - sx + 1) / 2d;
             double ry = (ey - sy + 1) / 2d;
-            double rh = (eh - sh + 1) / 2d;
+            double rz = (ez - sz + 1) / 2d;
 
             double rx2 = 1 / (rx * rx);
             double ry2 = 1 / (ry * ry);
-            double rh2 = 1 / (rh * rh);
+            double rz2 = 1 / (rz * rz);
 
             // find center points
             double cx = (ex + sx) / 2d;
             double cy = (ey + sy) / 2d;
-            double ch = (eh + sh) / 2d;
+            double cz = (ez + sz) / 2d;
 
             int volume;
             if( fillInner ) {
-                volume = (int)(4 / 3d * Math.PI * rx * ry * rh);
+                volume = (int)(4 / 3d * Math.PI * rx * ry * rz);
             } else {
                 // rougher estimation than the non-hollow form, a voxelized surface is a bit funky
-                volume = (int)(4 / 3d * Math.PI * ((rx + .5) * (ry + .5) * (rh + .5) - (rx - .5) * (ry - .5) * (rh - .5)) * 0.85);
+                volume = (int)(4 / 3d * Math.PI * ((rx + .5) * (ry + .5) * (rz + .5) - (rx - .5) * (ry - .5) * (rz - .5)) * 0.85);
             }
 
             if( !player.CanDraw( volume ) ) {
@@ -1225,31 +1245,31 @@ namespace fCraft {
 
             for( int x = sx; x <= ex; x++ ) {
                 for( int y = sy; y <= ey; y++ ) {
-                    for( int h = sh; h <= eh; h++ ) {
+                    for( int z = sz; z <= ez; z++ ) {
 
                         double dx = (x - cx);
                         double dy = (y - cy);
-                        double dh = (h - ch);
+                        double dz = (z - cz);
 
-                        if( (dx * dx) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 > 1 ) continue;
+                        if( (dx * dx) * rx2 + (dy * dy) * ry2 + (dz * dz) * rz2 > 1 ) continue;
 
                         // we touched the surface
                         // keep drilling until we hit an internal block
                         do {
-                            DrawOneBlock( player, drawBlock, x, y, h, ref blocks, ref blocksDenied, ref cannotUndo );
-                            DrawOneBlock( player, drawBlock, x, y, (int)(ch - dh), ref blocks, ref blocksDenied, ref cannotUndo );
-                            dh = (++h - ch);
-                        } while( h <= (int)ch &&
-                                 ((dx + 1) * (dx + 1) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 > 1 ||
-                                  (dx - 1) * (dx - 1) * rx2 + (dy * dy) * ry2 + (dh * dh) * rh2 > 1 ||
-                                  (dx * dx) * rx2 + (dy + 1) * (dy + 1) * ry2 + (dh * dh) * rh2 > 1 ||
-                                  (dx * dx) * rx2 + (dy - 1) * (dy - 1) * ry2 + (dh * dh) * rh2 > 1 ||
-                                  (dx * dx) * rx2 + (dy * dy) * ry2 + (dh + 1) * (dh + 1) * rh2 > 1 ||
-                                  (dx * dx) * rx2 + (dy * dy) * ry2 + (dh - 1) * (dh - 1) * rh2 > 1)
+                            DrawOneBlock( player, drawBlock, x, y, z, ref blocks, ref blocksDenied, ref cannotUndo );
+                            DrawOneBlock( player, drawBlock, x, y, (int)(cz - dz), ref blocks, ref blocksDenied, ref cannotUndo );
+                            dz = (++z - cz);
+                        } while( z <= (int)cz &&
+                                 ((dx + 1) * (dx + 1) * rx2 + (dy * dy) * ry2 + (dz * dz) * rz2 > 1 ||
+                                  (dx - 1) * (dx - 1) * rx2 + (dy * dy) * ry2 + (dz * dz) * rz2 > 1 ||
+                                  (dx * dx) * rx2 + (dy + 1) * (dy + 1) * ry2 + (dz * dz) * rz2 > 1 ||
+                                  (dx * dx) * rx2 + (dy - 1) * (dy - 1) * ry2 + (dz * dz) * rz2 > 1 ||
+                                  (dx * dx) * rx2 + (dy * dy) * ry2 + (dz + 1) * (dz + 1) * rz2 > 1 ||
+                                  (dx * dx) * rx2 + (dy * dy) * ry2 + (dz - 1) * (dz - 1) * rz2 > 1)
                             );
                         if( fillInner ) {
-                            for( ; h <= (int)(ch - dh); h++ ) {
-                                DrawOneBlock( player, (byte)args.InnerBlock, x, y, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                            for( ; z <= (int)(cz - dz); z++ ) {
+                                DrawOneBlock( player, (byte)args.InnerBlock, x, y, z, ref blocks, ref blocksDenied, ref cannotUndo );
                             }
                         }
                         break;
@@ -1261,8 +1281,8 @@ namespace fCraft {
                         blocks,
                         (Block)drawBlock,
                         player.World.Name,
-                        sx, sy, sh,
-                        ex, ey, eh );
+                        sx, sy, sz,
+                        ex, ey, ez );
             DrawingFinished( player, "drawn", blocks, blocksDenied );
         }
 
@@ -1270,15 +1290,15 @@ namespace fCraft {
         internal static void SphereCallback( Player player, Position[] marks, object tag ) {
             double radius = Math.Sqrt( (marks[0].X - marks[1].X) * (marks[0].X - marks[1].X) +
                                        (marks[0].Y - marks[1].Y) * (marks[0].Y - marks[1].Y) +
-                                       (marks[0].H - marks[1].H) * (marks[0].H - marks[1].H) );
+                                       (marks[0].Z - marks[1].Z) * (marks[0].Z - marks[1].Z) );
 
             marks[1].X = (short)Math.Round( marks[0].X - radius );
             marks[1].Y = (short)Math.Round( marks[0].Y - radius );
-            marks[1].H = (short)Math.Round( marks[0].H - radius );
+            marks[1].Z = (short)Math.Round( marks[0].Z - radius );
 
             marks[0].X = (short)Math.Round( marks[0].X + radius );
             marks[0].Y = (short)Math.Round( marks[0].Y + radius );
-            marks[0].H = (short)Math.Round( marks[0].H + radius );
+            marks[0].Z = (short)Math.Round( marks[0].Z + radius );
 
             EllipsoidCallback( player, marks, tag );
         }
@@ -1287,15 +1307,15 @@ namespace fCraft {
         internal static void SphereHollowCallback( Player player, Position[] marks, object tag ) {
             double radius = Math.Sqrt( (marks[0].X - marks[1].X) * (marks[0].X - marks[1].X) +
                                        (marks[0].Y - marks[1].Y) * (marks[0].Y - marks[1].Y) +
-                                       (marks[0].H - marks[1].H) * (marks[0].H - marks[1].H) );
+                                       (marks[0].Z - marks[1].Z) * (marks[0].Z - marks[1].Z) );
 
             marks[1].X = (short)Math.Round( marks[0].X - radius );
             marks[1].Y = (short)Math.Round( marks[0].Y - radius );
-            marks[1].H = (short)Math.Round( marks[0].H - radius );
+            marks[1].Z = (short)Math.Round( marks[0].Z - radius );
 
             marks[0].X = (short)Math.Round( marks[0].X + radius );
             marks[0].Y = (short)Math.Round( marks[0].Y + radius );
-            marks[0].H = (short)Math.Round( marks[0].H + radius );
+            marks[0].Z = (short)Math.Round( marks[0].Z + radius );
 
             EllipsoidHollowCallback( player, marks, tag );
         }
@@ -1319,10 +1339,10 @@ namespace fCraft {
 
             int x1 = marks[0].X,
                 y1 = marks[0].Y,
-                z1 = marks[0].H,
+                z1 = marks[0].Z,
                 x2 = marks[1].X,
                 y2 = marks[1].Y,
-                z2 = marks[1].H;
+                z2 = marks[1].Z;
             int i, err1, err2;
             int[] pixel = new int[3];
             pixel[0] = x1;
@@ -1433,10 +1453,10 @@ namespace fCraft {
             int ex = Math.Max( marks[0].X, marks[1].X );
             int sy = Math.Min( marks[0].Y, marks[1].Y );
             int ey = Math.Max( marks[0].Y, marks[1].Y );
-            int sh = Math.Min( marks[0].H, marks[1].H );
-            int eh = Math.Max( marks[0].H, marks[1].H );
+            int sz = Math.Min( marks[0].Z, marks[1].Z );
+            int ez = Math.Max( marks[0].Z, marks[1].Z );
 
-            int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
+            int volume = (ex - sx + 1) * (ey - sy + 1) * (ez - sz + 1);
             if( !player.CanDraw( volume ) ) {
                 player.MessageNow( String.Format( "You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                                player.Info.Rank.DrawLimit, volume ) );
@@ -1445,16 +1465,16 @@ namespace fCraft {
 
             // remember dimensions and orientation
             CopyInformation copyInfo = new CopyInformation {
-                WidthX = marks[1].X - marks[0].X,
-                WidthY = marks[1].Y - marks[0].Y,
-                Height = marks[1].H - marks[0].H,
-                Buffer = new byte[ex - sx + 1, ey - sy + 1, eh - sh + 1]
+                Width = marks[1].X - marks[0].X,
+                Length = marks[1].Y - marks[0].Y,
+                Height = marks[1].Z - marks[0].Z,
+                Buffer = new byte[ex - sx + 1, ey - sy + 1, ez - sz + 1]
             };
 
             for( int x = sx; x <= ex; x++ ) {
                 for( int y = sy; y <= ey; y++ ) {
-                    for( int h = sh; h <= eh; h++ ) {
-                        copyInfo.Buffer[x - sx, y - sy, h - sh] = player.World.Map.GetBlockByte( x, y, h );
+                    for( int z = sz; z <= ez; z++ ) {
+                        copyInfo.Buffer[x - sx, y - sy, z - sz] = player.World.Map.GetBlockByte( x, y, z );
                     }
                 }
             }
@@ -1463,8 +1483,8 @@ namespace fCraft {
             player.MessageNow( "{0} blocks were copied. You can now &H/paste", volume );
             player.MessageNow( "Origin at {0} {1}{2} corner.",
                                (copyInfo.Height > 0 ? "bottom" : "top"),
-                               (copyInfo.WidthY > 0 ? "south" : "north"),
-                               (copyInfo.WidthX > 0 ? "west" : "east") );
+                               (copyInfo.Length > 0 ? "south" : "north"),
+                               (copyInfo.Width > 0 ? "west" : "east") );
 
             Logger.Log( "{0} copied {1} blocks from {2}.", LogType.UserActivity,
                         player.Name, volume, player.World.Name );
@@ -1502,12 +1522,12 @@ namespace fCraft {
             int ex = Math.Max( marks[0].X, marks[1].X );
             int sy = Math.Min( marks[0].Y, marks[1].Y );
             int ey = Math.Max( marks[0].Y, marks[1].Y );
-            int sh = Math.Min( marks[0].H, marks[1].H );
-            int eh = Math.Max( marks[0].H, marks[1].H );
+            int sz = Math.Min( marks[0].Z, marks[1].Z );
+            int ez = Math.Max( marks[0].Z, marks[1].Z );
 
             byte fillType = (byte)tag;
 
-            int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
+            int volume = (ex - sx + 1) * (ey - sy + 1) * (ez - sz + 1);
             if( !player.CanDraw( volume ) ) {
                 player.MessageNow( String.Format( "You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                                player.Info.Rank.DrawLimit, volume ) );
@@ -1516,10 +1536,10 @@ namespace fCraft {
 
             // remember dimensions and orientation
             CopyInformation copyInfo = new CopyInformation {
-                WidthX = marks[1].X - marks[0].X,
-                WidthY = marks[1].Y - marks[0].Y,
-                Height = marks[1].H - marks[0].H,
-                Buffer = new byte[ex - sx + 1, ey - sy + 1, eh - sh + 1]
+                Width = marks[1].X - marks[0].X,
+                Length = marks[1].Y - marks[0].Y,
+                Height = marks[1].Z - marks[0].Z,
+                Buffer = new byte[ex - sx + 1, ey - sy + 1, ez - sz + 1]
             };
 
             player.UndoBuffer.Clear();
@@ -1528,9 +1548,9 @@ namespace fCraft {
 
             for( int x = sx; x <= ex; x++ ) {
                 for( int y = sy; y <= ey; y++ ) {
-                    for( int h = sh; h <= eh; h++ ) {
-                        copyInfo.Buffer[x - sx, y - sy, h - sh] = player.World.Map.GetBlockByte( x, y, h );
-                        DrawOneBlock( player, fillType, x, y, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                    for( int z = sz; z <= ez; z++ ) {
+                        copyInfo.Buffer[x - sx, y - sy, z - sz] = player.World.Map.GetBlockByte( x, y, z );
+                        DrawOneBlock( player, fillType, x, y, z, ref blocks, ref blocksDenied, ref cannotUndo );
                     }
                 }
             }
@@ -1539,14 +1559,14 @@ namespace fCraft {
             player.MessageNow( "{0} blocks were cut. You can now &H/paste", volume );
             player.MessageNow( "Origin at {0} {1}{2} corner.",
                                (copyInfo.Height > 0 ? "bottom" : "top"),
-                               (copyInfo.WidthY > 0 ? "south" : "north"),
-                               (copyInfo.WidthX > 0 ? "west" : "east") );
+                               (copyInfo.Length > 0 ? "south" : "north"),
+                               (copyInfo.Width > 0 ? "west" : "east") );
 
             Logger.Log( "{0} cut {1} blocks from world {2} (@{3},{4},{5} - {6},{7},{8}), replacing {9} blocks with {10}.", LogType.UserActivity,
                         player.Name, volume,
                         player.World.Name,
-                        sx, sy, sh,
-                        ex, ey, eh,
+                        sx, sy, sz,
+                        ex, ey, ez,
                         blocks, (Block)fillType );
 
             player.UndoBuffer.TrimExcess();
@@ -1668,9 +1688,9 @@ namespace fCraft {
             Map map = player.World.Map;
 
             Position mark2 = new Position {
-                X = (short)(marks[0].X + info.WidthX),
-                Y = (short)(marks[0].Y + info.WidthY),
-                H = (short)(marks[0].H + info.Height)
+                X = (short)(marks[0].X + info.Width),
+                Y = (short)(marks[0].Y + info.Length),
+                Z = (short)(marks[0].Z + info.Height)
             };
 
             BoundingBox bounds = new BoundingBox( marks[0], mark2 );
@@ -1683,13 +1703,13 @@ namespace fCraft {
                 return;
             }
 
-            if( bounds.XMin < 0 || bounds.XMax > map.WidthX - 1 ) {
+            if( bounds.XMin < 0 || bounds.XMax > map.Width - 1 ) {
                 player.MessageNow( "Warning: Not enough room horizontally (X), paste cut off." );
             }
-            if( bounds.YMin < 0 || bounds.YMax > map.WidthY - 1 ) {
+            if( bounds.YMin < 0 || bounds.YMax > map.Length - 1 ) {
                 player.MessageNow( "Warning: Not enough room horizontally (Y), paste cut off." );
             }
-            if( bounds.HMin < 0 || bounds.HMax > map.Height - 1 ) {
+            if( bounds.ZMin < 0 || bounds.ZMax > map.Height - 1 ) {
                 player.MessageNow( "Warning: Not enough room vertically, paste cut off." );
             }
 
@@ -1700,10 +1720,10 @@ namespace fCraft {
 
             for( int x = bounds.XMin; x <= bounds.XMax; x += DrawStride ) {
                 for( int y = bounds.YMin; y <= bounds.YMax; y += DrawStride ) {
-                    for( int h = bounds.HMin; h <= bounds.HMax; h++ ) {
+                    for( int z = bounds.ZMin; z <= bounds.ZMax; z++ ) {
                         for( int y3 = 0; y3 < DrawStride && y + y3 <= bounds.YMax; y3++ ) {
                             for( int x3 = 0; x3 < DrawStride && x + x3 <= bounds.XMax; x3++ ) {
-                                byte block = info.Buffer[x + x3 - bounds.XMin, y + y3 - bounds.YMin, h - bounds.HMin];
+                                byte block = info.Buffer[x + x3 - bounds.XMin, y + y3 - bounds.YMin, z - bounds.ZMin];
 
                                 if( args.DoInclude ) {
                                     bool skip = true;
@@ -1724,7 +1744,7 @@ namespace fCraft {
                                     }
                                     if( skip ) continue;
                                 }
-                                DrawOneBlock( player, block, x + x3, y + y3, h, ref blocks, ref blocksDenied, ref cannotUndo );
+                                DrawOneBlock( player, block, x + x3, y + y3, z, ref blocks, ref blocksDenied, ref cannotUndo );
                             }
                         }
                     }
@@ -1733,8 +1753,8 @@ namespace fCraft {
 
             Logger.Log( "{0} pasted {1} blocks to world {2} (@ {3},{4},{5} - {6},{7},{8}).", LogType.UserActivity,
                         player.Name, blocks, player.World.Name,
-                        bounds.XMin, bounds.YMin, bounds.HMin,
-                        bounds.XMax, bounds.YMax, bounds.HMax );
+                        bounds.XMin, bounds.YMin, bounds.ZMin,
+                        bounds.XMax, bounds.YMax, bounds.ZMax );
             DrawingFinished( player, "pasted", blocks, blocksDenied );
         }
 
@@ -1780,10 +1800,10 @@ namespace fCraft {
                 int right = buffer.GetLength( 0 ) - 1;
                 while( left < right ) {
                     for( int y = player.CopyInformation.Buffer.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                        for( int h = player.CopyInformation.Buffer.GetLength( 2 ) - 1; h >= 0; h-- ) {
-                            block = buffer[left, y, h];
-                            buffer[left, y, h] = buffer[right, y, h];
-                            buffer[right, y, h] = block;
+                        for( int z = player.CopyInformation.Buffer.GetLength( 2 ) - 1; z >= 0; z-- ) {
+                            block = buffer[left, y, z];
+                            buffer[left, y, z] = buffer[right, y, z];
+                            buffer[right, y, z] = block;
                         }
                     }
                     left++;
@@ -1796,10 +1816,10 @@ namespace fCraft {
                 int right = buffer.GetLength( 1 ) - 1;
                 while( left < right ) {
                     for( int x = player.CopyInformation.Buffer.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                        for( int h = player.CopyInformation.Buffer.GetLength( 2 ) - 1; h >= 0; h-- ) {
-                            block = buffer[x, left, h];
-                            buffer[x, left, h] = buffer[x, right, h];
-                            buffer[x, right, h] = block;
+                        for( int z = player.CopyInformation.Buffer.GetLength( 2 ) - 1; z >= 0; z-- ) {
+                            block = buffer[x, left, z];
+                            buffer[x, left, z] = buffer[x, right, z];
+                            buffer[x, right, z] = block;
                         }
                     }
                     left++;
@@ -1903,21 +1923,21 @@ namespace fCraft {
 
             } else if( axis == RotationAxis.X ) {
                 newBuffer = new byte[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 )];
-                int dimY = player.CopyInformation.WidthY;
-                player.CopyInformation.WidthY = player.CopyInformation.Height;
+                int dimY = player.CopyInformation.Length;
+                player.CopyInformation.Length = player.CopyInformation.Height;
                 player.CopyInformation.Height = dimY;
 
             } else if( axis == RotationAxis.Y ) {
                 newBuffer = new byte[oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 )];
-                int dimX = player.CopyInformation.WidthX;
-                player.CopyInformation.WidthX = player.CopyInformation.Height;
+                int dimX = player.CopyInformation.Width;
+                player.CopyInformation.Width = player.CopyInformation.Height;
                 player.CopyInformation.Height = dimX;
 
             } else {
                 newBuffer = new byte[oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 )];
-                int dimY = player.CopyInformation.WidthY;
-                player.CopyInformation.WidthY = player.CopyInformation.WidthX;
-                player.CopyInformation.WidthX = dimY;
+                int dimY = player.CopyInformation.Length;
+                player.CopyInformation.Length = player.CopyInformation.Width;
+                player.CopyInformation.Width = dimY;
             }
 
 
@@ -2018,10 +2038,10 @@ namespace fCraft {
             }
 
             Map playerMap = player.World.Map;
-            if( playerMap.WidthX != map.WidthX || playerMap.WidthY != map.WidthY || playerMap.Height != map.Height ) {
+            if( playerMap.Width != map.Width || playerMap.Length != map.Length || playerMap.Height != map.Height ) {
                 player.Message( "Mapfile dimensions must match your current world's dimensions ({0}x{1}x{2})",
-                                playerMap.WidthX,
-                                playerMap.WidthY,
+                                playerMap.Width,
+                                playerMap.Length,
                                 playerMap.Height );
                 return;
             }
@@ -2050,8 +2070,8 @@ namespace fCraft {
 
             for( int x = selection.XMin; x <= selection.XMax; x++ ) {
                 for( int y = selection.YMin; y <= selection.YMax; y++ ) {
-                    for( int h = selection.HMin; h <= selection.HMax; h++ ) {
-                        DrawOneBlock( player, map.GetBlockByte( x, y, h ), x, y, h,
+                    for( int z = selection.ZMin; z <= selection.ZMax; z++ ) {
+                        DrawOneBlock( player, map.GetBlockByte( x, y, z ), x, y, z,
                                                        ref blocksDrawn, ref blocksSkipped, ref cannotUndo );
                     }
                 }
@@ -2060,8 +2080,8 @@ namespace fCraft {
             Logger.Log( "{0} restored {1} blocks on world {2} (@{3},{4},{5} - {6},{7},{8}) from file {9}.", LogType.UserActivity,
                         player.Name, blocksDrawn,
                         player.World.Name,
-                        selection.XMin, selection.YMin, selection.HMin,
-                        selection.XMax, selection.YMax, selection.HMax,
+                        selection.XMin, selection.YMin, selection.ZMin,
+                        selection.XMax, selection.YMax, selection.ZMax,
                         map.Metadata["fCraft.Temp", "FileName"] );
 
             DrawingFinished( player, "restored", blocksDrawn, blocksSkipped );
@@ -2083,18 +2103,18 @@ namespace fCraft {
         };
 
         internal static void Mark( Player player, Command command ) {
-            int x, y, h;
+            int x, y, z;
             Position pos;
-            if( command.NextInt( out x ) && command.NextInt( out y ) && command.NextInt( out h ) ) {
-                pos = new Position( x, y, h );
+            if( command.NextInt( out x ) && command.NextInt( out y ) && command.NextInt( out z ) ) {
+                pos = new Position( x, y, z );
             } else {
                 pos = new Position( (player.Position.X - 1) / 32,
                                     (player.Position.Y - 1) / 32,
-                                    (player.Position.H - 1) / 32 );
+                                    (player.Position.Z - 1) / 32 );
             }
-            pos.X = (short)Math.Min( player.World.Map.WidthX - 1, Math.Max( 0, (int)pos.X ) );
-            pos.Y = (short)Math.Min( player.World.Map.WidthY - 1, Math.Max( 0, (int)pos.Y ) );
-            pos.H = (short)Math.Min( player.World.Map.Height - 1, Math.Max( 0, (int)pos.H ) );
+            pos.X = (short)Math.Min( player.World.Map.Width - 1, Math.Max( 0, (int)pos.X ) );
+            pos.Y = (short)Math.Min( player.World.Map.Length - 1, Math.Max( 0, (int)pos.Y ) );
+            pos.Z = (short)Math.Min( player.World.Map.Height - 1, Math.Max( 0, (int)pos.Z ) );
 
             if( player.SelectionMarksExpected > 0 ) {
                 player.SelectionAddMark( pos, true );

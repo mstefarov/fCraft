@@ -4,7 +4,7 @@ namespace fCraft.Drawing {
     public sealed class CuboidDrawOperation : DrawOperation {
         const int DrawStride = 16;
 
-        int x, y, h, strideX, strideY;
+        int x, y, z, strideX, strideY;
 
         public override string Name {
             get { return "CuboidX"; }
@@ -26,7 +26,7 @@ namespace fCraft.Drawing {
 
             x = Bounds.XMin;
             y = Bounds.YMin;
-            h = Bounds.HMin;
+            z = Bounds.ZMin;
             strideX = 0;
             strideY = 0;
             return true;
@@ -37,12 +37,12 @@ namespace fCraft.Drawing {
             int blocksDone = 0;
             for( ; x <= Bounds.XMax; x += DrawStride ) {
                 for( ; y <= Bounds.YMax; y += DrawStride ) {
-                    for( ; h <= Bounds.HMax; h++ ) {
+                    for( ; z <= Bounds.ZMax; z++ ) {
                         for( ; strideY < DrawStride && y + strideY <= Bounds.YMax; strideY++ ) {
                             for( ; strideX < DrawStride && x + strideX <= Bounds.XMax; strideX++ ) {
                                 Coords.X = x + strideX;
                                 Coords.Y = y + strideY;
-                                Coords.Z = h;
+                                Coords.Z = z;
                                 if( DrawOneBlock() ) {
                                     blocksDone++;
                                     if( blocksDone >= maxBlocksToDraw ) return blocksDone;
@@ -52,7 +52,7 @@ namespace fCraft.Drawing {
                         }
                         strideY = 0;
                     }
-                    h = Bounds.HMin;
+                    z = Bounds.ZMin;
                 }
                 y = Bounds.YMin;
             }

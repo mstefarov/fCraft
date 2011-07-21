@@ -200,6 +200,7 @@
     <Compile Include="Commands\ChatCommands.cs" />
     <Compile Include="Drawing\CheckeredBrush.cs" />
     <Compile Include="Drawing\BrushManager.cs" />
+    <Compile Include="Drawing\CuboidHollowDrawOperation.cs" />
     <Compile Include="Drawing\CuboidWireframeDrawOperation.cs" />
     <Compile Include="Drawing\RainbowBrush.cs" />
     <Compile Include="Drawing\RandomBrush.cs" />

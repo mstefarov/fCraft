@@ -74,7 +74,7 @@ namespace fCraft.GUI {
         }
 
 
-        int x, y, h;
+        int x, y, z;
         byte block;
         public int[] chunkCoords = new int[6];
 
@@ -98,10 +98,10 @@ namespace fCraft.GUI {
             Mode = mode;
             Map = map;
 
-            dimX = Map.WidthX;
-            dimY = Map.WidthY;
-            offsetY = Math.Max( 0, Map.WidthX - Map.WidthY );
-            offsetX = Math.Max( 0, Map.WidthY - Map.WidthX );
+            dimX = Map.Width;
+            dimY = Map.Length;
+            offsetY = Math.Max( 0, Map.Width - Map.Length );
+            offsetX = Math.Max( 0, Map.Length - Map.Width );
             dimX2 = dimX / 2 - 1;
             dimY2 = dimY / 2 - 1;
             dimX1 = dimX - 1;
@@ -135,24 +135,24 @@ namespace fCraft.GUI {
                     fixed( byte* tp = Tiles ) {
                         fixed( byte* stp = ShadowTiles ) {
                             bp = bpx;
-                            while( h < Map.Height ) {
-                                block = GetBlock( x, y, h );
+                            while( z < Map.Height ) {
+                                block = GetBlock( x, y, z );
                                 if( block != 0 ) {
 
                                     switch( Rot ) {
-                                        case 0: ctp = (h >= Map.Shadows[x, y] ? tp : stp); break;
-                                        case 1: ctp = (h >= Map.Shadows[dimX1 - y, x] ? tp : stp); break;
-                                        case 2: ctp = (h >= Map.Shadows[dimX1 - x, dimY1 - y] ? tp : stp); break;
-                                        case 3: ctp = (h >= Map.Shadows[y, dimY1 - x] ? tp : stp); break;
+                                        case 0: ctp = (z >= Map.Shadows[x, y] ? tp : stp); break;
+                                        case 1: ctp = (z >= Map.Shadows[dimX1 - y, x] ? tp : stp); break;
+                                        case 2: ctp = (z >= Map.Shadows[dimX1 - x, dimY1 - y] ? tp : stp); break;
+                                        case 3: ctp = (z >= Map.Shadows[y, dimY1 - x] ? tp : stp); break;
                                     }
 
                                     int blockRight, blockLeft, blockUp;
 
-                                    if( x != (Rot == 1 || Rot == 3 ? dimY1 : dimX1) ) blockRight = GetBlock( x + 1, y, h );
+                                    if( x != (Rot == 1 || Rot == 3 ? dimY1 : dimX1) ) blockRight = GetBlock( x + 1, y, z );
                                     else blockRight = 0;
-                                    if( y != (Rot == 1 || Rot == 3 ? dimX1 : dimY1) ) blockLeft = GetBlock( x, y + 1, h );
+                                    if( y != (Rot == 1 || Rot == 3 ? dimX1 : dimY1) ) blockLeft = GetBlock( x, y + 1, z );
                                     else blockLeft = 0;
-                                    if( h != Map.Height - 1 ) blockUp = GetBlock( x, y, h + 1 );
+                                    if( z != Map.Height - 1 ) blockUp = GetBlock( x, y, z + 1 );
                                     else blockUp = 0;
 
                                     if( blockUp == 0 || blockLeft == 0 || blockRight == 0 || // air
@@ -179,11 +179,11 @@ namespace fCraft.GUI {
                                     x = 0;
                                 }
                                 if( y == (Rot == 1 || Rot == 3 ? dimX : dimY) ) {
-                                    h++;
+                                    z++;
                                     y = 0;
-                                    if( h % 4 == 0 ) {
+                                    if( z % 4 == 0 ) {
                                         if( worker.CancellationPending ) return null;
-                                        worker.ReportProgress( (h * 100) / Map.Height );
+                                        worker.ReportProgress( (z * 100) / Map.Height );
                                     }
                                 }
                             }
@@ -273,7 +273,7 @@ namespace fCraft.GUI {
 
 
         void BlendTile() {
-            int pos = (x + (Rot == 1 || Rot == 3 ? offsetY : offsetX)) * isoX + (y + (Rot == 1 || Rot == 3 ? offsetX : offsetY)) * isoY + h * isoH + isoOffset;
+            int pos = (x + (Rot == 1 || Rot == 3 ? offsetY : offsetX)) * isoX + (y + (Rot == 1 || Rot == 3 ? offsetX : offsetY)) * isoY + z * isoH + isoOffset;
             if( block > 49 ) return;
             int tileOffset = block * TileStride;
             BlendPixel( pos, tileOffset );
@@ -320,13 +320,13 @@ namespace fCraft.GUI {
             // Destination percentage is just the additive inverse.
             int destAlpha = 255 - sourceAlpha;
 
-            if( h < (Map.Height >> 1) ) {
-                int shadow = (h >> 1) + mh34;
+            if( z < (Map.Height >> 1) ) {
+                int shadow = (z >> 1) + mh34;
                 image[imageOffset] = (byte)((ctp[tileOffset] * sourceAlpha * shadow + image[imageOffset] * destAlpha * Map.Height) / blendDivisor);
                 image[imageOffset + 1] = (byte)((ctp[tileOffset + 1] * sourceAlpha * shadow + image[imageOffset + 1] * destAlpha * Map.Height) / blendDivisor);
                 image[imageOffset + 2] = (byte)((ctp[tileOffset + 2] * sourceAlpha * shadow + image[imageOffset + 2] * destAlpha * Map.Height) / blendDivisor);
             } else {
-                int shadow = (h - (Map.Height >> 1)) * 64;
+                int shadow = (z - (Map.Height >> 1)) * 64;
                 image[imageOffset] = (byte)Math.Min( 255, (ctp[tileOffset] * sourceAlpha + shadow + image[imageOffset] * destAlpha) / 255 );
                 image[imageOffset + 1] = (byte)Math.Min( 255, (ctp[tileOffset + 1] * sourceAlpha + shadow + image[imageOffset + 1] * destAlpha) / 255 );
                 image[imageOffset + 2] = (byte)Math.Min( 255, (ctp[tileOffset + 2] * sourceAlpha + shadow + image[imageOffset + 2] * destAlpha) / 255 );
@@ -335,7 +335,7 @@ namespace fCraft.GUI {
             image[imageOffset + 3] = (byte)finalAlpha;
         }
 
-        byte GetBlock( int xx, int yy, int hh ) {
+        byte GetBlock( int xx, int yy, int zz ) {
             int realx;
             int realy;
             switch( Rot ) {
@@ -356,15 +356,15 @@ namespace fCraft.GUI {
                     realy = dimY1 - xx;
                     break;
             }
-            int pos = (hh * dimY + realy) * dimX + realx;
+            int pos = (zz * dimY + realy) * dimX + realx;
 
             if( Mode == IsoCatMode.Normal ) {
                 return bp[pos];
-            } else if( Mode == IsoCatMode.Peeled && (xx == (Rot == 1 || Rot == 3 ? dimY1 : dimX1) || yy == (Rot == 1 || Rot == 3 ? dimX1 : dimY1) || hh == Map.Height - 1) ) {
+            } else if( Mode == IsoCatMode.Peeled && (xx == (Rot == 1 || Rot == 3 ? dimY1 : dimX1) || yy == (Rot == 1 || Rot == 3 ? dimX1 : dimY1) || zz == Map.Height - 1) ) {
                 return 0;
             } else if( Mode == IsoCatMode.Cut && xx > (Rot == 1 || Rot == 3 ? dimY2 : dimX2) && yy > (Rot == 1 || Rot == 3 ? dimX2 : dimY2) ) {
                 return 0;
-            } else if( Mode == IsoCatMode.Chunk && (realx < chunkCoords[0] || realy < chunkCoords[1] || hh < chunkCoords[2] || realx > chunkCoords[3] || realy > chunkCoords[4] || hh > chunkCoords[5]) ) {
+            } else if( Mode == IsoCatMode.Chunk && (realx < chunkCoords[0] || realy < chunkCoords[1] || zz < chunkCoords[2] || realx > chunkCoords[3] || realy > chunkCoords[4] || zz > chunkCoords[5]) ) {
                 return 0;
             }
 

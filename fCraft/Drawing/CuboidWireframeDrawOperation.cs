@@ -1,12 +1,9 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace fCraft.Drawing {
     public sealed class CuboidWireframeDrawOperation : DrawOperation {
-        const int DrawStride = 16;
-
         public override string Name {
             get { return "CuboidWX"; }
         }
@@ -23,10 +20,10 @@ namespace fCraft.Drawing {
         public override bool Begin( Position[] marks ) {
             if( !base.Begin( marks ) ) return false;
 
-            int hollowVolume = Math.Max( 0, Bounds.WidthX - 2 ) * Math.Max( 0, Bounds.WidthY - 2 ) * Math.Max( 0, Bounds.Height - 2 );
-            int sideVolume = Math.Max( 0, Bounds.WidthX - 2 ) * Math.Max( 0, Bounds.WidthY - 2 ) * (Bounds.XMax != Bounds.XMin ? 2 : 1) +
-                             Math.Max( 0, Bounds.WidthY - 2 ) * Math.Max( 0, Bounds.Height - 2 ) * (Bounds.YMax != Bounds.YMin ? 2 : 1) +
-                             Math.Max( 0, Bounds.Height - 2 ) * Math.Max( 0, Bounds.WidthX - 2 ) * (Bounds.HMax != Bounds.HMin ? 2 : 1);
+            int hollowVolume = Math.Max( 0, Bounds.Width - 2 ) * Math.Max( 0, Bounds.Length - 2 ) * Math.Max( 0, Bounds.Height - 2 );
+            int sideVolume = Math.Max( 0, Bounds.Width - 2 ) * Math.Max( 0, Bounds.Length - 2 ) * (Bounds.XMax != Bounds.XMin ? 2 : 1) +
+                             Math.Max( 0, Bounds.Length - 2 ) * Math.Max( 0, Bounds.Height - 2 ) * (Bounds.YMax != Bounds.YMin ? 2 : 1) +
+                             Math.Max( 0, Bounds.Height - 2 ) * Math.Max( 0, Bounds.Width - 2 ) * (Bounds.ZMax != Bounds.ZMin ? 2 : 1);
 
             BlocksTotalEstimate = Bounds.Volume - hollowVolume - sideVolume;
 
@@ -52,54 +49,54 @@ namespace fCraft.Drawing {
 
         IEnumerable<Vector3I> BlockEnumerator() {
             // Draw cuboid vertices
-            yield return new Vector3I( Bounds.XMin, Bounds.YMin, Bounds.HMin );
+            yield return new Vector3I( Bounds.XMin, Bounds.YMin, Bounds.ZMin );
 
-            if( Bounds.XMin != Bounds.XMax ) yield return new Vector3I( Bounds.XMax, Bounds.YMin, Bounds.HMin );
-            if( Bounds.YMin != Bounds.YMax ) yield return new Vector3I( Bounds.XMin, Bounds.YMax, Bounds.HMin );
-            if( Bounds.HMin != Bounds.HMax ) yield return new Vector3I( Bounds.XMin, Bounds.YMin, Bounds.HMax );
+            if( Bounds.XMin != Bounds.XMax ) yield return new Vector3I( Bounds.XMax, Bounds.YMin, Bounds.ZMin );
+            if( Bounds.YMin != Bounds.YMax ) yield return new Vector3I( Bounds.XMin, Bounds.YMax, Bounds.ZMin );
+            if( Bounds.ZMin != Bounds.ZMax ) yield return new Vector3I( Bounds.XMin, Bounds.YMin, Bounds.ZMax );
 
             if( Bounds.XMin != Bounds.XMax && Bounds.YMin != Bounds.YMax )
-                yield return new Vector3I( Bounds.XMax, Bounds.YMax, Bounds.HMin );
-            if( Bounds.YMin != Bounds.YMax && Bounds.HMin != Bounds.HMax )
-                yield return new Vector3I( Bounds.XMin, Bounds.YMax, Bounds.HMax );
-            if( Bounds.HMin != Bounds.HMax && Bounds.XMin != Bounds.XMax )
-                yield return new Vector3I( Bounds.XMax, Bounds.YMin, Bounds.HMax );
+                yield return new Vector3I( Bounds.XMax, Bounds.YMax, Bounds.ZMin );
+            if( Bounds.YMin != Bounds.YMax && Bounds.ZMin != Bounds.ZMax )
+                yield return new Vector3I( Bounds.XMin, Bounds.YMax, Bounds.ZMax );
+            if( Bounds.ZMin != Bounds.ZMax && Bounds.XMin != Bounds.XMax )
+                yield return new Vector3I( Bounds.XMax, Bounds.YMin, Bounds.ZMax );
 
-            if( Bounds.XMin != Bounds.XMax && Bounds.YMin != Bounds.YMax && Bounds.HMin != Bounds.HMax )
-                yield return new Vector3I( Bounds.XMax, Bounds.YMax, Bounds.HMax );
+            if( Bounds.XMin != Bounds.XMax && Bounds.YMin != Bounds.YMax && Bounds.ZMin != Bounds.ZMax )
+                yield return new Vector3I( Bounds.XMax, Bounds.YMax, Bounds.ZMax );
 
             // Draw edges along the X axis
-            if( Bounds.WidthX > 2 ) {
+            if( Bounds.Width > 2 ) {
                 for( int x = Bounds.XMin + 1; x < Bounds.XMax; x++ ) {
-                    yield return new Vector3I( x, Bounds.YMin, Bounds.HMin );
-                    if( Bounds.HMin != Bounds.HMax ) yield return new Vector3I( x, Bounds.YMin, Bounds.HMax );
+                    yield return new Vector3I( x, Bounds.YMin, Bounds.ZMin );
+                    if( Bounds.ZMin != Bounds.ZMax ) yield return new Vector3I( x, Bounds.YMin, Bounds.ZMax );
                     if( Bounds.YMin != Bounds.YMax ) {
-                        yield return new Vector3I( x, Bounds.YMax, Bounds.HMin );
-                        if( Bounds.HMin != Bounds.HMax ) yield return new Vector3I( x, Bounds.YMax, Bounds.HMax );
+                        yield return new Vector3I( x, Bounds.YMax, Bounds.ZMin );
+                        if( Bounds.ZMin != Bounds.ZMax ) yield return new Vector3I( x, Bounds.YMax, Bounds.ZMax );
                     }
                 }
             }
 
             // Draw edges along the Y axis
-            if( Bounds.WidthY > 2 ) {
+            if( Bounds.Length > 2 ) {
                 for( int y = Bounds.YMin + 1; y < Bounds.YMax; y++ ) {
-                    yield return new Vector3I( Bounds.XMin, y, Bounds.HMin );
-                    if( Bounds.HMin != Bounds.HMax ) yield return new Vector3I( Bounds.XMin, y, Bounds.HMax );
+                    yield return new Vector3I( Bounds.XMin, y, Bounds.ZMin );
+                    if( Bounds.ZMin != Bounds.ZMax ) yield return new Vector3I( Bounds.XMin, y, Bounds.ZMax );
                     if( Bounds.XMin != Bounds.XMax ) {
-                        yield return new Vector3I( Bounds.XMax, y, Bounds.HMin );
-                        if( Bounds.HMin != Bounds.HMax ) yield return new Vector3I( Bounds.XMax, y, Bounds.HMax );
+                        yield return new Vector3I( Bounds.XMax, y, Bounds.ZMin );
+                        if( Bounds.ZMin != Bounds.ZMax ) yield return new Vector3I( Bounds.XMax, y, Bounds.ZMax );
                     }
                 }
             }
 
-            // Draw edges along the H axis
+            // Draw edges along the Z axis
             if( Bounds.Height > 2 ) {
-                for( int h = Bounds.HMin + 1; h < Bounds.HMax; h++ ) {
-                    yield return new Vector3I( Bounds.XMin, Bounds.YMin, h );
-                    if( Bounds.YMin != Bounds.YMax ) yield return new Vector3I( Bounds.XMin, Bounds.YMax, h );
+                for( int z = Bounds.ZMin + 1; z < Bounds.ZMax; z++ ) {
+                    yield return new Vector3I( Bounds.XMin, Bounds.YMin, z );
+                    if( Bounds.YMin != Bounds.YMax ) yield return new Vector3I( Bounds.XMin, Bounds.YMax, z );
                     if( Bounds.XMin != Bounds.XMax ) {
-                        yield return new Vector3I( Bounds.XMax, Bounds.YMax, h );
-                        if( Bounds.YMin != Bounds.YMax ) yield return new Vector3I( Bounds.XMax, Bounds.YMin, h );
+                        yield return new Vector3I( Bounds.XMax, Bounds.YMax, z );
+                        if( Bounds.YMin != Bounds.YMax ) yield return new Vector3I( Bounds.XMax, Bounds.YMin, z );
                     }
                 }
             }

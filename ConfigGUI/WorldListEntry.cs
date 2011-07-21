@@ -123,8 +123,8 @@ namespace fCraft.ConfigGUI {
                     return "(cannot load file)";
                 } else {
                     return String.Format( "{0} × {1} × {2}",
-                                          mapHeader.WidthX,
-                                          mapHeader.WidthY,
+                                          mapHeader.Width,
+                                          mapHeader.Length,
                                           mapHeader.Height );
                 }
             }

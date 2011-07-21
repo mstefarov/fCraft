@@ -9,9 +9,9 @@ namespace fCraft {
 
         public MapGenTheme Theme = MapGenTheme.Forest;
         public int   Seed,
-                     WidthX = 256,
-                     WidthY = 256,
-                     Height = 96,
+                     MapWidth = 256,
+                     MapLength = 256,
+                     MapHeight = 96,
                      MaxHeight = 20,
                      MaxDepth = 12,
                      MaxHeightVariation = 4,
@@ -93,9 +93,9 @@ namespace fCraft {
 
             Theme = (MapGenTheme)Enum.Parse( typeof( MapGenTheme ), root.Element( "theme" ).Value, true );
             Seed = Int32.Parse( root.Element( "seed" ).Value );
-            WidthX = Int32.Parse( root.Element( "dimX" ).Value );
-            WidthY = Int32.Parse( root.Element( "dimY" ).Value );
-            Height = Int32.Parse( root.Element( "dimH" ).Value );
+            MapWidth = Int32.Parse( root.Element( "dimX" ).Value );
+            MapLength = Int32.Parse( root.Element( "dimY" ).Value );
+            MapHeight = Int32.Parse( root.Element( "dimH" ).Value );
             MaxHeight = Int32.Parse( root.Element( "maxHeight" ).Value );
             MaxDepth = Int32.Parse( root.Element( "maxDepth" ).Value );
 
@@ -175,9 +175,9 @@ namespace fCraft {
 
             root.Add( new XElement( "theme", Theme ) );
             root.Add( new XElement( "seed", Seed ) );
-            root.Add( new XElement( "dimX", WidthX ) );
-            root.Add( new XElement( "dimY", WidthY ) );
-            root.Add( new XElement( "dimH", Height ) );
+            root.Add( new XElement( "dimX", MapWidth ) );
+            root.Add( new XElement( "dimY", MapLength ) );
+            root.Add( new XElement( "dimH", MapHeight ) );
             root.Add( new XElement( "maxHeight", MaxHeight ) );
             root.Add( new XElement( "maxDepth", MaxDepth ) );
 

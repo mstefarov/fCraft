@@ -26,9 +26,9 @@
             this.lX2 = new System.Windows.Forms.Label();
             this.lX1 = new System.Windows.Forms.Label();
             this.lDim = new System.Windows.Forms.Label();
-            this.nWidthX = new System.Windows.Forms.NumericUpDown();
-            this.nWidthY = new System.Windows.Forms.NumericUpDown();
-            this.nHeight = new System.Windows.Forms.NumericUpDown();
+            this.nMapWidth = new System.Windows.Forms.NumericUpDown();
+            this.nMapLength = new System.Windows.Forms.NumericUpDown();
+            this.nMapHeight = new System.Windows.Forms.NumericUpDown();
             this.bShow = new System.Windows.Forms.Button();
             this.xFloodBarrier = new System.Windows.Forms.CheckBox();
             this.cTheme = new System.Windows.Forms.ComboBox();
@@ -98,7 +98,7 @@
             this.lFlatgrassX1 = new System.Windows.Forms.Label();
             this.lFlatgrassDimensions = new System.Windows.Forms.Label();
             this.lFlatgrassX2 = new System.Windows.Forms.Label();
-            this.nFlatgrassDimH = new System.Windows.Forms.NumericUpDown();
+            this.nFlatgrassDimZ = new System.Windows.Forms.NumericUpDown();
             this.nFlatgrassDimY = new System.Windows.Forms.NumericUpDown();
             this.tabHeightmap = new System.Windows.Forms.TabPage();
             this.lHeightmapComingSoon = new System.Windows.Forms.Label();
@@ -192,9 +192,9 @@
             this.lMapFileOptions = new System.Windows.Forms.Label();
             this.lCreateMap = new System.Windows.Forms.Label();
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
-            ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nHeight)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).BeginInit();
             this.statusStrip.SuspendLayout();
             this.previewLayout.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
@@ -208,7 +208,7 @@
             this.tabCopy.SuspendLayout();
             this.tabFlatgrass.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimH)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimZ)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimY)).BeginInit();
             this.tabHeightmap.SuspendLayout();
             this.tabTerrain.SuspendLayout();
@@ -274,89 +274,89 @@
             this.lDim.TabIndex = 3;
             this.lDim.Text = "Dimensions";
             // 
-            // nWidthX
+            // nMapWidth
             // 
-            this.nWidthX.Increment = new decimal( new int[] {
+            this.nMapWidth.Increment = new decimal( new int[] {
             16,
             0,
             0,
             0} );
-            this.nWidthX.Location = new System.Drawing.Point( 80, 19 );
-            this.nWidthX.Maximum = new decimal( new int[] {
+            this.nMapWidth.Location = new System.Drawing.Point( 80, 19 );
+            this.nMapWidth.Maximum = new decimal( new int[] {
             2032,
             0,
             0,
             0} );
-            this.nWidthX.Minimum = new decimal( new int[] {
+            this.nMapWidth.Minimum = new decimal( new int[] {
             16,
             0,
             0,
             0} );
-            this.nWidthX.Name = "nWidthX";
-            this.nWidthX.Size = new System.Drawing.Size( 54, 20 );
-            this.nWidthX.TabIndex = 0;
-            this.nWidthX.Value = new decimal( new int[] {
+            this.nMapWidth.Name = "nMapWidth";
+            this.nMapWidth.Size = new System.Drawing.Size( 54, 20 );
+            this.nMapWidth.TabIndex = 0;
+            this.nMapWidth.Value = new decimal( new int[] {
             128,
             0,
             0,
             0} );
-            this.nWidthX.ValueChanged += new System.EventHandler( this.MapDimensionChanged );
+            this.nMapWidth.ValueChanged += new System.EventHandler( this.MapDimensionChanged );
             // 
-            // nWidthY
+            // nMapLength
             // 
-            this.nWidthY.Increment = new decimal( new int[] {
+            this.nMapLength.Increment = new decimal( new int[] {
             16,
             0,
             0,
             0} );
-            this.nWidthY.Location = new System.Drawing.Point( 159, 19 );
-            this.nWidthY.Maximum = new decimal( new int[] {
+            this.nMapLength.Location = new System.Drawing.Point( 159, 19 );
+            this.nMapLength.Maximum = new decimal( new int[] {
             2032,
             0,
             0,
             0} );
-            this.nWidthY.Minimum = new decimal( new int[] {
+            this.nMapLength.Minimum = new decimal( new int[] {
             16,
             0,
             0,
             0} );
-            this.nWidthY.Name = "nWidthY";
-            this.nWidthY.Size = new System.Drawing.Size( 54, 20 );
-            this.nWidthY.TabIndex = 1;
-            this.nWidthY.Value = new decimal( new int[] {
+            this.nMapLength.Name = "nMapLength";
+            this.nMapLength.Size = new System.Drawing.Size( 54, 20 );
+            this.nMapLength.TabIndex = 1;
+            this.nMapLength.Value = new decimal( new int[] {
             128,
             0,
             0,
             0} );
-            this.nWidthY.ValueChanged += new System.EventHandler( this.MapDimensionChanged );
+            this.nMapLength.ValueChanged += new System.EventHandler( this.MapDimensionChanged );
             // 
-            // nHeight
+            // nMapHeight
             // 
-            this.nHeight.Increment = new decimal( new int[] {
+            this.nMapHeight.Increment = new decimal( new int[] {
             16,
             0,
             0,
             0} );
-            this.nHeight.Location = new System.Drawing.Point( 238, 19 );
-            this.nHeight.Maximum = new decimal( new int[] {
+            this.nMapHeight.Location = new System.Drawing.Point( 238, 19 );
+            this.nMapHeight.Maximum = new decimal( new int[] {
             2032,
             0,
             0,
             0} );
-            this.nHeight.Minimum = new decimal( new int[] {
+            this.nMapHeight.Minimum = new decimal( new int[] {
             16,
             0,
             0,
             0} );
-            this.nHeight.Name = "nHeight";
-            this.nHeight.Size = new System.Drawing.Size( 54, 20 );
-            this.nHeight.TabIndex = 2;
-            this.nHeight.Value = new decimal( new int[] {
+            this.nMapHeight.Name = "nMapHeight";
+            this.nMapHeight.Size = new System.Drawing.Size( 54, 20 );
+            this.nMapHeight.TabIndex = 2;
+            this.nMapHeight.Value = new decimal( new int[] {
             64,
             0,
             0,
             0} );
-            this.nHeight.ValueChanged += new System.EventHandler( this.nHeight_ValueChanged );
+            this.nMapHeight.ValueChanged += new System.EventHandler( this.nHeight_ValueChanged );
             // 
             // bShow
             // 
@@ -1021,7 +1021,7 @@
             this.tabFlatgrass.Controls.Add( this.lFlatgrassX1 );
             this.tabFlatgrass.Controls.Add( this.lFlatgrassDimensions );
             this.tabFlatgrass.Controls.Add( this.lFlatgrassX2 );
-            this.tabFlatgrass.Controls.Add( this.nFlatgrassDimH );
+            this.tabFlatgrass.Controls.Add( this.nFlatgrassDimZ );
             this.tabFlatgrass.Controls.Add( this.nFlatgrassDimY );
             this.tabFlatgrass.Location = new System.Drawing.Point( 4, 22 );
             this.tabFlatgrass.Name = "tabFlatgrass";
@@ -1095,28 +1095,28 @@
             this.lFlatgrassX2.TabIndex = 12;
             this.lFlatgrassX2.Text = "×";
             // 
-            // nFlatgrassDimH
+            // nFlatgrassDimZ
             // 
-            this.nFlatgrassDimH.Increment = new decimal( new int[] {
+            this.nFlatgrassDimZ.Increment = new decimal( new int[] {
             16,
             0,
             0,
             0} );
-            this.nFlatgrassDimH.Location = new System.Drawing.Point( 311, 23 );
-            this.nFlatgrassDimH.Maximum = new decimal( new int[] {
+            this.nFlatgrassDimZ.Location = new System.Drawing.Point( 311, 23 );
+            this.nFlatgrassDimZ.Maximum = new decimal( new int[] {
             2032,
             0,
             0,
             0} );
-            this.nFlatgrassDimH.Minimum = new decimal( new int[] {
+            this.nFlatgrassDimZ.Minimum = new decimal( new int[] {
             16,
             0,
             0,
             0} );
-            this.nFlatgrassDimH.Name = "nFlatgrassDimH";
-            this.nFlatgrassDimH.Size = new System.Drawing.Size( 54, 20 );
-            this.nFlatgrassDimH.TabIndex = 3;
-            this.nFlatgrassDimH.Value = new decimal( new int[] {
+            this.nFlatgrassDimZ.Name = "nFlatgrassDimZ";
+            this.nFlatgrassDimZ.Size = new System.Drawing.Size( 54, 20 );
+            this.nFlatgrassDimZ.TabIndex = 3;
+            this.nFlatgrassDimZ.Value = new decimal( new int[] {
             64,
             0,
             0,
@@ -1370,7 +1370,7 @@
             this.gMapSize.Controls.Add( this.lWaterLevelLabel );
             this.gMapSize.Controls.Add( this.nMaxDepth );
             this.gMapSize.Controls.Add( this.nMaxHeight );
-            this.gMapSize.Controls.Add( this.nWidthX );
+            this.gMapSize.Controls.Add( this.nMapWidth );
             this.gMapSize.Controls.Add( this.lMaxHeight );
             this.gMapSize.Controls.Add( this.lMaxHeightUnits );
             this.gMapSize.Controls.Add( this.lMaxDepth );
@@ -1378,8 +1378,8 @@
             this.gMapSize.Controls.Add( this.lX1 );
             this.gMapSize.Controls.Add( this.lDim );
             this.gMapSize.Controls.Add( this.lX2 );
-            this.gMapSize.Controls.Add( this.nHeight );
-            this.gMapSize.Controls.Add( this.nWidthY );
+            this.gMapSize.Controls.Add( this.nMapHeight );
+            this.gMapSize.Controls.Add( this.nMapLength );
             this.gMapSize.Location = new System.Drawing.Point( 3, 158 );
             this.gMapSize.Name = "gMapSize";
             this.gMapSize.Size = new System.Drawing.Size( 362, 147 );
@@ -2327,9 +2327,9 @@
             this.ShowInTaskbar = false;
             this.Text = "Add World";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler( this.AddWorldPopup_FormClosing );
-            ((System.ComponentModel.ISupportInitialize)(this.nWidthX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nWidthY)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nHeight)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).EndInit();
             this.statusStrip.ResumeLayout( false );
             this.statusStrip.PerformLayout();
             this.previewLayout.ResumeLayout( false );
@@ -2349,7 +2349,7 @@
             this.tabFlatgrass.ResumeLayout( false );
             this.tabFlatgrass.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimH)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimZ)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimY)).EndInit();
             this.tabHeightmap.ResumeLayout( false );
             this.tabHeightmap.PerformLayout();
@@ -2408,9 +2408,9 @@
         private System.Windows.Forms.Label lDim;
         private System.Windows.Forms.Label lX2;
         private System.Windows.Forms.Label lX1;
-        private System.Windows.Forms.NumericUpDown nWidthX;
-        private System.Windows.Forms.NumericUpDown nWidthY;
-        private System.Windows.Forms.NumericUpDown nHeight;
+        private System.Windows.Forms.NumericUpDown nMapWidth;
+        private System.Windows.Forms.NumericUpDown nMapLength;
+        private System.Windows.Forms.NumericUpDown nMapHeight;
         private System.Windows.Forms.Label lPreview;
         private System.Windows.Forms.Button bGenerate;
         private System.Windows.Forms.ComboBox cWorld;
@@ -2494,7 +2494,7 @@
         private System.Windows.Forms.Label lFlatgrassX1;
         private System.Windows.Forms.Label lFlatgrassDimensions;
         private System.Windows.Forms.Label lFlatgrassX2;
-        private System.Windows.Forms.NumericUpDown nFlatgrassDimH;
+        private System.Windows.Forms.NumericUpDown nFlatgrassDimZ;
         private System.Windows.Forms.NumericUpDown nFlatgrassDimY;
         private System.Windows.Forms.Label lHeightmapComingSoon;
         private System.Windows.Forms.NumericUpDown nMaxDepth;

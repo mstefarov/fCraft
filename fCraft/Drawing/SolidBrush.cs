@@ -49,14 +49,18 @@ namespace fCraft.Drawing {
 
 
     public sealed class SolidBrush : IBrushInstance {
-        public Block Block{get;private set;}
+        public Block Block { get; private set; }
         public Block AltBlock { get; private set; }
+
+        public bool HasAlternateBlock {
+            get { return AltBlock != Block.Undefined; }
+        }
 
         public string InstanceDescription {
             get {
                 if( Block == Block.Undefined ) {
                     return Brush.Factory.Name;
-                }else if( AltBlock == Block.Undefined ) {
+                } else if( AltBlock == Block.Undefined ) {
                     return String.Format( "{0}({1})", Brush.Factory.Name, Block );
                 } else {
                     return String.Format( "{0}({1},{2})", Brush.Factory.Name, Block, AltBlock );
