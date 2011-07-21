@@ -693,22 +693,11 @@ namespace fCraft {
                 // if player is online, toggle visible/invisible players
                 if( target != null && target.World != null ) {
 
-                    HashSet<Player> invisiblePlayers = new HashSet<Player>();
-
-                    Player[] worldPlayerList = target.World.Players;
-                    for( int i = 0; i < worldPlayerList.Length; i++ ) {
-                        if( !target.CanSee( worldPlayerList[i] ) ) {
-                            invisiblePlayers.Add( worldPlayerList[i] );
-                        }
-                    }
-
-
                     // ==== Actual rank change happens here ====
                     targetInfo.ProcessRankChange( newRank, player, reason, changeType );
                     Server.RaisePlayerListChangedEvent();
                     Server.RaisePlayerInfoRankChangedEvent( targetInfo, player, oldRank, reason, changeType );
                     // ==== Actual rank change happens here ====
-
 
                     // change admincrete deletion permission
                     target.Send( PacketWriter.MakeSetPermission( target ) );
@@ -719,11 +708,20 @@ namespace fCraft {
                                     newRank.ClassyName,
                                     player.ClassyName );
 
+                    if( targetInfo.IsHidden && !target.Can( Permission.Hide ) ) {
+                        targetInfo.IsHidden = false;
+                        player.Message( "You are no longer hidden." );
+                    }
+
                 } else {
                     // ==== Actual rank change happens here (offline) ====
                     targetInfo.ProcessRankChange( newRank, player, reason, changeType );
                     Server.RaisePlayerInfoRankChangedEvent( targetInfo, player, oldRank, reason, changeType );
                     // ==== Actual rank change happens here (offline) ====
+
+                    if( targetInfo.IsHidden && !targetInfo.Rank.Can( Permission.Hide ) ) {
+                        targetInfo.IsHidden = false;
+                    }
                 }
 
                 if( !silent ) {
@@ -830,11 +828,7 @@ namespace fCraft {
                 return;
             }
 
-            string silentString = cmd.Next();
-            bool silent = false;
-            if( silentString != null ) {
-                silent = silentString.Equals( "silent", StringComparison.OrdinalIgnoreCase );
-            }
+            bool silent = cmd.HasNext;
 
             // for aware players: notify
             Server.Players.CanSee( player ).Message( "&SPlayer {0}&S is no longer hidden.",
