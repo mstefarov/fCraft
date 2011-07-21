@@ -664,7 +664,11 @@ namespace fCraft {
             }
 
             if( Info.IsHidden ) {
-                canSee.Message( "&8Player {0}&8 logged in hidden. Pssst.", ClassyName );
+                if( Can( Permission.Hide ) ) {
+                    canSee.Message( "&8Player {0}&8 logged in hidden. Pssst.", ClassyName );
+                } else {
+                    Info.IsHidden = false;
+                }
             }
 
             // Check if other banned players logged in from this IP
