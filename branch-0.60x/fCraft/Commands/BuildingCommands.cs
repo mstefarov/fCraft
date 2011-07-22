@@ -108,10 +108,10 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdRestore );
 
-            CommandManager.RegisterCommand( CdSetBrush );
-            CommandManager.RegisterCommand( CdCuboidX );
-            CommandManager.RegisterCommand( CdCuboidWireframeX );
-            CommandManager.RegisterCommand( CdCuboidHollowX );
+            //CommandManager.RegisterCommand( CdSetBrush );
+            //CommandManager.RegisterCommand( CdCuboidX );
+            //CommandManager.RegisterCommand( CdCuboidWireframeX );
+            //CommandManager.RegisterCommand( CdCuboidHollowX );
         }
 
 

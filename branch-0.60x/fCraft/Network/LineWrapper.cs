@@ -14,6 +14,7 @@ namespace fCraft {
     sealed class LineWrapper : IEnumerable<Packet>, IEnumerator<Packet> {
         const string DefaultPrefixString = "> ";
         static readonly byte[] DefaultPrefix;
+
         static LineWrapper() {
             DefaultPrefix = Encoding.ASCII.GetBytes( DefaultPrefixString );
         }
@@ -78,6 +79,7 @@ namespace fCraft {
             lastColor = NoColor;
             Current = new Packet( output );
 
+            wordLength = 0;
             wrapIndex = 0;
             wrapColor = NoColor;
             wrapOutputIndex = outputStart;
@@ -139,7 +141,7 @@ namespace fCraft {
                         // append "&&"
                         expectingColor = false;
                         if( !Append( ch ) ) {
-                            if( wordLength < LineSize - 1 ) {
+                            if( wordLength < LineSize - 1 - prefix.Length ) {
                                 inputIndex = wrapIndex;
                                 outputIndex = wrapOutputIndex;
                                 color = wrapColor;
@@ -176,6 +178,7 @@ namespace fCraft {
                         expectingColor = false;
                         if( ProcessColor( ref ch ) ) {
                             color = ch;
+                            hadColor = true;
                         }// else colorcode is invalid, skip
                     } else {
                         if( spaceCount > 0 ) {
@@ -187,7 +190,7 @@ namespace fCraft {
                             ch = (byte)'?';
                         }
                         if( !Append( ch ) ) {
-                            if( wordLength < LineSize ) {
+                            if( wordLength < LineSize - prefix.Length ) {
                                 inputIndex = wrapIndex;
                                 outputIndex = wrapOutputIndex;
                                 color = wrapColor;
@@ -210,16 +213,22 @@ namespace fCraft {
 
         bool Append( byte ch ) {
             // calculate the number of characters to insert
-            int bytesToInsert = 1 + spaceCount;
+            int bytesToInsert = 1 ;
             if( ch == (byte)'&' ) bytesToInsert++;
-            if( lastColor != color ) bytesToInsert += 2;
-            if( outputIndex + bytesToInsert > PacketSize ) {
+
+            bool appendColor = (lastColor != color || (color == NoColor && hadColor));
+
+            if( appendColor ) bytesToInsert += 2;
+            if( outputIndex + bytesToInsert + spaceCount > PacketSize ) {
+                /*Console.WriteLine( "X ii={0} ({1}+{2}+{3}={4}) wl={5} wi={6} woi={7}",
+                                   inputIndex,
+                                   outputIndex, bytesToInsert, spaceCount, outputIndex + bytesToInsert + spaceCount,
+                                   wordLength, wrapIndex, wrapOutputIndex );*/
                 return false;
             }
-            wordLength += bytesToInsert;
 
             // append color, if changed since last word
-            if( lastColor != color || (color == NoColor && !hadColor) ) {
+            if( appendColor ) {
                 output[outputIndex++] = (byte)'&';
                 output[outputIndex++] = color;
                 lastColor = color;
@@ -234,6 +243,12 @@ namespace fCraft {
                 }
                 wordLength = 0;
             }
+            wordLength += bytesToInsert;
+
+            /*Console.WriteLine( "ii={0} oi={1} wl={2} wi={3} woi={4} sc={5} bti={6}",
+                               inputIndex, outputIndex, wordLength, wrapIndex, wrapOutputIndex, spaceCount1, bytesToInsert );
+            Console.WriteLine( Encoding.ASCII.GetString( output, outputStart, outputIndex - outputStart ) );
+            Console.WriteLine();*/
 
             // append character
             if( ch == (byte)'&' ) output[outputIndex++] = ch;
