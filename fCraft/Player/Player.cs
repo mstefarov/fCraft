@@ -944,6 +944,11 @@ namespace fCraft {
             get { return spectatedPlayer; }
         }
 
+        public PlayerInfo LastSpectatedPlayer {
+            get;
+            private set;
+        }
+
 
         public bool IsSpectating {
             get { return (spectatedPlayer != null); }
@@ -954,6 +959,7 @@ namespace fCraft {
             if( target == null ) throw new ArgumentNullException( "target" );
             if( target == this ) throw new ArgumentException( "Cannot spectate self.", "target" );
             Message( "Now spectating {0}&S. Type &H/unspec&S to stop.", target.ClassyName );
+            LastSpectatedPlayer = target.Info;
             return (Interlocked.Exchange( ref spectatedPlayer, target ) == null);
         }
 
