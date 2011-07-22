@@ -1035,7 +1035,7 @@ namespace fCraft {
 
                 // Loading to current world
                 player.World.ChangeMap( map );
-                player.World.SendToAllExcept( "{0}&S loaded a new map for this world.", player,
+                player.World.Players.Message( player, "{0}&S loaded a new map for this world.",
                                               player.ClassyName );
                 player.MessageNow( "New map loaded for the world {0}", player.World.ClassyName );
 
@@ -1076,7 +1076,7 @@ namespace fCraft {
                             return;
                         }
 
-                        world.SendToAllExcept( "{0}&S loaded a new map for the world {1}", player,
+                        world.Players.Message( player, "{0}&S loaded a new map for the world {1}",
                                                player.ClassyName, world.ClassyName );
                         player.MessageNow( "New map for the world {0}&S has been loaded.", world.ClassyName );
                         Logger.Log( "{0} loaded new map for world \"{1}\" from {2}", LogType.UserActivity,

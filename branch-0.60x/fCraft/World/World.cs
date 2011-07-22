@@ -177,7 +177,7 @@ namespace fCraft {
         public void Flush() {
             lock( WorldLock ) {
                 if( Map == null ) return;
-                SendToAll( "&WMap is being flushed. Stay put, world will reload shortly." );
+                Players.Message( "&WMap is being flushed. Stay put, world will reload shortly." );
                 IsFlushing = true;
             }
         }
@@ -186,7 +186,7 @@ namespace fCraft {
         internal void EndFlushMapBuffer() {
             lock( WorldLock ) {
                 IsFlushing = false;
-                SendToAll( "&WMap flushed. Reloading..." );
+                Players.Message( "&WMap flushed. Reloading..." );
                 foreach( Player player in Players ) {
                     player.JoinWorld( this, player.Position );
                 }
@@ -367,12 +367,13 @@ namespace fCraft {
 
 
         #region Communication
-
+        [Obsolete]
         public void SendToAll( Packet packet ) {
             SendToAll( packet, null );
         }
 
 
+        [Obsolete]
         public void SendToAll( Packet packet, Player except ) {
             Player[] tempList = Players;
             for( int i = 0; i < tempList.Length; i++ ) {
@@ -383,6 +384,7 @@ namespace fCraft {
         }
 
 
+        [Obsolete]
         public void SendToAllDelayed( Packet packet, Player except ) {
             Player[] tempList = Players;
             for( int i = 0; i < tempList.Length; i++ ) {
@@ -392,6 +394,7 @@ namespace fCraft {
             }
         }
 
+        [Obsolete]
         public void SendToAll( string message, params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
@@ -401,6 +404,7 @@ namespace fCraft {
             }
         }
 
+        [Obsolete]
         public void SendToAllExcept( string message, Player except, params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
@@ -411,6 +415,7 @@ namespace fCraft {
         }
 
 
+        [Obsolete]
         public void SendToSeeing( Packet packet, Player source ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             Player[] playerListCopy = Players;
@@ -421,6 +426,7 @@ namespace fCraft {
             }
         }
 
+        [Obsolete]
         public void SendToBlind( Packet packet, Player source ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             Player[] playerListCopy = Players;
@@ -455,7 +461,7 @@ namespace fCraft {
                     LockedDate = DateTime.UtcNow;
                     IsLocked = true;
                     if( Map != null ) Map.ClearUpdateQueue();
-                    SendToAll( "&WMap was locked by {0}", player.ClassyName );
+                    Players.Message( "&WMap was locked by {0}", player.ClassyName );
                     Logger.Log( "World {0} was locked by {1}", LogType.UserActivity,
                                 Name, player.Name );
                     return true;
@@ -471,7 +477,7 @@ namespace fCraft {
                     UnlockedBy = player.Name;
                     UnlockedDate = DateTime.UtcNow;
                     IsLocked = false;
-                    SendToAll( "&WMap was unlocked by {0}", player.ClassyName );
+                    Players.Message( "&WMap was unlocked by {0}", player.ClassyName );
                     Logger.Log( "World \"{0}\" was unlocked by {1}", LogType.UserActivity,
                                 Name, player.Name );
                     return true;
@@ -634,7 +640,6 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
-
 
     public sealed class WorldCreatingEventArgs : EventArgs, ICancellableEvent {
         public WorldCreatingEventArgs( Player player, string worldName, Map map ) {
