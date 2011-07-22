@@ -345,7 +345,8 @@ namespace fCraft {
                 Blocks[blockIndex] = update.BlockType; // TODO: investigate IndexOutOfRangeException here
 
                 if( !World.IsFlushing ) {
-                    World.SendToAllDelayed( PacketWriter.MakeSetBlock( update.X, update.Y, update.Z, update.BlockType ), update.Origin );
+                    Packet packet = PacketWriter.MakeSetBlock( update.X, update.Y, update.Z, update.BlockType );
+                    World.Players.SendLowPriority( update.Origin, packet );
                 }
                 packetsSent++;
             }

@@ -448,6 +448,46 @@ namespace fCraft {
             return i;
         }
 
+        /// <summary> Broadcasts a message. </summary>
+        /// <param name="source"> List of players who will receive the message. </param>
+        /// <param name="except"> Player to exclude from the recepient list. </param>
+        /// <param name="message"> String/message to send. </param>
+        /// <returns> Number of players who received the message. </returns>
+        public static int Message( this IEnumerable<Player> source, Player except, string message ) {
+            if( source == null ) throw new ArgumentNullException( "source" );
+            if( message == null ) throw new ArgumentNullException( "message" );
+            int i = 0;
+            foreach( Packet packet in LineWrapper.Wrap( message ) ) {
+                foreach( Player player in source ) {
+                    if( player == except ) continue;
+                    player.Send( packet );
+                    i++;
+                }
+            }
+            return i;
+        }
+
+        /// <summary> Formats and broadcasts a message. </summary>
+        /// <param name="source"> List of players who will receive the message. </param>
+        /// <param name="except"> Player to exclude from the recepient list. </param>
+        /// <param name="message"> String/message to send. </param>
+        /// <param name="formatArgs"> Format parameters. Same semantics as String.Format </param>
+        /// <returns> Number of players who received the message. </returns>
+        public static int Message( this IEnumerable<Player> source, Player except, string message, params object[] formatArgs ) {
+            if( source == null ) throw new ArgumentNullException( "source" );
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
+            int i = 0;
+            foreach( Packet packet in LineWrapper.Wrap( String.Format( message, formatArgs ) ) ) {
+                foreach( Player player in source ) {
+                    if( player == except ) continue;
+                    player.Send( packet );
+                    i++;
+                }
+            }
+            return i;
+        }
+
 
         /// <summary> Formats and broadcasts a message. </summary>
         /// <param name="source"> List of players who will receive the message. </param>
@@ -532,6 +572,23 @@ namespace fCraft {
         }
 
 
+        /// <summary> Broadcasts a packet with normal priority. </summary>
+        /// <param name="source"> List of players who will receive the packet. </param>
+        /// <param name="except"> Player to exclude from the recepient list. </param>
+        /// <param name="packet"> Packet to send. </param>
+        /// <returns> Number of players who received the packet. </returns>
+        public static int Send( this IEnumerable<Player> source, Player except, Packet packet ) {
+            if( source == null ) throw new ArgumentNullException( "source" );
+            int i = 0;
+            foreach( Player player in source ) {
+                if( player == except ) continue;
+                player.Send( packet );
+                i++;
+            }
+            return i;
+        }
+
+
         /// <summary> Broadcasts a packet with low priority. </summary>
         /// <param name="source"> List of players who will receive the packet. </param>
         /// <param name="packet"> Packet to send. </param>
@@ -540,6 +597,23 @@ namespace fCraft {
             if( source == null ) throw new ArgumentNullException( "source" );
             int i = 0;
             foreach( Player player in source ) {
+                player.SendLowPriority( packet );
+                i++;
+            }
+            return i;
+        }
+
+
+        /// <summary> Broadcasts a packet with low priority. </summary>
+        /// <param name="source"> List of players who will receive the packet. </param>
+        /// <param name="except"> Player to exclude from the recepient list. </param>
+        /// <param name="packet"> Packet to send. </param>
+        /// <returns> Number of players who received the packet. </returns>
+        public static int SendLowPriority( this IEnumerable<Player> source, Player except, Packet packet ) {
+            if( source == null ) throw new ArgumentNullException( "source" );
+            int i = 0;
+            foreach( Player player in source ) {
+                if( player == except ) continue;
                 player.SendLowPriority( packet );
                 i++;
             }
