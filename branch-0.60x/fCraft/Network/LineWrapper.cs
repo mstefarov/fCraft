@@ -232,7 +232,6 @@ namespace fCraft {
                 output[outputIndex++] = (byte)'&';
                 output[outputIndex++] = color;
                 lastColor = color;
-                hadColor = true;
             }
 
             //int spaceCount1 = spaceCount;

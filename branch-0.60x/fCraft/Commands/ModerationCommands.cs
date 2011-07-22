@@ -1462,7 +1462,17 @@ namespace fCraft {
         internal static void Spectate( Player player, Command cmd ) {
             string targetName = cmd.Next();
             if( targetName == null ) {
-                CdSpectate.PrintUsage( player );
+                PlayerInfo lastSpec = player.LastSpectatedPlayer;
+                if( lastSpec != null ) {
+                    Player spec = player.SpectatedPlayer;
+                    if( spec != null ) {
+                        player.Message( "Now spectating {0}", spec.ClassyName );
+                    } else {
+                        player.Message( "Last spectated {0}", lastSpec.ClassyName );
+                    }
+                } else {
+                    CdSpectate.PrintUsage( player );
+                }
                 return;
             }
 
