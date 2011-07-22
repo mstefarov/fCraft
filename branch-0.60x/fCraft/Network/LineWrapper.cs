@@ -216,9 +216,9 @@ namespace fCraft {
             int bytesToInsert = 1 ;
             if( ch == (byte)'&' ) bytesToInsert++;
 
-            bool appendColor = (lastColor != color || (color == NoColor && hadColor));
+            bool prependColor = (lastColor != color || (color == NoColor && hadColor && outputIndex == outputStart));
 
-            if( appendColor ) bytesToInsert += 2;
+            if( prependColor ) bytesToInsert += 2;
             if( outputIndex + bytesToInsert + spaceCount > PacketSize ) {
                 /*Console.WriteLine( "X ii={0} ({1}+{2}+{3}={4}) wl={5} wi={6} woi={7}",
                                    inputIndex,
@@ -228,13 +228,14 @@ namespace fCraft {
             }
 
             // append color, if changed since last word
-            if( appendColor ) {
+            if( prependColor ) {
                 output[outputIndex++] = (byte)'&';
                 output[outputIndex++] = color;
                 lastColor = color;
                 hadColor = true;
             }
 
+            //int spaceCount1 = spaceCount;
             if( spaceCount > 0 && outputIndex > outputStart ) {
                 // append spaces that accumulated since last word
                 while( spaceCount > 0 ) {
