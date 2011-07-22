@@ -206,7 +206,7 @@
     <Compile Include="Drawing\RandomBrush.cs" />
     <Compile Include="Drawing\CuboidDrawOperation.cs" />
     <Compile Include="Drawing\IBrush.cs" />
-    <Compile Include="Drawing\SolidBrush.cs" />
+    <Compile Include="Drawing\NormalBrush.cs" />
     <Compile Include="Player\Chat.cs" />
     <Compile Include="Commands\CommandCategory.cs" />
     <Compile Include="MapConversion\MapFormatException.cs" />

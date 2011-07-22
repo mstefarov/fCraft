@@ -27,9 +27,9 @@ namespace fCraft.Drawing {
 
         public bool UseAlternateBlock;
 
-// ReSharper disable UnusedMemberInSuper.Global
+        // ReSharper disable UnusedMemberInSuper.Global
         public abstract string Name { get; }
-// ReSharper restore UnusedMemberInSuper.Global
+        // ReSharper restore UnusedMemberInSuper.Global
 
         public abstract string Description { get; }
 

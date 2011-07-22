@@ -68,12 +68,12 @@ namespace fCraft.Drawing {
                     }
                 }
             }
-            
+
             for( int y = Bounds.YMin; y <= Bounds.YMax; y++ ) {
                 for( int z = Bounds.ZMin; z <= Bounds.ZMax; z++ ) {
                     yield return new Vector3I( Bounds.XMin, y, z );
                     if( Bounds.XMin != Bounds.XMax ) {
-                        yield return new Vector3I( Bounds.XMax,y, z );
+                        yield return new Vector3I( Bounds.XMax, y, z );
                     }
                 }
             }

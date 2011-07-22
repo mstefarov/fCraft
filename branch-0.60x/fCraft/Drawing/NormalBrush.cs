@@ -2,12 +2,14 @@
 using System;
 
 namespace fCraft.Drawing {
-    public sealed class SolidBrushFactory : IBrushFactory, IBrush {
-        public static readonly SolidBrushFactory Instance = new SolidBrushFactory();
-        SolidBrushFactory() { }
+    public sealed class NormalBrushFactory : IBrushFactory, IBrush {
+        public static readonly NormalBrushFactory Instance = new NormalBrushFactory();
+
+        NormalBrushFactory() { }
+
 
         public string Name {
-            get { return "Solid"; }
+            get { return "Normal"; }
         }
 
         public string Description {
@@ -43,12 +45,12 @@ namespace fCraft.Drawing {
                 }
             }
 
-            return new SolidBrush( block, altBlock );
+            return new NormalBrush( block, altBlock );
         }
     }
 
 
-    public sealed class SolidBrush : IBrushInstance {
+    public sealed class NormalBrush : IBrushInstance {
         public Block Block { get; private set; }
         public Block AltBlock { get; private set; }
 
@@ -69,11 +71,11 @@ namespace fCraft.Drawing {
         }
 
         public IBrush Brush {
-            get { return SolidBrushFactory.Instance; }
+            get { return NormalBrushFactory.Instance; }
         }
 
 
-        public SolidBrush( Block block, Block altBlock ) {
+        public NormalBrush( Block block, Block altBlock ) {
             if( block == Block.Undefined && altBlock != Block.Undefined ) {
                 throw new ArgumentException( "Block must not be undefined if altblock is set.", "block" );
             }
