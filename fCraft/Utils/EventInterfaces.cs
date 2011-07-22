@@ -2,7 +2,6 @@
 // ReSharper disable UnusedMemberInSuper.Global
 using System;
 
-// ReSharper disable UnusedMember.Global
 namespace fCraft {
     /// <summary> An EventArgs for an event that can be cancelled. </summary>
     public interface ICancellableEvent {

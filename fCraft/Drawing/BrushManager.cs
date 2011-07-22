@@ -7,7 +7,7 @@ namespace fCraft.Drawing {
         static readonly Dictionary<string, IBrushFactory> BrushFactories = new Dictionary<string, IBrushFactory>();
 
         internal static void Init() {
-            RegisterBrush( SolidBrushFactory.Instance );
+            RegisterBrush( NormalBrushFactory.Instance );
             RegisterBrush( CheckeredBrushFactory.Instance );
             RegisterBrush( RandomBrushFactory.Instance );
             RegisterBrush( RainbowBrush.Instance );

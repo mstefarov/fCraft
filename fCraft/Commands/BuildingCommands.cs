@@ -131,13 +131,15 @@ namespace fCraft {
             if( brushName == null ) {
                 player.Message( player.Brush.Description );
             } else {
-                IBrushFactory brush = BrushManager.GetBrushFactory( brushName );
-                if( brush == null ) {
+                IBrushFactory brushFactory = BrushManager.GetBrushFactory( brushName );
+                if( brushFactory == null ) {
                     player.Message( "Unrecognized brush \"{0}\"", brushName );
                 } else {
-                    player.Brush = brush.MakeBrush( player, cmd );
-                    if( player.Brush == null ) return;
-                    player.Message( "Brush set to {0}", player.Brush.Description );
+                    IBrush newBrush = brushFactory.MakeBrush( player, cmd );
+                    if( player.Brush != null ) {
+                        player.Brush = newBrush;
+                        player.Message( "Brush set to {0}", player.Brush.Description );
+                    }
                 }
             }
         }
