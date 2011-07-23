@@ -427,6 +427,7 @@ namespace fCraft {
                                           .CanBeSeen( observer )
                                           .Where( p => p.LastActiveTime > p.LastPatrolTime &&
                                                        DateTime.UtcNow.Subtract( p.LastPatrolTime ) > MinPatrolInterval )
+                                          .OrderBy( p => p.LastPatrolTime.Ticks )
                                           .FirstOrDefault();
                 if( candidate != null ) {
                     candidate.LastPatrolTime = DateTime.UtcNow;
