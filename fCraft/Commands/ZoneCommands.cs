@@ -287,18 +287,27 @@ namespace fCraft {
 
         internal static void ZoneAddCallback( Player player, Position[] marks, object tag ) {
             Zone zone = (Zone)tag;
+            var zones = player.World.Map.Zones;
+            lock( zones.SyncRoot ) {
+                if( zones.Contains( zone.Name ) ) {
+                    Zone dupeZone = zones.FindExact( zone.Name );
+                    player.Message( "A zone named \"{0}\" has just been created by {1}",
+                                    dupeZone.Name, dupeZone.CreatedBy );
+                    return;
+                }
 
-            zone.Create( new BoundingBox( marks[0], marks[1] ), player.Info );
+                zone.Create( new BoundingBox( marks[0], marks[1] ), player.Info );
 
-            player.Message( "Zone \"{0}\" created, {1} blocks total.",
+                player.Message( "Zone \"{0}\" created, {1} blocks total.",
+                                zone.Name,
+                                zone.Bounds.Volume );
+                Logger.Log( "Player {0} created a new zone \"{1}\" containing {2} blocks.", LogType.UserActivity,
+                            player.Name,
                             zone.Name,
                             zone.Bounds.Volume );
-            Logger.Log( "Player {0} created a new zone \"{1}\" containing {2} blocks.", LogType.UserActivity,
-                        player.Name,
-                        zone.Name,
-                        zone.Bounds.Volume );
 
-            player.World.Map.Zones.Add( zone );
+                zones.Add( zone );
+            }
         }
 
 
