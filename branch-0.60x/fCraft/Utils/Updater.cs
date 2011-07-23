@@ -17,7 +17,7 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             600,
-            769,
+            771,
             new DateTime( 2011, 7, 4, 20, 0, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.Dev
@@ -47,7 +47,7 @@ namespace fCraft {
             if( mode == UpdaterMode.Disabled ) return UpdaterResult.NoUpdate;
 
             string url = String.Format( UpdateUrl, CurrentRelease.Revision );
-            if( FireCheckingForUpdatesEvent( ref url ) ) return UpdaterResult.NoUpdate;
+            if( RaiseCheckingForUpdatesEvent( ref url ) ) return UpdaterResult.NoUpdate;
 
             Logger.Log( "Checking for fCraft updates...", LogType.SystemActivity );
             try {
@@ -81,9 +81,9 @@ namespace fCraft {
                                 );
                             }
                             // ReSharper restore LoopCanBeConvertedToQuery
-                            UpdaterResult result = new UpdaterResult( ( releases.Count > 0 ), downloadUrl,
+                            UpdaterResult result = new UpdaterResult( (releases.Count > 0), new Uri( downloadUrl ),
                                                                       releases.ToArray() );
-                            FireCheckedForUpdatesEvent( UpdateUrl, result );
+                            RaiseCheckedForUpdatesEvent( UpdateUrl, result );
                             return result;
                         } else {
                             return UpdaterResult.NoUpdate;
@@ -101,6 +101,7 @@ namespace fCraft {
 
         public static bool RunAtShutdown { get; set; }
 
+
         #region Events
 
         /// <summary> Occurs when fCraft is about to check for updates (cancellable).
@@ -112,7 +113,7 @@ namespace fCraft {
         public static event EventHandler<CheckedForUpdatesEventArgs> CheckedForUpdates;
 
 
-        static bool FireCheckingForUpdatesEvent( ref string updateUrl ) {
+        static bool RaiseCheckingForUpdatesEvent( ref string updateUrl ) {
             var h = CheckingForUpdates;
             if( h == null ) return false;
             var e = new CheckingForUpdatesEventArgs( updateUrl );
@@ -122,7 +123,7 @@ namespace fCraft {
         }
 
 
-        static void FireCheckedForUpdatesEvent( string url, UpdaterResult result ) {
+        static void RaiseCheckedForUpdatesEvent( string url, UpdaterResult result ) {
             var h = CheckedForUpdates;
             if( h != null ) h( null, new CheckedForUpdatesEventArgs( url, result ) );
         }
@@ -137,14 +138,14 @@ namespace fCraft {
                 return new UpdaterResult( false, null, new ReleaseInfo[0] );
             }
         }
-        internal UpdaterResult( bool updateAvailable, string downloadUrl, IEnumerable<ReleaseInfo> releases ) {
+        internal UpdaterResult( bool updateAvailable, Uri downloadUri, IEnumerable<ReleaseInfo> releases ) {
             UpdateAvailable = updateAvailable;
-            DownloadUrl = downloadUrl;
+            DownloadUri = downloadUri;
             History = releases.OrderByDescending( r => r.Revision ).ToArray();
             LatestRelease = releases.FirstOrDefault();
         }
         public bool UpdateAvailable { get; private set; }
-        public string DownloadUrl { get; private set; }
+        public Uri DownloadUri { get; private set; }
         public ReleaseInfo[] History { get; private set; }
         public ReleaseInfo LatestRelease { get; private set; }
     }

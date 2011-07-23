@@ -25,7 +25,7 @@
         private void InitializeComponent() {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( MainForm ) );
             this.logBox = new System.Windows.Forms.TextBox();
-            this.urlDisplay = new System.Windows.Forms.TextBox();
+            this.uriDisplay = new System.Windows.Forms.TextBox();
             this.URLLabel = new System.Windows.Forms.Label();
             this.playerList = new System.Windows.Forms.ListBox();
             this.playerListLabel = new System.Windows.Forms.Label();
@@ -49,16 +49,16 @@
             // 
             // urlDisplay
             // 
-            this.urlDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.uriDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.urlDisplay.Enabled = false;
-            this.urlDisplay.Location = new System.Drawing.Point( 95, 12 );
-            this.urlDisplay.Name = "urlDisplay";
-            this.urlDisplay.ReadOnly = true;
-            this.urlDisplay.Size = new System.Drawing.Size( 473, 20 );
-            this.urlDisplay.TabIndex = 1;
-            this.urlDisplay.Text = "Waiting for first heartbeat...";
-            this.urlDisplay.WordWrap = false;
+            this.uriDisplay.Enabled = false;
+            this.uriDisplay.Location = new System.Drawing.Point( 95, 12 );
+            this.uriDisplay.Name = "urlDisplay";
+            this.uriDisplay.ReadOnly = true;
+            this.uriDisplay.Size = new System.Drawing.Size( 473, 20 );
+            this.uriDisplay.TabIndex = 1;
+            this.uriDisplay.Text = "Waiting for first heartbeat...";
+            this.uriDisplay.WordWrap = false;
             // 
             // URLLabel
             // 
@@ -123,7 +123,7 @@
             this.Controls.Add( this.playerListLabel );
             this.Controls.Add( this.playerList );
             this.Controls.Add( this.URLLabel );
-            this.Controls.Add( this.urlDisplay );
+            this.Controls.Add( this.uriDisplay );
             this.Controls.Add( this.logBox );
             this.Icon = ((System.Drawing.Icon)(resources.GetObject( "$this.Icon" )));
             this.MinimumSize = new System.Drawing.Size( 500, 150 );
@@ -137,7 +137,7 @@
         #endregion
 
         private System.Windows.Forms.TextBox logBox;
-        private System.Windows.Forms.TextBox urlDisplay;
+        private System.Windows.Forms.TextBox uriDisplay;
         private System.Windows.Forms.Label URLLabel;
         private System.Windows.Forms.ListBox playerList;
         private System.Windows.Forms.Label playerListLabel;

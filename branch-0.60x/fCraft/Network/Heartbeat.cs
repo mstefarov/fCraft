@@ -12,7 +12,7 @@ namespace fCraft {
     public static class Heartbeat {
         public static int Delay { get; set; }
         public static int Timeout { get; set; }
-        public static string PrimaryUrl { get; set; }
+        public static Uri Uri { get; set; }
 
         static HttpWebRequest request;
         static SchedulerTask task;
@@ -23,7 +23,7 @@ namespace fCraft {
 
 
         static Heartbeat() {
-            PrimaryUrl = "http://www.minecraft.net/heartbeat.jsp";
+            Uri = new Uri( "http://www.minecraft.net/heartbeat.jsp" );
             Delay = 30000;
             Timeout = 10000;
         }
@@ -67,7 +67,7 @@ namespace fCraft {
             }
 
             if( ConfigKey.HeartbeatEnabled.Enabled() ) {
-                request = (HttpWebRequest)WebRequest.Create( PrimaryUrl );
+                request = (HttpWebRequest)WebRequest.Create( Uri );
                 request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
                 request.Method = "POST";
                 request.Timeout = Timeout;
@@ -146,14 +146,22 @@ namespace fCraft {
                     RaiseHeartbeatSentEvent( data, response, responseText );
                 }
 
-                string newUrl = responseText.Trim();
-                if( newUrl.StartsWith( "bad heartbeat", StringComparison.OrdinalIgnoreCase ) ) {
+                string replyString = responseText.Trim();
+                if( replyString.StartsWith( "bad heartbeat", StringComparison.OrdinalIgnoreCase ) ) {
                     LastHeartbeatFailed = true;
-                    Logger.Log( "Heartbeat: {0}", LogType.Error, newUrl );
-                } else if( newUrl.Length > 32 && newUrl != Server.Url ) {
-                    string oldUrl = Server.Url;
-                    Server.Url = newUrl;
-                    RaiseUrlChangedEvent( oldUrl, newUrl );
+                    Logger.Log( "Heartbeat: {0}", LogType.Error, replyString );
+                } else{
+                    try {
+                        Uri newUri = new Uri( replyString );
+                        Uri oldUri = Server.Uri;
+                        if( newUri != oldUri ) {
+                            Server.Uri = newUri;
+                            RaiseUriChangedEvent( oldUri, newUri );
+                        }
+                    } catch( UriFormatException ) {
+                        Logger.Log( "Heartbeat: Server replied with: {0}", LogType.Error,
+                                    replyString );
+                    }
                 }
             } catch( Exception ex ) {
                 LastHeartbeatFailed = true;
@@ -181,8 +189,8 @@ namespace fCraft {
         /// <summary> Occurs when a heartbeat has been sent. </summary>
         public static event EventHandler<HeartbeatSentEventArgs> Sent;
 
-        /// <summary> Occurs when the server Url has been set or changed. </summary>
-        public static event EventHandler<UrlChangedEventArgs> UrlChanged;
+        /// <summary> Occurs when the server Uri has been set or changed. </summary>
+        public static event EventHandler<UriChangedEventArgs> UriChanged;
 
 
         static bool RaiseHeartbeatSendingEvent( HeartbeatData heartbeatData ) {
@@ -205,9 +213,9 @@ namespace fCraft {
             }
         }
 
-        static void RaiseUrlChangedEvent( string oldUrl, string newUrl ) {
-            var h = UrlChanged;
-            if( h != null ) h( null, new UrlChangedEventArgs( oldUrl, newUrl ) );
+        static void RaiseUriChangedEvent( Uri oldUri, Uri newUri ) {
+            var h = UriChanged;
+            if( h != null ) h( null, new UriChangedEventArgs( oldUri, newUri ) );
         }
 
         #endregion
@@ -259,13 +267,13 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class UrlChangedEventArgs : EventArgs {
-        internal UrlChangedEventArgs( string oldUrl, string newUrl ) {
-            OldUrl = oldUrl;
-            NewUrl = newUrl;
+    public sealed class UriChangedEventArgs : EventArgs {
+        internal UriChangedEventArgs( Uri oldUri, Uri newUri ) {
+            OldUri = oldUri;
+            NewUri = newUri;
         }
-        public string OldUrl { get; private set; }
-        public string NewUrl { get; private set; }
+        public Uri OldUri { get; private set; }
+        public Uri NewUri { get; private set; }
     }
 
 }

@@ -22,9 +22,9 @@ namespace fCraft {
         public static readonly bool[] LogFileOptions;
 
         const string DefaultLogFileName = "fCraft.log",
-                     CrashReportUrl = "http://www.fcraft.net/crashreport.php",
                      LongDateFormat = "yyyy'-'MM'-'dd'_'HH'-'mm'-'ss",
                      ShortDateFormat = "yyyy'-'MM'-'dd";
+        static readonly Uri CrashReportUri = new Uri( "http://www.fcraft.net/crashreport.php" );
         public static LogSplittingType SplittingType = LogSplittingType.OneFile;
 
         static readonly string SessionStart = DateTime.Now.ToString( LongDateFormat ); // localized
@@ -212,7 +212,7 @@ namespace fCraft {
 
                     byte[] formData = Encoding.UTF8.GetBytes( sb.ToString() );
 
-                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create( CrashReportUrl );
+                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create( CrashReportUri );
                     request.Method = "POST";
                     request.Timeout = 15000; // 15s timeout
                     request.ContentType = "application/x-www-form-urlencoded";
@@ -535,7 +535,6 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
-
     public sealed class LogEventArgs : EventArgs {
         [DebuggerStepThrough]
         internal LogEventArgs( string rawMessage, string message, LogType messageType, bool writeToFile, bool writeToConsole ) {
@@ -569,5 +568,4 @@ namespace fCraft.Events {
         public bool IsCommonProblem { get; private set; }
         public bool ShutdownImminent { get; private set; }
     }
-
 }

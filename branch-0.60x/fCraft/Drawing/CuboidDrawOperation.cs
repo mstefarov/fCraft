@@ -2,10 +2,6 @@
 
 namespace fCraft.Drawing {
     public sealed class CuboidDrawOperation : DrawOperation {
-        const int DrawStride = 16;
-
-        int x, y, z, strideX, strideY;
-
         public override string Name {
             get { return "CuboidX"; }
         }
@@ -24,37 +20,26 @@ namespace fCraft.Drawing {
 
             BlocksTotalEstimate = Bounds.Volume;
 
-            x = Bounds.XMin;
-            y = Bounds.YMin;
-            z = Bounds.ZMin;
-            strideX = 0;
-            strideY = 0;
+            Coords.X = Bounds.XMin;
+            Coords.Y = Bounds.YMin;
+            Coords.Z = Bounds.ZMin;
             return true;
         }
 
 
         public override int DrawBatch( int maxBlocksToDraw ) {
             int blocksDone = 0;
-            for( ; x <= Bounds.XMax; x += DrawStride ) {
-                for( ; y <= Bounds.YMax; y += DrawStride ) {
-                    for( ; z <= Bounds.ZMax; z++ ) {
-                        for( ; strideY < DrawStride && y + strideY <= Bounds.YMax; strideY++ ) {
-                            for( ; strideX < DrawStride && x + strideX <= Bounds.XMax; strideX++ ) {
-                                Coords.X = x + strideX;
-                                Coords.Y = y + strideY;
-                                Coords.Z = z;
-                                if( DrawOneBlock() ) {
-                                    blocksDone++;
-                                    if( blocksDone >= maxBlocksToDraw ) return blocksDone;
-                                }
-                            }
-                            strideX = 0;
+            for( ; Coords.X <= Bounds.XMax; Coords.X++ ) {
+                for( ; Coords.Y <= Bounds.YMax; Coords.Y++ ) {
+                    for( ; Coords.Z <= Bounds.ZMax; Coords.Z++ ) {
+                        if( DrawOneBlock() ) {
+                            blocksDone++;
+                            if( blocksDone >= maxBlocksToDraw ) return blocksDone;
                         }
-                        strideY = 0;
                     }
-                    z = Bounds.ZMin;
+                    Coords.Z = Bounds.ZMin;
                 }
-                y = Bounds.YMin;
+                Coords.Y = Bounds.YMin;
             }
             IsDone = true;
             return blocksDone;

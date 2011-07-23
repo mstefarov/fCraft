@@ -32,7 +32,7 @@ namespace fCraft.ServerGUI {
             xShowDetails.Focus();
             downloader.DownloadProgressChanged += DownloadProgress;
             downloader.DownloadFileCompleted += DownloadComplete;
-            downloader.DownloadFileAsync( new Uri( updateResult.DownloadUrl ), updaterFullPath );
+            downloader.DownloadFileAsync( updateResult.DownloadUri, updaterFullPath );
         }
 
 

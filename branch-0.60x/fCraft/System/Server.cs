@@ -36,7 +36,7 @@ namespace fCraft {
         const int MaxPortAttempts = 20;
         public static int Port { get; private set; }
 
-        public static string Url { get; internal set; }
+        public static Uri Uri { get; internal set; }
 
 
         #region Command-line args

@@ -22,7 +22,7 @@ namespace fCraft.ServerWinService {
         protected override void OnStart( string[] args ) {
             try {
                 Server.InitLibrary( args );
-                Heartbeat.UrlChanged += OnHeartbeatUrlChanged;
+                Heartbeat.UriChanged += OnHeartbeatUrlChanged;
                 Server.InitServer();
                 Server.StartServer();
                 Logger.Log( "ServerWinService.OnStart: Service started.", LogType.SystemActivity );
@@ -40,9 +40,9 @@ namespace fCraft.ServerWinService {
         }
 
 
-        static void OnHeartbeatUrlChanged( object sender, UrlChangedEventArgs e ) {
-            File.WriteAllText( "externalurl.txt", e.NewUrl, Encoding.ASCII );
-            Console.WriteLine( "** " + e.NewUrl + " **" );
+        static void OnHeartbeatUrlChanged( object sender, UriChangedEventArgs e ) {
+            File.WriteAllText( "externalurl.txt", e.NewUri.ToString(), Encoding.ASCII );
+            Console.WriteLine( "** " + e.NewUri + " **" );
         }
     }
 }
