@@ -92,7 +92,7 @@ namespace fCraft.Drawing {
                     player.Message( "Cannot imply desired blocktype. Click a block or type out the blocktype name." );
                     return false;
                 } else {
-                    Block = player.LastUsedBlockType;
+                    Block = player.GetBind( player.LastUsedBlockType );
                 }
             }
             return true;

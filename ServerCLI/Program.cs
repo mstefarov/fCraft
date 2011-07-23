@@ -24,6 +24,9 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Net;
+using System.ComponentModel;
 using fCraft.Events;
 
 
@@ -32,9 +35,10 @@ namespace fCraft.ServerCLI {
     static class Program {
         static bool useColor = true;
 
+
         static void Main( string[] args ) {
             Logger.Logged += OnLogged;
-            Heartbeat.UrlChanged += OnHeartbeatUrlChanged;
+            Heartbeat.UriChanged += OnHeartbeatUriChanged;
 
 #if !DEBUG
             try {
@@ -42,17 +46,9 @@ namespace fCraft.ServerCLI {
                 Server.InitLibrary( args );
                 useColor = !Server.HasArg( ArgKey.NoConsoleColor );
 
-                Server.InitServer();
+                CheckForUpdates();
 
-                UpdaterMode updaterMode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
-                if( updaterMode != UpdaterMode.Disabled ) {
-                    UpdaterResult update = Updater.CheckForUpdates();
-                    if( update.UpdateAvailable ) {
-                        Console.WriteLine( "** A new version of fCraft is available: {0}, released {1:0} day(s) ago. **",
-                                           update.LatestRelease.VersionString,
-                                           update.LatestRelease.Age.TotalDays );
-                    }
-                }
+                Server.InitServer();
 
                 if( !ConfigKey.ProcessPriority.IsBlank() ) {
                     try {
@@ -142,10 +138,84 @@ namespace fCraft.ServerCLI {
         }
 
 
-        static void OnHeartbeatUrlChanged( object sender, UrlChangedEventArgs e ) {
-            File.WriteAllText( "externalurl.txt", e.NewUrl, Encoding.ASCII );
-            Console.WriteLine( "** URL: {0} **", e.NewUrl );
+        static void OnHeartbeatUriChanged( object sender, UriChangedEventArgs e ) {
+            File.WriteAllText( "externalurl.txt", e.NewUri.ToString(), Encoding.ASCII );
+            Console.WriteLine( "** URL: {0} **", e.NewUri );
             Console.WriteLine( "URL is also saved to file externalurl.txt" );
         }
+
+
+        #region Updates
+
+
+        static AutoResetEvent updateDownloadWaiter = new AutoResetEvent( false );
+        static bool updateFailed;
+
+        static void OnUpdateDownloadProgress( object sender, DownloadProgressChangedEventArgs e ) {
+            Console.CursorLeft = 0;
+            Console.Write( "{0}% |", e.ProgressPercentage );
+            for( int i = 0; i < e.ProgressPercentage / 2 - 1; i++ ) Console.Write( '=' );
+            Console.Write( '>' );
+            for( int i = 0; i < 50 - e.ProgressPercentage / 2 - 1; i++ ) Console.Write( ' ' );
+            Console.Write( '|' );
+        }
+
+
+        static void OnUpdateDownloadCompleted( object sender, AsyncCompletedEventArgs e ) {
+            Console.WriteLine();
+            if( e.Error != null ) {
+                updateFailed = true;
+                if( useColor ) Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine( "Downloading the updater failed: {0}", e.Error );
+                if( useColor ) Console.ResetColor();
+            } else {
+                Console.WriteLine( "Update download finished." );
+            }
+            updateDownloadWaiter.Set();
+        }
+
+
+        static void CheckForUpdates() {
+            UpdaterMode updaterMode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
+            UpdaterResult update = Updater.CheckForUpdates();
+
+            if( update.UpdateAvailable ) {
+                Console.WriteLine( "** A new version of fCraft is available: {0}, released {1:0} day(s) ago. **",
+                                   update.LatestRelease.VersionString,
+                                   update.LatestRelease.Age.TotalDays );
+                if( updaterMode != UpdaterMode.Notify ) {
+                    WebClient client = new WebClient();
+                    client.DownloadProgressChanged += OnUpdateDownloadProgress;
+                    client.DownloadFileCompleted += OnUpdateDownloadCompleted;
+                    client.DownloadFileAsync( update.DownloadUri, Paths.UpdaterFileName );
+                    updateDownloadWaiter.WaitOne();
+                    if( updateFailed ) return;
+
+                    if( updaterMode == UpdaterMode.Prompt ) {
+                        Console.WriteLine( "Restart the server and update now? y/n" );
+                        var key = Console.ReadKey();
+                        if( key.KeyChar == 'y' ) {
+                            RestartForUpdate();
+                            return;
+                        } else {
+                            Console.WriteLine( "You can update manually by shutting down the server and running " + Paths.UpdaterFileName );
+                        }
+                    } else {
+                        RestartForUpdate();
+                        return;
+                    }
+                }
+            }
+        }
+
+
+        static void RestartForUpdate() {
+            string restartArgs = String.Format( "{0} --restart=\"{1}\"",
+                                                Server.GetArgString(),
+                                                MonoCompat.PrependMono( "ServerGUI.exe" ) );
+            MonoCompat.StartDotNetProcess( Paths.UpdaterFileName, restartArgs, true );
+        }
+
+        #endregion
     }
 }

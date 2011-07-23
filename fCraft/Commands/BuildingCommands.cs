@@ -1366,7 +1366,6 @@ namespace fCraft {
             DrawOneBlock( player, drawBlock, x2, y2, z2, ref blocks, ref blocksDenied, ref cannotUndo );
 
             if( (l >= m) && (l >= n) ) {
-
                 err1 = dy2 - l;
                 err2 = dz2 - l;
                 for( i = 0; i < l; i++ ) {
@@ -1383,6 +1382,7 @@ namespace fCraft {
                     err2 += dz2;
                     pixel[0] += xInc;
                 }
+
             } else if( (m >= l) && (m >= n) ) {
                 err1 = dx2 - m;
                 err2 = dz2 - m;
@@ -1400,6 +1400,7 @@ namespace fCraft {
                     err2 += dz2;
                     pixel[1] += yInc;
                 }
+
             } else {
                 err1 = dy2 - n;
                 err2 = dx2 - n;

@@ -23,7 +23,7 @@ namespace fCraft.ServerGUI {
 
         void StartUp( object sender, EventArgs a ) {
             Logger.Logged += OnLogged;
-            Heartbeat.UrlChanged += OnHeartbeatUrlChanged;
+            Heartbeat.UriChanged += OnHeartbeatUriChanged;
             Server.PlayerListChanged += OnPlayerListChanged;
             Server.ShutdownEnded += OnServerShutdownEnded;
 
@@ -64,7 +64,7 @@ namespace fCraft.ServerGUI {
             }
             if( Server.StartServer() ) {
                 if( !ConfigKey.HeartbeatEnabled.Enabled() ) {
-                    urlDisplay.Text = "Heartbeat disabled. See externalurl.txt";
+                    uriDisplay.Text = "Heartbeat disabled. See externalurl.txt";
                 }
                 console.Enabled = true;
             } else {
@@ -84,7 +84,7 @@ namespace fCraft.ServerGUI {
             //Log( "Shutting down...", LogType.ConsoleOutput ); // write to console only
 
             shutdownPending = true;
-            urlDisplay.Enabled = false;
+            uriDisplay.Enabled = false;
             console.Enabled = false;
             Server.Shutdown( new ShutdownParams( reason, TimeSpan.Zero, quit, false ), false );
         }
@@ -112,15 +112,15 @@ namespace fCraft.ServerGUI {
         }
 
 
-        public void OnHeartbeatUrlChanged( object sender, UrlChangedEventArgs e ) {
+        public void OnHeartbeatUriChanged( object sender, UriChangedEventArgs e ) {
             try {
                 if( shutdownPending ) return;
-                if( urlDisplay.InvokeRequired ) {
-                    Invoke( (EventHandler<UrlChangedEventArgs>)OnHeartbeatUrlChanged,
+                if( uriDisplay.InvokeRequired ) {
+                    Invoke( (EventHandler<UriChangedEventArgs>)OnHeartbeatUriChanged,
                             sender, e );
                 } else {
-                    urlDisplay.Text = e.NewUrl;
-                    urlDisplay.Enabled = true;
+                    uriDisplay.Text = e.NewUri.ToString();
+                    uriDisplay.Enabled = true;
                     bPlay.Enabled = true;
                 }
             } catch( ObjectDisposedException ) {
@@ -194,7 +194,7 @@ namespace fCraft.ServerGUI {
 
         private void bPlay_Click( object sender, EventArgs e ) {
             try {
-                Process.Start( urlDisplay.Text );
+                Process.Start( uriDisplay.Text );
             } catch( Exception ) {
                 MessageBox.Show( "Could not open server URL. Please copy/paste it manually." );
             }
