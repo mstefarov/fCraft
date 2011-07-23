@@ -512,8 +512,6 @@ namespace fCraft {
                 return null;
             }
 
-            player.MessageNow( "Looking for \"{0}\"...", fileName );
-
             // Look for the file
             string sourceFullFileName = Path.Combine( Paths.MapPath, fileName );
             if( !File.Exists( sourceFullFileName ) && !Directory.Exists( sourceFullFileName ) ) {
