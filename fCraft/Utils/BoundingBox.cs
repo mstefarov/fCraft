@@ -104,6 +104,10 @@ namespace fCraft {
             get { return new Position( XMin, YMin, ZMin ); }
         }
 
+        public Vector3I MinVertexV {
+            get { return new Vector3I( XMin, YMin, ZMin ); }
+        }
+
         /// <summary> Returns the vertex farthest from the origin, opposite MinVertex. </summary>
         public Position MaxVertex {
             get { return new Position( XMax, YMax, ZMax ); }

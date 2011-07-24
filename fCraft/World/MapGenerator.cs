@@ -140,7 +140,7 @@ namespace fCraft {
             ReportProgress( 10, "Heightmap: Priming" );
             heightmap = new float[args.MapWidth, args.MapLength];
 
-            noise.PerlinNoise2D( heightmap, args.FeatureScale, args.DetailScale, args.Roughness, 0, 0 );
+            noise.PerlinNoise( heightmap, args.FeatureScale, args.DetailScale, args.Roughness, 0, 0 );
 
             if( args.UseBias && !args.DelayBias ) {
                 ReportProgress( 2, "Heightmap: Biasing" );
@@ -155,13 +155,13 @@ namespace fCraft {
 
                 // needs a new Noise object to randomize second map
                 float[,] heightmap2 = new float[args.MapWidth, args.MapLength];
-                new Noise( rand.Next(), NoiseInterpolationMode.Bicubic ).PerlinNoise2D( heightmap2, 0, args.DetailScale, args.Roughness, 0, 0 );
+                new Noise( rand.Next(), NoiseInterpolationMode.Bicubic ).PerlinNoise( heightmap2, 0, args.DetailScale, args.Roughness, 0, 0 );
                 Noise.Normalize( heightmap2 );
 
                 // make a blendmap
                 blendmap = new float[args.MapWidth, args.MapLength];
                 int blendmapDetailSize = (int)Math.Log( Math.Max( args.MapWidth, args.MapLength ), 2 ) - 2;
-                new Noise( rand.Next(), NoiseInterpolationMode.Cosine ).PerlinNoise2D( blendmap, 3, blendmapDetailSize, 0.5f, 0, 0 );
+                new Noise( rand.Next(), NoiseInterpolationMode.Cosine ).PerlinNoise( blendmap, 3, blendmapDetailSize, 0.5f, 0, 0 );
                 Noise.Normalize( blendmap );
                 float cliffSteepness = Math.Max( args.MapWidth, args.MapLength ) / 6f;
                 Noise.ScaleAndClip( blendmap, cliffSteepness );
@@ -287,7 +287,7 @@ namespace fCraft {
                 ReportProgress( 5, "Heightmap Processing: Randomizing" );
                 altmap = new float[map.Width, map.Length];
                 int blendmapDetailSize = (int)Math.Log( Math.Max( args.MapWidth, args.MapLength ), 2 ) - 2;
-                new Noise( rand.Next(), NoiseInterpolationMode.Cosine ).PerlinNoise2D( altmap, 3, blendmapDetailSize, 0.5f, 0, 0 );
+                new Noise( rand.Next(), NoiseInterpolationMode.Cosine ).PerlinNoise( altmap, 3, blendmapDetailSize, 0.5f, 0, 0 );
                 Noise.Normalize( altmap, -1, 1 );
             }
 
