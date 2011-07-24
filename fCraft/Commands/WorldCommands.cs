@@ -35,6 +35,8 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdLockAll );
             CommandManager.RegisterCommand( CdUnlock );
             CommandManager.RegisterCommand( CdUnlockAll );
+
+            CommandManager.RegisterCommand( CdBlockDB );
         }
 
 
@@ -1596,5 +1598,40 @@ namespace fCraft {
         }
 
         #endregion
+
+
+
+        static readonly CommandDescriptor CdBlockDB = new CommandDescriptor {
+            Name = "blockdb",
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
+            IsHidden = true,
+            Permissions = new[] { Permission.ManageWorlds },
+            Usage = "/blockdb WorldName",
+            Help = "Enables or disabled BlockDB on a given world.",
+            Handler = SetBlockDB
+        };
+
+        internal static void SetBlockDB( Player player, Command cmd ) {
+            if( !BlockDB.IsEnabled ) {
+                player.Message( "&WBlockDB is disabled on this server." );
+                return;
+            }
+
+            string worldName = cmd.Next();
+            World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
+            if( world == null ) return;
+
+            if( !cmd.IsConfirmed ) {
+                if( world.IsBlockTracked ) {
+                    player.AskForConfirmation( cmd, "Disable BlockDB on world {0}&S? This cannot be undone.", world.ClassyName );
+                } else {
+                    player.AskForConfirmation( cmd, "Enable BlockDB on world {0}&S?", world.ClassyName );
+                }
+                return;
+            }
+
+            world.IsBlockTracked = !world.IsBlockTracked;
+        }
     }
 }

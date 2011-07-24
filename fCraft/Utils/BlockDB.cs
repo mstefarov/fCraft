@@ -24,12 +24,14 @@ namespace fCraft {
 
 
     class BlockDB {
+        public static bool IsEnabled { get; private set; }
         static readonly TimeSpan FlushInterval = TimeSpan.FromSeconds( 90 );
 
         internal static void Init() {
-            Server.PlayerPlacedBlock += OnPlayerPlacedBlock;
-            Scheduler.NewBackgroundTask( FlushPendingEntries ).RunForever( FlushInterval );
             Paths.TestDirectory( "BlockDB", Paths.BlockDBPath, true );
+            Server.PlayerPlacedBlock += OnPlayerPlacedBlock;
+            Scheduler.NewBackgroundTask( FlushPendingEntries ).RunForever( FlushInterval, FlushInterval );
+            IsEnabled = true;
         }
 
 

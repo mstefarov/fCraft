@@ -592,6 +592,7 @@ namespace fCraft {
                             writer.Write( pendingEntries[i].NewBlock );
                         }
                     }
+                    pendingEntries.Clear();
                 }
             }
         }
