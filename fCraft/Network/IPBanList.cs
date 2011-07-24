@@ -28,7 +28,7 @@ namespace fCraft {
                     if( version > FormatVersion ) {
                         Logger.Log( "IPBanList.Load: Attempting to load unsupported IPBanList format ({0}). Errors may occur.", LogType.Warning,
                                     version );
-                    } else {
+                    } else if( version < FormatVersion ) {
                         Logger.Log( "IPBanList.Load: Converting IPBanList to a newer format (version {0} to {1}).", LogType.Warning,
                                     version, FormatVersion );
                     }

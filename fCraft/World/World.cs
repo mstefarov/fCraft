@@ -141,7 +141,6 @@ namespace fCraft {
                 newMap.World = newWorld;
                 newWorld.NeverUnload = neverUnload;
                 WorldManager.ReplaceWorld( this, newWorld );
-                Map = null;
                 foreach( Player player in Players ) {
                     player.JoinWorld( newWorld );
                 }
