@@ -363,6 +363,7 @@ namespace fCraft {
                         SetRankMainWorld( player, rank, world );
                     }
                 }
+
             } else {
                 World world = WorldManager.FindWorldOrPrintMatches( player, param );
                 if( world != null ) {
@@ -564,6 +565,7 @@ namespace fCraft {
                             }
                             Logger.Log( "{0} added {1} to the access whitelist on world {2}", LogType.UserActivity,
                                         player.Name, info.Name, world.Name );
+                            changesWereMade = true;
                             break;
 
                         case PermissionOverride.Allow:
@@ -797,6 +799,7 @@ namespace fCraft {
                             }
                             Logger.Log( "{0} added {1} to the build whitelist on world {2}", LogType.UserActivity,
                                         player.Name, info.Name, world.Name );
+                            changesWereMade = true;
                             break;
 
                         case PermissionOverride.Allow:
@@ -1639,6 +1642,7 @@ namespace fCraft {
             } else {
                 player.Message( "Disabled block tracking on world {0}", world.ClassyName );
             }
+            WorldManager.SaveWorldList();
         }
 
 
