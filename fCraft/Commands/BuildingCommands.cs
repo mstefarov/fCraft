@@ -767,7 +767,7 @@ namespace fCraft {
             // this would've been an easy way to do block tracking for draw commands BUT
             // if i set "origin" to player, he will not receive the block update. I tried.
             player.World.Map.QueueUpdate( new BlockUpdate( null, x, y, z, drawBlock ) );
-            Server.RaisePlayerPlacedBlockEvent( player, (short)x, (short)y, (short)z, (Block)block, (Block)drawBlock, false );
+            Server.RaisePlayerPlacedBlockEvent( player, player.World.Map, (short)x, (short)y, (short)z, (Block)block, (Block)drawBlock, false );
 
             if( MaxUndoCount < 1 || blocks < MaxUndoCount ) {
                 player.UndoBuffer.Enqueue( new BlockUpdate( null, x, y, z, block ) );
@@ -1083,7 +1083,7 @@ namespace fCraft {
                                     continue;
                                 }
                                 player.World.Map.QueueUpdate( new BlockUpdate( null, x + x3, y + y3, z, args.ReplacementBlock ) );
-                                Server.RaisePlayerPlacedBlockEvent( player, (short)x, (short)y, (short)z, (Block)block, args.ReplacementBlock, false );
+                                Server.RaisePlayerPlacedBlockEvent( player, player.World.Map, (short)x, (short)y, (short)z, (Block)block, args.ReplacementBlock, false );
                                 if( MaxUndoCount < 1 || blocks < MaxUndoCount ) {
                                     player.UndoBuffer.Enqueue( new BlockUpdate( null, x + x3, y + y3, z, block ) );
                                 } else if( !cannotUndo ) {

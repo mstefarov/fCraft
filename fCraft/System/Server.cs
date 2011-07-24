@@ -400,6 +400,8 @@ namespace fCraft {
 
             Scheduler.NewTask( AutoRankManager.TaskCallback ).RunForever( AutoRankManager.TickInterval );
 
+            if( ConfigKey.EnableBlockDB.Enabled() ) BlockDB.Init();
+
             RaiseEvent( Started );
             return true;
         }

@@ -120,8 +120,8 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerPlacingBlockEventArgs : PlayerPlacedBlockEventArgs {
-        internal PlayerPlacingBlockEventArgs( Player player, short x, short y, short z, Block oldBlock, Block newBlock, bool isManual, CanPlaceResult result )
-            : base( player, x, y, z, oldBlock, newBlock, isManual ) {
+        internal PlayerPlacingBlockEventArgs( Player player, Map map, short x, short y, short z, Block oldBlock, Block newBlock, bool isManual, CanPlaceResult result )
+            : base( player, map, x, y, z, oldBlock, newBlock, isManual ) {
             Result = result;
         }
 
@@ -130,8 +130,9 @@ namespace fCraft.Events {
 
 
     public class PlayerPlacedBlockEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerPlacedBlockEventArgs( Player player, short x, short y, short z, Block oldBlock, Block newBlock, bool isManual ) {
+        internal PlayerPlacedBlockEventArgs( Player player, Map map, short x, short y, short z, Block oldBlock, Block newBlock, bool isManual ) {
             Player = player;
+            Map = map;
             X = x;
             Y = y;
             Z = z;
@@ -141,6 +142,7 @@ namespace fCraft.Events {
         }
 
         public Player Player { get; private set; }
+        public Map Map { get; private set; }
         public short X { get; private set; }
         public short Y { get; private set; }
         public short Z { get; private set; }
