@@ -65,6 +65,7 @@ namespace fCraft {
         /// <summary> Checks whether there is another argument available.
         /// Does not modify the offset. </summary>
         public bool HasNext {
+            [DebuggerStepThrough]
             get {
                 return offset < Message.Length;
             }
@@ -165,6 +166,7 @@ namespace fCraft {
         }
 
 
+        [DebuggerStepThrough]
         public Block NextBlock( Player player ) {
             string blockName = Next();
             Block targetBlock = Block.Undefined;

@@ -444,9 +444,14 @@ namespace fCraft {
 
                 // cycle load/unload on the new world to save it under the new name
                 newWorld.Name = oldWorld.Name;
-                newWorld.UnloadMap( false );
+                if( newWorld.NeverUnload ) {
+                    newWorld.SaveMap();
+                } else {
+                    newWorld.UnloadMap( false );
+                }
 
                 Worlds[oldWorld.Name.ToLower()] = newWorld;
+                oldWorld.Map = null;
 
                 // change the main world, if needed
                 if( oldWorld == MainWorld ) {
