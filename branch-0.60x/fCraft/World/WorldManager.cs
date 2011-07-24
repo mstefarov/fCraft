@@ -136,6 +136,8 @@ namespace fCraft {
                         world.BuildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
                     }
 
+                    world.IsBlockTracked = (el.Attribute( "blockDB" ) != null);
+
                     foreach( XElement mainedRankEl in el.Elements( "RankMainWorld" ) ) {
                         Rank rank = Rank.Parse( mainedRankEl.Value );
                         if( rank != null ) {
@@ -242,6 +244,9 @@ namespace fCraft {
                     }
                     if( world.IsHidden ) {
                         temp.Add( new XAttribute( "hidden", true ) );
+                    }
+                    if( world.IsBlockTracked ) {
+                        temp.Add( new XAttribute( "blockDB", true ) );
                     }
 
                     World world1 = world;

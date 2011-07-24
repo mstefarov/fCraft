@@ -172,7 +172,6 @@ namespace fCraft {
 
                 if( changesWereMade ) {
                     zone.Edit( player.Info );
-                    player.World.Map.HasChangedSinceSave = true;
                 } else {
                     player.Message( "No changes were made to the zone." );
                 }
