@@ -576,11 +576,16 @@ namespace fCraft {
             }
         }
 
+        public string BlockDBFile {
+            get {
+                return Path.Combine( Paths.BlockDBPath, Name + ".fbdb" );
+            }
+        }
+
         internal void FlushBlockDB() {
-            string blockDBFile = Path.Combine( Paths.BlockDBPath, Name + ".fbdb" );
             if( pendingEntries.Count > 0 ) {
                 lock( blockDBLock ) {
-                    using( var stream = File.Open( blockDBFile, FileMode.Append, FileAccess.Write ) ) {
+                    using( var stream = File.Open( BlockDBFile, FileMode.Append, FileAccess.Write ) ) {
                         BinaryWriter writer = new BinaryWriter( stream );
                         for( int i = 0; i < pendingEntries.Count; i++ ) {
                             writer.Write( pendingEntries[i].Timestamp );
@@ -588,13 +593,34 @@ namespace fCraft {
                             writer.Write( pendingEntries[i].X );
                             writer.Write( pendingEntries[i].Y );
                             writer.Write( pendingEntries[i].Z );
-                            writer.Write( pendingEntries[i].OldBlock );
-                            writer.Write( pendingEntries[i].NewBlock );
+                            writer.Write( (byte)pendingEntries[i].OldBlock );
+                            writer.Write( (byte)pendingEntries[i].NewBlock );
                         }
                     }
                     pendingEntries.Clear();
                 }
             }
+        }
+
+        unsafe internal BlockDBEntry[] LookupBlockInfo( short x, short y, short z ) {
+            byte[] bytes;
+
+            lock( blockDBLock ) {
+                FlushBlockDB();
+                bytes = File.ReadAllBytes( BlockDBFile );
+            }
+            List<BlockDBEntry> results = new List<BlockDBEntry>();
+            BlockDBEntry* entries;
+            int entryCount = bytes.Length / BlockDB.BlockDBEntrySize;
+            fixed( byte* parr = bytes ) {
+                entries = (BlockDBEntry*)parr;
+                for( int i = 0; i < entryCount; i++ ) {
+                    if( entries[i].X == x && entries[i].Y == y && entries[i].Z == z ) {
+                        results.Add( entries[i] );
+                    }
+                }
+            }
+            return results.ToArray();
         }
 
         #endregion
