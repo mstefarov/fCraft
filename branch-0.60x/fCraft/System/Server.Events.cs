@@ -221,22 +221,22 @@ namespace fCraft {
         }
 
 
-        internal static CanPlaceResult RaisePlayerPlacingBlockEvent( Player player, short x, short y, short z,
+        internal static CanPlaceResult RaisePlayerPlacingBlockEvent( Player player, Map map, short x, short y, short z,
                                                                      Block oldBlock, Block newBlock, bool manual,
                                                                      CanPlaceResult result ) {
             var handler = PlayerPlacingBlock;
             if( handler == null ) return result;
-            var e = new PlayerPlacingBlockEventArgs( player, x, y, z, oldBlock, newBlock, manual, result );
+            var e = new PlayerPlacingBlockEventArgs( player, map, x, y, z, oldBlock, newBlock, manual, result );
             handler( null, e );
             return e.Result;
         }
 
 
-        internal static void RaisePlayerPlacedBlockEvent( Player player, short x, short y, short z,
+        internal static void RaisePlayerPlacedBlockEvent( Player player, Map map, short x, short y, short z,
                                                           Block oldBlock, Block newBlock, bool manual ) {
             var handler = PlayerPlacedBlock;
             if( handler != null ) {
-                handler( null, new PlayerPlacedBlockEventArgs( player, x, y, z, oldBlock, newBlock, manual ) );
+                handler( null, new PlayerPlacedBlockEventArgs( player, map, x, y, z, oldBlock, newBlock, manual ) );
             }
         }
 

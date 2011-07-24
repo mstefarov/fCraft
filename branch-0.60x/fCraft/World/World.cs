@@ -562,6 +562,41 @@ namespace fCraft {
         public override string ToString() {
             return String.Format( "World({0})", Name );
         }
+
+
+        #region Block Tracking
+
+        public bool IsBlockTracked { get; set; }
+        object blockDBLock = new object();
+        List<BlockDBEntry> pendingEntries = new List<BlockDBEntry>();
+
+        internal void AddBlockDBEntry( BlockDBEntry newEntry ) {
+            lock( blockDBLock ) {
+                pendingEntries.Add( newEntry );
+            }
+        }
+
+        internal void FlushBlockDB() {
+            string blockDBFile = Path.Combine( Paths.BlockDBPath, Name + ".fbdb" );
+            if( pendingEntries.Count > 0 ) {
+                lock( blockDBLock ) {
+                    using( var stream = File.Open( blockDBFile, FileMode.Append, FileAccess.Write ) ) {
+                        BinaryWriter writer = new BinaryWriter( stream );
+                        for( int i = 0; i < pendingEntries.Count; i++ ) {
+                            writer.Write( pendingEntries[i].Timestamp );
+                            writer.Write( pendingEntries[i].PlayerID );
+                            writer.Write( pendingEntries[i].X );
+                            writer.Write( pendingEntries[i].Y );
+                            writer.Write( pendingEntries[i].Z );
+                            writer.Write( pendingEntries[i].OldBlock );
+                            writer.Write( pendingEntries[i].NewBlock );
+                        }
+                    }
+                }
+            }
+        }
+
+        #endregion
     }
 }
 

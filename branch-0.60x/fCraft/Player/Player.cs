@@ -605,7 +605,7 @@ namespace fCraft {
                         blockUpdate = new BlockUpdate( this, x, y, z - 1, Block.DoubleStair );
                         Info.ProcessBlockPlaced( (byte)Block.DoubleStair );
                         World.Map.QueueUpdate( blockUpdate );
-                        Server.RaisePlayerPlacedBlockEvent( this, x, y, (short)(z - 1), Block.Stair, Block.DoubleStair, true );
+                        Server.RaisePlayerPlacedBlockEvent( this, World.Map, x, y, (short)(z - 1), Block.Stair, Block.DoubleStair, true );
                         SendNow( PacketWriter.MakeSetBlock( x, y, z - 1, Block.DoubleStair ) );
                         RevertBlockNow( x, y, z );
                         break;
@@ -616,7 +616,7 @@ namespace fCraft {
                         Info.ProcessBlockPlaced( (byte)type );
                         Block old = World.Map.GetBlock( x, y, z );
                         World.Map.QueueUpdate( blockUpdate );
-                        Server.RaisePlayerPlacedBlockEvent( this, x, y, z, old, type, true );
+                        Server.RaisePlayerPlacedBlockEvent( this, World.Map, x, y, z, old, type, true );
                         if( requiresUpdate || RelayAllUpdates ) {
                             SendNow( PacketWriter.MakeSetBlock( x, y, z, type ) );
                         }
@@ -782,9 +782,10 @@ namespace fCraft {
         /// Raises the PlayerPlacingBlock event. </summary>
         public CanPlaceResult CanPlace( int x, int y, int z, Block newBlock, bool isManual ) {
             CanPlaceResult result;
+            Map map = World.Map;
 
             // check deleting admincrete
-            Block block = World.Map.GetBlock( x, y, z );
+            Block block = map.GetBlock( x, y, z );
 
             // check special blocktypes
             if( newBlock == Block.Admincrete && !Can( Permission.PlaceAdmincrete ) ) {
@@ -805,7 +806,7 @@ namespace fCraft {
             }
 
             // check zones & world permissions
-            PermissionOverride zoneCheckResult = World.Map.Zones.Check( x, y, z, this );
+            PermissionOverride zoneCheckResult = map.Zones.Check( x, y, z, this );
             if( zoneCheckResult == PermissionOverride.Allow ) {
                 result = CanPlaceResult.Allowed;
                 goto eventCheck;
@@ -836,7 +837,7 @@ namespace fCraft {
             }
 
         eventCheck:
-            return Server.RaisePlayerPlacingBlockEvent( this, (short)x, (short)y, (short)z, block, newBlock, isManual, result );
+            return Server.RaisePlayerPlacingBlockEvent( this, map, (short)x, (short)y, (short)z, block, newBlock, isManual, result );
         }
 
 

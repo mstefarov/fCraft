@@ -114,6 +114,8 @@ namespace fCraft {
 
         public const string PluginDirectory = "plugins";
 
+        public const string BlockDBPath = "blockdb";
+
         #endregion
 
 
