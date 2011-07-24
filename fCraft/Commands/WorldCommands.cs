@@ -473,6 +473,7 @@ namespace fCraft {
                             }
                             Logger.Log( "{0} added {1} to the access whitelist on world {2}", LogType.UserActivity,
                                         player.Name, info.Name, world.Name );
+                            changesWereMade = true;
                             break;
 
                         case PermissionOverride.Allow:
@@ -706,6 +707,7 @@ namespace fCraft {
                             }
                             Logger.Log( "{0} added {1} to the build whitelist on world {2}", LogType.UserActivity,
                                         player.Name, info.Name, world.Name );
+                            changesWereMade = true;
                             break;
 
                         case PermissionOverride.Allow:

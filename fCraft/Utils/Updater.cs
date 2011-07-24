@@ -18,8 +18,8 @@ namespace fCraft {
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            535,
-            702,
+            536,
+            781,
             new DateTime( 2011, 6, 24, 4, 20, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.Bugfix
