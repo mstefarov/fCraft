@@ -1625,7 +1625,7 @@ namespace fCraft {
 
             if( !cmd.IsConfirmed ) {
                 if( world.IsBlockTracked ) {
-                    player.AskForConfirmation( cmd, "Disable BlockDB on world {0}&S? This cannot be undone.", world.ClassyName );
+                    player.AskForConfirmation( cmd, "Disable BlockDB on world {0}&S? Block changes will stop being recorded.", world.ClassyName );
                 } else {
                     player.AskForConfirmation( cmd, "Enable BlockDB on world {0}&S?", world.ClassyName );
                 }
@@ -1633,6 +1633,12 @@ namespace fCraft {
             }
 
             world.IsBlockTracked = !world.IsBlockTracked;
+
+            if( world.IsBlockTracked ) {
+                player.Message( "Enabled block tracking on world {0}", world.ClassyName );
+            } else {
+                player.Message( "Disabled block tracking on world {0}", world.ClassyName );
+            }
         }
 
 
@@ -1660,6 +1666,8 @@ namespace fCraft {
                 return;
             }
 
+            player.Message( "BInfo: Click a block to look it up." );
+
             player.SelectionStart( 1, BlockInfoSelectionCallback, null, CdBlockInfo.Permissions );
         }
 
@@ -1672,7 +1680,8 @@ namespace fCraft {
                 Z = marks[0].Z
             };
 
-            player.Message( "Looking up block information..." );
+            player.Message( "Looking up information for ({0},{1},{2})...",
+                            marks[0].X, marks[0].Y, marks[0].Z );
             Scheduler.NewBackgroundTask( BlockInfoSchedulerCallback, args ).RunOnce();
         }
 

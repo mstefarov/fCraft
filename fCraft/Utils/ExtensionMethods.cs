@@ -20,18 +20,13 @@ namespace fCraft {
 
     static class DateTimeUtil {
         public static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1, 0, 0, 0, DateTimeKind.Utc );
-        public static readonly long TicksToUnixEpoch;
-        const long TicksPerSecond = 10000;
-
-        static DateTimeUtil() {
-            TicksToUnixEpoch = UnixEpoch.Ticks;
-        }
+        public const long TicksPerSecond = 10000;
 
         #region To Unix Time
 
         /// <summary> Converts a DateTime to Utc Unix Timestamp. </summary>
         public static long ToUnixTime( this DateTime date ) {
-            return (date.Ticks - TicksToUnixEpoch) / TicksPerSecond;
+            return (long)date.Subtract( UnixEpoch ).TotalSeconds;
         }
 
 
@@ -41,7 +36,7 @@ namespace fCraft {
             if( date == DateTime.MinValue ) {
                 return "";
             } else {
-                return ((date.Ticks - TicksToUnixEpoch) / TicksPerSecond).ToString();
+                return date.ToUnixTime().ToString();
             }
         }
 
@@ -50,7 +45,7 @@ namespace fCraft {
         /// If the date equals DateTime.MinValue, nothing is appended. </summary>
         public static StringBuilder ToUnixTimeString( this DateTime date, StringBuilder sb ) {
             if( date != DateTime.MinValue ) {
-                sb.Append( (date.Ticks - TicksToUnixEpoch) / TicksPerSecond );
+                sb.Append( date.ToUnixTime() );
             }
             return sb;
         }
@@ -62,13 +57,13 @@ namespace fCraft {
 
         /// <summary> Creates a DateTime from a Utc Unix Timestamp. </summary>
         public static DateTime ToDateTime( this long timestamp ) {
-            return new DateTime( timestamp * TicksPerSecond + TicksToUnixEpoch, DateTimeKind.Utc );
+            return UnixEpoch.AddSeconds( timestamp );
         }
 
 
         /// <summary> Creates a DateTime from a Utc Unix Timestamp. </summary>
         public static DateTime ToDateTime( this uint timestamp ) {
-            return new DateTime( timestamp * TicksPerSecond + TicksToUnixEpoch, DateTimeKind.Utc );
+            return UnixEpoch.AddSeconds( timestamp );
         }
 
 
@@ -76,7 +71,7 @@ namespace fCraft {
         /// If the string was empty, returns false and does not affect result. </summary>
         public static bool ToDateTime( this string str, ref DateTime result ) {
             if( str.Length > 1 ) {
-                result = new DateTime( Int64.Parse( str ) * TicksPerSecond + TicksToUnixEpoch, DateTimeKind.Utc );
+                result = UnixEpoch.AddSeconds( Int64.Parse( str ) );
                 return true;
             } else {
                 return false;
