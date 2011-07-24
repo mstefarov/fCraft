@@ -10,7 +10,7 @@ namespace fCraft {
 
         static readonly SortedDictionary<string, IPBanInfo> Bans = new SortedDictionary<string, IPBanInfo>();
         const string Header = "IP,bannedBy,banDate,banReason,playerName,attempts,lastAttemptName,lastAttemptDate";
-        const int ForamtVersion = 1;
+        const int FormatVersion = 2;
         static readonly object BanListLock = new object();
         public static bool IsLoaded { get; private set; }
 
@@ -25,6 +25,13 @@ namespace fCraft {
                     }
 
                     int version = ParseHeader( headerText );
+                    if( version > FormatVersion ) {
+                        Logger.Log( "IPBanList.Load: Attempting to load unsupported IPBanList format ({0}). Errors may occur.", LogType.Warning,
+                                    version );
+                    } else {
+                        Logger.Log( "IPBanList.Load: Converting IPBanList to a newer format (version {0} to {1}).", LogType.Warning,
+                                    version, FormatVersion );
+                    }
 
                     while( !reader.EndOfStream ) {
                         string line = reader.ReadLine();
@@ -33,10 +40,18 @@ namespace fCraft {
                         if( fields.Length == IPBanInfo.FieldCount ) {
                             try {
                                 IPBanInfo ban;
-                                if( version == 0 ) {
-                                    ban = IPBanInfo.LoadOldFormat( fields, true );
-                                } else {
-                                    ban = IPBanInfo.Load( fields );
+                                switch( version ) {
+                                    case 0:
+                                        ban = IPBanInfo.LoadFormat0( fields, true );
+                                        break;
+                                    case 1:
+                                        ban = IPBanInfo.LoadFormat1( fields );
+                                        break;
+                                    case 2:
+                                        ban = IPBanInfo.LoadFormat2( fields );
+                                        break;
+                                    default:
+                                        return;
                                 }
 
                                 if( ban.Address.Equals( IPAddress.Any ) || ban.Address.Equals( IPAddress.None ) ) {
@@ -97,7 +112,7 @@ namespace fCraft {
 
             lock( BanListLock ) {
                 using( StreamWriter writer = File.CreateText( tempFile ) ) {
-                    writer.WriteLine( "{0} {1}", ForamtVersion, Header );
+                    writer.WriteLine( "{0} {1}", FormatVersion, Header );
                     foreach( IPBanInfo entry in Bans.Values ) {
                         writer.WriteLine( entry.Serialize() );
                     }
@@ -249,7 +264,7 @@ namespace fCraft {
         }
 
 
-        public static IPBanInfo Load( string[] fields ) {
+        public static IPBanInfo LoadFormat2( string[] fields ) {
             IPBanInfo info = new IPBanInfo();
             if( fields == null ) throw new ArgumentNullException( "fields" );
             if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
@@ -272,7 +287,30 @@ namespace fCraft {
         }
 
 
-        public static IPBanInfo LoadOldFormat( string[] fields, bool convertDatesToUtc ) {
+        public static IPBanInfo LoadFormat1( string[] fields ) {
+            IPBanInfo info = new IPBanInfo();
+            if( fields == null ) throw new ArgumentNullException( "fields" );
+            if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
+
+            info.Address = IPAddress.Parse( fields[0] );
+            info.BannedBy = PlayerInfo.Unescape( fields[1] );
+            fields[2].ToDateTimeLegacy( ref info.BanDate );
+            if( fields[3].Length > 0 ) {
+                info.BanReason = PlayerInfo.Unescape( fields[3] );
+            }
+            if( fields[4].Length > 0 ) {
+                info.PlayerName = PlayerInfo.Unescape( fields[4] );
+            }
+
+            Int32.TryParse( fields[5], out info.Attempts );
+            info.LastAttemptName = PlayerInfo.Unescape( fields[6] );
+            fields[7].ToDateTimeLegacy( ref info.LastAttemptDate );
+
+            return info;
+        }
+
+
+        public static IPBanInfo LoadFormat0( string[] fields, bool convertDatesToUtc ) {
             IPBanInfo info = new IPBanInfo();
             if( fields == null ) throw new ArgumentNullException( "fields" );
             if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );

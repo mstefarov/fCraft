@@ -20,7 +20,7 @@ namespace fCraft {
             777,
             new DateTime( 2011, 7, 4, 20, 0, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Dev | ReleaseFlags.Unstable
+            ReleaseFlags.Dev
 #if DEBUG
             | ReleaseFlags.Dev
 #endif

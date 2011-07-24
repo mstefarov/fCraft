@@ -128,7 +128,7 @@ namespace fCraft {
 
         #region Loading
 
-        internal static PlayerInfo Load( string[] fields ) {
+        internal static PlayerInfo LoadFormat2( string[] fields ) {
             PlayerInfo info = new PlayerInfo { Name = fields[0] };
 
             if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out info.LastIP ) ) {
@@ -240,7 +240,118 @@ namespace fCraft {
         }
 
 
-        internal static PlayerInfo LoadOldFormat( string[] fields, bool convertDatesToUtc ) {
+        internal static PlayerInfo LoadFormat1( string[] fields ) {
+            PlayerInfo info = new PlayerInfo { Name = fields[0] };
+
+            if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out info.LastIP ) ) {
+                info.LastIP = IPAddress.None;
+            }
+
+            info.Rank = Rank.Parse( fields[2] ) ?? RankManager.DefaultRank;
+            fields[3].ToDateTimeLegacy( ref info.RankChangeDate );
+            info.RankChangedBy = fields[4];
+
+            info.Banned = (fields[5] == "b");
+
+            // ban information
+            if( fields[6].ToDateTimeLegacy( ref info.BanDate ) ) {
+                info.BannedBy = Unescape( fields[7] );
+                info.BanReason = Unescape( fields[10] );
+            }
+
+            // unban information
+            if( fields[8].ToDateTimeLegacy( ref info.UnbanDate ) ) {
+                info.UnbannedBy = Unescape( fields[9] );
+                info.UnbanReason = Unescape( fields[11] );
+            }
+
+            // failed logins
+            fields[12].ToDateTimeLegacy( ref info.LastFailedLoginDate );
+
+            if( fields[13].Length > 1 || !IPAddress.TryParse( fields[13], out info.LastFailedLoginIP ) ) { // LEGACY
+                info.LastFailedLoginIP = IPAddress.None;
+            }
+            if( fields[14].Length > 0 ) info.FailedLoginCount = Int32.Parse( fields[14] );
+            fields[15].ToDateTimeLegacy( ref info.FirstLoginDate );
+
+            // login/logout times
+            fields[16].ToDateTimeLegacy( ref info.LastLoginDate );
+            fields[17].ToTimeSpanLegacy( ref info.TotalTime );
+
+            // stats
+            if( fields[18].Length > 0 ) Int32.TryParse( fields[18], out info.BlocksBuilt );
+            if( fields[19].Length > 0 ) Int32.TryParse( fields[19], out info.BlocksDeleted );
+            Int32.TryParse( fields[20], out info.TimesVisited );
+            if( fields[20].Length > 0 ) Int32.TryParse( fields[21], out info.MessagesWritten );
+            // fields 22-23 are no longer in use
+
+            if( fields[24].Length > 0 ) info.PreviousRank = Rank.Parse( fields[24] );
+            if( fields[25].Length > 0 ) info.RankChangeReason = Unescape( fields[25] );
+            Int32.TryParse( fields[26], out info.TimesKicked );
+            Int32.TryParse( fields[27], out info.TimesKickedOthers );
+            Int32.TryParse( fields[28], out info.TimesBannedOthers );
+
+            info.ID = Int32.Parse( fields[29] );
+            if( info.ID < 256 )
+                info.ID = PlayerDB.GetNextID();
+
+            int rankChangeTypeCode;
+            if( Int32.TryParse( fields[30], out rankChangeTypeCode ) ) {
+                info.RankChangeType = (RankChangeType)rankChangeTypeCode;
+                if( !Enum.IsDefined( typeof( RankChangeType ), rankChangeTypeCode ) ) {
+                    info.GuessRankChangeType();
+                }
+            } else {
+                info.GuessRankChangeType();
+            }
+
+            fields[31].ToDateTimeLegacy( ref info.LastKickDate );
+            if( !fields[32].ToDateTimeLegacy( ref info.LastSeen ) || info.LastSeen < info.LastLoginDate ) {
+                info.LastSeen = info.LastLoginDate;
+            }
+            Int64.TryParse( fields[33], out info.BlocksDrawn );
+
+            info.LastKickBy = Unescape( fields[34] );
+            info.LastKickReason = Unescape( fields[35] );
+
+            fields[36].ToDateTimeLegacy( ref info.BannedUntil );
+            info.IsFrozen = (fields[37] == "f");
+            info.FrozenBy = Unescape( fields[38] );
+            fields[39].ToDateTimeLegacy( ref info.FrozenOn );
+            fields[40].ToDateTimeLegacy( ref info.MutedUntil );
+            info.MutedBy = Unescape( fields[41] );
+            info.Password = Unescape( fields[42] );
+            // fields[43] is "online", and is ignored
+
+            int bandwidthUseModeCode;
+            if( Int32.TryParse( fields[44], out bandwidthUseModeCode ) ) {
+                info.BandwidthUseMode = (BandwidthUseMode)bandwidthUseModeCode;
+                if( !Enum.IsDefined( typeof( BandwidthUseMode ), bandwidthUseModeCode ) ) {
+                    info.BandwidthUseMode = BandwidthUseMode.Default;
+                }
+            } else {
+                info.BandwidthUseMode = BandwidthUseMode.Default;
+            }
+
+            if( fields.Length > 45 ) {
+                if( fields[45].Length == 0 ) {
+                    info.IsHidden = false;
+                } else {
+                    info.IsHidden = info.Rank.Can( Permission.Hide );
+                }
+            }
+
+            if( info.LastSeen < info.FirstLoginDate ) {
+                info.LastSeen = info.FirstLoginDate;
+            }
+            if( info.LastLoginDate < info.FirstLoginDate ) {
+                info.LastLoginDate = info.FirstLoginDate;
+            }
+
+            return info;
+        }
+
+        internal static PlayerInfo LoadFormat0( string[] fields, bool convertDatesToUtc ) {
             PlayerInfo info = new PlayerInfo { Name = fields[0] };
 
             if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out info.LastIP ) ) {

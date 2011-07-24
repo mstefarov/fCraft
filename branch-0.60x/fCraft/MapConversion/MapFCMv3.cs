@@ -161,8 +161,8 @@ namespace fCraft.MapConversion {
 
 
             // read modification/creation times
-            map.DateModified = reader.ReadUInt32().ToDateTime();
-            map.DateCreated = reader.ReadUInt32().ToDateTime();
+            map.DateModified = DateTimeUtil.ToDateTimeLegacy( reader.ReadUInt32() );
+            map.DateCreated = DateTimeUtil.ToDateTimeLegacy( reader.ReadUInt32() );
 
             // read UUID
             map.Guid = new Guid( reader.ReadBytes( 16 ) );
@@ -189,8 +189,8 @@ namespace fCraft.MapConversion {
                 writer.Write( mapToSave.Spawn.L );
 
                 mapToSave.DateModified = DateTime.UtcNow;
-                writer.Write( (uint)mapToSave.DateModified.ToUnixTime() );
-                writer.Write( (uint)mapToSave.DateCreated.ToUnixTime() );
+                writer.Write( (uint)mapToSave.DateModified.ToUnixTimeLegacy() );
+                writer.Write( (uint)mapToSave.DateCreated.ToUnixTimeLegacy() );
 
                 writer.Write( mapToSave.Guid.ToByteArray() );
 

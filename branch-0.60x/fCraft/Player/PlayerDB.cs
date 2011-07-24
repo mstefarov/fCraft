@@ -21,16 +21,16 @@ namespace fCraft {
 
         static int maxID = 255;
 
-        public const int FormatVersion = 1;
+        public const int FormatVersion = 2;
 
         const string Header = "fCraft PlayerDB | Row format: " +
-                              "Name,IPAddress,Rank,RankChangeDate,RankChangedBy,Banned,BanDate,BannedBy,"+
-                              "UnbanDate,UnbannedBy,BanReason,UnbanReason,LastFailedLoginDate,"+
-                              "LastFailedLoginIP,FailedLoginCount,FirstLoginDate,LastLoginDate,TotalTime,"+
-                              "BlocksBuilt,BlocksDeleted,TimesVisited,LinesWritten,UNUSED,UNUSED,"+
-                              "PreviousRank,RankChangeReason,TimesKicked,TimesKickedOthers,"+
-                              "TimesBannedOthers,ID,RankChangeType,LastKickDate,LastSeen,BlocksDrawn,"+
-                              "LastKickBy,LastKickReason,IsFrozen,FrozenBy,FrozenOn, MutedUntil,MutedBy,"+
+                              "Name,IPAddress,Rank,RankChangeDate,RankChangedBy,Banned,BanDate,BannedBy," +
+                              "UnbanDate,UnbannedBy,BanReason,UnbanReason,LastFailedLoginDate," +
+                              "LastFailedLoginIP,FailedLoginCount,FirstLoginDate,LastLoginDate,TotalTime," +
+                              "BlocksBuilt,BlocksDeleted,TimesVisited,LinesWritten,UNUSED,UNUSED," +
+                              "PreviousRank,RankChangeReason,TimesKicked,TimesKickedOthers," +
+                              "TimesBannedOthers,ID,RankChangeType,LastKickDate,LastSeen,BlocksDrawn," +
+                              "LastKickBy,LastKickReason,IsFrozen,FrozenBy,FrozenOn, MutedUntil,MutedBy," +
                               "Password,Online,BandwidthUseMode";
 
 
@@ -81,6 +81,13 @@ namespace fCraft {
 
                         lock( AddLocker ) {
                             int version = IdentifyFormatVersion( header );
+                            if( version > FormatVersion ) {
+                                Logger.Log( "PlayerDB.Load: Attempting to load unsupported PlayerDB format ({0}). Errors may occur.", LogType.Warning,
+                                            version );
+                            } else if( version < FormatVersion ) {
+                                Logger.Log( "PlayerDB.Load: Converting PlayerDB to a newer format (version {0} to {1}).", LogType.Warning,
+                                            version, FormatVersion );
+                            }
 
                             while( true ) {
                                 string line = reader.ReadLine();
@@ -91,11 +98,20 @@ namespace fCraft {
                                     try {
 #endif
                                         PlayerInfo info;
-                                        if( version == 0 ) {
-                                            info = PlayerInfo.LoadOldFormat( fields, true );
-                                        } else {
-                                            info = PlayerInfo.Load( fields );
+                                        switch( version ) {
+                                            case 0:
+                                                info = PlayerInfo.LoadFormat0( fields, true );
+                                                break;
+                                            case 1:
+                                                info = PlayerInfo.LoadFormat1( fields );
+                                                break;
+                                            case 2:
+                                                info = PlayerInfo.LoadFormat2( fields );
+                                                break;
+                                            default:
+                                                return;
                                         }
+
                                         if( Trie.ContainsKey( info.Name ) ) {
                                             Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.",
                                                         LogType.Error, info.Name );
