@@ -20,13 +20,23 @@ namespace fCraft {
 
     static class DateTimeUtil {
         public static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1, 0, 0, 0, DateTimeKind.Utc );
-        public const long TicksPerSecond = 10000;
+        public static readonly long TicksToUnixEpoch;
+        const long TicksPerMillisecond = 10000;
+
+        static DateTimeUtil() {
+            TicksToUnixEpoch = UnixEpoch.Ticks;
+        }
+
 
         #region To Unix Time
 
         /// <summary> Converts a DateTime to Utc Unix Timestamp. </summary>
         public static long ToUnixTime( this DateTime date ) {
             return (long)date.Subtract( UnixEpoch ).TotalSeconds;
+        }
+
+        public static long ToUnixTimeLegacy( this DateTime date ) {
+            return (date.Ticks - TicksToUnixEpoch) / TicksPerMillisecond;
         }
 
 
@@ -61,17 +71,26 @@ namespace fCraft {
         }
 
 
-        /// <summary> Creates a DateTime from a Utc Unix Timestamp. </summary>
-        public static DateTime ToDateTime( this uint timestamp ) {
-            return UnixEpoch.AddSeconds( timestamp );
-        }
-
-
         /// <summary> Tries to create a DateTime from a string containing a Utc Unix Timestamp.
         /// If the string was empty, returns false and does not affect result. </summary>
         public static bool ToDateTime( this string str, ref DateTime result ) {
             if( str.Length > 1 ) {
                 result = UnixEpoch.AddSeconds( Int64.Parse( str ) );
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+
+        public static DateTime ToDateTimeLegacy( long timestamp ) {
+            return new DateTime( timestamp * TicksPerMillisecond + TicksToUnixEpoch, DateTimeKind.Utc );
+        }
+
+
+        public static bool ToDateTimeLegacy( this string str, ref DateTime result ) {
+            if( str.Length > 1 ) {
+                result = ToDateTimeLegacy( Int64.Parse( str ) );
                 return true;
             } else {
                 return false;
@@ -87,7 +106,7 @@ namespace fCraft {
             if( time == TimeSpan.Zero ) {
                 return "";
             } else {
-                return (time.Ticks / TicksPerSecond).ToString();
+                return (time.Ticks / TimeSpan.TicksPerSecond).ToString();
             }
         }
 
@@ -96,7 +115,17 @@ namespace fCraft {
         /// If the string was empty, returns false and does not affect result. </summary>
         public static bool ToTimeSpan( this string str, ref TimeSpan result ) {
             if( str.Length > 1 ) {
-                result = new TimeSpan( Int64.Parse( str ) * TicksPerSecond );
+                result = new TimeSpan( Int64.Parse( str ) * TimeSpan.TicksPerSecond );
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+
+        public static bool ToTimeSpanLegacy( this string str, ref TimeSpan result ) {
+            if( str.Length > 1 ) {
+                result = new TimeSpan( Int64.Parse( str ) * TicksPerMillisecond );
                 return true;
             } else {
                 return false;
@@ -108,7 +137,7 @@ namespace fCraft {
 
         public static StringBuilder ToTickString( this TimeSpan time, StringBuilder sb ) {
             if( time != TimeSpan.Zero ) {
-                sb.Append( time.Ticks / TicksPerSecond );
+                sb.Append( time.Ticks / TimeSpan.TicksPerSecond );
             }
             return sb;
         }
