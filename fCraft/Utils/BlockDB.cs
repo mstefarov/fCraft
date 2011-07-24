@@ -8,7 +8,7 @@ using fCraft.Events;
 namespace fCraft {
     [StructLayout( LayoutKind.Sequential, Pack = 1 )]
     struct BlockDBEntry {
-        public BlockDBEntry(int timestamp, int playerID, short x, short y, short z, byte oldBlock, byte newBlock){
+        public BlockDBEntry( int timestamp, int playerID, short x, short y, short z, Block oldBlock, Block newBlock ) {
             Timestamp=timestamp;
             PlayerID = playerID;
             X=x;
@@ -19,11 +19,12 @@ namespace fCraft {
         }
         public readonly int Timestamp, PlayerID;
         public readonly short X, Y, Z;
-        public readonly byte OldBlock, NewBlock;
+        public readonly Block OldBlock, NewBlock;
     }
 
 
     class BlockDB {
+        public const int BlockDBEntrySize = 16;
         public static bool IsEnabled { get; private set; }
         static readonly TimeSpan FlushInterval = TimeSpan.FromSeconds( 90 );
 
@@ -41,8 +42,8 @@ namespace fCraft {
                 BlockDBEntry newEntry = new BlockDBEntry( (int)DateTime.UtcNow.ToUnixTime(),
                                                           e.Player.Info.ID,
                                                           e.X, e.Y, e.Z,
-                                                          (byte)e.OldBlock,
-                                                          (byte)e.NewBlock );
+                                                          e.OldBlock,
+                                                          e.NewBlock );
                 world.AddBlockDBEntry(newEntry);
             }
         }

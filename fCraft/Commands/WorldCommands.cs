@@ -37,6 +37,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdUnlockAll );
 
             CommandManager.RegisterCommand( CdBlockDB );
+            CommandManager.RegisterCommand( CdBlockInfo );
         }
 
 
@@ -1632,6 +1633,78 @@ namespace fCraft {
             }
 
             world.IsBlockTracked = !world.IsBlockTracked;
+        }
+
+
+        static readonly CommandDescriptor CdBlockInfo = new CommandDescriptor {
+            Name = "binfo",
+            Category = CommandCategory.World,
+            Aliases = new[] { "bi", "whodid" },
+            IsConsoleSafe = true,
+            IsHidden = true,
+            Permissions = new[] { Permission.ManageWorlds },
+            Usage = "/blockdb WorldName",
+            Help = "Enables or disabled BlockDB on a given world.",
+            Handler = BlockInfo
+        };
+
+        static void BlockInfo( Player player, Command cmd ) {
+            if( !BlockDB.IsEnabled ) {
+                player.Message( "&WBlockDB is disabled on this server." );
+                return;
+            }
+
+            World world = player.World;
+            if( !world.IsBlockTracked ) {
+                player.Message( "&WBlockDB is disabled on this world." );
+                return;
+            }
+
+            player.SelectionStart( 1, BlockInfoSelectionCallback, null, CdBlockInfo.Permissions );
+        }
+
+        static void BlockInfoSelectionCallback( Player player, Position[] marks, object tag ) {
+            var args = new BlockInfoLookupArgs {
+                Player = player,
+                World = player.World,
+                X = marks[0].X,
+                Y = marks[0].Y,
+                Z = marks[0].Z
+            };
+
+            player.Message( "Looking up block information..." );
+            Scheduler.NewBackgroundTask( BlockInfoSchedulerCallback, args ).RunOnce();
+        }
+
+        struct BlockInfoLookupArgs {
+            public Player Player;
+            public World World;
+            public short X, Y, Z;
+        }
+
+        static void BlockInfoSchedulerCallback( SchedulerTask task ) {
+            BlockInfoLookupArgs args = (BlockInfoLookupArgs)task.UserState;
+            if( !args.World.IsBlockTracked ) {
+                args.Player.Message( "&WBlockDB is disabled on this world." );
+                return;
+            }
+            BlockDBEntry[] results = args.World.LookupBlockInfo( args.X, args.Y, args.Z );
+            if( results.Length > 0 ) {
+                foreach( BlockDBEntry entry in results ) {
+                    string date = DateTime.UtcNow.Subtract( DateTimeUtil.ToDateTime( entry.Timestamp ) ).ToMiniString();
+                    PlayerInfo info = PlayerDB.PlayerInfoList.FirstOrDefault( p => p.ID == entry.PlayerID );
+                    string playerName = (info == null ? "?" : info.ClassyName);
+                    if( entry.OldBlock == (byte)Block.Air ) {
+                        args.Player.Message( "{0} ago: {1}&S placed {2}.", date, playerName, entry.NewBlock );
+                    } else if( entry.NewBlock == (byte)Block.Air ) {
+                        args.Player.Message( "{0} ago: {1}&S deleted {2}.", date, playerName, entry.OldBlock );
+                    } else {
+                        args.Player.Message( "{0} ago: {1}&S replaced {2} with {3}.", date, playerName, entry.OldBlock, entry.NewBlock );
+                    }
+                }
+            } else {
+                args.Player.Message( "No BlockDB results found." );
+            }
         }
     }
 }

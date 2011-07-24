@@ -62,7 +62,7 @@ namespace fCraft {
 
         /// <summary> Creates a DateTime from a Utc Unix Timestamp. </summary>
         public static DateTime ToDateTime( this long timestamp ) {
-            return new DateTime(timestamp * TicksPerSecond + TicksToUnixEpoch, DateTimeKind.Utc);
+            return new DateTime( timestamp * TicksPerSecond + TicksToUnixEpoch, DateTimeKind.Utc );
         }
 
 
