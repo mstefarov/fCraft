@@ -112,6 +112,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdCuboidX );
             CommandManager.RegisterCommand( CdCuboidWireframeX );
             CommandManager.RegisterCommand( CdCuboidHollowX );
+            CommandManager.RegisterCommand( CdEllipsoidX );
         }
 
 
@@ -188,6 +189,20 @@ namespace fCraft {
             DrawOperationBegin( player, cmd, new CuboidHollowDrawOperation( player ) );
         }
 
+
+
+        static readonly CommandDescriptor CdEllipsoidX = new CommandDescriptor {
+            Name = "ex",
+            Category = CommandCategory.Building,
+            IsHidden = true,
+            Permissions = new[] { Permission.Draw },
+            Help = "New and improved ellipsoid, with brush support and low overhead. Work in progress, may be crashy.",
+            Handler = EllipsoidX
+        };
+
+        static void EllipsoidX( Player player, Command cmd ) {
+            DrawOperationBegin( player, cmd, new EllipsoidDrawOperation( player ) );
+        }
 
 
         static void DrawOperationBegin( Player player, Command cmd, DrawOperation op ) {
