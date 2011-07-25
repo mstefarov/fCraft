@@ -122,7 +122,7 @@ namespace fCraft {
             Name = "brush",
             Category = CommandCategory.Building,
             IsHidden = true,
-            Permissions = new[] { Permission.Draw },
+            Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
             Help = "Gets or sets the current brush.",
             Handler = SetBrush
         };
@@ -150,7 +150,7 @@ namespace fCraft {
             Name = "cx",
             Category = CommandCategory.Building,
             IsHidden = true,
-            Permissions = new[] { Permission.Draw },
+            Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
             Help = "New and improved cuboid, with brush support and low overhead. Work in progress, may be crashy.",
             Handler = CuboidX
         };
@@ -165,7 +165,7 @@ namespace fCraft {
             Name = "cwx",
             Category = CommandCategory.Building,
             IsHidden = true,
-            Permissions = new[] { Permission.Draw },
+            Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
             Help = "New and improved wireframe cuboid, with brush support and low overhead. Work in progress, may be crashy.",
             Handler = CuboidWireframeX
         };
@@ -180,7 +180,7 @@ namespace fCraft {
             Name = "chx",
             Category = CommandCategory.Building,
             IsHidden = true,
-            Permissions = new[] { Permission.Draw },
+            Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
             Help = "New and improved hollow cuboid, with brush support and low overhead. Work in progress, may be crashy.",
             Handler = CuboidHollowX
         };
@@ -195,7 +195,7 @@ namespace fCraft {
             Name = "ex",
             Category = CommandCategory.Building,
             IsHidden = true,
-            Permissions = new[] { Permission.Draw },
+            Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
             Help = "New and improved ellipsoid, with brush support and low overhead. Work in progress, may be crashy.",
             Handler = EllipsoidX
         };
