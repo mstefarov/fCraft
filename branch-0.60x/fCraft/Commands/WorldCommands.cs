@@ -1623,6 +1623,11 @@ namespace fCraft {
             }
 
             string worldName = cmd.Next();
+            if( worldName == null ) {
+                CdBlockDB.PrintUsage( player );
+                return;
+            }
+
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
             if( world == null ) return;
 
