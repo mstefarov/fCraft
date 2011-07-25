@@ -1610,7 +1610,7 @@ namespace fCraft {
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             IsHidden = true,
-            Permissions = new[] { Permission.ManageWorlds },
+            Permissions = new[] { Permission.ManageWorlds, Permission.EditPlayerDB },
             Usage = "/blockdb WorldName",
             Help = "Enables or disabled BlockDB on a given world.",
             Handler = SetBlockDB
@@ -1652,7 +1652,7 @@ namespace fCraft {
             Aliases = new[] { "bi", "whodid" },
             IsConsoleSafe = true,
             IsHidden = true,
-            Permissions = new[] { Permission.ManageWorlds },
+            Permissions = new[] { Permission.ViewOthersInfo },
             Usage = "/blockdb WorldName",
             Help = "Enables or disabled BlockDB on a given world.",
             Handler = BlockInfo
