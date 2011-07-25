@@ -90,6 +90,8 @@ namespace fCraft {
         /// and zone-specific building permissions. </summary>
         Draw,
 
+        DrawAdvanced,
+
         /// <summary> Ability to copy (or cut) and paste blocks. The total number of
         /// blocks that can be copied or pasted at a time is affected by
         /// the draw limit. </summary>
