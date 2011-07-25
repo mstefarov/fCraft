@@ -413,15 +413,29 @@ namespace fCraft {
                     UpdateWorldList();
 
                     if( moveMapFile ) {
-                        string oldFullFileName = Path.Combine( Paths.MapPath, oldName + ".fcm" );
-                        string newFileName = newName + ".fcm";
-                        if( File.Exists( oldFullFileName ) ) {
+                        string oldMapFile = Path.Combine( Paths.MapPath, oldName + ".fcm" );
+                        string newMapFile = newName + ".fcm";
+                        if( File.Exists( oldMapFile ) ) {
                             try {
-                                Paths.ForceRename( oldFullFileName, newFileName );
+                                Paths.ForceRename( oldMapFile, newMapFile );
                             } catch( Exception ex ) {
                                 throw new WorldOpException( world.Name,
                                                             WorldOpExceptionCode.MapMoveError,
                                                             ex );
+                            }
+                        }
+
+                        lock( world.blockDBLock ) {
+                            string oldBlockDBFile = Path.Combine( Paths.BlockDBPath, oldName + ".fbdb" );
+                            string newBockDBFile = newName + ".fbdb";
+                            if( File.Exists( oldBlockDBFile ) ) {
+                                try {
+                                    Paths.ForceRename( oldBlockDBFile, newBockDBFile );
+                                } catch( Exception ex ) {
+                                    throw new WorldOpException( world.Name,
+                                                                WorldOpExceptionCode.MapMoveError,
+                                                                ex );
+                                }
                             }
                         }
                     }
@@ -480,6 +494,14 @@ namespace fCraft {
                 worldToDelete.Players.Message( "&SYou have been moved to the main world." );
                 foreach( Player player in worldPlayerList ) {
                     player.JoinWorld( MainWorld );
+                }
+
+                try {
+                    if( File.Exists( worldToDelete.BlockDBFile ) ) {
+                        File.Delete( worldToDelete.BlockDBFile );
+                    }
+                } catch( Exception ex ) {
+                    Logger.Log( "WorldManager.RemoveWorld: Could not delete BlockDB file: {0}", LogType.Error, ex );
                 }
 
                 Worlds.Remove( worldToDelete.Name.ToLower() );

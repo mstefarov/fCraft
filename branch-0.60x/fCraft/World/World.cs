@@ -144,6 +144,9 @@ namespace fCraft {
                 foreach( Player player in Players ) {
                     player.JoinWorld( newWorld );
                 }
+                lock( blockDBLock ) {
+                    File.Delete( BlockDBFile );
+                }
             }
         }
 
@@ -571,7 +574,7 @@ namespace fCraft {
         #region Block Tracking
 
         public bool IsBlockTracked { get; set; }
-        object blockDBLock = new object();
+        internal readonly object blockDBLock = new object();
         List<BlockDBEntry> pendingEntries = new List<BlockDBEntry>();
 
         internal void AddBlockDBEntry( BlockDBEntry newEntry ) {
