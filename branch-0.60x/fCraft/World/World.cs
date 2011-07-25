@@ -204,11 +204,16 @@ namespace fCraft {
         public Map AcceptPlayer( Player player, bool announce ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
-            lock( WorldLock ) {
-
-                if( IsFull ) {
-                    return null;
+            if( IsFull && player.Info.Rank.ReservedSlot ) {
+                Player idlestPlayer = Players.OrderBy( p => p.LastActiveTime ).FirstOrDefault();
+                if( idlestPlayer != null ) {
+                    idlestPlayer.Kick( "Auto-kicked to make room (idle).", LeaveReason.IdleKick );
+                    idlestPlayer.WaitForDisconnect();
                 }
+            }
+
+            lock( WorldLock ) {
+                if( IsFull ) return null;
 
                 if( playerIndex.ContainsKey( player.Name.ToLower() ) ) {
                     Logger.Log( "This world already contains the player by name ({0}). " +

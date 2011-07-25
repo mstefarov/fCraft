@@ -300,7 +300,7 @@ namespace fCraft {
                 return;
             }
 
-            if( world.Map == null || world.Map.UpdateQueueLength == 0 ) {
+            if( world.Map == null ) {
                 player.MessageNow( "WFlush: {0}&S has no updates to process.",
                                    world.ClassyName );
             } else {

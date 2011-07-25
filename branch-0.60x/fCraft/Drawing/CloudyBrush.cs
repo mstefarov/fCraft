@@ -35,15 +35,15 @@ namespace fCraft.Drawing {
     public sealed class CloudyBrush : IBrushInstance, IBrush {
         public Block Block1 { get; private set; }
         public Block Block2 { get; private set; }
-        Noise noise;
         public int Seed { get; private set; }
+        public float Coverage { get; private set; }
 
 
         public CloudyBrush( Block block1, Block block2, int seed ) {
             Block1 = block1;
             Block2 = block2;
             Seed = seed;
-            noise = new Noise( seed, NoiseInterpolationMode.Cosine );
+            Coverage=.5f;
         }
 
 
@@ -52,7 +52,7 @@ namespace fCraft.Drawing {
             Block1 = other.Block1;
             Block2 = other.Block2;
             Seed = other.Seed;
-            noise = other.noise;
+            Coverage = other.Coverage;
         }
 
 
@@ -118,16 +118,31 @@ namespace fCraft.Drawing {
         public unsafe bool Begin( Player player, DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( state == null ) throw new ArgumentNullException( "state" );
+            PerlinNoise3D noise3D = new PerlinNoise3D( new Random( Seed ) ) {
+                Amplitude = 1,
+                Frequency = 0.08f,
+                Octaves = 3,
+                Persistence = .8f
+            };
+
             float[, ,] rawData = new float[state.Bounds.Width, state.Bounds.Length, state.Bounds.Height];
-            data = new Block[state.Bounds.Width, state.Bounds.Length, state.Bounds.Height];
-            int maxPow = (int)Math.Log(Math.Max(state.Bounds.Width,Math.Max(state.Bounds.Height,state.Bounds.Length)),2);
-            noise.PerlinNoise( rawData, 2, maxPow, .5f, state.Marks[0].X, state.Marks[0].Y, state.Marks[0].Z );
+            for( int x = 0; x < state.Bounds.Width; x++ ) {
+                for( int y = 0; y < state.Bounds.Length; y++ ) {
+                    for( int z = 0; z < state.Bounds.Height; z++ ) {
+                        rawData[x, y, z] = noise3D.Compute( x, y, z );
+                    }
+                }
+            }
+
             Noise.Normalize( rawData );
-            int length = rawData.GetLength( 0 ) * rawData.GetLength( 1 ) * rawData.GetLength( 2 );
+            float threshold = Noise.FindThreshold( rawData, Coverage );
+            player.Message( "Threshold {0}", threshold );
+            data = new Block[state.Bounds.Width, state.Bounds.Length, state.Bounds.Height];
+
             fixed( float* rawPtr = rawData ) {
                 fixed( Block* ptr = data ) {
-                    for( int i = 0; i < length; i++ ) {
-                        if( rawPtr[i] < .5 ) ptr[i] = Block1;
+                    for( int i = 0; i < rawData.Length; i++ ) {
+                        if( rawPtr[i] < threshold ) ptr[i] = Block1;
                         else ptr[i] = Block2;
                     }
                 }
