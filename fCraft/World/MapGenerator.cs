@@ -207,33 +207,6 @@ namespace fCraft {
             Noise.ApplyBias( heightmap, corners[0], corners[1], corners[2], corners[3], midpoint );
         }
 
-
-        // assumes normalzied heightmap
-        public static float MatchWaterCoverage( float[,] heightmap, float desiredWaterCoverage ) {
-            if( desiredWaterCoverage == 0 ) return 0;
-            if( desiredWaterCoverage == 1 ) return 1;
-            float waterLevel = 0.5f;
-            for( int i = 0; i < WaterCoveragePasses; i++ ) {
-                if( CalculateWaterCoverage( heightmap, waterLevel ) > desiredWaterCoverage ) {
-                    waterLevel = waterLevel - 1 / (float)(4 << i);
-                } else {
-                    waterLevel = waterLevel + 1 / (float)(4 << i);
-                }
-            }
-            return waterLevel;
-        }
-
-
-        public static float CalculateWaterCoverage( float[,] heightmap, float waterLevel ) {
-            int underwaterBlocks = 0;
-            for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    if( heightmap[x, y] < waterLevel ) underwaterBlocks++;
-                }
-            }
-            return underwaterBlocks / (float)heightmap.Length;
-        }
-
         #endregion
 
 
@@ -247,7 +220,7 @@ namespace fCraft {
             float desiredWaterLevel = .5f;
             if( args.MatchWaterCoverage ) {
                 ReportProgress( 2, "Heightmap Processing: Matching water coverage" );
-                desiredWaterLevel = MatchWaterCoverage( heightmap, args.WaterCoverage );
+                desiredWaterLevel = Noise.FindThreshold( heightmap, args.WaterCoverage );
             }
 
 

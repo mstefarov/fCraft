@@ -330,12 +330,13 @@ namespace fCraft {
             }
 
             int packetsSent = 0;
+            bool canFlush = false;
             int maxPacketsPerUpdate = Server.CalculateMaxPacketsPerUpdate( World );
             BlockUpdate update = new BlockUpdate();
             while( packetsSent < maxPacketsPerUpdate ) {
                 if( !updates.Dequeue( ref update ) ) {
                     if( World.IsFlushing ) {
-                        World.EndFlushMapBuffer();
+                        canFlush = true;
                     }
                     break;
                 }
@@ -354,9 +355,11 @@ namespace fCraft {
             if( drawOps.Count > 0 ) {
                 lock( drawOpLock ) {
                     if( drawOps.Count > 0 ) {
-                        ProcessDrawOps( maxPacketsPerUpdate - packetsSent );
+                        packetsSent += ProcessDrawOps( maxPacketsPerUpdate - packetsSent );
                     }
                 }
+            } else if( canFlush ) {
+                World.EndFlushMapBuffer();
             }
 
             if( packetsSent == 0 && World.IsPendingMapUnload ) {
@@ -369,6 +372,10 @@ namespace fCraft {
 
         #region Draw Operations
 
+        public int DrawQueueLength {
+            get { return drawOps.Count; }
+        }
+
         readonly List<DrawOperation> drawOps = new List<DrawOperation>();
         readonly object drawOpLock = new object();
 
@@ -379,11 +386,13 @@ namespace fCraft {
             }
         }
 
-        void ProcessDrawOps( int maxTotalUpdates ) {
+        int ProcessDrawOps( int maxTotalUpdates ) {
+            int blocksDrawnTotal = 0;
             for( int i = 0; i < drawOps.Count; i++ ) {
                 int blocksToDraw = maxTotalUpdates / (drawOps.Count - i);
                 DrawOperation op = drawOps[i];
                 int blocksDrawn = op.DrawBatch( blocksToDraw );
+                blocksDrawnTotal += blocksDrawn;
                 if( blocksDrawn > 0 ) {
                     HasChangedSinceSave = true;
                 }
@@ -398,6 +407,7 @@ namespace fCraft {
                     i--;
                 }
             }
+            return blocksDrawnTotal;
         }
 
         #endregion

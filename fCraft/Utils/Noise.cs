@@ -317,18 +317,16 @@ namespace fCraft {
 
         // assumes normalized input
         public unsafe static void Marble( float[,] map ) {
-            int length = map.GetLength( 0 ) * map.GetLength( 1 );
             fixed( float* ptr = map ) {
-                for( int i = 0; i < length; i++ ) {
+                for( int i = 0; i < map.Length; i++ ) {
                     ptr[i] = Math.Abs( ptr[i] * 2 - 1 );
                 }
             }
         }
 
         public unsafe static void Marble( float[,,] map ) {
-            int length = map.GetLength( 0 ) * map.GetLength( 1 ) * map.GetLength( 2 );
             fixed( float* ptr = map ) {
-                for( int i = 0; i < length; i++ ) {
+                for( int i = 0; i < map.Length; i++ ) {
                     ptr[i] = Math.Abs( ptr[i] * 2 - 1 );
                 }
             }
@@ -337,56 +335,59 @@ namespace fCraft {
 
         // assumes normalized input
         public unsafe static void Blend( float[,] map1, float[,] map2, float[,] blendMap ) {
-            int length = map1.GetLength( 0 ) * map1.GetLength( 1 );
             fixed( float* ptr1 = map1, ptr2 = map2, ptrBlend = blendMap ) {
-                for( int i = 0; i < length; i++ ) {
+                for( int i = 0; i < map1.Length; i++ ) {
                     ptr1[i] += ptr1[i] * ptrBlend[i] + ptr2[i] * (1 - ptrBlend[i]);
                 }
             }
         }
 
 
-        public unsafe static void Add( float[,] map1, float[,] map2 ) {
-            int length = map1.GetLength( 0 ) * map1.GetLength( 1 );
-            fixed( float* ptr1 = map1, ptr2 = map2 ) {
-                for( int i = 0; i < length; i++ ) {
+        public unsafe static void Add( float[,] data1, float[,] data2 ) {
+            if( data1 == null ) throw new ArgumentNullException( "data1" );
+            if( data2 == null ) throw new ArgumentNullException( "data2" );
+            if( data1.GetLength( 0 ) != data2.GetLength( 0 ) ||
+                data1.GetLength( 1 ) != data2.GetLength( 1 ) ) {
+                throw new ArgumentException( "data1 and data2 dimension mismatch" );
+            }
+            fixed( float* ptr1 = data1, ptr2 = data2 ) {
+                for( int i = 0; i < data1.Length; i++ ) {
                     ptr1[i] += ptr2[i];
                 }
             }
         }
 
 
-        public static void ApplyBias( float[,] heightmap, float c00, float c01, float c10, float c11, float midpoint ) {
-            float maxX = 2f / heightmap.GetLength( 0 );
-            float maxY = 2f / heightmap.GetLength( 1 );
-            int offsetX = heightmap.GetLength( 0 ) / 2;
-            int offsetY = heightmap.GetLength( 1 ) / 2;
+        public static void ApplyBias( float[,] data, float c00, float c01, float c10, float c11, float midpoint ) {
+            float maxX = 2f / data.GetLength( 0 );
+            float maxY = 2f / data.GetLength( 1 );
+            int offsetX = data.GetLength( 0 ) / 2;
+            int offsetY = data.GetLength( 1 ) / 2;
 
             for( int x = offsetX - 1; x >= 0; x-- ) {
                 for( int y = offsetY - 1; y >= 0; y-- ) {
-                    heightmap[x, y] += InterpolateCosine( c00, (c00 + c01) / 2, (c00 + c10) / 2, midpoint, x * maxX, y * maxY );
-                    heightmap[x + offsetX, y] += InterpolateCosine( (c00 + c10) / 2, midpoint, c10, (c11 + c10) / 2, x * maxX, y * maxY );
-                    heightmap[x, y + offsetY] += InterpolateCosine( (c00 + c01) / 2, c01, midpoint, (c01 + c11) / 2, x * maxX, y * maxY );
-                    heightmap[x + offsetX, y + offsetY] += InterpolateCosine( midpoint, (c01 + c11) / 2, (c11 + c10) / 2, c11, x * maxX, y * maxY );
+                    data[x, y] += InterpolateCosine( c00, (c00 + c01) / 2, (c00 + c10) / 2, midpoint, x * maxX, y * maxY );
+                    data[x + offsetX, y] += InterpolateCosine( (c00 + c10) / 2, midpoint, c10, (c11 + c10) / 2, x * maxX, y * maxY );
+                    data[x, y + offsetY] += InterpolateCosine( (c00 + c01) / 2, c01, midpoint, (c01 + c11) / 2, x * maxX, y * maxY );
+                    data[x + offsetX, y + offsetY] += InterpolateCosine( midpoint, (c01 + c11) / 2, (c11 + c10) / 2, c11, x * maxX, y * maxY );
                 }
             }
         }
 
 
         // assumes normalized input
-        public unsafe static void ScaleAndClip( float[,] heightmap, float steepness ) {
-            int length = heightmap.GetLength( 0 ) * heightmap.GetLength( 1 );
-            fixed( float* ptr = heightmap ) {
-                for( int i = 0; i < length; i++ ) {
+        public unsafe static void ScaleAndClip( float[,] data, float steepness ) {
+            fixed( float* ptr = data ) {
+                for( int i = 0; i < data.Length; i++ ) {
                     ptr[i] = Math.Min( 1, Math.Max( 0, ptr[i] * steepness * 2 - steepness ) );
                 }
             }
         }
 
-        public unsafe static void Invert( float[,] heightmap ) {
-            int length = heightmap.GetLength( 0 ) * heightmap.GetLength( 1 );
-            fixed( float* ptr = heightmap ) {
-                for( int i = 0; i < length; i++ ) {
+
+        public unsafe static void Invert( float[,] data ) {
+            fixed( float* ptr = data ) {
+                for( int i = 0; i < data.Length; i++ ) {
                     ptr[i] = 1 - ptr[i];
                 }
             }
@@ -452,6 +453,63 @@ namespace fCraft {
             }
 
             return output;
+        }
+
+
+
+        const int ThresholdSearchPasses = 10;
+
+        public static float FindThreshold( float[,] data, float desiredCoverage ) {
+            if( desiredCoverage == 0 ) return 0;
+            if( desiredCoverage == 1 ) return 1;
+            float threshold = 0.5f;
+            for( int i = 0; i < ThresholdSearchPasses; i++ ) {
+                if( CalculateCoverage( data, threshold ) > desiredCoverage ) {
+                    threshold = threshold - 1 / (float)(4 << i);
+                } else {
+                    threshold = threshold + 1 / (float)(4 << i);
+                }
+            }
+            return threshold;
+        }
+
+
+        public static float CalculateCoverage( float[,] data, float threshold ) {
+            int coveredPixels = 0;
+            for( int x = data.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = data.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                    if( data[x, y] < threshold ) coveredPixels++;
+                }
+            }
+            return coveredPixels / (float)data.Length;
+        }
+
+
+        public static float FindThreshold( float[,,] data, float desiredCoverage ) {
+            if( desiredCoverage == 0 ) return 0;
+            if( desiredCoverage == 1 ) return 1;
+            float threshold = 0.5f;
+            for( int i = 0; i < ThresholdSearchPasses; i++ ) {
+                if( CalculateCoverage( data, threshold ) > desiredCoverage ) {
+                    threshold = threshold - 1 / (float)(4 << i);
+                } else {
+                    threshold = threshold + 1 / (float)(4 << i);
+                }
+            }
+            return threshold;
+        }
+
+
+        public static float CalculateCoverage( float[, ,] data, float threshold ) {
+            int coveredVoxels = 0;
+            for( int x = data.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = data.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                    for( int z = data.GetLength( 2 ) - 1; z >= 0; z-- ) {
+                        if( data[x, y, z] < threshold ) coveredVoxels++;
+                    }
+                }
+            }
+            return coveredVoxels / (float)data.Length;
         }
     }
 }
