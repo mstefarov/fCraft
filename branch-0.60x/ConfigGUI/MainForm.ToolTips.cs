@@ -200,6 +200,10 @@ By default, players can only bring players of same or lower rank." );
 @"Limit on who can be spectated by players of this rank.
 By default, players can only bring players of same or lower rank." );
 
+            toolTip.SetToolTip( permissionLimitBoxes[Permission.UndoOthersActions],
+@"Limit on whose actions players of this rank can undo.
+By default, players can only undo actions of players of same or lower rank." );
+
 
 
             toolTip.SetToolTip( xReserveSlot,
