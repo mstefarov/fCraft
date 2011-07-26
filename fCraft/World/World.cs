@@ -643,6 +643,72 @@ namespace fCraft {
             return results.ToArray();
         }
 
+        unsafe internal BlockDBEntry[] LookupBlockInfo( PlayerInfo info, int max ) {
+            byte[] bytes;
+
+            lock( blockDBLock ) {
+                FlushBlockDB();
+                if( File.Exists( BlockDBFile ) ) {
+                    bytes = File.ReadAllBytes( BlockDBFile );
+                } else {
+                    return new BlockDBEntry[0];
+                }
+            }
+
+            Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
+            BlockDBEntry* entries;
+            int count = 0;
+            int entryCount = bytes.Length / BlockDB.BlockDBEntrySize;
+            fixed( byte* parr = bytes ) {
+                entries = (BlockDBEntry*)parr;
+                for( int i = entryCount - 1; i >= 0; i-- ) {
+                    if( entries[i].PlayerID == info.ID ) {
+                        int index = Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                        if( !results.ContainsKey( index ) ) {
+                            results[index] = entries[i];
+                            count++;
+                            if( count >= max ) break;
+                        }
+                    }
+                }
+            }
+            return results.Values.ToArray();
+        }
+
+
+        unsafe internal BlockDBEntry[] LookupBlockInfo( PlayerInfo info, TimeSpan span ) {
+            byte[] bytes;
+
+            lock( blockDBLock ) {
+                FlushBlockDB();
+                if( File.Exists( BlockDBFile ) ) {
+                    bytes = File.ReadAllBytes( BlockDBFile );
+                } else {
+                    return new BlockDBEntry[0];
+                }
+            }
+
+            long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
+
+            Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
+            BlockDBEntry* entries;
+
+            int entryCount = bytes.Length / BlockDB.BlockDBEntrySize;
+            fixed( byte* parr = bytes ) {
+                entries = (BlockDBEntry*)parr;
+                for( int i = entryCount - 1; i >= 0; i-- ) {
+                    if( entries[i].Timestamp < ticks ) break;
+                    if( entries[i].PlayerID == info.ID ) {
+                        int index = Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                        if( !results.ContainsKey( index ) ) {
+                            results[index] = entries[i];
+                        }
+                    }
+                }
+            }
+            return results.Values.ToArray();
+        }
+
         #endregion
     }
 }

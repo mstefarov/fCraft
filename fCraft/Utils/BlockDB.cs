@@ -9,13 +9,13 @@ namespace fCraft {
     [StructLayout( LayoutKind.Sequential, Pack = 1 )]
     struct BlockDBEntry {
         public BlockDBEntry( int timestamp, int playerID, short x, short y, short z, Block oldBlock, Block newBlock ) {
-            Timestamp=timestamp;
+            Timestamp = timestamp;
             PlayerID = playerID;
-            X=x;
-            Y=y;
-            Z=z;
-            OldBlock=oldBlock;
-            NewBlock=newBlock;
+            X = x;
+            Y = y;
+            Z = z;
+            OldBlock = oldBlock;
+            NewBlock = newBlock;
         }
         public readonly int Timestamp, PlayerID;
         public readonly short X, Y, Z;
@@ -37,14 +37,14 @@ namespace fCraft {
 
 
         static void OnPlayerPlacedBlock( object sender, PlayerPlacedBlockEventArgs e ) {
-            World world =e.Player.World;
+            World world = e.Player.World;
             if( world.IsBlockTracked ) {
                 BlockDBEntry newEntry = new BlockDBEntry( (int)DateTime.UtcNow.ToUnixTime(),
                                                           e.Player.Info.ID,
                                                           e.X, e.Y, e.Z,
                                                           e.OldBlock,
                                                           e.NewBlock );
-                world.AddBlockDBEntry(newEntry);
+                world.AddBlockDBEntry( newEntry );
             }
         }
 

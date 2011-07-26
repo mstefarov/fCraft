@@ -337,4 +337,84 @@ namespace fCraft {
             return list.JoinToString( "&S, ", p => p.ClassyName );
         }
     }
+
+
+    unsafe static class IntUtil {
+        // Quicker StringBuilder.Append(int) by Sam Allen of http://www.dotnetperls.com
+        public static void Digits( this StringBuilder builder, int number ) {
+            if( number >= 100000000 ) {
+                // Use system ToString.
+                builder.Append( number.ToString() );
+                return;
+            }
+            if( number < 0 ) {
+                // Negative.
+                builder.Append( number.ToString() );
+                return;
+            }
+            int copy;
+            int digit;
+            if( number >= 10000000 ) {
+                // 8.
+                copy = number % 100000000;
+                digit = copy / 10000000;
+                builder.Append( (char)(digit + 48) );
+            }
+            if( number >= 1000000 ) {
+                // 7.
+                copy = number % 10000000;
+                digit = copy / 1000000;
+                builder.Append( (char)(digit + 48) );
+            }
+            if( number >= 100000 ) {
+                // 6.
+                copy = number % 1000000;
+                digit = copy / 100000;
+                builder.Append( (char)(digit + 48) );
+            }
+            if( number >= 10000 ) {
+                // 5.
+                copy = number % 100000;
+                digit = copy / 10000;
+                builder.Append( (char)(digit + 48) );
+            }
+            if( number >= 1000 ) {
+                // 4.
+                copy = number % 10000;
+                digit = copy / 1000;
+                builder.Append( (char)(digit + 48) );
+            }
+            if( number >= 100 ) {
+                // 3.
+                copy = number % 1000;
+                digit = copy / 100;
+                builder.Append( (char)(digit + 48) );
+            }
+            if( number >= 10 ) {
+                // 2.
+                copy = number % 100;
+                digit = copy / 10;
+                builder.Append( (char)(digit + 48) );
+            }
+            if( number >= 0 ) {
+                // 1.
+                copy = number % 10;
+                digit = copy / 1;
+                builder.Append( (char)(digit + 48) );
+            }
+        }
+
+
+        // Quicker Int32.Parse(string) by Karl Seguin
+        public unsafe static int Parse( string stringToConvert ) {
+            int value = 0;
+            int length = stringToConvert.Length;
+            fixed( char* characters = stringToConvert ) {
+                for( int i = 0; i < length; ++i ) {
+                    value = 10 * value + (characters[i] - 48);
+                }
+            }
+            return value;
+        }
+    }
 }

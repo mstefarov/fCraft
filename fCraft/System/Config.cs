@@ -134,6 +134,8 @@ namespace fCraft {
      * 
      * 144 - r787 - Added DrawAdvanced permission.
      * 
+     * 145 - r794 - Added UndoOthersActions permission.
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -891,6 +893,8 @@ namespace fCraft {
             owner.Add( new XElement( Permission.ManageWorlds.ToString() ) );
             owner.Add( new XElement( Permission.Import.ToString() ) );
             owner.Add( new XElement( Permission.Draw.ToString() ) );
+            owner.Add( new XElement( Permission.DrawAdvanced.ToString() ) );
+            owner.Add( new XElement( Permission.UndoOthersActions.ToString() ) );
             owner.Add( new XElement( Permission.CopyAndPaste.ToString() ) );
 
             owner.Add( new XElement( Permission.ReloadConfig.ToString() ) );
@@ -958,6 +962,8 @@ namespace fCraft {
             op.Add( new XElement( Permission.ManageZones.ToString() ) );
             op.Add( new XElement( Permission.Lock.ToString() ) );
             op.Add( new XElement( Permission.Draw.ToString() ) );
+            op.Add( new XElement( Permission.DrawAdvanced.ToString() ) );
+            op.Add( new XElement( Permission.UndoOthersActions.ToString() ) );
             op.Add( new XElement( Permission.CopyAndPaste.ToString() ) );
             permissions.Add( op );
             try {

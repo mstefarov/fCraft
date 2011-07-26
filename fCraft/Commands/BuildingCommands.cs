@@ -113,6 +113,8 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdCuboidWireframeX );
             CommandManager.RegisterCommand( CdCuboidHollowX );
             CommandManager.RegisterCommand( CdEllipsoidX );
+            
+            CommandManager.RegisterCommand( CdUndoX );
         }
 
 
@@ -803,9 +805,9 @@ namespace fCraft {
         static void DrawingFinished( Player player, string verb, int blocks, int blocksDenied ) {
             if( blocks == 0 ) {
                 if( blocksDenied > 0 ) {
-                    player.MessageNow( "No blocks could be {0} due to permission issues.", verb );
+                    player.MessageNow( "No blocks could be {0} due to permission issues.", verb.ToLower() );
                 } else {
-                    player.MessageNow( "No blocks were {0}.", verb );
+                    player.MessageNow( "No blocks were {0}.", verb.ToLower() );
                 }
             } else {
                 if( blocksDenied > 0 ) {
@@ -2164,6 +2166,94 @@ namespace fCraft {
         }
 
         #endregion
+
+
+
+        static readonly CommandDescriptor CdUndoX = new CommandDescriptor {
+            Name = "undox",
+            Category = CommandCategory.Moderation | CommandCategory.Building,
+            IsHidden = true,
+            Permissions = new[] { Permission.UndoOthersActions },
+            Usage = "/undox PlayerName [TimeSpan|BlockCount]",
+            Help = "Enables or disabled BlockDB on a given world.",
+            Handler = UndoX
+        };
+
+        static void UndoX( Player player, Command cmd ) {
+            if( !BlockDB.IsEnabled ) {
+                player.Message( "&WBlockDB is disabled on this server." );
+                return;
+            }
+
+            World world = player.World;
+            if( !world.IsBlockTracked ) {
+                player.Message( "&WBlockDB is disabled in this world." );
+                return;
+            }
+
+            string name = cmd.Next();
+            string range = cmd.Next();
+            if( name == null || range == null ) {
+                CdUndoX.PrintUsage( player );
+                return;
+            }
+
+            PlayerInfo target = PlayerDB.FindPlayerInfoExact( name );
+            if( target == null ) {
+                PlayerInfo[] targets = PlayerDB.FindPlayers( name );
+                if( targets.Length == 0 ) {
+                    player.MessageNoPlayer( name );
+                    return;
+
+                } else if( targets.Length > 0 ) {
+                    Array.Sort( targets, new PlayerInfoComparer( player ) );
+                    player.MessageManyMatches( "player", targets.Take( 25 ).ToArray() );
+                    return;
+                }
+                target = targets[0];
+            }
+
+            int count;
+            TimeSpan span;
+            BlockDBEntry[] changes;
+            if( Int32.TryParse( range, out count ) ) {
+                changes = world.LookupBlockInfo( target, count );
+                if( !cmd.IsConfirmed ) {
+                    player.AskForConfirmation( cmd, "Undo last {0} changes made by player {1}&S?",
+                                               changes.Length, target.ClassyName );
+                    return;
+                }
+
+            } else if( DateTimeUtil.TryParseMiniTimespan( range, out span ) ) {
+                changes = world.LookupBlockInfo( target, span );
+                if( !cmd.IsConfirmed ) {
+                    player.AskForConfirmation( cmd, "Undo changes ({0}) made by {1}&S in the last {2}?",
+                                               changes.Length, target.ClassyName, span.ToMiniString() );
+                    return;
+                }
+
+            } else {
+                CdUndoX.PrintUsage( player );
+                return;
+            }
+
+            int blocks = 0, blocksDenied = 0;
+            bool cannotUndo = false;
+            player.UndoBuffer.Clear();
+            for( int i = 0; i < changes.Length; i++ ) {
+                DrawOneBlock( player, (byte)changes[i].OldBlock,
+                              changes[i].X, changes[i].Y, changes[i].Z,
+                              ref blocks, ref blocksDenied, ref cannotUndo );
+            }
+
+            Logger.Log( "{0} undid {1} blocks changed by player {2} (on world {3})", LogType.UserActivity,
+                        player.Name,
+                        blocks,
+                        target.Name,
+                        world.Name );
+
+            DrawingFinished( player, "Undone", blocks, blocksDenied );
+        }
     }
 
 
