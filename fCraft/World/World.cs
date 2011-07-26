@@ -64,17 +64,8 @@ namespace fCraft {
         public Map Map {
             get { return map; }
             set {
-                string msg;
-                if( map == null && value == null ) {
-                    return;
-                } else if( value != null ) {
-                    msg = "null to map";
-                } else if( map != null ) {
-                    msg = "map to null";
-                } else {
-                    msg = "map to map";
-                }
-                Logger.Log( "----" + GetHashCode() +": "+ msg + "----" + Environment.NewLine +  Environment.StackTrace, LogType.Debug );
+                if( map != null && value == null ) StopTasks();
+                if( map == null && value != null ) StartTasks();
                 map = value;
             }
         }
@@ -110,7 +101,6 @@ namespace fCraft {
                     Map = MapGenerator.GenerateFlatgrass( 128, 128, 64 );
                 }
                 Map.World = this;
-                StartTasks();
 
                 return Map;
             }
@@ -122,7 +112,6 @@ namespace fCraft {
                 if( expectedPendingFlag != IsPendingMapUnload ) return;
                 SaveMap();
                 Map = null;
-                StopTasks();
                 IsPendingMapUnload = false;
             }
             Server.RequestGC();
@@ -585,7 +574,7 @@ namespace fCraft {
 
 
         public override string ToString() {
-            return String.Format( "World({0})", Name );
+            return String.Format( "World({0},{1})", Name,GetHashCode() );
         }
 
 
