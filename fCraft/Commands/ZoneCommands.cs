@@ -502,6 +502,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdZoneRename = new CommandDescriptor {
             Name = "zrename",
             Category = CommandCategory.Zone,
+            Permissions = new[] { Permission.ManageZones },
             Help = "Renames a zone",
             Usage = "/zrename OldName NewName",
             Handler = ZoneRename
