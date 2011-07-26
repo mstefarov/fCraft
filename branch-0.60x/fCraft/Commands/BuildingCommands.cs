@@ -2219,7 +2219,7 @@ namespace fCraft {
             if( Int32.TryParse( range, out count ) ) {
                 player.Message( "Searching for changes made by {0}&s...", target.ClassyName );
                 changes = world.LookupBlockInfo( target, count );
-                if( !cmd.IsConfirmed ) {
+                if( changes.Length > 0 && !cmd.IsConfirmed ) {
                     player.AskForConfirmation( cmd, "Undo last {0} changes made by player {1}&S?",
                                                changes.Length, target.ClassyName );
                     return;
@@ -2228,7 +2228,7 @@ namespace fCraft {
             } else if( DateTimeUtil.TryParseMiniTimespan( range, out span ) ) {
                 player.Message( "Searching for changes made by {0}&s...", target.ClassyName );
                 changes = world.LookupBlockInfo( target, span );
-                if( !cmd.IsConfirmed ) {
+                if( changes.Length > 0 && !cmd.IsConfirmed ) {
                     player.AskForConfirmation( cmd, "Undo changes ({0}) made by {1}&S in the last {2}?",
                                                changes.Length, target.ClassyName, span.ToMiniString() );
                     return;
@@ -2236,6 +2236,11 @@ namespace fCraft {
 
             } else {
                 CdUndoX.PrintUsage( player );
+                return;
+            }
+
+            if( changes.Length == 0 ) {
+                player.Message( "UndoX: Found nothing to undo." );
                 return;
             }
 
