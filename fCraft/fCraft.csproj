@@ -198,12 +198,14 @@
     <Compile Include="AutoRank\Conditions.cs" />
     <Compile Include="AutoRank\Criterion.cs" />
     <Compile Include="Commands\ChatCommands.cs" />
+    <Compile Include="Drawing\AbstractPerlinNoiseBrush.cs" />
     <Compile Include="Drawing\CheckeredBrush.cs" />
     <Compile Include="Drawing\BrushManager.cs" />
     <Compile Include="Drawing\CloudyBrush.cs" />
     <Compile Include="Drawing\EllipsoidDrawOperation.cs" />
     <Compile Include="Drawing\CuboidHollowDrawOperation.cs" />
     <Compile Include="Drawing\CuboidWireframeDrawOperation.cs" />
+    <Compile Include="Drawing\MarbledBrush.cs" />
     <Compile Include="Drawing\RainbowBrush.cs" />
     <Compile Include="Drawing\RandomBrush.cs" />
     <Compile Include="Drawing\CuboidDrawOperation.cs" />

@@ -113,7 +113,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdCuboidWireframeX );
             CommandManager.RegisterCommand( CdCuboidHollowX );
             CommandManager.RegisterCommand( CdEllipsoidX );
-            
+
             CommandManager.RegisterCommand( CdUndoX );
         }
 
@@ -125,7 +125,8 @@ namespace fCraft {
             Category = CommandCategory.Building,
             IsHidden = true,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
-            Help = "Gets or sets the current brush.",
+            Help = "Gets or sets the current brush. Available brushes are: " +
+                   "normal (default), checkered, cloudy, marbled, rainbow, and random.",
             Handler = SetBrush
         };
 
