@@ -2217,6 +2217,7 @@ namespace fCraft {
             TimeSpan span;
             BlockDBEntry[] changes;
             if( Int32.TryParse( range, out count ) ) {
+                player.Message( "Searching for changes made by {0}&s...", target.ClassyName );
                 changes = world.LookupBlockInfo( target, count );
                 if( !cmd.IsConfirmed ) {
                     player.AskForConfirmation( cmd, "Undo last {0} changes made by player {1}&S?",
@@ -2225,6 +2226,7 @@ namespace fCraft {
                 }
 
             } else if( DateTimeUtil.TryParseMiniTimespan( range, out span ) ) {
+                player.Message( "Searching for changes made by {0}&s...", target.ClassyName );
                 changes = world.LookupBlockInfo( target, span );
                 if( !cmd.IsConfirmed ) {
                     player.AskForConfirmation( cmd, "Undo changes ({0}) made by {1}&S in the last {2}?",
