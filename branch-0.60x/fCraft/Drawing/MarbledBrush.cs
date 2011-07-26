@@ -2,13 +2,13 @@
 using System;
 
 namespace fCraft.Drawing {
-    public sealed class CloudyBrushFactory : IBrushFactory {
-        public static readonly CloudyBrushFactory Instance = new CloudyBrushFactory();
+    public sealed class MarbledBrushFactory : IBrushFactory {
+        public static readonly MarbledBrushFactory Instance = new MarbledBrushFactory();
 
-        CloudyBrushFactory() { }
+        MarbledBrushFactory() { }
 
         public string Name {
-            get { return "Cloudy"; }
+            get { return "Marbled"; }
         }
 
         static Random rand = new Random();
@@ -27,19 +27,19 @@ namespace fCraft.Drawing {
             int seed;
             if( !cmd.NextInt( out seed ) ) seed = NextSeed();
 
-            return new CloudyBrush( block, altBlock, seed );
+            return new MarbledBrush( block, altBlock, seed );
         }
     }
 
 
-    public sealed class CloudyBrush : AbstractPerlinNoiseBrush, IBrush {
+    public sealed class MarbledBrush : AbstractPerlinNoiseBrush, IBrush {
 
-        public CloudyBrush( Block block1, Block block2, int seed )
+        public MarbledBrush( Block block1, Block block2, int seed )
             : base( block1, block2, seed ) {
         }
 
 
-        public CloudyBrush( CloudyBrush other )
+        public MarbledBrush( MarbledBrush other )
             : base( other ) {
         }
 
@@ -47,7 +47,7 @@ namespace fCraft.Drawing {
         #region IBrush members
 
         public IBrushFactory Factory {
-            get { return CloudyBrushFactory.Instance; }
+            get { return MarbledBrushFactory.Instance; }
         }
 
 
@@ -70,14 +70,14 @@ namespace fCraft.Drawing {
                 Block1 = block;
                 Block2 = altBlock;
                 int seed;
-                if( !cmd.NextInt( out seed ) ) seed = CloudyBrushFactory.NextSeed();
+                if( !cmd.NextInt( out seed ) ) seed = MarbledBrushFactory.NextSeed();
 
             } else if( Block1 == Block.Undefined ) {
                 player.Message( "{0}: Please specify at least one block.", Factory.Name );
                 return null;
             }
 
-            return new CloudyBrush( this );
+            return new MarbledBrush( this );
         }
 
         #endregion
@@ -98,6 +98,7 @@ namespace fCraft.Drawing {
 
         protected unsafe override void ProcessData( float[, ,] rawData, Block[, ,] data ) {
             Noise.Normalize( rawData );
+            Noise.Marble( rawData );
             float threshold = Noise.FindThreshold( rawData, Coverage );
             fixed( float* rawPtr = rawData ) {
                 fixed( Block* ptr = data ) {
