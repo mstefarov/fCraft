@@ -142,7 +142,8 @@ namespace fCraft {
                     Map = newMap,
                     AccessSecurity = (SecurityController)AccessSecurity.Clone(),
                     BuildSecurity = (SecurityController)BuildSecurity.Clone(),
-                    IsHidden = IsHidden
+                    IsHidden = IsHidden,
+                    IsBlockTracked = IsBlockTracked
                 };
                 newMap.World = newWorld;
                 newWorld.NeverUnload = neverUnload;
@@ -621,8 +622,13 @@ namespace fCraft {
 
             lock( blockDBLock ) {
                 FlushBlockDB();
-                bytes = File.ReadAllBytes( BlockDBFile );
+                if( File.Exists( BlockDBFile ) ) {
+                    bytes = File.ReadAllBytes( BlockDBFile );
+                } else {
+                    return new BlockDBEntry[0];
+                }
             }
+
             List<BlockDBEntry> results = new List<BlockDBEntry>();
             BlockDBEntry* entries;
             int entryCount = bytes.Length / BlockDB.BlockDBEntrySize;
