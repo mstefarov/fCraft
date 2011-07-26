@@ -61,7 +61,24 @@ namespace fCraft {
         #region Map
 
         /// <summary> Map of this world. May be null if world is not loaded. </summary>
-        public Map Map;
+        public Map Map {
+            get { return map; }
+            set {
+                string msg;
+                if( map == null && value == null ) {
+                    return;
+                } else if( value != null ) {
+                    msg = "null to map";
+                } else if( map != null ) {
+                    msg = "map to null";
+                } else {
+                    msg = "map to map";
+                }
+                Logger.Log( "----" + GetHashCode() +": "+ msg + "----" + Environment.NewLine +  Environment.StackTrace, LogType.Debug );
+                map = value;
+            }
+        }
+        Map map;
 
         /// <summary> Whether the map is currently loaded. </summary>
         public bool IsLoaded {
@@ -145,6 +162,7 @@ namespace fCraft {
                     player.JoinWorld( newWorld );
                 }
                 lock( blockDBLock ) {
+                    pendingEntries.Clear();
                     File.Delete( BlockDBFile );
                 }
             }
