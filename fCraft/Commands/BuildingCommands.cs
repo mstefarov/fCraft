@@ -1099,7 +1099,7 @@ namespace fCraft {
                                     continue;
                                 }
                                 player.World.Map.QueueUpdate( new BlockUpdate( null, x + x3, y + y3, z, args.ReplacementBlock ) );
-                                Server.RaisePlayerPlacedBlockEvent( player, player.World.Map, (short)x, (short)y, (short)z,
+                                Server.RaisePlayerPlacedBlockEvent( player, player.World.Map, (short)(x + x3), (short)(y + y3), (short)z,
                                                                     (Block)block, args.ReplacementBlock, false );
 
                                 if( MaxUndoCount < 1 || blocks < MaxUndoCount ) {
