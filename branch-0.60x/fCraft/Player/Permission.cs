@@ -92,6 +92,8 @@ namespace fCraft {
 
         DrawAdvanced,
 
+        UndoOthersActions,
+
         /// <summary> Ability to copy (or cut) and paste blocks. The total number of
         /// blocks that can be copied or pasted at a time is affected by
         /// the draw limit. </summary>

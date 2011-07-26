@@ -17,8 +17,8 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             600,
-            791,
-            new DateTime( 2011, 7, 25, 20, 40, 0, DateTimeKind.Utc ),
+            794,
+            new DateTime( 2011, 7, 26, 3, 30, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.Dev
 #if DEBUG
