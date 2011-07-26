@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Generic;
 
 namespace fCraft.Drawing {
     public sealed class RandomBrushFactory : IBrushFactory {
@@ -15,29 +16,39 @@ namespace fCraft.Drawing {
         public IBrush MakeBrush( Player player, Command cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
-            Block block = cmd.NextBlock( player );
-            Block altBlock = cmd.NextBlock( player );
-            return new RandomBrush( block, altBlock );
+            List<Block> blocks = new List<Block>();
+            while( cmd.HasNext ) {
+                Block block = cmd.NextBlock( player );
+                if( block == Block.Undefined ) return null;
+                blocks.Add( block );
+            }
+            if( blocks.Count == 0 ) {
+                return new RandomBrush( new Block[0] );
+            } else if( blocks.Count == 1 ) {
+                return new RandomBrush( blocks[0] );
+            } else {
+                return new RandomBrush( blocks.ToArray() );
+            }
         }
     }
 
 
     public sealed class RandomBrush : IBrushInstance, IBrush {
-        public Block Block1 { get; private set; }
-        public Block Block2 { get; private set; }
+        public Block[] Blocks { get; private set; }
         readonly Random rand = new Random();
 
+        public RandomBrush( Block oneBlock ) {
+            Blocks = new[] { oneBlock, Block.Undefined };
+        }
 
-        public RandomBrush( Block block1, Block block2 ) {
-            Block1 = block1;
-            Block2 = block2;
+        public RandomBrush( Block[] blocks ) {
+            Blocks = blocks;
         }
 
 
         public RandomBrush( RandomBrush other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            Block1 = other.Block1;
-            Block2 = other.Block2;
+            Blocks = other.Blocks;
         }
 
 
@@ -50,10 +61,12 @@ namespace fCraft.Drawing {
 
         public string Description {
             get {
-                if( Block2 == Block.Undefined ) {
-                    return String.Format( "{0}({1})", Factory.Name, Block1 );
+                if( Blocks.Length == 0 ) {
+                    return Factory.Name;
                 } else {
-                    return String.Format( "{0}({1},{2})", Factory.Name, Block1, Block2 );
+                    return String.Format( "{0}({1})",
+                                          Factory.Name,
+                                          Blocks.JoinToString() );
                 }
             }
         }
@@ -64,19 +77,22 @@ namespace fCraft.Drawing {
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( state == null ) throw new ArgumentNullException( "state" );
 
-            if( cmd.HasNext ) {
+            List<Block> blocks = new List<Block>();
+            while( cmd.HasNext ) {
                 Block block = cmd.NextBlock( player );
                 if( block == Block.Undefined ) return null;
-                Block altBlock = cmd.NextBlock( player );
-                Block1 = block;
-                Block2 = altBlock;
-
-            } else if( Block1 == Block.Undefined ) {
-                player.Message( "{0}: Please specify at least one block.", Factory.Name );
-                return null;
+                blocks.Add( block );
             }
 
-            return new RandomBrush( this );
+            if( blocks.Count == 0 && Blocks.Length == 0 ) {
+                player.Message( "{0}: Please specify at least one block.", Factory.Name );
+            }
+
+            if( blocks.Count > 1 ) {
+                return new RandomBrush( blocks.ToArray() );
+            } else {
+                return new RandomBrush( blocks[0] );
+            }
         }
 
         #endregion
@@ -102,17 +118,16 @@ namespace fCraft.Drawing {
         public bool Begin( Player player, DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( state == null ) throw new ArgumentNullException( "state" );
+            if( Blocks == null || Blocks.Length == 0 ) {
+                throw new InvalidOperationException( "No blocks given." );
+            }
             return true;
         }
 
 
         public Block NextBlock( DrawOperation state ) {
             if( state == null ) throw new ArgumentNullException( "state" );
-            if( rand.Next( 2 ) == 0 ) {
-                return Block1;
-            } else {
-                return Block2;
-            }
+            return Blocks[rand.Next()];
         }
 
 

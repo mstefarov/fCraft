@@ -260,9 +260,9 @@ namespace fCraft {
                     throw;
                 } catch( Exception ex ) {
                     Logger.LogAndReportCrash( "Error while parsing player's message", "fCraft", ex, false );
-                    MessageNow( "&WAn error occured while trying to process your message. " +
-                                "Error details have been logged. " +
-                                "It is recommended that you reconnect to the server." );
+                    MessageNow( "&WAn error occured while trying to process your message ({0}: {1})." +
+                                "It is recommended that you reconnect to the server.",
+                                ex.GetType().Name, ex.Message );
                 }
             }
             return true;
