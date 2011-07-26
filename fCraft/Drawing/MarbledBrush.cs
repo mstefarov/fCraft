@@ -36,6 +36,7 @@ namespace fCraft.Drawing {
 
         public MarbledBrush( Block block1, Block block2, int seed )
             : base( block1, block2, seed ) {
+            Coverage = 0.4f;
         }
 
 
