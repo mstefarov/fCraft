@@ -38,6 +38,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdBlockDB );
             CommandManager.RegisterCommand( CdBlockInfo );
+            //CommandManager.RegisterCommand( CdUndoX );
         }
 
 
@@ -1703,7 +1704,7 @@ namespace fCraft {
         static void BlockInfoSchedulerCallback( SchedulerTask task ) {
             BlockInfoLookupArgs args = (BlockInfoLookupArgs)task.UserState;
             if( !args.World.IsBlockTracked ) {
-                args.Player.Message( "&WBlockDB is disabled on this world." );
+                args.Player.Message( "&WBlockDB is disabled in this world." );
                 return;
             }
             BlockDBEntry[] results = args.World.LookupBlockInfo( args.X, args.Y, args.Z );
@@ -1713,15 +1714,69 @@ namespace fCraft {
                     PlayerInfo info = PlayerDB.PlayerInfoList.FirstOrDefault( p => p.ID == entry.PlayerID );
                     string playerName = (info == null ? "?" : info.ClassyName);
                     if( entry.OldBlock == (byte)Block.Air ) {
-                        args.Player.Message( "{0} ago: {1}&S placed {2}.", date, playerName, entry.NewBlock );
+                        args.Player.Message( "&S  {0} ago: {1}&S placed {2}.", date, playerName, entry.NewBlock );
                     } else if( entry.NewBlock == (byte)Block.Air ) {
-                        args.Player.Message( "{0} ago: {1}&S deleted {2}.", date, playerName, entry.OldBlock );
+                        args.Player.Message( "&S  {0} ago: {1}&S deleted {2}.", date, playerName, entry.OldBlock );
                     } else {
-                        args.Player.Message( "{0} ago: {1}&S replaced {2} with {3}.", date, playerName, entry.OldBlock, entry.NewBlock );
+                        args.Player.Message( "&S  {0} ago: {1}&S replaced {2} with {3}.", date, playerName, entry.OldBlock, entry.NewBlock );
                     }
                 }
             } else {
                 args.Player.Message( "No BlockDB results found." );
+            }
+        }
+
+
+
+        static readonly CommandDescriptor CdUndoX = new CommandDescriptor {
+            Name = "undox",
+            Category = CommandCategory.World,
+            IsHidden = true,
+            Permissions = new[] { Permission.ViewOthersInfo },
+            Usage = "/undox PlayerName [TimeSpan|BlockCount]",
+            Help = "Enables or disabled BlockDB on a given world.",
+            Handler = UndoX
+        };
+
+        static void UndoX( Player player, Command cmd ) {
+            if( !BlockDB.IsEnabled ) {
+                player.Message( "&WBlockDB is disabled on this server." );
+                return;
+            }
+
+            World world = player.World;
+            if( !world.IsBlockTracked ) {
+                player.Message( "&WBlockDB is disabled on this world." );
+                return;
+            }
+
+            string name = cmd.Next();
+            string range = cmd.Next();
+            if( name == null || range == null ) {
+                CdUndoX.PrintUsage( player );
+                return;
+            }
+
+            PlayerInfo[] targets = PlayerDB.FindPlayers( name );
+            if( targets.Length == 0 ) {
+                player.MessageNoPlayer( name );
+                return;
+
+            } else if( targets.Length > 0 ) {
+                Array.Sort( targets, new PlayerInfoComparer( player ) );
+                player.MessageManyMatches( "player", targets.Take( 25 ).ToArray() );
+                return;
+            }
+            PlayerInfo target = targets[0];
+
+            int count;
+            TimeSpan span;
+            if( Int32.TryParse( range, out count ) ) {
+
+            } else if( DateTimeUtil.TryParseMiniTimespan( range, out span ) ) {
+                // undo range
+            } else {
+                CdUndoX.PrintUsage( player );
             }
         }
     }

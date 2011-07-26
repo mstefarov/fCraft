@@ -126,6 +126,7 @@ namespace fCraft.ServerCLI {
                     return;
 
                 case LogType.Debug:
+                case LogType.Trace:
                     if( useColor ) Console.ForegroundColor = ConsoleColor.DarkGray;
                     Console.WriteLine( e.Message );
                     if( useColor ) Console.ResetColor();

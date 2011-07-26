@@ -1048,7 +1048,11 @@ namespace fCraft {
 
         /// <summary> Name formatted for the debugger. </summary>
         public override string ToString() {
-            return String.Format( "Player({0})", Info.Name );
+            if( Info != null ) {
+                return String.Format( "Player({0})", Info.Name );
+            } else {
+                return String.Format( "Player({0})", IP );
+            }
         }
     }
 
