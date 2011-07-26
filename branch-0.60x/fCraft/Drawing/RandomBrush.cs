@@ -84,14 +84,17 @@ namespace fCraft.Drawing {
                 blocks.Add( block );
             }
 
-            if( blocks.Count == 0 && Blocks.Length == 0 ) {
-                player.Message( "{0}: Please specify at least one block.", Factory.Name );
-            }
-
-            if( blocks.Count > 1 ) {
-                return new RandomBrush( blocks.ToArray() );
-            } else {
+            if( blocks.Count == 0 ) {
+                if( Blocks.Length == 0 ) {
+                    player.Message( "{0}: Please specify at least one block.", Factory.Name );
+                    return null;
+                } else {
+                    return new RandomBrush( this );
+                }
+            } else if( blocks.Count == 1 ) {
                 return new RandomBrush( blocks[0] );
+            } else {
+                return new RandomBrush( blocks.ToArray() );
             }
         }
 
@@ -127,7 +130,7 @@ namespace fCraft.Drawing {
 
         public Block NextBlock( DrawOperation state ) {
             if( state == null ) throw new ArgumentNullException( "state" );
-            return Blocks[rand.Next()];
+            return Blocks[rand.Next( Blocks.Length )];
         }
 
 
