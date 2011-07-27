@@ -351,6 +351,7 @@ namespace fCraft {
             return info;
         }
 
+
         internal static PlayerInfo LoadFormat0( string[] fields, bool convertDatesToUtc ) {
             PlayerInfo info = new PlayerInfo { Name = fields[0] };
 
@@ -504,7 +505,7 @@ namespace fCraft {
 
         internal void Serialize( StringBuilder sb ) {
             sb.Append( Name ).Append( ',' ); // 0
-            if( !LastIP.Equals( IPAddress.None ) ) sb.Append( LastIP.ToString() ); // 1
+            if( !LastIP.Equals( IPAddress.None ) ) sb.Append( LastIP ); // 1
             sb.Append( ',' );
 
             sb.Append( Rank.FullName ).Append( ',' ); // 2
@@ -527,7 +528,7 @@ namespace fCraft {
             if( !LastFailedLoginIP.Equals( IPAddress.None ) ) sb.Append( LastFailedLoginIP.ToString() ); // 13
             sb.Append( ',' );
 
-            if( FailedLoginCount > 0 ) sb.Append( FailedLoginCount ); // 14
+            if( FailedLoginCount > 0 ) sb.Digits( FailedLoginCount ); // 14
             sb.Append( ',' );
 
             FirstLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 15
@@ -535,16 +536,16 @@ namespace fCraft {
             TotalTime.ToTickString( sb ).Append( ',' ); // 17
 
 
-            if( BlocksBuilt > 0 ) sb.Append( BlocksBuilt ); // 18
+            if( BlocksBuilt > 0 ) sb.Digits( BlocksBuilt ); // 18
             sb.Append( ',' );
 
-            if( BlocksDeleted > 0 ) sb.Append( BlocksDeleted ); // 19
+            if( BlocksDeleted > 0 ) sb.Digits( BlocksDeleted ); // 19
             sb.Append( ',' );
 
             sb.Append( TimesVisited ).Append( ',' ); // 20
 
 
-            if( MessagesWritten > 0 ) sb.Append( MessagesWritten ); // 21
+            if( MessagesWritten > 0 ) sb.Digits( MessagesWritten ); // 21
             sb.Append( ',', 3 ); // 22-23 no longer in use
 
             if( PreviousRank != null ) sb.Append( PreviousRank.FullName ); // 24
@@ -553,13 +554,13 @@ namespace fCraft {
             Escape( RankChangeReason, sb ).Append( ',' ); // 25
 
 
-            if( TimesKicked > 0 ) sb.Append( TimesKicked ); // 26
+            if( TimesKicked > 0 ) sb.Digits( TimesKicked ); // 26
             sb.Append( ',' );
 
-            if( TimesKickedOthers > 0 ) sb.Append( TimesKickedOthers ); // 27
+            if( TimesKickedOthers > 0 ) sb.Digits( TimesKickedOthers ); // 27
             sb.Append( ',' );
 
-            if( TimesBannedOthers > 0 ) sb.Append( TimesBannedOthers ); // 28
+            if( TimesBannedOthers > 0 ) sb.Digits( TimesBannedOthers ); // 28
             sb.Append( ',' );
 
 

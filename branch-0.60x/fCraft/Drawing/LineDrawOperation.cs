@@ -44,18 +44,11 @@ namespace fCraft.Drawing {
 
 
         IEnumerable<Vector3I> BlockEnumerator() {
-
-            int x1 = Marks[0].X,
-                y1 = Marks[0].Y,
-                z1 = Marks[0].Z,
-                x2 = Marks[1].X,
-                y2 = Marks[1].Y,
-                z2 = Marks[1].Z;
             int i, err1, err2;
-            Vector3I pixel = new Vector3I( x1, y1, z1 );
-            int dx = x2 - x1;
-            int dy = y2 - y1;
-            int dz = z2 - z1;
+            Vector3I pixel = new Vector3I( Marks[0].X, Marks[0].Y, Marks[0].Z );
+            int dx = Marks[1].X - Marks[0].X;
+            int dy = Marks[1].Y - Marks[0].Y;
+            int dz = Marks[1].Z - Marks[0].Z;
             int xInc = (dx < 0) ? -1 : 1;
             int l = Math.Abs( dx );
             int yInc = (dy < 0) ? -1 : 1;
@@ -66,7 +59,7 @@ namespace fCraft.Drawing {
             int dy2 = m << 1;
             int dz2 = n << 1;
 
-            yield return new Vector3I( x2, y2, z2 );
+            yield return new Vector3I( Marks[1].X, Marks[1].Y, Marks[1].Z );
 
             if( (l >= m) && (l >= n) ) {
                 err1 = dy2 - l;
