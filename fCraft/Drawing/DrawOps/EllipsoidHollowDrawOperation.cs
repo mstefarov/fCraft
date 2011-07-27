@@ -113,7 +113,7 @@ namespace fCraft.Drawing {
 
                                 if( !fillInner ) {
                                     state = State.BeforeBlock;
-                                    continue;
+                                    break;
                                 }
 
                                 UseAlternateBlock = true;
@@ -124,7 +124,7 @@ namespace fCraft.Drawing {
                                 if( Coords.Z > (int)(center.Z - dz) ) {
                                     UseAlternateBlock = false;
                                     state = State.BeforeBlock;
-                                    continue;
+                                    break;
                                 }
                                 if( DrawOneBlock() ) {
                                     blocksDone++;
@@ -136,8 +136,8 @@ namespace fCraft.Drawing {
                                     Coords.Z++;
                                 }
                                 goto case State.InnerBlock;
-
                         }
+                        break;
                     }
                     Coords.Z = Bounds.ZMin;
                 }
@@ -145,61 +145,6 @@ namespace fCraft.Drawing {
             }
             IsDone = true;
             return blocksDone;
-        }
-
-
-        /*
-        IEnumerator<Vector3I> coordEnumerator;
-        public override int DrawBatch( int maxBlocksToDraw ) {
-            int blocksDone = 0;
-            while( coordEnumerator.MoveNext() ) {
-                Coords = coordEnumerator.Current;
-                if( DrawOneBlock() ) {
-                    blocksDone++;
-                    if( blocksDone >= maxBlocksToDraw ) return blocksDone;
-                }
-            }
-            IsDone = true;
-            return blocksDone;
-        }
-        */
-
-        IEnumerable<Vector3I> BlockEnumerator() {
-            for( int x = Bounds.XMin; x <= Bounds.XMax; x++ ) {
-                for( int y = Bounds.YMin; y <= Bounds.YMax; y++ ) {
-                    for( int z = Bounds.ZMin; z <= Bounds.ZMax; z++ ) {
-
-                        double dx = (x - center.X);
-                        double dy = (y - center.Y);
-                        double dz = (z - center.Z);
-
-                        if( (dx * dx) * radius.X + (dy * dy) * radius.Y + (dz * dz) * radius.Z > 1 ) continue;
-
-                        // we touched the surface
-                        // keep drilling until we hit an internal block
-                        do {
-                            yield return new Vector3I( x, y, z );
-                            yield return new Vector3I( x, y, (int)(center.Z - dz) );
-                            dz = (++z - center.Z);
-                        } while( z <= (int)center.Z &&
-                                 ((dx + 1) * (dx + 1) * radius.X + (dy * dy) * radius.Y + (dz * dz) * radius.Z > 1 ||
-                                  (dx - 1) * (dx - 1) * radius.X + (dy * dy) * radius.Y + (dz * dz) * radius.Z > 1 ||
-                                  (dx * dx) * radius.X + (dy + 1) * (dy + 1) * radius.Y + (dz * dz) * radius.Z > 1 ||
-                                  (dx * dx) * radius.X + (dy - 1) * (dy - 1) * radius.Y + (dz * dz) * radius.Z > 1 ||
-                                  (dx * dx) * radius.X + (dy * dy) * radius.Y + (dz + 1) * (dz + 1) * radius.Z > 1 ||
-                                  (dx * dx) * radius.X + (dy * dy) * radius.Y + (dz - 1) * (dz - 1) * radius.Z > 1)
-                            );
-
-                        if( fillInner ) {
-                            UseAlternateBlock = true;
-                            for( ; z <= (int)(center.Z - dz); z++ ) {
-                                yield return new Vector3I( x, y, z );
-                            }
-                            UseAlternateBlock = false;
-                        }
-                    }
-                }
-            }
         }
     }
 }

@@ -116,6 +116,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdEllipsoidHollowX );
             CommandManager.RegisterCommand( CdLineX );
             CommandManager.RegisterCommand( CdSphereX );
+            CommandManager.RegisterCommand( CdSphereHollowX );
 
             CommandManager.RegisterCommand( CdUndoX );
         }
@@ -238,6 +239,18 @@ namespace fCraft {
             DrawOperationBegin( player, cmd, new SphereDrawOperation( player ) );
         }
 
+        static readonly CommandDescriptor CdSphereHollowX = new CommandDescriptor {
+            Name = "sphx",
+            Category = CommandCategory.Building,
+            IsHidden = true,
+            Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
+            Help = "New and improved hollow sphere, with brush support and low overhead. Work in progress, may be crashy.",
+            Handler = SphereHollowX
+        };
+
+        static void SphereHollowX( Player player, Command cmd ) {
+            DrawOperationBegin( player, cmd, new SphereHollowDrawOperation( player ) );
+        }
 
 
         static readonly CommandDescriptor CdEllipsoidHollowX = new CommandDescriptor {
