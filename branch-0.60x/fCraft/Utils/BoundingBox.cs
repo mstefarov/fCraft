@@ -112,6 +112,7 @@ namespace fCraft {
         public Position MaxVertex {
             get { return new Position( XMax, YMax, ZMax ); }
         }
+                                    
 
 
         #region Serialization
