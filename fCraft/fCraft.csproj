@@ -202,6 +202,7 @@
     <Compile Include="Drawing\CheckeredBrush.cs" />
     <Compile Include="Drawing\BrushManager.cs" />
     <Compile Include="Drawing\CloudyBrush.cs" />
+    <Compile Include="Drawing\LineDrawOperation.cs" />
     <Compile Include="Drawing\EllipsoidDrawOperation.cs" />
     <Compile Include="Drawing\CuboidHollowDrawOperation.cs" />
     <Compile Include="Drawing\CuboidWireframeDrawOperation.cs" />

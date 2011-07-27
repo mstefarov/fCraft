@@ -113,6 +113,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdCuboidWireframeX );
             CommandManager.RegisterCommand( CdCuboidHollowX );
             CommandManager.RegisterCommand( CdEllipsoidX );
+            CommandManager.RegisterCommand( CdLineX );
 
             CommandManager.RegisterCommand( CdUndoX );
         }
@@ -205,6 +206,20 @@ namespace fCraft {
 
         static void EllipsoidX( Player player, Command cmd ) {
             DrawOperationBegin( player, cmd, new EllipsoidDrawOperation( player ) );
+        }
+
+
+        static readonly CommandDescriptor CdLineX = new CommandDescriptor {
+            Name = "linex",
+            Category = CommandCategory.Building,
+            IsHidden = true,
+            Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
+            Help = "New and improved line, with brush support and low overhead. Work in progress, may be crashy.",
+            Handler = LineX
+        };
+
+        static void LineX( Player player, Command cmd ) {
+            DrawOperationBegin( player, cmd, new LineDrawOperation( player ) );
         }
 
 
