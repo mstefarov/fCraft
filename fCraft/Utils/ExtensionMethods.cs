@@ -35,6 +35,7 @@ namespace fCraft {
             return (long)date.Subtract( UnixEpoch ).TotalSeconds;
         }
 
+
         public static long ToUnixTimeLegacy( this DateTime date ) {
             return (date.Ticks - TicksToUnixEpoch) / TicksPerMillisecond;
         }
@@ -317,6 +318,7 @@ namespace fCraft {
             }
             return sb.ToString();
         }
+
 
         /// <summary> Joins all items in a collection into one string separated with the given separator.
         /// A specified string conversion function is called on each item before contactenation. </summary>
