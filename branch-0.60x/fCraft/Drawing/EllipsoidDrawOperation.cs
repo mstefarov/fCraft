@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
-    public sealed class EllipsoidDrawOperation : DrawOperation {
+    public class EllipsoidDrawOperation : DrawOperation {
         Vector3F radius, center;
 
         public override string Name {
