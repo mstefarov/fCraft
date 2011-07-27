@@ -5,10 +5,13 @@ using System.Text;
 
 namespace fCraft.Drawing {
     public abstract class AbstractPerlinNoiseBrush : IBrushInstance {
-        public Block Block1 { get; protected set; }
-        public Block Block2 { get; protected set; }
-        public int Seed { get; protected set; }
-        public float Coverage { get; protected set; }
+        public Block Block1 { get; set; }
+        public Block Block2 { get; set; }
+        public int Seed { get; set; }
+        public float Coverage { get; set; }
+        public float Frequency { get; set; }
+        public int Octaves { get; set; }
+        public float Persistence { get; set; }
 
 
         protected AbstractPerlinNoiseBrush( Block block1, Block block2, int seed ) {
@@ -25,6 +28,9 @@ namespace fCraft.Drawing {
             Block2 = other.Block2;
             Seed = other.Seed;
             Coverage = other.Coverage;
+            Frequency = other.Frequency;
+            Octaves = other.Octaves;
+            Persistence = other.Persistence;
         }
 
 
@@ -35,9 +41,9 @@ namespace fCraft.Drawing {
             if( state == null ) throw new ArgumentNullException( "state" );
             PerlinNoise3D noise3D = new PerlinNoise3D( new Random( Seed ) ) {
                 Amplitude = 1,
-                Frequency = 0.08f,
-                Octaves = 3,
-                Persistence = .8f
+                Frequency = Frequency,
+                Octaves = Octaves,
+                Persistence = Persistence
             };
 
             float[, ,] rawData = new float[state.Bounds.Width, state.Bounds.Length, state.Bounds.Height];

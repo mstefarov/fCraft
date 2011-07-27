@@ -1071,9 +1071,8 @@ namespace fCraft {
 
             for( int i = 0; i < worldPlayerList.Length; i++ ) {
                 Player otherPlayer = worldPlayerList[i];
-                if( otherPlayer == this ) continue;
-                if( !CanSee( otherPlayer ) ) continue;
-                if( SpectatedPlayer == otherPlayer || otherPlayer.SpectatedPlayer == this ) continue;
+                if( otherPlayer == this || !CanSee( otherPlayer ) ||
+                    SpectatedPlayer == otherPlayer || otherPlayer.SpectatedPlayer == this ) continue;
 
                 Position otherPos = otherPlayer.Position;
                 int distance = pos.DistanceSquaredTo( otherPos );
