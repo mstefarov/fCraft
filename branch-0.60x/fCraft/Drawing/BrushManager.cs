@@ -13,6 +13,8 @@ namespace fCraft.Drawing {
             RegisterBrush( RainbowBrush.Instance );
             RegisterBrush( CloudyBrushFactory.Instance );
             RegisterBrush( MarbledBrushFactory.Instance );
+            RegisterBrush( ReplaceBrushFactory.Instance );
+            RegisterBrush( ReplaceNotBrushFactory.Instance );
         }
 
         public static void RegisterBrush( IBrushFactory factory ) {

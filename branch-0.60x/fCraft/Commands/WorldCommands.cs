@@ -116,8 +116,7 @@ namespace fCraft {
         };
 
         static void Spawn( Player player, Command cmd ) {
-            player.StopSpectating();
-            player.Send( PacketWriter.MakeSelfTeleport( player.World.Map.Spawn ) );
+            player.TeleportTo( player.World.Map.Spawn );
         }
 
 

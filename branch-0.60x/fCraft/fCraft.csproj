@@ -200,6 +200,8 @@
     <Compile Include="Commands\ChatCommands.cs" />
     <Compile Include="Drawing\Brushes\AbstractPerlinNoiseBrush.cs" />
     <Compile Include="Drawing\Brushes\CheckeredBrush.cs" />
+    <Compile Include="Drawing\Brushes\ReplaceNotBrush.cs" />
+    <Compile Include="Drawing\Brushes\ReplaceBrush.cs" />
     <Compile Include="Drawing\BrushManager.cs" />
     <Compile Include="Drawing\Brushes\CloudyBrush.cs" />
     <Compile Include="Drawing\DrawOps\SphereHollowDrawOperation.cs" />

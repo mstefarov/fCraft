@@ -324,6 +324,11 @@ namespace fCraft {
             }
         }
 
+        public void Message( string message, object arg ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( arg == null ) throw new ArgumentNullException( "arg" );
+            Message( String.Format( message, arg ) );
+        }
 
         public void Message( string message, params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
@@ -334,7 +339,9 @@ namespace fCraft {
 
         // Queues a system message with a custom color
         public void MessagePrefixed( string prefix, string message, params object[] args ) {
+            if( prefix == null ) throw new ArgumentNullException( "prefix" );
             if( message == null ) throw new ArgumentNullException( "message" );
+            if( args == null ) throw new ArgumentNullException( "args" );
             if( args.Length > 0 ) {
                 message = String.Format( message, args );
             }
@@ -350,6 +357,7 @@ namespace fCraft {
 
         internal void MessageNow( string message, params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
+            if( args == null ) throw new ArgumentNullException( "args" );
             if( args.Length > 0 ) {
                 message = String.Format( message, args );
             }
@@ -1030,6 +1038,12 @@ namespace fCraft {
         }
 
         #endregion
+
+
+        public void TeleportTo( Position pos ) {
+            StopSpectating();
+            Send( PacketWriter.MakeSelfTeleport( pos ) );
+        }
 
 
         /// <summary> Time since the player was last active (moved, talked, or clicked). </summary>
