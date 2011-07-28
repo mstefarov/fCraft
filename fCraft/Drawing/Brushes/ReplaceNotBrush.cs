@@ -64,7 +64,7 @@ namespace fCraft.Drawing {
 
         public string Description {
             get {
-                if( Blocks.Length == 0 ) {
+                if( Blocks == null ) {
                     return Factory.Name;
                 } else {
                     return String.Format( "{0}({1} -> {2})",
