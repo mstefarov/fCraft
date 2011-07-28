@@ -39,6 +39,7 @@ namespace fCraft.Drawing {
             Coverage = 0.5f;
             Persistence = 0.8f;
             Frequency = 0.07f;
+            Octaves = 3;
         }
 
 
