@@ -557,16 +557,17 @@ namespace fCraft {
         public string ClassyName {
             get {
                 if( ConfigKey.RankColorsInWorldNames.Enabled() ) {
-                    string displayedName = Name;
-                    if( ConfigKey.RankPrefixesInChat.Enabled() ) {
-                        displayedName = BuildSecurity.MinRank.Prefix + displayedName;
-                    }
+                    Rank maxRank;
                     if( BuildSecurity.MinRank >= AccessSecurity.MinRank ) {
-                        displayedName = BuildSecurity.MinRank.Color + displayedName;
+                        maxRank = BuildSecurity.MinRank;
                     } else {
-                        displayedName = AccessSecurity.MinRank.Color + displayedName;
+                        maxRank = AccessSecurity.MinRank;
                     }
-                    return displayedName;
+                    if( ConfigKey.RankPrefixesInChat.Enabled() ) {
+                        return maxRank.Color + maxRank.Prefix + Name;
+                    } else {
+                        return maxRank.Color + Name;
+                    }
                 } else {
                     return Name;
                 }
