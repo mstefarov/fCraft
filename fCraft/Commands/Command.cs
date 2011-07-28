@@ -180,6 +180,40 @@ namespace fCraft {
         }
 
 
+        public Block NextBlockWithParam( Player player, ref int param ) {
+            string jointString = Next();
+            if( jointString == null ) {
+                return Block.Undefined;
+            }
+
+            Block targetBlock;
+            int slashIndex = jointString.IndexOf( '/' );
+            if( slashIndex != -1 ) {
+                string blockName = jointString.Substring( 0, slashIndex );
+                string paramString = jointString.Substring( slashIndex + 1 );
+
+                targetBlock = Map.GetBlockByName( blockName );
+                if( targetBlock == Block.Undefined ) {
+                    player.Message( "Unrecognized blocktype \"{0}\"", targetBlock );
+                }
+
+                int tempParam;
+                if( Int32.TryParse( paramString, out tempParam ) ) {
+                    param = tempParam;
+                } else {
+                    player.Message( "Could not parse \"{0}\" as an integer.", paramString );
+                }
+
+            } else {
+                targetBlock = Map.GetBlockByName( jointString );
+                if( targetBlock == Block.Undefined ) {
+                    player.Message( "Unrecognized blocktype \"{0}\"", targetBlock );
+                }
+            }
+            return targetBlock;
+        }
+
+
         public override string ToString() {
             if( IsConfirmed ) {
                 return String.Format( "Command(\"{0}\",{1},confirmed)", Message, offset );

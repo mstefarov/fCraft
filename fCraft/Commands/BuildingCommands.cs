@@ -272,8 +272,8 @@ namespace fCraft {
             op.Brush = player.Brush.MakeInstance( player, cmd, op );
             if( op.Brush == null ) return;
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
-            player.MessageNow( "{0}: Click 2 blocks or use &H/mark&S to make a selection.",
-                               op.Description );
+            player.MessageNow( "{0}/{1}: Click 2 blocks or use &H/mark&S to make a selection.",
+                               op.Description, op.Brush.InstanceDescription );
         }
 
 
