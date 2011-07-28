@@ -130,7 +130,7 @@ namespace fCraft {
             IsHidden = true,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
             Help = "Gets or sets the current brush. Available brushes are: " +
-                   "normal (default), checkered, cloudy, marbled, rainbow, and random.",
+                   "normal (default), checkered, cloudy, marbled, rainbow, random, replace, and replacenot.",
             Handler = SetBrush
         };
 

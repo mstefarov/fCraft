@@ -57,7 +57,13 @@ namespace fCraft.Drawing {
 
         public string Description {
             get {
-                return String.Format( "{0}({1},{2},{3})", Factory.Name, Block1, Block2, Seed );
+                if( Block2 != Block.Undefined ) {
+                    return String.Format( "{0}({1},{2})", Factory.Name, Block1, Block2 );
+                } else if( Block1 != Block.Undefined ) {
+                    return String.Format( "{0}({1})", Factory.Name, Block1 );
+                } else {
+                    return Factory.Name;
+                }
             }
         }
 

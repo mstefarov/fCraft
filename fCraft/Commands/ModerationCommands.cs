@@ -867,7 +867,7 @@ namespace fCraft {
             string playerName = cmd.Next();
             if( playerName == null ) {
                 player.World.Map.Spawn = player.Position;
-                player.Send( PacketWriter.MakeSelfTeleport( player.World.Map.Spawn ) );
+                player.TeleportTo( player.World.Map.Spawn );
                 player.Send( PacketWriter.MakeAddEntity( 255, player.ListName, player.Position ) );
                 player.Message( "New spawn point saved." );
                 Logger.Log( "{0} changed the spawned point.", LogType.UserActivity,
@@ -1009,14 +1009,13 @@ namespace fCraft {
                         player.Message( "Coordinates are outside the valid range!" );
 
                     } else {
-                        player.StopSpectating();
-                        player.Send( PacketWriter.MakeTeleport( 255, new Position {
+                        player.TeleportTo( new Position {
                             X = (short)(x * 32 + 16),
                             Y = (short)(y * 32 + 16),
                             Z = (short)(z * 32 + 16),
                             R = player.Position.R,
                             L = player.Position.L
-                        } ) );
+                        } );
                     }
                 } else {
                     CdTP.PrintUsage( player );
@@ -1028,8 +1027,7 @@ namespace fCraft {
                     Player target = matches[0];
 
                     if( target.World == player.World ) {
-                        player.StopSpectating();
-                        player.Send( PacketWriter.MakeSelfTeleport( target.Position ) );
+                        player.TeleportTo( target.Position );
 
                     } else {
                         switch( target.World.AccessSecurity.CheckDetailed( player.Info ) ) {
@@ -1124,8 +1122,7 @@ namespace fCraft {
 
             if( target.World == toPlayer.World ) {
                 // teleport within the same world
-                target.StopSpectating();
-                target.Send( PacketWriter.MakeSelfTeleport( toPlayer.Position ) );
+                target.TeleportTo( toPlayer.Position );
                 target.Position = toPlayer.Position;
                 if( target.Info.IsFrozen ) {
                     target.Position = toPlayer.Position;
@@ -1325,9 +1322,8 @@ namespace fCraft {
                 return;
             }
 
-            player.StopSpectating();
+            player.TeleportTo( target.Position );
             player.Message( "Patrol: Teleporting to {0}", target.ClassyName );
-            player.Send( PacketWriter.MakeSelfTeleport( target.Position ) );
         }
 
 
