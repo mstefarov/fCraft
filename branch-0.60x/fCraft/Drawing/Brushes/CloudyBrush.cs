@@ -36,6 +36,10 @@ namespace fCraft.Drawing {
 
         public CloudyBrush( Block block1, Block block2, int seed )
             : base( block1, block2, seed ) {
+            Coverage = 0.5f;
+            Persistence = 0.75f;
+            Frequency = 0.08f;
+            Octaves = 3;
         }
 
 
