@@ -66,6 +66,7 @@ namespace fCraft {
             set {
                 if( map != null && value == null ) StopTasks();
                 if( map == null && value != null ) StartTasks();
+                if( value != null ) value.World = this;
                 map = value;
             }
         }
@@ -100,7 +101,6 @@ namespace fCraft {
                                 Name );
                     Map = MapGenerator.GenerateFlatgrass( 128, 128, 64 );
                 }
-                Map.World = this;
 
                 return Map;
             }
@@ -139,13 +139,13 @@ namespace fCraft {
             if( newMap == null ) throw new ArgumentNullException( "newMap" );
             lock( WorldLock ) {
                 World newWorld = new World( Name ) {
-                    Map = newMap,
                     AccessSecurity = (SecurityController)AccessSecurity.Clone(),
                     BuildSecurity = (SecurityController)BuildSecurity.Clone(),
                     IsHidden = IsHidden,
                     IsBlockTracked = IsBlockTracked
                 };
                 newMap.World = newWorld;
+                newWorld.Map = newMap;
                 newWorld.NeverUnload = neverUnload;
                 WorldManager.ReplaceWorld( this, newWorld );
                 foreach( Player player in Players ) {
