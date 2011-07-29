@@ -13,7 +13,7 @@ using fCraft.Events;
 namespace fCraft {
     public static class PlayerDB {
         static readonly Trie<PlayerInfo> Trie = new Trie<PlayerInfo>();
-        static readonly List<PlayerInfo> List = new List<PlayerInfo>();
+        static List<PlayerInfo> List = new List<PlayerInfo>();
 
         /// <summary> Cached list of all players in the database.
         /// May be quite long. </summary>
@@ -426,7 +426,8 @@ namespace fCraft {
         }
 
 
-        internal static int RemoveInactivePlayers() {
+        internal static int RemoveInactivePlayers( Player player ) {
+            int estimate = CountInactivePlayers();
             int count = 0;
             lock( AddLocker ) {
                 playersByIP = new Dictionary<IPAddress, List<PlayerInfo>>();
@@ -437,18 +438,29 @@ namespace fCraft {
                     }
                     playersByIP[playerInfoListCache[i].LastIP].Add( PlayerInfoList[i] );
                 }
+                List<PlayerInfo> newList = new List<PlayerInfo>();
                 for( int i = 0; i < playerInfoListCache.Length; i++ ) {
                     PlayerInfo p = playerInfoListCache[i];
                     if( PlayerIsInactive( p, true ) ) {
                         count++;
-                        Trie.Remove( p.Name );
-                        List.Remove( p );
+                        newList.Add( p );
+                        if( (count % (estimate / 4) == 0) ) {
+                            player.Message( "PruneDB: {0}% complete.", (count * 100) / estimate );
+                        }
                     }
                 }
+
+                List = newList;
+                Trie.Clear();
+                foreach( PlayerInfo p in List ) {
+                    Trie.Add( p.Name, p );
+                }
+
                 List.TrimExcess();
                 UpdateCache();
                 playersByIP = null;
             }
+            player.Message( "PruneDB: Removed {0} inactive players!", count );
             return count;
         }
 
