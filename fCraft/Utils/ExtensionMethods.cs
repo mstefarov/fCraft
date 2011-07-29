@@ -123,13 +123,13 @@ namespace fCraft {
             if( span.TotalSeconds < 60 ) {
                 return String.Format( "{0}s", span.Seconds );
             } else if( span.TotalMinutes < 60 ) {
-                return String.Format( "{0:0}m{1}s", span.TotalMinutes, span.Seconds );
+                return String.Format( "{0}m{1}s", span.Minutes, span.Seconds );
             } else if( span.TotalHours < 48 ) {
-                return String.Format( "{0:0}h{1}m", span.TotalHours, span.Minutes );
-            } else if( span.TotalDays < 14 ) {
-                return String.Format( "{0:0}d{1}h", span.TotalDays, span.Hours );
+                return String.Format( "{0}h{1}m", span.Hours, span.Minutes );
+            } else if( span.TotalDays < 15 ) {
+                return String.Format( "{0:0}d{1}h", span.Days, span.Hours );
             } else {
-                return String.Format( "{0:0}w{1:0}d", span.TotalDays / 7, span.TotalDays % 7 );
+                return String.Format( "{0:0}w{1:0}d", Math.Floor( span.TotalDays / 7 ), Math.Floor( span.TotalDays ) % 7 );
             }
         }
 
