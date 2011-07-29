@@ -60,20 +60,22 @@ namespace fCraft.Drawing {
                 }
             }
 
-            for( int x = Bounds.XMin; x <= Bounds.XMax; x++ ) {
-                for( int z = Bounds.ZMin; z <= Bounds.ZMax; z++ ) {
-                    yield return new Vector3I( x, Bounds.YMin, z );
-                    if( Bounds.YMin != Bounds.YMax ) {
-                        yield return new Vector3I( x, Bounds.YMax, z );
+            if( Bounds.Height > 2 ) {
+                for( int x = Bounds.XMin; x <= Bounds.XMax; x++ ) {
+                    for( int z = Bounds.ZMin + 1; z < Bounds.ZMax; z++ ) {
+                        yield return new Vector3I( x, Bounds.YMin, z );
+                        if( Bounds.YMin != Bounds.YMax ) {
+                            yield return new Vector3I( x, Bounds.YMax, z );
+                        }
                     }
                 }
-            }
 
-            for( int y = Bounds.YMin; y <= Bounds.YMax; y++ ) {
-                for( int z = Bounds.ZMin; z <= Bounds.ZMax; z++ ) {
-                    yield return new Vector3I( Bounds.XMin, y, z );
-                    if( Bounds.XMin != Bounds.XMax ) {
-                        yield return new Vector3I( Bounds.XMax, y, z );
+                for( int y = Bounds.YMin + 1; y < Bounds.YMax; y++ ) {
+                    for( int z = Bounds.ZMin + 1; z < Bounds.ZMax; z++ ) {
+                        yield return new Vector3I( Bounds.XMin, y, z );
+                        if( Bounds.XMin != Bounds.XMax ) {
+                            yield return new Vector3I( Bounds.XMax, y, z );
+                        }
                     }
                 }
             }
