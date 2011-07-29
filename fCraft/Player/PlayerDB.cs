@@ -406,7 +406,6 @@ namespace fCraft {
 
 
         internal static int CountInactivePlayers() {
-            int count;
             lock( AddLocker ) {
                 playersByIP = new Dictionary<IPAddress, List<PlayerInfo>>();
                 PlayerInfo[] playerInfoListCache = PlayerInfoList;
@@ -416,10 +415,14 @@ namespace fCraft {
                     }
                     playersByIP[playerInfoListCache[i].LastIP].Add( PlayerInfoList[i] );
                 }
-                count = playerInfoListCache.Count( p => PlayerIsInactive( p, true ) );
+
+                int count = 0;
+                for( int i = 0; i < playerInfoListCache.Length; i++ ) {
+                    if( PlayerIsInactive( playerInfoListCache[i], true ) ) count++;
+                }
                 playersByIP = null;
+                return count;
             }
-            return count;
         }
 
 
@@ -434,10 +437,13 @@ namespace fCraft {
                     }
                     playersByIP[playerInfoListCache[i].LastIP].Add( PlayerInfoList[i] );
                 }
-                foreach( PlayerInfo p in playerInfoListCache.Where( p => PlayerIsInactive( p, true ) ) ) {
-                    Trie.Remove( p.Name );
-                    List.Remove( p );
-                    count++;
+                for( int i = 0; i < playerInfoListCache.Length; i++ ) {
+                    PlayerInfo p = playerInfoListCache[i];
+                    if( PlayerIsInactive( p, true ) ) {
+                        count++;
+                        Trie.Remove( p.Name );
+                        List.Remove( p );
+                    }
                 }
                 List.TrimExcess();
                 UpdateCache();
@@ -449,7 +455,9 @@ namespace fCraft {
 
         static bool PlayerIsInactive( PlayerInfo player, bool checkIP ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( player.Banned || !String.IsNullOrEmpty( player.UnbannedBy ) || player.IsFrozen || player.IsMuted || player.TimesKicked != 0 || !String.IsNullOrEmpty( player.RankChangedBy ) ) {
+            if( player.Banned || !String.IsNullOrEmpty( player.UnbannedBy ) ||
+                player.IsFrozen || player.IsMuted || player.TimesKicked != 0 ||
+                player.Rank != RankManager.DefaultRank || player.PreviousRank != null ) {
                 return false;
             }
             if( player.TotalTime.TotalMinutes > 30 || player.TimeSinceLastSeen.TotalDays < 30 ) {

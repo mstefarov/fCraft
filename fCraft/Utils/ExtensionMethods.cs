@@ -152,7 +152,7 @@ namespace fCraft {
             } else if( span.TotalHours < 48 ) {
                 return String.Format( "{0}h{1}m", span.Hours, span.Minutes );
             } else if( span.TotalDays < 15 ) {
-                return String.Format( "{0:0}d{1}h", span.Days, span.Hours );
+                return String.Format( "{0}d{1}h", span.Days, span.Hours );
             } else {
                 return String.Format( "{0:0}w{1:0}d", Math.Floor( span.TotalDays / 7 ), Math.Floor( span.TotalDays ) % 7 );
             }

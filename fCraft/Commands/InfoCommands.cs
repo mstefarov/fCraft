@@ -314,34 +314,37 @@ namespace fCraft {
 
 
             // Promotion/demotion
-            if( !String.IsNullOrEmpty( info.RankChangedBy ) ) {
-                if( info.PreviousRank == null ) {
+            if( info.PreviousRank == null ) {
+                if( String.IsNullOrEmpty( info.RankChangedBy ) ) {
+                    player.Message( "  Rank is {0}&S (default).",
+                                    info.Rank.ClassyName );
+                } else {
                     player.Message( "  Promoted to {0}&S by {1} {2} ago.",
-                                    info.Rank.ClassyName,
-                                    info.RankChangedBy,
-                                    info.TimeSinceRankChange.ToMiniString() );
-                } else if( info.PreviousRank < info.Rank ) {
-                    player.Message( "  Promoted from {0}&S to {1}&S by {2} {3} ago.",
-                                    info.PreviousRank.ClassyName,
                                     info.Rank.ClassyName,
                                     info.RankChangedBy,
                                     info.TimeSinceRankChange.ToMiniString() );
                     if( !string.IsNullOrEmpty( info.RankChangeReason ) ) {
                         player.Message( "  Promotion reason: {0}", info.RankChangeReason );
                     }
-                } else {
-                    player.Message( "  Demoted from {0}&S to {1}&S by {2} {3} ago.",
-                                    info.PreviousRank.ClassyName,
-                                    info.Rank.ClassyName,
-                                    info.RankChangedBy,
-                                    info.TimeSinceRankChange.ToMiniString() );
-                    if( info.RankChangeReason.Length > 0 ) {
-                        player.Message( "  Demotion reason: {0}", info.RankChangeReason );
-                    }
+                }
+            } else if( info.PreviousRank < info.Rank ) {
+                player.Message( "  Promoted from {0}&S to {1}&S by {2} {3} ago.",
+                                info.PreviousRank.ClassyName,
+                                info.Rank.ClassyName,
+                                info.RankChangedBy,
+                                info.TimeSinceRankChange.ToMiniString() );
+                if( !string.IsNullOrEmpty( info.RankChangeReason ) ) {
+                    player.Message( "  Promotion reason: {0}", info.RankChangeReason );
                 }
             } else {
-                player.Message( "  Rank is {0}&S (default).",
-                                info.Rank.ClassyName );
+                player.Message( "  Demoted from {0}&S to {1}&S by {2} {3} ago.",
+                                info.PreviousRank.ClassyName,
+                                info.Rank.ClassyName,
+                                info.RankChangedBy,
+                                info.TimeSinceRankChange.ToMiniString() );
+                if( info.RankChangeReason.Length > 0 ) {
+                    player.Message( "  Demotion reason: {0}", info.RankChangeReason );
+                }
             }
 
             if( info.LastIP.ToString() != IPAddress.None.ToString() ) {
