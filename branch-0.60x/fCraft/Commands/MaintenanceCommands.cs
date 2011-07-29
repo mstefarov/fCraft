@@ -134,10 +134,14 @@ namespace fCraft {
                 stat.PreviousRank.Add( rank2, 0 );
             }
 
-            infos = infos.Where( info => (info.TimeSinceLastLogin.TotalDays < 30 && !info.Banned) ).ToArray();
+            int totalCount = infos.Length;
+            int bannedCount = infos.Count( info => info.Banned );
+            int inactiveCount = infos.Count( info => info.TimeSinceLastSeen.TotalDays >= 30 );
+            infos = infos.Where( info => (info.TimeSinceLastSeen.TotalDays < 30 && !info.Banned) ).ToArray();
 
             if( infos.Length == 0 ) {
-                writer.WriteLine( "{0}: 0 players, 0 banned", groupName );
+                writer.WriteLine( "{0}: {1} players, {2} banned, 0 inactive",
+                                  totalCount, bannedCount, inactiveCount );
                 writer.WriteLine();
                 return;
             }
@@ -153,7 +157,6 @@ namespace fCraft {
                 stat.TimesKicked += infos[i].TimesKicked;
                 stat.TimesKickedOthers += infos[i].TimesKickedOthers;
                 stat.TimesBannedOthers += infos[i].TimesBannedOthers;
-                if( infos[i].Banned ) stat.Banned++;
                 if( infos[i].PreviousRank != null ) stat.PreviousRank[infos[i].PreviousRank]++;
             }
 
@@ -194,7 +197,8 @@ namespace fCraft {
             stat.TopTimesBannedOthers = infos.OrderByDescending( info => info.TimesBannedOthers ).ToArray();
 
 
-            writer.WriteLine( "{0}: {1} players, {2} banned", groupName, infos.Length, stat.Banned );
+            writer.WriteLine( "{0}: {1} players, {2} banned, {3} inactive",
+                              groupName, totalCount, bannedCount, inactiveCount );
             writer.WriteLine( "    TimeSinceFirstLogin: {0} mean,  {1} median,  {2} total",
                               TimeSpan.FromTicks( stat.TimeSinceFirstLogin.Ticks / infos.Length ).ToCompactString(),
                               stat.TimeSinceFirstLoginMedian.ToCompactString(),
@@ -450,7 +454,6 @@ namespace fCraft {
             public long TimesKicked;
             public long TimesKickedOthers;
             public long TimesBannedOthers;
-            public int Banned;
             public readonly Dictionary<Rank, int> PreviousRank = new Dictionary<Rank, int>();
 
             public TimeSpan TimeSinceFirstLoginMedian;
