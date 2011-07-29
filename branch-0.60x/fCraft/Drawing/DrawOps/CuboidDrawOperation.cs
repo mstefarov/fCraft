@@ -34,7 +34,10 @@ namespace fCraft.Drawing {
                     for( ; Coords.Z <= Bounds.ZMax; Coords.Z++ ) {
                         if( DrawOneBlock() ) {
                             blocksDone++;
-                            if( blocksDone >= maxBlocksToDraw ) return blocksDone;
+                            if( blocksDone >= maxBlocksToDraw ) {
+                                Coords.Z++;
+                                return blocksDone;
+                            }
                         }
                     }
                     Coords.Z = Bounds.ZMin;
