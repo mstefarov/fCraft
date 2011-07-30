@@ -1,5 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace fCraft.Drawing {
     public sealed class CloudyBrushFactory : IBrushFactory {
@@ -11,37 +13,49 @@ namespace fCraft.Drawing {
             get { return "Cloudy"; }
         }
 
-        static Random rand = new Random();
-        public static int NextSeed() {
-            lock( rand ) {
-                return rand.Next();
-            }
-        }
-
         public IBrush MakeBrush( Player player, Command cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
-            Block block = cmd.NextBlock( player );
-            Block altBlock = cmd.NextBlock( player );
 
-            int seed;
-            if( !cmd.NextInt( out seed ) ) seed = NextSeed();
+            List<Block> blocks = new List<Block>();
+            List<int> blockRatios = new List<int>();
+            while( cmd.HasNext ) {
+                int ratio = 1;
+                Block block = cmd.NextBlockWithParam( player, ref ratio );
+                if( block == Block.Undefined ) return null;
+                if( ratio < 0 || ratio > 1000 ) {
+                    player.Message( "{0} brush: Invalid block ratio ({1}). Must be between 1 and 1000.",
+                                    Name, ratio );
+                    return null;
+                }
+                blocks.Add( block );
+                blockRatios.Add( ratio );
+            }
 
-            return new CloudyBrush( block, altBlock, seed );
+            if( blocks.Count == 0 ) {
+                return new CloudyBrush();
+            } else if( blocks.Count == 1 ) {
+                return new CloudyBrush( blocks[0] );
+            } else {
+                return new CloudyBrush( blocks.ToArray(), blockRatios.ToArray() );
+            }
         }
     }
 
 
     public sealed class CloudyBrush : AbstractPerlinNoiseBrush, IBrush {
 
-        public CloudyBrush( Block block1, Block block2, int seed )
-            : base( block1, block2, seed ) {
-            Coverage = 0.5f;
-            Persistence = 0.75f;
-            Frequency = 0.08f;
-            Octaves = 3;
+        public CloudyBrush()
+            : base() {
         }
 
+        public CloudyBrush( Block oneBlock )
+            : base( oneBlock ) {
+        }
+
+        public CloudyBrush( Block[] blocks, int[] ratios )
+            : base( blocks, ratios ) {
+        }
 
         public CloudyBrush( CloudyBrush other )
             : base( other ) {
@@ -57,12 +71,24 @@ namespace fCraft.Drawing {
 
         public string Description {
             get {
-                if( Block2 != Block.Undefined ) {
-                    return String.Format( "{0}({1},{2})", Factory.Name, Block1, Block2 );
-                } else if( Block1 != Block.Undefined ) {
-                    return String.Format( "{0}({1})", Factory.Name, Block1 );
-                } else {
+                if( Blocks.Length == 0 ) {
                     return Factory.Name;
+                } else if( Blocks.Length == 1 ) {
+                    return String.Format( "{0}({1})", Factory.Name, Blocks[0] );
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append( Factory.Name );
+                    sb.Append( '(' );
+                    for( int i = 0; i < Blocks.Length; i++ ) {
+                        if( i != 0 ) sb.Append( ',' ).Append( ' ' );
+                        sb.Append( Blocks[i] );
+                        if( BlockRatios[i] > 1 ) {
+                            sb.Append( '/' );
+                            sb.Digits( BlockRatios[i] );
+                        }
+                    }
+                    sb.Append( ')' );
+                    return sb.ToString();
                 }
             }
         }
@@ -73,21 +99,32 @@ namespace fCraft.Drawing {
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( state == null ) throw new ArgumentNullException( "state" );
 
-            if( cmd.HasNext ) {
-                Block block = cmd.NextBlock( player );
+            List<Block> blocks = new List<Block>();
+            List<int> blockRatios = new List<int>();
+            while( cmd.HasNext ) {
+                int ratio = 1;
+                Block block = cmd.NextBlockWithParam( player, ref ratio );
+                if( ratio < 0 || ratio > 1000 ) {
+                    player.Message( "Invalid block ratio ({0}). Must be between 1 and 1000.", ratio );
+                    return null;
+                }
                 if( block == Block.Undefined ) return null;
-                Block altBlock = cmd.NextBlock( player );
-                Block1 = block;
-                Block2 = altBlock;
-                int seed;
-                if( !cmd.NextInt( out seed ) ) seed = CloudyBrushFactory.NextSeed();
-
-            } else if( Block1 == Block.Undefined ) {
-                player.Message( "{0}: Please specify at least one block.", Factory.Name );
-                return null;
+                blocks.Add( block );
+                blockRatios.Add( ratio );
             }
 
-            return new CloudyBrush( this );
+            if( blocks.Count == 0 ) {
+                if( Blocks.Length == 0 ) {
+                    player.Message( "{0} brush: Please specify at least one block.", Factory.Name );
+                    return null;
+                } else {
+                    return new CloudyBrush( this );
+                }
+            } else if( blocks.Count == 1 ) {
+                return new CloudyBrush( blocks[0] );
+            } else {
+                return new CloudyBrush( blocks.ToArray(), blockRatios.ToArray() );
+            }
         }
 
         #endregion
@@ -106,17 +143,8 @@ namespace fCraft.Drawing {
         }
 
 
-        protected unsafe override void ProcessData( float[, ,] rawData, Block[, ,] data ) {
-            Noise.Normalize( rawData );
-            float threshold = Noise.FindThreshold( rawData, Coverage );
-            fixed( float* rawPtr = rawData ) {
-                fixed( Block* ptr = data ) {
-                    for( int i = 0; i < rawData.Length; i++ ) {
-                        if( rawPtr[i] < threshold ) ptr[i] = Block1;
-                        else ptr[i] = Block2;
-                    }
-                }
-            }
+        protected override float ProcessBlock( float rawValue, DrawOperation state ) {
+            return rawValue;
         }
 
         #endregion

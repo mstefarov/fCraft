@@ -18,19 +18,22 @@ namespace fCraft.Drawing {
         public IBrush MakeBrush( Player player, Command cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
+
             List<Block> blocks = new List<Block>();
             List<int> blockRatios = new List<int>();
             while( cmd.HasNext ) {
                 int ratio = 1;
                 Block block = cmd.NextBlockWithParam( player, ref ratio );
-                if( ratio < 0 || ratio > 100 ) {
-                    player.Message( "Invalid block ratio ({0}). Must be between 1 and 100.", ratio );
+                if( block == Block.Undefined ) return null;
+                if( ratio < 0 || ratio > 1000 ) {
+                    player.Message( "{0} brush: Invalid block ratio ({1}). Must be between 1 and 1000.",
+                                    Name, ratio );
                     return null;
                 }
-                if( block == Block.Undefined ) return null;
                 blocks.Add( block );
                 blockRatios.Add( ratio );
             }
+
             if( blocks.Count == 0 ) {
                 return new RandomBrush();
             } else if( blocks.Count == 1 ) {
@@ -45,8 +48,8 @@ namespace fCraft.Drawing {
     public sealed class RandomBrush : IBrushInstance, IBrush {
         public Block[] Blocks { get; private set; }
         public int[] BlockRatios { get; private set; }
-        readonly Random rand = new Random();
         Block[] actualBlocks;
+        readonly Random rand = new Random();
 
         public RandomBrush() {
             Blocks = new Block[0];
@@ -123,8 +126,8 @@ namespace fCraft.Drawing {
             while( cmd.HasNext ) {
                 int ratio = 1;
                 Block block = cmd.NextBlockWithParam( player, ref ratio );
-                if( ratio < 0 || ratio > 100 ) {
-                    player.Message( "Invalid block ratio ({0}). Must be between 1 and 100.", ratio );
+                if( ratio < 0 || ratio > 1000 ) {
+                    player.Message( "Invalid block ratio ({0}). Must be between 1 and 1000.", ratio );
                     return null;
                 }
                 if( block == Block.Undefined ) return null;

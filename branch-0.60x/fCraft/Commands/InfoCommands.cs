@@ -94,7 +94,7 @@ namespace fCraft {
         static readonly Regex RegexNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\.]", RegexOptions.Compiled );
         internal static void Info( Player player, Command cmd ) {
             string name = cmd.Next();
-            if( name == null ) {
+            if( name == null || name.Equals( player.Name, StringComparison.OrdinalIgnoreCase ) ) {
                 PrintPlayerInfo( player, player.Info );
                 return;
 
