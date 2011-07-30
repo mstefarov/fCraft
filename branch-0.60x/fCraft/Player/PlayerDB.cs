@@ -443,10 +443,11 @@ namespace fCraft {
                     PlayerInfo p = playerInfoListCache[i];
                     if( PlayerIsInactive( p, true ) ) {
                         count++;
-                        newList.Add( p );
                         if( (count % (estimate / 4) == 0) ) {
                             player.Message( "PruneDB: {0}% complete.", (count * 100) / estimate );
                         }
+                    } else {
+                        newList.Add( p );
                     }
                 }
 
