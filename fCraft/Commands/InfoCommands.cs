@@ -252,13 +252,14 @@ namespace fCraft {
                 }
 
                 if( altNames.Count > 0 ) {
+                    altNames.Sort( new PlayerInfoComparer( player ) );
                     if( bannedAltCount > 0 ) {
-                        player.Message( "  {0} accounts ({1} banned) share this IP: {2}",
+                        player.Message( "  {0} accounts ({1} banned) on IP: {2}",
                                         altNames.Count,
                                         bannedAltCount,
                                         altNames.ToArray().JoinToClassyString() );
                     } else {
-                        player.Message( "  {0} accounts share this IP: {1}",
+                        player.Message( "  {0} accounts on IP: {1}",
                                         altNames.Count,
                                         altNames.ToArray().JoinToClassyString() );
                     }
