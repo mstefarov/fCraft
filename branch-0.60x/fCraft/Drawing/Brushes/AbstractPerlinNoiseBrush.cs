@@ -51,11 +51,11 @@ namespace fCraft.Drawing {
         }
 
 
-        public virtual bool Begin( Player player, DrawOperation state ) {
+        public unsafe virtual bool Begin( Player player, DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( state == null ) throw new ArgumentNullException( "state" );
 
-            if( state.Bounds.Volume > 64 * 64 * 64 ) {
+            if( state.Bounds.Volume > 32 * 32 * 32 ) {
                 player.Message( "{0} brush: Preparing, please wait...", Brush.Factory.Name );
             }
 
@@ -76,6 +76,9 @@ namespace fCraft.Drawing {
                 }
             }
             Noise.Normalize( rawData, out normMultiplier, out normConstant );
+            if( MapAllValues( rawData ) ) {
+                Noise.Normalize( rawData, out normMultiplier, out normConstant );
+            }
 
             // create a mapping of raw data to blocks
             int totalBlocks = BlockRatios.Sum();
@@ -100,7 +103,7 @@ namespace fCraft.Drawing {
             value = value * normMultiplier + normConstant;
 
             // apply child transform
-            value = ProcessBlock( value, state );
+            value = MapValue( value );
 
             // find the right block type for given value
             for( int i = 1; i < Blocks.Length; i++ ) {
@@ -112,7 +115,10 @@ namespace fCraft.Drawing {
         }
 
 
-        protected abstract float ProcessBlock( float rawValue, DrawOperation state );
+        protected abstract float MapValue( float rawValue );
+
+
+        protected abstract bool MapAllValues( float[, ,] rawValues );
 
 
         public virtual void End() {}

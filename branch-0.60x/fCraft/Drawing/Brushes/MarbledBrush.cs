@@ -144,8 +144,17 @@ namespace fCraft.Drawing {
         }
 
 
-        protected override float ProcessBlock( float rawValue, DrawOperation state ) {
+        protected override float MapValue( float rawValue ) {
             return Math.Abs( rawValue * 2 - 1 );
+        }
+
+        protected unsafe override bool MapAllValues( float[, ,] rawValues ) {
+            fixed( float* ptr = rawValues ) {
+                for( int i = 0; i < rawValues.Length; i++ ) {
+                    ptr[i] = Math.Abs( ptr[i] * 2 - 1 );
+                }
+            }
+            return false;
         }
 
         #endregion
