@@ -74,18 +74,9 @@ namespace fCraft {
 
         public static Map GenerateFlatgrass( int width, int length, int height ) {
             Map map = new Map( null, width, length, height, true );
-            for( int i = 0; i < width; i++ ) {
-                for( int j = 0; j < length; j++ ) {
-                    for( int k = 0; k < height / 2 - 1; k++ ) {
-                        if( k < height / 2 - 5 ) {
-                            map.SetBlock( i, j, k, Block.Stone );
-                        } else {
-                            map.SetBlock( i, j, k, Block.Dirt );
-                        }
-                    }
-                    map.SetBlock( i, j, height / 2 - 1, Block.Grass );
-                }
-            }
+            map.Blocks.MemSet( (byte)Block.Stone, 0, width * length * (height / 2 - 5) );
+            map.Blocks.MemSet( (byte)Block.Dirt, width * length * (height / 2 - 5), width * length * 4 );
+            map.Blocks.MemSet( (byte)Block.Grass, width * length * (height / 2 - 1), width * length );
             return map;
         }
 

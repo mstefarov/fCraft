@@ -419,4 +419,54 @@ namespace fCraft {
             return value;
         }
     }
+
+    unsafe static class MemSetSharp {
+        public static unsafe void MemSet( this byte[] array, byte value ) {
+            if( array == null ) throw new ArgumentNullException( "array" );
+            byte[] rawValue = new byte[] { value, value, value, value, value, value, value, value };
+            Int64 fillValue = BitConverter.ToInt64( rawValue, 0 );
+
+            fixed( byte* ptr = array ) {
+                Int64* dest = (Int64*)ptr;
+                int length = array.Length;
+                while( length >= 8 ) {
+                    *dest = fillValue;
+                    dest++;
+                    length -= 8;
+                }
+                byte* bDest = (byte*)dest;
+                for( byte i = 0; i < length; i++ ) {
+                    *bDest = value;
+                    bDest++;
+                }
+            }
+        }
+
+        public static unsafe void MemSet( this byte[] array, byte value, int startIndex, int length ) {
+            if( array == null ) throw new ArgumentNullException( "array" );
+            if( length < 0 || length > array.Length ) {
+                throw new ArgumentOutOfRangeException( "length" );
+            }
+            if( startIndex < 0 || startIndex + length > array.Length ) {
+                throw new ArgumentOutOfRangeException( "startIndex" );
+            }
+
+            byte[] rawValue = new byte[] { value, value, value, value, value, value, value, value };
+            Int64 fillValue = BitConverter.ToInt64( rawValue, 0 );
+
+            fixed( byte* ptr = &array[startIndex] ) {
+                Int64* dest = (Int64*)ptr;
+                while( length >= 8 ) {
+                    *dest = fillValue;
+                    dest++;
+                    length -= 8;
+                }
+                byte* bDest = (byte*)dest;
+                for( byte i = 0; i < length; i++ ) {
+                    *bDest = value;
+                    bDest++;
+                }
+            }
+        }
+    }
 }
