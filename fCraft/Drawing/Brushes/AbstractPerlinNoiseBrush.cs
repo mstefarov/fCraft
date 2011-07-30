@@ -5,27 +5,44 @@ using System.Text;
 
 namespace fCraft.Drawing {
     public abstract class AbstractPerlinNoiseBrush : IBrushInstance {
-        public Block Block1 { get; set; }
-        public Block Block2 { get; set; }
         public int Seed { get; set; }
         public float Coverage { get; set; }
         public float Frequency { get; set; }
         public int Octaves { get; set; }
         public float Persistence { get; set; }
 
+        public Block[] Blocks { get; private set; }
+        public int[] BlockRatios { get; private set; }
 
-        protected AbstractPerlinNoiseBrush( Block block1, Block block2, int seed ) {
-            Block1 = block1;
-            Block2 = block2;
-            Seed = seed;
-            Coverage = .5f;
+        float[] ComputedThresholds;
+        float normMultiplier, normConstant;
+        PerlinNoise3D noise3D;
+        
+        protected AbstractPerlinNoiseBrush() {
+            Blocks = new Block[0];
+            BlockRatios = new int[0];
+            Coverage = 0.5f;
+            Persistence = 0.75f;
+            Frequency = 0.08f;
+            Octaves = 3;
+        }
+
+        protected AbstractPerlinNoiseBrush( Block oneBlock ) : this() {
+            Blocks = new[]{oneBlock};
+            BlockRatios = new[] { 1 };
+        }
+
+        protected AbstractPerlinNoiseBrush( Block[] blocks, int[] ratios )
+            : this() {
+            Blocks = blocks;
+            BlockRatios = ratios;
         }
 
 
         protected AbstractPerlinNoiseBrush( AbstractPerlinNoiseBrush other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            Block1 = other.Block1;
-            Block2 = other.Block2;
+            Blocks = other.Blocks;
+            BlockRatios = other.BlockRatios;
             Seed = other.Seed;
             Coverage = other.Coverage;
             Frequency = other.Frequency;
@@ -34,18 +51,22 @@ namespace fCraft.Drawing {
         }
 
 
-        protected Block[, ,] data;
-
         public virtual bool Begin( Player player, DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( state == null ) throw new ArgumentNullException( "state" );
-            PerlinNoise3D noise3D = new PerlinNoise3D( new Random( Seed ) ) {
+
+            if( state.Bounds.Volume > 64 * 64 * 64 ) {
+                player.Message( "{0} brush: Preparing, please wait...", Brush.Factory.Name );
+            }
+
+            noise3D = new PerlinNoise3D( new Random( Seed ) ) {
                 Amplitude = 1,
                 Frequency = Frequency,
                 Octaves = Octaves,
                 Persistence = Persistence
             };
-
+            
+            // generate and normalize the raw (float) data
             float[, ,] rawData = new float[state.Bounds.Width, state.Bounds.Length, state.Bounds.Height];
             for( int x = 0; x < state.Bounds.Width; x++ ) {
                 for( int y = 0; y < state.Bounds.Length; y++ ) {
@@ -54,32 +75,54 @@ namespace fCraft.Drawing {
                     }
                 }
             }
+            Noise.Normalize( rawData, out normMultiplier, out normConstant );
 
-            data = new Block[state.Bounds.Width, state.Bounds.Length, state.Bounds.Height];
-
-            ProcessData( rawData, data );
+            // create a mapping of raw data to blocks
+            int totalBlocks = BlockRatios.Sum();
+            int blocksSoFar = BlockRatios[0];
+            ComputedThresholds = new float[Blocks.Length];
+            ComputedThresholds[0] = 0;
+            for( int i = 1; i < Blocks.Length; i++ ) {
+                float desiredCoverage = blocksSoFar / (float)totalBlocks;
+                ComputedThresholds[i] = Noise.FindThreshold( rawData, desiredCoverage );
+                blocksSoFar += BlockRatios[i];
+            }
             return true;
         }
-
-
-        protected abstract void ProcessData( float[, ,] rawData, Block[,,] data );
 
 
         public virtual Block NextBlock( DrawOperation state ) {
             if( state == null ) throw new ArgumentNullException( "state" );
             Vector3I relativeCoords = state.Coords - state.Bounds.MinVertexV;
-            return data[relativeCoords.X, relativeCoords.Y, relativeCoords.Z];
+            float value = noise3D.Compute( relativeCoords.X, relativeCoords.Y, relativeCoords.Z );
+
+            // normalize value
+            value = value * normMultiplier + normConstant;
+
+            // apply child transform
+            value = ProcessBlock( value, state );
+
+            // find the right block type for given value
+            for( int i = 1; i < Blocks.Length; i++ ) {
+                if( ComputedThresholds[i] > value ) {
+                    return Blocks[i - 1];
+                }
+            }
+            return Blocks[Blocks.Length - 1];
         }
 
 
-        public virtual void End() {
-            data = null;
-        }
+        protected abstract float ProcessBlock( float rawValue, DrawOperation state );
+
+
+        public virtual void End() {}
 
 
         public abstract IBrush Brush { get; }
 
+
         public abstract string InstanceDescription { get; }
+
 
         public bool HasAlternateBlock {
             get { return false; }

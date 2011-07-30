@@ -31,5 +31,14 @@ namespace fCraft.Drawing {
                 return null;
             }
         }
+
+
+        static readonly Random rand = new Random();
+        static readonly object randLock = new object();
+        public static int NextSeed() {
+            lock( randLock ) {
+                return rand.Next();
+            }
+        }
     }
 }

@@ -101,13 +101,6 @@ namespace fCraft {
                 freq *= 2;                                // octave is the double of the previous frequency
                 amp *= this.Persistence;
             }
-
-            // Clamp and return the result
-            if( noise < 0 ) {
-                return 0;
-            } else if( noise > 1 ) {
-                return 1;
-            }
             return noise;
         }
 

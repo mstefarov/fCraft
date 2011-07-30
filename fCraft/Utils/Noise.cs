@@ -279,6 +279,30 @@ namespace fCraft {
         }
 
 
+        public unsafe static void Normalize( float[, ,] map, out float multiplier, out float constant ) {
+            CalculateNormalizationParams( map, out multiplier, out constant, 0f, 1f );
+        }
+
+        public unsafe static void CalculateNormalizationParams( float[, ,] map, out float multiplier, out float constant, float low, float high ) {
+            fixed( float* ptr = map ) {
+                float min = float.MaxValue,
+                      max = float.MinValue;
+
+                for( int i = 0; i < map.Length; i++ ) {
+                    min = Math.Min( min, ptr[i] );
+                    max = Math.Max( max, ptr[i] );
+                }
+
+                multiplier = (high - low) / (max - min);
+                constant = -min * (high - low) / (max - min) + low;
+
+                for( int i = 0; i < map.Length; i++ ) {
+                    ptr[i] = ptr[i] * multiplier + constant;
+                }
+            }
+        }
+
+
         public unsafe static void Normalize( float[,] map, float low, float high ) {
             int length = map.GetLength( 0 ) * map.GetLength( 1 );
             fixed( float* ptr = map ) {
@@ -459,57 +483,50 @@ namespace fCraft {
 
         const int ThresholdSearchPasses = 10;
 
-        public static float FindThreshold( float[,] data, float desiredCoverage ) {
+        public unsafe static float FindThreshold( float[,] data, float desiredCoverage ) {
             if( desiredCoverage == 0 ) return 0;
             if( desiredCoverage == 1 ) return 1;
             float threshold = 0.5f;
-            for( int i = 0; i < ThresholdSearchPasses; i++ ) {
-                if( CalculateCoverage( data, threshold ) > desiredCoverage ) {
-                    threshold = threshold - 1 / (float)(4 << i);
-                } else {
-                    threshold = threshold + 1 / (float)(4 << i);
-                }
-            }
-            return threshold;
-        }
-
-
-        public static float CalculateCoverage( float[,] data, float threshold ) {
-            int coveredPixels = 0;
-            for( int x = data.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                for( int y = data.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    if( data[x, y] < threshold ) coveredPixels++;
-                }
-            }
-            return coveredPixels / (float)data.Length;
-        }
-
-
-        public static float FindThreshold( float[,,] data, float desiredCoverage ) {
-            if( desiredCoverage == 0 ) return 0;
-            if( desiredCoverage == 1 ) return 1;
-            float threshold = 0.5f;
-            for( int i = 0; i < ThresholdSearchPasses; i++ ) {
-                if( CalculateCoverage( data, threshold ) > desiredCoverage ) {
-                    threshold = threshold - 1 / (float)(4 << i);
-                } else {
-                    threshold = threshold + 1 / (float)(4 << i);
-                }
-            }
-            return threshold;
-        }
-
-
-        public static float CalculateCoverage( float[, ,] data, float threshold ) {
-            int coveredVoxels = 0;
-            for( int x = data.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                for( int y = data.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    for( int z = data.GetLength( 2 ) - 1; z >= 0; z-- ) {
-                        if( data[x, y, z] < threshold ) coveredVoxels++;
+            fixed( float* ptr = data ) {
+                for( int i = 0; i < ThresholdSearchPasses; i++ ) {
+                    float coverage = CalculateCoverage( ptr, data.Length, threshold );
+                    if( coverage > desiredCoverage ) {
+                        threshold = threshold - 1 / (float)(4 << i);
+                    } else {
+                        threshold = threshold + 1 / (float)(4 << i);
                     }
                 }
             }
-            return coveredVoxels / (float)data.Length;
+            return threshold;
+        }
+
+
+        public unsafe static float FindThreshold( float[,,] data, float desiredCoverage ) {
+            if( desiredCoverage == 0 ) return 0;
+            if( desiredCoverage == 1 ) return 1;
+            float threshold = 0.5f;
+            fixed( float* ptr = data ) {
+                for( int i = 0; i < ThresholdSearchPasses; i++ ) {
+                    float coverage = CalculateCoverage( ptr, data.Length, threshold );
+                    if( coverage > desiredCoverage ) {
+                        threshold = threshold - 1 / (float)(4 << i);
+                    } else {
+                        threshold = threshold + 1 / (float)(4 << i);
+                    }
+                }
+            }
+            return threshold;
+        }
+
+
+        public unsafe static float CalculateCoverage( float* data, int length, float threshold ) {
+            int coveredVoxels = 0;
+            float* end = data + length;
+            while( data < end ) {
+                if( *data < threshold ) coveredVoxels++;
+                data++;
+            }
+            return coveredVoxels / (float)length;
         }
     }
 }
