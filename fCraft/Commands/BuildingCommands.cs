@@ -144,7 +144,7 @@ namespace fCraft {
                     player.Message( "Unrecognized brush \"{0}\"", brushName );
                 } else {
                     IBrush newBrush = brushFactory.MakeBrush( player, cmd );
-                    if( player.Brush != null ) {
+                    if( newBrush != null ) {
                         player.Brush = newBrush;
                         player.Message( "Brush set to {0}", player.Brush.Description );
                     }
