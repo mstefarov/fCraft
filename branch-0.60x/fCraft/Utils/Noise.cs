@@ -259,7 +259,7 @@ namespace fCraft {
             float maxDim = 1f / Math.Max( map.GetLength( 0 ), Math.Max( map.GetLength( 2 ), map.GetLength( 1 ) ) );
             for( int x = map.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = map.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    for( int z = map.GetLength( 2 ) - 1; y >= 0; y-- ) {
+                    for( int z = map.GetLength( 2 ) - 1; z >= 0; z-- ) {
                         map[x, y, z] += PerlinNoise( x * maxDim + offsetX, y * maxDim + offsetY, startOctave, endOctave, decay );
                     }
                 }
@@ -279,7 +279,7 @@ namespace fCraft {
         }
 
 
-        public unsafe static void Normalize( float[, ,] map, out float multiplier, out float constant ) {
+        public static void Normalize( float[, ,] map, out float multiplier, out float constant ) {
             CalculateNormalizationParams( map, out multiplier, out constant, 0f, 1f );
         }
 

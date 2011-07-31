@@ -51,7 +51,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public unsafe virtual bool Begin( Player player, DrawOperation state ) {
+        public virtual bool Begin( Player player, DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( state == null ) throw new ArgumentNullException( "state" );
 

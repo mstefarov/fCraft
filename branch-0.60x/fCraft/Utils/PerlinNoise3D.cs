@@ -94,12 +94,12 @@ namespace fCraft {
 
         public float Compute( float x, float y, float z ) {
             float noise = 0;
-            float amp = this.Amplitude;
-            float freq = this.Frequency;
-            for( int i = 0; i < this.Octaves; i++ ) {
+            float amp = Amplitude;
+            float freq = Frequency;
+            for( int i = 0; i < Octaves; i++ ) {
                 noise += Noise( x * freq, y * freq, z * freq ) * amp;
                 freq *= 2;                                // octave is the double of the previous frequency
-                amp *= this.Persistence;
+                amp *= Persistence;
             }
             return noise;
         }
@@ -107,14 +107,14 @@ namespace fCraft {
 
         private float Noise( float x, float y, float z ) {
             // Find unit cube that contains point
-            int iX = (int)System.Math.Floor( x ) & 255;
-            int iY = (int)System.Math.Floor( y ) & 255;
-            int iZ = (int)System.Math.Floor( z ) & 255;
+            int iX = (int)Math.Floor( x ) & 255;
+            int iY = (int)Math.Floor( y ) & 255;
+            int iZ = (int)Math.Floor( z ) & 255;
 
             // Find relative x, y, z of the point in the cube.
-            x -= (float)System.Math.Floor( x );
-            y -= (float)System.Math.Floor( y );
-            z -= (float)System.Math.Floor( z );
+            x -= (float)Math.Floor( x );
+            y -= (float)Math.Floor( y );
+            z -= (float)Math.Floor( z );
 
             // Compute fade curves for each of x, y, z
             float u = Fade( x );
