@@ -637,7 +637,7 @@ namespace fCraft {
 
 
         public void ProcessLogout( Player player ) {
-            TotalTime += DateTime.UtcNow.Subtract( player.LoginTime );
+            TotalTime += player.LastActiveTime.Subtract( player.LoginTime );
             LastSeen = DateTime.UtcNow;
             Online = false;
             PlayerObject = null;
