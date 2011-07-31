@@ -299,13 +299,15 @@ namespace fCraft {
                 return;
             }
 
-            if( world.Map == null ) {
+            Map map = world.Map;
+            if( map == null ) {
                 player.MessageNow( "WFlush: {0}&S has no updates to process.",
                                    world.ClassyName );
             } else {
-                player.MessageNow( "WFlush: Flushing {0}&S ({1} blocks in queue)...",
+                player.MessageNow( "WFlush: Flushing {0}&S ({1} blocks, {2} commands)...",
                                    world.ClassyName,
-                                   world.Map.UpdateQueueLength );
+                                   map.UpdateQueueLength,
+                                   map.DrawQueueLength );
                 world.Flush();
             }
         }

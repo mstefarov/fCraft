@@ -2304,7 +2304,8 @@ namespace fCraft {
                 }
 
             } else if( DateTimeUtil.TryParseMiniTimespan( range, out span ) ) {
-                player.Message( "Searching for changes made by {0}&s...", target.ClassyName );
+                player.Message( "Searching for changes made by {0}&s in the last {1}...",
+                                target.ClassyName, span.ToMiniString() );
                 changes = world.LookupBlockInfo( target, span );
                 if( changes.Length > 0 && !cmd.IsConfirmed ) {
                     player.AskForConfirmation( cmd, "Undo changes ({0}) made by {1}&S in the last {2}?",

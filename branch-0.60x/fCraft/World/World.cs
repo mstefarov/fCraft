@@ -262,7 +262,7 @@ namespace fCraft {
                 }
 
                 if( player.Info.IsHidden ) {
-                    player.Message( "Reminder: You are still hidden." );
+                    player.Message( "&8Reminder: You are still hidden." );
                 }
 
                 return Map;
@@ -618,6 +618,7 @@ namespace fCraft {
             }
         }
 
+
         unsafe internal BlockDBEntry[] LookupBlockInfo( short x, short y, short z ) {
             byte[] bytes;
 
@@ -643,6 +644,7 @@ namespace fCraft {
             }
             return results.ToArray();
         }
+
 
         unsafe internal BlockDBEntry[] LookupBlockInfo( PlayerInfo info, int max ) {
             byte[] bytes;
@@ -709,6 +711,10 @@ namespace fCraft {
             }
             return results.Values.ToArray();
         }
+
+
+        //unsafe internal BlockDBEntry[] LookupBlockInfo( BoundingBox bounds, TimeSpan span ) {
+        //}
 
         #endregion
     }
