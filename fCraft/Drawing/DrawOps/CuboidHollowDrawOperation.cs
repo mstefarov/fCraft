@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 namespace fCraft.Drawing {
     public sealed class CuboidHollowDrawOperation : DrawOperation {
-        const int DrawStride = 16;
         bool fillInner;
 
         public override string Name {

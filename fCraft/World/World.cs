@@ -209,7 +209,7 @@ namespace fCraft {
 
         #region PlayerList
 
-        readonly SortedDictionary<string, Player> playerIndex = new SortedDictionary<string, Player>();
+        readonly Dictionary<string, Player> playerIndex = new Dictionary<string, Player>();
         public Player[] Players { get; private set; }
 
         public Map AcceptPlayer( Player player, bool announce ) {

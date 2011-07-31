@@ -147,7 +147,7 @@ namespace fCraft.Drawing {
             return rawValue;
         }
 
-        protected unsafe override bool MapAllValues( float[, ,] rawValues ) {
+        protected override bool MapAllValues( float[, ,] rawValues ) {
             return false;
         }
 

@@ -173,7 +173,7 @@ namespace fCraft {
             if( blockName != null ) {
                 targetBlock = Map.GetBlockByName( blockName );
                 if( targetBlock == Block.Undefined ) {
-                    player.Message( "Unrecognized blocktype \"{0}\"", targetBlock );
+                    player.Message( "Unrecognized blocktype \"{0}\"", blockName );
                 }
             }
             return targetBlock;
@@ -194,7 +194,7 @@ namespace fCraft {
 
                 targetBlock = Map.GetBlockByName( blockName );
                 if( targetBlock == Block.Undefined ) {
-                    player.Message( "Unrecognized blocktype \"{0}\"", targetBlock );
+                    player.Message( "Unrecognized blocktype \"{0}\"", blockName );
                 }
 
                 int tempParam;
@@ -207,7 +207,7 @@ namespace fCraft {
             } else {
                 targetBlock = Map.GetBlockByName( jointString );
                 if( targetBlock == Block.Undefined ) {
-                    player.Message( "Unrecognized blocktype \"{0}\"", targetBlock );
+                    player.Message( "Unrecognized blocktype \"{0}\"", jointString );
                 }
             }
             return targetBlock;

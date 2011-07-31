@@ -408,7 +408,7 @@ namespace fCraft {
 
 
         // Quicker Int32.Parse(string) by Karl Seguin
-        public unsafe static int Parse( string stringToConvert ) {
+        public static int Parse( string stringToConvert ) {
             int value = 0;
             int length = stringToConvert.Length;
             fixed( char* characters = stringToConvert ) {
@@ -421,9 +421,9 @@ namespace fCraft {
     }
 
     unsafe static class MemSetSharp {
-        public static unsafe void MemSet( this byte[] array, byte value ) {
+        public static void MemSet( this byte[] array, byte value ) {
             if( array == null ) throw new ArgumentNullException( "array" );
-            byte[] rawValue = new byte[] { value, value, value, value, value, value, value, value };
+            byte[] rawValue = new[] { value, value, value, value, value, value, value, value };
             Int64 fillValue = BitConverter.ToInt64( rawValue, 0 );
 
             fixed( byte* ptr = array ) {
@@ -442,7 +442,7 @@ namespace fCraft {
             }
         }
 
-        public static unsafe void MemSet( this byte[] array, byte value, int startIndex, int length ) {
+        public static void MemSet( this byte[] array, byte value, int startIndex, int length ) {
             if( array == null ) throw new ArgumentNullException( "array" );
             if( length < 0 || length > array.Length ) {
                 throw new ArgumentOutOfRangeException( "length" );
@@ -451,7 +451,7 @@ namespace fCraft {
                 throw new ArgumentOutOfRangeException( "startIndex" );
             }
 
-            byte[] rawValue = new byte[] { value, value, value, value, value, value, value, value };
+            byte[] rawValue = new[] { value, value, value, value, value, value, value, value };
             Int64 fillValue = BitConverter.ToInt64( rawValue, 0 );
 
             fixed( byte* ptr = &array[startIndex] ) {
