@@ -7,9 +7,9 @@ using System.Linq;
 using System.Xml.Linq;
 
 namespace AutoRankEditor {
-    public partial class MainForm : Form {
+    public sealed partial class MainForm : Form {
 
-        string[] RankList;
+        string[] rankList;
 
         public MainForm() {
 
@@ -42,9 +42,9 @@ namespace AutoRankEditor {
             Server.InitLibrary( Environment.GetCommandLineArgs() );
             Config.Load( false, false );
 
-            RankList = RankManager.Ranks.Select( r => r.Prefix + r.Name ).ToArray();
-            cFromRank.Items.AddRange( RankList );
-            cToRank.Items.AddRange( RankList );
+            rankList = RankManager.Ranks.Select( r => r.Prefix + r.Name ).ToArray();
+            cFromRank.Items.AddRange( rankList );
+            cToRank.Items.AddRange( rankList );
 
             using( LogRecorder recorder = new LogRecorder() ) {
                 AutoRankManager.Init();
@@ -55,10 +55,11 @@ namespace AutoRankEditor {
 
             if( AutoRankManager.HasCriteria ) {
                 foreach( Criterion crit in AutoRankManager.Criteria ) {
-                    ActionNode newNode = new ActionNode();
-                    newNode.Action = ActionType.Automatic;
-                    newNode.FromRank = crit.FromRank;
-                    newNode.ToRank = crit.ToRank;
+                    ActionNode newNode = new ActionNode {
+                        Action = ActionType.Automatic,
+                        FromRank = crit.FromRank,
+                        ToRank = crit.ToRank
+                    };
 
                     if( crit.Condition is ConditionAND ) {
                         newNode.Op = GroupNodeType.AND;
@@ -86,13 +87,14 @@ namespace AutoRankEditor {
         }
 
 
-        void ImportCondition( GroupNode parent, Condition condition ) {
+        static void ImportCondition( GroupNode parent, Condition condition ) {
             if( condition is ConditionIntRange ) {
                 ConditionIntRange cond = (ConditionIntRange)condition;
-                ConditionNode newNode = new ConditionNode();
-                newNode.Field = cond.Field;
-                newNode.Value = cond.Value;
-                newNode.Op = cond.Comparison;
+                ConditionNode newNode = new ConditionNode {
+                    Field = cond.Field,
+                    Value = cond.Value,
+                    Op = cond.Comparison
+                };
                 parent.Nodes.Add( newNode );
             } else if( condition is ConditionSet ) {
                 ConditionSet set = (ConditionSet)condition;
@@ -116,7 +118,7 @@ namespace AutoRankEditor {
         }
 
 
-        ConditionSet ExportConditions( GroupNode node ) {
+        static ConditionSet ExportConditions( GroupNode node ) {
             ConditionSet set;
             switch( node.Op ) {
                 case GroupNodeType.AND:
@@ -140,10 +142,11 @@ namespace AutoRankEditor {
 
                 } else if( subNode is ConditionNode ) {
                     ConditionNode sn = (ConditionNode)subNode;
-                    ConditionIntRange cond = new ConditionIntRange();
-                    cond.Comparison = sn.Op;
-                    cond.Field = sn.Field;
-                    cond.Value = sn.Value;
+                    ConditionIntRange cond = new ConditionIntRange {
+                        Comparison = sn.Op,
+                        Field = sn.Field,
+                        Value = sn.Value
+                    };
                     set.Add( cond );
 
                 } else {
@@ -201,7 +204,6 @@ namespace AutoRankEditor {
 
 
         private void bAddCondition_Click( object sender, EventArgs e ) {
-            GroupNode node = treeData.SelectedNode as GroupNode;
             foreach( ToolStripMenuItem item in cmAddCondition.Items ) {
                 if( item.DropDownItems.Count > 0 ) {
                     bool anySubItemsAvailable = false;
@@ -222,17 +224,21 @@ namespace AutoRankEditor {
             cmAddCondition.Items[0].Select();
         }
 
-        bool CheckIfNodeExists( TreeNode node, string text ) {
+
+        static bool CheckIfNodeExists( TreeNode node, string text ) {
+            // ReSharper disable LoopCanBeConvertedToQuery
             foreach( TreeNode subNode in node.Nodes ) {
                 if( (subNode is ConditionNode) && (subNode as ConditionNode).Field.GetLongString() == text ) {
                     return true;
                 }
             }
+            // ReSharper restore LoopCanBeConvertedToQuery
             return false;
         }
 
+
         private void cmAddGroup_ItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
-            ToolStripMenuItem item = e.ClickedItem as ToolStripMenuItem;
+            ToolStripMenuItem item = (ToolStripMenuItem)e.ClickedItem;
             if( item.DropDownItems.Count > 0 ) return;
             TreeNode parent = treeData.SelectedNode;
             if( parent is GroupNode ) {
@@ -244,8 +250,9 @@ namespace AutoRankEditor {
             }
         }
 
+
         private void cmAddCondition_ItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
-            ToolStripMenuItem item = e.ClickedItem as ToolStripMenuItem;
+            ToolStripMenuItem item = (ToolStripMenuItem)e.ClickedItem;
             if( item.DropDownItems.Count > 0 ) return;
             GroupNode node = treeData.SelectedNode as GroupNode;
             if( node != null ) {
@@ -260,6 +267,7 @@ namespace AutoRankEditor {
                 treeData.SelectedNode = newNode;
             }
         }
+
 
         private void bDelete_Click( object sender, EventArgs e ) {
             if( treeData.SelectedNode.Nodes.Count > 0 ) {
@@ -279,24 +287,25 @@ namespace AutoRankEditor {
             }
         }
 
+
         private void cGroupOp_SelectedIndexChanged( object sender, EventArgs e ) {
-            (treeData.SelectedNode as GroupNode).Op = (GroupNodeType)cGroupOp.SelectedIndex;
-            (treeData.SelectedNode as GroupNode).UpdateLabel();
+            ((GroupNode)treeData.SelectedNode).Op = (GroupNodeType)cGroupOp.SelectedIndex;
+            ((GroupNode)treeData.SelectedNode).UpdateLabel();
         }
 
         private void cConditionOp_SelectedIndexChanged( object sender, EventArgs e ) {
-            (treeData.SelectedNode as ConditionNode).Op = (ComparisonOp)cConditionOp.SelectedIndex;
-            (treeData.SelectedNode as ConditionNode).UpdateLabel();
+            ((ConditionNode)treeData.SelectedNode).Op = (ComparisonOp)cConditionOp.SelectedIndex;
+            ((ConditionNode)treeData.SelectedNode).UpdateLabel();
         }
 
         private void cConditionField_SelectedIndexChanged( object sender, EventArgs e ) {
-            (treeData.SelectedNode as ConditionNode).Field = EnumExtensions.ConditionFieldFromString( cConditionField.SelectedItem.ToString() );
-            (treeData.SelectedNode as ConditionNode).UpdateLabel();
+            ((ConditionNode)treeData.SelectedNode).Field = EnumExtensions.ConditionFieldFromString( cConditionField.SelectedItem.ToString() );
+            ((ConditionNode)treeData.SelectedNode).UpdateLabel();
         }
 
         private void nConditionValue_ValueChanged( object sender, EventArgs e ) {
-            (treeData.SelectedNode as ConditionNode).Value = (int)nConditionValue.Value;
-            (treeData.SelectedNode as ConditionNode).UpdateLabel();
+            ((ConditionNode)treeData.SelectedNode).Value = (int)nConditionValue.Value;
+            ((ConditionNode)treeData.SelectedNode).UpdateLabel();
         }
 
         private void bAction_Click( object sender, EventArgs e ) {
@@ -306,22 +315,22 @@ namespace AutoRankEditor {
         }
 
         private void cActionType_SelectedIndexChanged( object sender, EventArgs e ) {
-            (treeData.SelectedNode as ActionNode).Action = (ActionType)cActionType.SelectedIndex;
-            (treeData.SelectedNode as ActionNode).UpdateLabel();
+            ((ActionNode)treeData.SelectedNode).Action = (ActionType)cActionType.SelectedIndex;
+            ((ActionNode)treeData.SelectedNode).UpdateLabel();
         }
 
         private void cFromRank_SelectedIndexChanged( object sender, EventArgs e ) {
             if( cFromRank.SelectedIndex >= 0 ) {
-                (treeData.SelectedNode as ActionNode).FromRank = RankManager.Ranks[cFromRank.SelectedIndex];
+                ((ActionNode)treeData.SelectedNode).FromRank = RankManager.Ranks[cFromRank.SelectedIndex];
             }
-            (treeData.SelectedNode as ActionNode).UpdateLabel();
+            ((ActionNode)treeData.SelectedNode).UpdateLabel();
         }
 
         private void cToRank_SelectedIndexChanged( object sender, EventArgs e ) {
             if( cFromRank.SelectedIndex >= 0 ) {
-                (treeData.SelectedNode as ActionNode).ToRank = RankManager.Ranks[cToRank.SelectedIndex];
+                ((ActionNode)treeData.SelectedNode).ToRank = RankManager.Ranks[cToRank.SelectedIndex];
             }
-            (treeData.SelectedNode as ActionNode).UpdateLabel();
+            ((ActionNode)treeData.SelectedNode).UpdateLabel();
         }
 
         private void bOK_Click( object sender, EventArgs e ) {
@@ -330,10 +339,11 @@ namespace AutoRankEditor {
             foreach( TreeNode node in treeData.Nodes ) {
                 ActionNode anode = (ActionNode)node;
                 if( anode.FromRank == null || anode.ToRank == null ) continue;
-                Criterion crit = new Criterion();
-                crit.FromRank = anode.FromRank;
-                crit.ToRank = anode.ToRank;
-                crit.Condition = ExportConditions( anode );
+                Criterion crit = new Criterion {
+                    FromRank = anode.FromRank,
+                    ToRank = anode.ToRank,
+                    Condition = ExportConditions( anode )
+                };
                 root.Add( crit.Serialize() );
             }
             doc.Add( root );
@@ -342,8 +352,8 @@ namespace AutoRankEditor {
         }
 
         private void cActionConnective_SelectedIndexChanged( object sender, EventArgs e ) {
-            (treeData.SelectedNode as ActionNode).Op = (GroupNodeType)cActionConnective.SelectedIndex;
-            (treeData.SelectedNode as ActionNode).UpdateLabel();
+            ((ActionNode)treeData.SelectedNode).Op = (GroupNodeType)cActionConnective.SelectedIndex;
+            ((ActionNode)treeData.SelectedNode).UpdateLabel();
         }
     }
 
@@ -368,20 +378,20 @@ namespace AutoRankEditor {
             }
         }
 
-        public static Dictionary<ConditionField, string> ConditionFieldNames = new Dictionary<ConditionField, string> {
-            {ConditionField.BlocksBuilt,"Blocks Built"},
-            {ConditionField.BlocksChanged,"Blocks Built + Deleted"},
-            {ConditionField.BlocksDeleted,"Blocks Deleted"},
-            {ConditionField.BlocksDrawn,"Blocks Drawn"},
-            {ConditionField.LastSeen,"Time Since Last Seen"},
-            {ConditionField.MessagesWritten,"Messages Written"},
-            {ConditionField.TimeSinceFirstLogin,"Time Since First Join"},
-            {ConditionField.TimeSinceLastKick,"Time Since Most Recent Kick"},
-            {ConditionField.TimeSinceLastLogin,"Time Since Most Recent Join"},
-            {ConditionField.TimeSinceRankChange,"Time Since Most Recent Promotion/Demotion"},
-            {ConditionField.TimesKicked,"Number of Times Kicked"},
-            {ConditionField.TimesVisited,"Number of Visits"},
-            {ConditionField.TotalTime,"Total Time Spent"},
+        public static readonly Dictionary<ConditionField, string> ConditionFieldNames = new Dictionary<ConditionField, string> {
+            {ConditionField.BlocksBuilt, "Blocks Built"},
+            {ConditionField.BlocksChanged, "Blocks Built + Deleted"},
+            {ConditionField.BlocksDeleted, "Blocks Deleted"},
+            {ConditionField.BlocksDrawn, "Blocks Drawn"},
+            {ConditionField.LastSeen, "Time Since Last Seen"},
+            {ConditionField.MessagesWritten, "Messages Written"},
+            {ConditionField.TimeSinceFirstLogin, "Time Since First Join"},
+            {ConditionField.TimeSinceLastKick, "Time Since Most Recent Kick"},
+            {ConditionField.TimeSinceLastLogin, "Time Since Most Recent Join"},
+            {ConditionField.TimeSinceRankChange, "Time Since Most Recent Promotion/Demotion"},
+            {ConditionField.TimesKicked, "Number of Times Kicked"},
+            {ConditionField.TimesVisited, "Number of Visits"},
+            {ConditionField.TotalTime, "Total Time Spent"},
         };
 
         public static string GetLongString( this ConditionField field ) {

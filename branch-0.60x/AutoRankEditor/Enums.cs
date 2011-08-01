@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace AutoRankEditor {
+﻿namespace AutoRankEditor {
     public enum ConditionScopeType {
         Total,
         SinceRankChange,

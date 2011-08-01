@@ -2306,7 +2306,7 @@ namespace fCraft {
                     return;
                 }
 
-            } else if( DateTimeUtil.TryParseMiniTimespan( range, out span ) ) {
+            } else if( range.TryParseMiniTimespan( out span ) ) {
                 if( !cmd.IsConfirmed ) {
                     player.Message( "Searching for changes made by {0}&s in the last {1}...",
                                     target.ClassyName, span.ToMiniString() );

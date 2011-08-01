@@ -25,7 +25,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( MainForm ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -425,13 +425,13 @@
             // 
             // bViewCredits
             // 
-            this.bViewCredits.Enabled = false;
             this.bViewCredits.Location = new System.Drawing.Point( 156, 20 );
             this.bViewCredits.Name = "bViewCredits";
             this.bViewCredits.Size = new System.Drawing.Size( 140, 23 );
             this.bViewCredits.TabIndex = 1;
             this.bViewCredits.Text = "View Credits";
             this.bViewCredits.UseVisualStyleBackColor = true;
+            this.bViewCredits.Click += new System.EventHandler( this.bViewCredits_Click );
             // 
             // bViewVersionHistory
             // 
@@ -1235,8 +1235,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 394 );
             this.dgvWorlds.TabIndex = 1;
@@ -3177,7 +3177,7 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // ConfigUI
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -3190,7 +3190,7 @@
             this.Controls.Add( this.tabs );
             this.Icon = ((System.Drawing.Icon)(resources.GetObject( "$this.Icon" )));
             this.MinimumSize = new System.Drawing.Size( 700, 547 );
-            this.Name = "ConfigUI";
+            this.Name = "MainForm";
             this.Text = "fCraft Config Tool";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler( this.ConfigUI_FormClosing );
             this.tabs.ResumeLayout( false );

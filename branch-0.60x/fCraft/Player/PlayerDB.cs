@@ -13,7 +13,7 @@ using fCraft.Events;
 namespace fCraft {
     public static class PlayerDB {
         static readonly Trie<PlayerInfo> Trie = new Trie<PlayerInfo>();
-        static List<PlayerInfo> List = new List<PlayerInfo>();
+        static List<PlayerInfo> list = new List<PlayerInfo>();
 
         /// <summary> Cached list of all players in the database.
         /// May be quite long. </summary>
@@ -58,7 +58,7 @@ namespace fCraft {
 
                 info = new PlayerInfo( name, e.StartingRank, false, rankChangeType );
 
-                List.Add( info );
+                list.Add( info );
                 Trie.Add( info.Name, info );
                 UpdateCache();
             }
@@ -117,7 +117,7 @@ namespace fCraft {
                                                         LogType.Error, info.Name );
                                         } else {
                                             Trie.Add( info.Name, info );
-                                            List.Add( info );
+                                            list.Add( info );
                                         }
 #if !DEBUG
                                     } catch( Exception ex ) {
@@ -135,7 +135,7 @@ namespace fCraft {
                             }
                         }
                     }
-                    List.TrimExcess();
+                    list.TrimExcess();
                     sw.Stop();
                     Logger.Log( "PlayerDB.Load: Done loading player DB ({0} records) in {1}ms.", LogType.Debug,
                                 Trie.Count, sw.ElapsedMilliseconds );
@@ -242,7 +242,7 @@ namespace fCraft {
 
                     info = new PlayerInfo( name, lastIP, e.StartingRank );
                     Trie.Add( name, info );
-                    List.Add( info );
+                    list.Add( info );
                     UpdateCache();
 
                     raiseCreatedEvent = true;
@@ -394,7 +394,7 @@ namespace fCraft {
 
         static void UpdateCache() {
             lock( AddLocker ) {
-                PlayerInfoList = List.ToArray();
+                PlayerInfoList = list.ToArray();
             }
         }
 
@@ -417,7 +417,9 @@ namespace fCraft {
                 }
 
                 int count = 0;
+// ReSharper disable LoopCanBeConvertedToQuery
                 for( int i = 0; i < playerInfoListCache.Length; i++ ) {
+// ReSharper restore LoopCanBeConvertedToQuery
                     if( PlayerIsInactive( playerInfoListCache[i], true ) ) count++;
                 }
                 playersByIP = null;
@@ -451,13 +453,13 @@ namespace fCraft {
                     }
                 }
 
-                List = newList;
+                list = newList;
                 Trie.Clear();
-                foreach( PlayerInfo p in List ) {
+                foreach( PlayerInfo p in list ) {
                     Trie.Add( p.Name, p );
                 }
 
-                List.TrimExcess();
+                list.TrimExcess();
                 UpdateCache();
                 playersByIP = null;
             }

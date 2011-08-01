@@ -48,7 +48,7 @@ namespace fCraft.Drawing {
     public sealed class RandomBrush : IBrushInstance, IBrush {
         public Block[] Blocks { get; private set; }
         public int[] BlockRatios { get; private set; }
-        Block[] actualBlocks;
+        readonly Block[] actualBlocks;
         readonly Random rand = new Random();
 
         public RandomBrush() {

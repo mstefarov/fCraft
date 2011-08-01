@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 namespace AutoRankEditor {
     class GroupNode : TreeNode {
         public GroupNodeType Op { get; set; }
 
-        public GroupNode() : base() { }
+        public GroupNode() { }
 
-        public GroupNode( GroupNodeType op )
-            : base() {
+        public GroupNode( GroupNodeType op ) {
             Op = op;
             UpdateLabel();
         }
@@ -21,7 +16,7 @@ namespace AutoRankEditor {
                 if( Parent.FirstNode == this ) {
                     Text = "Group (" + Op + ", " + Nodes.Count + ")";
                 } else {
-                    Text = (Parent as GroupNode).Op.GetShortString() + " Group (" + Op + ", " + Nodes.Count + ")";
+                    Text = ((GroupNode)Parent).Op.GetShortString() + " Group (" + Op + ", " + Nodes.Count + ")";
                 }
             } else {
                 Text = "Criterion";

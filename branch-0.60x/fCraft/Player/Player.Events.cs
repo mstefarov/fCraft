@@ -191,28 +191,32 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerJoiningWorldEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
-        public PlayerJoiningWorldEventArgs( Player player, World oldWorld, World newWorld ) {
+        public PlayerJoiningWorldEventArgs( Player player, World oldWorld, World newWorld, WorldChangeReason reason ) {
             Player = player;
             OldWorld = oldWorld;
             NewWorld = newWorld;
+            Reason = reason;
         }
 
         public Player Player { get; private set; }
         public World OldWorld { get; private set; }
         public World NewWorld { get; private set; }
+        public WorldChangeReason Reason { get; private set; }
         public bool Cancel { get; set; }
     }
 
 
     public sealed class PlayerJoinedWorldEventArgs : EventArgs, IPlayerEvent {
-        public PlayerJoinedWorldEventArgs( Player player, World oldWorld, World newWorld ) {
+        public PlayerJoinedWorldEventArgs( Player player, World oldWorld, World newWorld, WorldChangeReason reason ) {
             Player = player;
             OldWorld = oldWorld;
             NewWorld = newWorld;
+            Reason = reason;
         }
 
         public Player Player { get; private set; }
         public World OldWorld { get; private set; }
         public World NewWorld { get; private set; }
+        public WorldChangeReason Reason { get; private set; }
     }
 }

@@ -149,9 +149,9 @@ namespace fCraft {
                 newWorld.NeverUnload = neverUnload;
                 WorldManager.ReplaceWorld( this, newWorld );
                 foreach( Player player in Players ) {
-                    player.JoinWorld( newWorld );
+                    player.JoinWorld( newWorld, WorldChangeReason.Rejoin );
                 }
-                lock( blockDBLock ) {
+                lock( BlockDBLock ) {
                     pendingEntries.Clear();
                     File.Delete( BlockDBFile );
                 }
@@ -198,7 +198,7 @@ namespace fCraft {
                 IsFlushing = false;
                 Players.Message( "&WMap flushed. Reloading..." );
                 foreach( Player player in Players ) {
-                    player.JoinWorld( this, player.Position );
+                    player.JoinWorld( this, WorldChangeReason.Rejoin, player.Position );
                 }
             }
         }
@@ -583,11 +583,11 @@ namespace fCraft {
         #region Block Tracking
 
         public bool IsBlockTracked { get; set; }
-        internal readonly object blockDBLock = new object();
-        List<BlockDBEntry> pendingEntries = new List<BlockDBEntry>();
+        internal readonly object BlockDBLock = new object();
+        readonly List<BlockDBEntry> pendingEntries = new List<BlockDBEntry>();
 
         internal void AddBlockDBEntry( BlockDBEntry newEntry ) {
-            lock( blockDBLock ) {
+            lock( BlockDBLock ) {
                 pendingEntries.Add( newEntry );
             }
         }
@@ -600,7 +600,7 @@ namespace fCraft {
 
         internal void FlushBlockDB() {
             if( pendingEntries.Count > 0 ) {
-                lock( blockDBLock ) {
+                lock( BlockDBLock ) {
                     using( var stream = File.Open( BlockDBFile, FileMode.Append, FileAccess.Write ) ) {
                         BinaryWriter writer = new BinaryWriter( stream );
                         for( int i = 0; i < pendingEntries.Count; i++ ) {
@@ -622,7 +622,7 @@ namespace fCraft {
         unsafe internal BlockDBEntry[] LookupBlockInfo( short x, short y, short z ) {
             byte[] bytes;
 
-            lock( blockDBLock ) {
+            lock( BlockDBLock ) {
                 FlushBlockDB();
                 if( File.Exists( BlockDBFile ) ) {
                     bytes = File.ReadAllBytes( BlockDBFile );
@@ -632,10 +632,9 @@ namespace fCraft {
             }
 
             List<BlockDBEntry> results = new List<BlockDBEntry>();
-            BlockDBEntry* entries;
             int entryCount = bytes.Length / BlockDB.BlockDBEntrySize;
             fixed( byte* parr = bytes ) {
-                entries = (BlockDBEntry*)parr;
+                BlockDBEntry* entries = (BlockDBEntry*)parr;
                 for( int i = 0; i < entryCount; i++ ) {
                     if( entries[i].X == x && entries[i].Y == y && entries[i].Z == z ) {
                         results.Add( entries[i] );
@@ -649,7 +648,7 @@ namespace fCraft {
         unsafe internal BlockDBEntry[] LookupBlockInfo( PlayerInfo info, int max ) {
             byte[] bytes;
 
-            lock( blockDBLock ) {
+            lock( BlockDBLock ) {
                 FlushBlockDB();
                 if( File.Exists( BlockDBFile ) ) {
                     bytes = File.ReadAllBytes( BlockDBFile );
@@ -659,11 +658,10 @@ namespace fCraft {
             }
 
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
-            BlockDBEntry* entries;
             int count = 0;
             int entryCount = bytes.Length / BlockDB.BlockDBEntrySize;
             fixed( byte* parr = bytes ) {
-                entries = (BlockDBEntry*)parr;
+                BlockDBEntry* entries = (BlockDBEntry*)parr;
                 for( int i = entryCount - 1; i >= 0; i-- ) {
                     if( entries[i].PlayerID == info.ID ) {
                         int index = Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
@@ -682,7 +680,7 @@ namespace fCraft {
         unsafe internal BlockDBEntry[] LookupBlockInfo( PlayerInfo info, TimeSpan span ) {
             byte[] bytes;
 
-            lock( blockDBLock ) {
+            lock( BlockDBLock ) {
                 FlushBlockDB();
                 if( File.Exists( BlockDBFile ) ) {
                     bytes = File.ReadAllBytes( BlockDBFile );
@@ -694,11 +692,10 @@ namespace fCraft {
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
 
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
-            BlockDBEntry* entries;
 
             int entryCount = bytes.Length / BlockDB.BlockDBEntrySize;
             fixed( byte* parr = bytes ) {
-                entries = (BlockDBEntry*)parr;
+                BlockDBEntry* entries = (BlockDBEntry*)parr;
                 for( int i = entryCount - 1; i >= 0; i-- ) {
                     if( entries[i].Timestamp < ticks ) break;
                     if( entries[i].PlayerID == info.ID ) {

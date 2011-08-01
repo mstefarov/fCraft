@@ -95,24 +95,24 @@ namespace fCraft.ConfigGUI {
             * //msdn.microsoft.com/library/default.asp?url=/library/en-us/dnadvnet/html/vbnet01272004.asp" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnadvnet/html/vbnet01272004.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnadvnet/html/vbnet01272004.asp
             */
 
-            private PropertyDescriptor _property;
-            private ListSortDirection _direction;
+            private readonly PropertyDescriptor property;
+            private readonly ListSortDirection direction;
 
             public PropertyComparer( PropertyDescriptor property, ListSortDirection direction ) {
-                _property = property;
-                _direction = direction;
+                this.property = property;
+                this.direction = direction;
             }
 
             public int Compare( TKey xVal, TKey yVal ) {
                 /* Get property values */
-                object xValue = GetPropertyValue( xVal, _property.Name );
-                object yValue = GetPropertyValue( yVal, _property.Name );
+                object xValue = GetPropertyValue( xVal, property.Name );
+                object yValue = GetPropertyValue( yVal, property.Name );
 
-                foreach( Attribute att in _property.Attributes ) {
+                foreach( Attribute att in property.Attributes ) {
                     var sortableAtt = att as SortablePropertyAttribute;
                     if( sortableAtt != null ) {
-                        int comparisonResult = sortableAtt.Compare( _property.Name, xVal, yVal );
-                        if( _direction == ListSortDirection.Ascending ) {
+                        int comparisonResult = sortableAtt.Compare( property.Name, xVal, yVal );
+                        if( direction == ListSortDirection.Ascending ) {
                             return comparisonResult;
                         } else {
                             return -comparisonResult;
@@ -121,7 +121,7 @@ namespace fCraft.ConfigGUI {
                 }
 
                 /* Determine sort order */
-                if( _direction == ListSortDirection.Ascending ) {
+                if( direction == ListSortDirection.Ascending ) {
                     return CompareAscending( xValue, yValue );
                 } else {
                     return CompareDescending( xValue, yValue );
@@ -174,7 +174,7 @@ namespace fCraft.ConfigGUI {
 
 
     [AttributeUsage( AttributeTargets.Property )]
-    public class SortablePropertyAttribute : Attribute {
+    public sealed class SortablePropertyAttribute : Attribute {
         public SortablePropertyAttribute( Type type, string comparerMethodName ) {
             if( type == null ) throw new ArgumentNullException( "type" );
             if( comparerMethodName == null ) throw new ArgumentNullException( "comparerMethodName" );
@@ -182,7 +182,8 @@ namespace fCraft.ConfigGUI {
             if( method == null ) throw new ArgumentException( "No such method", "comparerMethodName" );
         }
 
-        MethodInfo method;
+
+        readonly MethodInfo method;
         public int Compare( string propertyName, object a, object b ) {
             object[] methodArgs = new[] { propertyName, a, b };
             return (int)method.Invoke( null, methodArgs );

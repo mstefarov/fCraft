@@ -33,11 +33,11 @@ namespace fCraft.Drawing {
         }
 
 
-        static readonly Random rand = new Random();
-        static readonly object randLock = new object();
+        static readonly Random Rand = new Random();
+        static readonly object RandLock = new object();
         public static int NextSeed() {
-            lock( randLock ) {
-                return rand.Next();
+            lock( RandLock ) {
+                return Rand.Next();
             }
         }
     }

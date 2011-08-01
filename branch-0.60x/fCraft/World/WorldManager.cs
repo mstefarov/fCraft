@@ -425,7 +425,7 @@ namespace fCraft {
                             }
                         }
 
-                        lock( world.blockDBLock ) {
+                        lock( world.BlockDBLock ) {
                             string oldBlockDBFile = Path.Combine( Paths.BlockDBPath, oldName + ".fbdb" );
                             string newBockDBFile = newName + ".fbdb";
                             if( File.Exists( oldBlockDBFile ) ) {
@@ -493,7 +493,7 @@ namespace fCraft {
                 Player[] worldPlayerList = worldToDelete.Players;
                 worldToDelete.Players.Message( "&SYou have been moved to the main world." );
                 foreach( Player player in worldPlayerList ) {
-                    player.JoinWorld( MainWorld );
+                    player.JoinWorld( MainWorld, WorldChangeReason.WorldRemoved );
                 }
 
                 try {

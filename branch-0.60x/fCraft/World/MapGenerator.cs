@@ -41,7 +41,6 @@ namespace fCraft {
         readonly Noise noise;
         float[,] heightmap, blendmap, slopemap;
 
-        const int WaterCoveragePasses = 10;
         const float CliffsideBlockThreshold = 0.01f;
 
         // theme-dependent vars

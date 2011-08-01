@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using fCraft.AutoRank;
 
 namespace AutoRankEditor {
-    class ConditionNode : TreeNode {
+    sealed class ConditionNode : TreeNode {
         public ConditionField Field { get; set; }
         public ComparisonOp Op { get; set; }
         public int Value { get; set; }
-        public ConditionNode() : base() { }
-        public ConditionNode( string conditionDesc )
-            : base() {
+
+        public ConditionNode() { }
+
+        public ConditionNode( string conditionDesc ) {
             Field = EnumExtensions.ConditionFieldFromString( conditionDesc );
         }
 
@@ -20,7 +17,7 @@ namespace AutoRankEditor {
             if( Parent.FirstNode == this ) {
                 Text = Field.GetLongString() + ' ' + Op.GetSymbol() + ' ' + Value;
             } else {
-                Text = (Parent as GroupNode).Op.GetShortString() + ' ' + Field.GetLongString() + ' ' + Op.GetSymbol() + ' ' + Value;
+                Text = ( (GroupNode)Parent ).Op.GetShortString() + ' ' + Field.GetLongString() + ' ' + Op.GetSymbol() + ' ' + Value;
             }
         }
     }

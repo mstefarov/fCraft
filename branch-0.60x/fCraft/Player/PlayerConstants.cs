@@ -156,4 +156,16 @@ namespace fCraft {
         /// A copy of the old block will not be sent to the player (he may go out of sync). </summary>
         PluginDeniedNoUpdate
     }
+
+
+    public enum WorldChangeReason {
+        FirstWorld,
+        Rejoin,
+        ManualJoin,
+        Tp,
+        Bring,
+        SpectateTargetJoined,
+        WorldRemoved,
+        PermissionChanged
+    }
 }

@@ -22,12 +22,12 @@ namespace fCraft.ConfigGUI {
                 OriginalText = defaultValue;
             }
 
-            tRules.Text = OriginalText;
+            tText.Text = OriginalText;
             lWarning.Visible = ContainsLongLines();
         }
 
         bool ContainsLongLines() {
-            return tRules.Lines.Any( line => (line.Length > 62) );
+            return tText.Lines.Any( line => (line.Length > 62) );
         }
 
 
@@ -36,8 +36,35 @@ namespace fCraft.ConfigGUI {
         }
 
         private void bOK_Click( object sender, EventArgs e ) {
-            File.WriteAllText( FileName, tRules.Text );
+            File.WriteAllText( FileName, tText.Text );
             Close();
+        }
+
+        ColorPicker colorPicker;
+        private void bInsertColor_Click( object sender, EventArgs e ) {
+            if( colorPicker == null ) colorPicker = new ColorPicker("Insert color",0);
+            if( colorPicker.ShowDialog() == DialogResult.OK){
+                string colorToInsert = Color.Parse( colorPicker.ColorIndex );
+                int selectionStart = tText.SelectionStart;
+                tText.Paste( colorToInsert );
+                tText.Select( selectionStart, 2 );
+                tText.Focus();
+            }
+        }
+
+        KeywordPicker keywordPicker;
+        private void bInsertKeyword_Click( object sender, EventArgs e ) {
+            if( keywordPicker == null ) keywordPicker = new KeywordPicker();
+            if( keywordPicker.ShowDialog() == DialogResult.OK ) {
+                int selectionStart = tText.SelectionStart;
+                tText.Paste( keywordPicker.Result );
+                tText.Select( selectionStart, keywordPicker.Result.Length );
+                tText.Focus();
+            }
+        }
+
+        private void bReset_Click( object sender, EventArgs e ) {
+            tText.Text = OriginalText;
         }
     }
 }

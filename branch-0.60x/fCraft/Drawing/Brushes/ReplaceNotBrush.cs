@@ -132,7 +132,9 @@ namespace fCraft.Drawing {
         public Block NextBlock( DrawOperation state ) {
             if( state == null ) throw new ArgumentNullException( "state" );
             Block block = state.Map.GetBlock( state.Coords.X, state.Coords.Y, state.Coords.Z );
+// ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < Blocks.Length; i++ ) {
+// ReSharper restore LoopCanBeConvertedToQuery
                 if( block == Blocks[i] ) {
                     return Block.Undefined;
                 }

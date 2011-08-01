@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Linq;
-using System.Text;
 using System.Runtime.InteropServices;
 using fCraft.Events;
 
@@ -23,7 +22,7 @@ namespace fCraft {
     }
 
 
-    class BlockDB {
+    static class BlockDB {
         public const int BlockDBEntrySize = 16;
         public static bool IsEnabled { get; private set; }
         static readonly TimeSpan FlushInterval = TimeSpan.FromSeconds( 90 );
@@ -31,7 +30,7 @@ namespace fCraft {
         internal static void Init() {
             Paths.TestDirectory( "BlockDB", Paths.BlockDBPath, true );
             Server.PlayerPlacedBlock += OnPlayerPlacedBlock;
-            Scheduler.NewBackgroundTask( FlushPendingEntries ).RunForever( FlushInterval, FlushInterval );
+            Scheduler.NewBackgroundTask( FlushAll ).RunForever( FlushInterval, FlushInterval );
             IsEnabled = true;
         }
 
@@ -49,7 +48,7 @@ namespace fCraft {
         }
 
 
-        static void FlushPendingEntries( SchedulerTask task ) {
+        static void FlushAll( SchedulerTask task ) {
             lock( WorldManager.WorldListLock ) {
                 foreach( World w in WorldManager.WorldList.Where( w => w.IsBlockTracked ) ) {
                     w.FlushBlockDB();

@@ -1,6 +1,5 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Collections.Generic;
 
 namespace fCraft.Drawing {
     public sealed class SphereDrawOperation : EllipsoidDrawOperation {
