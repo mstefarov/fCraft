@@ -166,6 +166,10 @@ namespace fCraft {
 
 
                 case MessageType.Command: {
+                        if( Info.IsFrozen ) {
+                            MessageNow( "&WYou cannot use any commands while frozen." );
+                            return;
+                        }
                         if( rawMessage.EndsWith( "//" ) ) {
                             rawMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
                         }
@@ -178,11 +182,15 @@ namespace fCraft {
 
 
                 case MessageType.RepeatCommand: {
+                        if( Info.IsFrozen ) {
+                            MessageNow( "&WYou cannot use any commands while frozen." );
+                            return;
+                        }
                         if( LastCommand == null ) {
                             Message( "No command to repeat." );
                         } else {
                             LastCommand.Rewind();
-                            Logger.Log( "{0}: repeat {1}", LogType.UserCommand,
+                            Logger.Log( "{0} repeated: {1}", LogType.UserCommand,
                                         Name, LastCommand.Message );
                             Message( "Repeat: {0}", LastCommand.Message );
                             CommandManager.ParseCommand( this, LastCommand, fromConsole );
@@ -233,7 +241,7 @@ namespace fCraft {
                                 }
                             } else if( target.IsDeaf ) {
                                 MessageNow( "&SCannot PM {0}&S: they are currently deaf.", target.ClassyName );
-                            }else{
+                            } else {
                                 Chat.SendPM( this, target, messageText );
                                 if( !CanSee( target ) ) {
                                     // message was sent to a hidden player
@@ -287,6 +295,10 @@ namespace fCraft {
 
 
                 case MessageType.Confirmation: {
+                        if( Info.IsFrozen ) {
+                            MessageNow( "&WYou cannot use any commands while frozen." );
+                            return;
+                        }
                         if( ConfirmCommand != null ) {
                             if( DateTime.UtcNow.Subtract( ConfirmRequestTime ).TotalSeconds < ConfirmationTimeout ) {
                                 ConfirmCommand.IsConfirmed = true;
@@ -306,9 +318,9 @@ namespace fCraft {
                     MessageNow( "Partial: &F{0}", partialMessage );
                     break;
 
-                case MessageType.Invalid: {
-                        Message( "Unknown command." );
-                    } break;
+                case MessageType.Invalid:
+                    MessageNow( "Could not parse message." );
+                    break;
             }
         }
 
