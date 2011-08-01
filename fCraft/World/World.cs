@@ -441,6 +441,7 @@ namespace fCraft {
                 Player candidate = Players.RankedAtMost( RankManager.PatrolledRank )
                                           .CanBeSeen( observer )
                                           .Where( p => p.LastActiveTime > p.LastPatrolTime &&
+                                                       p.HasFullyConnected &&
                                                        DateTime.UtcNow.Subtract( p.LastPatrolTime ) > MinPatrolInterval )
                                           .OrderBy( p => p.LastPatrolTime.Ticks )
                                           .FirstOrDefault();
