@@ -2276,7 +2276,7 @@ namespace fCraft {
                     player.MessageNoPlayer( name );
                     return;
 
-                } else if( targets.Length > 0 ) {
+                } else if( targets.Length > 1 ) {
                     Array.Sort( targets, new PlayerInfoComparer( player ) );
                     player.MessageManyMatches( "player", targets.Take( 25 ).ToArray() );
                     return;
@@ -2295,7 +2295,10 @@ namespace fCraft {
             TimeSpan span;
             BlockDBEntry[] changes;
             if( Int32.TryParse( range, out count ) ) {
-                player.Message( "Searching for changes made by {0}&s...", target.ClassyName );
+                if( !cmd.IsConfirmed ) {
+                    player.Message( "Searching for last {0} changes made by {1}&s...",
+                                    count, target.ClassyName );
+                }
                 changes = world.LookupBlockInfo( target, count );
                 if( changes.Length > 0 && !cmd.IsConfirmed ) {
                     player.AskForConfirmation( cmd, "Undo last {0} changes made by player {1}&S?",
@@ -2304,8 +2307,10 @@ namespace fCraft {
                 }
 
             } else if( DateTimeUtil.TryParseMiniTimespan( range, out span ) ) {
-                player.Message( "Searching for changes made by {0}&s in the last {1}...",
-                                target.ClassyName, span.ToMiniString() );
+                if( !cmd.IsConfirmed ) {
+                    player.Message( "Searching for changes made by {0}&s in the last {1}...",
+                                    target.ClassyName, span.ToMiniString() );
+                }
                 changes = world.LookupBlockInfo( target, span );
                 if( changes.Length > 0 && !cmd.IsConfirmed ) {
                     player.AskForConfirmation( cmd, "Undo changes ({0}) made by {1}&S in the last {2}?",
