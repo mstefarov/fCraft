@@ -1429,10 +1429,8 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             }
         }
 
-        AboutWindow aboutWindow;
         private void bViewCredits_Click( object sender, EventArgs e ) {
-            if( aboutWindow == null ) aboutWindow = new AboutWindow();
-            aboutWindow.Show();
+            new AboutWindow().Show();
         }
     }
 }
