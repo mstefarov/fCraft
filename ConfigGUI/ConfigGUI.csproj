@@ -76,6 +76,9 @@
     <EmbeddedResource Include="ColorPicker.resx">
       <DependentUpon>ColorPicker.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="KeywordPicker.resx">
+      <DependentUpon>KeywordPicker.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -121,6 +124,12 @@
     </Compile>
     <Compile Include="ChatPreview.Designer.cs">
       <DependentUpon>ChatPreview.cs</DependentUpon>
+    </Compile>
+    <Compile Include="KeywordPicker.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="KeywordPicker.Designer.cs">
+      <DependentUpon>KeywordPicker.cs</DependentUpon>
     </Compile>
     <Compile Include="MainForm.ToolTips.cs">
       <SubType>Form</SubType>

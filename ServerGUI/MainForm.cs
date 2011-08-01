@@ -31,10 +31,11 @@ namespace fCraft.ServerGUI {
 #if !DEBUG
             try {
 #endif
+                Text = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
                 Server.InitLibrary( Environment.GetCommandLineArgs() );
                 Server.InitServer();
-
                 Text = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
+
                 Application.DoEvents();
                 //StartServer();
 

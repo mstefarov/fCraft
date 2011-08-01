@@ -45,8 +45,7 @@ namespace fCraft.Drawing {
 
     public sealed class MarbledBrush : AbstractPerlinNoiseBrush, IBrush {
 
-        public MarbledBrush()
-            : base() {
+        public MarbledBrush() {
         }
 
         public MarbledBrush( Block oneBlock )
@@ -57,7 +56,7 @@ namespace fCraft.Drawing {
             : base( blocks, ratios ) {
         }
 
-        public MarbledBrush( MarbledBrush other )
+        public MarbledBrush( AbstractPerlinNoiseBrush other )
             : base( other ) {
         }
 

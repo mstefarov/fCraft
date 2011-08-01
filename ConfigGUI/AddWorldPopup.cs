@@ -368,7 +368,8 @@ namespace fCraft.ConfigGUI {
             bFlatgrassGenerate.Enabled = true;
         }
 
-        Random rand = new Random();
+
+        readonly Random rand = new Random();
         int GetRandomSeed() {
             return rand.Next() - rand.Next();
         }
@@ -610,7 +611,7 @@ namespace fCraft.ConfigGUI {
             MapFormat format = MapUtility.Identify( fileName );
             try {
                 Map loadedMap = MapUtility.LoadHeader( fileName );
-                string msgFormat =
+                const string msgFormat =
 @"  Location: {0}
     Format: {1}
   Filesize: {2} KB
@@ -630,7 +631,7 @@ Dimensions: {5}×{6}×{7}
                                               loadedMap.Volume );
 
             } catch( Exception ex ) {
-                string msgFormat =
+                const string msgFormat =
 @"  Location: {0}
     Format: {1}
   Filesize: {2} KB
@@ -682,7 +683,8 @@ Could not load more information:
             }
         }
 
-        SaveFileDialog savePreviewDialog = new SaveFileDialog();
+
+        readonly SaveFileDialog savePreviewDialog = new SaveFileDialog();
         private void bSavePreview_Click( object sender, EventArgs e ) {
             try {
                 using( Image img = (Image)preview.Image.Clone() ) {
@@ -705,7 +707,7 @@ Could not load more information:
         }
 
 
-        OpenFileDialog browseTemplateDialog = new OpenFileDialog();
+        readonly OpenFileDialog browseTemplateDialog = new OpenFileDialog();
         private void bBrowseTemplate_Click( object sender, EventArgs e ) {
             if( browseTemplateDialog.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty( browseTemplateDialog.FileName ) ) {
                 try {
@@ -837,7 +839,8 @@ Could not load more information:
             };
         }
 
-        SaveFileDialog saveTemplateDialog = new SaveFileDialog();
+
+        readonly SaveFileDialog saveTemplateDialog = new SaveFileDialog();
         private void bSaveTemplate_Click( object sender, EventArgs e ) {
             if( saveTemplateDialog.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty( saveTemplateDialog.FileName ) ) {
                 try {

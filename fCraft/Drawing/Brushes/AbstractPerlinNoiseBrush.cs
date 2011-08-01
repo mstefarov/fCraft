@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Linq;
-using System.Text;
 
 namespace fCraft.Drawing {
     public abstract class AbstractPerlinNoiseBrush : IBrushInstance {
@@ -11,10 +10,10 @@ namespace fCraft.Drawing {
         public int Octaves { get; set; }
         public float Persistence { get; set; }
 
-        public Block[] Blocks { get; private set; }
-        public int[] BlockRatios { get; private set; }
+        protected Block[] Blocks { get; set; }
+        protected int[] BlockRatios { get; set; }
 
-        float[] ComputedThresholds;
+        float[] computedThresholds;
         float normMultiplier, normConstant;
         PerlinNoise3D noise3D;
         
@@ -83,11 +82,11 @@ namespace fCraft.Drawing {
             // create a mapping of raw data to blocks
             int totalBlocks = BlockRatios.Sum();
             int blocksSoFar = BlockRatios[0];
-            ComputedThresholds = new float[Blocks.Length];
-            ComputedThresholds[0] = 0;
+            computedThresholds = new float[Blocks.Length];
+            computedThresholds[0] = 0;
             for( int i = 1; i < Blocks.Length; i++ ) {
                 float desiredCoverage = blocksSoFar / (float)totalBlocks;
-                ComputedThresholds[i] = Noise.FindThreshold( rawData, desiredCoverage );
+                computedThresholds[i] = Noise.FindThreshold( rawData, desiredCoverage );
                 blocksSoFar += BlockRatios[i];
             }
             return true;
@@ -107,7 +106,7 @@ namespace fCraft.Drawing {
 
             // find the right block type for given value
             for( int i = 1; i < Blocks.Length; i++ ) {
-                if( ComputedThresholds[i] > value ) {
+                if( computedThresholds[i] > value ) {
                     return Blocks[i - 1];
                 }
             }

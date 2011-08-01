@@ -169,6 +169,9 @@ namespace fCraft {
     public struct Vector3F : IEquatable<Vector3F>, IComparable<Vector3I>, IComparable<Vector3F> {
 
         public float X, Y, Z;
+        public float X2 { get { return X * X; } }
+        public float Y2 { get { return Y * Y; } }
+        public float Z2 { get { return Z * Z; } }
 
 
         public Vector3F( float x, float y, float z ) {

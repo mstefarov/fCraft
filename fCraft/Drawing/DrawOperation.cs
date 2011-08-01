@@ -1,6 +1,8 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 
+// ReSharper disable VirtualMemberNeverOverriden.Global
+// ReSharper disable UnusedMemberInSuper.Global
 namespace fCraft.Drawing {
 
     public abstract class DrawOperation {
@@ -27,9 +29,7 @@ namespace fCraft.Drawing {
 
         public bool UseAlternateBlock;
 
-        // ReSharper disable UnusedMemberInSuper.Global
         public abstract string Name { get; }
-        // ReSharper restore UnusedMemberInSuper.Global
 
         public abstract string Description { get; }
 
@@ -62,18 +62,13 @@ namespace fCraft.Drawing {
         public abstract int DrawBatch( int maxBlocksToDraw );
 
 
-        public virtual void Cancel() {
-            End();
-        }
-
-
         public virtual void End() {
             Player.Info.ProcessDrawCommand( BlocksUpdated );
             Brush.End();
         }
 
 
-        protected virtual bool DrawOneBlock() {
+        protected bool DrawOneBlock() {
             BlocksProcessed++;
 
             if( !Map.InBounds( Coords.X, Coords.Y, Coords.Z ) ) {

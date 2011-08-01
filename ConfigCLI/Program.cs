@@ -8,6 +8,7 @@ using fCraft.Events;
 namespace ConfigCLI {
     static class Program {
         static void Main( string[] args ) {
+            Console.Title = "fCraft Configuration (" + Updater.CurrentRelease.VersionString + ")";
             try {
                 Logger.Logged += OnLogged;
                 Console.WriteLine( "Initializing fCraft..." );

@@ -45,8 +45,7 @@ namespace fCraft.Drawing {
 
     public sealed class CloudyBrush : AbstractPerlinNoiseBrush, IBrush {
 
-        public CloudyBrush()
-            : base() {
+        public CloudyBrush() {
         }
 
         public CloudyBrush( Block oneBlock )
@@ -57,7 +56,7 @@ namespace fCraft.Drawing {
             : base( blocks, ratios ) {
         }
 
-        public CloudyBrush( CloudyBrush other )
+        public CloudyBrush( AbstractPerlinNoiseBrush other )
             : base( other ) {
         }
 

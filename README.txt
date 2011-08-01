@@ -135,30 +135,29 @@ not affiliated with fCraft in any way.
 fCraft was developed by Matvei Stefarov (me@matvei.org) in 2009-2011
 
 Thanks to fCraft code contributors and modders:
-    SystemX17, Wootalyzer, TkTech, FontPeg, Redshift, Destroyer, Dag10, 
-    and Asiekierka
+    Asiekierka, Dag10, Destroyer, FontPeg, Optical-Lza, Redshift, SystemX17,
+    TkTech, Wootalyzer 
 
 Thanks to people who supported fCraft development through donations:
-    wtfmejt, Redshift, TkTech, Team9000, SpecialAttack.net, Destoned, D3M0N,
-    ven000m, Pandorum, DreamPhreak, Astelyn, and anonymous donors
+    fCraft.net community, Astelyn, D3M0N, Destoned, DreamPhreak, Pandorum,
+    Redshift, TkTech, ven000m,  wtfmejt, Team9000 and SpecialAttack.net
+    communities, and others who donated anonymously
 
 Thanks to people whose code has been ported to fCraft:
     Dudecon (Forester), Osici (Omen), vLK (MinerCPP), Tim Van Wassenhove,
-    and Paul Bourke
+    Paul Bourke
 
 Thanks to Minecraft servers that helped test and improve fCraft:
-    TheOne's Zombie Survival, SpecialAttack.net Freebuild,
-    Team9000 Freebuild,  D3M0N's FreeBuild, ~The Best Freebuild 24/7~,
-    and fCraft Freebuild Official
+    TheOne's Zombie Survival, SpecialAttack.net Freebuild, Team9000 Freebuild,
+    D3M0Ns FreeBuild, ~The Best Freebuild 24/7~, fCraft Freebuild Official
 
 Thanks to people who submitted bug reports and suggestions:
-    Clhdrums87, Hellenion, Sunfall, Mavinstar, Dogwatch, Gamma-Metroid,
-    Epiclolwut, and all anonymous submitters.
+    Clhdrums87, Dogwatch, Epiclolwut, Hellenion, Sunfall, Mavinstar
+    Gamma-Metroid, and all anonymous submitters.
 
 Special thanks for inspiration and suggestions:
-    PyroPyro, ElectricFuzzball, Zaneo, Voziv, LG_Legacy, CO2, Exe,
-    OpticaLza, iKJames,  Hearty0, Revenant, Varriount, Descension,
-    #mcc, MinerCPP team, OpenCraft team, and HyveBuild/iCraft team
+    CO2, Descension, ElectricFuzzball, Exe, Hearty0, iKJames, LG_Legacy,
+    PyroPyro, Revenant, Varriount, Voziv, Zaneo, #mcc, MinerCPP team,
+    OpenCraft team, HyveBuild/iCraft team
 
 And thank You for using fCraft!
-

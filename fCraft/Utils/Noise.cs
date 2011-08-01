@@ -143,7 +143,7 @@ namespace fCraft {
             }
         }
 
-        readonly float[, ,] points3D = new float[4, 4, 4];
+        //readonly float[, ,] points3D = new float[4, 4, 4];
         public float InterpolatedNoise( float x, float y, float z ) {
             int xInt = (int)Math.Floor( x );
             float xFloat = x - xInt;
@@ -237,7 +237,9 @@ namespace fCraft {
             float amplitude = (float)Math.Pow( decay, startOctave );
 
             for( int n = startOctave; n <= endOctave; n++ ) {
-                total += InterpolatedNoise( x * frequency + frequency, y * frequency + frequency ) * amplitude;
+                total +=
+                    InterpolatedNoise( x * frequency + frequency, y * frequency + frequency, z * frequency + frequency ) *
+                    amplitude;
                 frequency *= 2;
                 amplitude *= decay;
             }
@@ -255,12 +257,13 @@ namespace fCraft {
         }
 
 
-        public void PerlinNoise( float[,,] map, int startOctave, int endOctave, float decay, int offsetX, int offsetY, int offsetZ ) {
+        public void PerlinNoise( float[, ,] map, int startOctave, int endOctave, float decay, int offsetX, int offsetY, int offsetZ ) {
             float maxDim = 1f / Math.Max( map.GetLength( 0 ), Math.Max( map.GetLength( 2 ), map.GetLength( 1 ) ) );
             for( int x = map.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = map.GetLength( 1 ) - 1; y >= 0; y-- ) {
                     for( int z = map.GetLength( 2 ) - 1; z >= 0; z-- ) {
-                        map[x, y, z] += PerlinNoise( x * maxDim + offsetX, y * maxDim + offsetY, startOctave, endOctave, decay );
+                        map[x, y, z] += PerlinNoise( x * maxDim + offsetX, y * maxDim + offsetY, z * maxDim + offsetZ,
+                                                     startOctave, endOctave, decay );
                     }
                 }
             }

@@ -1040,7 +1040,7 @@ namespace fCraft {
                                     return;
                                 }
                                 player.StopSpectating();
-                                player.JoinWorld( target.World, target.Position );
+                                player.JoinWorld( target.World, WorldChangeReason.Tp, target.Position );
                                 break;
                             case SecurityCheckResult.BlackListed:
                                 player.Message( "Cannot teleport to {0}&S because you are blacklisted on world {1}&S.",
@@ -1284,7 +1284,7 @@ namespace fCraft {
                         return;
                     }
                     target.StopSpectating();
-                    target.JoinWorld( world );
+                    target.JoinWorld( world, WorldChangeReason.Bring );
                     break;
                 case SecurityCheckResult.BlackListed:
                     player.Message( "Cannot bring {0}&S because he/she is blacklisted on world {1}",

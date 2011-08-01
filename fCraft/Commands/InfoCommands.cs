@@ -608,13 +608,13 @@ namespace fCraft {
             try {
                 foreach( string ruleLine in File.ReadAllLines( ruleFile.FullName ) ) {
                     if( ruleLine.Trim().Length > 0 ) {
-                        player.Message( "&R{0}", ruleLine );
+                        player.Message( "&R{0}", Server.ReplaceTextKeywords( player, ruleLine ) );
                     }
                 }
             } catch( Exception ex ) {
                 Logger.Log( "InfoCommands.PrintRuleFile: An error occured while trying to read {0}: {1}", LogType.Error,
                             ruleFile.FullName, ex );
-                player.Message( "&WError reading the rule file. Error details logged." );
+                player.Message( "&WError reading the rule file." );
             }
         }
 

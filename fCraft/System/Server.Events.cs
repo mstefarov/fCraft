@@ -265,18 +265,18 @@ namespace fCraft {
         }
 
 
-        internal static bool RaisePlayerJoiningWorldEvent( Player player, World newWorld ) {
+        internal static bool RaisePlayerJoiningWorldEvent( Player player, World newWorld, WorldChangeReason reason ) {
             var h = PlayerJoiningWorld;
             if( h == null ) return false;
-            var e = new PlayerJoiningWorldEventArgs( player, player.World, newWorld );
+            var e = new PlayerJoiningWorldEventArgs( player, player.World, newWorld, reason );
             h( null, e );
             return e.Cancel;
         }
 
 
-        internal static void RaisePlayerJoinedWorldEvent( Player player, World oldWorld ) {
+        internal static void RaisePlayerJoinedWorldEvent( Player player, World oldWorld, WorldChangeReason reason ) {
             var h = PlayerJoinedWorld;
-            if( h != null ) h( null, new PlayerJoinedWorldEventArgs( player, oldWorld, player.World ) );
+            if( h != null ) h( null, new PlayerJoinedWorldEventArgs( player, oldWorld, player.World, reason ) );
         }
 
         #endregion

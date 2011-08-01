@@ -1,6 +1,5 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Collections.Generic;
 
 namespace fCraft.Drawing {
     public class EllipsoidHollowDrawOperation : DrawOperation {
@@ -51,19 +50,10 @@ namespace fCraft.Drawing {
         }
 
 
-        Vector3F radius, center;
+        State state;
+        Vector3F radius, center, delta;
         bool fillInner;
 
-        enum State {
-            BeforeBlock = 0,
-            OuterBlock1 = 1,
-            OuterBlock2 = 2,
-            AfterOuterBlock = 3,
-            InnerBlock = 4
-        }
-
-        State state;
-        double dx, dy, dz;
         public override int DrawBatch( int maxBlocksToDraw ) {
             int blocksDone = 0;
             for( ; Coords.X <= Bounds.XMax; Coords.X++ ) {
@@ -72,10 +62,10 @@ namespace fCraft.Drawing {
                         switch( state ) {
                             case State.BeforeBlock:
                                 state = State.BeforeBlock;
-                                dx = (Coords.X - center.X);
-                                dy = (Coords.Y - center.Y);
-                                dz = (Coords.Z - center.Z);
-                                if( (dx * dx) * radius.X + (dy * dy) * radius.Y + (dz * dz) * radius.Z > 1 ) continue;
+                                delta.X = (Coords.X - center.X);
+                                delta.Y = (Coords.Y - center.Y);
+                                delta.Z = (Coords.Z - center.Z);
+                                if( delta.X2 * radius.X + delta.Y2 * radius.Y + delta.Z2 * radius.Z > 1 ) continue;
                                 goto case State.OuterBlock1;
 
                             case State.OuterBlock1:
@@ -89,7 +79,7 @@ namespace fCraft.Drawing {
                                     state = State.OuterBlock2;
                                     if( blocksDone >= maxBlocksToDraw ) return blocksDone;
                                     int z = Coords.Z;
-                                    Coords.Z = (int)(center.Z - dz);
+                                    Coords.Z = (int)(center.Z - delta.Z);
                                     if( DrawOneBlock() ) {
                                         blocksDone++;
                                     }
@@ -100,14 +90,14 @@ namespace fCraft.Drawing {
                             case State.AfterOuterBlock:
                                 state = State.AfterOuterBlock;
                                 if( blocksDone >= maxBlocksToDraw ) return blocksDone;
-                                dz = (++Coords.Z - center.Z);
+                                delta.Z = (++Coords.Z - center.Z);
                                 if( Coords.Z <= (int)center.Z &&
-                                 ((dx + 1) * (dx + 1) * radius.X + (dy * dy) * radius.Y + (dz * dz) * radius.Z > 1 ||
-                                  (dx - 1) * (dx - 1) * radius.X + (dy * dy) * radius.Y + (dz * dz) * radius.Z > 1 ||
-                                  (dx * dx) * radius.X + (dy + 1) * (dy + 1) * radius.Y + (dz * dz) * radius.Z > 1 ||
-                                  (dx * dx) * radius.X + (dy - 1) * (dy - 1) * radius.Y + (dz * dz) * radius.Z > 1 ||
-                                  (dx * dx) * radius.X + (dy * dy) * radius.Y + (dz + 1) * (dz + 1) * radius.Z > 1 ||
-                                  (dx * dx) * radius.X + (dy * dy) * radius.Y + (dz - 1) * (dz - 1) * radius.Z > 1) ) {
+                                 ((delta.X + 1) * (delta.X + 1) * radius.X + delta.Y2 * radius.Y + delta.Z2 * radius.Z > 1 ||
+                                  (delta.X - 1) * (delta.X - 1) * radius.X + delta.Y2 * radius.Y + delta.Z2 * radius.Z > 1 ||
+                                  delta.X2 * radius.X + (delta.Y + 1) * (delta.Y + 1) * radius.Y + delta.Z2 * radius.Z > 1 ||
+                                  delta.X2 * radius.X + (delta.Y - 1) * (delta.Y - 1) * radius.Y + delta.Z2 * radius.Z > 1 ||
+                                  delta.X2 * radius.X + delta.Y2 * radius.Y + (delta.Z + 1) * (delta.Z + 1) * radius.Z > 1 ||
+                                  delta.X2 * radius.X + delta.Y2 * radius.Y + (delta.Z - 1) * (delta.Z - 1) * radius.Z > 1) ) {
                                     goto case State.OuterBlock1;
                                 }
 
@@ -121,7 +111,7 @@ namespace fCraft.Drawing {
 
                             case State.InnerBlock:
                                 state = State.InnerBlock;
-                                if( Coords.Z > (int)(center.Z - dz) ) {
+                                if( Coords.Z > (int)(center.Z - delta.Z) ) {
                                     UseAlternateBlock = false;
                                     state = State.BeforeBlock;
                                     break;
@@ -145,6 +135,15 @@ namespace fCraft.Drawing {
             }
             IsDone = true;
             return blocksDone;
+        }
+
+
+        enum State {
+            BeforeBlock = 0,
+            OuterBlock1 = 1,
+            OuterBlock2 = 2,
+            AfterOuterBlock = 3,
+            InnerBlock = 4
         }
     }
 }

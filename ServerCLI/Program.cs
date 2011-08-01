@@ -40,15 +40,18 @@ namespace fCraft.ServerCLI {
             Logger.Logged += OnLogged;
             Heartbeat.UriChanged += OnHeartbeatUriChanged;
 
+            Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
+
 #if !DEBUG
             try {
 #endif
                 Server.InitLibrary( args );
                 useColor = !Server.HasArg( ArgKey.NoConsoleColor );
 
-                CheckForUpdates();
-
                 Server.InitServer();
+
+                CheckForUpdates();
+                Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
 
                 if( !ConfigKey.ProcessPriority.IsBlank() ) {
                     try {
@@ -59,7 +62,6 @@ namespace fCraft.ServerCLI {
                 }
 
                 if( Server.StartServer() ) {
-                    Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
                     Console.WriteLine( "** Running fCraft version {0}. **", Updater.CurrentRelease.VersionString );
                     Console.WriteLine( "** Server is now ready. Type /shutdown to exit safely. **" );
 
@@ -149,7 +151,7 @@ namespace fCraft.ServerCLI {
         #region Updates
 
 
-        static AutoResetEvent updateDownloadWaiter = new AutoResetEvent( false );
+        static readonly AutoResetEvent UpdateDownloadWaiter = new AutoResetEvent( false );
         static bool updateFailed;
 
         static void OnUpdateDownloadProgress( object sender, DownloadProgressChangedEventArgs e ) {
@@ -172,12 +174,14 @@ namespace fCraft.ServerCLI {
             } else {
                 Console.WriteLine( "Update download finished." );
             }
-            updateDownloadWaiter.Set();
+            UpdateDownloadWaiter.Set();
         }
 
 
         static void CheckForUpdates() {
             UpdaterMode updaterMode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
+            if( updaterMode == UpdaterMode.Disabled ) return;
+
             UpdaterResult update = Updater.CheckForUpdates();
 
             if( update.UpdateAvailable ) {
@@ -189,7 +193,7 @@ namespace fCraft.ServerCLI {
                     client.DownloadProgressChanged += OnUpdateDownloadProgress;
                     client.DownloadFileCompleted += OnUpdateDownloadCompleted;
                     client.DownloadFileAsync( update.DownloadUri, Paths.UpdaterFileName );
-                    updateDownloadWaiter.WaitOne();
+                    UpdateDownloadWaiter.WaitOne();
                     if( updateFailed ) return;
 
                     if( updaterMode == UpdaterMode.Prompt ) {

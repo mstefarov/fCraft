@@ -32,11 +32,10 @@ using System;
 
 namespace fCraft {
     /// <summary> Implementation of 3D Perlin Noise after Ken Perlin's reference implementation. </summary>
-    public class PerlinNoise3D {
+    public sealed class PerlinNoise3D {
         #region Fields
 
-        private int[] permutation;
-        private int[] p;
+        private readonly int[] permutation, p;
 
         #endregion
 

@@ -851,8 +851,9 @@ namespace fCraft {
             string[] lines = File.ReadAllLines( Paths.AnnouncementsFileName );
             if( lines.Length == 0 ) return;
             string line = lines[new Random().Next( 0, lines.Length )].Trim();
-            if( line.Length > 0 ) {
-                Message( "&R" + line );
+            if( line.Length == 0 ) return;
+            foreach( Player player in Players ) {
+                player.Message( "&R" + ReplaceTextKeywords( player, line ) );
             }
         }
 
@@ -978,6 +979,23 @@ namespace fCraft {
             }
             Logger.Log( "Backed up server data to \"{0}\"", LogType.SystemActivity,
                         backupFileName );
+        }
+
+
+        public static string ReplaceTextKeywords( Player player, string input ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( input == null ) throw new ArgumentNullException( "input" );
+            StringBuilder sb = new StringBuilder( input );
+            sb.Replace( "{SERVER_NAME}", ConfigKey.ServerName.GetString() );
+            sb.Replace( "{RANK}", player.Info.Rank.ClassyName );
+            sb.Replace( "{PLAYER_NAME}", player.ClassyName );
+            sb.Replace( "{TIME}", DateTime.Now.ToShortTimeString() ); // localized
+            sb.Replace( "{WORLD}", player.World.ClassyName );
+            sb.Replace( "{PLAYERS}", CountVisiblePlayers( player ).ToString() );
+            sb.Replace( "{WORLDS}", WorldManager.WorldList.Length.ToString() );
+            sb.Replace( "{MOTD}", ConfigKey.MOTD.GetString() );
+            sb.Replace( "{VERSION}", Updater.CurrentRelease.VersionString );
+            return sb.ToString();
         }
 
         #endregion

@@ -67,7 +67,7 @@ namespace fCraft.ConfigGUI {
             }
         }
 
-        static Regex splitByColorRegex = new Regex( "(&[0-9a-zA-Z])", RegexOptions.Compiled );
+        static readonly Regex SplitByColorRegex = new Regex( "(&[0-9a-zA-Z])", RegexOptions.Compiled );
         TextSegment[] segments;
 
         public void SetText( string[] lines ) {
@@ -81,7 +81,7 @@ namespace fCraft.ConfigGUI {
                     for( int i = 0; i < lines.Length; i++ ) {
                         if( lines[i] == null || lines[i].Length == 0 ) continue;
                         int x = 5;
-                        string[] plainTextSegments = splitByColorRegex.Split( lines[i] );
+                        string[] plainTextSegments = SplitByColorRegex.Split( lines[i] );
 
                         int color = Color.ParseToIndex( Color.White );
 

@@ -49,7 +49,7 @@ namespace fCraft {
             new Player( tcpClient );
         }
 
-        Player( TcpClient tcpClient ){
+        Player( TcpClient tcpClient ) {
             if( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
             LoginTime = DateTime.UtcNow;
             LastActiveTime = DateTime.UtcNow;
@@ -169,7 +169,7 @@ namespace fCraft {
                                         return;
                                     }
                                 }
-                                if( !JoinWorldNow( forcedWorldToJoin, useWorldSpawn ) ) {
+                                if( !JoinWorldNow( forcedWorldToJoin, useWorldSpawn, worldChangeReason ) ) {
                                     Logger.Log( "Player.IoLoop: Player was asked to force-join a world, but it was full.", LogType.Warning );
                                     KickNow( "World is full.", LeaveReason.ServerFull );
                                 }
@@ -643,7 +643,7 @@ namespace fCraft {
             }
 
             bool firstTime = (Info.TimesVisited == 1);
-            if( !JoinWorldNow( startingWorld, true ) ) {
+            if( !JoinWorldNow( startingWorld, true, WorldChangeReason.FirstWorld ) ) {
                 Logger.Log( "Failed to load main world ({0}) for connecting player {1} (from {2})", LogType.Error,
                             startingWorld.Name, Name, IP );
                 KickNow( "Unable to join the main world.", LeaveReason.WorldFull );
@@ -714,16 +714,7 @@ namespace fCraft {
             if( File.Exists( Paths.GreetingFileName ) ) {
                 string[] greetingText = File.ReadAllLines( Paths.GreetingFileName );
                 foreach( string greetingLine in greetingText ) {
-                    StringBuilder sb = new StringBuilder( greetingLine );
-                    sb.Replace( "{SERVER_NAME}", ConfigKey.ServerName.GetString() );
-                    sb.Replace( "{RANK}", Info.Rank.ClassyName );
-                    sb.Replace( "{PLAYER_NAME}", ClassyName );
-                    sb.Replace( "{TIME}", DateTime.Now.ToShortTimeString() ); // localized
-                    sb.Replace( "{WORLD}", World.ClassyName );
-                    sb.Replace( "{PLAYERS}", Server.CountVisiblePlayers( this ).ToString() );
-                    sb.Replace( "{WORLDS}", WorldManager.WorldList.Length.ToString() );
-                    sb.Replace( "{MOTD}", ConfigKey.MOTD.GetString() );
-                    MessageNow( sb.ToString() );
+                    MessageNow( Server.ReplaceTextKeywords( this, greetingLine ) );
                 }
             } else {
                 if( firstTime ) {
@@ -755,31 +746,33 @@ namespace fCraft {
         readonly object joinWorldLock = new object();
 
         World forcedWorldToJoin;
+        WorldChangeReason worldChangeReason;
         Position postJoinPosition;
         bool useWorldSpawn;
 
-        public void JoinWorld( World newWorld ) {
+        public void JoinWorld( World newWorld, WorldChangeReason reason ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             lock( joinWorldLock ) {
                 useWorldSpawn = true;
                 postJoinPosition = Position.Zero;
                 forcedWorldToJoin = newWorld;
+                worldChangeReason = reason;
             }
         }
 
 
-        public void JoinWorld( World newWorld, Position position ) {
+        public void JoinWorld( World newWorld, WorldChangeReason reason, Position position ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             lock( joinWorldLock ) {
                 useWorldSpawn = false;
                 postJoinPosition = position;
                 forcedWorldToJoin = newWorld;
+                worldChangeReason = reason;
             }
         }
 
 
-
-        internal bool JoinWorldNow( World newWorld, bool doUseWorldSpawn ) {
+        internal bool JoinWorldNow( World newWorld, bool doUseWorldSpawn, WorldChangeReason reason ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
 
             if( !CanJoin( newWorld ) ) {
@@ -788,7 +781,7 @@ namespace fCraft {
                 return false;
             }
 
-            if( Server.RaisePlayerJoiningWorldEvent( this, newWorld ) ) {
+            if( Server.RaisePlayerJoiningWorldEvent( this, newWorld, reason ) ) {
                 Logger.Log( "Player.JoinWorldNow: Player {0} was prevented from joining world {1} by an event callback.", LogType.Warning,
                             Name, newWorld.Name );
                 return false;
@@ -812,7 +805,7 @@ namespace fCraft {
 
             // try to join the new world
             if( oldWorld != newWorld ) {
-                bool announce = ( oldWorld != null ) && ( oldWorld.Name != newWorld.Name );
+                bool announce = (oldWorld != null) && (oldWorld.Name != newWorld.Name);
                 map = newWorld.AcceptPlayer( this, announce );
                 if( map == null ) {
                     return false;
@@ -899,14 +892,13 @@ namespace fCraft {
                 client.NoDelay = true;
             }
 
-            Server.RaisePlayerJoinedWorldEvent( this, oldWorld );
+            Server.RaisePlayerJoinedWorldEvent( this, oldWorld, reason );
 
             // Done.
             Server.RequestGC();
 
             return true;
         }
-
 
         #endregion
 
@@ -1009,7 +1001,7 @@ namespace fCraft {
         #endregion
 
 
-        #region Movement Updates
+        #region Movement
 
         // visible entities
         readonly Dictionary<Player, VisibleEntity> entities = new Dictionary<Player, VisibleEntity>();
@@ -1057,11 +1049,18 @@ namespace fCraft {
                     Position spectatePos = SpectatedPlayer.Position;
                     World spectateWorld = SpectatedPlayer.World;
                     if( spectateWorld != World ) {
-                        postJoinPosition = spectatePos;
-                        Message( "Joined {0}&S to continue spectating {1}",
-                                 spectateWorld.ClassyName,
-                                 SpectatedPlayer.ClassyName );
-                        JoinWorldNow( spectateWorld, false );
+                        if( CanJoin( spectateWorld ) ) {
+                            postJoinPosition = spectatePos;
+                            Message( "Joined {0}&S to continue spectating {1}",
+                                     spectateWorld.ClassyName,
+                                     SpectatedPlayer.ClassyName );
+                            JoinWorldNow( spectateWorld, false, WorldChangeReason.SpectateTargetJoined );
+                        } else {
+                            Message( "Stopped spectating {0}&S (cannot join {1}&S)",
+                                     spectatedPlayer.ClassyName,
+                                     spectateWorld.ClassyName );
+                            spectatedPlayer = null;
+                        }
                     } else if( spectatePos != Position ) {
                         SendNow( PacketWriter.MakeSelfTeleport( spectatePos ) );
                     }
@@ -1073,8 +1072,10 @@ namespace fCraft {
 
             for( int i = 0; i < worldPlayerList.Length; i++ ) {
                 Player otherPlayer = worldPlayerList[i];
-                if( otherPlayer == this || !CanSee( otherPlayer ) ||
-                    SpectatedPlayer == otherPlayer || otherPlayer.SpectatedPlayer == this ) continue;
+                if( otherPlayer == this ||
+                    !CanSee( otherPlayer ) ||
+                    SpectatedPlayer == otherPlayer ||
+                    otherPlayer.SpectatedPlayer == this ) continue;
 
                 Position otherPos = otherPlayer.Position;
                 int distance = pos.DistanceSquaredTo( otherPos );

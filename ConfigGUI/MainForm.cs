@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows.Forms;
+using fCraft.GUI;
 
 
 namespace fCraft.ConfigGUI {
@@ -17,7 +18,7 @@ namespace fCraft.ConfigGUI {
         readonly Font bold;
         Rank selectedRank, defaultRank, patrolledRank, defaultBuildRank;
         readonly UpdaterSettingsWindow updaterWindow = new UpdaterSettingsWindow();
-        internal static SortableBindingList<WorldListEntry> Worlds = new SortableBindingList<WorldListEntry>();
+        internal static readonly SortableBindingList<WorldListEntry> Worlds = new SortableBindingList<WorldListEntry>();
 
 
         #region Initialization
@@ -27,6 +28,7 @@ namespace fCraft.ConfigGUI {
             InitializeComponent();
             bold = new Font( Font, FontStyle.Bold );
             Shown += Init;
+            Text = "fCraft Configuration (" + Updater.CurrentRelease.VersionString + ")";
         }
 
 
@@ -1406,7 +1408,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         }
 
 
-        Dictionary<Permission, PermissionLimitBox> permissionLimitBoxes = new Dictionary<Permission, PermissionLimitBox>();
+        readonly Dictionary<Permission, PermissionLimitBox> permissionLimitBoxes = new Dictionary<Permission, PermissionLimitBox>();
 
         const string DefaultPermissionLimitString = "(own rank)";
         void FillPermissionLimitBoxes() {
@@ -1425,6 +1427,12 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             foreach( var box in permissionLimitBoxes.Values ) {
                 permissionLimitBoxContainer.Controls.Add( box );
             }
+        }
+
+        AboutWindow aboutWindow;
+        private void bViewCredits_Click( object sender, EventArgs e ) {
+            if( aboutWindow == null ) aboutWindow = new AboutWindow();
+            aboutWindow.Show();
         }
     }
 }
