@@ -3,6 +3,7 @@ using System;
 
 // ReSharper disable VirtualMemberNeverOverriden.Global
 // ReSharper disable UnusedMemberInSuper.Global
+// ReSharper disable MemberCanBeProtected.Global
 namespace fCraft.Drawing {
 
     public abstract class DrawOperation {

@@ -16,12 +16,20 @@ namespace fCraft {
         static List<PlayerInfo> list = new List<PlayerInfo>();
 
         /// <summary> Cached list of all players in the database.
-        /// May be quite long. </summary>
+        /// May be quite long. Make sure to copy a reference to
+        /// the list before accessing it in a loop, since this 
+        /// array be frequently be replaced by an updated one. </summary>
         public static PlayerInfo[] PlayerInfoList { get; private set; }
 
         static int maxID = 255;
 
-        public const int FormatVersion = 2;
+        /* 
+         * Version 0 - before 0.530 - all dates/times are local
+         * Version 1 - 0.530-0.536 - all dates and times are stored as UTC unix timestamps (milliseconds)
+         * Version 2 - 0.600 dev - all dates and times are stored as UTC unix timestamps (seconds)
+         * Version 3 - 0.600+ - same as v2, but sorting by ID is enforced
+         */
+        public const int FormatVersion = 3;
 
         const string Header = "fCraft PlayerDB | Row format: " +
                               "Name,IPAddress,Rank,RankChangeDate,RankChangedBy,Banned,BanDate,BannedBy," +
@@ -82,10 +90,12 @@ namespace fCraft {
                         lock( AddLocker ) {
                             int version = IdentifyFormatVersion( header );
                             if( version > FormatVersion ) {
-                                Logger.Log( "PlayerDB.Load: Attempting to load unsupported PlayerDB format ({0}). Errors may occur.", LogType.Warning,
+                                Logger.Log( "PlayerDB.Load: Attempting to load unsupported PlayerDB format ({0}). Errors may occur.",
+                                            LogType.Warning,
                                             version );
                             } else if( version < FormatVersion ) {
-                                Logger.Log( "PlayerDB.Load: Converting PlayerDB to a newer format (version {0} to {1}).", LogType.Warning,
+                                Logger.Log( "PlayerDB.Load: Converting PlayerDB to a newer format (version {0} to {1}).",
+                                            LogType.Warning,
                                             version, FormatVersion );
                             }
 
@@ -106,10 +116,16 @@ namespace fCraft {
                                                 info = PlayerInfo.LoadFormat1( fields );
                                                 break;
                                             case 2:
+                                            case 3:
                                                 info = PlayerInfo.LoadFormat2( fields );
                                                 break;
                                             default:
                                                 return;
+                                        }
+
+                                        if( info.ID > maxID ) {
+                                            maxID = info.ID;
+                                            Logger.Log( "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1}).", LogType.Warning );
                                         }
 
                                         if( Trie.ContainsKey( info.Name ) ) {
@@ -126,19 +142,21 @@ namespace fCraft {
                                     }
 #endif
                                 } else {
-                                    Logger.Log(
-                                        "PlayerDB.Load: Unexpected field count ({0}), expecting at least {1} fields for a PlayerDB entry.",
-                                        LogType.Error,
-                                        fields.Length,
-                                        PlayerInfo.MinFieldCount );
+                                    Logger.Log( "PlayerDB.Load: Unexpected field count ({0}), expecting at least {1} fields for a PlayerDB entry.",
+                                                LogType.Error,
+                                                fields.Length, PlayerInfo.MinFieldCount );
                                 }
+                            }
+                            if( version < 3 ) {
+                                Logger.Log( "Sorting PlayerDB by ID...", LogType.SystemActivity );
+                                list.Sort( PlayerIDComparer.Instance );
                             }
                         }
                     }
                     list.TrimExcess();
                     sw.Stop();
-                    Logger.Log( "PlayerDB.Load: Done loading player DB ({0} records) in {1}ms.", LogType.Debug,
-                                Trie.Count, sw.ElapsedMilliseconds );
+                    Logger.Log( "PlayerDB.Load: Done loading player DB ({0} records) in {1}ms. MaxID={2}", LogType.Debug,
+                                Trie.Count, sw.ElapsedMilliseconds, maxID );
                 } else {
                     Logger.Log( "PlayerDB.Load: No player DB file found.", LogType.Warning );
                 }
@@ -358,6 +376,19 @@ namespace fCraft {
         }
 
 
+        public static PlayerInfo FindPlayerInfoByID( int id ) {
+            PlayerInfo dummy = new PlayerInfo( id );
+            lock( SaveLoadLocker ) {
+                int index = list.BinarySearch( dummy, PlayerIDComparer.Instance );
+                if( index != -1 ) {
+                    return list[index];
+                } else {
+                    return null;
+                }
+            }
+        }
+
+
         public static int MassRankChange( Player player, Rank from, Rank to, bool silent ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( from == null ) throw new ArgumentNullException( "from" );
@@ -417,9 +448,9 @@ namespace fCraft {
                 }
 
                 int count = 0;
-// ReSharper disable LoopCanBeConvertedToQuery
+                // ReSharper disable LoopCanBeConvertedToQuery
                 for( int i = 0; i < playerInfoListCache.Length; i++ ) {
-// ReSharper restore LoopCanBeConvertedToQuery
+                    // ReSharper restore LoopCanBeConvertedToQuery
                     if( PlayerIsInactive( playerInfoListCache[i], true ) ) count++;
                 }
                 playersByIP = null;
@@ -501,5 +532,15 @@ namespace fCraft {
         }
 
         #endregion
+
+
+        sealed class PlayerIDComparer : IComparer<PlayerInfo> {
+            public static readonly PlayerIDComparer Instance = new PlayerIDComparer();
+            private PlayerIDComparer() { }
+
+            public int Compare( PlayerInfo x, PlayerInfo y ) {
+                return x.ID - y.ID;
+            }
+        }
     }
 }

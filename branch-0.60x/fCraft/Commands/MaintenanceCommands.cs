@@ -30,6 +30,8 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdImport );
 
             CommandManager.RegisterCommand( new CommandDescriptor {
+                Name = "bum",
+                IsHidden = true,
                 Category = CommandCategory.Maintenance,
                 Handler = delegate( Player player, Command cmd ) {
                     string newModeName = cmd.Next();
@@ -45,9 +47,7 @@ namespace fCraft {
                         player.BandwidthUseMode = newMode;
                         player.Info.BandwidthUseMode = newMode;
                     }
-                },
-                Name = "bum",
-                IsHidden = true
+                }
             } );
         }
 
@@ -115,7 +115,7 @@ namespace fCraft {
                     foreach( Rank rank in RankManager.Ranks ) {
                         infos = PlayerDB.GetPlayerListCopy( rank );
                         if( infos.Length == 0 ) {
-                            writer.WriteLine( "{0} (0 players)", rank.Name );
+                            writer.WriteLine( "{0}: 0 players, 0 banned, 0 inactive", rank.Name );
                             writer.WriteLine();
                         } else {
                             DumpPlayerGroupStats( writer, infos, rank.Name );
@@ -140,8 +140,8 @@ namespace fCraft {
             infos = infos.Where( info => (info.TimeSinceLastSeen.TotalDays < 30 && !info.Banned) ).ToArray();
 
             if( infos.Length == 0 ) {
-                writer.WriteLine( "{0}: {1} players, {2} banned, 0 inactive",
-                                  totalCount, bannedCount, inactiveCount );
+                writer.WriteLine( "{0}: {1} players, {2} banned, {3} inactive",
+                                  groupName, totalCount, bannedCount, inactiveCount );
                 writer.WriteLine();
                 return;
             }
@@ -152,6 +152,7 @@ namespace fCraft {
                 stat.TotalTime += infos[i].TotalTime;
                 stat.BlocksBuilt += infos[i].BlocksBuilt;
                 stat.BlocksDeleted += infos[i].BlocksDeleted;
+                stat.BlocksDrawn += infos[i].BlocksDrawn;
                 stat.TimesVisited += infos[i].TimesVisited;
                 stat.MessagesWritten += infos[i].MessagesWritten;
                 stat.TimesKicked += infos[i].TimesKicked;
@@ -171,6 +172,7 @@ namespace fCraft {
             stat.TotalTimeMedian = infos.OrderByDescending( info => info.TotalTime ).ElementAt( infos.Length / 2 ).TotalTime;
             stat.BlocksBuiltMedian = infos.OrderByDescending( info => info.BlocksBuilt ).ElementAt( infos.Length / 2 ).BlocksBuilt;
             stat.BlocksDeletedMedian = infos.OrderByDescending( info => info.BlocksDeleted ).ElementAt( infos.Length / 2 ).BlocksDeleted;
+            stat.BlocksDrawnMedian = infos.OrderByDescending( info => info.BlocksDrawn ).ElementAt( infos.Length / 2 ).BlocksDrawn;
             PlayerInfo medianBlocksChangedPlayerInfo = infos.OrderByDescending( info => (info.BlocksDeleted + info.BlocksBuilt) ).ElementAt( infos.Length / 2 );
             stat.BlocksChangedMedian = medianBlocksChangedPlayerInfo.BlocksDeleted + medianBlocksChangedPlayerInfo.BlocksBuilt;
             PlayerInfo medianBlockRatioPlayerInfo = infos.OrderByDescending( info => (info.BlocksBuilt / (double)Math.Max( info.BlocksDeleted, 1 )) )
@@ -188,6 +190,7 @@ namespace fCraft {
             stat.TopTotalTime = infos.OrderByDescending( info => info.TotalTime ).ToArray();
             stat.TopBlocksBuilt = infos.OrderByDescending( info => info.BlocksBuilt ).ToArray();
             stat.TopBlocksDeleted = infos.OrderByDescending( info => info.BlocksDeleted ).ToArray();
+            stat.TopBlocksDeleted = infos.OrderByDescending( info => info.BlocksDrawn ).ToArray();
             stat.TopBlocksChanged = infos.OrderByDescending( info => (info.BlocksDeleted + info.BlocksBuilt) ).ToArray();
             stat.TopBlockRatio = infos.OrderByDescending( info => (info.BlocksBuilt / (double)Math.Max( info.BlocksDeleted, 1 )) ).ToArray();
             stat.TopTimesVisited = infos.OrderByDescending( info => info.TimesVisited ).ToArray();
@@ -321,6 +324,25 @@ namespace fCraft {
             writer.WriteLine();
 
 
+            writer.WriteLine( "    BlocksDrawn: {0} mean,  {1} median,  {2} total",
+                              stat.BlocksDrawn / infos.Length,
+                              stat.BlocksDrawnMedian,
+                              stat.BlocksDrawn );
+            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+                foreach( PlayerInfo info in stat.TopBlocksDrawn.Take( TopPlayersToList ) ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.BlocksDrawn, info.Name );
+                }
+                writer.WriteLine( "                           ...." );
+                foreach( PlayerInfo info in stat.TopBlocksDrawn.Reverse().Take( TopPlayersToList ).Reverse() ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.BlocksDrawn, info.Name );
+                }
+            } else {
+                foreach( PlayerInfo info in stat.TopBlocksDrawn ) {
+                    writer.WriteLine( "        {0,20}  {1}", info.BlocksDrawn, info.Name );
+                }
+            }
+
+
             writer.WriteLine( "    BlockRatio: {0:0.000} mean,  {1:0.000} median",
                               stat.BlockRatio,
                               stat.BlockRatioMedian );
@@ -448,6 +470,7 @@ namespace fCraft {
             public long BlocksBuilt;
             public long BlocksDeleted;
             public long BlocksChanged;
+            public long BlocksDrawn;
             public double BlockRatio;
             public long TimesVisited;
             public long MessagesWritten;
@@ -462,6 +485,7 @@ namespace fCraft {
             public int BlocksBuiltMedian;
             public int BlocksDeletedMedian;
             public int BlocksChangedMedian;
+            public long BlocksDrawnMedian;
             public double BlockRatioMedian;
             public int TimesVisitedMedian;
             public int MessagesWrittenMedian;
@@ -475,6 +499,7 @@ namespace fCraft {
             public PlayerInfo[] TopBlocksBuilt;
             public PlayerInfo[] TopBlocksDeleted;
             public PlayerInfo[] TopBlocksChanged;
+            public PlayerInfo[] TopBlocksDrawn;
             public PlayerInfo[] TopBlockRatio;
             public PlayerInfo[] TopTimesVisited;
             public PlayerInfo[] TopMessagesWritten;

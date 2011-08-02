@@ -1020,7 +1020,9 @@ namespace fCraft {
 
             try {
                 using( WebResponse response = request.GetResponse() ) {
+                    // ReSharper disable AssignNullToNotNullAttribute
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
+                        // ReSharper restore AssignNullToNotNullAttribute
                         string paidStatusString = responseReader.ReadToEnd();
                         bool isPaid;
                         return Boolean.TryParse( paidStatusString, out isPaid ) && isPaid;
@@ -1083,8 +1085,8 @@ namespace fCraft {
     }
 
 
-    sealed class PlayerComparer : IComparer<Player> {
-        public static readonly PlayerComparer Instance = new PlayerComparer();
+    sealed class PlayerListSorter : IComparer<Player> {
+        public static readonly PlayerListSorter Instance = new PlayerListSorter();
 
         public int Compare( Player x, Player y ) {
             if( x.Info.Rank == y.Info.Rank ) {

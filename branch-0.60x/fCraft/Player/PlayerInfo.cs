@@ -76,6 +76,10 @@ namespace fCraft {
 
         #region Constructors and Serialization
 
+        internal PlayerInfo( int id ) {
+            ID = id;
+        }
+
         PlayerInfo() {
             // reset everything to defaults
             LastIP = IPAddress.None;

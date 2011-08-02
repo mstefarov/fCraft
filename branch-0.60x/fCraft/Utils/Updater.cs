@@ -61,7 +61,9 @@ namespace fCraft {
 
                 using( WebResponse response = request.GetResponse() ) {
                     // ReSharper disable PossibleNullReferenceException
+                    // ReSharper disable AssignNullToNotNullAttribute
                     using( XmlTextReader reader = new XmlTextReader( response.GetResponseStream() ) ) {
+                        // ReSharper restore AssignNullToNotNullAttribute
                         XDocument doc = XDocument.Load( reader );
                         XElement root = doc.Root;
                         if( root.Attribute( "result" ).Value == "update" ) {
