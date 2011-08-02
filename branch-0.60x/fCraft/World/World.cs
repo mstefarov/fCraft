@@ -142,7 +142,8 @@ namespace fCraft {
                     AccessSecurity = (SecurityController)AccessSecurity.Clone(),
                     BuildSecurity = (SecurityController)BuildSecurity.Clone(),
                     IsHidden = IsHidden,
-                    IsBlockTracked = IsBlockTracked
+                    IsBlockTracked = IsBlockTracked,
+                    lastBackup = lastBackup
                 };
                 newMap.World = newWorld;
                 newWorld.Map = newMap;
@@ -457,7 +458,7 @@ namespace fCraft {
 
         #region Scheduled Tasks
 
-        SchedulerTask updateTask, saveTask, backupTask;
+        SchedulerTask updateTask, saveTask;
         readonly object taskLock = new object();
 
 
@@ -471,10 +472,6 @@ namespace fCraft {
                     saveTask.Stop();
                     saveTask = null;
                 }
-                if( backupTask != null ) {
-                    backupTask.Stop();
-                    backupTask = null;
-                }
             }
         }
 
@@ -487,18 +484,10 @@ namespace fCraft {
                                        TimeSpan.Zero );
 
                 if( ConfigKey.SaveInterval.GetInt() > 0 ) {
-                    saveTask = Scheduler.NewTask( SaveTask );
+                    saveTask = Scheduler.NewBackgroundTask( SaveTask );
                     saveTask.RunForever( this,
                                          TimeSpan.FromSeconds( ConfigKey.SaveInterval.GetInt() ),
                                          TimeSpan.FromSeconds( ConfigKey.SaveInterval.GetInt() ) );
-                }
-
-                if( ConfigKey.BackupInterval.GetInt() > 0 ) {
-                    backupTask = Scheduler.NewTask( BackupTask );
-                    TimeSpan interval = TimeSpan.FromMinutes( ConfigKey.BackupInterval.GetInt() );
-                    backupTask.RunForever( this,
-                                           interval,
-                                           (ConfigKey.BackupOnStartup.Enabled() ? TimeSpan.Zero : interval) );
                 }
             }
         }
@@ -512,21 +501,24 @@ namespace fCraft {
         }
 
 
-        void BackupTask( SchedulerTask task ) {
-            Map tempMap = Map;
-            if( tempMap != null ) {
-                string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
-                tempMap.SaveBackup( MapFileName,
-                                    Path.Combine( Paths.BackupPath, backupFileName ),
-                                    true );
-            }
-        }
-
+        DateTime lastBackup = DateTime.UtcNow;
 
         void SaveTask( SchedulerTask task ) {
             Map tempMap = Map;
             if( tempMap != null && tempMap.HasChangedSinceSave ) {
-                SaveMap();
+                lock( WorldLock ) {
+                    if( Map != null && tempMap.HasChangedSinceSave ) {
+                        SaveMap();
+                        int backupSeconds = ConfigKey.BackupInterval.GetInt();
+                        if( backupSeconds > 0 && DateTime.UtcNow.Subtract( lastBackup ).TotalSeconds > backupSeconds ) {
+                            string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
+                            tempMap.SaveBackup( MapFileName,
+                                                Path.Combine( Paths.BackupPath, backupFileName ),
+                                                true );
+                            lastBackup = DateTime.UtcNow;
+                        }
+                    }
+                }
             }
         }
 
