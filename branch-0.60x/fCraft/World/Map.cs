@@ -456,10 +456,12 @@ namespace fCraft {
 
 
         static void DeleteOldBackups( DirectoryInfo directory ) {
-            var backupList = directory.GetFiles( "*.fcm" ).OrderBy( fi => fi.CreationTimeUtc ).ToList();
+            var backupList = directory.GetFiles( "*.fcm" ).OrderBy( fi => -fi.CreationTimeUtc.Ticks ).ToList();
 
-            if( ConfigKey.MaxBackups.GetInt() > 0 ) {
-                while( backupList.Count > ConfigKey.MaxBackups.GetInt() ) {
+            int maxFileCount = ConfigKey.MaxBackups.GetInt();
+
+            if( maxFileCount > 0 ) {
+                while( backupList.Count > maxFileCount ) {
                     FileInfo info = backupList[backupList.Count - 1];
                     backupList.RemoveAt( backupList.Count - 1 );
                     try {
@@ -474,12 +476,14 @@ namespace fCraft {
                 }
             }
 
-            if( ConfigKey.MaxBackupSize.GetInt() > 0 ) {
+            int maxFileSize = ConfigKey.MaxBackupSize.GetInt();
+
+            if( maxFileSize > 0 ) {
                 while( true ) {
                     FileInfo[] fis = directory.GetFiles();
                     long size = fis.Sum( fi => fi.Length );
 
-                    if( size / 1024 / 1024 > ConfigKey.MaxBackupSize.GetInt() ) {
+                    if( size / 1024 / 1024 > maxFileSize ) {
                         FileInfo info = backupList[backupList.Count - 1];
                         backupList.RemoveAt( backupList.Count - 1 );
                         try {

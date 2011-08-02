@@ -508,15 +508,17 @@ namespace fCraft {
             if( tempMap != null && tempMap.HasChangedSinceSave ) {
                 lock( WorldLock ) {
                     if( Map != null && tempMap.HasChangedSinceSave ) {
-                        SaveMap();
-                        int backupSeconds = ConfigKey.BackupInterval.GetInt();
-                        if( backupSeconds > 0 && DateTime.UtcNow.Subtract( lastBackup ).TotalSeconds > backupSeconds ) {
-                            string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
-                            tempMap.SaveBackup( MapFileName,
-                                                Path.Combine( Paths.BackupPath, backupFileName ),
-                                                true );
-                            lastBackup = DateTime.UtcNow;
+                        if( Map.HasChangedSinceBackup ) {
+                            int backupSeconds = ConfigKey.BackupInterval.GetInt();
+                            if( backupSeconds > 0 && DateTime.UtcNow.Subtract( lastBackup ).TotalSeconds > backupSeconds ) {
+                                string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
+                                tempMap.SaveBackup( MapFileName,
+                                                    Path.Combine( Paths.BackupPath, backupFileName ),
+                                                    true );
+                                lastBackup = DateTime.UtcNow;
+                            }
                         }
+                        SaveMap();
                     }
                 }
             }
