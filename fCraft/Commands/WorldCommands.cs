@@ -1717,8 +1717,7 @@ namespace fCraft {
                 foreach( BlockDBEntry entry in results ) {
                     string date = DateTime.UtcNow.Subtract( DateTimeUtil.ToDateTime( entry.Timestamp ) ).ToMiniString();
 
-                    BlockDBEntry entry1 = entry;
-                    PlayerInfo info = PlayerDB.PlayerInfoList.FirstOrDefault( p => p.ID == entry1.PlayerID );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoByID( entry.PlayerID );
                     string playerName = (info == null ? "?" : (info.Online ? info.ClassyName : info.ClassyName + "&S (offline)"));
                     if( entry.OldBlock == (byte)Block.Air ) {
                         args.Player.Message( "&S  {0} ago: {1}&S placed {2}.", date, playerName, entry.NewBlock );

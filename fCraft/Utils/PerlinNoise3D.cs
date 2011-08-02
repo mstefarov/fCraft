@@ -121,22 +121,22 @@ namespace fCraft {
             float w = Fade( z );
 
             // Hash coordinates of the 8 cube corners
-            int A = p[iX] + iY;
-            int AA = p[A] + iZ;
-            int AB = p[A + 1] + iZ;
-            int B = p[iX + 1] + iY;
-            int BA = p[B] + iZ;
-            int BB = p[B + 1] + iZ;
+            int a = p[iX] + iY;
+            int aa = p[a] + iZ;
+            int ab = p[a + 1] + iZ;
+            int b = p[iX + 1] + iY;
+            int ba = p[b] + iZ;
+            int bb = p[b + 1] + iZ;
 
             // And add blended results from 8 corners of cube.
-            return Lerp( w, Lerp( v, Lerp( u, Grad( p[AA], x, y, z ),
-                               Grad( p[BA], x - 1, y, z ) ),
-                       Lerp( u, Grad( p[AB], x, y - 1, z ),
-                               Grad( p[BB], x - 1, y - 1, z ) ) ),
-               Lerp( v, Lerp( u, Grad( p[AA + 1], x, y, z - 1 ),
-                               Grad( p[BA + 1], x - 1, y, z - 1 ) ),
-                       Lerp( u, Grad( p[AB + 1], x, y - 1, z - 1 ),
-                               Grad( p[BB + 1], x - 1, y - 1, z - 1 ) ) ) );
+            return Lerp( w, Lerp( v, Lerp( u, Grad( p[aa], x, y, z ),
+                               Grad( p[ba], x - 1, y, z ) ),
+                       Lerp( u, Grad( p[ab], x, y - 1, z ),
+                               Grad( p[bb], x - 1, y - 1, z ) ) ),
+               Lerp( v, Lerp( u, Grad( p[aa + 1], x, y, z - 1 ),
+                               Grad( p[ba + 1], x - 1, y, z - 1 ) ),
+                       Lerp( u, Grad( p[ab + 1], x, y - 1, z - 1 ),
+                               Grad( p[bb + 1], x - 1, y - 1, z - 1 ) ) ) );
         }
 
 
