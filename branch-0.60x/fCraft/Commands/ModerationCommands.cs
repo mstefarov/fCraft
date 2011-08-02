@@ -1238,8 +1238,7 @@ namespace fCraft {
             } else if( allRanks ) {
                 targetPlayers = new HashSet<Player>();
                 foreach( World world in targetWorlds ) {
-                    Player[] worldPlayers = world.Players;
-                    foreach( Player worldPlayer in worldPlayers ) {
+                    foreach( Player worldPlayer in world.Players ) {
                         targetPlayers.Add( worldPlayer );
                     }
                 }
@@ -1257,19 +1256,33 @@ namespace fCraft {
             // Remove the player him/herself
             targetPlayers.Remove( player );
 
-            // Check if there's anyone to bring
-            if( targetPlayers.Count == 0 ) {
-                player.Message( "No players to bring!" );
-            } else {
-                player.Message( "Bringing {0} players...", targetPlayers.Count );
-            }
+            int count = 0;
 
             // Actually bring all the players
             foreach( Player targetPlayer in targetPlayers ) {
-                Bring( player, new Command( "/bring " + targetPlayer.Name ) );
+                if( !player.CanSee( targetPlayer ) ) continue;
+                if( targetPlayer.World == player.World ) {
+                    // teleport within the same world
+                    targetPlayer.TeleportTo( player.Position );
+                    targetPlayer.Position = player.Position;
+                    if( targetPlayer.Info.IsFrozen ) {
+                        targetPlayer.Position = player.Position;
+                    }
+
+                } else {
+                    // teleport to a different world
+                    BringPlayerToWorld( player, targetPlayer, player.World );
+                }
+                count++;
+            }
+
+            // Check if there's anyone to bring
+            if( count == 0 ) {
+                player.Message( "No players to bring!" );
+            } else {
+                player.Message( "Bringing {0} players...", count );
             }
         }
-
 
 
 
