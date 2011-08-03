@@ -142,7 +142,7 @@ namespace fCraft {
                     AccessSecurity = (SecurityController)AccessSecurity.Clone(),
                     BuildSecurity = (SecurityController)BuildSecurity.Clone(),
                     IsHidden = IsHidden,
-                    IsBlockTracked = IsBlockTracked,
+                    BlockDBEnabled = BlockDBEnabled,
                     lastBackup = lastBackup
                 };
                 newMap.World = newWorld;
@@ -577,15 +577,13 @@ namespace fCraft {
 
         #region Block Tracking
 
-        public bool IsBlockTracked { get; set; }
+        public bool BlockDBEnabled { get; set; }
         internal readonly object BlockDBLock = new object();
         readonly List<BlockDBEntry> pendingEntries = new List<BlockDBEntry>();
 
-        internal void AddBlockDBEntry( BlockDBEntry newEntry ) {
-            lock( BlockDBLock ) {
-                pendingEntries.Add( newEntry );
-            }
-        }
+        public int BlockDBLimit { get; set; }
+        public TimeSpan BlockDBTimeLimit { get; set; }
+        public bool BlockDBPreload { get; set; }
 
         public string BlockDBFile {
             get {
@@ -593,11 +591,20 @@ namespace fCraft {
             }
         }
 
+
+        internal void AddBlockDBEntry( BlockDBEntry newEntry ) {
+            lock( BlockDBLock ) {
+                pendingEntries.Add( newEntry );
+            }
+        }
+
+
         internal void ClearBlockDB() {
             lock( BlockDBLock ) {
                 pendingEntries.Clear();
             }
         }
+
 
         internal void FlushBlockDB() {
             if( pendingEntries.Count > 0 ) {

@@ -2257,7 +2257,7 @@ namespace fCraft {
             }
 
             World world = player.World;
-            if( !world.IsBlockTracked ) {
+            if( !world.BlockDBEnabled ) {
                 player.Message( "&WBlockDB is disabled in this world." );
                 return;
             }
