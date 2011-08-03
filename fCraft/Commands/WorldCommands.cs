@@ -1636,67 +1636,67 @@ namespace fCraft {
 
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
             if( world == null ) return;
-            
+
             string op = cmd.Next();
-            if(op==null){
+            if( op == null ) {
                 // print PlayerDB info
                 return;
             }
+            lock( world.BlockDBLock ) {
 
-            switch( op.ToLower() ) {
-                case "on":
-                    // enables BlockDB
-                    if( world.IsBlockTracked ) {
-                        player.Message( "BlockDB is already enabled on world {0}", world.ClassyName );
+                switch( op.ToLower() ) {
+                    case "on":
+                        // enables BlockDB
+                        if( world.BlockDBEnabled ) {
+                            player.Message( "BlockDB is already enabled on world {0}", world.ClassyName );
 
-                    } else {
-                        world.IsBlockTracked = true;
-                        WorldManager.SaveWorldList();
-                        player.Message( "BlockDB is now enabled on world {0}", world.ClassyName );
-                    }
-                    break;
+                        } else {
+                            world.BlockDBEnabled = true;
+                            WorldManager.SaveWorldList();
+                            player.Message( "BlockDB is now enabled on world {0}", world.ClassyName );
+                        }
+                        break;
 
-                case "off":
-                    // disables BlockDB
-                    if( !world.IsBlockTracked ) {
-                        player.Message( "BlockDB is already disabled on world {0}", world.ClassyName );
+                    case "off":
+                        // disables BlockDB
+                        if( !world.BlockDBEnabled ) {
+                            player.Message( "BlockDB is already disabled on world {0}", world.ClassyName );
 
-                    } else if( cmd.IsConfirmed ) {
-                        world.IsBlockTracked = false;
-                        WorldManager.SaveWorldList();
-                        player.Message( "BlockDB is now disabled on world {0}&S. You may now delete \"{0}\"",
-                                        world.ClassyName, world.BlockDBFile );
+                        } else if( cmd.IsConfirmed ) {
+                            world.BlockDBEnabled = false;
+                            WorldManager.SaveWorldList();
+                            player.Message( "BlockDB is now disabled on world {0}&S. You may now delete \"{0}\"",
+                                            world.ClassyName, world.BlockDBFile );
 
-                    } else {
-                        player.Confirm( cmd,
-                                        "Disable BlockDB on world {0}&S? Block changes will stop being recorded.",
-                                        world.ClassyName );
+                        } else {
+                            player.Confirm( cmd,
+                                            "Disable BlockDB on world {0}&S? Block changes will stop being recorded.",
+                                            world.ClassyName );
 
-                    }
-                    break;
+                        }
+                        break;
 
-                case "limit":
-                    // sets or resets limit on the number of changes to store
-                    if( world.IsBlockTracked ) {
-                        player.Message( "Not implemented yet." );
-                    } else {
-                        player.Message( "Block tracking is disabled on world {0}", world.ClassyName );
-                    }
-                    break;
+                    case "limit":
+                        // sets or resets limit on the number of changes to store
+                        if( world.BlockDBEnabled ) {
+                            player.Message( "Not implemented yet." );
+                        } else {
+                            player.Message( "Block tracking is disabled on world {0}", world.ClassyName );
+                        }
+                        break;
 
-                case "timelimit":
-                    // sets or resets limit on the age of changes to store
-                    if( world.IsBlockTracked ) {
-                        player.Message( "Not implemented yet." );
-                    } else {
-                        player.Message( "Block tracking is disabled on world {0}", world.ClassyName );
-                    }
-                    break;
+                    case "timelimit":
+                        // sets or resets limit on the age of changes to store
+                        if( world.BlockDBEnabled ) {
+                            player.Message( "Not implemented yet." );
+                        } else {
+                            player.Message( "Block tracking is disabled on world {0}", world.ClassyName );
+                        }
+                        break;
 
-                case "clear":
-                    // wipes BlockDB data
-                    lock( world.BlockDBLock ) {
-                        bool hasData = (world.IsBlockTracked || File.Exists( world.BlockDBFile ));
+                    case "clear":
+                        // wipes BlockDB data
+                        bool hasData = (world.BlockDBEnabled || File.Exists( world.BlockDBFile ));
                         if( hasData ) {
                             if( cmd.IsConfirmed ) {
                                 world.ClearBlockDB();
@@ -1708,32 +1708,52 @@ namespace fCraft {
                         } else {
                             player.Message( "BlockDB: No data to clear for world {0}", world.ClassyName );
                         }
-                    }
-                    break;
+                        break;
 
-                case "preload":
-                    // enables/disables BlockDB preloading
-                    if( world.IsBlockTracked ) {
-                        player.Message( "Not implemented yet." );
-                        string param = cmd.Next();
-                        if( param == null ) {
-                            // shows current preload setting
-                        } else if( param.Equals( "on", StringComparison.OrdinalIgnoreCase ) ) {
-                            // turns preload on
-                        } else if( param.Equals( "off", StringComparison.OrdinalIgnoreCase ) ) {
-                            // turns off preload
+                    case "preload":
+                        // enables/disables BlockDB preloading
+                        if( world.BlockDBEnabled ) {
+                            player.Message( "Not implemented yet." );
+                            string param = cmd.Next();
+                            if( param == null ) {
+                                // shows current preload setting
+                                player.Message( "BlockDB preloading is {0} for world {1}",
+                                                (world.BlockDBPreload ? "ON" : "OFF"), 
+                                                world.ClassyName );
+
+                            } else if( param.Equals( "on", StringComparison.OrdinalIgnoreCase ) ) {
+                                // turns preload on
+                                if( world.BlockDBPreload ) {
+                                    player.Message( "BlockDB preloading is already enabled on world {0}", world.ClassyName );
+                                } else {
+                                    world.BlockDBPreload = true;
+                                    WorldManager.SaveWorldList();
+                                    player.Message( "BlockDB preloading is now enabled on world {0}", world.ClassyName );
+                                }
+
+                            } else if( param.Equals( "off", StringComparison.OrdinalIgnoreCase ) ) {
+                                // turns preload off
+                                if( world.BlockDBPreload ) {
+                                    player.Message( "BlockDB preloading is already disabled on world {0}", world.ClassyName );
+                                } else {
+                                    world.BlockDBPreload = false;
+                                    WorldManager.SaveWorldList();
+                                    player.Message( "BlockDB preloading is now disabled on world {0}", world.ClassyName );
+                                }
+
+                            } else {
+                                CdBlockDB.PrintUsage( player );
+                            }
                         } else {
-                            CdBlockDB.PrintUsage( player );
+                            player.Message( "Block tracking is disabled on world {0}", world.ClassyName );
                         }
-                    } else {
-                        player.Message( "Block tracking is disabled on world {0}", world.ClassyName );
-                    }
-                    break;
+                        break;
 
-                default:
-                    // unknown operand
-                    CdBlockDB.PrintUsage( player );
-                    return;
+                    default:
+                        // unknown operand
+                        CdBlockDB.PrintUsage( player );
+                        return;
+                }
             }
         }
 
@@ -1757,7 +1777,7 @@ namespace fCraft {
             }
 
             World world = player.World;
-            if( !world.IsBlockTracked ) {
+            if( !world.BlockDBEnabled ) {
                 player.Message( "&WBlockDB is disabled in this world." );
                 return;
             }
@@ -1789,7 +1809,7 @@ namespace fCraft {
 
         static void BlockInfoSchedulerCallback( SchedulerTask task ) {
             BlockInfoLookupArgs args = (BlockInfoLookupArgs)task.UserState;
-            if( !args.World.IsBlockTracked ) {
+            if( !args.World.BlockDBEnabled ) {
                 args.Player.Message( "&WBlockDB is disabled in this world." );
                 return;
             }

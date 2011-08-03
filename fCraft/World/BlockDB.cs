@@ -37,7 +37,7 @@ namespace fCraft {
 
         static void OnPlayerPlacedBlock( object sender, PlayerPlacedBlockEventArgs e ) {
             World world = e.Player.World;
-            if( world.IsBlockTracked ) {
+            if( world.BlockDBEnabled ) {
                 BlockDBEntry newEntry = new BlockDBEntry( (int)DateTime.UtcNow.ToUnixTime(),
                                                           e.Player.Info.ID,
                                                           e.X, e.Y, e.Z,
@@ -50,7 +50,7 @@ namespace fCraft {
 
         static void FlushAll( SchedulerTask task ) {
             lock( WorldManager.WorldListLock ) {
-                foreach( World w in WorldManager.WorldList.Where( w => w.IsBlockTracked ) ) {
+                foreach( World w in WorldManager.WorldList.Where( w => w.BlockDBEnabled ) ) {
                     w.FlushBlockDB();
                 }
             }
