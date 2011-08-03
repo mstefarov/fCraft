@@ -92,7 +92,7 @@ namespace fCraft {
             }
 
             if( File.Exists( fileName ) && !cmd.IsConfirmed ) {
-                player.AskForConfirmation( cmd, "File \"{0}\" already exists. Overwrite?", Path.GetFileName( fileName ) );
+                player.Confirm( cmd, "File \"{0}\" already exists. Overwrite?", Path.GetFileName( fileName ) );
                 return;
             }
 
@@ -621,7 +621,7 @@ namespace fCraft {
 
 
             if( !cmd.IsConfirmed ) {
-                player.AskForConfirmation( cmd, "About to {0}e {1} players.", verb, playerCount );
+                player.Confirm( cmd, "About to {0}e {1} players.", verb, playerCount );
                 return;
             }
 
@@ -946,8 +946,8 @@ namespace fCraft {
         internal static void PruneDB( Player player, Command cmd ) {
             if( !cmd.IsConfirmed ) {
                 player.MessageNow( "PruneDB: Finding inactive players..." );
-                player.AskForConfirmation( cmd, "Remove {0} inactive players from the database?",
-                                           PlayerDB.CountInactivePlayers() );
+                player.Confirm( cmd, "Remove {0} inactive players from the database?",
+                                PlayerDB.CountInactivePlayers() );
                 return;
             }
             player.MessageNow( "PruneDB: Removing inactive players... (this may take a while)" );
@@ -1041,7 +1041,7 @@ namespace fCraft {
             }
 
             if( !cmd.IsConfirmed ) {
-                player.AskForConfirmation( cmd, "You are about to import {0} bans.", names.Length );
+                player.Confirm( cmd, "You are about to import {0} bans.", names.Length );
                 return;
             }
 
@@ -1110,7 +1110,7 @@ namespace fCraft {
             }
 
             if( !cmd.IsConfirmed ) {
-                player.AskForConfirmation( cmd, "You are about to import {0} player ranks.", names.Length );
+                player.Confirm( cmd, "You are about to import {0} player ranks.", names.Length );
                 return;
             }
 

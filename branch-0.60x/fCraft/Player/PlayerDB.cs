@@ -42,8 +42,12 @@ namespace fCraft {
                               "Password,Online,BandwidthUseMode";
 
 
-        static readonly object AddLocker = new object(),
-                               SaveLoadLocker = new object();
+        // used to ensure PlayerDB consistency when adding/removing PlayerDB entries
+        static readonly object AddLocker = new object();
+
+        // used to prevent concurrent access to the PlayerDB file
+        static readonly object SaveLoadLocker = new object();
+
 
         public static bool IsLoaded { get; private set; }
 
@@ -378,7 +382,7 @@ namespace fCraft {
 
         public static PlayerInfo FindPlayerInfoByID( int id ) {
             PlayerInfo dummy = new PlayerInfo( id );
-            lock( SaveLoadLocker ) {
+            lock( AddLocker ) {
                 int index = list.BinarySearch( dummy, PlayerIDComparer.Instance );
                 if( index != -1 ) {
                     return list[index];

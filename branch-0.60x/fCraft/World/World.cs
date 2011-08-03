@@ -593,6 +593,12 @@ namespace fCraft {
             }
         }
 
+        internal void ClearBlockDB() {
+            lock( BlockDBLock ) {
+                pendingEntries.Clear();
+            }
+        }
+
         internal void FlushBlockDB() {
             if( pendingEntries.Count > 0 ) {
                 lock( BlockDBLock ) {

@@ -594,9 +594,9 @@ namespace fCraft {
                             targetInfo = PlayerDB.AddFakeEntry( name, RankChangeType.Demoted );
                         }
                     } else {
-                        player.AskForConfirmation( cmd,
-                                                   "Warning: Player \"{0}\" is not in the database (possible typo). Type the full name or",
-                                                   name );
+                        player.Confirm( cmd,
+                                        "Warning: Player \"{0}\" is not in the database (possible typo). Type the full name or",
+                                        name );
                         return;
                     }
                 } else {
