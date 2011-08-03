@@ -2301,8 +2301,8 @@ namespace fCraft {
                 }
                 changes = world.LookupBlockInfo( target, count );
                 if( changes.Length > 0 && !cmd.IsConfirmed ) {
-                    player.AskForConfirmation( cmd, "Undo last {0} changes made by player {1}&S?",
-                                               changes.Length, target.ClassyName );
+                    player.Confirm( cmd, "Undo last {0} changes made by player {1}&S?",
+                                    changes.Length, target.ClassyName );
                     return;
                 }
 
@@ -2313,8 +2313,8 @@ namespace fCraft {
                 }
                 changes = world.LookupBlockInfo( target, span );
                 if( changes.Length > 0 && !cmd.IsConfirmed ) {
-                    player.AskForConfirmation( cmd, "Undo changes ({0}) made by {1}&S in the last {2}?",
-                                               changes.Length, target.ClassyName, span.ToMiniString() );
+                    player.Confirm( cmd, "Undo changes ({0}) made by {1}&S in the last {2}?",
+                                    changes.Length, target.ClassyName, span.ToMiniString() );
                     return;
                 }
 

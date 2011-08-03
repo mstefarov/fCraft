@@ -237,7 +237,7 @@ namespace fCraft {
                 FileInfo sourceFile = new FileInfo( world.MapFileName );
                 if( !targetFile.FullName.Equals( sourceFile.FullName, StringComparison.OrdinalIgnoreCase ) ) {
                     if( !cmd.IsConfirmed ) {
-                        player.AskForConfirmation( cmd, "Target file \"{0}\" already exists, and will be overwritten.", targetFile.Name );
+                        player.Confirm( cmd, "Target file \"{0}\" already exists, and will be overwritten.", targetFile.Name );
                         return;
                     }
                 }
@@ -1034,7 +1034,7 @@ namespace fCraft {
             // Loading map into current world
             if( worldName == null ) {
                 if( !cmd.IsConfirmed ) {
-                    player.AskForConfirmation( cmd, "About to replace THIS MAP with \"{0}\".", fileName );
+                    player.Confirm( cmd, "About to replace THIS MAP with \"{0}\".", fileName );
                     return;
                 }
                 Map map;
@@ -1067,7 +1067,7 @@ namespace fCraft {
                     if( world != null ) {
                         // Replacing existing world's map
                         if( !cmd.IsConfirmed ) {
-                            player.AskForConfirmation( cmd, "About to replace map for {0}&S with \"{1}\".",
+                            player.Confirm( cmd, "About to replace map for {0}&S with \"{1}\".",
                                                        world.ClassyName, fileName );
                             return;
                         }
@@ -1100,7 +1100,7 @@ namespace fCraft {
                         if( !cmd.IsConfirmed &&
                             File.Exists( targetFullFileName ) && // target file already exists
                             !Paths.Compare( targetFullFileName, fullFileName ) ) { // and is different from sourceFile
-                            player.AskForConfirmation( cmd, "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
+                            player.Confirm( cmd, "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
                                                        Path.GetFileName( targetFullFileName ), Path.GetFileName( fullFileName ) );
                             return;
                         }
@@ -1166,7 +1166,7 @@ namespace fCraft {
             oldName = oldWorld.Name;
 
             if( !cmd.IsConfirmed && File.Exists( Path.Combine( Paths.MapPath, newName + ".fcm" ) ) ) {
-                player.AskForConfirmation( cmd, "Renaming this world will overwrite an existing map file \"{0}.fcm\".", newName );
+                player.Confirm( cmd, "Renaming this world will overwrite an existing map file \"{0}.fcm\".", newName );
                 return;
             }
 
@@ -1398,7 +1398,7 @@ namespace fCraft {
                     return;
                 }
                 if( !cmd.IsConfirmed ) {
-                    player.AskForConfirmation( cmd, "Replace this world's map with a generated one?" );
+                    player.Confirm( cmd, "Replace this world's map with a generated one?" );
                     return;
                 }
             } else {
@@ -1420,7 +1420,7 @@ namespace fCraft {
                     Directory.CreateDirectory( dirName );
                 }
                 if( !cmd.IsConfirmed && File.Exists( fullFileName ) ) {
-                    player.AskForConfirmation( cmd, "The mapfile \"{0}\" already exists. Overwrite?", fileName );
+                    player.Confirm( cmd, "The mapfile \"{0}\" already exists. Overwrite?", fileName );
                     return;
                 }
             }
@@ -1617,12 +1617,12 @@ namespace fCraft {
             IsConsoleSafe = true,
             IsHidden = true,
             Permissions = new[] { Permission.ManageWorlds, Permission.EditPlayerDB },
-            Usage = "/blockdb WorldName",
+            Usage = "/blockdb WorldName on/off",
             Help = "Enables or disabled BlockDB on a given world.",
-            Handler = SetBlockDB
+            Handler = DoBlockDB
         };
 
-        internal static void SetBlockDB( Player player, Command cmd ) {
+        static void DoBlockDB( Player player, Command cmd ) {
             if( !BlockDB.IsEnabled ) {
                 player.Message( "&WBlockDB is disabled on this server." );
                 return;
@@ -1636,24 +1636,105 @@ namespace fCraft {
 
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
             if( world == null ) return;
-
-            if( !cmd.IsConfirmed ) {
-                if( world.IsBlockTracked ) {
-                    player.AskForConfirmation( cmd, "Disable BlockDB on world {0}&S? Block changes will stop being recorded.", world.ClassyName );
-                } else {
-                    player.AskForConfirmation( cmd, "Enable BlockDB on world {0}&S?", world.ClassyName );
-                }
+            
+            string op = cmd.Next();
+            if(op==null){
+                // print PlayerDB info
                 return;
             }
 
-            world.IsBlockTracked = !world.IsBlockTracked;
+            switch( op.ToLower() ) {
+                case "on":
+                    // enables BlockDB
+                    if( world.IsBlockTracked ) {
+                        player.Message( "BlockDB is already enabled on world {0}", world.ClassyName );
 
-            if( world.IsBlockTracked ) {
-                player.Message( "Enabled block tracking on world {0}", world.ClassyName );
-            } else {
-                player.Message( "Disabled block tracking on world {0}", world.ClassyName );
+                    } else {
+                        world.IsBlockTracked = true;
+                        WorldManager.SaveWorldList();
+                        player.Message( "BlockDB is now enabled on world {0}", world.ClassyName );
+                    }
+                    break;
+
+                case "off":
+                    // disables BlockDB
+                    if( !world.IsBlockTracked ) {
+                        player.Message( "BlockDB is already disabled on world {0}", world.ClassyName );
+
+                    } else if( cmd.IsConfirmed ) {
+                        world.IsBlockTracked = false;
+                        WorldManager.SaveWorldList();
+                        player.Message( "BlockDB is now disabled on world {0}&S. You may now delete \"{0}\"",
+                                        world.ClassyName, world.BlockDBFile );
+
+                    } else {
+                        player.Confirm( cmd,
+                                        "Disable BlockDB on world {0}&S? Block changes will stop being recorded.",
+                                        world.ClassyName );
+
+                    }
+                    break;
+
+                case "limit":
+                    // sets or resets limit on the number of changes to store
+                    if( world.IsBlockTracked ) {
+                        player.Message( "Not implemented yet." );
+                    } else {
+                        player.Message( "Block tracking is disabled on world {0}", world.ClassyName );
+                    }
+                    break;
+
+                case "timelimit":
+                    // sets or resets limit on the age of changes to store
+                    if( world.IsBlockTracked ) {
+                        player.Message( "Not implemented yet." );
+                    } else {
+                        player.Message( "Block tracking is disabled on world {0}", world.ClassyName );
+                    }
+                    break;
+
+                case "clear":
+                    // wipes BlockDB data
+                    lock( world.BlockDBLock ) {
+                        bool hasData = (world.IsBlockTracked || File.Exists( world.BlockDBFile ));
+                        if( hasData ) {
+                            if( cmd.IsConfirmed ) {
+                                world.ClearBlockDB();
+                                File.Delete( world.BlockDBFile ); // throws
+                            } else {
+                                player.Confirm( cmd, "Clear BlockDB data for world {0}&S? This cannot be undone.",
+                                                world.ClassyName );
+                            }
+                        } else {
+                            player.Message( "BlockDB: No data to clear for world {0}", world.ClassyName );
+                        }
+                    }
+                    break;
+
+                case "preload":
+                    // enables/disables BlockDB preloading
+                    if( world.IsBlockTracked ) {
+                        player.Message( "Not implemented yet." );
+                        string param = cmd.Next();
+                        if( param == null ) {
+                            // shows current preload setting
+                        } else if( param.Equals( "on", StringComparison.OrdinalIgnoreCase ) ) {
+                            // turns preload on
+                        } else if( param.Equals( "off", StringComparison.OrdinalIgnoreCase ) ) {
+                            // turns off preload
+                        } else {
+                            CdBlockDB.PrintUsage( player );
+                        }
+                    } else {
+                        player.Message( "Block tracking is disabled on world {0}", world.ClassyName );
+                    }
+                    break;
+
+                default:
+                    // unknown operand
+                    CdBlockDB.PrintUsage( player );
+                    return;
             }
-            WorldManager.SaveWorldList();
         }
 
 

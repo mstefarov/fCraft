@@ -507,7 +507,7 @@ namespace fCraft {
         /// <param name="cmd"> Command that needs confirmation. </param>
         /// <param name="message"> Message to print before "Type /ok to continue". </param>
         /// <param name="args"> Optional String.Format() arguments, for the message. </param>
-        public void AskForConfirmation( Command cmd, string message, params object[] args ) {
+        public void Confirm( Command cmd, string message, params object[] args ) {
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( message == null ) throw new ArgumentNullException( "message" );
             ConfirmCommand = cmd;
