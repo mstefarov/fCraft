@@ -1679,7 +1679,34 @@ namespace fCraft {
                     case "limit":
                         // sets or resets limit on the number of changes to store
                         if( world.BlockDBEnabled ) {
-                            player.Message( "Not implemented yet." );
+                            string limitString = cmd.Next();
+                            int limitNumber;
+                            if( limitString.Equals( "none", StringComparison.OrdinalIgnoreCase ) ) {
+                                limitNumber = 0;
+                            } else if( !Int32.TryParse( limitString, out limitNumber ) ) {
+                                CdBlockDB.PrintUsage( player );
+                                return;
+                            } else if( limitNumber < 0 ) {
+                                player.Message( "BlockDB: Limit must be non-negative." );
+                                return;
+                            }
+
+                            if( (limitNumber < world.BlockDBLimit || world.BlockDBLimit == 0 && limitNumber != 0) &&
+                                !cmd.IsConfirmed ) {
+                                player.Confirm( cmd, "BlockDB: Some old data for world {0}&S may be discarded.", world.ClassyName );
+                            } else {
+                                string limitDisplayString = (limitNumber == 0 ? "none" : limitNumber.ToString());
+                                if( world.BlockDBLimit == limitNumber ) {
+                                    player.Message( "BlockDB: Limit for world {0}&S is already set to {1}",
+                                                   world.ClassyName, limitDisplayString );
+                                } else {
+                                    world.BlockDBLimit = limitNumber;
+                                    WorldManager.SaveWorldList();
+                                    player.Message( "BlockDB: Limit for world {0}&S set to {1}",
+                                                   world.ClassyName, limitDisplayString );
+                                }
+                            }
+
                         } else {
                             player.Message( "Block tracking is disabled on world {0}", world.ClassyName );
                         }
@@ -1718,7 +1745,7 @@ namespace fCraft {
                             if( param == null ) {
                                 // shows current preload setting
                                 player.Message( "BlockDB preloading is {0} for world {1}",
-                                                (world.BlockDBPreload ? "ON" : "OFF"), 
+                                                (world.BlockDBPreload ? "ON" : "OFF"),
                                                 world.ClassyName );
 
                             } else if( param.Equals( "on", StringComparison.OrdinalIgnoreCase ) ) {
@@ -1733,7 +1760,7 @@ namespace fCraft {
 
                             } else if( param.Equals( "off", StringComparison.OrdinalIgnoreCase ) ) {
                                 // turns preload off
-                                if( world.BlockDBPreload ) {
+                                if( !world.BlockDBPreload ) {
                                     player.Message( "BlockDB preloading is already disabled on world {0}", world.ClassyName );
                                 } else {
                                     world.BlockDBPreload = false;
