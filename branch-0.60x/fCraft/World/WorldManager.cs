@@ -136,7 +136,37 @@ namespace fCraft {
                         world.BuildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
                     }
 
-                    world.BlockDBEnabled = (el.Attribute( "blockDB" ) != null);
+                    XElement blockEl = el.Element( "blockDB" );
+                    if( blockEl != null ) {
+                        world.BlockDBEnabled = true;
+                        if( (temp = blockEl.Attribute( "preload" )) != null ) {
+                            bool isPreloaded;
+                            if( Boolean.TryParse( temp.Value, out isPreloaded ) ) {
+                                world.BlockDBPreload = isPreloaded;
+                            } else {
+                                Logger.Log( "WorldManager: Could not parse BlockDB \"preload\" attribute of world \"{0}\", assuming NOT preloaded.",
+                                            LogType.Warning, worldName );
+                            }
+                        }
+                        if( (temp = blockEl.Attribute( "limit" )) != null ) {
+                            int limit;
+                            if( Int32.TryParse( temp.Value, out limit ) ) {
+                                world.BlockDBLimit = limit;
+                            } else {
+                                Logger.Log( "WorldManager: Could not parse BlockDB \"limit\" attribute of world \"{0}\", assuming NO limit.",
+                                            LogType.Warning, worldName );
+                            }
+                        }
+                        if( (temp = blockEl.Attribute( "timeLimit" )) != null ) {
+                            TimeSpan timeLimit;
+                            if( TimeSpan.TryParse( temp.Value, out timeLimit ) ) {
+                                world.BlockDBTimeLimit = timeLimit;
+                            } else {
+                                Logger.Log( "WorldManager: Could not parse BlockDB \"preload\" attribute of world \"{0}\", assuming NO time limit.",
+                                            LogType.Warning, worldName );
+                            }
+                        }
+                    }
 
                     foreach( XElement mainedRankEl in el.Elements( "RankMainWorld" ) ) {
                         Rank rank = Rank.Parse( mainedRankEl.Value );
@@ -232,10 +262,9 @@ namespace fCraft {
             lock( WorldListLock ) {
                 XDocument doc = new XDocument();
                 XElement root = new XElement( "fCraftWorldList" );
-                XElement temp;
 
                 foreach( World world in WorldList ) {
-                    temp = new XElement( "World" );
+                    XElement temp = new XElement( "World" );
                     temp.Add( new XAttribute( "name", world.Name ) );
                     temp.Add( world.AccessSecurity.Serialize( "accessSecurity" ) );
                     temp.Add( world.BuildSecurity.Serialize( "buildSecurity" ) );
@@ -246,7 +275,11 @@ namespace fCraft {
                         temp.Add( new XAttribute( "hidden", true ) );
                     }
                     if( world.BlockDBEnabled ) {
-                        temp.Add( new XAttribute( "blockDB", true ) );
+                        XElement blockDB = new XElement( "BlockDB" );
+                        blockDB.Add( new XAttribute( "preload", world.BlockDBPreload ) );
+                        blockDB.Add( new XAttribute( "limit", world.BlockDBLimit ) );
+                        blockDB.Add( new XAttribute( "timeLimit", world.BlockDBTimeLimit.ToCompactString() ) );
+                        temp.Add( blockDB );
                     }
 
                     World world1 = world;

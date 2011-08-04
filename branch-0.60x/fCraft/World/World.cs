@@ -143,6 +143,9 @@ namespace fCraft {
                     BuildSecurity = (SecurityController)BuildSecurity.Clone(),
                     IsHidden = IsHidden,
                     BlockDBEnabled = BlockDBEnabled,
+                    BlockDBPreload = BlockDBPreload,
+                    BlockDBLimit = BlockDBLimit,
+                    BlockDBTimeLimit = BlockDBTimeLimit,
                     lastBackup = lastBackup
                 };
                 newMap.World = newWorld;
