@@ -1681,11 +1681,21 @@ namespace fCraft {
                         if( world.BlockDBEnabled ) {
                             string limitString = cmd.Next();
                             int limitNumber;
+
+                            if( limitString == null ) {
+                                player.Message( "BlockDB: Limit for world {0}&S is {1}", 
+                                                world.ClassyName,
+                                                (world.BlockDBLimit == 0 ? "none" : world.BlockDBLimit.ToString()) );
+                                return;
+                            }
+
                             if( limitString.Equals( "none", StringComparison.OrdinalIgnoreCase ) ) {
                                 limitNumber = 0;
+
                             } else if( !Int32.TryParse( limitString, out limitNumber ) ) {
                                 CdBlockDB.PrintUsage( player );
                                 return;
+
                             } else if( limitNumber < 0 ) {
                                 player.Message( "BlockDB: Limit must be non-negative." );
                                 return;
@@ -1694,11 +1704,13 @@ namespace fCraft {
                             if( (limitNumber < world.BlockDBLimit || world.BlockDBLimit == 0 && limitNumber != 0) &&
                                 !cmd.IsConfirmed ) {
                                 player.Confirm( cmd, "BlockDB: Some old data for world {0}&S may be discarded.", world.ClassyName );
+
                             } else {
                                 string limitDisplayString = (limitNumber == 0 ? "none" : limitNumber.ToString());
                                 if( world.BlockDBLimit == limitNumber ) {
                                     player.Message( "BlockDB: Limit for world {0}&S is already set to {1}",
                                                    world.ClassyName, limitDisplayString );
+
                                 } else {
                                     world.BlockDBLimit = limitNumber;
                                     WorldManager.SaveWorldList();
@@ -1715,7 +1727,56 @@ namespace fCraft {
                     case "timelimit":
                         // sets or resets limit on the age of changes to store
                         if( world.BlockDBEnabled ) {
-                            player.Message( "Not implemented yet." );
+                            string limitString = cmd.Next();
+
+                            if( limitString == null ) {
+                                if(world.BlockDBTimeLimit == TimeSpan.Zero){
+                                    player.Message( "BlockDB: There is no time limit for world {0}",
+                                                    world.ClassyName );
+                                }else{
+                                    player.Message( "BlockDB: Time limit for world {0}&S is {1}",
+                                                    world.ClassyName, world.BlockDBTimeLimit.ToMiniString() );
+                                }
+                                return;
+                            }
+
+                            TimeSpan limit;
+                            if( limitString.Equals( "none", StringComparison.OrdinalIgnoreCase ) ) {
+                                limit = TimeSpan.Zero;
+
+                            } else if( !DateTimeUtil.TryParseMiniTimespan( limitString, out limit ) ) {
+                                CdBlockDB.PrintUsage( player );
+                                return;
+                            }
+
+                            if( (limit < world.BlockDBTimeLimit ||
+                                 world.BlockDBTimeLimit == TimeSpan.Zero && limit != TimeSpan.Zero) &&
+                                !cmd.IsConfirmed ) {
+                                player.Confirm( cmd, "BlockDB: Some old data for world {0}&S may be discarded.", world.ClassyName );
+
+                            } else {
+
+                                if( world.BlockDBTimeLimit == limit ) {
+                                    if( world.BlockDBTimeLimit == TimeSpan.Zero ) {
+                                        player.Message( "BlockDB: There is already no time limit for world {0}",
+                                                        world.ClassyName );
+                                    } else {
+                                        player.Message( "BlockDB: Time limit for world {0}&S is already set to {1}",
+                                                        world.ClassyName, world.BlockDBTimeLimit.ToMiniString() );
+                                    }
+                                } else {
+                                    world.BlockDBTimeLimit = limit;
+                                    WorldManager.SaveWorldList();
+                                    if( world.BlockDBTimeLimit == TimeSpan.Zero ) {
+                                        player.Message( "BlockDB: Time limit removed for world {0}",
+                                                        world.ClassyName );
+                                    } else {
+                                        player.Message( "BlockDB: Time limit for world {0}&S set to {1}",
+                                                        world.ClassyName, world.BlockDBTimeLimit.ToMiniString() );
+                                    }
+                                }
+                            }
+
                         } else {
                             player.Message( "Block tracking is disabled on world {0}", world.ClassyName );
                         }
