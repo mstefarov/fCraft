@@ -1796,7 +1796,6 @@ namespace fCraft {
                         if( hasData ) {
                             if( cmd.IsConfirmed ) {
                                 world.ClearBlockDB();
-                                File.Delete( world.BlockDBFile ); // throws
                                 player.Message( "BlockDB: Cleared all data for {0}", world.ClassyName );
                             } else {
                                 player.Confirm( cmd, "Clear BlockDB data for world {0}&S? This cannot be undone.",

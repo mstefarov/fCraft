@@ -156,7 +156,7 @@ namespace fCraft {
                     player.JoinWorld( newWorld, WorldChangeReason.Rejoin );
                 }
                 lock( BlockDBLock ) {
-                    pendingEntries.Clear();
+                    blockPending.Clear();
                     File.Delete( BlockDBFile );
                 }
             }
@@ -582,11 +582,41 @@ namespace fCraft {
 
         public bool BlockDBEnabled { get; set; }
         internal readonly object BlockDBLock = new object();
-        readonly List<BlockDBEntry> pendingEntries = new List<BlockDBEntry>();
+        List<BlockDBEntry> blockPending = new List<BlockDBEntry>();
+
+        List<BlockDBEntry> blockCache = new List<BlockDBEntry>();
+        int lastFlushedIndex = 0;
 
         public int BlockDBLimit { get; set; }
         public TimeSpan BlockDBTimeLimit { get; set; }
-        public bool BlockDBPreload { get; set; }
+        bool blockPreload;
+        public unsafe bool BlockDBPreload {
+            get {
+                return blockPreload;
+            }
+            set {
+                lock( BlockDBLock ) {
+                    if( value == blockPreload ) return;
+                    if( value == true ) {
+                        FlushBlockDB();
+                        byte[] bytes = LoadBlockDB();
+                        int entryCount = bytes.Length / BlockDB.BlockDBEntrySize;
+                        blockCache = new List<BlockDBEntry>( entryCount );
+                        fixed( byte* parr = bytes ) {
+                            BlockDBEntry* entries = (BlockDBEntry*)parr;
+                            for( int i = 0; i < entryCount; i++ ) {
+                                blockCache.Add( entries[i] );
+                            }
+                        }
+                        blockPending = new List<BlockDBEntry>();
+                    } else {
+                        FlushBlockDB();
+                    }
+                    blockPreload = value;
+                }
+            }
+        }
+
 
         public string BlockDBFile {
             get {
@@ -597,50 +627,65 @@ namespace fCraft {
 
         internal void AddBlockDBEntry( BlockDBEntry newEntry ) {
             lock( BlockDBLock ) {
-                pendingEntries.Add( newEntry );
+                if( BlockDBPreload ) {
+                    blockCache.Add( newEntry );
+                } else {
+                    blockPending.Add( newEntry );
+                }
             }
         }
 
 
         internal void ClearBlockDB() {
             lock( BlockDBLock ) {
-                pendingEntries.Clear();
+                if( BlockDBPreload ) {
+                    blockCache.Clear();
+                }else{
+                    blockPending.Clear();
+                }
+                File.Delete( BlockDBFile );
+            }
+        }
+
+            
+        internal void FlushBlockDB() {
+            lock( BlockDBLock ) {
+                if( BlockDBPreload && blockPending.Count > 0 ) {
+                    using( var stream = File.Open( BlockDBFile, FileMode.Append, FileAccess.Write ) ) {
+                        BinaryWriter writer = new BinaryWriter( stream );
+                        for( int i = 0; i < blockPending.Count; i++ ) {
+                            blockPending[i].Serialize( writer );
+                        }
+                    }
+                    blockPending.Clear();
+
+                } else if( !BlockDBPreload && lastFlushedIndex < blockCache.Count ) {
+                    using( var stream = File.Open( BlockDBFile, FileMode.Append, FileAccess.Write ) ) {
+                        BinaryWriter writer = new BinaryWriter( stream );
+                        for( int i = lastFlushedIndex; i < blockCache.Count; i++ ) {
+                            blockPending[i].Serialize( writer );
+                        }
+                    }
+                    lastFlushedIndex = blockCache.Count;
+                }
             }
         }
 
 
-        internal void FlushBlockDB() {
-            if( pendingEntries.Count > 0 ) {
-                lock( BlockDBLock ) {
-                    using( var stream = File.Open( BlockDBFile, FileMode.Append, FileAccess.Write ) ) {
-                        BinaryWriter writer = new BinaryWriter( stream );
-                        for( int i = 0; i < pendingEntries.Count; i++ ) {
-                            writer.Write( pendingEntries[i].Timestamp );
-                            writer.Write( pendingEntries[i].PlayerID );
-                            writer.Write( pendingEntries[i].X );
-                            writer.Write( pendingEntries[i].Y );
-                            writer.Write( pendingEntries[i].Z );
-                            writer.Write( (byte)pendingEntries[i].OldBlock );
-                            writer.Write( (byte)pendingEntries[i].NewBlock );
-                        }
-                    }
-                    pendingEntries.Clear();
+        unsafe internal byte[] LoadBlockDB() {
+            lock( BlockDBLock ) {
+                FlushBlockDB();
+                if( File.Exists( BlockDBFile ) ) {
+                    return File.ReadAllBytes( BlockDBFile );
+                } else {
+                    return new byte[0];
                 }
             }
         }
 
 
         unsafe internal BlockDBEntry[] LookupBlockInfo( short x, short y, short z ) {
-            byte[] bytes;
-
-            lock( BlockDBLock ) {
-                FlushBlockDB();
-                if( File.Exists( BlockDBFile ) ) {
-                    bytes = File.ReadAllBytes( BlockDBFile );
-                } else {
-                    return new BlockDBEntry[0];
-                }
-            }
+            byte[] bytes = LoadBlockDB();
 
             List<BlockDBEntry> results = new List<BlockDBEntry>();
             int entryCount = bytes.Length / BlockDB.BlockDBEntrySize;
@@ -657,16 +702,7 @@ namespace fCraft {
 
 
         unsafe internal BlockDBEntry[] LookupBlockInfo( PlayerInfo info, int max ) {
-            byte[] bytes;
-
-            lock( BlockDBLock ) {
-                FlushBlockDB();
-                if( File.Exists( BlockDBFile ) ) {
-                    bytes = File.ReadAllBytes( BlockDBFile );
-                } else {
-                    return new BlockDBEntry[0];
-                }
-            }
+            byte[] bytes = LoadBlockDB();
 
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
             int count = 0;
@@ -689,16 +725,7 @@ namespace fCraft {
 
 
         unsafe internal BlockDBEntry[] LookupBlockInfo( PlayerInfo info, TimeSpan span ) {
-            byte[] bytes;
-
-            lock( BlockDBLock ) {
-                FlushBlockDB();
-                if( File.Exists( BlockDBFile ) ) {
-                    bytes = File.ReadAllBytes( BlockDBFile );
-                } else {
-                    return new BlockDBEntry[0];
-                }
-            }
+            byte[] bytes = LoadBlockDB();
 
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
 
