@@ -1637,12 +1637,23 @@ namespace fCraft {
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
             if( world == null ) return;
 
+            lock( world.BlockDBLock ) {
             string op = cmd.Next();
             if( op == null ) {
-                // print PlayerDB info
+                if( !world.BlockDBEnabled ) {
+                    player.Message( "BlockDB is disabled on world {0}", world.ClassyName );
+                } else {
+                    if( world.BlockDBPreload ) {
+                        player.Message( "BlockDB is enabled/preloaded on world {0}", world.ClassyName );
+                    } else {
+                        player.Message( "BlockDB is enabled on world {0}", world.ClassyName );
+                    }
+                    player.Message( "    Change limit: {1}    Time limit: {0}",
+                        world.BlockDBLimit == 0 ? "none" : world.BlockDBLimit.ToString(),
+                        world.BlockDBTimeLimit == TimeSpan.Zero ? "none" : world.BlockDBTimeLimit.ToMiniString() );
+                }
                 return;
             }
-            lock( world.BlockDBLock ) {
 
                 switch( op.ToLower() ) {
                     case "on":
@@ -1701,9 +1712,8 @@ namespace fCraft {
                                 return;
                             }
 
-                            if( (limitNumber < world.BlockDBLimit || world.BlockDBLimit == 0 && limitNumber != 0) &&
-                                !cmd.IsConfirmed ) {
-                                player.Confirm( cmd, "BlockDB: Some old data for world {0}&S may be discarded.", world.ClassyName );
+                            if( !cmd.IsConfirmed && limitNumber != 0 ){
+                                player.Confirm( cmd, "BlockDB: Change limit? Some old data for world {0}&S may be discarded.", world.ClassyName );
 
                             } else {
                                 string limitDisplayString = (limitNumber == 0 ? "none" : limitNumber.ToString());
@@ -1749,10 +1759,8 @@ namespace fCraft {
                                 return;
                             }
 
-                            if( (limit < world.BlockDBTimeLimit ||
-                                 world.BlockDBTimeLimit == TimeSpan.Zero && limit != TimeSpan.Zero) &&
-                                !cmd.IsConfirmed ) {
-                                player.Confirm( cmd, "BlockDB: Some old data for world {0}&S may be discarded.", world.ClassyName );
+                            if( !cmd.IsConfirmed && limit != TimeSpan.Zero ) {
+                                player.Confirm( cmd, "BlockDB: Change time limit? Some old data for world {0}&S may be discarded.", world.ClassyName );
 
                             } else {
 
@@ -1789,6 +1797,7 @@ namespace fCraft {
                             if( cmd.IsConfirmed ) {
                                 world.ClearBlockDB();
                                 File.Delete( world.BlockDBFile ); // throws
+                                player.Message( "BlockDB: Cleared all data for {0}", world.ClassyName );
                             } else {
                                 player.Confirm( cmd, "Clear BlockDB data for world {0}&S? This cannot be undone.",
                                                 world.ClassyName );
@@ -1801,7 +1810,6 @@ namespace fCraft {
                     case "preload":
                         // enables/disables BlockDB preloading
                         if( world.BlockDBEnabled ) {
-                            player.Message( "Not implemented yet." );
                             string param = cmd.Next();
                             if( param == null ) {
                                 // shows current preload setting

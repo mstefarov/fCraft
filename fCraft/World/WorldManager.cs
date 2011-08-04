@@ -275,7 +275,7 @@ namespace fCraft {
                         temp.Add( new XAttribute( "hidden", true ) );
                     }
                     if( world.BlockDBEnabled ) {
-                        XElement blockDB = new XElement( "BlockDB" );
+                        XElement blockDB = new XElement( "blockDB" );
                         blockDB.Add( new XAttribute( "preload", world.BlockDBPreload ) );
                         blockDB.Add( new XAttribute( "limit", world.BlockDBLimit ) );
                         blockDB.Add( new XAttribute( "timeLimit", world.BlockDBTimeLimit.ToCompactString() ) );
