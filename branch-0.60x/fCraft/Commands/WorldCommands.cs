@@ -1636,21 +1636,22 @@ namespace fCraft {
 
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
             if( world == null ) return;
+            BlockDB db = world.BlockDB;
 
-            lock( world.BlockDBLock ) {
+            lock( db.SyncRoot ) {
             string op = cmd.Next();
             if( op == null ) {
-                if( !world.BlockDBEnabled ) {
+                if( !db.Enabled ) {
                     player.Message( "BlockDB is disabled on world {0}", world.ClassyName );
                 } else {
-                    if( world.BlockDBPreload ) {
+                    if( db.IsPreloaded ) {
                         player.Message( "BlockDB is enabled/preloaded on world {0}", world.ClassyName );
                     } else {
                         player.Message( "BlockDB is enabled on world {0}", world.ClassyName );
                     }
                     player.Message( "    Change limit: {1}    Time limit: {0}",
-                        world.BlockDBLimit == 0 ? "none" : world.BlockDBLimit.ToString(),
-                        world.BlockDBTimeLimit == TimeSpan.Zero ? "none" : world.BlockDBTimeLimit.ToMiniString() );
+                        db.Limit == 0 ? "none" : db.Limit.ToString(),
+                        db.TimeLimit == TimeSpan.Zero ? "none" : db.TimeLimit.ToMiniString() );
                 }
                 return;
             }
@@ -1658,11 +1659,11 @@ namespace fCraft {
                 switch( op.ToLower() ) {
                     case "on":
                         // enables BlockDB
-                        if( world.BlockDBEnabled ) {
+                        if( db.Enabled ) {
                             player.Message( "BlockDB is already enabled on world {0}", world.ClassyName );
 
                         } else {
-                            world.BlockDBEnabled = true;
+                            db.Enabled = true;
                             WorldManager.SaveWorldList();
                             player.Message( "BlockDB is now enabled on world {0}", world.ClassyName );
                         }
@@ -1670,14 +1671,14 @@ namespace fCraft {
 
                     case "off":
                         // disables BlockDB
-                        if( !world.BlockDBEnabled ) {
+                        if( !db.Enabled ) {
                             player.Message( "BlockDB is already disabled on world {0}", world.ClassyName );
 
                         } else if( cmd.IsConfirmed ) {
-                            world.BlockDBEnabled = false;
+                            db.Enabled = false;
                             WorldManager.SaveWorldList();
                             player.Message( "BlockDB is now disabled on world {0}&S. You may now delete \"{0}\"",
-                                            world.ClassyName, world.BlockDBFile );
+                                            world.ClassyName, db.FileName );
 
                         } else {
                             player.Confirm( cmd,
@@ -1689,14 +1690,14 @@ namespace fCraft {
 
                     case "limit":
                         // sets or resets limit on the number of changes to store
-                        if( world.BlockDBEnabled ) {
+                        if( db.Enabled ) {
                             string limitString = cmd.Next();
                             int limitNumber;
 
                             if( limitString == null ) {
                                 player.Message( "BlockDB: Limit for world {0}&S is {1}", 
                                                 world.ClassyName,
-                                                (world.BlockDBLimit == 0 ? "none" : world.BlockDBLimit.ToString()) );
+                                                (db.Limit == 0 ? "none" : db.Limit.ToString()) );
                                 return;
                             }
 
@@ -1717,12 +1718,12 @@ namespace fCraft {
 
                             } else {
                                 string limitDisplayString = (limitNumber == 0 ? "none" : limitNumber.ToString());
-                                if( world.BlockDBLimit == limitNumber ) {
+                                if( db.Limit == limitNumber ) {
                                     player.Message( "BlockDB: Limit for world {0}&S is already set to {1}",
                                                    world.ClassyName, limitDisplayString );
 
                                 } else {
-                                    world.BlockDBLimit = limitNumber;
+                                    db.Limit = limitNumber;
                                     WorldManager.SaveWorldList();
                                     player.Message( "BlockDB: Limit for world {0}&S set to {1}",
                                                    world.ClassyName, limitDisplayString );
@@ -1736,16 +1737,16 @@ namespace fCraft {
 
                     case "timelimit":
                         // sets or resets limit on the age of changes to store
-                        if( world.BlockDBEnabled ) {
+                        if( db.Enabled ) {
                             string limitString = cmd.Next();
 
                             if( limitString == null ) {
-                                if(world.BlockDBTimeLimit == TimeSpan.Zero){
+                                if( db.TimeLimit == TimeSpan.Zero ) {
                                     player.Message( "BlockDB: There is no time limit for world {0}",
                                                     world.ClassyName );
                                 }else{
                                     player.Message( "BlockDB: Time limit for world {0}&S is {1}",
-                                                    world.ClassyName, world.BlockDBTimeLimit.ToMiniString() );
+                                                    world.ClassyName, db.TimeLimit.ToMiniString() );
                                 }
                                 return;
                             }
@@ -1764,23 +1765,23 @@ namespace fCraft {
 
                             } else {
 
-                                if( world.BlockDBTimeLimit == limit ) {
-                                    if( world.BlockDBTimeLimit == TimeSpan.Zero ) {
+                                if( db.TimeLimit == limit ) {
+                                    if( db.TimeLimit == TimeSpan.Zero ) {
                                         player.Message( "BlockDB: There is already no time limit for world {0}",
                                                         world.ClassyName );
                                     } else {
                                         player.Message( "BlockDB: Time limit for world {0}&S is already set to {1}",
-                                                        world.ClassyName, world.BlockDBTimeLimit.ToMiniString() );
+                                                        world.ClassyName, db.TimeLimit.ToMiniString() );
                                     }
                                 } else {
-                                    world.BlockDBTimeLimit = limit;
+                                    db.TimeLimit = limit;
                                     WorldManager.SaveWorldList();
-                                    if( world.BlockDBTimeLimit == TimeSpan.Zero ) {
+                                    if( db.TimeLimit == TimeSpan.Zero ) {
                                         player.Message( "BlockDB: Time limit removed for world {0}",
                                                         world.ClassyName );
                                     } else {
                                         player.Message( "BlockDB: Time limit for world {0}&S set to {1}",
-                                                        world.ClassyName, world.BlockDBTimeLimit.ToMiniString() );
+                                                        world.ClassyName, db.TimeLimit.ToMiniString() );
                                     }
                                 }
                             }
@@ -1792,10 +1793,10 @@ namespace fCraft {
 
                     case "clear":
                         // wipes BlockDB data
-                        bool hasData = (world.BlockDBEnabled || File.Exists( world.BlockDBFile ));
+                        bool hasData = (db.Enabled || File.Exists( db.FileName ));
                         if( hasData ) {
                             if( cmd.IsConfirmed ) {
-                                world.ClearBlockDB();
+                                db.Clear();
                                 player.Message( "BlockDB: Cleared all data for {0}", world.ClassyName );
                             } else {
                                 player.Confirm( cmd, "Clear BlockDB data for world {0}&S? This cannot be undone.",
@@ -1808,30 +1809,30 @@ namespace fCraft {
 
                     case "preload":
                         // enables/disables BlockDB preloading
-                        if( world.BlockDBEnabled ) {
+                        if( db.Enabled ) {
                             string param = cmd.Next();
                             if( param == null ) {
                                 // shows current preload setting
                                 player.Message( "BlockDB preloading is {0} for world {1}",
-                                                (world.BlockDBPreload ? "ON" : "OFF"),
+                                                (db.IsPreloaded ? "ON" : "OFF"),
                                                 world.ClassyName );
 
                             } else if( param.Equals( "on", StringComparison.OrdinalIgnoreCase ) ) {
                                 // turns preload on
-                                if( world.BlockDBPreload ) {
+                                if( db.IsPreloaded ) {
                                     player.Message( "BlockDB preloading is already enabled on world {0}", world.ClassyName );
                                 } else {
-                                    world.BlockDBPreload = true;
+                                    db.IsPreloaded = true;
                                     WorldManager.SaveWorldList();
                                     player.Message( "BlockDB preloading is now enabled on world {0}", world.ClassyName );
                                 }
 
                             } else if( param.Equals( "off", StringComparison.OrdinalIgnoreCase ) ) {
                                 // turns preload off
-                                if( !world.BlockDBPreload ) {
+                                if( !db.IsPreloaded ) {
                                     player.Message( "BlockDB preloading is already disabled on world {0}", world.ClassyName );
                                 } else {
-                                    world.BlockDBPreload = false;
+                                    db.IsPreloaded = false;
                                     WorldManager.SaveWorldList();
                                     player.Message( "BlockDB preloading is now disabled on world {0}", world.ClassyName );
                                 }
@@ -1872,7 +1873,7 @@ namespace fCraft {
             }
 
             World world = player.World;
-            if( !world.BlockDBEnabled ) {
+            if( !world.BlockDB.Enabled ) {
                 player.Message( "&WBlockDB is disabled in this world." );
                 return;
             }
@@ -1904,11 +1905,11 @@ namespace fCraft {
 
         static void BlockInfoSchedulerCallback( SchedulerTask task ) {
             BlockInfoLookupArgs args = (BlockInfoLookupArgs)task.UserState;
-            if( !args.World.BlockDBEnabled ) {
+            if( !args.World.BlockDB.Enabled ) {
                 args.Player.Message( "&WBlockDB is disabled in this world." );
                 return;
             }
-            BlockDBEntry[] results = args.World.LookupBlockInfo( args.X, args.Y, args.Z );
+            BlockDBEntry[] results = args.World.BlockDB.Lookup( args.X, args.Y, args.Z );
             if( results.Length > 0 ) {
                 foreach( BlockDBEntry entry in results ) {
                     string date = DateTime.UtcNow.Subtract( DateTimeUtil.ToDateTime( entry.Timestamp ) ).ToMiniString();

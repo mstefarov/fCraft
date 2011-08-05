@@ -420,7 +420,7 @@ namespace fCraft {
         }
     }
 
-    unsafe static class MemSetSharp {
+    unsafe static class LowLevelMethods {
         public static void MemSet( this byte[] array, byte value ) {
             if( array == null ) throw new ArgumentNullException( "array" );
             byte[] rawValue = new[] { value, value, value, value, value, value, value, value };
@@ -441,6 +441,7 @@ namespace fCraft {
                 }
             }
         }
+
 
         public static void MemSet( this byte[] array, byte value, int startIndex, int length ) {
             if( array == null ) throw new ArgumentNullException( "array" );
@@ -465,6 +466,44 @@ namespace fCraft {
                 for( byte i = 0; i < length; i++ ) {
                     *bDest = value;
                     bDest++;
+                }
+            }
+        }
+
+
+        public static void MemCpy( byte* src, byte* dest, int len ) {
+            if( len >= 0x10 ) {
+                do {
+                    *((int*)dest) = *((int*)src);
+                    *((int*)(dest + 4)) = *((int*)(src + 4));
+                    *((int*)(dest + 8)) = *((int*)(src + 8));
+                    *((int*)(dest + 12)) = *((int*)(src + 12));
+                    dest += 0x10;
+                    src += 0x10;
+                }
+                while( (len -= 0x10) >= 0x10 );
+            }
+            if( len > 0 ) {
+                if( (len & 8) != 0 ) {
+                    *((int*)dest) = *((int*)src);
+                    *((int*)(dest + 4)) = *((int*)(src + 4));
+                    dest += 8;
+                    src += 8;
+                }
+                if( (len & 4) != 0 ) {
+                    *((int*)dest) = *((int*)src);
+                    dest += 4;
+                    src += 4;
+                }
+                if( (len & 2) != 0 ) {
+                    *((short*)dest) = *((short*)src);
+                    dest += 2;
+                    src += 2;
+                }
+                if( (len & 1) != 0 ) {
+                    dest++;
+                    src++;
+                    dest[0] = src[0];
                 }
             }
         }

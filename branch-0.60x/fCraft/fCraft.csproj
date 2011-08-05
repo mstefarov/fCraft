@@ -238,6 +238,7 @@
     <Compile Include="Utils\LogRecorder.cs" />
     <Compile Include="Utils\PerlinNoise3D.cs" />
     <Compile Include="Utils\ZipStorer.cs" />
+    <Compile Include="World\BlockDBEntry.cs" />
     <Compile Include="World\MetadataCollection.cs" />
     <Compile Include="World\WorldManager.cs" />
     <Compile Include="World\WorldOpException.cs" />
