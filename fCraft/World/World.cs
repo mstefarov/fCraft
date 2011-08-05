@@ -43,6 +43,7 @@ namespace fCraft {
         // used to synchronize player joining/parting with map loading/saving
         internal readonly object WorldLock = new object();
 
+        public BlockDB BlockDB { get; private set; }
 
         internal World( string name ) {
             if( name == null ) {
@@ -51,6 +52,7 @@ namespace fCraft {
             if( !IsValidName( name ) ) {
                 throw new ArgumentException( "Incorrect world name format" );
             }
+            BlockDB = new BlockDB( this );
             AccessSecurity = new SecurityController();
             BuildSecurity = new SecurityController();
             Name = name;
@@ -142,22 +144,16 @@ namespace fCraft {
                     AccessSecurity = (SecurityController)AccessSecurity.Clone(),
                     BuildSecurity = (SecurityController)BuildSecurity.Clone(),
                     IsHidden = IsHidden,
-                    BlockDBEnabled = BlockDBEnabled,
-                    BlockDBPreload = BlockDBPreload,
-                    BlockDBLimit = BlockDBLimit,
-                    BlockDBTimeLimit = BlockDBTimeLimit,
+                    BlockDB = BlockDB,
                     lastBackup = lastBackup
                 };
                 newMap.World = newWorld;
                 newWorld.Map = newMap;
                 newWorld.NeverUnload = neverUnload;
                 WorldManager.ReplaceWorld( this, newWorld );
+                BlockDB.Clear();
                 foreach( Player player in Players ) {
                     player.JoinWorld( newWorld, WorldChangeReason.Rejoin );
-                }
-                lock( BlockDBLock ) {
-                    blockPending.Clear();
-                    File.Delete( BlockDBFile );
                 }
             }
         }
@@ -576,182 +572,6 @@ namespace fCraft {
         public override string ToString() {
             return String.Format( "World({0},{1})", Name,GetHashCode() );
         }
-
-
-        #region Block Tracking
-
-        public bool BlockDBEnabled { get; set; }
-        internal readonly object BlockDBLock = new object();
-        List<BlockDBEntry> blockPending = new List<BlockDBEntry>();
-
-        List<BlockDBEntry> blockCache = new List<BlockDBEntry>();
-        int lastFlushedIndex = 0;
-
-        public int BlockDBLimit { get; set; }
-        public TimeSpan BlockDBTimeLimit { get; set; }
-        bool blockPreload;
-        public unsafe bool BlockDBPreload {
-            get {
-                return blockPreload;
-            }
-            set {
-                lock( BlockDBLock ) {
-                    if( value == blockPreload ) return;
-                    if( value == true ) {
-                        FlushBlockDB();
-                        byte[] bytes = LoadBlockDB();
-                        int entryCount = bytes.Length / BlockDB.BlockDBEntrySize;
-                        blockCache = new List<BlockDBEntry>( entryCount );
-                        fixed( byte* parr = bytes ) {
-                            BlockDBEntry* entries = (BlockDBEntry*)parr;
-                            for( int i = 0; i < entryCount; i++ ) {
-                                blockCache.Add( entries[i] );
-                            }
-                        }
-                        blockPending = new List<BlockDBEntry>();
-                    } else {
-                        FlushBlockDB();
-                    }
-                    blockPreload = value;
-                }
-            }
-        }
-
-
-        public string BlockDBFile {
-            get {
-                return Path.Combine( Paths.BlockDBPath, Name + ".fbdb" );
-            }
-        }
-
-
-        internal void AddBlockDBEntry( BlockDBEntry newEntry ) {
-            lock( BlockDBLock ) {
-                if( BlockDBPreload ) {
-                    blockCache.Add( newEntry );
-                } else {
-                    blockPending.Add( newEntry );
-                }
-            }
-        }
-
-
-        internal void ClearBlockDB() {
-            lock( BlockDBLock ) {
-                if( BlockDBPreload ) {
-                    blockCache.Clear();
-                }else{
-                    blockPending.Clear();
-                }
-                File.Delete( BlockDBFile );
-            }
-        }
-
-            
-        internal void FlushBlockDB() {
-            lock( BlockDBLock ) {
-                if( BlockDBPreload && blockPending.Count > 0 ) {
-                    using( var stream = File.Open( BlockDBFile, FileMode.Append, FileAccess.Write ) ) {
-                        BinaryWriter writer = new BinaryWriter( stream );
-                        for( int i = 0; i < blockPending.Count; i++ ) {
-                            blockPending[i].Serialize( writer );
-                        }
-                    }
-                    blockPending.Clear();
-
-                } else if( !BlockDBPreload && lastFlushedIndex < blockCache.Count ) {
-                    using( var stream = File.Open( BlockDBFile, FileMode.Append, FileAccess.Write ) ) {
-                        BinaryWriter writer = new BinaryWriter( stream );
-                        for( int i = lastFlushedIndex; i < blockCache.Count; i++ ) {
-                            blockPending[i].Serialize( writer );
-                        }
-                    }
-                    lastFlushedIndex = blockCache.Count;
-                }
-            }
-        }
-
-
-        unsafe internal byte[] LoadBlockDB() {
-            lock( BlockDBLock ) {
-                FlushBlockDB();
-                if( File.Exists( BlockDBFile ) ) {
-                    return File.ReadAllBytes( BlockDBFile );
-                } else {
-                    return new byte[0];
-                }
-            }
-        }
-
-
-        unsafe internal BlockDBEntry[] LookupBlockInfo( short x, short y, short z ) {
-            byte[] bytes = LoadBlockDB();
-
-            List<BlockDBEntry> results = new List<BlockDBEntry>();
-            int entryCount = bytes.Length / BlockDB.BlockDBEntrySize;
-            fixed( byte* parr = bytes ) {
-                BlockDBEntry* entries = (BlockDBEntry*)parr;
-                for( int i = 0; i < entryCount; i++ ) {
-                    if( entries[i].X == x && entries[i].Y == y && entries[i].Z == z ) {
-                        results.Add( entries[i] );
-                    }
-                }
-            }
-            return results.ToArray();
-        }
-
-
-        unsafe internal BlockDBEntry[] LookupBlockInfo( PlayerInfo info, int max ) {
-            byte[] bytes = LoadBlockDB();
-
-            Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
-            int count = 0;
-            int entryCount = bytes.Length / BlockDB.BlockDBEntrySize;
-            fixed( byte* parr = bytes ) {
-                BlockDBEntry* entries = (BlockDBEntry*)parr;
-                for( int i = entryCount - 1; i >= 0; i-- ) {
-                    if( entries[i].PlayerID == info.ID ) {
-                        int index = Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                        if( !results.ContainsKey( index ) ) {
-                            results[index] = entries[i];
-                            count++;
-                            if( count >= max ) break;
-                        }
-                    }
-                }
-            }
-            return results.Values.ToArray();
-        }
-
-
-        unsafe internal BlockDBEntry[] LookupBlockInfo( PlayerInfo info, TimeSpan span ) {
-            byte[] bytes = LoadBlockDB();
-
-            long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
-
-            Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
-
-            int entryCount = bytes.Length / BlockDB.BlockDBEntrySize;
-            fixed( byte* parr = bytes ) {
-                BlockDBEntry* entries = (BlockDBEntry*)parr;
-                for( int i = entryCount - 1; i >= 0; i-- ) {
-                    if( entries[i].Timestamp < ticks ) break;
-                    if( entries[i].PlayerID == info.ID ) {
-                        int index = Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                        if( !results.ContainsKey( index ) ) {
-                            results[index] = entries[i];
-                        }
-                    }
-                }
-            }
-            return results.Values.ToArray();
-        }
-
-
-        //unsafe internal BlockDBEntry[] LookupBlockInfo( BoundingBox bounds, TimeSpan span ) {
-        //}
-
-        #endregion
     }
 }
 

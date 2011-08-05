@@ -138,11 +138,11 @@ namespace fCraft {
 
                     XElement blockEl = el.Element( "blockDB" );
                     if( blockEl != null ) {
-                        world.BlockDBEnabled = true;
+                        world.BlockDB.Enabled = true;
                         if( (temp = blockEl.Attribute( "preload" )) != null ) {
                             bool isPreloaded;
                             if( Boolean.TryParse( temp.Value, out isPreloaded ) ) {
-                                world.BlockDBPreload = isPreloaded;
+                                world.BlockDB.IsPreloaded = isPreloaded;
                             } else {
                                 Logger.Log( "WorldManager: Could not parse BlockDB \"preload\" attribute of world \"{0}\", assuming NOT preloaded.",
                                             LogType.Warning, worldName );
@@ -151,7 +151,7 @@ namespace fCraft {
                         if( (temp = blockEl.Attribute( "limit" )) != null ) {
                             int limit;
                             if( Int32.TryParse( temp.Value, out limit ) ) {
-                                world.BlockDBLimit = limit;
+                                world.BlockDB.Limit = limit;
                             } else {
                                 Logger.Log( "WorldManager: Could not parse BlockDB \"limit\" attribute of world \"{0}\", assuming NO limit.",
                                             LogType.Warning, worldName );
@@ -160,7 +160,7 @@ namespace fCraft {
                         if( (temp = blockEl.Attribute( "timeLimit" )) != null ) {
                             TimeSpan timeLimit;
                             if( TimeSpan.TryParse( temp.Value, out timeLimit ) ) {
-                                world.BlockDBTimeLimit = timeLimit;
+                                world.BlockDB.TimeLimit = timeLimit;
                             } else {
                                 Logger.Log( "WorldManager: Could not parse BlockDB \"preload\" attribute of world \"{0}\", assuming NO time limit.",
                                             LogType.Warning, worldName );
@@ -274,11 +274,11 @@ namespace fCraft {
                     if( world.IsHidden ) {
                         temp.Add( new XAttribute( "hidden", true ) );
                     }
-                    if( world.BlockDBEnabled ) {
+                    if( world.BlockDB.Enabled ) {
                         XElement blockDB = new XElement( "blockDB" );
-                        blockDB.Add( new XAttribute( "preload", world.BlockDBPreload ) );
-                        blockDB.Add( new XAttribute( "limit", world.BlockDBLimit ) );
-                        blockDB.Add( new XAttribute( "timeLimit", world.BlockDBTimeLimit.ToCompactString() ) );
+                        blockDB.Add( new XAttribute( "preload", world.BlockDB.IsPreloaded ) );
+                        blockDB.Add( new XAttribute( "limit", world.BlockDB.Limit ) );
+                        blockDB.Add( new XAttribute( "timeLimit", world.BlockDB.TimeLimit.ToCompactString() ) );
                         temp.Add( blockDB );
                     }
 
@@ -458,7 +458,7 @@ namespace fCraft {
                             }
                         }
 
-                        lock( world.BlockDBLock ) {
+                        lock( world.BlockDB.SyncRoot ) {
                             string oldBlockDBFile = Path.Combine( Paths.BlockDBPath, oldName + ".fbdb" );
                             string newBockDBFile = newName + ".fbdb";
                             if( File.Exists( oldBlockDBFile ) ) {
@@ -530,9 +530,7 @@ namespace fCraft {
                 }
 
                 try {
-                    if( File.Exists( worldToDelete.BlockDBFile ) ) {
-                        File.Delete( worldToDelete.BlockDBFile );
-                    }
+                    worldToDelete.BlockDB.Clear();
                 } catch( Exception ex ) {
                     Logger.Log( "WorldManager.RemoveWorld: Could not delete BlockDB file: {0}", LogType.Error, ex );
                 }

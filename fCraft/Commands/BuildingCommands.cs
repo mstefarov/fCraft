@@ -2257,7 +2257,7 @@ namespace fCraft {
             }
 
             World world = player.World;
-            if( !world.BlockDBEnabled ) {
+            if( !world.BlockDB.Enabled ) {
                 player.Message( "&WBlockDB is disabled in this world." );
                 return;
             }
@@ -2299,7 +2299,7 @@ namespace fCraft {
                     player.Message( "Searching for last {0} changes made by {1}&s...",
                                     count, target.ClassyName );
                 }
-                changes = world.LookupBlockInfo( target, count );
+                changes = world.BlockDB.Lookup( target, count );
                 if( changes.Length > 0 && !cmd.IsConfirmed ) {
                     player.Confirm( cmd, "Undo last {0} changes made by player {1}&S?",
                                     changes.Length, target.ClassyName );
@@ -2311,7 +2311,7 @@ namespace fCraft {
                     player.Message( "Searching for changes made by {0}&s in the last {1}...",
                                     target.ClassyName, span.ToMiniString() );
                 }
-                changes = world.LookupBlockInfo( target, span );
+                changes = world.BlockDB.Lookup( target, span );
                 if( changes.Length > 0 && !cmd.IsConfirmed ) {
                     player.Confirm( cmd, "Undo changes ({0}) made by {1}&S in the last {2}?",
                                     changes.Length, target.ClassyName, span.ToMiniString() );
