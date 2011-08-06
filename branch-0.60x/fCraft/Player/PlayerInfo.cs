@@ -537,8 +537,13 @@ namespace fCraft {
 
             FirstLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 15
             LastLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 16
-            TotalTime.ToTickString( sb ).Append( ',' ); // 17
 
+            Player pObject = PlayerObject;
+            if( pObject != null ) {
+                (TotalTime.Add(TimeSinceLastLogin)).ToTickString( sb ).Append( ',' ); // 17
+            } else {
+                TotalTime.ToTickString( sb ).Append( ',' ); // 17
+            }
 
             if( BlocksBuilt > 0 ) sb.Digits( BlocksBuilt ); // 18
             sb.Append( ',' );

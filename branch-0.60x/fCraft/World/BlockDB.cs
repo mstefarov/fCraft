@@ -47,7 +47,7 @@ namespace fCraft {
         const int BufferSize = 64 * 1024;
         readonly byte[] writeBuffer = new byte[BufferSize];
 
-        BlockDBEntry[] cacheStore;
+        BlockDBEntry[] cacheStore = new BlockDBEntry[CacheSizeIncrement];
         int cacheSize;
         const int CacheSizeIncrement = 16 * 1024;
 
@@ -122,7 +122,6 @@ namespace fCraft {
 
 
         void Preload() {
-            cacheStore = new BlockDBEntry[CacheSizeIncrement];
             using( FileStream fs = OpenRead() ) {
 
                 cacheSize = (int)(fs.Length / BlockDBEntrySize);
