@@ -1755,7 +1755,7 @@ namespace fCraft {
                             if( limitString.Equals( "none", StringComparison.OrdinalIgnoreCase ) ) {
                                 limit = TimeSpan.Zero;
 
-                            } else if( !DateTimeUtil.TryParseMiniTimespan( limitString, out limit ) ) {
+                            } else if( !limitString.TryParseMiniTimespan( out limit ) ) {
                                 CdBlockDB.PrintUsage( player );
                                 return;
                             }

@@ -190,7 +190,7 @@ namespace fCraft {
             stat.TopTotalTime = infos.OrderByDescending( info => info.TotalTime ).ToArray();
             stat.TopBlocksBuilt = infos.OrderByDescending( info => info.BlocksBuilt ).ToArray();
             stat.TopBlocksDeleted = infos.OrderByDescending( info => info.BlocksDeleted ).ToArray();
-            stat.TopBlocksDeleted = infos.OrderByDescending( info => info.BlocksDrawn ).ToArray();
+            stat.TopBlocksDrawn = infos.OrderByDescending( info => info.BlocksDrawn ).ToArray();
             stat.TopBlocksChanged = infos.OrderByDescending( info => (info.BlocksDeleted + info.BlocksBuilt) ).ToArray();
             stat.TopBlockRatio = infos.OrderByDescending( info => (info.BlocksBuilt / (double)Math.Max( info.BlocksDeleted, 1 )) ).ToArray();
             stat.TopTimesVisited = infos.OrderByDescending( info => info.TimesVisited ).ToArray();
@@ -832,7 +832,7 @@ namespace fCraft {
                 }
             }
         }
-    
+
 
 
 

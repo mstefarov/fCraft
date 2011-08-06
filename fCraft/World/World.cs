@@ -151,7 +151,10 @@ namespace fCraft {
                 newWorld.Map = newMap;
                 newWorld.NeverUnload = neverUnload;
                 WorldManager.ReplaceWorld( this, newWorld );
-                BlockDB.Clear();
+                lock( BlockDB.SyncRoot ) {
+                    BlockDB.Clear();
+                    BlockDB.World = newWorld;
+                }
                 foreach( Player player in Players ) {
                     player.JoinWorld( newWorld, WorldChangeReason.Rejoin );
                 }

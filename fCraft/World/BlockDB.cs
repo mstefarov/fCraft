@@ -1,37 +1,68 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Linq;
-using System.Runtime.InteropServices;
 using fCraft.Events;
 using System.IO;
 using System.Collections.Generic;
 
 namespace fCraft {
-    public class BlockDB {
+    public unsafe sealed class BlockDB {
 
         public BlockDB( World world ) {
             World = world;
         }
 
 
-        public World World { get; set; }
-
-        public bool Enabled { get; set; }
-
         internal readonly object SyncRoot = new object();
 
+        public World World { get; set; }
 
-        #region Preload
+
+        bool enabled;
+        public bool Enabled {
+            get { return enabled; }
+            set {
+                if( value == enabled ) return;
+                if( value && isPreloaded ) {
+                    Preload();
+                } else if( value == false ) {
+                    Flush();
+                    CacheClear();
+                }
+                Logger.Log( "BlockDB({0}): Enabled={1}", LogType.Debug, World.Name, value );
+                enabled = value;
+            }
+        }
+
+
+        public string FileName {
+            get {
+                return Path.Combine( Paths.BlockDBPath, World.Name + ".fbdb" );
+            }
+        }
+
+
+        #region Cache
+
+        const int BufferSize = 64 * 1024;
+        readonly byte[] writeBuffer = new byte[BufferSize];
 
         BlockDBEntry[] cacheStore;
         int cacheSize;
-        const int CacheSizeIncrement = 1024;
+        const int CacheSizeIncrement = 16 * 1024;
 
-        public void Add( BlockDBEntry item ) {
+        public void CacheAdd( BlockDBEntry item ) {
             if( cacheSize == cacheStore.Length ) {
                 EnsureCapacity( cacheSize + 1 );
             }
             cacheStore[cacheSize++] = item;
+        }
+
+
+        public void CacheClear() {
+            cacheSize = 0;
+            cacheStore = new BlockDBEntry[CacheSizeIncrement];
+            lastFlushedIndex = 0;
         }
 
 
@@ -63,38 +94,63 @@ namespace fCraft {
             }
         }
 
+        #endregion
+
+
+        #region Preload
+
 
         bool isPreloaded;
-        public unsafe bool IsPreloaded {
+        public bool IsPreloaded {
             get {
                 return isPreloaded;
             }
             set {
                 lock( SyncRoot ) {
                     if( value == isPreloaded ) return;
-                    if( value == true ) {
-                        Flush();
-                        byte[] bytes = Load();
-                        int entryCount = bytes.Length / BlockDB.BlockDBEntrySize;
-                        EnsureCapacity( entryCount );
-                        fixed( byte* parr = bytes ) {
-                            BlockDBEntry* entries = (BlockDBEntry*)parr;
-                            Buffer.BlockCopy( (Array)entries, 0, cacheStore, 0, entryCount );
-                            for( int i = 0; i < entryCount; i++ ) {
-                                cache.Add( entries[i] );
-                            }
-                        }
-                        pendingChanges = new List<BlockDBEntry>();
-                    } else {
-                        Flush();
+                    Flush();
+                    if( value && File.Exists( FileName ) ) {
+                        Preload();
+                    } else if( value == false ) {
+                        CacheClear();
                     }
+                    Logger.Log( "BlockDB({0}): Preloaded={1}", LogType.Debug, World.Name, value );
                     isPreloaded = value;
+                }
+            }
+        }
+
+
+        void Preload() {
+            cacheStore = new BlockDBEntry[CacheSizeIncrement];
+            using( FileStream fs = OpenRead() ) {
+
+                cacheSize = (int)(fs.Length / BlockDBEntrySize);
+                EnsureCapacity( cacheSize );
+                lastFlushedIndex = cacheSize;
+
+                fixed( BlockDBEntry* pCache = cacheStore ) {
+                    fixed( byte* pBuffer = writeBuffer ) {
+                        int offset = 0;
+                        while( fs.Position < fs.Length ) {
+                            int bytesToRead = Math.Min( BufferSize, (int)(fs.Length - fs.Position) );
+                            int bytesInBuffer = 0;
+                            do {
+                                int bytesRead = fs.Read( writeBuffer, offset, BufferSize - bytesInBuffer );
+                                bytesInBuffer += bytesRead;
+                                offset += bytesRead;
+                            } while( bytesInBuffer < bytesToRead );
+                            BufferUtil.MemCpy( pBuffer, (byte*)pCache, bytesInBuffer );
+                        }
+                    }
                 }
             }
         }
 
         #endregion
 
+
+        #region Limiting
 
         void TrimFile( int maxCapacity ) {
             if( maxCapacity == 0 ) {
@@ -108,9 +164,8 @@ namespace fCraft {
                 source.Seek( (entries - maxCapacity) * BlockDBEntrySize, SeekOrigin.Begin );
                 byte[] buffer = new byte[16 * 16 * 16];
                 using( FileStream destination = File.Create( tempFileName ) ) {
-                    int bytesRead;
                     while( true ) {
-                        bytesRead = source.Read( buffer, 0, buffer.Length );
+                        int bytesRead = source.Read( buffer, 0, buffer.Length );
                         if( bytesRead == 0 ) break;
                         destination.Write( buffer, 0, bytesRead );
                     }
@@ -120,7 +175,7 @@ namespace fCraft {
         }
 
 
-        unsafe int CountNewerEntries( TimeSpan age ) {
+        int CountNewerEntries( TimeSpan age ) {
             int minTimestamp = (int)DateTime.UtcNow.Subtract( age ).ToUnixTime();
 
             if( isPreloaded ) {
@@ -135,7 +190,7 @@ namespace fCraft {
 
             } else {
                 byte[] bytes = Load();
-                int entryCount = bytes.Length / BlockDB.BlockDBEntrySize;
+                int entryCount = bytes.Length / BlockDBEntrySize;
                 fixed( byte* parr = bytes ) {
                     BlockDBEntry* entries = (BlockDBEntry*)parr;
                     for( int i = entryCount - 1; i >= 0; i-- ) {
@@ -149,9 +204,7 @@ namespace fCraft {
         }
 
 
-        List<BlockDBEntry> pendingChanges = new List<BlockDBEntry>();
-
-        int lastFlushedIndex = 0;
+        int lastFlushedIndex;
 
 
         int limit;
@@ -161,10 +214,7 @@ namespace fCraft {
                 if( value < 0 ) throw new ArgumentOutOfRangeException();
                 lock( SyncRoot ) {
                     if( value != 0 && value < limit ) {
-                        if( isPreloaded ) {
-                            CacheCapacity = Math.Min( CacheCapacity, value );
-                        }
-                        TrimFile( value );
+                        EnforceLimit( value );
                     }
                     limit = value;
                 }
@@ -179,11 +229,7 @@ namespace fCraft {
                 if( value < TimeSpan.Zero ) throw new ArgumentOutOfRangeException();
                 lock( SyncRoot ) {
                     if( value != TimeSpan.Zero && value < timeLimit ) {
-                        int newCapacity = CountNewerEntries( value );
-                        if( isPreloaded ) {
-                            CacheCapacity = Math.Min( CacheCapacity, newCapacity );
-                        }
-                        TrimFile( newCapacity );
+                        EnforceTimeLimit( value );
                     }
                     timeLimit = value;
                 }
@@ -191,31 +237,39 @@ namespace fCraft {
         }
 
 
-        public string FileName {
-            get {
-                return Path.Combine( Paths.BlockDBPath, World.Name + ".fbdb" );
+        void EnforceLimit( int newLimit ) {
+            if( newLimit != 0 ) {
+                if( isPreloaded ) {
+                    CacheCapacity = Math.Min( CacheCapacity, newLimit );
+                }
+                TrimFile( newLimit );
             }
         }
 
 
+        void EnforceTimeLimit( TimeSpan newLimit ) {
+            if( newLimit > TimeSpan.Zero ) {
+                int newCapacity = CountNewerEntries( newLimit );
+                if( isPreloaded ) {
+                    CacheCapacity = Math.Min( CacheCapacity, newCapacity );
+                }
+                TrimFile( newCapacity );
+            }
+        }
+
+        #endregion
+
+
         internal void AddEntry( BlockDBEntry newEntry ) {
             lock( SyncRoot ) {
-                if( IsPreloaded ) {
-                    cache.Add( newEntry );
-                } else {
-                    pendingChanges.Add( newEntry );
-                }
+                CacheAdd( newEntry );
             }
         }
 
 
         internal void Clear() {
             lock( SyncRoot ) {
-                if( IsPreloaded ) {
-                    cache.Clear();
-                } else {
-                    pendingChanges.Clear();
-                }
+                CacheClear();
                 File.Delete( FileName );
             }
         }
@@ -223,29 +277,31 @@ namespace fCraft {
 
         internal void Flush() {
             lock( SyncRoot ) {
-                if( IsPreloaded && pendingChanges.Count > 0 ) {
-                    using( var stream = File.Open( FileName, FileMode.Append, FileAccess.Write ) ) {
+                if( lastFlushedIndex < cacheSize ) {
+                    using( FileStream stream = OpenAppend() ) {
                         BinaryWriter writer = new BinaryWriter( stream );
-                        for( int i = 0; i < pendingChanges.Count; i++ ) {
-                            pendingChanges[i].Serialize( writer );
+                        for( int i = lastFlushedIndex; i < cacheSize; i++ ) {
+                            cacheStore[i].Serialize( writer );
                         }
                     }
-                    pendingChanges.Clear();
-
-                } else if( !IsPreloaded && lastFlushedIndex < cache.Count ) {
-                    using( var stream = File.Open( FileName, FileMode.Append, FileAccess.Write ) ) {
-                        BinaryWriter writer = new BinaryWriter( stream );
-                        for( int i = lastFlushedIndex; i < cache.Count; i++ ) {
-                            pendingChanges[i].Serialize( writer );
-                        }
-                    }
-                    lastFlushedIndex = cache.Count;
+                    if( !isPreloaded ) cacheSize = 0;
+                    lastFlushedIndex = cacheSize;
                 }
             }
         }
 
 
-        unsafe internal byte[] Load() {
+        FileStream OpenRead() {
+            return new FileStream( FileName, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize );
+        }
+
+
+        FileStream OpenAppend() {
+            return new FileStream( FileName, FileMode.Append, FileAccess.Write, FileShare.None, BufferSize );
+        }
+
+
+        internal byte[] Load() {
             lock( SyncRoot ) {
                 Flush();
                 if( File.Exists( FileName ) ) {
@@ -257,11 +313,11 @@ namespace fCraft {
         }
 
 
-        unsafe internal BlockDBEntry[] Lookup( short x, short y, short z ) {
+        internal BlockDBEntry[] Lookup( short x, short y, short z ) {
             byte[] bytes = Load();
 
             List<BlockDBEntry> results = new List<BlockDBEntry>();
-            int entryCount = bytes.Length / BlockDB.BlockDBEntrySize;
+            int entryCount = bytes.Length / BlockDBEntrySize;
             fixed( byte* parr = bytes ) {
                 BlockDBEntry* entries = (BlockDBEntry*)parr;
                 for( int i = 0; i < entryCount; i++ ) {
@@ -274,12 +330,12 @@ namespace fCraft {
         }
 
 
-        unsafe internal BlockDBEntry[] Lookup( PlayerInfo info, int max ) {
+        internal BlockDBEntry[] Lookup( PlayerInfo info, int max ) {
             byte[] bytes = Load();
 
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
             int count = 0;
-            int entryCount = bytes.Length / BlockDB.BlockDBEntrySize;
+            int entryCount = bytes.Length / BlockDBEntrySize;
             fixed( byte* parr = bytes ) {
                 BlockDBEntry* entries = (BlockDBEntry*)parr;
                 for( int i = entryCount - 1; i >= 0; i-- ) {
@@ -297,14 +353,14 @@ namespace fCraft {
         }
 
 
-        unsafe internal BlockDBEntry[] Lookup( PlayerInfo info, TimeSpan span ) {
+        internal BlockDBEntry[] Lookup( PlayerInfo info, TimeSpan span ) {
             byte[] bytes = Load();
 
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
 
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
 
-            int entryCount = bytes.Length / BlockDB.BlockDBEntrySize;
+            int entryCount = bytes.Length / BlockDBEntrySize;
             fixed( byte* parr = bytes ) {
                 BlockDBEntry* entries = (BlockDBEntry*)parr;
                 for( int i = entryCount - 1; i >= 0; i-- ) {

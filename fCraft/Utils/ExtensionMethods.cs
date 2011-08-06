@@ -420,7 +420,7 @@ namespace fCraft {
         }
     }
 
-    unsafe static class LowLevelMethods {
+    unsafe static class BufferUtil {
         public static void MemSet( this byte[] array, byte value ) {
             if( array == null ) throw new ArgumentNullException( "array" );
             byte[] rawValue = new[] { value, value, value, value, value, value, value, value };
