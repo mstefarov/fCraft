@@ -1415,7 +1415,7 @@ namespace fCraft {
 
             int volume = Math.Max( Math.Max( Math.Abs( marks[0].X - marks[1].X ) + 1,
                                             Math.Abs( marks[0].Y - marks[1].Y ) + 1 ),
-                                            Math.Abs( marks[0].Z - marks[1].Z ) + 1);
+                                            Math.Abs( marks[0].Z - marks[1].Z ) + 1 );
             if( !player.CanDraw( volume ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                     player.Info.Rank.DrawLimit,
