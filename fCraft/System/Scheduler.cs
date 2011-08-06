@@ -94,12 +94,25 @@ namespace fCraft {
                     lock( BackgroundTaskListLock ) {
                         task = BackgroundTasks.Dequeue();
                     }
+                    task.IsExecuting = true;
 #if DEBUG_SCHEDULER
                     FireEvent( TaskExecuting, task );
+#endif
+
+#if DEBUG
                     task.Callback( task );
-                    FireEvent( TaskExecuted, task );
 #else
-                    task.Callback( task );
+                    try {
+                        task.Callback( task );
+                    } catch( Exception ex ) {
+                        Logger.LogAndReportCrash( "Exception thrown by ScheduledTask callback", "fCraft", ex, false );
+                    } finally {
+                        task.IsExecuting = false;
+                    }
+#endif
+
+#if DEBUG_SCHEDULER
+                    FireEvent( TaskExecuted, task );
 #endif
                 }
                 Thread.Sleep( 10 );
