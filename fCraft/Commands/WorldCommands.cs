@@ -1649,7 +1649,7 @@ namespace fCraft {
                     } else {
                         player.Message( "BlockDB is enabled on world {0}", world.ClassyName );
                     }
-                    player.Message( "    Change limit: {1}    Time limit: {0}",
+                    player.Message( "    Change limit: {0}    Time limit: {1}",
                         db.Limit == 0 ? "none" : db.Limit.ToString(),
                         db.TimeLimit == TimeSpan.Zero ? "none" : db.TimeLimit.ToMiniString() );
                 }
