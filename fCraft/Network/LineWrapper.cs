@@ -109,12 +109,18 @@ namespace fCraft {
                 byte ch = input[inputIndex];
                 if( ProcessChar( ch ) ) {
                     // Line wrap is needed
+                    //Console.WriteLine( "\"" + Encoding.ASCII.GetString( output, outputStart, outputIndex - outputStart ) + "\"" );
                     PrepareOutput();
+                    //Console.WriteLine( "\"" + Encoding.ASCII.GetString( output, outputStart, outputIndex - outputStart ) + "\"" );
+                    //Console.WriteLine();
                     return true;
                 }
                 inputIndex++;
             }
+            //Console.WriteLine( "\"" + Encoding.ASCII.GetString( output, outputStart, outputIndex - outputStart ) + "\"" );
+            //Console.WriteLine();
             PrepareOutput();
+            //Console.WriteLine( "\"" + Encoding.ASCII.GetString( output, outputStart, outputIndex - outputStart ) + "\"" );
             return true;
         }
 
@@ -208,12 +214,19 @@ namespace fCraft {
             for( int i = outputIndex; i < PacketSize; i++ ) {
                 output[i] = (byte)' ';
             }
+            for( ; outputIndex > outputStart; outputIndex-- ) {
+                if( output[outputIndex - 1] == '&' ) {
+                    output[outputIndex - 1] = (byte)' ';
+                } else if( output[outputIndex - 1] != ' ' ) {
+                    return;
+                }
+            }
         }
 
 
         bool Append( byte ch ) {
             // calculate the number of characters to insert
-            int bytesToInsert = 1 ;
+            int bytesToInsert = 1;
             if( ch == (byte)'&' ) bytesToInsert++;
 
             bool prependColor = (lastColor != color || (color == NoColor && hadColor && outputIndex == outputStart));
@@ -246,9 +259,7 @@ namespace fCraft {
             wordLength += bytesToInsert;
 
             /*Console.WriteLine( "ii={0} oi={1} wl={2} wi={3} woi={4} sc={5} bti={6}",
-                               inputIndex, outputIndex, wordLength, wrapIndex, wrapOutputIndex, spaceCount1, bytesToInsert );
-            Console.WriteLine( Encoding.ASCII.GetString( output, outputStart, outputIndex - outputStart ) );
-            Console.WriteLine();*/
+                               inputIndex, outputIndex, wordLength, wrapIndex, wrapOutputIndex, spaceCount1, bytesToInsert );*/
 
             // append character
             if( ch == (byte)'&' ) output[outputIndex++] = ch;
