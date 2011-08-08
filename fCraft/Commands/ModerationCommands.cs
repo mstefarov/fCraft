@@ -872,6 +872,7 @@ namespace fCraft {
                 player.Message( "New spawn point saved." );
                 Logger.Log( "{0} changed the spawned point.", LogType.UserActivity,
                             player.Name );
+
             } else if( player.Can( Permission.Bring ) ) {
                 Player[] infos = player.World.FindPlayers( player, playerName );
                 if( infos.Length == 1 ) {
@@ -1109,6 +1110,8 @@ namespace fCraft {
                 return;
             }
 
+            World world = toPlayer.World;
+
             Player target = Server.FindPlayerOrPrintMatches( player, name, false );
             if( target == null ) return;
 
@@ -1120,7 +1123,7 @@ namespace fCraft {
                 return;
             }
 
-            if( target.World == toPlayer.World ) {
+            if( target.World == world ) {
                 // teleport within the same world
                 target.TeleportTo( toPlayer.Position );
                 target.Position = toPlayer.Position;
@@ -1129,8 +1132,15 @@ namespace fCraft {
                 }
 
             } else {
+                if( world.AccessSecurity.CheckDetailed( target.Info ) == SecurityCheckResult.RankTooLow && !cmd.IsConfirmed ) {
+                    player.Confirm( cmd,
+                                    "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
+                                    target.Name,
+                                    world );
+                    return;
+                }
                 // teleport to a different world
-                BringPlayerToWorld( player, target, toPlayer.World );
+                BringPlayerToWorld( player, target, world, true );
             }
         }
 
@@ -1172,7 +1182,14 @@ namespace fCraft {
                 return;
             }
 
-            BringPlayerToWorld( player, target, world );
+            if( world.AccessSecurity.CheckDetailed( target.Info ) == SecurityCheckResult.RankTooLow && !cmd.IsConfirmed ) {
+                player.Confirm( cmd,
+                                "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
+                                target.Name,
+                                world );
+                return;
+            }
+            BringPlayerToWorld( player, target, world, true );
         }
 
 
@@ -1271,7 +1288,7 @@ namespace fCraft {
 
                 } else {
                     // teleport to a different world
-                    BringPlayerToWorld( player, targetPlayer, player.World );
+                    BringPlayerToWorld( player, targetPlayer, player.World, false );
                 }
                 count++;
             }
@@ -1286,7 +1303,7 @@ namespace fCraft {
 
 
 
-        static void BringPlayerToWorld( Player player, Player target, World world ) {
+        static void BringPlayerToWorld( Player player, Player target, World world, bool overridePermissions ) {
             switch( world.AccessSecurity.CheckDetailed( target.Info ) ) {
                 case SecurityCheckResult.Allowed:
                 case SecurityCheckResult.WhiteListed:
@@ -1299,16 +1316,23 @@ namespace fCraft {
                     target.StopSpectating();
                     target.JoinWorld( world, WorldChangeReason.Bring );
                     break;
+
                 case SecurityCheckResult.BlackListed:
                     player.Message( "Cannot bring {0}&S because he/she is blacklisted on world {1}",
                                     target.ClassyName,
                                     world.ClassyName );
                     break;
+
                 case SecurityCheckResult.RankTooLow:
-                    player.Message( "Cannot bring {0}&S because world {1}&S requires {2}+&S to join.",
-                                    target.ClassyName,
-                                    world.ClassyName,
-                                    world.AccessSecurity.MinRank.ClassyName );
+                    if( overridePermissions ) {
+                        target.StopSpectating();
+                        target.JoinWorld( world, WorldChangeReason.Bring );
+                    } else {
+                        player.Message( "Cannot bring {0}&S because world {1}&S requires {2}+&S to join.",
+                                        target.ClassyName,
+                                        world.ClassyName,
+                                        world.AccessSecurity.MinRank.ClassyName );
+                    }
                     break;
                 // TODO: case PermissionType.RankTooHigh:
             }

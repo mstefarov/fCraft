@@ -775,12 +775,6 @@ namespace fCraft {
         internal bool JoinWorldNow( World newWorld, bool doUseWorldSpawn, WorldChangeReason reason ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
 
-            if( !CanJoin( newWorld ) ) {
-                Logger.Log( "Player.JoinWorldNow: Access limits prevented {0} from joining {1}.", LogType.Error,
-                            Name, newWorld.Name );
-                return false;
-            }
-
             if( Server.RaisePlayerJoiningWorldEvent( this, newWorld, reason ) ) {
                 Logger.Log( "Player.JoinWorldNow: Player {0} was prevented from joining world {1} by an event callback.", LogType.Warning,
                             Name, newWorld.Name );
