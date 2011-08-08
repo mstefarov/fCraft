@@ -52,7 +52,7 @@ namespace fCraft {
         const int MinCacheSize = 2 * 1024, // 32 KB
                   CacheLinearResizeThreshold = 64 * 1024; // 1 MB
 
-        public void CacheAdd( BlockDBEntry item ) {
+        void CacheAdd( BlockDBEntry item ) {
             if( cacheSize == cacheStore.Length ) {
                 EnsureCapacity( cacheSize + 1 );
             }
@@ -60,7 +60,7 @@ namespace fCraft {
         }
 
 
-        public void CacheClear() {
+        void CacheClear() {
             cacheSize = 0;
             cacheStore = new BlockDBEntry[MinCacheSize];
             lastFlushedIndex = 0;
@@ -156,14 +156,12 @@ namespace fCraft {
 
                 fixed( BlockDBEntry* pCache = cacheStore ) {
                     fixed( byte* pBuffer = writeBuffer ) {
-                        int offset = 0;
                         while( fs.Position < fs.Length ) {
                             int bytesToRead = Math.Min( BufferSize, (int)(fs.Length - fs.Position) );
                             int bytesInBuffer = 0;
                             do {
-                                int bytesRead = fs.Read( writeBuffer, offset, BufferSize - bytesInBuffer );
+                                int bytesRead = fs.Read( writeBuffer, bytesInBuffer, BufferSize - bytesInBuffer );
                                 bytesInBuffer += bytesRead;
-                                offset += bytesRead;
                             } while( bytesInBuffer < bytesToRead );
                             BufferUtil.MemCpy( pBuffer, (byte*)pCache, bytesInBuffer );
                         }
