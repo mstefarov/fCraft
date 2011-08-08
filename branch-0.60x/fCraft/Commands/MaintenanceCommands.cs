@@ -49,6 +49,19 @@ namespace fCraft {
                     }
                 }
             } );
+
+            CommandManager.RegisterCommand( new CommandDescriptor {
+                Name = "bdbdb",
+                IsHidden = true,
+                Category = CommandCategory.Maintenance,
+                Handler = delegate( Player player, Command cmd ) {
+                    BlockDB db = player.World.BlockDB;
+                    lock( db.SyncRoot ) {
+                        player.Message( "BlockDB: CAP={0} SZ={1} FI={1}",
+                                        db.CacheCapacity, db.cacheSize, db.lastFlushedIndex );
+                    }
+                }
+            } );
         }
 
 

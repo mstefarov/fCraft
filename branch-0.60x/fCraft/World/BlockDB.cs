@@ -44,12 +44,13 @@ namespace fCraft {
 
         #region Cache
 
-        const int BufferSize = 64 * 1024;
+        const int BufferSize = 64 * 1024; // 64 KB
         readonly byte[] writeBuffer = new byte[BufferSize];
 
-        BlockDBEntry[] cacheStore = new BlockDBEntry[CacheSizeIncrement];
-        int cacheSize;
-        const int CacheSizeIncrement = 4 * 1024;
+        BlockDBEntry[] cacheStore = new BlockDBEntry[MinCacheSize];
+        internal int cacheSize;
+        const int MinCacheSize = 2 * 1024, // 32 KB
+                  CacheLinearResizeThreshold = 64 * 1024; // 1 MB
 
         public void CacheAdd( BlockDBEntry item ) {
             if( cacheSize == cacheStore.Length ) {
@@ -61,7 +62,7 @@ namespace fCraft {
 
         public void CacheClear() {
             cacheSize = 0;
-            cacheStore = new BlockDBEntry[CacheSizeIncrement];
+            cacheStore = new BlockDBEntry[MinCacheSize];
             lastFlushedIndex = 0;
         }
 
@@ -70,10 +71,10 @@ namespace fCraft {
             if( cacheStore.Length < min ) {
                 int num = cacheStore.Length;
                 while( num < min ) {
-                    if( num < 64 * 1024 ) {
+                    if( num <= CacheLinearResizeThreshold ) {
                         num *= 2;
                     } else {
-                        num += 64 * 1024;
+                        num += CacheLinearResizeThreshold;
                     }
                 }
                 CacheCapacity = num;
@@ -84,8 +85,12 @@ namespace fCraft {
         void LimitCapacity( int max ) {
             if( cacheStore.Length > max ) {
                 int num = max;
-                if( num < CacheSizeIncrement ) {
-                    num = CacheSizeIncrement;
+                if( num < MinCacheSize ) {
+                    num = MinCacheSize;
+                } else if( num < CacheLinearResizeThreshold ) {
+                    num = 1 << (int)(1 + Math.Floor( Math.Log( num, 2 ) ));
+                } else {
+                    num = (num / CacheLinearResizeThreshold + 1) * CacheLinearResizeThreshold;
                 }
                 CacheCapacity = num;
                 if( max < cacheSize ) {
@@ -96,18 +101,18 @@ namespace fCraft {
         }
 
 
-        int CacheCapacity {
+        internal int CacheCapacity {
             get {
                 return cacheStore.Length;
             }
             set {
-                if( value < CacheSizeIncrement ) throw new ArgumentOutOfRangeException();
+                if( value < MinCacheSize ) throw new ArgumentOutOfRangeException();
                 if( value != cacheStore.Length ) {
                     BlockDBEntry[] destinationArray = new BlockDBEntry[value];
                     if( value < cacheSize ) {
                         Array.Copy( cacheStore, cacheSize - value, destinationArray, 0, value );
                     } else {
-                        Array.Copy( cacheStore, 0, destinationArray, 0, cacheSize );
+                        Array.Copy( cacheStore, 0, destinationArray, 0, Math.Min(cacheStore.Length,cacheSize) );
                     }
                     cacheStore = destinationArray;
                     Logger.Log( "BlockDB({0}): CacheCapacity={1}", LogType.Debug, World.Name, value );
@@ -224,7 +229,7 @@ namespace fCraft {
         }
 
 
-        int lastFlushedIndex;
+        internal int lastFlushedIndex;
 
 
         int limit;
@@ -303,14 +308,20 @@ namespace fCraft {
         internal void Flush() {
             lock( SyncRoot ) {
                 if( lastFlushedIndex < cacheSize ) {
+                    Logger.Log( "BlockDB({0}): Flushing. CC={1} CS={2} LFI={3}", LogType.Debug,
+                                World.Name, CacheCapacity, cacheSize, lastFlushedIndex );
+                    int count = 0;
                     using( FileStream stream = OpenAppend() ) {
                         BinaryWriter writer = new BinaryWriter( stream );
                         for( int i = lastFlushedIndex; i < cacheSize; i++ ) {
                             cacheStore[i].Serialize( writer );
+                            count++;
                         }
                     }
                     if( !isPreloaded ) cacheSize = 0;
                     lastFlushedIndex = cacheSize;
+                    Logger.Log( "BlockDB({0}): Flushed {1} entries. CC={2} CS={3} LFI={4}", LogType.Debug,
+                                World.Name, count, CacheCapacity, cacheSize, lastFlushedIndex );
                 }
             }
         }
