@@ -90,7 +90,9 @@ namespace fCraft {
             XAttribute temp;
 
             foreach( XElement el in root.Elements( "World" ) ) {
+#if !DEBUG
                 try {
+#endif
                     if( (temp = el.Attribute( "name" )) == null ) {
                         Logger.Log( "WorldManager: World tag with no name skipped.", LogType.Error );
                         continue;
@@ -183,11 +185,12 @@ namespace fCraft {
                     }
 
                     CheckMapFile( world );
-
+#if !DEBUG
                 } catch( Exception ex ) {
                     Logger.LogAndReportCrash( "An error occured while trying to parse one of the entries on the world list",
                                               "fCraft", ex, false );
                 }
+#endif
             }
 
             if( (temp = root.Attribute( "main" )) != null ) {
