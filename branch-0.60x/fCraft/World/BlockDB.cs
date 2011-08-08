@@ -49,11 +49,11 @@ namespace fCraft {
 
         BlockDBEntry[] cacheStore = new BlockDBEntry[CacheSizeIncrement];
         int cacheSize;
-        const int CacheSizeIncrement = 16 * 1024;
+        const int CacheSizeIncrement = 4 * 1024;
 
         public void CacheAdd( BlockDBEntry item ) {
             if( cacheSize == cacheStore.Length ) {
-                SetMinCapacity( cacheSize + 1 );
+                EnsureCapacity( cacheSize + 1 );
             }
             cacheStore[cacheSize++] = item;
         }
@@ -66,7 +66,7 @@ namespace fCraft {
         }
 
 
-        void SetMinCapacity( int min ) {
+        void EnsureCapacity( int min ) {
             if( cacheStore.Length < min ) {
                 int num = cacheStore.Length + CacheSizeIncrement;
                 if( num < min ) {
@@ -77,19 +77,31 @@ namespace fCraft {
         }
 
 
+        void LimitCapacity( int max ) {
+            if( cacheStore.Length > max ) {
+                if( max < CacheSizeIncrement ) {
+                    max = CacheSizeIncrement;
+                }
+                CacheCapacity = max;
+            }
+        }
+
+
         int CacheCapacity {
             get {
                 return cacheStore.Length;
             }
             set {
+                if( value < CacheSizeIncrement ) throw new ArgumentOutOfRangeException();
                 if( value != cacheStore.Length ) {
                     BlockDBEntry[] destinationArray = new BlockDBEntry[value];
-                    if( value < CacheCapacity ) {
+                    if( value < cacheSize ) {
                         Array.Copy( cacheStore, cacheSize - value, destinationArray, 0, value );
                     } else {
                         Array.Copy( cacheStore, 0, destinationArray, 0, cacheSize );
                     }
                     cacheStore = destinationArray;
+                    cacheSize = Math.Min( cacheSize, cacheStore.Length );
                 }
             }
         }
@@ -125,7 +137,7 @@ namespace fCraft {
             using( FileStream fs = OpenRead() ) {
 
                 cacheSize = (int)(fs.Length / BlockDBEntrySize);
-                SetMinCapacity( cacheSize );
+                EnsureCapacity( cacheSize );
                 lastFlushedIndex = cacheSize;
 
                 fixed( BlockDBEntry* pCache = cacheStore ) {
@@ -239,7 +251,8 @@ namespace fCraft {
         void EnforceLimit( int newLimit ) {
             if( newLimit != 0 ) {
                 if( isPreloaded ) {
-                    CacheCapacity = Math.Min( CacheCapacity, newLimit );
+                    LimitCapacity( newLimit );
+                    cacheSize = Math.Min( cacheSize, newLimit );
                 }
                 TrimFile( newLimit );
             }
@@ -247,10 +260,12 @@ namespace fCraft {
 
 
         void EnforceTimeLimit( TimeSpan newLimit ) {
-            if( newLimit > TimeSpan.Zero ) {
+            if( newLimit != TimeSpan.Zero ) {
+                if( newLimit < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "newLimit" );
                 int newCapacity = CountNewerEntries( newLimit );
                 if( isPreloaded ) {
-                    CacheCapacity = Math.Min( CacheCapacity, newCapacity );
+                    LimitCapacity( newCapacity );
+                    cacheSize = Math.Min( cacheSize, newCapacity );
                 }
                 TrimFile( newCapacity );
             }
