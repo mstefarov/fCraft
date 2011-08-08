@@ -79,10 +79,15 @@ namespace fCraft {
 
         void LimitCapacity( int max ) {
             if( cacheStore.Length > max ) {
-                if( max < CacheSizeIncrement ) {
-                    max = CacheSizeIncrement;
+                int num = max;
+                if( num < CacheSizeIncrement ) {
+                    num = CacheSizeIncrement;
                 }
-                CacheCapacity = max;
+                CacheCapacity = num;
+                if( max < cacheSize ) {
+                    Array.Copy( cacheStore, cacheSize - max, cacheStore, 0, max );
+                    cacheSize = max;
+                }
             }
         }
 
@@ -101,7 +106,6 @@ namespace fCraft {
                         Array.Copy( cacheStore, 0, destinationArray, 0, cacheSize );
                     }
                     cacheStore = destinationArray;
-                    cacheSize = Math.Min( cacheSize, cacheStore.Length );
                 }
             }
         }
@@ -181,8 +185,8 @@ namespace fCraft {
                         destination.Write( buffer, 0, bytesRead );
                     }
                 }
-                Paths.MoveOrReplace( tempFileName, FileName );
             }
+            Paths.MoveOrReplace( tempFileName, FileName );
         }
 
 
@@ -224,7 +228,8 @@ namespace fCraft {
             set {
                 if( value < 0 ) throw new ArgumentOutOfRangeException();
                 lock( SyncRoot ) {
-                    if( value != 0 && value < limit ) {
+                    if( limit == 0 && value != 0 ||
+                        limit != 0 && value < limit ) {
                         EnforceLimit( value );
                     }
                     limit = value;
@@ -239,7 +244,8 @@ namespace fCraft {
             set {
                 if( value < TimeSpan.Zero ) throw new ArgumentOutOfRangeException();
                 lock( SyncRoot ) {
-                    if( value != TimeSpan.Zero && value < timeLimit ) {
+                    if( timeLimit == TimeSpan.Zero && value != TimeSpan.Zero ||
+                        timeLimit != TimeSpan.Zero && value < timeLimit ) {
                         EnforceTimeLimit( value );
                     }
                     timeLimit = value;
@@ -252,7 +258,6 @@ namespace fCraft {
             if( newLimit != 0 ) {
                 if( isPreloaded ) {
                     LimitCapacity( newLimit );
-                    cacheSize = Math.Min( cacheSize, newLimit );
                 }
                 TrimFile( newLimit );
             }
@@ -265,7 +270,6 @@ namespace fCraft {
                 int newCapacity = CountNewerEntries( newLimit );
                 if( isPreloaded ) {
                     LimitCapacity( newCapacity );
-                    cacheSize = Math.Min( cacheSize, newCapacity );
                 }
                 TrimFile( newCapacity );
             }
