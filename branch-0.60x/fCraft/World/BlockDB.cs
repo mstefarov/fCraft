@@ -301,6 +301,10 @@ namespace fCraft {
         }
 
 
+        int changesSinceLimitEnforcement = 0;
+        const double limitEnforcementThreshold = 1.15; // 15%
+        DateTime lastLimit, lastTimeLimit;
+
         void EnforceLimitsIfNeeded() {
             if( limit > 0 ) {
                 bool limitingAllowed = DateTime.UtcNow.Subtract( lastLimit ) > minLimitDelay ||
@@ -338,9 +342,6 @@ namespace fCraft {
         }
 
 
-        int changesSinceLimitEnforcement = 0;
-        const double limitEnforcementThreshold = 1.15; // 15%
-        DateTime lastLimit, lastTimeLimit;
         static readonly TimeSpan minLimitDelay = TimeSpan.FromMinutes( 5 ),
                                  minTimeLimitDelay = TimeSpan.FromMinutes( 10 );
         internal void Flush() {
@@ -362,8 +363,8 @@ namespace fCraft {
                     Logger.Log( "BlockDB({0}): Flushed {1} entries. CC={2} CS={3} LFI={4}", LogType.Debug,
                                 World.Name, count, CacheCapacity, cacheSize, lastFlushedIndex );
                 }
+                EnforceLimitsIfNeeded();
             }
-            EnforceLimitsIfNeeded();
         }
 
 
@@ -377,7 +378,7 @@ namespace fCraft {
         }
 
 
-        internal byte[] Load() {
+        byte[] Load() {
             lock( SyncRoot ) {
                 Flush();
                 if( File.Exists( FileName ) ) {
