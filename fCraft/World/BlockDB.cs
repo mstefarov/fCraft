@@ -68,9 +68,13 @@ namespace fCraft {
 
         void EnsureCapacity( int min ) {
             if( cacheStore.Length < min ) {
-                int num = cacheStore.Length + CacheSizeIncrement;
-                if( num < min ) {
-                    num = min;
+                int num = cacheStore.Length;
+                while( num < min ) {
+                    if( num < 64 * 1024 ) {
+                        num *= 2;
+                    } else {
+                        num += 64 * 1024;
+                    }
                 }
                 CacheCapacity = num;
             }
