@@ -240,7 +240,7 @@ namespace fCraft {
 
         internal static void StartSaveTask() {
             saveTask = Scheduler.NewBackgroundTask( delegate { Save(); } )
-                                .RunForever( SaveInterval, TimeSpan.FromSeconds( 15 ) );
+                                .RunForever( SaveInterval, SaveInterval + TimeSpan.FromSeconds( 15 ) );
         }
 
         #endregion
