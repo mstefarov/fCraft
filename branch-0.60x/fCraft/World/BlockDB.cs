@@ -106,6 +106,7 @@ namespace fCraft {
                         Array.Copy( cacheStore, 0, destinationArray, 0, cacheSize );
                     }
                     cacheStore = destinationArray;
+                    Logger.Log( "BlockDB({0}): CacheCapacity={1}", LogType.Debug, World.Name, value );
                 }
             }
         }
@@ -232,6 +233,7 @@ namespace fCraft {
                         limit != 0 && value < limit ) {
                         EnforceLimit( value );
                     }
+                    Logger.Log( "BlockDB({0}): Limit={1}", LogType.Debug, World.Name, value );
                     limit = value;
                 }
             }
@@ -248,6 +250,7 @@ namespace fCraft {
                         timeLimit != TimeSpan.Zero && value < timeLimit ) {
                         EnforceTimeLimit( value );
                     }
+                    Logger.Log( "BlockDB({0}): TimeLimit={1}", LogType.Debug, World.Name, value );
                     timeLimit = value;
                 }
             }
@@ -332,37 +335,67 @@ namespace fCraft {
 
 
         internal BlockDBEntry[] Lookup( short x, short y, short z ) {
-            byte[] bytes = Load();
-
             List<BlockDBEntry> results = new List<BlockDBEntry>();
-            int entryCount = bytes.Length / BlockDBEntrySize;
-            fixed( byte* parr = bytes ) {
-                BlockDBEntry* entries = (BlockDBEntry*)parr;
-                for( int i = 0; i < entryCount; i++ ) {
-                    if( entries[i].X == x && entries[i].Y == y && entries[i].Z == z ) {
-                        results.Add( entries[i] );
+
+            if( isPreloaded ) {
+                lock( SyncRoot ) {
+                    fixed( BlockDBEntry* entries = cacheStore ) {
+                        for( int i = 0; i < cacheSize; i++ ) {
+                            if( entries[i].X == x && entries[i].Y == y && entries[i].Z == z ) {
+                                results.Add( entries[i] );
+                            }
+                        }
+                    }
+                }
+            } else {
+                byte[] bytes = Load();
+                int entryCount = bytes.Length / BlockDBEntrySize;
+                fixed( byte* parr = bytes ) {
+                    BlockDBEntry* entries = (BlockDBEntry*)parr;
+                    for( int i = 0; i < entryCount; i++ ) {
+                        if( entries[i].X == x && entries[i].Y == y && entries[i].Z == z ) {
+                            results.Add( entries[i] );
+                        }
                     }
                 }
             }
+
             return results.ToArray();
         }
 
 
         internal BlockDBEntry[] Lookup( PlayerInfo info, int max ) {
-            byte[] bytes = Load();
-
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
             int count = 0;
-            int entryCount = bytes.Length / BlockDBEntrySize;
-            fixed( byte* parr = bytes ) {
-                BlockDBEntry* entries = (BlockDBEntry*)parr;
-                for( int i = entryCount - 1; i >= 0; i-- ) {
-                    if( entries[i].PlayerID == info.ID ) {
-                        int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                        if( !results.ContainsKey( index ) ) {
-                            results[index] = entries[i];
-                            count++;
-                            if( count >= max ) break;
+
+            if( isPreloaded ) {
+                lock( SyncRoot ) {
+                    fixed( BlockDBEntry* entries = cacheStore ) {
+                        for( int i = cacheSize - 1; i >= 0; i-- ) {
+                            if( entries[i].PlayerID == info.ID ) {
+                                int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                if( !results.ContainsKey( index ) ) {
+                                    results[index] = entries[i];
+                                    count++;
+                                    if( count >= max ) break;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                byte[] bytes = Load();
+                int entryCount = bytes.Length / BlockDBEntrySize;
+                fixed( byte* parr = bytes ) {
+                    BlockDBEntry* entries = (BlockDBEntry*)parr;
+                    for( int i = entryCount - 1; i >= 0; i-- ) {
+                        if( entries[i].PlayerID == info.ID ) {
+                            int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                            if( !results.ContainsKey( index ) ) {
+                                results[index] = entries[i];
+                                count++;
+                                if( count >= max ) break;
+                            }
                         }
                     }
                 }
@@ -372,21 +405,35 @@ namespace fCraft {
 
 
         internal BlockDBEntry[] Lookup( PlayerInfo info, TimeSpan span ) {
-            byte[] bytes = Load();
-
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
-
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
 
-            int entryCount = bytes.Length / BlockDBEntrySize;
-            fixed( byte* parr = bytes ) {
-                BlockDBEntry* entries = (BlockDBEntry*)parr;
-                for( int i = entryCount - 1; i >= 0; i-- ) {
-                    if( entries[i].Timestamp < ticks ) break;
-                    if( entries[i].PlayerID == info.ID ) {
-                        int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                        if( !results.ContainsKey( index ) ) {
-                            results[index] = entries[i];
+            if( isPreloaded ) {
+                lock( SyncRoot ) {
+                    fixed( BlockDBEntry* entries = cacheStore ) {
+                        for( int i = cacheSize - 1; i >= 0; i-- ) {
+                            if( entries[i].Timestamp < ticks ) break;
+                            if( entries[i].PlayerID == info.ID ) {
+                                int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                if( !results.ContainsKey( index ) ) {
+                                    results[index] = entries[i];
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                byte[] bytes = Load();
+                int entryCount = bytes.Length / BlockDBEntrySize;
+                fixed( byte* parr = bytes ) {
+                    BlockDBEntry* entries = (BlockDBEntry*)parr;
+                    for( int i = entryCount - 1; i >= 0; i-- ) {
+                        if( entries[i].Timestamp < ticks ) break;
+                        if( entries[i].PlayerID == info.ID ) {
+                            int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                            if( !results.ContainsKey( index ) ) {
+                                results[index] = entries[i];
+                            }
                         }
                     }
                 }
