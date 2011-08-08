@@ -236,12 +236,13 @@ namespace fCraft {
             set {
                 if( value < 0 ) throw new ArgumentOutOfRangeException();
                 lock( SyncRoot ) {
-                    if( limit == 0 && value != 0 ||
-                        limit != 0 && value < limit ) {
-                        EnforceLimit( value );
+                    int oldLimit = limit;
+                    limit = value;
+                    if( oldLimit == 0 && value != 0 ||
+                        oldLimit != 0 && value < oldLimit ) {
+                        EnforceLimit();
                     }
                     Logger.Log( "BlockDB({0}): Limit={1}", LogType.Debug, World.Name, value );
-                    limit = value;
                 }
             }
         }
@@ -253,35 +254,38 @@ namespace fCraft {
             set {
                 if( value < TimeSpan.Zero ) throw new ArgumentOutOfRangeException();
                 lock( SyncRoot ) {
-                    if( timeLimit == TimeSpan.Zero && value != TimeSpan.Zero ||
-                        timeLimit != TimeSpan.Zero && value < timeLimit ) {
-                        EnforceTimeLimit( value );
+                    TimeSpan oldTimeLimit = timeLimit;
+                    timeLimit = value;
+                    if( oldTimeLimit == TimeSpan.Zero && value != TimeSpan.Zero ||
+                        oldTimeLimit != TimeSpan.Zero && value < oldTimeLimit ) {
+                        EnforceTimeLimit();
                     }
                     Logger.Log( "BlockDB({0}): TimeLimit={1}", LogType.Debug, World.Name, value );
-                    timeLimit = value;
                 }
             }
         }
 
 
-        void EnforceLimit( int newLimit ) {
-            if( newLimit != 0 ) {
+        void EnforceLimit() {
+            if( limit != 0 ) {
                 if( isPreloaded ) {
-                    LimitCapacity( newLimit );
+                    LimitCapacity( limit );
                 }
-                TrimFile( newLimit );
+                TrimFile( limit );
+                lastLimit = DateTime.UtcNow;
             }
         }
 
 
-        void EnforceTimeLimit( TimeSpan newLimit ) {
-            if( newLimit != TimeSpan.Zero ) {
-                if( newLimit < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "newLimit" );
-                int newCapacity = CountNewerEntries( newLimit );
+        void EnforceTimeLimit() {
+            if( timeLimit != TimeSpan.Zero ) {
+                if( timeLimit < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "newLimit" );
+                int newCapacity = CountNewerEntries( timeLimit );
                 if( isPreloaded ) {
                     LimitCapacity( newCapacity );
                 }
                 TrimFile( newCapacity );
+                lastTimeLimit = DateTime.UtcNow;
             }
         }
 
@@ -303,6 +307,9 @@ namespace fCraft {
         }
 
 
+        DateTime lastLimit, lastTimeLimit;
+        static readonly TimeSpan minLimitDelay = TimeSpan.FromMinutes( 5 ),
+                                 minTimeLimitDelay = TimeSpan.FromMinutes( 10 );
         internal void Flush() {
             lock( SyncRoot ) {
                 if( lastFlushedIndex < cacheSize ) {
@@ -320,6 +327,23 @@ namespace fCraft {
                     lastFlushedIndex = cacheSize;
                     Logger.Log( "BlockDB({0}): Flushed {1} entries. CC={2} CS={3} LFI={4}", LogType.Debug,
                                 World.Name, count, CacheCapacity, cacheSize, lastFlushedIndex );
+
+
+                    if( limit > 0 ) {
+                        bool limitingAllowed = DateTime.UtcNow.Subtract( lastLimit ) > minLimitDelay ||
+                                               (cacheSize - limit) > CacheLinearResizeThreshold;
+                        if( cacheSize > limit * 1.1 && limitingAllowed ) {
+                            EnforceLimit();
+                            LimitCapacity( cacheSize );
+                        }
+                    }
+
+                    if( timeLimit > TimeSpan.Zero ) {
+                        if( DateTime.UtcNow.Subtract( lastTimeLimit ) > minTimeLimitDelay ) {
+                            EnforceTimeLimit();
+                            LimitCapacity( cacheSize );
+                        }
+                    }
                 }
             }
         }

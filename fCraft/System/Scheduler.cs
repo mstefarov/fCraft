@@ -212,7 +212,8 @@ namespace fCraft {
                 foreach( SchedulerTask task in Tasks ) {
                     task.Stop();
                 }
-                UpdateCache();
+                Tasks.Clear();
+                taskCache = new SchedulerTask[0];
             }
         }
 
