@@ -53,7 +53,7 @@ namespace fCraft {
 
         public void CacheAdd( BlockDBEntry item ) {
             if( cacheSize == cacheStore.Length ) {
-                EnsureCapacity( cacheSize + 1 );
+                SetMinCapacity( cacheSize + 1 );
             }
             cacheStore[cacheSize++] = item;
         }
@@ -66,7 +66,7 @@ namespace fCraft {
         }
 
 
-        void EnsureCapacity( int min ) {
+        void SetMinCapacity( int min ) {
             if( cacheStore.Length < min ) {
                 int num = cacheStore.Length + CacheSizeIncrement;
                 if( num < min ) {
@@ -125,7 +125,7 @@ namespace fCraft {
             using( FileStream fs = OpenRead() ) {
 
                 cacheSize = (int)(fs.Length / BlockDBEntrySize);
-                EnsureCapacity( cacheSize );
+                SetMinCapacity( cacheSize );
                 lastFlushedIndex = cacheSize;
 
                 fixed( BlockDBEntry* pCache = cacheStore ) {
