@@ -380,7 +380,6 @@ namespace fCraft {
 
         byte[] Load() {
             lock( SyncRoot ) {
-                Flush();
                 if( File.Exists( FileName ) ) {
                     return File.ReadAllBytes( FileName );
                 } else {
@@ -404,6 +403,7 @@ namespace fCraft {
                     }
                 }
             } else {
+                Flush();
                 byte[] bytes = Load();
                 int entryCount = bytes.Length / BlockDBEntrySize;
                 fixed( byte* parr = bytes ) {
@@ -440,6 +440,7 @@ namespace fCraft {
                     }
                 }
             } else {
+                Flush();
                 byte[] bytes = Load();
                 int entryCount = bytes.Length / BlockDBEntrySize;
                 fixed( byte* parr = bytes ) {
@@ -479,6 +480,7 @@ namespace fCraft {
                     }
                 }
             } else {
+                Flush();
                 byte[] bytes = Load();
                 int entryCount = bytes.Length / BlockDBEntrySize;
                 fixed( byte* parr = bytes ) {
