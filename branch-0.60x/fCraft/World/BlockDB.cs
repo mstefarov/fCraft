@@ -207,12 +207,12 @@ namespace fCraft {
             if( isPreloaded ) {
                 fixed( BlockDBEntry* ptr = cacheStore ) {
                     for( int i = 0; i < cacheSize; i++ ) {
-                        if( ptr[i].Timestamp < minTimestamp ) {
+                        if( ptr[i].Timestamp > minTimestamp ) {
                             return cacheSize - i;
                         }
                     }
                 }
-                return cacheSize;
+                return 0;
 
             } else {
                 byte[] bytes = Load();
@@ -220,12 +220,12 @@ namespace fCraft {
                 fixed( byte* parr = bytes ) {
                     BlockDBEntry* entries = (BlockDBEntry*)parr;
                     for( int i = entryCount - 1; i >= 0; i-- ) {
-                        if( entries[i].Timestamp < minTimestamp ) {
+                        if( entries[i].Timestamp > minTimestamp ) {
                             return entryCount - i;
                         }
                     }
                 }
-                return entryCount;
+                return 0;
             }
         }
 
@@ -342,8 +342,8 @@ namespace fCraft {
         }
 
 
-        static readonly TimeSpan minLimitDelay = TimeSpan.FromMinutes( 5 ),
-                                 minTimeLimitDelay = TimeSpan.FromMinutes( 10 );
+        static readonly TimeSpan minLimitDelay = TimeSpan.FromMinutes( 1 ),
+                                 minTimeLimitDelay = TimeSpan.FromMinutes( 1 );
         internal void Flush() {
             lock( SyncRoot ) {
                 if( lastFlushedIndex < cacheSize ) {
