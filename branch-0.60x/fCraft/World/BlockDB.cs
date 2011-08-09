@@ -342,8 +342,8 @@ namespace fCraft {
         }
 
 
-        static readonly TimeSpan minLimitDelay = TimeSpan.FromMinutes( 1 ),
-                                 minTimeLimitDelay = TimeSpan.FromMinutes( 1 );
+        static readonly TimeSpan minLimitDelay = TimeSpan.FromMinutes( 5 ),
+                                 minTimeLimitDelay = TimeSpan.FromMinutes( 10 );
         internal void Flush() {
             lock( SyncRoot ) {
                 if( lastFlushedIndex < cacheSize ) {
