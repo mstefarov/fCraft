@@ -823,8 +823,8 @@ namespace fCraft {
 
                 if( descriptor.Aliases != null ) {
                     sb.Append( "Aliases: &H" );
-                    sb.Append( descriptor.Aliases.JoinToString( "&S, &H" ) );
-                    sb.Append( '\n' );
+                    sb.Append( descriptor.Aliases.JoinToString() );
+                    sb.Append( "\n&S" );
                 }
 
                 if( descriptor.HelpHandler != null ) {
