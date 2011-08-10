@@ -350,9 +350,7 @@ namespace fCraft {
                                      player.ClassyName );
                     }
                     if( ConfigKey.AnnounceKickAndBanReasons.Enabled() && !String.IsNullOrEmpty( reason ) ) {
-                        Server.Message( player,
-                                        "&WUnban reason: {0}",
-                                        player, reason );
+                        Server.Message( player, "&WUnban reason: {0}", reason );
                     }
                 } else {
                     if( player.Can( Permission.ViewPlayerIPs ) ) {
