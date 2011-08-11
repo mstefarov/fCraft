@@ -552,7 +552,7 @@ namespace fCraft {
             Permissions = new[] { Permission.Promote, Permission.Demote },
             AnyPermission = true,
             IsConsoleSafe = true,
-            Usage = "/user PlayerName RankName [Reason]",
+            Usage = "/rank PlayerName RankName [Reason]",
             Help = "Changes the rank of a player to a specified rank. " +
                    "Any text specified after the RankName will be saved as a memo.",
             Handler = ChangeRank
