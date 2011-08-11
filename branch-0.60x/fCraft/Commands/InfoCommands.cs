@@ -174,17 +174,30 @@ namespace fCraft {
 
             } else {
                 if( target != null ) {
+                    TimeSpan idle = target.IdleTimer;
                     if( info.IsHidden ) {
-                        if( player.Can( Permission.ViewPlayerIPs ) ) {
-                            player.Message( "About {0}&S: HIDDEN. Online from {1}",
-                                            info.ClassyName,
-                                            info.LastIP );
+                        if( idle.TotalMinutes > 2 ) {
+                            if( player.Can( Permission.ViewPlayerIPs ) ) {
+                                player.Message( "About {0}&S: HIDDEN from {1} (idle {2})",
+                                                info.ClassyName,
+                                                info.LastIP,
+                                                idle.ToMiniString() );
+                            } else {
+                                player.Message( "About {0}&S: HIDDEN (idle {1})",
+                                                info.ClassyName,
+                                                idle.ToMiniString() );
+                            }
                         } else {
-                            player.Message( "About {0}&S: HIDDEN.",
-                                            info.ClassyName );
+                            if( player.Can( Permission.ViewPlayerIPs ) ) {
+                                player.Message( "About {0}&S: HIDDEN. Online from {1}",
+                                                info.ClassyName,
+                                                info.LastIP );
+                            } else {
+                                player.Message( "About {0}&S: HIDDEN.",
+                                                info.ClassyName );
+                            }
                         }
                     } else {
-                        TimeSpan idle = target.IdleTimer;
                         if( idle.TotalMinutes > 2 ) {
                             if( player.Can( Permission.ViewPlayerIPs ) ) {
                                 player.Message( "About {0}&S: Online now from {1} (idle {2})",
