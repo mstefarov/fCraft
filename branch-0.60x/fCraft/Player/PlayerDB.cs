@@ -384,7 +384,7 @@ namespace fCraft {
             PlayerInfo dummy = new PlayerInfo( id );
             lock( AddLocker ) {
                 int index = list.BinarySearch( dummy, PlayerIDComparer.Instance );
-                if( index != -1 ) {
+                if( index >= 0 ) {
                     return list[index];
                 } else {
                     return null;

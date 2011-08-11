@@ -1892,8 +1892,6 @@ namespace fCraft {
                 Z = marks[0].Z
             };
 
-            player.Message( "Looking up information for ({0},{1},{2})...",
-                            marks[0].X, marks[0].Y, marks[0].Z );
             Scheduler.NewBackgroundTask( BlockInfoSchedulerCallback, args ).RunOnce();
         }
 
@@ -1925,7 +1923,8 @@ namespace fCraft {
                     }
                 }
             } else {
-                args.Player.Message( "No BlockDB results found." );
+                args.Player.Message( "BlockInfo: No results found.",
+                                     args.X, args.Y, args.Z );
             }
         }
     }
