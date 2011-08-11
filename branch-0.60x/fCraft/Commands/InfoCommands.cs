@@ -184,13 +184,27 @@ namespace fCraft {
                                             info.ClassyName );
                         }
                     } else {
-                        if( player.Can( Permission.ViewPlayerIPs ) ) {
-                            player.Message( "About {0}&S: Online now from {1}",
-                                            info.ClassyName,
-                                            info.LastIP );
+                        TimeSpan idle = target.IdleTimer;
+                        if( idle.TotalMinutes > 2 ) {
+                            if( player.Can( Permission.ViewPlayerIPs ) ) {
+                                player.Message( "About {0}&S: Online now from {1} (idle {2})",
+                                                info.ClassyName,
+                                                info.LastIP,
+                                                idle );
+                            } else {
+                                player.Message( "About {0}&S: Online now (idle {1})",
+                                                info.ClassyName,
+                                                idle );
+                            }
                         } else {
-                            player.Message( "About {0}&S: Online now.",
-                                            info.ClassyName );
+                            if( player.Can( Permission.ViewPlayerIPs ) ) {
+                                player.Message( "About {0}&S: Online now from {1}",
+                                                info.ClassyName,
+                                                info.LastIP );
+                            } else {
+                                player.Message( "About {0}&S: Online now.",
+                                                info.ClassyName );
+                            }
                         }
                     }
                 } else {
