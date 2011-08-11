@@ -37,6 +37,8 @@ namespace fCraft.Drawing {
                         Bounds.Length > 2 &&
                         Bounds.Height > 2;
 
+            Coords = Bounds.MinVertexV;
+
             if( fillInner ) {
                 BlocksTotalEstimate = (int)(4 / 3d * Math.PI * rx * ry * rz);
             } else {
