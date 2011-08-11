@@ -37,7 +37,7 @@ namespace fCraft.Drawing {
             if( blocks.Count == 0 ) {
                 return new RandomBrush();
             } else if( blocks.Count == 1 ) {
-                return new RandomBrush( blocks[0] );
+                return new RandomBrush( blocks[0], blockRatios[0] );
             } else {
                 return new RandomBrush( blocks.ToArray(), blockRatios.ToArray() );
             }
@@ -56,9 +56,9 @@ namespace fCraft.Drawing {
             BlockRatios = new int[0];
         }
 
-        public RandomBrush( Block oneBlock ) {
-            Blocks = new[]{oneBlock};
-            BlockRatios = new[] { 1 };
+        public RandomBrush( Block oneBlock, int ratio ) {
+            Blocks = new[] { oneBlock };
+            BlockRatios = new[] { ratio, 1 };
             actualBlocks = new[] { oneBlock, Block.Undefined };
         }
 
@@ -143,7 +143,7 @@ namespace fCraft.Drawing {
                     return new RandomBrush( this );
                 }
             } else if( blocks.Count == 1 ) {
-                return new RandomBrush( blocks[0] );
+                return new RandomBrush( blocks[0], blockRatios[0] );
             } else {
                 return new RandomBrush( blocks.ToArray(), blockRatios.ToArray() );
             }

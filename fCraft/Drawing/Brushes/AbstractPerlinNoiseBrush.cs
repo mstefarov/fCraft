@@ -26,9 +26,10 @@ namespace fCraft.Drawing {
             Octaves = 3;
         }
 
-        protected AbstractPerlinNoiseBrush( Block oneBlock ) : this() {
-            Blocks = new[]{oneBlock};
-            BlockRatios = new[] { 1 };
+        protected AbstractPerlinNoiseBrush( Block oneBlock, int ratio )
+            : this() {
+            Blocks = new[] { oneBlock, Block.Undefined };
+            BlockRatios = new[] { 1, ratio };
         }
 
         protected AbstractPerlinNoiseBrush( Block[] blocks, int[] ratios )
