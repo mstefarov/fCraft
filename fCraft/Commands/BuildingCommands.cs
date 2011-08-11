@@ -803,25 +803,24 @@ namespace fCraft {
         };
 
         internal static void Undo( Player player, Command command ) {
-            if( player.UndoBuffer.Count > 0 ) {
+            Queue<BlockUpdate> oldBuffer = player.UndoBuffer;
+            if( oldBuffer.Count > 0 ) {
                 // no need to set player.drawingInProgress here because this is done on the user thread
                 Logger.Log( "Player {0} initiated /undo affecting {1} blocks (on world {2})", LogType.UserActivity,
                             player.Name,
                             player.UndoBuffer.Count,
                             player.World.Name );
                 player.MessageNow( "Restoring {0} blocks...", player.UndoBuffer.Count );
-                Queue<BlockUpdate> redoBuffer = new Queue<BlockUpdate>();
-                while( player.UndoBuffer.Count > 0 ) {
-                    BlockUpdate newBlock = player.UndoBuffer.Dequeue();
-                    BlockUpdate oldBlock = new BlockUpdate( null, newBlock.X, newBlock.Y, newBlock.Z,
-                                                            player.World.Map.GetBlock( newBlock.X, newBlock.Y, newBlock.Z ) );
-                    player.World.Map.QueueUpdate( newBlock );
-                    redoBuffer.Enqueue( oldBlock );
+                player.UndoBuffer = new Queue<BlockUpdate>();
+                int blocks = 0, blocksDenied = 0;
+                bool cannotUndo = false;
+                while( oldBuffer.Count > 0 ) {
+                    BlockUpdate changeToUndo = oldBuffer.Dequeue();
+                    DrawOneBlock( player, (byte)changeToUndo.BlockType, changeToUndo.X, changeToUndo.Y, changeToUndo.Z,
+                                  ref blocks, ref blocksDenied, ref cannotUndo );
                 }
-                player.UndoBuffer = redoBuffer;
-                redoBuffer.TrimExcess();
                 player.MessageNow( "Type /undo again to reverse this command." );
-                Server.RequestGC();
+                DrawingFinished( player, "undid", blocks, blocksDenied );
 
             } else {
                 player.MessageNow( "There is currently nothing to undo." );
