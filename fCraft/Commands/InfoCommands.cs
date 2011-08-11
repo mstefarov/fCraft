@@ -190,11 +190,11 @@ namespace fCraft {
                                 player.Message( "About {0}&S: Online now from {1} (idle {2})",
                                                 info.ClassyName,
                                                 info.LastIP,
-                                                idle );
+                                                idle.ToMiniString() );
                             } else {
                                 player.Message( "About {0}&S: Online now (idle {1})",
                                                 info.ClassyName,
-                                                idle );
+                                                idle.ToMiniString() );
                             }
                         } else {
                             if( player.Can( Permission.ViewPlayerIPs ) ) {
