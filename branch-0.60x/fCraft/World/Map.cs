@@ -584,7 +584,8 @@ namespace fCraft {
             }
 
             // alternative names for some blocks
-            BlockNames["none"] = Block.Air;
+            BlockNames["none"] = Block.Undefined;
+
             BlockNames["aire"] = Block.Air; // common typo
             BlockNames["nothing"] = Block.Air;
             BlockNames["empty"] = Block.Air;
@@ -595,6 +596,7 @@ namespace fCraft {
             BlockNames["cement"] = Block.Stone;
             BlockNames["concrete"] = Block.Stone;
 
+            BlockNames["g"] = Block.Grass;
             BlockNames["gras"] = Block.Grass; // common typo
 
             BlockNames["soil"] = Block.Dirt;
@@ -612,6 +614,7 @@ namespace fCraft {
             BlockNames["hardrock"] = Block.Admincrete;
             BlockNames["solid"] = Block.Admincrete;
             BlockNames["bedrock"] = Block.Admincrete;
+            BlockNames["w"] = Block.Water;
             BlockNames["gold_ore"] = Block.GoldOre;
             BlockNames["iron_ore"] = Block.IronOre;
             BlockNames["copper"] = Block.IronOre;

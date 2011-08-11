@@ -35,7 +35,7 @@ namespace fCraft.Drawing {
             if( blocks.Count == 0 ) {
                 return new MarbledBrush();
             } else if( blocks.Count == 1 ) {
-                return new MarbledBrush( blocks[0] );
+                return new MarbledBrush( blocks[0], blockRatios[0] );
             } else {
                 return new MarbledBrush( blocks.ToArray(), blockRatios.ToArray() );
             }
@@ -48,8 +48,8 @@ namespace fCraft.Drawing {
         public MarbledBrush() {
         }
 
-        public MarbledBrush( Block oneBlock )
-            : base( oneBlock ) {
+        public MarbledBrush( Block oneBlock, int ratio )
+            : base( oneBlock, ratio ) {
         }
 
         public MarbledBrush( Block[] blocks, int[] ratios )
@@ -120,7 +120,7 @@ namespace fCraft.Drawing {
                     return new MarbledBrush( this );
                 }
             } else if( blocks.Count == 1 ) {
-                return new MarbledBrush( blocks[0] );
+                return new MarbledBrush( blocks[0], blockRatios[0] );
             } else {
                 return new MarbledBrush( blocks.ToArray(), blockRatios.ToArray() );
             }
