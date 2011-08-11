@@ -46,8 +46,6 @@ namespace fCraft.Drawing {
                 BlocksTotalEstimate = (int)(4 / 3d * Math.PI * ((rx + .5) * (ry + .5) * (rz + .5) -
                                                                 (rx - .5) * (ry - .5) * (rz - .5)) * 0.85);
             }
-
-            //coordEnumerator = BlockEnumerator().GetEnumerator();
             return true;
         }
 
@@ -70,6 +68,7 @@ namespace fCraft.Drawing {
                                 if( delta.X2 * radius.X + delta.Y2 * radius.Y + delta.Z2 * radius.Z > 1 ) continue;
                                 goto case State.OuterBlock1;
 
+
                             case State.OuterBlock1:
                                 state = State.OuterBlock1;
                                 if( DrawOneBlock() ) {
@@ -77,29 +76,30 @@ namespace fCraft.Drawing {
                                 }
                                 goto case State.OuterBlock2;
 
-                            case State.OuterBlock2: {
-                                    state = State.OuterBlock2;
-                                    if( blocksDone >= maxBlocksToDraw ) return blocksDone;
-                                    int z = Coords.Z;
-                                    Coords.Z = (int)(center.Z - delta.Z);
-                                    if( DrawOneBlock() ) {
-                                        blocksDone++;
-                                    }
-                                    Coords.Z = z;
-                                    goto case State.AfterOuterBlock;
+
+                            case State.OuterBlock2:
+                                state = State.OuterBlock2;
+                                if( blocksDone >= maxBlocksToDraw ) return blocksDone;
+                                int z = Coords.Z;
+                                Coords.Z = (int)(center.Z - delta.Z);
+                                if( DrawOneBlock() ) {
+                                    blocksDone++;
                                 }
+                                Coords.Z = z;
+                                goto case State.AfterOuterBlock;
+
 
                             case State.AfterOuterBlock:
                                 state = State.AfterOuterBlock;
                                 if( blocksDone >= maxBlocksToDraw ) return blocksDone;
                                 delta.Z = (++Coords.Z - center.Z);
                                 if( Coords.Z <= (int)center.Z &&
-                                 ((delta.X + 1) * (delta.X + 1) * radius.X + delta.Y2 * radius.Y + delta.Z2 * radius.Z > 1 ||
-                                  (delta.X - 1) * (delta.X - 1) * radius.X + delta.Y2 * radius.Y + delta.Z2 * radius.Z > 1 ||
-                                  delta.X2 * radius.X + (delta.Y + 1) * (delta.Y + 1) * radius.Y + delta.Z2 * radius.Z > 1 ||
-                                  delta.X2 * radius.X + (delta.Y - 1) * (delta.Y - 1) * radius.Y + delta.Z2 * radius.Z > 1 ||
-                                  delta.X2 * radius.X + delta.Y2 * radius.Y + (delta.Z + 1) * (delta.Z + 1) * radius.Z > 1 ||
-                                  delta.X2 * radius.X + delta.Y2 * radius.Y + (delta.Z - 1) * (delta.Z - 1) * radius.Z > 1) ) {
+                                    ((delta.X + 1) * (delta.X + 1) * radius.X + delta.Y2 * radius.Y + delta.Z2 * radius.Z > 1 ||
+                                    (delta.X - 1) * (delta.X - 1) * radius.X + delta.Y2 * radius.Y + delta.Z2 * radius.Z > 1 ||
+                                    delta.X2 * radius.X + (delta.Y + 1) * (delta.Y + 1) * radius.Y + delta.Z2 * radius.Z > 1 ||
+                                    delta.X2 * radius.X + (delta.Y - 1) * (delta.Y - 1) * radius.Y + delta.Z2 * radius.Z > 1 ||
+                                    delta.X2 * radius.X + delta.Y2 * radius.Y + (delta.Z + 1) * (delta.Z + 1) * radius.Z > 1 ||
+                                    delta.X2 * radius.X + delta.Y2 * radius.Y + (delta.Z - 1) * (delta.Z - 1) * radius.Z > 1) ) {
                                     goto case State.OuterBlock1;
                                 }
 
@@ -110,6 +110,7 @@ namespace fCraft.Drawing {
 
                                 UseAlternateBlock = true;
                                 goto case State.InnerBlock;
+
 
                             case State.InnerBlock:
                                 state = State.InnerBlock;
