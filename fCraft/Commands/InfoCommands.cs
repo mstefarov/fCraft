@@ -455,9 +455,8 @@ namespace fCraft {
                         } else {
                             banDuration = info.UnbanDate.Subtract( info.BanDate );
                         }
-                        player.Message( "  Last ban duration: {0} days and {1:F1} hours.",
-                                        (int)banDuration.TotalDays,
-                                        banDuration.TotalHours );
+                        player.Message( "  Last ban duration: {0}",
+                                        banDuration.ToMiniString() );
                     }
                 } else {
                     player.MessageNoPlayer( name );
