@@ -1648,22 +1648,22 @@ namespace fCraft {
             BlockDB db = world.BlockDB;
 
             lock( db.SyncRoot ) {
-            string op = cmd.Next();
-            if( op == null ) {
-                if( !db.Enabled ) {
-                    player.Message( "BlockDB is disabled on world {0}", world.ClassyName );
-                } else {
-                    if( db.IsPreloaded ) {
-                        player.Message( "BlockDB is enabled/preloaded on world {0}", world.ClassyName );
+                string op = cmd.Next();
+                if( op == null ) {
+                    if( !db.Enabled ) {
+                        player.Message( "BlockDB is disabled on world {0}", world.ClassyName );
                     } else {
-                        player.Message( "BlockDB is enabled on world {0}", world.ClassyName );
+                        if( db.IsPreloaded ) {
+                            player.Message( "BlockDB is enabled/preloaded on world {0}", world.ClassyName );
+                        } else {
+                            player.Message( "BlockDB is enabled on world {0}", world.ClassyName );
+                        }
+                        player.Message( "    Change limit: {0}    Time limit: {1}",
+                            db.Limit == 0 ? "none" : db.Limit.ToString(),
+                            db.TimeLimit == TimeSpan.Zero ? "none" : db.TimeLimit.ToMiniString() );
                     }
-                    player.Message( "    Change limit: {0}    Time limit: {1}",
-                        db.Limit == 0 ? "none" : db.Limit.ToString(),
-                        db.TimeLimit == TimeSpan.Zero ? "none" : db.TimeLimit.ToMiniString() );
+                    return;
                 }
-                return;
-            }
 
                 switch( op.ToLower() ) {
                     case "on":
@@ -1704,7 +1704,7 @@ namespace fCraft {
                             int limitNumber;
 
                             if( limitString == null ) {
-                                player.Message( "BlockDB: Limit for world {0}&S is {1}", 
+                                player.Message( "BlockDB: Limit for world {0}&S is {1}",
                                                 world.ClassyName,
                                                 (db.Limit == 0 ? "none" : db.Limit.ToString()) );
                                 return;
@@ -1722,7 +1722,7 @@ namespace fCraft {
                                 return;
                             }
 
-                            if( !cmd.IsConfirmed && limitNumber != 0 ){
+                            if( !cmd.IsConfirmed && limitNumber != 0 ) {
                                 player.Confirm( cmd, "BlockDB: Change limit? Some old data for world {0}&S may be discarded.", world.ClassyName );
 
                             } else {
@@ -1753,7 +1753,7 @@ namespace fCraft {
                                 if( db.TimeLimit == TimeSpan.Zero ) {
                                     player.Message( "BlockDB: There is no time limit for world {0}",
                                                     world.ClassyName );
-                                }else{
+                                } else {
                                     player.Message( "BlockDB: Time limit for world {0}&S is {1}",
                                                     world.ClassyName, db.TimeLimit.ToMiniString() );
                                 }

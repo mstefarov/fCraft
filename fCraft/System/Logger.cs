@@ -296,10 +296,15 @@ namespace fCraft {
                               "See http://support.microsoft.com/kb/811833";
                     return true;
 
+                } else if( ex.StackTrace.Contains( "__Error.WinIOError" ) ) {
+                    message = "A filesystem-related error has occured. Make sure that only one instance of fCraft is running, " +
+                              "and that no other processes are using server's files or directories.";
+                    return true;
+
                 } else if( ex.Message.Contains( "UNSTABLE" ) ) {
                     return true;
 
-                }else{
+                } else {
                     return false;
                 }
             } finally {
