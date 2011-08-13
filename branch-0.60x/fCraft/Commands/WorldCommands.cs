@@ -1377,15 +1377,23 @@ namespace fCraft {
                 cmd.Next();
             }
 
+            const string dimensionRecommendation = "Dimensions must be between 1 and 2047. " +
+                                                   "Recommended values: 16, 32, 64, 128, 256, 512, and 1024.";
             if( !Map.IsValidDimension( wx ) ) {
-                player.Message( "Cannot make map with width {0}: dimensions must be multiples of 16.", wx );
+                player.Message( "Cannot make map with width {0}. {1}", wx, dimensionRecommendation );
                 return;
             } else if( !Map.IsValidDimension( wy ) ) {
-                player.Message( "Cannot make map with length {0}: dimensions must be multiples of 16.", wy );
+                player.Message( "Cannot make map with length {0}. {1}", wy, dimensionRecommendation );
                 return;
             } else if( !Map.IsValidDimension( height ) ) {
-                player.Message( "Cannot make map with height {0}: dimensions must be multiples of 16.", height );
+                player.Message( "Cannot make map with height {0}. {1}", height, dimensionRecommendation );
                 return;
+            }
+
+            if( !Map.IsRecommendedDimension( wx ) || !Map.IsRecommendedDimension( wy ) || !Map.IsRecommendedDimension( height ) ) {
+                player.Message( "&WThe map will have non-standard dimensions. " +
+                                "You may see glitched blocks or visual artifacts. " +
+                                "The only recommended map dimensions are: 16, 32, 64, 128, 256, 512, and 1024." );
             }
 
             string fileName = cmd.Next();
