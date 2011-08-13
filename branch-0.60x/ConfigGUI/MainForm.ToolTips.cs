@@ -381,6 +381,12 @@ Affected commands:
     /wflush
     /gen";
 
+
+            vPermissions.Items[(int)Permission.ManageBlockDB].ToolTipText =
+@"Ability to enable/disable, clear, and configure BlockDB.
+Affected command:
+    /blockdb";
+
             vPermissions.Items[(int)Permission.ManageZones].ToolTipText =
 @"Ability to manipulate zones: adding, editing, renaming, and removing zones.
 Affected commands:

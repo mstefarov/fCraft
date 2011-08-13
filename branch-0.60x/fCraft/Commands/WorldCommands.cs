@@ -1625,7 +1625,7 @@ namespace fCraft {
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             IsHidden = true,
-            Permissions = new[] { Permission.ManageWorlds, Permission.EditPlayerDB },
+            Permissions = new[] { Permission.ManageBlockDB },
             Usage = "/blockdb WorldName on/off",
             Help = "Enables or disabled BlockDB on a given world.",
             Handler = DoBlockDB
