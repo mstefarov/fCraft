@@ -10,7 +10,7 @@ namespace fCraft {
 
         public const int MinFieldCount = 24;
 
-        public string Name { get; internal set; }
+        public string Name;
 
         public IPAddress LastIP;
 
@@ -45,7 +45,7 @@ namespace fCraft {
         public int TimesKickedOthers;
         public int TimesBannedOthers;
 
-        public int ID { get; private set; }
+        public int ID;
         public RankChangeType RankChangeType;
         public DateTime LastKickDate;
         public DateTime LastSeen;
@@ -64,12 +64,12 @@ namespace fCraft {
 
         public string Password = ""; // TODO
 
-        public bool Online { get; private set; }
-        public Player PlayerObject { get; private set; }
+        public bool Online;
+        public Player PlayerObject;
         public LeaveReason LeaveReason;
         public bool BanExempt;
 
-        public BandwidthUseMode BandwidthUseMode { get; set; }
+        public BandwidthUseMode BandwidthUseMode;
 
         public bool IsHidden;
 

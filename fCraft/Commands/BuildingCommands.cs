@@ -2268,20 +2268,8 @@ namespace fCraft {
                 return;
             }
 
-            PlayerInfo target = PlayerDB.FindPlayerInfoExact( name );
-            if( target == null ) {
-                PlayerInfo[] targets = PlayerDB.FindPlayers( name );
-                if( targets.Length == 0 ) {
-                    player.MessageNoPlayer( name );
-                    return;
-
-                } else if( targets.Length > 1 ) {
-                    Array.Sort( targets, new PlayerInfoComparer( player ) );
-                    player.MessageManyMatches( "player", targets.Take( 25 ).ToArray() );
-                    return;
-                }
-                target = targets[0];
-            }
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player,  name );
+            if( target == null ) return;
 
             if( !player.Can( Permission.UndoOthersActions, target.Rank ) ) {
                 player.Message( "You may only undo actions of players ranked {0}&S or lower.",

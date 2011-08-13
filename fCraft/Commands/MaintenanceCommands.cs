@@ -30,7 +30,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdImport );
 
 
-            //CommandManager.RegisterCommand( CdPlayerDB );
+            CommandManager.RegisterCommand( CdPlayerDB );
 
             CommandManager.RegisterCommand( new CommandDescriptor {
                 Name = "bum",
@@ -1156,6 +1156,47 @@ namespace fCraft {
         };
 
         static void DoPlayerDB( Player player, Command cmd ) {
+            string op = cmd.Next();
+            if( op == null ) {
+                CdPlayerDB.PrintUsage( player );
+                return;
+            }
+            switch( op.ToLower() ) {
+                case "prune":
+                    PruneDB( player, cmd );
+                    return;
+
+                case "massrank":
+                    MassRank( player, cmd );
+                    return;
+
+                case "swap":
+                    PlayerDBSwap( player, cmd );
+                    return;
+
+            }
+        }
+
+
+        static void PlayerDBSwap( Player player, Command cmd ) {
+            string p1name = cmd.Next();
+            string p2name = cmd.Next();
+            if( p1name == null || p2name == null ) {
+                CdPlayerDB.PrintUsage( player );
+                return;
+            }
+
+            PlayerInfo p1 = PlayerDB.FindPlayerInfoOrPrintMatches( player, p1name );
+            if( p1 == null ) return;
+            PlayerInfo p2 = PlayerDB.FindPlayerInfoOrPrintMatches( player, p2name );
+            if( p2 == null ) return;
+
+            if( p1 == p2 ) {
+                player.Message( "PlayerDB/Swap: Please specify 2 different players." );
+                return;
+            }
+
+            PlayerDB.SwapPlayerInfo( p1, p2 );
         }
     }
 }
