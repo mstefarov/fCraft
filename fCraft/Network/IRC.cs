@@ -398,7 +398,7 @@ namespace fCraft {
                         return;
                     }
                 }
-                Logger.Log( "All IRC bots are temporarily disconnected.", LogType.IRC );
+                Logger.Log( "All IRC bots have disconnected.", LogType.IRC );
             }
         }
 
