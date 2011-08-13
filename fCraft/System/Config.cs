@@ -891,6 +891,7 @@ namespace fCraft {
 
             owner.Add( new XElement( Permission.ManageZones.ToString() ) );
             owner.Add( new XElement( Permission.ManageWorlds.ToString() ) );
+            owner.Add( new XElement( Permission.ManageBlockDB.ToString() ) );
             owner.Add( new XElement( Permission.Import.ToString() ) );
             owner.Add( new XElement( Permission.Draw.ToString() ) );
             owner.Add( new XElement( Permission.DrawAdvanced.ToString() ) );

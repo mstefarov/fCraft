@@ -142,6 +142,9 @@ namespace fCraft {
         /// changing per-world permissions, and using the map generator. </summary>
         ManageWorlds,
 
+        /// <summary> Ability to enable/disable, clear, and configure BlockDB. </summary>
+        ManageBlockDB,
+
         /// <summary> Ability to import rank and ban lists from files.
         /// Useful if you are switching from another server software. </summary>
         Import,
