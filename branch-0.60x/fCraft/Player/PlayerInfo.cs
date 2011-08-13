@@ -780,7 +780,9 @@ namespace fCraft {
                 }
                 sb.Append( Name );
                 if( Banned ) {
-                    sb.Append( Color.Warning ).Append( "*" );
+                    sb.Append( Color.Warning ).Append( '*' );
+                } else if( IsFrozen ) {
+                    sb.Append( Color.Blue ).Append( '*' );
                 }
                 return sb.ToString();
             }
