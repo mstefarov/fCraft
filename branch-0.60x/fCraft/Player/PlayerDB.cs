@@ -352,6 +352,26 @@ namespace fCraft {
             }
         }
 
+
+        public static PlayerInfo FindPlayerInfoOrPrintMatches( Player player, string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            PlayerInfo target = PlayerDB.FindPlayerInfoExact( name );
+            if( target == null ) {
+                PlayerInfo[] targets = PlayerDB.FindPlayers( name );
+                if( targets.Length == 0 ) {
+                    player.MessageNoPlayer( name );
+                    return null;
+
+                } else if( targets.Length > 1 ) {
+                    Array.Sort( targets, new PlayerInfoComparer( player ) );
+                    player.MessageManyMatches( "player", targets.Take( 25 ).ToArray() );
+                    return null;
+                }
+                target = targets[0];
+            }
+            return target;
+        }
+
         #endregion
 
 
@@ -534,6 +554,66 @@ namespace fCraft {
                 }
             }
         }
+
+
+        internal static void SwapPlayerInfo( PlayerInfo p1, PlayerInfo p2 ) {
+            lock( AddLocker ) {
+                Swap( ref p1.BanDate, ref p2.BanDate );
+                Swap( ref p1.BandwidthUseMode, ref p2.BandwidthUseMode );
+                Swap( ref p1.BanExempt, ref p2.BanExempt );
+                Swap( ref p1.Banned, ref p2.Banned );
+                Swap( ref p1.BannedBy, ref p2.BannedBy );
+                Swap( ref p1.BannedUntil, ref p2.BannedUntil );
+                Swap( ref p1.BanReason, ref p2.BanReason );
+                Swap( ref p1.BlocksBuilt, ref p2.BlocksBuilt );
+                Swap( ref p1.BlocksDeleted, ref p2.BlocksDeleted );
+                Swap( ref p1.BlocksDrawn, ref p2.BlocksDrawn );
+                Swap( ref p1.FailedLoginCount, ref p2.FailedLoginCount );
+                Swap( ref p1.FirstLoginDate, ref p2.FirstLoginDate );
+                Swap( ref p1.FrozenBy, ref p2.FrozenBy );
+                Swap( ref p1.FrozenOn, ref p2.FrozenOn );
+                Swap( ref p1.ID, ref p2.ID );
+                Swap( ref p1.IsFrozen, ref p2.IsFrozen );
+                //Swap( ref p1.IsHidden, ref p2.IsHidden );
+                Swap( ref p1.LastFailedLoginDate, ref p2.LastFailedLoginDate );
+                Swap( ref p1.LastFailedLoginIP, ref p2.LastFailedLoginIP );
+                //Swap( ref p1.LastIP, ref p2.LastIP );
+                Swap( ref p1.LastKickBy, ref p2.LastKickBy );
+                Swap( ref p1.LastKickDate, ref p2.LastKickDate );
+                Swap( ref p1.LastKickReason, ref p2.LastKickReason );
+                //Swap( ref p1.LastLoginDate, ref p2.LastLoginDate );
+                //Swap( ref p1.LastSeen, ref p2.LastSeen );
+                //Swap( ref p1.LeaveReason, ref p2.LeaveReason );
+                Swap( ref p1.MessagesWritten, ref p2.MessagesWritten );
+                Swap( ref p1.MutedBy, ref p2.MutedBy );
+                Swap( ref p1.MutedUntil, ref p2.MutedUntil );
+                //Swap( ref p1.Name, ref p2.Name );
+                //Swap( ref p1.Online, ref p2.Online );
+                Swap( ref p1.Password, ref p2.Password );
+                //Swap( ref p1.PlayerObject, ref p2.PlayerObject );
+                Swap( ref p1.PreviousRank, ref p2.PreviousRank );
+                Swap( ref p1.Rank, ref p2.Rank );
+                Swap( ref p1.RankChangeDate, ref p2.RankChangeDate );
+                Swap( ref p1.RankChangedBy, ref p2.RankChangedBy );
+                Swap( ref p1.RankChangeReason, ref p2.RankChangeReason );
+                Swap( ref p1.RankChangeType, ref p2.RankChangeType );
+                Swap( ref p1.TimesBannedOthers, ref p2.TimesBannedOthers );
+                Swap( ref p1.TimesKicked, ref p2.TimesKicked );
+                Swap( ref p1.TimesKickedOthers, ref p2.TimesKickedOthers );
+                Swap( ref p1.TimesVisited, ref p2.TimesVisited );
+                Swap( ref p1.TotalTime, ref p2.TotalTime );
+                Swap( ref p1.UnbanDate, ref p2.UnbanDate );
+                Swap( ref p1.UnbannedBy, ref p2.UnbannedBy );
+                Swap( ref p1.UnbanReason, ref p2.UnbanReason );
+            }
+        }
+
+        static void Swap<T>( ref T t1, ref T t2 ) {
+            var temp = t2;
+            t2 = t1;
+            t1 = temp;
+        }
+
 
         #endregion
 
