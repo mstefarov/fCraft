@@ -406,18 +406,15 @@ namespace fCraft {
                 return;
             }
 
-            Map map = world.Map;
+            Map map = world.LoadMap();
             if( map == null ) {
-                lock( world.WorldLock ) {
-                    map = world.Map;
-                    if( map == null ) {
-                        if( !MapUtility.TryLoadHeader( world.MapFileName, out map ) ) {
-                            player.Message( "&WERROR:Could not load mapfile for world {0}.",
-                                            world.ClassyName );
-                        }
-                    }
+                if( !MapUtility.TryLoadHeader( world.MapFileName, out map ) ) {
+                    player.Message( "&WERROR:Could not load mapfile for world {0}.",
+                                    world.ClassyName );
+                    return;
                 }
             }
+        
 
             Zone[] zones = map.Zones.Cache;
             if( zones.Length > 0 ) {
