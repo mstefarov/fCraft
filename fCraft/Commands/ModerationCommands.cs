@@ -697,19 +697,29 @@ namespace fCraft {
                     Server.RaisePlayerInfoRankChangedEvent( targetInfo, player, oldRank, reason, changeType );
                     // ==== Actual rank change happens here ====
 
-                    // change admincrete deletion permission
+                    // reset binds (water, lava, admincrete)
+                    target.ResetAllBinds();
+
+                    // reset admincrete deletion permission
                     target.Send( PacketWriter.MakeSetPermission( target ) );
+
+                    // cancel selection in progress
+                    if( target.IsMakingSelection ) {
+                        target.Message( "Selection cancelled." );
+                        target.SelectionCancel();
+                    }
+
+                    // unhide, if needed
+                    if( targetInfo.IsHidden && !target.Can( Permission.Hide ) ) {
+                        targetInfo.IsHidden = false;
+                        player.Message( "You are no longer hidden." );
+                    }
 
                     // inform the player of the rank change
                     target.Message( "You have been {0} to {1}&S by {2}",
                                     verb,
                                     newRank.ClassyName,
                                     player.ClassyName );
-
-                    if( targetInfo.IsHidden && !target.Can( Permission.Hide ) ) {
-                        targetInfo.IsHidden = false;
-                        player.Message( "You are no longer hidden." );
-                    }
 
                 } else {
                     // ==== Actual rank change happens here (offline) ====
