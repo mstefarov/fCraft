@@ -1105,8 +1105,9 @@ namespace fCraft {
                             return;
                         }
 
+                        Map map;
                         try {
-                            MapUtility.Load( fullFileName );
+                            map = MapUtility.Load( fullFileName );
                         } catch( Exception ex ) {
                             player.MessageNow( "Could not load \"{0}\": {1}: {2}",
                                                fileName, ex.GetType().Name, ex.Message );
@@ -1115,7 +1116,7 @@ namespace fCraft {
 
                         World newWorld;
                         try {
-                            newWorld = WorldManager.AddWorld( player, worldName, null, false );
+                            newWorld = WorldManager.AddWorld( player, worldName, map, false );
                         } catch( WorldOpException ex ) {
                             player.Message( "WLoad: {0}", ex.Message );
                             return;
