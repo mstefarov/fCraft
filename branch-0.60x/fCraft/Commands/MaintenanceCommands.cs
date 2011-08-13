@@ -29,6 +29,9 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdImport );
 
+
+            //CommandManager.RegisterCommand( CdPlayerDB );
+
             CommandManager.RegisterCommand( new CommandDescriptor {
                 Name = "bum",
                 IsHidden = true,
@@ -1138,5 +1141,21 @@ namespace fCraft {
         }
 
         #endregion
+
+
+
+        static readonly CommandDescriptor CdPlayerDB = new CommandDescriptor {
+            Name = "playerdb",
+            Aliases = new[] { "pdb" },
+            Category = CommandCategory.Maintenance,
+            IsConsoleSafe = true,
+            Permissions = new[] { Permission.EditPlayerDB },
+            Usage = "/playerdb stuff",
+            Help = "Coming soon.",
+            Handler = DoPlayerDB
+        };
+
+        static void DoPlayerDB( Player player, Command cmd ) {
+        }
     }
 }
