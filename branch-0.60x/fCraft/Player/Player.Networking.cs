@@ -76,6 +76,11 @@ namespace fCraft {
                     IsBackground = true
                 };
                 ioThread.Start();
+
+            } catch( SocketException ) {
+                // Mono throws SocketException when accessing Client.RemoteEndPoint on disconnected sockets
+                Disconnect();
+
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Session failed to start", "fCraft", ex, false );
                 Disconnect();
