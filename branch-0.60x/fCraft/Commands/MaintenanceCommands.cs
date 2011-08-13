@@ -1196,7 +1196,13 @@ namespace fCraft {
                 return;
             }
 
-            PlayerDB.SwapPlayerInfo( p1, p2 );
+            if( !cmd.IsConfirmed ) {
+                player.Confirm( cmd, "Swap stats of players {0}&S and {1}&S?", p1.ClassyName, p2.ClassyName );
+                return;
+            } else {
+                PlayerDB.SwapPlayerInfo( p1, p2 );
+                player.Message( "Stats of {0}&S and {1}&S have been swapped.", p1.ClassyName, p2.ClassyName );
+            }
         }
     }
 }
