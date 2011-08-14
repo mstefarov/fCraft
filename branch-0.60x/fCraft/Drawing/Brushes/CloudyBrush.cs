@@ -72,7 +72,7 @@ namespace fCraft.Drawing {
             get {
                 if( Blocks.Length == 0 ) {
                     return Factory.Name;
-                } else if( Blocks.Length == 1 ) {
+                } else if( Blocks.Length == 1 || ( Blocks.Length == 2 && Blocks[1] == Block.Undefined ) ) {
                     return String.Format( "{0}({1})", Factory.Name, Blocks[0] );
                 } else {
                     StringBuilder sb = new StringBuilder();

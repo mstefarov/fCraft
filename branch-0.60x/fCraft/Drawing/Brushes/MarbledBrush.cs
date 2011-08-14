@@ -45,19 +45,24 @@ namespace fCraft.Drawing {
 
     public sealed class MarbledBrush : AbstractPerlinNoiseBrush, IBrush {
 
-        public MarbledBrush() {
+        public MarbledBrush()
+            : base() {
+            Frequency = 0.1f;
         }
 
         public MarbledBrush( Block oneBlock, int ratio )
             : base( oneBlock, ratio ) {
+            Frequency = 0.1f;
         }
 
         public MarbledBrush( Block[] blocks, int[] ratios )
             : base( blocks, ratios ) {
+            Frequency = 0.1f;
         }
 
         public MarbledBrush( AbstractPerlinNoiseBrush other )
             : base( other ) {
+            Frequency = 0.1f;
         }
 
 
@@ -72,7 +77,7 @@ namespace fCraft.Drawing {
             get {
                 if( Blocks.Length == 0 ) {
                     return Factory.Name;
-                } else if( Blocks.Length == 1 ) {
+                } else if( Blocks.Length == 1 || (Blocks.Length == 2 && Blocks[1] == Block.Undefined) ) {
                     return String.Format( "{0}({1})", Factory.Name, Blocks[0] );
                 } else {
                     StringBuilder sb = new StringBuilder();
