@@ -14,7 +14,7 @@ namespace fCraft.MapConversion {
             Mapping[101] = (byte)Block.Obsidian;    // opsidian
             Mapping[102] = (byte)Block.Brick;       // op_brick
             Mapping[103] = (byte)Block.Stone;       // op_stone
-            Mapping[104] = (byte)Block.Rocks;       // op_cobblestone
+            Mapping[104] = (byte)Block.Cobblestone;       // op_cobblestone
             // 105 = op_air
             Mapping[106] = (byte)Block.Water;       // op_water
 
@@ -99,7 +99,7 @@ namespace fCraft.MapConversion {
             // 186 unused
             Mapping[187] = (byte)Block.Glass;       // rocketstart
             Mapping[188] = (byte)Block.Gold;        // rockethead
-            Mapping[189] = (byte)Block.Steel;       // firework
+            Mapping[189] = (byte)Block.Iron;       // firework
 
             Mapping[190] = (byte)Block.Lava;        // deathlava
             Mapping[191] = (byte)Block.Water;       // deathwater
