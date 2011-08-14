@@ -261,7 +261,7 @@ namespace fCraft {
 
         internal static void RaisePlayerDisconnectedEvent( Player player, LeaveReason leaveReason ) {
             var h = PlayerDisconnected;
-            if( h != null ) h( null, new PlayerDisconnectedEventArgs( player, leaveReason ) );
+            if( h != null ) h( null, new PlayerDisconnectedEventArgs( player, leaveReason, false ) );
         }
 
 

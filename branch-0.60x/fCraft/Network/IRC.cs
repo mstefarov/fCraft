@@ -550,7 +550,7 @@ namespace fCraft {
 
 
         internal static void PlayerDisconnectedHandler( object sender, PlayerDisconnectedEventArgs e ) {
-            if( e.Player.HasFullyConnected && ConfigKey.IRCBotAnnounceServerJoins.Enabled() && !e.Player.Info.IsHidden ) {
+            if( e.Player.HasFullyConnected && ConfigKey.IRCBotAnnounceServerJoins.Enabled() && (e.IsFake || !e.Player.Info.IsHidden) ) {
                 string message = String.Format( "{0}&S* {1}&S left the server ({2})",
                                  Color.IRCBold,
                                  e.Player.ClassyName,

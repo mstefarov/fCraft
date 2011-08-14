@@ -181,12 +181,14 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerDisconnectedEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerDisconnectedEventArgs( Player player, LeaveReason leaveReason ) {
+        internal PlayerDisconnectedEventArgs( Player player, LeaveReason leaveReason, bool isFake ) {
             Player = player;
             LeaveReason = leaveReason;
+            IsFake = isFake;
         }
         public Player Player { get; private set; }
         public LeaveReason LeaveReason { get; private set; }
+        public bool IsFake { get; private set; }
     }
 
 
