@@ -861,23 +861,22 @@ namespace fCraft {
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.ShutdownServer },
             IsConsoleSafe = true,
-            Help = "Shuts down the server remotely. " +
-                   "The default delay before shutdown is 5 seconds (can be changed by specifying a custom number of seconds). " +
-                   "A shutdown reason or message can be specified to be shown to players. You can also cancel a shutdown-in-progress " +
-                   "by calling &H/shutdown abort",
-            Usage = "/shutdown [Delay] [Reason]",
+            Help = "Shuts down the server remotely, or cancels a pending shutdown. " +
+                   "Default delay before shutdown is 5 seconds (can be changed by specifying a custom number of seconds). " +
+                   "A shutdown reason or message can be specified to be shown to players.",
+            Usage = "/shutdown Delay [Reason]&S or &H/shutdown abort",
             Handler = Shutdown
         };
 
-        static void Shutdown( Player player, Command cmd ) {
-            int delay;
-            if( !cmd.NextInt( out delay ) ) {
-                delay = 5;
-                cmd.Rewind();
-            }
-            string reason = cmd.NextAll();
+        static readonly TimeSpan DefaultShutdownTime = TimeSpan.FromSeconds( 5 );
 
-            if( reason.Equals( "abort", StringComparison.OrdinalIgnoreCase ) ) {
+        static void Shutdown( Player player, Command cmd ) {
+
+            string delayString = cmd.Next();
+            TimeSpan delayTime = DefaultShutdownTime;
+            string reason = "";
+
+            if( delayString.Equals( "abort", StringComparison.OrdinalIgnoreCase ) ) {
                 if( Server.CancelShutdown() ) {
                     Logger.Log( "Shutdown aborted by {0}.", LogType.UserActivity, player.Name );
                     Server.Message( "&WShutdown aborted by {0}", player.ClassyName );
@@ -887,18 +886,25 @@ namespace fCraft {
                 return;
             }
 
-            Server.Message( "&WServer shutting down in {0} seconds.", delay );
+            if( delayString != null ) {
+                if( !DateTimeUtil.TryParseMiniTimespan( delayString, out delayTime ) ) {
+                    CdShutdown.PrintUsage( player );
+                    return;
+                }
+                reason = cmd.NextAll();
+            }
 
-            TimeSpan delayTime = TimeSpan.FromSeconds( delay );
+            Server.Message( "&WServer shutting down in {0}", delayTime.ToMiniString() );
+
             if( String.IsNullOrEmpty( reason ) ) {
-                Logger.Log( "{0} shut down the server ({1} second delay).", LogType.UserActivity,
-                            player.Name, delay );
+                Logger.Log( "{0} shut down the server ({1} delay).", LogType.UserActivity,
+                            player.Name, delayTime );
                 ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delayTime, true, false );
                 Server.Shutdown( sp, false );
             } else {
                 Server.Message( "&WShutdown reason: {0}", reason );
                 Logger.Log( "{0} shut down the server ({1} second delay). Reason: {2}", LogType.UserActivity,
-                            player.Name, delay, reason );
+                            player.Name, delayTime, reason );
                 ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delayTime, true, false, reason, player );
                 Server.Shutdown( sp, false );
             }
@@ -914,7 +920,7 @@ namespace fCraft {
             Help = "Restarts the server remotely. " +
                    "The default delay before restart is 5 seconds (can be changed by specifying a custom number of seconds). " +
                    "A restart reason or message can be specified to be shown to players.",
-            Usage = "/restart [Delay [Reason]]",
+            Usage = "/restart [Delay] [Reason]",
             Handler = Restart
         };
 

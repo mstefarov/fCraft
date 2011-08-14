@@ -22,7 +22,7 @@ namespace fCraft.MapConversion {
             Mapping[58] = (byte)Block.TNT;          // Workbench
             Mapping[59] = (byte)Block.Leaves;       // Crops
             Mapping[60] = (byte)Block.Obsidian;     // Soil
-            Mapping[61] = (byte)Block.Rocks;        // Furnace
+            Mapping[61] = (byte)Block.Cobblestone;        // Furnace
             Mapping[62] = (byte)Block.StillLava;    // Burning Furnace
             // 63-199 unused
             Mapping[200] = (byte)Block.Lava;        // Kill Lava
@@ -52,8 +52,8 @@ namespace fCraft.MapConversion {
             Mapping[225] = (byte)Block.Lava;        // Red Spark
             Mapping[226] = (byte)Block.TNT;         // Fire Fountain
             Mapping[227] = (byte)Block.TNT;         // Admin TNT
-            Mapping[228] = (byte)Block.Steel;       // Fan
-            Mapping[229] = (byte)Block.Steel;       // Door
+            Mapping[228] = (byte)Block.Iron;       // Fan
+            Mapping[229] = (byte)Block.Iron;       // Door
             Mapping[230] = (byte)Block.Lava;        // Campfire
             Mapping[231] = (byte)Block.Red;         // Laser
             Mapping[232] = (byte)Block.Black;       // Ash
@@ -64,7 +64,7 @@ namespace fCraft.MapConversion {
             Mapping[244] = (byte)Block.Leaves;      // Vines
             Mapping[245] = (byte)Block.Lava;        // Flamethrower
             // 246 unused
-            Mapping[247] = (byte)Block.Steel;       // Cannon
+            Mapping[247] = (byte)Block.Iron;       // Cannon
             Mapping[248] = (byte)Block.Obsidian;    // Blob
             // all others default to 0/air
         }

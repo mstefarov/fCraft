@@ -607,8 +607,8 @@ namespace fCraft {
             BlockNames["gras"] = Block.Grass; // common typo
 
             BlockNames["soil"] = Block.Dirt;
-            BlockNames["stones"] = Block.Rocks;
-            BlockNames["cobblestone"] = Block.Rocks;
+            BlockNames["stones"] = Block.Cobblestone;
+            BlockNames["rocks"] = Block.Cobblestone;
             BlockNames["plank"] = Block.Wood;
             BlockNames["planks"] = Block.Wood;
             BlockNames["board"] = Block.Wood;
@@ -706,10 +706,10 @@ namespace fCraft {
             BlockNames["copper"] = Block.Gold;
             BlockNames["brass"] = Block.Gold;
 
-            BlockNames["ironblock"] = Block.Steel;
-            BlockNames["iron"] = Block.Steel;
-            BlockNames["metal"] = Block.Steel;
-            BlockNames["silver"] = Block.Steel;
+            BlockNames["ironblock"] = Block.Iron;
+            BlockNames["steel"] = Block.Iron;
+            BlockNames["metal"] = Block.Iron;
+            BlockNames["silver"] = Block.Iron;
 
             BlockNames["slab"] = Block.Stair;
             BlockNames["slabs"] = Block.DoubleStair;

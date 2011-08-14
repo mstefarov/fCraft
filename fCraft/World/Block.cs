@@ -10,7 +10,7 @@ namespace fCraft {
         Stone = 1,
         Grass = 2,
         Dirt = 3,
-        Rocks = 4,
+        Cobblestone = 4,
         Wood = 5,
         Plant = 6,
         Admincrete = 7,
@@ -51,7 +51,7 @@ namespace fCraft {
         RedMushroom = 40,
 
         Gold = 41,
-        Steel = 42,
+        Iron = 42,
         DoubleStair = 43,
         Stair = 44,
         Brick = 45,
