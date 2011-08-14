@@ -29,7 +29,7 @@ namespace fCraft.Drawing {
         protected AbstractPerlinNoiseBrush( Block oneBlock, int ratio )
             : this() {
             Blocks = new[] { oneBlock, Block.Undefined };
-            BlockRatios = new[] { 1, ratio };
+            BlockRatios = new[] { ratio, 1 };
         }
 
         protected AbstractPerlinNoiseBrush( Block[] blocks, int[] ratios )

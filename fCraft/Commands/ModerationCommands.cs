@@ -709,6 +709,11 @@ namespace fCraft {
                         target.SelectionCancel();
                     }
 
+                    // reset brush to normal, if not allowed to draw advanced
+                    if( !target.Can( Permission.DrawAdvanced ) ) {
+                        target.Brush = fCraft.Drawing.NormalBrushFactory.Instance;
+                    }
+
                     // unhide, if needed
                     if( targetInfo.IsHidden && !target.Can( Permission.Hide ) ) {
                         targetInfo.IsHidden = false;
