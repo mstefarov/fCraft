@@ -29,8 +29,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdImport );
 
-
-            CommandManager.RegisterCommand( CdPlayerDB );
+            CommandManager.RegisterCommand( CdInfoSwap );
 
             CommandManager.RegisterCommand( new CommandDescriptor {
                 Name = "bum",
@@ -1144,44 +1143,22 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor CdPlayerDB = new CommandDescriptor {
-            Name = "playerdb",
-            Aliases = new[] { "pdb" },
+        static readonly CommandDescriptor CdInfoSwap = new CommandDescriptor {
+            Name = "infoswap",
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
+            IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB },
-            Usage = "/playerdb stuff",
-            Help = "Coming soon.",
+            Usage = "/infoswap Player1 Player2",
+            Help = "Swaps records between two players.",
             Handler = DoPlayerDB
         };
 
         static void DoPlayerDB( Player player, Command cmd ) {
-            string op = cmd.Next();
-            if( op == null ) {
-                CdPlayerDB.PrintUsage( player );
-                return;
-            }
-            switch( op.ToLower() ) {
-                case "prune":
-                    PruneDB( player, cmd );
-                    return;
-
-                case "massrank":
-                    MassRank( player, cmd );
-                    return;
-
-                case "swap":
-                    PlayerDBSwap( player, cmd );
-                    return;
-            }
-        }
-
-
-        static void PlayerDBSwap( Player player, Command cmd ) {
             string p1name = cmd.Next();
             string p2name = cmd.Next();
             if( p1name == null || p2name == null ) {
-                CdPlayerDB.PrintUsage( player );
+                CdInfoSwap.PrintUsage( player );
                 return;
             }
 
@@ -1191,16 +1168,16 @@ namespace fCraft {
             if( p2 == null ) return;
 
             if( p1 == p2 ) {
-                player.Message( "PlayerDB/Swap: Please specify 2 different players." );
+                player.Message( "InfoSwap: Please specify 2 different players." );
                 return;
             }
 
             if( !cmd.IsConfirmed ) {
-                player.Confirm( cmd, "PlayerDB/Swap: Swap stats of players {0}&S and {1}&S?", p1.ClassyName, p2.ClassyName );
+                player.Confirm( cmd, "InfoSwap: Swap stats of players {0}&S and {1}&S?", p1.ClassyName, p2.ClassyName );
                 return;
             } else {
                 PlayerDB.SwapPlayerInfo( p1, p2 );
-                player.Message( "PlayerDB/Swap: Stats of {0}&S and {1}&S have been swapped.",
+                player.Message( "InfoSwap: Stats of {0}&S and {1}&S have been swapped.",
                                 p1.ClassyName, p2.ClassyName );
             }
         }
