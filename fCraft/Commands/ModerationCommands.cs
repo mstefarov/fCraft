@@ -808,7 +808,7 @@ namespace fCraft {
                     Server.Players.CantSee( player ).Message( "&SPlayer {0}&S left the server.", player.ClassyName );
                 }
                 if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() ) {
-                    IRC.PlayerDisconnectedHandler( null, new PlayerDisconnectedEventArgs( player, LeaveReason.ClientQuit ) );
+                    IRC.PlayerDisconnectedHandler( null, new PlayerDisconnectedEventArgs( player, LeaveReason.ClientQuit, true ) );
                 }
             }
 
