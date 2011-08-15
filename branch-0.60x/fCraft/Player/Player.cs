@@ -115,7 +115,7 @@ namespace fCraft {
 
 
         #region Messaging
-        
+
         const int ConfirmationTimeout = 60;
 
         int muteWarnings;
@@ -876,8 +876,6 @@ namespace fCraft {
 
         public Queue<BlockUpdate> UndoBuffer = new Queue<BlockUpdate>();
 
-        internal BuildingCommands.CopyInformation CopyInformation;
-
         public IBrush Brush { get; set; }
 
 
@@ -952,6 +950,37 @@ namespace fCraft {
             SelectionMarksExpected = 0;
             selectionCallback = null;
             selectionArgs = null;
+        }
+
+        #endregion
+
+
+        #region Copy/Paste
+
+        public readonly List<CopyInformation> CopyInformation = new List<CopyInformation>();
+
+        int copySlot = 0;
+        public int CopySlot {
+            get {
+                return copySlot;
+            }
+            set {
+                if( value < 0 || value > Info.Rank.CopySlots ) {
+                    throw new ArgumentOutOfRangeException( "value" );
+                }
+                copySlot = value;
+                if( CopyInformation.Count <= value ) {
+                    CopyInformation[value] = null;
+                }
+            }
+        }
+
+        public CopyInformation GetCopyInformation() {
+            return CopyInformation[copySlot];
+        }
+
+        public void SetCopyInformation( CopyInformation info ) {
+            CopyInformation[copySlot] = info;
         }
 
         #endregion
