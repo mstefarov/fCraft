@@ -957,7 +957,7 @@ namespace fCraft {
 
         #region Copy/Paste
 
-        public readonly List<CopyInformation> CopyInformation = new List<CopyInformation>();
+        public CopyInformation[] CopyInformation;
 
         int copySlot = 0;
         public int CopySlot {

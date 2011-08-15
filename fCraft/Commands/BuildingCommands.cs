@@ -1543,18 +1543,20 @@ namespace fCraft {
                         player.Message( "Selected copy slot {0} (unused).", slotNumber );
                     } else {
                         player.Message( "Selected copy slot {0}: {1} blocks from {2}, {3} old.",
-                                        slotNumber, info.Height * info.Length * info.Height,
+                                        slotNumber, info.Buffer.Length,
                                         info.OriginWorld, DateTime.UtcNow.Subtract( info.CopyTime ).ToMiniString() );
                     }
                 }
             } else {
-                var slots = player.CopyInformation;
+                CopyInformation[] slots = player.CopyInformation;
                 player.Message( "Using {0} of {1} slots. Selected slot: {2}",
-                                slots.Count, player.Info.Rank.CopySlots, player.CopySlot + 1 );
-                for( int i = 0; i < slots.Count; i++ ) {
-                    player.Message( "  {0}: {1} blocks from {2}, {3} old",
-                                    i + 1, slots[i].Height * slots[i].Length * slots[i].Height,
-                                    slots[i].OriginWorld, DateTime.UtcNow.Subtract( slots[i].CopyTime ).ToMiniString() );
+                                slots.Count( info => info != null ), player.Info.Rank.CopySlots, player.CopySlot + 1 );
+                for( int i = 0; i < slots.Length; i++ ) {
+                    if( slots[i] != null ) {
+                        player.Message( "  {0}: {1} blocks from {2}, {3} old",
+                                        i + 1, slots[i].Buffer.Length,
+                                        slots[i].OriginWorld, DateTime.UtcNow.Subtract( slots[i].CopyTime ).ToMiniString() );
+                    }
                 }
             }
         }
