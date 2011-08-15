@@ -969,9 +969,6 @@ namespace fCraft {
                     throw new ArgumentOutOfRangeException( "value" );
                 }
                 copySlot = value;
-                if( CopyInformation.Count <= value ) {
-                    CopyInformation[value] = null;
-                }
             }
         }
 
