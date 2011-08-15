@@ -27,12 +27,6 @@ namespace fCraft {
         }
 
 
-        public sealed class CopyInformation {
-            public byte[, ,] Buffer;
-            public int Width, Length, Height;
-        }
-
-
         sealed class ReplaceArgs {
             public bool DoExclude;
             public Block[] Types;
@@ -1526,6 +1520,44 @@ namespace fCraft {
 
         #region Copy and Paste
 
+
+        static readonly CommandDescriptor CdCopySlot = new CommandDescriptor {
+            Name = "copyslot",
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.CopyAndPaste },
+            Usage = "/copyslot [#]",
+            Help = "Selects a slot for copying to / pasting from. The maximum number of slots is limited per-rank.",
+            Handler = CopySlot
+        };
+
+        internal static void CopySlot( Player player, Command cmd ) {
+            int slotNumber;
+            if( cmd.NextInt( out slotNumber ) ) {
+                if( slotNumber < 1 || slotNumber > player.Info.Rank.CopySlots ) {
+                    player.Message( "CopySlot: Select a number between 1 and {0}", player.Info.Rank.CopySlots );
+                } else {
+                    player.CopySlot = slotNumber - 1;
+                    CopyInformation info = player.GetCopyInformation();
+                    if( info == null ) {
+                        player.Message( "Selected copy slot {0} (unused).", slotNumber );
+                    } else {
+                        player.Message( "Selected copy slot {0}: {1} blocks from {2}, {3} old.",
+                                        slotNumber, info.Height * info.Length * info.Height,
+                                        info.OriginWorld, DateTime.UtcNow.Subtract( info.CopyTime ).ToMiniString() );
+                    }
+                }
+            } else {
+                var slots = player.CopyInformation;
+                player.Message( "Using {0} of {1} slots. Selected slot: {2}",
+                                slots.Count, player.Info.Rank.CopySlots, player.CopySlot + 1 );
+                for( int i = 0; i < slots.Count; i++ ) {
+                    player.Message( "  {0}: {1} blocks from {2}, {3} old",
+                                    i + 1, slots[i].Height * slots[i].Length * slots[i].Height,
+                                    slots[i].OriginWorld, DateTime.UtcNow.Subtract( slots[i].CopyTime ).ToMiniString() );
+                }
+            }
+        }
+
         static readonly CommandDescriptor CdCopy = new CommandDescriptor {
             Name = "copy",
             Category = CommandCategory.Building,
@@ -1564,16 +1596,21 @@ namespace fCraft {
                 Buffer = new byte[ex - sx + 1, ey - sy + 1, ez - sz + 1]
             };
 
+            Map map = player.World.Map;
             for( int x = sx; x <= ex; x++ ) {
                 for( int y = sy; y <= ey; y++ ) {
                     for( int z = sz; z <= ez; z++ ) {
-                        copyInfo.Buffer[x - sx, y - sy, z - sz] = player.World.Map.GetBlockByte( x, y, z );
+                        copyInfo.Buffer[x - sx, y - sy, z - sz] = map.GetBlockByte( x, y, z );
                     }
                 }
             }
 
-            player.CopyInformation = copyInfo;
-            player.MessageNow( "{0} blocks were copied. You can now &H/paste", volume );
+            copyInfo.OriginWorld = player.World.Name;
+            copyInfo.CopyTime = DateTime.UtcNow;
+            player.SetCopyInformation( copyInfo );
+
+            player.MessageNow( "{0} blocks copied into slot #{1}. You can now &H/paste",
+                               volume, player.CopySlot + 1 );
             player.MessageNow( "Origin at {0} {1}{2} corner.",
                                (copyInfo.Height > 0 ? "bottom" : "top"),
                                (copyInfo.Length > 0 ? "south" : "north"),
@@ -1648,8 +1685,11 @@ namespace fCraft {
                 }
             }
 
-            player.CopyInformation = copyInfo;
-            player.MessageNow( "{0} blocks were cut. You can now &H/paste", volume );
+            copyInfo.OriginWorld = player.World.Name;
+            copyInfo.CopyTime = DateTime.UtcNow;
+            player.SetCopyInformation( copyInfo );
+            player.MessageNow( "{0} blocks cut into slot #{1}. You can now &H/paste",
+                               volume, player.CopySlot+1 );
             player.MessageNow( "Origin at {0} {1}{2} corner.",
                                (copyInfo.Height > 0 ? "bottom" : "top"),
                                (copyInfo.Length > 0 ? "south" : "north"),
@@ -1680,7 +1720,7 @@ namespace fCraft {
         };
 
         internal static void PasteNot( Player player, Command cmd ) {
-            if( player.CopyInformation == null ) {
+            if( player.GetCopyInformation() == null ) {
                 player.MessageNow( "Nothing to paste! Copy something first." );
                 return;
             }
@@ -1731,7 +1771,7 @@ namespace fCraft {
         };
 
         internal static void Paste( Player player, Command cmd ) {
-            if( player.CopyInformation == null ) {
+            if( player.GetCopyInformation() == null ) {
                 player.MessageNow( "Nothing to paste! Copy something first." );
                 return;
             }
@@ -1770,7 +1810,7 @@ namespace fCraft {
 
 
         unsafe internal static void PasteCallback( Player player, Position[] marks, object tag ) {
-            CopyInformation info = player.CopyInformation;
+            CopyInformation info = player.GetCopyInformation();
 
             PasteArgs args = (PasteArgs)tag;
             byte* specialTypes = stackalloc byte[args.BlockTypes.Length];
@@ -1865,7 +1905,8 @@ namespace fCraft {
         };
 
         internal static void Mirror( Player player, Command cmd ) {
-            if( player.CopyInformation == null ) {
+            CopyInformation info = player.GetCopyInformation();
+            if( info == null ) {
                 player.MessageNow( "Nothing to flip! Copy something first." );
                 return;
             }
@@ -1886,17 +1927,16 @@ namespace fCraft {
             }
 
             byte block;
-            byte[, ,] buffer = player.CopyInformation.Buffer;
 
             if( flipX ) {
                 int left = 0;
-                int right = buffer.GetLength( 0 ) - 1;
+                int right = info.Buffer.GetLength( 0 ) - 1;
                 while( left < right ) {
-                    for( int y = player.CopyInformation.Buffer.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                        for( int z = player.CopyInformation.Buffer.GetLength( 2 ) - 1; z >= 0; z-- ) {
-                            block = buffer[left, y, z];
-                            buffer[left, y, z] = buffer[right, y, z];
-                            buffer[right, y, z] = block;
+                    for( int y = info.Buffer.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                        for( int z = info.Buffer.GetLength( 2 ) - 1; z >= 0; z-- ) {
+                            block = info.Buffer[left, y, z];
+                            info.Buffer[left, y, z] = info.Buffer[right, y, z];
+                            info.Buffer[right, y, z] = block;
                         }
                     }
                     left++;
@@ -1906,13 +1946,13 @@ namespace fCraft {
 
             if( flipY ) {
                 int left = 0;
-                int right = buffer.GetLength( 1 ) - 1;
+                int right = info.Buffer.GetLength( 1 ) - 1;
                 while( left < right ) {
-                    for( int x = player.CopyInformation.Buffer.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                        for( int z = player.CopyInformation.Buffer.GetLength( 2 ) - 1; z >= 0; z-- ) {
-                            block = buffer[x, left, z];
-                            buffer[x, left, z] = buffer[x, right, z];
-                            buffer[x, right, z] = block;
+                    for( int x = info.Buffer.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                        for( int z = info.Buffer.GetLength( 2 ) - 1; z >= 0; z-- ) {
+                            block = info.Buffer[x, left, z];
+                            info.Buffer[x, left, z] = info.Buffer[x, right, z];
+                            info.Buffer[x, right, z] = block;
                         }
                     }
                     left++;
@@ -1922,13 +1962,13 @@ namespace fCraft {
 
             if( flipH ) {
                 int left = 0;
-                int right = buffer.GetLength( 2 ) - 1;
+                int right = info.Buffer.GetLength( 2 ) - 1;
                 while( left < right ) {
-                    for( int x = player.CopyInformation.Buffer.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                        for( int y = player.CopyInformation.Buffer.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                            block = buffer[x, y, left];
-                            buffer[x, y, left] = buffer[x, y, right];
-                            buffer[x, y, right] = block;
+                    for( int x = info.Buffer.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                        for( int y = info.Buffer.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                            block = info.Buffer[x, y, left];
+                            info.Buffer[x, y, left] = info.Buffer[x, y, right];
+                            info.Buffer[x, y, right] = block;
                         }
                     }
                     left++;
@@ -1975,7 +2015,8 @@ namespace fCraft {
         };
 
         internal static void Rotate( Player player, Command cmd ) {
-            if( player.CopyInformation == null ) {
+            CopyInformation info = player.GetCopyInformation();
+            if( info == null ) {
                 player.MessageNow( "Nothing to rotate! Copy something first." );
                 return;
             }
@@ -2008,7 +2049,7 @@ namespace fCraft {
 
 
             // allocate the new buffer
-            byte[, ,] oldBuffer = player.CopyInformation.Buffer;
+            byte[, ,] oldBuffer = info.Buffer;
             byte[, ,] newBuffer;
 
             if( degrees == 180 ) {
@@ -2016,21 +2057,21 @@ namespace fCraft {
 
             } else if( axis == RotationAxis.X ) {
                 newBuffer = new byte[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 )];
-                int dimY = player.CopyInformation.Length;
-                player.CopyInformation.Length = player.CopyInformation.Height;
-                player.CopyInformation.Height = dimY;
+                int dimY = info.Length;
+                info.Length = info.Height;
+                info.Height = dimY;
 
             } else if( axis == RotationAxis.Y ) {
                 newBuffer = new byte[oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 )];
-                int dimX = player.CopyInformation.Width;
-                player.CopyInformation.Width = player.CopyInformation.Height;
-                player.CopyInformation.Height = dimX;
+                int dimX = info.Width;
+                info.Width = info.Height;
+                info.Height = dimX;
 
             } else {
                 newBuffer = new byte[oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 )];
-                int dimY = player.CopyInformation.Length;
-                player.CopyInformation.Length = player.CopyInformation.Width;
-                player.CopyInformation.Width = dimY;
+                int dimY = info.Length;
+                info.Length = info.Width;
+                info.Width = dimY;
             }
 
 
@@ -2096,7 +2137,7 @@ namespace fCraft {
             }
 
             player.Message( "Rotated copy by {0} degrees around {1} axis.", degrees, axis );
-            player.CopyInformation.Buffer = newBuffer;
+            info.Buffer = newBuffer;
         }
 
         #endregion
@@ -2337,5 +2378,13 @@ namespace fCraft {
 
     public enum RotationAxis {
         X, Y, Z
+    }
+
+
+    public sealed class CopyInformation {
+        public string OriginWorld;
+        public DateTime CopyTime;
+        public byte[, ,] Buffer;
+        public int Width, Length, Height;
     }
 }
