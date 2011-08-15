@@ -720,11 +720,9 @@ namespace fCraft {
                         player.Message( "You are no longer hidden." );
                     }
 
-                    if( target.CopyInformation.Count > targetInfo.Rank.CopySlots ) {
-                        target.CopyInformation.RemoveRange( targetInfo.Rank.CopySlots, target.CopyInformation.Count - targetInfo.Rank.CopySlots );
-                        target.CopySlot = 1;
-                    }
-                    target.CopyInformation.Capacity = targetInfo.Rank.CopySlots;
+                    // ensure copy slot consistency
+                    Array.Resize( ref target.CopyInformation, target.Info.Rank.CopySlots );
+                    target.CopySlot = Math.Min( target.CopySlot, target.Info.Rank.CopySlots - 1 );
 
                     // inform the player of the rank change
                     target.Message( "You have been {0} to {1}&S by {2}",
