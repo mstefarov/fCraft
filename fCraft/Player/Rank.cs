@@ -18,7 +18,7 @@ namespace fCraft {
         }
 
         public bool AllowSecurityCircumvention;
-        public int CopySlots;
+        public int CopySlots = 2;
 
         public string Prefix = "";
         public int IdleKickTimer,
@@ -188,6 +188,22 @@ namespace fCraft {
             }
 
 
+            // Draw command limit, in number-of-blocks (assuming unlimited if not given)
+            if( (attr = el.Attribute( "copySlots" )) != null ) {
+                if( Int32.TryParse( attr.Value, out value ) ) {
+                    if( value > 0 && value < 256 ) {
+                        CopySlots = value;
+                    } else {
+                        Logger.Log( "Rank({0}): Value for copySlots is not within valid range (1-256). Assuming default ({1}).", LogType.Warning,
+                                    Name, CopySlots );
+                    }
+                } else {
+                    Logger.Log( "Rank({0}): Could not parse the value for copySlots. Assuming default ({1}).", LogType.Warning,
+                                Name, CopySlots );
+                }
+            }
+
+
             // Permissions
             XElement temp;
             for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
@@ -229,6 +245,7 @@ namespace fCraft {
             if( IdleKickTimer > 0 ) rankTag.Add( new XAttribute( "idleKickAfter", IdleKickTimer ) );
             if( ReservedSlot ) rankTag.Add( new XAttribute( "reserveSlot", ReservedSlot ) );
             if( AllowSecurityCircumvention ) rankTag.Add( new XAttribute( "allowSecurityCircumvention", AllowSecurityCircumvention ) );
+            rankTag.Add( new XAttribute( "copySlots", CopySlots ) );
 
             XElement temp;
             for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
