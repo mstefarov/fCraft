@@ -93,6 +93,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdCancel );
             CommandManager.RegisterCommand( CdUndo );
 
+            CommandManager.RegisterCommand( CdCopySlot );
             CommandManager.RegisterCommand( CdCopy );
             CommandManager.RegisterCommand( CdCut );
             CommandManager.RegisterCommand( CdPasteNot );
