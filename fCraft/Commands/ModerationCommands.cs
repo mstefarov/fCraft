@@ -720,6 +720,12 @@ namespace fCraft {
                         player.Message( "You are no longer hidden." );
                     }
 
+                    if( target.CopyInformation.Count > targetInfo.Rank.CopySlots ) {
+                        target.CopyInformation.RemoveRange( targetInfo.Rank.CopySlots, target.CopyInformation.Count - targetInfo.Rank.CopySlots );
+                        target.CopySlot = 1;
+                    }
+                    target.CopyInformation.Capacity = targetInfo.Rank.CopySlots;
+
                     // inform the player of the rank change
                     target.Message( "You have been {0} to {1}&S by {2}",
                                     verb,
@@ -943,6 +949,7 @@ namespace fCraft {
             if( target == null ) return;
 
             if( player.Can( Permission.Freeze, target.Info.Rank ) ) {
+                target.Info.IsHidden = false;
                 if( target.Info.Freeze( player.Name ) ) {
                     Server.Message( "{0}&S has been frozen by {1}",
                                       target.ClassyName, player.ClassyName );

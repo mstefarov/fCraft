@@ -738,6 +738,8 @@ namespace fCraft {
                          Name, RankManager.HighestRank.Name );
             }
 
+            CopyInformation.Capacity = Info.Rank.CopySlots;
+
             Server.RaisePlayerReadyEvent( this );
             HasFullyConnected = true;
             IsOnline = true;
