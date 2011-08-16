@@ -45,8 +45,7 @@ namespace fCraft.Drawing {
 
     public sealed class MarbledBrush : AbstractPerlinNoiseBrush, IBrush {
 
-        public MarbledBrush()
-            : base() {
+        public MarbledBrush() {
             Frequency = 0.1f;
         }
 

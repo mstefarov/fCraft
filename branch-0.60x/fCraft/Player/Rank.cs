@@ -18,7 +18,7 @@ namespace fCraft {
         }
 
         public bool AllowSecurityCircumvention;
-        public int CopySlots = 2;
+        public readonly int CopySlots = 2;
 
         public string Prefix = "";
         public int IdleKickTimer,

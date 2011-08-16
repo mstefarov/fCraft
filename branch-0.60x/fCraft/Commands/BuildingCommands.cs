@@ -811,7 +811,7 @@ namespace fCraft {
                 bool cannotUndo = false;
                 while( oldBuffer.Count > 0 ) {
                     BlockUpdate changeToUndo = oldBuffer.Dequeue();
-                    DrawOneBlock( player, (byte)changeToUndo.BlockType, changeToUndo.X, changeToUndo.Y, changeToUndo.Z,
+                    DrawOneBlock( player, changeToUndo.BlockType, changeToUndo.X, changeToUndo.Y, changeToUndo.Z,
                                   ref blocks, ref blocksDenied, ref cannotUndo );
                 }
                 player.MessageNow( "Type /undo again to reverse this command." );

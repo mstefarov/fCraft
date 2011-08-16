@@ -355,9 +355,9 @@ namespace fCraft {
 
         public static PlayerInfo FindPlayerInfoOrPrintMatches( Player player, string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            PlayerInfo target = PlayerDB.FindPlayerInfoExact( name );
+            PlayerInfo target = FindPlayerInfoExact( name );
             if( target == null ) {
-                PlayerInfo[] targets = PlayerDB.FindPlayers( name );
+                PlayerInfo[] targets = FindPlayers( name );
                 if( targets.Length == 0 ) {
                     player.MessageNoPlayer( name );
                     return null;
