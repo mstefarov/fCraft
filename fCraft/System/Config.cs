@@ -179,9 +179,9 @@ namespace fCraft {
             // gather metadata for ConfigKeys
             foreach( var keyField in typeof( ConfigKey ).GetFields() ) {
                 foreach( var attribute in (ConfigKeyAttribute[])keyField.GetCustomAttributes( typeof( ConfigKeyAttribute ), false ) ) {
-// ReSharper disable AssignNullToNotNullAttribute
+                    // ReSharper disable AssignNullToNotNullAttribute
                     ConfigKey key = (ConfigKey)keyField.GetValue( null );
-// ReSharper restore AssignNullToNotNullAttribute
+                    // ReSharper restore AssignNullToNotNullAttribute
                     attribute.Key = key;
                     KeyMetadata[(int)key] = attribute;
                 }
@@ -306,7 +306,7 @@ namespace fCraft {
             if( config == null ) throw new Exception( "Config.xml has no root. Never happens." );
 
             int version = 0;
-            if( fromFile ){
+            if( fromFile ) {
                 XAttribute attr = config.Attribute( "version" );
                 if( attr != null && Int32.TryParse( attr.Value, out version ) ) {
                     if( version < LowestSupportedVersion ) {
@@ -319,7 +319,7 @@ namespace fCraft {
                                     "It is recommended that you run ConfigGUI to make sure that everything is in order.", LogType.Warning );
                     }
                 } else {
-                    Logger.Log( "Config.Load: Unknown version of config.xml found. It might be corrupted. "+
+                    Logger.Log( "Config.Load: Unknown version of config.xml found. It might be corrupted. " +
                                 "Please run ConfigGUI to make sure that everything is in order.", LogType.Warning );
                 }
             }
