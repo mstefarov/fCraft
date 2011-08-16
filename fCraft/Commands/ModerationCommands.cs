@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using fCraft.Events;
+using fCraft.Drawing;
 
 namespace fCraft {
     /// <summary>
@@ -711,7 +712,7 @@ namespace fCraft {
 
                     // reset brush to normal, if not allowed to draw advanced
                     if( !target.Can( Permission.DrawAdvanced ) ) {
-                        target.Brush = fCraft.Drawing.NormalBrushFactory.Instance;
+                        target.Brush = NormalBrushFactory.Instance;
                     }
 
                     // unhide, if needed

@@ -60,7 +60,7 @@ namespace fCraft {
                     BlockDB db = player.World.BlockDB;
                     lock( db.SyncRoot ) {
                         player.Message( "BlockDB: CAP={0} SZ={1} FI={2}",
-                                        db.CacheCapacity, db.cacheSize, db.lastFlushedIndex );
+                                        db.CacheCapacity, db.CacheSize, db.LastFlushedIndex );
                     }
                 }
             } );
@@ -876,18 +876,17 @@ namespace fCraft {
             TimeSpan delayTime = DefaultShutdownTime;
             string reason = "";
 
-            if( delayString.Equals( "abort", StringComparison.OrdinalIgnoreCase ) ) {
-                if( Server.CancelShutdown() ) {
-                    Logger.Log( "Shutdown aborted by {0}.", LogType.UserActivity, player.Name );
-                    Server.Message( "&WShutdown aborted by {0}", player.ClassyName );
-                } else {
-                    player.MessageNow( "Cannot abort shutdown - too late." );
-                }
-                return;
-            }
 
             if( delayString != null ) {
-                if( !DateTimeUtil.TryParseMiniTimespan( delayString, out delayTime ) ) {
+                if( delayString.Equals( "abort", StringComparison.OrdinalIgnoreCase ) ) {
+                    if( Server.CancelShutdown() ) {
+                        Logger.Log( "Shutdown aborted by {0}.", LogType.UserActivity, player.Name );
+                        Server.Message( "&WShutdown aborted by {0}", player.ClassyName );
+                    } else {
+                        player.MessageNow( "Cannot abort shutdown - too late." );
+                    }
+                    return;
+                } else if( !delayString.TryParseMiniTimespan( out delayTime ) ) {
                     CdShutdown.PrintUsage( player );
                     return;
                 }
@@ -1161,16 +1160,16 @@ namespace fCraft {
         };
 
         static void DoPlayerDB( Player player, Command cmd ) {
-            string p1name = cmd.Next();
-            string p2name = cmd.Next();
-            if( p1name == null || p2name == null ) {
+            string p1Name = cmd.Next();
+            string p2Name = cmd.Next();
+            if( p1Name == null || p2Name == null ) {
                 CdInfoSwap.PrintUsage( player );
                 return;
             }
 
-            PlayerInfo p1 = PlayerDB.FindPlayerInfoOrPrintMatches( player, p1name );
+            PlayerInfo p1 = PlayerDB.FindPlayerInfoOrPrintMatches( player, p1Name );
             if( p1 == null ) return;
-            PlayerInfo p2 = PlayerDB.FindPlayerInfoOrPrintMatches( player, p2name );
+            PlayerInfo p2 = PlayerDB.FindPlayerInfoOrPrintMatches( player, p2Name );
             if( p2 == null ) return;
 
             if( p1 == p2 ) {

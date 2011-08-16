@@ -471,24 +471,6 @@ namespace fCraft {
         }
 
 
-        public static void MemSet( byte* ptr, byte value, int start, int length ) {
-            byte[] rawValue = new[] { value, value, value, value, value, value, value, value };
-            Int64 fillValue = BitConverter.ToInt64( rawValue, 0 );
-
-            Int64* dest = (Int64*)ptr;
-            while( length >= 8 ) {
-                *dest = fillValue;
-                dest++;
-                length -= 8;
-            }
-            byte* bDest = (byte*)dest;
-            for( byte i = 0; i < length; i++ ) {
-                *bDest = value;
-                bDest++;
-            }
-        }
-
-
         public static void MemCpy( byte* src, byte* dest, int len ) {
             if( len >= 0x10 ) {
                 do {

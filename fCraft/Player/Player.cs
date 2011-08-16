@@ -959,7 +959,7 @@ namespace fCraft {
 
         public CopyInformation[] CopyInformation;
 
-        int copySlot = 0;
+        int copySlot;
         public int CopySlot {
             get {
                 return copySlot;
