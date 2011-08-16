@@ -573,7 +573,7 @@ namespace fCraft {
 
 
         public override string ToString() {
-            return String.Format( "World({0},{1})", Name,GetHashCode() );
+            return String.Format( "World({0})", Name );
         }
     }
 }

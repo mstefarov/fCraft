@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace fCraft {
 
@@ -57,6 +58,9 @@ namespace fCraft {
 
         /// <summary> Brief demonstration of command's usage syntax. Defaults to "/commandname". </summary>
         public string Usage { get; set; }
+
+        /// <summary> Help sub-sections. </summary>
+        public Dictionary<string, string> HelpSections { get; set; }
 
 
         /// <summary> Checks whether this command may be called by players of a given rank. </summary>

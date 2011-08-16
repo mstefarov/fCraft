@@ -844,27 +844,37 @@ namespace fCraft {
                     player.Message( "Unknown command: \"{0}\"", commandName );
                     return;
                 }
-                StringBuilder sb = new StringBuilder( Color.Help );
-                sb.Append( descriptor.Usage ).Append( '\n' );
 
-                if( descriptor.Aliases != null ) {
-                    sb.Append( "Aliases: &H" );
-                    sb.Append( descriptor.Aliases.JoinToString() );
-                    sb.Append( "\n&S" );
-                }
-
-                if( descriptor.HelpHandler != null ) {
-                    sb.Append( descriptor.HelpHandler( player ) );
-                } else if( descriptor.Help != null ) {
-                    sb.Append( descriptor.Help );
+                string sectionName = cmd.Next();
+                if( sectionName != null ) {
+                    string sectionHelp;
+                    if( descriptor.HelpSections != null && descriptor.HelpSections.TryGetValue( sectionName.ToLower(), out sectionHelp ) ) {
+                        player.MessagePrefixed( HelpPrefix, "&SHelp for &H{0} {1}&S:\n{2}",
+                                                descriptor.Name, sectionName, sectionHelp );
+                    }
                 } else {
-                    sb.Append( "No help is available for this command." );
-                }
+                    StringBuilder sb = new StringBuilder( Color.Help );
+                    sb.Append( descriptor.Usage ).Append( '\n' );
 
-                player.MessagePrefixed( HelpPrefix, sb.ToString() );
+                    if( descriptor.Aliases != null ) {
+                        sb.Append( "Aliases: &H" );
+                        sb.Append( descriptor.Aliases.JoinToString() );
+                        sb.Append( "\n&S" );
+                    }
 
-                if( descriptor.Permissions != null && descriptor.Permissions.Length > 0 ) {
-                    player.MessageNoAccess( descriptor.Permissions );
+                    if( descriptor.HelpHandler != null ) {
+                        sb.Append( descriptor.HelpHandler( player ) );
+                    } else if( descriptor.Help != null ) {
+                        sb.Append( descriptor.Help );
+                    } else {
+                        sb.Append( "No help is available for this command." );
+                    }
+
+                    player.MessagePrefixed( HelpPrefix, sb.ToString() );
+
+                    if( descriptor.Permissions != null && descriptor.Permissions.Length > 0 ) {
+                        player.MessageNoAccess( descriptor.Permissions );
+                    }
                 }
 
             } else {

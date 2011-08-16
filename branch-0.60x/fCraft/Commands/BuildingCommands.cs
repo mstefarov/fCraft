@@ -126,6 +126,23 @@ namespace fCraft {
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
             Help = "Gets or sets the current brush. Available brushes are: " +
                    "normal (default), checkered, cloudy, marbled, rainbow, random, replace, and replacenot.",
+            HelpSections = new Dictionary<string, string>{
+                { "normal",     "Normal brush: Fills the area with solid color. " +
+                                "If no block name is given, uses the last block that player has placed." },
+                { "checkered",  "Checkered brush: Fills the area with alternating checkered pattern. " +
+                                "If only one block name is given, leaves every other block untouched." },
+                { "cloudy",     "Cloudy brush: Creates a swirling pattern of two or more block types. " +
+                                "If only one block name is given, leaves every other block untouched." },
+                { "marbled",    "Marbled brush: Creates a turbulent pattern of two or more block types. " +
+                                "If only one block name is given, leaves every other block untouched." },
+                { "rainbow",    "Rainbow brush: Creates a 7-color rainbow pattern." },
+                { "random",     "Random brush: Chaotic pattern of two or more random block types. " +
+                                "If only one block name is given, leaves every other block untouched." },
+                { "replace",    "Replace brush: Replaces blocks of a given type(s) with another type. " +
+                                "Usage similar to &H/replace&S command." },
+                { "replacenot", "ReplaceNot brush: Replaces all blocks except the given type(s) with another type. " +
+                                "Usage similar to &H/replacenot&S command." }
+            },
             Handler = SetBrush
         };
 
