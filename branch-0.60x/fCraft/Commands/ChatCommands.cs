@@ -18,23 +18,50 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdDeafen );
 
             CommandManager.RegisterCommand( CdClear );
+
+            CommandManager.RegisterCommand( CdTimer );
         }
+
+
+        #region Timer
+
+        static readonly TimeSpan DefaultTimerDuration = TimeSpan.FromSeconds( 5 );
+
+        static readonly CommandDescriptor CdTimer = new CommandDescriptor {
+            Name = "timer",
+            Permissions = new[] { Permission.Say },
+            IsConsoleSafe = true,
+            Category = CommandCategory.Chat,
+            Usage = "/timer Duration Message",
+            Help = "Starts a timer with a given duration and message. " +
+                   "As the timer counts down, announcements are shown globally. " +
+                   "Type &H/timers&S for a list of all in-progress timers.",
+            Handler = DoTimer
+        };
+
+
+
+        static void DoTimer( Player player, Command cmd ) {
+            TimeSpan duration = DefaultTimerDuration;
+            string name = player.Name + "'s";
+            if( cmd.HasNext ) {
+                string time = cmd.Next();
+                if( time == null || !time.TryParseMiniTimespan( out duration ) ) {
+                    CdTimer.PrintUsage( player );
+                    return;
+                }
+                if( cmd.HasNext ) {
+                    name = cmd.NextAll();
+                }
+            }
+            ChatTimer.Start( player.Info, duration, name );
+            player.Message( "Started a {0} timer.", duration.ToMiniString() );
+        }
+
+        #endregion
 
 
         #region Say, StaffChat
-
-        static readonly CommandDescriptor CdClear = new CommandDescriptor {
-            Name = "clear",
-            Category = CommandCategory.Chat,
-            Help = "Clears the chat screen.",
-            Handler = Clear
-        };
-
-        static void Clear( Player player, Command cmd ) {
-            for( int i = 0; i < 20; i++ ) {
-                player.Message( "" );
-            }
-        }
 
 
         static readonly CommandDescriptor CdSay = new CommandDescriptor {
@@ -298,6 +325,24 @@ namespace fCraft {
             } else {
                 player.IsDeaf = false;
                 player.MessageNow( "Deafened mode: OFF" );
+            }
+        }
+
+        #endregion
+
+
+        #region Clear
+
+        static readonly CommandDescriptor CdClear = new CommandDescriptor {
+            Name = "clear",
+            Category = CommandCategory.Chat,
+            Help = "Clears the chat screen.",
+            Handler = Clear
+        };
+
+        static void Clear( Player player, Command cmd ) {
+            for( int i = 0; i < 20; i++ ) {
+                player.Message( "" );
             }
         }
 

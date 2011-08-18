@@ -28,7 +28,6 @@ namespace fCraft {
             Callback = callback;
             IsBackground = isBackground;
             UserState = userState;
-            AdjustForExecutionTime = true;
         }
 
         /// <summary> Next scheduled execution time (UTC). </summary>

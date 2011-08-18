@@ -385,15 +385,13 @@ namespace fCraft {
             // Write out initial (empty) playerlist cache
             UpdatePlayerList();
 
-            // start the main loop - server is now connectible
-            Scheduler.Start();
-
             Heartbeat.Start();
 
             if( ConfigKey.RestartInterval.GetInt() > 0 ) {
                 TimeSpan restartIn = TimeSpan.FromSeconds( ConfigKey.RestartInterval.GetInt() );
                 Scheduler.NewTask( AutoRestartCallback ).RunOnce( restartIn );
                 Logger.Log( "Will restart in {0}", LogType.SystemActivity, restartIn.ToCompactString() );
+                ChatTimer.Start( Player.Console.Info, restartIn, "Automatic Server Restart" );
             }
 
             if( ConfigKey.IRCBotEnabled.Enabled() ) IRC.Start();
@@ -401,6 +399,9 @@ namespace fCraft {
             Scheduler.NewTask( AutoRankManager.TaskCallback ).RunForever( AutoRankManager.TickInterval );
 
             if( ConfigKey.EnableBlockDB.Enabled() ) BlockDB.Init();
+
+            // start the main loop - server is now connectible
+            Scheduler.Start();
 
             RaiseEvent( Started );
             return true;

@@ -37,7 +37,7 @@ namespace fCraft {
 
         /// <summary> Starts the heartbeats. </summary>
         public static void Start() {
-            task = Scheduler.NewTask( Beat ).RunManual();
+            task = Scheduler.NewBackgroundTask( Beat ).RunManual();
         }
 
 
