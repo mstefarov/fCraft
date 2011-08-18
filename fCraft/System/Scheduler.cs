@@ -38,7 +38,7 @@ namespace fCraft {
                     SchedulerTask task = taskListCache[i];
                     if( task.IsStopped || task.NextTime > ticksNow ) continue;
                     if( task.IsRecurring && task.AdjustForExecutionTime ) {
-                        task.NextTime = ticksNow + task.Interval;
+                        task.NextTime += task.Interval;
                     }
 
                     if( task.IsBackground ) {
