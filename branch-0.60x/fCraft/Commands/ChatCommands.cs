@@ -147,22 +147,9 @@ namespace fCraft {
         internal static void Ignore( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name != null ) {
-                PlayerInfo targetInfo;
-                if( !PlayerDB.FindPlayerInfo( name, out targetInfo ) ) {
-                    PlayerInfo[] infos = PlayerDB.FindPlayers( name );
-                    if( infos.Length == 1 ) {
-                        targetInfo = infos[0];
-                    } else if( infos.Length > 1 ) {
-                        player.MessageManyMatches( "player", infos );
-                        return;
-                    } else {
-                        player.MessageNoPlayer( name );
-                        return;
-                    }
-                } else if( targetInfo == null ) {
-                    player.MessageNoPlayer( name );
-                    return;
-                }
+                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
+                if( targetInfo == null ) return;
+
                 if( player.Ignore( targetInfo ) ) {
                     player.MessageNow( "You are now ignoring {0}", targetInfo.ClassyName );
                 } else {
@@ -193,22 +180,9 @@ namespace fCraft {
         internal static void Unignore( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name != null ) {
-                PlayerInfo targetInfo;
-                if( !PlayerDB.FindPlayerInfo( name, out targetInfo ) ) {
-                    PlayerInfo[] infos = PlayerDB.FindPlayers( name );
-                    if( infos.Length == 1 ) {
-                        targetInfo = infos[0];
-                    } else if( infos.Length > 1 ) {
-                        player.MessageManyMatches( "player", infos );
-                        return;
-                    } else {
-                        player.MessageNoPlayer( name );
-                        return;
-                    }
-                } else if( targetInfo == null ) {
-                    player.MessageNoPlayer( name );
-                    return;
-                }
+                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
+                if( targetInfo == null ) return;
+
                 if( player.Unignore( targetInfo ) ) {
                     player.MessageNow( "You are no longer ignoring {0}", targetInfo.ClassyName );
                 } else {
