@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -1626,8 +1627,27 @@ namespace fCraft {
             IsConsoleSafe = true,
             IsHidden = true,
             Permissions = new[] { Permission.ManageBlockDB },
-            Usage = "/blockdb WorldName on/off",
-            Help = "Enables or disabled BlockDB on a given world.",
+            Usage = "/blockdb WorldName <Operation>",
+            Help = "Manages BlockDB on a given world. " +
+                   "Operations are: on, off, clear, limit, timelimit, and preload. " +
+                   "See &H/help blockdb <Operation>&S for operation-specific help. " +
+                   "If no operation is given, BlockDB status is shown.",
+            HelpSections = new Dictionary<string, string>{
+                { "on",         "Enables block tracking. Information will only be available for blocks that changed while BlockDB was enabled." },
+                { "off",        "Disables block tracking. Block changes will NOT be recorded while BlockDB is disabled. " +
+                                "Note that disabling BlockDB does not delete the existing data. Use &Hclear&S for that." },
+                { "clear",      "Clears all recorded data from the BlockDB. Erases all changes from memory and deletes the .fbdb file." },
+                { "limit",      "Sets the limit on the maximum number of changes to store for a given world. " +
+                                "Oldest changes will be deleted once the limit is reached. " +
+                                "Put \"None\" instead of the number to disable limiting. " +
+                                "Unless a Limit or a TimeLimit it specified, all changes will be stored indefinitely." },
+                { "timelimit",  "Sets the age limit for stored changes. " +
+                                "Oldest changes will be deleted once the limit is reached. " +
+                                "Put \"None\" instead of the number to disable time limiting. " +
+                                "Unless a Limit or a TimeLimit it specified, all changes will be stored indefinitely." },
+                { "preload",    "Enabled or disables preloading. When BlockDB is preloaded, all changes are stored in memory as well as in a file. " +
+                                "This reduces CPU and disk use for busy maps, but may not be suitable for large maps due to increased memory use." },
+            },
             Handler = DoBlockDB
         };
 

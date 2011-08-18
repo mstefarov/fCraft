@@ -2,8 +2,6 @@
 
 namespace fCraft {
     sealed class ChatTimer {
-
-
         ChatTimer( PlayerInfo player, TimeSpan duration, string name ) {
             Name = name;
             Player = player;
@@ -20,13 +18,9 @@ namespace fCraft {
         }
 
         string Name { get; set; }
-
         PlayerInfo Player { get; set; }
-
         DateTime StartTime { get; set; }
-
         DateTime EndTime { get; set; }
-
         TimeSpan Duration { get; set; }
 
         public TimeSpan TimeLeft {
@@ -35,6 +29,7 @@ namespace fCraft {
             }
         }
         int AnnounceIntervalIndex { get; set; }
+
 
         static void TimerCallback( SchedulerTask task ) {
             ChatTimer timer = (ChatTimer)task.UserState;
