@@ -25,14 +25,14 @@ namespace fCraft {
 
         #region Timer
 
-        static readonly TimeSpan DefaultTimerDuration = TimeSpan.FromSeconds( 5 );
+        static readonly TimeSpan DefaultTimerDuration = TimeSpan.FromSeconds( 4 );
 
         static readonly CommandDescriptor CdTimer = new CommandDescriptor {
             Name = "timer",
             Permissions = new[] { Permission.Say },
             IsConsoleSafe = true,
             Category = CommandCategory.Chat,
-            Usage = "/timer Duration Message",
+            Usage = "/timer [Duration Message]",
             Help = "Starts a timer with a given duration and message. " +
                    "As the timer counts down, announcements are shown globally. " +
                    "Type &H/timers&S for a list of all in-progress timers.",
@@ -43,7 +43,7 @@ namespace fCraft {
 
         static void DoTimer( Player player, Command cmd ) {
             TimeSpan duration = DefaultTimerDuration;
-            string name = player.Name + "'s";
+            string name = player.Name + "'s timer";
             if( cmd.HasNext ) {
                 string time = cmd.Next();
                 if( time == null || !time.TryParseMiniTimespan( out duration ) ) {
@@ -53,9 +53,9 @@ namespace fCraft {
                 if( cmd.HasNext ) {
                     name = cmd.NextAll();
                 }
+                player.Message( "Started a {0} timer.", duration.ToMiniString() );
             }
             ChatTimer.Start( player.Info, duration, name );
-            player.Message( "Started a {0} timer.", duration.ToMiniString() );
         }
 
         #endregion
