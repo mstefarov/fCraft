@@ -391,7 +391,7 @@ namespace fCraft {
                 TimeSpan restartIn = TimeSpan.FromSeconds( ConfigKey.RestartInterval.GetInt() );
                 Scheduler.NewTask( AutoRestartCallback ).RunOnce( restartIn );
                 Logger.Log( "Will restart in {0}", LogType.SystemActivity, restartIn.ToCompactString() );
-                ChatTimer.Start( Player.Console.Info, restartIn, "Automatic Server Restart" );
+                ChatTimer.Start( restartIn, "Automatic Server Restart" );
             }
 
             if( ConfigKey.IRCBotEnabled.Enabled() ) IRC.Start();

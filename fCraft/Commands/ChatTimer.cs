@@ -2,9 +2,8 @@
 
 namespace fCraft {
     sealed class ChatTimer {
-        ChatTimer( PlayerInfo player, TimeSpan duration, string name ) {
+        ChatTimer( TimeSpan duration, string name ) {
             Name = name;
-            Player = player;
             StartTime = DateTime.UtcNow;
             EndTime = StartTime.Add( duration );
             Duration = duration;
@@ -18,7 +17,6 @@ namespace fCraft {
         }
 
         string Name { get; set; }
-        PlayerInfo Player { get; set; }
         DateTime StartTime { get; set; }
         DateTime EndTime { get; set; }
         TimeSpan Duration { get; set; }
@@ -34,18 +32,23 @@ namespace fCraft {
         static void TimerCallback( SchedulerTask task ) {
             ChatTimer timer = (ChatTimer)task.UserState;
             if( task.MaxRepeats == 1 ) {
-                Server.Message( "&Y(Timer) {0}", timer.Name );
+                Server.Message( "&Y(Timer Up) {0}", timer.Name );
             } else if( timer.TimeLeft <= AnnounceIntervals[timer.AnnounceIntervalIndex] ) {
-                Server.Message( "&Y(Timer) {0} until {1}",
-                                AnnounceIntervals[timer.AnnounceIntervalIndex].ToMiniString(),
-                                timer.Name );
+                if( String.IsNullOrEmpty( timer.Name ) ) {
+                    Server.Message( "&Y(Timer) {0}",
+                                    AnnounceIntervals[timer.AnnounceIntervalIndex].ToMiniString() );
+                } else {
+                    Server.Message( "&Y(Timer) {0} until {1}",
+                                    AnnounceIntervals[timer.AnnounceIntervalIndex].ToMiniString(),
+                                    timer.Name );
+                }
                 timer.AnnounceIntervalIndex--;
             }
         }
 
 
-        public static void Start( PlayerInfo player, TimeSpan duration, string name ) {
-            ChatTimer timer = new ChatTimer( player, duration, name );
+        public static void Start( TimeSpan duration, string name ) {
+            ChatTimer timer = new ChatTimer( duration, name );
             Scheduler.NewTask( TimerCallback, timer ).RunRepeating( TimeSpan.Zero,
                                                                     TimeSpan.FromSeconds( 1 ),
                                                                     (int)duration.TotalSeconds + 1 );

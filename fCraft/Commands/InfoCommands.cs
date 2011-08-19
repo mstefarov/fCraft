@@ -521,7 +521,7 @@ namespace fCraft {
                 }
 
                 if( rank.IdleKickTimer > 0 ) {
-                    player.Message( "Idle kick after {0}", TimeSpan.FromSeconds( rank.IdleKickTimer ).ToMiniString() );
+                    player.Message( "Idle kick after {0}", TimeSpan.FromMinutes( rank.IdleKickTimer ).ToMiniString() );
                 }
             }
         }
