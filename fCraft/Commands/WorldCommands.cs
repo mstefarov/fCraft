@@ -1672,10 +1672,10 @@ namespace fCraft {
                 { "preload",    "Enabled or disables preloading. When BlockDB is preloaded, all changes are stored in memory as well as in a file. " +
                                 "This reduces CPU and disk use for busy maps, but may not be suitable for large maps due to increased memory use." },
             },
-            Handler = DoBlockDB
+            Handler = BlockDBHandler
         };
 
-        static void DoBlockDB( Player player, Command cmd ) {
+        static void BlockDBHandler( Player player, Command cmd ) {
             if( !BlockDB.IsEnabled ) {
                 player.Message( "&WBlockDB is disabled on this server." );
                 return;
@@ -1690,6 +1690,7 @@ namespace fCraft {
                 } else {
                     player.Message( "BlockDB is not enabled on any world." );
                 }
+                return;
             }
 
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
