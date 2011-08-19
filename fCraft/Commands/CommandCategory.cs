@@ -28,6 +28,9 @@ namespace fCraft {
         World = 32,
 
         /// <summary> Zone-related commands: creating, editing, testing, etc. </summary>
-        Zone = 64
+        Zone = 64,
+
+        /// <summary> Commands that are only used for diagnostics and debugging. </summary>
+        Debug = 128
     }
 }

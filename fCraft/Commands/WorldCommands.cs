@@ -30,6 +30,11 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdWorldHide );
             CommandManager.RegisterCommand( CdWorldUnhide );
 
+            CdGenerate.Help = "Generates a new map. If no dimensions are given, uses current world's dimensions. " +
+                              "If no filename is given, loads generated world into current world.\n" +
+                              "Available themes: Grass, " + Enum.GetNames( typeof( MapGenTheme ) ).JoinToString() + '\n' +
+                              "Available terrain types: " + Enum.GetNames( typeof( MapGenTemplate ) ).JoinToString() + '\n' +
+                              "NOTE: Map is saved TO FILE ONLY, use /wload to load it.";
             CommandManager.RegisterCommand( CdGenerate );
 
             CommandManager.RegisterCommand( CdLock );
@@ -1004,12 +1009,17 @@ namespace fCraft {
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/wload FileName [WorldName]",
+            Usage = "/wload FileName [WorldName [BuildRank [AccessRank]]]",
             Help = "If WorldName parameter is not given, replaces the current world's map with the specified map. The old map is overwritten. " +
                    "If the world with the specified name exists, its map is replaced with the specified map file. " +
-                   "Otherwise, a new world is created using the given name and map file. NOTE: For security reasons, you may only load files from the map folder. " +
-                   "Supported formats: fCraft (.fcm), MCSharp/MCZall/MCLawl (lvl), D3 (.map), vanilla (.dat), MinerCPP/LuaCraft (.dat), " +
-                   "JTE (.gz), indev (.mclevel), iCraft/Myne, Opticraft (.save).",
+                   "Otherwise, a new world is created using the given name and map file. " + 
+                   "NOTE: For security reasons, you may only load files from the map folder. " +
+                   "For a list of supported formats, see &H/help wload formats",
+            HelpSections = new Dictionary<string, string>{
+                { "formats",    "Supported formats: fCraft FCM (versions 2, 3, and 4), MCSharp/MCZall/MCLawl (.lvl), " +
+                                "D3 (.map), Classic (.dat), InDev (.mclevel), MinerCPP/LuaCraft (.dat), " +
+                                "JTE (.gz), iCraft/Myne (directory-based), Opticraft (.save)." }
+            },
             Handler = WorldLoad
         };
 
@@ -1061,6 +1071,25 @@ namespace fCraft {
                 if( !World.IsValidName( worldName ) ) {
                     player.MessageNow( "Invalid world name: \"{0}\".", worldName );
                     return;
+                }
+
+                string buildRankName = cmd.Next();
+                string accessRankName = cmd.Next();
+                Rank buildRank = RankManager.DefaultBuildRank;
+                Rank accessRank = null;
+                if( buildRankName != null ) {
+                    buildRank = Rank.Parse( buildRankName );
+                    if( buildRank == null ) {
+                        player.MessageNoRank( buildRankName );
+                        return;
+                    }
+                    if( accessRankName != null ) {
+                        accessRank = Rank.Parse( accessRankName );
+                        if( accessRank == null ) {
+                            player.MessageNoRank( accessRankName );
+                            return;
+                        }
+                    }
                 }
 
                 lock( WorldManager.WorldListLock ) {
@@ -1124,7 +1153,8 @@ namespace fCraft {
                         }
 
                         if( newWorld != null ) {
-                            newWorld.BuildSecurity.MinRank = Rank.Parse( ConfigKey.DefaultBuildRank.GetString() );
+                            newWorld.BuildSecurity.MinRank = buildRank;
+                            newWorld.AccessSecurity.MinRank = accessRank;
                             Server.Message( "{0}&S created a new world named {1}",
                                               player.ClassyName, newWorld.ClassyName );
                             Logger.Log( "{0} created a new world named \"{1}\" (loaded from \"{2}\")", LogType.UserActivity,
@@ -1340,13 +1370,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/gen ThemeName TemplateName [X Y Height [FileName]]",
-            HelpHandler = delegate {
-                return "Generates a new map. If no dimensions are given, uses current world's dimensions. " +
-                       "If no filename is given, loads generated world into current world.\n" +
-                       "Available themes: Grass, " + String.Join( ", ", Enum.GetNames( typeof( MapGenTheme ) ) ) + '\n' +
-                       "Available terrain types: " + String.Join( ", ", Enum.GetNames( typeof( MapGenTemplate ) ) ) + '\n' +
-                       "NOTE: Map is saved TO FILE ONLY, use /wload to load it.";
-            },
+            //Help is assigned by WorldCommands.Init
             Handler = Generate
         };
 
@@ -1639,11 +1663,11 @@ namespace fCraft {
                 { "clear",      "Clears all recorded data from the BlockDB. Erases all changes from memory and deletes the .fbdb file." },
                 { "limit",      "Sets the limit on the maximum number of changes to store for a given world. " +
                                 "Oldest changes will be deleted once the limit is reached. " +
-                                "Put \"None\" instead of the number to disable limiting. " +
+                                "Put \"None\" to disable limiting. " +
                                 "Unless a Limit or a TimeLimit it specified, all changes will be stored indefinitely." },
                 { "timelimit",  "Sets the age limit for stored changes. " +
                                 "Oldest changes will be deleted once the limit is reached. " +
-                                "Put \"None\" instead of the number to disable time limiting. " +
+                                "Use \"None\" to disable time limiting. " +
                                 "Unless a Limit or a TimeLimit it specified, all changes will be stored indefinitely." },
                 { "preload",    "Enabled or disables preloading. When BlockDB is preloaded, all changes are stored in memory as well as in a file. " +
                                 "This reduces CPU and disk use for busy maps, but may not be suitable for large maps due to increased memory use." },
@@ -1659,8 +1683,13 @@ namespace fCraft {
 
             string worldName = cmd.Next();
             if( worldName == null ) {
-                CdBlockDB.PrintUsage( player );
-                return;
+                World[] trackedWorlds = WorldManager.WorldList.Where( w => w.BlockDB.Enabled ).ToArray();
+                if( trackedWorlds.Length > 0 ) {
+                    player.Message( "BlockDB is enabled on: {0}",
+                                    trackedWorlds.JoinToClassyString() );
+                } else {
+                    player.Message( "BlockDB is not enabled on any world." );
+                }
             }
 
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );

@@ -11,13 +11,6 @@ namespace fCraft {
     public delegate void CommandHandler( Player source, Command cmd );
 
 
-    /// <summary> Callback for displaying help information for commands
-    /// that require a dynamic help message. </summary>
-    /// <param name="source"> Player who is asking for help. </param>
-    /// <returns> String to print to player. </returns>
-    public delegate string HelpHandler( Player source );
-
-
     /// <summary> Describes a chat command.
     /// Defines properties and usage information, and specifies a callback. </summary>
     public sealed class CommandDescriptor {
@@ -36,9 +29,6 @@ namespace fCraft {
 
         /// <summary> Full text of the help message. Default: null </summary>
         public string Help { get; set; }
-
-        /// <summary> If command has contextual help, use this to define a callback to call when /help is called for your command. (default: null) </summary>
-        public HelpHandler HelpHandler { get; set; }
 
         /// <summary> Whether the command is hidden from command list (/cmds). Default: false </summary>
         public bool IsHidden { get; set; }

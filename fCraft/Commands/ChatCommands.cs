@@ -6,7 +6,7 @@ namespace fCraft {
 
         public static void Init() {
             CommandManager.RegisterCommand( CdSay );
-            CommandManager.RegisterCommand( CdStaffChat );
+            CommandManager.RegisterCommand( CdStaff );
 
             CommandManager.RegisterCommand( CdIgnore );
             CommandManager.RegisterCommand( CdUnignore );
@@ -23,46 +23,7 @@ namespace fCraft {
         }
 
 
-        #region Timer
-
-        static readonly TimeSpan DefaultTimerDuration = TimeSpan.FromSeconds( 4 );
-
-        static readonly CommandDescriptor CdTimer = new CommandDescriptor {
-            Name = "timer",
-            Permissions = new[] { Permission.Say },
-            IsConsoleSafe = true,
-            Category = CommandCategory.Chat,
-            Usage = "/timer [Duration Message]",
-            Help = "Starts a timer with a given duration and message. " +
-                   "As the timer counts down, announcements are shown globally. " +
-                   "Type &H/timers&S for a list of all in-progress timers.",
-            Handler = DoTimer
-        };
-
-
-
-        static void DoTimer( Player player, Command cmd ) {
-            TimeSpan duration = DefaultTimerDuration;
-            string name = player.Name + "'s timer";
-            if( cmd.HasNext ) {
-                string time = cmd.Next();
-                if( time == null || !time.TryParseMiniTimespan( out duration ) ) {
-                    CdTimer.PrintUsage( player );
-                    return;
-                }
-                if( cmd.HasNext ) {
-                    name = cmd.NextAll();
-                }
-                player.Message( "Started a {0} timer.", duration.ToMiniString() );
-            }
-            ChatTimer.Start( player.Info, duration, name );
-        }
-
-        #endregion
-
-
-        #region Say, StaffChat
-
+        #region Say
 
         static readonly CommandDescriptor CdSay = new CommandDescriptor {
             Name = "say",
@@ -72,10 +33,10 @@ namespace fCraft {
             Usage = "/say Message",
             Help = "Shows a message in special color, without the player name prefix. " +
                    "Can be used for making announcements.",
-            Handler = Say
+            Handler = SayHandler
         };
 
-        static void Say( Player player, Command cmd ) {
+        static void SayHandler( Player player, Command cmd ) {
             if( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
@@ -96,19 +57,22 @@ namespace fCraft {
             }
         }
 
+        #endregion
 
 
-        static readonly CommandDescriptor CdStaffChat = new CommandDescriptor {
+        #region Staff
+
+        static readonly CommandDescriptor CdStaff = new CommandDescriptor {
             Name = "staff",
             Category = CommandCategory.Chat | CommandCategory.Moderation,
             Permissions = new[] { Permission.Chat },
             IsConsoleSafe = true,
             Usage = "/staff Message",
             Help = "Broadcasts your message to all operators/moderators on the server at once.",
-            Handler = StaffChat
+            Handler = StaffHandler
         };
 
-        internal static void StaffChat( Player player, Command cmd ) {
+        internal static void StaffHandler( Player player, Command cmd ) {
             if( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
@@ -141,10 +105,10 @@ namespace fCraft {
             Usage = "/ignore [PlayerName]",
             Help = "Temporarily blocks the other player from messaging you. " +
                    "If no player name is given, lists all ignored players.",
-            Handler = Ignore
+            Handler = IgnoreHandler
         };
 
-        internal static void Ignore( Player player, Command cmd ) {
+        internal static void IgnoreHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name != null ) {
                 PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
@@ -174,10 +138,10 @@ namespace fCraft {
             IsConsoleSafe = true,
             Usage = "/unignore PlayerName",
             Help = "Unblocks the other player from messaging you.",
-            Handler = Unignore
+            Handler = UnignoreHandler
         };
 
-        internal static void Unignore( Player player, Command cmd ) {
+        internal static void UnignoreHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name != null ) {
                 PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
@@ -211,10 +175,10 @@ namespace fCraft {
             IsConsoleSafe = true,
             Usage = "/me Message",
             Help = "Sends IRC-style action message prefixed with your name.",
-            Handler = Me
+            Handler = MeHandler
         };
 
-        internal static void Me( Player player, Command cmd ) {
+        internal static void MeHandler( Player player, Command cmd ) {
             if( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
@@ -245,10 +209,10 @@ namespace fCraft {
                    "&S  Gives number between 1 and max.\n" +
                    "&H/roll MinNumber MaxNumber\n" +
                    "&S  Gives number between min and max.",
-            Handler = Roll
+            Handler = RollHandler
         };
 
-        internal static void Roll( Player player, Command cmd ) {
+        internal static void RollHandler( Player player, Command cmd ) {
             if( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
@@ -288,10 +252,10 @@ namespace fCraft {
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
             Help = "Blocks all chat messages from being sent to you.",
-            Handler = Deafen
+            Handler = DeafenHandler
         };
 
-        internal static void Deafen( Player player, Command cmd ) {
+        internal static void DeafenHandler( Player player, Command cmd ) {
             if( !player.IsDeaf ) {
                 player.MessageNow( "Deafened mode: ON" );
                 player.MessageNow( "You will not see any messages until you type &H/deafen&S again." );
@@ -311,13 +275,51 @@ namespace fCraft {
             Name = "clear",
             Category = CommandCategory.Chat,
             Help = "Clears the chat screen.",
-            Handler = Clear
+            Handler = ClearHandler
         };
 
-        static void Clear( Player player, Command cmd ) {
+        static void ClearHandler( Player player, Command cmd ) {
+            if( player == Player.Console ) {
+                throw new NotSupportedException( "fCraft front-ends are expected to handle the /clear command internally." );
+            }
             for( int i = 0; i < 20; i++ ) {
                 player.Message( "" );
             }
+        }
+
+        #endregion
+
+
+        #region Timer
+
+        static readonly TimeSpan DefaultTimerDuration = TimeSpan.FromSeconds( 4 );
+
+        static readonly CommandDescriptor CdTimer = new CommandDescriptor {
+            Name = "timer",
+            Permissions = new[] { Permission.Say },
+            IsConsoleSafe = true,
+            Category = CommandCategory.Chat,
+            Usage = "/timer [Duration Message]",
+            Help = "Starts a timer with a given duration and message. " +
+                   "As the timer counts down, announcements are shown globally.",
+            Handler = TimerHandler
+        };
+
+        static void TimerHandler( Player player, Command cmd ) {
+            TimeSpan duration = DefaultTimerDuration;
+            string name = player.Name + "'s timer";
+            if( cmd.HasNext ) {
+                string time = cmd.Next();
+                if( time == null || !time.TryParseMiniTimespan( out duration ) ) {
+                    CdTimer.PrintUsage( player );
+                    return;
+                }
+                if( cmd.HasNext ) {
+                    name = cmd.NextAll();
+                }
+                player.Message( "Started a {0} timer.", duration.ToMiniString() );
+            }
+            ChatTimer.Start( player.Info, duration, name );
         }
 
         #endregion
