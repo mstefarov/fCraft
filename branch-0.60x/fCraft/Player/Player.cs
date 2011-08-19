@@ -280,8 +280,6 @@ namespace fCraft {
                         string rankName = rawMessage.Substring( 2, rawMessage.IndexOf( ' ' ) - 2 );
                         Rank rank = RankManager.FindRank( rankName );
                         if( rank != null ) {
-                            Logger.Log( "{0} to rank {1}: {2}", LogType.RankChat,
-                                        Name, rank.Name, rawMessage );
                             string messageText = rawMessage.Substring( rawMessage.IndexOf( ' ' ) + 1 );
                             if( messageText.Contains( "%" ) && Can( Permission.UseColorCodes ) ) {
                                 messageText = Color.ReplacePercentCodes( messageText );

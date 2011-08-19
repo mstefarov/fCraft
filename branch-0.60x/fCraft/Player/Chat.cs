@@ -99,7 +99,7 @@ namespace fCraft {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
-            var recepientList = rank.Players.NotIgnoring( player );
+            var recepientList = rank.Players.NotIgnoring( player ).Union( player );
 
             string formattedMessage = String.Format( "&P({0}&P){1}: {2}",
                                                      rank.ClassyName,
