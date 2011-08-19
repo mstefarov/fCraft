@@ -328,6 +328,7 @@ namespace fCraft {
             if( !skipRankList ) {
                 LoadRankList( config, fromFile );
                 RankManager.DefaultRank = Rank.Parse( ConfigKey.DefaultRank.GetString() );
+                RankManager.DefaultBuildRank = Rank.Parse( ConfigKey.DefaultBuildRank.GetString() );
                 RankManager.PatrolledRank = Rank.Parse( ConfigKey.PatrolledRank.GetString() );
             }
 

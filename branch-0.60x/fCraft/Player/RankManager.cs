@@ -10,7 +10,7 @@ namespace fCraft {
         public static Dictionary<string, Rank> RanksByID { get; private set; }
         public static Dictionary<string, string> LegacyRankMapping { get; private set; }
         public static List<Rank> Ranks { get; private set; }
-        public static Rank DefaultRank, LowestRank, HighestRank, PatrolledRank;
+        public static Rank DefaultRank, LowestRank, HighestRank, PatrolledRank, DefaultBuildRank;
 
 
         static RankManager() {

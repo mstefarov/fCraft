@@ -21,61 +21,34 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdInfo );
             CommandManager.RegisterCommand( CdBanInfo );
             CommandManager.RegisterCommand( CdRankInfo );
+            CommandManager.RegisterCommand( CdServerInfo );
+
+            CommandManager.RegisterCommand( CdRanks );
 
             CommandManager.RegisterCommand( CdRules );
-            CommandManager.RegisterCommand( CdHelp );
-            CommandManager.RegisterCommand( CdCommands );
+
+            CommandManager.RegisterCommand( CdMeasure );
+
+            CommandManager.RegisterCommand( CdPlayers );
 
             CommandManager.RegisterCommand( CdWhere );
 
-            CommandManager.RegisterCommand( CdPlayers );
-            CommandManager.RegisterCommand( CdRanks );
+            CommandManager.RegisterCommand( CdHelp );
+            CommandManager.RegisterCommand( CdCommands );
 
-            CommandManager.RegisterCommand( CdServerInfo );
-
-            CommandManager.RegisterCommand( CdMeasure );
+            CommandManager.RegisterCommand( CdColors );
 
 #if DEBUG_SCHEDULER
             CommandManager.RegisterCommand( cdTaskDebug );
 #endif
-
-            CommandManager.RegisterCommand( CdColors );
         }
 
 
-        static readonly CommandDescriptor CdColors = new CommandDescriptor {
-            Name = "colors",
-            Aliases = new[] { "colours" },
-            Category = CommandCategory.Info | CommandCategory.Chat,
-            IsConsoleSafe = true,
-            Help = "Shows a list of all available color codes.",
-            Handler = Colors
-        };
+        #region Info
 
-        internal static void Colors( Player player, Command cmd ) {
-            StringBuilder sb = new StringBuilder( "List of colors: " );
+        const int MatchesToShow = 25;
 
-            foreach( var color in Color.ColorNames ) {
-                sb.AppendFormat( "&{0}%{0} {1} ", color.Key, color.Value );
-            }
-
-            player.Message( sb.ToString() );
-        }
-
-        
-#if DEBUG_SCHEDULER
-        static CommandDescriptor cdTaskDebug = new CommandDescriptor {
-            Name = "taskdebug",
-            Category = CommandCategory.Info,
-            IsConsoleSafe = true,
-            Help = "",
-            IsHidden = true,
-            Handler = ( player, cmd ) => Scheduler.PrintTasks( player )
-        };
-#endif
-
-
-        #region Infos (/info, /rinfo, /baninfo, /sinfo)
+        static readonly Regex RegexNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\.]", RegexOptions.Compiled );
 
         static readonly CommandDescriptor CdInfo = new CommandDescriptor {
             Name = "info",
@@ -86,13 +59,10 @@ namespace fCraft {
             Help = "Prints information and stats for a given player. " +
                    "Prints your own stats if no name is given. " +
                    "Prints a list of names if a partial name or an IP is given. ",
-            Handler = Info
+            Handler = InfoHandler
         };
 
-        const int MatchesToShow = 25;
-
-        static readonly Regex RegexNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\.]", RegexOptions.Compiled );
-        internal static void Info( Player player, Command cmd ) {
+        internal static void InfoHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null || name.Equals( player.Name, StringComparison.OrdinalIgnoreCase ) ) {
                 PrintPlayerInfo( player, player.Info );
@@ -387,7 +357,10 @@ namespace fCraft {
             }
         }
 
+        #endregion
 
+
+        #region BanInfo
 
         static readonly CommandDescriptor CdBanInfo = new CommandDescriptor {
             Name = "baninfo",
@@ -396,10 +369,10 @@ namespace fCraft {
             Usage = "/baninfo [PlayerName|IPAddress]",
             Help = "Prints information about past and present bans/unbans associated with the PlayerName or IP. " +
                    "If no name is given, this prints your own ban info.",
-            Handler = BanInfo
+            Handler = BanInfoHandler
         };
 
-        internal static void BanInfo( Player player, Command cmd ) {
+        internal static void BanInfoHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             IPAddress address;
             if( name == null ) {
@@ -477,20 +450,23 @@ namespace fCraft {
             }
         }
 
+        #endregion
 
+
+        #region RankInfo
 
         static readonly CommandDescriptor CdRankInfo = new CommandDescriptor {
-            Name = "rankinfo",
-            Aliases = new[] { "rinfo" },
+            Name = "rinfo",
+            Aliases = new[] { "rankinfo" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             Usage = "/rinfo RankName",
             Help = "Shows a list of permissions granted to a rank. To see a list of all ranks, use &H/ranks",
-            Handler = RankInfo
+            Handler = RankInfoHandler
         };
 
         // Shows general information about a particular rank.
-        internal static void RankInfo( Player player, Command cmd ) {
+        internal static void RankInfoHandler( Player player, Command cmd ) {
             Rank rank;
 
             string rankName = cmd.Next();
@@ -513,24 +489,47 @@ namespace fCraft {
                     }
                 }
 
-                string[] sortedPermissionNames = permissions.Select( p => p.ToString() )
-                                                            .OrderBy( s => s, StringComparer.OrdinalIgnoreCase ).ToArray();
-
-                player.Message( "Players of rank {0}&S can do the following: {1}",
-                                rank.ClassyName,
-                                String.Join( ", ", sortedPermissionNames ) );
+                Permission[] sortedPermissionNames = permissions.OrderBy( s => s.ToString(), StringComparer.OrdinalIgnoreCase ).ToArray();
+                {
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendFormat( "Players of rank {0}&S can: ", rank.ClassyName );
+                    bool first = true;
+                    for( int i = 0; i < sortedPermissionNames.Length; i++ ) {
+                        Permission p = sortedPermissionNames[i];
+                        if( !first ) sb.Append( ',' ).Append( ' ' );
+                        Rank permissionLimit = rank.PermissionLimits[(int)p];
+                        sb.Append( p );
+                        if( permissionLimit != null ) {
+                            sb.AppendFormat( "({0}&S)", permissionLimit.ClassyName );
+                        }
+                        first = false;
+                    }
+                    player.Message( sb.ToString() );
+                }
 
                 if( rank.Can( Permission.Draw ) ) {
+                    StringBuilder sb = new StringBuilder();
                     if( rank.DrawLimit > 0 ) {
-                        player.Message( "Draw command limit: {0} blocks.", rank.DrawLimit );
+                        sb.AppendFormat( "Draw limit: {0} blocks.", rank.DrawLimit );
                     } else {
-                        player.Message( "Draw command limit: None (unlimited blocks)" );
+                        sb.AppendFormat( "Draw limit: None (unlimited)." );
                     }
+                    if( rank.Can( Permission.CopyAndPaste ) ) {
+                        sb.AppendFormat( " Copy/paste slots: {0}", rank.CopySlots );
+                    }
+                    player.Message( sb.ToString() );
+                }
+
+                if( rank.IdleKickTimer > 0 ) {
+                    player.Message( "Idle kick after {0}", TimeSpan.FromSeconds( rank.IdleKickTimer ).ToMiniString() );
                 }
             }
         }
 
+        #endregion
 
+
+        #region ServerInfo
 
         static readonly CommandDescriptor CdServerInfo = new CommandDescriptor {
             Name = "sinfo",
@@ -538,10 +537,10 @@ namespace fCraft {
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             Help = "Shows server stats",
-            Handler = ServerInfo
+            Handler = ServerInfoHandler
         };
 
-        internal static void ServerInfo( Player player, Command cmd ) {
+        internal static void ServerInfoHandler( Player player, Command cmd ) {
             Process.GetCurrentProcess().Refresh();
 
             player.Message( "Servers stats: Up for {0:0.0} hours, using {1:0} MB of memory",
@@ -587,16 +586,17 @@ namespace fCraft {
         #endregion
 
 
+        #region Ranks
 
         static readonly CommandDescriptor CdRanks = new CommandDescriptor {
             Name = "ranks",
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             Help = "Shows a list of all defined ranks.",
-            Handler = Ranks
+            Handler = RanksHandler
         };
 
-        internal static void Ranks( Player player, Command cmd ) {
+        internal static void RanksHandler( Player player, Command cmd ) {
             player.Message( "Below is a list of ranks. For detail see &H{0}", CdRankInfo.Usage );
             foreach( Rank rank in RankManager.Ranks ) {
                 player.Message( "&S    {0}  ({1} players)",
@@ -605,46 +605,22 @@ namespace fCraft {
             }
         }
 
+        #endregion
 
+
+        #region Rules
+
+        const string DefaultRules = "Rules: Use common sense!";
 
         static readonly CommandDescriptor CdRules = new CommandDescriptor {
             Name = "rules",
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             Help = "Shows a list of rules defined by server operator(s).",
-            Handler = Rules
+            Handler = RulesHandler
         };
 
-        const string DefaultRules = "Rules: Use common sense!";
-
-        static string[] GetRuleSectionList() {
-            if( Directory.Exists( Paths.RulesDirectory ) ) {
-                string[] sections = Directory.GetFiles( Paths.RulesDirectory, "*.txt", SearchOption.TopDirectoryOnly )
-                                             .Select( name => Path.GetFileNameWithoutExtension( name ) )
-                                             .Where( name => !String.IsNullOrEmpty( name ) )
-                                             .ToArray();
-                if( sections.Length != 0 ) {
-                    return sections;
-                }
-            }
-            return null;
-        }
-
-        static void PrintRuleFile( Player player, FileSystemInfo ruleFile ) {
-            try {
-                foreach( string ruleLine in File.ReadAllLines( ruleFile.FullName ) ) {
-                    if( ruleLine.Trim().Length > 0 ) {
-                        player.Message( "&R{0}", Server.ReplaceTextKeywords( player, ruleLine ) );
-                    }
-                }
-            } catch( Exception ex ) {
-                Logger.Log( "InfoCommands.PrintRuleFile: An error occured while trying to read {0}: {1}", LogType.Error,
-                            ruleFile.FullName, ex );
-                player.Message( "&WError reading the rule file." );
-            }
-        }
-
-        internal static void Rules( Player player, Command cmd ) {
+        internal static void RulesHandler( Player player, Command cmd ) {
             string sectionName = cmd.Next();
 
             // if no section name is given
@@ -710,15 +686,47 @@ namespace fCraft {
         }
 
 
+        static string[] GetRuleSectionList() {
+            if( Directory.Exists( Paths.RulesDirectory ) ) {
+                string[] sections = Directory.GetFiles( Paths.RulesDirectory, "*.txt", SearchOption.TopDirectoryOnly )
+                                             .Select( name => Path.GetFileNameWithoutExtension( name ) )
+                                             .Where( name => !String.IsNullOrEmpty( name ) )
+                                             .ToArray();
+                if( sections.Length != 0 ) {
+                    return sections;
+                }
+            }
+            return null;
+        }
+
+
+        static void PrintRuleFile( Player player, FileSystemInfo ruleFile ) {
+            try {
+                foreach( string ruleLine in File.ReadAllLines( ruleFile.FullName ) ) {
+                    if( ruleLine.Trim().Length > 0 ) {
+                        player.Message( "&R{0}", Server.ReplaceTextKeywords( player, ruleLine ) );
+                    }
+                }
+            } catch( Exception ex ) {
+                Logger.Log( "InfoCommands.PrintRuleFile: An error occured while trying to read {0}: {1}", LogType.Error,
+                            ruleFile.FullName, ex );
+                player.Message( "&WError reading the rule file." );
+            }
+        }
+
+        #endregion
+
+
+        #region Measure
 
         static readonly CommandDescriptor CdMeasure = new CommandDescriptor {
             Name = "measure",
             Category = CommandCategory.Info | CommandCategory.Building,
             Help = "Shows information about a selection: width/length/height and volume.",
-            Handler = Measure
+            Handler = MeasureHandler
         };
 
-        internal static void Measure( Player player, Command cmd ) {
+        internal static void MeasureHandler( Player player, Command cmd ) {
             player.SelectionStart( 2, MeasureCallback, null );
             player.Message( "Measure: Select the area to be measured" );
         }
@@ -739,7 +747,10 @@ namespace fCraft {
                             box.ZMax );
         }
 
+        #endregion
 
+
+        #region Players
 
         static readonly CommandDescriptor CdPlayers = new CommandDescriptor {
             Name = "players",
@@ -748,31 +759,51 @@ namespace fCraft {
             Usage = "/players [WorldName]",
             Help = "Lists all players on the server (in all worlds). " +
                    "If a WorldName is given, only lists players on that one world.",
-            Handler = Players
+            Handler = PlayersHandler
         };
 
-        internal static void Players( Player player, Command cmd ) {
-            Player[] players = Server.Players;
-            if( players.Length > 0 ) {
+        internal static void PlayersHandler( Player player, Command cmd ) {
+            string worldName = cmd.Next();
 
+            Player[] players;
+            string qualifier;
+
+            if( worldName == null ) {
+                players = Server.Players;
+                qualifier = "online";
+            } else {
+                World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
+                if( world == null ) return;
+                players = world.Players;
+                qualifier = String.Format( "in world {0}&S", world.ClassyName );
+            }
+
+            if( players.Length > 0 ) {
                 string[] playerNameList = players.Where( player.CanSee )
                                                  .OrderBy( p => p, PlayerListSorter.Instance )
                                                  .Select( p => p.ClassyName )
                                                  .ToArray();
 
                 if( playerNameList.Length > 0 ) {
-                    player.Message( "There are {0} players online: {1}",
+                    player.Message( "There are {0} players {1}: {2}",
                                     playerNameList.Length,
-                                    String.Join( ", ", playerNameList ) );
+                                    qualifier,
+                                    playerNameList.JoinToString() );
                 } else {
-                    player.Message( "There are no players online." );
+                    player.Message( "There are no players {0}", qualifier );
                 }
             } else {
-                player.Message( "There are no players online." );
+                player.Message( "There are no players {0}", qualifier );
             }
         }
 
+        #endregion
 
+
+        #region Where
+
+        const string Compass = "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . " +
+                               "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . ";
         static readonly CommandDescriptor CdWhere = new CommandDescriptor {
             Name = "where",
             Aliases = new[] { "compass", "whereis", "whereami" },
@@ -782,13 +813,10 @@ namespace fCraft {
             Usage = "/where [PlayerName]",
             Help = "Shows information about the location and orientation of a player. " +
                    "If no name is given, shows player's own info.",
-            Handler = Where
+            Handler = WhereHandler
         };
 
-        const string Compass = "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . " +
-                               "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . ";
-
-        internal static void Where( Player player, Command cmd ) {
+        internal static void WhereHandler( Player player, Command cmd ) {
             string name = cmd.Next();
 
             Player target = player;
@@ -820,7 +848,12 @@ namespace fCraft {
                             Compass.Substring( offset + 2, 11 ) );
         }
 
+        #endregion
 
+
+        #region Help
+
+        const string HelpPrefix = "&S    ";
 
         static readonly CommandDescriptor CdHelp = new CommandDescriptor {
             Name = "help",
@@ -828,11 +861,10 @@ namespace fCraft {
             IsConsoleSafe = true,
             Usage = "/help [CommandName]",
             Help = "Derp.",
-            Handler = Help
+            Handler = HelpHandler
         };
 
-        const string HelpPrefix = "&S    ";
-        internal static void Help( Player player, Command cmd ) {
+        internal static void HelpHandler( Player player, Command cmd ) {
             string commandName = cmd.Next();
 
             if( commandName == "commands" ) {
@@ -862,12 +894,10 @@ namespace fCraft {
                         sb.Append( "\n&S" );
                     }
 
-                    if( descriptor.HelpHandler != null ) {
-                        sb.Append( descriptor.HelpHandler( player ) );
-                    } else if( descriptor.Help != null ) {
-                        sb.Append( descriptor.Help );
-                    } else {
+                    if( String.IsNullOrEmpty( descriptor.Help ) ) {
                         sb.Append( "No help is available for this command." );
+                    } else {
+                        sb.Append( descriptor.Help );
                     }
 
                     player.MessagePrefixed( HelpPrefix, sb.ToString() );
@@ -889,6 +919,10 @@ namespace fCraft {
             }
         }
 
+        #endregion
+
+
+        #region Commands
 
         static readonly CommandDescriptor CdCommands = new CommandDescriptor {
             Name = "commands",
@@ -898,10 +932,10 @@ namespace fCraft {
             Usage = "/commands [Category|@RankName]",
             Help = "Shows a list of commands, by category, permission, or rank. " +
                    "Categories are: Building, Chat, Info, Maintenance, Moderation, World, and Zone.",
-            Handler = Commands
+            Handler = CommandsHandler
         };
 
-        internal static void Commands( Player player, Command cmd ) {
+        internal static void CommandsHandler( Player player, Command cmd ) {
             string param = cmd.Next();
             CommandDescriptor[] cd;
 
@@ -942,5 +976,42 @@ namespace fCraft {
 
             player.MessagePrefixed( "&S   ", "&S   " + commandNames );
         }
+
+        #endregion
+
+
+        #region Colors
+
+        static readonly CommandDescriptor CdColors = new CommandDescriptor {
+            Name = "colors",
+            Aliases = new[] { "colours" },
+            Category = CommandCategory.Info | CommandCategory.Chat,
+            IsConsoleSafe = true,
+            Help = "Shows a list of all available color codes.",
+            Handler = ColorsHandler
+        };
+
+        internal static void ColorsHandler( Player player, Command cmd ) {
+            StringBuilder sb = new StringBuilder( "List of colors: " );
+
+            foreach( var color in Color.ColorNames ) {
+                sb.AppendFormat( "&{0}%{0} {1} ", color.Key, color.Value );
+            }
+
+            player.Message( sb.ToString() );
+        }
+
+        #endregion
+
+
+#if DEBUG_SCHEDULER
+        static CommandDescriptor cdTaskDebug = new CommandDescriptor {
+            Name = "taskdebug",
+            Category = CommandCategory.Info | CommandCategory.Debug,
+            IsConsoleSafe = true,
+            IsHidden = true,
+            Handler = ( player, cmd ) => Scheduler.PrintTasks( player )
+        };
+#endif
     }
 }

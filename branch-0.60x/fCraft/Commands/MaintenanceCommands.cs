@@ -34,7 +34,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( new CommandDescriptor {
                 Name = "bum",
                 IsHidden = true,
-                Category = CommandCategory.Maintenance,
+                Category = CommandCategory.Maintenance | CommandCategory.Debug,
                 Handler = delegate( Player player, Command cmd ) {
                     string newModeName = cmd.Next();
                     if( newModeName == null ) {
@@ -55,7 +55,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( new CommandDescriptor {
                 Name = "bdbdb",
                 IsHidden = true,
-                Category = CommandCategory.Maintenance,
+                Category = CommandCategory.Maintenance | CommandCategory.Debug,
                 Handler = delegate( Player player, Command cmd ) {
                     BlockDB db = player.World.BlockDB;
                     lock( db.SyncRoot ) {

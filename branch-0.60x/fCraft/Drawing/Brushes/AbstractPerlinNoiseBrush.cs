@@ -6,7 +6,9 @@ namespace fCraft.Drawing {
     public abstract class AbstractPerlinNoiseBrush : IBrushInstance {
         public int Seed { get; set; }
         public float Coverage { get; set; }
+// ReSharper disable MemberCanBeProtected.Global
         public float Frequency { get; set; }
+// ReSharper restore MemberCanBeProtected.Global
         public int Octaves { get; set; }
         public float Persistence { get; set; }
 
