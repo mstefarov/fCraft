@@ -1,7 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 
 namespace fCraft {
-    /// <summary> ConfigKey category. </summary>
+    /// <summary> ConfigKey section/category. </summary>
     public enum ConfigSection {
 
         /// <summary> General server configuration (name, port, default rank, etc). </summary>

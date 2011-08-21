@@ -2,10 +2,8 @@
 using System.Diagnostics;
 
 namespace fCraft {
-    /// <summary>
-    /// Enumeration of available configuration keys. See comment
-    /// at the top of Config.cs for a history of changes.
-    /// </summary>
+    /// <summary> Enumeration of available configuration keys. See comments
+    /// at the top of Config.cs for a history of changes. </summary>
     public enum ConfigKey {
         #region General
 

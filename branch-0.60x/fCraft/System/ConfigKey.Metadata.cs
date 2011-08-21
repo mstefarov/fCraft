@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace fCraft {
 
+    /// <summary> Describes attributes and metadata of a configuration key. </summary>
     [AttributeUsage( AttributeTargets.Field )]
     public class ConfigKeyAttribute : DescriptionAttribute {
         protected ConfigKeyAttribute( ConfigSection section, Type valueType, object defaultValue, string description )

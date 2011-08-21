@@ -168,6 +168,7 @@ namespace fCraft {
 
         [DebuggerStepThrough]
         public Block NextBlock( Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             string blockName = Next();
             Block targetBlock = Block.Undefined;
             if( blockName != null ) {
@@ -181,6 +182,7 @@ namespace fCraft {
 
 
         public Block NextBlockWithParam( Player player, ref int param ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             string jointString = Next();
             if( jointString == null ) {
                 return Block.Undefined;

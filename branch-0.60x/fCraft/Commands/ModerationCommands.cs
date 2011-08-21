@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using fCraft.Events;
 using fCraft.Drawing;
+using fCraft.Events;
 
 namespace fCraft {
     /// <summary>
@@ -66,10 +66,10 @@ namespace fCraft {
             Usage = "/ban PlayerName [Reason]",
             Help = "Bans a specified player by name. Note: Does NOT ban IP. " +
                    "Any text after the player name will be saved as a memo. ",
-            Handler = Ban
+            Handler = BanHandler
         };
 
-        static void Ban( Player player, Command cmd ) {
+        static void BanHandler( Player player, Command cmd ) {
             DoBan( player, cmd.Next(), cmd.NextAll(), false, false, false );
         }
 
@@ -84,10 +84,10 @@ namespace fCraft {
             Help = "Bans the player's name and IP. If player is not online, last known IP associated with the name is used. " +
                    "You can also type in the IP address directly. " +
                    "Any text after PlayerName/IP will be saved as a memo. ",
-            Handler = BanIP
+            Handler = BanIPHandler
         };
 
-        static void BanIP( Player player, Command cmd ) {
+        static void BanIPHandler( Player player, Command cmd ) {
             DoBan( player, cmd.Next(), cmd.NextAll(), true, false, false );
         }
 
@@ -103,10 +103,10 @@ namespace fCraft {
                    "If player is not online, last known IP associated with the name is used. " +
                    "You can also type in the IP address directly. " +
                    "Any text after PlayerName/IP will be saved as a memo. ",
-            Handler = BanAll
+            Handler = BanAllHandler
         };
 
-        static void BanAll( Player player, Command cmd ) {
+        static void BanAllHandler( Player player, Command cmd ) {
             DoBan( player, cmd.Next(), cmd.NextAll(), true, true, false );
         }
 
@@ -120,10 +120,10 @@ namespace fCraft {
             Usage = "/unban PlayerName [Reason]",
             Help = "Removes ban for a specified player. Does NOT remove associated IP bans. " +
                    "Any text after the player name will be saved as a memo. ",
-            Handler = Unban
+            Handler = UnbanHandler
         };
 
-        static void Unban( Player player, Command cmd ) {
+        static void UnbanHandler( Player player, Command cmd ) {
             DoBan( player, cmd.Next(), cmd.NextAll(), false, false, true );
         }
 
@@ -138,10 +138,10 @@ namespace fCraft {
             Help = "Removes ban for a specified player's name and last known IP. " +
                    "You can also type in the IP address directly. " +
                    "Any text after the player name will be saved as a memo. ",
-            Handler = UnbanIP
+            Handler = UnbanIPHandler
         };
 
-        static void UnbanIP( Player player, Command cmd ) {
+        static void UnbanIPHandler( Player player, Command cmd ) {
             DoBan( player, cmd.Next(), cmd.NextAll(), true, false, true );
         }
 
@@ -156,13 +156,12 @@ namespace fCraft {
             Help = "Removes ban for a specified player's name, last known IP, and all other names associated with the IP. " +
                    "You can also type in the IP address directly. " +
                    "Any text after the player name will be saved as a memo. ",
-            Handler = UnbanAll
+            Handler = UnbanAllHandler
         };
 
-        static void UnbanAll( Player player, Command cmd ) {
+        static void UnbanAllHandler( Player player, Command cmd ) {
             DoBan( player, cmd.Next(), cmd.NextAll(), true, true, true );
         }
-
 
 
         public static void DoBan( Player player, string nameOrIP, string reason, bool banIP, bool banAll, bool unban ) {
@@ -187,7 +186,7 @@ namespace fCraft {
                     player.Can( Permission.Freeze ) && player.Can( Permission.Ban, target.Info.Rank ) ) {
                     player.Message( "{0}&S has been frozen while you retry.",
                                     target.ClassyName );
-                    Freeze( player, new Command( "/freeze " + target.Name ) );
+                    FreezeHandler( player, new Command( "/freeze " + target.Name ) );
                 }
 
                 return;
@@ -197,16 +196,22 @@ namespace fCraft {
             if( banIP && Server.IsIP( nameOrIP ) && IPAddress.TryParse( nameOrIP, out address ) ) {
                 DoIPBan( player, address, reason, null, banAll, unban );
 
-                // ban online players
+            // ban online players
             } else if( !unban && target != null ) {
 
                 // check permissions
                 if( player.Can( Permission.Ban, target.Info.Rank ) ) {
                     address = target.Info.LastIP;
+
+                    PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetInfo, player, false, reason );
+                    Server.RaisePlayerInfoBanChangingEvent( e );
+                    if( e.Cancel ) return;
+                    reason = e.Reason;
+
                     if( banIP ) DoIPBan( player, address, reason, target.Name, banAll, false );
                     if( !banAll ) {
                         if( target.Info.ProcessBan( player, reason ) ) {
-                            Server.FirePlayerBannedEvent( target.Info, player, reason );
+                            Server.RaisePlayerInfoBanChangedEvent( e );
                             Logger.Log( "{0} was banned by {1}.", LogType.UserActivity,
                                         target.Info.Name, player.Name );
 
@@ -245,11 +250,17 @@ namespace fCraft {
             } else if( targetInfo != null ) {
                 if( player.Can( Permission.Ban, targetInfo.Rank ) || unban ) {
                     address = targetInfo.LastIP;
+
+                    PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetInfo, player, unban, reason );
+                    Server.RaisePlayerInfoBanChangingEvent( e );
+                    if( e.Cancel ) return;
+                    reason = e.Reason;
+
                     if( banIP ) DoIPBan( player, address, reason, targetInfo.Name, banAll, unban );
                     if( !banAll ) {
                         if( unban ) {
                             if( targetInfo.ProcessUnban( player.Name, reason ) ) {
-                                Server.FirePlayerUnbannedEvent( targetInfo, player, reason );
+                                Server.RaisePlayerInfoBanChangedEvent( e );
                                 Logger.Log( "{0} (offline) was unbanned by {1}", LogType.UserActivity,
                                             targetInfo.Name, player.Name );
                                 Server.Message( "{0}&W (offline) was unbanned by {1}",
@@ -262,7 +273,7 @@ namespace fCraft {
                             }
                         } else {
                             if( targetInfo.ProcessBan( player, reason ) ) {
-                                Server.FirePlayerBannedEvent( targetInfo, player, reason );
+                                Server.RaisePlayerInfoBanChangedEvent( e );
                                 Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity,
                                             targetInfo.Name, player.Name );
                                 Server.Message( "{0}&W (offline) was banned by {1}",
@@ -294,9 +305,20 @@ namespace fCraft {
                 if( unban ) {
                     player.Message( "\"{0}\" (unrecognized) is not banned.", nameOrIP );
                 } else {
+
                     targetInfo = PlayerDB.AddFakeEntry( nameOrIP, RankChangeType.Default );
-                    targetInfo.ProcessBan( player, reason ); // this will never return false (player could not have been banned already)
-                    Server.FirePlayerBannedEvent( targetInfo, player, reason );
+
+                    PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetInfo, player, false, reason );
+                    Server.RaisePlayerInfoBanChangingEvent( e );
+                    if( e.Cancel ) return; // TODO: Remove fake player from DB
+                    reason = e.Reason;
+
+
+                    // this will never return false (player could not have been banned already)
+                    targetInfo.ProcessBan( player, reason );
+
+                    Server.RaisePlayerInfoBanChangedEvent( e );
+
                     player.Message( "Player \"{0}\" (unrecognized) was banned.", nameOrIP );
                     Logger.Log( "{0} (unrecognized) was banned by {1}", LogType.UserActivity,
                                 targetInfo.Name, player.Name );
@@ -313,7 +335,7 @@ namespace fCraft {
         }
 
 
-        internal static void DoIPBan( Player player, IPAddress address, string reason, string targetName, bool banAll, bool unban ) {
+        internal static void DoIPBan( Player player, IPAddress address, string reason, string targetName, bool all, bool unban ) {
 
             if( player == null ) throw new ArgumentNullException( "player" );
             if( address == null ) throw new ArgumentNullException( "address" );
@@ -361,10 +383,16 @@ namespace fCraft {
                     }
                 }
 
-                if( banAll ) {
+                if( all ) {
+                    string newReason = reason + "~UnbanAll";
                     foreach( PlayerInfo otherInfo in PlayerDB.FindPlayers( address ) ) {
-                        if( otherInfo.ProcessUnban( player.Name, reason + "~UnBanAll" ) ) {
-                            Server.FirePlayerUnbannedEvent( otherInfo, player, reason + "~UnBanAll" );
+                        PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( otherInfo, player, true, newReason );
+                        Server.RaisePlayerInfoBanChangingEvent( e );
+                        if( e.Cancel ) return;
+                        newReason = e.Reason;
+
+                        if( otherInfo.ProcessUnban( player.Name, newReason ) ) {
+                            Server.RaisePlayerInfoBanChangedEvent( e );
                             Server.Message( player,
                                             "{0}&W was unbanned (UnbanAll) by {1}",
                                             otherInfo.ClassyName, player.ClassyName );
@@ -412,10 +440,16 @@ namespace fCraft {
                     }
                 }
 
-                if( banAll ) {
+                if( all ) {
+                    string newReason = reason + "~BanAll";
                     foreach( PlayerInfo otherInfo in PlayerDB.FindPlayers( address ) ) {
-                        if( otherInfo.ProcessBan( player, reason + "~BanAll" ) ) {
-                            Server.FirePlayerBannedEvent( otherInfo, player, reason + "~BanAll" );
+                        PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( otherInfo, player, false, newReason );
+                        Server.RaisePlayerInfoBanChangingEvent( e );
+                        if( e.Cancel ) return;
+                        newReason = e.Reason;
+
+                        if( otherInfo.ProcessBan( player, newReason ) ) {
+                            Server.RaisePlayerInfoBanChangedEvent( e );
                             player.Message( "{0}&S matched IP and was also banned.", otherInfo.ClassyName );
                             Server.Message( player,
                                             "{0}&W was banned (BanAll) by {1}",
@@ -444,10 +478,10 @@ namespace fCraft {
             Usage = "/kick PlayerName [Reason]",
             Help = "Kicks the specified player from the server. " +
                    "Optional kick reason/message is shown to the kicked player and logged.",
-            Handler = Kick
+            Handler = KickHandler
         };
 
-        internal static void Kick( Player player, Command cmd ) {
+        static void KickHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name != null ) {
                 string reason = cmd.NextAll();
@@ -465,7 +499,7 @@ namespace fCraft {
                     if( !target.Info.IsFrozen && player.Can( Permission.Freeze ) && player.Can( Permission.Kick, target.Info.Rank ) ) {
                         player.Message( "{0}&S has been frozen while you retry.",
                                         target.ClassyName );
-                        Freeze( player, new Command( "/freeze " + target.Name ) );
+                        FreezeHandler( player, new Command( "/freeze " + target.Name ) );
                     }
                     return;
                 }
@@ -491,8 +525,8 @@ namespace fCraft {
         }
 
 
-        internal static bool DoKick( Player player, Player target, string reason,
-                                     bool silent, bool recordToPlayerDB, LeaveReason leaveReason ) {
+        public static bool DoKick( Player player, Player target, string reason,
+                                   bool silent, bool recordToPlayerDB, LeaveReason leaveReason ) {
 
             if( player == null ) throw new ArgumentNullException( "player" );
             if( target == null ) throw new ArgumentNullException( "target" );
@@ -511,7 +545,7 @@ namespace fCraft {
             } else {
 
                 var e = new PlayerBeingKickedEventArgs( target, player, reason, silent, recordToPlayerDB, leaveReason );
-                Server.RaisePlayerBeingKickedEvent( e );
+                Player.RaisePlayerBeingKickedEvent( e );
                 if( e.Cancel ) return false;
 
                 if( !e.IsSilent ) {
@@ -523,7 +557,7 @@ namespace fCraft {
                     target.Info.ProcessKick( player, reason );
                 }
 
-                Server.RaisePlayerKickedEvent( e );
+                Player.RaisePlayerKickedEvent( e );
                 if( !string.IsNullOrEmpty( reason ) ) {
                     if( !e.IsSilent && ConfigKey.AnnounceKickAndBanReasons.Enabled() ) {
                         Server.Message( "&WKick reason: {0}", reason );
@@ -556,10 +590,10 @@ namespace fCraft {
             Usage = "/rank PlayerName RankName [Reason]",
             Help = "Changes the rank of a player to a specified rank. " +
                    "Any text specified after the RankName will be saved as a memo.",
-            Handler = ChangeRank
+            Handler = RankHandler
         };
 
-        internal static void ChangeRank( Player player, Command cmd ) {
+        static void RankHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             string newRankName = cmd.Next();
 
@@ -792,10 +826,10 @@ namespace fCraft {
                    "but you can still do anything - chat, build, delete, type commands - as usual. " +
                    "Great way to spy on griefers and scare newbies. " +
                    "Call &H/unhide&S to reveal yourself.",
-            Handler = Hide
+            Handler = HideHandler
         };
 
-        internal static void Hide( Player player, Command cmd ) {
+        static void HideHandler( Player player, Command cmd ) {
             if( player.Info.IsHidden ) {
                 player.Message( "You are already hidden." );
                 return;
@@ -825,7 +859,7 @@ namespace fCraft {
             // for aware players: notify
             Server.Players.CanSee( player ).Message( "&SPlayer {0}&S is now hidden.", player.ClassyName );
 
-            Server.RaisePlayerHideChangedEvent( player );
+            Player.RaisePlayerHideChangedEvent( player );
         }
 
 
@@ -837,10 +871,10 @@ namespace fCraft {
             Usage = "/unhide [silent]",
             Help = "Disables the &H/hide&S invisible mode. " +
                    "It looks to other players like you just joined the server.",
-            Handler = Unhide
+            Handler = UnhideHandler
         };
 
-        internal static void Unhide( Player player, Command cmd ) {
+        static void UnhideHandler( Player player, Command cmd ) {
             if( !player.Info.IsHidden ) {
                 player.Message( "You are not currently hidden." );
                 return;
@@ -863,7 +897,7 @@ namespace fCraft {
 
             player.Message( "&8You are no longer hidden." );
             player.Info.IsHidden = false;
-            Server.RaisePlayerHideChangedEvent( player );
+            Player.RaisePlayerHideChangedEvent( player );
         }
 
         #endregion
@@ -878,10 +912,10 @@ namespace fCraft {
             Help = "Assigns your current location to be the spawn point of the map/world. " +
                    "If an optional PlayerName param is given, the spawn point of only that player is changed instead.",
             Usage = "/setspawn [PlayerName]",
-            Handler = SetSpawn
+            Handler = SetSpawnHandler
         };
 
-        internal static void SetSpawn( Player player, Command cmd ) {
+        static void SetSpawnHandler( Player player, Command cmd ) {
             string playerName = cmd.Next();
             if( playerName == null ) {
                 player.World.Map.Spawn = player.Position;
@@ -934,10 +968,10 @@ namespace fCraft {
             Help = "Freezes the specified player in place. " +
                    "This is usually effective, but not hacking-proof. " +
                    "To release the player, use &H/unfreeze PlayerName",
-            Handler = Freeze
+            Handler = FreezeHandler
         };
 
-        internal static void Freeze( Player player, Command cmd ) {
+        static void FreezeHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
                 CdFreeze.PrintUsage( player );
@@ -963,7 +997,6 @@ namespace fCraft {
         }
 
 
-
         static readonly CommandDescriptor CdUnfreeze = new CommandDescriptor {
             Name = "unfreeze",
             Aliases = new[] { "uf" },
@@ -972,10 +1005,10 @@ namespace fCraft {
             Permissions = new[] { Permission.Freeze },
             Usage = "/unfreeze PlayerName",
             Help = "Releases the player from a frozen state. See &H/help freeze&S for more information.",
-            Handler = Unfreeze
+            Handler = UnfreezeHandler
         };
 
-        internal static void Unfreeze( Player player, Command cmd ) {
+        static void UnfreezeHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
                 CdFreeze.PrintUsage( player );
@@ -1010,10 +1043,10 @@ namespace fCraft {
             Usage = "/tp PlayerName&S or &H/tp X Y Z",
             Help = "Teleports you to a specified player's location. " +
                    "If coordinates are given, teleports to that location.",
-            Handler = TP
+            Handler = TPHandler
         };
 
-        internal static void TP( Player player, Command cmd ) {
+        static void TPHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
                 CdTP.PrintUsage( player );
@@ -1108,10 +1141,10 @@ namespace fCraft {
             Usage = "/bring PlayerName [ToPlayer]",
             Help = "Teleports another player to your location. " +
                    "If the optional second parameter is given, teleports player to another player.",
-            Handler = Bring
+            Handler = BringHandler
         };
 
-        static void Bring( Player player, Command cmd ) {
+        static void BringHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
                 CdBring.PrintUsage( player );
@@ -1171,10 +1204,10 @@ namespace fCraft {
             Permissions = new[] { Permission.Bring },
             Usage = "/wbring PlayerName WorldName",
             Help = "Teleports a player to the given world's spawn.",
-            Handler = WorldBring
+            Handler = WorldBringHandler
         };
 
-        static void WorldBring( Player player, Command cmd ) {
+        static void WorldBringHandler( Player player, Command cmd ) {
             string playerName = cmd.Next();
             string worldName = cmd.Next();
             if( playerName == null || worldName == null ) {
@@ -1220,10 +1253,10 @@ namespace fCraft {
             Help = "Teleports all players from your world to you. " +
                    "If any world names are given, only teleports players from those worlds. " +
                    "If any rank names are given, only teleports players of those ranks.",
-            Handler = BringAll
+            Handler = BringAllHandler
         };
 
-        static void BringAll( Player player, Command cmd ) {
+        static void BringAllHandler( Player player, Command cmd ) {
             List<World> targetWorlds = new List<World>();
             List<Rank> targetRanks = new List<Rank>();
             bool allWorlds = false;
@@ -1368,10 +1401,10 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Patrol },
             Help = "Teleports you to the next player in need of checking.",
-            Handler = Patrol
+            Handler = PatrolHandler
         };
 
-        internal static void Patrol( Player player, Command cmd ) {
+        static void PatrolHandler( Player player, Command cmd ) {
             Player target = player.World.GetNextPatrolTarget( player );
             if( target == null ) {
                 player.Message( "Patrol: No one to patrol in this world." );
@@ -1389,10 +1422,10 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Patrol },
             Help = "Teleports you to the next player in need of checking.",
-            Handler = SpecPatrol
+            Handler = SpecPatrolHandler
         };
 
-        internal static void SpecPatrol( Player player, Command cmd ) {
+        static void SpecPatrolHandler( Player player, Command cmd ) {
             Player target = player.World.GetNextPatrolTarget( player );
             if( target == null ) {
                 player.Message( "Patrol: No one to patrol in this world." );
@@ -1415,10 +1448,10 @@ namespace fCraft {
             Permissions = new[] { Permission.Mute },
             Help = "Mutes a player for a specified length of time.",
             Usage = "/mute PlayerName Duration",
-            Handler = Mute
+            Handler = MuteHandler
         };
 
-        internal static void Mute( Player player, Command cmd ) {
+        static void MuteHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
             string timeString = cmd.Next();
             TimeSpan duration;
@@ -1459,7 +1492,6 @@ namespace fCraft {
         }
 
 
-
         static readonly CommandDescriptor CdUnmute = new CommandDescriptor {
             Name = "unmute",
             Category = CommandCategory.Moderation | CommandCategory.Chat,
@@ -1467,10 +1499,10 @@ namespace fCraft {
             Permissions = new[] { Permission.Mute },
             Help = "Unmutes a player.",
             Usage = "/unmute PlayerName",
-            Handler = Unmute
+            Handler = UnmuteHandler
         };
 
-        internal static void Unmute( Player player, Command cmd ) {
+        static void UnmuteHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
             if( targetName != null && Player.IsValidName( targetName ) ) {
 
@@ -1511,10 +1543,10 @@ namespace fCraft {
             Aliases = new[] { "follow", "spec" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Spectate },
-            Handler = Spectate
+            Handler = SpectateHandler
         };
 
-        internal static void Spectate( Player player, Command cmd ) {
+        static void SpectateHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
             if( targetName == null ) {
                 PlayerInfo lastSpec = player.LastSpectatedPlayer;
@@ -1553,16 +1585,15 @@ namespace fCraft {
         }
 
 
-
         static readonly CommandDescriptor CdUnspectate = new CommandDescriptor {
             Name = "unspectate",
             Aliases = new[] { "unfollow", "unspec" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Spectate },
-            Handler = Unspectate
+            Handler = UnspectateHandler
         };
 
-        internal static void Unspectate( Player player, Command cmd ) {
+        static void UnspectateHandler( Player player, Command cmd ) {
             if( !player.StopSpectating() ) {
                 player.Message( "You are not currently spectating anyone." );
             }

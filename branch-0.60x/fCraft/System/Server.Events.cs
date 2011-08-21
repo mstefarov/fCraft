@@ -93,199 +93,13 @@ namespace fCraft {
         // See the end of Player.cs for these EventArgs definitions
 
 
-        /// <summary> Occurs when a player is connecting (cancellable).
-        /// Player name is verified and bans are checked before this event is raised. </summary>
-        public static event EventHandler<PlayerConnectingEventArgs> PlayerConnecting;
-
-
-        /// <summary> Occurs when a player has connected, but before the player has joined any world.
-        /// Allows changing the player's starting world. </summary>
-        public static event EventHandler<PlayerConnectedEventArgs> PlayerConnected;
-
-
-        /// <summary> Occurs after a player has connected and joined the starting world. </summary>
-        public static event EventHandler<PlayerEventArgs> PlayerReady;
-
-
-        /// <summary> Occurs when player is about to move (cancellable). </summary>
-        public static event EventHandler<PlayerMovingEventArgs> PlayerMoving;
-
-
-        /// <summary> Occurs when player has moved. </summary>
-        public static event EventHandler<PlayerMovedEventArgs> PlayerMoved;
-
-
-        /// <summary> Occurs when player clicked a block (cancellable).
-        /// Note that a click will not necessarily result in a block being placed or deleted. </summary>
-        public static event EventHandler<PlayerClickingEventArgs> PlayerClicking;
-
-
-        /// <summary> Occurs after a player has clicked a block.
-        /// Note that a click will not necessarily result in a block being placed or deleted. </summary>
-        public static event EventHandler<PlayerClickedEventArgs> PlayerClicked;
-
-
-        /// <summary> Occurs when a player is about to place a block.
-        /// Permission checks are done before calling this event, and their result may be overridden. </summary>
-        public static event EventHandler<PlayerPlacingBlockEventArgs> PlayerPlacingBlock;
-
-
-        /// <summary>  Occurs when a player has placed a block.
-        /// This event does not occur if the block placement was disallowed. </summary>
-        public static event EventHandler<PlayerPlacedBlockEventArgs> PlayerPlacedBlock;
-
-
-        /// <summary> Occurs before a player is kicked (cancellable). 
-        /// Kick may be caused by /kick, /ban, /banip, or /banall commands, or by idling.
-        /// Callbacks may override whether the kick will be announced or recorded in PlayerDB. </summary>
-        public static event EventHandler<PlayerBeingKickedEventArgs> PlayerBeingKicked;
-
-
-        /// <summary> Occurs after a player has been kicked. Specifically, it happens after
-        /// kick has been announced and recorded to PlayerDB (if applicable), just before the
-        /// target player disconnects.
-        /// Kick may be caused by /kick, /ban, /banip, or /banall commands, or by idling. </summary>
-        public static event EventHandler<PlayerKickedEventArgs> PlayerKicked;
-
-
-        /// <summary> Happens after a player has hidden or unhidden. </summary>
-        public static event EventHandler<PlayerEventArgs> PlayerHideChanged;
-
-
-        /// <summary> Occurs when a player disconnects. </summary>
-        public static event EventHandler<PlayerDisconnectedEventArgs> PlayerDisconnected;
-
-
-        /// <summary> Occurs when a player intends to join a world (cancellable). </summary>
-        public static event EventHandler<PlayerJoiningWorldEventArgs> PlayerJoiningWorld;
-
-
-        /// <summary> Occurs after a player has joined a world. </summary>
-        public static event EventHandler<PlayerJoinedWorldEventArgs> PlayerJoinedWorld;
-
-
-
-
-        internal static bool RaisePlayerConnectingEvent( Player player ) {
-            var h = PlayerConnecting;
-            if( h == null ) return false;
-            var e = new PlayerConnectingEventArgs( player );
-            h( null, e );
-            return e.Cancel;
-        }
-
-
-        internal static World RaisePlayerConnectedEvent( Player player, World world ) {
-            var h = PlayerConnected;
-            if( h == null ) return world;
-            var e = new PlayerConnectedEventArgs( player, world );
-            h( null, e );
-            return e.StartingWorld;
-        }
-
-
-        internal static void RaisePlayerReadyEvent( Player player ) {
-            var h = PlayerReady;
-            if( h != null ) h( null, new PlayerEventArgs( player ) );
-        }
-
-
-        internal static bool RaisePlayerMovingEvent( Player player, Position newPos ) {
-            var h = PlayerMoving;
-            if( h == null ) return false;
-            var e = new PlayerMovingEventArgs( player, newPos );
-            h( null, e );
-            return e.Cancel;
-        }
-
-
-        internal static void RaisePlayerMovedEvent( Player player, Position oldPos ) {
-            var h = PlayerMoved;
-            if( h != null ) h( null, new PlayerMovedEventArgs( player, oldPos ) );
-        }
-
-
-        internal static bool RaisePlayerClickingEvent( PlayerClickingEventArgs e ) {
-            var h = PlayerClicking;
-            if( h == null ) return false;
-            h( null, e );
-            return e.Cancel;
-        }
-
-
-        internal static void RaisePlayerClickedEvent( Player player, short x, short y, short z, bool mode, Block block ) {
-            var handler = PlayerClicked;
-            if( handler != null ) {
-                handler( null, new PlayerClickedEventArgs( player, x, y, z, mode, block ) );
-            }
-        }
-
-
-        internal static CanPlaceResult RaisePlayerPlacingBlockEvent( Player player, Map map, short x, short y, short z,
-                                                                     Block oldBlock, Block newBlock, bool manual,
-                                                                     CanPlaceResult result ) {
-            var handler = PlayerPlacingBlock;
-            if( handler == null ) return result;
-            var e = new PlayerPlacingBlockEventArgs( player, map, x, y, z, oldBlock, newBlock, manual, result );
-            handler( null, e );
-            return e.Result;
-        }
-
-
-        internal static void RaisePlayerPlacedBlockEvent( Player player, Map map, short x, short y, short z,
-                                                          Block oldBlock, Block newBlock, bool manual ) {
-            var handler = PlayerPlacedBlock;
-            if( handler != null ) {
-                handler( null, new PlayerPlacedBlockEventArgs( player, map, x, y, z, oldBlock, newBlock, manual ) );
-            }
-        }
-
-
-        internal static void RaisePlayerBeingKickedEvent( PlayerBeingKickedEventArgs e ) {
-            var h = PlayerBeingKicked;
-            if( h != null ) h( null, e );
-        }
-
-
-        internal static void RaisePlayerKickedEvent( PlayerKickedEventArgs e ) {
-            var h = PlayerKicked;
-            if( h != null ) h( null, e );
-        }
-
-
-        internal static void RaisePlayerHideChangedEvent( Player player ) {
-            var h = PlayerHideChanged;
-            if( h != null ) h( null, new PlayerEventArgs( player ) );
-        }
-
-
-        internal static void RaisePlayerDisconnectedEvent( Player player, LeaveReason leaveReason ) {
-            var h = PlayerDisconnected;
-            if( h != null ) h( null, new PlayerDisconnectedEventArgs( player, leaveReason, false ) );
-        }
-
-
-        internal static bool RaisePlayerJoiningWorldEvent( Player player, World newWorld, WorldChangeReason reason ) {
-            var h = PlayerJoiningWorld;
-            if( h == null ) return false;
-            var e = new PlayerJoiningWorldEventArgs( player, player.World, newWorld, reason );
-            h( null, e );
-            return e.Cancel;
-        }
-
-
-        internal static void RaisePlayerJoinedWorldEvent( Player player, World oldWorld, WorldChangeReason reason ) {
-            var h = PlayerJoinedWorld;
-            if( h != null ) h( null, new PlayerJoinedWorldEventArgs( player, oldWorld, player.World, reason ) );
-        }
-
         #endregion
 
 
         #region PlayerInfo-related
 
         /// <summary> Occurs when a new PlayerDB entry is being created.
-        /// Cancellable (kicks the player), and allows editing the starting rank. </summary>
+        /// Allows editing the starting rank. Cancellable (kicks the player). </summary>
         public static event EventHandler<PlayerInfoCreatingEventArgs> PlayerInfoCreating;
 
         /// <summary> Occurs after a new PlayerDB entry has been created. </summary>
@@ -294,8 +108,14 @@ namespace fCraft {
         /// <summary> Occurs when a player's rank is about to be changed (automatically or manually). </summary>
         public static event EventHandler<PlayerInfoRankChangingEventArgs> PlayerInfoRankChanging;
 
-        /// <summary> Occurs when a player's rank was just changed (automatically or manually). </summary>
+        /// <summary> Occurs after a player's rank was changed (automatically or manually). </summary>
         public static event EventHandler<PlayerInfoRankChangedEventArgs> PlayerInfoRankChanged;
+
+        /// <summary> Occurs when a player is about to be banned or unbanned. Cancellable. </summary>
+        public static event EventHandler<PlayerInfoBanChangingEventArgs> PlayerInfoBanChanging;
+
+        /// <summary> Occurs after a player has been banned or unbanned. </summary>
+        public static event EventHandler<PlayerInfoBanChangedEventArgs> PlayerInfoBanChanged;
 
 
         internal static void RaisePlayerInfoCreatingEvent( PlayerInfoCreatingEventArgs e ) {
@@ -319,6 +139,16 @@ namespace fCraft {
         internal static void RaisePlayerInfoRankChangedEvent( PlayerInfo playerInfo, Player rankChanger, Rank oldRank, string reason, RankChangeType rankChangeType ) {
             var h = PlayerInfoRankChanged;
             if( h != null ) h( null, new PlayerInfoRankChangedEventArgs( playerInfo, rankChanger, oldRank, reason, rankChangeType ) );
+        }
+
+        internal static void RaisePlayerInfoBanChangingEvent( PlayerInfoBanChangingEventArgs e ) {
+            var h = PlayerInfoBanChanging;
+            if( h != null ) h( null, e );
+        }
+
+        internal static void RaisePlayerInfoBanChangedEvent( PlayerInfoBanChangingEventArgs e ) {
+            var h = PlayerInfoBanChanged;
+            if( h != null ) h( null, new PlayerInfoBanChangedEventArgs( e.PlayerInfo, e.Banner, e.IsBeingUnbanned, e.Reason ) );
         }
 
         #endregion

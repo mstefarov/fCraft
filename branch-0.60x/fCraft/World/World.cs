@@ -5,9 +5,7 @@ using System.IO;
 using System.Linq;
 using fCraft.MapConversion;
 
-
 namespace fCraft {
-
     public sealed class World : IClassy {
 
         const string TimedBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}.fcm",
@@ -46,9 +44,7 @@ namespace fCraft {
         public BlockDB BlockDB { get; private set; }
 
         internal World( string name ) {
-            if( name == null ) {
-                throw new ArgumentException( "name" );
-            }
+            if( name == null ) throw new ArgumentException( "name" );
             if( !IsValidName( name ) ) {
                 throw new ArgumentException( "Incorrect world name format" );
             }
@@ -187,6 +183,7 @@ namespace fCraft {
 
         public bool IsFlushing { get; private set; }
 
+
         public void Flush() {
             lock( WorldLock ) {
                 if( Map == null ) return;
@@ -205,7 +202,6 @@ namespace fCraft {
                 }
             }
         }
-
 
         #endregion
 
@@ -440,6 +436,7 @@ namespace fCraft {
         static readonly TimeSpan MinPatrolInterval = TimeSpan.FromSeconds( 20 );
 
         public Player GetNextPatrolTarget( Player observer ) {
+            if( observer == null ) throw new ArgumentNullException( "observer" );
             lock( patrolLock ) {
                 Player candidate = Players.RankedAtMost( RankManager.PatrolledRank )
                                           .CanBeSeen( observer )

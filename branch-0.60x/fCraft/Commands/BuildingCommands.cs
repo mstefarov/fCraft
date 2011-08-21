@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using fCraft.MapConversion;
 using fCraft.Drawing;
+using fCraft.MapConversion;
 
 namespace fCraft {
     /// <summary> Commands for placing specific blocks (solid, water, grass),
@@ -314,10 +314,10 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.PlaceAdmincrete },
             Help = "Toggles the admincrete placement mode. When enabled, any stone block you place is replaced with admincrete.",
-            Handler = Solid
+            Handler = SolidHandler
         };
 
-        internal static void Solid( Player player, Command cmd ) {
+        internal static void SolidHandler( Player player, Command cmd ) {
             if( player.GetBind( Block.Stone ) == Block.Admincrete ) {
                 player.ResetBind( Block.Stone );
                 player.Message( "Solid: OFF" );
@@ -335,10 +335,10 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Help = "When paint mode is on, any block you delete will be replaced with the block you are holding. " +
                    "Paint command toggles this behavior on and off.",
-            Handler = Paint
+            Handler = PaintHandler
         };
 
-        internal static void Paint( Player player, Command cmd ) {
+        internal static void PaintHandler( Player player, Command cmd ) {
             player.IsPainting = !player.IsPainting;
             if( player.IsPainting ) {
                 player.Message( "Paint mode: ON" );
@@ -355,10 +355,10 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.PlaceGrass },
             Help = "Toggles the grass placement mode. When enabled, any dirt block you place is replaced with a grass block.",
-            Handler = Grass
+            Handler = GrassHandler
         };
 
-        internal static void Grass( Player player, Command cmd ) {
+        internal static void GrassHandler( Player player, Command cmd ) {
             if( player.GetBind( Block.Dirt ) == Block.Grass ) {
                 player.ResetBind( Block.Dirt );
                 player.Message( "Grass: OFF" );
@@ -376,10 +376,10 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.PlaceWater },
             Help = "Toggles the water placement mode. When enabled, any blue or cyan block you place is replaced with water.",
-            Handler = Water
+            Handler = WaterHandler
         };
 
-        internal static void Water( Player player, Command cmd ) {
+        internal static void WaterHandler( Player player, Command cmd ) {
             if( player.GetBind( Block.Aqua ) == Block.Water ||
                 player.GetBind( Block.Cyan ) == Block.Water ||
                 player.GetBind( Block.Blue ) == Block.Water ) {
@@ -400,10 +400,10 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.PlaceLava },
             Help = "Toggles the lava placement mode. When enabled, any red block you place is replaced with lava.",
-            Handler = Lava
+            Handler = LavaHandler
         };
 
-        internal static void Lava( Player player, Command cmd ) {
+        internal static void LavaHandler( Player player, Command cmd ) {
             if( player.GetBind( Block.Red ) == Block.Lava ) {
                 player.ResetBind( Block.Red );
                 player.Message( "Lava: OFF" );
@@ -424,10 +424,10 @@ namespace fCraft {
                    "Allows to build blocktypes that are not normally buildable directly: admincrete, lava, water, grass, double step. " +
                    "Calling &H/bind BlockType&S without second parameter resets the binding. If used with no params, ALL bindings are reset.",
             Usage = "/bind OriginalBlockType ReplacementBlockType",
-            Handler = Bind
+            Handler = BindHandler
         };
 
-        internal static void Bind( Player player, Command cmd ) {
+        internal static void BindHandler( Player player, Command cmd ) {
             string originalBlockName = cmd.Next();
             if( originalBlockName == null ) {
                 player.Message( "All bindings have been reset." );
@@ -495,10 +495,10 @@ namespace fCraft {
             Usage = "/cuboid [BlockName]",
             Help = "Allows to fill a rectangular area (cuboid) with blocks. " +
                    "If BlockType is omitted, uses the block that player is holding.",
-            Handler = Cuboid
+            Handler = CuboidHandler
         };
 
-        static void Cuboid( Player player, Command cmd ) {
+        static void CuboidHandler( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.Cuboid );
         }
 
@@ -513,10 +513,10 @@ namespace fCraft {
             Help = "Allows to box a rectangular area (cuboid) with blocks. " +
                    "If OuterBlockName is omitted, uses the block that player is holding. " +
                    "Unless InnerBlockName is specified, the inside is left untouched.",
-            Handler = CuboidHollow
+            Handler = CuboidHollowHandler
         };
 
-        static void CuboidHollow( Player player, Command cmd ) {
+        static void CuboidHollowHandler( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.CuboidHollow );
         }
 
@@ -530,10 +530,10 @@ namespace fCraft {
             Usage = "/cubw [BlockName]",
             Help = "Draws a wireframe box around selected area. " +
                    "If BlockType is omitted, uses the block that player is holding.",
-            Handler = CuboidWireframe
+            Handler = CuboidWireframeHandler
         };
 
-        static void CuboidWireframe( Player player, Command cmd ) {
+        static void CuboidWireframeHandler( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.CuboidWireframe );
         }
 
@@ -547,10 +547,10 @@ namespace fCraft {
             Usage = "/ellipsoid [BlockName]",
             Help = "Fills a sphere-like (ellipsoidal) area with blocks. " +
                    "If BlockType is omitted, uses the block that player is holding.",
-            Handler = Ellipsoid
+            Handler = EllipsoidHandler
         };
 
-        static void Ellipsoid( Player player, Command cmd ) {
+        static void EllipsoidHandler( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.Ellipsoid );
         }
 
@@ -563,10 +563,10 @@ namespace fCraft {
             Usage = "/ellipsoidh [OuterBlock [InnerBlock]]",
             Help = "Allows to fill a sphere-like (ellipsoidal) area with blocks. " +
                    "If BlockType is omitted, uses the block that player is holding.",
-            Handler = EllipsoidHollow
+            Handler = EllipsoidHollowHandler
         };
 
-        static void EllipsoidHollow( Player player, Command cmd ) {
+        static void EllipsoidHollowHandler( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.EllipsoidHollow );
         }
 
@@ -575,15 +575,15 @@ namespace fCraft {
             Name = "sphere",
             Aliases = new[] { "sp", "spheroid" },
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.Draw },
+            Permissions = new[] { Permission.DrawAdvanced },
             Usage = "/sphere [BlockName]",
             Help = "Fills a spherical area with blocks. " +
                    "First mark is the center of the sphere, second mark defines the radius." +
                    "If BlockType is omitted, uses the block that player is holding.",
-            Handler = Sphere
+            Handler = SphereHandler
         };
 
-        static void Sphere( Player player, Command cmd ) {
+        static void SphereHandler( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.Sphere );
         }
 
@@ -592,15 +592,15 @@ namespace fCraft {
             Name = "sphereh",
             Aliases = new[] { "sph", "hsphere" },
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.Draw },
+            Permissions = new[] { Permission.DrawAdvanced },
             Usage = "/sphereh [OuterBlock [InnerBlock]]",
             Help = "Surrounds a spherical area with a shell of blocks. " +
                    "First mark is the center of the sphere, second mark defines the radius." +
                    "If BlockType is omitted, uses the block that player is holding.",
-            Handler = SphereHollow
+            Handler = SphereHollowHandler
         };
 
-        static void SphereHollow( Player player, Command cmd ) {
+        static void SphereHollowHandler( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.SphereHollow );
         }
 
@@ -612,10 +612,10 @@ namespace fCraft {
             Permissions = new[] { Permission.Draw },
             Usage = "/replace BlockToReplace [AnotherOne, ...] ReplacementBlock",
             Help = "Replaces all blocks of specified type(s) in an area.",
-            Handler = Replace
+            Handler = ReplaceHandler
         };
 
-        static void Replace( Player player, Command cmd ) {
+        static void ReplaceHandler( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.Replace );
         }
 
@@ -628,10 +628,10 @@ namespace fCraft {
             Permissions = new[] { Permission.Draw },
             Usage = "/replacenot (ExcludedBlock [AnotherOne]) ReplacementBlock",
             Help = "Replaces all blocks EXCEPT specified type(s) in an area.",
-            Handler = ReplaceNot
+            Handler = ReplaceNotHandler
         };
 
-        static void ReplaceNot( Player player, Command cmd ) {
+        static void ReplaceNotHandler( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.ReplaceNot );
         }
 
@@ -645,10 +645,10 @@ namespace fCraft {
             Usage = "/line [BlockName]",
             Help = "Draws a line between two points with blocks. " +
                    "If BlockType is omitted, uses the block that player is holding.",
-            Handler = Line
+            Handler = LineHandler
         };
 
-        static void Line( Player player, Command cmd ) {
+        static void LineHandler( Player player, Command cmd ) {
             Draw( player, cmd, DrawMode.Line );
         }
 
@@ -802,19 +802,18 @@ namespace fCraft {
         }
 
 
-        #region Undo / Redo
+        #region Undo
 
         static readonly CommandDescriptor CdUndo = new CommandDescriptor {
             Name = "undo",
-            Aliases = new[] { "redo" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
             Help = "Selectively removes changes from your last drawing command. " +
                    "Note that commands involving over 2 million blocks cannot be undone due to memory restrictions.",
-            Handler = Undo
+            Handler = UndoHandler
         };
 
-        internal static void Undo( Player player, Command command ) {
+        internal static void UndoHandler( Player player, Command command ) {
             Queue<BlockUpdate> oldBuffer = player.UndoBuffer;
             if( oldBuffer.Count > 0 ) {
                 // no need to set player.drawingInProgress here because this is done on the user thread
@@ -857,7 +856,7 @@ namespace fCraft {
             // this would've been an easy way to do block tracking for draw commands BUT
             // if i set "origin" to player, he will not receive the block update. I tried.
             player.World.Map.QueueUpdate( new BlockUpdate( null, x, y, z, drawBlock ) );
-            Server.RaisePlayerPlacedBlockEvent( player, player.World.Map, (short)x, (short)y, (short)z, (Block)block, (Block)drawBlock, false );
+            Player.RaisePlayerPlacedBlockEvent( player, player.World.Map, (short)x, (short)y, (short)z, (Block)block, (Block)drawBlock, false );
 
             if( MaxUndoCount < 1 || blocks < MaxUndoCount ) {
                 player.UndoBuffer.Enqueue( new BlockUpdate( null, x, y, z, block ) );
@@ -1173,7 +1172,7 @@ namespace fCraft {
                                     continue;
                                 }
                                 player.World.Map.QueueUpdate( new BlockUpdate( null, x + x3, y + y3, z, args.ReplacementBlock ) );
-                                Server.RaisePlayerPlacedBlockEvent( player, player.World.Map, (short)(x + x3), (short)(y + y3), (short)z,
+                                Player.RaisePlayerPlacedBlockEvent( player, player.World.Map, (short)(x + x3), (short)(y + y3), (short)z,
                                                                     (Block)block, args.ReplacementBlock, false );
 
                                 if( MaxUndoCount < 1 || blocks < MaxUndoCount ) {
@@ -1538,17 +1537,16 @@ namespace fCraft {
 
         #region Copy and Paste
 
-
         static readonly CommandDescriptor CdCopySlot = new CommandDescriptor {
             Name = "copyslot",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             Usage = "/copyslot [#]",
             Help = "Selects a slot for copying to / pasting from. The maximum number of slots is limited per-rank.",
-            Handler = CopySlot
+            Handler = CopySlotHandler
         };
 
-        internal static void CopySlot( Player player, Command cmd ) {
+        internal static void CopySlotHandler( Player player, Command cmd ) {
             int slotNumber;
             if( cmd.NextInt( out slotNumber ) ) {
                 if( slotNumber < 1 || slotNumber > player.Info.Rank.CopySlots ) {
@@ -1578,6 +1576,8 @@ namespace fCraft {
             }
         }
 
+
+
         static readonly CommandDescriptor CdCopy = new CommandDescriptor {
             Name = "copy",
             Category = CommandCategory.Building,
@@ -1585,10 +1585,10 @@ namespace fCraft {
             Help = "Copy blocks for pasting. " +
                    "Used together with &H/paste&S and &H/pastenot&S commands. " +
                    "Note that pasting starts at the same corner that you started &H/copy&S from.",
-            Handler = Copy
+            Handler = CopyHandler
         };
 
-        internal static void Copy( Player player, Command cmd ) {
+        internal static void CopyHandler( Player player, Command cmd ) {
             player.SelectionStart( 2, CopyCallback, null, CdCopy.Permissions );
             player.MessageNow( "Copy: Place a block or type /mark to use your location." );
         }
@@ -1650,10 +1650,10 @@ namespace fCraft {
                    "Used together with &H/paste&S and &H/pastenot&S commands. " +
                    "Note that pasting starts at the same corner that you started &H/cut&S from.",
             Usage = "/cut [FillBlock]",
-            Handler = Cut
+            Handler = CutHandler
         };
 
-        internal static void Cut( Player player, Command cmd ) {
+        internal static void CutHandler( Player player, Command cmd ) {
             Block fillBlock = Block.Air;
             string fillBlockName = cmd.Next();
             if( fillBlockName != null ) {
@@ -1736,10 +1736,10 @@ namespace fCraft {
                    "Used together with &H/copy&S command. " +
                    "Note that pasting starts at the same corner that you started &H/copy&S from. ",
             Usage = "/pastenot ExcludedBlock [AnotherOne [AndAnother]]",
-            Handler = PasteNot
+            Handler = PasteNotHandler
         };
 
-        internal static void PasteNot( Player player, Command cmd ) {
+        internal static void PasteNotHandler( Player player, Command cmd ) {
             if( player.GetCopyInformation() == null ) {
                 player.MessageNow( "Nothing to paste! Copy something first." );
                 return;
@@ -1779,6 +1779,7 @@ namespace fCraft {
         }
 
 
+
         static readonly CommandDescriptor CdPaste = new CommandDescriptor {
             Name = "paste",
             Category = CommandCategory.Building,
@@ -1787,10 +1788,10 @@ namespace fCraft {
                    "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
                    "Note that pasting starts at the same corner that you started &H/copy&S from.",
             Usage = "/paste [IncludedBlock [AnotherOne [AndAnother]]]",
-            Handler = Paste
+            Handler = PasteHandler
         };
 
-        internal static void Paste( Player player, Command cmd ) {
+        internal static void PasteHandler( Player player, Command cmd ) {
             if( player.GetCopyInformation() == null ) {
                 player.MessageNow( "Nothing to paste! Copy something first." );
                 return;
@@ -1912,6 +1913,7 @@ namespace fCraft {
         }
 
 
+
         static readonly CommandDescriptor CdMirror = new CommandDescriptor {
             Name = "mirror",
             Aliases = new[] { "flip" },
@@ -1921,10 +1923,10 @@ namespace fCraft {
                    "The axes are: X = horizontal (east-west), Y = horizontal (north-south), Z = vertical. " +
                    "You can mirror more than one axis at a time, e.g. &H/copymirror X Y&S.",
             Usage = "/mirror [X] [Y] [Z]",
-            Handler = Mirror
+            Handler = MirrorHandler
         };
 
-        internal static void Mirror( Player player, Command cmd ) {
+        internal static void MirrorHandler( Player player, Command cmd ) {
             CopyInformation info = player.GetCopyInformation();
             if( info == null ) {
                 player.MessageNow( "Nothing to flip! Copy something first." );
@@ -2024,6 +2026,7 @@ namespace fCraft {
         }
 
 
+
         static readonly CommandDescriptor CdRotate = new CommandDescriptor {
             Name = "rotate",
             Aliases = new[] { "spin" },
@@ -2031,10 +2034,10 @@ namespace fCraft {
             Permissions = new[] { Permission.CopyAndPaste },
             Help = "Rotates copied blocks around specifies axis/axes. If no axis is given, rotates around Z (vertical).",
             Usage = "/rotate (-90|90|180|270) (X|Y|Z)",
-            Handler = Rotate
+            Handler = RotateHandler
         };
 
-        internal static void Rotate( Player player, Command cmd ) {
+        internal static void RotateHandler( Player player, Command cmd ) {
             CopyInformation info = player.GetCopyInformation();
             if( info == null ) {
                 player.MessageNow( "Nothing to rotate! Copy something first." );
@@ -2048,18 +2051,18 @@ namespace fCraft {
             }
 
             string axisName = cmd.Next();
-            RotationAxis axis = RotationAxis.Z;
+            Axis axis = Axis.Z;
             if( axisName != null ) {
                 switch( axisName.ToLower() ) {
                     case "x":
-                        axis = RotationAxis.X;
+                        axis = Axis.X;
                         break;
                     case "y":
-                        axis = RotationAxis.Y;
+                        axis = Axis.Y;
                         break;
                     case "z":
                     case "h":
-                        axis = RotationAxis.Z;
+                        axis = Axis.Z;
                         break;
                     default:
                         CdRotate.PrintUsage( player );
@@ -2075,13 +2078,13 @@ namespace fCraft {
             if( degrees == 180 ) {
                 newBuffer = new byte[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 2 )];
 
-            } else if( axis == RotationAxis.X ) {
+            } else if( axis == Axis.X ) {
                 newBuffer = new byte[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 )];
                 int dimY = info.Length;
                 info.Length = info.Height;
                 info.Height = dimY;
 
-            } else if( axis == RotationAxis.Y ) {
+            } else if( axis == Axis.Y ) {
                 newBuffer = new byte[oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 )];
                 int dimX = info.Width;
                 info.Width = info.Height;
@@ -2104,11 +2107,11 @@ namespace fCraft {
 
             int a, b;
             switch( axis ) {
-                case RotationAxis.X:
+                case Axis.X:
                     a = 1;
                     b = 2;
                     break;
-                case RotationAxis.Y:
+                case Axis.Y:
                     a = 0;
                     b = 2;
                     break;
@@ -2171,11 +2174,11 @@ namespace fCraft {
             Permissions = new[] { Permission.CopyAndPaste },
             Usage = "/restore FileName",
             Help = "Selectively restores/pastes part of mapfile into the current world.",
-            Handler = Restore
+            Handler = RestoreHandler
         };
 
 
-        internal static void Restore( Player player, Command cmd ) {
+        internal static void RestoreHandler( Player player, Command cmd ) {
             string fileName = cmd.Next();
             if( fileName == null ) {
                 CdRestore.PrintUsage( player );
@@ -2253,10 +2256,10 @@ namespace fCraft {
             Usage = "/mark&S or &H/mark X Y H",
             Help = "When making a selection (for drawing or zoning) use this to make a marker at your position in the world. " +
                    "If three numbers are given, those coordinates are used instead.",
-            Handler = Mark
+            Handler = MarkHandler
         };
 
-        internal static void Mark( Player player, Command command ) {
+        internal static void MarkHandler( Player player, Command command ) {
             int x, y, z;
             Position pos;
             if( command.NextInt( out x ) && command.NextInt( out y ) && command.NextInt( out z ) ) {
@@ -2284,10 +2287,10 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Help = "Cancels current selection (for drawing or zoning) operation, for instance if you misclicked on the first block. " +
                    "If you wish to stop a drawing in-progress, use &H/lock&S instead.",
-            Handler = Cancel
+            Handler = CancelHandler
         };
 
-        internal static void Cancel( Player player, Command command ) {
+        internal static void CancelHandler( Player player, Command command ) {
             if( player.IsMakingSelection ) {
                 player.SelectionCancel();
                 player.MessageNow( "Selection cancelled." );
@@ -2299,6 +2302,7 @@ namespace fCraft {
         #endregion
 
 
+        #region UndoX
 
         static readonly CommandDescriptor CdUndoX = new CommandDescriptor {
             Name = "undox",
@@ -2307,10 +2311,10 @@ namespace fCraft {
             Permissions = new[] { Permission.UndoOthersActions },
             Usage = "/undox PlayerName [TimeSpan|BlockCount]",
             Help = "Enables or disabled BlockDB on a given world.",
-            Handler = UndoX
+            Handler = UndoXHandler
         };
 
-        static void UndoX( Player player, Command cmd ) {
+        static void UndoXHandler( Player player, Command cmd ) {
             if( !BlockDB.IsEnabled ) {
                 player.Message( "&WBlockDB is disabled on this server." );
                 return;
@@ -2393,18 +2397,7 @@ namespace fCraft {
 
             DrawingFinished( player, "Undone", blocks, blocksDenied );
         }
-    }
 
-
-    public enum RotationAxis {
-        X, Y, Z
-    }
-
-
-    public sealed class CopyInformation {
-        public string OriginWorld;
-        public DateTime CopyTime;
-        public byte[, ,] Buffer;
-        public int Width, Length, Height;
+        #endregion
     }
 }

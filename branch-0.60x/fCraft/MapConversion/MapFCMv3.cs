@@ -250,7 +250,7 @@ namespace fCraft.MapConversion {
             BinaryWriter writer = new BinaryWriter( stream );
             int metaCount = 0;
             lock( map.Metadata.SyncRoot ) {
-                foreach( MetadataEntry entry in map.Metadata ) {
+                foreach( var entry in map.Metadata ) {
                     WriteLengthPrefixedString( writer, entry.Group );
                     WriteLengthPrefixedString( writer, entry.Key );
                     WriteLengthPrefixedString( writer, entry.Value );

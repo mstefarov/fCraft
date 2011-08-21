@@ -233,7 +233,7 @@ namespace fCraft {
 
         public static string ToCompactString( this TimeSpan span ) {
             return String.Format( "{0}.{1:00}:{2:00}:{3:00}",
-                span.Days, span.Hours, span.Minutes, span.Seconds );
+                                  span.Days, span.Hours, span.Minutes, span.Seconds );
         }
 
         #endregion
@@ -250,6 +250,7 @@ namespace fCraft {
         /// <param name="date"> Date to output. </param>
         /// <returns> True if date string could be parsed and was not empty/MinValue. </returns>
         public static bool TryParseLocalDate( string dateString, out DateTime date ) {
+            if( dateString == null ) throw new ArgumentNullException( "dateString" );
             if( dateString.Length <= 1 ) {
                 date = DateTime.MinValue;
                 return false;
@@ -281,6 +282,7 @@ namespace fCraft {
         /// <summary> Joins all items in a collection into one comma-separated string.
         /// If the items are not strings, .ToString() is called on them. </summary>
         public static string JoinToString<T>( this IEnumerable<T> items ) {
+            if( items == null ) throw new ArgumentNullException( "items" );
             StringBuilder sb = new StringBuilder();
             bool first = true;
             foreach( T item in items ) {
@@ -295,6 +297,8 @@ namespace fCraft {
         /// <summary> Joins all items in a collection into one string separated with the given separator.
         /// If the items are not strings, .ToString() is called on them. </summary>
         public static string JoinToString<T>( this IEnumerable<T> items, string separator ) {
+            if( items == null ) throw new ArgumentNullException( "items" );
+            if( separator == null ) throw new ArgumentNullException( "separator" );
             StringBuilder sb = new StringBuilder();
             bool first = true;
             foreach( T item in items ) {
@@ -309,6 +313,7 @@ namespace fCraft {
         /// <summary> Joins all items in a collection into one string separated with the given separator.
         /// A specified string conversion function is called on each item before contactenation. </summary>
         public static string JoinToString<T>( this IEnumerable<T> items, Func<T, string> stringConversionFunction ) {
+            if( items == null ) throw new ArgumentNullException( "items" );
             StringBuilder sb = new StringBuilder();
             bool first = true;
             foreach( T item in items ) {
@@ -323,6 +328,8 @@ namespace fCraft {
         /// <summary> Joins all items in a collection into one string separated with the given separator.
         /// A specified string conversion function is called on each item before contactenation. </summary>
         public static string JoinToString<T>( this IEnumerable<T> items, string separator, Func<T, string> stringConversionFunction ) {
+            if( items == null ) throw new ArgumentNullException( "items" );
+            if( separator == null ) throw new ArgumentNullException( "separator" );
             StringBuilder sb = new StringBuilder();
             bool first = true;
             foreach( T item in items ) {
@@ -335,8 +342,9 @@ namespace fCraft {
 
 
         /// <summary> Joins formatted names of all IClassy objects in a collection into one comma-separated string. </summary>
-        public static string JoinToClassyString( this IEnumerable<IClassy> list ) {
-            return list.JoinToString( "&S, ", p => p.ClassyName );
+        public static string JoinToClassyString( this IEnumerable<IClassy> items ) {
+            if( items == null ) throw new ArgumentNullException( "items" );
+            return items.JoinToString( "&S, ", p => p.ClassyName );
         }
     }
 
@@ -344,6 +352,7 @@ namespace fCraft {
     unsafe static class IntUtil {
         // Quicker StringBuilder.Append(int) by Sam Allen of http://www.dotnetperls.com
         public static void Digits( this StringBuilder builder, int number ) {
+            if( builder == null ) throw new ArgumentNullException( "builder" );
             if( number >= 100000000 ) {
                 // Use system ToString.
                 builder.Append( number.ToString() );
@@ -409,6 +418,7 @@ namespace fCraft {
 
         // Quicker Int32.Parse(string) by Karl Seguin
         public static int Parse( string stringToConvert ) {
+            if( stringToConvert == null ) throw new ArgumentNullException( "stringToConvert" );
             int value = 0;
             int length = stringToConvert.Length;
             fixed( char* characters = stringToConvert ) {

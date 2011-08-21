@@ -1,5 +1,4 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,9 +7,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using fCraft.AutoRank;
+using fCraft.Drawing;
 using fCraft.Events;
 using fCraft.MapConversion;
-using fCraft.AutoRank;
 
 namespace fCraft {
     /// <summary> Represents a connection to a Minecraft client. Handles low-level interactions (e.g. networking). </summary>
@@ -51,6 +51,7 @@ namespace fCraft {
 
         Player( TcpClient tcpClient ) {
             if( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
+
             LoginTime = DateTime.UtcNow;
             LastActiveTime = DateTime.UtcNow;
             LastPatrolTime = DateTime.MinValue;
@@ -60,7 +61,8 @@ namespace fCraft {
             client.SendTimeout = SocketTimeout;
             client.ReceiveTimeout = SocketTimeout;
 
-            Brush = Drawing.NormalBrushFactory.Instance;
+            Brush = NormalBrushFactory.Instance;
+            Metadata = new MetadataCollection<object>();
 
             try {
                 IP = ((IPEndPoint)(client.Client.RemoteEndPoint)).Address;
@@ -345,13 +347,13 @@ namespace fCraft {
                 }
             }
 
-            if( Server.RaisePlayerMovingEvent( this, newPos ) ) {
+            if( RaisePlayerMovingEvent( this, newPos ) ) {
                 DenyMovement();
                 return;
             }
 
             Position = newPos;
-            Server.RaisePlayerMovedEvent( this, oldPos );
+            RaisePlayerMovedEvent( this, oldPos );
         }
 
 
@@ -377,10 +379,10 @@ namespace fCraft {
             // Those clicks should be simply ignored.
             if( World.Map.InBounds( x, y, z ) ) {
                 var e = new PlayerClickingEventArgs( this, x, y, z, mode, (Block)type );
-                if( Server.RaisePlayerClickingEvent( e ) ) {
+                if( RaisePlayerClickingEvent( e ) ) {
                     RevertBlockNow( x, y, z );
                 } else {
-                    Server.RaisePlayerClickedEvent( this, x, y, z, e.Mode, e.Block );
+                    RaisePlayerClickedEvent( this, x, y, z, e.Mode, e.Block );
                     PlaceBlock( x, y, z, e.Mode, e.Block );
                 }
             }
@@ -396,7 +398,7 @@ namespace fCraft {
 
             if( HasRegistered ) {
                 Server.UnregisterPlayer( this );
-                Server.RaisePlayerDisconnectedEvent( this, LeaveReason );
+                RaisePlayerDisconnectedEvent( this, LeaveReason );
             }
 
             if( reader != null ) {
@@ -612,7 +614,7 @@ namespace fCraft {
 
 
             // Any additional security checks should be done right here
-            if( Server.RaisePlayerConnectingEvent( this ) ) return false;
+            if( RaisePlayerConnectingEvent( this ) ) return false;
 
 
             // ----==== beyond this point, player is considered connecting (allowed to join) ====----
@@ -634,7 +636,7 @@ namespace fCraft {
 
             // Figure out what the starting world should be
             World startingWorld = Info.Rank.MainWorld ?? WorldManager.MainWorld;
-            startingWorld = Server.RaisePlayerConnectedEvent( this, startingWorld );
+            startingWorld = RaisePlayerConnectedEvent( this, startingWorld );
 
             // Send server information
             SendNow( PacketWriter.MakeHandshake( this, ConfigKey.ServerName.GetString(), ConfigKey.MOTD.GetString() ) );
@@ -740,7 +742,7 @@ namespace fCraft {
 
             CopyInformation = new CopyInformation[Info.Rank.CopySlots];
 
-            Server.RaisePlayerReadyEvent( this );
+            RaisePlayerReadyEvent( this );
             HasFullyConnected = true;
             IsOnline = true;
 
@@ -782,7 +784,7 @@ namespace fCraft {
         internal bool JoinWorldNow( World newWorld, bool doUseWorldSpawn, WorldChangeReason reason ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
 
-            if( Server.RaisePlayerJoiningWorldEvent( this, newWorld, reason ) ) {
+            if( RaisePlayerJoiningWorldEvent( this, newWorld, reason ) ) {
                 Logger.Log( "Player.JoinWorldNow: Player {0} was prevented from joining world {1} by an event callback.", LogType.Warning,
                             Name, newWorld.Name );
                 return false;
@@ -893,7 +895,7 @@ namespace fCraft {
                 client.NoDelay = true;
             }
 
-            Server.RaisePlayerJoinedWorldEvent( this, oldWorld, reason );
+            RaisePlayerJoinedWorldEvent( this, oldWorld, reason );
 
             // Done.
             Server.RequestGC();
