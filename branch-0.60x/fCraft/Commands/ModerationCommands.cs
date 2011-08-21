@@ -1413,16 +1413,19 @@ namespace fCraft {
             Category = CommandCategory.Moderation | CommandCategory.Chat,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Mute },
-            Help = "Mutes a player for a specified number of seconds.",
-            Usage = "/mute PlayerName Seconds",
+            Help = "Mutes a player for a specified length of time.",
+            Usage = "/mute PlayerName Duration",
             Handler = Mute
         };
 
         internal static void Mute( Player player, Command cmd ) {
             string targetName = cmd.Next();
-            int seconds;
+            string timeString = cmd.Next();
+            TimeSpan duration;
+
             // validate command parameters
-            if( targetName == null || !Player.IsValidName( targetName ) || !cmd.NextInt( out seconds ) || seconds <= 0 ) {
+            if( targetName == null || !Player.IsValidName( targetName ) ||
+                timeString == null || !timeString.TryParseMiniTimespan( out duration ) ) {
                 CdMute.PrintUsage( player );
                 return;
             }
@@ -1440,18 +1443,18 @@ namespace fCraft {
             }
 
             // do the muting
-            if( target.Info.Mute( player.Name, TimeSpan.FromSeconds( seconds ) ) ) {
-                target.Message( "You were muted by {0}&S for {1} sec", player.ClassyName, seconds );
+            if( target.Info.Mute( player.Name, duration ) ) {
+                target.Message( "You were muted by {0}&S for {1}", player.ClassyName, duration.ToMiniString() );
                 Server.Message( target,
-                                "&SPlayer {0}&S was muted by {1}&S for {2} sec",
-                                target.ClassyName, player.ClassyName, seconds );
-                Logger.Log( "Player {0} was muted by {1} for {2} seconds.", LogType.UserActivity,
-                            target.Name, player.Name, seconds );
+                                "&SPlayer {0}&S was muted by {1}&S for {2}",
+                                target.ClassyName, player.ClassyName, duration.ToMiniString() );
+                Logger.Log( "Player {0} was muted by {1} for {2}", LogType.UserActivity,
+                            target.Name, player.Name, duration.ToMiniString() );
             } else {
-                player.Message( "Player {0}&S is already muted by {1}&S for {2:0} more seconds.",
+                player.Message( "Player {0}&S is already muted by {1}&S for {2:0} more.",
                                 target.ClassyName,
                                 target.Info.MutedBy,
-                                target.Info.MutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
+                                target.Info.MutedUntil.Subtract( DateTime.UtcNow ).ToMiniString() );
             }
         }
 
