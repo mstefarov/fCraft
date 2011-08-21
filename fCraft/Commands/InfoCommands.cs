@@ -132,6 +132,8 @@ namespace fCraft {
 
 
         public static void PrintPlayerInfo( Player player, PlayerInfo info ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( info == null ) throw new ArgumentNullException( "info" );
             Player target = info.PlayerObject;
 
             // hide online status when hidden
@@ -144,7 +146,7 @@ namespace fCraft {
 
             } else {
                 if( target != null ) {
-                    TimeSpan idle = target.IdleTimer;
+                    TimeSpan idle = target.IdleTime;
                     if( info.IsHidden ) {
                         if( idle.TotalMinutes > 2 ) {
                             if( player.Can( Permission.ViewPlayerIPs ) ) {

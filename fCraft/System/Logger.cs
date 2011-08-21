@@ -13,7 +13,6 @@ using fCraft.Events;
 using System.Diagnostics;
 
 namespace fCraft {
-
     /// <summary> Central logging class. Logs to file, relays messages to the frontend, submits crash reports. </summary>
     public static class Logger {
         static readonly object LogLock = new object();

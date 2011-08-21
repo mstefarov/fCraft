@@ -3,6 +3,8 @@ using System;
 using System.Text;
 
 namespace fCraft {
+    /// <summary> A task to be executed by the Scheduler.
+    /// Stores timing information and state. </summary>
     public sealed class SchedulerTask {
         static readonly TimeSpan DefaultInterval = TimeSpan.FromMinutes( 1 );
 

@@ -42,6 +42,8 @@ namespace fCraft {
                 return;
             }
 
+            if( player.DetectChatSpam() ) return;
+
             if( player.Can( Permission.Say ) ) {
                 string msg = cmd.NextAll().Trim();
                 if( player.Can( Permission.UseColorCodes ) && msg.Contains( "%" ) ) {
@@ -72,17 +74,13 @@ namespace fCraft {
             Handler = StaffHandler
         };
 
-        internal static void StaffHandler( Player player, Command cmd ) {
+        static void StaffHandler( Player player, Command cmd ) {
             if( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
             }
 
-            if( DateTime.UtcNow < player.Info.MutedUntil ) {
-                player.Message( "You are muted for another {0:0} seconds.",
-                                player.Info.MutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
-                return;
-            }
+            if( player.DetectChatSpam() ) return;
 
             string message = cmd.NextAll().Trim();
             if( message.Length > 0 ) {
@@ -108,7 +106,7 @@ namespace fCraft {
             Handler = IgnoreHandler
         };
 
-        internal static void IgnoreHandler( Player player, Command cmd ) {
+        static void IgnoreHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name != null ) {
                 PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
@@ -141,7 +139,7 @@ namespace fCraft {
             Handler = UnignoreHandler
         };
 
-        internal static void UnignoreHandler( Player player, Command cmd ) {
+        static void UnignoreHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name != null ) {
                 PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
@@ -178,11 +176,13 @@ namespace fCraft {
             Handler = MeHandler
         };
 
-        internal static void MeHandler( Player player, Command cmd ) {
+        static void MeHandler( Player player, Command cmd ) {
             if( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
             }
+
+            if( player.DetectChatSpam() ) return;
 
             string msg = cmd.NextAll().Trim();
             if( msg.Length > 0 ) {
@@ -212,11 +212,13 @@ namespace fCraft {
             Handler = RollHandler
         };
 
-        internal static void RollHandler( Player player, Command cmd ) {
+        static void RollHandler( Player player, Command cmd ) {
             if( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
             }
+
+            if( player.DetectChatSpam() ) return;
 
             Random rand = new Random();
             int n1;
@@ -255,7 +257,7 @@ namespace fCraft {
             Handler = DeafenHandler
         };
 
-        internal static void DeafenHandler( Player player, Command cmd ) {
+        static void DeafenHandler( Player player, Command cmd ) {
             if( !player.IsDeaf ) {
                 player.MessageNow( "Deafened mode: ON" );
                 player.MessageNow( "You will not see any messages until you type &H/deafen&S again." );
@@ -304,14 +306,21 @@ namespace fCraft {
         };
 
         static void TimerHandler( Player player, Command cmd ) {
+            if( player.Info.IsMuted ) {
+                player.MessageMuted();
+                return;
+            }
+
+            if( player.DetectChatSpam() ) return;
+
             string time = cmd.Next();
-            string name = cmd.NextAll();
+            string message = cmd.NextAll();
             TimeSpan duration;
             if( time == null || !time.TryParseMiniTimespan( out duration ) ) {
                 CdTimer.PrintUsage( player );
                 return;
             }
-            if( String.IsNullOrEmpty( name ) ) {
+            if( String.IsNullOrEmpty( message ) ) {
                 Server.Message( "&Y(Timer) {0}&Y started a {1} timer",
                                 player.ClassyName,
                                 duration.ToMiniString() );
@@ -319,9 +328,9 @@ namespace fCraft {
                 Server.Message( "&Y(Timer) {0}&Y started a {1} timer: {2}",
                                 player.ClassyName,
                                 duration.ToMiniString(),
-                                name );
+                                message );
             }
-            ChatTimer.Start( duration, name );
+            ChatTimer.Start( duration, message );
         }
 
         #endregion

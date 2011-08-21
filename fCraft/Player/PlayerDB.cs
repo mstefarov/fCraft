@@ -19,7 +19,7 @@ namespace fCraft {
         /// May be quite long. Make sure to copy a reference to
         /// the list before accessing it in a loop, since this 
         /// array be frequently be replaced by an updated one. </summary>
-        public static PlayerInfo[] PlayerInfoList { get; private set; }
+        static PlayerInfo[] PlayerInfoList { get; set; }
 
         static int maxID = 255;
 

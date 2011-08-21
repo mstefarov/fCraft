@@ -511,12 +511,11 @@ namespace fCraft {
 
         static void HookUpHandlers() {
             Chat.Sent += ChatSentHandler;
-            Server.PlayerReady += PlayerReadyHandler;
-            Server.PlayerDisconnected += PlayerDisconnectedHandler;
-            Server.PlayerKicked += PlayerKickedHandler;
-            Server.OnPlayerBanned += PlayerBannedHandler;
-            Server.OnPlayerUnbanned += PlayerUnbannedHandler;
-            Server.PlayerInfoRankChanged += PlayerRankChangedHandler;
+            Player.Ready += PlayerReadyHandler;
+            Player.Disconnected += PlayerDisconnectedHandler;
+            Player.Kicked += PlayerKickedHandler;
+            Server.PlayerInfoBanChanged += PlayerInfoBanChangedHandler;
+            Server.PlayerInfoRankChanged += PlayerInfoRankChangedHandler;
         }
 
 
@@ -567,17 +566,16 @@ namespace fCraft {
         }
 
 
-        static void PlayerBannedHandler( PlayerInfo player, Player banner, string reason ) {
-            PlayerSomethingMessage( banner, "banned", player, reason );
+        static void PlayerInfoBanChangedHandler( object sender, PlayerInfoBanChangedEventArgs e ) {
+            if( e.IsBeingUnbanned ) {
+                PlayerSomethingMessage( e.Banner, "unbanned", e.PlayerInfo, e.Reason );
+            } else {
+                PlayerSomethingMessage( e.Banner, "banned", e.PlayerInfo, e.Reason );
+            }
         }
 
 
-        static void PlayerUnbannedHandler( PlayerInfo player, Player unbanner, string reason ) {
-            PlayerSomethingMessage( unbanner, "unbanned", player, reason );
-        }
-
-
-        static void PlayerRankChangedHandler( object sender, PlayerInfoRankChangedEventArgs e ) {
+        static void PlayerInfoRankChangedHandler( object sender, PlayerInfoRankChangedEventArgs e ) {
             string actionString = String.Format( "{0} from {1}&W to {2}&W",
                                                  e.RankChangeType,
                                                  e.OldRank.ClassyName,

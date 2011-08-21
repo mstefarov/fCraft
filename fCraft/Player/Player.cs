@@ -29,8 +29,10 @@ namespace fCraft {
         /// and that prevents console from calling certain commands (like /tp). </summary>
         public static Player Console, AutoRank;
 
-        public readonly bool IsSuper;
 
+        #region Properties
+
+        public readonly bool IsSuper;
 
         /// <summary> Whether the player has completed the login sequence. </summary>
         public bool HasRegistered { get; internal set; }
@@ -100,6 +102,11 @@ namespace fCraft {
         public string ClassyName {
             get { return Info.ClassyName; }
         }
+
+
+        public MetadataCollection<object> Metadata { get; private set; }
+
+        #endregion
 
 
         // This constructor is used to create pseudoplayers (such as Console and /dummy).
@@ -523,7 +530,7 @@ namespace fCraft {
         public static int AntispamInterval = 4;
         readonly Queue<DateTime> spamChatLog = new Queue<DateTime>( AntispamMessageCount );
 
-        bool DetectChatSpam() {
+        internal bool DetectChatSpam() {
             if( IsSuper ) return false;
             if( spamChatLog.Count >= AntispamMessageCount ) {
                 DateTime oldestTime = spamChatLog.Dequeue();
@@ -623,7 +630,7 @@ namespace fCraft {
                         blockUpdate = new BlockUpdate( this, x, y, z - 1, Block.DoubleStair );
                         Info.ProcessBlockPlaced( (byte)Block.DoubleStair );
                         World.Map.QueueUpdate( blockUpdate );
-                        Server.RaisePlayerPlacedBlockEvent( this, World.Map, x, y, (short)(z - 1), Block.Stair, Block.DoubleStair, true );
+                        RaisePlayerPlacedBlockEvent( this, World.Map, x, y, (short)(z - 1), Block.Stair, Block.DoubleStair, true );
                         SendNow( PacketWriter.MakeSetBlock( x, y, z - 1, Block.DoubleStair ) );
                         RevertBlockNow( x, y, z );
                         break;
@@ -634,7 +641,7 @@ namespace fCraft {
                         Info.ProcessBlockPlaced( (byte)type );
                         Block old = World.Map.GetBlock( x, y, z );
                         World.Map.QueueUpdate( blockUpdate );
-                        Server.RaisePlayerPlacedBlockEvent( this, World.Map, x, y, z, old, type, true );
+                        RaisePlayerPlacedBlockEvent( this, World.Map, x, y, z, old, type, true );
                         if( requiresUpdate || RelayAllUpdates ) {
                             SendNow( PacketWriter.MakeSetBlock( x, y, z, type ) );
                         }
@@ -855,7 +862,7 @@ namespace fCraft {
             }
 
         eventCheck:
-            return Server.RaisePlayerPlacingBlockEvent( this, map, (short)x, (short)y, (short)z, block, newBlock, isManual, result );
+            return RaisePlayerPlacingBlockEvent( this, map, (short)x, (short)y, (short)z, block, newBlock, isManual, result );
         }
 
 
@@ -1085,7 +1092,7 @@ namespace fCraft {
 
 
         /// <summary> Time since the player was last active (moved, talked, or clicked). </summary>
-        public TimeSpan IdleTimer {
+        public TimeSpan IdleTime {
             get {
                 return DateTime.UtcNow.Subtract( LastActiveTime );
             }

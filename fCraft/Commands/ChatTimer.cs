@@ -1,24 +1,15 @@
-﻿using System;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 
 namespace fCraft {
     sealed class ChatTimer {
-        ChatTimer( TimeSpan duration, string name ) {
-            Name = name;
-            StartTime = DateTime.UtcNow;
-            EndTime = StartTime.Add( duration );
-            Duration = duration;
-            for( int i = 0; i < AnnounceIntervals.Length; i++ ) {
-                if( duration <= AnnounceIntervals[i] ) {
-                    AnnounceIntervalIndex = i - 1;
-                    return;
-                }
-            }
-            AnnounceIntervalIndex = AnnounceIntervals.Length - 1;
-        }
 
-        string Name { get; set; }
+        string Message { get; set; }
+
         DateTime StartTime { get; set; }
+
         DateTime EndTime { get; set; }
+
         TimeSpan Duration { get; set; }
 
         public TimeSpan TimeLeft {
@@ -26,36 +17,52 @@ namespace fCraft {
                 return EndTime.Subtract( DateTime.UtcNow );
             }
         }
-        int AnnounceIntervalIndex { get; set; }
+
+        int announceIntervalIndex;
+
+
+        ChatTimer( TimeSpan duration, string message ) {
+            Message = message;
+            StartTime = DateTime.UtcNow;
+            EndTime = StartTime.Add( duration );
+            Duration = duration;
+            for( int i = 0; i < AnnounceIntervals.Length; i++ ) {
+                if( duration <= AnnounceIntervals[i] ) {
+                    announceIntervalIndex = i - 1;
+                    return;
+                }
+            }
+            announceIntervalIndex = AnnounceIntervals.Length - 1;
+        }
 
 
         static void TimerCallback( SchedulerTask task ) {
             ChatTimer timer = (ChatTimer)task.UserState;
             if( task.MaxRepeats == 1 ) {
-                Server.Message( "&Y(Timer Up) {0}", timer.Name );
-            } else if( timer.TimeLeft <= AnnounceIntervals[timer.AnnounceIntervalIndex] ) {
-                if( String.IsNullOrEmpty( timer.Name ) ) {
+                Server.Message( "&Y(Timer Up) {0}", timer.Message );
+            } else if( timer.TimeLeft <= AnnounceIntervals[timer.announceIntervalIndex] ) {
+                if( String.IsNullOrEmpty( timer.Message ) ) {
                     Server.Message( "&Y(Timer) {0}",
-                                    AnnounceIntervals[timer.AnnounceIntervalIndex].ToMiniString() );
+                                    AnnounceIntervals[timer.announceIntervalIndex].ToMiniString() );
                 } else {
                     Server.Message( "&Y(Timer) {0} until {1}",
-                                    AnnounceIntervals[timer.AnnounceIntervalIndex].ToMiniString(),
-                                    timer.Name );
+                                    AnnounceIntervals[timer.announceIntervalIndex].ToMiniString(),
+                                    timer.Message );
                 }
-                timer.AnnounceIntervalIndex--;
+                timer.announceIntervalIndex--;
             }
         }
 
 
-        public static void Start( TimeSpan duration, string name ) {
-            ChatTimer timer = new ChatTimer( duration, name );
+        public static void Start( TimeSpan duration, string message ) {
+            ChatTimer timer = new ChatTimer( duration, message );
             Scheduler.NewTask( TimerCallback, timer ).RunRepeating( TimeSpan.Zero,
                                                                     TimeSpan.FromSeconds( 1 ),
                                                                     (int)duration.TotalSeconds + 1 );
         }
 
 
-        static readonly TimeSpan[] AnnounceIntervals = new[]{
+        static readonly TimeSpan[] AnnounceIntervals = new[] {
             TimeSpan.FromSeconds(1),
             TimeSpan.FromSeconds(2),
             TimeSpan.FromSeconds(3),

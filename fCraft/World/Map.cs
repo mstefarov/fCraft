@@ -5,8 +5,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
-using fCraft.MapConversion;
 using fCraft.Drawing;
+using fCraft.MapConversion;
 
 namespace fCraft {
     public unsafe sealed class Map {
@@ -78,7 +78,7 @@ namespace fCraft {
         public byte[] Blocks;
 
         /// <summary> Map metadata, excluding zones. </summary>
-        public MetadataCollection Metadata { get; private set; }
+        public MetadataCollection<string> Metadata { get; private set; }
 
         /// <summary> All zones within a map. </summary>
         public ZoneCollection Zones { get; private set; }
@@ -96,7 +96,7 @@ namespace fCraft {
             if( !IsValidDimension( length ) ) throw new ArgumentException( "Invalid map dimension.", "length" );
             if( !IsValidDimension( height ) ) throw new ArgumentException( "Invalid map dimension.", "height" );
 
-            Metadata = new MetadataCollection();
+            Metadata = new MetadataCollection<string>();
             Metadata.Changed += OnMetaOrZoneChange;
 
             Zones = new ZoneCollection();
@@ -456,6 +456,7 @@ namespace fCraft {
 
 
         static void DeleteOldBackups( DirectoryInfo directory ) {
+            if( directory == null ) throw new ArgumentNullException( "directory" );
             var backupList = directory.GetFiles( "*.fcm" ).OrderBy( fi => -fi.CreationTimeUtc.Ticks ).ToList();
 
             int maxFileCount = ConfigKey.MaxBackups.GetInt();
@@ -564,7 +565,7 @@ namespace fCraft {
 
         public bool ConvertBlockTypes( byte[] mapping ) {
             if( mapping == null ) throw new ArgumentNullException( "mapping" );
-            if( mapping.Length != 256 ) throw new ArgumentException( "mapping" );
+            if( mapping.Length != 256 ) throw new ArgumentException( "Mapping must list all 256 blocks", "mapping" );
 
             bool mapped = false;
             fixed( byte* ptr = Blocks ) {

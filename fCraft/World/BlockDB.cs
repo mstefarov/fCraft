@@ -202,6 +202,7 @@ namespace fCraft {
 
 
         int CountNewerEntries( TimeSpan age ) {
+            if( age < TimeSpan.Zero ) throw new ArgumentException( "Age must be non-negative.", "age" );
             int minTimestamp = (int)DateTime.UtcNow.Subtract( age ).ToUnixTime();
 
             if( isPreloaded ) {
@@ -420,6 +421,7 @@ namespace fCraft {
 
 
         internal BlockDBEntry[] Lookup( PlayerInfo info, int max ) {
+            if( info == null ) throw new ArgumentNullException( "info" );
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
             int count = 0;
 
@@ -461,6 +463,7 @@ namespace fCraft {
 
 
         internal BlockDBEntry[] Lookup( PlayerInfo info, TimeSpan span ) {
+            if( info == null ) throw new ArgumentNullException( "info" );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
 
@@ -507,7 +510,7 @@ namespace fCraft {
 
         internal static void Init() {
             Paths.TestDirectory( "BlockDB", Paths.BlockDBPath, true );
-            Server.PlayerPlacedBlock += OnPlayerPlacedBlock;
+            Player.PlacedBlock += OnPlayerPlacedBlock;
             Scheduler.NewBackgroundTask( FlushAll ).RunForever( FlushInterval, FlushInterval );
             IsEnabled = true;
         }

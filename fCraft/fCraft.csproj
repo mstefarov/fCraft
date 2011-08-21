@@ -153,7 +153,6 @@
     <Compile Include="Utils\Position.cs" />
     <Compile Include="World\Block.cs" />
     <Compile Include="World\BlockUpdate.cs" />
-    <Compile Include="World\EventHandlers.cs" />
     <Compile Include="World\Forester.cs" />
     <Compile Include="World\Map.cs" />
     <Compile Include="World\MapGenerator.cs">
@@ -205,6 +204,7 @@
     <Compile Include="Drawing\Brushes\ReplaceBrush.cs" />
     <Compile Include="Drawing\BrushManager.cs" />
     <Compile Include="Drawing\Brushes\CloudyBrush.cs" />
+    <Compile Include="Drawing\CopyInformation.cs" />
     <Compile Include="Drawing\DrawOps\SphereHollowDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\EllipsoidHollowDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\SphereDrawOperation.cs" />
@@ -218,6 +218,7 @@
     <Compile Include="Drawing\DrawOps\CuboidDrawOperation.cs" />
     <Compile Include="Drawing\IBrush.cs" />
     <Compile Include="Drawing\Brushes\NormalBrush.cs" />
+    <Compile Include="Drawing\Axis.cs" />
     <Compile Include="Player\Chat.cs" />
     <Compile Include="Commands\CommandCategory.cs" />
     <Compile Include="MapConversion\MapFormatException.cs" />
@@ -245,6 +246,7 @@
     <Compile Include="World\WorldOpException.cs" />
     <Compile Include="Utils\MonoCompat.cs" />
     <Compile Include="World\ZoneCollection.cs" />
+    <Compile Include="Player\PlayerInfo.Events.cs" />
     <None Include="Tileset.png" />
     <None Include="TilesetShadowed.png" />
   </ItemGroup>

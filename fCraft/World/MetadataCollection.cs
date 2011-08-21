@@ -8,7 +8,7 @@ using System.Linq;
 namespace fCraft {
     /// <summary> A string metadata entry. </summary>
     [DebuggerDisplay( "Count = {Count}" )]
-    public struct MetadataEntry {
+    public struct MetadataEntry<T> where T : class {
         string group;
         public string Group {
             get { return group; }
@@ -27,8 +27,8 @@ namespace fCraft {
             }
         }
 
-        string value;
-        public string Value {
+        T value;
+        public T Value {
             get { return value; }
             set {
                 if( value == this.value ) throw new ArgumentNullException();
@@ -39,14 +39,15 @@ namespace fCraft {
 
 
     /// <summary> A collection of string metadata entries. </summary>
-    public sealed class MetadataCollection : ICollection<MetadataEntry>, ICollection, ICloneable, INotifiesOnChange {
+    public sealed class MetadataCollection<T> : ICollection<MetadataEntry<T>>, ICollection, ICloneable, INotifiesOnChange where T : class {
 
-        readonly Dictionary<string, Dictionary<string, string>> store = new Dictionary<string, Dictionary<string, string>>();
+        readonly Dictionary<string, Dictionary<string, T>> store = new Dictionary<string, Dictionary<string, T>>();
 
         public MetadataCollection() { }
 
-        public MetadataCollection( MetadataCollection other )
+        public MetadataCollection( MetadataCollection<T> other )
             : this() {
+            if( other == null ) throw new ArgumentNullException( "other" );
             lock( other.syncRoot ) {
                 foreach( var group in store ) {
                     foreach( var key in group.Value ) {
@@ -80,13 +81,13 @@ namespace fCraft {
         }
 
 
-        public void Add( string group, string key, string value ) {
+        public void Add( string group, string key, T value ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
             if( value == null ) throw new ArgumentNullException( "value" );
             lock( syncRoot ) {
                 if( !store.ContainsKey( group ) ) {
-                    store.Add( group, new Dictionary<string, string>() );
+                    store.Add( group, new Dictionary<string, T>() );
                 }
                 store[group].Add( key, value );
                 RaiseChangedEvent();
@@ -95,7 +96,7 @@ namespace fCraft {
 
 
         public bool Remove( string group, string key ) {
-            Dictionary<string, string> pair;
+            Dictionary<string, T> pair;
             lock( syncRoot ) {
                 if( !store.TryGetValue( group, out pair ) ) return false;
                 if( pair.Remove( key ) ) {
@@ -110,7 +111,7 @@ namespace fCraft {
 
         #region Index / Get / Set
 
-        public string this[string group, string key] {
+        public T this[string group, string key] {
             get {
                 return GetValue( group, key );
             }
@@ -120,7 +121,7 @@ namespace fCraft {
         }
 
 
-        public string GetValue( string group, string key ) {
+        public T GetValue( string group, string key ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
             lock( syncRoot ) {
@@ -129,14 +130,14 @@ namespace fCraft {
         }
 
 
-        public void SetValue( string group, string key, string value ) {
+        public void SetValue( string group, string key, T value ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
             if( value == null ) throw new ArgumentNullException( "value" );
             lock( syncRoot ) {
                 bool raiseChangedEvent = false;
                 if( !store.ContainsKey( group ) ) {
-                    store.Add( group, new Dictionary<string, string>() );
+                    store.Add( group, new Dictionary<string, T>() );
                     raiseChangedEvent = true;
                 }
                 if( !store[group].ContainsKey( key ) || store[group][key] != value ) {
@@ -148,11 +149,11 @@ namespace fCraft {
         }
 
 
-        public MetadataEntry Get( string group, string key ) {
+        public MetadataEntry<T> Get( string group, string key ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
             lock( syncRoot ) {
-                return new MetadataEntry {
+                return new MetadataEntry<T> {
                     Group = group,
                     Key = key,
                     Value = store[group][key]
@@ -161,7 +162,7 @@ namespace fCraft {
         }
 
 
-        public void Set( MetadataEntry entry ) {
+        public void Set( MetadataEntry<T> entry ) {
             SetValue( entry.Group, entry.Key, entry.Value );
         }
 
@@ -186,10 +187,10 @@ namespace fCraft {
         }
 
 
-        public bool TryGetValue( string group, string key, out string value ) {
+        public bool TryGetValue( string group, string key, out T value ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
-            Dictionary<string, string> pair;
+            Dictionary<string, T> pair;
             lock( syncRoot ) {
                 if( !store.TryGetValue( group, out pair ) ) {
                     value = null;
@@ -200,15 +201,14 @@ namespace fCraft {
         }
 
 
-
         /// <summary> Enumerates a group of keys. </summary>
         /// <remarks> Lock SyncRoot if this is used in a loop. </remarks>
-        public IEnumerator<MetadataEntry> GetGroup( string group ) {
+        public IEnumerator<MetadataEntry<T>> GetGroup( string group ) {
             if( group == null ) throw new ArgumentNullException( "group" );
-            Dictionary<string, string> groupDic;
+            Dictionary<string, T> groupDic;
             if( store.TryGetValue( group, out groupDic ) ) {
                 foreach( var key in groupDic ) {
-                    yield return new MetadataEntry {
+                    yield return new MetadataEntry<T> {
                         Group = group,
                         Key = key.Key,
                         Value = key.Value
@@ -220,7 +220,7 @@ namespace fCraft {
 
         #region ICollection<MetadataEntry> Members
 
-        public void Add( MetadataEntry item ) {
+        public void Add( MetadataEntry<T> item ) {
             Add( item.Group, item.Key, item.Value );
         }
 
@@ -234,12 +234,12 @@ namespace fCraft {
         }
 
 
-        public bool Contains( MetadataEntry item ) {
+        public bool Contains( MetadataEntry<T> item ) {
             return ContainsKey( item.Group, item.Key );
         }
 
 
-        public void CopyTo( MetadataEntry[] array, int arrayIndex ) {
+        public void CopyTo( MetadataEntry<T>[] array, int arrayIndex ) {
             if( array == null ) throw new ArgumentNullException( "array" );
 
             if( arrayIndex < 0 || arrayIndex >= array.Length ) {
@@ -254,7 +254,7 @@ namespace fCraft {
                 int i = 0;
                 foreach( var group in store ) {
                     foreach( var pair in group.Value ) {
-                        array[i] = new MetadataEntry {
+                        array[i] = new MetadataEntry<T> {
                             Group = group.Key,
                             Key = pair.Key,
                             Value = pair.Value
@@ -266,12 +266,12 @@ namespace fCraft {
         }
 
 
-        bool ICollection<MetadataEntry>.IsReadOnly {
+        bool ICollection<MetadataEntry<T>>.IsReadOnly {
             get { return false; }
         }
 
 
-        public bool Remove( MetadataEntry item ) {
+        public bool Remove( MetadataEntry<T> item ) {
             return Remove( item.Group, item.Key );
         }
 
@@ -282,11 +282,11 @@ namespace fCraft {
 
         /// <summary> Enumerates all keys in this collection. </summary>
         /// <remarks> Lock SyncRoot if this is used in a loop. </remarks>
-        public IEnumerator<MetadataEntry> GetEnumerator() {
+        public IEnumerator<MetadataEntry<T>> GetEnumerator() {
             // ReSharper disable LoopCanBeConvertedToQuery
             foreach( var group in store ) {
                 foreach( var key in group.Value ) {
-                    yield return new MetadataEntry {
+                    yield return new MetadataEntry<T> {
                         Group = group.Key,
                         Key = key.Key,
                         Value = key.Value
@@ -312,7 +312,7 @@ namespace fCraft {
 
         public void CopyTo( Array array, int index ) {
             if( array == null ) throw new ArgumentNullException( "array" );
-            MetadataEntry[] castArray = array as MetadataEntry[];
+            var castArray = array as MetadataEntry<T>[];
             if( castArray == null ) {
                 throw new ArgumentException( "Array must be of type MetadataEntry[]", "array" );
             }
@@ -334,12 +334,13 @@ namespace fCraft {
         #endregion
 
 
-
         public object Clone() {
-            return new MetadataCollection( this );
+            return new MetadataCollection<T>( this );
         }
 
+
         public event EventHandler Changed;
+
 
         void RaiseChangedEvent() {
             var h = Changed;

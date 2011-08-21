@@ -67,7 +67,7 @@ namespace fCraft {
         }
 
 
-        #region Stats
+        #region DumpStats
 
         static readonly CommandDescriptor CdDumpStats = new CommandDescriptor {
             Name = "dumpstats",
@@ -78,12 +78,12 @@ namespace fCraft {
             Help = "Writes out a number of statistics about the server. " +
                    "Only non-banned players active in the last 30 days are counted.",
             Usage = "/dumpstats FileName",
-            Handler = DumpStats
+            Handler = DumpStatsHandler
         };
 
         const int TopPlayersToList = 3;
 
-        internal static void DumpStats( Player player, Command cmd ) {
+        static void DumpStatsHandler( Player player, Command cmd ) {
             string fileName = cmd.Next();
             if( fileName == null ) {
                 CdDumpStats.PrintUsage( player );
@@ -536,10 +536,10 @@ namespace fCraft {
             Permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
             Help = "If AutoRank is disabled, it can still be called manually using this command.",
             Usage = "/autorankall [silent] [FromRank]",
-            Handler = AutoRankAll
+            Handler = AutoRankAllHandler
         };
 
-        internal static void AutoRankAll( Player player, Command cmd ) {
+        static void AutoRankAllHandler( Player player, Command cmd ) {
             bool silent = (cmd.Next() != null);
             string rankName = cmd.Next();
             Rank rank = null;
@@ -602,10 +602,10 @@ namespace fCraft {
             Permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
             Help = "",
             Usage = "/massrank FromRank ToRank [silent]",
-            Handler = MassRank
+            Handler = MassRankHandler
         };
 
-        internal static void MassRank( Player player, Command cmd ) {
+        static void MassRankHandler( Player player, Command cmd ) {
             string fromRankName = cmd.Next();
             string toRankName = cmd.Next();
             bool silent = (cmd.Next() != null);
@@ -662,10 +662,10 @@ namespace fCraft {
                    "TimesKicked, PreviousRank, TotalTime, RankChangeType, " +
                    "BanReason, UnbanReason, RankChangeReason, LastKickReason",
             Usage = "/setinfo PlayerName Key Value",
-            Handler = SetInfo
+            Handler = SetInfoHandler
         };
 
-        internal static void SetInfo( Player player, Command cmd ) {
+        static void SetInfoHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
             string propertyName = cmd.Next();
             string valName = cmd.NextAll();
@@ -806,10 +806,10 @@ namespace fCraft {
             Usage = "/reload config&S or &H/reload autorank",
             Help = "Reloads a given configuration file. Note that changes to ranks " +
                    "and IRC settings still require a full restart.",
-            Handler = Reload
+            Handler = ReloadHandler
         };
 
-        static void Reload( Player player, Command cmd ) {
+        static void ReloadHandler( Player player, Command cmd ) {
             string whatToReload = cmd.Next();
             if( whatToReload == null ) {
                 CdReload.PrintUsage( player );
@@ -848,9 +848,6 @@ namespace fCraft {
             }
         }
 
-
-
-
         #endregion
 
 
@@ -865,12 +862,12 @@ namespace fCraft {
                    "Default delay before shutdown is 5 seconds (can be changed by specifying a custom number of seconds). " +
                    "A shutdown reason or message can be specified to be shown to players.",
             Usage = "/shutdown Delay [Reason]&S or &H/shutdown abort",
-            Handler = Shutdown
+            Handler = ShutdownHandler
         };
 
         static readonly TimeSpan DefaultShutdownTime = TimeSpan.FromSeconds( 5 );
 
-        static void Shutdown( Player player, Command cmd ) {
+        static void ShutdownHandler( Player player, Command cmd ) {
 
             string delayString = cmd.Next();
             TimeSpan delayTime = DefaultShutdownTime;
@@ -920,10 +917,10 @@ namespace fCraft {
                    "The default delay before restart is 5 seconds (can be changed by specifying a custom number of seconds). " +
                    "A restart reason or message can be specified to be shown to players.",
             Usage = "/restart [Delay] [Reason]",
-            Handler = Restart
+            Handler = RestartHandler
         };
 
-        static void Restart( Player player, Command cmd ) {
+        static void RestartHandler( Player player, Command cmd ) {
             TimeSpan delay = ShutdownParams.DefaultDelay;
             int delaySeconds;
             if( cmd.NextInt( out delaySeconds ) ) {
@@ -960,10 +957,10 @@ namespace fCraft {
             IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB },
             Help = "Removes inactive players from the player database. Use with caution.",
-            Handler = PruneDB
+            Handler = PruneDBHandler
         };
 
-        internal static void PruneDB( Player player, Command cmd ) {
+        static void PruneDBHandler( Player player, Command cmd ) {
             if( !cmd.IsConfirmed ) {
                 player.MessageNow( "PruneDB: Finding inactive players..." );
                 player.Confirm( cmd, "Remove {0} inactive players from the database?",
@@ -990,10 +987,10 @@ namespace fCraft {
             Usage = "/import bans Software File&S or &H/import ranks Software File Rank",
             Help = "Imports data from formats used by other servers. " +
                    "Currently only MCSharp/MCZall files are supported.",
-            Handler = Import
+            Handler = ImportHandler
         };
 
-        static void Import( Player player, Command cmd ) {
+        static void ImportHandler( Player player, Command cmd ) {
             string action = cmd.Next();
             if( action == null ) {
                 CdImport.PrintUsage( player );
@@ -1145,7 +1142,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
 
         static readonly CommandDescriptor CdInfoSwap = new CommandDescriptor {

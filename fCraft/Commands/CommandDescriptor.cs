@@ -1,7 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace fCraft {
 
@@ -55,6 +55,7 @@ namespace fCraft {
 
         /// <summary> Checks whether this command may be called by players of a given rank. </summary>
         public bool CanBeCalledBy( Rank rank ) {
+            if( rank == null ) throw new ArgumentNullException( "rank" );
             return Permissions == null ||
                    Permissions.All( rank.Can ) ||
                    AnyPermission && Permissions.Any( rank.Can );
@@ -64,6 +65,7 @@ namespace fCraft {
         /// <summary> Checks whether players of the given rank should see this command in /cmds list.
         /// Takes permissions and the hidden flag into account. </summary>
         public bool IsVisibleTo( Rank rank ) {
+            if( rank == null ) throw new ArgumentNullException( "rank" );
             return !IsHidden && CanBeCalledBy( rank );
         }
 

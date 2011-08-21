@@ -17,6 +17,8 @@ using fCraft.Drawing;
 using ThreadState = System.Threading.ThreadState;
 
 namespace fCraft {
+    /// <summary> Core of an fCraft server. Manages startup/shutdown, players and sessions,
+    /// and global scheduled tasks, and events related to Player and PlayerInfo. </summary>
     public static partial class Server {
 
         public static DateTime ServerStart { get; private set; }
@@ -733,30 +735,6 @@ namespace fCraft {
         #endregion
 
 
-        #region Obsolete Events
-
-        [Obsolete]
-        public static event PlayerBanStatusChangedEventHandler OnPlayerBanned;
-
-        [Obsolete]
-        public static event PlayerBanStatusChangedEventHandler OnPlayerUnbanned;
-
-
-        internal static void FirePlayerBannedEvent( PlayerInfo player, Player banner, string reason ) {
-            if( OnPlayerBanned != null ) {
-                OnPlayerBanned( player, banner, reason );
-            }
-        }
-
-        internal static void FirePlayerUnbannedEvent( PlayerInfo player, Player unbanner, string reason ) {
-            if( OnPlayerUnbanned != null ) {
-                OnPlayerUnbanned( player, unbanner, reason );
-            }
-        }
-
-        #endregion
-
-
         #region Scheduled Tasks
 
         // checks for incoming connections
@@ -801,7 +779,7 @@ namespace fCraft {
                 Player player = tempPlayerList[i];
                 if( player.Info.Rank.IdleKickTimer <= 0 ) continue;
 
-                if( player.IdleTimer.TotalMinutes >= player.Info.Rank.IdleKickTimer ) {
+                if( player.IdleTime.TotalMinutes >= player.Info.Rank.IdleKickTimer ) {
                     Message( "{0}&S was kicked for being idle for {1} min",
                              player.ClassyName,
                              player.Info.Rank.IdleKickTimer.ToString() );
