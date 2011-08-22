@@ -59,7 +59,7 @@ namespace fCraft.ConfigGUI {
             InitializeComponent();
             fileBrowser.Filter = MapLoadFilter;
 
-            cBackup.Items.AddRange( fCraft.World.BackupEnum );
+            cBackup.Items.AddRange( WorldListEntry.BackupEnumNames );
             cTemplates.Items.AddRange( Enum.GetNames( typeof( MapGenTemplate ) ) );
             cTheme.Items.AddRange( Enum.GetNames( typeof( MapGenTheme ) ) );
 

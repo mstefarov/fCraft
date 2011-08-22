@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using fCraft.MapConversion;
+using System.Linq;
 
 namespace fCraft.ConfigGUI {
     /// <summary>
@@ -53,13 +54,15 @@ namespace fCraft.ConfigGUI {
             }
 
             if( (temp = el.Attribute( "backup" )) != null && !String.IsNullOrEmpty( temp.Value ) ) { // TODO: Make per-world backup settings actually work
-                if( Array.IndexOf( World.BackupEnum, temp.Value ) != -1 ) {
-                    Backup = temp.Value;
+                TimeSpan realBackupTimer = BackupEnumValues[5];
+                if( temp.Value.ToTimeSpan( ref realBackupTimer ) ) {
+                    TimeSpan closestMatch = BackupEnumValues.OrderBy( t => Math.Abs( realBackupTimer.Subtract( t ).Ticks ) ).First();
+                    Backup = BackupEnumNames[Array.IndexOf( BackupEnumValues, closestMatch )];
                 } else {
-                    throw new FormatException( "WorldListEntity: Cannot parse XML: Invalid value for \"backup\" attribute." );
+                    Logger.Log( "WorldListEntity: Cannot parse backup settings for world \"{0}\". Assuming default (30m).", LogType.Error, name );
                 }
             } else {
-                Backup = World.BackupEnum[5];
+                Backup = BackupEnumNames[5]; // 30min
             }
 
             if( el.Element( "accessSecurity" ) != null ) {
@@ -191,7 +194,8 @@ namespace fCraft.ConfigGUI {
             XElement element = new XElement( "World" );
             element.Add( new XAttribute( "name", Name ) );
             element.Add( new XAttribute( "hidden", Hidden ) );
-            element.Add( new XAttribute( "backup", Backup ) );
+            TimeSpan backupValue = BackupEnumValues[Array.IndexOf( BackupEnumNames, Backup )];
+            element.Add( new XAttribute( "backup", backupValue.ToUnixTimeString() ) );
             element.Add( accessSecurity.Serialize( "accessSecurity" ) );
             element.Add( buildSecurity.Serialize( "buildSecurity" ) );
             return element;
@@ -254,5 +258,44 @@ namespace fCraft.ConfigGUI {
                     throw new NotImplementedException();
             }
         }
+
+
+        public static readonly string[] BackupEnumNames = new[] {
+            "Never",
+            "5 Minutes",
+            "10 Minutes",
+            "15 Minutes",
+            "20 Minutes",
+            "30 Minutes",
+            "45 Minutes",
+            "1 Hour",
+            "2 Hours",
+            "3 Hours",
+            "4 Hours",
+            "6 Hours",
+            "8 Hours",
+            "12 Hours",
+            "24 Hours",
+            "48 Hours"
+        };
+
+        static readonly TimeSpan[] BackupEnumValues = new[] {
+            TimeSpan.Zero,
+            TimeSpan.FromMinutes(5),
+            TimeSpan.FromMinutes(10),
+            TimeSpan.FromMinutes(15),
+            TimeSpan.FromMinutes(20),
+            TimeSpan.FromMinutes(30),
+            TimeSpan.FromMinutes(45),
+            TimeSpan.FromHours(1),
+            TimeSpan.FromHours(2),
+            TimeSpan.FromHours(3),
+            TimeSpan.FromHours(4),
+            TimeSpan.FromHours(6),
+            TimeSpan.FromHours(8),
+            TimeSpan.FromHours(12),
+            TimeSpan.FromHours(24),
+            TimeSpan.FromHours(48)
+        };
     }
 }

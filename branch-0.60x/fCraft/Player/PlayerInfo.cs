@@ -515,17 +515,17 @@ namespace fCraft {
             sb.Append( Rank.FullName ).Append( ',' ); // 2
             RankChangeDate.ToUnixTimeString( sb ).Append( ',' ); // 3
 
-            Escape( RankChangedBy, sb ).Append( ',' ); // 4
+            sb.AppendEscaped( RankChangedBy ).Append( ',' ); // 4
 
             if( Banned ) sb.Append( 'b' ); // 5
             sb.Append( ',' );
 
             BanDate.ToUnixTimeString( sb ).Append( ',' ); // 6
-            Escape( BannedBy, sb ).Append( ',' ); // 7
+            sb.AppendEscaped( BannedBy ).Append( ',' ); // 7
             UnbanDate.ToUnixTimeString( sb ).Append( ',' ); // 8
-            Escape( UnbannedBy, sb ).Append( ',' ); // 9
-            Escape( BanReason, sb ).Append( ',' ); // 10
-            Escape( UnbanReason, sb ).Append( ',' ); // 11
+            sb.AppendEscaped( UnbannedBy ).Append( ',' ); // 9
+            sb.AppendEscaped( BanReason ).Append( ',' ); // 10
+            sb.AppendEscaped( UnbanReason ).Append( ',' ); // 11
 
             LastFailedLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 12
 
@@ -560,7 +560,7 @@ namespace fCraft {
             if( PreviousRank != null ) sb.Append( PreviousRank.FullName ); // 24
             sb.Append( ',' );
 
-            Escape( RankChangeReason, sb ).Append( ',' ); // 25
+            sb.AppendEscaped( RankChangeReason ).Append( ',' ); // 25
 
 
             if( TimesKicked > 0 ) sb.Digits( TimesKicked ); // 26
@@ -587,15 +587,15 @@ namespace fCraft {
             if( BlocksDrawn > 0 ) sb.Append( BlocksDrawn ); // 33
             sb.Append( ',' );
 
-            Escape( LastKickBy, sb ).Append( ',' ); // 34
+            sb.AppendEscaped( LastKickBy ).Append( ',' ); // 34
 
-            Escape( LastKickReason, sb ).Append( ',' ); // 35
+            sb.AppendEscaped( LastKickReason ).Append( ',' ); // 35
 
             BannedUntil.ToUnixTimeString( sb ); // 36
 
             if( IsFrozen ) {
                 sb.Append( ',' ).Append( 'f' ).Append( ',' ); // 37
-                Escape( FrozenBy, sb ).Append( ',' ); // 38
+                sb.AppendEscaped( FrozenBy ).Append( ',' ); // 38
                 FrozenOn.ToUnixTimeString( sb ).Append( ',' ); // 39
             } else {
                 sb.Append( ',', 4 ); // 37-39
@@ -603,12 +603,12 @@ namespace fCraft {
 
             if( MutedUntil > DateTime.UtcNow ) {
                 MutedUntil.ToUnixTimeString( sb ).Append( ',' ); // 40
-                Escape( MutedBy, sb ).Append( ',' ); // 41
+                sb.AppendEscaped( MutedBy ).Append( ',' ); // 41
             } else {
                 sb.Append( ',', 2 ); // 40-41
             }
 
-            Escape( Password, sb ).Append( ',' ); // 42
+            sb.AppendEscaped( Password ).Append( ',' ); // 42
 
             if( Online ) sb.Append( 'o' ); // 43
             sb.Append( ',' );
@@ -719,16 +719,6 @@ namespace fCraft {
 
         #region Utilities
 
-
-        public static string EscapeOldFormat( string str ) {
-            if( String.IsNullOrEmpty( str ) ) {
-                return "";
-            } else {
-                return str.Replace( @"\", @"\\" ).Replace( "'", @"\'" ).Replace( ',', '\xFF' );
-            }
-        }
-
-
         public static string Escape( string str ) {
             if( String.IsNullOrEmpty( str ) ) {
                 return "";
@@ -740,22 +730,8 @@ namespace fCraft {
         }
 
 
-        public static StringBuilder Escape( string str, StringBuilder sb ) {
-            if( !String.IsNullOrEmpty( str ) ) {
-                if( str.IndexOf( ',' ) > -1 ) {
-                    int startIndex = sb.Length;
-                    sb.Append( str );
-                    sb.Replace( ',', '\xFF', startIndex, str.Length );
-                } else {
-                    sb.Append( str );
-                }
-            }
-            return sb;
-        }
-
-
         public static string UnescapeOldFormat( string str ) {
-            return str.Replace( '\xFF', ',' ).Replace( @"\'", "'" ).Replace( @"\\", @"\" );
+            return str.Replace( '\xFF', ',' ).Replace( "\'", "'" ).Replace( @"\\", @"\" );
         }
 
 

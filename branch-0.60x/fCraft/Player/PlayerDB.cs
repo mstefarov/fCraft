@@ -626,5 +626,19 @@ namespace fCraft {
                 return x.ID - y.ID;
             }
         }
+
+
+        public static StringBuilder AppendEscaped( this StringBuilder sb, string str ) {
+            if( !String.IsNullOrEmpty( str ) ) {
+                if( str.IndexOf( ',' ) > -1 ) {
+                    int startIndex = sb.Length;
+                    sb.Append( str );
+                    sb.Replace( ',', '\xFF', startIndex, str.Length );
+                } else {
+                    sb.Append( str );
+                }
+            }
+            return sb;
+        }
     }
 }

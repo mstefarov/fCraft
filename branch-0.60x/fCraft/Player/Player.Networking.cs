@@ -253,26 +253,29 @@ namespace fCraft {
             reader.ReadByte();
             string message = ReadString();
             if( Chat.ContainsInvalidChars( message ) ) {
-                Logger.Log( "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.", LogType.SuspiciousActivity,
+                Logger.Log( "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.",
+                            LogType.SuspiciousActivity,
                             Name );
                 Server.Message( "{0}&W was kicked for attempted hacking (0x0d).", ClassyName );
                 KickNow( "Illegal characters in chat.", LeaveReason.InvalidMessageKick );
                 return false;
             } else {
+#if !DEBUG
                 try {
                     ParseMessage( message, false );
                 } catch( IOException ) {
                     throw;
                 } catch( SocketException ) {
                     throw;
-#if !DEBUG
                 } catch( Exception ex ) {
                     Logger.LogAndReportCrash( "Error while parsing player's message", "fCraft", ex, false );
                     MessageNow( "&WAn error occured while trying to process your message ({0}: {1})." +
                                 "It is recommended that you reconnect to the server.",
                                 ex.GetType().Name, ex.Message );
-#endif
                 }
+#else
+                ParseMessage( message, false );
+#endif
             }
             return true;
         }

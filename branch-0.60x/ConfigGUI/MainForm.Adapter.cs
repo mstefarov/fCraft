@@ -183,7 +183,7 @@ namespace fCraft.ConfigGUI {
                 }
                 dgvcAccess.DataSource = rankNameList;
                 dgvcBuild.DataSource = rankNameList;
-                dgvcBackup.DataSource = World.BackupEnum;
+                dgvcBackup.DataSource = WorldListEntry.BackupEnumNames;
 
                 LoadWorldList();
                 dgvWorlds.DataSource = Worlds;
