@@ -114,11 +114,18 @@ namespace fCraft {
 
         /// <summary> Tries to create a TimeSpan from a string containing the number of seconds.
         /// If the string was empty, returns false and does not affect result. </summary>
-        public static bool ToTimeSpan( this string str, ref TimeSpan result ) {
-            if( str.Length > 1 ) {
-                result = new TimeSpan( Int64.Parse( str ) * TimeSpan.TicksPerSecond );
+        public static bool ToTimeSpan( this string str, out TimeSpan result ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
+            if( str.Length == 0 ) {
+                result = TimeSpan.Zero;
+                return true;
+            }
+            long ticks;
+            if( Int64.TryParse( str, out ticks ) ) {
+                result = new TimeSpan( ticks * TimeSpan.TicksPerSecond );
                 return true;
             } else {
+                result = TimeSpan.Zero;
                 return false;
             }
         }

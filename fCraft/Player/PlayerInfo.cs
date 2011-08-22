@@ -168,7 +168,7 @@ namespace fCraft {
 
             // login/logout times
             fields[16].ToDateTime( ref info.LastLoginDate );
-            fields[17].ToTimeSpan( ref info.TotalTime );
+            fields[17].ToTimeSpan( out info.TotalTime );
 
             // stats
             if( fields[18].Length > 0 ) Int32.TryParse( fields[18], out info.BlocksBuilt );

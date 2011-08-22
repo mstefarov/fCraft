@@ -547,11 +547,11 @@ Affected commands:
 
             toolTip.SetToolTip( xBackupOnJoin, ConfigKey.BackupOnJoin.GetDescription() );
 
-            toolTip.SetToolTip( xBackupInterval, ConfigKey.BackupInterval.GetDescription() );
-            toolTip.SetToolTip( nBackupInterval, ConfigKey.BackupInterval.GetDescription() );
-            toolTip.SetToolTip( lBackupIntervalUnits, ConfigKey.BackupInterval.GetDescription() );
+            toolTip.SetToolTip( xBackupInterval, ConfigKey.DefaultBackupInterval.GetDescription() );
+            toolTip.SetToolTip( nBackupInterval, ConfigKey.DefaultBackupInterval.GetDescription() );
+            toolTip.SetToolTip( lBackupIntervalUnits, ConfigKey.DefaultBackupInterval.GetDescription() );
 
-            toolTip.SetToolTip( xBackupOnlyWhenChanged, ConfigKey.BackupInterval.GetDescription() );
+            toolTip.SetToolTip( xBackupOnlyWhenChanged, ConfigKey.DefaultBackupInterval.GetDescription() );
 
             toolTip.SetToolTip( xMaxBackups, ConfigKey.MaxBackups.GetDescription() );
             toolTip.SetToolTip( nMaxBackups, ConfigKey.MaxBackups.GetDescription() );

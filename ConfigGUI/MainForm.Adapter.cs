@@ -273,8 +273,8 @@ namespace fCraft.ConfigGUI {
             xBackupOnJoin.Checked = ConfigKey.BackupOnJoin.Enabled();
             xBackupOnlyWhenChanged.Checked = ConfigKey.BackupOnlyWhenChanged.Enabled();
 
-            xBackupInterval.Checked = (ConfigKey.BackupInterval.GetInt() > 0);
-            nBackupInterval.Value = ConfigKey.BackupInterval.GetInt();
+            xBackupInterval.Checked = (ConfigKey.DefaultBackupInterval.GetInt() > 0);
+            nBackupInterval.Value = ConfigKey.DefaultBackupInterval.GetInt();
             if( !xBackupInterval.Checked ) nBackupInterval.Enabled = false;
 
             xMaxBackups.Checked = (ConfigKey.MaxBackups.GetInt() > 0);
@@ -497,8 +497,8 @@ namespace fCraft.ConfigGUI {
             ConfigKey.BackupOnJoin.TrySetValue( xBackupOnJoin.Checked );
             ConfigKey.BackupOnlyWhenChanged.TrySetValue( xBackupOnlyWhenChanged.Checked );
 
-            if( xBackupInterval.Checked ) ConfigKey.BackupInterval.TrySetValue( nBackupInterval.Value );
-            else ConfigKey.BackupInterval.TrySetValue( 0 );
+            if( xBackupInterval.Checked ) ConfigKey.DefaultBackupInterval.TrySetValue( nBackupInterval.Value );
+            else ConfigKey.DefaultBackupInterval.TrySetValue( 0 );
             if( xMaxBackups.Checked ) ConfigKey.MaxBackups.TrySetValue( nMaxBackups.Value );
             else ConfigKey.MaxBackups.TrySetValue( 0 );
             if( xMaxBackupSize.Checked ) ConfigKey.MaxBackupSize.TrySetValue( nMaxBackupSize.Value );
