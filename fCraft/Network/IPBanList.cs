@@ -352,26 +352,6 @@ namespace fCraft {
         }
 
 
-        public string SerializeOldFormat() {
-            string[] fields = new string[FieldCount];
-
-            fields[0] = Address.ToString();
-            fields[1] = PlayerInfo.EscapeOldFormat( BannedBy );
-            fields[2] = BanDate.ToCompactString();
-            fields[3] = PlayerInfo.EscapeOldFormat( BanReason );
-            fields[4] = PlayerInfo.EscapeOldFormat( PlayerName );
-            fields[5] = Attempts.ToString();
-            fields[6] = PlayerInfo.EscapeOldFormat( LastAttemptName );
-            if( LastAttemptDate == DateTime.MinValue ) {
-                fields[7] = "";
-            } else {
-                fields[7] = LastAttemptDate.ToCompactString();
-            }
-
-            return String.Join( ",", fields );
-        }
-
-
         public void ProcessAttempt( Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Attempts++;

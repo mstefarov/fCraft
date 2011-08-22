@@ -18,7 +18,7 @@ namespace fCraft {
     }
 
 
-    static class DateTimeUtil {
+    public static class DateTimeUtil {
         public static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1, 0, 0, 0, DateTimeKind.Utc );
         public static readonly long TicksToUnixEpoch;
         const long TicksPerMillisecond = 10000;

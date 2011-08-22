@@ -45,7 +45,7 @@ namespace fCraft {
         #region Cache
 
         const int BufferSize = 64 * 1024; // 64 KB
-        readonly byte[] writeBuffer = new byte[BufferSize];
+        readonly byte[] ioBuffer = new byte[BufferSize];
 
         BlockDBEntry[] cacheStore = new BlockDBEntry[MinCacheSize];
         internal int CacheSize;
@@ -128,7 +128,6 @@ namespace fCraft {
 
         #region Preload
 
-
         bool isPreloaded;
         public bool IsPreloaded {
             get {
@@ -152,21 +151,22 @@ namespace fCraft {
 
         void Preload() {
             using( FileStream fs = OpenRead() ) {
-
                 CacheSize = (int)(fs.Length / BlockDBEntrySize);
                 EnsureCapacity( CacheSize );
                 LastFlushedIndex = CacheSize;
 
-                fixed( BlockDBEntry* pCache = cacheStore ) {
-                    fixed( byte* pBuffer = writeBuffer ) {
+                fixed( BlockDBEntry* pCacheStart = cacheStore ) {
+                    fixed( byte* pBuffer = ioBuffer ) {
+                        byte* pCache = (byte*)pCacheStart;
                         while( fs.Position < fs.Length ) {
                             int bytesToRead = Math.Min( BufferSize, (int)(fs.Length - fs.Position) );
                             int bytesInBuffer = 0;
                             do {
-                                int bytesRead = fs.Read( writeBuffer, bytesInBuffer, BufferSize - bytesInBuffer );
+                                int bytesRead = fs.Read( ioBuffer, bytesInBuffer, BufferSize - bytesInBuffer );
                                 bytesInBuffer += bytesRead;
                             } while( bytesInBuffer < bytesToRead );
-                            BufferUtil.MemCpy( pBuffer, (byte*)pCache, bytesInBuffer );
+                            BufferUtil.MemCpy( pBuffer, pCache, bytesInBuffer );
+                            pCache += bytesInBuffer;
                         }
                     }
                 }
@@ -188,12 +188,10 @@ namespace fCraft {
                 int entries = (int)(source.Length / BlockDBEntrySize);
                 if( entries <= maxCapacity ) return;
                 source.Seek( (entries - maxCapacity) * BlockDBEntrySize, SeekOrigin.Begin );
-                byte[] buffer = new byte[16 * 16 * 16];
                 using( FileStream destination = File.Create( tempFileName ) ) {
-                    while( true ) {
-                        int bytesRead = source.Read( buffer, 0, buffer.Length );
-                        if( bytesRead == 0 ) break;
-                        destination.Write( buffer, 0, bytesRead );
+                    while( source.Position < source.Length ) {
+                        int bytesRead = source.Read( ioBuffer, 0, ioBuffer.Length );
+                        destination.Write( ioBuffer, 0, bytesRead );
                     }
                 }
             }
@@ -344,6 +342,7 @@ namespace fCraft {
 
         static readonly TimeSpan MinLimitDelay = TimeSpan.FromMinutes( 5 ),
                                  MinTimeLimitDelay = TimeSpan.FromMinutes( 10 );
+
         internal void Flush() {
             lock( SyncRoot ) {
                 if( LastFlushedIndex < CacheSize ) {

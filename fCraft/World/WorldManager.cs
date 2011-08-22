@@ -50,7 +50,43 @@ namespace fCraft {
             WorldList = new World[0];
             if( File.Exists( Paths.WorldListFileName ) ) {
                 try {
-                    LoadWorldListXml();
+                    XDocument doc = XDocument.Load( Paths.WorldListFileName );
+                    XElement root = doc.Root;
+                    if( root != null ) {
+                        World firstWorld = null;
+                        foreach( XElement el in root.Elements( "World" ) ) {
+#if !DEBUG
+                            try {
+#endif
+                                LoadWorldListEntry( el, ref firstWorld );
+#if !DEBUG
+                            } catch( Exception ex ) {
+                                Logger.LogAndReportCrash( "An error occured while trying to parse one of the entries on the world list",
+                                                          "fCraft", ex, false );
+                            }
+#endif
+                        }
+
+                        XAttribute temp;
+                        if( (temp = root.Attribute( "main" )) != null ) {
+                            World suggestedMainWorld = FindWorldExact( temp.Value );
+
+                            if( suggestedMainWorld != null ) {
+                                MainWorld = suggestedMainWorld;
+
+                            } else if( firstWorld != null ) {
+                                // if specified main world does not exist, use first-defined world
+                                Logger.Log( "The specified main world \"{0}\" does not exist. " +
+                                            "\"{1}\" was designated main instead. You can use /wmain to change it.",
+                                            LogType.Warning, temp.Value, firstWorld.Name );
+                                MainWorld = firstWorld;
+                            }
+                            // if firstWorld was also null, LoadWorldList() should try creating a new mainWorld
+
+                        } else if( firstWorld != null ) {
+                            MainWorld = firstWorld;
+                        }
+                    }
                 } catch( Exception ex ) {
                     Logger.LogAndReportCrash( "Error occured while trying to load the world list.", "fCraft", ex, true );
                     return false;
@@ -82,135 +118,108 @@ namespace fCraft {
         }
 
 
-        static void LoadWorldListXml() {
-            XDocument doc = XDocument.Load( Paths.WorldListFileName );
-            XElement root = doc.Root;
-            if( root == null ) return; // no worlds defined, empty xml file
-            World firstWorld = null;
+        static void LoadWorldListEntry( XElement el, ref World firstWorld ) {
             XAttribute temp;
-
-            foreach( XElement el in root.Elements( "World" ) ) {
-#if !DEBUG
-                try {
-#endif
-                    if( (temp = el.Attribute( "name" )) == null ) {
-                        Logger.Log( "WorldManager: World tag with no name skipped.", LogType.Error );
-                        continue;
-                    }
-
-                    string worldName = temp.Value;
-                    if( !World.IsValidName( worldName ) ) {
-                        Logger.Log( "WorldManager: Invalid world name skipped: \"{0}\"", LogType.Error, worldName );
-                        continue;
-                    }
-
-                    if( Worlds.ContainsKey( worldName.ToLower() ) ) {
-                        Logger.Log( "WorldManager: Duplicate world name ignored: \"{0}\"", LogType.Error, worldName );
-                        continue;
-                    }
-
-                    bool neverUnload = (el.Attribute( "noUnload" ) != null);
-
-                    World world;
-                    try {
-                        world = AddWorld( null, worldName, null, neverUnload );
-                    } catch( WorldOpException ex ) {
-                        Logger.Log( "WorldManager: Error adding world \"{0}\": {1}", LogType.Error, worldName, ex.Message );
-                        continue;
-                    }
-
-                    if( (temp = el.Attribute( "hidden" )) != null ) {
-                        bool isHidden;
-                        if( Boolean.TryParse( temp.Value, out isHidden ) ) {
-                            world.IsHidden = isHidden;
-                        } else {
-                            Logger.Log( "WorldManager: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
-                                        LogType.Warning, worldName );
-                        }
-                    }
-                    if( firstWorld == null ) firstWorld = world;
-
-                    if( el.Element( "accessSecurity" ) != null ) {
-                        world.AccessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
-                    }
-
-                    if( el.Element( "buildSecurity" ) != null ) {
-                        world.BuildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
-                    }
-
-                    XElement blockEl = el.Element( "blockDB" );
-                    if( blockEl != null ) {
-                        world.BlockDB.Enabled = true;
-                        if( (temp = blockEl.Attribute( "preload" )) != null ) {
-                            bool isPreloaded;
-                            if( Boolean.TryParse( temp.Value, out isPreloaded ) ) {
-                                world.BlockDB.IsPreloaded = isPreloaded;
-                            } else {
-                                Logger.Log( "WorldManager: Could not parse BlockDB \"preload\" attribute of world \"{0}\", assuming NOT preloaded.",
-                                            LogType.Warning, worldName );
-                            }
-                        }
-                        if( (temp = blockEl.Attribute( "limit" )) != null ) {
-                            int limit;
-                            if( Int32.TryParse( temp.Value, out limit ) ) {
-                                world.BlockDB.Limit = limit;
-                            } else {
-                                Logger.Log( "WorldManager: Could not parse BlockDB \"limit\" attribute of world \"{0}\", assuming NO limit.",
-                                            LogType.Warning, worldName );
-                            }
-                        }
-                        if( (temp = blockEl.Attribute( "timeLimit" )) != null ) {
-                            TimeSpan timeLimit;
-                            if( TimeSpan.TryParse( temp.Value, out timeLimit ) ) {
-                                world.BlockDB.TimeLimit = timeLimit;
-                            } else {
-                                Logger.Log( "WorldManager: Could not parse BlockDB \"preload\" attribute of world \"{0}\", assuming NO time limit.",
-                                            LogType.Warning, worldName );
-                            }
-                        }
-                    }
-
-                    foreach( XElement mainedRankEl in el.Elements( "RankMainWorld" ) ) {
-                        Rank rank = Rank.Parse( mainedRankEl.Value );
-                        if( rank != null ) {
-                            if( rank < world.AccessSecurity.MinRank ) {
-                                world.AccessSecurity.MinRank = rank;
-                                Logger.Log( "LoadWorldListXml: Lowered access MinRank of world {0} to " +
-                                            "allow it to be the main world for that rank.",
-                                            LogType.Warning,
-                                            rank.Name );
-                            }
-                            rank.MainWorld = world;
-                        }
-                    }
-
-                    CheckMapFile( world );
-#if !DEBUG
-                } catch( Exception ex ) {
-                    Logger.LogAndReportCrash( "An error occured while trying to parse one of the entries on the world list",
-                                              "fCraft", ex, false );
-                }
-#endif
+            if( (temp = el.Attribute( "name" )) == null ) {
+                Logger.Log( "WorldManager: World tag with no name skipped.",
+                            LogType.Error );
+                return;
             }
 
-            if( (temp = root.Attribute( "main" )) != null ) {
-                World suggestedMainWorld = FindWorldExact( temp.Value );
+            string worldName = temp.Value;
 
-                if( suggestedMainWorld != null ) {
-                    MainWorld = suggestedMainWorld;
+            bool neverUnload = (el.Attribute( "noUnload" ) != null);
 
-                } else if( firstWorld != null ) {
-                    // if specified main world does not exist, use first-defined world
-                    Logger.Log( "The specified main world \"{0}\" does not exist. " +
-                                "\"{1}\" was designated main instead. You can use /wmain to change it.",
-                                LogType.Warning, temp.Value, firstWorld.Name );
-                    MainWorld = firstWorld;
-                }
-                // if firstWorld was also null, LoadWorldList() should try creating a new mainWorld
-
-            } else if( firstWorld != null ) {
-                MainWorld = firstWorld;
+            World world;
+            try {
+                world = AddWorld( null, worldName, null, neverUnload );
+            } catch( WorldOpException ex ) {
+                Logger.Log( "WorldManager: Error adding world \"{0}\": {1}",
+                            LogType.Error,
+                            worldName, ex.Message );
+                return;
             }
+
+            if( (temp = el.Attribute( "hidden" )) != null ) {
+                bool isHidden;
+                if( Boolean.TryParse( temp.Value, out isHidden ) ) {
+                    world.IsHidden = isHidden;
+                } else {
+                    Logger.Log( "WorldManager: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
+                                LogType.Warning,
+                                worldName );
+                }
+            }
+            if( firstWorld == null ) firstWorld = world;
+
+            if( el.Element( "accessSecurity" ) != null ) {
+                world.AccessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
+            }
+
+            if( el.Element( "buildSecurity" ) != null ) {
+                world.BuildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
+            }
+
+            if( (temp = el.Attribute( "backup" )) != null ) {
+                TimeSpan backupInterval = World.BackupIntervalDefault;
+                if( !temp.Value.ToTimeSpan( ref backupInterval ) ) {
+                    Logger.Log( "WorldManager: Could not parse \"backup\" attribute of world \"{0}\", assuming default ({1}).",
+                                LogType.Warning,
+                                worldName,
+                                backupInterval.ToMiniString() );
+                }
+                world.BackupInterval = backupInterval;
+            }
+
+            XElement blockEl = el.Element( "blockDB" );
+            if( blockEl != null ) {
+                world.BlockDB.Enabled = true;
+                if( (temp = blockEl.Attribute( "preload" )) != null ) {
+                    bool isPreloaded;
+                    if( Boolean.TryParse( temp.Value, out isPreloaded ) ) {
+                        world.BlockDB.IsPreloaded = isPreloaded;
+                    } else {
+                        Logger.Log( "WorldManager: Could not parse BlockDB \"preload\" attribute of world \"{0}\", assuming NOT preloaded.",
+                                    LogType.Warning,
+                                    worldName );
+                    }
+                }
+                if( (temp = blockEl.Attribute( "limit" )) != null ) {
+                    int limit;
+                    if( Int32.TryParse( temp.Value, out limit ) ) {
+                        world.BlockDB.Limit = limit;
+                    } else {
+                        Logger.Log( "WorldManager: Could not parse BlockDB \"limit\" attribute of world \"{0}\", assuming NO limit.",
+                                    LogType.Warning,
+                                    worldName );
+                    }
+                }
+                if( (temp = blockEl.Attribute( "timeLimit" )) != null ) {
+                    TimeSpan timeLimit;
+                    if( TimeSpan.TryParse( temp.Value, out timeLimit ) ) {
+                        world.BlockDB.TimeLimit = timeLimit;
+                    } else {
+                        Logger.Log( "WorldManager: Could not parse BlockDB \"preload\" attribute of world \"{0}\", assuming NO time limit.",
+                                    LogType.Warning,
+                                    worldName );
+                    }
+                }
+            }
+
+            foreach( XElement mainedRankEl in el.Elements( "RankMainWorld" ) ) {
+                Rank rank = Rank.Parse( mainedRankEl.Value );
+                if( rank != null ) {
+                    if( rank < world.AccessSecurity.MinRank ) {
+                        world.AccessSecurity.MinRank = rank;
+                        Logger.Log( "WorldManager: Lowered access MinRank of world {0} to allow it to be the main world for that rank.",
+                                    LogType.Warning,
+                                    rank.Name );
+                    }
+                    rank.MainWorld = world;
+                }
+            }
+
+            CheckMapFile( world );
         }
 
 
@@ -404,7 +413,7 @@ namespace fCraft {
                 if( neverUnload ) {
                     newWorld.NeverUnload = true;
                 }
-                
+
                 if( map != null ) {
                     newWorld.SaveMap();
                 }

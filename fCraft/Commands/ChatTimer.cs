@@ -39,15 +39,19 @@ namespace fCraft {
         static void TimerCallback( SchedulerTask task ) {
             ChatTimer timer = (ChatTimer)task.UserState;
             if( task.MaxRepeats == 1 ) {
-                Server.Message( "&Y(Timer Up) {0}", timer.Message );
+                if( String.IsNullOrEmpty( timer.Message ) ) {
+                    Chat.SendSay( Player.Console, "(Timer Up)" );
+                } else {
+                    Chat.SendSay( Player.Console, "(Timer Up) " + timer.Message );
+                }
             } else if( timer.TimeLeft <= AnnounceIntervals[timer.announceIntervalIndex] ) {
                 if( String.IsNullOrEmpty( timer.Message ) ) {
-                    Server.Message( "&Y(Timer) {0}",
-                                    AnnounceIntervals[timer.announceIntervalIndex].ToMiniString() );
+                    Chat.SendSay( Player.Console, "(Timer) " + AnnounceIntervals[timer.announceIntervalIndex].ToMiniString() );
                 } else {
-                    Server.Message( "&Y(Timer) {0} until {1}",
-                                    AnnounceIntervals[timer.announceIntervalIndex].ToMiniString(),
-                                    timer.Message );
+                    Chat.SendSay( Player.Console,
+                                  String.Format( "(Timer) {0} until {1}",
+                                                 AnnounceIntervals[timer.announceIntervalIndex].ToMiniString(),
+                                                 timer.Message ) );
                 }
                 timer.announceIntervalIndex--;
             }

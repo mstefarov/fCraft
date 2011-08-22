@@ -11,12 +11,8 @@ namespace fCraft {
         const string TimedBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}.fcm",
                      JoinBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm";
 
-        [Obsolete]
-        public static readonly string[] BackupEnum = new[] {
-            "Never", "5 Minutes", "10 Minutes", "15 Minutes", "20 Minutes",
-            "30 Minutes", "45 Minutes", "1 Hour", "2 Hours", "3 Hours",
-            "4 Hours", "6 Hours", "8 Hours", "12 Hours", "24 Hours"
-        };
+        public TimeSpan BackupInterval { get; set; }
+        public static readonly TimeSpan BackupIntervalDefault = TimeSpan.FromMinutes( 30 );
 
         /// <summary> World name (no formatting).
         /// Use WorldManager.RenameWorld() method to change this. </summary>
@@ -507,15 +503,15 @@ namespace fCraft {
             if( tempMap != null && tempMap.HasChangedSinceSave ) {
                 lock( WorldLock ) {
                     if( Map != null && tempMap.HasChangedSinceSave ) {
-                        if( Map.HasChangedSinceBackup ) {
-                            int backupSeconds = ConfigKey.BackupInterval.GetInt();
-                            if( backupSeconds > 0 && DateTime.UtcNow.Subtract( lastBackup ).TotalSeconds > backupSeconds ) {
-                                string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
-                                tempMap.SaveBackup( MapFileName,
-                                                    Path.Combine( Paths.BackupPath, backupFileName ),
-                                                    true );
-                                lastBackup = DateTime.UtcNow;
-                            }
+                        if( Map.HasChangedSinceBackup &&
+                            BackupInterval != TimeSpan.Zero &&
+                            DateTime.UtcNow.Subtract( lastBackup ) > BackupInterval ) {
+
+                            string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
+                            tempMap.SaveBackup( MapFileName,
+                                                Path.Combine( Paths.BackupPath, backupFileName ),
+                                                true );
+                            lastBackup = DateTime.UtcNow;
                         }
                         SaveMap();
                     }
