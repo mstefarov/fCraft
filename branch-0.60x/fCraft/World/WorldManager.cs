@@ -161,8 +161,8 @@ namespace fCraft {
             }
 
             if( (temp = el.Attribute( "backup" )) != null ) {
-                TimeSpan backupInterval = World.BackupIntervalDefault;
-                if( !temp.Value.ToTimeSpan( ref backupInterval ) ) {
+                TimeSpan backupInterval;
+                if( !temp.Value.ToTimeSpan( out backupInterval ) ) {
                     Logger.Log( "WorldManager: Could not parse \"backup\" attribute of world \"{0}\", assuming default ({1}).",
                                 LogType.Warning,
                                 worldName,

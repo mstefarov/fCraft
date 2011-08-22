@@ -136,6 +136,8 @@ namespace fCraft {
      * 
      * 145 - r794 - Added UndoOthersActions permission.
      * 
+     * 146 - r910 - Renamed BackupInterval to DefaultBackupInterval
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -202,6 +204,7 @@ namespace fCraft {
             LegacyConfigKeys.Add( "AutomaticUpdates".ToLower(), ConfigKey.UpdaterMode );
             LegacyConfigKeys.Add( "IRCBot".ToLower(), ConfigKey.IRCBotEnabled );
             LegacyConfigKeys.Add( "UpdateMode".ToLower(), ConfigKey.UpdaterMode );
+            LegacyConfigKeys.Add( "BackupInterval".ToLower(), ConfigKey.DefaultBackupInterval );
 
             // These values have been renamed at some point. LEGACY
             LegacyConfigValues.Add( ConfigKey.ProcessPriority,

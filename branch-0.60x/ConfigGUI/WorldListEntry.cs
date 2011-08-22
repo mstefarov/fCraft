@@ -53,16 +53,16 @@ namespace fCraft.ConfigGUI {
                 Hidden = false;
             }
 
-            if( (temp = el.Attribute( "backup" )) != null && !String.IsNullOrEmpty( temp.Value ) ) { // TODO: Make per-world backup settings actually work
-                TimeSpan realBackupTimer = BackupEnumValues[5];
-                if( temp.Value.ToTimeSpan( ref realBackupTimer ) ) {
-                    TimeSpan closestMatch = BackupEnumValues.OrderBy( t => Math.Abs( realBackupTimer.Subtract( t ).Ticks ) ).First();
-                    Backup = BackupEnumNames[Array.IndexOf( BackupEnumValues, closestMatch )];
+            if( (temp = el.Attribute( "backup" )) != null ) { // TODO: Make per-world backup settings actually work
+                TimeSpan realBackupTimer;
+                if( temp.Value.ToTimeSpan( out realBackupTimer ) ) {
+                    Backup = BackupNameFromValue( realBackupTimer );
                 } else {
-                    Logger.Log( "WorldListEntity: Cannot parse backup settings for world \"{0}\". Assuming default (30m).", LogType.Error, name );
+                    Logger.Log( "WorldListEntity: Cannot parse backup settings for world \"{0}\". Assuming default.", LogType.Error, name );
+                    Backup = BackupEnumNames[0];
                 }
             } else {
-                Backup = BackupEnumNames[5]; // 30min
+                Backup = BackupEnumNames[0];
             }
 
             if( el.Element( "accessSecurity" ) != null ) {
@@ -194,8 +194,9 @@ namespace fCraft.ConfigGUI {
             XElement element = new XElement( "World" );
             element.Add( new XAttribute( "name", Name ) );
             element.Add( new XAttribute( "hidden", Hidden ) );
-            TimeSpan backupValue = BackupEnumValues[Array.IndexOf( BackupEnumNames, Backup )];
-            element.Add( new XAttribute( "backup", backupValue.ToUnixTimeString() ) );
+            if( Backup != BackupEnumNames[0] ) {
+                element.Add( new XAttribute( "backup", BackupValueFromName( Backup ).ToUnixTimeString() ) );
+            }
             element.Add( accessSecurity.Serialize( "accessSecurity" ) );
             element.Add( buildSecurity.Serialize( "buildSecurity" ) );
             return element;
@@ -260,7 +261,17 @@ namespace fCraft.ConfigGUI {
         }
 
 
+        static string BackupNameFromValue( TimeSpan value ) {
+            TimeSpan closestMatch = BackupEnumValues.OrderBy( t => Math.Abs( value.Subtract( t ).Ticks ) ).First();
+            return BackupEnumNames[Array.IndexOf( BackupEnumValues, closestMatch )];
+        }
+
+        static TimeSpan BackupValueFromName( string name ) {
+            return BackupEnumValues[Array.IndexOf( BackupEnumNames, name )];
+        }
+
         public static readonly string[] BackupEnumNames = new[] {
+            "(default)",
             "Never",
             "5 Minutes",
             "10 Minutes",
@@ -280,6 +291,7 @@ namespace fCraft.ConfigGUI {
         };
 
         static readonly TimeSpan[] BackupEnumValues = new[] {
+            TimeSpan.FromSeconds(-1), // default
             TimeSpan.Zero,
             TimeSpan.FromMinutes(5),
             TimeSpan.FromMinutes(10),

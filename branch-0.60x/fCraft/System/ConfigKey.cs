@@ -277,7 +277,7 @@ Both a timestamp and player's name are included in the filename." )]
 @"Create backups of loaded maps automatically once in a while.
 A world is considered ""loaded"" if there is at least one player on it.",
             MinValue = 0 )]
-        BackupInterval,
+        DefaultBackupInterval,
 
         [IntKey( ConfigSection.SavingAndBackup, 0,
 @"Maximum number of backup files that fCraft should keep.
