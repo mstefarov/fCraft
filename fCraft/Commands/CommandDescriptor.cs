@@ -13,7 +13,7 @@ namespace fCraft {
 
     /// <summary> Describes a chat command.
     /// Defines properties and usage information, and specifies a callback. </summary>
-    public sealed class CommandDescriptor {
+    public sealed class CommandDescriptor : IClassy {
 
         /// <summary> List of aliases. May be null or empty. Default: null </summary>
         public string[] Aliases { get; set; }
@@ -62,6 +62,17 @@ namespace fCraft {
         }
 
 
+        public Rank MinRank {
+            get {
+                if( AnyPermission ) {
+                    return RankManager.GetMinRankWithAnyPermission( Permissions );
+                } else {
+                    return RankManager.GetMinRankWithAllPermissions( Permissions );
+                }
+            }
+        }
+
+
         /// <summary> Checks whether players of the given rank should see this command in /cmds list.
         /// Takes permissions and the hidden flag into account. </summary>
         public bool IsVisibleTo( Rank rank ) {
@@ -99,6 +110,28 @@ namespace fCraft {
 
         public override string ToString() {
             return String.Format( "CommandDescriptor({0})", Name );
+        }
+
+        public string ClassyName {
+            get {
+                if( ConfigKey.RankColorsInChat.Enabled() ) {
+                    Rank minRank;
+                    if( Permissions != null && Permissions.Length > 0 ) {
+                        minRank = MinRank;
+                    } else {
+                        minRank = RankManager.LowestRank;
+                    }
+                    if( minRank == null ) {
+                        return Name;
+                    } else if( ConfigKey.RankPrefixesInChat.Enabled() ) {
+                        return minRank.Color + minRank.Prefix + Name;
+                    } else {
+                        return minRank.Color + Name;
+                    }
+                } else {
+                    return Name;
+                }
+            }
         }
     }
 }

@@ -211,11 +211,25 @@ namespace fCraft {
         /// <summary> Finds the lowest rank that has all the required permissions. </summary>
         /// <param name="permissions"> One or more permissions to check for. </param>
         /// <returns> A relevant Rank object, or null of none were found. </returns>
-        public static Rank GetMinRankWithPermission( params Permission[] permissions ) {
+        public static Rank GetMinRankWithAllPermissions( params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
             for( int r = Ranks.Count - 1; r >= 0; r-- ) {
                 int r1 = r;
                 if( permissions.All( t => Ranks[r1].Can( t ) ) ) {
+                    return Ranks[r];
+                }
+            }
+            return null;
+        }
+
+        /// <summary> Finds the lowest rank that has all the required permissions. </summary>
+        /// <param name="permissions"> One or more permissions to check for. </param>
+        /// <returns> A relevant Rank object, or null of none were found. </returns>
+        public static Rank GetMinRankWithAnyPermission( params Permission[] permissions ) {
+            if( permissions == null ) throw new ArgumentNullException( "permissions" );
+            for( int r = Ranks.Count - 1; r >= 0; r-- ) {
+                int r1 = r;
+                if( permissions.Any( t => Ranks[r1].Can( t ) ) ) {
                     return Ranks[r];
                 }
             }

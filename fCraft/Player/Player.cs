@@ -413,7 +413,18 @@ namespace fCraft {
 
 
         public void MessageNoAccess( params Permission[] permissions ) {
-            Rank reqRank = RankManager.GetMinRankWithPermission( permissions );
+            Rank reqRank = RankManager.GetMinRankWithAllPermissions( permissions );
+            if( reqRank == null ) {
+                Message( "This command is disabled on the server." );
+            } else {
+                Message( "This command requires {0}+&S rank.",
+                         reqRank.ClassyName );
+            }
+        }
+
+
+        public void MessageNoAccess(CommandDescriptor cmd ) {
+            Rank reqRank = cmd.MinRank;
             if( reqRank == null ) {
                 Message( "This command is disabled on the server." );
             } else {
