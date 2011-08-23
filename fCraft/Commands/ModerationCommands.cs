@@ -227,7 +227,7 @@ namespace fCraft {
 
                             if( !banIP ) {
                                 PlayerInfo[] alts = PlayerDB.FindPlayers( target.Info.LastIP );
-                                PlayerInfo[] bannedAlts = alts.Where( t => (t.Banned && t != target.Info) ).ToArray();
+                                PlayerInfo[] bannedAlts = alts.Where( t => (t.IsBanned && t != target.Info) ).ToArray();
                                 if( bannedAlts.Length > 0 ) {
                                     player.Message( "Warning: {0}&S shares IP with other banned players: {1}&S. Consider adding an IP-ban.",
                                                     target.ClassyName,

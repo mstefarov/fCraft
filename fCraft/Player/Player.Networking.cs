@@ -269,7 +269,7 @@ namespace fCraft {
                     throw;
                 } catch( Exception ex ) {
                     Logger.LogAndReportCrash( "Error while parsing player's message", "fCraft", ex, false );
-                    MessageNow( "&WAn error occured while trying to process your message ({0}: {1})." +
+                    MessageNow( "&WError while handling your message ({0}: {1})." +
                                 "It is recommended that you reconnect to the server.",
                                 ex.GetType().Name, ex.Message );
                 }
@@ -550,7 +550,7 @@ namespace fCraft {
 
 
             // Check if player is banned
-            if( Info.Banned ) {
+            if( Info.IsBanned ) {
                 Info.ProcessFailedLogin( this );
                 Logger.Log( "Banned player {0} tried to log in from {1}", LogType.SuspiciousActivity,
                             Name, IP );
@@ -684,7 +684,7 @@ namespace fCraft {
             }
 
             // Check if other banned players logged in from this IP
-            PlayerInfo[] bannedPlayerNames = PlayerDB.FindPlayers( IP, 25 ).Where( playerFromSameIP => playerFromSameIP.Banned ).ToArray();
+            PlayerInfo[] bannedPlayerNames = PlayerDB.FindPlayers( IP, 25 ).Where( playerFromSameIP => playerFromSameIP.IsBanned ).ToArray();
             if( bannedPlayerNames.Length > 0 ) {
                 string logString = String.Format( "&WPlayer {0}&W logged in from an IP previously used by banned players: {1}",
                                                   ClassyName,

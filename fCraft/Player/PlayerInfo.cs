@@ -19,7 +19,7 @@ namespace fCraft {
 
         public string RankChangedBy = "";
 
-        public bool Banned;
+        public bool IsBanned;
         public DateTime BanDate;
         public string BannedBy = "";
         public DateTime UnbanDate;
@@ -64,10 +64,10 @@ namespace fCraft {
 
         public string Password = ""; // TODO
 
-        public bool Online;
+        public bool IsOnline;
         public Player PlayerObject;
         public LeaveReason LeaveReason;
-        public bool BanExempt;
+        public bool IsBanExempt;
 
         public BandwidthUseMode BandwidthUseMode;
 
@@ -143,7 +143,7 @@ namespace fCraft {
             fields[3].ToDateTime( ref info.RankChangeDate );
             info.RankChangedBy = fields[4];
 
-            info.Banned = (fields[5] == "b");
+            info.IsBanned = (fields[5] == "b");
 
             // ban information
             if( fields[6].ToDateTime( ref info.BanDate ) ) {
@@ -255,7 +255,7 @@ namespace fCraft {
             fields[3].ToDateTimeLegacy( ref info.RankChangeDate );
             info.RankChangedBy = fields[4];
 
-            info.Banned = (fields[5] == "b");
+            info.IsBanned = (fields[5] == "b");
 
             // ban information
             if( fields[6].ToDateTimeLegacy( ref info.BanDate ) ) {
@@ -368,7 +368,7 @@ namespace fCraft {
             info.RankChangedBy = fields[4];
             if( info.RankChangedBy == "-" ) info.RankChangedBy = "";
 
-            info.Banned = (fields[5] == "b");
+            info.IsBanned = (fields[5] == "b");
 
             // ban information
             if( DateTimeUtil.TryParseLocalDate( fields[6], out info.BanDate ) ) {
@@ -517,7 +517,7 @@ namespace fCraft {
 
             sb.AppendEscaped( RankChangedBy ).Append( ',' ); // 4
 
-            if( Banned ) sb.Append( 'b' ); // 5
+            if( IsBanned ) sb.Append( 'b' ); // 5
             sb.Append( ',' );
 
             BanDate.ToUnixTimeString( sb ).Append( ',' ); // 6
@@ -580,7 +580,7 @@ namespace fCraft {
 
             LastKickDate.ToUnixTimeString( sb ).Append( ',' ); // 31
 
-            if( Online ) DateTime.UtcNow.ToUnixTimeString( sb ); // 32
+            if( IsOnline ) DateTime.UtcNow.ToUnixTimeString( sb ); // 32
             else LastSeen.ToUnixTimeString( sb );
             sb.Append( ',' );
 
@@ -610,7 +610,7 @@ namespace fCraft {
 
             sb.AppendEscaped( Password ).Append( ',' ); // 42
 
-            if( Online ) sb.Append( 'o' ); // 43
+            if( IsOnline ) sb.Append( 'o' ); // 43
             sb.Append( ',' );
 
             if( BandwidthUseMode != BandwidthUseMode.Default ) sb.Append( (int)BandwidthUseMode ); // 44
@@ -633,7 +633,7 @@ namespace fCraft {
             LastLoginDate = DateTime.UtcNow;
             LastSeen = DateTime.UtcNow;
             Interlocked.Increment( ref TimesVisited );
-            Online = true;
+            IsOnline = true;
             PlayerObject = player;
         }
 
@@ -648,15 +648,15 @@ namespace fCraft {
         public void ProcessLogout( Player player ) {
             TotalTime += player.LastActiveTime.Subtract( player.LoginTime );
             LastSeen = DateTime.UtcNow;
-            Online = false;
+            IsOnline = false;
             PlayerObject = null;
             LeaveReason = player.LeaveReason;
         }
 
 
         public bool ProcessBan( Player bannedBy, string banReason ) {
-            if( !Banned ) {
-                Banned = true;
+            if( !IsBanned ) {
+                IsBanned = true;
                 BannedBy = bannedBy.Name;
                 BanDate = DateTime.UtcNow;
                 BanReason = banReason;
@@ -669,8 +669,8 @@ namespace fCraft {
 
 
         public bool ProcessUnban( string unbannedBy, string unbanReason ) {
-            if( Banned ) {
-                Banned = false;
+            if( IsBanned ) {
+                IsBanned = false;
                 UnbannedBy = unbannedBy;
                 UnbanDate = DateTime.UtcNow;
                 UnbanReason = unbanReason;
@@ -755,9 +755,10 @@ namespace fCraft {
                     sb.Append( Rank.Prefix );
                 }
                 sb.Append( Name );
-                if( Banned ) {
+                if( IsBanned ) {
                     sb.Append( Color.Warning ).Append( '*' );
-                } else if( IsFrozen ) {
+                }
+                if( IsFrozen ) {
                     sb.Append( Color.Blue ).Append( '*' );
                 }
                 return sb.ToString();
@@ -875,8 +876,8 @@ namespace fCraft {
         }
 
         public int Compare( PlayerInfo x, PlayerInfo y ) {
-            bool xIsOnline = x.Online && observer.CanSee( x.PlayerObject );
-            bool yIsOnline = y.Online && observer.CanSee( y.PlayerObject );
+            bool xIsOnline = x.IsOnline && observer.CanSee( x.PlayerObject );
+            bool yIsOnline = y.IsOnline && observer.CanSee( y.PlayerObject );
             if( !xIsOnline && yIsOnline ) {
                 return 1;
             } else if( xIsOnline && !yIsOnline ) {

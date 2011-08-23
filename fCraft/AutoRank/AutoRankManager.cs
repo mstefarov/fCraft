@@ -36,7 +36,7 @@ namespace fCraft.AutoRank {
             // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < Criteria.Count; i++ ) {
                 if( Criteria[i].FromRank == info.Rank &&
-                    !info.Banned &&
+                    !info.IsBanned &&
                     Criteria[i].Condition.Eval( info ) ) {
 
                     return Criteria[i].ToRank;

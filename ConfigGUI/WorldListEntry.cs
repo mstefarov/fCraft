@@ -88,7 +88,7 @@ namespace fCraft.ConfigGUI {
                 if( !World.IsValidName( value ) ) {
                     throw new FormatException( "Invalid world name" );
 
-                } else if( !value.Equals(name, StringComparison.OrdinalIgnoreCase) && MainForm.IsWorldNameTaken( value ) ) {
+                } else if( !value.Equals( name, StringComparison.OrdinalIgnoreCase ) && MainForm.IsWorldNameTaken( value ) ) {
                     throw new FormatException( "Duplicate world names are not allowed." );
 
                 } else {
@@ -118,7 +118,7 @@ namespace fCraft.ConfigGUI {
         }
 
 
-        [SortableProperty(typeof(WorldListEntry),"Compare")]
+        [SortableProperty( typeof( WorldListEntry ), "Compare" )]
         public string Description {
             get {
                 Map mapHeader = MapHeader;
@@ -240,33 +240,13 @@ namespace fCraft.ConfigGUI {
         #endregion
 
 
-        // Comparison method used to customize sorting
-        public static object Compare( string propertyName, object a, object b ) {
-            WorldListEntry entry1 = (WorldListEntry)a;
-            WorldListEntry entry2 = (WorldListEntry)b;
-            switch( propertyName ) {
-                case "Description":
-                    if( entry1.MapHeader == null && entry2.MapHeader == null ) return null;
-                    if( entry1.MapHeader == null ) return -1;
-                    if( entry2.MapHeader == null ) return 1;
-                    int volumeDifference = entry1.MapHeader.Volume - entry2.MapHeader.Volume;
-                    return Math.Min( 1, Math.Max( -1, volumeDifference ) );
 
-                case "Name":
-                    return StringComparer.OrdinalIgnoreCase.Compare( entry1.name, entry2.name );
-
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-
-        static string BackupNameFromValue( TimeSpan value ) {
+        public static string BackupNameFromValue( TimeSpan value ) {
             TimeSpan closestMatch = BackupEnumValues.OrderBy( t => Math.Abs( value.Subtract( t ).Ticks ) ).First();
             return BackupEnumNames[Array.IndexOf( BackupEnumValues, closestMatch )];
         }
 
-        static TimeSpan BackupValueFromName( string name ) {
+        public static TimeSpan BackupValueFromName( string name ) {
             return BackupEnumValues[Array.IndexOf( BackupEnumNames, name )];
         }
 
@@ -309,5 +289,26 @@ namespace fCraft.ConfigGUI {
             TimeSpan.FromHours(24),
             TimeSpan.FromHours(48)
         };
+
+
+        // Comparison method used to customize sorting
+        public static object Compare( string propertyName, object a, object b ) {
+            WorldListEntry entry1 = (WorldListEntry)a;
+            WorldListEntry entry2 = (WorldListEntry)b;
+            switch( propertyName ) {
+                case "Description":
+                    if( entry1.MapHeader == null && entry2.MapHeader == null ) return null;
+                    if( entry1.MapHeader == null ) return -1;
+                    if( entry2.MapHeader == null ) return 1;
+                    int volumeDifference = entry1.MapHeader.Volume - entry2.MapHeader.Volume;
+                    return Math.Min( 1, Math.Max( -1, volumeDifference ) );
+
+                case "Name":
+                    return StringComparer.OrdinalIgnoreCase.Compare( entry1.name, entry2.name );
+
+                default:
+                    throw new NotImplementedException();
+            }
+        }
     }
 }
