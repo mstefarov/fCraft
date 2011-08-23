@@ -150,9 +150,9 @@ namespace fCraft {
             }
 
             int totalCount = infos.Length;
-            int bannedCount = infos.Count( info => info.Banned );
+            int bannedCount = infos.Count( info => info.IsBanned );
             int inactiveCount = infos.Count( info => info.TimeSinceLastSeen.TotalDays >= 30 );
-            infos = infos.Where( info => (info.TimeSinceLastSeen.TotalDays < 30 && !info.Banned) ).ToArray();
+            infos = infos.Where( info => (info.TimeSinceLastSeen.TotalDays < 30 && !info.IsBanned) ).ToArray();
 
             if( infos.Length == 0 ) {
                 writer.WriteLine( "{0}: {1} players, {2} banned, {3} inactive",
@@ -963,14 +963,18 @@ namespace fCraft {
         static void PruneDBHandler( Player player, Command cmd ) {
             if( !cmd.IsConfirmed ) {
                 player.MessageNow( "PruneDB: Finding inactive players..." );
-                player.Confirm( cmd, "Remove {0} inactive players from the database?",
-                                PlayerDB.CountInactivePlayers() );
-                return;
+                int inactivePlayers = PlayerDB.CountInactivePlayers();
+                if( inactivePlayers == 0 ) {
+                    player.Message( "PruneDB: No inactive players found." );
+                } else {
+                    player.Confirm( cmd, "PruneDB: Erase {0} records of inactive players?",
+                                    inactivePlayers );
+                }
+            } else {
+                Scheduler.NewBackgroundTask( delegate {
+                    PlayerDB.RemoveInactivePlayers( player );
+                } ).RunOnce();
             }
-            player.MessageNow( "PruneDB: Removing inactive players... (this may take a while)" );
-            Scheduler.NewBackgroundTask( delegate {
-                PlayerDB.RemoveInactivePlayers( player );
-            } ).RunOnce();
         }
 
         #endregion

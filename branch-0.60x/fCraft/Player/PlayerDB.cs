@@ -378,7 +378,7 @@ namespace fCraft {
         #region Stats
 
         public static int CountBannedPlayers() {
-            return PlayerInfoList.Count( t => t.Banned );
+            return PlayerInfoList.Count( t => t.IsBanned );
         }
 
 
@@ -501,7 +501,7 @@ namespace fCraft {
                     if( PlayerIsInactive( p, true ) ) {
                         count++;
                         if( (count % (estimate / 4) == 0) ) {
-                            player.Message( "PruneDB: {0}% complete.", (count * 100) / estimate );
+                            player.Message( "PruneDB: {0}% complete.", (count * 100 + 1) / estimate );
                         }
                     } else {
                         newList.Add( p );
@@ -525,7 +525,7 @@ namespace fCraft {
 
         static bool PlayerIsInactive( PlayerInfo player, bool checkIP ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( player.Banned || !String.IsNullOrEmpty( player.UnbannedBy ) ||
+            if( player.IsBanned || !String.IsNullOrEmpty( player.UnbannedBy ) ||
                 player.IsFrozen || player.IsMuted || player.TimesKicked != 0 ||
                 player.Rank != RankManager.DefaultRank || player.PreviousRank != null ) {
                 return false;
@@ -547,7 +547,7 @@ namespace fCraft {
             PlayerInfo[] playerInfoListCache = PlayerInfoList;
             for( int i = 0; i < playerInfoListCache.Length; i++ ) {
                 PlayerInfo p = playerInfoListCache[i];
-                if( p.Banned && p.BanReason.EndsWith( "~BanAll", StringComparison.OrdinalIgnoreCase ) && IPBanList.Get( p.LastIP ) == null ) {
+                if( p.IsBanned && p.BanReason.EndsWith( "~BanAll", StringComparison.OrdinalIgnoreCase ) && IPBanList.Get( p.LastIP ) == null ) {
                     IPBanList.Add( new IPBanInfo( p.LastIP, p.Name, p.BannedBy, p.BanReason ) );
                     Logger.Log( "PlayerDB.RecoverIPBans: Banned {0} by association with {1}. Banned by {2}. Reason: {3}", LogType.SystemActivity,
                                 p.LastIP, p.Name, p.BannedBy, p.BanReason );
@@ -560,8 +560,8 @@ namespace fCraft {
             lock( AddLocker ) {
                 Swap( ref p1.BanDate, ref p2.BanDate );
                 Swap( ref p1.BandwidthUseMode, ref p2.BandwidthUseMode );
-                Swap( ref p1.BanExempt, ref p2.BanExempt );
-                Swap( ref p1.Banned, ref p2.Banned );
+                Swap( ref p1.IsBanExempt, ref p2.IsBanExempt );
+                Swap( ref p1.IsBanned, ref p2.IsBanned );
                 Swap( ref p1.BannedBy, ref p2.BannedBy );
                 Swap( ref p1.BannedUntil, ref p2.BannedUntil );
                 Swap( ref p1.BanReason, ref p2.BanReason );

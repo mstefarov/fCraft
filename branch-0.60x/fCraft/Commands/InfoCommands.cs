@@ -228,11 +228,11 @@ namespace fCraft {
 
             // Show ban information
             IPBanInfo ipBan = IPBanList.Get( info.LastIP );
-            if( ipBan != null && info.Banned ) {
+            if( ipBan != null && info.IsBanned ) {
                 player.Message( "  Both name and IP are {0}BANNED&S. See &H/baninfo", Color.Red );
             } else if( ipBan != null ) {
                 player.Message( "  IP is {0}BANNED&S (but nick isn't). See &H/baninfo", Color.Red );
-            } else if( info.Banned ) {
+            } else if( info.IsBanned ) {
                 player.Message( "  Nick is {0}BANNED&S (but IP isn't). See &H/baninfo", Color.Red );
             }
 
@@ -244,7 +244,7 @@ namespace fCraft {
                 foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( info.LastIP, 25 ) ) {
                     if( playerFromSameIP != info ) {
                         altNames.Add( playerFromSameIP );
-                        if( playerFromSameIP.Banned ) {
+                        if( playerFromSameIP.IsBanned ) {
                             bannedAltCount++;
                         }
                     }
@@ -413,7 +413,7 @@ namespace fCraft {
                 if( !PlayerDB.FindPlayerInfo( name, out info ) ) {
                     player.Message( "More than one player found matching \"{0}\"", name );
                 } else if( info != null ) {
-                    if( info.Banned ) {
+                    if( info.IsBanned ) {
                         player.Message( "Player {0}&S is &WBANNED", info.ClassyName );
                     } else {
                         player.Message( "Player {0}&S is NOT banned.", info.ClassyName );
@@ -438,7 +438,7 @@ namespace fCraft {
                     }
                     if( info.BanDate != DateTime.MinValue ) {
                         TimeSpan banDuration;
-                        if( info.Banned ) {
+                        if( info.IsBanned ) {
                             banDuration = info.TimeSinceBan;
                         } else {
                             banDuration = info.UnbanDate.Subtract( info.BanDate );
