@@ -807,7 +807,7 @@ namespace fCraft {
                 bool visible = player.CanJoin( world ) && !world.IsHidden;
                 if( (world.IsLoaded && listAllLoaded) || (visible && listVisible) || (!visible && listHidden) ) {
                     if( !first ) {
-                        sb.Append( ", " );
+                        sb.Append( "  " );
                     }
                     sb.Append( world.ClassyName );
                     count++;

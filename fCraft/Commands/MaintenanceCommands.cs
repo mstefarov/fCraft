@@ -31,6 +31,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdInfoSwap );
 
+#if DEBUG
             CommandManager.RegisterCommand( new CommandDescriptor {
                 Name = "bum",
                 IsHidden = true,
@@ -64,6 +65,7 @@ namespace fCraft {
                     }
                 }
             } );
+#endif
         }
 
 
