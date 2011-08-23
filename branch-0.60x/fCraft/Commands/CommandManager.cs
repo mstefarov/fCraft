@@ -199,7 +199,7 @@ namespace fCraft {
             } else {
                 if( descriptor.Permissions != null ) {
                     if( !descriptor.CanBeCalledBy( player.Info.Rank ) ) {
-                        player.MessageNoAccess( descriptor.Permissions );
+                        player.MessageNoAccess( descriptor );
                         return;
                     }
                     if( !descriptor.Call( player, cmd, true ) ) {

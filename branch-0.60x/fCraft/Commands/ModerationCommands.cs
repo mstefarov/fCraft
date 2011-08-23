@@ -949,7 +949,7 @@ namespace fCraft {
                     }
                 }
             } else {
-                player.MessageNoAccess( Permission.Bring, Permission.SetSpawn );
+                player.MessageNoAccess( CdSetSpawn );
             }
         }
 

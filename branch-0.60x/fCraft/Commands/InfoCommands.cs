@@ -905,7 +905,7 @@ namespace fCraft {
                     player.MessagePrefixed( HelpPrefix, sb.ToString() );
 
                     if( descriptor.Permissions != null && descriptor.Permissions.Length > 0 ) {
-                        player.MessageNoAccess( descriptor.Permissions );
+                        player.MessageNoAccess( descriptor );
                     }
                 }
 
@@ -974,9 +974,7 @@ namespace fCraft {
                 return;
             }
 
-            string commandNames = cd.JoinToString( ", ", desc => desc.Name );
-
-            player.MessagePrefixed( "&S   ", "&S   " + commandNames );
+            player.MessagePrefixed( "&S  ", "&S  " + cd.JoinToClassyString() );
         }
 
         #endregion

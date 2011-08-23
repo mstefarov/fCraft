@@ -351,7 +351,7 @@ namespace fCraft {
         /// <summary> Joins formatted names of all IClassy objects in a collection into one comma-separated string. </summary>
         public static string JoinToClassyString( this IEnumerable<IClassy> items ) {
             if( items == null ) throw new ArgumentNullException( "items" );
-            return items.JoinToString( "&S, ", p => p.ClassyName );
+            return items.JoinToString( "  ", p => p.ClassyName );
         }
     }
 
