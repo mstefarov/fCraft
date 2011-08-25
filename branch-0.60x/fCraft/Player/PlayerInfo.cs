@@ -73,6 +73,8 @@ namespace fCraft {
 
         public bool IsHidden;
 
+        public DateTime LastModified;
+
 
         #region Constructors and Serialization
 
@@ -98,6 +100,7 @@ namespace fCraft {
             FrozenOn = DateTime.MinValue;
             MutedUntil = DateTime.MinValue;
             BandwidthUseMode = BandwidthUseMode.Default;
+            LastModified = DateTime.UtcNow;
         }
 
         // fabricate info for an unrecognized player
@@ -231,6 +234,9 @@ namespace fCraft {
                 } else {
                     info.IsHidden = info.Rank.Can( Permission.Hide );
                 }
+            }
+            if( fields.Length > 46 ) {
+                fields[46].ToDateTime( ref info.LastModified );
             }
 
             if( info.LastSeen < info.FirstLoginDate ) {
@@ -617,6 +623,9 @@ namespace fCraft {
             sb.Append( ',' );
 
             if( IsHidden ) sb.Append( 'h' ); // 45
+
+            sb.Append( ',' );
+            LastModified.ToUnixTimeString( sb ); // 46
         }
 
         #endregion
@@ -626,7 +635,9 @@ namespace fCraft {
 
         public void ProcessMessageWritten() {
             Interlocked.Increment( ref MessagesWritten );
+            LastModified = DateTime.UtcNow;
         }
+
 
         public void ProcessLogin( Player player ) {
             LastIP = player.IP;
@@ -635,6 +646,7 @@ namespace fCraft {
             Interlocked.Increment( ref TimesVisited );
             IsOnline = true;
             PlayerObject = player;
+            LastModified = DateTime.UtcNow;
         }
 
 
@@ -642,6 +654,7 @@ namespace fCraft {
             LastFailedLoginDate = DateTime.UtcNow;
             LastFailedLoginIP = player.IP;
             Interlocked.Increment( ref FailedLoginCount );
+            LastModified = DateTime.UtcNow;
         }
 
 
@@ -651,6 +664,7 @@ namespace fCraft {
             IsOnline = false;
             PlayerObject = null;
             LeaveReason = player.LeaveReason;
+            LastModified = DateTime.UtcNow;
         }
 
 
@@ -661,6 +675,7 @@ namespace fCraft {
                 BanDate = DateTime.UtcNow;
                 BanReason = banReason;
                 Interlocked.Increment( ref bannedBy.Info.TimesBannedOthers );
+                LastModified = DateTime.UtcNow;
                 return true;
             } else {
                 return false;
@@ -674,6 +689,7 @@ namespace fCraft {
                 UnbannedBy = unbannedBy;
                 UnbanDate = DateTime.UtcNow;
                 UnbanReason = unbanReason;
+                LastModified = DateTime.UtcNow;
                 return true;
             } else {
                 return false;
@@ -688,6 +704,7 @@ namespace fCraft {
             RankChangedBy = changer.Name;
             RankChangeReason = reason;
             RankChangeType = type;
+            LastModified = DateTime.UtcNow;
         }
 
 
@@ -697,11 +714,13 @@ namespace fCraft {
             } else {
                 Interlocked.Increment( ref BlocksBuilt );
             }
+            LastModified = DateTime.UtcNow;
         }
 
 
         public void ProcessDrawCommand( int blocksDrawn ) {
             Interlocked.Add( ref BlocksDrawn, blocksDrawn );
+            LastModified = DateTime.UtcNow;
         }
 
 
@@ -712,6 +731,7 @@ namespace fCraft {
             LastKickBy = kickedBy.Name;
             LastKickReason = reason ?? "";
             Unfreeze();
+            LastModified = DateTime.UtcNow;
         }
 
         #endregion
@@ -813,6 +833,7 @@ namespace fCraft {
             if( newMutedUntil > MutedUntil ) {
                 MutedUntil = newMutedUntil;
                 MutedBy = by;
+                LastModified = DateTime.UtcNow;
                 return true;
             } else {
                 return false;
@@ -823,6 +844,7 @@ namespace fCraft {
         public bool Unmute() {
             if( IsMuted ) {
                 MutedUntil = DateTime.MinValue;
+                LastModified = DateTime.UtcNow;
                 return true;
             } else {
                 return false;
@@ -843,6 +865,7 @@ namespace fCraft {
                 IsFrozen = true;
                 FrozenOn = DateTime.UtcNow;
                 FrozenBy = by;
+                LastModified = DateTime.UtcNow;
                 return true;
             } else {
                 return false;
