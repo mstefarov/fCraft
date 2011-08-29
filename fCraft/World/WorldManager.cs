@@ -169,6 +169,8 @@ namespace fCraft {
                                 backupInterval.ToMiniString() );
                 }
                 world.BackupInterval = backupInterval;
+            } else {
+                world.BackupInterval = World.DefaultBackupInterval;
             }
 
             XElement blockEl = el.Element( "blockDB" );

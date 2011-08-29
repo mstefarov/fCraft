@@ -7,6 +7,7 @@ using fCraft.MapConversion;
 
 namespace fCraft {
     public sealed class World : IClassy {
+        public static readonly TimeSpan DefaultBackupInterval = TimeSpan.FromSeconds( -1 );
 
         const string TimedBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}.fcm",
                      JoinBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm";
@@ -501,8 +502,12 @@ namespace fCraft {
             if( Map == null ) return;
             lock( WorldLock ) {
                 if( Map == null ) return;
-                if( BackupInterval != TimeSpan.Zero &&
-                    DateTime.UtcNow.Subtract( lastBackup ) > BackupInterval &&
+                TimeSpan actualBackupInterval = BackupInterval;
+                if( actualBackupInterval == DefaultBackupInterval ) {
+                    actualBackupInterval = TimeSpan.FromMinutes( ConfigKey.DefaultBackupInterval.GetInt() );
+                }
+                if( actualBackupInterval != TimeSpan.Zero &&
+                    DateTime.UtcNow.Subtract( lastBackup ) > actualBackupInterval &&
                     (Map.HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled()) ) {
 
                     string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
