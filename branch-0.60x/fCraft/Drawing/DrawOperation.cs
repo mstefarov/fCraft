@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Generic;
 
 // ReSharper disable VirtualMemberNeverOverriden.Global
 // ReSharper disable UnusedMemberInSuper.Global
@@ -72,6 +73,10 @@ namespace fCraft.Drawing {
         protected bool DrawOneBlock() {
             BlocksProcessed++;
 
+#if DEBUG
+            TestForDuplicateModification();
+#endif
+
             if( !Map.InBounds( Coords.X, Coords.Y, Coords.Z ) ) {
                 BlocksSkipped++;
                 return false;
@@ -117,5 +122,20 @@ namespace fCraft.Drawing {
             BlocksUpdated++;
             return true;
         }
+
+#if DEBUG
+
+        // Single modification per block policy enforcement
+        HashSet<int> modifiedBlockIndices = new HashSet<int>();
+        void TestForDuplicateModification() {
+            int index = Map.Index( Coords );
+            if( modifiedBlockIndices.Contains( index ) ) {
+                throw new InvalidOperationException( "Duplicate block modification." );
+            }
+            modifiedBlockIndices.Add( index );
+        }
+
+
+#endif
     }
 }
