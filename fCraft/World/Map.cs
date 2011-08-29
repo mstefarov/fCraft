@@ -418,10 +418,9 @@ namespace fCraft {
         readonly object backupLock = new object();
 
 
-        public void SaveBackup( string sourceName, string targetName, bool onlyIfChanged ) {
+        public void SaveBackup( string sourceName, string targetName ) {
             if( sourceName == null ) throw new ArgumentNullException( "sourceName" );
             if( targetName == null ) throw new ArgumentNullException( "targetName" );
-            if( onlyIfChanged && !HasChangedSinceBackup && ConfigKey.BackupOnlyWhenChanged.Enabled() ) return;
 
             lock( backupLock ) {
                 DirectoryInfo directory = new DirectoryInfo( Paths.BackupPath );

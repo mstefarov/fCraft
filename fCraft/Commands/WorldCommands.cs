@@ -1841,20 +1841,20 @@ namespace fCraft {
             } catch( WorldOpException ex ) {
                 switch( ex.ErrorCode ) {
                     case WorldOpExceptionCode.NoChangeNeeded:
-                        player.MessageNow( "Rename: World is already named \"{0}\"", oldName );
+                        player.MessageNow( "WRename: World is already named \"{0}\"", oldName );
                         return;
                     case WorldOpExceptionCode.DuplicateWorldName:
-                        player.MessageNow( "Rename: Another world named \"{0}\" already exists.", newName );
+                        player.MessageNow( "WRename: Another world named \"{0}\" already exists.", newName );
                         return;
                     case WorldOpExceptionCode.InvalidWorldName:
-                        player.MessageNow( "Rename: Invalid world name: \"{0}\"", newName );
+                        player.MessageNow( "WRename: Invalid world name: \"{0}\"", newName );
                         return;
                     case WorldOpExceptionCode.MapMoveError:
-                        player.MessageNow( "Rename: World \"{0}\" was renamed to \"{1}\", but the map file could not be moved due to an error: {2}",
+                        player.MessageNow( "WRename: World \"{0}\" was renamed to \"{1}\", but the map file could not be moved due to an error: {2}",
                                             oldName, newName, ex.InnerException );
                         return;
                     default:
-                        player.MessageNow( "Unexpected error occured while renaming world \"{0}\"", oldName );
+                        player.MessageNow( "WRename: Unexpected error renaming world \"{0}\": {1}", oldName, ex.Message );
                         Logger.Log( "WorldCommands.Rename: Unexpected error while renaming world {0} to {1}: {2}",
                                     LogType.Error, oldWorld.Name, newName, ex );
                         return;
