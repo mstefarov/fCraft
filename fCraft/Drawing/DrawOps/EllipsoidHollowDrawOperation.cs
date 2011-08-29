@@ -53,6 +53,7 @@ namespace fCraft.Drawing {
         State state;
         Vector3F radius, center, delta;
         bool fillInner;
+        int firstZ;
 
         public override int DrawBatch( int maxBlocksToDraw ) {
             int blocksDone = 0;
@@ -71,6 +72,7 @@ namespace fCraft.Drawing {
 
                             case State.OuterBlock1:
                                 state = State.OuterBlock1;
+                                firstZ = Coords.Z;
                                 if( DrawOneBlock() ) {
                                     blocksDone++;
                                 }
@@ -80,12 +82,15 @@ namespace fCraft.Drawing {
                             case State.OuterBlock2:
                                 state = State.OuterBlock2;
                                 if( blocksDone >= maxBlocksToDraw ) return blocksDone;
-                                int z = Coords.Z;
-                                Coords.Z = (int)(center.Z - delta.Z);
-                                if( DrawOneBlock() ) {
-                                    blocksDone++;
+                                int secondZ = (int)(center.Z - delta.Z);
+                                if( secondZ != firstZ ) {
+                                    int oldZ = Coords.Z;
+                                    Coords.Z = secondZ;
+                                    if( DrawOneBlock() ) {
+                                        blocksDone++;
+                                    }
+                                    Coords.Z = oldZ;
                                 }
-                                Coords.Z = z;
                                 goto case State.AfterOuterBlock;
 
 
