@@ -234,12 +234,11 @@ namespace fCraft {
                 IsPendingMapUnload = false;
                 Map = LoadMap();
 
-                if( ConfigKey.BackupOnJoin.Enabled() ) {
+                if( ConfigKey.BackupOnJoin.Enabled() && (Map.HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled()) ) {
                     string backupFileName = String.Format( JoinBackupFormat,
                                                            Name, DateTime.Now, player.Name ); // localized
                     Map.SaveBackup( MapFileName,
-                                    Path.Combine( Paths.BackupPath, backupFileName ),
-                                    true );
+                                    Path.Combine( Paths.BackupPath, backupFileName ) );
                 }
 
                 UpdatePlayerList();
@@ -499,22 +498,21 @@ namespace fCraft {
         DateTime lastBackup = DateTime.UtcNow;
 
         void SaveTask( SchedulerTask task ) {
-            Map tempMap = Map;
-            if( tempMap != null && tempMap.HasChangedSinceSave ) {
-                lock( WorldLock ) {
-                    if( Map != null && tempMap.HasChangedSinceSave ) {
-                        if( Map.HasChangedSinceBackup &&
-                            BackupInterval != TimeSpan.Zero &&
-                            DateTime.UtcNow.Subtract( lastBackup ) > BackupInterval ) {
+            if( Map == null ) return;
+            lock( WorldLock ) {
+                if( Map == null ) return;
+                if( BackupInterval != TimeSpan.Zero &&
+                    DateTime.UtcNow.Subtract( lastBackup ) > BackupInterval &&
+                    (Map.HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled()) ) {
 
-                            string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
-                            tempMap.SaveBackup( MapFileName,
-                                                Path.Combine( Paths.BackupPath, backupFileName ),
-                                                true );
-                            lastBackup = DateTime.UtcNow;
-                        }
-                        SaveMap();
-                    }
+                    string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
+                    Map.SaveBackup( MapFileName,
+                                    Path.Combine( Paths.BackupPath, backupFileName ) );
+                    lastBackup = DateTime.UtcNow;
+                }
+
+                if( Map.HasChangedSinceSave ) {
+                    SaveMap();
                 }
             }
         }
