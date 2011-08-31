@@ -66,6 +66,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdStaff = new CommandDescriptor {
             Name = "staff",
+            Aliases = new[] { "st" },
             Category = CommandCategory.Chat | CommandCategory.Moderation,
             Permissions = new[] { Permission.Chat },
             IsConsoleSafe = true,

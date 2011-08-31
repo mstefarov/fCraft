@@ -838,6 +838,9 @@ namespace fCraft {
 
         public bool Mute( string by, TimeSpan timespan ) {
             if( by == null ) throw new ArgumentNullException( "by" );
+            if( timespan <= TimeSpan.Zero ) {
+                throw new ArgumentException( "Mute duration must be longer than 0", "timespan" );
+            }
             DateTime newMutedUntil = DateTime.UtcNow.Add( timespan );
             if( newMutedUntil > MutedUntil ) {
                 MutedUntil = newMutedUntil;
