@@ -2171,7 +2171,12 @@ namespace fCraft {
         static readonly CommandDescriptor CdRestore = new CommandDescriptor {
             Name = "restore",
             Category = CommandCategory.World,
-            Permissions = new[] { Permission.CopyAndPaste },
+            Permissions = new[] {
+                Permission.Draw,
+                Permission.DrawAdvanced,
+                Permission.CopyAndPaste,
+                Permission.ManageWorlds
+            },
             Usage = "/restore FileName",
             Help = "Selectively restores/pastes part of mapfile into the current world.",
             Handler = RestoreHandler

@@ -381,7 +381,17 @@ namespace fCraft {
                     string date = DateTime.UtcNow.Subtract( DateTimeUtil.ToDateTime( entry.Timestamp ) ).ToMiniString();
 
                     PlayerInfo info = PlayerDB.FindPlayerInfoByID( entry.PlayerID );
-                    string playerName = (info == null ? "?" : (info.IsOnline ? info.ClassyName : info.ClassyName + "&S (offline)"));
+                    string playerName;
+                    if( info == null ) {
+                        playerName = "?";
+                    } else {
+                        Player target = info.PlayerObject;
+                        if( target != null && args.Player.CanSee( target ) ) {
+                            playerName = info.ClassyName;
+                        } else {
+                            playerName = info.ClassyName + "&S (offline)";
+                        }
+                    }
                     if( entry.OldBlock == (byte)Block.Air ) {
                         args.Player.Message( "&S  {0} ago: {1}&S placed {2}.", date, playerName, entry.NewBlock );
                     } else if( entry.NewBlock == (byte)Block.Air ) {
