@@ -22,6 +22,7 @@ namespace fCraft {
         static PlayerInfo[] PlayerInfoList { get; set; }
 
         static int maxID = 255;
+        const int bufferSize = 64 * 1024;
 
         /* 
          * Version 0 - before 0.530 - all dates/times are local
@@ -85,98 +86,100 @@ namespace fCraft {
             lock( SaveLoadLocker ) {
                 if( File.Exists( Paths.PlayerDBFileName ) ) {
                     Stopwatch sw = Stopwatch.StartNew();
-                    using( StreamReader reader = File.OpenText( Paths.PlayerDBFileName ) ) {
+                    using( FileStream fs = new FileStream( Paths.PlayerDBFileName, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize ) ) {
+                        using( StreamReader reader = new StreamReader( fs, Encoding.UTF8, true, bufferSize ) ) {
 
-                        string header = reader.ReadLine();
+                            string header = reader.ReadLine();
 
-                        if( header == null ) return; // if PlayerDB is an empty file
+                            if( header == null ) return; // if PlayerDB is an empty file
 
-                        lock( AddLocker ) {
-                            int version = IdentifyFormatVersion( header );
-                            if( version > FormatVersion ) {
-                                Logger.Log( "PlayerDB.Load: Attempting to load unsupported PlayerDB format ({0}). Errors may occur.",
-                                            LogType.Warning,
-                                            version );
-                            } else if( version < FormatVersion ) {
-                                Logger.Log( "PlayerDB.Load: Converting PlayerDB to a newer format (version {0} to {1}).",
-                                            LogType.Warning,
-                                            version, FormatVersion );
-                            }
-
-                            while( true ) {
-                                string line = reader.ReadLine();
-                                if( line == null ) break;
-                                string[] fields = line.Split( ',' );
-                                if( fields.Length >= PlayerInfo.MinFieldCount ) {
-#if !DEBUG
-                                    try {
-#endif
-                                        PlayerInfo info;
-                                        switch( version ) {
-                                            case 0:
-                                                info = PlayerInfo.LoadFormat0( fields, true );
-                                                break;
-                                            case 1:
-                                                info = PlayerInfo.LoadFormat1( fields );
-                                                break;
-                                            case 2:
-                                            case 3:
-                                            case 4:
-                                                info = PlayerInfo.LoadFormat2( fields );
-                                                break;
-                                            default:
-                                                return;
-                                        }
-
-                                        if( info.ID > maxID ) {
-                                            maxID = info.ID;
-                                            Logger.Log( "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1}).", LogType.Warning );
-                                        }
-
-                                        if( Trie.ContainsKey( info.Name ) ) {
-                                            Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.",
-                                                        LogType.Error, info.Name );
-                                        } else {
-                                            Trie.Add( info.Name, info );
-                                            list.Add( info );
-                                        }
-#if !DEBUG
-                                    } catch( Exception ex ) {
-                                        Logger.LogAndReportCrash( "Error while parsing PlayerInfo record", "fCraft", ex,
-                                                                  false );
-                                    }
-#endif
-                                } else {
-                                    Logger.Log( "PlayerDB.Load: Unexpected field count ({0}), expecting at least {1} fields for a PlayerDB entry.",
-                                                LogType.Error,
-                                                fields.Length, PlayerInfo.MinFieldCount );
+                            lock( AddLocker ) {
+                                int version = IdentifyFormatVersion( header );
+                                if( version > FormatVersion ) {
+                                    Logger.Log( "PlayerDB.Load: Attempting to load unsupported PlayerDB format ({0}). Errors may occur.",
+                                                LogType.Warning,
+                                                version );
+                                } else if( version < FormatVersion ) {
+                                    Logger.Log( "PlayerDB.Load: Converting PlayerDB to a newer format (version {0} to {1}).",
+                                                LogType.Warning,
+                                                version, FormatVersion );
                                 }
-                            }
-                            if( version < 3 ) {
-                                Logger.Log( "Sorting PlayerDB by ID...", LogType.SystemActivity );
-                                list.Sort( PlayerIDComparer.Instance );
-                            }
-                            if( version < 4 ) {
-                                int unhid = 0, unfroze = 0, unmuted = 0;
-                                Logger.Log( "PlayerDB: Checking consistency of banned player records...", LogType.SystemActivity );
-                                for( int i = 0; i < list.Count; i++ ) {
-                                    if( list[i].IsBanned ) {
-                                        if( list[i].IsHidden ) {
-                                            unhid++;
-                                            list[i].IsHidden = false;
+
+                                while( true ) {
+                                    string line = reader.ReadLine();
+                                    if( line == null ) break;
+                                    string[] fields = line.Split( ',' );
+                                    if( fields.Length >= PlayerInfo.MinFieldCount ) {
+#if !DEBUG
+                                        try {
+#endif
+                                            PlayerInfo info;
+                                            switch( version ) {
+                                                case 0:
+                                                    info = PlayerInfo.LoadFormat0( fields, true );
+                                                    break;
+                                                case 1:
+                                                    info = PlayerInfo.LoadFormat1( fields );
+                                                    break;
+                                                case 2:
+                                                case 3:
+                                                case 4:
+                                                    info = PlayerInfo.LoadFormat2( fields );
+                                                    break;
+                                                default:
+                                                    return;
+                                            }
+
+                                            if( info.ID > maxID ) {
+                                                maxID = info.ID;
+                                                Logger.Log( "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1}).", LogType.Warning );
+                                            }
+
+                                            if( Trie.ContainsKey( info.Name ) ) {
+                                                Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.",
+                                                            LogType.Error, info.Name );
+                                            } else {
+                                                Trie.Add( info.Name, info );
+                                                list.Add( info );
+                                            }
+#if !DEBUG
+                                        } catch( Exception ex ) {
+                                            Logger.LogAndReportCrash( "Error while parsing PlayerInfo record", "fCraft", ex,
+                                                                      false );
                                         }
-                                        if( list[i].IsFrozen ) {
-                                            unfroze++;
-                                            list[i].Unfreeze();
-                                        }
-                                        if( list[i].IsMuted ) {
-                                            unmuted++;
-                                            list[i].Unmute();
-                                        }
+#endif
+                                    } else {
+                                        Logger.Log( "PlayerDB.Load: Unexpected field count ({0}), expecting at least {1} fields for a PlayerDB entry.",
+                                                    LogType.Error,
+                                                    fields.Length, PlayerInfo.MinFieldCount );
                                     }
                                 }
-                                Logger.Log( "PlayerDB: Unhid {0}, unfroze {1}, and unmuted {2} banned accounts.", LogType.SystemActivity,
-                                            unhid, unfroze, unmuted );
+                                if( version < 3 ) {
+                                    Logger.Log( "Sorting PlayerDB by ID...", LogType.SystemActivity );
+                                    list.Sort( PlayerIDComparer.Instance );
+                                }
+                                if( version < 4 ) {
+                                    int unhid = 0, unfroze = 0, unmuted = 0;
+                                    Logger.Log( "PlayerDB: Checking consistency of banned player records...", LogType.SystemActivity );
+                                    for( int i = 0; i < list.Count; i++ ) {
+                                        if( list[i].IsBanned ) {
+                                            if( list[i].IsHidden ) {
+                                                unhid++;
+                                                list[i].IsHidden = false;
+                                            }
+                                            if( list[i].IsFrozen ) {
+                                                unfroze++;
+                                                list[i].Unfreeze();
+                                            }
+                                            if( list[i].IsMuted ) {
+                                                unmuted++;
+                                                list[i].Unmute();
+                                            }
+                                        }
+                                    }
+                                    Logger.Log( "PlayerDB: Unhid {0}, unfroze {1}, and unmuted {2} banned accounts.", LogType.SystemActivity,
+                                                unhid, unfroze, unmuted );
+                                }
                             }
                         }
                     }
@@ -221,8 +224,8 @@ namespace fCraft {
             lock( SaveLoadLocker ) {
                 PlayerInfo[] listCopy = GetPlayerListCopy();
                 Stopwatch sw = Stopwatch.StartNew();
-                using( FileStream fs = new FileStream( tempFileName, FileMode.Create, FileAccess.Write, FileShare.None, 64 * 1024 ) ) {
-                    using( StreamWriter writer = new StreamWriter( fs, Encoding.ASCII, 64 * 1024 ) ) {
+                using( FileStream fs = new FileStream( tempFileName, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize ) ) {
+                    using( StreamWriter writer = new StreamWriter( fs, Encoding.UTF8, bufferSize ) ) {
                         writer.WriteLine( "{0} {1} {2}", maxID, FormatVersion, Header );
 
                         StringBuilder sb = new StringBuilder();
