@@ -336,7 +336,6 @@ namespace fCraft {
 
 
         internal static void DoIPBan( Player player, IPAddress address, string reason, string targetName, bool all, bool unban ) {
-
             if( player == null ) throw new ArgumentNullException( "player" );
             if( address == null ) throw new ArgumentNullException( "address" );
 
@@ -402,6 +401,14 @@ namespace fCraft {
                 }
 
             } else {
+                PlayerInfo[] infos = PlayerDB.FindPlayers( address );
+                PlayerInfo cantBan = infos.FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
+                if( cantBan != null ) {
+                    player.Message( "&W{0} is associated with player {1}&W, whom you are not allowed to ban.",
+                                    address, cantBan.ClassyName );
+                    return;
+                }
+
                 if( IPBanList.Add( new IPBanInfo( address, targetName, player.Name, reason ) ) ) {
                     Logger.Log( "{0} banned {1}", LogType.UserActivity, player.Name, address );
                     if( player.Can( Permission.ViewPlayerIPs ) ) {
@@ -727,7 +734,7 @@ namespace fCraft {
                 if( target != null && target.World != null ) {
 
                     // ==== Actual rank change happens here ====
-                    targetInfo.ProcessRankChange( newRank, player, reason, changeType );
+                    targetInfo.ProcessRankChange( newRank, player.Name, reason, changeType );
                     Server.RaisePlayerListChangedEvent();
                     Server.RaisePlayerInfoRankChangedEvent( targetInfo, player, oldRank, reason, changeType );
                     // ==== Actual rank change happens here ====
@@ -767,7 +774,7 @@ namespace fCraft {
 
                 } else {
                     // ==== Actual rank change happens here (offline) ====
-                    targetInfo.ProcessRankChange( newRank, player, reason, changeType );
+                    targetInfo.ProcessRankChange( newRank, player.Name, reason, changeType );
                     Server.RaisePlayerInfoRankChangedEvent( targetInfo, player, oldRank, reason, changeType );
                     // ==== Actual rank change happens here (offline) ====
 

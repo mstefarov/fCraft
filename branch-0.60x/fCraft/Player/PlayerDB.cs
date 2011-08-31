@@ -29,7 +29,7 @@ namespace fCraft {
          * Version 2 - 0.600 dev - all dates and times are stored as UTC unix timestamps (seconds)
          * Version 3 - 0.600+ - same as v2, but sorting by ID is enforced
          */
-        public const int FormatVersion = 3;
+        public const int FormatVersion = 4;
 
         const string Header = "fCraft PlayerDB | Row format: " +
                               "Name,IPAddress,Rank,RankChangeDate,RankChangedBy,Banned,BanDate,BannedBy," +
@@ -121,6 +121,7 @@ namespace fCraft {
                                                 break;
                                             case 2:
                                             case 3:
+                                            case 4:
                                                 info = PlayerInfo.LoadFormat2( fields );
                                                 break;
                                             default:
@@ -154,6 +155,28 @@ namespace fCraft {
                             if( version < 3 ) {
                                 Logger.Log( "Sorting PlayerDB by ID...", LogType.SystemActivity );
                                 list.Sort( PlayerIDComparer.Instance );
+                            }
+                            if( version < 4 ) {
+                                int unhid = 0, unfroze = 0, unmuted = 0;
+                                Logger.Log( "PlayerDB: Checking consistency of banned player records...", LogType.SystemActivity );
+                                for( int i = 0; i < list.Count; i++ ) {
+                                    if( list[i].IsBanned ) {
+                                        if( list[i].IsHidden ) {
+                                            unhid++;
+                                            list[i].IsHidden = false;
+                                        }
+                                        if( list[i].IsFrozen ) {
+                                            unfroze++;
+                                            list[i].Unfreeze();
+                                        }
+                                        if( list[i].IsMuted ) {
+                                            unmuted++;
+                                            list[i].Unmute();
+                                        }
+                                    }
+                                }
+                                Logger.Log( "PlayerDB: Unhid {0}, unfroze {1}, and unmuted {2} banned accounts.", LogType.SystemActivity,
+                                            unhid, unfroze, unmuted );
                             }
                         }
                     }
