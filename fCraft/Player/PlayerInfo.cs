@@ -675,6 +675,9 @@ namespace fCraft {
                 BanDate = DateTime.UtcNow;
                 BanReason = banReason;
                 Interlocked.Increment( ref bannedBy.Info.TimesBannedOthers );
+                Unmute();
+                Unfreeze();
+                IsHidden = false;
                 LastModified = DateTime.UtcNow;
                 return true;
             } else {
@@ -697,11 +700,17 @@ namespace fCraft {
         }
 
 
-        public void ProcessRankChange( Rank newRank, Player changer, string reason, RankChangeType type ) {
+        public void ProcessRankChange( Rank newRank, string changer, string reason, RankChangeType type ) {
+            if( newRank == null ) throw new ArgumentNullException( "newRank" );
             PreviousRank = Rank;
             Rank = newRank;
             RankChangeDate = DateTime.UtcNow;
-            RankChangedBy = changer.Name;
+
+            if( changer != null ) {
+                RankChangedBy = changer;
+            } else {
+                RankChangedBy = "?";
+            }
             RankChangeReason = reason;
             RankChangeType = type;
             LastModified = DateTime.UtcNow;

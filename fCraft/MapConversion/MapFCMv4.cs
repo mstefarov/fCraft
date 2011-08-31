@@ -4,6 +4,7 @@ using System.Text;
 using System.IO;
 using System.IO.Compression;
 using System.Xml.Linq;
+using System.Linq;
 
 namespace fCraft.MapConversion {
     /// <summary> Next file format that fCraft shall use. </summary>
@@ -11,6 +12,7 @@ namespace fCraft.MapConversion {
         public const int FormatID = 0x00FC0004;
         const string ZoneMetaGroupName = "fCraft.Zones",
                      SecurityMetaGroupName = "fCraft.Security",
+                     RankSpawnsGroupName = "fCraft.RankSpawns",
                      BlockLayerName = "Blocks";
 
 
@@ -101,10 +103,7 @@ namespace fCraft.MapConversion {
                     lock( map.Zones.SyncRoot ) {
                         int metaCount = map.Metadata.Count;
                         metaCount += map.Zones.Count;
-                        World mapWorld = map.World;
-                        if( mapWorld != null ) {
-                            metaCount += 2; // for security
-                        }
+
                         // TODO: count rank spawns
 
                         writer.Write( metaCount );
@@ -121,16 +120,6 @@ namespace fCraft.MapConversion {
                             WriteString( writer, ZoneMetaGroupName );
                             WriteString( writer, zone.Name );
                             WriteString( writer, zone.Serialize().ToString( SaveOptions.DisableFormatting ) );
-                        }
-
-                        // write out security controllers
-                        if( mapWorld != null ) {
-                            WriteString( writer, SecurityMetaGroupName );
-                            WriteString( writer, "Access" );
-                            WriteString( writer, mapWorld.AccessSecurity.Serialize().ToString( SaveOptions.DisableFormatting ) );
-                            WriteString( writer, SecurityMetaGroupName );
-                            WriteString( writer, "Build" );
-                            WriteString( writer, mapWorld.BuildSecurity.Serialize().ToString( SaveOptions.DisableFormatting ) );
                         }
 
                         // TODO: write out rank spawns
@@ -161,9 +150,9 @@ namespace fCraft.MapConversion {
             int height = bs.ReadInt32();
             int length = bs.ReadInt32();
 
-// ReSharper disable UseObjectOrCollectionInitializer
+            // ReSharper disable UseObjectOrCollectionInitializer
             Map map = new Map( null, width, length, height, false );
-// ReSharper restore UseObjectOrCollectionInitializer
+            // ReSharper restore UseObjectOrCollectionInitializer
 
             // spawn
             map.Spawn = new Position {
@@ -207,14 +196,6 @@ namespace fCraft.MapConversion {
                             Logger.Log( "MapFCMv4: Error importing zone definition: {0}", LogType.Error,
                                         ex );
                         }
-                        break;
-
-                    case SecurityMetaGroupName:
-                        // TODO: build and access controllers, ownership, and hidden flag
-                        break;
-
-                    case "fCraft.RankSpawns":
-                        // TODO: rank spawns
                         break;
 
                     default:
