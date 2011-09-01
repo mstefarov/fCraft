@@ -24,6 +24,7 @@ namespace fCraft {
         const string NoSmpMessage = "This server is for Minecraft Classic only.";
 
         static Player() {
+            MaxBlockPlacementRange = 7 * 32;
             SocketTimeout = 10000;
         }
 
