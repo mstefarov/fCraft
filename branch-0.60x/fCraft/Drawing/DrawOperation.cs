@@ -113,10 +113,7 @@ namespace fCraft.Drawing {
             } else if( !CannotUndo ) {
                 Player.UndoBuffer.Clear();
                 Player.UndoBuffer.TrimExcess();
-                Player.Message( "NOTE: This draw command is too massive to undo." ); //TODO: Adjust message
-                if( Player.Can( Permission.ManageWorlds ) ) {
-                    Player.Message( "Reminder: You can use &H/wflush&S to accelerate draw commands." );
-                }
+                Player.Message( "{0}: Too many blocks to undo.", Description );
                 CannotUndo = true;
             }
             BlocksUpdated++;

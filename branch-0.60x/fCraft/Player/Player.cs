@@ -577,7 +577,7 @@ namespace fCraft {
         public Block LastUsedBlockType { get; private set; }
 
         /// <summary> Max distance that player may be from a block to reach it (hack detection). </summary>
-        const int MaxRange = 7 * 32;
+        public static int MaxBlockPlacementRange { get; set; }
 
 
         /// <summary> Handles manually-placed/deleted blocks.
@@ -588,9 +588,9 @@ namespace fCraft {
 
             // check if player is frozen or too far away to legitimately place a block
             if( Info.IsFrozen ||
-                Math.Abs( x * 32 - Position.X ) > MaxRange ||
-                Math.Abs( y * 32 - Position.Y ) > MaxRange ||
-                Math.Abs( z * 32 - Position.Z ) > MaxRange ) {
+                Math.Abs( x * 32 - Position.X ) > MaxBlockPlacementRange ||
+                Math.Abs( y * 32 - Position.Y ) > MaxBlockPlacementRange ||
+                Math.Abs( z * 32 - Position.Z ) > MaxBlockPlacementRange ) {
                 RevertBlockNow( x, y, z );
                 return false;
             }
