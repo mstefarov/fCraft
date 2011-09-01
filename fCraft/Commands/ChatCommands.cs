@@ -321,16 +321,18 @@ namespace fCraft {
                 CdTimer.PrintUsage( player );
                 return;
             }
+            string sayMessage;
             if( String.IsNullOrEmpty( message ) ) {
-                Server.Message( "&Y(Timer) {0}&Y started a {1} timer",
-                                player.ClassyName,
-                                duration.ToMiniString() );
+                sayMessage = String.Format( "&Y(Timer) {0}&Y started a {1} timer",
+                                            player.ClassyName,
+                                            duration.ToMiniString() );
             } else {
-                Server.Message( "&Y(Timer) {0}&Y started a {1} timer: {2}",
-                                player.ClassyName,
-                                duration.ToMiniString(),
-                                message );
+                sayMessage = String.Format( "&Y(Timer) {0}&Y started a {1} timer: {2}",
+                                            player.ClassyName,
+                                            duration.ToMiniString(),
+                                            message );
             }
+            Chat.SendSay( player, sayMessage );
             ChatTimer.Start( duration, message );
         }
 
