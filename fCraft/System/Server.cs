@@ -400,7 +400,7 @@ namespace fCraft {
 
             Scheduler.NewTask( AutoRankManager.TaskCallback ).RunForever( AutoRankManager.TickInterval );
 
-            if( ConfigKey.EnableBlockDB.Enabled() ) BlockDB.Init();
+            if( ConfigKey.BlockDBEnabled.Enabled() ) BlockDB.Init();
 
             // start the main loop - server is now connectible
             Scheduler.Start();
