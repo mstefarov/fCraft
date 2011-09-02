@@ -65,11 +65,11 @@ namespace fCraft.ConfigGUI {
             }
 
             if( el.Element( "accessSecurity" ) != null ) {
-                accessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
+                accessSecurity = new SecurityController( el.Element( "accessSecurity" ), false );
             }
 
             if( el.Element( "buildSecurity" ) != null ) {
-                buildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
+                buildSecurity = new SecurityController( el.Element( "buildSecurity" ), false );
             }
 
             XElement blockEl = el.Element( "blockDB" );

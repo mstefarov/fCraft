@@ -206,9 +206,10 @@ namespace fCraft {
 
         public const string XmlRootElementName = "PermissionController";
 
+        XElement[] rawExceptions;
 
         // ReSharper disable PossibleNullReferenceException
-        public SecurityController( XContainer el ) {
+        public SecurityController( XContainer el, bool parseExceptions ) {
             if( el == null ) throw new ArgumentNullException( "el" );
             if( el.Element( "minRank" ) != null ) {
                 minRank = Rank.Parse( el.Element( "minRank" ).Value );
@@ -216,17 +217,21 @@ namespace fCraft {
                 minRank = null;
             }
 
-            //maxRank = Rank.Parse( root.Element( "maxRank" ).Value );
-            foreach( XElement player in el.Elements( "included" ) ) {
-                if( !Player.IsValidName( player.Value ) ) continue;
-                PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
-                if( info != null ) Include( info );
-            }
+            if( parseExceptions ) {
+                //maxRank = Rank.Parse( root.Element( "maxRank" ).Value );
+                foreach( XElement player in el.Elements( "included" ) ) {
+                    if( !Player.IsValidName( player.Value ) ) continue;
+                    PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
+                    if( info != null ) Include( info );
+                }
 
-            foreach( XElement player in el.Elements( "excluded" ) ) {
-                if( !Player.IsValidName( player.Value ) ) continue;
-                PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
-                if( info != null ) Exclude( info );
+                foreach( XElement player in el.Elements( "excluded" ) ) {
+                    if( !Player.IsValidName( player.Value ) ) continue;
+                    PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
+                    if( info != null ) Exclude( info );
+                }
+            } else {
+                rawExceptions = el.Elements( "included" ).Union( el.Elements( "excluded" ) ).ToArray();
             }
             UpdatePlayerListCache();
         }
@@ -253,6 +258,11 @@ namespace fCraft {
                 }
                 foreach( string playerName in excludedPlayers.Keys ) {
                     root.Add( new XElement( "excluded", playerName ) );
+                }
+                if( rawExceptions != null ) {
+                    foreach( XElement exception in rawExceptions ) {
+                        root.Add( exception );
+                    }
                 }
             }
             return root;

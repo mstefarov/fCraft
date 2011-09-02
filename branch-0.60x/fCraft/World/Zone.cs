@@ -142,7 +142,7 @@ namespace fCraft {
             }
 
             Bounds = new BoundingBox( root.Element( BoundingBox.XmlRootElementName ) );
-            Controller = new SecurityController( root.Element( XmlRootElementName ) );
+            Controller = new SecurityController( root.Element( XmlRootElementName ), true );
         }
         // ReSharper restore PossibleNullReferenceException
 
