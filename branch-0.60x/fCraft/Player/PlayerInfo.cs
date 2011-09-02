@@ -241,7 +241,7 @@ namespace fCraft {
                 fields[46].ToDateTime( ref info.LastModified );
             }
             if( fields.Length > 47 ) {
-                info.DisplayedName = fields[47];
+                info.DisplayedName = Unescape( fields[47] );
             }
 
             if( info.LastSeen < info.FirstLoginDate ) {
@@ -633,7 +633,7 @@ namespace fCraft {
             LastModified.ToUnixTimeString( sb ); // 46
 
             sb.Append( ',' );
-            sb.Append( DisplayedName ); // 47
+            sb.AppendEscaped( DisplayedName ); // 47
         }
 
         #endregion
@@ -755,7 +755,7 @@ namespace fCraft {
         public static string Escape( string str ) {
             if( String.IsNullOrEmpty( str ) ) {
                 return "";
-            }else if( str.IndexOf( ',' ) > -1 ) {
+            } else if( str.IndexOf( ',' ) > -1 ) {
                 return str.Replace( ',', '\xFF' );
             } else {
                 return str;
