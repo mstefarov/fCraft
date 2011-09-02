@@ -75,6 +75,8 @@ namespace fCraft {
 
         public DateTime LastModified;
 
+        public string DisplayedName = "";
+
 
         #region Constructors and Serialization
 
@@ -237,6 +239,9 @@ namespace fCraft {
             }
             if( fields.Length > 46 ) {
                 fields[46].ToDateTime( ref info.LastModified );
+            }
+            if( fields.Length > 47 ) {
+                info.DisplayedName = fields[47];
             }
 
             if( info.LastSeen < info.FirstLoginDate ) {
@@ -546,7 +551,7 @@ namespace fCraft {
 
             Player pObject = PlayerObject;
             if( pObject != null ) {
-                (TotalTime.Add(TimeSinceLastLogin)).ToTickString( sb ).Append( ',' ); // 17
+                (TotalTime.Add( TimeSinceLastLogin )).ToTickString( sb ).Append( ',' ); // 17
             } else {
                 TotalTime.ToTickString( sb ).Append( ',' ); // 17
             }
@@ -626,6 +631,9 @@ namespace fCraft {
 
             sb.Append( ',' );
             LastModified.ToUnixTimeString( sb ); // 46
+
+            sb.Append( ',' );
+            sb.Append( DisplayedName ); // 47
         }
 
         #endregion
@@ -706,11 +714,7 @@ namespace fCraft {
             Rank = newRank;
             RankChangeDate = DateTime.UtcNow;
 
-            if( changer != null ) {
-                RankChangedBy = changer;
-            } else {
-                RankChangedBy = "?";
-            }
+            RankChangedBy = changer ?? "?";
             RankChangeReason = reason;
             RankChangeType = type;
             LastModified = DateTime.UtcNow;
@@ -783,7 +787,11 @@ namespace fCraft {
                 if( ConfigKey.RankPrefixesInChat.Enabled() ) {
                     sb.Append( Rank.Prefix );
                 }
-                sb.Append( Name );
+                if( DisplayedName.Length > 0 ) {
+                    sb.Append( DisplayedName );
+                } else {
+                    sb.Append( Name );
+                }
                 if( IsBanned ) {
                     sb.Append( Color.Warning ).Append( '*' );
                 }

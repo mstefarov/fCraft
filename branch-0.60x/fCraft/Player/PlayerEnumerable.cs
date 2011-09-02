@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-// ReSharper disable LoopCanBeConvertedToQuery
 
+// ReSharper disable LoopCanBeConvertedToQuery
 namespace fCraft {
     /// <summary> Contains a set of utilities that simplify working with sets of players.
     /// All the utilities are implemented as extension methods,
@@ -379,7 +379,7 @@ namespace fCraft {
             }
         }
 
-        
+
         /// <summary> Removes player from the given set.
         /// Precisely speaking, produces the set difference between the given collection of players and a given player. </summary>
         /// <param name="source"> Original set of players. Will not get modified. </param>

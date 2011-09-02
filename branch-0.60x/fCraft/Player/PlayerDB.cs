@@ -22,7 +22,7 @@ namespace fCraft {
         static PlayerInfo[] PlayerInfoList { get; set; }
 
         static int maxID = 255;
-        const int bufferSize = 64 * 1024;
+        const int BufferSize = 64 * 1024;
 
         /* 
          * Version 0 - before 0.530 - all dates/times are local
@@ -87,8 +87,8 @@ namespace fCraft {
             lock( SaveLoadLocker ) {
                 if( File.Exists( Paths.PlayerDBFileName ) ) {
                     Stopwatch sw = Stopwatch.StartNew();
-                    using( FileStream fs = new FileStream( Paths.PlayerDBFileName, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize ) ) {
-                        using( StreamReader reader = new StreamReader( fs, Encoding.UTF8, true, bufferSize ) ) {
+                    using( FileStream fs = new FileStream( Paths.PlayerDBFileName, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize ) ) {
+                        using( StreamReader reader = new StreamReader( fs, Encoding.UTF8, true, BufferSize ) ) {
 
                             string header = reader.ReadLine();
 
@@ -106,6 +106,7 @@ namespace fCraft {
                                                 version, FormatVersion );
                                 }
 
+                                int emptyRecords = 0;
                                 while( true ) {
                                     string line = reader.ReadLine();
                                     if( line == null ) break;
@@ -125,6 +126,7 @@ namespace fCraft {
                                                 case 2:
                                                 case 3:
                                                 case 4:
+                                                    // Versions 2-4 differ in semantics only, not in actual serialization format.
                                                     info = PlayerInfo.LoadFormat2( fields );
                                                     break;
                                                 default:
@@ -136,16 +138,31 @@ namespace fCraft {
                                                 Logger.Log( "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1}).", LogType.Warning );
                                             }
 
+                                            // A record is considered "empty" if the player has never logged in.
+                                            // Empty records may be created by /import, /ban, and /rank commands on typos.
+                                            // Deleting such records should have no negative impact on DB completeness.
+                                            if( (info.LastIP == IPAddress.None || info.TimesVisited == 0) &&
+                                                !info.IsBanned && info.Rank == RankManager.DefaultRank ) {
+
+                                                Logger.Log( "PlayerDB.Load: Skipping an empty record for player \"{0}\"", LogType.SystemActivity,
+                                                            info.Name );
+                                                emptyRecords++;
+                                                continue;
+                                            }
+
+                                            // Check for duplicates. Unless PlayerDB.txt was altered externally, this does not happen.
                                             if( Trie.ContainsKey( info.Name ) ) {
-                                                Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.",
-                                                            LogType.Error, info.Name );
+                                                Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.", LogType.Error,
+                                                            info.Name );
                                             } else {
                                                 Trie.Add( info.Name, info );
                                                 list.Add( info );
                                             }
 #if !DEBUG
                                         } catch( Exception ex ) {
-                                            Logger.LogAndReportCrash( "Error while parsing PlayerInfo record", "fCraft", ex,
+                                            Logger.LogAndReportCrash( "Error while parsing PlayerInfo record",
+                                                                      "fCraft",
+                                                                      ex,
                                                                       false );
                                         }
 #endif
@@ -155,10 +172,17 @@ namespace fCraft {
                                                     fields.Length, PlayerInfo.MinFieldCount );
                                     }
                                 }
+
+                                if( emptyRecords > 0 ) {
+                                    Logger.Log( "PlayerDB.Load: Skipped {0} empty records.", LogType.Warning, emptyRecords );
+                                }
+
                                 if( version < 3 ) {
+                                    // Sorting the list allows finding players by ID using binary search.
                                     Logger.Log( "Sorting PlayerDB by ID...", LogType.SystemActivity );
                                     list.Sort( PlayerIDComparer.Instance );
                                 }
+
                                 if( version < 4 ) {
                                     int unhid = 0, unfroze = 0, unmuted = 0;
                                     Logger.Log( "PlayerDB: Checking consistency of banned player records...", LogType.SystemActivity );
@@ -184,7 +208,6 @@ namespace fCraft {
                             }
                         }
                     }
-                    list.TrimExcess();
                     sw.Stop();
                     Logger.Log( "PlayerDB.Load: Done loading player DB ({0} records) in {1}ms. MaxID={2}", LogType.Debug,
                                 Trie.Count, sw.ElapsedMilliseconds, maxID );
@@ -225,8 +248,8 @@ namespace fCraft {
             lock( SaveLoadLocker ) {
                 PlayerInfo[] listCopy = GetPlayerListCopy();
                 Stopwatch sw = Stopwatch.StartNew();
-                using( FileStream fs = new FileStream( tempFileName, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize ) ) {
-                    using( StreamWriter writer = new StreamWriter( fs, Encoding.UTF8, bufferSize ) ) {
+                using( FileStream fs = new FileStream( tempFileName, FileMode.Create, FileAccess.Write, FileShare.None, BufferSize ) ) {
+                    using( StreamWriter writer = new StreamWriter( fs, Encoding.UTF8, BufferSize ) ) {
                         writer.WriteLine( "{0} {1} {2}", maxID, FormatVersion, Header );
 
                         StringBuilder sb = new StringBuilder();

@@ -392,12 +392,14 @@ namespace fCraft {
 
 
         public void MessageNoPlayer( string playerName ) {
+            if( playerName == null ) throw new ArgumentNullException( "playerName" );
             Message( "No players found matching \"{0}\"", playerName );
         }
 
 
         public void MessageNoWorld( string worldName ) {
-            Message( "No world found with the name \"{0}\"", worldName );
+            if( worldName == null ) throw new ArgumentNullException( "worldName" );
+            Message( "No worlds found matching \"{0}\". See &H/worlds", worldName );
         }
 
 
@@ -413,6 +415,7 @@ namespace fCraft {
 
 
         public void MessageNoAccess( params Permission[] permissions ) {
+            if( permissions == null ) throw new ArgumentNullException( "permissions" );
             Rank reqRank = RankManager.GetMinRankWithAllPermissions( permissions );
             if( reqRank == null ) {
                 Message( "This command is disabled on the server." );
@@ -423,7 +426,8 @@ namespace fCraft {
         }
 
 
-        public void MessageNoAccess(CommandDescriptor cmd ) {
+        public void MessageNoAccess( CommandDescriptor cmd ) {
+            if( cmd == null ) throw new ArgumentNullException( "cmd" );
             Rank reqRank = cmd.MinRank;
             if( reqRank == null ) {
                 Message( "This command is disabled on the server." );
@@ -435,7 +439,8 @@ namespace fCraft {
 
 
         public void MessageNoRank( string rankName ) {
-            Message( "Unrecognized rank \"{0}\"", rankName );
+            if( rankName == null ) throw new ArgumentNullException( "rankName" );
+            Message( "Unrecognized rank \"{0}\". See &H/ranks", rankName );
         }
 
 
@@ -445,7 +450,8 @@ namespace fCraft {
 
 
         public void MessageNoZone( string zoneName ) {
-            Message( "No zone found with the name \"{0}\". See &H/zones", zoneName );
+            if( zoneName == null ) throw new ArgumentNullException( "zoneName" );
+            Message( "No zones found matching \"{0}\". See &H/zones", zoneName );
         }
 
 
@@ -463,6 +469,7 @@ namespace fCraft {
 
         /// <summary> Checks whether this player is currently ignoring a given PlayerInfo.</summary>
         public bool IsIgnoring( PlayerInfo other ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
             lock( ignoreLock ) {
                 return ignoreList.Contains( other );
             }
@@ -475,6 +482,7 @@ namespace fCraft {
         /// <returns> True if the player is now ignored,
         /// false is the player has already been ignored previously. </returns>
         public bool Ignore( PlayerInfo other ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
             lock( ignoreLock ) {
                 if( !ignoreList.Contains( other ) ) {
                     ignoreList.Add( other );
@@ -491,6 +499,7 @@ namespace fCraft {
         /// <returns> True if the player is no longer ignored,
         /// false if the player was already not ignored. </returns>
         public bool Unignore( PlayerInfo other ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
             lock( ignoreLock ) {
                 return ignoreList.Remove( other );
             }
@@ -526,6 +535,7 @@ namespace fCraft {
         public void Confirm( Command cmd, string message, params object[] args ) {
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( message == null ) throw new ArgumentNullException( "message" );
+            if( args == null ) throw new ArgumentNullException( "args" );
             ConfirmCommand = cmd;
             ConfirmRequestTime = DateTime.UtcNow;
             Message( "{0} Type &H/ok&S to continue.", String.Format( message, args ) );
@@ -753,6 +763,7 @@ namespace fCraft {
         }
 
         public void ResetBind( params Block[] types ) {
+            if( types == null ) throw new ArgumentNullException( "types" );
             foreach( Block type in types ) {
                 ResetBind( type );
             }
@@ -777,12 +788,14 @@ namespace fCraft {
 
         /// <summary> Returns true if player has ALL of the given permissions. </summary>
         public bool Can( params Permission[] permissions ) {
+            if( permissions == null ) throw new ArgumentNullException( "permissions" );
             return IsSuper || permissions.All( Info.Rank.Can );
         }
 
 
         /// <summary> Returns true if player has ANY of the given permissions. </summary>
         public bool CanAny( params Permission[] permissions ) {
+            if( permissions == null ) throw new ArgumentNullException( "permissions" );
             return IsSuper || permissions.Any( Info.Rank.Can );
         }
 
@@ -796,6 +809,7 @@ namespace fCraft {
         /// <summary> Returns true if player has the given permission,
         /// and is allowed to affect players of the given rank. </summary>
         public bool Can( Permission permission, Rank other ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
             return IsSuper || Info.Rank.Can( permission, other );
         }
 
@@ -881,8 +895,7 @@ namespace fCraft {
         /// Visibility is determined by whether the other player is hiding or spectating. </summary>
         public bool CanSee( Player other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            if( IsSuper ) return true;
-            return !other.Info.IsHidden || Info.Rank.CanSee( other.Info.Rank );
+            return IsSuper || !other.Info.IsHidden || Info.Rank.CanSee( other.Info.Rank );
         }
 
         #endregion
@@ -948,6 +961,7 @@ namespace fCraft {
 
         public void SelectionStart( int marksExpected, SelectionCallback callback, object args, params Permission[] requiredPermissions ) {
             if( callback == null ) throw new ArgumentNullException( "callback" );
+            if( requiredPermissions == null ) throw new ArgumentNullException( "requiredPermissions" );
             selectionArgs = args;
             SelectionMarksExpected = marksExpected;
             selectionMarks.Clear();

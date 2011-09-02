@@ -91,8 +91,8 @@ namespace System.IO.Compression {
             for( int i = 0; i < CrcTable.Length; i++ ) {
                 UInt32 c = (UInt32)i;
                 for( int j = 0; j < 8; j++ ) {
-                    if( ( c & 1 ) != 0 )
-                        c = 3988292384 ^ ( c >> 1 );
+                    if( (c & 1) != 0 )
+                        c = 3988292384 ^ (c >> 1);
                     else
                         c >>= 1;
                 }
@@ -198,7 +198,7 @@ namespace System.IO.Compression {
                 Method = method,
                 EncodeUTF8 = EncodeUTF8,
                 FilenameInZip = NormalizedFilename( filenameInZip ),
-                Comment = ( fileComment ?? "" ),
+                Comment = (fileComment ?? ""),
                 Crc32 = 0,
                 HeaderOffset = (uint)zipFileStream.Position,
                 ModifyTime = modTime
@@ -233,7 +233,7 @@ namespace System.IO.Compression {
                 for( int i = 0; i < files.Count; i++ ) {
                     long pos = zipFileStream.Position;
                     WriteCentralDirRecord( files[i] );
-                    centralSize += (uint)( zipFileStream.Position - pos );
+                    centralSize += (uint)(zipFileStream.Position - pos);
                 }
 
                 if( centralDirImage != null )
@@ -263,7 +263,7 @@ namespace System.IO.Compression {
                 if( signature != 0x02014b50 )
                     break;
 
-                bool encodeUTF8 = ( BitConverter.ToUInt16( centralDirImage, pointer + 8 ) & 0x0800 ) != 0;
+                bool encodeUTF8 = (BitConverter.ToUInt16( centralDirImage, pointer + 8 ) & 0x0800) != 0;
                 ushort method = BitConverter.ToUInt16( centralDirImage, pointer + 10 );
                 uint modifyTime = BitConverter.ToUInt32( centralDirImage, pointer + 12 );
                 uint crc32 = BitConverter.ToUInt32( centralDirImage, pointer + 16 );
@@ -273,7 +273,7 @@ namespace System.IO.Compression {
                 ushort extraSize = BitConverter.ToUInt16( centralDirImage, pointer + 30 );
                 ushort commentSize = BitConverter.ToUInt16( centralDirImage, pointer + 32 );
                 uint headerOffset = BitConverter.ToUInt32( centralDirImage, pointer + 42 );
-                uint headerSize = (uint)( 46 + filenameSize + extraSize + commentSize );
+                uint headerSize = (uint)(46 + filenameSize + extraSize + commentSize);
 
                 Encoding encoder = encodeUTF8 ? Encoding.UTF8 : DefaultEncoding;
 
@@ -294,7 +294,7 @@ namespace System.IO.Compression {
                     zfe.Comment = encoder.GetString( centralDirImage, pointer + 46 + filenameSize + extraSize, commentSize );
 
                 result.Add( zfe );
-                pointer += ( 46 + filenameSize + extraSize + commentSize );
+                pointer += (46 + filenameSize + extraSize + commentSize);
             }
 
             return result;
@@ -380,7 +380,7 @@ namespace System.IO.Compression {
         /// <returns>True if success, false if not</returns>
         /// <remarks>This method only works for storage of type FileStream</remarks>
         public static bool RemoveEntries( ref ZipStorer zip, List<ZipFileEntry> zfes ) {
-            if( !( zip.zipFileStream is FileStream ) )
+            if( !(zip.zipFileStream is FileStream) )
                 throw new InvalidOperationException( "RemoveEntries is allowed just over streams of type FileStream" );
 
 
@@ -434,7 +434,7 @@ namespace System.IO.Compression {
             zipFileStream.Read( buffer, 0, 2 );
             ushort extraSize = BitConverter.ToUInt16( buffer, 0 );
 
-            return (uint)( 30 + filenameSize + extraSize + headerOffset );
+            return (uint)(30 + filenameSize + extraSize + headerOffset);
         }
         /* Local file header:
             local file header signature     4 bytes  (0x04034b50)
@@ -458,7 +458,7 @@ namespace System.IO.Compression {
             byte[] encodedFilename = encoder.GetBytes( zfe.FilenameInZip );
 
             zipFileStream.Write( new byte[] { 80, 75, 3, 4, 20, 0 }, 0, 6 ); // No extra header
-            zipFileStream.Write( BitConverter.GetBytes( (ushort)( zfe.EncodeUTF8 ? 0x0800 : 0 ) ), 0, 2 ); // filename and comment encoding 
+            zipFileStream.Write( BitConverter.GetBytes( (ushort)(zfe.EncodeUTF8 ? 0x0800 : 0) ), 0, 2 ); // filename and comment encoding 
             zipFileStream.Write( BitConverter.GetBytes( (ushort)zfe.Method ), 0, 2 );  // zipping method
             zipFileStream.Write( BitConverter.GetBytes( DateTimeToDosTime( zfe.ModifyTime ) ), 0, 4 ); // zipping date and time
             zipFileStream.Write( new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 12 ); // unused CRC, un/compressed size, updated later
@@ -466,7 +466,7 @@ namespace System.IO.Compression {
             zipFileStream.Write( BitConverter.GetBytes( (ushort)0 ), 0, 2 ); // extra length
 
             zipFileStream.Write( encodedFilename, 0, encodedFilename.Length );
-            zfe.HeaderSize = (uint)( zipFileStream.Position - pos );
+            zfe.HeaderSize = (uint)(zipFileStream.Position - pos);
         }
         /* Central directory's File header:
             central file header signature   4 bytes  (0x02014b50)
@@ -497,7 +497,7 @@ namespace System.IO.Compression {
             byte[] encodedComment = encoder.GetBytes( zfe.Comment );
 
             zipFileStream.Write( new byte[] { 80, 75, 1, 2, 23, 0xB, 20, 0 }, 0, 8 );
-            zipFileStream.Write( BitConverter.GetBytes( (ushort)( zfe.EncodeUTF8 ? 0x0800 : 0 ) ), 0, 2 ); // filename and comment encoding 
+            zipFileStream.Write( BitConverter.GetBytes( (ushort)(zfe.EncodeUTF8 ? 0x0800 : 0) ), 0, 2 ); // filename and comment encoding 
             zipFileStream.Write( BitConverter.GetBytes( (ushort)zfe.Method ), 0, 2 );  // zipping method
             zipFileStream.Write( BitConverter.GetBytes( DateTimeToDosTime( zfe.ModifyTime ) ), 0, 4 );  // zipping date and time
             zipFileStream.Write( BitConverter.GetBytes( zfe.Crc32 ), 0, 4 ); // file CRC
@@ -568,7 +568,7 @@ namespace System.IO.Compression {
                     outStream.Write( buffer, 0, bytesRead );
 
                     for( uint i = 0; i < bytesRead; i++ ) {
-                        zfe.Crc32 = CrcTable[( zfe.Crc32 ^ buffer[i] ) & 0xFF] ^ ( zfe.Crc32 >> 8 );
+                        zfe.Crc32 = CrcTable[(zfe.Crc32 ^ buffer[i]) & 0xFF] ^ (zfe.Crc32 >> 8);
                     }
                 }
             } while( bytesRead == buffer.Length );
@@ -579,7 +579,7 @@ namespace System.IO.Compression {
 
             zfe.Crc32 ^= 0xffffffff;
             zfe.FileSize = totalRead;
-            zfe.CompressedSize = (uint)( zipFileStream.Position - posStart );
+            zfe.CompressedSize = (uint)(zipFileStream.Position - posStart);
 
             // Verify for real compression
             if( zfe.Method == Compression.Deflate && !ForceDeflating && source.CanSeek && zfe.CompressedSize > zfe.FileSize ) {
@@ -603,17 +603,17 @@ namespace System.IO.Compression {
         */
         private static uint DateTimeToDosTime( DateTime dt ) {
             return (uint)(
-                ( dt.Second / 2 ) | ( dt.Minute << 5 ) | ( dt.Hour << 11 ) |
-                ( dt.Day << 16 ) | ( dt.Month << 21 ) | ( ( dt.Year - 1980 ) << 25 ) );
+                (dt.Second / 2) | (dt.Minute << 5) | (dt.Hour << 11) |
+                (dt.Day << 16) | (dt.Month << 21) | ((dt.Year - 1980) << 25));
         }
         private static DateTime DosTimeToDateTime( uint dt ) {
             return new DateTime(
-                (int)( dt >> 25 ) + 1980,
-                (int)( dt >> 21 ) & 15,
-                (int)( dt >> 16 ) & 31,
-                (int)( dt >> 11 ) & 31,
-                (int)( dt >> 5 ) & 63,
-                (int)( dt & 31 ) * 2 );
+                (int)(dt >> 25) + 1980,
+                (int)(dt >> 21) & 15,
+                (int)(dt >> 16) & 31,
+                (int)(dt >> 11) & 31,
+                (int)(dt >> 5) & 63,
+                (int)(dt & 31) * 2 );
         }
 
         /* CRC32 algorithm
@@ -685,9 +685,9 @@ namespace System.IO.Compression {
                     zipFileStream.Seek( centralDirOffset, SeekOrigin.Begin );
                     return true;
                 } while( zipFileStream.Position > 0 );
-// ReSharper disable EmptyGeneralCatchClause
+                // ReSharper disable EmptyGeneralCatchClause
             } catch { }
-// ReSharper restore EmptyGeneralCatchClause
+            // ReSharper restore EmptyGeneralCatchClause
 
             return false;
         }

@@ -501,7 +501,11 @@ namespace fCraft {
         void SaveTask( SchedulerTask task ) {
             if( Map == null ) return;
             lock( WorldLock ) {
+                // ReSharper disable ConditionIsAlwaysTrueOrFalse
+                // ReSharper disable HeuristicUnreachableCode
                 if( Map == null ) return;
+                // ReSharper restore HeuristicUnreachableCode
+                // ReSharper restore ConditionIsAlwaysTrueOrFalse
                 TimeSpan actualBackupInterval = BackupInterval;
                 if( actualBackupInterval == DefaultBackupInterval ) {
                     actualBackupInterval = TimeSpan.FromMinutes( ConfigKey.DefaultBackupInterval.GetInt() );

@@ -206,7 +206,7 @@ namespace fCraft {
 
         public const string XmlRootElementName = "PermissionController";
 
-        XElement[] rawExceptions;
+        readonly XElement[] rawExceptions;
 
         // ReSharper disable PossibleNullReferenceException
         public SecurityController( XContainer el, bool parseExceptions ) {
