@@ -5,12 +5,13 @@ using System.IO;
 using System.Net;
 using System.Net.Cache;
 using System.Reflection;
-// ReSharper disable RedundantUsingDirective
-using System.Reflection.Emit;
 using System.Text;
 using System.Linq;
 using fCraft.Events;
 using System.Diagnostics;
+#if DEBUG_EVENTS
+using System.Reflection.Emit;
+#endif
 
 namespace fCraft {
     /// <summary> Central logging class. Logs to file, relays messages to the frontend, submits crash reports. </summary>

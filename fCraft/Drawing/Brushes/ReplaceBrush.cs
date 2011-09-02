@@ -40,7 +40,7 @@ namespace fCraft.Drawing {
         public Block[] Blocks { get; private set; }
         public Block Replacement { get; private set; }
 
-        public ReplaceBrush() {}
+        public ReplaceBrush() { }
 
         public ReplaceBrush( Block[] blocks, Block replacement ) {
             Blocks = blocks;
@@ -88,12 +88,12 @@ namespace fCraft.Drawing {
                 blocks.Push( block );
             }
 
-            if(blocks.Count > 1){
+            if( blocks.Count > 1 ) {
                 Block replacement = blocks.Pop();
                 return new ReplaceBrush( blocks.ToArray(), replacement );
-            }else if( Blocks != null ) {
-                return new ReplaceBrush(this);
-            }else{
+            } else if( Blocks != null ) {
+                return new ReplaceBrush( this );
+            } else {
                 player.Message( "Replace brush requires at least 2 blocks." );
                 return null;
             }
@@ -132,9 +132,9 @@ namespace fCraft.Drawing {
         public Block NextBlock( DrawOperation state ) {
             if( state == null ) throw new ArgumentNullException( "state" );
             Block block = state.Map.GetBlock( state.Coords.X, state.Coords.Y, state.Coords.Z );
-// ReSharper disable LoopCanBeConvertedToQuery
+            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < Blocks.Length; i++ ) {
-// ReSharper restore LoopCanBeConvertedToQuery
+                // ReSharper restore LoopCanBeConvertedToQuery
                 if( block == Blocks[i] ) {
                     return Replacement;
                 }

@@ -1,6 +1,8 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+#if DEBUG
 using System.Collections.Generic;
+#endif
 
 // ReSharper disable VirtualMemberNeverOverriden.Global
 // ReSharper disable UnusedMemberInSuper.Global
@@ -16,6 +18,7 @@ namespace fCraft.Drawing {
         public BoundingBox Bounds;
 
         public bool IsDone;
+        public bool IsCancelled;
 
         public IBrushInstance Brush;
 
@@ -63,6 +66,10 @@ namespace fCraft.Drawing {
 
         public abstract int DrawBatch( int maxBlocksToDraw );
 
+
+        public virtual void Cancel() {
+            IsCancelled = true;
+        }
 
         public virtual void End() {
             Player.Info.ProcessDrawCommand( BlocksUpdated );
@@ -123,7 +130,7 @@ namespace fCraft.Drawing {
 #if DEBUG
 
         // Single modification per block policy enforcement
-        HashSet<int> modifiedBlockIndices = new HashSet<int>();
+        readonly HashSet<int> modifiedBlockIndices = new HashSet<int>();
         void TestForDuplicateModification() {
             int index = Map.Index( Coords );
             if( modifiedBlockIndices.Contains( index ) ) {

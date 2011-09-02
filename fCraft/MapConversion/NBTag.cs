@@ -58,11 +58,11 @@ namespace fCraft.MapConversion {
         #region Shorthand Contructors
 
         public NBTag Append( NBTag tag ) {
-            if( !( this is NBTCompound ) ) {
+            if( !(this is NBTCompound) ) {
                 return null;
             }
             tag.Parent = this;
-            ( this )[tag.Name] = tag;
+            (this)[tag.Name] = tag;
             return tag;
         }
 
@@ -259,7 +259,7 @@ namespace fCraft.MapConversion {
 
         public string ToString( bool recursive ) {
             if( !recursive ) return ToString();
-            StringBuilder sb = new StringBuilder(GetIndentedName());
+            StringBuilder sb = new StringBuilder( GetIndentedName() );
             sb.AppendLine();
             foreach( NBTag tag in this ) {
                 sb.Append( tag.ToString( true ) );

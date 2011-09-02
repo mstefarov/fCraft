@@ -6,9 +6,9 @@ namespace fCraft.Drawing {
     public abstract class AbstractPerlinNoiseBrush : IBrushInstance {
         public int Seed { get; set; }
         public float Coverage { get; set; }
-// ReSharper disable MemberCanBeProtected.Global
+        // ReSharper disable MemberCanBeProtected.Global
         public float Frequency { get; set; }
-// ReSharper restore MemberCanBeProtected.Global
+        // ReSharper restore MemberCanBeProtected.Global
         public int Octaves { get; set; }
         public float Persistence { get; set; }
 
@@ -18,7 +18,7 @@ namespace fCraft.Drawing {
         float[] computedThresholds;
         float normMultiplier, normConstant;
         PerlinNoise3D noise3D;
-        
+
         protected AbstractPerlinNoiseBrush() {
             Blocks = new Block[0];
             BlockRatios = new int[0];
@@ -67,7 +67,7 @@ namespace fCraft.Drawing {
                 Octaves = Octaves,
                 Persistence = Persistence
             };
-            
+
             // generate and normalize the raw (float) data
             float[, ,] rawData = new float[state.Bounds.Width, state.Bounds.Length, state.Bounds.Height];
             for( int x = 0; x < state.Bounds.Width; x++ ) {
@@ -123,7 +123,7 @@ namespace fCraft.Drawing {
         protected abstract bool MapAllValues( float[, ,] rawValues );
 
 
-        public virtual void End() {}
+        public virtual void End() { }
 
 
         public abstract IBrush Brush { get; }

@@ -1660,7 +1660,9 @@ namespace fCraft {
                                         player.Name, worldName, fileName );
                             WorldManager.SaveWorldList();
                             player.MessageNow( "Reminder: New world's access permission is {0}+&S, and build permission is {1}+",
+                                // ReSharper disable PossibleNullReferenceException
                                                newWorld.AccessSecurity.MinRank.ClassyName,
+                                // ReSharper restore PossibleNullReferenceException
                                                newWorld.BuildSecurity.MinRank.ClassyName );
                         } else {
                             player.MessageNow( "Failed to create a new world." );

@@ -146,9 +146,9 @@ namespace fCraft.MapConversion {
             int height = reader.ReadInt16();
             int length = reader.ReadInt16();
 
-// ReSharper disable UseObjectOrCollectionInitializer
+            // ReSharper disable UseObjectOrCollectionInitializer
             Map map = new Map( null, width, length, height, false );
-// ReSharper restore UseObjectOrCollectionInitializer
+            // ReSharper restore UseObjectOrCollectionInitializer
 
             // read spawn
             map.Spawn = new Position {
@@ -262,7 +262,7 @@ namespace fCraft.MapConversion {
             foreach( Zone zone in zoneList ) {
                 WriteLengthPrefixedString( writer, "zones" );
                 WriteLengthPrefixedString( writer, zone.Name );
-                WriteLengthPrefixedString( writer, SerializeZone(zone) );
+                WriteLengthPrefixedString( writer, SerializeZone( zone ) );
                 metaCount++;
             }
             return metaCount;

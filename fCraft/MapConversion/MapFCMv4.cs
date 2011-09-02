@@ -4,15 +4,12 @@ using System.Text;
 using System.IO;
 using System.IO.Compression;
 using System.Xml.Linq;
-using System.Linq;
 
 namespace fCraft.MapConversion {
     /// <summary> Next file format that fCraft shall use. </summary>
     public sealed class MapFCMv4 : IMapConverter {
         public const int FormatID = 0x00FC0004;
         const string ZoneMetaGroupName = "fCraft.Zones",
-                     SecurityMetaGroupName = "fCraft.Security",
-                     RankSpawnsGroupName = "fCraft.RankSpawns",
                      BlockLayerName = "Blocks";
 
 
@@ -246,14 +243,14 @@ namespace fCraft.MapConversion {
         }
 
 
-        internal static string ReadString( BinaryReader reader ) {
+        static string ReadString( BinaryReader reader ) {
             int stringLength = reader.ReadInt32();
             if( stringLength < 0 ) throw new MapFormatException( "Negative string length." );
             return Encoding.ASCII.GetString( reader.ReadBytes( stringLength ) );
         }
 
 
-        internal static void WriteString( BinaryWriter writer, string str ) {
+        static void WriteString( BinaryWriter writer, string str ) {
             byte[] stringData = Encoding.ASCII.GetBytes( str );
             writer.Write( stringData.Length );
             writer.Write( stringData, 0, stringData.Length );

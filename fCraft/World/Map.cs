@@ -389,8 +389,19 @@ namespace fCraft {
         int ProcessDrawOps( int maxTotalUpdates ) {
             int blocksDrawnTotal = 0;
             for( int i = 0; i < drawOps.Count; i++ ) {
-                int blocksToDraw = maxTotalUpdates / (drawOps.Count - i);
                 DrawOperation op = drawOps[i];
+                if( op.IsCancelled ) {
+                    op.Player.Message( "{0}/{1}: Cancelled after {2}. P={3} U={4} S={5} D={6}",
+                                       op.Description, op.Brush.InstanceDescription,
+                                       DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
+                                       op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
+                    op.End();
+                    drawOps.RemoveAt( i );
+                    i--;
+                    continue;
+                }
+
+                int blocksToDraw = maxTotalUpdates / (drawOps.Count - i);
                 int blocksDrawn = op.DrawBatch( blocksToDraw );
                 blocksDrawnTotal += blocksDrawn;
                 if( blocksDrawn > 0 ) {
