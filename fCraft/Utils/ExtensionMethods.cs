@@ -103,7 +103,7 @@ namespace fCraft {
 
         /// <summary> Converts a TimeSpan to a string containing the number of seconds.
         /// If the timestamp is zero seconds, returns an empty string. </summary>
-        public static string ToUnixTimeString( this TimeSpan time ) {
+        public static string ToTickString( this TimeSpan time ) {
             if( time == TimeSpan.Zero ) {
                 return "";
             } else {

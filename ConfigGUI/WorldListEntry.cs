@@ -30,7 +30,6 @@ namespace fCraft.ConfigGUI {
             buildSecurity = new SecurityController( original.buildSecurity );
         }
 
-
         public WorldListEntry( XElement el ) {
             XAttribute temp;
 
@@ -71,6 +70,41 @@ namespace fCraft.ConfigGUI {
 
             if( el.Element( "buildSecurity" ) != null ) {
                 buildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
+            }
+
+            XElement blockEl = el.Element( "blockDB" );
+            if( blockEl != null ) {
+                blockDBEnabled = true;
+                if( (temp = blockEl.Attribute( "preload" )) != null ) {
+                    bool isPreloaded;
+                    if( Boolean.TryParse( temp.Value, out isPreloaded ) ) {
+                        blockDBIsPreloaded = isPreloaded;
+                    } else {
+                        Logger.Log( "WorldListEntity: Could not parse BlockDB \"preload\" attribute of world \"{0}\", assuming NOT preloaded.",
+                                    LogType.Warning,
+                                    name );
+                    }
+                }
+                if( (temp = blockEl.Attribute( "limit" )) != null ) {
+                    int limit;
+                    if( Int32.TryParse( temp.Value, out limit ) ) {
+                        blockDBLimit = limit;
+                    } else {
+                        Logger.Log( "WorldListEntity: Could not parse BlockDB \"limit\" attribute of world \"{0}\", assuming NO limit.",
+                                    LogType.Warning,
+                                    name );
+                    }
+                }
+                if( (temp = blockEl.Attribute( "timeLimit" )) != null ) {
+                    int timeLimitSeconds;
+                    if( Int32.TryParse( temp.Value, out timeLimitSeconds ) ) {
+                        blockDBTimeLimit = TimeSpan.FromSeconds( timeLimitSeconds );
+                    } else {
+                        Logger.Log( "WorldListEntity: Could not parse BlockDB \"timeLimit\" attribute of world \"{0}\", assuming NO time limit.",
+                                    LogType.Warning,
+                                    name );
+                    }
+                }
             }
         }
 
@@ -195,10 +229,17 @@ namespace fCraft.ConfigGUI {
             element.Add( new XAttribute( "name", Name ) );
             element.Add( new XAttribute( "hidden", Hidden ) );
             if( Backup != BackupEnumNames[0] ) {
-                element.Add( new XAttribute( "backup", BackupValueFromName( Backup ).ToUnixTimeString() ) );
+                element.Add( new XAttribute( "backup", BackupValueFromName( Backup ).ToTickString() ) );
             }
             element.Add( accessSecurity.Serialize( "accessSecurity" ) );
             element.Add( buildSecurity.Serialize( "buildSecurity" ) );
+            if( blockDBEnabled ) {
+                XElement blockDB = new XElement( "blockDB" );
+                blockDB.Add( new XAttribute( "preload", blockDBIsPreloaded ) );
+                blockDB.Add( new XAttribute( "limit", blockDBLimit ) );
+                blockDB.Add( new XAttribute( "timeLimit", blockDBTimeLimit.ToTickString() ) );
+                element.Add( blockDB );
+            }
             return element;
         }
 
@@ -238,7 +279,6 @@ namespace fCraft.ConfigGUI {
         }
 
         #endregion
-
 
 
         public static string BackupNameFromValue( TimeSpan value ) {
@@ -289,6 +329,12 @@ namespace fCraft.ConfigGUI {
             TimeSpan.FromHours(24),
             TimeSpan.FromHours(48)
         };
+
+
+
+        bool blockDBEnabled, blockDBIsPreloaded;
+        int blockDBLimit;
+        TimeSpan blockDBTimeLimit;
 
 
         // Comparison method used to customize sorting

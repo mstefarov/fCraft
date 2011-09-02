@@ -197,11 +197,11 @@ namespace fCraft {
                     }
                 }
                 if( (temp = blockEl.Attribute( "timeLimit" )) != null ) {
-                    TimeSpan timeLimit;
-                    if( TimeSpan.TryParse( temp.Value, out timeLimit ) ) {
-                        world.BlockDB.TimeLimit = timeLimit;
+                                        int timeLimitSeconds;
+                    if( Int32.TryParse( temp.Value, out timeLimitSeconds ) ) {
+                        world.BlockDB.TimeLimit = TimeSpan.FromSeconds( timeLimitSeconds );
                     } else {
-                        Logger.Log( "WorldManager: Could not parse BlockDB \"preload\" attribute of world \"{0}\", assuming NO time limit.",
+                        Logger.Log( "WorldManager: Could not parse BlockDB \"timeLimit\" attribute of world \"{0}\", assuming NO time limit.",
                                     LogType.Warning,
                                     worldName );
                     }
@@ -292,7 +292,7 @@ namespace fCraft {
                         XElement blockDB = new XElement( "blockDB" );
                         blockDB.Add( new XAttribute( "preload", world.BlockDB.IsPreloaded ) );
                         blockDB.Add( new XAttribute( "limit", world.BlockDB.Limit ) );
-                        blockDB.Add( new XAttribute( "timeLimit", world.BlockDB.TimeLimit.ToCompactString() ) );
+                        blockDB.Add( new XAttribute( "timeLimit", world.BlockDB.TimeLimit.ToTickString() ) );
                         temp.Add( blockDB );
                     }
 

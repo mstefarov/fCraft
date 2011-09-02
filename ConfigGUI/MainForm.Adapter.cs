@@ -11,7 +11,6 @@ namespace fCraft.ConfigGUI {
     // This section handles transfer of settings from Config to the specific UI controls, and vice versa.
     // Effectively, it's an adapter between Config's and ConfigUI's representations of the settings
     partial class MainForm {
-
         #region Loading & Applying Config
 
         void LoadConfig() {
@@ -378,6 +377,8 @@ namespace fCraft.ConfigGUI {
                 tIP.Enabled = true;
                 xIP.Checked = true;
             }
+
+            xBlockDBEnabled.Checked = ConfigKey.EnableBlockDB.Enabled();
         }
 
 
@@ -573,6 +574,7 @@ namespace fCraft.ConfigGUI {
             else ConfigKey.MaxUndo.TrySetValue( 0 );
 
             ConfigKey.ConsoleName.TrySetValue( tConsoleName.Text );
+            ConfigKey.EnableBlockDB.TrySetValue( xBlockDBEnabled.Checked );
 
             SaveWorldList();
         }
