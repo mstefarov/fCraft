@@ -378,7 +378,7 @@ namespace fCraft.ConfigGUI {
                 xIP.Checked = true;
             }
 
-            xBlockDBEnabled.Checked = ConfigKey.EnableBlockDB.Enabled();
+            xBlockDBEnabled.Checked = ConfigKey.BlockDBEnabled.Enabled();
         }
 
 
@@ -574,7 +574,7 @@ namespace fCraft.ConfigGUI {
             else ConfigKey.MaxUndo.TrySetValue( 0 );
 
             ConfigKey.ConsoleName.TrySetValue( tConsoleName.Text );
-            ConfigKey.EnableBlockDB.TrySetValue( xBlockDBEnabled.Checked );
+            ConfigKey.BlockDBEnabled.TrySetValue( xBlockDBEnabled.Checked );
 
             SaveWorldList();
         }

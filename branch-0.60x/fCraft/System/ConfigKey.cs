@@ -505,8 +505,8 @@ but will reduce bandwidth use." )]
         RestartInterval,
 
         [BoolKey(ConfigSection.Advanced, false,
-@"Experimental block tracking.")]
-        EnableBlockDB
+@"If enabled, allows edit information to be stored per-block. Enables /blockdb, /bi, and /undox commands.")]
+        BlockDBEnabled
 
         #endregion
     }

@@ -28,7 +28,8 @@ namespace fCraft {
          * Version 0 - before 0.530 - all dates/times are local
          * Version 1 - 0.530-0.536 - all dates and times are stored as UTC unix timestamps (milliseconds)
          * Version 2 - 0.600 dev - all dates and times are stored as UTC unix timestamps (seconds)
-         * Version 3 - 0.600+ - same as v2, but sorting by ID is enforced
+         * Version 3 - 0.600 dev - same as v2, but sorting by ID is enforced
+         * Version 4 - 0.600+ - added LastModified column, forced banned players to be unfrozen/unmuted/unhidden.
          */
         public const int FormatVersion = 4;
 
@@ -40,7 +41,7 @@ namespace fCraft {
                               "PreviousRank,RankChangeReason,TimesKicked,TimesKickedOthers," +
                               "TimesBannedOthers,ID,RankChangeType,LastKickDate,LastSeen,BlocksDrawn," +
                               "LastKickBy,LastKickReason,IsFrozen,FrozenBy,FrozenOn, MutedUntil,MutedBy," +
-                              "Password,Online,BandwidthUseMode";
+                              "Password,Online,BandwidthUseMode,LastModified";
 
 
         // used to ensure PlayerDB consistency when adding/removing PlayerDB entries

@@ -138,6 +138,8 @@ namespace fCraft {
      * 
      * 146 - r910 - Renamed BackupInterval to DefaultBackupInterval
      * 
+     * 147 - r926 - Renamed EnableBlockDB to BlockDBEnabled
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -148,7 +150,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 146;
+        public const int CurrentVersion = 147;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY
@@ -205,6 +207,7 @@ namespace fCraft {
             LegacyConfigKeys.Add( "IRCBot".ToLower(), ConfigKey.IRCBotEnabled );
             LegacyConfigKeys.Add( "UpdateMode".ToLower(), ConfigKey.UpdaterMode );
             LegacyConfigKeys.Add( "BackupInterval".ToLower(), ConfigKey.DefaultBackupInterval );
+            LegacyConfigKeys.Add( "EnableBlockDB".ToLower(), ConfigKey.BlockDBEnabled );
 
             // These values have been renamed at some point. LEGACY
             LegacyConfigValues.Add( ConfigKey.ProcessPriority,
