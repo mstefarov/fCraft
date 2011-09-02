@@ -153,11 +153,11 @@ namespace fCraft {
             if( firstWorld == null ) firstWorld = world;
 
             if( el.Element( "accessSecurity" ) != null ) {
-                world.AccessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
+                world.AccessSecurity = new SecurityController( el.Element( "accessSecurity" ), true );
             }
 
             if( el.Element( "buildSecurity" ) != null ) {
-                world.BuildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
+                world.BuildSecurity = new SecurityController( el.Element( "buildSecurity" ), true );
             }
 
             if( (temp = el.Attribute( "backup" )) != null ) {
