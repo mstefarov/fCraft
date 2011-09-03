@@ -1709,7 +1709,7 @@ namespace fCraft {
             copyInfo.CopyTime = DateTime.UtcNow;
             player.SetCopyInformation( copyInfo );
             player.MessageNow( "{0} blocks cut into slot #{1}. You can now &H/paste",
-                               volume, player.CopySlot+1 );
+                               volume, player.CopySlot + 1 );
             player.MessageNow( "Origin at {0} {1}{2} corner.",
                                (copyInfo.Height > 0 ? "bottom" : "top"),
                                (copyInfo.Length > 0 ? "south" : "north"),
@@ -2338,7 +2338,7 @@ namespace fCraft {
                 return;
             }
 
-            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player,  name );
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
             if( target == null ) return;
 
             if( !player.Can( Permission.UndoOthersActions, target.Rank ) ) {
