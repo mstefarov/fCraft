@@ -758,7 +758,7 @@ namespace fCraft {
                                         info.UnbanReason );
                         return;
 
-                    case "rankchangereason":
+                    case "rankreason":
                         string oldRankChangeReason = info.RankChangeReason;
                         info.RankChangeReason = valName;
                         player.Message( "RankChangeReason for {0}&S changed from \"{1}\" to \"{2}\"",
@@ -767,7 +767,7 @@ namespace fCraft {
                                         info.RankChangeReason );
                         return;
 
-                    case "lastkickreason":
+                    case "kickreason":
                         string oldLastKickReason = info.LastKickReason;
                         info.LastKickReason = valName;
                         player.Message( "LastKickReason for {0}&S changed from \"{1}\" to \"{2}\"",
@@ -776,10 +776,19 @@ namespace fCraft {
                                         info.LastKickReason );
                         return;
 
+                    case "displayedname":
+                        string oldDisplayedName = info.DisplayedName;
+                        info.DisplayedName = valName;
+                        player.Message( "DisplayName for {0}&S changed from \"{1}\" to \"{2}\"",
+                                        info.ClassyName,
+                                        oldDisplayedName,
+                                        info.DisplayedName );
+                        return;
+
                     default:
                         player.Message( "Only the following properties are editable: " +
                                         "TimesKicked, PreviousRank, TotalTime, RankChangeType, " +
-                                        "BanReason, UnbanReason, RankChangeReason, LastKickReason" );
+                                        "BanReason, UnbanReason, RankReason, KickReason, DisplayedName" );
                         return;
                 }
             }
