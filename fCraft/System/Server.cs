@@ -833,6 +833,7 @@ namespace fCraft {
             string line = lines[new Random().Next( 0, lines.Length )].Trim();
             if( line.Length == 0 ) return;
             foreach( Player player in Players ) {
+                if( player.World == null ) continue;
                 player.Message( "&R" + ReplaceTextKeywords( player, line ) );
             }
         }
