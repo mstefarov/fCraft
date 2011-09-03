@@ -360,6 +360,10 @@ namespace fCraft {
             // find all events in current assembly, and create a handler for each one
             foreach( Type type in asm.GetTypes() ) {
                 foreach( EventInfo eventInfo in type.GetEvents() ) {
+                    // Skip non-static events
+                    if( (eventInfo.GetAddMethod().Attributes & MethodAttributes.Static) != MethodAttributes.Static ) {
+                        continue;
+                    }
                     if( eventInfo.EventHandlerType.FullName.StartsWith( typeof( EventHandler<> ).FullName ) ||
                         eventInfo.EventHandlerType.FullName.StartsWith( typeof( EventHandler ).FullName ) ) {
 
