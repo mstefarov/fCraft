@@ -778,6 +778,9 @@ namespace fCraft {
 
                     case "displayedname":
                         string oldDisplayedName = info.DisplayedName;
+                        if( player.Can( Permission.UseColorCodes ) ) {
+                            valName = Color.ReplacePercentCodes( valName );
+                        }
                         info.DisplayedName = valName;
                         player.Message( "DisplayName for {0}&S changed from \"{1}\" to \"{2}\"",
                                         info.ClassyName,
