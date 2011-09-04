@@ -124,16 +124,15 @@ namespace fCraft {
         }
 
 
-        #region Messaging
+        #region Chat and Messaging
 
         const int ConfirmationTimeout = 60;
 
         int muteWarnings;
         string partialMessage;
-
+        int messagesWrittenThisSession = 0;
 
         // Parses message incoming from the player
-        int messagesWrittenThisSession = 0;
         public void ParseMessage( string rawMessage, bool fromConsole ) {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
@@ -363,7 +362,6 @@ namespace fCraft {
         }
 
 
-        // Queues a system message with a custom color
         public void MessagePrefixed( string prefix, string message, params object[] args ) {
             if( prefix == null ) throw new ArgumentNullException( "prefix" );
             if( message == null ) throw new ArgumentNullException( "message" );
@@ -374,7 +372,7 @@ namespace fCraft {
             if( this == Console ) {
                 Logger.LogToConsole( message );
             } else {
-                foreach( Packet p in LineWrapper.WrapPrefixed( prefix, Color.Sys + message ) ) {
+                foreach( Packet p in LineWrapper.WrapPrefixed( prefix, message ) ) {
                     Send( p );
                 }
             }
@@ -399,6 +397,28 @@ namespace fCraft {
             }
         }
 
+
+        internal void MessageNowPrefixed( string prefix, string message, params object[] args ) {
+            if( prefix == null ) throw new ArgumentNullException( "prefix" );
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( args == null ) throw new ArgumentNullException( "args" );
+            if( args.Length > 0 ) {
+                message = String.Format( message, args );
+            }
+            if( this == Console ) {
+                Logger.LogToConsole( message );
+            } else {
+                if( Thread.CurrentThread != ioThread ) {
+                    throw new InvalidOperationException( "SendNow may only be called from player's own thread." );
+                }
+                foreach( Packet p in LineWrapper.WrapPrefixed( prefix, message ) ) {
+                    Send( p );
+                }
+            }
+        }
+
+
+        #region Macros
 
         public void MessageNoPlayer( string playerName ) {
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
@@ -468,6 +488,8 @@ namespace fCraft {
             Message( "You are muted for another {0:0} seconds.",
                      Info.MutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
         }
+
+        #endregion
 
 
         #region Ignore

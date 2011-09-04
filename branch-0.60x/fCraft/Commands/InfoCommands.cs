@@ -850,6 +850,15 @@ namespace fCraft {
                             Compass.Substring( offset + 2, 11 ) );
         }
 
+        public static string GetCompassString( byte rotation ) {
+            int offset = (int)(rotation / 255f * 64f) + 32;
+
+            return String.Format( "&F[{0}&C{1}&F{2}]",
+                                  Compass.Substring( offset - 12, 11 ),
+                                  Compass.Substring( offset - 1, 3 ),
+                                  Compass.Substring( offset + 2, 11 ) );
+        }
+
         #endregion
 
 
