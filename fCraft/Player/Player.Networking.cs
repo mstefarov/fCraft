@@ -132,6 +132,9 @@ namespace fCraft {
                         }
                         pingCounter++;
                         pollCounter = 0;
+                        if( IsUsingWoM ) {
+                            MessageNowPrefixed( "", "^detail.user=" + InfoCommands.GetCompassString( Position.R ) );
+                        }
                     }
                     pollCounter++;
 

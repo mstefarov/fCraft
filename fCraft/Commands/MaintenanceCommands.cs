@@ -872,9 +872,9 @@ namespace fCraft {
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.ShutdownServer },
             IsConsoleSafe = true,
-            Help = "Shuts down the server remotely, or cancels a pending shutdown. " +
-                   "Default delay before shutdown is 5 seconds (can be changed by specifying a custom number of seconds). " +
-                   "A shutdown reason or message can be specified to be shown to players.",
+            Help = "Shuts down the server remotely after a given delay. " +
+                   "A shutdown reason or message can be specified to be shown to players. " +
+                   "Type &H/shutdown abort&S to cancel.",
             Usage = "/shutdown Delay [Reason]&S or &H/shutdown abort",
             Handler = ShutdownHandler
         };
@@ -882,11 +882,9 @@ namespace fCraft {
         static readonly TimeSpan DefaultShutdownTime = TimeSpan.FromSeconds( 5 );
 
         static void ShutdownHandler( Player player, Command cmd ) {
-
             string delayString = cmd.Next();
             TimeSpan delayTime = DefaultShutdownTime;
             string reason = "";
-
 
             if( delayString != null ) {
                 if( delayString.Equals( "abort", StringComparison.OrdinalIgnoreCase ) ) {
@@ -904,17 +902,23 @@ namespace fCraft {
                 reason = cmd.NextAll();
             }
 
+            if( delayTime.TotalMilliseconds > Int32.MaxValue - 1 ) {
+                player.Message( "WShutdown: Delay is too long, maximum is {0}",
+                                TimeSpan.FromMilliseconds( Int32.MaxValue - 1 ).ToMiniString() );
+                return;
+            }
+
             Server.Message( "&WServer shutting down in {0}", delayTime.ToMiniString() );
 
             if( String.IsNullOrEmpty( reason ) ) {
-                Logger.Log( "{0} shut down the server ({1} delay).", LogType.UserActivity,
-                            player.Name, delayTime );
+                Logger.Log( "{0} scheduled a shutdown ({1} delay).", LogType.UserActivity,
+                            player.Name, delayTime.ToCompactString() );
                 ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delayTime, true, false );
                 Server.Shutdown( sp, false );
             } else {
-                Server.Message( "&WShutdown reason: {0}", reason );
-                Logger.Log( "{0} shut down the server ({1} second delay). Reason: {2}", LogType.UserActivity,
-                            player.Name, delayTime, reason );
+                Server.Message( "&Shutdown reason: {0}", reason );
+                Logger.Log( "{0} scheduled a shutdown ({1} delay). Reason: {2}", LogType.UserActivity,
+                            player.Name, delayTime.ToCompactString(), reason );
                 ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delayTime, true, false, reason, player );
                 Server.Shutdown( sp, false );
             }
@@ -927,34 +931,52 @@ namespace fCraft {
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.ShutdownServer },
             IsConsoleSafe = true,
-            Help = "Restarts the server remotely. " +
-                   "The default delay before restart is 5 seconds (can be changed by specifying a custom number of seconds). " +
-                   "A restart reason or message can be specified to be shown to players.",
-            Usage = "/restart [Delay] [Reason]",
+            Help = "Restarts the server remotely after a given delay. " +
+                   "A restart reason or message can be specified to be shown to players. " + 
+                   "Type &H/restart abort&S to cancel.",
+            Usage = "/restart Delay [Reason]&S or &H/restart abort",
             Handler = RestartHandler
         };
 
         static void RestartHandler( Player player, Command cmd ) {
-            TimeSpan delay = ShutdownParams.DefaultDelay;
-            int delaySeconds;
-            if( cmd.NextInt( out delaySeconds ) ) {
-                delay = TimeSpan.FromSeconds( delaySeconds );
-            } else {
-                cmd.Rewind();
+            string delayString = cmd.Next();
+            TimeSpan delayTime = DefaultShutdownTime;
+            string reason = "";
+
+            if( delayString != null ) {
+                if( delayString.Equals( "abort", StringComparison.OrdinalIgnoreCase ) ) {
+                    if( Server.CancelShutdown() ) {
+                        Logger.Log( "Restart aborted by {0}.", LogType.UserActivity, player.Name );
+                        Server.Message( "&Restart aborted by {0}", player.ClassyName );
+                    } else {
+                        player.MessageNow( "Cannot abort restart - too late." );
+                    }
+                    return;
+                } else if( !delayString.TryParseMiniTimespan( out delayTime ) ) {
+                    CdShutdown.PrintUsage( player );
+                    return;
+                }
+                reason = cmd.NextAll();
             }
-            string reason = cmd.Next();
 
-            Server.Message( "&WServer restarting in {0} seconds.", delay );
+            if( delayTime.TotalMilliseconds > Int32.MaxValue - 1 ) {
+                player.Message( "Restart: Delay is too long, maximum is {0}",
+                                TimeSpan.FromMilliseconds( Int32.MaxValue - 1 ).ToMiniString() );
+                return;
+            }
 
-            if( reason == null ) {
-                Logger.Log( "{0} restarted the server ({1} second delay).", LogType.UserActivity,
-                            player.Name, delay );
-                var sp = new ShutdownParams( ShutdownReason.Restarting, delay, true, true );
+            Server.Message( "&WServer restarting in {0}", delayTime.ToMiniString() );
+
+            if( String.IsNullOrEmpty( reason ) ) {
+                Logger.Log( "{0} scheduled a restart ({1} delay).", LogType.UserActivity,
+                            player.Name, delayTime.ToCompactString() );
+                ShutdownParams sp = new ShutdownParams( ShutdownReason.Restarting, delayTime, true, true );
                 Server.Shutdown( sp, false );
             } else {
-                Logger.Log( "{0} restarted the server ({1} second delay). Reason: {2}", LogType.UserActivity,
-                            player.Name, delay, reason );
-                var sp = new ShutdownParams( ShutdownReason.Restarting, delay, true, true, reason, player );
+                Server.Message( "&Restart reason: {0}", reason );
+                Logger.Log( "{0} scheduled a restart ({1} delay). Reason: {2}", LogType.UserActivity,
+                            player.Name, delayTime.ToCompactString(), reason );
+                ShutdownParams sp = new ShutdownParams( ShutdownReason.Restarting, delayTime, true, true, reason, player );
                 Server.Shutdown( sp, false );
             }
         }

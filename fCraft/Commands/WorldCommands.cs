@@ -836,7 +836,7 @@ namespace fCraft {
                 listName = "worlds total";
             }
 
-            player.MessagePrefixed( "&S   ", "There are {0} {1}: {2}", count, listName, sb );
+            player.MessagePrefixed( "&S   ", "&SThere are {0} {1}: {2}", count, listName, sb );
         }
 
         #endregion

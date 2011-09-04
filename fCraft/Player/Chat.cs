@@ -130,7 +130,7 @@ namespace fCraft {
 
             var recepientList = Server.Players.NotIgnoring( player );
 
-            string formattedMessage = Color.Say + rawMessage;
+            string formattedMessage = /*Color.Say + */rawMessage;
 
             var e = new ChatSendingEventArgs( player,
                                               rawMessage,
