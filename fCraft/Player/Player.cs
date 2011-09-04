@@ -103,6 +103,9 @@ namespace fCraft {
             get { return Info.ClassyName; }
         }
 
+        /// <summary> Whether the client supports advanced WoM client functionality. </summary>
+        public bool IsUsingWoM { get; private set; }
+
 
         public MetadataCollection<object> Metadata { get; private set; }
 
@@ -130,9 +133,15 @@ namespace fCraft {
 
 
         // Parses message incoming from the player
+        int messagesWrittenThisSession = 0;
         public void ParseMessage( string rawMessage, bool fromConsole ) {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
+            if( !IsSuper && messagesWrittenThisSession == 0 && rawMessage.StartsWith( "/womid" ) ) {
+                IsUsingWoM = true;
+                return;
+            }
+            messagesWrittenThisSession++;
 
             if( partialMessage != null ) {
                 if( rawMessage.Equals( "/nvm", StringComparison.OrdinalIgnoreCase ) ) {
