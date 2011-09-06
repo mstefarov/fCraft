@@ -82,5 +82,9 @@ namespace fCraft {
         public override string ToString() {
             return String.Format( "Position({0},{1},{2},{3},{4})", X, Y, Z, R, L );
         }
+
+        public Vector3I ToVector3I() {
+            return new Vector3I( X, Y, Z );
+        }
     }
 }

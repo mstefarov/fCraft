@@ -20,6 +20,12 @@ namespace fCraft {
         }
 
 
+        /// <summary> Constructs a bounding box using two vectors as opposite corners. </summary>
+        public BoundingBox( Vector3I p1, Vector3I p2 ) :
+            this( p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z ) {
+        }
+
+
         /// <summary> Constructs a bounding box at a given origin, with given dimensions. </summary>
         public BoundingBox( Position pos, int width, int length, int height ) :
             this( pos.X, pos.Y, pos.Z,

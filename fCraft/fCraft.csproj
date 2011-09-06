@@ -216,6 +216,7 @@
     <Compile Include="Drawing\Brushes\RainbowBrush.cs" />
     <Compile Include="Drawing\Brushes\RandomBrush.cs" />
     <Compile Include="Drawing\DrawOps\CuboidDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\TorusDrawOperation.cs" />
     <Compile Include="Drawing\IBrush.cs" />
     <Compile Include="Drawing\Brushes\NormalBrush.cs" />
     <Compile Include="Drawing\Axis.cs" />

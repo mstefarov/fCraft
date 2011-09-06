@@ -9,7 +9,6 @@ namespace fCraft {
     public struct Vector3I : IEquatable<Vector3I>, IComparable<Vector3I>, IComparable<Vector3F> {
         public int X, Y, Z;
 
-
         public Vector3I( int x, int y, int z ) {
             X = x;
             Z = z;
@@ -159,6 +158,14 @@ namespace fCraft {
 
         public override string ToString() {
             return String.Format( "Vector({0},{1},{2})", X, Y, Z );
+        }
+
+        public Position ToPosition() {
+            return new Position( X, Y, Z );
+        }
+
+        public Vector3I Abs() {
+            return new Vector3I( Math.Abs( X ), Math.Abs( Y ), Math.Abs( Z ) );
         }
     }
 

@@ -251,19 +251,28 @@ namespace fCraft {
         }
 
 
+
+        bool firstMessage = true;
         bool ProcessMessagePacket() {
             BytesReceived += 66;
             ResetIdleTimer();
             reader.ReadByte();
             string message = ReadString();
-            //if( Chat.ContainsInvalidChars( message ) ) {
-            //    Logger.Log( "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.",
-            //                LogType.SuspiciousActivity,
-            //                Name );
-            //    Server.Message( "{0}&W was kicked for attempted hacking (0x0d).", ClassyName );
-            //    KickNow( "Illegal characters in chat.", LeaveReason.InvalidMessageKick );
-            //    return false;
-            //} else {
+
+            if( firstMessage && !IsSuper && message.StartsWith( "/womid" ) ) {
+                IsUsingWoM = true;
+                return true;
+            }
+            firstMessage = false;
+
+            if( Chat.ContainsInvalidChars( message ) ) {
+                Logger.Log( "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.",
+                            LogType.SuspiciousActivity,
+                            Name );
+                Server.Message( "{0}&W was kicked for attempted hacking (0x0d).", ClassyName );
+                KickNow( "Illegal characters in chat.", LeaveReason.InvalidMessageKick );
+                return false;
+            } else {
 #if !DEBUG
                 try {
                     ParseMessage( message, false );
@@ -280,7 +289,7 @@ namespace fCraft {
 #else
                 ParseMessage( message, false );
 #endif
-            //}
+            }
             return true;
         }
 
