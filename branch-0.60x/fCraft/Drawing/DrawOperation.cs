@@ -80,14 +80,14 @@ namespace fCraft.Drawing {
         protected bool DrawOneBlock() {
             BlocksProcessed++;
 
-#if DEBUG
-            TestForDuplicateModification();
-#endif
-
             if( !Map.InBounds( Coords.X, Coords.Y, Coords.Z ) ) {
                 BlocksSkipped++;
                 return false;
             }
+
+#if DEBUG
+            TestForDuplicateModification();
+#endif
 
             Block newBlock = Brush.NextBlock( this );
             if( newBlock == Block.Undefined ) return false;
