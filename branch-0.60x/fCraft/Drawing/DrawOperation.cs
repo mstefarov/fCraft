@@ -134,7 +134,7 @@ namespace fCraft.Drawing {
         void TestForDuplicateModification() {
             int index = Map.Index( Coords );
             if( modifiedBlockIndices.Contains( index ) ) {
-                throw new InvalidOperationException( "Duplicate block modification." );
+                throw new InvalidOperationException( "Duplicate block modification at " + Coords );
             }
             modifiedBlockIndices.Add( index );
         }

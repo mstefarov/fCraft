@@ -130,17 +130,10 @@ namespace fCraft {
 
         int muteWarnings;
         string partialMessage;
-        int messagesWrittenThisSession = 0;
 
         // Parses message incoming from the player
         public void ParseMessage( string rawMessage, bool fromConsole ) {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-
-            if( !IsSuper && messagesWrittenThisSession == 0 && rawMessage.StartsWith( "/womid" ) ) {
-                IsUsingWoM = true;
-                return;
-            }
-            messagesWrittenThisSession++;
 
             if( partialMessage != null ) {
                 if( rawMessage.Equals( "/nvm", StringComparison.OrdinalIgnoreCase ) ) {

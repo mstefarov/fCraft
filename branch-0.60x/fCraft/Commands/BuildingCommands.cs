@@ -112,6 +112,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdLineX );
             CommandManager.RegisterCommand( CdSphereX );
             CommandManager.RegisterCommand( CdSphereHollowX );
+            CommandManager.RegisterCommand( CdTorusX );
 
             CommandManager.RegisterCommand( CdUndoX );
         }
@@ -278,6 +279,19 @@ namespace fCraft {
             DrawOperationBegin( player, cmd, new EllipsoidHollowDrawOperation( player ) );
         }
 
+
+        static readonly CommandDescriptor CdTorusX = new CommandDescriptor {
+            Name = "torus",
+            Category = CommandCategory.Building,
+            IsHidden = true,
+            Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
+            Help = "New and improved torus, with brush support and low overhead. Work in progress, may be crashy.",
+            Handler = TorusX
+        };
+
+        static void TorusX( Player player, Command cmd ) {
+            DrawOperationBegin( player, cmd, new TorusDrawOperation( player ) );
+        }
 
 
         static void DrawOperationBegin( Player player, Command cmd, DrawOperation op ) {
