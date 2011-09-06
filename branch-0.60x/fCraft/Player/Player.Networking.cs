@@ -269,7 +269,7 @@ namespace fCraft {
                 Logger.Log( "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.",
                             LogType.SuspiciousActivity,
                             Name );
-                Server.Message( "{0}&W was kicked for attempted hacking (0x0d).", ClassyName );
+                Server.Message( "{0}&W was kicked for sending invalid chat.", ClassyName );
                 KickNow( "Illegal characters in chat.", LeaveReason.InvalidMessageKick );
                 return false;
             } else {
