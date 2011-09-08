@@ -780,8 +780,8 @@ namespace fCraft {
                             valName = Color.ReplacePercentCodes( valName );
                         }
                         info.DisplayedName = valName;
-                        player.Message( "DisplayName for {0}&S changed from \"{1}\" to \"{2}\"",
-                                        info.ClassyName,
+                        player.Message( "DisplayedName for {0} changed from \"{1}&S\" to \"{2}&S\"",
+                                        info.Name,
                                         oldDisplayedName,
                                         info.DisplayedName );
                         return;

@@ -586,7 +586,7 @@ namespace fCraft {
 
             // Check if player's IP is banned
             IPBanInfo ipBanInfo = IPBanList.Get( IP );
-            if( ipBanInfo != null ) {
+            if( ipBanInfo != null && !Info.IsBanExempt ) {
                 Info.ProcessFailedLogin( this );
                 ipBanInfo.ProcessAttempt( this );
                 if( ConfigKey.ShowBannedConnectionMessages.Enabled() ) {
