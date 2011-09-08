@@ -1577,13 +1577,13 @@ namespace fCraft {
                 Rank buildRank = RankManager.DefaultBuildRank;
                 Rank accessRank = null;
                 if( buildRankName != null ) {
-                    buildRank = Rank.Parse( buildRankName );
+                    buildRank = RankManager.FindRank( buildRankName );
                     if( buildRank == null ) {
                         player.MessageNoRank( buildRankName );
                         return;
                     }
                     if( accessRankName != null ) {
-                        accessRank = Rank.Parse( accessRankName );
+                        accessRank = RankManager.FindRank( accessRankName );
                         if( accessRank == null ) {
                             player.MessageNoRank( accessRankName );
                             return;
@@ -1707,7 +1707,7 @@ namespace fCraft {
 
             if( param.StartsWith( "@" ) ) {
                 string rankName = param.Substring( 1 );
-                Rank rank = Rank.Parse( rankName );
+                Rank rank = RankManager.FindRank( rankName );
                 if( rank == null ) {
                     player.MessageNoRank( rankName );
                     return;

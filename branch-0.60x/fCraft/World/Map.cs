@@ -604,6 +604,7 @@ namespace fCraft {
             // alternative names for some blocks
             BlockNames["none"] = Block.Undefined;
 
+            BlockNames["a"] = Block.Air; // common typo
             BlockNames["aire"] = Block.Air; // common typo
             BlockNames["nothing"] = Block.Air;
             BlockNames["empty"] = Block.Air;

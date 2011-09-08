@@ -661,7 +661,7 @@ namespace fCraft {
             if( ConfigKey.AutoRankEnabled.Enabled() ) {
                 Rank newRank = AutoRankManager.Check( Info );
                 if( newRank != null ) {
-                    ModerationCommands.DoChangeRank( Console, Info, newRank, "~AutoRank", false, true );
+                    ModerationCommands.DoChangeRank( AutoRank, Info, newRank, "~AutoRank", false, true );
                 }
             }
 

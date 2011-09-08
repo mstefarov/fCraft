@@ -1273,7 +1273,7 @@ namespace fCraft {
             string arg;
             while( (arg = cmd.Next()) != null ) {
                 if( arg.StartsWith( "@" ) ) {
-                    Rank rank = Rank.Parse( arg.Substring( 1 ) );
+                    Rank rank = RankManager.FindRank( arg.Substring( 1 ) );
                     if( rank == null ) {
                         player.Message( "Unknown rank: {0}", arg.Substring( 1 ) );
                         return;
