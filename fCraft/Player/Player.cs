@@ -375,6 +375,7 @@ namespace fCraft {
         internal void MessageNow( string message, params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
+            if( IsDeaf ) return;
             if( args.Length > 0 ) {
                 message = String.Format( message, args );
             }
@@ -395,6 +396,7 @@ namespace fCraft {
             if( prefix == null ) throw new ArgumentNullException( "prefix" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
+            if( IsDeaf ) return;
             if( args.Length > 0 ) {
                 message = String.Format( message, args );
             }
