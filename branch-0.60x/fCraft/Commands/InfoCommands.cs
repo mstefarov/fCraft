@@ -894,6 +894,8 @@ namespace fCraft {
                     if( descriptor.HelpSections != null && descriptor.HelpSections.TryGetValue( sectionName.ToLower(), out sectionHelp ) ) {
                         player.MessagePrefixed( HelpPrefix, "&SHelp for &H{0} {1}&S:\n{2}",
                                                 descriptor.Name, sectionName, sectionHelp );
+                    } else {
+                        player.Message( "No help found for \"{0}\"", sectionName );
                     }
                 } else {
                     StringBuilder sb = new StringBuilder( Color.Help );
