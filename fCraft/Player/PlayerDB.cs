@@ -177,11 +177,11 @@ namespace fCraft {
                                     Logger.Log( "PlayerDB.Load: Skipped {0} empty records.", LogType.Warning, emptyRecords );
                                 }
 
-                                if( version < 3 ) {
+                                //if( version < 3 ) {
                                     // Sorting the list allows finding players by ID using binary search.
                                     Logger.Log( "Sorting PlayerDB by ID...", LogType.SystemActivity );
                                     list.Sort( PlayerIDComparer.Instance );
-                                }
+                                //}
 
                                 if( version < 4 ) {
                                     int unhid = 0, unfroze = 0, unmuted = 0;
