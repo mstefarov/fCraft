@@ -295,7 +295,7 @@ namespace fCraft {
 
                             Chat.SendRank( this, rank, messageText );
                         } else {
-                            Message( "No rank found matching \"{0}\"", rankName );
+                            MessageNoRank( rankName );
                         }
                     } break;
 

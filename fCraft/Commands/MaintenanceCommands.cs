@@ -537,16 +537,15 @@ namespace fCraft {
             IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
             Help = "If AutoRank is disabled, it can still be called manually using this command.",
-            Usage = "/autorankall [silent] [FromRank]",
+            Usage = "/autorankall [FromRank]",
             Handler = AutoRankAllHandler
         };
 
         static void AutoRankAllHandler( Player player, Command cmd ) {
-            bool silent = (cmd.Next() != null);
             string rankName = cmd.Next();
             Rank rank = null;
             if( rankName != null ) {
-                rank = Rank.Parse( rankName );
+                rank = RankManager.FindRank( rankName );
                 if( rank == null ) {
                     player.MessageNoRank( rankName );
                     return;
@@ -559,11 +558,10 @@ namespace fCraft {
             } else {
                 list = PlayerDB.GetPlayerListCopy( rank );
             }
-            DoAutoRankAll( player, list, silent, "~AutoRankAll" );
+            DoAutoRankAll( player, list, false, "~AutoRankAll" );
         }
 
         internal static void DoAutoRankAll( Player player, PlayerInfo[] list, bool silent, string message ) {
-
             if( player == null ) throw new ArgumentNullException( "player" );
             if( list == null ) throw new ArgumentNullException( "list" );
 
@@ -616,13 +614,13 @@ namespace fCraft {
                 return;
             }
 
-            Rank fromRank = Rank.Parse( fromRankName );
+            Rank fromRank = RankManager.FindRank( fromRankName );
             if( fromRank == null ) {
                 player.MessageNoRank( fromRankName );
                 return;
             }
 
-            Rank toRank = Rank.Parse( toRankName );
+            Rank toRank = RankManager.FindRank( toRankName );
             if( toRank == null ) {
                 player.MessageNoRank( toRankName );
                 return;
@@ -698,7 +696,7 @@ namespace fCraft {
                         return;
 
                     case "previousrank":
-                        Rank newPreviousRank = Rank.Parse( valName );
+                        Rank newPreviousRank = RankManager.FindRank( valName );
                         Rank oldPreviousRank = info.PreviousRank;
                         if( newPreviousRank != null ) {
                             info.PreviousRank = newPreviousRank;
@@ -1140,7 +1138,7 @@ namespace fCraft {
                 return;
             }
 
-            Rank targetRank = Rank.Parse( rankName );
+            Rank targetRank = RankManager.FindRank( rankName );
             if( targetRank == null ) {
                 player.MessageNoRank( rankName );
                 return;

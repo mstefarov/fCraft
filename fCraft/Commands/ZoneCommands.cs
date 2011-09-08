@@ -89,7 +89,7 @@ namespace fCraft {
                     player.Message( "No rank was specified. See &H/help zone" );
                     return;
                 }
-                Rank minRank = Rank.Parse( rankName );
+                Rank minRank = RankManager.FindRank( rankName );
 
                 if( minRank != null ) {
                     string name;
@@ -250,7 +250,7 @@ namespace fCraft {
                     }
 
                 } else {
-                    Rank minRank = Rank.Parse( name );
+                    Rank minRank = RankManager.FindRank( name );
 
                     if( minRank != null ) {
                         // prevent players from lowering rank so bypass protection

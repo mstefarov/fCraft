@@ -177,7 +177,7 @@ namespace fCraft.MapConversion {
                 fZone.Create( bBox, conversionPlayer );
 
                 // Min rank
-                Rank minRank = RankManager.FindRank( optiZone.MinimumRank );
+                Rank minRank = Rank.Parse( optiZone.MinimumRank );
                 if( minRank != null ) {
                     fZone.Controller.MinRank = minRank;
                 }
