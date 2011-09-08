@@ -274,6 +274,7 @@ namespace fCraft {
 
         #region Clear
 
+        const int LinesToClear = 30;
         static readonly CommandDescriptor CdClear = new CommandDescriptor {
             Name = "clear",
             Category = CommandCategory.Chat,
@@ -285,7 +286,7 @@ namespace fCraft {
             if( player == Player.Console ) {
                 throw new NotSupportedException( "fCraft front-ends are expected to handle the /clear command internally." );
             }
-            for( int i = 0; i < 20; i++ ) {
+            for( int i = 0; i < LinesToClear; i++ ) {
                 player.Message( "" );
             }
         }
