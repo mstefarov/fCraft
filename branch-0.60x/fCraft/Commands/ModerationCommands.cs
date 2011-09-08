@@ -436,7 +436,11 @@ namespace fCraft {
                     }
 
                     foreach( Player other in Server.Players.FromIP( address ) ) {
-                        DoKick( player, other, reason, true, false, LeaveReason.BanIP );
+                        if( other.Info.IsBanExempt ) {
+                            player.Message( "&WPlayer {0}&W shares the IP, but is exempt from IP bans.", other.ClassyName );
+                        }else{
+                            DoKick( player, other, reason, true, false, LeaveReason.BanIP );
+                        }
                     }
 
                 } else {
@@ -562,6 +566,14 @@ namespace fCraft {
 
                 if( e.RecordToPlayerDB ) {
                     target.Info.ProcessKick( player, reason );
+                }
+
+                Player[] otherPlayers = Server.Players.FromIP(target.Info.LastIP).Except(target).ToArray();
+                if( otherPlayers.Length > 0 ) {
+                    player.Message( "&WWarning: Other player(s) share IP with {0}&W: {1}",
+                                    target.Info.ClassyName,
+                                    otherPlayers.JoinToClassyString() );
+
                 }
 
                 Player.RaisePlayerKickedEvent( e );
@@ -987,6 +999,11 @@ namespace fCraft {
 
             Player target = Server.FindPlayerOrPrintMatches( player, name, false );
             if( target == null ) return;
+
+            if( target == player ) {
+                player.Message( "You cannot freeze yourself." );
+                return;
+            }
 
             if( player.Can( Permission.Freeze, target.Info.Rank ) ) {
                 target.Info.IsHidden = false;
