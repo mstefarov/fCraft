@@ -50,14 +50,15 @@ namespace fCraft.Drawing {
         public static void RegisterBrush( IBrushFactory factory ) {
             if( factory == null ) throw new ArgumentNullException( "factory" );
             string helpString = factory.Help;
-            BrushFactories.Add( factory.Name.ToLower(), factory );
+            string lowerName = factory.Name.ToLower();
+            BrushFactories.Add( lowerName, factory );
             if( factory.Aliases != null ) {
                 helpString += factory.Aliases.JoinToString();
                 foreach( string alias in factory.Aliases ) {
-                    BrushAliases.Add( alias, factory );
+                    BrushAliases.Add( alias.ToLower(), factory );
                 }
             }
-            CdBrush.HelpSections.Add( factory.Name, factory.Help );
+            CdBrush.HelpSections.Add( lowerName, factory.Help );
             CdBrush.Help += factory.Name + " ";
         }
 
