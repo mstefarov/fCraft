@@ -14,6 +14,17 @@ namespace fCraft.Drawing {
             get { return "Random"; }
         }
 
+        static readonly string[] aliases = new[] { "rand" };
+        public string[] Aliases {
+            get { return aliases; }
+        }
+
+        const string help = "Random brush: Chaotic pattern of two or more random block types. " +
+                            "If only one block name is given, leaves every other block untouched.";
+        public string Help {
+            get { return help; }
+        }
+
 
         public IBrush MakeBrush( Player player, Command cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );

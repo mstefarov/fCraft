@@ -5,6 +5,8 @@ namespace fCraft.Drawing {
 
     public interface IBrushFactory {
         string Name { get; }
+        string[] Aliases { get; }
+        string Help { get; }
 
         IBrush MakeBrush( Player player, Command cmd );
     }

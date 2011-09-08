@@ -12,6 +12,17 @@ namespace fCraft.Drawing {
             get { return "Replace"; }
         }
 
+        static readonly string[] aliases = new[] { "r" };
+        public string[] Aliases {
+            get { return aliases; }
+        }
+
+        const string help = "Replace brush: Replaces blocks of a given type(s) with another type. " +
+                            "Usage similar to &H/replace&S command.";
+        public string Help {
+            get { return help; }
+        }
+
 
         public IBrush MakeBrush( Player player, Command cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );

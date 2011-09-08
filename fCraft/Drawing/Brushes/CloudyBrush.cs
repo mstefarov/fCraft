@@ -13,6 +13,17 @@ namespace fCraft.Drawing {
             get { return "Cloudy"; }
         }
 
+        public string[] Aliases {
+            get { return null; }
+        }
+
+        const string help = "Cloudy brush: Creates a swirling pattern of two or more block types. " +
+                            "If only one block name is given, leaves every other block untouched.";
+        public string Help {
+            get { return help; }
+        }
+
+
         public IBrush MakeBrush( Player player, Command cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );

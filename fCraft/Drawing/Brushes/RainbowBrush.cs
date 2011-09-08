@@ -15,6 +15,16 @@ namespace fCraft.Drawing {
             get { return "Rainbow"; }
         }
 
+        public string[] Aliases {
+            get { return null; }
+        }
+
+        const string help = "Rainbow brush: Creates a diagonal 7-color rainbow pattern.";
+        public string Help {
+            get { return help; }
+        }
+
+
         public string Description {
             get { return Name; }
         }
