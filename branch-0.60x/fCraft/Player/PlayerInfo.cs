@@ -19,7 +19,11 @@ namespace fCraft {
 
         public string RankChangedBy = "";
 
-        public bool IsBanned;
+        public BanStatus BanStatus;
+        public bool IsBanned {
+            get { return BanStatus == BanStatus.Banned; }
+        }
+
         public DateTime BanDate;
         public string BannedBy = "";
         public DateTime UnbanDate;
@@ -67,7 +71,6 @@ namespace fCraft {
         public bool IsOnline;
         public Player PlayerObject;
         public LeaveReason LeaveReason;
-        public bool IsBanExempt;
 
         public BandwidthUseMode BandwidthUseMode;
 
@@ -148,7 +151,17 @@ namespace fCraft {
             fields[3].ToDateTime( ref info.RankChangeDate );
             info.RankChangedBy = fields[4];
 
-            info.IsBanned = (fields[5] == "b");
+            switch( fields[5] ) {
+                case "b":
+                    info.BanStatus = BanStatus.Banned;
+                    break;
+                case "x":
+                    info.BanStatus = BanStatus.IPBanExempt;
+                    break;
+                default:
+                    info.BanStatus = BanStatus.NotBanned;
+                    break;
+            }
 
             // ban information
             if( fields[6].ToDateTime( ref info.BanDate ) ) {
@@ -266,7 +279,17 @@ namespace fCraft {
             fields[3].ToDateTimeLegacy( ref info.RankChangeDate );
             info.RankChangedBy = fields[4];
 
-            info.IsBanned = (fields[5] == "b");
+            switch( fields[5] ) {
+                case "b":
+                    info.BanStatus = BanStatus.Banned;
+                    break;
+                case "x":
+                    info.BanStatus = BanStatus.IPBanExempt;
+                    break;
+                default:
+                    info.BanStatus = BanStatus.NotBanned;
+                    break;
+            }
 
             // ban information
             if( fields[6].ToDateTimeLegacy( ref info.BanDate ) ) {
@@ -379,7 +402,17 @@ namespace fCraft {
             info.RankChangedBy = fields[4];
             if( info.RankChangedBy == "-" ) info.RankChangedBy = "";
 
-            info.IsBanned = (fields[5] == "b");
+            switch( fields[5] ) {
+                case "b":
+                    info.BanStatus = BanStatus.Banned;
+                    break;
+                case "x":
+                    info.BanStatus = BanStatus.IPBanExempt;
+                    break;
+                default:
+                    info.BanStatus = BanStatus.NotBanned;
+                    break;
+            }
 
             // ban information
             if( DateTimeUtil.TryParseLocalDate( fields[6], out info.BanDate ) ) {
@@ -528,8 +561,15 @@ namespace fCraft {
 
             sb.AppendEscaped( RankChangedBy ).Append( ',' ); // 4
 
-            if( IsBanned ) sb.Append( 'b' ); // 5
-            sb.Append( ',' );
+            switch( BanStatus ) {
+                case BanStatus.Banned:
+                    sb.Append( 'b' );
+                    break;
+                case BanStatus.IPBanExempt:
+                    sb.Append( 'x' );
+                    break;
+            }
+            sb.Append( ',' ); // 5
 
             BanDate.ToUnixTimeString( sb ).Append( ',' ); // 6
             sb.AppendEscaped( BannedBy ).Append( ',' ); // 7
@@ -678,7 +718,7 @@ namespace fCraft {
 
         public bool ProcessBan( Player bannedBy, string banReason ) {
             if( !IsBanned ) {
-                IsBanned = true;
+                BanStatus = BanStatus.Banned;
                 BannedBy = bannedBy.Name;
                 BanDate = DateTime.UtcNow;
                 BanReason = banReason;
@@ -696,7 +736,7 @@ namespace fCraft {
 
         public bool ProcessUnban( string unbannedBy, string unbanReason ) {
             if( IsBanned ) {
-                IsBanned = false;
+                BanStatus = BanStatus.NotBanned;
                 UnbannedBy = unbannedBy;
                 UnbanDate = DateTime.UtcNow;
                 UnbanReason = unbanReason;

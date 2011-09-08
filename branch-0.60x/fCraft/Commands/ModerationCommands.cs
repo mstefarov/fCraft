@@ -28,6 +28,8 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdUnbanIP );
             CommandManager.RegisterCommand( CdUnbanAll );
 
+            CommandManager.RegisterCommand( CdBanEx );
+
             CommandManager.RegisterCommand( CdKick );
 
             CommandManager.RegisterCommand( CdRank );
@@ -436,7 +438,7 @@ namespace fCraft {
                     }
 
                     foreach( Player other in Server.Players.FromIP( address ) ) {
-                        if( other.Info.IsBanExempt ) {
+                        if( other.Info.BanStatus== BanStatus.IPBanExempt ) {
                             player.Message( "&WPlayer {0}&W shares the IP, but is exempt from IP bans.", other.ClassyName );
                         }else{
                             DoKick( player, other, reason, true, false, LeaveReason.BanIP );
@@ -472,6 +474,62 @@ namespace fCraft {
                         DoKick( player, other, reason, true, false, LeaveReason.BanAll );
                     }
                 }
+            }
+        }
+
+
+
+
+
+        static readonly CommandDescriptor CdBanEx = new CommandDescriptor {
+            Name = "banex",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = true,
+            Permissions = new[] { Permission.Ban, Permission.BanIP },
+            Usage = "/banex +PlayerName&S or &H/banex -PlayerName",
+            Help = "Adds or removes an IP-ban exemption for an account. " +
+                   "Exempt accounts can log in from any IP, including banned ones.",
+            Handler = BanExHandler
+        };
+
+        static void BanExHandler( Player player, Command cmd ) {
+            string playerName = cmd.Next();
+            if( playerName == null || playerName.Length < 2 || (playerName[0]!='-' &&playerName[0]!='+') ) {
+                CdBanEx.PrintUsage( player );
+                return;
+            }
+            bool addExemption = (playerName[0] == '+');
+            string targetName =playerName.Substring( 1 );
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
+            if( target == null ) return;
+
+            switch( target.BanStatus ) {
+                case BanStatus.Banned:
+                    if( addExemption ) {
+                        player.Message( "Player {0}&S is currently banned. Unban before adding an exemption.",
+                                        target.ClassyName );
+                    } else {
+                        player.Message( "Player {0}&S is already banned. There is no exemption to remove.",
+                                        target.ClassyName );
+                    }
+                    break;
+                case BanStatus.IPBanExempt:
+                    if( addExemption ) {
+                        player.Message( "IP-Ban exemption already exists for player {0}&S.", target.ClassyName );
+                    } else {
+                        player.Message( "IP-Ban exemption removed for player {0}&S.",
+                                        target.ClassyName );
+                    }
+                    break;
+                case BanStatus.NotBanned:
+                    if( addExemption ) {
+                        player.Message( "IP-Ban exemption added for player {0}&S.",
+                                        target.ClassyName );
+                    } else {
+                        player.Message( "No IP-Ban exemption exists for player {0}&S.",
+                                        target.ClassyName );
+                    }
+                    break;
             }
         }
 

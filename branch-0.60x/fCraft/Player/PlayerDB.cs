@@ -610,8 +610,7 @@ namespace fCraft {
             lock( AddLocker ) {
                 Swap( ref p1.BanDate, ref p2.BanDate );
                 Swap( ref p1.BandwidthUseMode, ref p2.BandwidthUseMode );
-                Swap( ref p1.IsBanExempt, ref p2.IsBanExempt );
-                Swap( ref p1.IsBanned, ref p2.IsBanned );
+                Swap( ref p1.BanStatus, ref p2.BanStatus );
                 Swap( ref p1.BannedBy, ref p2.BannedBy );
                 Swap( ref p1.BannedUntil, ref p2.BannedUntil );
                 Swap( ref p1.BanReason, ref p2.BanReason );

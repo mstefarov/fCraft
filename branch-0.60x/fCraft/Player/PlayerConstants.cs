@@ -168,4 +168,11 @@ namespace fCraft {
         WorldRemoved,
         PermissionChanged
     }
+
+
+    public enum BanStatus {
+        NotBanned,
+        IPBanExempt,
+        Banned
+    }
 }
