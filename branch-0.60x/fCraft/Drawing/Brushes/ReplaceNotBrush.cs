@@ -13,6 +13,18 @@ namespace fCraft.Drawing {
         }
 
 
+        static readonly string[] aliases = new[] { "rn" };
+        public string[] Aliases {
+            get { return aliases; }
+        }
+
+        const string help = "ReplaceNot brush: Replaces all blocks except the given type(s) with another type. " +
+                            "Usage similar to &H/replacenot&S command.";
+        public string Help {
+            get { return help; }
+        }
+
+
         public IBrush MakeBrush( Player player, Command cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );

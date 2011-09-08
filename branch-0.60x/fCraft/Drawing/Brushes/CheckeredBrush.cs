@@ -11,6 +11,17 @@ namespace fCraft.Drawing {
             get { return "Checkered"; }
         }
 
+        static readonly string[] aliases = new[] { "ch" };
+        public string[] Aliases {
+            get { return aliases; }
+        }
+
+        const string help = "Checkered brush: Fills the area with alternating checkered pattern. " +
+                            "If only one block name is given, leaves every other block untouched.";
+        public string Help {
+            get { return help; }
+        }
+
 
         public IBrush MakeBrush( Player player, Command cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );

@@ -88,7 +88,6 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdRestore );
 
-            CommandManager.RegisterCommand( CdBrush );
             CommandManager.RegisterCommand( CdCuboid );
             CommandManager.RegisterCommand( CdCuboidWireframe );
             CommandManager.RegisterCommand( CdCuboidHollow );
@@ -104,51 +103,6 @@ namespace fCraft {
 
 
         #region DrawOperations & Brushes
-
-        static readonly CommandDescriptor CdBrush = new CommandDescriptor {
-            Name = "brush",
-            Category = CommandCategory.Building,
-            IsHidden = true,
-            Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
-            Help = "Gets or sets the current brush. Available brushes are: " +
-                   "normal (default), checkered, cloudy, marbled, rainbow, random, replace, and replacenot.",
-            HelpSections = new Dictionary<string, string>{
-                { "normal",     "Normal brush: Fills the area with solid color. " +
-                                "If no block name is given, uses the last block that player has placed." },
-                { "checkered",  "Checkered brush: Fills the area with alternating checkered pattern. " +
-                                "If only one block name is given, leaves every other block untouched." },
-                { "cloudy",     "Cloudy brush: Creates a swirling pattern of two or more block types. " +
-                                "If only one block name is given, leaves every other block untouched." },
-                { "marbled",    "Marbled brush: Creates a turbulent pattern of two or more block types. " +
-                                "If only one block name is given, leaves every other block untouched." },
-                { "rainbow",    "Rainbow brush: Creates a 7-color rainbow pattern." },
-                { "random",     "Random brush: Chaotic pattern of two or more random block types. " +
-                                "If only one block name is given, leaves every other block untouched." },
-                { "replace",    "Replace brush: Replaces blocks of a given type(s) with another type. " +
-                                "Usage similar to &H/replace&S command." },
-                { "replacenot", "ReplaceNot brush: Replaces all blocks except the given type(s) with another type. " +
-                                "Usage similar to &H/replacenot&S command." }
-            },
-            Handler = BrushHandler
-        };
-
-        static void BrushHandler( Player player, Command cmd ) {
-            string brushName = cmd.Next();
-            if( brushName == null ) {
-                player.Message( player.Brush.Description );
-            } else {
-                IBrushFactory brushFactory = BrushManager.GetBrushFactory( brushName );
-                if( brushFactory == null ) {
-                    player.Message( "Unrecognized brush \"{0}\"", brushName );
-                } else {
-                    IBrush newBrush = brushFactory.MakeBrush( player, cmd );
-                    if( newBrush != null ) {
-                        player.Brush = newBrush;
-                        player.Message( "Brush set to {0}", player.Brush.Description );
-                    }
-                }
-            }
-        }
 
 
         static readonly CommandDescriptor CdCuboid = new CommandDescriptor {
