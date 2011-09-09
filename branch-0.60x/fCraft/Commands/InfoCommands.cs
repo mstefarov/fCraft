@@ -225,6 +225,9 @@ namespace fCraft {
                                 info.FirstLoginDate );
             }
 
+            if( info.IsFrozen ) {
+                player.Message( "  Frozen {0} ago by {1}", info.TimeSinceFrozen, info.FrozenBy );
+            }
 
             // Show ban information
             IPBanInfo ipBan = IPBanList.Get( info.LastIP );
