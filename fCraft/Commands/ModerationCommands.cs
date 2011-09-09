@@ -479,8 +479,6 @@ namespace fCraft {
 
 
 
-
-
         static readonly CommandDescriptor CdBanEx = new CommandDescriptor {
             Name = "banex",
             Category = CommandCategory.Moderation,
@@ -519,12 +517,14 @@ namespace fCraft {
                     } else {
                         player.Message( "IP-Ban exemption removed for player {0}&S.",
                                         target.ClassyName );
+                        target.BanStatus = BanStatus.NotBanned;
                     }
                     break;
                 case BanStatus.NotBanned:
                     if( addExemption ) {
                         player.Message( "IP-Ban exemption added for player {0}&S.",
                                         target.ClassyName );
+                        target.BanStatus = BanStatus.IPBanExempt;
                     } else {
                         player.Message( "No IP-Ban exemption exists for player {0}&S.",
                                         target.ClassyName );
