@@ -841,8 +841,8 @@ namespace fCraft {
 
         #region Where
 
-        const string Compass = "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . " +
-                               "N . . . nw. . . W . . . sw. . . S . . . se. . . E . . . ne. . . ";
+        const string Compass = "N . . . ne. . . E . . . se. . . S . . . sw. . . W . . . nw. . . " +
+                               "N . . . ne. . . E . . . se. . . S . . . sw. . . W . . . nw. . . ";
         static readonly CommandDescriptor CdWhere = new CommandDescriptor {
             Name = "where",
             Aliases = new[] { "compass", "whereis", "whereami" },
