@@ -228,12 +228,26 @@ namespace fCraft {
 
             // Show ban information
             IPBanInfo ipBan = IPBanList.Get( info.LastIP );
-            if( ipBan != null && info.IsBanned ) {
-                player.Message( "  Both name and IP are {0}BANNED&S. See &H/baninfo", Color.Red );
-            } else if( ipBan != null ) {
-                player.Message( "  IP is {0}BANNED&S (but nick isn't). See &H/baninfo", Color.Red );
-            } else if( info.IsBanned ) {
-                player.Message( "  Nick is {0}BANNED&S (but IP isn't). See &H/baninfo", Color.Red );
+            switch( info.BanStatus ) {
+                case BanStatus.Banned:
+                    if( ipBan != null ) {
+                        player.Message( "  Account and IP are &CBANNED&S. See &H/baninfo" );
+                    } else {
+                        player.Message( "  Account is &CBANNED&S. See &H/baninfo" );
+                    }
+                    break;
+                case BanStatus.IPBanExempt:
+                    if( ipBan != null ) {
+                        player.Message( "  IP is &CBANNED&S, but account is exempt. See &H/baninfo" );
+                    } else {
+                        player.Message( "  IP is not banned, and account is exempt. See &H/baninfo" );
+                    }
+                    break;
+                case BanStatus.NotBanned:
+                    if( ipBan != null ) {
+                        player.Message( "  IP is &CBANNED&S. See &H/baninfo" );
+                    }
+                    break;
             }
 
 
@@ -413,12 +427,32 @@ namespace fCraft {
                 if( !PlayerDB.FindPlayerInfo( name, out info ) ) {
                     player.Message( "More than one player found matching \"{0}\"", name );
                 } else if( info != null ) {
-                    if( info.IsBanned ) {
-                        player.Message( "Player {0}&S is &WBANNED", info.ClassyName );
-                    } else {
-                        player.Message( "Player {0}&S is NOT banned.", info.ClassyName );
+                    IPBanInfo ipBan = IPBanList.Get( info.LastIP );
+                    switch( info.BanStatus ) {
+                        case BanStatus.Banned:
+                            if( ipBan != null ) {
+                                player.Message( "Player {0}&S and their IP are &CBANNED&S.", info.ClassyName );
+                            } else {
+                                player.Message( "Player {0}&S is &CBANNED&S (but their IP is not).", info.ClassyName );
+                            }
+                            break;
+                        case BanStatus.IPBanExempt:
+                            if( ipBan != null ) {
+                                player.Message( "Player {0}&S is exempt from an existing IP ban.", info.ClassyName );
+                            } else {
+                                player.Message( "Player {0}&S is exempt from IP bans.", info.ClassyName );
+                            }
+                            break;
+                        case BanStatus.NotBanned:
+                            if( ipBan != null ) {
+                                player.Message( "Player {0}&s is not banned, but their IP is.", info.ClassyName );
+                            } else {
+                                player.Message( "Player {0}&s is not banned.", info.ClassyName );
+                            }
+                            break;
                     }
-                    if( !String.IsNullOrEmpty( info.BannedBy ) ) {
+
+                    if( !String.IsNullOrEmpty( info.BannedBy ) || info.BanDate!= DateTime.MinValue ) {
                         player.Message( "  Last ban by {0} on {1:dd MMM yyyy} ({2} ago).",
                                         info.BannedBy,
                                         info.BanDate,
@@ -427,7 +461,7 @@ namespace fCraft {
                             player.Message( "  Last ban reason: {0}", info.BanReason );
                         }
                     }
-                    if( !String.IsNullOrEmpty( info.UnbannedBy ) ) {
+                    if( !String.IsNullOrEmpty( info.UnbannedBy ) || info.UnbanDate != DateTime.MinValue ) {
                         player.Message( "  Unbanned by {0} on {1:dd MMM yyyy} ({2} ago).",
                                         info.UnbannedBy,
                                         info.UnbanDate,
