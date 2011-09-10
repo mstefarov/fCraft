@@ -220,11 +220,12 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdLine = new CommandDescriptor {
-            Name = "linex",
+            Name = "line",
+            Aliases = new[] { "ln" },
             Category = CommandCategory.Building,
             IsHidden = true,
-            Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
-            Help = "Draws a continuous line between two points with blocks. "+
+            Permissions = new[] { Permission.Draw },
+            Help = "Draws a continuous line between two points with blocks. " +
                    "Marks to not need to be aligned.",
             Handler = LineHandler
         };
@@ -236,6 +237,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdTorus = new CommandDescriptor {
             Name = "torus",
+            Aliases = new[] { "donut" },
             Category = CommandCategory.Building,
             IsHidden = true,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
