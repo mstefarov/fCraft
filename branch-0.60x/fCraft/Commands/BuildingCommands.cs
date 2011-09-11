@@ -237,7 +237,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdTorus = new CommandDescriptor {
             Name = "torus",
-            Aliases = new[] { "donut" },
+            Aliases = new[] { "donut", "bagel" },
             Category = CommandCategory.Building,
             IsHidden = true,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
