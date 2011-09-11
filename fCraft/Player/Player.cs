@@ -135,12 +135,17 @@ namespace fCraft {
         public void ParseMessage( string rawMessage, bool fromConsole ) {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
-            if( partialMessage != null ) {
-                if( rawMessage.Equals( "/nvm", StringComparison.OrdinalIgnoreCase ) ) {
+            if( rawMessage.Equals( "/nvm", StringComparison.OrdinalIgnoreCase ) ) {
+                if( partialMessage != null ) {
                     MessageNow( "Partial message cancelled." );
                     partialMessage = null;
+                } else {
+                    MessageNow( "No partial message to cancel." );
                     return;
                 }
+            }
+
+            if( partialMessage != null ) {
                 rawMessage = partialMessage + rawMessage;
                 partialMessage = null;
             }
