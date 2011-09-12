@@ -7,7 +7,7 @@ namespace fCraft.Drawing {
         bool fillInner;
 
         public override string Name {
-            get { return "CuboidHX"; }
+            get { return "CuboidH"; }
         }
 
         public override string Description {

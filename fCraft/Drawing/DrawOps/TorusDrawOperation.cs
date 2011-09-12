@@ -10,7 +10,7 @@ namespace fCraft.Drawing {
         int tubeR;
         double bigR;
         public override string Name {
-            get { return "TorusX"; }
+            get { return "Torus"; }
         }
 
         public override string Description {

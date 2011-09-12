@@ -7,7 +7,7 @@ namespace fCraft.Drawing {
         Vector3F radius, center;
 
         public override string Name {
-            get { return "EllipsoidX"; }
+            get { return "Ellipsoid"; }
         }
 
         public override string Description {

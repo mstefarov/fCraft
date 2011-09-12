@@ -364,10 +364,8 @@ Affected commands:
             vPermissions.Items[(int)Permission.Lock].ToolTipText =
 @"Ability to lock/unlock maps (locking puts a map into read-only state).
 Affected commands:
-    /lock
-    /unlock
-    /lockall
-    /unlockall";
+    /wlock
+    /wunlock";
 
             vPermissions.Items[(int)Permission.ManageWorlds].ToolTipText =
 @"Ability to manipulate the world list: adding, renaming, and deleting worlds,

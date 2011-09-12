@@ -5,7 +5,7 @@ namespace fCraft.Drawing {
     public class EllipsoidHollowDrawOperation : DrawOperation {
 
         public override string Name {
-            get { return "EllipsoidHX"; }
+            get { return "EllipsoidH"; }
         }
 
         public override string Description {

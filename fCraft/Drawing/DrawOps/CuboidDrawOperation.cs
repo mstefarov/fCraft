@@ -3,7 +3,7 @@
 namespace fCraft.Drawing {
     public sealed class CuboidDrawOperation : DrawOperation {
         public override string Name {
-            get { return "CuboidX"; }
+            get { return "Cuboid"; }
         }
 
         public override string Description {
