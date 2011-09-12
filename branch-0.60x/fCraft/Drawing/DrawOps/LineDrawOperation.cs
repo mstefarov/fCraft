@@ -6,7 +6,7 @@ namespace fCraft.Drawing {
     public sealed class LineDrawOperation : DrawOperation {
 
         public override string Name {
-            get { return "LineX"; }
+            get { return "Line"; }
         }
 
         public override string Description {

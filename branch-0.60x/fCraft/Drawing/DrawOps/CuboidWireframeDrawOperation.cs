@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace fCraft.Drawing {
     public sealed class CuboidWireframeDrawOperation : DrawOperation {
         public override string Name {
-            get { return "CuboidWX"; }
+            get { return "CuboidW"; }
         }
 
         public override string Description {

@@ -4,7 +4,7 @@ using System;
 namespace fCraft.Drawing {
     public sealed class SphereHollowDrawOperation : EllipsoidHollowDrawOperation {
         public override string Name {
-            get { return "SphereHX"; }
+            get { return "SphereH"; }
         }
 
         public SphereHollowDrawOperation( Player player )

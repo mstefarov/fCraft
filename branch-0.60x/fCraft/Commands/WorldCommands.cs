@@ -24,10 +24,8 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdJoin );
 
-            CommandManager.RegisterCommand( CdLock );
-            CommandManager.RegisterCommand( CdLockAll );
+            CommandManager.RegisterCommand( CdWorldLock );
             CommandManager.RegisterCommand( CdUnlock );
-            CommandManager.RegisterCommand( CdUnlockAll );
 
             CommandManager.RegisterCommand( CdSpawn );
 
@@ -643,34 +641,44 @@ namespace fCraft {
         #endregion
 
 
-        #region Lock, Unlock, LockAll, UnlockAll
+        #region WLock, WUnlock
 
-        static readonly CommandDescriptor CdLock = new CommandDescriptor {
-            Name = "lock",
+        static readonly CommandDescriptor CdWorldLock = new CommandDescriptor {
+            Name = "wlock",
+            Aliases = new[] { "lock" },
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Lock },
-            Usage = "/lock [WorldName]",
+            Usage = "/wlock [*|WorldName]",
             Help = "Puts the world into a locked, read-only mode. " +
                    "No one can place or delete blocks during lockdown. " +
                    "By default this locks the world you're on, but you can also lock any world by name. " +
-                   "Call &H/unlock&S to release lock on a world, or &H/unlockall&S to release all worlds at once.",
-            Handler = LockHandler
+                   "Put an asterisk (*) for world name to lock ALL worlds at once. " +
+                   "Call &H/unlock&S to release lock on a world.",
+            Handler = WorldLockHandler
         };
 
-        static void LockHandler( Player player, Command cmd ) {
+        static void WorldLockHandler( Player player, Command cmd ) {
             string worldName = cmd.Next();
 
             World world;
             if( worldName != null ) {
-                world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-                if( world == null ) return;
+                if( worldName == "*" ) {
+                    World[] worldListCache = WorldManager.WorldList;
+                    for( int i = 0; i < worldListCache.Length; i++ ) {
+                        worldListCache[i].Lock( player );
+                    }
+                    return;
+                } else {
+                    world = WorldManager.FindWorldOrPrintMatches( player, worldName );
+                    if( world == null ) return;
+                }
 
             } else if( player.World != null ) {
                 world = player.World;
 
             } else {
-                player.Message( "When called from console, /lock requires a world name." );
+                player.Message( "When called from console, /wlock requires a world name." );
                 return;
             }
 
@@ -680,32 +688,13 @@ namespace fCraft {
         }
 
 
-
-        static readonly CommandDescriptor CdLockAll = new CommandDescriptor {
-            Name = "lockall",
-            Category = CommandCategory.World,
-            IsConsoleSafe = true,
-            Permissions = new[] { Permission.Lock },
-            Help = "Applies &H/lock&S to all available worlds.",
-            Handler = LockAllHandler
-        };
-
-        static void LockAllHandler( Player player, Command cmd ) {
-            World[] worldListCache = WorldManager.WorldList;
-            foreach( World world in worldListCache ) {
-                world.Lock( player );
-            }
-            player.Message( "All worlds are now locked." );
-        }
-
-
-
         static readonly CommandDescriptor CdUnlock = new CommandDescriptor {
-            Name = "unlock",
+            Name = "wunlock",
+            Aliases = new[] { "unlock" },
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Lock },
-            Usage = "/unlock [WorldName]",
+            Usage = "/wunlock [*|WorldName]",
             Help = "Removes the lockdown set by &H/lock&S. See &H/help lock&S for more information.",
             Handler = UnlockHandler
         };
@@ -715,8 +704,16 @@ namespace fCraft {
 
             World world;
             if( worldName != null ) {
-                world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-                if( world == null ) return;
+                if( worldName == "*" ) {
+                    World[] worldListCache = WorldManager.WorldList;
+                    for( int i = 0; i < worldListCache.Length; i++ ) {
+                        worldListCache[i].Unlock( player );
+                    }
+                    return;
+                } else {
+                    world = WorldManager.FindWorldOrPrintMatches( player, worldName );
+                    if( world == null ) return;
+                }
 
             } else if( player.World != null ) {
                 world = player.World;
@@ -729,25 +726,6 @@ namespace fCraft {
             if( !world.Unlock( player ) ) {
                 player.Message( "The world is already unlocked." );
             }
-        }
-
-
-
-        static readonly CommandDescriptor CdUnlockAll = new CommandDescriptor {
-            Name = "unlockall",
-            Category = CommandCategory.World,
-            IsConsoleSafe = true,
-            Permissions = new[] { Permission.Lock },
-            Help = "Applies &H/unlock&S to all available worlds",
-            Handler = UnlockAllHandler
-        };
-
-        static void UnlockAllHandler( Player player, Command cmd ) {
-            World[] worldListCache = WorldManager.WorldList;
-            foreach( World world in worldListCache ) {
-                world.Unlock( player );
-            }
-            player.Message( "All worlds are now unlocked." );
         }
 
         #endregion
