@@ -37,7 +37,7 @@ namespace fCraft {
             for( int i = 0; i < AnnounceIntervals.Length; i++ ) {
                 if( duration <= AnnounceIntervals[i] ) {
                     announceIntervalIndex = i - 1;
-                    return;
+                    break;
                 }
             }
             announceIntervalIndex = AnnounceIntervals.Length - 1;
