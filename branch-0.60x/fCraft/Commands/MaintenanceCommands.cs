@@ -930,7 +930,7 @@ namespace fCraft {
             Permissions = new[] { Permission.ShutdownServer },
             IsConsoleSafe = true,
             Help = "Restarts the server remotely after a given delay. " +
-                   "A restart reason or message can be specified to be shown to players. " + 
+                   "A restart reason or message can be specified to be shown to players. " +
                    "Type &H/restart abort&S to cancel.",
             Usage = "/restart Delay [Reason]&S or &H/restart abort",
             Handler = RestartHandler
@@ -1208,6 +1208,11 @@ namespace fCraft {
 
             if( p1 == p2 ) {
                 player.Message( "InfoSwap: Please specify 2 different players." );
+                return;
+            }
+
+            if( p1.IsOnline || p2.IsOnline ) {
+                player.Message( "InfoSwap: Both players must be offline to swap info." );
                 return;
             }
 

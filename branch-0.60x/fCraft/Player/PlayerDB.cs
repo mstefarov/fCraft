@@ -608,6 +608,9 @@ namespace fCraft {
 
         internal static void SwapPlayerInfo( PlayerInfo p1, PlayerInfo p2 ) {
             lock( AddLocker ) {
+                if( p1.IsOnline || p2.IsOnline ) {
+                    throw new Exception( "Both players must be offline to swap info." );
+                }
                 Swap( ref p1.BanDate, ref p2.BanDate );
                 Swap( ref p1.BandwidthUseMode, ref p2.BandwidthUseMode );
                 Swap( ref p1.BanStatus, ref p2.BanStatus );
@@ -617,6 +620,7 @@ namespace fCraft {
                 Swap( ref p1.BlocksBuilt, ref p2.BlocksBuilt );
                 Swap( ref p1.BlocksDeleted, ref p2.BlocksDeleted );
                 Swap( ref p1.BlocksDrawn, ref p2.BlocksDrawn );
+                Swap( ref p1.DisplayedName, ref p2.DisplayedName );
                 Swap( ref p1.FailedLoginCount, ref p2.FailedLoginCount );
                 Swap( ref p1.FirstLoginDate, ref p2.FirstLoginDate );
                 Swap( ref p1.FrozenBy, ref p2.FrozenBy );
