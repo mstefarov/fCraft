@@ -658,6 +658,10 @@ namespace fCraft {
                 Swap( ref p1.UnbanDate, ref p2.UnbanDate );
                 Swap( ref p1.UnbannedBy, ref p2.UnbannedBy );
                 Swap( ref p1.UnbanReason, ref p2.UnbanReason );
+
+                lock( SaveLoadLocker ) {
+                    list.Sort( PlayerIDComparer.Instance );
+                }
             }
         }
 
