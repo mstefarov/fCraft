@@ -800,7 +800,10 @@ namespace fCraft {
         internal bool JoinWorldNow( World newWorld, bool doUseWorldSpawn, WorldChangeReason reason ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
 
-            if( RaisePlayerJoiningWorldEvent( this, newWorld, reason ) ) {
+            string textLine1=ConfigKey.ServerName.GetString();
+            string textLine2="Loading world " + newWorld.ClassyName;
+
+            if( RaisePlayerJoiningWorldEvent( this, newWorld, reason, textLine1, textLine2 ) ) {
                 Logger.Log( "Player.JoinWorldNow: Player {0} was prevented from joining world {1} by an event callback.", LogType.Warning,
                             Name, newWorld.Name );
                 return false;
@@ -843,9 +846,7 @@ namespace fCraft {
 
             // Start sending over the level copy
             if( oldWorld != null ) {
-                SendNow( PacketWriter.MakeHandshake( this,
-                                                     ConfigKey.ServerName.GetString(),
-                                                     "Loading world " + newWorld.ClassyName ) );
+                SendNow( PacketWriter.MakeHandshake( this, textLine1, textLine2 ) );
             }
 
             writer.WriteLevelBegin();
