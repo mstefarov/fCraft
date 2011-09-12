@@ -18,10 +18,10 @@ namespace fCraft.Drawing {
             get { return aliases; }
         }
 
-        const string help = "ReplaceNot brush: Replaces all blocks except the given type(s) with another type. " +
-                            "Usage similar to &H/replacenot&S command.";
+        const string HelpString = "ReplaceNot brush: Replaces all blocks except the given type(s) with another type. " +
+                                  "Usage similar to &H/replacenot&S command.";
         public string Help {
-            get { return help; }
+            get { return HelpString; }
         }
 
 

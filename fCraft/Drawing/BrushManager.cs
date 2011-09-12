@@ -22,7 +22,7 @@ namespace fCraft.Drawing {
             if( brushName == null ) {
                 player.Message( player.Brush.Description );
             } else {
-                IBrushFactory brushFactory = BrushManager.GetBrushFactory( brushName );
+                IBrushFactory brushFactory = GetBrushFactory( brushName );
                 if( brushFactory == null ) {
                     player.Message( "Unrecognized brush \"{0}\"", brushName );
                 } else {
@@ -53,12 +53,12 @@ namespace fCraft.Drawing {
             string lowerName = factory.Name.ToLower();
             BrushFactories.Add( lowerName, factory );
             if( factory.Aliases != null ) {
-                helpString += factory.Aliases.JoinToString();
+                helpString += "Aliases: " + factory.Aliases.JoinToString();
                 foreach( string alias in factory.Aliases ) {
                     BrushAliases.Add( alias.ToLower(), factory );
                 }
             }
-            CdBrush.HelpSections.Add( lowerName, factory.Help );
+            CdBrush.HelpSections.Add( lowerName, helpString );
             CdBrush.Help += factory.Name + " ";
         }
 

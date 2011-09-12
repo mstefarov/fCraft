@@ -587,7 +587,6 @@ namespace fCraft.ConfigGUI {
 
 
         static void ShowMapDetails( TextBox textBox, string fileName ) {
-
             DateTime creationTime, modificationTime;
             long fileSize;
 

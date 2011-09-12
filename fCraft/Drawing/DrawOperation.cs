@@ -28,7 +28,7 @@ namespace fCraft.Drawing {
                    BlocksSkipped,
                    BlocksTotalEstimate;
 
-        public float PercentDone {
+        public int PercentDone {
             get {
                 return (BlocksProcessed * 100) / BlocksTotalEstimate;
             }

@@ -627,7 +627,7 @@ namespace fCraft {
 
         /// <summary> Handles manually-placed/deleted blocks.
         /// Returns true if player's action should result in a kick. </summary>
-        public bool PlaceBlock( short x, short y, short z, bool buildMode, Block type ) {
+        public bool PlaceBlock( short x, short y, short z, bool isBuilding, Block type ) {
 
             LastUsedBlockType = type;
 
@@ -656,7 +656,7 @@ namespace fCraft {
 
             // bindings
             bool requiresUpdate = (type != bindings[(byte)type] || IsPainting);
-            if( !buildMode && !IsPainting ) {
+            if( !isBuilding && !IsPainting ) {
                 type = Block.Air;
             }
             type = bindings[(byte)type];

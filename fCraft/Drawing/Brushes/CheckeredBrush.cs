@@ -16,10 +16,10 @@ namespace fCraft.Drawing {
             get { return aliases; }
         }
 
-        const string help = "Checkered brush: Fills the area with alternating checkered pattern. " +
-                            "If only one block name is given, leaves every other block untouched.";
+        const string HelpString = "Checkered brush: Fills the area with alternating checkered pattern. " +
+                                  "If only one block name is given, leaves every other block untouched.";
         public string Help {
-            get { return help; }
+            get { return HelpString; }
         }
 
 

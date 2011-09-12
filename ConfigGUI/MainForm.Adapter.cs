@@ -110,7 +110,8 @@ namespace fCraft.ConfigGUI {
             if( ConfigKey.DefaultRank.IsBlank() ) {
                 cDefaultRank.SelectedIndex = 0;
             } else {
-                cDefaultRank.SelectedIndex = RankManager.GetIndex( Rank.Parse( ConfigKey.DefaultRank.GetString() ) );
+                RankManager.DefaultRank = Rank.Parse( ConfigKey.DefaultRank.GetString() );
+                cDefaultRank.SelectedIndex = RankManager.GetIndex( RankManager.DefaultRank );
             }
 
             cPublic.SelectedIndex = ConfigKey.IsPublic.Enabled() ? 0 : 1;
@@ -205,7 +206,8 @@ namespace fCraft.ConfigGUI {
             if( ConfigKey.DefaultBuildRank.IsBlank() ) {
                 cDefaultBuildRank.SelectedIndex = 0;
             } else {
-                cDefaultBuildRank.SelectedIndex = RankManager.GetIndex( Rank.Parse( ConfigKey.DefaultBuildRank.GetString() ) );
+                RankManager.DefaultBuildRank = Rank.Parse( ConfigKey.DefaultBuildRank.GetString() );
+                cDefaultBuildRank.SelectedIndex = RankManager.GetIndex( RankManager.DefaultBuildRank );
             }
 
             if( Paths.IsDefaultMapPath( ConfigKey.MapPath.GetString() ) ) {
@@ -256,7 +258,8 @@ namespace fCraft.ConfigGUI {
             if( ConfigKey.PatrolledRank.IsBlank() ) {
                 cPatrolledRank.SelectedIndex = 0;
             } else {
-                cPatrolledRank.SelectedIndex = RankManager.GetIndex( Rank.Parse( ConfigKey.PatrolledRank.GetString() ) );
+                RankManager.PatrolledRank = Rank.Parse( ConfigKey.PatrolledRank.GetString() );
+                cPatrolledRank.SelectedIndex = RankManager.GetIndex( RankManager.PatrolledRank );
             }
 
             xPaidPlayersOnly.Checked = ConfigKey.PaidPlayersOnly.Enabled();
@@ -384,7 +387,7 @@ namespace fCraft.ConfigGUI {
 
         static void ApplyEnum<TEnum>( ComboBox box, ConfigKey key, TEnum def ) where TEnum : struct {
 #if DEBUG
-            if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required", "TEnum" );
+            if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required" );
 #endif
             try {
                 if( key.IsBlank() ) {
@@ -605,7 +608,7 @@ namespace fCraft.ConfigGUI {
 
         static void WriteEnum<TEnum>( ComboBox box, ConfigKey key ) where TEnum : struct {
 #if DEBUG
-            if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required", "TEnum" );
+            if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required" );
 #endif
             try {
                 TEnum val = (TEnum)Enum.Parse( typeof( TEnum ), box.SelectedIndex.ToString(), true );

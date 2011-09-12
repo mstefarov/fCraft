@@ -210,8 +210,9 @@ namespace fCraft.Events {
         public SessionConnectingEventArgs( IPAddress ip ) {
             IP = ip;
         }
-        public bool Cancel { get; set; }
+
         public IPAddress IP { get; private set; }
+        public bool Cancel { get; set; }
     }
 
 
@@ -220,6 +221,7 @@ namespace fCraft.Events {
             Player = player;
             LeaveReason = leaveReason;
         }
+
         public Player Player { get; private set; }
         public LeaveReason LeaveReason { get; private set; }
     }
@@ -274,12 +276,12 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerClickingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
-        internal PlayerClickingEventArgs( Player player, short x, short y, short z, bool mode, Block block ) {
+        internal PlayerClickingEventArgs( Player player, short x, short y, short z, bool isBuilding, Block block ) {
             Player = player;
             X = x;
             Y = y;
             Z = z;
-            Mode = mode;
+            IsBuilding = isBuilding;
             Block = block;
         }
 
@@ -287,20 +289,21 @@ namespace fCraft.Events {
         public short X { get; private set; }
         public short Y { get; private set; }
         public short Z { get; private set; }
-        public bool Mode { get; set; }
         public Block Block { get; set; }
+        /// <summary> Whether the player is building a block (right-click) or deleting it (left-click). </summary>
+        public bool IsBuilding { get; set; }
         public bool Cancel { get; set; }
     }
 
 
     public sealed class PlayerClickedEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerClickedEventArgs( Player player, short x, short y, short z, bool mode, Block block ) {
+        internal PlayerClickedEventArgs( Player player, short x, short y, short z, bool isBuilding, Block block ) {
             Player = player;
             X = x;
             Y = y;
             Z = z;
             Block = block;
-            Mode = mode;
+            IsBuilding = isBuilding;
         }
 
         public Player Player { get; private set; }
@@ -308,7 +311,8 @@ namespace fCraft.Events {
         public short Y { get; private set; }
         public short Z { get; private set; }
         public Block Block { get; private set; }
-        public bool Mode { get; private set; }
+        /// <summary> Whether the player is building a block (right-click) or deleting it (left-click). </summary>
+        public bool IsBuilding { get; private set; }
     }
 
 
@@ -339,6 +343,7 @@ namespace fCraft.Events {
         public short X { get; private set; }
         public short Y { get; private set; }
         public short Z { get; private set; }
+        /// <summary> Whether this change was the result of a manual click, or a command/drawOp. </summary>
         public bool IsManual { get; private set; }
         public Block OldBlock { get; private set; }
         public Block NewBlock { get; private set; }
@@ -364,10 +369,10 @@ namespace fCraft.Events {
             Context = context;
         }
 
-        public Player Player { get; private set; }
         public Player Kicker { get; protected set; }
         public string Reason { get; protected set; }
         public bool IsSilent { get; protected set; }
+        /// <summary> Whether kick should be added to the target's record. </summary>
         public bool RecordToPlayerDB { get; protected set; }
         public LeaveReason Context { get; protected set; }
     }

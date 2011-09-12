@@ -17,10 +17,10 @@ namespace fCraft.Drawing {
             get { return aliases; }
         }
 
-        const string help = "Replace brush: Replaces blocks of a given type(s) with another type. " +
-                            "Usage similar to &H/replace&S command.";
+        const string HelpString = "Replace brush: Replaces blocks of a given type(s) with another type. " +
+                                  "Usage similar to &H/replace&S command.";
         public string Help {
-            get { return help; }
+            get { return HelpString; }
         }
 
 

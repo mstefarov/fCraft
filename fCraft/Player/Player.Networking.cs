@@ -380,7 +380,7 @@ namespace fCraft {
             short x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
             short z = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
             short y = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
-            bool mode = (reader.ReadByte() == 1);
+            bool isBuilding = (reader.ReadByte() == 1);
             byte type = reader.ReadByte();
 
             // if a player is using InDev or SurvivalTest client, they may try to
@@ -394,12 +394,12 @@ namespace fCraft {
             // like at map transitions or at the top layer of the world.
             // Those clicks should be simply ignored.
             if( World.Map.InBounds( x, y, z ) ) {
-                var e = new PlayerClickingEventArgs( this, x, y, z, mode, (Block)type );
+                var e = new PlayerClickingEventArgs( this, x, y, z, isBuilding, (Block)type );
                 if( RaisePlayerClickingEvent( e ) ) {
                     RevertBlockNow( x, y, z );
                 } else {
-                    RaisePlayerClickedEvent( this, x, y, z, e.Mode, e.Block );
-                    PlaceBlock( x, y, z, e.Mode, e.Block );
+                    RaisePlayerClickedEvent( this, x, y, z, e.IsBuilding, e.Block );
+                    PlaceBlock( x, y, z, e.IsBuilding, e.Block );
                 }
             }
         }
