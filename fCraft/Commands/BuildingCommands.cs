@@ -268,6 +268,7 @@ namespace fCraft {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                    player.Info.Rank.DrawLimit,
                                    op.Bounds.Volume );
+                op.Cancel();
                 return;
             }
             op.Map.QueueDrawOp( op );
@@ -475,6 +476,7 @@ namespace fCraft {
             if( MaxUndoCount < 1 || blocks < MaxUndoCount ) {
                 player.UndoBuffer.Enqueue( new BlockUpdate( null, x, y, z, block ) );
             } else if( !cannotUndo ) {
+                player.LastDrawOp = null;
                 player.UndoBuffer.Clear();
                 player.UndoBuffer.TrimExcess();
                 player.MessageNow( "NOTE: This draw command is too massive to undo." );
@@ -683,6 +685,7 @@ namespace fCraft {
                 return;
             }
 
+            player.LastDrawOp = null;
             player.UndoBuffer.Clear();
 
             bool cannotUndo = false;
@@ -715,6 +718,7 @@ namespace fCraft {
                                 if( MaxUndoCount < 1 || blocks < MaxUndoCount ) {
                                     player.UndoBuffer.Enqueue( new BlockUpdate( null, x + x3, y + y3, z, block ) );
                                 } else if( !cannotUndo ) {
+                                    player.LastDrawOp = null;
                                     player.UndoBuffer.Clear();
                                     player.UndoBuffer.TrimExcess();
                                     player.MessageNow( "NOTE: This draw command is too massive to undo." );
@@ -762,12 +766,22 @@ namespace fCraft {
         internal static void UndoHandler( Player player, Command command ) {
             Queue<BlockUpdate> oldBuffer = player.UndoBuffer;
             if( oldBuffer.Count > 0 ) {
+                string msg = "Undo: ";
+                DrawOperation lastDrawOp = player.LastDrawOp;
+                if( lastDrawOp != null && !lastDrawOp.IsDone ) {
+                    lastDrawOp.Cancel();
+                    msg = String.Format( "Cancelled {0} (was {1}% done). ",
+                                         lastDrawOp.Description,
+                                         lastDrawOp.PercentDone );
+                }
                 // no need to set player.drawingInProgress here because this is done on the user thread
                 Logger.Log( "Player {0} initiated /undo affecting {1} blocks (on world {2})", LogType.UserActivity,
                             player.Name,
                             player.UndoBuffer.Count,
                             player.World.Name );
-                player.MessageNow( "Restoring {0} blocks...", player.UndoBuffer.Count );
+                msg += String.Format( "Restoring ~{0} blocks. Type &H/undo&S again to reverse.",
+                                      player.UndoBuffer.Count );
+                player.MessageNow( msg );
                 player.UndoBuffer = new Queue<BlockUpdate>();
                 int blocks = 0, blocksDenied = 0;
                 bool cannotUndo = false;
@@ -776,7 +790,6 @@ namespace fCraft {
                     DrawOneBlock( player, changeToUndo.BlockType, changeToUndo.X, changeToUndo.Y, changeToUndo.Z,
                                   ref blocks, ref blocksDenied, ref cannotUndo );
                 }
-                player.MessageNow( "Type /undo again to reverse this command." );
                 DrawingFinished( player, "undid", blocks, blocksDenied );
 
             } else {
@@ -944,6 +957,7 @@ namespace fCraft {
                 Buffer = new byte[ex - sx + 1, ey - sy + 1, ez - sz + 1]
             };
 
+            player.LastDrawOp = null;
             player.UndoBuffer.Clear();
             int blocks = 0, blocksDenied = 0;
             bool cannotUndo = false;
@@ -1119,6 +1133,7 @@ namespace fCraft {
                 player.MessageNow( "Warning: Not enough room vertically, paste cut off." );
             }
 
+            player.LastDrawOp = null;
             player.UndoBuffer.Clear();
 
             int blocks = 0, blocksDenied = 0;
@@ -1480,6 +1495,7 @@ namespace fCraft {
             int blocksDrawn = 0,
                 blocksSkipped = 0;
             bool cannotUndo = false;
+            player.LastDrawOp = null;
             player.UndoBuffer.Clear();
 
             for( int x = selection.XMin; x <= selection.XMax; x++ ) {
@@ -1639,6 +1655,7 @@ namespace fCraft {
 
             int blocks = 0, blocksDenied = 0;
             bool cannotUndo = false;
+            player.LastDrawOp = null;
             player.UndoBuffer.Clear();
             for( int i = 0; i < changes.Length; i++ ) {
                 DrawOneBlock( player, (byte)changes[i].OldBlock,

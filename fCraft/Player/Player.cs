@@ -942,6 +942,8 @@ namespace fCraft {
 
         public IBrush Brush { get; set; }
 
+        public DrawOperation LastDrawOp { get; set; }
+
 
         /// <summary> Whether player is currently making a selection. </summary>
         public bool IsMakingSelection {

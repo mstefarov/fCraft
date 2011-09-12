@@ -28,6 +28,12 @@ namespace fCraft.Drawing {
                    BlocksSkipped,
                    BlocksTotalEstimate;
 
+        public float PercentDone {
+            get {
+                return (BlocksProcessed * 100) / BlocksTotalEstimate;
+            }
+        }
+
         public bool CannotUndo;
 
         public Vector3I Coords;
@@ -58,6 +64,7 @@ namespace fCraft.Drawing {
             Bounds = new BoundingBox( Marks[0], Marks[1] );
             if( Bounds == null ) throw new InvalidOperationException( "Bounds not set" );
             if( !Brush.Begin( Player, this ) ) return false;
+            Player.LastDrawOp = this;
             Player.UndoBuffer.Clear();
             StartTime = DateTime.UtcNow;
             return true;
@@ -118,6 +125,7 @@ namespace fCraft.Drawing {
             if( BuildingCommands.MaxUndoCount < 1 || BlocksUpdated < BuildingCommands.MaxUndoCount ) {
                 Player.UndoBuffer.Enqueue( new BlockUpdate( null, Coords.X, Coords.Y, Coords.Z, oldBlock ) );
             } else if( !CannotUndo ) {
+                Player.LastDrawOp = null;
                 Player.UndoBuffer.Clear();
                 Player.UndoBuffer.TrimExcess();
                 Player.Message( "{0}: Too many blocks to undo.", Description );
