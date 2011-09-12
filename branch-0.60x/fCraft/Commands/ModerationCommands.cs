@@ -962,7 +962,8 @@ namespace fCraft {
             // for aware players: notify
             Server.Players.CanSee( player ).Message( "&SPlayer {0}&S is no longer hidden.",
                                                      player.ClassyName );
-
+            player.Message( "&8You are no longer hidden." );
+            player.Info.IsHidden = false;
             if( !silent ) {
                 if( ConfigKey.ShowConnectionMessages.Enabled() ) {
                     Server.Players.CantSee( player ).Message( Server.MakePlayerConnectedMessage( player, false, player.World ) );
@@ -972,8 +973,6 @@ namespace fCraft {
                 }
             }
 
-            player.Message( "&8You are no longer hidden." );
-            player.Info.IsHidden = false;
             Player.RaisePlayerHideChangedEvent( player );
         }
 
