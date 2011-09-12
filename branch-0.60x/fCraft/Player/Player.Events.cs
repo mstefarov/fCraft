@@ -177,10 +177,10 @@ namespace fCraft {
         }
 
 
-        internal static bool RaisePlayerJoiningWorldEvent( Player player, World newWorld, WorldChangeReason reason ) {
+        internal static bool RaisePlayerJoiningWorldEvent( Player player, World newWorld, WorldChangeReason reason, string textLine1, string textLine2 ) {
             var h = JoiningWorld;
             if( h == null ) return false;
-            var e = new PlayerJoiningWorldEventArgs( player, player.World, newWorld, reason );
+            var e = new PlayerJoiningWorldEventArgs( player, player.World, newWorld, reason, textLine1, textLine2 );
             h( null, e );
             return e.Cancel;
         }
@@ -386,17 +386,21 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerJoiningWorldEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
-        public PlayerJoiningWorldEventArgs( Player player, World oldWorld, World newWorld, WorldChangeReason reason ) {
+        public PlayerJoiningWorldEventArgs( Player player, World oldWorld, World newWorld, WorldChangeReason reason, string textLine1, string textLine2 ) {
             Player = player;
             OldWorld = oldWorld;
             NewWorld = newWorld;
             Reason = reason;
+            TextLine1 = textLine1;
+            TextLine2 = textLine2;
         }
 
         public Player Player { get; private set; }
         public World OldWorld { get; private set; }
         public World NewWorld { get; private set; }
         public WorldChangeReason Reason { get; private set; }
+        public string TextLine1 { get; set; }
+        public string TextLine2 { get; set; }
         public bool Cancel { get; set; }
     }
 

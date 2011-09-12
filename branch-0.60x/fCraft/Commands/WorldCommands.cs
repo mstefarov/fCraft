@@ -25,7 +25,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdJoin );
 
             CommandManager.RegisterCommand( CdWorldLock );
-            CommandManager.RegisterCommand( CdUnlock );
+            CommandManager.RegisterCommand( CdWorldUnlock );
 
             CommandManager.RegisterCommand( CdSpawn );
 
@@ -664,10 +664,15 @@ namespace fCraft {
             World world;
             if( worldName != null ) {
                 if( worldName == "*" ) {
+                    int locked = 0;
                     World[] worldListCache = WorldManager.WorldList;
                     for( int i = 0; i < worldListCache.Length; i++ ) {
-                        worldListCache[i].Lock( player );
+                        if( !worldListCache[i].IsLocked ) {
+                            worldListCache[i].Lock( player );
+                            locked++;
+                        }
                     }
+                    player.Message( "Unlocked {0} worlds.", locked );
                     return;
                 } else {
                     world = WorldManager.FindWorldOrPrintMatches( player, worldName );
@@ -684,11 +689,13 @@ namespace fCraft {
 
             if( !world.Lock( player ) ) {
                 player.Message( "The world is already locked." );
+            } else if( player.World != world ) {
+                player.Message( "Locked world {0}", world );
             }
         }
 
 
-        static readonly CommandDescriptor CdUnlock = new CommandDescriptor {
+        static readonly CommandDescriptor CdWorldUnlock = new CommandDescriptor {
             Name = "wunlock",
             Aliases = new[] { "unlock" },
             Category = CommandCategory.World,
@@ -696,19 +703,24 @@ namespace fCraft {
             Permissions = new[] { Permission.Lock },
             Usage = "/wunlock [*|WorldName]",
             Help = "Removes the lockdown set by &H/lock&S. See &H/help lock&S for more information.",
-            Handler = UnlockHandler
+            Handler = WorldUnlockHandler
         };
 
-        static void UnlockHandler( Player player, Command cmd ) {
+        static void WorldUnlockHandler( Player player, Command cmd ) {
             string worldName = cmd.Next();
 
             World world;
             if( worldName != null ) {
                 if( worldName == "*" ) {
                     World[] worldListCache = WorldManager.WorldList;
+                    int unlocked = 0;
                     for( int i = 0; i < worldListCache.Length; i++ ) {
-                        worldListCache[i].Unlock( player );
+                        if( worldListCache[i].IsLocked ) {
+                            worldListCache[i].Unlock( player );
+                            unlocked++;
+                        }
                     }
+                    player.Message( "Unlocked {0} worlds.", unlocked );
                     return;
                 } else {
                     world = WorldManager.FindWorldOrPrintMatches( player, worldName );
@@ -725,6 +737,8 @@ namespace fCraft {
 
             if( !world.Unlock( player ) ) {
                 player.Message( "The world is already unlocked." );
+            } else if( player.World != world ) {
+                player.Message( "Unlocked world {0}", world );
             }
         }
 
