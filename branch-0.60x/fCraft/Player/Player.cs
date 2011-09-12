@@ -248,6 +248,10 @@ namespace fCraft {
 
                         if( allPlayers.Length == 1 ) {
                             Player target = allPlayers[0];
+                            if( target == this ) {
+                                MessageNow( "Trying to talk to yourself?" );
+                                return;
+                            }
                             if( target.IsIgnoring( Info ) ) {
                                 if( CanSee( target ) ) {
                                     MessageNow( "&WCannot PM {0}&W: you are ignored.", target.ClassyName );
@@ -926,7 +930,7 @@ namespace fCraft {
         /// Visibility is determined by whether the other player is hiding or spectating. </summary>
         public bool CanSee( Player other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            return IsSuper || !other.Info.IsHidden || Info.Rank.CanSee( other.Info.Rank );
+            return other == this || IsSuper || !other.Info.IsHidden || Info.Rank.CanSee( other.Info.Rank );
         }
 
         #endregion
