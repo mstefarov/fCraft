@@ -11,13 +11,12 @@ using System.Xml.Linq;
 using fCraft.Events;
 
 namespace fCraft {
-
     /// <summary> Checks for updates, and keeps track of current version/revision. </summary>
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             600,
-            953,
+            958,
             new DateTime( 2011, 9, 11, 3, 15, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.Dev
