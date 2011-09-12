@@ -322,6 +322,10 @@ namespace fCraft {
                 CdTimer.PrintUsage( player );
                 return;
             }
+            if( duration < ChatTimer.MinDuration ) {
+                player.Message( "Timer: Must be at least 1 second." );
+                return;
+            }
             string sayMessage;
             if( String.IsNullOrEmpty( message ) ) {
                 sayMessage = String.Format( "&Y(Timer) {0}&Y started a {1} timer",
