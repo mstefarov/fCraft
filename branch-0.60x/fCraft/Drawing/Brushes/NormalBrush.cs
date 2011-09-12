@@ -17,10 +17,10 @@ namespace fCraft.Drawing {
             get { return aliases; }
         }
 
-        const string help = "Normal brush: Fills the area with solid color. " +
-                            "If no block name is given, uses the last block that player has placed.";
+        const string HelpString = "Normal brush: Fills the area with solid color. " +
+                                  "If no block name is given, uses the last block that player has placed.";
         public string Help {
-            get { return help; }
+            get { return HelpString; }
         }
 
 

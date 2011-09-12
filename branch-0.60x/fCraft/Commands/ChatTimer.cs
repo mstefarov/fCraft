@@ -18,7 +18,8 @@ namespace fCraft {
                 return EndTime.Subtract( DateTime.UtcNow );
             }
         }
-        SchedulerTask task;
+
+        readonly SchedulerTask task;
 
         int announceIntervalIndex;
 

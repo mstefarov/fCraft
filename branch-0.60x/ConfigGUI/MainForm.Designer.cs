@@ -25,7 +25,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( MainForm ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -241,6 +241,7 @@
             this.cIRCList = new System.Windows.Forms.ComboBox();
             this.tabAdvanced = new System.Windows.Forms.TabPage();
             this.gAdvancedMisc = new System.Windows.Forms.GroupBox();
+            this.xBlockDBEnabled = new System.Windows.Forms.CheckBox();
             this.lIPWarning = new System.Windows.Forms.Label();
             this.tIP = new System.Windows.Forms.TextBox();
             this.xIP = new System.Windows.Forms.CheckBox();
@@ -271,7 +272,6 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.xBlockDBEnabled = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -680,6 +680,7 @@
             this.cDefaultRank.Name = "cDefaultRank";
             this.cDefaultRank.Size = new System.Drawing.Size( 170, 23 );
             this.cDefaultRank.TabIndex = 13;
+            this.cDefaultRank.SelectedIndexChanged += new System.EventHandler( this.cDefaultRank_SelectedIndexChanged );
             // 
             // lDefaultRank
             // 
@@ -1165,6 +1166,7 @@
             this.cDefaultBuildRank.Name = "cDefaultBuildRank";
             this.cDefaultBuildRank.Size = new System.Drawing.Size( 121, 23 );
             this.cDefaultBuildRank.TabIndex = 5;
+            this.cDefaultBuildRank.SelectedIndexChanged += new System.EventHandler( this.cDefaultBuildRank_SelectedIndexChanged );
             // 
             // cMainWorld
             // 
@@ -1237,8 +1239,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle3;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 394 );
             this.dgvWorlds.TabIndex = 1;
@@ -1754,6 +1756,7 @@
             this.cPatrolledRank.Name = "cPatrolledRank";
             this.cPatrolledRank.Size = new System.Drawing.Size( 123, 23 );
             this.cPatrolledRank.TabIndex = 4;
+            this.cPatrolledRank.SelectedIndexChanged += new System.EventHandler( this.cPatrolledRank_SelectedIndexChanged );
             // 
             // lPatrolledRank
             // 
@@ -2825,6 +2828,16 @@
             this.gAdvancedMisc.TabStop = false;
             this.gAdvancedMisc.Text = "Miscellaneous";
             // 
+            // xBlockDBEnabled
+            // 
+            this.xBlockDBEnabled.AutoSize = true;
+            this.xBlockDBEnabled.Location = new System.Drawing.Point( 12, 334 );
+            this.xBlockDBEnabled.Name = "xBlockDBEnabled";
+            this.xBlockDBEnabled.Size = new System.Drawing.Size( 348, 19 );
+            this.xBlockDBEnabled.TabIndex = 22;
+            this.xBlockDBEnabled.Text = "Enable BlockDB (per-block edit tracking). EXPERIMENTAL.";
+            this.xBlockDBEnabled.UseVisualStyleBackColor = true;
+            // 
             // lIPWarning
             // 
             this.lIPWarning.AutoSize = true;
@@ -3182,16 +3195,6 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
-            // 
-            // xBlockDBEnabled
-            // 
-            this.xBlockDBEnabled.AutoSize = true;
-            this.xBlockDBEnabled.Location = new System.Drawing.Point( 12, 334 );
-            this.xBlockDBEnabled.Name = "xBlockDBEnabled";
-            this.xBlockDBEnabled.Size = new System.Drawing.Size( 348, 19 );
-            this.xBlockDBEnabled.TabIndex = 22;
-            this.xBlockDBEnabled.Text = "Enable BlockDB (per-block edit tracking). EXPERIMENTAL.";
-            this.xBlockDBEnabled.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 

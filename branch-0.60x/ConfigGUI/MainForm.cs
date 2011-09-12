@@ -16,7 +16,7 @@ namespace fCraft.ConfigGUI {
     public sealed partial class MainForm : Form {
         static MainForm instance;
         readonly Font bold;
-        Rank selectedRank, defaultRank, patrolledRank, defaultBuildRank;
+        Rank selectedRank;
         readonly UpdaterSettingsWindow updaterWindow = new UpdaterSettingsWindow();
         internal static readonly SortableBindingList<WorldListEntry> Worlds = new SortableBindingList<WorldListEntry>();
 
@@ -191,6 +191,10 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             CheckMaxPlayersPerWorldValue();
         }
 
+        private void bViewCredits_Click( object sender, EventArgs e ) {
+            new AboutWindow().Show();
+        }
+
         #endregion
 
 
@@ -232,7 +236,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         }
 
         private void dgvWorlds_Click( object sender, EventArgs e ) {
-            bool oneRowSelected = ( dgvWorlds.SelectedRows.Count == 1 );
+            bool oneRowSelected = (dgvWorlds.SelectedRows.Count == 1);
             bWorldDelete.Enabled = oneRowSelected;
             bWorldEdit.Enabled = oneRowSelected;
         }
@@ -475,7 +479,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         private void cIRCList_SelectedIndexChanged( object sender, EventArgs e ) {
             if( cIRCList.SelectedIndex < 0 ) return;
             string selectedNetwork = (string)cIRCList.Items[cIRCList.SelectedIndex];
-            IRCNetwork network = IRCNetworks.First( n => ( n.Name == selectedNetwork ) );
+            IRCNetwork network = IRCNetworks.First( n => (n.Name == selectedNetwork) );
             tIRCBotNetwork.Text = network.Host;
             nIRCBotPort.Value = network.Port;
         }
@@ -563,12 +567,12 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             xKickIdle.Checked = rank.IdleKickTimer > 0;
             nKickIdle.Value = rank.IdleKickTimer;
             nKickIdle.Enabled = xKickIdle.Checked;
-            xAntiGrief.Checked = ( rank.AntiGriefBlocks > 0 && rank.AntiGriefSeconds > 0 );
+            xAntiGrief.Checked = (rank.AntiGriefBlocks > 0 && rank.AntiGriefSeconds > 0);
             nAntiGriefBlocks.Value = rank.AntiGriefBlocks;
             nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
             nAntiGriefSeconds.Value = rank.AntiGriefSeconds;
             nAntiGriefSeconds.Enabled = xAntiGrief.Checked;
-            xDrawLimit.Checked = ( rank.DrawLimit > 0 );
+            xDrawLimit.Checked = (rank.DrawLimit > 0);
             nDrawLimit.Value = rank.DrawLimit;
             xAllowSecurityCircumvention.Checked = rank.AllowSecurityCircumvention;
 
@@ -590,8 +594,8 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             vPermissions.Enabled = true;
 
             bDeleteRank.Enabled = true;
-            bRaiseRank.Enabled = ( selectedRank != RankManager.HighestRank );
-            bLowerRank.Enabled = ( selectedRank != RankManager.LowestRank );
+            bRaiseRank.Enabled = (selectedRank != RankManager.HighestRank);
+            bLowerRank.Enabled = (selectedRank != RankManager.LowestRank);
         }
 
 
@@ -606,11 +610,11 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             SelectRank( selectedRank );
 
             FillRankList( cDefaultRank, "(lowest rank)" );
-            cDefaultRank.SelectedIndex = RankManager.GetIndex( defaultRank );
+            cDefaultRank.SelectedIndex = RankManager.GetIndex( RankManager.DefaultRank );
             FillRankList( cDefaultBuildRank, "(lowest rank)" );
-            cDefaultBuildRank.SelectedIndex = RankManager.GetIndex( defaultBuildRank );
+            cDefaultBuildRank.SelectedIndex = RankManager.GetIndex( RankManager.DefaultBuildRank );
             FillRankList( cPatrolledRank, "(lowest rank)" );
-            cPatrolledRank.SelectedIndex = RankManager.GetIndex( patrolledRank );
+            cPatrolledRank.SelectedIndex = RankManager.GetIndex( RankManager.PatrolledRank );
 
             foreach( var box in permissionLimitBoxes.Values ) {
                 box.RebuildList();
@@ -649,6 +653,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             vPermissions.Enabled = false;
         }
 
+
         static void FillRankList( ComboBox box, string firstItem ) {
             box.Items.Clear();
             box.Items.Add( firstItem );
@@ -665,16 +670,12 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             while( RankManager.RanksByName.ContainsKey( "rank" + number ) ) number++;
 
             Rank rank = new Rank {
-                 ID = RankManager.GenerateID(),
-                 Name = "rank" + number,
-                 Prefix = "",
-                 ReservedSlot = false,
-                 Color = ""
-             };
-
-            defaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
-            defaultBuildRank = RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
-            patrolledRank = RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 );
+                ID = RankManager.GenerateID(),
+                Name = "rank" + number,
+                Prefix = "",
+                ReservedSlot = false,
+                Color = ""
+            };
 
             RankManager.AddRank( rank );
             selectedRank = null;
@@ -700,23 +701,23 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 Rank replacementRank = popup.SubstituteRank;
 
                 // Update default rank
-                defaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
-                if( defaultRank == deletedRank ) {
-                    defaultRank = replacementRank;
+                RankManager.DefaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
+                if( RankManager.DefaultRank == deletedRank ) {
+                    RankManager.DefaultRank = replacementRank;
                     messages += "DefaultRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
                 }
 
                 // Update defaultbuild rank
-                defaultBuildRank = RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
-                if( defaultBuildRank == deletedRank ) {
-                    defaultBuildRank = replacementRank;
+                RankManager.DefaultBuildRank = RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
+                if( RankManager.DefaultBuildRank == deletedRank ) {
+                    RankManager.DefaultBuildRank = replacementRank;
                     messages += "DefaultBuildRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
                 }
 
                 // Update patrolled rank
-                patrolledRank = RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 );
-                if( patrolledRank == deletedRank ) {
-                    patrolledRank = replacementRank;
+                RankManager.PatrolledRank = RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 );
+                if( RankManager.PatrolledRank == deletedRank ) {
+                    RankManager.PatrolledRank = replacementRank;
                     messages += "PatrolledRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
                 }
 
@@ -769,10 +770,6 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 tPrefix.ForeColor = SystemColors.ControlText;
             }
             if( selectedRank.Prefix == tPrefix.Text ) return;
-
-            defaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
-            defaultBuildRank = RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
-            patrolledRank = RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 );
 
             string oldName = selectedRank.ToComboBoxOption();
 
@@ -1049,9 +1046,9 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 string oldName = selectedRank.ToComboBoxOption();
 
                 tRankName.ForeColor = SystemColors.ControlText;
-                defaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
-                defaultBuildRank = RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
-                patrolledRank = RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 );
+                RankManager.DefaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
+                RankManager.DefaultBuildRank = RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
+                RankManager.PatrolledRank = RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 );
 
                 // To avoid DataErrors in World tab's DataGridView while renaming a rank,
                 // the new name is first added to the list of options (without removing the old name)
@@ -1070,9 +1067,6 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
         private void bRaiseRank_Click( object sender, EventArgs e ) {
             if( selectedRank == null ) return;
-            defaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
-            defaultBuildRank = RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
-            patrolledRank = RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 );
             if( RankManager.RaiseRank( selectedRank ) ) {
                 RebuildRankList();
                 rankNameList.Insert( selectedRank.Index + 1, selectedRank.ToComboBoxOption() );
@@ -1082,9 +1076,6 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
         private void bLowerRank_Click( object sender, EventArgs e ) {
             if( selectedRank == null ) return;
-            defaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
-            defaultBuildRank = RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
-            patrolledRank = RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 );
             if( RankManager.LowerRank( selectedRank ) ) {
                 RebuildRankList();
                 rankNameList.Insert( selectedRank.Index + 2, selectedRank.ToComboBoxOption() );
@@ -1173,8 +1164,8 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                     Config.ResetRanks();
                     ApplyTabWorlds();
                     ApplyTabRanks();
-                    defaultRank = null;
-                    patrolledRank = null;
+                    RankManager.DefaultRank = null;
+                    RankManager.PatrolledRank = null;
                     RebuildRankList();
                     break;
                 case 4:// Security
@@ -1215,15 +1206,15 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
         void AddChangeHandler( Control c, EventHandler handler ) {
             if( c is CheckBox ) {
-                ( (CheckBox)c ).CheckedChanged += handler;
+                ((CheckBox)c).CheckedChanged += handler;
             } else if( c is ComboBox ) {
-                ( (ComboBox)c ).SelectedIndexChanged += handler;
+                ((ComboBox)c).SelectedIndexChanged += handler;
             } else if( c is ListView ) {
-                ( (ListView)c ).ItemChecked += ( ( o, e ) => handler( o, e ) );
+                ((ListView)c).ItemChecked += (( o, e ) => handler( o, e ));
             } else if( c is NumericUpDown ) {
-                ( (NumericUpDown)c ).ValueChanged += handler;
+                ((NumericUpDown)c).ValueChanged += handler;
             } else if( c is ListBox ) {
-                ( (ListBox)c ).SelectedIndexChanged += handler;
+                ((ListBox)c).SelectedIndexChanged += handler;
             } else if( c is TextBoxBase ) {
                 c.TextChanged += handler;
             } else if( c is ButtonBase ) {
@@ -1334,17 +1325,17 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                                           xRankColorsInWorldNames.Checked ? RankManager.LowestRank.Color : "",
                                           xRankPrefixesInChat.Checked ? RankManager.LowestRank.Prefix : "" ) );
             }
-            lines.Add( "&R<*- This is a random announcement -*>");
-            lines.Add( "&YSomeone wrote this message with /say");
+            lines.Add( "&R<*- This is a random announcement -*>" );
+            lines.Add( "&YSomeone wrote this message with /say" );
             lines.Add( String.Format( "{0}{1}Notch&F: This is a normal chat message",
                                       xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
                                       xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "" ) );
-            lines.Add( "&Pfrom Notch: This is a private message / whisper");
-            lines.Add( "* &MNotch is using /me to write this");
-            lines.Add( "&SUnknown command \"kic\", see &H/commands");
+            lines.Add( "&Pfrom Notch: This is a private message / whisper" );
+            lines.Add( "* &MNotch is using /me to write this" );
+            lines.Add( "&SUnknown command \"kic\", see &H/commands" );
             lines.Add( String.Format( "&W{0}{1}Notch&W was kicked by {0}{1}gamer1",
                                       xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
-                                      xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "" ));
+                                      xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "" ) );
 
             if( xShowConnectionMessages.Checked ) {
                 lines.Add( String.Format( "&S{0}{1}Notch&S left the server.",
@@ -1429,8 +1420,17 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             }
         }
 
-        private void bViewCredits_Click( object sender, EventArgs e ) {
-            new AboutWindow().Show();
+
+        private void cDefaultRank_SelectedIndexChanged( object sender, EventArgs e ) {
+            RankManager.DefaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
+        }
+
+        private void cDefaultBuildRank_SelectedIndexChanged( object sender, EventArgs e ) {
+            RankManager.DefaultBuildRank = RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
+        }
+
+        private void cPatrolledRank_SelectedIndexChanged( object sender, EventArgs e ) {
+            RankManager.PatrolledRank = RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 );
         }
     }
 }

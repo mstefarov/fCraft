@@ -580,7 +580,7 @@ namespace fCraft {
                 return;
             }
 
-            object selectionArgs = (byte)block;
+            object selectionArgs;
             SelectionCallback callback;
 
             switch( mode ) {

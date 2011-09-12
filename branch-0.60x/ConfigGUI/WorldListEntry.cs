@@ -331,9 +331,9 @@ namespace fCraft.ConfigGUI {
         };
 
 
-
-        bool blockDBEnabled, blockDBIsPreloaded;
-        int blockDBLimit;
+        readonly bool blockDBEnabled;
+        readonly bool blockDBIsPreloaded;
+        readonly int blockDBLimit;
         TimeSpan blockDBTimeLimit;
 
 

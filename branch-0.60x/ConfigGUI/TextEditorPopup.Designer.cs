@@ -26,10 +26,10 @@
             this.tText = new System.Windows.Forms.TextBox();
             this.bOK = new System.Windows.Forms.Button();
             this.bCancel = new System.Windows.Forms.Button();
-            this.lWarning = new System.Windows.Forms.Label();
             this.bInsertKeyword = new System.Windows.Forms.Button();
             this.bInsertColor = new System.Windows.Forms.Button();
             this.bReset = new System.Windows.Forms.Button();
+            this.lWarning = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // tText
@@ -69,15 +69,6 @@
             this.bCancel.TabIndex = 2;
             this.bCancel.Text = "Cancel";
             // 
-            // lWarning
-            // 
-            this.lWarning.AutoSize = true;
-            this.lWarning.Location = new System.Drawing.Point( 12, 283 );
-            this.lWarning.Name = "lWarning";
-            this.lWarning.Size = new System.Drawing.Size( 261, 13 );
-            this.lWarning.TabIndex = 4;
-            this.lWarning.Text = "Warning: Lines over 64 characters long will be cut off.";
-            // 
             // bInsertKeyword
             // 
             this.bInsertKeyword.Location = new System.Drawing.Point( 108, 12 );
@@ -108,6 +99,15 @@
             this.bReset.UseVisualStyleBackColor = true;
             this.bReset.Click += new System.EventHandler( this.bReset_Click );
             // 
+            // lWarning
+            // 
+            this.lWarning.AutoSize = true;
+            this.lWarning.Location = new System.Drawing.Point( 12, 283 );
+            this.lWarning.Name = "lWarning";
+            this.lWarning.Size = new System.Drawing.Size( 272, 13 );
+            this.lWarning.TabIndex = 4;
+            this.lWarning.Text = "Warning: Lines over 64 characters long will be wrapped.";
+            // 
             // TextEditorPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -135,9 +135,9 @@
         private System.Windows.Forms.TextBox tText;
         private System.Windows.Forms.Button bOK;
         private System.Windows.Forms.Button bCancel;
-        private System.Windows.Forms.Label lWarning;
         private System.Windows.Forms.Button bInsertKeyword;
         private System.Windows.Forms.Button bInsertColor;
         private System.Windows.Forms.Button bReset;
+        private System.Windows.Forms.Label lWarning;
     }
 }

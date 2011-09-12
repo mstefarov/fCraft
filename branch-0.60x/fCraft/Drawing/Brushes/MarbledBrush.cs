@@ -18,10 +18,10 @@ namespace fCraft.Drawing {
             get { return null; }
         }
 
-        const string help = "Marbled brush: Creates a turbulent pattern of two or more block types. " +
-                            "If only one block name is given, leaves every other block untouched.";
+        const string HelpString = "Marbled brush: Creates a turbulent pattern of two or more block types. " +
+                                  "If only one block name is given, leaves every other block untouched.";
         public string Help {
-            get { return help; }
+            get { return HelpString; }
         }
 
 

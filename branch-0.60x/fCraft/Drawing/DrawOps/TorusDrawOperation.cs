@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
-    public class TorusDrawOperation : DrawOperation {
+    public sealed class TorusDrawOperation : DrawOperation {
         Vector3I center;
 
         int tubeR;

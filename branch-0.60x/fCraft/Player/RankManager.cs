@@ -96,7 +96,7 @@ namespace fCraft {
             if( deletedRank == null ) throw new ArgumentNullException( "deletedRank" );
             if( replacementRank == null ) throw new ArgumentNullException( "replacementRank" );
             if( PlayerDB.IsLoaded ) {
-                throw new InvalidOperationException( "You may not add ranks after PlayerDB has already been loaded." );
+                throw new InvalidOperationException( "You may not modify the rank list after PlayerDB has been loaded." );
             }
             bool rankLimitsChanged = false;
             Ranks.Remove( deletedRank );
