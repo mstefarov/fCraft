@@ -1537,16 +1537,11 @@ namespace fCraft {
             string timeString = cmd.Next();
             TimeSpan duration;
 
-            try {
-                // validate command parameters
-                if( targetName == null || !Player.IsValidName( targetName ) ||
-                    timeString == null || !timeString.TryParseMiniTimespan( out duration ) ||
-                    duration <= TimeSpan.Zero ) {
-                    CdMute.PrintUsage( player );
-                    return;
-                }
-            } catch( OverflowException ) {
-                player.Message( "Mute: Given duration is too long." );
+            // validate command parameters
+            if( targetName == null || !Player.IsValidName( targetName ) ||
+                timeString == null || !timeString.TryParseMiniTimespan( out duration ) ||
+                duration <= TimeSpan.Zero ) {
+                CdMute.PrintUsage( player );
                 return;
             }
 

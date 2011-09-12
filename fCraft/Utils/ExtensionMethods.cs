@@ -170,8 +170,8 @@ namespace fCraft {
             try {
                 result = ParseMiniTimespan( text );
                 return true;
-            } catch( ArgumentNullException ) {
             } catch( ArgumentException ) {
+            } catch( OverflowException ) {
             } catch( FormatException ) { }
             result = TimeSpan.Zero;
             return false;
