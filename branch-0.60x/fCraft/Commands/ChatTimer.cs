@@ -2,7 +2,8 @@
 using System;
 
 namespace fCraft {
-    sealed class ChatTimer {
+    public sealed class ChatTimer {
+        public static readonly TimeSpan MinDuration = TimeSpan.FromSeconds( 1 );
 
         string Message { get; set; }
 
@@ -44,13 +45,14 @@ namespace fCraft {
                 } else {
                     Chat.SendSay( Player.Console, "(Timer Up) " + timer.Message );
                 }
-            } else if( timer.TimeLeft <= AnnounceIntervals[timer.announceIntervalIndex] ) {
+            } else if( timer.announceIntervalIndex >= 0 && timer.TimeLeft <= AnnounceIntervals[timer.announceIntervalIndex] ) {
+                string timeLeft = AnnounceIntervals[timer.announceIntervalIndex].ToMiniString();
                 if( String.IsNullOrEmpty( timer.Message ) ) {
-                    Chat.SendSay( Player.Console, "(Timer) " + AnnounceIntervals[timer.announceIntervalIndex].ToMiniString() );
+                    Chat.SendSay( Player.Console, "(Timer) " + timeLeft );
                 } else {
                     Chat.SendSay( Player.Console,
                                   String.Format( "(Timer) {0} until {1}",
-                                                 AnnounceIntervals[timer.announceIntervalIndex].ToMiniString(),
+                                                 timeLeft,
                                                  timer.Message ) );
                 }
                 timer.announceIntervalIndex--;
@@ -59,10 +61,14 @@ namespace fCraft {
 
 
         public static void Start( TimeSpan duration, string message ) {
+            if( duration < MinDuration ) {
+                throw new ArgumentException( "Timer duration should be at least 1s", "duration" );
+            }
             ChatTimer timer = new ChatTimer( duration, message );
+            int oneSecondRepeats = (int)duration.TotalSeconds + 1;
             Scheduler.NewTask( TimerCallback, timer ).RunRepeating( TimeSpan.Zero,
                                                                     TimeSpan.FromSeconds( 1 ),
-                                                                    (int)duration.TotalSeconds + 1 );
+                                                                    oneSecondRepeats );
         }
 
 
