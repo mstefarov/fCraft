@@ -5,22 +5,29 @@ namespace fCraft {
     public sealed class ChatTimer {
         public static readonly TimeSpan MinDuration = TimeSpan.FromSeconds( 1 );
 
-        string Message { get; set; }
+        public string Message { get; private set; }
 
-        DateTime StartTime { get; set; }
+        public DateTime StartTime { get; private set; }
 
-        DateTime EndTime { get; set; }
+        public DateTime EndTime { get; private set; }
 
-        TimeSpan Duration { get; set; }
+        public TimeSpan Duration { get; private set; }
 
         public TimeSpan TimeLeft {
             get {
                 return EndTime.Subtract( DateTime.UtcNow );
             }
         }
+        SchedulerTask task;
 
         int announceIntervalIndex;
 
+        public bool IsRunning{get;private set;}
+
+        public void Stop() {
+            IsRunning = false;
+            task.Stop();
+        }
 
         ChatTimer( TimeSpan duration, string message ) {
             Message = message;
@@ -34,6 +41,12 @@ namespace fCraft {
                 }
             }
             announceIntervalIndex = AnnounceIntervals.Length - 1;
+            int oneSecondRepeats = (int)duration.TotalSeconds + 1;
+            task = Scheduler.NewTask( TimerCallback, this );
+            IsRunning = true;
+            task.RunRepeating( TimeSpan.Zero,
+                               TimeSpan.FromSeconds( 1 ),
+                               oneSecondRepeats );
         }
 
 
@@ -45,6 +58,7 @@ namespace fCraft {
                 } else {
                     Chat.SendSay( Player.Console, "(Timer Up) " + timer.Message );
                 }
+                timer.IsRunning = false;
             } else if( timer.announceIntervalIndex >= 0 && timer.TimeLeft <= AnnounceIntervals[timer.announceIntervalIndex] ) {
                 string timeLeft = AnnounceIntervals[timer.announceIntervalIndex].ToMiniString();
                 if( String.IsNullOrEmpty( timer.Message ) ) {
@@ -60,15 +74,11 @@ namespace fCraft {
         }
 
 
-        public static void Start( TimeSpan duration, string message ) {
+        public static ChatTimer Start( TimeSpan duration, string message ) {
             if( duration < MinDuration ) {
                 throw new ArgumentException( "Timer duration should be at least 1s", "duration" );
             }
-            ChatTimer timer = new ChatTimer( duration, message );
-            int oneSecondRepeats = (int)duration.TotalSeconds + 1;
-            Scheduler.NewTask( TimerCallback, timer ).RunRepeating( TimeSpan.Zero,
-                                                                    TimeSpan.FromSeconds( 1 ),
-                                                                    oneSecondRepeats );
+            return new ChatTimer( duration, message );
         }
 
 

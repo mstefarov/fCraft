@@ -391,8 +391,7 @@ namespace fCraft {
 
             if( ConfigKey.RestartInterval.GetInt() > 0 ) {
                 TimeSpan restartIn = TimeSpan.FromSeconds( ConfigKey.RestartInterval.GetInt() );
-                Scheduler.NewTask( AutoRestartCallback ).RunOnce( restartIn );
-                Logger.Log( "Will restart in {0}", LogType.SystemActivity, restartIn.ToCompactString() );
+                Shutdown( new ShutdownParams( ShutdownReason.Restarting, restartIn, true, true ), false );
                 ChatTimer.Start( restartIn, "Automatic Server Restart" );
             }
 
@@ -407,16 +406,6 @@ namespace fCraft {
 
             RaiseEvent( Started );
             return true;
-        }
-
-
-        static void AutoRestartCallback( SchedulerTask task ) {
-            if( task == null ) throw new ArgumentNullException( "task" );
-            var shutdownParams = new ShutdownParams( ShutdownReason.Restarting,
-                                                     ShutdownParams.DefaultDelay,
-                                                     true,
-                                                     true );
-            Shutdown( shutdownParams, false );
         }
 
         #endregion
@@ -499,11 +488,19 @@ namespace fCraft {
             shutdownThread = new Thread( ShutdownThread ) {
                 Name = "fCraft.Shutdown"
             };
+            if( shutdownParams.Restart ) {
+                shutdownTimer = ChatTimer.Start( shutdownParams.Delay,
+                                                 "Server restart (" + shutdownParams.ReasonString + ")" );
+            } else {
+                shutdownTimer = ChatTimer.Start( shutdownParams.Delay,
+                                                 "Server shutdown (" + shutdownParams.ReasonString + ")" );
+            }
             shutdownThread.Start( shutdownParams );
             if( waitForShutdown ) {
                 ShutdownWaiter.WaitOne();
             }
         }
+        static ChatTimer shutdownTimer;
 
 
         /// <summary> Attempts to cancel the shutdown timer. </summary>
@@ -513,6 +510,10 @@ namespace fCraft {
             if( shutdownThread != null ) {
                 if( IsShuttingDown || shutdownThread.ThreadState != ThreadState.WaitSleepJoin ) {
                     return false;
+                }
+                if( shutdownTimer != null ) {
+                    shutdownTimer.Stop();
+                    shutdownTimer = null;
                 }
                 ShutdownWaiter.Set();
                 shutdownThread.Abort();
