@@ -131,7 +131,8 @@ namespace fCraft {
                     }
 
                     foreach( Rank rank in RankManager.Ranks ) {
-                        infos = infos.Where( p => p.Rank == rank ).ToArray();
+                        Rank rank1 = rank;
+                        infos = infos.Where( p => p.Rank == rank1 ).ToArray();
                         if( infos.Length == 0 ) {
                             writer.WriteLine( "{0}: 0 players, 0 banned, 0 inactive", rank.Name );
                             writer.WriteLine();

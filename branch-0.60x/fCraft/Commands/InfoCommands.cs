@@ -619,8 +619,7 @@ namespace fCraft {
 
             player.Message( "   There are {0} worlds available ({1} loaded)",
                             WorldManager.WorldList.Length,
-                            WorldManager.CountLoadedWorlds( player ),
-                            Server.CountVisiblePlayers( player ) );
+                            WorldManager.CountLoadedWorlds( player ) );
         }
 
         #endregion
@@ -819,7 +818,7 @@ namespace fCraft {
             }
 
             if( players.Length > 0 ) {
-                string[] playerNameList = players.Where( p => player.CanSee( p ) )
+                string[] playerNameList = players.Where( player.CanSee )
                                                  .OrderBy( p => p, PlayerListSorter.Instance )
                                                  .Select( p => p.ClassyName )
                                                  .ToArray();

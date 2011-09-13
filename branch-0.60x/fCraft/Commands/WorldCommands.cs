@@ -139,8 +139,8 @@ namespace fCraft {
                         } else if( cmd.IsConfirmed ) {
                             db.Enabled = false;
                             WorldManager.SaveWorldList();
-                            player.Message( "BlockDB is now disabled on world {0}&S. You may now delete \"{0}\"",
-                                            world.ClassyName, db.FileName );
+                            player.Message( "BlockDB is now disabled on world {0}&S. Use &H/blockdb {1} clear&S to delete all the data.",
+                                            world.ClassyName, world.Name );
 
                         } else {
                             player.Confirm( cmd,
@@ -399,7 +399,7 @@ namespace fCraft {
                     }
                 }
             } else {
-                args.Player.Message( "BlockInfo: No results found.",
+                args.Player.Message( "BlockInfo: No results for ({0},{1},{2}).",
                                      args.X, args.Y, args.Z );
             }
         }
@@ -618,7 +618,7 @@ namespace fCraft {
                         break;
                     case SecurityCheckResult.BlackListed:
                         player.Message( "Cannot join world {0}&S: you are blacklisted",
-                                        world.ClassyName, world.AccessSecurity.MinRank.ClassyName );
+                                        world.ClassyName );
                         break;
                     case SecurityCheckResult.RankTooLow:
                         player.Message( "Cannot join world {0}&S: must be {1}+",
@@ -895,7 +895,7 @@ namespace fCraft {
                     if( player.Info == info && !player.Info.Rank.AllowSecurityCircumvention ) {
                         switch( world.AccessSecurity.CheckDetailed( player.Info ) ) {
                             case SecurityCheckResult.RankTooLow:
-                                player.Message( "&WYou must be {0}&W+ to add yourself to the access whitelist of {0}",
+                                player.Message( "&WYou must be {0}&W+ to add yourself to the access whitelist of {1}",
                                                 world.AccessSecurity.MinRank.ClassyName,
                                                 world.ClassyName );
                                 continue;
@@ -1137,7 +1137,7 @@ namespace fCraft {
                     if( player.Info == info && !player.Info.Rank.AllowSecurityCircumvention ) {
                         switch( world.BuildSecurity.CheckDetailed( player.Info ) ) {
                             case SecurityCheckResult.RankTooLow:
-                                player.Message( "&WYou must be {0}&W+ to add yourself to the build whitelist of {0}",
+                                player.Message( "&WYou must be {0}&W+ to add yourself to the build whitelist of {1}",
                                                 world.BuildSecurity.MinRank.ClassyName,
                                                 world.ClassyName );
                                 continue;
@@ -1733,7 +1733,7 @@ namespace fCraft {
 
         static void SetRankMainWorld( Player player, Rank rank, World world ) {
             if( world == rank.MainWorld ) {
-                player.Message( "World {0}&S is already set as main for {0}&S.",
+                player.Message( "World {0}&S is already set as main for {1}&S.",
                                 world.ClassyName, rank.ClassyName );
                 return;
             }
