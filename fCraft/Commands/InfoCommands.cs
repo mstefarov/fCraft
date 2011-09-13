@@ -818,7 +818,7 @@ namespace fCraft {
             }
 
             if( players.Length > 0 ) {
-                string[] playerNameList = players.CanSee( player )
+                string[] playerNameList = players.Where( p => player.CanSee( p ) )
                                                  .OrderBy( p => p, PlayerListSorter.Instance )
                                                  .Select( p => p.ClassyName )
                                                  .ToArray();
