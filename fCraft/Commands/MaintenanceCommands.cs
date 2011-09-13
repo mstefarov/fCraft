@@ -121,7 +121,7 @@ namespace fCraft {
             PlayerInfo[] infos;
             using( FileStream fs = File.Create( fileName ) ) {
                 using( StreamWriter writer = new StreamWriter( fs ) ) {
-                    infos = PlayerDB.GetPlayerListCopy();
+                    infos = PlayerDB.PlayerInfoList;
                     if( infos.Length == 0 ) {
                         writer.WriteLine( "(TOTAL) (0 players)" );
                         writer.WriteLine();
@@ -130,7 +130,7 @@ namespace fCraft {
                     }
 
                     foreach( Rank rank in RankManager.Ranks ) {
-                        infos = PlayerDB.GetPlayerListCopy( rank );
+                        infos = infos.Where( p => p.Rank == rank ).ToArray();
                         if( infos.Length == 0 ) {
                             writer.WriteLine( "{0}: 0 players, 0 banned, 0 inactive", rank.Name );
                             writer.WriteLine();
@@ -554,9 +554,9 @@ namespace fCraft {
 
             PlayerInfo[] list;
             if( rank == null ) {
-                list = PlayerDB.GetPlayerListCopy();
+                list = PlayerDB.PlayerInfoList;
             } else {
-                list = PlayerDB.GetPlayerListCopy( rank );
+                list = PlayerDB.PlayerInfoList.Where( p => p.Rank == rank ).ToArray();
             }
             DoAutoRankAll( player, list, false, "~AutoRankAll" );
         }

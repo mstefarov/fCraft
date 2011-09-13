@@ -19,7 +19,7 @@ namespace fCraft {
         /// May be quite long. Make sure to copy a reference to
         /// the list before accessing it in a loop, since this 
         /// array be frequently be replaced by an updated one. </summary>
-        static PlayerInfo[] PlayerInfoList { get; set; }
+        public static PlayerInfo[] PlayerInfoList { get; private set; }
 
         static int maxID = 255;
         const int BufferSize = 64 * 1024;
@@ -178,9 +178,9 @@ namespace fCraft {
                                 }
 
                                 //if( version < 3 ) {
-                                    // Sorting the list allows finding players by ID using binary search.
-                                    Logger.Log( "Sorting PlayerDB by ID...", LogType.SystemActivity );
-                                    list.Sort( PlayerIDComparer.Instance );
+                                // Sorting the list allows finding players by ID using binary search.
+                                Logger.Log( "Sorting PlayerDB by ID...", LogType.SystemActivity );
+                                list.Sort( PlayerIDComparer.Instance );
                                 //}
 
                                 if( version < 4 ) {
@@ -242,11 +242,10 @@ namespace fCraft {
 
 
         public static void Save() {
-
             const string tempFileName = Paths.PlayerDBFileName + ".temp";
 
             lock( SaveLoadLocker ) {
-                PlayerInfo[] listCopy = GetPlayerListCopy();
+                PlayerInfo[] listCopy = PlayerDB.PlayerInfoList;
                 Stopwatch sw = Stopwatch.StartNew();
                 using( FileStream fs = new FileStream( tempFileName, FileMode.Create, FileAccess.Write, FileShare.None, BufferSize ) ) {
                     using( StreamWriter writer = new StreamWriter( fs, Encoding.UTF8, BufferSize ) ) {
@@ -450,6 +449,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Finds PlayerInfo by ID. Returns null of not found. </summary>
         public static PlayerInfo FindPlayerInfoByID( int id ) {
             PlayerInfo dummy = new PlayerInfo( id );
             lock( AddLocker ) {
@@ -485,18 +485,6 @@ namespace fCraft {
         }
 
 
-        public static PlayerInfo[] GetPlayerListCopy() {
-            return PlayerInfoList;
-        }
-
-
-        public static PlayerInfo[] GetPlayerListCopy( Rank rank ) {
-            if( rank == null ) throw new ArgumentNullException( "rank" );
-            PlayerInfo[] cache = PlayerInfoList;
-            return cache.Where( info => info.Rank == rank ).ToArray();
-        }
-
-
         static void UpdateCache() {
             lock( AddLocker ) {
                 PlayerInfoList = list.ToArray();
@@ -506,13 +494,9 @@ namespace fCraft {
 
         #region Experimental & Debug things
 
-        // TODO: figure out a good way of making this persistent. ReaderWriterLockSlim maybe? (If Mono is fixed)
-        static Dictionary<IPAddress, List<PlayerInfo>> playersByIP;
-
-
         internal static int CountInactivePlayers() {
             lock( AddLocker ) {
-                playersByIP = new Dictionary<IPAddress, List<PlayerInfo>>();
+                Dictionary<IPAddress, List<PlayerInfo>> playersByIP = new Dictionary<IPAddress, List<PlayerInfo>>();
                 PlayerInfo[] playerInfoListCache = PlayerInfoList;
                 for( int i = 0; i < playerInfoListCache.Length; i++ ) {
                     if( !playersByIP.ContainsKey( playerInfoListCache[i].LastIP ) ) {
@@ -525,7 +509,7 @@ namespace fCraft {
                 // ReSharper disable LoopCanBeConvertedToQuery
                 for( int i = 0; i < playerInfoListCache.Length; i++ ) {
                     // ReSharper restore LoopCanBeConvertedToQuery
-                    if( PlayerIsInactive( playerInfoListCache[i], true ) ) count++;
+                    if( PlayerIsInactive( playersByIP, playerInfoListCache[i], true ) ) count++;
                 }
                 playersByIP = null;
                 return count;
@@ -537,7 +521,7 @@ namespace fCraft {
             int estimate = CountInactivePlayers();
             int count = 0;
             lock( AddLocker ) {
-                playersByIP = new Dictionary<IPAddress, List<PlayerInfo>>();
+                Dictionary<IPAddress, List<PlayerInfo>> playersByIP = new Dictionary<IPAddress, List<PlayerInfo>>();
                 PlayerInfo[] playerInfoListCache = PlayerInfoList;
                 for( int i = 0; i < playerInfoListCache.Length; i++ ) {
                     if( !playersByIP.ContainsKey( playerInfoListCache[i].LastIP ) ) {
@@ -548,7 +532,7 @@ namespace fCraft {
                 List<PlayerInfo> newList = new List<PlayerInfo>();
                 for( int i = 0; i < playerInfoListCache.Length; i++ ) {
                     PlayerInfo p = playerInfoListCache[i];
-                    if( PlayerIsInactive( p, true ) ) {
+                    if( PlayerIsInactive( playersByIP, p, true ) ) {
                         count++;
                         if( (count % (estimate / 4) == 0) ) {
                             player.Message( "PruneDB: {0}% complete.", (count * 100 + 1) / estimate );
@@ -573,7 +557,7 @@ namespace fCraft {
         }
 
 
-        static bool PlayerIsInactive( PlayerInfo player, bool checkIP ) {
+        static bool PlayerIsInactive( Dictionary<IPAddress, List<PlayerInfo>> playersByIP, PlayerInfo player, bool checkIP ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( player.IsBanned || !String.IsNullOrEmpty( player.UnbannedBy ) ||
                 player.IsFrozen || player.IsMuted || player.TimesKicked != 0 ||
@@ -587,7 +571,7 @@ namespace fCraft {
                 return false;
             }
             if( checkIP ) {
-                return playersByIP[player.LastIP].All( other => (other == player) || PlayerIsInactive( other, false ) );
+                return playersByIP[player.LastIP].All( other => (other == player) || PlayerIsInactive( playersByIP, other, false ) );
             }
             return true;
         }
@@ -665,12 +649,12 @@ namespace fCraft {
             }
         }
 
+
         static void Swap<T>( ref T t1, ref T t2 ) {
             var temp = t2;
             t2 = t1;
             t1 = temp;
         }
-
 
         #endregion
 
