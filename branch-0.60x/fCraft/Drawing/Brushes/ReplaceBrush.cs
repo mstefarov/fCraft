@@ -37,8 +37,7 @@ namespace fCraft.Drawing {
             if( blocks.Count == 0 ) {
                 return new ReplaceBrush();
             } else if( blocks.Count == 1 ) {
-                player.Message( "Replace brush requires at least 2 blocks." );
-                return null;
+                return new ReplaceBrush( blocks.ToArray(), Block.Undefined );
             } else {
                 Block replacement = blocks.Pop();
                 return new ReplaceBrush( blocks.ToArray(), replacement );
@@ -77,6 +76,10 @@ namespace fCraft.Drawing {
             get {
                 if( Blocks == null ) {
                     return Factory.Name;
+                } else if( Replacement == Block.Undefined ) {
+                    return String.Format( "{0}({1})",
+                                          Factory.Name,
+                                          Replacement );
                 } else {
                     return String.Format( "{0}({1} -> {2})",
                                           Factory.Name,
@@ -99,15 +102,17 @@ namespace fCraft.Drawing {
                 blocks.Push( block );
             }
 
-            if( blocks.Count > 1 ) {
-                Block replacement = blocks.Pop();
-                return new ReplaceBrush( blocks.ToArray(), replacement );
-            } else if( Blocks != null ) {
-                return new ReplaceBrush( this );
-            } else {
-                player.Message( "Replace brush requires at least 2 blocks." );
+            if( blocks.Count == 0 && Blocks == null ) {
+                player.Message( "Replace brush requires at least 1 block." );
                 return null;
             }
+
+            if( blocks.Count > 0 ) {
+                if( blocks.Count > 1 ) Replacement = blocks.Pop();
+                Blocks = blocks.ToArray();
+            }
+
+            return new ReplaceBrush( this );
         }
 
         #endregion
@@ -135,6 +140,14 @@ namespace fCraft.Drawing {
             if( state == null ) throw new ArgumentNullException( "state" );
             if( Blocks == null || Blocks.Length == 0 ) {
                 throw new InvalidOperationException( "No blocks given." );
+            }
+            if( Replacement == Block.Undefined ) {
+                if( player.LastUsedBlockType == Block.Undefined ) {
+                    player.Message( "Cannot deduce desired replacement block. Click a block or type out the blocktype name." );
+                    return false;
+                } else {
+                    Replacement = player.GetBind( player.LastUsedBlockType );
+                }
             }
             return true;
         }

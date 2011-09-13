@@ -101,7 +101,7 @@ namespace fCraft.Drawing {
             if( state == null ) throw new ArgumentNullException( "state" );
             if( Block == Block.Undefined ) {
                 if( player.LastUsedBlockType == Block.Undefined ) {
-                    player.Message( "Cannot imply desired blocktype. Click a block or type out the blocktype name." );
+                    player.Message( "Cannot deduce desired blocktype. Click a block or type out the blocktype name." );
                     return false;
                 } else {
                     Block = player.GetBind( player.LastUsedBlockType );

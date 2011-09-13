@@ -10,37 +10,6 @@ namespace fCraft {
     /// and switching block placement modes (paint, bind). </summary>
     static class BuildingCommands {
 
-        #region State Objects and Enums
-
-        /// <summary> A type of drawing operation. Does not include Cut/Copy/Paste. </summary>
-        public enum DrawMode {
-            Cuboid,
-            CuboidHollow,
-            CuboidWireframe,
-            Ellipsoid,
-            EllipsoidHollow,
-            Sphere,
-            SphereHollow,
-            Replace,
-            ReplaceNot,
-            Line
-        }
-
-
-        sealed class ReplaceArgs {
-            public bool DoExclude;
-            public Block[] Types;
-            public Block ReplacementBlock;
-        }
-
-
-        sealed class PasteArgs {
-            public bool DoInclude, DoExclude;
-            public Block[] BlockTypes;
-        }
-
-        #endregion
-
         public static int MaxUndoCount = 2000000;
         const int DrawStride = 16;
 
@@ -525,9 +494,17 @@ namespace fCraft {
         };
 
         static void ReplaceHandler( Player player, Command cmd ) {
-            Draw( player, cmd, DrawMode.Replace );
-        }
+            var replaceBrush = ReplaceBrushFactory.Instance.MakeBrush( player, cmd );
+            if( replaceBrush == null ) return;
 
+            CuboidDrawOperation op = new CuboidDrawOperation(player);
+            op.Brush = replaceBrush.MakeInstance( player, cmd, op );
+            if( op.Brush == null ) return;
+
+            player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
+            player.MessageNow( "{0}: Click 2 blocks or use &H/mark&S to make a selection.",
+                               op.Brush.InstanceDescription );
+        }
 
 
         static readonly CommandDescriptor CdReplaceNot = new CommandDescriptor {
@@ -541,212 +518,16 @@ namespace fCraft {
         };
 
         static void ReplaceNotHandler( Player player, Command cmd ) {
-            Draw( player, cmd, DrawMode.ReplaceNot );
-        }
+            var replaceBrush = ReplaceNotBrushFactory.Instance.MakeBrush( player, cmd );
+            if( replaceBrush == null ) return;
 
+            CuboidDrawOperation op = new CuboidDrawOperation( player );
+            op.Brush = replaceBrush.MakeInstance( player, cmd, op );
+            if( op.Brush == null ) return;
 
-        internal static void Draw( Player player, Command cmd, DrawMode mode ) {
-            string blockName = cmd.Next();
-            Block block = Block.Undefined;
-
-            Permission permission = Permission.Build;
-
-            // if a type is specified in chat, try to parse it
-            if( blockName != null ) {
-                block = Map.GetBlockByName( blockName );
-
-                switch( block ) {
-                    case Block.Admincrete:
-                        permission = Permission.PlaceAdmincrete; break;
-                    case Block.Air:
-                        permission = Permission.Delete; break;
-                    case Block.Water:
-                    case Block.StillWater:
-                        permission = Permission.PlaceWater; break;
-                    case Block.Lava:
-                    case Block.StillLava:
-                        permission = Permission.PlaceLava; break;
-                    case Block.Undefined:
-                        player.MessageNow( "{0}: Unrecognized block: {1}",
-                                           mode, blockName );
-                        return;
-                }
-            } // else { use the last-used-block }
-
-            // ReplaceNot does not need permission (since the block is EXCLUDED)
-            if( !player.Can( permission ) && mode != DrawMode.ReplaceNot ) {
-                player.MessageNow( "{0}: You are not allowed to draw with this block ({1})",
-                                   mode, blockName );
-                return;
-            }
-
-            object selectionArgs;
-            SelectionCallback callback;
-
-            switch( mode ) {
-                case DrawMode.Cuboid:
-                case DrawMode.CuboidHollow:
-                case DrawMode.EllipsoidHollow:
-                case DrawMode.SphereHollow:
-                case DrawMode.CuboidWireframe:
-                case DrawMode.Ellipsoid:
-                case DrawMode.Sphere:
-                case DrawMode.Line:
-                    throw new InvalidOperationException( "Old-style draw commands are now obsolete." );
-
-                case DrawMode.Replace:
-                case DrawMode.ReplaceNot:
-
-                    string affectedBlockName = cmd.Next();
-
-                    if( affectedBlockName == null ) {
-                        if( mode == DrawMode.ReplaceNot ) {
-                            CdReplaceNot.PrintUsage( player );
-                        } else {
-                            CdReplace.PrintUsage( player );
-                        }
-                        return;
-                    }
-
-                    List<Block> affectedTypes = new List<Block> { block };
-
-                    do {
-                        Block affectedType = Map.GetBlockByName( affectedBlockName );
-                        if( affectedType != Block.Undefined ) {
-                            affectedTypes.Add( affectedType );
-                        } else {
-                            player.MessageNow( "{0}: Unrecognized block type: {1}", mode, affectedBlockName );
-                            return;
-                        }
-                    } while( (affectedBlockName = cmd.Next()) != null );
-
-                    Block[] replacedTypes = affectedTypes.Take( affectedTypes.Count - 1 ).ToArray();
-                    Block replacementType = affectedTypes.Last();
-                    selectionArgs = new ReplaceArgs {
-                        DoExclude = (mode == DrawMode.ReplaceNot),
-                        Types = replacedTypes,
-                        ReplacementBlock = replacementType
-                    };
-                    callback = ReplaceCallback;
-
-                    if( mode == DrawMode.ReplaceNot ) {
-                        player.MessageNow( "ReplaceNot: Ready to replace everything EXCEPT ({0}) with {1}",
-                                           replacedTypes.JoinToString(),
-                                           replacementType );
-                    } else {
-                        player.MessageNow( "Replace: Ready to replace ({0}) with {1}",
-                                           replacedTypes.JoinToString(),
-                                           replacementType );
-                    }
-
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException( "mode" );
-            }
-
-            player.SelectionStart( 2, callback, selectionArgs, Permission.Draw );
-
-            if( block != Block.Undefined ) {
-                player.MessageNow( "{0} ({1}): Click a block or use &H/mark",
-                                   mode, block );
-            } else {
-                player.MessageNow( "{0}: Click a block or use &H/mark",
-                   mode, block );
-            }
-        }
-
-
-
-        unsafe static void ReplaceCallback( Player player, Position[] marks, object drawArgs ) {
-            ReplaceArgs args = (ReplaceArgs)drawArgs;
-
-            byte* specialTypes = stackalloc byte[args.Types.Length];
-            int specialTypeCount = args.Types.Length;
-            for( int i = 0; i < args.Types.Length; i++ ) {
-                specialTypes[i] = (byte)args.Types[i];
-            }
-
-            bool doExclude = args.DoExclude;
-
-            // find start/end coordinates
-            int sx = Math.Min( marks[0].X, marks[1].X );
-            int ex = Math.Max( marks[0].X, marks[1].X );
-            int sy = Math.Min( marks[0].Y, marks[1].Y );
-            int ey = Math.Max( marks[0].Y, marks[1].Y );
-            int sz = Math.Min( marks[0].Z, marks[1].Z );
-            int ez = Math.Max( marks[0].Z, marks[1].Z );
-
-            int volume = (ex - sx + 1) * (ey - sy + 1) * (ez - sz + 1);
-            if( !player.CanDraw( volume ) ) {
-                player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
-                                    player.Info.Rank.DrawLimit,
-                                    volume );
-                return;
-            }
-
-            player.LastDrawOp = null;
-            player.UndoBuffer.Clear();
-
-            bool cannotUndo = false;
-            int blocks = 0, blocksDenied = 0;
-            for( int x = sx; x <= ex; x += DrawStride ) {
-                for( int y = sy; y <= ey; y += DrawStride ) {
-                    for( int z = sz; z <= ez; z++ ) {
-                        for( int y3 = 0; y3 < DrawStride && y + y3 <= ey; y3++ ) {
-                            for( int x3 = 0; x3 < DrawStride && x + x3 <= ex; x3++ ) {
-
-                                byte block = player.World.Map.GetBlockByte( x + x3, y + y3, z );
-
-                                bool skip = !args.DoExclude;
-                                for( int i = 0; i < specialTypeCount; i++ ) {
-                                    if( block == specialTypes[i] ) {
-                                        skip = args.DoExclude;
-                                        break;
-                                    }
-                                }
-                                if( skip ) continue;
-
-                                if( player.CanPlace( x + x3, y + y3, z, args.ReplacementBlock, false ) != CanPlaceResult.Allowed ) {
-                                    blocksDenied++;
-                                    continue;
-                                }
-                                player.World.Map.QueueUpdate( new BlockUpdate( null, x + x3, y + y3, z, args.ReplacementBlock ) );
-                                Player.RaisePlayerPlacedBlockEvent( player, player.World.Map, (short)(x + x3), (short)(y + y3), (short)z,
-                                                                    (Block)block, args.ReplacementBlock, false );
-
-                                if( MaxUndoCount < 1 || blocks < MaxUndoCount ) {
-                                    player.UndoBuffer.Enqueue( new BlockUpdate( null, x + x3, y + y3, z, block ) );
-                                } else if( !cannotUndo ) {
-                                    player.LastDrawOp = null;
-                                    player.UndoBuffer.Clear();
-                                    player.UndoBuffer.TrimExcess();
-                                    player.MessageNow( "NOTE: This draw command is too massive to undo." );
-                                    cannotUndo = true;
-                                    if( player.Can( Permission.ManageWorlds ) ) {
-                                        player.MessageNow( "Reminder: You can use &H/wflush&S to accelerate draw commands." );
-                                    }
-                                }
-                                blocks++;
-
-                            }
-                        }
-                    }
-                }
-            }
-
-
-            Logger.Log( "{0} replaced {1} blocks {2} ({3}) with {4} (on world {5} @ {6},{7},{8} - {9},{10},{11})", LogType.UserActivity,
-                        player.Name,
-                        blocks,
-                        (doExclude ? "except" : "of"),
-                        args.Types.JoinToString(),
-                        args.ReplacementBlock,
-                        player.World.Name,
-                        sx, sy, sz,
-                        ex, ey, ez );
-
-            DrawingFinished( player, "replaced", blocks, blocksDenied );
+            player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
+            player.MessageNow( "{0}: Click 2 blocks or use &H/mark&S to make a selection.",
+                               op.Brush.InstanceDescription );
         }
 
         #endregion
@@ -801,6 +582,11 @@ namespace fCraft {
 
 
         #region Copy and Paste
+
+        sealed class PasteArgs {
+            public bool DoInclude, DoExclude;
+            public Block[] BlockTypes;
+        }
 
         static readonly CommandDescriptor CdCopySlot = new CommandDescriptor {
             Name = "copyslot",
