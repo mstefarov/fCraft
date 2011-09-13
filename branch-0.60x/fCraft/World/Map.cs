@@ -395,6 +395,10 @@ namespace fCraft {
                                        op.Description, op.Brush.InstanceDescription,
                                        DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
                                        op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
+                    Logger.Log( "Player {0} cancelled {1}/{2} on world {3}. Processed {4}, Updated {5}, Skipped {6}, Denied {7} blocks.",
+                             LogType.UserActivity,
+                             op.Player, op.Description, op.Brush.InstanceDescription, World.Name,
+                             op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
                     op.End();
                     drawOps.RemoveAt( i );
                     i--;
@@ -413,6 +417,10 @@ namespace fCraft {
                                        op.Description, op.Brush.InstanceDescription,
                                        DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
                                        op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
+                    Logger.Log( "Player {0} executed {1}/{2} on world {3}. Processed {4}, Updated {5}, Skipped {6}, Denied {7} blocks.",
+                             LogType.UserActivity,
+                             op.Player, op.Description, op.Brush.InstanceDescription, World.Name,
+                             op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
                     op.End();
                     drawOps.RemoveAt( i );
                     i--;

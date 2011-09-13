@@ -19,10 +19,10 @@ namespace fCraft.Drawing {
             get { return aliases; }
         }
 
-        const string help = "Random brush: Chaotic pattern of two or more random block types. " +
-                            "If only one block name is given, leaves every other block untouched.";
+        const string HelpString = "Random brush: Chaotic pattern of two or more random block types. " +
+                                  "If only one block name is given, leaves every other block untouched.";
         public string Help {
-            get { return help; }
+            get { return HelpString; }
         }
 
 
