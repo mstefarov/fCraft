@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft.AutoRank {
     public static class AutoRankManager {
@@ -21,7 +22,7 @@ namespace fCraft.AutoRank {
 
 
         /// <summary> Adds a new criterion to the list. Throws an ArgumentException on duplicates. </summary>
-        public static void Add( Criterion criterion ) {
+        public static void Add( [NotNull] Criterion criterion ) {
             if( criterion == null ) throw new ArgumentNullException( "criterion" );
             if( Criteria.Contains( criterion ) ) throw new ArgumentException( "This criterion has already been added." );
             Criteria.Add( criterion );
@@ -31,7 +32,7 @@ namespace fCraft.AutoRank {
         /// <summary> Checks whether a given player is due for a promotion or demotion. </summary>
         /// <param name="info"> PlayerInfo to check. </param>
         /// <returns> Null if no rank change is needed, or a rank to promote/demote to. </returns>
-        public static Rank Check( PlayerInfo info ) {
+        public static Rank Check( [NotNull] PlayerInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
             // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < Criteria.Count; i++ ) {

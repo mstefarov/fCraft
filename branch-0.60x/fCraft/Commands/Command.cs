@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Diagnostics;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary>
@@ -13,7 +14,7 @@ namespace fCraft {
         public bool IsConfirmed; // whether this command has been confirmed by the user (with /ok)
 
         /// <summary> Creates a copy of an existing command. </summary>
-        public Command( Command other ) {
+        public Command( [NotNull] Command other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             offset = other.offset;
             Message = other.Message;
@@ -22,7 +23,7 @@ namespace fCraft {
         }
 
         /// <summary> Creates a command from a raw message. </summary>
-        public Command( string rawMessage ) {
+        public Command( [NotNull] string rawMessage ) {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
             offset = 1;
             Message = rawMessage;
@@ -167,7 +168,7 @@ namespace fCraft {
 
 
         [DebuggerStepThrough]
-        public Block NextBlock( Player player ) {
+        public Block NextBlock( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             string blockName = Next();
             Block targetBlock = Block.Undefined;
@@ -181,7 +182,7 @@ namespace fCraft {
         }
 
 
-        public Block NextBlockWithParam( Player player, ref int param ) {
+        public Block NextBlockWithParam( [NotNull] Player player, ref int param ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             string jointString = Next();
             if( jointString == null ) {

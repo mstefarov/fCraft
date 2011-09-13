@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
@@ -54,7 +55,7 @@ namespace fCraft {
 
 
         /// <summary> Checks whether this command may be called by players of a given rank. </summary>
-        public bool CanBeCalledBy( Rank rank ) {
+        public bool CanBeCalledBy( [NotNull] Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             return Permissions == null ||
                    Permissions.All( rank.Can ) ||
@@ -75,14 +76,14 @@ namespace fCraft {
 
         /// <summary> Checks whether players of the given rank should see this command in /cmds list.
         /// Takes permissions and the hidden flag into account. </summary>
-        public bool IsVisibleTo( Rank rank ) {
+        public bool IsVisibleTo( [NotNull] Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             return !IsHidden && CanBeCalledBy( rank );
         }
 
 
         /// <summary> Prints command usage syntax to the given player. </summary>
-        public void PrintUsage( Player player ) {
+        public void PrintUsage( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( Usage != null ) {
                 player.Message( "Usage: &H{0}", Usage );
@@ -98,7 +99,7 @@ namespace fCraft {
         /// <param name="raiseEvent"> Whether CommandCalling and CommandCalled events should be raised. </param>
         /// <returns> True if the command was called succesfully.
         /// False if the call was cancelled by the CommandCalling event. </returns>
-        public bool Call( Player player, Command cmd, bool raiseEvent ) {
+        public bool Call( [NotNull] Player player, [NotNull] Command cmd, bool raiseEvent ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( raiseEvent && CommandManager.RaiseCommandCallingEvent( cmd, this, player ) ) return false;
