@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using fCraft.Events;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Type of message sent by the player. Determined by CommandManager.GetMessageType() </summary>
@@ -67,7 +68,7 @@ namespace fCraft {
 
 
         /// <summary> Gets a list of commands available to a specified rank. </summary>
-        public static CommandDescriptor[] GetCommands( Rank rank, bool includeHidden ) {
+        public static CommandDescriptor[] GetCommands( [NotNull] Rank rank, bool includeHidden ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             return Commands.Values
                            .Where( cmd => (!cmd.IsHidden || includeHidden) &&
@@ -88,14 +89,14 @@ namespace fCraft {
 
         /// <summary> Registers a custom command with fCraft.
         /// CommandRegistrationException may be thrown if the given descriptor does not meet all the requirements. </summary>
-        public static void RegisterCustomCommand( CommandDescriptor descriptor ) {
+        public static void RegisterCustomCommand( [NotNull] CommandDescriptor descriptor ) {
             if( descriptor == null ) throw new ArgumentNullException( "descriptor" );
             descriptor.IsCustom = true;
             RegisterCommand( descriptor );
         }
 
 
-        internal static void RegisterCommand( CommandDescriptor descriptor ) {
+        internal static void RegisterCommand( [NotNull] CommandDescriptor descriptor ) {
             if( descriptor == null ) throw new ArgumentNullException( "descriptor" );
 
 #if DEBUG
@@ -167,7 +168,7 @@ namespace fCraft {
         /// <param name="commandName"> Command to find. </param>
         /// <param name="alsoCheckAliases"> Whether to check command aliases. </param>
         /// <returns> CommandDesriptor object if found, null if not found. </returns>
-        public static CommandDescriptor GetDescriptor( string commandName, bool alsoCheckAliases ) {
+        public static CommandDescriptor GetDescriptor( [NotNull] string commandName, bool alsoCheckAliases ) {
             if( commandName == null ) throw new ArgumentNullException( "commandName" );
             commandName = commandName.ToLower();
             if( Commands.ContainsKey( commandName ) ) {
@@ -184,7 +185,7 @@ namespace fCraft {
         /// <param name="player"> Player who issued the command. </param>
         /// <param name="cmd"> Command to be parsed and executed. </param>
         /// <param name="fromConsole"> Whether this command is being called from a non-player (e.g. Console). </param>
-        public static void ParseCommand( Player player, Command cmd, bool fromConsole ) {
+        public static void ParseCommand( [NotNull] Player player, [NotNull] Command cmd, bool fromConsole ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             CommandDescriptor descriptor = GetDescriptor( cmd.Name, true );
@@ -247,7 +248,7 @@ namespace fCraft {
         /// Constraints are similar to Player.IsValidName, except for minimum length. </summary>
         /// <param name="name"> Command name to check. </param>
         /// <returns> True if the name is valid. </returns>
-        public static bool IsValidCommandName( string name ) {
+        public static bool IsValidCommandName( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( name.Length == 0 || name.Length > 16 ) return false;
             // ReSharper disable LoopCanBeConvertedToQuery

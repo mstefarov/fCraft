@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Cache;
 using System.Threading;
 using fCraft.Drawing;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Callback for a player-made selection of one or more blocks on a map.
@@ -115,7 +116,7 @@ namespace fCraft {
         // This constructor is used to create pseudoplayers (such as Console and /dummy).
         // Such players have unlimited permissions, but no world.
         // This should be replaced by a more generic solution, like an IEntity interface.
-        internal Player( string name ) {
+        internal Player( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             Info = new PlayerInfo( name, RankManager.HighestRank, true, RankChangeType.AutoPromoted );
             spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
