@@ -369,11 +369,22 @@ namespace fCraft.Events {
             Context = context;
         }
 
+        /// <summary> Player who is being kicked. </summary>
+        public Player Player { get; private set; }
+
+        /// <summary> Player who kicked. </summary>
         public Player Kicker { get; protected set; }
+
+        /// <summary> Given kick reason (may be null). </summary>
         public string Reason { get; protected set; }
+
+        /// <summary> Whether the kick should be announced in-game and on IRC. </summary>
         public bool IsSilent { get; protected set; }
+
         /// <summary> Whether kick should be added to the target's record. </summary>
         public bool RecordToPlayerDB { get; protected set; }
+
+        /// <summary> Circumstances that resulted in a kick (e.g. Kick, Ban, BanIP, IdleKick, etc). </summary>
         public LeaveReason Context { get; protected set; }
     }
 
