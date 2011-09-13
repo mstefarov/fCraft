@@ -245,7 +245,7 @@ namespace fCraft {
             const string tempFileName = Paths.PlayerDBFileName + ".temp";
 
             lock( SaveLoadLocker ) {
-                PlayerInfo[] listCopy = PlayerDB.PlayerInfoList;
+                PlayerInfo[] listCopy = PlayerInfoList;
                 Stopwatch sw = Stopwatch.StartNew();
                 using( FileStream fs = new FileStream( tempFileName, FileMode.Create, FileAccess.Write, FileShare.None, BufferSize ) ) {
                     using( StreamWriter writer = new StreamWriter( fs, Encoding.UTF8, BufferSize ) ) {
@@ -511,7 +511,6 @@ namespace fCraft {
                     // ReSharper restore LoopCanBeConvertedToQuery
                     if( PlayerIsInactive( playersByIP, playerInfoListCache[i], true ) ) count++;
                 }
-                playersByIP = null;
                 return count;
             }
         }
@@ -550,14 +549,13 @@ namespace fCraft {
 
                 list.TrimExcess();
                 UpdateCache();
-                playersByIP = null;
             }
             player.Message( "PruneDB: Removed {0} inactive players!", count );
             return count;
         }
 
 
-        static bool PlayerIsInactive( Dictionary<IPAddress, List<PlayerInfo>> playersByIP, PlayerInfo player, bool checkIP ) {
+        static bool PlayerIsInactive( IDictionary<IPAddress, List<PlayerInfo>> playersByIP, PlayerInfo player, bool checkIP ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( player.IsBanned || !String.IsNullOrEmpty( player.UnbannedBy ) ||
                 player.IsFrozen || player.IsMuted || player.TimesKicked != 0 ||
