@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using fCraft.AutoRank;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary>
@@ -561,7 +562,7 @@ namespace fCraft {
             DoAutoRankAll( player, list, false, "~AutoRankAll" );
         }
 
-        internal static void DoAutoRankAll( Player player, PlayerInfo[] list, bool silent, string message ) {
+        internal static void DoAutoRankAll( [NotNull] Player player, [NotNull] PlayerInfo[] list, bool silent, string message ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( list == null ) throw new ArgumentNullException( "list" );
 

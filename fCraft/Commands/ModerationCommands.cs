@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using fCraft.Drawing;
 using fCraft.Events;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary>
@@ -337,7 +338,8 @@ namespace fCraft {
         }
 
 
-        internal static void DoIPBan( Player player, IPAddress address, string reason, string targetName, bool all, bool unban ) {
+        internal static void DoIPBan( [NotNull] Player player, [NotNull] IPAddress address,
+                                      string reason, string targetName, bool all, bool unban ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( address == null ) throw new ArgumentNullException( "address" );
 
@@ -594,8 +596,8 @@ namespace fCraft {
         }
 
 
-        public static bool DoKick( Player player, Player target, string reason,
-                                   bool silent, bool recordToPlayerDB, LeaveReason leaveReason ) {
+        public static bool DoKick( [NotNull] Player player, [NotNull] Player target,
+                                   string reason, bool silent, bool recordToPlayerDB, LeaveReason leaveReason ) {
 
             if( player == null ) throw new ArgumentNullException( "player" );
             if( target == null ) throw new ArgumentNullException( "target" );
@@ -726,7 +728,8 @@ namespace fCraft {
         /// <param name="reason"> Reason for promotion/demotion. May be null. </param>
         /// <param name="silent"> Whether rank change should be announced or not. </param>
         /// <param name="automatic"> Whether rank change should be marked as "automatic" or manual. </param>
-        public static void DoChangeRank( Player player, PlayerInfo targetInfo, Rank newRank, string reason, bool silent, bool automatic ) {
+        public static void DoChangeRank( [NotNull] Player player, [NotNull] PlayerInfo targetInfo, [NotNull] Rank newRank,
+                                         string reason, bool silent, bool automatic ) {
 
             if( player == null ) throw new ArgumentNullException( "player" );
             if( targetInfo == null ) throw new ArgumentNullException( "targetInfo" );
