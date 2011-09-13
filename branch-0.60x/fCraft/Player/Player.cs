@@ -133,7 +133,7 @@ namespace fCraft {
         string partialMessage;
 
         // Parses message incoming from the player
-        public void ParseMessage( string rawMessage, bool fromConsole ) {
+        public void ParseMessage( [NotNull] string rawMessage, bool fromConsole ) {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
             if( rawMessage.Equals( "/nvm", StringComparison.OrdinalIgnoreCase ) ) {
@@ -341,7 +341,7 @@ namespace fCraft {
         }
 
 
-        public void Message( string message ) {
+        public void Message( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( this == Console ) {
                 Logger.LogToConsole( message );
@@ -352,20 +352,22 @@ namespace fCraft {
             }
         }
 
-        public void Message( string message, object arg ) {
+        public void Message( [NotNull] string message, [NotNull] object arg ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( arg == null ) throw new ArgumentNullException( "arg" );
             Message( String.Format( message, arg ) );
         }
 
-        public void Message( string message, params object[] args ) {
+        [StringFormatMethod("message")]
+        public void Message( [NotNull] string message, [NotNull] params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
             Message( String.Format( message, args ) );
         }
 
 
-        public void MessagePrefixed( string prefix, string message, params object[] args ) {
+        [StringFormatMethod( "message" )]
+        public void MessagePrefixed( [NotNull] string prefix, [NotNull] string message, [NotNull] params object[] args ) {
             if( prefix == null ) throw new ArgumentNullException( "prefix" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
@@ -382,7 +384,8 @@ namespace fCraft {
         }
 
 
-        internal void MessageNow( string message, params object[] args ) {
+        [StringFormatMethod( "message" )]
+        internal void MessageNow( [NotNull] string message, [NotNull] params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
             if( IsDeaf ) return;
@@ -402,7 +405,8 @@ namespace fCraft {
         }
 
 
-        internal void MessageNowPrefixed( string prefix, string message, params object[] args ) {
+        [StringFormatMethod( "message" )]
+        internal void MessageNowPrefixed( [NotNull] string prefix, [NotNull] string message, [NotNull] params object[] args ) {
             if( prefix == null ) throw new ArgumentNullException( "prefix" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
@@ -425,19 +429,19 @@ namespace fCraft {
 
         #region Macros
 
-        public void MessageNoPlayer( string playerName ) {
+        public void MessageNoPlayer( [NotNull] string playerName ) {
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
             Message( "No players found matching \"{0}\"", playerName );
         }
 
 
-        public void MessageNoWorld( string worldName ) {
+        public void MessageNoWorld( [NotNull] string worldName ) {
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
             Message( "No worlds found matching \"{0}\". See &H/worlds", worldName );
         }
 
 
-        public void MessageManyMatches( string itemType, IEnumerable<IClassy> names ) {
+        public void MessageManyMatches( [NotNull] string itemType, [NotNull] IEnumerable<IClassy> names ) {
             if( itemType == null ) throw new ArgumentNullException( "itemType" );
             if( names == null ) throw new ArgumentNullException( "names" );
 
@@ -448,7 +452,7 @@ namespace fCraft {
         }
 
 
-        public void MessageNoAccess( params Permission[] permissions ) {
+        public void MessageNoAccess( [NotNull] params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
             Rank reqRank = RankManager.GetMinRankWithAllPermissions( permissions );
             if( reqRank == null ) {
@@ -460,7 +464,7 @@ namespace fCraft {
         }
 
 
-        public void MessageNoAccess( CommandDescriptor cmd ) {
+        public void MessageNoAccess( [NotNull] CommandDescriptor cmd ) {
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             Rank reqRank = cmd.MinRank;
             if( reqRank == null ) {
@@ -472,7 +476,7 @@ namespace fCraft {
         }
 
 
-        public void MessageNoRank( string rankName ) {
+        public void MessageNoRank( [NotNull] string rankName ) {
             if( rankName == null ) throw new ArgumentNullException( "rankName" );
             Message( "Unrecognized rank \"{0}\". See &H/ranks", rankName );
         }
@@ -483,7 +487,7 @@ namespace fCraft {
         }
 
 
-        public void MessageNoZone( string zoneName ) {
+        public void MessageNoZone( [NotNull] string zoneName ) {
             if( zoneName == null ) throw new ArgumentNullException( "zoneName" );
             Message( "No zones found matching \"{0}\". See &H/zones", zoneName );
         }
@@ -504,7 +508,7 @@ namespace fCraft {
 
 
         /// <summary> Checks whether this player is currently ignoring a given PlayerInfo.</summary>
-        public bool IsIgnoring( PlayerInfo other ) {
+        public bool IsIgnoring( [NotNull] PlayerInfo other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             lock( ignoreLock ) {
                 return ignoreList.Contains( other );
@@ -517,7 +521,7 @@ namespace fCraft {
         /// <param name="other"> Player to ignore. </param>
         /// <returns> True if the player is now ignored,
         /// false is the player has already been ignored previously. </returns>
-        public bool Ignore( PlayerInfo other ) {
+        public bool Ignore( [NotNull] PlayerInfo other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             lock( ignoreLock ) {
                 if( !ignoreList.Contains( other ) ) {
@@ -534,7 +538,7 @@ namespace fCraft {
         /// <param name="other"> PlayerInfo to unignore. </param>
         /// <returns> True if the player is no longer ignored,
         /// false if the player was already not ignored. </returns>
-        public bool Unignore( PlayerInfo other ) {
+        public bool Unignore( [NotNull] PlayerInfo other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             lock( ignoreLock ) {
                 return ignoreList.Remove( other );
@@ -568,7 +572,7 @@ namespace fCraft {
         /// <param name="cmd"> Command that needs confirmation. </param>
         /// <param name="message"> Message to print before "Type /ok to continue". </param>
         /// <param name="args"> Optional String.Format() arguments, for the message. </param>
-        public void Confirm( Command cmd, string message, params object[] args ) {
+        public void Confirm( [NotNull] Command cmd, [NotNull] string message, [NotNull] params object[] args ) {
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
@@ -823,14 +827,14 @@ namespace fCraft {
         #region Permission Checks
 
         /// <summary> Returns true if player has ALL of the given permissions. </summary>
-        public bool Can( params Permission[] permissions ) {
+        public bool Can( [NotNull] params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
             return IsSuper || permissions.All( Info.Rank.Can );
         }
 
 
         /// <summary> Returns true if player has ANY of the given permissions. </summary>
-        public bool CanAny( params Permission[] permissions ) {
+        public bool CanAny( [NotNull] params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
             return IsSuper || permissions.Any( Info.Rank.Can );
         }
@@ -844,7 +848,7 @@ namespace fCraft {
 
         /// <summary> Returns true if player has the given permission,
         /// and is allowed to affect players of the given rank. </summary>
-        public bool Can( Permission permission, Rank other ) {
+        public bool Can( Permission permission, [NotNull] Rank other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             return IsSuper || Info.Rank.Can( permission, other );
         }
@@ -858,7 +862,7 @@ namespace fCraft {
 
 
         /// <summary> Returns true if player is allowed to join a given world. </summary>
-        public bool CanJoin( World worldToJoin ) {
+        public bool CanJoin( [NotNull] World worldToJoin ) {
             if( worldToJoin == null ) throw new ArgumentNullException( "worldToJoin" );
             return IsSuper || worldToJoin.AccessSecurity.Check( Info );
         }
@@ -929,7 +933,7 @@ namespace fCraft {
 
         /// <summary> Checks whether this player can currently see another.
         /// Visibility is determined by whether the other player is hiding or spectating. </summary>
-        public bool CanSee( Player other ) {
+        public bool CanSee( [NotNull] Player other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             return other == this || IsSuper || !other.Info.IsHidden || Info.Rank.CanSee( other.Info.Rank );
         }
@@ -997,7 +1001,8 @@ namespace fCraft {
         }
 
 
-        public void SelectionStart( int marksExpected, SelectionCallback callback, object args, params Permission[] requiredPermissions ) {
+        public void SelectionStart( int marksExpected, [NotNull] SelectionCallback callback,
+                                    object args, params Permission[] requiredPermissions ) {
             if( callback == null ) throw new ArgumentNullException( "callback" );
             if( requiredPermissions == null ) throw new ArgumentNullException( "requiredPermissions" );
             selectionArgs = args;
@@ -1070,7 +1075,7 @@ namespace fCraft {
         }
 
 
-        public bool Spectate( Player target ) {
+        public bool Spectate( [NotNull] Player target ) {
             if( target == null ) throw new ArgumentNullException( "target" );
             if( target == this ) throw new ArgumentException( "Cannot spectate self.", "target" );
             Message( "Now spectating {0}&S. Type &H/unspec&S to stop.", target.ClassyName );
@@ -1105,7 +1110,7 @@ namespace fCraft {
 
         /// <summary> Checks whether a given player has a paid minecraft.net account. </summary>
         /// <returns> True if the account is paid. False if it is not paid, or if information is unavailable. </returns>
-        public static bool CheckPaidStatus( string name ) {
+        public static bool CheckPaidStatus( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( PaidCheckUri + Uri.EscapeDataString( name ) );
             request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
@@ -1131,7 +1136,7 @@ namespace fCraft {
 
 
         /// <summary> Ensures that a player name has the correct length and character set. </summary>
-        public static bool IsValidName( string name ) {
+        public static bool IsValidName( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( name.Length < 2 || name.Length > 16 ) return false;
             // ReSharper disable LoopCanBeConvertedToQuery

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary>
@@ -131,7 +132,7 @@ namespace fCraft {
         }
 
 
-        public static void PrintPlayerInfo( Player player, PlayerInfo info ) {
+        public static void PrintPlayerInfo( [NotNull] Player player, [NotNull] PlayerInfo info ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( info == null ) throw new ArgumentNullException( "info" );
             Player target = info.PlayerObject;
@@ -455,7 +456,7 @@ namespace fCraft {
                             break;
                     }
 
-                    if( !String.IsNullOrEmpty( info.BannedBy ) || info.BanDate!= DateTime.MinValue ) {
+                    if( !String.IsNullOrEmpty( info.BannedBy ) || info.BanDate != DateTime.MinValue ) {
                         player.Message( "  Last ban by {0} on {1:dd MMM yyyy} ({2} ago).",
                                         info.BannedBy,
                                         info.BanDate,
