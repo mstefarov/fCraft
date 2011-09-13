@@ -3,7 +3,8 @@ using System;
 
 namespace fCraft {
     public sealed class ChatTimer {
-        public static readonly TimeSpan MinDuration = TimeSpan.FromSeconds( 1 );
+        public static readonly TimeSpan MinDuration = TimeSpan.FromSeconds( 1 ),
+                                        Hour = TimeSpan.FromHours( 1 );
 
         public string Message { get; private set; }
 
@@ -35,14 +36,18 @@ namespace fCraft {
             StartTime = DateTime.UtcNow;
             EndTime = StartTime.Add( duration );
             Duration = duration;
-            for( int i = 0; i < AnnounceIntervals.Length; i++ ) {
-                if( duration <= AnnounceIntervals[i] ) {
-                    announceIntervalIndex = i - 1;
-                    break;
+            int oneSecondRepeats = (int)duration.TotalSeconds + 1;
+            if( duration > Hour ) {
+                announceIntervalIndex = AnnounceIntervals.Length - 1;
+                lastHourAnnounced = (int)duration.TotalHours;
+            } else {
+                for( int i = 0; i < AnnounceIntervals.Length; i++ ) {
+                    if( duration <= AnnounceIntervals[i] ) {
+                        announceIntervalIndex = i - 1;
+                        break;
+                    }
                 }
             }
-            announceIntervalIndex = AnnounceIntervals.Length - 1;
-            int oneSecondRepeats = (int)duration.TotalSeconds + 1;
             task = Scheduler.NewTask( TimerCallback, this );
             IsRunning = true;
             task.RunRepeating( TimeSpan.Zero,
@@ -51,6 +56,7 @@ namespace fCraft {
         }
 
 
+        int lastHourAnnounced;
         static void TimerCallback( SchedulerTask task ) {
             ChatTimer timer = (ChatTimer)task.UserState;
             if( task.MaxRepeats == 1 ) {
@@ -60,17 +66,27 @@ namespace fCraft {
                     Chat.SendSay( Player.Console, "(Timer Up) " + timer.Message );
                 }
                 timer.IsRunning = false;
-            } else if( timer.announceIntervalIndex >= 0 && timer.TimeLeft <= AnnounceIntervals[timer.announceIntervalIndex] ) {
-                string timeLeft = AnnounceIntervals[timer.announceIntervalIndex].ToMiniString();
-                if( String.IsNullOrEmpty( timer.Message ) ) {
-                    Chat.SendSay( Player.Console, "(Timer) " + timeLeft );
-                } else {
-                    Chat.SendSay( Player.Console,
-                                  String.Format( "(Timer) {0} until {1}",
-                                                 timeLeft,
-                                                 timer.Message ) );
+
+            } else if( timer.announceIntervalIndex >= 0 ) {
+                if( timer.lastHourAnnounced != (int)timer.TimeLeft.TotalHours ) {
+                    timer.lastHourAnnounced = (int)timer.TimeLeft.TotalHours;
+                    timer.Announce( TimeSpan.FromHours( Math.Ceiling( timer.TimeLeft.TotalHours ) ) );
                 }
-                timer.announceIntervalIndex--;
+                if( timer.TimeLeft <= AnnounceIntervals[timer.announceIntervalIndex] ) {
+                    timer.announceIntervalIndex--;
+                    timer.Announce(AnnounceIntervals[timer.announceIntervalIndex]);
+                }
+            }
+        }
+
+        void Announce( TimeSpan timeLeft ) {
+            if( String.IsNullOrEmpty( Message ) ) {
+                Chat.SendSay( Player.Console, "(Timer) " + timeLeft.ToMiniString() );
+            } else {
+                Chat.SendSay( Player.Console,
+                              String.Format( "(Timer) {0} until {1}",
+                                             timeLeft.ToMiniString(),
+                                             Message ) );
             }
         }
 
@@ -103,17 +119,7 @@ namespace fCraft {
             TimeSpan.FromMinutes(20),
             TimeSpan.FromMinutes(30),
             TimeSpan.FromMinutes(40),
-            TimeSpan.FromMinutes(50),
-            TimeSpan.FromHours(1),
-            TimeSpan.FromHours(2),
-            TimeSpan.FromHours(3),
-            TimeSpan.FromHours(4),
-            TimeSpan.FromHours(5),
-            TimeSpan.FromHours(10),
-            TimeSpan.FromHours(20),
-            TimeSpan.FromHours(30),
-            TimeSpan.FromHours(40),
-            TimeSpan.FromHours(50)
+            TimeSpan.FromMinutes(50)
         };
     }
 }

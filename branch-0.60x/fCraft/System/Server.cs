@@ -488,12 +488,14 @@ namespace fCraft {
             shutdownThread = new Thread( ShutdownThread ) {
                 Name = "fCraft.Shutdown"
             };
-            if( shutdownParams.Restart ) {
-                shutdownTimer = ChatTimer.Start( shutdownParams.Delay,
-                                                 "Server restart (" + shutdownParams.ReasonString + ")" );
-            } else {
-                shutdownTimer = ChatTimer.Start( shutdownParams.Delay,
-                                                 "Server shutdown (" + shutdownParams.ReasonString + ")" );
+            if( shutdownParams.Delay >= ChatTimer.MinDuration ) {
+                if( shutdownParams.Restart ) {
+                    shutdownTimer = ChatTimer.Start( shutdownParams.Delay,
+                                                     "Server restart (" + shutdownParams.ReasonString + ")" );
+                } else {
+                    shutdownTimer = ChatTimer.Start( shutdownParams.Delay,
+                                                     "Server shutdown (" + shutdownParams.ReasonString + ")" );
+                }
             }
             shutdownThread.Start( shutdownParams );
             if( waitForShutdown ) {
