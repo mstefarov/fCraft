@@ -8,27 +8,28 @@ using System.Text;
 using fCraft.Events;
 
 namespace fCraft {
-    /// <summary>
-    /// Static class responsible for sending heartbeats.
-    /// </summary>
+    /// <summary> Static class responsible for sending heartbeats. </summary>
     public static class Heartbeat {
-        const int HeartbeatDelay = 30000,
-                  HeartbeatTimeout = 10000;
-        public static string PrimaryUrl { get; set; }
+        public static int Delay { get; set; }
+        public static int Timeout { get; set; }
+        public static Uri Uri { get; set; }
 
         static HttpWebRequest request;
         static SchedulerTask task;
         static HeartbeatData data;
 
+        /// <summary> Whether last attempt to send a heartbeat failed. </summary>
         public static bool LastHeartbeatFailed { get; private set; }
 
 
         static Heartbeat() {
-            PrimaryUrl = "http://www.minecraft.net/heartbeat.jsp";
+            Uri = new Uri( "http://www.minecraft.net/heartbeat.jsp" );
+            Delay = 30000;
+            Timeout = 10000;
         }
 
 
-        /// <summary> Callback for setting the local IP binding. Implements System.Net.BindIPEndPoint delegate. </summary>
+        // Callback for setting the local IP binding. Implements System.Net.BindIPEndPoint delegate.
         static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
             return new IPEndPoint( data.ServerIP, 0 );
         }
@@ -36,7 +37,7 @@ namespace fCraft {
 
         /// <summary> Starts the heartbeats. </summary>
         public static void Start() {
-            task = Scheduler.NewTask( Beat ).RunManual();
+            task = Scheduler.NewBackgroundTask( Beat ).RunManual();
         }
 
 
@@ -54,19 +55,19 @@ namespace fCraft {
                 ServerName = ConfigKey.ServerName.GetString()
             };
 
-            if( RaiseHeartbeatSendingEvent( data ) ) {
-                RescheduleHeartbeat();
-                return;
+            // This needs to be wrapped in try/catch because and exception in an event handler
+            // would permanently stop heartbeat sending.
+            try {
+                if( RaiseHeartbeatSendingEvent( data ) ) {
+                    RescheduleHeartbeat();
+                    return;
+                }
+            } catch( Exception ex ) {
+                Logger.LogAndReportCrash( "Heartbeat.Sending handler failed", "fCraft", ex, false );
             }
 
             if( ConfigKey.HeartbeatEnabled.GetBool() ) {
-                request = (HttpWebRequest)WebRequest.Create( PrimaryUrl );
-                request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
-                request.Method = "POST";
-                request.Timeout = HeartbeatTimeout;
-                request.ContentType = "application/x-www-form-urlencoded";
-                request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
-
+                UriBuilder ub = new UriBuilder( Uri );
                 StringBuilder sb = new StringBuilder();
                 sb.AppendFormat( "public={0}&max={1}&users={2}&port={3}&version={4}&salt={5}&name={6}",
                                  data.IsPublic,
@@ -82,16 +83,21 @@ namespace fCraft {
                                      Uri.EscapeDataString( pair.Key ),
                                      Uri.EscapeDataString( pair.Value ) );
                 }
+                ub.Query = sb.ToString();
 
-                byte[] formData = Encoding.ASCII.GetBytes( sb.ToString() );
-                request.ContentLength = formData.Length;
+                request = (HttpWebRequest)WebRequest.Create( ub.Uri );
+                request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
+                request.Method = "GET";
+                request.Timeout = Timeout;
+                request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
 
-                request.BeginGetRequestStream( RequestCallback, formData );
+                request.BeginGetResponse( ResponseCallback, null );
             } else {
                 // If heartbeats are disabled, the data is written to a text file (heartbeatdata.txt)
                 const string tempFile = Paths.HeartbeatDataFileName + ".tmp";
 
-                File.WriteAllLines( tempFile, new[]{
+                File.WriteAllLines( tempFile,
+                    new[]{
                         Server.Salt,
                         Server.IP.ToString(),
                         Server.Port.ToString(),
@@ -99,29 +105,10 @@ namespace fCraft {
                         ConfigKey.MaxPlayers.GetString(),
                         ConfigKey.ServerName.GetString(),
                         ConfigKey.IsPublic.GetString()
-                    }, Encoding.ASCII );
+                    },
+                    Encoding.ASCII );
 
                 Paths.MoveOrReplace( tempFile, Paths.HeartbeatDataFileName );
-                RescheduleHeartbeat();
-            }
-        }
-
-
-        static void RequestCallback( IAsyncResult result ) {
-            if( Server.IsShuttingDown ) return;
-            try {
-                byte[] formData = (byte[])result.AsyncState;
-                using( Stream requestStream = request.EndGetRequestStream( result ) ) {
-                    requestStream.Write( formData, 0, formData.Length );
-                }
-                request.BeginGetResponse( ResponseCallback, null );
-            } catch( Exception ex ) {
-                LastHeartbeatFailed = true;
-                if( ex is WebException || ex is IOException ) {
-                    Logger.Log( "Heartbeat: Minecraft.net is probably down ({0})", LogType.Warning, ex.Message );
-                } else {
-                    Logger.Log( "Heartbeat: {0}", LogType.Error, ex );
-                }
                 RescheduleHeartbeat();
             }
         }
@@ -132,20 +119,31 @@ namespace fCraft {
             try {
                 string responseText;
                 using( HttpWebResponse response = (HttpWebResponse)request.EndGetResponse( result ) ) {
+                    // ReSharper disable AssignNullToNotNullAttribute
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
+                        // ReSharper restore AssignNullToNotNullAttribute
                         responseText = responseReader.ReadToEnd();
                     }
                     LastHeartbeatFailed = false;
                     RaiseHeartbeatSentEvent( data, response, responseText );
                 }
 
-                string newUrl = responseText.Trim();
-                if( newUrl.Contains( "Bad heartbeat" ) ) {
+                string replyString = responseText.Trim();
+                if( replyString.StartsWith( "bad heartbeat", StringComparison.OrdinalIgnoreCase ) ) {
                     LastHeartbeatFailed = true;
-                } else if( newUrl.Length > 32 && newUrl != Server.Url ) {
-                    string oldUrl = Server.Url;
-                    Server.Url = newUrl;
-                    RaiseUrlChangedEvent( oldUrl, newUrl );
+                    Logger.Log( "Heartbeat: {0}", LogType.Error, replyString );
+                } else {
+                    try {
+                        Uri newUri = new Uri( replyString );
+                        Uri oldUri = new Uri(Server.Url);
+                        if( newUri != oldUri ) {
+                            Server.Url = newUri.ToString();
+                            RaiseUriChangedEvent( oldUri, newUri );
+                        }
+                    } catch( UriFormatException ) {
+                        Logger.Log( "Heartbeat: Server replied with: {0}", LogType.Error,
+                                    replyString );
+                    }
                 }
             } catch( Exception ex ) {
                 LastHeartbeatFailed = true;
@@ -161,7 +159,7 @@ namespace fCraft {
 
 
         static void RescheduleHeartbeat() {
-            task.RunManual( TimeSpan.FromMilliseconds( HeartbeatDelay ) );
+            task.RunManual( TimeSpan.FromMilliseconds( Delay ) );
         }
 
 
@@ -173,8 +171,8 @@ namespace fCraft {
         /// <summary> Occurs when a heartbeat has been sent. </summary>
         public static event EventHandler<HeartbeatSentEventArgs> Sent;
 
-        /// <summary> Occurs when the server Url has been set or changed. </summary>
-        public static event EventHandler<UrlChangedEventArgs> UrlChanged;
+        /// <summary> Occurs when the server Uri has been set or changed. </summary>
+        public static event EventHandler<UriChangedEventArgs> UriChanged;
 
 
         static bool RaiseHeartbeatSendingEvent( HeartbeatData heartbeatData ) {
@@ -197,9 +195,9 @@ namespace fCraft {
             }
         }
 
-        static void RaiseUrlChangedEvent( string oldUrl, string newUrl ) {
-            var h = UrlChanged;
-            if( h != null ) h( null, new UrlChangedEventArgs( oldUrl, newUrl ) );
+        static void RaiseUriChangedEvent( Uri oldUri, Uri newUri ) {
+            var h = UriChanged;
+            if( h != null ) h( null, new UriChangedEventArgs( oldUri, newUri ) );
         }
 
         #endregion
@@ -223,13 +221,12 @@ namespace fCraft {
 }
 
 
-#region EventArgs
 namespace fCraft.Events {
 
     public sealed class HeartbeatSentEventArgs : EventArgs {
         internal HeartbeatSentEventArgs( HeartbeatData heartbeatData,
                                          WebHeaderCollection headers,
-                                         HttpStatusCode status, 
+                                         HttpStatusCode status,
                                          string text ) {
             HeartbeatData = heartbeatData;
             ResponseHeaders = headers;
@@ -252,14 +249,12 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class UrlChangedEventArgs : EventArgs {
-        internal UrlChangedEventArgs( string oldUrl, string newUrl ) {
-            OldUrl = oldUrl;
-            NewUrl = newUrl;
+    public sealed class UriChangedEventArgs : EventArgs {
+        internal UriChangedEventArgs( Uri oldUri, Uri newUri ) {
+            OldUri = oldUri;
+            NewUri = newUri;
         }
-        public string OldUrl { get; private set; }
-        public string NewUrl { get; private set; }
+        public Uri OldUri { get; private set; }
+        public Uri NewUri { get; private set; }
     }
-
 }
-#endregion
