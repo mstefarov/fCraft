@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     /// <summary> fCraft map format converter, for obsolete format version #2 (2010). </summary>
@@ -24,12 +25,14 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool ClaimsName( string fileName ) {
+        public bool ClaimsName( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase );
         }
 
 
-        public bool Claims( string fileName ) {
+        public bool Claims( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
                     BinaryReader reader = new BinaryReader( mapStream );
@@ -42,14 +45,16 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map LoadHeader( string fileName ) {
+        public Map LoadHeader( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 return LoadHeaderInternal( mapStream );
             }
         }
 
 
-        static Map LoadHeaderInternal( Stream stream ) {
+        static Map LoadHeaderInternal( [NotNull] Stream stream ) {
+            if( stream == null ) throw new ArgumentNullException( "stream" );
             BinaryReader reader = new BinaryReader( stream );
 
             // Read in the magic number
@@ -79,7 +84,8 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map Load( string fileName ) {
+        public Map Load( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
 
                 Map map = LoadHeaderInternal( mapStream );
@@ -121,12 +127,15 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool Save( Map mapToSave, string fileName ) {
+        public bool Save( [NotNull] Map mapToSave, [NotNull] string fileName ) {
+            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             throw new NotImplementedException();
         }
 
 
-        static string ReadLengthPrefixedString( BinaryReader reader ) {
+        static string ReadLengthPrefixedString( [NotNull] BinaryReader reader ) {
+            if( reader == null ) throw new ArgumentNullException( "reader" );
             int length = reader.ReadInt32();
             byte[] stringData = reader.ReadBytes( length );
             return Encoding.ASCII.GetString( stringData );

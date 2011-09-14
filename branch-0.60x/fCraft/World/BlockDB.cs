@@ -519,7 +519,8 @@ namespace fCraft {
         }
 
 
-        static void OnPlayerPlacedBlock( object sender, PlayerPlacedBlockEventArgs e ) {
+        static void OnPlayerPlacedBlock( object sender, [NotNull] PlayerPlacedBlockEventArgs e ) {
+            if( e == null ) throw new ArgumentNullException( "e" );
             World world = e.Player.World;
             if( world.BlockDB.Enabled ) {
                 BlockDBEntry newEntry = new BlockDBEntry( (int)DateTime.UtcNow.ToUnixTime(),

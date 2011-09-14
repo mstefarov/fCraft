@@ -66,7 +66,7 @@ namespace fCraft {
                 }
 
                 var e = new PlayerInfoCreatingEventArgs( name, IPAddress.None, RankManager.DefaultRank, true );
-                Server.RaisePlayerInfoCreatingEvent( e );
+                PlayerInfo.RaiseCreatingEvent( e );
                 if( e.Cancel ) {
                     throw new OperationCanceledException( "Cancelled by a plugin." );
                 }
@@ -77,7 +77,7 @@ namespace fCraft {
                 Trie.Add( info.Name, info );
                 UpdateCache();
             }
-            Server.RaisePlayerInfoCreatedEvent( info, false );
+            PlayerInfo.RaiseCreatedEvent( info, false );
             return info;
         }
 
@@ -310,7 +310,7 @@ namespace fCraft {
                 info = Trie.Get( name );
                 if( info == null ) {
                     var e = new PlayerInfoCreatingEventArgs( name, lastIP, RankManager.DefaultRank, false );
-                    Server.RaisePlayerInfoCreatingEvent( e );
+                    PlayerInfo.RaiseCreatingEvent( e );
                     if( e.Cancel ) throw new OperationCanceledException( "Cancelled by a plugin." );
 
                     info = new PlayerInfo( name, lastIP, e.StartingRank );
@@ -323,7 +323,7 @@ namespace fCraft {
             }
 
             if( raiseCreatedEvent ) {
-                Server.RaisePlayerInfoCreatedEvent( info, false );
+                PlayerInfo.RaiseCreatedEvent( info, false );
             }
             return info;
         }

@@ -77,7 +77,6 @@ namespace fCraft {
 
 
 
-
         internal static bool RaisePlayerConnectingEvent( Player player ) {
             var h = Connecting;
             if( h == null ) return false;
@@ -190,7 +189,6 @@ namespace fCraft {
             var h = JoinedWorld;
             if( h != null ) h( null, new PlayerJoinedWorldEventArgs( player, oldWorld, player.World, reason ) );
         }
-
     }
 }
 

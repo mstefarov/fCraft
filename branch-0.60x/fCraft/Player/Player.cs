@@ -81,11 +81,13 @@ namespace fCraft {
 
 
         /// <summary> Plain version of the name (no formatting). </summary>
+        [NotNull]
         public string Name {
             get { return Info.Name; }
         }
 
         /// <summary> Name formatted for display in the player list. </summary>
+        [NotNull]
         public string ListName {
             get {
                 string displayedName = Name;
@@ -100,6 +102,7 @@ namespace fCraft {
         }
 
         /// <summary> Name formatted for display in chat. </summary>
+        [NotNull]
         public string ClassyName {
             get { return Info.ClassyName; }
         }
@@ -108,6 +111,8 @@ namespace fCraft {
         public bool IsUsingWoM { get; private set; }
 
 
+        /// <summary> Metadata associated with the session/player. </summary>
+        [NotNull]
         public MetadataCollection<object> Metadata { get; private set; }
 
         #endregion
@@ -245,11 +250,11 @@ namespace fCraft {
                         }
 
                         // first, find ALL players (visible and hidden)
-                        Player[] allPlayers = Server.FindPlayers( otherPlayerName );
+                        Player[] allPlayers = Server.FindPlayers( otherPlayerName, true );
 
                         // if there is more than 1 target player, exclude hidden players
                         if( allPlayers.Length > 1 ) {
-                            allPlayers = Server.FindPlayers( this, otherPlayerName );
+                            allPlayers = Server.FindPlayers( this, otherPlayerName, true );
                         }
 
                         if( allPlayers.Length == 1 ) {
@@ -1008,8 +1013,10 @@ namespace fCraft {
         }
 
 
-        public void SelectionStart( int marksExpected, [NotNull] SelectionCallback callback,
-                                    object args, params Permission[] requiredPermissions ) {
+        public void SelectionStart( int marksExpected,
+                                    [NotNull] SelectionCallback callback,
+                                    object args,
+                                    params Permission[] requiredPermissions ) {
             if( callback == null ) throw new ArgumentNullException( "callback" );
             if( requiredPermissions == null ) throw new ArgumentNullException( "requiredPermissions" );
             selectionArgs = args;
@@ -1056,7 +1063,7 @@ namespace fCraft {
             return CopyInformation[copySlot];
         }
 
-        public void SetCopyInformation( CopyInformation info ) {
+        public void SetCopyInformation( [CanBeNull] CopyInformation info ) {
             CopyInformation[copySlot] = info;
         }
 

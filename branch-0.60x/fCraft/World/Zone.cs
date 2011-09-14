@@ -8,12 +8,15 @@ namespace fCraft {
     public sealed class Zone : IClassy, INotifiesOnChange {
 
         /// <summary> Zone boundaries. </summary>
+        [NotNull]
         public BoundingBox Bounds { get; private set; }
 
         /// <summary> Zone build permission controller. </summary>
+        [NotNull]
         public readonly SecurityController Controller = new SecurityController();
 
         /// <summary> Zone name (case-preserving but case-insensitive). </summary>
+        [NotNull]
         public string Name { get; set; }
 
         /// <summary> List of exceptions (included and excluded players). </summary>
@@ -34,6 +37,7 @@ namespace fCraft {
         public PlayerInfo EditedBy { get; private set; }
 
         /// <summary> Map that this zone is on. </summary>
+        [NotNull]
         public Map Map { get; set; }
 
 
@@ -62,7 +66,9 @@ namespace fCraft {
         }
 
 
-        public Zone( string raw, World world ):this() {
+        public Zone( [NotNull] string raw, [CanBeNull] World world )
+            : this() {
+            if( raw == null ) throw new ArgumentNullException( "raw" );
             string[] parts = raw.Split( ',' );
 
             string[] header = parts[0].Split( ' ' );
@@ -120,7 +126,7 @@ namespace fCraft {
             }
         }
 
-        
+
         #region Xml Serialization
 
         const string XmlRootElementName = "Zone";
@@ -142,8 +148,13 @@ namespace fCraft {
                 EditedDate = DateTime.Parse( edited.Attribute( "on" ).Value );
             }
 
-            Bounds = new BoundingBox( root.Element( BoundingBox.XmlRootElementName ) );
-            Controller = new SecurityController( root.Element( XmlRootElementName ), true );
+            XElement temp = root.Element( BoundingBox.XmlRootElementName );
+            if( temp == null ) throw new FormatException( "No BoundingBox specified for zone." );
+            Bounds = new BoundingBox( temp );
+
+            temp = root.Element( SecurityController.XmlRootElementName );
+            if( temp == null ) throw new FormatException( "No SecurityController specified for zone." );
+            Controller = new SecurityController( temp, true );
         }
         // ReSharper restore PossibleNullReferenceException
 

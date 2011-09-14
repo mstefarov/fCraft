@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using fCraft.AutoRank;
 using fCraft.Drawing;
+using fCraft.Events;
 using JetBrains.Annotations;
 using ThreadState = System.Threading.ThreadState;
 
@@ -427,50 +428,50 @@ namespace fCraft {
 #else
             try {
 #endif
-            RaiseShutdownBeganEvent( shutdownParams );
+                RaiseShutdownBeganEvent( shutdownParams );
 
-            Scheduler.BeginShutdown();
+                Scheduler.BeginShutdown();
 
-            Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
-                        shutdownParams.ReasonString );
+                Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
+                            shutdownParams.ReasonString );
 
-            // stop accepting new players
-            if( listener != null ) {
-                listener.Stop();
-                listener = null;
-            }
-
-            // kick all players
-            lock( SessionLock ) {
-                if( Sessions.Count > 0 ) {
-                    foreach( Player p in Sessions ) {
-                        // NOTE: kick packet delivery here is not currently guaranteed
-                        p.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")", LeaveReason.ServerShutdown );
-                    }
-                    // increase the chances of kick packets being delivered
-                    Thread.Sleep( 1000 );
+                // stop accepting new players
+                if( listener != null ) {
+                    listener.Stop();
+                    listener = null;
                 }
-            }
 
-            // kill IRC bot
-            IRC.Disconnect();
-
-            if( WorldManager.WorldList != null ) {
-                lock( WorldManager.WorldListLock ) {
-                    // unload all worlds (includes saving)
-                    foreach( World world in WorldManager.WorldList ) {
-                        if( world.BlockDB.Enabled ) world.BlockDB.Flush();
-                        world.SaveMap();
+                // kick all players
+                lock( SessionLock ) {
+                    if( Sessions.Count > 0 ) {
+                        foreach( Player p in Sessions ) {
+                            // NOTE: kick packet delivery here is not currently guaranteed
+                            p.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")", LeaveReason.ServerShutdown );
+                        }
+                        // increase the chances of kick packets being delivered
+                        Thread.Sleep( 1000 );
                     }
                 }
-            }
 
-            Scheduler.EndShutdown();
+                // kill IRC bot
+                IRC.Disconnect();
 
-            if( PlayerDB.IsLoaded ) PlayerDB.Save();
-            if( IPBanList.IsLoaded ) IPBanList.Save();
+                if( WorldManager.WorldList != null ) {
+                    lock( WorldManager.WorldListLock ) {
+                        // unload all worlds (includes saving)
+                        foreach( World world in WorldManager.WorldList ) {
+                            if( world.BlockDB.Enabled ) world.BlockDB.Flush();
+                            world.SaveMap();
+                        }
+                    }
+                }
 
-            RaiseShutdownEndedEvent( shutdownParams );
+                Scheduler.EndShutdown();
+
+                if( PlayerDB.IsLoaded ) PlayerDB.Save();
+                if( IPBanList.IsLoaded ) IPBanList.Save();
+
+                RaiseShutdownEndedEvent( shutdownParams );
 #if DEBUG
 #else
             } catch( Exception ex ) {
@@ -569,7 +570,7 @@ namespace fCraft {
 
         /// <summary> Broadcasts a message to all online players.
         /// Shorthand for Server.Players.Message </summary>
-        [StringFormatMethod("message")]
+        [StringFormatMethod( "message" )]
         public static void Message( string message, params object[] formatArgs ) {
             Players.Message( message, formatArgs );
         }
@@ -683,7 +684,7 @@ namespace fCraft {
 
 
         // shows announcements
-        static void ShowRandomAnnouncement( object param ) {
+        static void ShowRandomAnnouncement( SchedulerTask task ) {
             if( !File.Exists( Paths.AnnouncementsFileName ) ) return;
             string[] lines = File.ReadAllLines( Paths.AnnouncementsFileName );
             if( lines.Length == 0 ) return;
@@ -973,10 +974,11 @@ namespace fCraft {
         }
 
 
-        /// <summary> Finds a player by name, using autocompletion. Count ALL players, including hidden ones. </summary>
+        /// <summary> Finds a player by name, using autocompletion.
+        /// Returns ALL matching players, including hidden ones. </summary>
         /// <returns> An array of matches. List length of 0 means "no matches";
         /// 1 is an exact match; over 1 for multiple matches. </returns>
-        public static Player[] FindPlayers( [NotNull] string name ) {
+        public static Player[] FindPlayers( [NotNull] string name, bool raiseEvent ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             Player[] tempList = Players;
             List<Player> results = new List<Player>();
@@ -990,6 +992,13 @@ namespace fCraft {
                     results.Add( tempList[i] );
                 }
             }
+            if( raiseEvent ) {
+                var h = SearchingForPlayer;
+                if( h != null ) {
+                    var e = new SearchingForPlayerEventArgs( null, name, results );
+                    h( null, e );
+                }
+            }
             return results.ToArray();
         }
 
@@ -998,9 +1007,10 @@ namespace fCraft {
         /// <param name="player"> Player who initiated the search.
         /// Used to determine whether others are hidden or not. </param>
         /// <param name="name"> Full or partial name of the search target. </param>
+        /// <param name="raiseEvent"> Whether to raise Server.SearchingForPlayer event. </param>
         /// <returns> An array of matches. List length of 0 means "no matches";
         /// 1 is an exact match; over 1 for multiple matches. </returns>
-        public static Player[] FindPlayers( Player player, string name ) {
+        public static Player[] FindPlayers( [NotNull] Player player, [NotNull] string name, bool raiseEvent ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( name == null ) throw new ArgumentNullException( "name" );
             List<Player> results = new List<Player>();
@@ -1016,24 +1026,33 @@ namespace fCraft {
                     }
                 }
             }
+            if( raiseEvent ) {
+                var h = SearchingForPlayer;
+                if( h != null ) {
+                    var e = new SearchingForPlayerEventArgs( player, name, results );
+                    h( null, e );
+                }
+            }
             return results.ToArray();
         }
 
 
         /// <summary> Find player by name using autocompletion.
-        /// Returns null and prints message if none or multiple players matched. </summary>
+        /// Returns null and prints message if none or multiple players matched.
+        /// Raises Player.SearchingForPlayer event, which may modify search results. </summary>
         /// <param name="player"> Player who initiated the search. This is where messages are sent. </param>
         /// <param name="name"> Full or partial name of the search target. </param>
         /// <param name="includeHidden"> Whether to include hidden players in the search. </param>
+        /// <param name="raiseEvent"> Whether to raise Server.SearchingForPlayer event. </param>
         /// <returns> Player object, or null if no player was found. </returns>
-        public static Player FindPlayerOrPrintMatches( Player player, string name, bool includeHidden ) {
+        public static Player FindPlayerOrPrintMatches( [NotNull] Player player, [NotNull] string name, bool includeHidden, bool raiseEvent ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( name == null ) throw new ArgumentNullException( "name" );
             Player[] matches;
             if( includeHidden ) {
-                matches = FindPlayers( name );
+                matches = FindPlayers( name, raiseEvent );
             } else {
-                matches = FindPlayers( player, name );
+                matches = FindPlayers( player, name, raiseEvent );
             }
 
             if( matches.Length == 0 ) {
@@ -1054,7 +1073,7 @@ namespace fCraft {
         /// <returns> An array of matches. List length of 0 means "no matches";
         /// 1 is an exact match; over 1 for multiple matches. </returns>
         [Obsolete( "Use Players.FromIP() instead" )]
-        public static Player[] FindPlayers( IPAddress ip ) {
+        public static Player[] FindPlayers( [NotNull] IPAddress ip ) {
             if( ip == null ) throw new ArgumentNullException( "ip" );
             return Players.Where( p => p != null &&
                                        p.IP.Equals( ip ) ).ToArray();
@@ -1064,7 +1083,7 @@ namespace fCraft {
         /// <summary> Finds a player by name, without any kind of autocompletion. </summary>
         /// <param name="name"> Name of the player (case-insensitive). </param>
         /// <returns> Player object, or null if player was not found. </returns>
-        public static Player FindPlayerExact( string name ) {
+        public static Player FindPlayerExact( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             return Players.FirstOrDefault( t => t != null &&
                                                 t.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
@@ -1082,7 +1101,7 @@ namespace fCraft {
 
 
         /// <summary> Counts online players whom the given observer can see. </summary>
-        public static int CountVisiblePlayers( Player observer ) {
+        public static int CountVisiblePlayers( [NotNull] Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
             return Players.Count( observer.CanSee );
         }
@@ -1103,7 +1122,7 @@ namespace fCraft {
         }
 
         public ShutdownParams( ShutdownReason reason, TimeSpan delay, bool killProcess,
-                               bool restart, string customReason, Player initiatedBy ) :
+                               bool restart, [CanBeNull] string customReason, [CanBeNull] Player initiatedBy ) :
             this( reason, delay, killProcess, restart ) {
             customReasonString = customReason;
             InitiatedBy = initiatedBy;
@@ -1112,6 +1131,7 @@ namespace fCraft {
         public ShutdownReason Reason { get; private set; }
 
         readonly string customReasonString;
+        [NotNull]
         public string ReasonString {
             get {
                 return customReasonString ?? Reason.ToString();
@@ -1128,6 +1148,7 @@ namespace fCraft {
         public bool Restart { get; private set; }
 
         /// <summary> Player who initiated the shutdown. May be null or Console. </summary>
+        [CanBeNull]
         public Player InitiatedBy { get; private set; }
     }
 

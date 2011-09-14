@@ -1,12 +1,11 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Net;
+using System.Collections.Generic;
 using fCraft.Events;
 
 namespace fCraft {
     partial class Server {
-
-        #region Global/Server events
 
         /// <summary> Occurs when the server is about to be initialized. </summary>
         public static event EventHandler Initializing;
@@ -30,8 +29,17 @@ namespace fCraft {
         public static event EventHandler PlayerListChanged;
 
 
+        /// <summary> Occurs when a player is searching for players (with autocompletion).
+        /// The list of players in the search results may be replaced. </summary>
+        public static event EventHandler<SearchingForPlayerEventArgs> SearchingForPlayer;
+
+
         internal static void RaiseEvent( EventHandler h ) {
             if( h != null ) h( null, EventArgs.Empty );
+        }
+
+        internal static void RaiseEvent<T>( EventHandler<T> h, T e ) where T : EventArgs {
+            if( h != null ) h( null, e );
         }
 
         static void RaiseShutdownBeganEvent( ShutdownParams shutdownParams ) {
@@ -48,7 +56,10 @@ namespace fCraft {
             RaiseEvent( PlayerListChanged );
         }
 
-        #endregion
+        static void RaiseSearchingForPlayerEvent( SearchingForPlayerEventArgs e ){
+            var h = SearchingForPlayer;
+            if( h != null ) h( null, e );
+        }
 
 
         #region Session-related
@@ -88,76 +99,6 @@ namespace fCraft {
 
         #endregion
 
-
-        #region Player-related
-        // See the end of Player.cs for these EventArgs definitions
-
-
-        #endregion
-
-
-        #region PlayerInfo-related
-
-        /// <summary> Occurs when a new PlayerDB entry is being created.
-        /// Allows editing the starting rank. Cancellable (kicks the player). </summary>
-        public static event EventHandler<PlayerInfoCreatingEventArgs> PlayerInfoCreating;
-
-        /// <summary> Occurs after a new PlayerDB entry has been created. </summary>
-        public static event EventHandler<PlayerInfoCreatedEventArgs> PlayerInfoCreated;
-
-        /// <summary> Occurs when a player's rank is about to be changed (automatically or manually). </summary>
-        public static event EventHandler<PlayerInfoRankChangingEventArgs> PlayerInfoRankChanging;
-
-        /// <summary> Occurs after a player's rank was changed (automatically or manually). </summary>
-        public static event EventHandler<PlayerInfoRankChangedEventArgs> PlayerInfoRankChanged;
-
-        /// <summary> Occurs when a player is about to be banned or unbanned. Cancellable. </summary>
-        public static event EventHandler<PlayerInfoBanChangingEventArgs> PlayerInfoBanChanging;
-
-        /// <summary> Occurs after a player has been banned or unbanned. </summary>
-        public static event EventHandler<PlayerInfoBanChangedEventArgs> PlayerInfoBanChanged;
-
-
-        internal static void RaisePlayerInfoCreatingEvent( PlayerInfoCreatingEventArgs e ) {
-            var h = PlayerInfoCreating;
-            if( h != null ) h( null, e );
-        }
-
-        internal static void RaisePlayerInfoCreatedEvent( PlayerInfo info, bool isUnrecognized ) {
-            var h = PlayerInfoCreated;
-            if( h != null ) h( null, new PlayerInfoCreatedEventArgs( info, isUnrecognized ) );
-        }
-
-        internal static bool RaisePlayerInfoRankChangingEvent( PlayerInfo playerInfo, Player rankChanger, Rank newRank, string reason, RankChangeType rankChangeType ) {
-            var h = PlayerInfoRankChanging;
-            if( h == null ) return false;
-            var e = new PlayerInfoRankChangingEventArgs( playerInfo, rankChanger, newRank, reason, rankChangeType );
-            h( null, e );
-            return e.Cancel;
-        }
-
-        internal static void RaisePlayerInfoRankChangedEvent( PlayerInfo playerInfo, Player rankChanger, Rank oldRank, string reason, RankChangeType rankChangeType ) {
-            var h = PlayerInfoRankChanged;
-            if( h != null ) h( null, new PlayerInfoRankChangedEventArgs( playerInfo, rankChanger, oldRank, reason, rankChangeType ) );
-        }
-
-        internal static void RaisePlayerInfoBanChangingEvent( PlayerInfoBanChangingEventArgs e ) {
-            var h = PlayerInfoBanChanging;
-            if( h != null ) h( null, e );
-        }
-
-        internal static void RaisePlayerInfoBanChangedEvent( PlayerInfoBanChangingEventArgs e ) {
-            var h = PlayerInfoBanChanged;
-            if( h != null ) h( null, new PlayerInfoBanChangedEventArgs( e.PlayerInfo, e.Banner, e.IsBeingUnbanned, e.Reason ) );
-        }
-
-        #endregion
-
-
-        #region World-related
-
-        #endregion
-
     }
 }
 
@@ -172,4 +113,18 @@ namespace fCraft.Events {
         public ShutdownParams ShutdownParams { get; private set; }
     }
 
+
+    public sealed class SearchingForPlayerEventArgs : EventArgs, IPlayerEvent {
+        internal SearchingForPlayerEventArgs( Player player, string searchTerm, List<Player> matches ) {
+            Player = player;
+            SearchTerm = searchTerm;
+            Matches = matches;
+        }
+        public Player Player { get; private set; }
+        public string SearchTerm { get; private set; }
+        public bool CheckVisibility {
+            get { return Player != null; }
+        }
+        public List<Player> Matches { get; set; }
+    }
 }

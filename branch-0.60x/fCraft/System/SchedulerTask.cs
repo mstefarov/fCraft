@@ -25,7 +25,7 @@ namespace fCraft {
         }
 
 
-        internal SchedulerTask( [NotNull] SchedulerCallback callback, bool isBackground, object userState )
+        internal SchedulerTask( [NotNull] SchedulerCallback callback, bool isBackground, [CanBeNull] object userState )
             : this() {
             if( callback == null ) throw new ArgumentNullException( "callback" );
             Callback = callback;
@@ -171,7 +171,7 @@ namespace fCraft {
 
 
         /// <summary> Runs the task a given number of times, at a given interval after an initial delay. </summary>
-        public SchedulerTask RunRepeating( object userState, TimeSpan delay, TimeSpan interval, int times ) {
+        public SchedulerTask RunRepeating( [CanBeNull] object userState, TimeSpan delay, TimeSpan interval, int times ) {
             if( times < 1 ) throw new ArgumentException( "Must be ran at least 1 time.", "times" );
             UserState = userState;
             MaxRepeats = times;
@@ -261,7 +261,7 @@ namespace fCraft {
     }
 
 
-    public delegate void SchedulerCallback( SchedulerTask task );
+    public delegate void SchedulerCallback( [NotNull] SchedulerTask task );
 
 
 #if DEBUG_SCHEDULER

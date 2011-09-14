@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Text;
+using JetBrains.Annotations;
 
 // ReSharper disable UnusedMember.Global
 namespace fCraft.MapConversion {
@@ -88,7 +89,8 @@ namespace fCraft.MapConversion {
         public NBTag Append( string name, byte[] value ) {
             return Append( new NBTag( NBTType.Bytes, name, value, this ) );
         }
-        public NBTag Append( string name, string value ) {
+        public NBTag Append( string name, [NotNull] string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
             return Append( new NBTag( NBTType.String, name, value, this ) );
         }
         public NBTag Append( string name, params NBTag[] tags ) {
@@ -110,7 +112,8 @@ namespace fCraft.MapConversion {
 
         #region Child Tag Manipulation
 
-        public bool Contains( string name ) {
+        public bool Contains( [NotNull] string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
             if( this is NBTCompound ) {
                 return ((NBTCompound)this).Tags.ContainsKey( name );
             } else {
@@ -118,7 +121,8 @@ namespace fCraft.MapConversion {
             }
         }
 
-        public NBTag Remove( string name ) {
+        public NBTag Remove( [NotNull] string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
             if( this is NBTCompound ) {
                 NBTag tag = (this)[name];
                 ((NBTCompound)this).Tags.Remove( name );
@@ -142,7 +146,8 @@ namespace fCraft.MapConversion {
 
         #region Loading
 
-        public static NBTCompound ReadFile( string fileName ) {
+        public static NBTCompound ReadFile( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream fs = File.OpenRead( fileName ) ) {
                 using( GZipStream gs = new GZipStream( fs, CompressionMode.Decompress ) ) {
                     return ReadStream( gs );
@@ -150,12 +155,14 @@ namespace fCraft.MapConversion {
             }
         }
 
-        public static NBTCompound ReadStream( Stream stream ) {
+        public static NBTCompound ReadStream( [NotNull] Stream stream ) {
+            if( stream == null ) throw new ArgumentNullException( "stream" );
             BinaryReader reader = new BinaryReader( stream );
             return (NBTCompound)ReadTag( reader, (NBTType)reader.ReadByte(), null, null );
         }
 
-        public static NBTag ReadTag( BinaryReader reader, NBTType type, string name, NBTag parent ) {
+        public static NBTag ReadTag( [NotNull] BinaryReader reader, NBTType type, string name, NBTag parent ) {
+            if( reader == null ) throw new ArgumentNullException( "reader" );
             if( name == null && type != NBTType.End ) {
                 name = ReadString( reader );
             }
@@ -228,29 +235,34 @@ namespace fCraft.MapConversion {
             }
         }
 
-        public static string ReadString( BinaryReader reader ) {
+        public static string ReadString( [NotNull] BinaryReader reader ) {
+            if( reader == null ) throw new ArgumentNullException( "reader" );
             short stringLength = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
             return Encoding.UTF8.GetString( reader.ReadBytes( stringLength ) );
         }
 
-        public string GetFullName() {
-            string fullName = ToString();
-            NBTag tag = this;
-            while( tag.Parent != null ) {
-                tag = tag.Parent;
-                fullName = tag + "." + fullName;
+        public string FullName {
+            get {
+                string fullName = ToString();
+                NBTag tag = this;
+                while( tag.Parent != null ) {
+                    tag = tag.Parent;
+                    fullName = tag + "." + fullName;
+                }
+                return fullName;
             }
-            return fullName;
         }
 
-        public string GetIndentedName() {
-            string fullName = ToString();
-            NBTag tag = this;
-            while( tag.Parent != null ) {
-                tag = tag.Parent;
-                fullName = "    " + fullName;
+        public string IndentedName {
+            get {
+                string fullName = ToString();
+                NBTag tag = this;
+                while( tag.Parent != null ) {
+                    tag = tag.Parent;
+                    fullName = "    " + fullName;
+                }
+                return fullName;
             }
-            return fullName;
         }
 
         public override string ToString() {
@@ -259,7 +271,7 @@ namespace fCraft.MapConversion {
 
         public string ToString( bool recursive ) {
             if( !recursive ) return ToString();
-            StringBuilder sb = new StringBuilder( GetIndentedName() );
+            StringBuilder sb = new StringBuilder( IndentedName );
             sb.AppendLine();
             foreach( NBTag tag in this ) {
                 sb.Append( tag.ToString( true ) );
@@ -272,7 +284,8 @@ namespace fCraft.MapConversion {
 
         #region Saving
 
-        public void WriteTag( string fileName ) {
+        public void WriteTag( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream fs = File.OpenWrite( fileName ) ) {
                 using( GZipStream gs = new GZipStream( fs, CompressionMode.Compress ) ) {
                     WriteTag( gs );
@@ -280,17 +293,20 @@ namespace fCraft.MapConversion {
             }
         }
 
-        public void WriteTag( Stream stream ) {
+        public void WriteTag( [NotNull] Stream stream ) {
+            if( stream == null ) throw new ArgumentNullException( "stream" );
             using( BinaryWriter writer = new BinaryWriter( stream ) ) {
                 WriteTag( writer, true );
             }
         }
 
-        public void WriteTag( BinaryWriter writer ) {
+        public void WriteTag( [NotNull] BinaryWriter writer ) {
+            if( writer == null ) throw new ArgumentNullException( "writer" );
             WriteTag( writer, true );
         }
 
-        public void WriteTag( BinaryWriter writer, bool writeType ) {
+        public void WriteTag( [NotNull] BinaryWriter writer, bool writeType ) {
+            if( writer == null ) throw new ArgumentNullException( "writer" );
             if( writeType ) writer.Write( (byte)Type );
             if( Type == NBTType.End ) return;
             if( writeType ) WriteString( Name, writer );
@@ -351,7 +367,9 @@ namespace fCraft.MapConversion {
             }
         }
 
-        static void WriteString( string str, BinaryWriter writer ) {
+        static void WriteString( [NotNull] string str, [NotNull] BinaryWriter writer ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
+            if( writer == null ) throw new ArgumentNullException( "writer" );
             byte[] stringBytes = Encoding.UTF8.GetBytes( str );
             writer.Write( IPAddress.NetworkToHostOrder( (short)stringBytes.Length ) );
             writer.Write( stringBytes );

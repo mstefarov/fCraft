@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.IO;
 using System.IO.Compression;
+using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     [DataContract]
@@ -84,12 +85,14 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool ClaimsName( string fileName ) {
+        public bool ClaimsName( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".save", StringComparison.Ordinal );
         }
 
 
-        public bool Claims( string fileName ) {
+        public bool Claims( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
                     BinaryReader reader = new BinaryReader( mapStream );
@@ -101,14 +104,16 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map LoadHeader( string fileName ) {
+        public Map LoadHeader( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
-                return LoadMapMetaData( mapStream );
+                return LoadMapMetadata( mapStream );
             }
         }
 
 
-        static Map LoadMapMetaData( Stream mapStream ) {
+        static Map LoadMapMetadata( [NotNull] Stream mapStream ) {
+            if( mapStream == null ) throw new ArgumentNullException( "mapStream" );
             BinaryReader reader = new BinaryReader( mapStream );
             reader.ReadInt16();
             int metaDataSize = reader.ReadInt32();
@@ -133,11 +138,12 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map Load( string fileName ) {
+        public Map Load( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 BinaryReader reader = new BinaryReader( mapStream );
                 // Load MetaData
-                Map mapFile = LoadMapMetaData( mapStream );
+                Map mapFile = LoadMapMetadata( mapStream );
 
                 // Load the data store
                 int dataBlockSize = reader.ReadInt32();
@@ -161,7 +167,9 @@ namespace fCraft.MapConversion {
         }
 
 
-        static void LoadZones( Map mapFile, OpticraftDataStore dataStore ) {
+        static void LoadZones( [NotNull] Map mapFile, [NotNull] OpticraftDataStore dataStore ) {
+            if( mapFile == null ) throw new ArgumentNullException( "mapFile" );
+            if( dataStore == null ) throw new ArgumentNullException( "dataStore" );
             if( dataStore.Zones.Length == 0 ) {
                 return;
             }
@@ -211,7 +219,9 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool Save( Map mapToSave, string fileName ) {
+        public bool Save( [NotNull] Map mapToSave, [NotNull] string fileName ) {
+            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenWrite( fileName ) ) {
                 BinaryWriter writer = new BinaryWriter( mapStream );
                 // Version

@@ -607,7 +607,7 @@ namespace fCraft.ConfigGUI {
                 return;
             }
 
-            MapFormat format = MapUtility.Identify( fileName );
+            MapFormat format = MapUtility.Identify( fileName, true );
             try {
                 Map loadedMap = MapUtility.LoadHeader( fileName );
                 const string msgFormat =

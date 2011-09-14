@@ -27,7 +27,7 @@ namespace fCraft.MapConversion {
 
 
         // ReSharper disable EmptyGeneralCatchClause
-        public static MapFormat Identify( [NotNull] string fileName ) {
+        public static MapFormat Identify( [NotNull] string fileName, bool tryFallbackConverters ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             MapStorageType targetType = MapStorageType.SingleFile;
             if( !File.Exists( fileName ) ) {
@@ -51,12 +51,14 @@ namespace fCraft.MapConversion {
                 } catch { }
             }
 
-            foreach( IMapConverter converter in fallbackConverters ) {
-                try {
-                    if( converter.Claims( fileName ) ) {
-                        return converter.Format;
-                    }
-                } catch { }
+            if( tryFallbackConverters ) {
+                foreach( IMapConverter converter in fallbackConverters ) {
+                    try {
+                        if( converter.Claims( fileName ) ) {
+                            return converter.Format;
+                        }
+                    } catch { }
+                }
             }
 
             return MapFormat.Unknown;
