@@ -135,9 +135,9 @@ namespace fCraft {
                 } else {
                     try {
                         Uri newUri = new Uri( replyString );
-                        Uri oldUri = new Uri(Server.Url);
+                        Uri oldUri = Server.Uri;
                         if( newUri != oldUri ) {
-                            Server.Url = newUri.ToString();
+                            Server.Uri = newUri;
                             RaiseUriChangedEvent( oldUri, newUri );
                         }
                     } catch( UriFormatException ) {
