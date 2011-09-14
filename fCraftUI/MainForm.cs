@@ -25,7 +25,7 @@ namespace fCraftUI {
 
         void StartUp( object sender, EventArgs a ) {
             Logger.Logged += OnLogged;
-            Heartbeat.UrlChanged += OnHeartbeatUrlChanged;
+            Heartbeat.UriChanged += OnHeartbeatUrlChanged;
             Server.PlayerListChanged += OnPlayerListChanged;
             Server.ShutdownEnded += OnServerShutdownEnded;
 
@@ -114,14 +114,14 @@ namespace fCraftUI {
         }
 
 
-        public void OnHeartbeatUrlChanged( object sender, UrlChangedEventArgs e ) {
+        public void OnHeartbeatUrlChanged( object sender, UriChangedEventArgs e ) {
             try {
                 if( shutdownPending ) return;
                 if( urlDisplay.InvokeRequired ) {
-                    Invoke( (EventHandler<UrlChangedEventArgs>)OnHeartbeatUrlChanged,
+                    Invoke( (EventHandler<UriChangedEventArgs>)OnHeartbeatUrlChanged,
                             sender, e );
                 } else {
-                    urlDisplay.Text = e.NewUrl;
+                    urlDisplay.Text = e.NewUri.ToString();
                     urlDisplay.Enabled = true;
                     bPlay.Enabled = true;
                 }

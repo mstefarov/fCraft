@@ -33,7 +33,7 @@ namespace fCraftConsole {
     static class Program {
         static void Main( string[] args ) {
             Logger.Logged += OnLogged;
-            Heartbeat.UrlChanged += OnHeartbeatUrlChanged;
+            Heartbeat.UriChanged += OnHeartbeatUrlChanged;
 
 #if !DEBUG
             try {
@@ -120,9 +120,9 @@ namespace fCraftConsole {
         }
 
 
-        static void OnHeartbeatUrlChanged( object sender, UrlChangedEventArgs e ) {
-            File.WriteAllText( "externalurl.txt", e.NewUrl, Encoding.ASCII );
-            Console.WriteLine( "** URL: {0} **", e.NewUrl );
+        static void OnHeartbeatUrlChanged( object sender, UriChangedEventArgs e ) {
+            File.WriteAllText( "externalurl.txt", e.NewUri.ToString(), Encoding.ASCII );
+            Console.WriteLine( "** URL: {0} **", e.NewUri );
             Console.WriteLine( "URL is also saved to file externalurl.txt" );
         }
     }

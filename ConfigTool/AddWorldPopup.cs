@@ -246,9 +246,9 @@ namespace ConfigTool {
         void AsyncDraw( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
             renderer = new IsoCat( map, IsoCatMode.Normal, previewRotation );
-            Rectangle cropRectangle = new Rectangle();
+            Rectangle cropRectangle;
             if( bwRenderer.CancellationPending ) return;
-            Bitmap rawImage = renderer.Draw( ref cropRectangle, bwRenderer );
+            Bitmap rawImage = renderer.Draw( out cropRectangle, bwRenderer );
             if( bwRenderer.CancellationPending ) return;
             if( rawImage != null ) {
                 previewImage = rawImage.Clone( cropRectangle, rawImage.PixelFormat );

@@ -129,7 +129,8 @@ namespace fCraft {
         }
 
         byte* bp, ctp;
-        public Bitmap Draw( ref Rectangle cropRectangle, BackgroundWorker worker ) {
+        public Bitmap Draw( out Rectangle cropRectangle, BackgroundWorker worker ) {
+            cropRectangle = Rectangle.Empty;
             try {
                 fixed( byte* bpx = Map.Blocks ) {
                     fixed( byte* tp = Tiles ) {
@@ -181,7 +182,7 @@ namespace fCraft {
                                 if( y == (Rot == 1 || Rot == 3 ? dimX : dimY) ) {
                                     h++;
                                     y = 0;
-                                    if( h % 4 == 0 ) {
+                                    if( h % 4 == 0 && worker != null ) {
                                         if( worker.CancellationPending ) return null;
                                         worker.ReportProgress( (h * 100) / Map.Height );
                                     }
@@ -208,7 +209,7 @@ namespace fCraft {
                     }
                 }
 
-                if( worker.CancellationPending ) return null;
+                if( worker != null && worker.CancellationPending ) return null;
 
                 // find top bound (yMin)
                 cont = true;
@@ -224,7 +225,7 @@ namespace fCraft {
                     }
                 }
 
-                if( worker.CancellationPending ) return null;
+                if( worker != null && worker.CancellationPending ) return null;
 
                 // find right bound (xMax)
                 cont = true;
@@ -240,7 +241,7 @@ namespace fCraft {
                     }
                 }
 
-                if( worker.CancellationPending ) return null;
+                if( worker != null && worker.CancellationPending ) return null;
 
                 // find bottom bound (yMax)
                 cont = true;
@@ -263,7 +264,7 @@ namespace fCraft {
                 return imageBmp;
             } finally {
                 imageBmp.UnlockBits( imageData );
-                if( worker.CancellationPending && imageBmp != null ) {
+                if( worker != null && worker.CancellationPending && imageBmp != null ) {
                     try {
                         imageBmp.Dispose();
                     } catch( ObjectDisposedException ) { }
