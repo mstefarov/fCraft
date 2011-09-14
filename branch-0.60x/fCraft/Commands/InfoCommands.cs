@@ -682,7 +682,7 @@ namespace fCraft {
 
             // if a section name is given, but no section files exist
             if( !Directory.Exists( Paths.RulesDirectory ) ) {
-                player.Message( "There are no rule sections defined.", sectionName );
+                player.Message( "There are no rule sections defined." );
                 return;
             }
 

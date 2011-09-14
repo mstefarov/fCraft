@@ -569,6 +569,7 @@ namespace fCraft {
 
         /// <summary> Broadcasts a message to all online players.
         /// Shorthand for Server.Players.Message </summary>
+        [StringFormatMethod("message")]
         public static void Message( string message, params object[] formatArgs ) {
             Players.Message( message, formatArgs );
         }
@@ -583,6 +584,7 @@ namespace fCraft {
 
         /// <summary> Broadcasts a message to all online players except one.
         /// Shorthand for Server.Players.Except(except).Message </summary>
+        [StringFormatMethod( "message" )]
         public static void Message( Player except, string message, params object[] formatArgs ) {
             Players.Except( except ).Message( message, formatArgs );
         }
@@ -637,7 +639,7 @@ namespace fCraft {
                 if( player.IdleTime.TotalMinutes >= player.Info.Rank.IdleKickTimer ) {
                     Message( "{0}&S was kicked for being idle for {1} min",
                              player.ClassyName,
-                             player.Info.Rank.IdleKickTimer.ToString() );
+                             player.Info.Rank.IdleKickTimer );
                     ModerationCommands.DoKick( Player.Console,
                                                player,
                                                "Idle for " + player.Info.Rank.IdleKickTimer + " minutes",

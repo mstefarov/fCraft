@@ -95,7 +95,7 @@ namespace fCraft {
                 }
             } catch( Exception ex ) {
                 Logger.Log( "An error occured while trying to check for updates: {0}: {1}", LogType.Error,
-                            ex.GetType().ToString(), ex.Message );
+                            ex.GetType(), ex.Message );
                 return UpdaterResult.NoUpdate;
             }
         }

@@ -790,7 +790,7 @@ namespace fCraft {
                     XAttribute toRankID = rankPair.Attribute( "to" );
                     if( fromRankID == null || String.IsNullOrEmpty( fromRankID.Value ) ||
                         toRankID == null || String.IsNullOrEmpty( toRankID.Value ) ) {
-                        Logger.Log( "Config.Load: Could not parse a LegacyRankMapping entry: {0}", LogType.Error, rankPair.ToString() );
+                        Logger.Log( "Config.Load: Could not parse a LegacyRankMapping entry: {0}", LogType.Error, rankPair );
                     } else {
                         RankManager.LegacyRankMapping.Add( fromRankID.Value, toRankID.Value );
                     }

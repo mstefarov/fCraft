@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     public sealed class Rank : IClassy, IComparable<Rank> {
-        
+
         public string Name { get; set; }
 
         public string Color { get; set; }
@@ -109,7 +109,7 @@ namespace fCraft {
 
             // AntiGrief block limit (assuming unlimited if not given)
             int value;
-            XAttribute agBlocks =  el.Attribute( "antiGriefBlocks" );
+            XAttribute agBlocks = el.Attribute( "antiGriefBlocks" );
             XAttribute agSeconds = el.Attribute( "antiGriefSeconds" );
             if( agBlocks != null && agSeconds != null ) {
                 if( Int32.TryParse( agBlocks.Value, out value ) ) {
@@ -350,7 +350,7 @@ namespace fCraft {
             // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < rankName.Length; i++ ) {
                 char ch = rankName[i];
-                if( ch < '0' || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < '_' ) || ( ch > '_' && ch < 'a' ) ||
+                if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') ||
                     ch > 'z' ) {
                     return false;
                 }
@@ -366,7 +366,7 @@ namespace fCraft {
             // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < id.Length; i++ ) {
                 char ch = id[i];
-                if( ch < '0' || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < 'a' ) || ch > 'z' ) {
+                if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < 'a') || ch > 'z' ) {
                     return false;
                 }
             }

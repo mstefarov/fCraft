@@ -355,7 +355,7 @@ namespace fCraft {
                     if( player.Can( Permission.ViewPlayerIPs ) ) {
                         player.Message( "{0} has been removed from the IP ban list.", address );
                     } else {
-                        player.Message( "This IP has been removed from the ban list.", address );
+                        player.Message( "This IP has been removed from the ban list." );
                     }
                     string ipAssociatedName = targetName;
                     if( !String.IsNullOrEmpty( banInfo.PlayerName ) ) {
@@ -418,7 +418,7 @@ namespace fCraft {
                     if( player.Can( Permission.ViewPlayerIPs ) ) {
                         player.Message( "{0} was added to the IP ban list.", address );
                     } else {
-                        player.Message( "This IP was added to the ban list.", address );
+                        player.Message( "This IP was added to the ban list." );
                     }
 
                     var can = Server.Players.Can( Permission.ViewPlayerIPs ).Except( player );

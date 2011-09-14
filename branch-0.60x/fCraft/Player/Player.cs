@@ -352,13 +352,8 @@ namespace fCraft {
             }
         }
 
-        public void Message( [NotNull] string message, [NotNull] object arg ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( arg == null ) throw new ArgumentNullException( "arg" );
-            Message( String.Format( message, arg ) );
-        }
 
-        [StringFormatMethod("message")]
+        [StringFormatMethod( "message" )]
         public void Message( [NotNull] string message, [NotNull] params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
@@ -572,6 +567,7 @@ namespace fCraft {
         /// <param name="cmd"> Command that needs confirmation. </param>
         /// <param name="message"> Message to print before "Type /ok to continue". </param>
         /// <param name="args"> Optional String.Format() arguments, for the message. </param>
+        [StringFormatMethod( "message" )]
         public void Confirm( [NotNull] Command cmd, [NotNull] string message, [NotNull] params object[] args ) {
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( message == null ) throw new ArgumentNullException( "message" );
