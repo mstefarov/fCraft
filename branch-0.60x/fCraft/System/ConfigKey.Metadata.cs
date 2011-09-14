@@ -5,13 +5,14 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
     /// <summary> Describes attributes and metadata of a configuration key. </summary>
     [AttributeUsage( AttributeTargets.Field )]
     public class ConfigKeyAttribute : DescriptionAttribute {
-        protected ConfigKeyAttribute( ConfigSection section, Type valueType, object defaultValue, string description )
+        protected ConfigKeyAttribute( ConfigSection section, [NotNull] Type valueType, object defaultValue, [NotNull] string description )
             : base( description ) {
             if( valueType == null ) throw new ArgumentNullException( "valueType" );
             if( description == null ) throw new ArgumentNullException( "description" );
@@ -39,7 +40,7 @@ namespace fCraft {
         }
 
 
-        public virtual void Validate( string value ) {
+        public virtual void Validate( [NotNull] string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             if( NotBlank && value.Length == 0 ) {
                 throw new FormatException( "Value cannot be blank or null." );

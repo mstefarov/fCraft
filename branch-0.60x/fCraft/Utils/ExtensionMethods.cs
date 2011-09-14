@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net;
 using System.Globalization;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
     static class IPAddressUtil {
         /// <summary> Checks whether an IP address may belong to LAN (192.168.0.0/16 or 10.0.0.0/24). </summary>
-        public static bool IsLAN( this IPAddress addr ) {
+        public static bool IsLAN( [NotNull] this IPAddress addr ) {
             if( addr == null ) throw new ArgumentNullException( "addr" );
             byte[] bytes = addr.GetAddressBytes();
             return (bytes[0] == 192 && bytes[1] == 168) ||
@@ -114,7 +115,7 @@ namespace fCraft {
 
         /// <summary> Tries to create a TimeSpan from a string containing the number of seconds.
         /// If the string was empty, returns false and does not affect result. </summary>
-        public static bool ToTimeSpan( this string str, out TimeSpan result ) {
+        public static bool ToTimeSpan( [NotNull] this string str, out TimeSpan result ) {
             if( str == null ) throw new ArgumentNullException( "str" );
             if( str.Length == 0 ) {
                 result = TimeSpan.Zero;
@@ -178,7 +179,7 @@ namespace fCraft {
         }
 
 
-        public static TimeSpan ParseMiniTimespan( this string text ) {
+        public static TimeSpan ParseMiniTimespan( [NotNull] this string text ) {
             if( text == null ) throw new ArgumentNullException( "text" );
 
             int secondCount;
@@ -256,7 +257,7 @@ namespace fCraft {
         /// <param name="dateString"> String to parse. </param>
         /// <param name="date"> Date to output. </param>
         /// <returns> True if date string could be parsed and was not empty/MinValue. </returns>
-        public static bool TryParseLocalDate( string dateString, out DateTime date ) {
+        public static bool TryParseLocalDate( [NotNull] string dateString, out DateTime date ) {
             if( dateString == null ) throw new ArgumentNullException( "dateString" );
             if( dateString.Length <= 1 ) {
                 date = DateTime.MinValue;
@@ -288,7 +289,7 @@ namespace fCraft {
     static class EnumerableUtil {
         /// <summary> Joins all items in a collection into one comma-separated string.
         /// If the items are not strings, .ToString() is called on them. </summary>
-        public static string JoinToString<T>( this IEnumerable<T> items ) {
+        public static string JoinToString<T>( [NotNull] this IEnumerable<T> items ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             StringBuilder sb = new StringBuilder();
             bool first = true;
@@ -303,7 +304,7 @@ namespace fCraft {
 
         /// <summary> Joins all items in a collection into one string separated with the given separator.
         /// If the items are not strings, .ToString() is called on them. </summary>
-        public static string JoinToString<T>( this IEnumerable<T> items, string separator ) {
+        public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] string separator ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             if( separator == null ) throw new ArgumentNullException( "separator" );
             StringBuilder sb = new StringBuilder();
@@ -319,8 +320,9 @@ namespace fCraft {
 
         /// <summary> Joins all items in a collection into one string separated with the given separator.
         /// A specified string conversion function is called on each item before contactenation. </summary>
-        public static string JoinToString<T>( this IEnumerable<T> items, Func<T, string> stringConversionFunction ) {
+        public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] Func<T, string> stringConversionFunction ) {
             if( items == null ) throw new ArgumentNullException( "items" );
+            if( stringConversionFunction == null ) throw new ArgumentNullException( "stringConversionFunction" );
             StringBuilder sb = new StringBuilder();
             bool first = true;
             foreach( T item in items ) {
@@ -334,9 +336,10 @@ namespace fCraft {
 
         /// <summary> Joins all items in a collection into one string separated with the given separator.
         /// A specified string conversion function is called on each item before contactenation. </summary>
-        public static string JoinToString<T>( this IEnumerable<T> items, string separator, Func<T, string> stringConversionFunction ) {
+        public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] string separator, [NotNull] Func<T, string> stringConversionFunction ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             if( separator == null ) throw new ArgumentNullException( "separator" );
+            if( stringConversionFunction == null ) throw new ArgumentNullException( "stringConversionFunction" );
             StringBuilder sb = new StringBuilder();
             bool first = true;
             foreach( T item in items ) {
@@ -349,7 +352,7 @@ namespace fCraft {
 
 
         /// <summary> Joins formatted names of all IClassy objects in a collection into one comma-separated string. </summary>
-        public static string JoinToClassyString( this IEnumerable<IClassy> items ) {
+        public static string JoinToClassyString( [NotNull] this IEnumerable<IClassy> items ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             return items.JoinToString( "  ", p => p.ClassyName );
         }
@@ -358,7 +361,7 @@ namespace fCraft {
 
     unsafe static class IntUtil {
         // Quicker StringBuilder.Append(int) by Sam Allen of http://www.dotnetperls.com
-        public static void Digits( this StringBuilder builder, int number ) {
+        public static void Digits( [NotNull] this StringBuilder builder, int number ) {
             if( builder == null ) throw new ArgumentNullException( "builder" );
             if( number >= 100000000 ) {
                 // Use system ToString.
@@ -424,7 +427,7 @@ namespace fCraft {
 
 
         // Quicker Int32.Parse(string) by Karl Seguin
-        public static int Parse( string stringToConvert ) {
+        public static int Parse( [NotNull] string stringToConvert ) {
             if( stringToConvert == null ) throw new ArgumentNullException( "stringToConvert" );
             int value = 0;
             int length = stringToConvert.Length;
@@ -438,7 +441,7 @@ namespace fCraft {
     }
 
     unsafe static class BufferUtil {
-        public static void MemSet( this byte[] array, byte value ) {
+        public static void MemSet( [NotNull] this byte[] array, byte value ) {
             if( array == null ) throw new ArgumentNullException( "array" );
             byte[] rawValue = new[] { value, value, value, value, value, value, value, value };
             Int64 fillValue = BitConverter.ToInt64( rawValue, 0 );
@@ -460,7 +463,7 @@ namespace fCraft {
         }
 
 
-        public static void MemSet( this byte[] array, byte value, int startIndex, int length ) {
+        public static void MemSet( [NotNull] this byte[] array, byte value, int startIndex, int length ) {
             if( array == null ) throw new ArgumentNullException( "array" );
             if( length < 0 || length > array.Length ) {
                 throw new ArgumentOutOfRangeException( "length" );

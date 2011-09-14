@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> A general-purpose task scheduler. </summary>
@@ -122,7 +123,7 @@ namespace fCraft {
 
         /// <summary> Schedules a given task for execution. </summary>
         /// <param name="task"> Task to schedule. </param>
-        internal static void AddTask( SchedulerTask task ) {
+        internal static void AddTask( [NotNull] SchedulerTask task ) {
             if( task == null ) throw new ArgumentNullException( "task" );
             lock( TaskListLock ) {
                 if( Server.IsShuttingDown ) return;
@@ -148,7 +149,7 @@ namespace fCraft {
         /// Use this if your task is time-sensitive or frequent, and your callback won't take too long to execute. </summary>
         /// <param name="callback"> Method to call when the task is triggered. </param>
         /// <returns> Newly created SchedulerTask object. </returns>
-        public static SchedulerTask NewTask( SchedulerCallback callback ) {
+        public static SchedulerTask NewTask( [NotNull] SchedulerCallback callback ) {
             return new SchedulerTask( callback, false );
         }
 
@@ -157,7 +158,7 @@ namespace fCraft {
         /// Use this if your task is not very time-sensitive or frequent, or if your callback is resource-intensive. </summary>
         /// <param name="callback"> Method to call when the task is triggered. </param>
         /// <returns> Newly created SchedulerTask object. </returns>
-        public static SchedulerTask NewBackgroundTask( SchedulerCallback callback ) {
+        public static SchedulerTask NewBackgroundTask( [NotNull] SchedulerCallback callback ) {
             return new SchedulerTask( callback, true );
         }
 
@@ -167,7 +168,7 @@ namespace fCraft {
         /// <param name="callback"> Method to call when the task is triggered. </param>
         /// <param name="userState"> Parameter to pass to the method. </param>
         /// <returns> Newly created SchedulerTask object. </returns>
-        public static SchedulerTask NewTask( SchedulerCallback callback, object userState ) {
+        public static SchedulerTask NewTask( [NotNull] SchedulerCallback callback, object userState ) {
             return new SchedulerTask( callback, false, userState );
         }
 
@@ -177,7 +178,7 @@ namespace fCraft {
         /// <param name="callback"> Method to call when the task is triggered. </param>
         /// <param name="userState"> Parameter to pass to the method. </param>
         /// <returns> Newly created SchedulerTask object. </returns>
-        public static SchedulerTask NewBackgroundTask( SchedulerCallback callback, object userState ) {
+        public static SchedulerTask NewBackgroundTask( [NotNull] SchedulerCallback callback, object userState ) {
             return new SchedulerTask( callback, true, userState );
         }
 
@@ -235,8 +236,10 @@ namespace fCraft {
         }
 
 
-        /// <summary> Prints a list of active tasks (which may be quite long) to a given player. </summary>
-        public static void PrintTasks( Player player ) {
+#if DEBUG_SCHEDULER
+        
+        public static void PrintTasks( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             lock( TaskListLock ) {
                 foreach( SchedulerTask task in Tasks ) {
                     player.Message( task.ToString() );
@@ -245,7 +248,6 @@ namespace fCraft {
         }
 
 
-#if DEBUG_SCHEDULER
         public static event EventHandler<SchedulerTaskEventArgs> TaskAdded;
 
         public static event EventHandler<SchedulerTaskEventArgs> TaskExecuting;

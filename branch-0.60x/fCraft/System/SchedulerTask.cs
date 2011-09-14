@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> A task to be executed by the Scheduler.
@@ -16,7 +17,7 @@ namespace fCraft {
         }
 
 
-        internal SchedulerTask( SchedulerCallback callback, bool isBackground )
+        internal SchedulerTask( [NotNull] SchedulerCallback callback, bool isBackground )
             : this() {
             if( callback == null ) throw new ArgumentNullException( "callback" );
             Callback = callback;
@@ -24,7 +25,7 @@ namespace fCraft {
         }
 
 
-        internal SchedulerTask( SchedulerCallback callback, bool isBackground, object userState )
+        internal SchedulerTask( [NotNull] SchedulerCallback callback, bool isBackground, object userState )
             : this() {
             if( callback == null ) throw new ArgumentNullException( "callback" );
             Callback = callback;
@@ -68,6 +69,7 @@ namespace fCraft {
         public int MaxRepeats { get; set; }
 
         /// <summary> Method to call to execute the task. </summary>
+        [NotNull]
         public SchedulerCallback Callback { get; set; }
 
         /// <summary> General-purpose persistent state object,

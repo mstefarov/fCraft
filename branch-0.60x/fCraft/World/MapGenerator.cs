@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
@@ -49,7 +50,7 @@ namespace fCraft {
         int groundThickness = 5;
         const int SeaFloorThickness = 3;
 
-        public MapGenerator( MapGeneratorArgs generatorArgs ) {
+        public MapGenerator( [NotNull] MapGeneratorArgs generatorArgs ) {
             if( generatorArgs == null ) throw new ArgumentNullException( "generatorArgs" );
             args = generatorArgs;
             args.Validate();

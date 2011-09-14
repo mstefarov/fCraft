@@ -9,6 +9,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using fCraft.Events;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Checks for updates, and keeps track of current version/revision. </summary>
@@ -200,7 +201,7 @@ namespace fCraft {
 
         public string[] ChangeLog { get; private set; }
 
-        public static ReleaseFlags StringToReleaseFlags( string str ) {
+        public static ReleaseFlags StringToReleaseFlags( [NotNull] string str ) {
             if( str == null ) throw new ArgumentNullException( "str" );
             ReleaseFlags flags = ReleaseFlags.None;
             for( int i = 0; i < str.Length; i++ ) {

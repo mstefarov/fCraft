@@ -1,14 +1,15 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Cache;
 using System.Reflection;
 using System.Text;
-using System.Linq;
 using fCraft.Events;
-using System.Diagnostics;
+using JetBrains.Annotations;
 #if DEBUG_EVENTS
 using System.Reflection.Emit;
 #endif
@@ -62,7 +63,7 @@ namespace fCraft {
         }
 
 
-        public static void LogToConsole( string message ) {
+        public static void LogToConsole( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( message.Contains( '\n' ) ) {
                 foreach( string line in message.Split( '\n' ) ) {
@@ -80,7 +81,7 @@ namespace fCraft {
 
 
         [DebuggerStepThrough]
-        public static void Log( string message, LogType type ) {
+        public static void Log( [NotNull] string message, LogType type ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( !Enabled ) return;
             string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message; // localized

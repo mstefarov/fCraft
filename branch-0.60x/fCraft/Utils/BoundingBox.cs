@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
@@ -47,7 +48,7 @@ namespace fCraft {
 
 
         /// <summary> Checks whether this bounding box intersects/touches another one. </summary>
-        public bool Insersects( BoundingBox other ) {
+        public bool Insersects( [NotNull] BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             return XMin > other.XMax || XMax < other.XMin ||
                    YMin > other.YMax || YMax < other.YMin ||
@@ -56,7 +57,7 @@ namespace fCraft {
 
 
         /// <summary> Checks if another bounding box is wholly contained inside this one. </summary>
-        public bool Contains( BoundingBox other ) {
+        public bool Contains( [NotNull] BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             return XMin >= other.XMin && XMax <= other.XMax &&
                    YMin >= other.YMin && YMax <= other.YMax &&
@@ -74,7 +75,7 @@ namespace fCraft {
 
         /// <summary> Returns a BoundingBox object that describes the space shared between this and another box. </summary>
         /// <returns> Intersecting volume, or BoundingBox.Empty if there is no overlap. </returns>
-        public BoundingBox GetIntersection( BoundingBox other ) {
+        public BoundingBox GetIntersection( [NotNull] BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             if( Insersects( other ) ) {
                 return new BoundingBox( Math.Max( XMin, other.XMin ),
@@ -125,7 +126,7 @@ namespace fCraft {
 
         public const string XmlRootElementName = "BoundingBox";
 
-        public BoundingBox( XElement root ) {
+        public BoundingBox( [NotNull] XElement root ) {
             if( root == null ) throw new ArgumentNullException( "root" );
             string[] coords = root.Value.Split( ' ' );
             int x1 = Int32.Parse( coords[0] );

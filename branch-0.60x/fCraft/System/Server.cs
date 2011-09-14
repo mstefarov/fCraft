@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using fCraft.AutoRank;
 using fCraft.Drawing;
+using JetBrains.Annotations;
 using ThreadState = System.Threading.ThreadState;
 
 namespace fCraft {
@@ -101,7 +102,7 @@ namespace fCraft {
         /// Does not raise any events besides Logger.Logged.
         /// Throws exceptions on failure. </summary>
         /// <param name="rawArgs"> string arguments passed to the frontend (if any). </param>
-        public static void InitLibrary( IEnumerable<string> rawArgs ) {
+        public static void InitLibrary( [NotNull] IEnumerable<string> rawArgs ) {
             if( rawArgs == null ) throw new ArgumentNullException( "rawArgs" );
 
             ServicePointManager.Expect100Continue = false;
@@ -418,7 +419,7 @@ namespace fCraft {
         static Thread shutdownThread;
 
 
-        internal static void ShutdownNow( ShutdownParams shutdownParams ) {
+        internal static void ShutdownNow( [NotNull] ShutdownParams shutdownParams ) {
             if( shutdownParams == null ) throw new ArgumentNullException( "shutdownParams" );
             if( IsShuttingDown ) return; // to avoid starting shutdown twice
             IsShuttingDown = true;
@@ -482,7 +483,7 @@ namespace fCraft {
         /// <summary> Initiates the server shutdown with given parameters. </summary>
         /// <param name="shutdownParams"> Shutdown parameters </param>
         /// <param name="waitForShutdown"> If true, blocks the calling thread until shutdown is complete or cancelled. </param>
-        public static void Shutdown( ShutdownParams shutdownParams, bool waitForShutdown ) {
+        public static void Shutdown( [NotNull] ShutdownParams shutdownParams, bool waitForShutdown ) {
             if( shutdownParams == null ) throw new ArgumentNullException( "shutdownParams" );
             if( !CancelShutdown() ) return;
             shutdownThread = new Thread( ShutdownThread ) {
@@ -525,7 +526,7 @@ namespace fCraft {
         }
 
 
-        static void ShutdownThread( object obj ) {
+        static void ShutdownThread( [NotNull] object obj ) {
             if( obj == null ) throw new ArgumentNullException( "obj" );
             ShutdownParams param = (ShutdownParams)obj;
             Thread.Sleep( param.Delay );
@@ -584,155 +585,6 @@ namespace fCraft {
         /// Shorthand for Server.Players.Except(except).Message </summary>
         public static void Message( Player except, string message, params object[] formatArgs ) {
             Players.Except( except ).Message( message, formatArgs );
-        }
-
-
-        [Obsolete( "Use Server.Players.Except(except).Send" )]
-        public static void SendToAll( Packet packet, Player except ) {
-            Player[] tempList = Players;
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != except ) {
-                    tempList[i].Send( packet );
-                }
-            }
-        }
-
-
-        [Obsolete( "Use Server.Players.Message" )]
-        public static void SendToAll( string message, params object[] formatArgs ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            SendToAllExcept( message, null, formatArgs );
-        }
-
-
-        [Obsolete( "Use Server.Message" )]
-        public static void SendToAllExcept( string message, Player except, params object[] formatArgs ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( formatArgs.Length > 0 ) message = String.Format( message, formatArgs );
-            //if( except != Player.Console ) Logger.LogConsole( message );
-            foreach( Packet p in LineWrapper.Wrap( message ) ) {
-                SendToAll( p, except );
-            }
-        }
-
-
-        [Obsolete( "Use Server.Players.Can(permission).Message" )]
-        public static void SendToAllWhoCan( string message, Player except, Permission permission, params object[] formatArgs ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( formatArgs.Length > 0 ) {
-                message = String.Format( message, formatArgs );
-            }
-            foreach( Packet p in LineWrapper.Wrap( message ) ) {
-                foreach( Player player in Players.Where( pl => pl.Can( permission ) ) ) {
-                    if( player != except ) {
-                        player.Send( p );
-                    }
-                }
-            }
-        }
-
-
-        [Obsolete( "Use Server.Players.Cant(permission).Message" )]
-        public static void SendToAllWhoCant( string message, Player except, Permission permission, params object[] formatArgs ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( formatArgs.Length > 0 ) {
-                message = String.Format( message, formatArgs );
-            }
-            foreach( Packet p in LineWrapper.Wrap( message ) ) {
-                foreach( Player player in Players.Where( pl => !pl.Can( permission ) ) ) {
-                    if( player != except ) {
-                        player.Send( p );
-                    }
-                }
-            }
-        }
-
-
-        [Obsolete( "Use Server.Players.NotIgnoring(origin).Message" )]
-        public static void SendToAllExceptIgnored( Player origin, string message, Player except, params object[] formatArgs ) {
-            if( origin == null ) throw new ArgumentNullException( "origin" );
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( formatArgs.Length > 0 ) message = String.Format( message, formatArgs );
-            foreach( Packet p in LineWrapper.Wrap( message ) ) {
-                Player[] tempList = Players;
-                for( int i = 0; i < tempList.Length; i++ ) {
-                    if( tempList[i] != except && !tempList[i].IsIgnoring( origin.Info ) ) {
-                        tempList[i].Send( p );
-                    }
-                }
-            }
-        }
-
-
-        [Obsolete( "Use Server.Players.CanSee(source).Send" )]
-        public static void SendToSeeing( Packet packet, Player source ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            Player[] playerListCopy = Players;
-            for( int i = 0; i < playerListCopy.Length; i++ ) {
-                if( playerListCopy[i] != source && playerListCopy[i].CanSee( source ) ) {
-                    playerListCopy[i].Send( packet );
-                }
-            }
-        }
-
-
-        [Obsolete( "Use Server.Players.CanSee(source).Message" )]
-        public static void SendToSeeing( string message, Player source ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( source == null ) throw new ArgumentNullException( "source" );
-            foreach( Packet packet in LineWrapper.Wrap( message ) ) {
-                SendToSeeing( packet, source );
-            }
-        }
-
-
-        [Obsolete( "Use Server.Players.CantSee(source).Send" )]
-        public static void SendToBlind( Packet packet, Player source ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            Player[] playerListCopy = Players;
-            for( int i = 0; i < playerListCopy.Length; i++ ) {
-                if( playerListCopy[i] != source && !playerListCopy[i].CanSee( source ) ) {
-                    playerListCopy[i].Send( packet );
-                }
-            }
-        }
-
-
-        [Obsolete( "Use Server.Players.CantSee(source).Message" )]
-        public static void SendToBlind( string message, Player source ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( source == null ) throw new ArgumentNullException( "source" );
-            foreach( Packet packet in LineWrapper.Wrap( message ) ) {
-                SendToBlind( packet, source );
-            }
-        }
-
-
-        [Obsolete( "Use rank.Players.Send or Server.Players.Ranked(rank).Send" )]
-        public static void SendToRank( Packet packet, Rank rank ) {
-            if( rank == null ) throw new ArgumentNullException( "rank" );
-            Player[] tempList = Players;
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i].Info.Rank == rank ) {
-                    tempList[i].Send( packet );
-                }
-            }
-        }
-
-
-        [Obsolete( "Use rank.Players.NotIgnoring(origin).Message or Server.Players.Ranked(rank).NotIgnoring(origin).Message" )]
-        public static void SendToRank( Player origin, string message, Rank rank ) {
-            if( origin == null ) throw new ArgumentNullException( "origin" );
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( rank == null ) throw new ArgumentNullException( "rank" );
-            foreach( Packet packet in LineWrapper.Wrap( message ) ) {
-                Player[] tempList = Players;
-                for( int i = 0; i < tempList.Length; i++ ) {
-                    if( tempList[i].Info.Rank == rank && !tempList[i].IsIgnoring( origin.Info ) ) {
-                        tempList[i].Send( packet );
-                    }
-                }
-            }
         }
 
         #endregion
@@ -898,7 +750,7 @@ namespace fCraft {
         }
 
 
-        public static bool VerifyName( string name, string hash, string salt ) {
+        public static bool VerifyName( [NotNull] string name, [NotNull] string hash, [NotNull] string salt ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( hash == null ) throw new ArgumentNullException( "hash" );
             if( salt == null ) throw new ArgumentNullException( "salt" );
@@ -914,7 +766,7 @@ namespace fCraft {
         }
 
 
-        public static int CalculateMaxPacketsPerUpdate( World world ) {
+        public static int CalculateMaxPacketsPerUpdate( [NotNull] World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );
             int packetsPerTick = (int)(BlockUpdateThrottling / TicksPerSecond);
             int maxPacketsPerUpdate = (int)(MaxUploadSpeed / TicksPerSecond * 128);
@@ -936,7 +788,7 @@ namespace fCraft {
         static readonly Regex RegexIP = new Regex( @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b",
                                                    RegexOptions.Compiled );
 
-        public static bool IsIP( string ipString ) {
+        public static bool IsIP( [NotNull] string ipString ) {
             if( ipString == null ) throw new ArgumentNullException( "ipString" );
             return RegexIP.IsMatch( ipString );
         }
@@ -966,7 +818,7 @@ namespace fCraft {
         }
 
 
-        public static string ReplaceTextKeywords( Player player, string input ) {
+        public static string ReplaceTextKeywords( [NotNull] Player player, [NotNull] string input ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( input == null ) throw new ArgumentNullException( "input" );
             StringBuilder sb = new StringBuilder( input );
@@ -1000,7 +852,7 @@ namespace fCraft {
         // Registers a new session, and checks the number of connections from this IP.
         // Returns true if the session was registered succesfully.
         // Returns false if the max number of connections was reached.
-        internal static bool RegisterSession( Player session ) {
+        internal static bool RegisterSession( [NotNull] Player session ) {
             if( session == null ) throw new ArgumentNullException( "session" );
             int maxSessions = ConfigKey.MaxConnectionsPerIP.GetInt();
             lock( SessionLock ) {
@@ -1025,7 +877,7 @@ namespace fCraft {
         // Also kicks any existing connections for this player account.
         // Returns true if player was registered succesfully.
         // Returns false if the server was full.
-        internal static bool RegisterPlayer( Player player ) {
+        internal static bool RegisterPlayer( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             // Kick other sessions with same player name
@@ -1061,7 +913,7 @@ namespace fCraft {
         }
 
 
-        public static string MakePlayerConnectedMessage( Player player, bool firstTime, World world ) {
+        public static string MakePlayerConnectedMessage( [NotNull] Player player, bool firstTime, [NotNull] World world ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( world == null ) throw new ArgumentNullException( "world" );
             if( firstTime ) {
@@ -1079,7 +931,7 @@ namespace fCraft {
 
 
         // Removes player from the list, and announced them leaving
-        public static void UnregisterPlayer( Player player ) {
+        public static void UnregisterPlayer( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             lock( PlayerListLock ) {
@@ -1104,7 +956,7 @@ namespace fCraft {
 
 
         // Removes a session from the list
-        internal static void UnregisterSession( Player player ) {
+        internal static void UnregisterSession( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             lock( SessionLock ) {
                 Sessions.Remove( player );
@@ -1122,7 +974,7 @@ namespace fCraft {
         /// <summary> Finds a player by name, using autocompletion. Count ALL players, including hidden ones. </summary>
         /// <returns> An array of matches. List length of 0 means "no matches";
         /// 1 is an exact match; over 1 for multiple matches. </returns>
-        public static Player[] FindPlayers( string name ) {
+        public static Player[] FindPlayers( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             Player[] tempList = Players;
             List<Player> results = new List<Player>();

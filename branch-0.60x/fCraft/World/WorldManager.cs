@@ -23,7 +23,6 @@ namespace fCraft {
         /// The map of the new main world is preloaded, and old one is unloaded, if needed. </summary>
         /// <exception cref="System.ArgumentNullException" />
         /// <exception cref="fCraft.WorldOpException" />
-        [NotNull]
         public static World MainWorld {
             get { return mainWorld; }
             set {
@@ -321,7 +320,7 @@ namespace fCraft {
         /// <summary> Finds a world by full name.
         /// Target world is not guaranteed to have a loaded map. </summary>
         /// <returns> World if found, or null if not found. </returns>
-        public static World FindWorldExact( string name ) {
+        public static World FindWorldExact( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             return WorldList.FirstOrDefault( w => w.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
         }
@@ -330,7 +329,7 @@ namespace fCraft {
         /// <summary> Finds all worlds that match the given world name.
         /// Autocompletes. Does not raise SearchingForWorld event.
         /// Target worlds are not guaranteed to have a loaded map. </summary>
-        public static World[] FindWorldsNoEvent( string name ) {
+        public static World[] FindWorldsNoEvent( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             World[] worldListCache = WorldList;
 
@@ -372,7 +371,7 @@ namespace fCraft {
         /// Returns null if zero or multiple worlds matched. </summary>
         /// <param name="player"> Player who will receive messages regarding zero or multiple matches. </param>
         /// <param name="worldName"> Full or partial world name. </param>
-        public static World FindWorldOrPrintMatches( Player player, string worldName ) {
+        public static World FindWorldOrPrintMatches( [NotNull] Player player, [NotNull] string worldName ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
 
@@ -394,7 +393,7 @@ namespace fCraft {
         #endregion
 
 
-        public static World AddWorld( Player player, string name, Map map, bool neverUnload ) {
+        public static World AddWorld( [CanBeNull] Player player, [NotNull] string name, [CanBeNull] Map map, bool neverUnload ) {
             if( name == null ) throw new ArgumentNullException( "name" );
 
             if( !World.IsValidName( name ) ) {
@@ -433,15 +432,12 @@ namespace fCraft {
 
 
         /// <summary> Changes the name of the given world. </summary>
-        public static void RenameWorld( World world, string newName, bool moveMapFile ) {
+        public static void RenameWorld( [NotNull] World world, [NotNull] string newName, bool moveMapFile ) {
             if( newName == null ) throw new ArgumentNullException( "newName" );
+            if( world == null ) throw new ArgumentNullException( "world" );
 
             if( !World.IsValidName( newName ) ) {
                 throw new WorldOpException( newName, WorldOpExceptionCode.InvalidWorldName );
-            }
-
-            if( world == null ) {
-                throw new WorldOpException( null, WorldOpExceptionCode.WorldNotFound );
             }
 
             lock( world.WorldLock ) {
@@ -493,7 +489,7 @@ namespace fCraft {
         }
 
 
-        internal static void ReplaceWorld( World oldWorld, World newWorld ) {
+        internal static void ReplaceWorld( [NotNull] World oldWorld, [NotNull] World newWorld ) {
             if( oldWorld == null ) throw new ArgumentNullException( "oldWorld" );
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
 
@@ -531,7 +527,7 @@ namespace fCraft {
         }
 
 
-        public static void RemoveWorld( World worldToDelete ) {
+        public static void RemoveWorld( [NotNull] World worldToDelete ) {
             if( worldToDelete == null ) throw new ArgumentNullException( "worldToDelete" );
 
             lock( WorldListLock ) {

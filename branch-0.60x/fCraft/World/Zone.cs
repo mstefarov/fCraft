@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
@@ -39,7 +40,7 @@ namespace fCraft {
         /// <summary> Creates the zone boundaries, and sets CreatedDate/CreatedBy. </summary>
         /// <param name="bounds"> New zone boundaries. </param>
         /// <param name="createdBy"> Player who created this zone. May not be null. </param>
-        public void Create( BoundingBox bounds, PlayerInfo createdBy ) {
+        public void Create( [NotNull] BoundingBox bounds, [NotNull] PlayerInfo createdBy ) {
             if( bounds == null ) throw new ArgumentNullException( "bounds" );
             if( createdBy == null ) throw new ArgumentNullException( "createdBy" );
             CreatedDate = DateTime.UtcNow;
@@ -48,7 +49,7 @@ namespace fCraft {
         }
 
 
-        public void Edit( PlayerInfo editedBy ) {
+        public void Edit( [NotNull] PlayerInfo editedBy ) {
             if( editedBy == null ) throw new ArgumentNullException( "editedBy" );
             EditedDate = DateTime.UtcNow;
             EditedBy = editedBy;
@@ -125,7 +126,7 @@ namespace fCraft {
         const string XmlRootElementName = "Zone";
 
         // ReSharper disable PossibleNullReferenceException
-        public Zone( XContainer root ) {
+        public Zone( [NotNull] XContainer root ) {
             if( root == null ) throw new ArgumentNullException( "root" );
             Name = root.Element( "name" ).Value;
 

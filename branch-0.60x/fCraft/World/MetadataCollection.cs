@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> A string metadata entry. </summary>
@@ -45,7 +46,7 @@ namespace fCraft {
 
         public MetadataCollection() { }
 
-        public MetadataCollection( MetadataCollection<T> other )
+        public MetadataCollection( [NotNull] MetadataCollection<T> other )
             : this() {
             if( other == null ) throw new ArgumentNullException( "other" );
             lock( other.syncRoot ) {
@@ -75,13 +76,13 @@ namespace fCraft {
 
 
         /// <summary> Number of keys within a given group. </summary>
-        public int GetKeyCount( string group ) {
+        public int GetKeyCount( [NotNull] string group ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             return store[group].Count;
         }
 
 
-        public void Add( string group, string key, T value ) {
+        public void Add( [NotNull] string group, [NotNull] string key, [NotNull] T value ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
             if( value == null ) throw new ArgumentNullException( "value" );
@@ -121,7 +122,7 @@ namespace fCraft {
         }
 
 
-        public T GetValue( string group, string key ) {
+        public T GetValue( [NotNull] string group, [NotNull] string key ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
             lock( syncRoot ) {
@@ -130,7 +131,7 @@ namespace fCraft {
         }
 
 
-        public void SetValue( string group, string key, T value ) {
+        public void SetValue( [NotNull] string group, [NotNull] string key, [NotNull] T value ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
             if( value == null ) throw new ArgumentNullException( "value" );
@@ -149,7 +150,7 @@ namespace fCraft {
         }
 
 
-        public MetadataEntry<T> Get( string group, string key ) {
+        public MetadataEntry<T> Get( [NotNull] string group, [NotNull] string key ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
             lock( syncRoot ) {
@@ -169,7 +170,7 @@ namespace fCraft {
         #endregion
 
 
-        public bool ContainsGroup( string group ) {
+        public bool ContainsGroup( [NotNull] string group ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             lock( syncRoot ) {
                 return store.ContainsKey( group );
@@ -177,7 +178,7 @@ namespace fCraft {
         }
 
 
-        public bool ContainsKey( string group, string key ) {
+        public bool ContainsKey( [NotNull] string group, [NotNull] string key ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
             lock( syncRoot ) {
@@ -187,7 +188,7 @@ namespace fCraft {
         }
 
 
-        public bool TryGetValue( string group, string key, out T value ) {
+        public bool TryGetValue( [NotNull] string group, [NotNull] string key, out T value ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
             Dictionary<string, T> pair;
@@ -203,7 +204,7 @@ namespace fCraft {
 
         /// <summary> Enumerates a group of keys. </summary>
         /// <remarks> Lock SyncRoot if this is used in a loop. </remarks>
-        public IEnumerator<MetadataEntry<T>> GetGroup( string group ) {
+        public IEnumerator<MetadataEntry<T>> GetGroup( [NotNull] string group ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             Dictionary<string, T> groupDic;
             if( store.TryGetValue( group, out groupDic ) ) {
@@ -234,12 +235,12 @@ namespace fCraft {
         }
 
 
-        public bool Contains( MetadataEntry<T> item ) {
+        public bool Contains( [NotNull] MetadataEntry<T> item ) {
             return ContainsKey( item.Group, item.Key );
         }
 
 
-        public void CopyTo( MetadataEntry<T>[] array, int arrayIndex ) {
+        public void CopyTo( [NotNull] MetadataEntry<T>[] array, int arrayIndex ) {
             if( array == null ) throw new ArgumentNullException( "array" );
 
             if( arrayIndex < 0 || arrayIndex >= array.Length ) {
@@ -310,7 +311,7 @@ namespace fCraft {
 
         #region ICollection Members
 
-        public void CopyTo( Array array, int index ) {
+        public void CopyTo( [NotNull] Array array, int index ) {
             if( array == null ) throw new ArgumentNullException( "array" );
             var castArray = array as MetadataEntry<T>[];
             if( castArray == null ) {

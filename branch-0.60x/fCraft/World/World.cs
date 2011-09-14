@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using fCraft.MapConversion;
+using JetBrains.Annotations;
 
 namespace fCraft {
     public sealed class World : IClassy {
@@ -130,7 +131,7 @@ namespace fCraft {
         }
 
 
-        public void ChangeMap( Map newMap ) {
+        public void ChangeMap( [NotNull] Map newMap ) {
             if( newMap == null ) throw new ArgumentNullException( "newMap" );
             lock( WorldLock ) {
                 World newWorld = new World( Name ) {
@@ -208,7 +209,7 @@ namespace fCraft {
         readonly Dictionary<string, Player> playerIndex = new Dictionary<string, Player>();
         public Player[] Players { get; private set; }
 
-        public Map AcceptPlayer( Player player, bool announce ) {
+        public Map AcceptPlayer( [NotNull] Player player, bool announce ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             if( IsFull && player.Info.Rank.ReservedSlot ) {
@@ -265,7 +266,7 @@ namespace fCraft {
         }
 
 
-        public bool ReleasePlayer( Player player ) {
+        public bool ReleasePlayer( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             lock( WorldLock ) {
                 if( !playerIndex.Remove( player.Name.ToLower() ) ) {
@@ -291,7 +292,7 @@ namespace fCraft {
 
 
         // Find player by name using autocompletion
-        public Player FindPlayer( string playerName ) {
+        public Player FindPlayer( [NotNull] string playerName ) {
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
             Player[] tempList = Players;
             Player result = null;
@@ -308,7 +309,7 @@ namespace fCraft {
         }
 
 
-        public Player[] FindPlayers( Player player, string playerName ) {
+        public Player[] FindPlayers( [NotNull] Player player, [NotNull] string playerName ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
             Player[] tempList = Players;
@@ -329,7 +330,7 @@ namespace fCraft {
 
 
         /// <summary> Gets player by name (without autocompletion) </summary>
-        public Player FindPlayerExact( string playerName ) {
+        public Player FindPlayerExact( [NotNull] string playerName ) {
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
             Player[] tempList = Players;
             // ReSharper disable LoopCanBeConvertedToQuery
@@ -362,7 +363,7 @@ namespace fCraft {
 
 
         /// <summary> Counts only the players who are not hidden from a given observer. </summary>
-        public int CountVisiblePlayers( Player observer ) {
+        public int CountVisiblePlayers( [NotNull] Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
             return Players.Count( observer.CanSee );
         }
@@ -388,7 +389,7 @@ namespace fCraft {
         readonly object lockLock = new object();
 
 
-        public bool Lock( Player player ) {
+        public bool Lock( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             lock( lockLock ) {
                 if( IsLocked ) {
@@ -407,7 +408,7 @@ namespace fCraft {
         }
 
 
-        public bool Unlock( Player player ) {
+        public bool Unlock( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             lock( lockLock ) {
                 if( IsLocked ) {
@@ -432,7 +433,7 @@ namespace fCraft {
         readonly object patrolLock = new object();
         static readonly TimeSpan MinPatrolInterval = TimeSpan.FromSeconds( 20 );
 
-        public Player GetNextPatrolTarget( Player observer ) {
+        public Player GetNextPatrolTarget( [NotNull] Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
             lock( patrolLock ) {
                 Player candidate = Players.RankedAtMost( RankManager.PatrolledRank )
@@ -532,7 +533,7 @@ namespace fCraft {
 
         /// <summary> Ensures that player name has the correct length (2-16 characters)
         /// and character set (alphanumeric chars and underscores allowed). </summary>
-        public static bool IsValidName( string name ) {
+        public static bool IsValidName( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( name.Length < 2 || name.Length > 16 ) return false;
             // ReSharper disable LoopCanBeConvertedToQuery
