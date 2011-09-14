@@ -768,6 +768,7 @@ namespace fCraft {
             Name = "worlds",
             Category = CommandCategory.World | CommandCategory.Info,
             IsConsoleSafe = true,
+            UsableByFrozenPlayers = true,
             Aliases = new[] { "maps", "levels" },
             Usage = "/worlds [all|hidden|loaded]",
             Help = "Shows a list of worlds available for you to join. " +
@@ -1430,6 +1431,7 @@ namespace fCraft {
             Aliases = new[] { "mapinfo" },
             Category = CommandCategory.World | CommandCategory.Info,
             IsConsoleSafe = true,
+            UsableByFrozenPlayers = true,
             Usage = "/winfo [WorldName]",
             Help = "Shows information about a world: player count, map dimensions, permissions, etc." +
                    "If no WorldName is given, shows info for current world.",
