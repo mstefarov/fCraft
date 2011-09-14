@@ -11,6 +11,7 @@ using fCraft.AutoRank;
 using fCraft.Drawing;
 using fCraft.Events;
 using fCraft.MapConversion;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Represents a connection to a Minecraft client. Handles low-level interactions (e.g. networking). </summary>
@@ -46,13 +47,13 @@ namespace fCraft {
                                          priorityOutputQueue = new ConcurrentQueue<Packet>();
 
 
-        internal static void StartSession( TcpClient tcpClient ) {
+        internal static void StartSession( [NotNull] TcpClient tcpClient ) {
+            if( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
             new Player( tcpClient );
         }
 
-        Player( TcpClient tcpClient ) {
+        Player( [NotNull] TcpClient tcpClient ) {
             if( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
-
             LoginTime = DateTime.UtcNow;
             LastActiveTime = DateTime.UtcNow;
             LastPatrolTime = DateTime.MinValue;
@@ -500,8 +501,6 @@ namespace fCraft {
             reader.ReadByte(); // unused
             BytesReceived += 131;
 
-            // Verify name
-
             Position = WorldManager.MainWorld.Map.Spawn;
             Info = PlayerDB.FindOrCreateInfoForPlayer( playerName, IP );
             ResetAllBinds();
@@ -776,7 +775,7 @@ namespace fCraft {
         Position postJoinPosition;
         bool useWorldSpawn;
 
-        public void JoinWorld( World newWorld, WorldChangeReason reason ) {
+        public void JoinWorld( [NotNull] World newWorld, WorldChangeReason reason ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             lock( joinWorldLock ) {
                 useWorldSpawn = true;
@@ -787,7 +786,7 @@ namespace fCraft {
         }
 
 
-        public void JoinWorld( World newWorld, WorldChangeReason reason, Position position ) {
+        public void JoinWorld( [NotNull] World newWorld, WorldChangeReason reason, Position position ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             lock( joinWorldLock ) {
                 useWorldSpawn = false;
@@ -798,7 +797,7 @@ namespace fCraft {
         }
 
 
-        internal bool JoinWorldNow( World newWorld, bool doUseWorldSpawn, WorldChangeReason reason ) {
+        internal bool JoinWorldNow( [NotNull] World newWorld, bool doUseWorldSpawn, WorldChangeReason reason ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
 
             string textLine1=ConfigKey.ServerName.GetString();
@@ -973,7 +972,7 @@ namespace fCraft {
 
         /// <summary> Kick (asynchronous). Immediately blocks all client input, but waits
         /// until client thread has sent the kick packet. </summary>
-        public void Kick( string message, LeaveReason leaveReason ) {
+        public void Kick( [NotNull] string message, LeaveReason leaveReason ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             LeaveReason = leaveReason;
 
@@ -991,7 +990,7 @@ namespace fCraft {
 
         /// <summary> Kick (synchronous). Immediately sends the kick packet.
         /// Can only be used from IoThread (this is not thread-safe). </summary>
-        public void KickNow( string message, LeaveReason leaveReason ) {
+        public void KickNow( [NotNull] string message, LeaveReason leaveReason ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( Thread.CurrentThread != ioThread ) {
                 throw new InvalidOperationException( "KickNow may only be called from player's own thread." );
@@ -1150,7 +1149,7 @@ namespace fCraft {
         }
 
 
-        void AddEntity( Player player, Position newPos ) {
+        void AddEntity( [NotNull] Player player, Position newPos ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             var pos = new VisibleEntity( newPos, freePlayerIDs.Pop(), player.Info.Rank );
             entities.Add( player, pos );
@@ -1158,7 +1157,7 @@ namespace fCraft {
         }
 
 
-        void HideEntity( VisibleEntity entity ) {
+        void HideEntity( [NotNull] VisibleEntity entity ) {
             if( entity == null ) throw new ArgumentNullException( "entity" );
             entity.Hidden = true;
             entity.LastKnownPosition = VisibleEntity.HiddenPosition;
@@ -1166,7 +1165,7 @@ namespace fCraft {
         }
 
 
-        void ShowEntity( VisibleEntity entity, Position newPos ) {
+        void ShowEntity( [NotNull] VisibleEntity entity, Position newPos ) {
             if( entity == null ) throw new ArgumentNullException( "entity" );
             entity.Hidden = false;
             entity.LastKnownPosition = newPos;
@@ -1174,7 +1173,7 @@ namespace fCraft {
         }
 
 
-        void ReAddEntity( VisibleEntity entity, Player player, Position newPos ) {
+        void ReAddEntity( [NotNull] VisibleEntity entity, [NotNull] Player player, Position newPos ) {
             if( entity == null ) throw new ArgumentNullException( "entity" );
             if( player == null ) throw new ArgumentNullException( "player" );
             SendNow( PacketWriter.MakeRemoveEntity( entity.Id ) );
@@ -1183,7 +1182,7 @@ namespace fCraft {
         }
 
 
-        void RemoveEntity( Player player ) {
+        void RemoveEntity( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             SendNow( PacketWriter.MakeRemoveEntity( entities[player].Id ) );
             freePlayerIDs.Push( entities[player].Id );
@@ -1191,7 +1190,7 @@ namespace fCraft {
         }
 
 
-        void MoveEntity( VisibleEntity entity, Position newPos ) {
+        void MoveEntity( [NotNull] VisibleEntity entity, Position newPos ) {
             if( entity == null ) throw new ArgumentNullException( "entity" );
             Position oldPos = entity.LastKnownPosition;
 

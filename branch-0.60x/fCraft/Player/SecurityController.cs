@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
@@ -67,7 +68,7 @@ namespace fCraft {
         /// was previously neutral), or removes a specific exclusion. </summary>
         /// <param name="info"> Player's info. </param>
         /// <returns> Previous exception state of the player. </returns>
-        public PermissionOverride Include( PlayerInfo info ) {
+        public PermissionOverride Include( [NotNull] PlayerInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
             lock( locker ) {
                 if( includedPlayers.ContainsValue( info ) ) {
@@ -91,7 +92,7 @@ namespace fCraft {
         /// was previously neutral), or removes a specific inclusion. </summary>
         /// <param name="info"> Player's info. </param>
         /// <returns> Previous exception state of the player. </returns>
-        public PermissionOverride Exclude( PlayerInfo info ) {
+        public PermissionOverride Exclude( [NotNull] PlayerInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
             lock( locker ) {
                 if( excludedPlayers.ContainsValue( info ) ) {
@@ -114,7 +115,7 @@ namespace fCraft {
         /// <summary> Checks whether a player is allowed by this controller. </summary>
         /// <param name="info"> Player to check. </param>
         /// <returns> True if player is allowed. </returns>
-        public bool Check( PlayerInfo info ) {
+        public bool Check( [NotNull] PlayerInfo info ) {
             // ReSharper disable LoopCanBeConvertedToQuery
             if( info == null ) throw new ArgumentNullException( "info" );
             PlayerExceptions listCache = ExceptionList;
@@ -140,7 +141,7 @@ namespace fCraft {
         /// <summary> Checks player's permission status with this controller, in detail. </summary>
         /// <param name="info"> Player to check. </param>
         /// <returns> Security check result. </returns>
-        public SecurityCheckResult CheckDetailed( PlayerInfo info ) {
+        public SecurityCheckResult CheckDetailed( [NotNull] PlayerInfo info ) {
             // ReSharper disable LoopCanBeConvertedToQuery
             if( info == null ) throw new ArgumentNullException( "info" );
             PlayerExceptions listCache = ExceptionList;
@@ -169,7 +170,7 @@ namespace fCraft {
         /// <param name="noun"> The type of target (e.g. "world" or "zone"). </param>
         /// <param name="verb"> The action, in past tense, that this
         /// controller manages (e.g. "accessed" or "modified"). </param>
-        public string GetDescription( IClassy target, string noun, string verb ) {
+        public string GetDescription( [NotNull] IClassy target, [NotNull] string noun, [NotNull] string verb ) {
             if( target == null ) throw new ArgumentNullException( "target" );
             if( noun == null ) throw new ArgumentNullException( "noun" );
             if( verb == null ) throw new ArgumentNullException( "verb" );
@@ -209,7 +210,7 @@ namespace fCraft {
         readonly XElement[] rawExceptions;
 
         // ReSharper disable PossibleNullReferenceException
-        public SecurityController( XContainer el, bool parseExceptions ) {
+        public SecurityController( [NotNull] XContainer el, bool parseExceptions ) {
             if( el == null ) throw new ArgumentNullException( "el" );
             if( el.Element( "minRank" ) != null ) {
                 minRank = Rank.Parse( el.Element( "minRank" ).Value );
@@ -243,7 +244,7 @@ namespace fCraft {
         }
 
 
-        public XElement Serialize( string tagName ) {
+        public XElement Serialize( [NotNull] string tagName ) {
             if( tagName == null ) throw new ArgumentNullException( "tagName" );
 
             XElement root = new XElement( tagName );
@@ -305,7 +306,7 @@ namespace fCraft {
         #region Cloning
 
         /// <summary> Creates a copy of an existing controller. </summary>
-        public SecurityController( SecurityController other ) {
+        public SecurityController( [NotNull] SecurityController other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             MinRank = other.minRank;
             lock( other.locker ) {
@@ -334,7 +335,7 @@ namespace fCraft {
 
     /// <summary> List of included and excluded players. </summary>
     public struct PlayerExceptions {
-        public PlayerExceptions( PlayerInfo[] included, PlayerInfo[] excluded ) {
+        public PlayerExceptions( [NotNull] PlayerInfo[] included, [NotNull] PlayerInfo[] excluded ) {
             if( included == null ) throw new ArgumentNullException( "included" );
             if( excluded == null ) throw new ArgumentNullException( "excluded" );
             Included = included;
