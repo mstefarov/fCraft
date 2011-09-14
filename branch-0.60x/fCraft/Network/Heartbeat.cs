@@ -67,13 +67,7 @@ namespace fCraft {
             }
 
             if( ConfigKey.HeartbeatEnabled.Enabled() ) {
-                request = (HttpWebRequest)WebRequest.Create( Uri );
-                request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
-                request.Method = "POST";
-                request.Timeout = Timeout;
-                request.ContentType = "application/x-www-form-urlencoded";
-                request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
-
+                UriBuilder ub = new UriBuilder( Uri );
                 StringBuilder sb = new StringBuilder();
                 sb.AppendFormat( "public={0}&max={1}&users={2}&port={3}&version={4}&salt={5}&name={6}",
                                  data.IsPublic,
@@ -89,16 +83,21 @@ namespace fCraft {
                                      Uri.EscapeDataString( pair.Key ),
                                      Uri.EscapeDataString( pair.Value ) );
                 }
+                ub.Query = sb.ToString();
 
-                byte[] formData = Encoding.ASCII.GetBytes( sb.ToString() );
-                request.ContentLength = formData.Length;
+                request = (HttpWebRequest)WebRequest.Create( ub.Uri );
+                request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
+                request.Method = "GET";
+                request.Timeout = Timeout;
+                request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
 
-                request.BeginGetRequestStream( RequestCallback, formData );
+                request.BeginGetResponse( ResponseCallback, null );
             } else {
                 // If heartbeats are disabled, the data is written to a text file (heartbeatdata.txt)
                 const string tempFile = Paths.HeartbeatDataFileName + ".tmp";
 
-                File.WriteAllLines( tempFile, new[]{
+                File.WriteAllLines( tempFile,
+                    new[]{
                         Server.Salt,
                         Server.IP.ToString(),
                         Server.Port.ToString(),
@@ -106,29 +105,10 @@ namespace fCraft {
                         ConfigKey.MaxPlayers.GetString(),
                         ConfigKey.ServerName.GetString(),
                         ConfigKey.IsPublic.GetString()
-                    }, Encoding.ASCII );
+                    },
+                    Encoding.ASCII );
 
                 Paths.MoveOrReplace( tempFile, Paths.HeartbeatDataFileName );
-                RescheduleHeartbeat();
-            }
-        }
-
-
-        static void RequestCallback( IAsyncResult result ) {
-            if( Server.IsShuttingDown ) return;
-            try {
-                byte[] formData = (byte[])result.AsyncState;
-                using( Stream requestStream = request.EndGetRequestStream( result ) ) {
-                    requestStream.Write( formData, 0, formData.Length );
-                }
-                request.BeginGetResponse( ResponseCallback, null );
-            } catch( Exception ex ) {
-                LastHeartbeatFailed = true;
-                if( ex is WebException || ex is IOException ) {
-                    Logger.Log( "Heartbeat: Minecraft.net is probably down ({0})", LogType.Warning, ex.Message );
-                } else {
-                    Logger.Log( "Heartbeat: {0}", LogType.Error, ex );
-                }
                 RescheduleHeartbeat();
             }
         }
@@ -246,7 +226,7 @@ namespace fCraft.Events {
     public sealed class HeartbeatSentEventArgs : EventArgs {
         internal HeartbeatSentEventArgs( HeartbeatData heartbeatData,
                                          WebHeaderCollection headers,
-                                         HttpStatusCode status, 
+                                         HttpStatusCode status,
                                          string text ) {
             HeartbeatData = heartbeatData;
             ResponseHeaders = headers;
@@ -277,5 +257,4 @@ namespace fCraft.Events {
         public Uri OldUri { get; private set; }
         public Uri NewUri { get; private set; }
     }
-
 }
