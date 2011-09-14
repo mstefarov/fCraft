@@ -191,16 +191,17 @@ namespace fCraft {
                         Command cmd = new Command( rawMessage );
                         CommandDescriptor commandDescriptor = CommandManager.GetDescriptor( cmd.Name, true );
 
-                        if( Info.IsFrozen && !commandDescriptor.UsableByFrozenPlayers ) {
+                        if( commandDescriptor == null ) {
+                            MessageNow( "Unknown command \"{0}\". See &H/commands", cmd.Name );
+                        } else if( Info.IsFrozen && !commandDescriptor.UsableByFrozenPlayers ) {
                             MessageNow( "&WYou cannot use this command while frozen." );
-                            return;
-                        }
-
-                        Logger.Log( "{0}: {1}", LogType.UserCommand,
-                                    Name, rawMessage );
-                        CommandManager.ParseCommand( this, cmd, fromConsole );
-                        if( !commandDescriptor.NotRepeatable ) {
-                            LastCommand = cmd;
+                        } else {
+                            Logger.Log( "{0}: {1}", LogType.UserCommand,
+                                        Name, rawMessage );
+                            CommandManager.ParseCommand( this, cmd, fromConsole );
+                            if( !commandDescriptor.NotRepeatable ) {
+                                LastCommand = cmd;
+                            }
                         }
                     } break;
 
