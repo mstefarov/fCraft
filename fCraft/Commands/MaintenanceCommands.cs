@@ -646,7 +646,7 @@ namespace fCraft {
                             verb, playerCount );
 
             int affected = PlayerDB.MassRankChange( player, fromRank, toRank, silent );
-            player.Message( "MassRank: done.", affected );
+            player.Message( "MassRank: done, {0} records affected.", affected );
         }
 
         #endregion

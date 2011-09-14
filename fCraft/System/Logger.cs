@@ -53,13 +53,9 @@ namespace fCraft {
 
 
         [DebuggerStepThrough]
+        [StringFormatMethod( "message" )]
         public static void Log( string message, LogType type, params object[] values ) {
             Log( String.Format( message, values ), type );
-        }
-
-        [DebuggerStepThrough]
-        public static void Log( string message, LogType type, object value ) {
-            Log( String.Format( message, value ), type );
         }
 
 
