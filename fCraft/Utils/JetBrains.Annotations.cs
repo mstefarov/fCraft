@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+// ReSharper disable InconsistentNaming
 namespace JetBrains.Annotations
 {
   /// <summary>

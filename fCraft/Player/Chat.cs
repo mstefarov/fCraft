@@ -199,6 +199,32 @@ namespace fCraft {
         }
 
 
+        /// <summary> Determines the type of player-supplies message based on its syntax. </summary>
+        internal static RawMessageType GetRawMessageType( string message ) {
+            if( string.IsNullOrEmpty( message ) ) return RawMessageType.Invalid;
+            if( message == "/" ) return RawMessageType.RepeatCommand;
+            if( message.Equals( "/ok", StringComparison.OrdinalIgnoreCase ) ) return RawMessageType.Confirmation;
+            if( message.EndsWith( " /" ) ) return RawMessageType.PartialMessage;
+            if( message.EndsWith( " //" ) ) message = message.Substring( 0, message.Length - 1 );
+            switch( message[0] ) {
+                case '/':
+                    if( message.Length > 1 && message[1] == '/' ) return RawMessageType.Chat;
+                    if( message.Length < 2 || message[1] == ' ' ) return RawMessageType.Invalid;
+                    return RawMessageType.Command;
+                case '@':
+                    if( message.Length < 4 || message.IndexOf( ' ' ) < 0 ||
+                        (message[1] == ' ' && message.IndexOf( ' ', 2 ) == -1) ) {
+                        return RawMessageType.Invalid;
+                    }
+                    if( message[1] == '@' ) {
+                        return RawMessageType.RankChat;
+                    }
+                    return RawMessageType.PrivateChat;
+            }
+            return RawMessageType.Chat;
+        }
+
+
         #region Events
 
         static bool RaiseSendingEvent( ChatSendingEventArgs args ) {
@@ -237,6 +263,35 @@ namespace fCraft {
         Say,
         Staff,
         World
+    }
+
+
+
+    /// <summary> Type of message sent by the player. Determined by CommandManager.GetMessageType() </summary>
+    public enum RawMessageType {
+        /// <summary> Unparseable chat syntax (rare). </summary>
+        Invalid,
+
+        /// <summary> Normal (white) chat. </summary>
+        Chat,
+
+        /// <summary> Command. </summary>
+        Command,
+
+        /// <summary> Confirmation (/ok) for a previous command. </summary>
+        Confirmation,
+
+        /// <summary> Partial message (ends with " /"). </summary>
+        PartialMessage,
+
+        /// <summary> Private message. </summary>
+        PrivateChat,
+
+        /// <summary> Rank chat. </summary>
+        RankChat,
+
+        /// <summary> Repeat of the last command ("/"). </summary>
+        RepeatCommand,
     }
 }
 
