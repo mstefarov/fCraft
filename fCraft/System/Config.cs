@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using fCraft.Events;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
@@ -390,7 +391,7 @@ namespace fCraft {
         }
 
 
-        static void ParseKeyElement( XElement element, IEnumerable<string> keyNames ) {
+        static void ParseKeyElement( [NotNull] XElement element, [NotNull] IEnumerable<string> keyNames ) {
             if( element == null ) throw new ArgumentNullException( "element" );
             if( keyNames == null ) throw new ArgumentNullException( "keyNames" );
 
@@ -418,7 +419,7 @@ namespace fCraft {
         }
 
 
-        static void LoadLogOptions( XContainer el, IList<bool> list ) {
+        static void LoadLogOptions( [NotNull] XContainer el, [NotNull] IList<bool> list ) {
             if( el == null ) throw new ArgumentNullException( "el" );
             if( list == null ) throw new ArgumentNullException( "list" );
 
@@ -779,7 +780,7 @@ namespace fCraft {
 
         #region Ranks
 
-        static void LoadRankList( XContainer el, bool fromFile ) {
+        static void LoadRankList( [NotNull] XContainer el, bool fromFile ) {
             if( el == null ) throw new ArgumentNullException( "el" );
 
             XElement legacyRankMappingTag = el.Element( "LegacyRankMapping" );

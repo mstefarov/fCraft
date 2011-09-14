@@ -1,20 +1,23 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using fCraft.Events;
-using System.IO;
-using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace fCraft {
     public unsafe sealed class BlockDB {
 
-        public BlockDB( World world ) {
+        public BlockDB( [NotNull] World world ) {
+            if( world == null ) throw new ArgumentNullException( "world" );
             World = world;
         }
 
 
         internal readonly object SyncRoot = new object();
 
+        [NotNull]
         public World World { get; set; }
 
 
@@ -35,6 +38,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         public string FileName {
             get {
                 return Path.Combine( Paths.BlockDBPath, World.Name + ".fbdb" );
@@ -419,7 +423,7 @@ namespace fCraft {
         }
 
 
-        internal BlockDBEntry[] Lookup( PlayerInfo info, int max ) {
+        internal BlockDBEntry[] Lookup( [NotNull] PlayerInfo info, int max ) {
             if( info == null ) throw new ArgumentNullException( "info" );
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
             int count = 0;
@@ -461,7 +465,7 @@ namespace fCraft {
         }
 
 
-        internal BlockDBEntry[] Lookup( PlayerInfo info, TimeSpan span ) {
+        internal BlockDBEntry[] Lookup( [NotNull] PlayerInfo info, TimeSpan span ) {
             if( info == null ) throw new ArgumentNullException( "info" );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();

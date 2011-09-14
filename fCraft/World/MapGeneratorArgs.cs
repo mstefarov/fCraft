@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
@@ -80,7 +81,7 @@ namespace fCraft {
         }
 
         // ReSharper disable PossibleNullReferenceException
-        public MapGeneratorArgs( string fileName ) {
+        public MapGeneratorArgs( [NotNull] string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             XDocument doc = XDocument.Load( fileName );
             XElement root = doc.Root;

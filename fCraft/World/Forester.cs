@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
@@ -16,7 +17,7 @@ namespace fCraft {
         readonly ForesterArgs args;
 
 
-        public Forester( ForesterArgs foresterArgs ) {
+        public Forester( [NotNull] ForesterArgs foresterArgs ) {
             if( foresterArgs == null ) throw new ArgumentNullException( "foresterArgs" );
             args = foresterArgs;
             args.Validate();

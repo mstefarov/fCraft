@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
@@ -361,16 +362,19 @@ namespace fCraft {
 
 
         // assumes normalized input
-        public unsafe static void Blend( float[,] map1, float[,] map2, float[,] blendMap ) {
-            fixed( float* ptr1 = map1, ptr2 = map2, ptrBlend = blendMap ) {
-                for( int i = 0; i < map1.Length; i++ ) {
+        public unsafe static void Blend( [NotNull] float[,] data1, [NotNull] float[,] data2, [NotNull] float[,] blendMap ) {
+            if( data1 == null ) throw new ArgumentNullException( "data1" );
+            if( data2 == null ) throw new ArgumentNullException( "data2" );
+            if( blendMap == null ) throw new ArgumentNullException( "blendMap" );
+            fixed( float* ptr1 = data1, ptr2 = data2, ptrBlend = blendMap ) {
+                for( int i = 0; i < data1.Length; i++ ) {
                     ptr1[i] += ptr1[i] * ptrBlend[i] + ptr2[i] * (1 - ptrBlend[i]);
                 }
             }
         }
 
 
-        public unsafe static void Add( float[,] data1, float[,] data2 ) {
+        public unsafe static void Add( [NotNull] float[,] data1, [NotNull] float[,] data2 ) {
             if( data1 == null ) throw new ArgumentNullException( "data1" );
             if( data2 == null ) throw new ArgumentNullException( "data2" );
             if( data1.GetLength( 0 ) != data2.GetLength( 0 ) ||

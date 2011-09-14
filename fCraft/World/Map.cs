@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using fCraft.Drawing;
 using fCraft.MapConversion;
+using JetBrains.Annotations;
 
 namespace fCraft {
     public unsafe sealed class Map {
@@ -127,7 +128,7 @@ namespace fCraft {
 
         /// <summary> Saves this map to a file in the default format (FCMv3). </summary>
         /// <returns> Whether the saving succeeded. </returns>
-        public bool Save( string fileName ) {
+        public bool Save( [NotNull] string fileName ) {
             // ReSharper disable EmptyGeneralCatchClause
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             string tempFileName = fileName + ".temp";
@@ -379,7 +380,7 @@ namespace fCraft {
         readonly List<DrawOperation> drawOps = new List<DrawOperation>();
         readonly object drawOpLock = new object();
 
-        public void QueueDrawOp( DrawOperation op ) {
+        public void QueueDrawOp( [NotNull] DrawOperation op ) {
             if( op == null ) throw new ArgumentNullException( "op" );
             lock( drawOpLock ) {
                 drawOps.Add( op );
@@ -437,7 +438,7 @@ namespace fCraft {
         readonly object backupLock = new object();
 
 
-        public void SaveBackup( string sourceName, string targetName ) {
+        public void SaveBackup( [NotNull] string sourceName, [NotNull] string targetName ) {
             if( sourceName == null ) throw new ArgumentNullException( "sourceName" );
             if( targetName == null ) throw new ArgumentNullException( "targetName" );
 
@@ -473,7 +474,7 @@ namespace fCraft {
         }
 
 
-        static void DeleteOldBackups( DirectoryInfo directory ) {
+        static void DeleteOldBackups( [NotNull] DirectoryInfo directory ) {
             if( directory == null ) throw new ArgumentNullException( "directory" );
             var backupList = directory.GetFiles( "*.fcm" ).OrderBy( fi => -fi.CreationTimeUtc.Ticks ).ToList();
 
@@ -581,7 +582,7 @@ namespace fCraft {
         }
 
 
-        public bool ConvertBlockTypes( byte[] mapping ) {
+        public bool ConvertBlockTypes( [NotNull] byte[] mapping ) {
             if( mapping == null ) throw new ArgumentNullException( "mapping" );
             if( mapping.Length != 256 ) throw new ArgumentException( "Mapping must list all 256 blocks", "mapping" );
 
@@ -800,7 +801,7 @@ namespace fCraft {
         /// <summary> Tries to find a blocktype by name. </summary>
         /// <param name="blockName"> Name of the block. </param>
         /// <returns> Described Block, or Block.Undefined if name could not be recognized. </returns>
-        internal static Block GetBlockByName( string blockName ) {
+        internal static Block GetBlockByName( [NotNull] string blockName ) {
             if( blockName == null ) throw new ArgumentNullException( "blockName" );
             Block result;
             if( BlockNames.TryGetValue( blockName.ToLower(), out result ) ) {
@@ -814,7 +815,7 @@ namespace fCraft {
         /// <summary> Writes a copy of the current map to a given stream, compressed with GZipStream. </summary>
         /// <param name="stream"> Stream to write the compressed data to. </param>
         /// <param name="prependBlockCount"> If true, prepends block data with signed, 32bit, big-endian block count. </param>
-        public void GetCompressedCopy( Stream stream, bool prependBlockCount ) {
+        public void GetCompressedCopy( [NotNull] Stream stream, bool prependBlockCount ) {
             if( stream == null ) throw new ArgumentNullException( "stream" );
             using( GZipStream compressor = new GZipStream( stream, CompressionMode.Compress ) ) {
                 if( prependBlockCount ) {
