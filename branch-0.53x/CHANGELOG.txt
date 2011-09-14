@@ -1,3 +1,6 @@
+0.537
+ Fixed another heartbeat-related issue caused by minecraft.net updates.
+
 0.536
  Fix: Fixed a rare crash in DoChangeRank when promoting/demoting offline players.
  Fix: Fixed a case where world access/build whitelist additions were not immediately saved.
