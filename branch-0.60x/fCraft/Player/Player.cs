@@ -151,8 +151,8 @@ namespace fCraft {
                 partialMessage = null;
             }
 
-            switch( CommandManager.GetMessageType( rawMessage ) ) {
-                case MessageType.Chat: {
+            switch( Chat.GetRawMessageType( rawMessage ) ) {
+                case RawMessageType.Chat: {
                         if( !Can( Permission.Chat ) ) return;
 
                         if( Info.IsMuted ) {
@@ -179,7 +179,7 @@ namespace fCraft {
                     } break;
 
 
-                case MessageType.Command: {
+                case RawMessageType.Command: {
                         if( Info.IsFrozen ) {
                             MessageNow( "&WYou cannot use any commands while frozen." );
                             return;
@@ -190,12 +190,13 @@ namespace fCraft {
                         Logger.Log( "{0}: {1}", LogType.UserCommand,
                                     Name, rawMessage );
                         Command cmd = new Command( rawMessage );
-                        LastCommand = cmd;
-                        CommandManager.ParseCommand( this, cmd, fromConsole );
+                        if( CommandManager.ParseCommand( this, cmd, fromConsole ) ) {
+                            LastCommand = cmd;
+                        }
                     } break;
 
 
-                case MessageType.RepeatCommand: {
+                case RawMessageType.RepeatCommand: {
                         if( Info.IsFrozen ) {
                             MessageNow( "&WYou cannot use any commands while frozen." );
                             return;
@@ -212,7 +213,7 @@ namespace fCraft {
                     } break;
 
 
-                case MessageType.PrivateChat: {
+                case RawMessageType.PrivateChat: {
                         if( !Can( Permission.Chat ) ) return;
 
                         if( Info.IsMuted ) {
@@ -281,7 +282,7 @@ namespace fCraft {
                     } break;
 
 
-                case MessageType.RankChat: {
+                case RawMessageType.RankChat: {
                         if( !Can( Permission.Chat ) ) return;
 
                         if( Info.IsMuted ) {
@@ -295,22 +296,28 @@ namespace fCraft {
                             rawMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
                         }
 
-                        string rankName = rawMessage.Substring( 2, rawMessage.IndexOf( ' ' ) - 2 );
-                        Rank rank = RankManager.FindRank( rankName );
-                        if( rank != null ) {
-                            string messageText = rawMessage.Substring( rawMessage.IndexOf( ' ' ) + 1 );
-                            if( messageText.Contains( "%" ) && Can( Permission.UseColorCodes ) ) {
-                                messageText = Color.ReplacePercentCodes( messageText );
-                            }
-
-                            Chat.SendRank( this, rank, messageText );
+                        Rank rank;
+                        if( rawMessage[2] == ' ' ) {
+                            rank = Info.Rank;
                         } else {
-                            MessageNoRank( rankName );
+                            string rankName = rawMessage.Substring( 2, rawMessage.IndexOf( ' ' ) - 2 );
+                            rank = RankManager.FindRank( rankName );
+                            if( rank == null ) {
+                                MessageNoRank( rankName );
+                                break;
+                            }
                         }
+
+                        string messageText = rawMessage.Substring( rawMessage.IndexOf( ' ' ) + 1 );
+                        if( messageText.Contains( "%" ) && Can( Permission.UseColorCodes ) ) {
+                            messageText = Color.ReplacePercentCodes( messageText );
+                        }
+
+                        Chat.SendRank( this, rank, messageText );
                     } break;
 
 
-                case MessageType.Confirmation: {
+                case RawMessageType.Confirmation: {
                         if( Info.IsFrozen ) {
                             MessageNow( "&WYou cannot use any commands while frozen." );
                             return;
@@ -329,12 +336,12 @@ namespace fCraft {
                     } break;
 
 
-                case MessageType.PartialMessage:
+                case RawMessageType.PartialMessage:
                     partialMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
                     MessageNow( "Partial: &F{0}", partialMessage );
                     break;
 
-                case MessageType.Invalid:
+                case RawMessageType.Invalid:
                     MessageNow( "Could not parse message." );
                     break;
             }

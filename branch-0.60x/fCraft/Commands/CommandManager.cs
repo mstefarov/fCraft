@@ -6,34 +6,6 @@ using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary> Type of message sent by the player. Determined by CommandManager.GetMessageType() </summary>
-    public enum MessageType {
-        /// <summary> Unparseable chat syntax (rare). </summary>
-        Invalid,
-
-        /// <summary> Normal (white) chat. </summary>
-        Chat,
-
-        /// <summary> Command. </summary>
-        Command,
-
-        /// <summary> Confirmation (/ok) for a previous command. </summary>
-        Confirmation,
-
-        /// <summary> Partial message (ends with " /"). </summary>
-        PartialMessage,
-
-        /// <summary> Private message. </summary>
-        PrivateChat,
-
-        /// <summary> Rank chat. </summary>
-        RankChat,
-
-        /// <summary> Repeat of the last command ("/"). </summary>
-        RepeatCommand,
-    }
-
-
     /// <summary> Static class that allows registration and parsing of all text commands. </summary>
     public static class CommandManager {
         static readonly SortedList<string, string> Aliases = new SortedList<string, string>();
@@ -185,14 +157,14 @@ namespace fCraft {
         /// <param name="player"> Player who issued the command. </param>
         /// <param name="cmd"> Command to be parsed and executed. </param>
         /// <param name="fromConsole"> Whether this command is being called from a non-player (e.g. Console). </param>
-        public static void ParseCommand( [NotNull] Player player, [NotNull] Command cmd, bool fromConsole ) {
+        public static bool ParseCommand( [NotNull] Player player, [NotNull] Command cmd, bool fromConsole ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             CommandDescriptor descriptor = GetDescriptor( cmd.Name, true );
 
             if( descriptor == null ) {
                 player.Message( "Unknown command \"{0}\". See &H/commands", cmd.Name );
-                return;
+                return false;
             }
 
             if( !descriptor.IsConsoleSafe && fromConsole ) {
@@ -201,9 +173,7 @@ namespace fCraft {
                 if( descriptor.Permissions != null ) {
                     if( !descriptor.CanBeCalledBy( player.Info.Rank ) ) {
                         player.MessageNoAccess( descriptor );
-                        return;
-                    }
-                    if( !descriptor.Call( player, cmd, true ) ) {
+                    }else if( !descriptor.Call( player, cmd, true ) ) {
                         player.Message( "Command was cancelled." );
                     }
                 } else {
@@ -212,35 +182,7 @@ namespace fCraft {
                     }
                 }
             }
-        }
-
-
-        /// <summary> Determines the type of player-supplies message based on its syntax. </summary>
-        internal static MessageType GetMessageType( string message ) {
-            if( string.IsNullOrEmpty( message ) ) return MessageType.Invalid;
-            if( message == "/" ) return MessageType.RepeatCommand;
-            if( message.Equals( "/ok", StringComparison.OrdinalIgnoreCase ) ) return MessageType.Confirmation;
-            if( message.EndsWith( " /" ) ) return MessageType.PartialMessage;
-            if( message.EndsWith( " //" ) ) message = message.Substring( 0, message.Length - 1 );
-            switch( message[0] ) {
-                case '/':
-                    if( message.Length > 1 && message[1] == '/' ) return MessageType.Chat;
-                    if( message.Length < 2 || message[1] == ' ' ) return MessageType.Invalid;
-                    return MessageType.Command;
-                case '@':
-                    if( message.Length < 4 || message.IndexOf( ' ' ) < 0 ||
-                        (message[1] == ' ' && message.IndexOf( ' ', 2 ) == -1) ) {
-                        return MessageType.Invalid;
-                    }
-                    if( message[1] == '@' ) {
-                        if( message.Length < 5 || message[2] == ' ' ) {
-                            return MessageType.Invalid;
-                        }
-                        return MessageType.RankChat;
-                    }
-                    return MessageType.PrivateChat;
-            }
-            return MessageType.Chat;
+            return !descriptor.NotRepeatable;
         }
 
 

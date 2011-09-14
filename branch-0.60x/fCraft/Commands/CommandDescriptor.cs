@@ -37,6 +37,8 @@ namespace fCraft {
         /// <summary> Whether the command is not part of fCraft core (set automatically). </summary>
         public bool IsCustom { get; internal set; }
 
+        public bool NotRepeatable { get; set; }
+
         /// <summary> Primary command name. Must be set before registering. </summary>
         public string Name { get; set; }
 

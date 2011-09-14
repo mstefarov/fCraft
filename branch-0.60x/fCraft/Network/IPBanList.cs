@@ -23,6 +23,7 @@ namespace fCraft {
                     string headerText = reader.ReadLine();
                     if( headerText == null ) {
                         Logger.Log( "IPBanList.Load: IP ban file is empty.", LogType.Warning );
+                        return;
                     }
 
                     int version = ParseHeader( headerText );

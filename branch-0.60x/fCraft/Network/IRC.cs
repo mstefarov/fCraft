@@ -141,7 +141,9 @@ namespace fCraft {
                             }
 
                             if( client.Client.Available > 0 ) {
-                                HandleMessage( reader.ReadLine() );
+                                string line = reader.ReadLine();
+                                if( line == null ) break;
+                                HandleMessage( line );
                             }
                         }
 

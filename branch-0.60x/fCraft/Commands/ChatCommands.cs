@@ -29,6 +29,7 @@ namespace fCraft {
             Name = "say",
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
+            NotRepeatable = true,
             Permissions = new[] { Permission.Chat, Permission.Say },
             Usage = "/say Message",
             Help = "Shows a message in special color, without the player name prefix. " +
@@ -69,6 +70,7 @@ namespace fCraft {
             Aliases = new[] { "st" },
             Category = CommandCategory.Chat | CommandCategory.Moderation,
             Permissions = new[] { Permission.Chat },
+            NotRepeatable = true,
             IsConsoleSafe = true,
             Usage = "/staff Message",
             Help = "Broadcasts your message to all operators/moderators on the server at once.",
@@ -172,6 +174,7 @@ namespace fCraft {
             Category = CommandCategory.Chat,
             Permissions = new[] { Permission.Chat },
             IsConsoleSafe = true,
+            NotRepeatable = true,
             Usage = "/me Message",
             Help = "Sends IRC-style action message prefixed with your name.",
             Handler = MeHandler
@@ -260,8 +263,11 @@ namespace fCraft {
 
         static void DeafenHandler( Player player, Command cmd ) {
             if( !player.IsDeaf ) {
+                for( int i = 0; i < LinesToClear; i++ ) {
+                    player.Message( "" );
+                }
                 player.MessageNow( "Deafened mode: ON" );
-                player.MessageNow( "You will not see any messages until you type &H/deafen&S again." );
+                player.MessageNow( "You will not see ANY messages until you type &H/deafen&S again." );
                 player.IsDeaf = true;
             } else {
                 player.IsDeaf = false;
