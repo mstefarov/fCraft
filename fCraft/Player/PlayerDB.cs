@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using fCraft.Events;
+using JetBrains.Annotations;
 
 namespace fCraft {
     public static class PlayerDB {
@@ -54,7 +55,7 @@ namespace fCraft {
         public static bool IsLoaded { get; private set; }
 
 
-        public static PlayerInfo AddFakeEntry( string name, RankChangeType rankChangeType ) {
+        public static PlayerInfo AddFakeEntry( [NotNull] string name, RankChangeType rankChangeType ) {
             if( name == null ) throw new ArgumentNullException( "name" );
 
             PlayerInfo info;
@@ -220,7 +221,7 @@ namespace fCraft {
         }
 
 
-        static int IdentifyFormatVersion( string header ) {
+        static int IdentifyFormatVersion( [NotNull] string header ) {
             if( header == null ) throw new ArgumentNullException( "header" );
             string[] headerParts = header.Split( ' ' );
             if( headerParts.Length < 2 ) {
@@ -297,8 +298,9 @@ namespace fCraft {
 
         #region Lookup
 
-        public static PlayerInfo FindOrCreateInfoForPlayer( string name, IPAddress lastIP ) {
+        public static PlayerInfo FindOrCreateInfoForPlayer( [NotNull] string name, [NotNull] IPAddress lastIP ) {
             if( name == null ) throw new ArgumentNullException( "name" );
+            if( lastIP == null ) throw new ArgumentNullException( "lastIP" );
             PlayerInfo info;
 
             // this flag is used to avoid executing PlayerInfoCreated event in the lock
@@ -327,12 +329,13 @@ namespace fCraft {
         }
 
 
-        public static PlayerInfo[] FindPlayers( IPAddress address ) {
+        public static PlayerInfo[] FindPlayers( [NotNull] IPAddress address ) {
+            if( address == null ) throw new ArgumentNullException( "address" );
             return FindPlayers( address, Int32.MaxValue );
         }
 
 
-        public static PlayerInfo[] FindPlayers( IPAddress address, int limit ) {
+        public static PlayerInfo[] FindPlayers( [NotNull] IPAddress address, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             List<PlayerInfo> result = new List<PlayerInfo>();
             int count = 0;
@@ -348,12 +351,13 @@ namespace fCraft {
         }
 
 
-        public static PlayerInfo[] FindPlayers( Regex regex ) {
+        public static PlayerInfo[] FindPlayers( [NotNull] Regex regex ) {
+            if( regex == null ) throw new ArgumentNullException( "regex" );
             return FindPlayers( regex, Int32.MaxValue );
         }
 
 
-        public static PlayerInfo[] FindPlayers( Regex regex, int limit ) {
+        public static PlayerInfo[] FindPlayers( [NotNull] Regex regex, int limit ) {
             if( regex == null ) throw new ArgumentNullException( "regex" );
             List<PlayerInfo> result = new List<PlayerInfo>();
             int count = 0;
@@ -369,12 +373,13 @@ namespace fCraft {
         }
 
 
-        public static PlayerInfo[] FindPlayers( string namePart ) {
+        public static PlayerInfo[] FindPlayers( [NotNull] string namePart ) {
+            if( namePart == null ) throw new ArgumentNullException( "namePart" );
             return FindPlayers( namePart, Int32.MaxValue );
         }
 
 
-        public static PlayerInfo[] FindPlayers( string namePart, int limit ) {
+        public static PlayerInfo[] FindPlayers( [NotNull] string namePart, int limit ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
             lock( AddLocker ) {
                 //return Trie.ValuesStartingWith( namePart ).Take( limit ).ToArray(); // <- works, but is slightly slower
@@ -382,11 +387,12 @@ namespace fCraft {
             }
         }
 
+
         /// <summary>Searches for player names starting with namePart, returning just one or none of the matches.</summary>
         /// <param name="name">Partial or full player name</param>
         /// <param name="info">PlayerInfo to output (will be set to null if no single match was found)</param>
         /// <returns>true if one or zero matches were found, false if multiple matches were found</returns>
-        public static bool FindPlayerInfo( string name, out PlayerInfo info ) {
+        public static bool FindPlayerInfo( [NotNull] string name, out PlayerInfo info ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             lock( AddLocker ) {
                 return Trie.GetOneMatch( name, out info );
@@ -394,7 +400,7 @@ namespace fCraft {
         }
 
 
-        public static PlayerInfo FindPlayerInfoExact( string name ) {
+        public static PlayerInfo FindPlayerInfoExact( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             lock( AddLocker ) {
                 return Trie.Get( name );
@@ -402,7 +408,8 @@ namespace fCraft {
         }
 
 
-        public static PlayerInfo FindPlayerInfoOrPrintMatches( Player player, string name ) {
+        public static PlayerInfo FindPlayerInfoOrPrintMatches( [NotNull] Player player, [NotNull] string name ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             if( name == null ) throw new ArgumentNullException( "name" );
             PlayerInfo target = FindPlayerInfoExact( name );
             if( target == null ) {
@@ -436,7 +443,7 @@ namespace fCraft {
         }
 
 
-        public static int CountPlayersByRank( Rank rank ) {
+        public static int CountPlayersByRank( [NotNull] Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             return PlayerInfoList.Count( t => t.Rank == rank );
         }
@@ -463,7 +470,7 @@ namespace fCraft {
         }
 
 
-        public static int MassRankChange( Player player, Rank from, Rank to, bool silent ) {
+        public static int MassRankChange( [NotNull] Player player, [NotNull] Rank from, [NotNull] Rank to, bool silent ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( from == null ) throw new ArgumentNullException( "from" );
             if( to == null ) throw new ArgumentNullException( "to" );
@@ -516,7 +523,8 @@ namespace fCraft {
         }
 
 
-        internal static int RemoveInactivePlayers( Player player ) {
+        internal static int RemoveInactivePlayers( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             int estimate = CountInactivePlayers();
             int count = 0;
             lock( AddLocker ) {
@@ -555,7 +563,8 @@ namespace fCraft {
         }
 
 
-        static bool PlayerIsInactive( IDictionary<IPAddress, List<PlayerInfo>> playersByIP, PlayerInfo player, bool checkIP ) {
+        static bool PlayerIsInactive( [NotNull] IDictionary<IPAddress, List<PlayerInfo>> playersByIP, [NotNull] PlayerInfo player, bool checkIP ) {
+            if( playersByIP == null ) throw new ArgumentNullException( "playersByIP" );
             if( player == null ) throw new ArgumentNullException( "player" );
             if( player.IsBanned || !String.IsNullOrEmpty( player.UnbannedBy ) ||
                 player.IsFrozen || player.IsMuted || player.TimesKicked != 0 ||

@@ -2,10 +2,11 @@
 using System;
 using System.Xml.Linq;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace fCraft {
     public sealed class Rank : IClassy, IComparable<Rank> {
-
+        
         public string Name { get; set; }
 
         public string Color { get; set; }
@@ -34,7 +35,7 @@ namespace fCraft {
         public World MainWorld { get; set; }
 
 
-        public int CompareTo( Rank other ) {
+        public int CompareTo( [NotNull] Rank other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             return other.Index - Index;
         }
@@ -48,9 +49,8 @@ namespace fCraft {
         }
 
 
-        public Rank( XElement el )
+        public Rank( [NotNull] XElement el )
             : this() {
-
             if( el == null ) throw new ArgumentNullException( "el" );
 
             // Name
@@ -344,7 +344,7 @@ namespace fCraft {
 
         #region Validation
 
-        public static bool IsValidRankName( string rankName ) {
+        public static bool IsValidRankName( [NotNull] string rankName ) {
             if( rankName == null ) throw new ArgumentNullException( "rankName" );
             if( rankName.Length < 1 || rankName.Length > 16 ) return false;
             // ReSharper disable LoopCanBeConvertedToQuery
@@ -360,7 +360,7 @@ namespace fCraft {
         }
 
 
-        public static bool IsValidID( string id ) {
+        public static bool IsValidID( [NotNull] string id ) {
             if( id == null ) throw new ArgumentNullException( "id" );
             if( id.Length != 16 ) return false;
             // ReSharper disable LoopCanBeConvertedToQuery
@@ -375,7 +375,7 @@ namespace fCraft {
         }
 
 
-        public static bool IsValidPrefix( string prefix ) {
+        public static bool IsValidPrefix( [NotNull] string prefix ) {
             if( prefix == null ) throw new ArgumentNullException( "prefix" );
             if( prefix.Length == 0 ) return true;
             if( prefix.Length > 1 ) return false;

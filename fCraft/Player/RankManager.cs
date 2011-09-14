@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft {
     public static class RankManager {
@@ -32,7 +33,7 @@ namespace fCraft {
 
 
         /// <summary> Adds a new rank to the list. Checks for duplicates. </summary>
-        public static void AddRank( Rank rank ) {
+        public static void AddRank( [NotNull] Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             if( PlayerDB.IsLoaded ) {
                 throw new InvalidOperationException( "You may not add ranks after PlayerDB has already been loaded." );
@@ -92,11 +93,11 @@ namespace fCraft {
         }
 
 
-        public static bool DeleteRank( Rank deletedRank, Rank replacementRank ) {
+        public static bool DeleteRank( [NotNull] Rank deletedRank, [NotNull] Rank replacementRank ) {
             if( deletedRank == null ) throw new ArgumentNullException( "deletedRank" );
             if( replacementRank == null ) throw new ArgumentNullException( "replacementRank" );
             if( PlayerDB.IsLoaded ) {
-                throw new InvalidOperationException( "You may not modify the rank list after PlayerDB has been loaded." );
+                throw new InvalidOperationException( "You may not modify ranks after PlayerDB has been loaded." );
             }
             bool rankLimitsChanged = false;
             Ranks.Remove( deletedRank );
@@ -147,7 +148,7 @@ namespace fCraft {
         }
 
 
-        public static bool CanRenameRank( Rank rank, string newName ) {
+        public static bool CanRenameRank( [NotNull] Rank rank, [NotNull] string newName ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             if( newName == null ) throw new ArgumentNullException( "newName" );
             if( rank.Name.Equals( newName, StringComparison.OrdinalIgnoreCase ) ) {
@@ -158,7 +159,7 @@ namespace fCraft {
         }
 
 
-        public static void RenameRank( Rank rank, string newName ) {
+        public static void RenameRank( [NotNull] Rank rank, [NotNull] string newName ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             if( newName == null ) throw new ArgumentNullException( "newName" );
             RanksByName.Remove( rank.Name.ToLower() );
@@ -167,7 +168,7 @@ namespace fCraft {
         }
 
 
-        public static bool RaiseRank( Rank rank ) {
+        public static bool RaiseRank( [NotNull] Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             if( rank == Ranks.First() ) {
                 return false;
@@ -180,7 +181,7 @@ namespace fCraft {
         }
 
 
-        public static bool LowerRank( Rank rank ) {
+        public static bool LowerRank( [NotNull] Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             if( rank == Ranks.Last() ) {
                 return false;
@@ -211,7 +212,7 @@ namespace fCraft {
         /// <summary> Finds the lowest rank that has all the required permissions. </summary>
         /// <param name="permissions"> One or more permissions to check for. </param>
         /// <returns> A relevant Rank object, or null of none were found. </returns>
-        public static Rank GetMinRankWithAllPermissions( params Permission[] permissions ) {
+        public static Rank GetMinRankWithAllPermissions( [NotNull] params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
             for( int r = Ranks.Count - 1; r >= 0; r-- ) {
                 int r1 = r;
@@ -225,7 +226,7 @@ namespace fCraft {
         /// <summary> Finds the lowest rank that has all the required permissions. </summary>
         /// <param name="permissions"> One or more permissions to check for. </param>
         /// <returns> A relevant Rank object, or null of none were found. </returns>
-        public static Rank GetMinRankWithAnyPermission( params Permission[] permissions ) {
+        public static Rank GetMinRankWithAnyPermission( [NotNull] params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
             for( int r = Ranks.Count - 1; r >= 0; r-- ) {
                 int r1 = r;

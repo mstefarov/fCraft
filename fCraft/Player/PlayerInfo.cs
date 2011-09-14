@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Threading;
+using JetBrains.Annotations;
 
 namespace fCraft {
     public sealed class PlayerInfo : IClassy {
@@ -748,7 +749,7 @@ namespace fCraft {
         }
 
 
-        public void ProcessRankChange( Rank newRank, string changer, string reason, RankChangeType type ) {
+        public void ProcessRankChange( [NotNull] Rank newRank, string changer, string reason, RankChangeType type ) {
             if( newRank == null ) throw new ArgumentNullException( "newRank" );
             PreviousRank = Rank;
             Rank = newRank;
@@ -884,7 +885,7 @@ namespace fCraft {
 
         #region Actions
 
-        public bool Mute( string by, TimeSpan timespan ) {
+        public bool Mute( [NotNull] string by, TimeSpan timespan ) {
             if( by == null ) throw new ArgumentNullException( "by" );
             if( timespan <= TimeSpan.Zero ) {
                 throw new ArgumentException( "Mute duration must be longer than 0", "timespan" );
@@ -919,7 +920,7 @@ namespace fCraft {
         }
 
 
-        public bool Freeze( string by ) {
+        public bool Freeze( [NotNull] string by ) {
             if( by == null ) throw new ArgumentNullException( "by" );
             if( !IsFrozen ) {
                 IsFrozen = true;

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Xml.Linq;
 using fCraft.Events;
 using fCraft.MapConversion;
+using JetBrains.Annotations;
 
 namespace fCraft {
     public static class WorldManager {
@@ -22,6 +23,7 @@ namespace fCraft {
         /// The map of the new main world is preloaded, and old one is unloaded, if needed. </summary>
         /// <exception cref="System.ArgumentNullException" />
         /// <exception cref="fCraft.WorldOpException" />
+        [NotNull]
         public static World MainWorld {
             get { return mainWorld; }
             set {
@@ -92,7 +94,7 @@ namespace fCraft {
                     return false;
                 }
 
-                if( MainWorld == null ) {
+                if( mainWorld == null ) {
                     Logger.Log( "Server.Start: Could not load any of the specified worlds, or no worlds were specified. " +
                                 "Creating default \"main\" world.", LogType.Error );
                     MainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
