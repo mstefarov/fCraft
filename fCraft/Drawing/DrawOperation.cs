@@ -1,9 +1,9 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using JetBrains.Annotations;
 #if DEBUG
 using System.Collections.Generic;
 #endif
-using JetBrains.Annotations;
 
 // ReSharper disable VirtualMemberNeverOverriden.Global
 // ReSharper disable UnusedMemberInSuper.Global
@@ -11,8 +11,15 @@ using JetBrains.Annotations;
 namespace fCraft.Drawing {
 
     public abstract class DrawOperation {
+        [NotNull]
         public readonly Player Player;
+
+        [NotNull]
         public readonly Map Map;
+
+        [NotNull]
+        public IBrushInstance Brush;
+
         public Position[] Marks;
         public DateTime StartTime;
 
@@ -20,8 +27,6 @@ namespace fCraft.Drawing {
 
         public bool IsDone;
         public bool IsCancelled;
-
-        public IBrushInstance Brush;
 
         public int BlocksProcessed,
                    BlocksUpdated,

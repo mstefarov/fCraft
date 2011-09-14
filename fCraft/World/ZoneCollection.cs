@@ -166,7 +166,8 @@ namespace fCraft {
         /// <param name="allowedZones"> Array of zones that allow the player to build. </param>
         /// <param name="deniedZones"> Array of zones that deny the player from building. </param>
         /// <returns> True if any zones were found. False if none affect the given coordinate. </returns>
-        public bool CheckDetailed( short x, short y, short z, [NotNull] Player player, out Zone[] allowedZones, out Zone[] deniedZones ) {
+        public bool CheckDetailed( short x, short y, short z, [NotNull] Player player,
+                                   out Zone[] allowedZones, out Zone[] deniedZones ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             var allowedList = new List<Zone>();
             var deniedList = new List<Zone>();

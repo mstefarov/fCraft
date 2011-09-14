@@ -628,7 +628,7 @@ namespace fCraft {
 
             } else {
                 // no worlds found - see if player meant to type in "/join" and not "/tp"
-                Player[] players = Server.FindPlayers( player, worldName );
+                Player[] players = Server.FindPlayers( player, worldName, true );
                 if( players.Length == 1 ) {
                     player.StopSpectating();
                     player.ParseMessage( "/tp " + players[0].Name, false );

@@ -1,10 +1,9 @@
 // Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Net;
+using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     public sealed class MapMyne : IMapConverter {
@@ -28,20 +27,23 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool ClaimsName( string dirName ) {
-            return Directory.Exists( dirName ) &&
-                   File.Exists( Path.Combine( dirName, BlockStoreFileName ) ) &&
-                   File.Exists( Path.Combine( dirName, MetaDataFileName ) );
+        public bool ClaimsName( [NotNull] string path ) {
+            if( path == null ) throw new ArgumentNullException( "path" );
+            return Directory.Exists( path ) &&
+                   File.Exists( Path.Combine( path, BlockStoreFileName ) ) &&
+                   File.Exists( Path.Combine( path, MetaDataFileName ) );
         }
 
 
-        public bool Claims( string dirName ) {
-            return ClaimsName( dirName );
+        public bool Claims( [NotNull] string path ) {
+            if( path == null ) throw new ArgumentNullException( "path" );
+            return ClaimsName( path );
         }
 
 
-        public Map LoadHeader( string dirName ) {
-            string fullMetaDataFileName = Path.Combine( dirName, MetaDataFileName );
+        public Map LoadHeader( [NotNull] string path ) {
+            if( path == null ) throw new ArgumentNullException( "path" );
+            string fullMetaDataFileName = Path.Combine( path, MetaDataFileName );
             Map map;
             using( Stream metaStream = File.OpenRead( fullMetaDataFileName ) ) {
                 map = LoadMeta( metaStream );
@@ -50,9 +52,10 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map Load( string dirName ) {
-            string fullBlockStoreFileName = Path.Combine( dirName, BlockStoreFileName );
-            string fullMetaDataFileName = Path.Combine( dirName, MetaDataFileName );
+        public Map Load( [NotNull] string path ) {
+            if( path == null ) throw new ArgumentNullException( "path" );
+            string fullBlockStoreFileName = Path.Combine( path, BlockStoreFileName );
+            string fullMetaDataFileName = Path.Combine( path, MetaDataFileName );
 
             if( !File.Exists( fullBlockStoreFileName ) || !File.Exists( fullMetaDataFileName ) ) {
                 throw new FileNotFoundException( "When loading myne maps, both .gz and .meta files are required." );
@@ -70,7 +73,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        static void LoadBlocks( Map map, Stream mapStream ) {
+        static void LoadBlocks( [NotNull] Map map, [NotNull] Stream mapStream ) {
             mapStream.Seek( 0, SeekOrigin.Begin );
 
             // Setup a GZipStream to decompress and read the map file
@@ -88,9 +91,10 @@ namespace fCraft.MapConversion {
         }
 
 
-        static Map LoadMeta( Stream stream ) {
+        static Map LoadMeta( [NotNull] Stream stream ) {
+            if( stream == null ) throw new ArgumentNullException( "stream" );
             INIFile metaFile = new INIFile( stream );
-            if( metaFile.IsEmpty() ) {
+            if( metaFile.IsEmpty ) {
                 throw new Exception( "Metadata file is empty or incorrectly formatted." );
             }
             if( !metaFile.Contains( "size", "x", "y", "z" ) ) {
@@ -120,64 +124,10 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool Save( Map mapToSave, string fileName ) {
+        public bool Save( [NotNull] Map mapToSave, [NotNull] string fileName ) {
+            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             throw new NotImplementedException();
-        }
-    }
-
-
-    sealed class INIFile {
-        const string Separator = "=";
-        readonly Dictionary<string, Dictionary<string, string>> contents = new Dictionary<string, Dictionary<string, string>>();
-
-        public string this[string section, string key] {
-            get {
-                return contents[section][key];
-            }
-            set {
-                if( !contents.ContainsKey( section ) ) {
-                    contents[section] = new Dictionary<string, string>();
-                }
-                contents[section][key] = value;
-            }
-        }
-
-        public INIFile( Stream fileStream ) {
-            StreamReader reader = new StreamReader( fileStream );
-            Dictionary<string, string> section = null;
-            while( true ) {
-                string line = reader.ReadLine();
-                if( line == null ) break;
-
-                line = line.Trim();
-                if( line.StartsWith( "#" ) ) continue;
-                if( line.StartsWith( "[" ) ) {
-                    string sectionName = line.Substring( 1, line.IndexOf( ']' ) - 1 ).Trim().ToLower();
-                    section = new Dictionary<string, string>();
-                    contents.Add( sectionName, section );
-                } else if( line.Contains( Separator ) && section != null ) {
-                    string keyName = line.Substring( 0, line.IndexOf( Separator ) ).TrimEnd().ToLower();
-                    string valueName = line.Substring( line.IndexOf( Separator ) + 1 ).TrimStart();
-                    section.Add( keyName, valueName );
-                }
-            }
-        }
-
-
-        public bool ContainsSection( string section ) {
-            return contents.ContainsKey( section.ToLower() );
-        }
-
-        public bool Contains( string section, params string[] keys ) {
-            if( contents.ContainsKey( section.ToLower() ) ) {
-                return keys.All( key => contents[section.ToLower()].ContainsKey( key.ToLower() ) );
-            } else {
-                return false;
-            }
-        }
-
-        public bool IsEmpty() {
-            return (contents.Count == 0);
         }
     }
 }

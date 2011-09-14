@@ -207,14 +207,14 @@ namespace fCraft {
                     address = target.Info.LastIP;
 
                     PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetInfo, player, false, reason );
-                    Server.RaisePlayerInfoBanChangingEvent( e );
+                    PlayerInfo.RaiseBanChangingEvent( e );
                     if( e.Cancel ) return;
                     reason = e.Reason;
 
                     if( banIP ) DoIPBan( player, address, reason, target.Name, banAll, false );
                     if( !banAll ) {
                         if( target.Info.ProcessBan( player, reason ) ) {
-                            Server.RaisePlayerInfoBanChangedEvent( e );
+                            PlayerInfo.RaiseBanChangedEvent( e );
                             Logger.Log( "{0} was banned by {1}.", LogType.UserActivity,
                                         target.Info.Name, player.Name );
 
@@ -255,7 +255,7 @@ namespace fCraft {
                     address = targetInfo.LastIP;
 
                     PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetInfo, player, unban, reason );
-                    Server.RaisePlayerInfoBanChangingEvent( e );
+                    PlayerInfo.RaiseBanChangingEvent( e );
                     if( e.Cancel ) return;
                     reason = e.Reason;
 
@@ -263,7 +263,7 @@ namespace fCraft {
                     if( !banAll ) {
                         if( unban ) {
                             if( targetInfo.ProcessUnban( player.Name, reason ) ) {
-                                Server.RaisePlayerInfoBanChangedEvent( e );
+                                PlayerInfo.RaiseBanChangedEvent( e );
                                 Logger.Log( "{0} (offline) was unbanned by {1}", LogType.UserActivity,
                                             targetInfo.Name, player.Name );
                                 Server.Message( "{0}&W (offline) was unbanned by {1}",
@@ -276,7 +276,7 @@ namespace fCraft {
                             }
                         } else {
                             if( targetInfo.ProcessBan( player, reason ) ) {
-                                Server.RaisePlayerInfoBanChangedEvent( e );
+                                PlayerInfo.RaiseBanChangedEvent( e );
                                 Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity,
                                             targetInfo.Name, player.Name );
                                 Server.Message( "{0}&W (offline) was banned by {1}",
@@ -312,7 +312,7 @@ namespace fCraft {
                     targetInfo = PlayerDB.AddFakeEntry( nameOrIP, RankChangeType.Default );
 
                     PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetInfo, player, false, reason );
-                    Server.RaisePlayerInfoBanChangingEvent( e );
+                    PlayerInfo.RaiseBanChangingEvent( e );
                     if( e.Cancel ) return; // TODO: Remove fake player from DB
                     reason = e.Reason;
 
@@ -320,7 +320,7 @@ namespace fCraft {
                     // this will never return false (player could not have been banned already)
                     targetInfo.ProcessBan( player, reason );
 
-                    Server.RaisePlayerInfoBanChangedEvent( e );
+                    PlayerInfo.RaiseBanChangedEvent( e );
 
                     player.Message( "Player \"{0}\" (unrecognized) was banned.", nameOrIP );
                     Logger.Log( "{0} (unrecognized) was banned by {1}", LogType.UserActivity,
@@ -390,12 +390,12 @@ namespace fCraft {
                     string newReason = reason + "~UnbanAll";
                     foreach( PlayerInfo otherInfo in PlayerDB.FindPlayers( address ) ) {
                         PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( otherInfo, player, true, newReason );
-                        Server.RaisePlayerInfoBanChangingEvent( e );
+                        PlayerInfo.RaiseBanChangingEvent( e );
                         if( e.Cancel ) return;
                         newReason = e.Reason;
 
                         if( otherInfo.ProcessUnban( player.Name, newReason ) ) {
-                            Server.RaisePlayerInfoBanChangedEvent( e );
+                            PlayerInfo.RaiseBanChangedEvent( e );
                             Server.Message( player,
                                             "{0}&W was unbanned (UnbanAll) by {1}",
                                             otherInfo.ClassyName, player.ClassyName );
@@ -459,12 +459,12 @@ namespace fCraft {
                     string newReason = reason + "~BanAll";
                     foreach( PlayerInfo otherInfo in PlayerDB.FindPlayers( address ) ) {
                         PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( otherInfo, player, false, newReason );
-                        Server.RaisePlayerInfoBanChangingEvent( e );
+                        PlayerInfo.RaiseBanChangingEvent( e );
                         if( e.Cancel ) return;
                         newReason = e.Reason;
 
                         if( otherInfo.ProcessBan( player, newReason ) ) {
-                            Server.RaisePlayerInfoBanChangedEvent( e );
+                            PlayerInfo.RaiseBanChangedEvent( e );
                             player.Message( "{0}&S matched IP and was also banned.", otherInfo.ClassyName );
                             Server.Message( player,
                                             "{0}&W was banned (BanAll) by {1}",
@@ -557,7 +557,7 @@ namespace fCraft {
             if( name != null ) {
                 string reason = cmd.NextAll();
 
-                Player target = Server.FindPlayerOrPrintMatches( player, name, false );
+                Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
                 if( target == null ) return;
 
                 DateTime previousKickDate = target.Info.LastKickDate;
@@ -796,7 +796,7 @@ namespace fCraft {
                 (!promote && targetInfo.Rank > newRank) ) {
                 Rank oldRank = targetInfo.Rank;
 
-                if( Server.RaisePlayerInfoRankChangingEvent( targetInfo, player, newRank, reason, changeType ) ) {
+                if( PlayerInfo.RaiseRankChangingEvent( targetInfo, player, newRank, reason, changeType ) ) {
                     throw new OperationCanceledException( "Cancelled by plugin." );
                 }
 
@@ -809,7 +809,7 @@ namespace fCraft {
                     // ==== Actual rank change happens here ====
                     targetInfo.ProcessRankChange( newRank, player.Name, reason, changeType );
                     Server.RaisePlayerListChangedEvent();
-                    Server.RaisePlayerInfoRankChangedEvent( targetInfo, player, oldRank, reason, changeType );
+                    PlayerInfo.RaiseRankChangedEvent( targetInfo, player, oldRank, reason, changeType );
                     // ==== Actual rank change happens here ====
 
                     // reset binds (water, lava, admincrete)
@@ -848,7 +848,7 @@ namespace fCraft {
                 } else {
                     // ==== Actual rank change happens here (offline) ====
                     targetInfo.ProcessRankChange( newRank, player.Name, reason, changeType );
-                    Server.RaisePlayerInfoRankChangedEvent( targetInfo, player, oldRank, reason, changeType );
+                    PlayerInfo.RaiseRankChangedEvent( targetInfo, player, oldRank, reason, changeType );
                     // ==== Actual rank change happens here (offline) ====
 
                     if( targetInfo.IsHidden && !targetInfo.Rank.Can( Permission.Hide ) ) {
@@ -1020,7 +1020,7 @@ namespace fCraft {
                     player.MessageManyMatches( "player", infos );
 
                 } else {
-                    infos = Server.FindPlayers( player, playerName );
+                    infos = Server.FindPlayers( player, playerName, true );
                     if( infos.Length > 0 ) {
                         player.Message( "You can only set spawn of players on the same world as you." );
                     } else {
@@ -1057,7 +1057,7 @@ namespace fCraft {
                 return;
             }
 
-            Player target = Server.FindPlayerOrPrintMatches( player, name, false );
+            Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
             if( target == null ) return;
 
             if( target == player ) {
@@ -1099,7 +1099,7 @@ namespace fCraft {
                 return;
             }
 
-            Player target = Server.FindPlayerOrPrintMatches( player, name, false );
+            Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
             if( target == null ) return;
 
             if( player.Can( Permission.Freeze, target.Info.Rank ) ) {
@@ -1159,7 +1159,7 @@ namespace fCraft {
                 }
 
             } else {
-                Player[] matches = Server.FindPlayers( player, name );
+                Player[] matches = Server.FindPlayers( player, name, true );
                 if( matches.Length == 1 ) {
                     Player target = matches[0];
 
@@ -1239,7 +1239,7 @@ namespace fCraft {
             string toName = cmd.Next();
             Player toPlayer = player;
             if( toName != null ) {
-                toPlayer = Server.FindPlayerOrPrintMatches( player, toName, false );
+                toPlayer = Server.FindPlayerOrPrintMatches( player, toName, false, true );
                 if( toPlayer == null ) return;
             } else if( player.World == null ) {
                 player.Message( "When used from console, /bring requires both names to be given." );
@@ -1248,7 +1248,7 @@ namespace fCraft {
 
             World world = toPlayer.World;
 
-            Player target = Server.FindPlayerOrPrintMatches( player, name, false );
+            Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
             if( target == null ) return;
 
             if( !player.Can( Permission.Bring, target.Info.Rank ) ) {
@@ -1299,7 +1299,7 @@ namespace fCraft {
                 return;
             }
 
-            Player target = Server.FindPlayerOrPrintMatches( player, playerName, false );
+            Player target = Server.FindPlayerOrPrintMatches( player, playerName, false, true );
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
 
             if( target == null || world == null ) return;
@@ -1549,7 +1549,7 @@ namespace fCraft {
             }
 
             // find the target
-            Player target = Server.FindPlayerOrPrintMatches( player, targetName, false );
+            Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, true );
             if( target == null ) return;
 
             // check permissions
@@ -1591,7 +1591,7 @@ namespace fCraft {
             string targetName = cmd.Next();
             if( targetName != null && Player.IsValidName( targetName ) ) {
 
-                Player target = Server.FindPlayerOrPrintMatches( player, targetName, false );
+                Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, true );
                 if( target == null ) return;
 
                 if( !player.Can( Permission.Mute, target.Info.Rank ) ) {
@@ -1648,7 +1648,7 @@ namespace fCraft {
                 return;
             }
 
-            Player target = Server.FindPlayerOrPrintMatches( player, targetName, false );
+            Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, true );
             if( target == null ) return;
 
             if( target == player ) {

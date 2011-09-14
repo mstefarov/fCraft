@@ -517,8 +517,8 @@ namespace fCraft {
             Player.Ready += PlayerReadyHandler;
             Player.Disconnected += PlayerDisconnectedHandler;
             Player.Kicked += PlayerKickedHandler;
-            Server.PlayerInfoBanChanged += PlayerInfoBanChangedHandler;
-            Server.PlayerInfoRankChanged += PlayerInfoRankChangedHandler;
+            PlayerInfo.BanChanged += PlayerInfoBanChangedHandler;
+            PlayerInfo.RankChanged += PlayerInfoRankChangedHandler;
         }
 
 

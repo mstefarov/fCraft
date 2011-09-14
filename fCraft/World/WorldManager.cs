@@ -23,7 +23,7 @@ namespace fCraft {
         /// The map of the new main world is preloaded, and old one is unloaded, if needed. </summary>
         /// <exception cref="System.ArgumentNullException" />
         /// <exception cref="fCraft.WorldOpException" />
-        public static World MainWorld {
+        [NotNull] public static World MainWorld {
             get { return mainWorld; }
             set {
                 if( value == null ) throw new ArgumentNullException( "value" );
@@ -48,6 +48,7 @@ namespace fCraft {
         #region World List Saving/Loading
 
         internal static bool LoadWorldList() {
+            World newMainWorld = null;
             WorldList = new World[0];
             if( File.Exists( Paths.WorldListFileName ) ) {
                 try {
@@ -73,19 +74,19 @@ namespace fCraft {
                             World suggestedMainWorld = FindWorldExact( temp.Value );
 
                             if( suggestedMainWorld != null ) {
-                                MainWorld = suggestedMainWorld;
+                                newMainWorld = suggestedMainWorld;
 
                             } else if( firstWorld != null ) {
                                 // if specified main world does not exist, use first-defined world
                                 Logger.Log( "The specified main world \"{0}\" does not exist. " +
                                             "\"{1}\" was designated main instead. You can use /wmain to change it.",
                                             LogType.Warning, temp.Value, firstWorld.Name );
-                                MainWorld = firstWorld;
+                                newMainWorld = firstWorld;
                             }
                             // if firstWorld was also null, LoadWorldList() should try creating a new mainWorld
 
                         } else if( firstWorld != null ) {
-                            MainWorld = firstWorld;
+                            newMainWorld = firstWorld;
                         }
                     }
                 } catch( Exception ex ) {
@@ -93,7 +94,7 @@ namespace fCraft {
                     return false;
                 }
 
-                if( mainWorld == null ) {
+                if( newMainWorld == null ) {
                     Logger.Log( "Server.Start: Could not load any of the specified worlds, or no worlds were specified. " +
                                 "Creating default \"main\" world.", LogType.Error );
                     MainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
@@ -105,15 +106,17 @@ namespace fCraft {
             }
 
             // if there is no default world still, die.
-            if( MainWorld == null ) {
+            if( newMainWorld == null ) {
                 throw new Exception( "Could not create any worlds" );
 
-            } else if( MainWorld.AccessSecurity.HasRestrictions ) {
+            } else if( newMainWorld.AccessSecurity.HasRestrictions ) {
                 Logger.Log( "Server.LoadWorldList: Main world cannot have any access restrictions. " +
                             "Access permission for \"{0}\" has been reset.", LogType.Warning,
                              MainWorld.Name );
-                MainWorld.AccessSecurity.Reset();
+                newMainWorld.AccessSecurity.Reset();
             }
+
+            MainWorld = newMainWorld;
 
             return true;
         }
@@ -708,7 +711,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class SearchingForWorldEventArgs : EventArgs {
+    public sealed class SearchingForWorldEventArgs : EventArgs, IPlayerEvent {
         internal SearchingForWorldEventArgs( Player player, string searchTerm, List<World> matches ) {
             Player = player;
             SearchTerm = searchTerm;

@@ -52,13 +52,6 @@ namespace fCraft {
         }
 
 
-        [DebuggerStepThrough]
-        [StringFormatMethod( "message" )]
-        public static void Log( string message, LogType type, params object[] values ) {
-            Log( String.Format( message, values ), type );
-        }
-
-
         public static void LogToConsole( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( message.Contains( '\n' ) ) {
@@ -73,6 +66,15 @@ namespace fCraft {
                 else processedMessage += message[i];
             }
             Log( processedMessage, LogType.ConsoleOutput );
+        }
+
+
+        [DebuggerStepThrough]
+        [StringFormatMethod( "message" )]
+        public static void Log( [NotNull] string message, LogType type, [NotNull] params object[] values ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( values == null ) throw new ArgumentNullException( "values" );
+            Log( String.Format( message, values ), type );
         }
 
 
@@ -139,7 +141,7 @@ namespace fCraft {
         const int MinCrashReportInterval = 61; // minimum interval between submitting crash reports, in seconds
 
 
-        public static void LogAndReportCrash( string message, string assembly, Exception exception, bool shutdownImminent ) {
+        public static void LogAndReportCrash( [CanBeNull] string message, [CanBeNull] string assembly, [CanBeNull] Exception exception, bool shutdownImminent ) {
             if( message == null ) message = "(null)";
             if( assembly == null ) assembly = "(null)";
             if( exception == null ) exception = new Exception( "(null)" );
@@ -255,7 +257,8 @@ namespace fCraft {
 
         // Called by the Logger in case of serious errors to print troubleshooting advice.
         // Returns true if this type of error is common, and crash report should NOT be submitted.
-        public static bool CheckForCommonErrors( Exception ex ) {
+        public static bool CheckForCommonErrors( [CanBeNull] Exception ex ) {
+            if( ex == null ) throw new ArgumentNullException( "ex" );
             string message = null;
             try {
                 if( ex is FileNotFoundException && ex.Message.Contains( "Version=3.5" ) ) {

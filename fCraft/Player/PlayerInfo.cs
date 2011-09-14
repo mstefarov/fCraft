@@ -7,7 +7,7 @@ using System.Threading;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    public sealed class PlayerInfo : IClassy {
+    public sealed partial class PlayerInfo : IClassy {
 
         public const int MinFieldCount = 24;
 
