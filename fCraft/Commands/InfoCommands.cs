@@ -56,6 +56,7 @@ namespace fCraft {
             Aliases = new[] { "pinfo" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
+            UsableByFrozenPlayers = true,
             Usage = "/info [PlayerName or IP [Offset]]",
             Help = "Prints information and stats for a given player. " +
                    "Prints your own stats if no name is given. " +
@@ -386,6 +387,7 @@ namespace fCraft {
             Name = "baninfo",
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
+            UsableByFrozenPlayers = true,
             Usage = "/baninfo [PlayerName|IPAddress]",
             Help = "Prints information about past and present bans/unbans associated with the PlayerName or IP. " +
                    "If no name is given, this prints your own ban info.",
@@ -500,6 +502,7 @@ namespace fCraft {
             Aliases = new[] { "rankinfo" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
+            UsableByFrozenPlayers = true,
             Usage = "/rinfo RankName",
             Help = "Shows a list of permissions granted to a rank. To see a list of all ranks, use &H/ranks",
             Handler = RankInfoHandler
@@ -576,6 +579,7 @@ namespace fCraft {
             Aliases = new[] { "serverreport", "version" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
+            UsableByFrozenPlayers = true,
             Help = "Shows server stats",
             Handler = ServerInfoHandler
         };
@@ -631,6 +635,7 @@ namespace fCraft {
             Name = "ranks",
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
+            UsableByFrozenPlayers = true,
             Help = "Shows a list of all defined ranks.",
             Handler = RanksHandler
         };
@@ -655,6 +660,7 @@ namespace fCraft {
             Name = "rules",
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
+            UsableByFrozenPlayers = true,
             Help = "Shows a list of rules defined by server operator(s).",
             Handler = RulesHandler
         };
@@ -849,6 +855,7 @@ namespace fCraft {
             Category = CommandCategory.Info,
             Permissions = new[] { Permission.ViewOthersInfo },
             IsConsoleSafe = true,
+            UsableByFrozenPlayers = true,
             Usage = "/where [PlayerName]",
             Help = "Shows information about the location and orientation of a player. " +
                    "If no name is given, shows player's own info.",
@@ -907,6 +914,7 @@ namespace fCraft {
             Name = "help",
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
+            UsableByFrozenPlayers = true,
             Usage = "/help [CommandName]",
             Help = "Derp.",
             Handler = HelpHandler
@@ -979,6 +987,7 @@ namespace fCraft {
             Aliases = new[] { "cmds", "cmdlist" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
+            UsableByFrozenPlayers = true,
             Usage = "/commands [Category|@RankName]",
             Help = "Shows a list of commands, by category, permission, or rank. " +
                    "Categories are: Building, Chat, Info, Maintenance, Moderation, World, and Zone.",
@@ -1035,6 +1044,7 @@ namespace fCraft {
             Aliases = new[] { "colours" },
             Category = CommandCategory.Info | CommandCategory.Chat,
             IsConsoleSafe = true,
+            UsableByFrozenPlayers = true,
             Help = "Shows a list of all available color codes.",
             Handler = ColorsHandler
         };

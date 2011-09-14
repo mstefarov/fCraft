@@ -180,17 +180,21 @@ namespace fCraft {
 
 
                 case RawMessageType.Command: {
-                        if( Info.IsFrozen ) {
-                            MessageNow( "&WYou cannot use any commands while frozen." );
-                            return;
-                        }
                         if( rawMessage.EndsWith( "//" ) ) {
                             rawMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
                         }
+                        Command cmd = new Command( rawMessage );
+                        CommandDescriptor commandDescriptor = CommandManager.GetDescriptor( cmd.Name, true );
+
+                        if( Info.IsFrozen && !commandDescriptor.UsableByFrozenPlayers ) {
+                            MessageNow( "&WYou cannot use this command while frozen." );
+                            return;
+                        }
+
                         Logger.Log( "{0}: {1}", LogType.UserCommand,
                                     Name, rawMessage );
-                        Command cmd = new Command( rawMessage );
-                        if( CommandManager.ParseCommand( this, cmd, fromConsole ) ) {
+                        CommandManager.ParseCommand( this, cmd, fromConsole );
+                        if( !commandDescriptor.NotRepeatable ) {
                             LastCommand = cmd;
                         }
                     } break;

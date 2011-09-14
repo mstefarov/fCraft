@@ -157,6 +157,7 @@ namespace fCraft {
         /// <param name="player"> Player who issued the command. </param>
         /// <param name="cmd"> Command to be parsed and executed. </param>
         /// <param name="fromConsole"> Whether this command is being called from a non-player (e.g. Console). </param>
+        /// <returns> True if the command was called, false if something prevented it from being called. </returns>
         public static bool ParseCommand( [NotNull] Player player, [NotNull] Command cmd, bool fromConsole ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
@@ -173,16 +174,20 @@ namespace fCraft {
                 if( descriptor.Permissions != null ) {
                     if( !descriptor.CanBeCalledBy( player.Info.Rank ) ) {
                         player.MessageNoAccess( descriptor );
-                    }else if( !descriptor.Call( player, cmd, true ) ) {
+                    } else if( !descriptor.Call( player, cmd, true ) ) {
                         player.Message( "Command was cancelled." );
+                    } else {
+                        return true;
                     }
                 } else {
-                    if( !descriptor.Call( player, cmd, true ) ) {
+                    if( descriptor.Call( player, cmd, true ) ) {
+                        return true;
+                    }else{
                         player.Message( "Command was cancelled." );
                     }
                 }
             }
-            return !descriptor.NotRepeatable;
+            return false;
         }
 
 

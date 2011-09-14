@@ -290,6 +290,7 @@ namespace fCraft {
             Category = CommandCategory.Zone | CommandCategory.Info,
             Help = "Shows detailed information about a zone.",
             Usage = "/zinfo ZoneName",
+            UsableByFrozenPlayers = true,
             Handler = ZoneInfoHandler
         };
 
@@ -354,6 +355,7 @@ namespace fCraft {
             Name = "zones",
             Category = CommandCategory.Zone | CommandCategory.Info,
             IsConsoleSafe = true,
+            UsableByFrozenPlayers = true,
             Usage = "/zones [WorldName]",
             Help = "Lists all zones defined on the current map/world.",
             Handler = ZoneListHandler

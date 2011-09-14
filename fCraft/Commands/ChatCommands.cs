@@ -283,15 +283,13 @@ namespace fCraft {
         const int LinesToClear = 30;
         static readonly CommandDescriptor CdClear = new CommandDescriptor {
             Name = "clear",
+            UsableByFrozenPlayers = true,
             Category = CommandCategory.Chat,
             Help = "Clears the chat screen.",
             Handler = ClearHandler
         };
 
         static void ClearHandler( Player player, Command cmd ) {
-            if( player == Player.Console ) {
-                throw new NotSupportedException( "fCraft front-ends are expected to handle the /clear command internally." );
-            }
             for( int i = 0; i < LinesToClear; i++ ) {
                 player.Message( "" );
             }
