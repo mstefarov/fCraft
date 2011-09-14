@@ -1,3 +1,11 @@
+0.536
+ Fix: Fixed a rare crash in DoChangeRank when promoting/demoting offline players.
+ Fix: Fixed a case where world access/build whitelist additions were not immediately saved.
+ Fix: Fixed several errors in the way time spans were displayed.
+ Fix: Unhandled exceptions in background task callbacks will no longer take down the server
+ Change: Changed the heartbeat handler to use GET instead of POST (workaround for minecraft.net problems).
+ Change: Removed AutoLauncher.
+
 0.535
  Workaround for minecraft.net heartbeat changes.
 
