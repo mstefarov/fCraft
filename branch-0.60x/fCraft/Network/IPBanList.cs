@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using fCraft.Events;
+using JetBrains.Annotations;
 
 namespace fCraft {
     public static class IPBanList {
@@ -89,7 +90,7 @@ namespace fCraft {
         }
 
 
-        static int ParseHeader( string header ) {
+        static int ParseHeader( [NotNull] string header ) {
             if( header == null ) throw new ArgumentNullException( "header" );
             if( header.IndexOf( ' ' ) > 0 ) {
                 string firstPart = header.Substring( 0, header.IndexOf( ' ' ) );
@@ -129,7 +130,7 @@ namespace fCraft {
         /// <summary> Adds a new IP Ban. </summary>
         /// <param name="ban"> Ban information </param>
         /// <returns> True if ban was added, false if it was already on the list </returns>
-        public static bool Add( IPBanInfo ban ) {
+        public static bool Add( [NotNull] IPBanInfo ban ) {
             if( ban == null ) throw new ArgumentNullException( "ban" );
             lock( BanListLock ) {
                 if( Bans.ContainsKey( ban.Address.ToString() ) ) return false;
@@ -145,7 +146,7 @@ namespace fCraft {
         /// <summary> Retrieves ban information for a given IP address. </summary>
         /// <param name="address"> IP address to check. </param>
         /// <returns> IPBanInfo object if found, otherwise null. </returns>
-        public static IPBanInfo Get( IPAddress address ) {
+        public static IPBanInfo Get( [NotNull] IPAddress address ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             lock( BanListLock ) {
                 if( !Bans.ContainsKey( address.ToString() ) ) {
@@ -158,7 +159,7 @@ namespace fCraft {
 
         // Returns true if address was banned (and was unbanned)
         // Returns false if address was not banned (and is still not banned) or if address is null
-        public static bool Remove( IPAddress address ) {
+        public static bool Remove( [NotNull] IPAddress address ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             lock( BanListLock ) {
                 if( !Bans.ContainsKey( address.ToString() ) ) {
@@ -249,8 +250,9 @@ namespace fCraft {
         IPBanInfo() { }
 
 
-        public IPBanInfo( IPAddress address, string playerName, string bannedBy, string banReason ) {
+        public IPBanInfo( [NotNull] IPAddress address, [NotNull] string playerName, [NotNull] string bannedBy, string banReason ) {
             if( address == null ) throw new ArgumentNullException( "address" );
+            if( playerName == null ) throw new ArgumentNullException( "playerName" );
             if( bannedBy == null ) throw new ArgumentNullException( "bannedBy" );
             Address = address;
             BannedBy = bannedBy;
@@ -264,13 +266,14 @@ namespace fCraft {
         }
 
 
-        public static IPBanInfo LoadFormat2( string[] fields ) {
-            IPBanInfo info = new IPBanInfo();
+        public static IPBanInfo LoadFormat2( [NotNull] string[] fields ) {
             if( fields == null ) throw new ArgumentNullException( "fields" );
             if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
+            IPBanInfo info = new IPBanInfo {
+                Address = IPAddress.Parse( fields[0] ),
+                BannedBy = PlayerInfo.Unescape( fields[1] )
+            };
 
-            info.Address = IPAddress.Parse( fields[0] );
-            info.BannedBy = PlayerInfo.Unescape( fields[1] );
             fields[2].ToDateTime( ref info.BanDate );
             if( fields[3].Length > 0 ) {
                 info.BanReason = PlayerInfo.Unescape( fields[3] );
@@ -287,13 +290,14 @@ namespace fCraft {
         }
 
 
-        public static IPBanInfo LoadFormat1( string[] fields ) {
-            IPBanInfo info = new IPBanInfo();
+        public static IPBanInfo LoadFormat1( [NotNull] string[] fields ) {
             if( fields == null ) throw new ArgumentNullException( "fields" );
             if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
+            IPBanInfo info = new IPBanInfo {
+                Address = IPAddress.Parse( fields[0] ),
+                BannedBy = PlayerInfo.Unescape( fields[1] )
+            };
 
-            info.Address = IPAddress.Parse( fields[0] );
-            info.BannedBy = PlayerInfo.Unescape( fields[1] );
             fields[2].ToDateTimeLegacy( ref info.BanDate );
             if( fields[3].Length > 0 ) {
                 info.BanReason = PlayerInfo.Unescape( fields[3] );
@@ -310,13 +314,14 @@ namespace fCraft {
         }
 
 
-        public static IPBanInfo LoadFormat0( string[] fields, bool convertDatesToUtc ) {
-            IPBanInfo info = new IPBanInfo();
+        public static IPBanInfo LoadFormat0( [NotNull] string[] fields, bool convertDatesToUtc ) {
             if( fields == null ) throw new ArgumentNullException( "fields" );
             if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
+            IPBanInfo info = new IPBanInfo {
+                Address = IPAddress.Parse( fields[0] ),
+                BannedBy = PlayerInfo.UnescapeOldFormat( fields[1] )
+            };
 
-            info.Address = IPAddress.Parse( fields[0] );
-            info.BannedBy = PlayerInfo.UnescapeOldFormat( fields[1] );
             DateTimeUtil.TryParseLocalDate( fields[2], out info.BanDate );
             info.BanReason = PlayerInfo.UnescapeOldFormat( fields[3] );
             if( fields[4].Length > 1 ) {
@@ -352,7 +357,7 @@ namespace fCraft {
         }
 
 
-        public void ProcessAttempt( Player player ) {
+        public void ProcessAttempt( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Attempts++;
             LastAttemptDate = DateTime.UtcNow;

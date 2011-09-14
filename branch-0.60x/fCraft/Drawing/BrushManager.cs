@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     public static class BrushManager {
@@ -47,7 +48,7 @@ namespace fCraft.Drawing {
             RegisterBrush( ReplaceNotBrushFactory.Instance );
         }
 
-        public static void RegisterBrush( IBrushFactory factory ) {
+        public static void RegisterBrush( [NotNull] IBrushFactory factory ) {
             if( factory == null ) throw new ArgumentNullException( "factory" );
             string helpString = factory.Help;
             string lowerName = factory.Name.ToLower();
@@ -62,7 +63,7 @@ namespace fCraft.Drawing {
             CdBrush.Help += factory.Name + " ";
         }
 
-        public static IBrushFactory GetBrushFactory( string brushName ) {
+        public static IBrushFactory GetBrushFactory( [NotNull] string brushName ) {
             if( brushName == null ) throw new ArgumentNullException( "brushName" );
             IBrushFactory factory;
             string lowerName = brushName.ToLower();

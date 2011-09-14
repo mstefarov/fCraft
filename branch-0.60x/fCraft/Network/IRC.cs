@@ -33,6 +33,7 @@ using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using System.Threading;
 using fCraft.Events;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
@@ -58,7 +59,7 @@ namespace fCraft {
             readonly ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
 
 
-            public bool Start( string botNick, bool parseInput ) {
+            public bool Start( [NotNull] string botNick, bool parseInput ) {
                 if( botNick == null ) throw new ArgumentNullException( "botNick" );
                 ActualBotNick = botNick;
                 ResponsibleForInputParsing = parseInput;
@@ -96,7 +97,7 @@ namespace fCraft {
             }
 
 
-            void Send( string msg ) {
+            void Send( [NotNull] string msg ) {
                 if( msg == null ) throw new ArgumentNullException( "msg" );
                 localQueue.Enqueue( msg );
             }
@@ -165,7 +166,7 @@ namespace fCraft {
             }
 
 
-            void HandleMessage( string message ) {
+            void HandleMessage( [NotNull] string message ) {
                 if( message == null ) throw new ArgumentNullException( "message" );
 
                 IRCMessage msg = MessageParser( message, ActualBotNick );
@@ -452,7 +453,7 @@ namespace fCraft {
         }
 
 
-        public static void SendChannelMessage( string line ) {
+        public static void SendChannelMessage( [NotNull] string line ) {
             if( line == null ) throw new ArgumentNullException( "line" );
             if( channelNames == null ) return; // in case IRC bot is disabled.
             if( ConfigKey.IRCUseColor.Enabled() ) {
@@ -466,13 +467,13 @@ namespace fCraft {
         }
 
 
-        public static void SendAction( string line ) {
+        public static void SendAction( [NotNull] string line ) {
             if( line == null ) throw new ArgumentNullException( "line" );
             SendChannelMessage( String.Format( "\u0001ACTION {0}\u0001", line ) );
         }
 
 
-        public static void SendNotice( string line ) {
+        public static void SendNotice( [NotNull] string line ) {
             if( line == null ) throw new ArgumentNullException( "line" );
             if( channelNames == null ) return; // in case IRC bot is disabled.
             if( ConfigKey.IRCUseColor.Enabled() ) {
@@ -486,13 +487,13 @@ namespace fCraft {
         }
 
 
-        public static void SendRawMessage( string line ) {
+        public static void SendRawMessage( [NotNull] string line ) {
             if( line == null ) throw new ArgumentNullException( "line" );
             OutputQueue.Enqueue( line );
         }
 
 
-        static bool IsBotNick( string str ) {
+        static bool IsBotNick( [NotNull] string str ) {
             if( str == null ) throw new ArgumentNullException( "str" );
             return threads.Any( t => t.ActualBotNick == str );
         }
@@ -584,7 +585,7 @@ namespace fCraft {
         }
 
 
-        static void PlayerSomethingMessage( IClassy player, string action, IClassy target, string reason ) {
+        static void PlayerSomethingMessage( [NotNull] IClassy player, [NotNull] string action, [NotNull] IClassy target, [NotNull] string reason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( action == null ) throw new ArgumentNullException( "action" );
             if( target == null ) throw new ArgumentNullException( "target" );
@@ -610,7 +611,7 @@ namespace fCraft {
         static readonly IRCReplyCode[] ReplyCodes = (IRCReplyCode[])Enum.GetValues( typeof( IRCReplyCode ) );
 
 
-        static IRCMessageType GetMessageType( string rawline, string actualBotNick ) {
+        static IRCMessageType GetMessageType( [NotNull] string rawline, [NotNull] string actualBotNick ) {
             if( rawline == null ) throw new ArgumentNullException( "rawline" );
             if( actualBotNick == null ) throw new ArgumentNullException( "actualBotNick" );
 
@@ -790,7 +791,7 @@ namespace fCraft {
         }
 
 
-        static IRCMessage MessageParser( string rawline, string actualBotNick ) {
+        static IRCMessage MessageParser( [NotNull] string rawline, [NotNull] string actualBotNick ) {
             if( rawline == null ) throw new ArgumentNullException( "rawline" );
             if( actualBotNick == null ) throw new ArgumentNullException( "actualBotNick" );
 

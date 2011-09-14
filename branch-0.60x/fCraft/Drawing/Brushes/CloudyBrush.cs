@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     public sealed class CloudyBrushFactory : IBrushFactory {
@@ -24,7 +25,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public IBrush MakeBrush( Player player, Command cmd ) {
+        public IBrush MakeBrush( [NotNull] Player player, [NotNull] Command cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
 
@@ -104,7 +105,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public IBrushInstance MakeInstance( Player player, Command cmd, DrawOperation state ) {
+        public IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] Command cmd, [NotNull] DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( state == null ) throw new ArgumentNullException( "state" );

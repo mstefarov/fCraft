@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     public abstract class AbstractPerlinNoiseBrush : IBrushInstance {
@@ -41,7 +42,7 @@ namespace fCraft.Drawing {
         }
 
 
-        protected AbstractPerlinNoiseBrush( AbstractPerlinNoiseBrush other ) {
+        protected AbstractPerlinNoiseBrush( [NotNull] AbstractPerlinNoiseBrush other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             Blocks = other.Blocks;
             BlockRatios = other.BlockRatios;
@@ -53,7 +54,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public virtual bool Begin( Player player, DrawOperation state ) {
+        public virtual bool Begin( [NotNull] Player player, [NotNull] DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( state == null ) throw new ArgumentNullException( "state" );
 
@@ -96,7 +97,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public virtual Block NextBlock( DrawOperation state ) {
+        public virtual Block NextBlock( [NotNull] DrawOperation state ) {
             if( state == null ) throw new ArgumentNullException( "state" );
             Vector3I relativeCoords = state.Coords - state.Bounds.MinVertexV;
             float value = noise3D.Compute( relativeCoords.X, relativeCoords.Y, relativeCoords.Z );

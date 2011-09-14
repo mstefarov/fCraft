@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Intelligent line-wrapper for Minecraft protocol.
@@ -39,7 +40,7 @@ namespace fCraft {
         readonly byte[] prefix;
 
 
-        LineWrapper( string message ) {
+        LineWrapper( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             input = Encoding.ASCII.GetBytes( message );
             prefix = DefaultPrefix;
@@ -47,7 +48,7 @@ namespace fCraft {
         }
 
 
-        LineWrapper( string prefixString, string message ) {
+        LineWrapper( [NotNull] string prefixString, [NotNull] string message ) {
             if( prefixString == null ) throw new ArgumentNullException( "prefixString" );
             prefix = Encoding.ASCII.GetBytes( prefixString );
             if( prefix.Length > MaxPrefixSize ) throw new ArgumentException( "Prefix too long", "prefixString" );
