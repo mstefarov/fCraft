@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace fCraft {
     // Protocol encoder for outgoing packets
@@ -29,7 +30,7 @@ namespace fCraft {
 
         /// <summary> Writes a string in Minecraft protocol format.
         /// Maximum length: 64 characters. </summary>
-        public override void Write( string str ) {
+        public override void Write( [NotNull] string str ) {
             if( str == null ) throw new ArgumentNullException( "str" );
             if( str.Length > 64 ) throw new ArgumentException( "String is too long (>64).", "str" );
             Write( Encoding.ASCII.GetBytes( str.PadRight( 64 ) ) );
@@ -48,7 +49,7 @@ namespace fCraft {
             Write( OpCode.MapBegin );
         }
 
-        public void WriteLevelChunk( byte[] chunk, int chunkSize, byte progress ) {
+        public void WriteLevelChunk( [NotNull] byte[] chunk, int chunkSize, byte progress ) {
             if( chunk == null ) throw new ArgumentNullException( "chunk" );
             Write( OpCode.MapChunk );
             Write( (short)chunkSize );
@@ -56,7 +57,7 @@ namespace fCraft {
             Write( progress );
         }
 
-        internal void WriteLevelEnd( Map map ) {
+        internal void WriteLevelEnd( [NotNull] Map map ) {
             if( map == null ) throw new ArgumentNullException( "map" );
             Write( OpCode.MapEnd );
             Write( (short)map.Width );
@@ -64,7 +65,7 @@ namespace fCraft {
             Write( (short)map.Length );
         }
 
-        public void WriteAddEntity( byte id, Player player, Position pos ) {
+        public void WriteAddEntity( byte id, [NotNull] Player player, Position pos ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Write( OpCode.AddEntity );
             Write( id );
@@ -91,7 +92,7 @@ namespace fCraft {
 
         #region Packet Making
 
-        internal static Packet MakeHandshake( Player player, string serverName, string motd ) {
+        internal static Packet MakeHandshake( [NotNull] Player player, [NotNull] string serverName, [NotNull] string motd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( serverName == null ) throw new ArgumentNullException( "serverName" );
             if( motd == null ) throw new ArgumentNullException( "motd" );
@@ -105,7 +106,7 @@ namespace fCraft {
         }
 
 
-        internal static Packet MakeMessage( string message ) {
+        internal static Packet MakeMessage( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
 
             Packet packet = new Packet( OpCode.Message );
@@ -115,7 +116,7 @@ namespace fCraft {
         }
 
 
-        internal static Packet MakeAddEntity( int id, string name, Position pos ) {
+        internal static Packet MakeAddEntity( int id, [NotNull] string name, Position pos ) {
             if( name == null ) throw new ArgumentNullException( "name" );
 
             Packet packet = new Packet( OpCode.AddEntity );
@@ -130,7 +131,7 @@ namespace fCraft {
         }
 
 
-        internal static Packet MakeDisconnect( string reason ) {
+        internal static Packet MakeDisconnect( [NotNull] string reason ) {
             if( reason == null ) throw new ArgumentNullException( "reason" );
 
             Packet packet = new Packet( OpCode.Kick );
@@ -214,7 +215,7 @@ namespace fCraft {
         }
 
 
-        internal static Packet MakeSetPermission( Player player ) {
+        internal static Packet MakeSetPermission( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             Packet packet = new Packet( OpCode.SetPermission );

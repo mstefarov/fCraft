@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
+using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     public sealed class MapDat : IMapConverter {
@@ -72,13 +73,15 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool ClaimsName( string fileName ) {
+        public bool ClaimsName( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".dat", StringComparison.OrdinalIgnoreCase ) ||
                    fileName.EndsWith( ".mine", StringComparison.OrdinalIgnoreCase );
         }
 
 
-        public bool Claims( string fileName ) {
+        public bool Claims( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
                     byte[] temp = new byte[8];
@@ -104,7 +107,8 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map LoadHeader( string fileName ) {
+        public Map LoadHeader( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             Map map = Load( fileName );
             map.Blocks = null;
             return map;
@@ -119,7 +123,8 @@ namespace fCraft.MapConversion {
             return (Block)Mapping[(byte)block];
         }
 
-        public Map Load( string fileName ) {
+        public Map Load( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 byte[] temp = new byte[8];
                 Map map = null;
@@ -225,12 +230,14 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool Save( Map mapToSave, string fileName ) {
+        public bool Save( [NotNull] Map mapToSave, [NotNull] string fileName ) {
+            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             throw new NotImplementedException();
         }
 
 
-        static bool MemCmp( IList<byte> data, int offset, string value ) {
+        static bool MemCmp( [NotNull] IList<byte> data, int offset, [NotNull] string value ) {
             if( data == null ) throw new ArgumentNullException( "data" );
             if( value == null ) throw new ArgumentNullException( "value" );
             // ReSharper disable LoopCanBeConvertedToQuery

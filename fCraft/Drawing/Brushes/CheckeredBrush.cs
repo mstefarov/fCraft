@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     public sealed class CheckeredBrushFactory : IBrushFactory {
@@ -23,7 +24,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public IBrush MakeBrush( Player player, Command cmd ) {
+        public IBrush MakeBrush( [NotNull] Player player, [NotNull] Command cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             Block block = cmd.NextBlock( player );
@@ -44,7 +45,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public CheckeredBrush( CheckeredBrush other ) {
+        public CheckeredBrush( [NotNull] CheckeredBrush other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             Block1 = other.Block1;
             Block2 = other.Block2;
@@ -71,7 +72,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public IBrushInstance MakeInstance( Player player, Command cmd, DrawOperation state ) {
+        public IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] Command cmd, [NotNull] DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( state == null ) throw new ArgumentNullException( "state" );
@@ -113,14 +114,14 @@ namespace fCraft.Drawing {
         }
 
 
-        public bool Begin( Player player, DrawOperation state ) {
+        public bool Begin( [NotNull] Player player, [NotNull] DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( state == null ) throw new ArgumentNullException( "state" );
             return true;
         }
 
 
-        public Block NextBlock( DrawOperation state ) {
+        public Block NextBlock( [NotNull] DrawOperation state ) {
             if( state == null ) throw new ArgumentNullException( "state" );
             if( ((state.Coords.X + state.Coords.Y + state.Coords.Z) & 1) == 1 ) {
                 return Block1;

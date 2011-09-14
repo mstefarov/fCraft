@@ -4,6 +4,7 @@ using System.Text;
 using System.IO;
 using System.IO.Compression;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     /// <summary> Next file format that fCraft shall use. </summary>
@@ -32,14 +33,16 @@ namespace fCraft.MapConversion {
 
 
         /// <summary> Returns true if the filename (or directory name) matches this format's expectations. </summary>
-        public bool ClaimsName( string fileName ) {
+        public bool ClaimsName( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase );
         }
 
 
         /// <summary> Allows validating the map format while using minimal resources. </summary>
         /// <returns> Returns true if specified file/directory is valid for this format. </returns>
-        public bool Claims( string path ) {
+        public bool Claims( [NotNull] string path ) {
+            if( path == null ) throw new ArgumentNullException( "path" );
             using( FileStream fs = File.OpenRead( path ) ) {
                 BinaryReader reader = new BinaryReader( fs );
                 return (reader.ReadInt32() == FormatID);
@@ -50,6 +53,7 @@ namespace fCraft.MapConversion {
         /// <summary> Attempts to load map dimensions from specified location. </summary>
         /// <returns> Map object on success, or null on failure. </returns>
         public Map LoadHeader( string path ) {
+            if( path == null ) throw new ArgumentNullException( "path" );
             using( FileStream fs = File.OpenRead( path ) ) {
                 return LoadInternal( fs, false );
             }
@@ -58,7 +62,8 @@ namespace fCraft.MapConversion {
 
         /// <summary> Fully loads map from specified location. </summary>
         /// <returns> Map object on success, or null on failure. </returns>
-        public Map Load( string path ) {
+        public Map Load( [NotNull] string path ) {
+            if( path == null ) throw new ArgumentNullException( "path" );
             using( FileStream fs = File.OpenRead( path ) ) {
                 return LoadInternal( fs, true );
             }
@@ -67,7 +72,7 @@ namespace fCraft.MapConversion {
 
         /// <summary> Saves given map at the given location. </summary>
         /// <returns> true if saving succeeded. </returns>
-        public bool Save( Map map, string path ) {
+        public bool Save( [NotNull] Map map, [NotNull] string path ) {
             if( map == null ) throw new ArgumentNullException( "map" );
             if( path == null ) throw new ArgumentNullException( "path" );
             using( FileStream mapStream = File.Create( path ) ) {
@@ -134,7 +139,8 @@ namespace fCraft.MapConversion {
         }
 
 
-        static Map LoadInternal( Stream stream, bool readLayers ) {
+        static Map LoadInternal( [NotNull] Stream stream, bool readLayers ) {
+            if( stream == null ) throw new ArgumentNullException( "stream" );
             BinaryReader bs = new BinaryReader( stream );
 
             // headers
@@ -243,14 +249,17 @@ namespace fCraft.MapConversion {
         }
 
 
-        static string ReadString( BinaryReader reader ) {
+        static string ReadString( [NotNull] BinaryReader reader ) {
+            if( reader == null ) throw new ArgumentNullException( "reader" );
             int stringLength = reader.ReadInt32();
             if( stringLength < 0 ) throw new MapFormatException( "Negative string length." );
             return Encoding.ASCII.GetString( reader.ReadBytes( stringLength ) );
         }
 
 
-        static void WriteString( BinaryWriter writer, string str ) {
+        static void WriteString( [NotNull] BinaryWriter writer, [NotNull] string str ) {
+            if( writer == null ) throw new ArgumentNullException( "writer" );
+            if( str == null ) throw new ArgumentNullException( "str" );
             byte[] stringData = Encoding.ASCII.GetBytes( str );
             writer.Write( stringData.Length );
             writer.Write( stringData, 0, stringData.Length );

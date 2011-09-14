@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
 
@@ -26,7 +27,7 @@ namespace fCraft.MapConversion {
 
 
         // ReSharper disable EmptyGeneralCatchClause
-        public static MapFormat Identify( string fileName ) {
+        public static MapFormat Identify( [NotNull] string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             MapStorageType targetType = MapStorageType.SingleFile;
             if( !File.Exists( fileName ) ) {
@@ -63,7 +64,7 @@ namespace fCraft.MapConversion {
         // ReSharper restore EmptyGeneralCatchClause
 
 
-        public static bool TryLoadHeader( string fileName, out Map map ) {
+        public static bool TryLoadHeader( [NotNull] string fileName, out Map map ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 map = LoadHeader( fileName );
@@ -77,7 +78,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        public static Map LoadHeader( string fileName ) {
+        public static Map LoadHeader( [NotNull] string fileName ) {
             // ReSharper disable EmptyGeneralCatchClause
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
 
@@ -124,7 +125,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        public static bool TryLoad( string fileName, out Map map ) {
+        public static bool TryLoad( [NotNull] string fileName, out Map map ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 map = Load( fileName );
@@ -139,7 +140,7 @@ namespace fCraft.MapConversion {
 
 
         // ReSharper disable EmptyGeneralCatchClause
-        public static Map Load( string fileName ) {
+        public static Map Load( [NotNull] string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             MapStorageType targetType = MapStorageType.SingleFile;
             if( !File.Exists( fileName ) ) {
@@ -182,7 +183,7 @@ namespace fCraft.MapConversion {
         // ReSharper restore EmptyGeneralCatchClause
 
 
-        public static bool TrySave( Map mapToSave, string fileName, MapFormat format ) {
+        public static bool TrySave( [NotNull] Map mapToSave, [NotNull] string fileName, MapFormat format ) {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             if( format == MapFormat.Unknown ) throw new ArgumentException( "Format may not be \"Unknown\"", "format" );
@@ -201,7 +202,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        internal static void ReadAll( Stream source, byte[] destination ) {
+        internal static void ReadAll( [NotNull] Stream source, [NotNull] byte[] destination ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( destination == null ) throw new ArgumentNullException( "destination" );
             int read = 0;

@@ -3,6 +3,7 @@ using System;
 #if DEBUG
 using System.Collections.Generic;
 #endif
+using JetBrains.Annotations;
 
 // ReSharper disable VirtualMemberNeverOverriden.Global
 // ReSharper disable UnusedMemberInSuper.Global
@@ -45,7 +46,7 @@ namespace fCraft.Drawing {
         public abstract string Description { get; }
 
 
-        protected DrawOperation( Player player ) {
+        protected DrawOperation( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( player.World == null || player.World.Map == null ) {
                 throw new ArgumentException( "Player must have a world.", "player" );
@@ -56,7 +57,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public virtual bool Begin( Position[] marks ) {
+        public virtual bool Begin( [NotNull] Position[] marks ) {
             if( marks == null ) throw new ArgumentNullException( "marks" );
             Marks = marks;
             if( Player == null ) throw new InvalidOperationException( "Player not set" );
