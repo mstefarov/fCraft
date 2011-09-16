@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
+using System.Net.Security;
 using System.Text;
 using fCraft.Events;
 
@@ -163,7 +164,7 @@ namespace fCraft {
 
 
 
-        const string WoMDirectSettingsString = "http://direct.worldofminecraft.com/server.php?ip={0}&port={1}&salt={2}&desc={3}&flags={4}";
+        const string WoMDirectSettingsString = "https://direct.worldofminecraft.com/server.php?ip={0}&port={1}&salt={2}&desc={3}&flags={4}";
         const string WoMDirectFlags = "[FCRAFT]";
         const int WoMDirectSettingsTimeout = 30000;
         
@@ -173,7 +174,7 @@ namespace fCraft {
                                                    Server.ExternalIP,
                                                    Server.Port,
                                                    Uri.EscapeDataString( Server.Salt ),
-                                                   Uri.EscapeDataString( "Testing 1 2 3" ), /*Uri.EscapeDataString( ConfigKey.WoMDirectDescription.GetString() ),*/
+                                                   Uri.EscapeDataString( ConfigKey.WoMDirectDescription.GetString() ),
                                                    Uri.EscapeDataString( WoMDirectFlags ) ) );
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( finalUri );
