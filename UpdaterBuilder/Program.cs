@@ -5,7 +5,6 @@ namespace fCraft.UpdateBuilder {
     static class Program {
 
         static readonly string[] FileList = {
-            "AutoRestarter.exe",
             "ConfigGUI.exe",
             "fCraft.dll",
             "fCraftGUI.dll",

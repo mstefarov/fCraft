@@ -486,6 +486,10 @@ takes up 16 bytes per block. If set to 0, there is no limit.",
 @"Enable heartbeat to minecraft.net.
 If disabled, heartbeat data is written to heartbeatdata.txt." )]
         HeartbeatEnabled,
+        
+        [BoolKey(ConfigSection.Advanced, true,
+@"If enabled, sends heartbeats to WoM Direct service, http://direct.worldofminecraft.com/")]
+        HeartbeatToWoMDirect,
 
         [IPKey( ConfigSection.Advanced, IPKeyAttribute.BlankValueMeaning.Any,
 @"If the machine has more than one available IP address (for example

@@ -13,6 +13,9 @@ namespace fCraft {
         public static int Delay { get; set; }
         public static int Timeout { get; set; }
         public static Uri Uri { get; set; }
+        public static readonly Uri DefaultUri;
+        public static readonly Uri WoMDirectUri;
+
 
         static HttpWebRequest request;
         static SchedulerTask task;
@@ -23,7 +26,8 @@ namespace fCraft {
 
 
         static Heartbeat() {
-            Uri = new Uri( "http://www.minecraft.net/heartbeat.jsp" );
+            DefaultUri = new Uri( "http://www.minecraft.net/heartbeat.jsp" );
+            WoMDirectUri = new Uri( "http://direct.worldofminecraft.com/hb.php" );
             Delay = 30000;
             Timeout = 10000;
         }
