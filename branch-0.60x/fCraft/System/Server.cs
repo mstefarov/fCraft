@@ -395,6 +395,7 @@ namespace fCraft {
 
             Heartbeat.Start();
             if( ConfigKey.HeartbeatToWoMDirect.Enabled() ) {
+                //Heartbeat.SetWoMDirectSettings();
                 if( ExternalIP == null ) {
                     Logger.Log( "WoM Direct heartbeat is enabled. To edit your server's appearence on the server list, " +
                                 "see https://direct.worldofminecraft.com/server.php?port={0}&salt={1}", LogType.SystemActivity,
