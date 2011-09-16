@@ -27,7 +27,6 @@ namespace fCraft {
             ConfigFileName = ConfigFileNameDefault;
 
             ProtectedFiles = new[]{
-                "AutoRestarter.exe",
                 "ConfigGUI.exe",
                 "ConfigCLI.exe",
                 "fCraft.dll",
