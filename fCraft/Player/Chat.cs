@@ -155,7 +155,8 @@ namespace fCraft {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
             var recepientList = Server.Players.Can( Permission.ReadStaffChat )
-                                              .NotIgnoring( player );
+                                              .NotIgnoring( player )
+                                              .Union( player );
 
             string formattedMessage = String.Format( "&P(staff){0}&P: {1}",
                                                      player.ClassyName,

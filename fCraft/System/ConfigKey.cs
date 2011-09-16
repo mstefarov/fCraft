@@ -491,6 +491,10 @@ If disabled, heartbeat data is written to heartbeatdata.txt." )]
 @"If enabled, sends heartbeats to WoM Direct service, http://direct.worldofminecraft.com/")]
         HeartbeatToWoMDirect,
 
+        [StringKey(ConfigSection.Advanced, "",
+@"Server description, as shown in WoM (if HeartbeatToWoMDirect is enabled)")]
+        WoMDirectDescription,
+
         [IPKey( ConfigSection.Advanced, IPKeyAttribute.BlankValueMeaning.Any,
 @"If the machine has more than one available IP address (for example
 if you have more than one NIC) you can use this setting to make
