@@ -1117,18 +1117,13 @@ namespace fCraft {
         static readonly Uri PaidCheckUri = new Uri( "http://www.minecraft.net/haspaid.jsp?user=" );
         const int PaidCheckTimeout = 5000;
 
-        // binding delegate for checking the status
-        static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
-            return new IPEndPoint( Server.IP, 0 );
-        }
-
 
         /// <summary> Checks whether a given player has a paid minecraft.net account. </summary>
         /// <returns> True if the account is paid. False if it is not paid, or if information is unavailable. </returns>
         public static bool CheckPaidStatus( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( PaidCheckUri + Uri.EscapeDataString( name ) );
-            request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
+            request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( Server.BindIPEndPointCallback );
             request.Timeout = PaidCheckTimeout;
             request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
 
