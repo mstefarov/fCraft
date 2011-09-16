@@ -88,6 +88,7 @@ namespace fCraft {
                 request.Method = "GET";
                 request.Timeout = Timeout;
                 request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
+                request.UserAgent = Updater.UserAgent;
 
                 request.BeginGetResponse( ResponseCallback, null );
             } else {
@@ -160,6 +161,38 @@ namespace fCraft {
             task.RunManual( TimeSpan.FromMilliseconds( Delay ) );
         }
 
+
+
+        const string WoMDirectSettingsString = "http://direct.worldofminecraft.com/server.php?ip={0}&port={1}&salt={2}&desc={3}&flags={4}";
+        const string WoMDirectFlags = "[FCRAFT]";
+        const int WoMDirectSettingsTimeout = 30000;
+        
+        /// <summary> Checks server's external IP, as reported by checkip.dyndns.org. </summary>
+        internal static void SetWoMDirectSettings() {
+            Uri finalUri = new Uri( String.Format( WoMDirectSettingsString,
+                                                   Server.ExternalIP,
+                                                   Server.Port,
+                                                   Uri.EscapeDataString( Server.Salt ),
+                                                   Uri.EscapeDataString( "Testing 1 2 3" ), /*Uri.EscapeDataString( ConfigKey.WoMDirectDescription.GetString() ),*/
+                                                   Uri.EscapeDataString( WoMDirectFlags ) ) );
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create( finalUri );
+            request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( Server.BindIPEndPointCallback );
+            request.Timeout = WoMDirectSettingsTimeout;
+            request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
+            request.UserAgent = Updater.UserAgent;
+
+            try {
+                using( WebResponse response = request.GetResponse() ) {
+                    using( StreamReader reader = new StreamReader( response.GetResponseStream() ) ) {
+                        Logger.Log( reader.ReadToEnd(), LogType.Debug );
+                    }
+                }
+            } catch( WebException ex ) {
+                Logger.Log( "Could not set WoM Direct settings: {0}", LogType.Warning, ex );
+            }
+        }
+        
 
         #region Events
 

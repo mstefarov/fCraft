@@ -1398,7 +1398,7 @@ namespace fCraft {
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
             if( target == null ) return;
 
-            if( !player.Can( Permission.UndoOthersActions, target.Rank ) ) {
+            if( player.Info != target && !player.Can( Permission.UndoOthersActions, target.Rank ) ) {
                 player.Message( "You may only undo actions of players ranked {0}&S or lower.",
                                 player.Info.Rank.GetLimit( Permission.UndoOthersActions ).ClassyName );
                 player.Message( "Player {0}&S is ranked {1}", target.ClassyName, target.Rank.ClassyName );

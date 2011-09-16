@@ -58,6 +58,7 @@ namespace fCraft {
                 request.Timeout = UpdateCheckTimeout;
                 request.ReadWriteTimeout = UpdateCheckTimeout;
                 request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
+                request.UserAgent = Updater.UserAgent;
 
                 using( WebResponse response = request.GetResponse() ) {
                     // ReSharper disable PossibleNullReferenceException
