@@ -7,6 +7,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.Cache;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -35,7 +36,8 @@ namespace fCraft {
 
         // networking
         static TcpListener listener;
-        public static IPAddress IP { get; private set; }
+        public static IPAddress InternalIP { get; private set; }
+        public static IPAddress ExternalIP { get; private set; }
 
         const int MaxPortAttempts = 20;
         public static int Port { get; private set; }
@@ -313,11 +315,11 @@ namespace fCraft {
             bool portFound = false;
             int attempts = 0;
             Port = ConfigKey.Port.GetInt();
-            IP = IPAddress.Parse( ConfigKey.IP.GetString() );
+            InternalIP = IPAddress.Parse( ConfigKey.IP.GetString() );
 
             do {
                 try {
-                    listener = new TcpListener( IP, Port );
+                    listener = new TcpListener( InternalIP, Port );
                     listener.Start();
                     portFound = true;
 
@@ -341,15 +343,17 @@ namespace fCraft {
                 return false;
             }
 
-            IP = ((IPEndPoint)listener.LocalEndpoint).Address;
+            InternalIP = ((IPEndPoint)listener.LocalEndpoint).Address;
+            ExternalIP = CheckExternalIP();
 
-            if( IP.Equals( IPAddress.Any ) ) {
-                Logger.Log( "Server.Run: now accepting connections at port {0}.", LogType.SystemActivity,
+            if( ExternalIP == null ) {
+                Logger.Log( "Server.Run: now accepting connections on port {0}", LogType.SystemActivity,
                             Port );
             } else {
-                Logger.Log( "Server.Run: now accepting connections at {0}:{1}.", LogType.SystemActivity,
-                            IP, Port );
+                Logger.Log( "Server.Run: now accepting connections at {0}:{1}", LogType.SystemActivity,
+                            ExternalIP, Port );
             }
+
 
             // list loaded worlds
             WorldManager.UpdateWorldList();
@@ -390,6 +394,17 @@ namespace fCraft {
             UpdatePlayerList();
 
             Heartbeat.Start();
+            if( ConfigKey.HeartbeatToWoMDirect.Enabled() ) {
+                if( ExternalIP == null ) {
+                    Logger.Log( "WoM Direct heartbeat is enabled. To edit your server's appearence on the server list, " +
+                                "see https://direct.worldofminecraft.com/server.php?port={0}&salt={1}", LogType.SystemActivity,
+                                Port, Salt );
+                } else {
+                    Logger.Log( "WoM Direct heartbeat is enabled. To edit your server's appearence on the server list, " +
+                                "see https://direct.worldofminecraft.com/server.php?ip={0}&port={1}&salt={2}", LogType.SystemActivity,
+                                ExternalIP, Port, Salt );
+                }
+            }
 
             if( ConfigKey.RestartInterval.GetInt() > 0 ) {
                 TimeSpan restartIn = TimeSpan.FromSeconds( ConfigKey.RestartInterval.GetInt() );
@@ -835,6 +850,46 @@ namespace fCraft {
             sb.Replace( "{MOTD}", ConfigKey.MOTD.GetString() );
             sb.Replace( "{VERSION}", Updater.CurrentRelease.VersionString );
             return sb.ToString();
+        }
+
+
+
+        static readonly Uri IPCheckUri = new Uri( "http://checkip.dyndns.org/" );
+        const int IPCheckTimeout = 30000;
+
+        /// <summary> Checks server's external IP, as reported by checkip.dyndns.org. </summary>
+        [CanBeNull] 
+        static IPAddress CheckExternalIP() {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create( IPCheckUri );
+            request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
+            request.Timeout = IPCheckTimeout;
+            request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
+
+            try {
+                using( WebResponse response = request.GetResponse() ) {
+                    // ReSharper disable AssignNullToNotNullAttribute
+                    using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
+                        // ReSharper restore AssignNullToNotNullAttribute
+                        string responseString = responseReader.ReadToEnd();
+                        int startIndex = responseString.IndexOf( ":" ) + 2;
+                        int endIndex = responseString.IndexOf( '<', startIndex ) - startIndex;
+                        IPAddress result;
+                        if( IPAddress.TryParse( responseString.Substring( startIndex, endIndex ), out result ) ) {
+                            return result;
+                        } else {
+                            return null;
+                        }
+                    }
+                }
+            } catch( WebException ex ) {
+                Logger.Log( "Could not check external IP: {0}", LogType.Warning, ex );
+                return null;
+            }
+        }
+
+        // Callback for setting the local IP binding. Implements System.Net.BindIPEndPoint delegate.
+        public static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
+            return new IPEndPoint( InternalIP, 0 );
         }
 
         #endregion

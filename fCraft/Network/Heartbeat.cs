@@ -33,12 +33,6 @@ namespace fCraft {
         }
 
 
-        // Callback for setting the local IP binding. Implements System.Net.BindIPEndPoint delegate.
-        static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
-            return new IPEndPoint( data.ServerIP, 0 );
-        }
-
-
         /// <summary> Starts the heartbeats. </summary>
         public static void Start() {
             task = Scheduler.NewBackgroundTask( Beat ).RunManual();
@@ -52,7 +46,7 @@ namespace fCraft {
                 IsPublic = ConfigKey.IsPublic.Enabled(),
                 MaxPlayers = ConfigKey.MaxPlayers.GetInt(),
                 PlayerCount = Server.CountPlayers( false ),
-                ServerIP = Server.IP,
+                ServerIP = Server.InternalIP,
                 Port = Server.Port,
                 ProtocolVersion = Config.ProtocolVersion,
                 Salt = Server.Salt,
@@ -90,7 +84,7 @@ namespace fCraft {
                 ub.Query = sb.ToString();
 
                 request = (HttpWebRequest)WebRequest.Create( ub.Uri );
-                request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
+                request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( Server.BindIPEndPointCallback );
                 request.Method = "GET";
                 request.Timeout = Timeout;
                 request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
@@ -103,7 +97,7 @@ namespace fCraft {
                 File.WriteAllLines( tempFile,
                     new[]{
                         Server.Salt,
-                        Server.IP.ToString(),
+                        Server.InternalIP.ToString(),
                         Server.Port.ToString(),
                         Server.CountPlayers(false).ToString(),
                         ConfigKey.MaxPlayers.GetString(),
