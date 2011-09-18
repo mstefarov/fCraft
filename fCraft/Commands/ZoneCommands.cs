@@ -39,6 +39,21 @@ namespace fCraft {
                 return;
             }
 
+            if( !player.Info.Rank.AllowSecurityCircumvention ) {
+                SecurityCheckResult buildCheck = player.World.BuildSecurity.CheckDetailed( player.Info );
+                switch( buildCheck ) {
+                    case SecurityCheckResult.BlackListed:
+                        player.Message( "Cannot add zones to world {0}&S: You are barred from building here.",
+                                        player.World.ClassyName );
+                        return;
+                    case SecurityCheckResult.RankTooLow:
+                        player.Message( "Cannot add zones to world {0}&S: You are not allowed to build here.",
+                                        player.World.ClassyName );
+                        return;
+                    //case SecurityCheckResult.RankTooHigh:
+                }
+            }
+
             Zone zone = new Zone();
             ZoneCollection zoneCollection = player.World.Map.Zones;
 
@@ -125,6 +140,21 @@ namespace fCraft {
         }
 
         static void ZoneAddCallback( Player player, Position[] marks, object tag ) {
+            if( !player.Info.Rank.AllowSecurityCircumvention ) {
+                SecurityCheckResult buildCheck = player.World.BuildSecurity.CheckDetailed( player.Info );
+                switch( buildCheck ) {
+                    case SecurityCheckResult.BlackListed:
+                        player.Message( "Cannot add zones to world {0}&S: You are barred from building here.",
+                                        player.World.ClassyName );
+                        return;
+                    case SecurityCheckResult.RankTooLow:
+                        player.Message( "Cannot add zones to world {0}&S: You are not allowed to build here.",
+                                        player.World.ClassyName );
+                        return;
+                    //case SecurityCheckResult.RankTooHigh:
+                }
+            }
+
             Zone zone = (Zone)tag;
             var zones = player.World.Map.Zones;
             lock( zones.SyncRoot ) {
@@ -464,9 +494,15 @@ namespace fCraft {
 
             Zone zone = player.World.Map.Zones.Find( zoneName );
             if( zone != null ) {
-                if( !zone.Controller.Check( player.Info ) && !player.Info.Rank.AllowSecurityCircumvention ) {
-                    player.Message( "You are not allowed to remove zone {0}", zone.ClassyName );
-                    return;
+                if( !player.Info.Rank.AllowSecurityCircumvention ) {
+                    switch( zone.Controller.CheckDetailed( player.Info ) ) {
+                        case SecurityCheckResult.BlackListed:
+                            player.Message( "You are not allowed to remove zone {0}: you are blacklisted.", zone.ClassyName );
+                            return;
+                        case SecurityCheckResult.RankTooLow:
+                            player.Message( "You are not allowed to remove zone {0}.", zone.ClassyName );
+                            return;
+                    }
                 }
                 if( !cmd.IsConfirmed ) {
                     player.Confirm( cmd, "You are about to remove zone {0}&S.", zone.ClassyName );
