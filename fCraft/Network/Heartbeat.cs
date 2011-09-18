@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
-using System.Net.Security;
 using System.Text;
 using fCraft.Events;
 
@@ -163,7 +162,7 @@ namespace fCraft {
         }
 
 
-
+        /*
         const string WoMDirectSettingsString = "http://direct.worldofminecraft.com/server.php?ip={0}&port={1}&salt={2}&desc={3}&flags={4}&insecure=1";
         const string WoMDirectFlags = "[fCraft]";
         const int WoMDirectSettingsTimeout = 30000;
@@ -193,7 +192,7 @@ namespace fCraft {
                 Logger.Log( "Could not set WoM Direct settings: {0}", LogType.Warning, ex );
             }
         }
-        
+        */
 
         #region Events
 
