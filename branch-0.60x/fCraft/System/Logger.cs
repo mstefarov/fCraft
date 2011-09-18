@@ -262,8 +262,14 @@ namespace fCraft {
             string message = null;
             try {
                 if( ex is FileNotFoundException && ex.Message.Contains( "Version=3.5" ) ) {
-                    message = "Your crash was likely caused by using an outdated version of .NET or Mono runtime. " +
+                    message = "Your crash was likely caused by using a wrong version of .NET or Mono runtime. " +
                               "Please update to Microsoft .NET Framework 3.5 (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).";
+                    return true;
+
+                } else if( ex is MissingMethodException ) {
+                    message = "Something is incompatible with the current revision of fCraft. "+
+                              "If you installed third-party modifications, make sure to use the correct revision (as specified by mod developers). "+
+                              "If your own modifications stopped working, your may need to make some updates.";
                     return true;
 
                 } else if( ex is FileNotFoundException && ex.Message.Contains( "libMonoPosixHelper.so" ) ||
