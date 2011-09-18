@@ -17,7 +17,7 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             600,
-            995,
+            997,
             new DateTime( 2011, 9, 11, 3, 15, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.Dev
@@ -58,7 +58,7 @@ namespace fCraft {
                 request.Timeout = UpdateCheckTimeout;
                 request.ReadWriteTimeout = UpdateCheckTimeout;
                 request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
-                request.UserAgent = Updater.UserAgent;
+                request.UserAgent = UserAgent;
 
                 using( WebResponse response = request.GetResponse() ) {
                     // ReSharper disable PossibleNullReferenceException
