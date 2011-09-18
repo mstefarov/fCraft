@@ -56,6 +56,7 @@ namespace fCraft.Drawing {
         int firstZ;
 
         public override int DrawBatch( int maxBlocksToDraw ) {
+            StartBatch();
             int blocksDone = 0;
             for( ; Coords.X <= Bounds.XMax; Coords.X++ ) {
                 for( ; Coords.Y <= Bounds.YMax; Coords.Y++ ) {
@@ -96,7 +97,7 @@ namespace fCraft.Drawing {
 
                             case State.AfterOuterBlock:
                                 state = State.AfterOuterBlock;
-                                if( blocksDone >= maxBlocksToDraw ) return blocksDone;
+                                if( blocksDone >= maxBlocksToDraw || TimeToEndBatch ) return blocksDone;
                                 delta.Z = (++Coords.Z - center.Z);
                                 if( Coords.Z <= (int)center.Z &&
                                     ((delta.X + 1) * (delta.X + 1) * radius.X + delta.Y2 * radius.Y + delta.Z2 * radius.Z > 1 ||
@@ -127,7 +128,7 @@ namespace fCraft.Drawing {
                                 if( DrawOneBlock() ) {
                                     blocksDone++;
                                     Coords.Z++;
-                                    if( blocksDone >= maxBlocksToDraw ) {
+                                    if( blocksDone >= maxBlocksToDraw || TimeToEndBatch ) {
                                         return blocksDone;
                                     }
                                 } else {

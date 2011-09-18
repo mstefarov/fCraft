@@ -30,6 +30,7 @@ namespace fCraft.Drawing {
 
         IEnumerator<Vector3I> coordEnumerator;
         public override int DrawBatch( int maxBlocksToDraw ) {
+            StartBatch();
             int blocksDone = 0;
             while( coordEnumerator.MoveNext() ) {
                 Coords = coordEnumerator.Current;
@@ -37,6 +38,7 @@ namespace fCraft.Drawing {
                     blocksDone++;
                     if( blocksDone >= maxBlocksToDraw ) return blocksDone;
                 }
+                if( TimeToEndBatch ) return blocksDone;
             }
             IsDone = true;
             return blocksDone;

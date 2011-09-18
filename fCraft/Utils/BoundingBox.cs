@@ -119,7 +119,14 @@ namespace fCraft {
         public Position MaxVertex {
             get { return new Position( XMax, YMax, ZMax ); }
         }
-                                    
+
+        public Position Center {
+            get { return new Position( (XMax - XMin) / 2, (YMax - YMin) / 2, (ZMax - ZMin) / 2 ); }
+        }
+
+        public Vector3I CenterV {
+            get { return new Vector3I( (XMax - XMin) / 2, (YMax - YMin) / 2, (ZMax - ZMin) / 2 ); }
+        }                       
 
 
         #region Serialization

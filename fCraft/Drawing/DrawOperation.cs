@@ -53,6 +53,18 @@ namespace fCraft.Drawing {
         public bool AnnounceCompletion { get; set; }
 
 
+        const int MaxBlocksToProcessPerBatch = 10000;
+        int BatchStartProcessedCount;
+        protected bool TimeToEndBatch {
+            get {
+                return (BlocksProcessed - BatchStartProcessedCount) > MaxBlocksToProcessPerBatch;
+            }
+        }
+        protected void StartBatch() {
+            BatchStartProcessedCount = BlocksProcessed;
+        }
+
+
         DrawOperation() {
             AnnounceCompletion = true;
         }
@@ -102,7 +114,6 @@ namespace fCraft.Drawing {
             Player.Info.ProcessDrawCommand( BlocksUpdated );
             Brush.End();
         }
-
 
         protected bool DrawOneBlock() {
             BlocksProcessed++;
