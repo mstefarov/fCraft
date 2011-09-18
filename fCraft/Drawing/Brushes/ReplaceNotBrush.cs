@@ -79,9 +79,9 @@ namespace fCraft.Drawing {
                 if( Blocks == null ) {
                     return Factory.Name;
                 } else if( Replacement == Block.Undefined ) {
-                    return String.Format( "{0}({1})",
+                    return String.Format( "{0}({1} -> ?)",
                                           Factory.Name,
-                                          Replacement );
+                                          Blocks.JoinToString() );
                 } else {
                     return String.Format( "{0}({1} -> {2})",
                                           Factory.Name,
