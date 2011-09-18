@@ -215,6 +215,13 @@ namespace fCraft {
             }
             RaiseEvent( Initializing );
 
+            // Instantiate DeflateStream to make sure that libMonoPosix is present.
+            // This allows catching misconfigured Mono installs early, and stopping the server.
+            using( var testMemStream = new MemoryStream() ) {
+                using( var testDeflateStream = new DeflateStream( testMemStream, CompressionMode.Compress ) ) {
+                }
+            }
+
             // warnings/disclaimers
             if( Updater.CurrentRelease.IsFlagged( ReleaseFlags.Dev ) ) {
                 Logger.Log( "You are using an unreleased developer version of fCraft. " +
