@@ -21,12 +21,12 @@ namespace fCraft.Drawing {
         public IBrushInstance Brush;
 
         public Position[] Marks;
-        public DateTime StartTime;
+        public DateTime StartTime { get; protected set; }
 
         public BoundingBox Bounds;
 
-        public bool IsDone;
-        public bool IsCancelled;
+        public bool IsDone { get; protected set; }
+        public bool IsCancelled { get; protected set; }
 
         public int BlocksProcessed,
                    BlocksUpdated,
@@ -40,33 +40,47 @@ namespace fCraft.Drawing {
             }
         }
 
-        public bool CannotUndo;
+        public bool IsTooLargeToUndo { get; protected set; }
 
         public Vector3I Coords;
 
-        public bool UseAlternateBlock;
+        public bool UseAlternateBlock { get; set; }
 
         public abstract string Name { get; }
 
         public abstract string Description { get; }
 
+        public bool AnnounceCompletion { get; set; }
 
-        protected DrawOperation( [NotNull] Player player ) {
+
+        DrawOperation() {
+            AnnounceCompletion = true;
+        }
+
+        protected DrawOperation( [NotNull] Player player )
+            : this() {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( player.World == null || player.World.Map == null ) {
                 throw new ArgumentException( "Player must have a world.", "player" );
             }
-
             Player = player;
             Map = player.World.Map;
         }
 
 
+        protected DrawOperation( [NotNull] Player player, [NotNull] Map map )
+            : this() {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( map == null ) throw new ArgumentNullException( "map" );
+            Player = player;
+            Map = map;
+        }
+
+
         public virtual bool Begin( [NotNull] Position[] marks ) {
             if( marks == null ) throw new ArgumentNullException( "marks" );
+            if( marks.Length < 2 ) throw new ArgumentException( "At least two marks needed.", "marks" );
             Marks = marks;
-            if( Player == null ) throw new InvalidOperationException( "Player not set" );
-            if( Map == null ) throw new InvalidOperationException( "Map not set" );
             Bounds = new BoundingBox( Marks[0], Marks[1] );
             if( Bounds == null ) throw new InvalidOperationException( "Bounds not set" );
             if( !Brush.Begin( Player, this ) ) return false;
@@ -130,12 +144,12 @@ namespace fCraft.Drawing {
 
             if( BuildingCommands.MaxUndoCount < 1 || BlocksUpdated < BuildingCommands.MaxUndoCount ) {
                 Player.UndoBuffer.Enqueue( new BlockUpdate( null, Coords.X, Coords.Y, Coords.Z, oldBlock ) );
-            } else if( !CannotUndo ) {
+            } else if( !IsTooLargeToUndo ) {
                 Player.LastDrawOp = null;
                 Player.UndoBuffer.Clear();
                 Player.UndoBuffer.TrimExcess();
                 Player.Message( "{0}: Too many blocks to undo.", Description );
-                CannotUndo = true;
+                IsTooLargeToUndo = true;
             }
             BlocksUpdated++;
             return true;

@@ -413,10 +413,12 @@ namespace fCraft {
                 }
                 maxTotalUpdates -= blocksDrawn;
                 if( op.IsDone ) {
-                    op.Player.Message( "{0}/{1}: Finished in {2}. P={3} U={4} S={5} D={6}",
-                                       op.Description, op.Brush.InstanceDescription,
-                                       DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
-                                       op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
+                    if( op.AnnounceCompletion ) {
+                        op.Player.Message( "{0}/{1}: Finished in {2}. P={3} U={4} S={5} D={6}",
+                                           op.Description, op.Brush.InstanceDescription,
+                                           DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
+                                           op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
+                    }
                     Logger.Log( "Player {0} executed {1}/{2} on world {3}. Processed {4}, Updated {5}, Skipped {6}, Denied {7} blocks.",
                              LogType.UserActivity,
                              op.Player, op.Description, op.Brush.InstanceDescription, World.Name,
