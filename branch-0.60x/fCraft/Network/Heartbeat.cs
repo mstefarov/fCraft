@@ -164,8 +164,8 @@ namespace fCraft {
 
 
 
-        const string WoMDirectSettingsString = "https://direct.worldofminecraft.com/server.php?ip={0}&port={1}&salt={2}&desc={3}&flags={4}";
-        const string WoMDirectFlags = "[FCRAFT]";
+        const string WoMDirectSettingsString = "http://direct.worldofminecraft.com/server.php?ip={0}&port={1}&salt={2}&desc={3}&flags={4}&insecure=1";
+        const string WoMDirectFlags = "[fCraft]";
         const int WoMDirectSettingsTimeout = 30000;
         
         /// <summary> Checks server's external IP, as reported by checkip.dyndns.org. </summary>
