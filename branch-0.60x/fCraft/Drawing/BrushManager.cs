@@ -46,6 +46,7 @@ namespace fCraft.Drawing {
             RegisterBrush( MarbledBrushFactory.Instance );
             RegisterBrush( ReplaceBrushFactory.Instance );
             RegisterBrush( ReplaceNotBrushFactory.Instance );
+            RegisterBrush( ReplaceBrushBrushFactory.Instance );
         }
 
         public static void RegisterBrush( [NotNull] IBrushFactory factory ) {

@@ -197,6 +197,7 @@
     <Compile Include="AutoRank\Conditions.cs" />
     <Compile Include="AutoRank\Criterion.cs" />
     <Compile Include="Commands\ChatCommands.cs" />
+    <Compile Include="Drawing\Brushes\ReplaceBrushBrush.cs" />
     <Compile Include="MapConversion\INIFile.cs" />
     <Compile Include="Player\ChatTimer.cs" />
     <Compile Include="Drawing\Brushes\AbstractPerlinNoiseBrush.cs" />
