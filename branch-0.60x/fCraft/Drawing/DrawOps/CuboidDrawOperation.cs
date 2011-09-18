@@ -28,6 +28,7 @@ namespace fCraft.Drawing {
 
 
         public override int DrawBatch( int maxBlocksToDraw ) {
+            StartBatch();
             int blocksDone = 0;
             for( ; Coords.X <= Bounds.XMax; Coords.X++ ) {
                 for( ; Coords.Y <= Bounds.YMax; Coords.Y++ ) {
@@ -43,6 +44,7 @@ namespace fCraft.Drawing {
                     Coords.Z = Bounds.ZMin;
                 }
                 Coords.Y = Bounds.YMin;
+                if( TimeToEndBatch ) return blocksDone;
             }
             IsDone = true;
             return blocksDone;

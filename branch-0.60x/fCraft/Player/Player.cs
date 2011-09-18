@@ -147,8 +147,8 @@ namespace fCraft {
                     partialMessage = null;
                 } else {
                     MessageNow( "No partial message to cancel." );
-                    return;
                 }
+                return;
             }
 
             if( partialMessage != null ) {
