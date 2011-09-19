@@ -54,38 +54,27 @@ namespace fCraft.Drawing {
 
 
         const int MaxBlocksToProcessPerBatch = 10000;
-        int BatchStartProcessedCount;
+        int batchStartProcessedCount;
         protected bool TimeToEndBatch {
             get {
-                return (BlocksProcessed - BatchStartProcessedCount) > MaxBlocksToProcessPerBatch;
+                return (BlocksProcessed - batchStartProcessedCount) > MaxBlocksToProcessPerBatch;
             }
         }
+
+
         protected void StartBatch() {
-            BatchStartProcessedCount = BlocksProcessed;
+            batchStartProcessedCount = BlocksProcessed;
         }
 
 
-        DrawOperation() {
+        protected DrawOperation( [NotNull] Player player ) {
             AnnounceCompletion = true;
-        }
-
-        protected DrawOperation( [NotNull] Player player )
-            : this() {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( player.World == null || player.World.Map == null ) {
                 throw new ArgumentException( "Player must have a world.", "player" );
             }
             Player = player;
             Map = player.World.Map;
-        }
-
-
-        protected DrawOperation( [NotNull] Player player, [NotNull] Map map )
-            : this() {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( map == null ) throw new ArgumentNullException( "map" );
-            Player = player;
-            Map = map;
         }
 
 

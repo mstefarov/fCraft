@@ -18,6 +18,7 @@ namespace fCraft.Drawing {
             Handler = BrushHandler
         };
 
+
         static void BrushHandler( Player player, Command cmd ) {
             string brushName = cmd.Next();
             if( brushName == null ) {
@@ -36,6 +37,7 @@ namespace fCraft.Drawing {
             }
         }
 
+
         internal static void Init() {
             CommandManager.RegisterCommand( CdBrush );
             RegisterBrush( NormalBrushFactory.Instance );
@@ -48,6 +50,7 @@ namespace fCraft.Drawing {
             RegisterBrush( ReplaceNotBrushFactory.Instance );
             RegisterBrush( ReplaceBrushBrushFactory.Instance );
         }
+
 
         public static void RegisterBrush( [NotNull] IBrushFactory factory ) {
             if( factory == null ) throw new ArgumentNullException( "factory" );
@@ -64,6 +67,7 @@ namespace fCraft.Drawing {
             CdBrush.Help += factory.Name + " ";
         }
 
+
         public static IBrushFactory GetBrushFactory( [NotNull] string brushName ) {
             if( brushName == null ) throw new ArgumentNullException( "brushName" );
             IBrushFactory factory;
@@ -79,7 +83,7 @@ namespace fCraft.Drawing {
 
         static readonly Random Rand = new Random();
         static readonly object RandLock = new object();
-        public static int NextSeed() {
+        internal static int NextSeed() {
             lock( RandLock ) {
                 return Rand.Next();
             }
