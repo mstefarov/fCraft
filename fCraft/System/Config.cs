@@ -544,14 +544,11 @@ namespace fCraft {
 
         #region Saving
 
-        public static bool Save( bool saveSalt ) {
+        public static bool Save() {
             XDocument file = new XDocument();
 
             XElement config = new XElement( ConfigXmlRootName );
             config.Add( new XAttribute( "version", CurrentVersion ) );
-            if( saveSalt ) {
-                config.Add( new XAttribute( "salt", Server.Salt ) );
-            }
 
             // save general settings
             foreach( ConfigSection section in Enum.GetValues( typeof( ConfigSection ) ) ) {

@@ -1108,7 +1108,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 }
             }
             using( LogRecorder saveLogger = new LogRecorder() ) {
-                if( Config.Save( false ) ) {
+                if( Config.Save() ) {
                     bApply.Enabled = false;
                 }
                 if( saveLogger.HasMessages ) {

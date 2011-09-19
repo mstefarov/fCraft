@@ -6,8 +6,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Net.Cache;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -265,8 +265,6 @@ namespace fCraft {
                 throw new Exception( "fCraft failed to initialize" );
             }
 
-            Salt = GenerateSalt();
-
             // load player DB
             PlayerDB.Load();
             IPBanList.Load();
@@ -406,11 +404,11 @@ namespace fCraft {
                 if( ExternalIP == null ) {
                     Logger.Log( "WoM Direct heartbeat is enabled. To edit your server's appearence on the server list, " +
                                 "see https://direct.worldofminecraft.com/server.php?port={0}&salt={1}", LogType.SystemActivity,
-                                Port, Salt );
+                                Port, Heartbeat.Salt );
                 } else {
                     Logger.Log( "WoM Direct heartbeat is enabled. To edit your server's appearence on the server list, " +
                                 "see https://direct.worldofminecraft.com/server.php?ip={0}&port={1}&salt={2}", LogType.SystemActivity,
-                                ExternalIP, Port, Salt );
+                                ExternalIP, Port, Heartbeat.Salt );
                 }
             }
 
@@ -753,27 +751,6 @@ namespace fCraft {
         }
 
 
-        public static string Salt { get; private set; }
-
-        static string GenerateSalt() {
-            return GetRandomString( 32 );
-        }
-
-        public static string GetRandomString( int chars ) {
-            RandomNumberGenerator prng = RandomNumberGenerator.Create();
-            StringBuilder sb = new StringBuilder();
-            byte[] oneChar = new byte[1];
-            while( sb.Length < chars ) {
-                prng.GetBytes( oneChar );
-                if( oneChar[0] >= 48 && oneChar[0] <= 57 ||
-                    oneChar[0] >= 65 && oneChar[0] <= 90 ||
-                    oneChar[0] >= 97 && oneChar[0] <= 122 ) {
-                    //if( oneChar[0] >= 33 && oneChar[0] <= 126 ) {
-                    sb.Append( (char)oneChar[0] );
-                }
-            }
-            return sb.ToString();
-        }
 
 
         public static bool VerifyName( [NotNull] string name, [NotNull] string hash, [NotNull] string salt ) {
@@ -861,6 +838,22 @@ namespace fCraft {
         }
 
 
+
+        public static string GetRandomString( int chars ) {
+            RandomNumberGenerator prng = RandomNumberGenerator.Create();
+            StringBuilder sb = new StringBuilder();
+            byte[] oneChar = new byte[1];
+            while( sb.Length < chars ) {
+                prng.GetBytes( oneChar );
+                if( oneChar[0] >= 48 && oneChar[0] <= 57 ||
+                    oneChar[0] >= 65 && oneChar[0] <= 90 ||
+                    oneChar[0] >= 97 && oneChar[0] <= 122 ) {
+                    //if( oneChar[0] >= 33 && oneChar[0] <= 126 ) {
+                    sb.Append( (char)oneChar[0] );
+                }
+            }
+            return sb.ToString();
+        }
 
         static readonly Uri IPCheckUri = new Uri( "http://checkip.dyndns.org/" );
         const int IPCheckTimeout = 30000;
