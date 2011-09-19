@@ -71,7 +71,7 @@ namespace fCraft {
 
 
         static void SendMinecraftNetBeat() {
-            HeartbeatData data = new HeartbeatData();
+            HeartbeatData data = new HeartbeatData( MinecraftNetUri );
             if( !RaiseHeartbeatSendingEvent( data, MinecraftNetUri, true ) ) {
                 return;
             }
@@ -85,7 +85,7 @@ namespace fCraft {
 
 
         static void SendWoMDirectBeat() {
-            HeartbeatData data = new HeartbeatData();
+            HeartbeatData data = new HeartbeatData( WoMDirectUri );
 
             // we dont want WoM redirecting back to minecraft.net
             data.CustomData["noforward"] = "1";
@@ -241,19 +241,20 @@ namespace fCraft {
 
 
     public sealed class HeartbeatData {
-        internal HeartbeatData() {
+        internal HeartbeatData( Uri heartbeatUri ) {
             IsPublic = ConfigKey.IsPublic.Enabled();
             MaxPlayers = ConfigKey.MaxPlayers.GetInt();
             PlayerCount = Server.CountPlayers( false );
             ServerIP = Server.InternalIP;
             Port = Server.Port;
             ProtocolVersion = Config.ProtocolVersion;
-            Salt = Salt;
+            Salt = Heartbeat.Salt;
             ServerName = ConfigKey.ServerName.GetString();
             CustomData = new Dictionary<string, string>();
+            HeartbeatUri = heartbeatUri;
         }
 
-        public Uri HeartbeatUri { get; set; }
+        public Uri HeartbeatUri { get; private set; }
         public string Salt { get; set; }
         public IPAddress ServerIP { get; set; }
         public int Port { get; set; }
@@ -267,8 +268,7 @@ namespace fCraft {
         public Uri CreateUri() {
                 UriBuilder ub = new UriBuilder( HeartbeatUri );
                 StringBuilder sb = new StringBuilder();
-                sb.AppendFormat( "{0}?public={1}&max={2}&users={3}&port={4}&version={5}&salt={6}&name={7}",
-                                 HeartbeatUri,
+                sb.AppendFormat( "public={0}&max={1}&users={2}&port={3}&version={4}&salt={5}&name={6}",
                                  IsPublic,
                                  MaxPlayers,
                                  PlayerCount,

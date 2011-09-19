@@ -799,9 +799,13 @@ namespace fCraft {
 
         internal bool JoinWorldNow( [NotNull] World newWorld, bool doUseWorldSpawn, WorldChangeReason reason ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
+            if( Thread.CurrentThread != ioThread ) {
+                throw new InvalidOperationException( "Player.JoinWorldNow may only be called from player's own thread. " +
+                                                     "Use Player.JoinWorld instead." );
+            }
 
-            string textLine1=ConfigKey.ServerName.GetString();
-            string textLine2="Loading world " + newWorld.ClassyName;
+            string textLine1 = ConfigKey.ServerName.GetString();
+            string textLine2 = "Loading world " + newWorld.ClassyName;
 
             if( RaisePlayerJoiningWorldEvent( this, newWorld, reason, textLine1, textLine2 ) ) {
                 Logger.Log( "Player.JoinWorldNow: Player {0} was prevented from joining world {1} by an event callback.", LogType.Warning,
