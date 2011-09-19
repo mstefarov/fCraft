@@ -505,7 +505,7 @@ namespace fCraft {
             Info = PlayerDB.FindOrCreateInfoForPlayer( playerName, IP );
             ResetAllBinds();
 
-            if( Server.VerifyName( Name, verificationCode, Server.Salt ) ) {
+            if( Server.VerifyName( Name, verificationCode, Heartbeat.Salt ) ) {
                 IsVerified = true;
 
             } else {

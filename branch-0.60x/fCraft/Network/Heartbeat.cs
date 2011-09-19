@@ -28,6 +28,7 @@ namespace fCraft {
             WoMDirectUri = new Uri( "http://direct.worldofminecraft.com/hb.php" );
             Delay = TimeSpan.FromSeconds( 25 );
             Timeout = TimeSpan.FromSeconds( 10 );
+            Salt = Server.GetRandomString( 32 );
         }
 
 
@@ -47,7 +48,7 @@ namespace fCraft {
                 ServerIP = Server.InternalIP,
                 Port = Server.Port,
                 ProtocolVersion = Config.ProtocolVersion,
-                Salt = Server.Salt,
+                Salt = Salt,
                 ServerName = ConfigKey.ServerName.GetString()
             };
 
@@ -79,7 +80,7 @@ namespace fCraft {
                 }
 
                 SendBeat( new Uri( DefaultUri + sb.ToString() ), true );
-                if( ConfigKey.HeartbeatToWoMDirect.Enabled() ) {
+                if( data.IsPublic && ConfigKey.HeartbeatToWoMDirect.Enabled() ) {
                     sb.Append( "&noforward=1" );
                     SendBeat( new Uri( WoMDirectUri + sb.ToString() ), false );
                 }
@@ -90,7 +91,7 @@ namespace fCraft {
 
                 File.WriteAllLines( tempFile,
                     new[]{
-                        Server.Salt,
+                        Salt,
                         Server.InternalIP.ToString(),
                         Server.Port.ToString(),
                         Server.CountPlayers(false).ToString(),
@@ -169,6 +170,9 @@ namespace fCraft {
             }
         }
 
+
+
+        public static string Salt { get; private set; }
 
         /*
         const string WoMDirectSettingsString = "http://direct.worldofminecraft.com/server.php?ip={0}&port={1}&salt={2}&desc={3}&flags={4}&insecure=1";
