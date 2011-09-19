@@ -536,14 +536,6 @@ namespace fCraft {
                 case ConfigKey.WarningColor:
                     Color.Warning = Color.Parse( key.GetString() );
                     break;
-
-                case ConfigKey.HeartbeatToWoMDirect:
-                    if( key.Enabled() ) {
-                        Heartbeat.Uri = Heartbeat.WoMDirectUri;
-                    } else {
-                        Heartbeat.Uri = Heartbeat.DefaultUri;
-                    }
-                    break;
             }
         }
 
