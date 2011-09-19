@@ -26,9 +26,15 @@ namespace fCraft {
             get { return enabled; }
             set {
                 if( value == enabled ) return;
-                if( value && isPreloaded ) {
-                    Preload();
-                } else if( value == false ) {
+
+                if( value ) {
+                    cacheStore = new BlockDBEntry[MinCacheSize];
+                    if( isPreloaded ) {
+                        Preload();
+                    }
+                }
+
+                if( value == false ) {
                     Flush();
                     CacheClear();
                 }
@@ -66,7 +72,11 @@ namespace fCraft {
 
         void CacheClear() {
             CacheSize = 0;
-            cacheStore = new BlockDBEntry[MinCacheSize];
+            if( Enabled ) {
+                cacheStore = new BlockDBEntry[MinCacheSize];
+            } else {
+                cacheStore = null;
+            }
             LastFlushedIndex = 0;
         }
 
@@ -329,7 +339,7 @@ namespace fCraft {
         #endregion
 
 
-        internal void AddEntry( BlockDBEntry newEntry ) {
+        public void AddEntry( BlockDBEntry newEntry ) {
             lock( SyncRoot ) {
                 CacheAdd( newEntry );
             }
@@ -434,11 +444,9 @@ namespace fCraft {
                         for( int i = CacheSize - 1; i >= 0; i-- ) {
                             if( entries[i].PlayerID == info.ID ) {
                                 int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                                if( !results.ContainsKey( index ) ) {
-                                    results[index] = entries[i];
-                                    count++;
-                                    if( count >= max ) break;
-                                }
+                                results[index] = entries[i];
+                                count++;
+                                if( count >= max ) break;
                             }
                         }
                     }
@@ -452,11 +460,9 @@ namespace fCraft {
                     for( int i = entryCount - 1; i >= 0; i-- ) {
                         if( entries[i].PlayerID == info.ID ) {
                             int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                            if( !results.ContainsKey( index ) ) {
-                                results[index] = entries[i];
-                                count++;
-                                if( count >= max ) break;
-                            }
+                            results[index] = entries[i];
+                            count++;
+                            if( count >= max ) break;
                         }
                     }
                 }
@@ -477,9 +483,7 @@ namespace fCraft {
                             if( entries[i].Timestamp < ticks ) break;
                             if( entries[i].PlayerID == info.ID ) {
                                 int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                                if( !results.ContainsKey( index ) ) {
-                                    results[index] = entries[i];
-                                }
+                                results[index] = entries[i];
                             }
                         }
                     }
@@ -494,9 +498,7 @@ namespace fCraft {
                         if( entries[i].Timestamp < ticks ) break;
                         if( entries[i].PlayerID == info.ID ) {
                             int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                            if( !results.ContainsKey( index ) ) {
-                                results[index] = entries[i];
-                            }
+                            results[index] = entries[i];
                         }
                     }
                 }
