@@ -1075,7 +1075,7 @@ namespace fCraft {
                 }
             } else {
                 player.Message( "You can only freeze players ranked {0}&S or lower",
-                                player.Info.Rank.GetLimit( Permission.Kick ).ClassyName );
+                                player.Info.Rank.GetLimit( Permission.Freeze ).ClassyName );
                 player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
             }
         }
@@ -1110,7 +1110,7 @@ namespace fCraft {
                 }
             } else {
                 player.Message( "You can only unfreeze players ranked {0}&S or lower",
-                                player.Info.Rank.GetLimit( Permission.Kick ).ClassyName );
+                                player.Info.Rank.GetLimit( Permission.Freeze ).ClassyName );
                 player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
             }
         }
