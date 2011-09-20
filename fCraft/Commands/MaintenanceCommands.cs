@@ -658,7 +658,6 @@ namespace fCraft {
             Name = "setinfo",
             Category = CommandCategory.Maintenance | CommandCategory.Moderation,
             IsConsoleSafe = true,
-            IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB },
             Help = "Allows direct editing of player information. Editable properties: " +
                    "TimesKicked, PreviousRank, TotalTime, RankChangeType, " +

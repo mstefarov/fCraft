@@ -78,7 +78,6 @@ namespace fCraft {
             Name = "cuboid",
             Aliases = new[] { "blb", "c", "cub", "z" },
             Category = CommandCategory.Building,
-            IsHidden = true,
             Permissions = new[] { Permission.Draw },
             Help = "Fills a rectangular area (cuboid) with blocks.",
             Handler = CuboidHandler
@@ -94,7 +93,6 @@ namespace fCraft {
             Name = "cubw",
             Aliases = new[] { "cuboidw", "cw", "bfb" },
             Category = CommandCategory.Building,
-            IsHidden = true,
             Permissions = new[] { Permission.Draw },
             Help = "Draws a wireframe box (a frame) around the selected rectangular area.",
             Handler = CuboidWireframeHandler
@@ -110,7 +108,6 @@ namespace fCraft {
             Name = "cubh",
             Aliases = new[] { "cuboidh", "ch", "h", "bhb" },
             Category = CommandCategory.Building,
-            IsHidden = true,
             Permissions = new[] { Permission.Draw },
             Help = "Surrounds the selected rectangular area with a box of blocks. " +
                    "Unless two blocks are specified, leaves the inside untouched.",
@@ -127,7 +124,6 @@ namespace fCraft {
             Name = "ellipsoid",
             Aliases = new[] { "e" },
             Category = CommandCategory.Building,
-            IsHidden = true,
             Permissions = new[] { Permission.Draw },
             Help = "Fills an ellipsoid-shaped area (elongated sphere) with blocks.",
             Handler = EllipsoidHandler
@@ -143,7 +139,6 @@ namespace fCraft {
             Name = "ellipsoidh",
             Aliases = new[] { "eh" },
             Category = CommandCategory.Building,
-            IsHidden = true,
             Permissions = new[] { Permission.Draw },
             Help = "Surrounds the selected an ellipsoid-shaped area (elongated sphere) with a shell of blocks.",
             Handler = EllipsoidHollowHandler
@@ -158,7 +153,6 @@ namespace fCraft {
             Name = "sphere",
             Aliases = new[] { "sp", "spheroid" },
             Category = CommandCategory.Building,
-            IsHidden = true,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
             Help = "Fills a spherical area with blocks. " +
                    "The first mark denotes the CENTER of the sphere, and " +
@@ -175,7 +169,6 @@ namespace fCraft {
             Name = "sphereh",
             Aliases = new[] { "sph", "hsphere" },
             Category = CommandCategory.Building,
-            IsHidden = true,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
             Help = "Surrounds a spherical area with a shell of blocks. " +
                    "The first mark denotes the CENTER of the sphere, and " +
@@ -192,7 +185,6 @@ namespace fCraft {
             Name = "line",
             Aliases = new[] { "ln" },
             Category = CommandCategory.Building,
-            IsHidden = true,
             Permissions = new[] { Permission.Draw },
             Help = "Draws a continuous line between two points with blocks. " +
                    "Marks to not need to be aligned.",
@@ -208,7 +200,6 @@ namespace fCraft {
             Name = "torus",
             Aliases = new[] { "donut", "bagel" },
             Category = CommandCategory.Building,
-            IsHidden = true,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
             Help = "EXPERIMENTAL: Draws a horizontally-oriented torus. The first mark denotes the CENTER of the torus, horizontal " +
                    "distance to the second mark denotes the ring radius, and the vertical distance to the second mark denotes the " +
@@ -1369,7 +1360,6 @@ namespace fCraft {
         static readonly CommandDescriptor CdUndoX = new CommandDescriptor {
             Name = "undox",
             Category = CommandCategory.Moderation | CommandCategory.Building,
-            IsHidden = true,
             Permissions = new[] { Permission.UndoOthersActions },
             Usage = "/undox PlayerName [TimeSpan|BlockCount]",
             Help = "Enables or disabled BlockDB on a given world.",

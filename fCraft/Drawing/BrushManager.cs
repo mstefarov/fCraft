@@ -11,7 +11,6 @@ namespace fCraft.Drawing {
         static readonly CommandDescriptor CdBrush = new CommandDescriptor {
             Name = "brush",
             Category = CommandCategory.Building,
-            IsHidden = true,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
             Help = "Gets or sets the current brush. Available brushes are: ",
             HelpSections = new Dictionary<string, string>(),
