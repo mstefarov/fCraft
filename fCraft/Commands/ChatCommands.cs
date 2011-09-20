@@ -264,7 +264,7 @@ namespace fCraft {
         static void DeafenHandler( Player player, Command cmd ) {
             if( !player.IsDeaf ) {
                 for( int i = 0; i < LinesToClear; i++ ) {
-                    player.Message( "" );
+                    player.MessageNow( "" );
                 }
                 player.MessageNow( "Deafened mode: ON" );
                 player.MessageNow( "You will not see ANY messages until you type &H/deafen&S again." );
