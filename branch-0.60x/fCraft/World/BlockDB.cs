@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using fCraft.Events;
 using JetBrains.Annotations;
 
@@ -262,6 +263,9 @@ namespace fCraft {
                 }
             }
         }
+        public bool HasLimit {
+            get { return limit > 0; }
+        }
 
 
         TimeSpan timeLimit;
@@ -279,6 +283,9 @@ namespace fCraft {
                     Logger.Log( "BlockDB({0}): TimeLimit={1}", LogType.Debug, World.Name, value );
                 }
             }
+        }
+        public bool HasTimeLimit {
+            get { return timeLimit > TimeSpan.Zero; }
         }
 
 
@@ -505,6 +512,24 @@ namespace fCraft {
             }
             return results.Values.ToArray();
         }
+
+
+        #region Serialization
+
+        public const string XmlRootName = "BlockDB";
+        public XElement Serialize() {
+            XElement root = new XElement( XmlRootName );
+            root.Add( new XAttribute( "preload", IsPreloaded ) );
+            if( HasLimit ) {
+                root.Add( new XAttribute( "limit", Limit ) );
+            }
+            if( HasTimeLimit ) {
+                root.Add( new XAttribute( "timeLimit", (int)TimeLimit.TotalSeconds ) );
+            }
+            return root;
+        }
+
+        #endregion
 
 
         #region Static
