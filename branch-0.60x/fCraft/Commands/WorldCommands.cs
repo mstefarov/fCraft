@@ -52,7 +52,6 @@ namespace fCraft {
             Name = "blockdb",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
-            IsHidden = true,
             Permissions = new[] { Permission.ManageBlockDB },
             Usage = "/blockdb WorldName <Operation>",
             Help = "Manages BlockDB on a given world. " +
@@ -324,11 +323,8 @@ namespace fCraft {
             Name = "binfo",
             Category = CommandCategory.World,
             Aliases = new[] { "bi", "whodid" },
-            IsConsoleSafe = true,
-            IsHidden = true,
             Permissions = new[] { Permission.ViewOthersInfo },
-            Usage = "/blockdb WorldName",
-            Help = "Enables or disabled BlockDB on a given world.",
+            Help = "Checks edit history for a given block.",
             Handler = BlockInfoHandler
         };
 
@@ -361,12 +357,13 @@ namespace fCraft {
             Scheduler.NewBackgroundTask( BlockInfoSchedulerCallback, args ).RunOnce();
         }
 
-        struct BlockInfoLookupArgs {
+        class BlockInfoLookupArgs {
             public Player Player;
             public World World;
             public short X, Y, Z;
         }
 
+        const int MaxBlockChangesToList = 15;
         static void BlockInfoSchedulerCallback( SchedulerTask task ) {
             BlockInfoLookupArgs args = (BlockInfoLookupArgs)task.UserState;
             if( !args.World.BlockDB.Enabled ) {
@@ -375,7 +372,9 @@ namespace fCraft {
             }
             BlockDBEntry[] results = args.World.BlockDB.Lookup( args.X, args.Y, args.Z );
             if( results.Length > 0 ) {
-                foreach( BlockDBEntry entry in results ) {
+                int startIndex = Math.Max( 0, MaxBlockChangesToList - results.Length );
+                for( int i = startIndex; i < results.Length; i++ ) {
+                    BlockDBEntry entry = results[i];
                     string date = DateTime.UtcNow.Subtract( DateTimeUtil.ToDateTime( entry.Timestamp ) ).ToMiniString();
 
                     PlayerInfo info = PlayerDB.FindPlayerInfoByID( entry.PlayerID );
