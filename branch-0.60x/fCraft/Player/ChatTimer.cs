@@ -24,7 +24,7 @@ namespace fCraft {
 
         int announceIntervalIndex;
 
-        public bool IsRunning{get;private set;}
+        public bool IsRunning { get; private set; }
 
         public void Stop() {
             IsRunning = false;
@@ -73,8 +73,8 @@ namespace fCraft {
                     timer.Announce( TimeSpan.FromHours( Math.Ceiling( timer.TimeLeft.TotalHours ) ) );
                 }
                 if( timer.TimeLeft <= AnnounceIntervals[timer.announceIntervalIndex] ) {
+                    timer.Announce( AnnounceIntervals[timer.announceIntervalIndex] );
                     timer.announceIntervalIndex--;
-                    timer.Announce(AnnounceIntervals[timer.announceIntervalIndex]);
                 }
             }
         }
