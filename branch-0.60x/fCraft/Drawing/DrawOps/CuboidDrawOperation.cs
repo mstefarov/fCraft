@@ -44,7 +44,10 @@ namespace fCraft.Drawing {
                     Coords.Z = Bounds.ZMin;
                 }
                 Coords.Y = Bounds.YMin;
-                if( TimeToEndBatch ) return blocksDone;
+                if( TimeToEndBatch ) {
+                    Coords.X++;
+                    return blocksDone;
+                }
             }
             IsDone = true;
             return blocksDone;
