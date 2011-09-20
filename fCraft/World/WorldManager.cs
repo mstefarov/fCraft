@@ -178,7 +178,7 @@ namespace fCraft {
                 world.BackupInterval = World.DefaultBackupInterval;
             }
 
-            XElement blockEl = el.Element( "blockDB" );
+            XElement blockEl = el.Element( BlockDB.XmlRootName);
             if( blockEl != null ) {
                 world.BlockDB.Enabled = true;
                 if( (temp = blockEl.Attribute( "preload" )) != null ) {
@@ -202,7 +202,7 @@ namespace fCraft {
                     }
                 }
                 if( (temp = blockEl.Attribute( "timeLimit" )) != null ) {
-                                        int timeLimitSeconds;
+                    int timeLimitSeconds;
                     if( Int32.TryParse( temp.Value, out timeLimitSeconds ) ) {
                         world.BlockDB.TimeLimit = TimeSpan.FromSeconds( timeLimitSeconds );
                     } else {
@@ -294,11 +294,7 @@ namespace fCraft {
                         temp.Add( new XAttribute( "hidden", true ) );
                     }
                     if( world.BlockDB.Enabled ) {
-                        XElement blockDB = new XElement( "blockDB" );
-                        blockDB.Add( new XAttribute( "preload", world.BlockDB.IsPreloaded ) );
-                        blockDB.Add( new XAttribute( "limit", world.BlockDB.Limit ) );
-                        blockDB.Add( new XAttribute( "timeLimit", world.BlockDB.TimeLimit.ToTickString() ) );
-                        temp.Add( blockDB );
+                        temp.Add( world.BlockDB.Serialize() );
                     }
 
                     World world1 = world;
@@ -694,7 +690,6 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
-
     public class MainWorldChangedEventArgs : EventArgs {
         internal MainWorldChangedEventArgs( World oldWorld, World newWorld ) {
             OldMainWorld = oldWorld;
@@ -721,5 +716,4 @@ namespace fCraft.Events {
         public string SearchTerm { get; private set; }
         public List<World> Matches { get; set; }
     }
-
 }
