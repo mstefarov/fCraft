@@ -251,9 +251,8 @@ namespace fCraft {
         IPBanInfo() { }
 
 
-        public IPBanInfo( [NotNull] IPAddress address, [NotNull] string playerName, [NotNull] string bannedBy, string banReason ) {
+        public IPBanInfo( [NotNull] IPAddress address, string playerName, [NotNull] string bannedBy, string banReason ) {
             if( address == null ) throw new ArgumentNullException( "address" );
-            if( playerName == null ) throw new ArgumentNullException( "playerName" );
             if( bannedBy == null ) throw new ArgumentNullException( "bannedBy" );
             Address = address;
             BannedBy = bannedBy;
