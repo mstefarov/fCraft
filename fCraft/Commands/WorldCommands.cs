@@ -372,7 +372,7 @@ namespace fCraft {
             }
             BlockDBEntry[] results = args.World.BlockDB.Lookup( args.X, args.Y, args.Z );
             if( results.Length > 0 ) {
-                int startIndex = Math.Max( 0, MaxBlockChangesToList - results.Length );
+                int startIndex = Math.Max( 0, results.Length - MaxBlockChangesToList );
                 for( int i = startIndex; i < results.Length; i++ ) {
                     BlockDBEntry entry = results[i];
                     string date = DateTime.UtcNow.Subtract( DateTimeUtil.ToDateTime( entry.Timestamp ) ).ToMiniString();
