@@ -101,7 +101,7 @@ namespace fCraft {
                                     manuallyEnabledWorlds.JoinToClassyString() );
                 }
 
-                World[] manuallyDisabledWorlds = WorldManager.WorldList.Where( w => (w.BlockDB.EnabledState == YesNoAuto.No) && w.BlockDB.ShouldBeAutoEnabled ).ToArray();
+                World[] manuallyDisabledWorlds = WorldManager.WorldList.Where( w => w.BlockDB.EnabledState == YesNoAuto.No ).ToArray();
                 if( manuallyDisabledWorlds.Length > 0 ) {
                     player.Message( "BlockDB is manually disabled on: {0}",
                                     manuallyDisabledWorlds.JoinToClassyString() );
