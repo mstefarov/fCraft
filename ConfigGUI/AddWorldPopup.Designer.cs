@@ -57,6 +57,7 @@
             this.tStatus1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tStatus2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.previewLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.preview = new fCraft.ConfigGUI.CustomPictureBox();
             this.lDetailSize = new System.Windows.Forms.Label();
             this.sFeatureScale = new System.Windows.Forms.TrackBar();
             this.sRoughness = new System.Windows.Forms.TrackBar();
@@ -192,12 +193,12 @@
             this.lCreateMap = new System.Windows.Forms.Label();
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.xBlockDB = new System.Windows.Forms.CheckBox();
-            this.preview = new fCraft.ConfigGUI.CustomPictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).BeginInit();
             this.statusStrip.SuspendLayout();
             this.previewLayout.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sFeatureScale)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sRoughness)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sWaterCoverage)).BeginInit();
@@ -245,7 +246,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nBeachHeight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nBeachExtent)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nSeed)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.SuspendLayout();
             // 
             // lX2
@@ -631,6 +631,20 @@
             this.previewLayout.RowStyles.Add( new System.Windows.Forms.RowStyle( System.Windows.Forms.SizeType.Absolute, 28F ) );
             this.previewLayout.Size = new System.Drawing.Size( 555, 515 );
             this.previewLayout.TabIndex = 12;
+            // 
+            // preview
+            // 
+            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.preview.BackColor = System.Drawing.Color.Black;
+            this.previewLayout.SetColumnSpan( this.preview, 3 );
+            this.preview.Location = new System.Drawing.Point( 3, 3 );
+            this.preview.Name = "preview";
+            this.preview.Size = new System.Drawing.Size( 549, 481 );
+            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.preview.TabIndex = 17;
+            this.preview.TabStop = false;
             // 
             // lDetailSize
             // 
@@ -2297,22 +2311,9 @@
             this.xBlockDB.Size = new System.Drawing.Size( 104, 17 );
             this.xBlockDB.TabIndex = 9;
             this.xBlockDB.Text = "Enable BlockDB";
+            this.xBlockDB.ThreeState = true;
             this.xBlockDB.UseVisualStyleBackColor = true;
             this.xBlockDB.CheckedChanged += new System.EventHandler( this.xBlockDB_CheckedChanged );
-            // 
-            // preview
-            // 
-            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.preview.BackColor = System.Drawing.Color.Black;
-            this.previewLayout.SetColumnSpan( this.preview, 3 );
-            this.preview.Location = new System.Drawing.Point( 3, 3 );
-            this.preview.Name = "preview";
-            this.preview.Size = new System.Drawing.Size( 549, 481 );
-            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.preview.TabIndex = 17;
-            this.preview.TabStop = false;
             // 
             // AddWorldPopup
             // 
@@ -2349,6 +2350,7 @@
             this.statusStrip.PerformLayout();
             this.previewLayout.ResumeLayout( false );
             this.previewLayout.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sFeatureScale)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sRoughness)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sWaterCoverage)).EndInit();
@@ -2412,7 +2414,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nBeachHeight)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nBeachExtent)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nSeed)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.ResumeLayout( false );
             this.PerformLayout();
 
