@@ -35,16 +35,16 @@ namespace fCraft {
                 if( value != enabledState ) {
                     Logger.Log( "BlockDB({0}): Enabled={1}", LogType.Debug, World.Name, value );
                 }
-                if( value == YesNoAuto.No && Enabled ) {
+                if( value == YesNoAuto.No && IsEnabled ) {
                     Flush();
                     CacheClear();
-                    Enabled = false;
-                } else if( !Enabled && (value == YesNoAuto.Yes || value == YesNoAuto.Auto && ShouldBeAutoEnabled) ) {
+                    IsEnabled = false;
+                } else if( !IsEnabled && (value == YesNoAuto.Yes || value == YesNoAuto.Auto && ShouldBeAutoEnabled) ) {
                     cacheStore = new BlockDBEntry[MinCacheSize];
                     if( isPreloaded ) {
                         Preload();
                     }
-                    Enabled = true;
+                    IsEnabled = true;
                 }
                 enabledState = value;
             }
@@ -63,7 +63,7 @@ namespace fCraft {
         }
 
 
-        public bool Enabled { get; private set; }
+        public bool IsEnabled { get; private set; }
 
 
         [NotNull]
@@ -94,7 +94,7 @@ namespace fCraft {
 
         void CacheClear() {
             CacheSize = 0;
-            if( Enabled ) {
+            if( IsEnabled ) {
                 cacheStore = new BlockDBEntry[MinCacheSize];
             } else {
                 cacheStore = null;
@@ -602,21 +602,21 @@ namespace fCraft {
         #region Static
 
         public const int BlockDBEntrySize = 16;
-        public static bool IsEnabled { get; private set; }
+        public static bool IsEnabledGlobally { get; private set; }
         static readonly TimeSpan FlushInterval = TimeSpan.FromSeconds( 90 );
 
         internal static void Init() {
             Paths.TestDirectory( "BlockDB", Paths.BlockDBPath, true );
             Player.PlacedBlock += OnPlayerPlacedBlock;
             Scheduler.NewBackgroundTask( FlushAll ).RunForever( FlushInterval, FlushInterval );
-            IsEnabled = true;
+            IsEnabledGlobally = true;
         }
 
 
         static void OnPlayerPlacedBlock( object sender, [NotNull] PlayerPlacedBlockEventArgs e ) {
             if( e == null ) throw new ArgumentNullException( "e" );
             World world = e.Player.World;
-            if( world.BlockDB.Enabled ) {
+            if( world.BlockDB.IsEnabled ) {
                 BlockDBEntry newEntry = new BlockDBEntry( (int)DateTime.UtcNow.ToUnixTime(),
                                                           e.Player.Info.ID,
                                                           e.X, e.Y, e.Z,
@@ -629,7 +629,7 @@ namespace fCraft {
 
         static void FlushAll( SchedulerTask task ) {
             lock( WorldManager.WorldListLock ) {
-                foreach( World w in WorldManager.WorldList.Where( w => w.BlockDB.Enabled ) ) {
+                foreach( World w in WorldManager.WorldList.Where( w => w.BlockDB.IsEnabled ) ) {
                     w.BlockDB.Flush();
                 }
             }

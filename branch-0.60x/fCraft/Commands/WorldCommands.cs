@@ -79,18 +79,35 @@ namespace fCraft {
         };
 
         static void BlockDBHandler( Player player, Command cmd ) {
-            if( !BlockDB.IsEnabled ) {
+            if( !BlockDB.IsEnabledGlobally ) {
                 player.Message( "&WBlockDB is disabled on this server." );
                 return;
             }
 
             string worldName = cmd.Next();
             if( worldName == null ) {
-                World[] trackedWorlds = WorldManager.WorldList.Where( w => w.BlockDB.Enabled ).ToArray();
-                if( trackedWorlds.Length > 0 ) {
-                    player.Message( "BlockDB is enabled on: {0}",
-                                    trackedWorlds.JoinToClassyString() );
-                } else {
+                int total = 0;
+                World[] autoEnabledWorlds = WorldManager.WorldList.Where( w => (w.BlockDB.EnabledState == YesNoAuto.Auto) && w.BlockDB.IsEnabled ).ToArray();
+                if( autoEnabledWorlds.Length > 0 ) {
+                    total += autoEnabledWorlds.Length;
+                    player.Message( "BlockDB is auto-enabled on: {0}",
+                                    autoEnabledWorlds.JoinToClassyString() );
+                }
+
+                World[] manuallyEnabledWorlds = WorldManager.WorldList.Where( w => w.BlockDB.EnabledState == YesNoAuto.Yes ).ToArray();
+                if( manuallyEnabledWorlds.Length > 0 ) {
+                    total += manuallyEnabledWorlds.Length;
+                    player.Message( "BlockDB is manually enabled on: {0}",
+                                    manuallyEnabledWorlds.JoinToClassyString() );
+                }
+
+                World[] manuallyDisabledWorlds = WorldManager.WorldList.Where( w => (w.BlockDB.EnabledState == YesNoAuto.No) && w.BlockDB.ShouldBeAutoEnabled ).ToArray();
+                if( manuallyDisabledWorlds.Length > 0 ) {
+                    player.Message( "BlockDB is manually disabled on: {0}",
+                                    manuallyDisabledWorlds.JoinToClassyString() );
+                }
+
+                if( total == 0 ) {
                     player.Message( "BlockDB is not enabled on any world." );
                 }
                 return;
@@ -103,13 +120,21 @@ namespace fCraft {
             lock( db.SyncRoot ) {
                 string op = cmd.Next();
                 if( op == null ) {
-                    if( !db.Enabled ) {
+                    if( !db.IsEnabled ) {
                         player.Message( "BlockDB is disabled on world {0}", world.ClassyName );
                     } else {
                         if( db.IsPreloaded ) {
-                            player.Message( "BlockDB is enabled/preloaded on world {0}", world.ClassyName );
+                            if( db.EnabledState == YesNoAuto.Auto ) {
+                                player.Message( "BlockDB is enabled (auto) and preloaded on world {0}", world.ClassyName );
+                            } else {
+                                player.Message( "BlockDB is enabled and preloaded on world {0}", world.ClassyName );
+                            }
                         } else {
-                            player.Message( "BlockDB is enabled on world {0}", world.ClassyName );
+                            if( db.EnabledState == YesNoAuto.Auto ) {
+                                player.Message( "BlockDB is enabled (auto) on world {0}", world.ClassyName );
+                            } else {
+                                player.Message( "BlockDB is enabled on world {0}", world.ClassyName );
+                            }
                         }
                         player.Message( "    Change limit: {0}    Time limit: {1}",
                             db.Limit == 0 ? "none" : db.Limit.ToString(),
@@ -124,7 +149,12 @@ namespace fCraft {
                         if( db.EnabledState == YesNoAuto.Yes) {
                             player.Message( "BlockDB is already manually enabled on world {0}", world.ClassyName );
 
-                        } else {
+                        } else if( db.EnabledState == YesNoAuto.Auto && db.IsEnabled ) {
+                            db.EnabledState = YesNoAuto.Yes;
+                            WorldManager.SaveWorldList();
+                            player.Message( "BlockDB was auto-enabled, and is now manually enabled on world {0}", world.ClassyName );
+
+                        }else{
                             db.EnabledState = YesNoAuto.Yes;
                             WorldManager.SaveWorldList();
                             player.Message( "BlockDB is now manually enabled on world {0}", world.ClassyName );
@@ -136,17 +166,22 @@ namespace fCraft {
                         if( db.EnabledState == YesNoAuto.No ) {
                             player.Message( "BlockDB is already manually disabled on world {0}", world.ClassyName );
 
-                        } else if( cmd.IsConfirmed ) {
+                        } else if( db.IsEnabled ){
+                            if( cmd.IsConfirmed ) {
+                                db.EnabledState = YesNoAuto.No;
+                                WorldManager.SaveWorldList();
+                                player.Message( "BlockDB is now manually disabled on world {0}&S. Use &H/blockdb {1} clear&S to delete all the data.",
+                                                world.ClassyName, world.Name );
+                            } else {
+                                player.Confirm( cmd,
+                                                "Disable BlockDB on world {0}&S? Block changes will stop being recorded.",
+                                                world.ClassyName );
+                            }
+                        } else {
                             db.EnabledState = YesNoAuto.No;
                             WorldManager.SaveWorldList();
-                            player.Message( "BlockDB is now manually disabled on world {0}&S. Use &H/blockdb {1} clear&S to delete all the data.",
+                            player.Message( "BlockDB is was auto-disabled, and is now manually disabled on world {0}&S.",
                                             world.ClassyName, world.Name );
-
-                        } else {
-                            player.Confirm( cmd,
-                                            "Disable BlockDB on world {0}&S? Block changes will stop being recorded.",
-                                            world.ClassyName );
-
                         }
                         break;
 
@@ -154,16 +189,23 @@ namespace fCraft {
                         if( db.EnabledState == YesNoAuto.Auto ) {
                             player.Message( "BlockDB is already set to automatically enable/disable itself on world {0}", world.ClassyName );
                         } else {
-                            db.EnabledState = YesNoAuto.Auto;
-                            WorldManager.SaveWorldList();
-                            player.Message( "BlockDB is now set to automatically enable/disable itself on world {0}&S.",
-                                            world.ClassyName );
+                            if( db.IsEnabled ) {
+                                db.EnabledState = YesNoAuto.Auto;
+                                WorldManager.SaveWorldList();
+                                player.Message( "BlockDB is now automatically enabled on world {0}&S.",
+                                                world.ClassyName );
+                            } else {
+                                db.EnabledState = YesNoAuto.Auto;
+                                WorldManager.SaveWorldList();
+                                player.Message( "BlockDB is now automatically disabled on world {0}&S.",
+                                                world.ClassyName );
+                            }
                         }
                         break;
 
                     case "limit":
                         // sets or resets limit on the number of changes to store
-                        if( db.Enabled ) {
+                        if( db.IsEnabled ) {
                             string limitString = cmd.Next();
                             int limitNumber;
 
@@ -210,7 +252,7 @@ namespace fCraft {
 
                     case "timelimit":
                         // sets or resets limit on the age of changes to store
-                        if( db.Enabled ) {
+                        if( db.IsEnabled ) {
                             string limitString = cmd.Next();
 
                             if( limitString == null ) {
@@ -266,7 +308,7 @@ namespace fCraft {
 
                     case "clear":
                         // wipes BlockDB data
-                        bool hasData = (db.Enabled || File.Exists( db.FileName ));
+                        bool hasData = (db.IsEnabled || File.Exists( db.FileName ));
                         if( hasData ) {
                             if( cmd.IsConfirmed ) {
                                 db.Clear();
@@ -282,7 +324,7 @@ namespace fCraft {
 
                     case "preload":
                         // enables/disables BlockDB preloading
-                        if( db.Enabled ) {
+                        if( db.IsEnabled ) {
                             string param = cmd.Next();
                             if( param == null ) {
                                 // shows current preload setting
@@ -341,13 +383,13 @@ namespace fCraft {
         };
 
         static void BlockInfoHandler( Player player, Command cmd ) {
-            if( !BlockDB.IsEnabled ) {
+            if( !BlockDB.IsEnabledGlobally ) {
                 player.Message( "&WBlockDB is disabled on this server." );
                 return;
             }
 
             World world = player.World;
-            if( !world.BlockDB.Enabled ) {
+            if( !world.BlockDB.IsEnabled ) {
                 player.Message( "&WBlockDB is disabled in this world." );
                 return;
             }
@@ -379,7 +421,7 @@ namespace fCraft {
         const int MaxBlockChangesToList = 15;
         static void BlockInfoSchedulerCallback( SchedulerTask task ) {
             BlockInfoLookupArgs args = (BlockInfoLookupArgs)task.UserState;
-            if( !args.World.BlockDB.Enabled ) {
+            if( !args.World.BlockDB.IsEnabled ) {
                 args.Player.Message( "&WBlockDB is disabled in this world." );
                 return;
             }
