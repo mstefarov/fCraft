@@ -256,7 +256,7 @@ but will also prevent many legitimate players from joining." )]
 @"Automatically enabled BlockDB on all worlds editable by a certain rank or below." )]
         BlockDBAutoEnable,
 
-        [RankKey( ConfigSection.General, RankKeyAttribute.BlankValueMeaning.LowestRank,
+        [RankKey( ConfigSection.General, RankKeyAttribute.BlankValueMeaning.DefaultRank,
 @"Worlds editable by players of this rank (or below) will have BlockDB enabled automatically.
 Has no effect until BlockDBAutoEnable key is set." )]
         BlockDBAutoEnableRank,
