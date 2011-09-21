@@ -3,6 +3,7 @@
 // Version: 2.35 (March 14, 2010)
 using System.Collections.Generic;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace System.IO.Compression {
     /// <summary>
@@ -17,9 +18,7 @@ namespace System.IO.Compression {
             Deflate = 8
         }
 
-        /// <summary>
-        /// Represents an entry in Zip file directory
-        /// </summary>
+        /// <summary> Represents an entry in Zip file directory. </summary>
         public struct ZipFileEntry {
             /// <summary>Compression method</summary>
             public Compression Method;
@@ -99,13 +98,13 @@ namespace System.IO.Compression {
                 CrcTable[i] = c;
             }
         }
-        /// <summary>
-        /// Method to create a new storage file
-        /// </summary>
+
+        /// <summary> Method to create a new storage file. </summary>
         /// <param name="filename">Full path of Zip file to create</param>
         /// <param name="fileComment">General comment for Zip file</param>
         /// <returns>A valid ZipStorer object</returns>
-        public static ZipStorer Create( string filename, string fileComment ) {
+        public static ZipStorer Create( [NotNull] string filename, [CanBeNull] string fileComment ) {
+            if( filename == null ) throw new ArgumentNullException( "filename" );
             Stream stream = new FileStream( filename, FileMode.Create, FileAccess.ReadWrite );
 
             ZipStorer zip = Create( stream, fileComment );
@@ -114,16 +113,20 @@ namespace System.IO.Compression {
 
             return zip;
         }
+
         /// <summary>
         /// Method to create a new zip storage in a stream
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="fileComment"></param>
         /// <returns>A valid ZipStorer object</returns>
-        public static ZipStorer Create( Stream stream, string fileComment ) {
-            ZipStorer zip = new ZipStorer { comment = fileComment, zipFileStream = stream, access = FileAccess.Write };
-
-            return zip;
+        public static ZipStorer Create( [NotNull] Stream stream, [CanBeNull] string fileComment ) {
+            if( stream == null ) throw new ArgumentNullException( "stream" );
+            return new ZipStorer {
+                comment = fileComment,
+                zipFileStream = stream,
+                access = FileAccess.Write
+            };
         }
 
 
@@ -133,7 +136,8 @@ namespace System.IO.Compression {
         /// <param name="filename">Full path of Zip file to open</param>
         /// <param name="fileAccess">File access mode as used in FileStream constructor</param>
         /// <returns>A valid ZipStorer object</returns>
-        public static ZipStorer Open( string filename, FileAccess fileAccess ) {
+        public static ZipStorer Open( [NotNull] string filename, FileAccess fileAccess ) {
+            if( filename == null ) throw new ArgumentNullException( "filename" );
             Stream stream = new FileStream( filename, FileMode.Open, fileAccess == FileAccess.Read ? FileAccess.Read : FileAccess.ReadWrite );
 
             ZipStorer zip = Open( stream, fileAccess );
@@ -141,13 +145,15 @@ namespace System.IO.Compression {
 
             return zip;
         }
+
         /// <summary>
         /// Method to open an existing storage from stream
         /// </summary>
         /// <param name="stream">Already opened stream with zip contents</param>
         /// <param name="fileFileAccess">File access mode for stream operations</param>
         /// <returns>A valid ZipStorer object</returns>
-        public static ZipStorer Open( Stream stream, FileAccess fileFileAccess ) {
+        public static ZipStorer Open( [NotNull] Stream stream, FileAccess fileFileAccess ) {
+            if( stream == null ) throw new ArgumentNullException( "stream" );
             if( !stream.CanSeek && fileFileAccess != FileAccess.Read )
                 throw new InvalidOperationException( "Stream cannot seek" );
 
@@ -158,6 +164,7 @@ namespace System.IO.Compression {
 
             throw new InvalidDataException();
         }
+
         /// <summary>
         /// Add full contents of a file into the Zip storage
         /// </summary>
@@ -165,7 +172,9 @@ namespace System.IO.Compression {
         /// <param name="pathname">Full path of file to add to Zip storage</param>
         /// <param name="filenameInZip">Filename and path as desired in Zip directory</param>
         /// <param name="fileComment">Comment for stored file</param>        
-        public void AddFile( Compression method, string pathname, string filenameInZip, string fileComment ) {
+        public void AddFile( Compression method, [NotNull] string pathname, [NotNull] string filenameInZip, [CanBeNull] string fileComment ) {
+            if( pathname == null ) throw new ArgumentNullException( "pathname" );
+            if( filenameInZip == null ) throw new ArgumentNullException( "filenameInZip" );
             if( access == FileAccess.Read )
                 throw new InvalidOperationException( "Writing is not alowed" );
 
@@ -173,6 +182,7 @@ namespace System.IO.Compression {
             AddStream( method, filenameInZip, stream, File.GetLastWriteTime( pathname ), fileComment );
             stream.Close();
         }
+
         /// <summary>
         /// Add full contents of a stream into the Zip storage
         /// </summary>
@@ -181,7 +191,10 @@ namespace System.IO.Compression {
         /// <param name="source">Stream object containing the data to store in Zip</param>
         /// <param name="modTime">Modification time of the data to store</param>
         /// <param name="fileComment">Comment for stored file</param>
-        public void AddStream( Compression method, string filenameInZip, Stream source, DateTime modTime, string fileComment ) {
+        public void AddStream( Compression method, [NotNull] string filenameInZip, [NotNull] Stream source,
+                               DateTime modTime, [CanBeNull] string fileComment ) {
+            if( filenameInZip == null ) throw new ArgumentNullException( "filenameInZip" );
+            if( source == null ) throw new ArgumentNullException( "source" );
             if( access == FileAccess.Read )
                 throw new InvalidOperationException( "Writing is not alowed" );
 
@@ -218,6 +231,7 @@ namespace System.IO.Compression {
 
             files.Add( zfe );
         }
+
         /// <summary>
         /// Updates central directory (if pertinent) and close the Zip storage
         /// </summary>
@@ -248,6 +262,7 @@ namespace System.IO.Compression {
             zipFileStream.Dispose();
             zipFileStream = null;
         }
+
         /// <summary>
         /// Read all the file records in the central directory 
         /// </summary>
@@ -299,6 +314,7 @@ namespace System.IO.Compression {
 
             return result;
         }
+
         /// <summary>
         /// Copy the contents of a stored file into a physical file
         /// </summary>
@@ -306,7 +322,8 @@ namespace System.IO.Compression {
         /// <param name="filename">Name of file to store uncompressed data</param>
         /// <returns>True if success, false if not.</returns>
         /// <remarks>Unique compression methods are Store and Deflate</remarks>
-        public bool ExtractFile( ZipFileEntry zfe, string filename ) {
+        public bool ExtractFile( ZipFileEntry zfe, [NotNull] string filename ) {
+            if( filename == null ) throw new ArgumentNullException( "filename" );
             // Make sure the parent directory exist
             string path = Path.GetDirectoryName( filename );
             if( path == null ) throw new NotImplementedException();
@@ -336,7 +353,8 @@ namespace System.IO.Compression {
         /// <param name="stream">Stream to store the uncompressed data</param>
         /// <returns>True if success, false if not.</returns>
         /// <remarks>Unique compression methods are Store and Deflate</remarks>
-        public bool ExtractFile( ZipFileEntry zfe, Stream stream ) {
+        public bool ExtractFile( ZipFileEntry zfe, [NotNull] Stream stream ) {
+            if( stream == null ) throw new ArgumentNullException( "stream" );
             if( !stream.CanWrite )
                 throw new InvalidOperationException( "Stream cannot be written" );
 
@@ -372,6 +390,7 @@ namespace System.IO.Compression {
                 inStream.Dispose();
             return true;
         }
+
         /// <summary>
         /// Removes one of many files in storage. It creates a new Zip file.
         /// </summary>
@@ -379,7 +398,8 @@ namespace System.IO.Compression {
         /// <param name="zfes">List of Entries to remove from storage</param>
         /// <returns>True if success, false if not</returns>
         /// <remarks>This method only works for storage of type FileStream</remarks>
-        public static bool RemoveEntries( ref ZipStorer zip, List<ZipFileEntry> zfes ) {
+        public static bool RemoveEntries( ref ZipStorer zip, [NotNull] List<ZipFileEntry> zfes ) {
+            if( zfes == null ) throw new ArgumentNullException( "zfes" );
             if( !(zip.zipFileStream is FileStream) )
                 throw new InvalidOperationException( "RemoveEntries is allowed just over streams of type FileStream" );
 
@@ -436,6 +456,7 @@ namespace System.IO.Compression {
 
             return (uint)(30 + filenameSize + extraSize + headerOffset);
         }
+
         /* Local file header:
             local file header signature     4 bytes  (0x04034b50)
             version needed to extract       2 bytes
@@ -468,6 +489,7 @@ namespace System.IO.Compression {
             zipFileStream.Write( encodedFilename, 0, encodedFilename.Length );
             zfe.HeaderSize = (uint)(zipFileStream.Position - pos);
         }
+
         /* Central directory's File header:
             central file header signature   4 bytes  (0x02014b50)
             version made by                 2 bytes
@@ -516,6 +538,7 @@ namespace System.IO.Compression {
             zipFileStream.Write( encodedFilename, 0, encodedFilename.Length );
             zipFileStream.Write( encodedComment, 0, encodedComment.Length );
         }
+
         /* End of central dir record:
             end of central dir signature    4 bytes  (0x06054b50)
             number of this disk             2 bytes

@@ -34,7 +34,7 @@
             this.comboBox.Location = new System.Drawing.Point( 80, 0 );
             this.comboBox.Name = "comboBox";
             this.comboBox.Size = new System.Drawing.Size( 150, 21 );
-            this.comboBox.TabIndex = 25;
+            this.comboBox.TabIndex = 1;
             // 
             // label
             // 
@@ -42,7 +42,7 @@
             this.label.Location = new System.Drawing.Point( 3, 3 );
             this.label.Name = "label";
             this.label.Size = new System.Drawing.Size( 33, 13 );
-            this.label.TabIndex = 26;
+            this.label.TabIndex = 0;
             this.label.Text = "Label";
             this.label.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 

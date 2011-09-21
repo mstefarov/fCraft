@@ -1,5 +1,5 @@
 ﻿namespace fCraft.ConfigGUI {
-    partial class UpdaterSettingsWindow {
+    partial class UpdaterSettingsPopup {
         /// <summary>
         /// Required designer variable.
         /// </summary>

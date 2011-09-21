@@ -532,6 +532,10 @@ Affected commands:
             toolTip.SetToolTip( lAntispamMaxWarnings, ConfigKey.AntispamMaxWarnings.GetDescription() );
 
             toolTip.SetToolTip( xPaidPlayersOnly, ConfigKey.PaidPlayersOnly.GetDescription() );
+
+            toolTip.SetToolTip( xBlockDBEnabled, ConfigKey.BlockDBEnabled.GetDescription() );
+            toolTip.SetToolTip( xBlockDBAutoEnable, ConfigKey.BlockDBAutoEnable.GetDescription() );
+            toolTip.SetToolTip( cBlockDBAutoEnableRank, ConfigKey.BlockDBAutoEnableRank.GetDescription() );
         }
 
 

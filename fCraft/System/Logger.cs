@@ -464,7 +464,9 @@ namespace fCraft {
 
 
         [DebuggerStepThrough]
-        static void RaiseLoggedEvent( string rawMessage, string line, LogType logType ) {
+        static void RaiseLoggedEvent( [NotNull] string rawMessage, [NotNull] string line, LogType logType ) {
+            if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
+            if( line == null ) throw new ArgumentNullException( "line" );
             var h = Logged;
             if( h != null ) h( null, new LogEventArgs( rawMessage,
                                                        line,

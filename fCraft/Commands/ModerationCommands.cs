@@ -213,7 +213,7 @@ namespace fCraft {
 
                     if( banIP ) DoIPBan( player, address, reason, target.Name, banAll, false );
                     if( !banAll ) {
-                        if( target.Info.ProcessBan( player, reason ) ) {
+                        if( target.Info.ProcessBan( player, player.Name, reason ) ) {
                             PlayerInfo.RaiseBanChangedEvent( e );
                             Logger.Log( "{0} was banned by {1}.", LogType.UserActivity,
                                         target.Info.Name, player.Name );
@@ -275,7 +275,7 @@ namespace fCraft {
                                 player.Message( "{0}&S (offline) is not currenty banned.", targetInfo.ClassyName );
                             }
                         } else {
-                            if( targetInfo.ProcessBan( player, reason ) ) {
+                            if( targetInfo.ProcessBan( player, player.Name, reason ) ) {
                                 PlayerInfo.RaiseBanChangedEvent( e );
                                 Logger.Log( "{0} (offline) was banned by {1}.", LogType.UserActivity,
                                             targetInfo.Name, player.Name );
@@ -318,7 +318,7 @@ namespace fCraft {
 
 
                     // this will never return false (player could not have been banned already)
-                    targetInfo.ProcessBan( player, reason );
+                    targetInfo.ProcessBan( player, player.Name, reason );
 
                     PlayerInfo.RaiseBanChangedEvent( e );
 
@@ -463,7 +463,7 @@ namespace fCraft {
                         if( e.Cancel ) return;
                         newReason = e.Reason;
 
-                        if( otherInfo.ProcessBan( player, newReason ) ) {
+                        if( otherInfo.ProcessBan( player, player.Name, newReason ) ) {
                             PlayerInfo.RaiseBanChangedEvent( e );
                             player.Message( "{0}&S matched IP and was also banned.", otherInfo.ClassyName );
                             Server.Message( player,

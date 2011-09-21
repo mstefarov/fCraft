@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 using fCraft.MapConversion;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft.ConfigGUI {
     /// <summary>
@@ -17,20 +18,28 @@ namespace fCraft.ConfigGUI {
         internal bool LoadingFailed { get; private set; }
 
 
-        public WorldListEntry( string newName ) {
+        public WorldListEntry( [NotNull] string newName ) {
+            if( newName == null ) throw new ArgumentNullException( "newName" );
             name = newName;
         }
 
 
-        public WorldListEntry( WorldListEntry original ) {
+        public WorldListEntry( [NotNull] WorldListEntry original ) {
+            if( original == null ) throw new ArgumentNullException( "original" );
             name = original.Name;
             Hidden = original.Hidden;
             Backup = original.Backup;
+            BlockDBEnabled = original.BlockDBEnabled;
+            blockDBIsPreloaded = original.blockDBIsPreloaded;
+            blockDBLimit = original.blockDBLimit;
+            blockDBTimeLimit = original.blockDBTimeLimit;
             accessSecurity = new SecurityController( original.accessSecurity );
             buildSecurity = new SecurityController( original.buildSecurity );
         }
 
-        public WorldListEntry( XElement el ) {
+
+        public WorldListEntry( [NotNull] XElement el ) {
+            if( el == null ) throw new ArgumentNullException( "el" );
             XAttribute temp;
 
             if( (temp = el.Attribute( "name" )) == null ) {
@@ -64,17 +73,32 @@ namespace fCraft.ConfigGUI {
                 Backup = BackupEnumNames[0];
             }
 
-            if( el.Element( "accessSecurity" ) != null ) {
-                accessSecurity = new SecurityController( el.Element( "accessSecurity" ), false );
+            XElement tempEl;
+            if( (tempEl = el.Element( WorldManager.AccessSecurityXmlTagName )) != null ||
+                (tempEl = el.Element( "accessSecurity" )) != null ) {
+                accessSecurity = new SecurityController( tempEl, false );
+            }
+            if( (tempEl = el.Element( WorldManager.BuildSecurityXmlTagName )) != null ||
+                (tempEl = el.Element( "buildSecurity" )) != null ) {
+                buildSecurity = new SecurityController( tempEl, false );
             }
 
-            if( el.Element( "buildSecurity" ) != null ) {
-                buildSecurity = new SecurityController( el.Element( "buildSecurity" ), false );
-            }
+            XElement blockEl = el.Element( BlockDB.XmlRootName );
+            if( blockEl == null ) {
+                BlockDBEnabled = YesNoAuto.Auto;
+            } else {
+                if( (temp = blockEl.Attribute( "enabled" )) != null ) {
+                    YesNoAuto enabledStateTemp;
+                    if( EnumUtil.TryParse( temp.Value, out enabledStateTemp ) ) {
+                        BlockDBEnabled = enabledStateTemp;
+                    } else {
+                        Logger.Log( "WorldListEntity: Could not parse BlockDB \"enabled\" attribute of world \"{0}\", assuming AUTO.",
+                                    LogType.Warning,
+                                    name );
+                        BlockDBEnabled = YesNoAuto.Auto;
+                    }
+                }
 
-            XElement blockEl = el.Element( "blockDB" );
-            if( blockEl != null ) {
-                blockDBEnabled = true;
                 if( (temp = blockEl.Attribute( "preload" )) != null ) {
                     bool isPreloaded;
                     if( Boolean.TryParse( temp.Value, out isPreloaded ) ) {
@@ -231,15 +255,14 @@ namespace fCraft.ConfigGUI {
             if( Backup != BackupEnumNames[0] ) {
                 element.Add( new XAttribute( "backup", BackupValueFromName( Backup ).ToTickString() ) );
             }
-            element.Add( accessSecurity.Serialize( "accessSecurity" ) );
-            element.Add( buildSecurity.Serialize( "buildSecurity" ) );
-            if( blockDBEnabled ) {
-                XElement blockDB = new XElement( "blockDB" );
-                blockDB.Add( new XAttribute( "preload", blockDBIsPreloaded ) );
-                blockDB.Add( new XAttribute( "limit", blockDBLimit ) );
-                blockDB.Add( new XAttribute( "timeLimit", blockDBTimeLimit.ToTickString() ) );
-                element.Add( blockDB );
-            }
+            element.Add( accessSecurity.Serialize( WorldManager.AccessSecurityXmlTagName ) );
+            element.Add( buildSecurity.Serialize( WorldManager.BuildSecurityXmlTagName ) );
+            XElement blockDB = new XElement( BlockDB.XmlRootName );
+            blockDB.Add( new XAttribute( "enabled", BlockDBEnabled ) );
+            blockDB.Add( new XAttribute( "preload", blockDBIsPreloaded ) );
+            blockDB.Add( new XAttribute( "limit", blockDBLimit ) );
+            blockDB.Add( new XAttribute( "timeLimit", blockDBTimeLimit.ToTickString() ) );
+            element.Add( blockDB );
             return element;
         }
 
@@ -331,13 +354,14 @@ namespace fCraft.ConfigGUI {
         };
 
 
-        readonly bool blockDBEnabled;
+        public YesNoAuto BlockDBEnabled { get; set; }
         readonly bool blockDBIsPreloaded;
         readonly int blockDBLimit;
         TimeSpan blockDBTimeLimit;
 
 
         // Comparison method used to customize sorting
+        [UsedImplicitly]
         public static object Compare( string propertyName, object a, object b ) {
             WorldListEntry entry1 = (WorldListEntry)a;
             WorldListEntry entry2 = (WorldListEntry)b;

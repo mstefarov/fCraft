@@ -3,7 +3,7 @@ using System;
 using System.Windows.Forms;
 
 namespace fCraft.ConfigGUI {
-    public sealed partial class UpdaterSettingsWindow : Form {
+    public sealed partial class UpdaterSettingsPopup : Form {
 
         public string RunBeforeUpdate {
             get {
@@ -51,7 +51,7 @@ namespace fCraft.ConfigGUI {
         UpdaterMode oldUpdaterMode;
         bool oldBackupBeforeUpdate;
 
-        public UpdaterSettingsWindow() {
+        public UpdaterSettingsPopup() {
             InitializeComponent();
             Shown += delegate {
                 oldRunBeforeUpdate = RunBeforeUpdate;

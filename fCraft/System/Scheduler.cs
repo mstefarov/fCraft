@@ -168,7 +168,7 @@ namespace fCraft {
         /// <param name="callback"> Method to call when the task is triggered. </param>
         /// <param name="userState"> Parameter to pass to the method. </param>
         /// <returns> Newly created SchedulerTask object. </returns>
-        public static SchedulerTask NewTask( [NotNull] SchedulerCallback callback, object userState ) {
+        public static SchedulerTask NewTask( [NotNull] SchedulerCallback callback, [CanBeNull] object userState ) {
             return new SchedulerTask( callback, false, userState );
         }
 
@@ -178,7 +178,7 @@ namespace fCraft {
         /// <param name="callback"> Method to call when the task is triggered. </param>
         /// <param name="userState"> Parameter to pass to the method. </param>
         /// <returns> Newly created SchedulerTask object. </returns>
-        public static SchedulerTask NewBackgroundTask( [NotNull] SchedulerCallback callback, object userState ) {
+        public static SchedulerTask NewBackgroundTask( [NotNull] SchedulerCallback callback, [CanBeNull] object userState ) {
             return new SchedulerTask( callback, true, userState );
         }
 

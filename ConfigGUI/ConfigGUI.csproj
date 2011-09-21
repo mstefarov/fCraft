@@ -98,8 +98,8 @@
     <EmbeddedResource Include="TextEditorPopup.resx">
       <DependentUpon>TextEditorPopup.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UpdaterSettingsWindow.resx">
-      <DependentUpon>UpdaterSettingsWindow.cs</DependentUpon>
+    <EmbeddedResource Include="UpdaterSettingsPopup.resx">
+      <DependentUpon>UpdaterSettingsPopup.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -164,11 +164,11 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="SortableBindingList.cs" />
-    <Compile Include="UpdaterSettingsWindow.cs">
+    <Compile Include="UpdaterSettingsPopup.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UpdaterSettingsWindow.Designer.cs">
-      <DependentUpon>UpdaterSettingsWindow.cs</DependentUpon>
+    <Compile Include="UpdaterSettingsPopup.Designer.cs">
+      <DependentUpon>UpdaterSettingsPopup.cs</DependentUpon>
     </Compile>
     <Compile Include="WorldListEntry.cs" />
   </ItemGroup>

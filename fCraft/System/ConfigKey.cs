@@ -248,6 +248,19 @@ but will also prevent many legitimate players from joining." )]
 @"Announce the reason/memo in chat when someone gets promoted or demoted." )]
         AnnounceRankChangeReasons,
 
+        [BoolKey(ConfigSection.Security, false,
+@"If enabled, allows edit information to be stored per-block. Enables /blockdb, /bi, and /undox commands.")]
+        BlockDBEnabled,
+
+        [BoolKey( ConfigSection.General, true,
+@"Automatically enabled BlockDB on all worlds editable by a certain rank or below." )]
+        BlockDBAutoEnable,
+
+        [RankKey( ConfigSection.General, RankKeyAttribute.BlankValueMeaning.LowestRank,
+@"Worlds editable by players of this rank (or below) will have BlockDB enabled automatically.
+Has no effect until BlockDBAutoEnable key is set." )]
+        BlockDBAutoEnableRank,
+
         #endregion
 
 
@@ -510,11 +523,7 @@ but will reduce bandwidth use." )]
 
         [IntKey( ConfigSection.Advanced, 0,
 @"Automatically restarts the server after a given number of seconds." )]
-        RestartInterval,
-
-        [BoolKey(ConfigSection.Advanced, false,
-@"If enabled, allows edit information to be stored per-block. Enables /blockdb, /bi, and /undox commands.")]
-        BlockDBEnabled
+        RestartInterval
 
         #endregion
     }

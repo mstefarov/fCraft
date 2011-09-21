@@ -386,7 +386,7 @@ namespace fCraft {
         /// <param name="source"> Original set of players. Will not get modified. </param>
         /// <param name="excludedPlayer"> Player to remove from the set. </param>
         /// <returns> A set that contains all players in the input sequence, minus the given player. </returns>
-        public static IEnumerable<Player> Except( [NotNull] this IEnumerable<Player> source, [NotNull] Player excludedPlayer ) {
+        public static IEnumerable<Player> Except( [NotNull] this IEnumerable<Player> source, [CanBeNull] Player excludedPlayer ) {
             foreach( Player player in source ) {
                 if( player != excludedPlayer ) {
                     yield return player;

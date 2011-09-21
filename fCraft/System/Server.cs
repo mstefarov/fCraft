@@ -24,7 +24,8 @@ namespace fCraft {
     /// and global scheduled tasks, and events related to Player and PlayerInfo. </summary>
     public static partial class Server {
 
-        public static DateTime ServerStart { get; private set; }
+        /// <summary> Time when the server started (UTC). Used to check uptime. </summary>
+        public static DateTime StartTime { get; private set; }
 
         internal static int MaxUploadSpeed,   // set by Config.ApplyConfig
                             BlockUpdateThrottling; // used when there are no players in a world
@@ -299,7 +300,7 @@ namespace fCraft {
                 throw new Exception( "Server.InitServer must be called before Server.StartServer" );
             }
 
-            ServerStart = DateTime.UtcNow;
+            StartTime = DateTime.UtcNow;
             cpuUsageStartingOffset = Process.GetCurrentProcess().TotalProcessorTime;
             Players = new Player[0];
 
@@ -441,7 +442,7 @@ namespace fCraft {
         static Thread shutdownThread;
 
 
-        internal static void ShutdownNow( [NotNull] ShutdownParams shutdownParams ) {
+        static void ShutdownNow( [NotNull] ShutdownParams shutdownParams ) {
             if( shutdownParams == null ) throw new ArgumentNullException( "shutdownParams" );
             if( IsShuttingDown ) return; // to avoid starting shutdown twice
             IsShuttingDown = true;
@@ -584,7 +585,8 @@ namespace fCraft {
 
         /// <summary> Broadcasts a message to all online players.
         /// Shorthand for Server.Players.Message </summary>
-        public static void Message( string message ) {
+        public static void Message( [NotNull] string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
             Players.Message( message );
         }
 
@@ -592,14 +594,17 @@ namespace fCraft {
         /// <summary> Broadcasts a message to all online players.
         /// Shorthand for Server.Players.Message </summary>
         [StringFormatMethod( "message" )]
-        public static void Message( string message, params object[] formatArgs ) {
+        public static void Message( [NotNull] string message, [NotNull] params object[] formatArgs ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
             Players.Message( message, formatArgs );
         }
 
 
         /// <summary> Broadcasts a message to all online players except one.
         /// Shorthand for Server.Players.Except(except).Message </summary>
-        public static void Message( Player except, string message ) {
+        public static void Message( [CanBeNull] Player except, [NotNull] string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
             Players.Except( except ).Message( message );
         }
 
@@ -607,7 +612,9 @@ namespace fCraft {
         /// <summary> Broadcasts a message to all online players except one.
         /// Shorthand for Server.Players.Except(except).Message </summary>
         [StringFormatMethod( "message" )]
-        public static void Message( Player except, string message, params object[] formatArgs ) {
+        public static void Message( [CanBeNull] Player except, [NotNull] string message, [NotNull] params object[] formatArgs ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
             Players.Except( except ).Message( message, formatArgs );
         }
 
@@ -734,7 +741,7 @@ namespace fCraft {
                                  (Environment.ProcessorCount * DateTime.UtcNow.Subtract( lastMonitorTime ).TotalSeconds);
             lastMonitorTime = DateTime.UtcNow;
             CPUUsageTotal = newCPUTime.TotalSeconds /
-                            (Environment.ProcessorCount * DateTime.UtcNow.Subtract( ServerStart ).TotalSeconds);
+                            (Environment.ProcessorCount * DateTime.UtcNow.Subtract( StartTime ).TotalSeconds);
             oldCPUTime = newCPUTime;
             IsMonitoringCPUUsage = true;
         }
@@ -749,8 +756,6 @@ namespace fCraft {
         public static void RequestGC() {
             gcRequested = true;
         }
-
-
 
 
         public static bool VerifyName( [NotNull] string name, [NotNull] string hash, [NotNull] string salt ) {
@@ -1125,17 +1130,6 @@ namespace fCraft {
         }
 
 
-        /// <summary> Finds any player(s) online from given IP address. </summary>
-        /// <returns> An array of matches. List length of 0 means "no matches";
-        /// 1 is an exact match; over 1 for multiple matches. </returns>
-        [Obsolete( "Use Players.FromIP() instead" )]
-        public static Player[] FindPlayers( [NotNull] IPAddress ip ) {
-            if( ip == null ) throw new ArgumentNullException( "ip" );
-            return Players.Where( p => p != null &&
-                                       p.IP.Equals( ip ) ).ToArray();
-        }
-
-
         /// <summary> Finds a player by name, without any kind of autocompletion. </summary>
         /// <param name="name"> Name of the player (case-insensitive). </param>
         /// <returns> Player object, or null if player was not found. </returns>
@@ -1168,8 +1162,6 @@ namespace fCraft {
 
     /// <summary> Describes the circumstances of server shutdown. </summary>
     public sealed class ShutdownParams {
-        public static readonly TimeSpan DefaultDelay = new TimeSpan( 0, 0, 5 );
-
         public ShutdownParams( ShutdownReason reason, TimeSpan delay, bool killProcess, bool restart ) {
             Reason = reason;
             Delay = delay;

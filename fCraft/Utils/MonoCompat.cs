@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Class dedicated to solving Mono compatibility issues </summary>
@@ -77,7 +78,9 @@ namespace fCraft {
         /// <param name="assemblyArgs"> Arguments to pass to the executable. </param>
         /// <param name="detachIfMono"> If true, new process will be detached under Mono. </param>
         /// <returns>Process object</returns>
-        public static Process StartDotNetProcess( string assemblyLocation, string assemblyArgs, bool detachIfMono ) {
+        public static Process StartDotNetProcess( [NotNull] string assemblyLocation, [NotNull] string assemblyArgs, bool detachIfMono ) {
+            if( assemblyLocation == null ) throw new ArgumentNullException( "assemblyLocation" );
+            if( assemblyArgs == null ) throw new ArgumentNullException( "assemblyArgs" );
             string binaryName, args;
             if( IsMono ) {
                 if( IsSGenCapable ) {
@@ -103,7 +106,8 @@ namespace fCraft {
         /// <summary>Prepends the correct Mono name to the .NET executable, if needed.</summary>
         /// <param name="dotNetExecutable"></param>
         /// <returns></returns>
-        public static string PrependMono( string dotNetExecutable ) {
+        public static string PrependMono( [NotNull] string dotNetExecutable ) {
+            if( dotNetExecutable == null ) throw new ArgumentNullException( "dotNetExecutable" );
             if( IsMono ) {
                 if( IsSGenCapable ) {
                     return "mono-sgen " + dotNetExecutable;

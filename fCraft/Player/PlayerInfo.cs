@@ -688,7 +688,8 @@ namespace fCraft {
         }
 
 
-        public void ProcessLogin( Player player ) {
+        public void ProcessLogin( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             LastIP = player.IP;
             LastLoginDate = DateTime.UtcNow;
             LastSeen = DateTime.UtcNow;
@@ -699,7 +700,8 @@ namespace fCraft {
         }
 
 
-        public void ProcessFailedLogin( Player player ) {
+        public void ProcessFailedLogin( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             LastFailedLoginDate = DateTime.UtcNow;
             LastFailedLoginIP = player.IP;
             Interlocked.Increment( ref FailedLoginCount );
@@ -707,7 +709,8 @@ namespace fCraft {
         }
 
 
-        public void ProcessLogout( Player player ) {
+        public void ProcessLogout( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             TotalTime += player.LastActiveTime.Subtract( player.LoginTime );
             LastSeen = DateTime.UtcNow;
             IsOnline = false;
@@ -717,13 +720,17 @@ namespace fCraft {
         }
 
 
-        public bool ProcessBan( Player bannedBy, string banReason ) {
+        public bool ProcessBan( [CanBeNull] Player bannedBy, [NotNull] string bannedByName, [NotNull] string banReason ) {
+            if( bannedByName == null ) throw new ArgumentNullException( "bannedByName" );
+            if( banReason == null ) throw new ArgumentNullException( "banReason" );
             if( !IsBanned ) {
                 BanStatus = BanStatus.Banned;
-                BannedBy = bannedBy.Name;
+                BannedBy = bannedByName;
                 BanDate = DateTime.UtcNow;
                 BanReason = banReason;
-                Interlocked.Increment( ref bannedBy.Info.TimesBannedOthers );
+                if( bannedBy != null ) {
+                    Interlocked.Increment( ref bannedBy.Info.TimesBannedOthers );
+                }
                 Unmute();
                 Unfreeze();
                 IsHidden = false;
@@ -735,10 +742,12 @@ namespace fCraft {
         }
 
 
-        public bool ProcessUnban( string unbannedBy, string unbanReason ) {
+        public bool ProcessUnban( [NotNull] string unbannedByName, [NotNull] string unbanReason ) {
+            if( unbannedByName == null ) throw new ArgumentNullException( "unbannedByName" );
+            if( unbanReason == null ) throw new ArgumentNullException( "unbanReason" );
             if( IsBanned ) {
                 BanStatus = BanStatus.NotBanned;
-                UnbannedBy = unbannedBy;
+                UnbannedBy = unbannedByName;
                 UnbanDate = DateTime.UtcNow;
                 UnbanReason = unbanReason;
                 LastModified = DateTime.UtcNow;
@@ -749,13 +758,15 @@ namespace fCraft {
         }
 
 
-        public void ProcessRankChange( [NotNull] Rank newRank, string changer, string reason, RankChangeType type ) {
+        public void ProcessRankChange( [NotNull] Rank newRank, [NotNull] string changer, [NotNull] string reason, RankChangeType type ) {
             if( newRank == null ) throw new ArgumentNullException( "newRank" );
+            if( changer == null ) throw new ArgumentNullException( "changer" );
+            if( reason == null ) throw new ArgumentNullException( "reason" );
             PreviousRank = Rank;
             Rank = newRank;
             RankChangeDate = DateTime.UtcNow;
 
-            RankChangedBy = changer ?? "?";
+            RankChangedBy = changer;
             RankChangeReason = reason;
             RankChangeType = type;
             LastModified = DateTime.UtcNow;
@@ -778,12 +789,14 @@ namespace fCraft {
         }
 
 
-        public void ProcessKick( Player kickedBy, string reason ) {
+        public void ProcessKick( [NotNull] Player kickedBy, [NotNull] string reason ) {
+            if( kickedBy == null ) throw new ArgumentNullException( "kickedBy" );
+            if( reason == null ) throw new ArgumentNullException( "reason" );
             Interlocked.Increment( ref TimesKicked );
             Interlocked.Increment( ref kickedBy.Info.TimesKickedOthers );
             LastKickDate = DateTime.UtcNow;
             LastKickBy = kickedBy.Name;
-            LastKickReason = reason ?? "";
+            LastKickReason = reason;
             Unfreeze();
             LastModified = DateTime.UtcNow;
         }
@@ -793,7 +806,7 @@ namespace fCraft {
 
         #region Utilities
 
-        public static string Escape( string str ) {
+        public static string Escape( [CanBeNull] string str ) {
             if( String.IsNullOrEmpty( str ) ) {
                 return "";
             } else if( str.IndexOf( ',' ) > -1 ) {
@@ -804,12 +817,14 @@ namespace fCraft {
         }
 
 
-        public static string UnescapeOldFormat( string str ) {
+        public static string UnescapeOldFormat( [NotNull] string str ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
             return str.Replace( '\xFF', ',' ).Replace( "\'", "'" ).Replace( @"\\", @"\" );
         }
 
 
-        public static string Unescape( string str ) {
+        public static string Unescape( [NotNull] string str ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
             if( str.IndexOf( '\xFF' ) > -1 ) {
                 return str.Replace( '\xFF', ',' );
             } else {

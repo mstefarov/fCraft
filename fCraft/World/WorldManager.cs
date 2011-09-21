@@ -10,6 +10,8 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     public static class WorldManager {
+        public const string BuildSecurityXmlTagName = "BuildSecurity",
+                            AccessSecurityXmlTagName = "AccessSecurity";
 
         public static World[] WorldList { get; private set; }
         static readonly SortedDictionary<string, World> Worlds = new SortedDictionary<string, World>();
@@ -122,7 +124,8 @@ namespace fCraft {
         }
 
 
-        static void LoadWorldListEntry( XElement el, ref World firstWorld ) {
+        static void LoadWorldListEntry( [NotNull] XElement el, ref World firstWorld ) {
+            if( el == null ) throw new ArgumentNullException( "el" );
             XAttribute temp;
             if( (temp = el.Attribute( "name" )) == null ) {
                 Logger.Log( "WorldManager: World tag with no name skipped.",
@@ -157,11 +160,14 @@ namespace fCraft {
             if( firstWorld == null ) firstWorld = world;
 
             XElement tempEl;
-            if( (tempEl=el.Element( "accessSecurity" )) != null ) {
+            if( (tempEl = el.Element( AccessSecurityXmlTagName )) != null ) {
+                world.AccessSecurity = new SecurityController( tempEl, true );
+            }else if( (tempEl=el.Element( "accessSecurity" )) != null ) {
                 world.AccessSecurity = new SecurityController( tempEl, true );
             }
-
-            if( (tempEl=el.Element( "buildSecurity" )) != null ) {
+            if( (tempEl = el.Element( BuildSecurityXmlTagName )) != null ) {
+                world.BuildSecurity = new SecurityController( tempEl, true );
+            }else if( (tempEl=el.Element( "buildSecurity" )) != null ) {
                 world.BuildSecurity = new SecurityController( tempEl, true );
             }
 
@@ -178,39 +184,9 @@ namespace fCraft {
                 world.BackupInterval = World.DefaultBackupInterval;
             }
 
-            XElement blockEl = el.Element( BlockDB.XmlRootName);
+            XElement blockEl = el.Element( BlockDB.XmlRootName );
             if( blockEl != null ) {
-                world.BlockDB.Enabled = true;
-                if( (temp = blockEl.Attribute( "preload" )) != null ) {
-                    bool isPreloaded;
-                    if( Boolean.TryParse( temp.Value, out isPreloaded ) ) {
-                        world.BlockDB.IsPreloaded = isPreloaded;
-                    } else {
-                        Logger.Log( "WorldManager: Could not parse BlockDB \"preload\" attribute of world \"{0}\", assuming NOT preloaded.",
-                                    LogType.Warning,
-                                    worldName );
-                    }
-                }
-                if( (temp = blockEl.Attribute( "limit" )) != null ) {
-                    int limit;
-                    if( Int32.TryParse( temp.Value, out limit ) ) {
-                        world.BlockDB.Limit = limit;
-                    } else {
-                        Logger.Log( "WorldManager: Could not parse BlockDB \"limit\" attribute of world \"{0}\", assuming NO limit.",
-                                    LogType.Warning,
-                                    worldName );
-                    }
-                }
-                if( (temp = blockEl.Attribute( "timeLimit" )) != null ) {
-                    int timeLimitSeconds;
-                    if( Int32.TryParse( temp.Value, out timeLimitSeconds ) ) {
-                        world.BlockDB.TimeLimit = TimeSpan.FromSeconds( timeLimitSeconds );
-                    } else {
-                        Logger.Log( "WorldManager: Could not parse BlockDB \"timeLimit\" attribute of world \"{0}\", assuming NO time limit.",
-                                    LogType.Warning,
-                                    worldName );
-                    }
-                }
+                world.BlockDB.LoadSettings( blockEl );
             }
 
             foreach( XElement mainedRankEl in el.Elements( "RankMainWorld" ) ) {
@@ -231,7 +207,8 @@ namespace fCraft {
 
 
         // Makes sure that the map file exists, is properly named, and is loadable.
-        static void CheckMapFile( World world ) {
+        static void CheckMapFile( [NotNull] World world ) {
+            if( world == null ) throw new ArgumentNullException( "world" );
             // Check the world's map file
             string fullMapFileName = world.MapFileName;
             string fileName = Path.GetFileName( fullMapFileName );
@@ -285,17 +262,15 @@ namespace fCraft {
                 foreach( World world in WorldList ) {
                     XElement temp = new XElement( "World" );
                     temp.Add( new XAttribute( "name", world.Name ) );
-                    temp.Add( world.AccessSecurity.Serialize( "accessSecurity" ) );
-                    temp.Add( world.BuildSecurity.Serialize( "buildSecurity" ) );
+                    temp.Add( world.AccessSecurity.Serialize( AccessSecurityXmlTagName ) );
+                    temp.Add( world.BuildSecurity.Serialize( BuildSecurityXmlTagName ) );
                     if( world.NeverUnload ) {
                         temp.Add( new XAttribute( "noUnload", true ) );
                     }
                     if( world.IsHidden ) {
                         temp.Add( new XAttribute( "hidden", true ) );
                     }
-                    if( world.BlockDB.Enabled ) {
-                        temp.Add( world.BlockDB.Serialize() );
-                    }
+                    temp.Add( world.BlockDB.SaveSettings() );
 
                     World world1 = world;
                     foreach( Rank mainedRank in RankManager.Ranks.Where( r => r.MainWorld == world1 ) ) {
@@ -355,7 +330,9 @@ namespace fCraft {
         /// <param name="player"> Player who is calling the query. May be null. </param>
         /// <param name="name"> Full or partial world name. </param>
         /// <returns> An array of 0 or more worlds that matched the name. </returns>
-        public static World[] FindWorlds( Player player, string name ) {
+        public static World[] FindWorlds( [NotNull] Player player, [NotNull] string name ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( name == null ) throw new ArgumentNullException( "name" );
             World[] matches = FindWorldsNoEvent( name );
             var h = SearchingForWorld;
             if( h != null ) {
@@ -558,7 +535,8 @@ namespace fCraft {
         }
 
 
-        public static int CountLoadedWorlds( Player observer ) {
+        public static int CountLoadedWorlds( [NotNull] Player observer ) {
+            if( observer == null ) throw new ArgumentNullException( "observer" );
             return ListLoadedWorlds( observer ).Count();
         }
 
@@ -568,7 +546,8 @@ namespace fCraft {
         }
 
 
-        public static IEnumerable<World> ListLoadedWorlds( Player observer ) {
+        public static IEnumerable<World> ListLoadedWorlds( [NotNull] Player observer ) {
+            if( observer == null ) throw new ArgumentNullException( "observer" );
             return WorldList.Where( w => w.Players.Any( observer.CanSee ) );
         }
 
@@ -580,7 +559,9 @@ namespace fCraft {
         }
 
 
-        public static string FindMapFile( Player player, string fileName ) {
+        public static string FindMapFile( [NotNull] Player player, [NotNull] string fileName ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             // Check if path contains missing drives or invalid characters
             if( !Paths.IsValidPath( fileName ) ) {
                 player.Message( "Invalid filename or path." );

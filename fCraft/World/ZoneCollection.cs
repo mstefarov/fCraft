@@ -231,8 +231,8 @@ namespace fCraft {
 
 
         /// <summary> Finds a zone by name, with autocompletion.
-        /// Zone names are case-insensitive. </summary>
-        /// <remarks> Note that this method is a lot slower than FindExact. </remarks>
+        /// Zone names are case-insensitive.
+        /// Note that this method is a lot slower than FindExact. </summary>
         /// <param name="name"> Full zone name. </param>
         /// <returns> Zone object if it was found.
         /// null if no Zone with the given name could be found. </returns>

@@ -59,6 +59,7 @@ namespace fCraft {
                    "See &H/help blockdb <Operation>&S for operation-specific help. " +
                    "If no operation is given, BlockDB status is shown.",
             HelpSections = new Dictionary<string, string>{
+                { "auto",       "Allows BlockDB to decide whether it should be enabled or disabled based on each world's permissions (default)." },
                 { "on",         "Enables block tracking. Information will only be available for blocks that changed while BlockDB was enabled." },
                 { "off",        "Disables block tracking. Block changes will NOT be recorded while BlockDB is disabled. " +
                                 "Note that disabling BlockDB does not delete the existing data. Use &Hclear&S for that." },
@@ -120,25 +121,25 @@ namespace fCraft {
                 switch( op.ToLower() ) {
                     case "on":
                         // enables BlockDB
-                        if( db.Enabled ) {
-                            player.Message( "BlockDB is already enabled on world {0}", world.ClassyName );
+                        if( db.EnabledState == YesNoAuto.Yes) {
+                            player.Message( "BlockDB is already manually enabled on world {0}", world.ClassyName );
 
                         } else {
-                            db.Enabled = true;
+                            db.EnabledState = YesNoAuto.Yes;
                             WorldManager.SaveWorldList();
-                            player.Message( "BlockDB is now enabled on world {0}", world.ClassyName );
+                            player.Message( "BlockDB is now manually enabled on world {0}", world.ClassyName );
                         }
                         break;
 
                     case "off":
                         // disables BlockDB
-                        if( !db.Enabled ) {
-                            player.Message( "BlockDB is already disabled on world {0}", world.ClassyName );
+                        if( db.EnabledState == YesNoAuto.No ) {
+                            player.Message( "BlockDB is already manually disabled on world {0}", world.ClassyName );
 
                         } else if( cmd.IsConfirmed ) {
-                            db.Enabled = false;
+                            db.EnabledState = YesNoAuto.No;
                             WorldManager.SaveWorldList();
-                            player.Message( "BlockDB is now disabled on world {0}&S. Use &H/blockdb {1} clear&S to delete all the data.",
+                            player.Message( "BlockDB is now manually disabled on world {0}&S. Use &H/blockdb {1} clear&S to delete all the data.",
                                             world.ClassyName, world.Name );
 
                         } else {
@@ -146,6 +147,17 @@ namespace fCraft {
                                             "Disable BlockDB on world {0}&S? Block changes will stop being recorded.",
                                             world.ClassyName );
 
+                        }
+                        break;
+
+                    case "auto":
+                        if( db.EnabledState == YesNoAuto.Auto ) {
+                            player.Message( "BlockDB is already set to automatically enable/disable itself on world {0}", world.ClassyName );
+                        } else {
+                            db.EnabledState = YesNoAuto.Auto;
+                            WorldManager.SaveWorldList();
+                            player.Message( "BlockDB is now set to automatically enable/disable itself on world {0}&S.",
+                                            world.ClassyName );
                         }
                         break;
 
@@ -357,7 +369,8 @@ namespace fCraft {
             Scheduler.NewBackgroundTask( BlockInfoSchedulerCallback, args ).RunOnce();
         }
 
-        class BlockInfoLookupArgs {
+
+        sealed class BlockInfoLookupArgs {
             public Player Player;
             public World World;
             public short X, Y, Z;
@@ -582,7 +595,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdJoin = new CommandDescriptor {
             Name = "join",
-            Aliases = new[] { "j", "load", "l", "goto", "map" },
+            Aliases = new[] { "j", "load", "goto", "map" },
             Category = CommandCategory.World,
             Usage = "/join WorldName",
             Help = "Teleports the player to a specified world. You can see the list of available worlds by using &H/worlds",
@@ -1293,6 +1306,7 @@ namespace fCraft {
 
                         // apply changes
                         world.BuildSecurity.MinRank = rank;
+                        world.BlockDB.CheckIfShouldBeAutoEnabled();
                         changesWereMade = true;
                         if( world.BuildSecurity.MinRank == RankManager.LowestRank ) {
                             Server.Message( "{0}&S allowed anyone to build on world {1}",
@@ -1647,6 +1661,7 @@ namespace fCraft {
                         if( newWorld != null ) {
                             newWorld.BuildSecurity.MinRank = buildRank;
                             newWorld.AccessSecurity.MinRank = accessRank;
+                            newWorld.BlockDB.CheckIfShouldBeAutoEnabled();
                             Server.Message( "{0}&S created a new world named {1}",
                                               player.ClassyName, newWorld.ClassyName );
                             Logger.Log( "{0} created a new world named \"{1}\" (loaded from \"{2}\")", LogType.UserActivity,

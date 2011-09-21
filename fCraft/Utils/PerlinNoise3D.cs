@@ -29,6 +29,7 @@ A "contributor" is any person that distributes its contribution under this licen
  */
 
 using System;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Implementation of 3D Perlin Noise after Ken Perlin's reference implementation. </summary>
@@ -50,7 +51,8 @@ namespace fCraft {
 
         #region Contructors
 
-        public PerlinNoise3D( Random rand ) {
+        public PerlinNoise3D( [NotNull] Random rand ) {
+            if( rand == null ) throw new ArgumentNullException( "rand" );
             permutation = new int[256];
             p = new int[permutation.Length * 2];
             InitNoiseFunctions( rand );
@@ -66,7 +68,8 @@ namespace fCraft {
 
         #region Methods
 
-        public void InitNoiseFunctions(Random rand ) {
+        public void InitNoiseFunctions( [NotNull] Random rand ) {
+            if( rand == null ) throw new ArgumentNullException( "rand" );
 
             // Fill empty
             for( int i = 0; i < permutation.Length; i++ ) {

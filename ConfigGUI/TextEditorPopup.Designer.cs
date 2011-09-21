@@ -74,7 +74,7 @@
             this.bInsertKeyword.Location = new System.Drawing.Point( 108, 12 );
             this.bInsertKeyword.Name = "bInsertKeyword";
             this.bInsertKeyword.Size = new System.Drawing.Size( 90, 23 );
-            this.bInsertKeyword.TabIndex = 5;
+            this.bInsertKeyword.TabIndex = 4;
             this.bInsertKeyword.Text = "Insert Keyword";
             this.bInsertKeyword.UseVisualStyleBackColor = true;
             this.bInsertKeyword.Click += new System.EventHandler( this.bInsertKeyword_Click );
@@ -84,7 +84,7 @@
             this.bInsertColor.Location = new System.Drawing.Point( 12, 12 );
             this.bInsertColor.Name = "bInsertColor";
             this.bInsertColor.Size = new System.Drawing.Size( 90, 23 );
-            this.bInsertColor.TabIndex = 6;
+            this.bInsertColor.TabIndex = 3;
             this.bInsertColor.Text = "Insert Color";
             this.bInsertColor.UseVisualStyleBackColor = true;
             this.bInsertColor.Click += new System.EventHandler( this.bInsertColor_Click );
@@ -94,7 +94,7 @@
             this.bReset.Location = new System.Drawing.Point( 408, 12 );
             this.bReset.Name = "bReset";
             this.bReset.Size = new System.Drawing.Size( 90, 23 );
-            this.bReset.TabIndex = 7;
+            this.bReset.TabIndex = 5;
             this.bReset.Text = "Reset";
             this.bReset.UseVisualStyleBackColor = true;
             this.bReset.Click += new System.EventHandler( this.bReset_Click );

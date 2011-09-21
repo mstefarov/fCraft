@@ -150,7 +150,8 @@ namespace fCraft {
             ZMax = Math.Max( z1, z2 );
         }
 
-        public XElement Serialize( string tagName ) {
+        public XElement Serialize( [NotNull] string tagName ) {
+            if( tagName == null ) throw new ArgumentNullException( "tagName" );
             string data = String.Format( "{0} {1} {2} {3} {4} {5}",
                                          XMin, XMax, YMin, YMax, ZMin, ZMax );
             return new XElement( tagName, data );

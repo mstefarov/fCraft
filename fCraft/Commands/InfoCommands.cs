@@ -588,7 +588,7 @@ namespace fCraft {
             Process.GetCurrentProcess().Refresh();
 
             player.Message( "Servers stats: Up for {0:0.0} hours, using {1:0} MB of memory",
-                            DateTime.UtcNow.Subtract( Server.ServerStart ).TotalHours,
+                            DateTime.UtcNow.Subtract( Server.StartTime ).TotalHours,
                             (Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024)) );
 
             if( Server.IsMonitoringCPUUsage ) {

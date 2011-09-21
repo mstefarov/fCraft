@@ -41,7 +41,7 @@ namespace fCraft {
 
         public BlockDB BlockDB { get; private set; }
 
-        internal World( string name ) {
+        internal World( [NotNull] string name ) {
             if( name == null ) throw new ArgumentException( "name" );
             if( !IsValidName( name ) ) {
                 throw new ArgumentException( "Incorrect world name format" );
@@ -582,7 +582,6 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
-
     public sealed class WorldCreatingEventArgs : EventArgs, ICancellableEvent {
         public WorldCreatingEventArgs( Player player, string worldName, Map map ) {
             Player = player;
@@ -606,5 +605,4 @@ namespace fCraft.Events {
         public Player Player { get; private set; }
         public World World { get; private set; }
     }
-
 }

@@ -291,14 +291,16 @@ namespace fCraft {
             return Permissions[(int)permission];
         }
 
-        public bool Can( Permission permission, Rank other ) {
+        public bool Can( Permission permission, [NotNull] Rank other ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
             return GetLimit( permission ) >= other;
         }
 
-        public bool CanSee( Rank other ) {
+
+        public bool CanSee( [NotNull] Rank other ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
             return this > other.GetLimit( Permission.Hide );
         }
-
 
         #endregion
 
@@ -316,18 +318,13 @@ namespace fCraft {
         }
 
 
-        public void SetLimit( Permission permission, Rank limit ) {
+        public void SetLimit( Permission permission, [CanBeNull] Rank limit ) {
             PermissionLimits[(int)permission] = limit;
         }
 
 
         public void ResetLimit( Permission permission ) {
             SetLimit( permission, null );
-        }
-
-
-        public bool IsLimitDefault( Permission permission ) {
-            return (PermissionLimits[(int)permission] == null);
         }
 
 
@@ -432,9 +429,6 @@ namespace fCraft {
                 return Server.Players.Ranked( this );
             }
         }
-
-
-
 
 
         /// <summary> Parses serialized rank. Accepts either the "name" or "name#ID" format.

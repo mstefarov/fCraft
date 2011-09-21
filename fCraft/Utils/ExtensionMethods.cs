@@ -491,7 +491,9 @@ namespace fCraft {
         }
 
 
-        public static void MemCpy( byte* src, byte* dest, int len ) {
+        public static void MemCpy( [NotNull] byte* src, [NotNull] byte* dest, int len ) {
+            if( src == null ) throw new ArgumentNullException( "src" );
+            if( dest == null ) throw new ArgumentNullException( "dest" );
             if( len >= 0x10 ) {
                 do {
                     *((int*)dest) = *((int*)src);
@@ -525,6 +527,19 @@ namespace fCraft {
                     src++;
                     dest[0] = src[0];
                 }
+            }
+        }
+    }
+
+    public static class EnumUtil {
+        public static bool TryParse<TEnum>( [NotNull] string value, out TEnum output ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
+            try {
+                output = (TEnum)Enum.Parse( typeof( TEnum ), value );
+                return true;
+            } catch( ArgumentException ) {
+                output = default( TEnum );
+                return false;
             }
         }
     }

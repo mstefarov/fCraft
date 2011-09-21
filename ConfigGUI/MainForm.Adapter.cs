@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 
 namespace fCraft.ConfigGUI {
@@ -53,6 +54,9 @@ namespace fCraft.ConfigGUI {
             AddChangeHandler( tabs, SomethingChanged );
             AddChangeHandler( bResetTab, SomethingChanged );
             AddChangeHandler( bResetAll, SomethingChanged );
+            dgvWorlds.CellValueChanged += delegate {
+                SomethingChanged( null, null );
+            };
 
             AddChangeHandler( tabChat, HandleTabChatChange );
             bApply.Enabled = false;
@@ -231,7 +235,6 @@ namespace fCraft.ConfigGUI {
 
 
         void ApplyTabSecurity() {
-
             ApplyEnum( cVerifyNames, ConfigKey.VerifyNames, NameVerificationMode.Balanced );
 
             nMaxConnectionsPerIP.Value = ConfigKey.MaxConnectionsPerIP.GetInt();
@@ -263,6 +266,18 @@ namespace fCraft.ConfigGUI {
             }
 
             xPaidPlayersOnly.Checked = ConfigKey.PaidPlayersOnly.Enabled();
+
+
+            xBlockDBEnabled.Checked = ConfigKey.BlockDBEnabled.Enabled();
+            xBlockDBAutoEnable.Checked = ConfigKey.BlockDBAutoEnable.Enabled();
+
+            FillRankList( cBlockDBAutoEnableRank, "(lowest rank)" );
+            if( ConfigKey.BlockDBAutoEnableRank.IsBlank() ) {
+                cBlockDBAutoEnableRank.SelectedIndex = 0;
+            } else {
+                RankManager.BlockDBAutoEnableRank = Rank.Parse( ConfigKey.BlockDBAutoEnableRank.GetString() );
+                cBlockDBAutoEnableRank.SelectedIndex = RankManager.GetIndex( RankManager.BlockDBAutoEnableRank );
+            }
         }
 
 
@@ -380,12 +395,11 @@ namespace fCraft.ConfigGUI {
                 tIP.Enabled = true;
                 xIP.Checked = true;
             }
-
-            xBlockDBEnabled.Checked = ConfigKey.BlockDBEnabled.Enabled();
         }
 
 
-        static void ApplyEnum<TEnum>( ComboBox box, ConfigKey key, TEnum def ) where TEnum : struct {
+        static void ApplyEnum<TEnum>( [NotNull] ComboBox box, ConfigKey key, TEnum def ) where TEnum : struct {
+            if( box == null ) throw new ArgumentNullException( "box" );
 #if DEBUG
             if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required" );
 #endif
@@ -489,9 +503,17 @@ namespace fCraft.ConfigGUI {
             if( cPatrolledRank.SelectedIndex == 0 ) {
                 ConfigKey.PatrolledRank.TrySetValue( "" );
             } else {
-                ConfigKey.PatrolledRank.TrySetValue( RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 ).FullName );
+                ConfigKey.PatrolledRank.TrySetValue( RankManager.PatrolledRank.FullName );
             }
             ConfigKey.PaidPlayersOnly.TrySetValue( xPaidPlayersOnly.Checked );
+
+            ConfigKey.BlockDBEnabled.TrySetValue( xBlockDBEnabled.Checked );
+            ConfigKey.BlockDBAutoEnable.TrySetValue( xBlockDBAutoEnable.Checked );
+            if( cBlockDBAutoEnableRank.SelectedIndex == 0 ) {
+                ConfigKey.BlockDBAutoEnableRank.TrySetValue( "" );
+            } else {
+                ConfigKey.BlockDBAutoEnableRank.TrySetValue( RankManager.BlockDBAutoEnableRank.FullName );
+            }
 
 
             // Saving & Backups
@@ -577,7 +599,6 @@ namespace fCraft.ConfigGUI {
             else ConfigKey.MaxUndo.TrySetValue( 0 );
 
             ConfigKey.ConsoleName.TrySetValue( tConsoleName.Text );
-            ConfigKey.BlockDBEnabled.TrySetValue( xBlockDBEnabled.Checked );
 
             SaveWorldList();
         }
@@ -606,7 +627,8 @@ namespace fCraft.ConfigGUI {
         }
 
 
-        static void WriteEnum<TEnum>( ComboBox box, ConfigKey key ) where TEnum : struct {
+        static void WriteEnum<TEnum>( [NotNull] ComboBox box, ConfigKey key ) where TEnum : struct {
+            if( box == null ) throw new ArgumentNullException( "box" );
 #if DEBUG
             if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required" );
 #endif

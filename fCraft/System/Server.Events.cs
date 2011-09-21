@@ -34,12 +34,8 @@ namespace fCraft {
         public static event EventHandler<SearchingForPlayerEventArgs> SearchingForPlayer;
 
 
-        internal static void RaiseEvent( EventHandler h ) {
+        static void RaiseEvent( EventHandler h ) {
             if( h != null ) h( null, EventArgs.Empty );
-        }
-
-        internal static void RaiseEvent<T>( EventHandler<T> h, T e ) where T : EventArgs {
-            if( h != null ) h( null, e );
         }
 
         static void RaiseShutdownBeganEvent( ShutdownParams shutdownParams ) {
@@ -54,11 +50,6 @@ namespace fCraft {
 
         internal static void RaisePlayerListChangedEvent() {
             RaiseEvent( PlayerListChanged );
-        }
-
-        static void RaiseSearchingForPlayerEvent( SearchingForPlayerEventArgs e ){
-            var h = SearchingForPlayer;
-            if( h != null ) h( null, e );
         }
 
 
