@@ -10,12 +10,9 @@ namespace fCraft {
 
     /// <summary> Vegetation generator for MapGenerator. </summary>
     public sealed class Forester {
-
         const int MaxTries = 1000;
 
-
         readonly ForesterArgs args;
-
 
         public Forester( [NotNull] ForesterArgs foresterArgs ) {
             if( foresterArgs == null ) throw new ArgumentNullException( "foresterArgs" );
@@ -788,7 +785,6 @@ namespace fCraft {
         static int DistanceToBlock( Map map, Vector3F coord, Vector3F vec, Block blockType ) {
             return DistanceToBlock( map, coord, vec, blockType, false );
         }
-
 
         static int DistanceToBlock( Map map, Vector3F coord, Vector3F vec, Block blockType, bool invert ) {
             coord += .5f;

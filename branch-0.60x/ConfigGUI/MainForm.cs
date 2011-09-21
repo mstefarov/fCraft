@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Windows.Forms;
 using fCraft.GUI;
+using JetBrains.Annotations;
 
 
 namespace fCraft.ConfigGUI {
@@ -17,7 +18,7 @@ namespace fCraft.ConfigGUI {
         static MainForm instance;
         readonly Font bold;
         Rank selectedRank;
-        readonly UpdaterSettingsWindow updaterWindow = new UpdaterSettingsWindow();
+        readonly UpdaterSettingsPopup updaterWindow = new UpdaterSettingsPopup();
         internal static readonly SortableBindingList<WorldListEntry> Worlds = new SortableBindingList<WorldListEntry>();
 
 
@@ -26,6 +27,9 @@ namespace fCraft.ConfigGUI {
         public MainForm() {
             instance = this;
             InitializeComponent();
+            dgvcBlockDB.TrueValue = YesNoAuto.Yes;
+            dgvcBlockDB.FalseValue = YesNoAuto.No;
+            dgvcBlockDB.IndeterminateValue = YesNoAuto.Auto;
             bold = new Font( Font, FontStyle.Bold );
             Shown += Init;
             Text = "fCraft Configuration (" + Updater.CurrentRelease.VersionString + ")";
@@ -615,6 +619,8 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             cDefaultBuildRank.SelectedIndex = RankManager.GetIndex( RankManager.DefaultBuildRank );
             FillRankList( cPatrolledRank, "(lowest rank)" );
             cPatrolledRank.SelectedIndex = RankManager.GetIndex( RankManager.PatrolledRank );
+            FillRankList( cBlockDBAutoEnableRank, "(lowest rank)" );
+            cBlockDBAutoEnableRank.SelectedIndex = RankManager.GetIndex( RankManager.BlockDBAutoEnableRank );
 
             foreach( var box in permissionLimitBoxes.Values ) {
                 box.RebuildList();
@@ -654,7 +660,8 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
         }
 
 
-        static void FillRankList( ComboBox box, string firstItem ) {
+        static void FillRankList( [NotNull] ComboBox box, string firstItem ) {
+            if( box == null ) throw new ArgumentNullException( "box" );
             box.Items.Clear();
             box.Items.Add( firstItem );
             foreach( Rank rank in RankManager.Ranks ) {
@@ -701,24 +708,27 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 Rank replacementRank = popup.SubstituteRank;
 
                 // Update default rank
-                RankManager.DefaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
                 if( RankManager.DefaultRank == deletedRank ) {
                     RankManager.DefaultRank = replacementRank;
                     messages += "DefaultRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
                 }
 
                 // Update defaultbuild rank
-                RankManager.DefaultBuildRank = RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
                 if( RankManager.DefaultBuildRank == deletedRank ) {
                     RankManager.DefaultBuildRank = replacementRank;
                     messages += "DefaultBuildRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
                 }
 
                 // Update patrolled rank
-                RankManager.PatrolledRank = RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 );
                 if( RankManager.PatrolledRank == deletedRank ) {
                     RankManager.PatrolledRank = replacementRank;
                     messages += "PatrolledRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
+                }
+
+                // Update patrolled rank
+                if( RankManager.BlockDBAutoEnableRank == deletedRank ) {
+                    RankManager.BlockDBAutoEnableRank = replacementRank;
+                    messages += "BlockDBAutoEnableRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
                 }
 
                 // Delete rank
@@ -1046,9 +1056,6 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 string oldName = selectedRank.ToComboBoxOption();
 
                 tRankName.ForeColor = SystemColors.ControlText;
-                RankManager.DefaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
-                RankManager.DefaultBuildRank = RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
-                RankManager.PatrolledRank = RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 );
 
                 // To avoid DataErrors in World tab's DataGridView while renaming a rank,
                 // the new name is first added to the list of options (without removing the old name)
@@ -1164,8 +1171,6 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                     Config.ResetRanks();
                     ApplyTabWorlds();
                     ApplyTabRanks();
-                    RankManager.DefaultRank = null;
-                    RankManager.PatrolledRank = null;
                     RebuildRankList();
                     break;
                 case 4:// Security
@@ -1431,6 +1436,19 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
         private void cPatrolledRank_SelectedIndexChanged( object sender, EventArgs e ) {
             RankManager.PatrolledRank = RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 );
+        }
+
+        private void cBlockDBAutoEnableRank_SelectedIndexChanged( object sender, EventArgs e ) {
+            RankManager.BlockDBAutoEnableRank = RankManager.FindRank( cBlockDBAutoEnableRank.SelectedIndex - 1 );
+        }
+
+        private void xBlockDBEnabled_CheckedChanged( object sender, EventArgs e ) {
+            xBlockDBAutoEnable.Enabled = xBlockDBEnabled.Checked;
+            cBlockDBAutoEnableRank.Enabled = xBlockDBEnabled.Checked && xBlockDBAutoEnable.Checked;
+        }
+
+        private void xBlockDBAutoEnable_CheckedChanged( object sender, EventArgs e ) {
+            cBlockDBAutoEnableRank.Enabled = xBlockDBEnabled.Checked && xBlockDBAutoEnable.Checked;
         }
     }
 }

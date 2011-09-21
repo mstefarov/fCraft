@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using fCraft.Events;
 using System.Threading;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> A simple way to temporarily hook into fCraft's Logger.
@@ -26,7 +27,8 @@ namespace fCraft {
         /// <param name="restrictToThisThread"> Whether this log recorder should limit
         /// recording to messages emitted from the same thread that created this object. </param>
         /// <param name="thingsToLog"> A list or array of LogTypes to record. </param>
-        public LogRecorder( bool restrictToThisThread, params LogType[] thingsToLog ) {
+        public LogRecorder( bool restrictToThisThread, [NotNull] params LogType[] thingsToLog ) {
+            if( thingsToLog == null ) throw new ArgumentNullException( "thingsToLog" );
             Logger.Logged += HandleLog;
             this.thingsToLog = thingsToLog;
             if( restrictToThisThread ) {

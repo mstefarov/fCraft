@@ -11,7 +11,12 @@ namespace fCraft {
         public static Dictionary<string, Rank> RanksByID { get; private set; }
         public static Dictionary<string, string> LegacyRankMapping { get; private set; }
         public static List<Rank> Ranks { get; private set; }
-        public static Rank DefaultRank, LowestRank, HighestRank, PatrolledRank, DefaultBuildRank;
+        public static Rank DefaultRank,
+                           LowestRank,
+                           HighestRank,
+                           PatrolledRank,
+                           DefaultBuildRank,
+                           BlockDBAutoEnableRank;
 
 
         static RankManager() {
@@ -21,7 +26,7 @@ namespace fCraft {
 
 
         /// <summary> Clears the list of ranks. </summary>
-        public static void Reset() {
+        internal static void Reset() {
             if( PlayerDB.IsLoaded ) {
                 throw new InvalidOperationException( "You may not reset ranks after PlayerDB has already been loaded." );
             }
@@ -29,6 +34,10 @@ namespace fCraft {
             RanksByFullName = new Dictionary<string, Rank>();
             RanksByID = new Dictionary<string, Rank>();
             Ranks = new List<Rank>();
+            DefaultRank = null;
+            PatrolledRank = null;
+            DefaultBuildRank = null;
+            BlockDBAutoEnableRank = null;
         }
 
 

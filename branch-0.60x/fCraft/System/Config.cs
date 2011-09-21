@@ -141,6 +141,9 @@ namespace fCraft {
      * 
      * 147 - r926 - Renamed EnableBlockDB to BlockDBEnabled
      * 
+     * 148 - r1015 - Added BlockDBAutoEnable and BlockDBAutoEnableRank keys
+     *               Moved BlockDBEnabled to Security ConfigSection
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -151,7 +154,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 147;
+        public const int CurrentVersion = 148;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY

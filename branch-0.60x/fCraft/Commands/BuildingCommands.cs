@@ -14,8 +14,7 @@ namespace fCraft {
         const int DrawStride = 16;
 
         const string GeneralDrawingHelp = " Use &H/cancel&S to exit draw mode. " +
-                                          "Use &H/undo&S to undo the last draw operation. " +
-                                          "Use &H/lock&S to cancel drawing after it started.";
+                                          "Use &H/undo&S to stop and undo the last draw operation.";
 
         internal static void Init() {
             CommandManager.RegisterCommand( CdSolid );
@@ -76,7 +75,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdCuboid = new CommandDescriptor {
             Name = "cuboid",
-            Aliases = new[] { "blb", "c", "cub", "z" },
+            Aliases = new[] { "blb", "c", "z" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
             Help = "Fills a rectangular area (cuboid) with blocks.",
@@ -331,6 +330,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdLava = new CommandDescriptor {
             Name = "lava",
+            Aliases = new[] { "l" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.PlaceLava },
             Help = "Toggles the lava placement mode. When enabled, any red block you place is replaced with lava.",

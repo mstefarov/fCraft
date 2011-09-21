@@ -51,20 +51,17 @@ namespace fCraft {
             } else {
                 // If heartbeats are disabled, the server data is written
                 // to a text file instead (heartbeatdata.txt)
+                string[] data = new[]{
+                    Salt,
+                    Server.InternalIP.ToString(),
+                    Server.Port.ToString(),
+                    Server.CountPlayers( false ).ToString(),
+                    ConfigKey.MaxPlayers.GetString(),
+                    ConfigKey.ServerName.GetString(),
+                    ConfigKey.IsPublic.GetString()
+                };
                 const string tempFile = Paths.HeartbeatDataFileName + ".tmp";
-
-                File.WriteAllLines( tempFile,
-                    new[]{
-                        Salt,
-                        Server.InternalIP.ToString(),
-                        Server.Port.ToString(),
-                        Server.CountPlayers(false).ToString(),
-                        ConfigKey.MaxPlayers.GetString(),
-                        ConfigKey.ServerName.GetString(),
-                        ConfigKey.IsPublic.GetString()
-                    },
-                    Encoding.ASCII );
-
+                File.WriteAllLines( tempFile, data, Encoding.ASCII );
                 Paths.MoveOrReplace( tempFile, Paths.HeartbeatDataFileName );
             }
         }
@@ -76,11 +73,8 @@ namespace fCraft {
                 return;
             }
             HttpWebRequest request = CreateRequest( data.CreateUri() );
-            request.BeginGetResponse( ResponseCallback, new HeartbeatRequestState {
-                Request = request,
-                GetServerUri = true,
-                Data = data
-            } );
+            var state = new HeartbeatRequestState( request, data, true );
+            request.BeginGetResponse( ResponseCallback, state );
         }
 
 
@@ -94,11 +88,8 @@ namespace fCraft {
                 return;
             }
             HttpWebRequest request = CreateRequest( data.CreateUri() );
-            request.BeginGetResponse( ResponseCallback, new HeartbeatRequestState {
-                Request = request,
-                GetServerUri = false,
-                Data = data
-            } );
+            var state = new HeartbeatRequestState( request, data, false );
+            request.BeginGetResponse( ResponseCallback, state );
         }
 
 
@@ -233,9 +224,14 @@ namespace fCraft {
 
 
         sealed class HeartbeatRequestState {
-            public HttpWebRequest Request;
-            public HeartbeatData Data;
-            public bool GetServerUri;
+            public HeartbeatRequestState( HttpWebRequest request, HeartbeatData data, bool getServerUri ) {
+                Request = request;
+                Data = data;
+                GetServerUri = getServerUri;
+            }
+            public readonly HttpWebRequest Request;
+            public readonly HeartbeatData Data;
+            public readonly bool GetServerUri;
         }
     }
 

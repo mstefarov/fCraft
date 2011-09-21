@@ -11,6 +11,7 @@ namespace fCraft {
     [DebuggerDisplay( "Count = {Count}" )]
     public struct MetadataEntry<T> where T : class {
         string group;
+        [NotNull]
         public string Group {
             get { return group; }
             set {
@@ -20,6 +21,7 @@ namespace fCraft {
         }
 
         string key;
+        [NotNull]
         public string Key {
             get { return key; }
             set {
@@ -29,6 +31,7 @@ namespace fCraft {
         }
 
         T value;
+        [NotNull]
         public T Value {
             get { return value; }
             set {
@@ -96,7 +99,9 @@ namespace fCraft {
         }
 
 
-        public bool Remove( string group, string key ) {
+        public bool Remove( [NotNull] string group, [NotNull] string key ) {
+            if( group == null ) throw new ArgumentNullException( "group" );
+            if( key == null ) throw new ArgumentNullException( "key" );
             Dictionary<string, T> pair;
             lock( syncRoot ) {
                 if( !store.TryGetValue( group, out pair ) ) return false;
@@ -112,11 +117,15 @@ namespace fCraft {
 
         #region Index / Get / Set
 
-        public T this[string group, string key] {
+        public T this[ [NotNull] string group, [NotNull] string key] {
             get {
+                if( group == null ) throw new ArgumentNullException( "group" );
+                if( key == null ) throw new ArgumentNullException( "key" );
                 return GetValue( group, key );
             }
             set {
+                if( group == null ) throw new ArgumentNullException( "group" );
+                if( key == null ) throw new ArgumentNullException( "key" );
                 SetValue( group, key, value );
             }
         }

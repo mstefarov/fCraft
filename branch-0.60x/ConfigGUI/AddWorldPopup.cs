@@ -11,6 +11,7 @@ using System.Threading;
 using System.Windows.Forms;
 using fCraft.GUI;
 using fCraft.MapConversion;
+using JetBrains.Annotations;
 
 
 namespace fCraft.ConfigGUI {
@@ -107,7 +108,6 @@ namespace fCraft.ConfigGUI {
 
 
         void LoadMap( object sender, EventArgs args ) {
-
             // Fill in the "Copy existing world" combobox
             foreach( WorldListEntry otherWorld in MainForm.Worlds ) {
                 if( otherWorld != World ) {
@@ -143,6 +143,18 @@ namespace fCraft.ConfigGUI {
                 cBuild.SelectedItem = World.BuildPermission;
                 cBackup.SelectedItem = World.Backup;
                 xHidden.Checked = World.Hidden;
+
+                switch( World.BlockDBEnabled ) {
+                    case YesNoAuto.Auto:
+                        xBlockDB.CheckState = CheckState.Indeterminate;
+                        break;
+                    case YesNoAuto.Yes:
+                        xBlockDB.CheckState = CheckState.Checked;
+                        break;
+                    case YesNoAuto.No:
+                        xBlockDB.CheckState = CheckState.Unchecked;
+                        break;
+                }
             }
 
             // Disable "copy" tab if there are no other worlds
@@ -169,7 +181,7 @@ namespace fCraft.ConfigGUI {
         }
 
 
-        #region Loading/Saving
+        #region Loading/Saving Map
 
         void StartLoadingMap() {
             Map = null;
@@ -230,10 +242,11 @@ namespace fCraft.ConfigGUI {
                 bShow.Enabled = true;
             }
         }
+
         #endregion Loading
 
 
-        #region Preview
+        #region Map Preview
 
         IsoCat renderer;
 
@@ -301,7 +314,7 @@ namespace fCraft.ConfigGUI {
         #endregion
 
 
-        #region Generation
+        #region Map Generation
 
         MapGeneratorArgs generatorArgs = new MapGeneratorArgs();
 
@@ -928,6 +941,20 @@ Could not load more information:
 
         private void xAddBeaches_CheckedChanged( object sender, EventArgs e ) {
             gBeaches.Visible = xAdvanced.Checked && xAddBeaches.Checked;
+        }
+
+        private void xBlockDB_CheckedChanged( object sender, EventArgs e ) {
+            switch( xBlockDB.CheckState ) {
+                case CheckState.Indeterminate:
+                    World.BlockDBEnabled = YesNoAuto.Auto;
+                    break;
+                case CheckState.Checked:
+                    World.BlockDBEnabled = YesNoAuto.Yes;
+                    break;
+                case CheckState.Unchecked:
+                    World.BlockDBEnabled = YesNoAuto.No;
+                    break;
+            }
         }
     }
 }

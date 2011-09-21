@@ -54,7 +54,7 @@ namespace fCraft {
         public static CommandDescriptor[] GetCommands( CommandCategory category, bool includeHidden ) {
             return Commands.Values
                            .Where( cmd => (includeHidden || !cmd.IsHidden) &&
-                                           (cmd.Category & category) == category )
+                                          (cmd.Category & category) == category )
                            .ToArray();
         }
 

@@ -45,7 +45,7 @@
             this.lSubstitute.AutoSize = true;
             this.lSubstitute.Location = new System.Drawing.Point( 12, 69 );
             this.lSubstitute.Name = "lSubstitute";
-            this.lSubstitute.Size = new System.Drawing.Size( 84, 13 );
+            this.lSubstitute.Size = new System.Drawing.Size( 81, 13 );
             this.lSubstitute.TabIndex = 1;
             this.lSubstitute.Text = "Substitute rank:";
             // 
@@ -56,18 +56,18 @@
             this.cSubstitute.Location = new System.Drawing.Point( 102, 66 );
             this.cSubstitute.Name = "cSubstitute";
             this.cSubstitute.Size = new System.Drawing.Size( 121, 21 );
-            this.cSubstitute.TabIndex = 0;
+            this.cSubstitute.TabIndex = 2;
             this.cSubstitute.SelectedIndexChanged += new System.EventHandler( this.cSubstitute_SelectedIndexChanged );
             // 
             // bDelete
             // 
             this.bDelete.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.bDelete.Enabled = false;
-            this.bDelete.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.bDelete.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.bDelete.Location = new System.Drawing.Point( 203, 112 );
             this.bDelete.Name = "bDelete";
             this.bDelete.Size = new System.Drawing.Size( 100, 25 );
-            this.bDelete.TabIndex = 1;
+            this.bDelete.TabIndex = 3;
             this.bDelete.Text = "Delete";
             this.bDelete.UseVisualStyleBackColor = true;
             // 
@@ -77,7 +77,7 @@
             this.bCancel.Location = new System.Drawing.Point( 309, 112 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 25 );
-            this.bCancel.TabIndex = 2;
+            this.bCancel.TabIndex = 4;
             this.bCancel.Text = "Cancel";
             this.bCancel.UseVisualStyleBackColor = true;
             // 

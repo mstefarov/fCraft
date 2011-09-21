@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
@@ -179,7 +180,8 @@ namespace fCraft {
         }
 
 
-        public static int ParseToIndex( string color ) {
+        public static int ParseToIndex( [NotNull] string color ) {
+            if( color == null ) throw new ArgumentNullException( "color" );
             color = color.ToLower();
             if( color.Length == 2 && color[0] == '&' ) {
                 if( ColorNames.ContainsKey( color[1] ) ) {
@@ -214,7 +216,8 @@ namespace fCraft {
             return (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f') || (code >= 'A' && code <= 'F');
         }
 
-        public static void ReplacePercentCodes( StringBuilder sb ) {
+        public static void ReplacePercentCodes( [NotNull] StringBuilder sb ) {
+            if( sb == null ) throw new ArgumentNullException( "sb" );
             sb.Replace( "%0", "&0" );
             sb.Replace( "%1", "&1" );
             sb.Replace( "%2", "&2" );
@@ -239,14 +242,16 @@ namespace fCraft {
             sb.Replace( "%F", "&f" );
         }
 
-        public static string ReplacePercentCodes( string message ) {
+        public static string ReplacePercentCodes( [NotNull] string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
             StringBuilder sb = new StringBuilder( message );
             ReplacePercentCodes( sb );
             return sb.ToString();
         }
 
 
-        public static string SubstituteSpecialColors( string input ) {
+        public static string SubstituteSpecialColors( [NotNull] string input ) {
+            if( input == null ) throw new ArgumentNullException( "input" );
             StringBuilder sb = new StringBuilder( input );
             for( int i = sb.Length - 1; i > 0; i-- ) {
                 if( sb[i - 1] == '&' ) {
@@ -297,12 +302,14 @@ namespace fCraft {
         };
 
 
-        public static string EscapeAmpersands( string input ) {
+        public static string EscapeAmpersands( [NotNull] string input ) {
+            if( input == null ) throw new ArgumentNullException( "input" );
             return input.Replace( "&", "&&" );
         }
 
 
-        public static string ToIRCColorCodes( string input ) {
+        public static string ToIRCColorCodes( [NotNull] string input ) {
+            if( input == null ) throw new ArgumentNullException( "input" );
             StringBuilder sb = new StringBuilder( SubstituteSpecialColors( input ) );
 
             foreach( KeyValuePair<string, IRCColor> code in MinecraftToIRCColors ) {

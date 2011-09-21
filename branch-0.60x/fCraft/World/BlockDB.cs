@@ -8,6 +8,12 @@ using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    public enum YesNoAuto {
+        Auto,
+        Yes,
+        No
+    }
+
     public unsafe sealed class BlockDB {
 
         public BlockDB( [NotNull] World world ) {
@@ -22,27 +28,42 @@ namespace fCraft {
         public World World { get; set; }
 
 
-        bool enabled;
-        public bool Enabled {
-            get { return enabled; }
+        YesNoAuto enabledState;
+        public YesNoAuto EnabledState {
+            get { return enabledState; }
             set {
-                if( value == enabled ) return;
-
-                if( value ) {
+                if( value != enabledState ) {
+                    Logger.Log( "BlockDB({0}): Enabled={1}", LogType.Debug, World.Name, value );
+                }
+                if( value == YesNoAuto.No && Enabled ) {
+                    Flush();
+                    CacheClear();
+                    Enabled = false;
+                } else if( !Enabled && (value == YesNoAuto.Yes || value == YesNoAuto.Auto && ShouldBeAutoEnabled) ) {
                     cacheStore = new BlockDBEntry[MinCacheSize];
                     if( isPreloaded ) {
                         Preload();
                     }
+                    Enabled = true;
                 }
-
-                if( value == false ) {
-                    Flush();
-                    CacheClear();
-                }
-                Logger.Log( "BlockDB({0}): Enabled={1}", LogType.Debug, World.Name, value );
-                enabled = value;
+                enabledState = value;
             }
         }
+
+
+        public void CheckIfShouldBeAutoEnabled() {
+            EnabledState = enabledState;
+        }
+
+
+        public bool ShouldBeAutoEnabled {
+            get {
+                return (World.BuildSecurity.MinRank <= RankManager.BlockDBAutoEnableRank);
+            }
+        }
+
+
+        public bool Enabled { get; private set; }
 
 
         [NotNull]
@@ -517,7 +538,7 @@ namespace fCraft {
         #region Serialization
 
         public const string XmlRootName = "BlockDB";
-        public XElement Serialize() {
+        public XElement SaveSettings() {
             XElement root = new XElement( XmlRootName );
             root.Add( new XAttribute( "preload", IsPreloaded ) );
             if( HasLimit ) {
@@ -527,6 +548,52 @@ namespace fCraft {
                 root.Add( new XAttribute( "timeLimit", (int)TimeLimit.TotalSeconds ) );
             }
             return root;
+        }
+
+        public void LoadSettings( XElement el ) {
+            XAttribute temp;
+            if( (temp = el.Attribute( "enabled" )) != null ) {
+                YesNoAuto enabledStateTemp;
+                if( EnumUtil.TryParse( temp.Value, out enabledStateTemp ) ) {
+                    EnabledState = enabledStateTemp;
+                } else {
+                    Logger.Log( "WorldManager: Could not parse BlockDB \"enabled\" attribute of world \"{0}\", assuming AUTO.",
+                                LogType.Warning,
+                                World.Name );
+                    EnabledState = YesNoAuto.Auto;
+                }
+            }
+
+            if( (temp = el.Attribute( "preload" )) != null ) {
+                bool isPreloadedTemp;
+                if( Boolean.TryParse( temp.Value, out isPreloadedTemp ) ) {
+                    IsPreloaded = isPreloadedTemp;
+                } else {
+                    Logger.Log( "WorldManager: Could not parse BlockDB \"preload\" attribute of world \"{0}\", assuming NOT preloaded.",
+                                LogType.Warning,
+                                World.Name );
+                }
+            }
+            if( (temp = el.Attribute( "limit" )) != null ) {
+                int limitTemp;
+                if( Int32.TryParse( temp.Value, out limitTemp ) ) {
+                    Limit = limitTemp;
+                } else {
+                    Logger.Log( "WorldManager: Could not parse BlockDB \"limit\" attribute of world \"{0}\", assuming NO limit.",
+                                LogType.Warning,
+                                World.Name );
+                }
+            }
+            if( (temp = el.Attribute( "timeLimit" )) != null ) {
+                int timeLimitSeconds;
+                if( Int32.TryParse( temp.Value, out timeLimitSeconds ) ) {
+                    TimeLimit = TimeSpan.FromSeconds( timeLimitSeconds );
+                } else {
+                    Logger.Log( "WorldManager: Could not parse BlockDB \"timeLimit\" attribute of world \"{0}\", assuming NO time limit.",
+                                LogType.Warning,
+                                World.Name );
+                }
+            }
         }
 
         #endregion

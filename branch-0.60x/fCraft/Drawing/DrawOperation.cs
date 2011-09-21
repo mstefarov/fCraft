@@ -9,7 +9,6 @@ using System.Collections.Generic;
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable MemberCanBeProtected.Global
 namespace fCraft.Drawing {
-
     public abstract class DrawOperation {
         [NotNull]
         public readonly Player Player;

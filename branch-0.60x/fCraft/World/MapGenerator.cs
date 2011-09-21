@@ -114,7 +114,8 @@ namespace fCraft {
         }
 
 
-        void ReportProgress( int relativeIncrease, string message ) {
+        void ReportProgress( int relativeIncrease, [NotNull] string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
             var h = ProgressChanged;
             if( h != null ) {
                 h( this, new ProgressChangedEventArgs( ( 100 * progressRunningTotal / progressTotalEstimate ), message ) );
@@ -582,7 +583,8 @@ namespace fCraft {
         #endregion
 
 
-        void AddBeaches( Map map ) {
+        void AddBeaches( [NotNull] Map map ) {
+            if( map == null ) throw new ArgumentNullException( "map" );
             int beachExtentSqr = (args.BeachExtent + 1) * (args.BeachExtent + 1);
             for( int x = 0; x < map.Width; x++ ) {
                 for( int y = 0; y < map.Length; y++ ) {
@@ -618,7 +620,8 @@ namespace fCraft {
         }
 
 
-        public void GenerateTrees( Map map ) {
+        void GenerateTrees( [NotNull] Map map ) {
+            if( map == null ) throw new ArgumentNullException( "map" );
             int minHeight = args.TreeHeightMin;
             int maxHeight = args.TreeHeightMax;
             int minTrunkPadding = args.TreeSpacingMin;
@@ -673,7 +676,7 @@ namespace fCraft {
 
         #region Themes / Templates
 
-        public void ApplyTheme( MapGenTheme theme ) {
+        void ApplyTheme( MapGenTheme theme ) {
             args.Theme = theme;
             switch( theme ) {
                 case MapGenTheme.Arctic:

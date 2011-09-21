@@ -248,7 +248,8 @@ namespace fCraft {
         }
 
 
-        public void PerlinNoise( float[,] map, int startOctave, int endOctave, float decay, int offsetX, int offsetY ) {
+        public void PerlinNoise( [NotNull] float[,] map, int startOctave, int endOctave, float decay, int offsetX, int offsetY ) {
+            if( map == null ) throw new ArgumentNullException( "map" );
             float maxDim = 1f / Math.Max( map.GetLength( 0 ), map.GetLength( 1 ) );
             for( int x = map.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = map.GetLength( 1 ) - 1; y >= 0; y-- ) {
@@ -258,7 +259,8 @@ namespace fCraft {
         }
 
 
-        public void PerlinNoise( float[, ,] map, int startOctave, int endOctave, float decay, int offsetX, int offsetY, int offsetZ ) {
+        public void PerlinNoise( [NotNull] float[, ,] map, int startOctave, int endOctave, float decay, int offsetX, int offsetY, int offsetZ ) {
+            if( map == null ) throw new ArgumentNullException( "map" );
             float maxDim = 1f / Math.Max( map.GetLength( 0 ), Math.Max( map.GetLength( 2 ), map.GetLength( 1 ) ) );
             for( int x = map.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = map.GetLength( 1 ) - 1; y >= 0; y-- ) {
@@ -344,7 +346,8 @@ namespace fCraft {
 
 
         // assumes normalized input
-        public unsafe static void Marble( float[,] map ) {
+        public unsafe static void Marble( [NotNull] float[,] map ) {
+            if( map == null ) throw new ArgumentNullException( "map" );
             fixed( float* ptr = map ) {
                 for( int i = 0; i < map.Length; i++ ) {
                     ptr[i] = Math.Abs( ptr[i] * 2 - 1 );
@@ -352,7 +355,9 @@ namespace fCraft {
             }
         }
 
-        public unsafe static void Marble( float[,,] map ) {
+
+        public unsafe static void Marble( [NotNull] float[,,] map ) {
+            if( map == null ) throw new ArgumentNullException( "map" );
             fixed( float* ptr = map ) {
                 for( int i = 0; i < map.Length; i++ ) {
                     ptr[i] = Math.Abs( ptr[i] * 2 - 1 );
@@ -389,7 +394,8 @@ namespace fCraft {
         }
 
 
-        public static void ApplyBias( float[,] data, float c00, float c01, float c10, float c11, float midpoint ) {
+        public static void ApplyBias( [NotNull] float[,] data, float c00, float c01, float c10, float c11, float midpoint ) {
+            if( data == null ) throw new ArgumentNullException( "data" );
             float maxX = 2f / data.GetLength( 0 );
             float maxY = 2f / data.GetLength( 1 );
             int offsetX = data.GetLength( 0 ) / 2;
@@ -407,7 +413,8 @@ namespace fCraft {
 
 
         // assumes normalized input
-        public unsafe static void ScaleAndClip( float[,] data, float steepness ) {
+        public unsafe static void ScaleAndClip( [NotNull] float[,] data, float steepness ) {
+            if( data == null ) throw new ArgumentNullException( "data" );
             fixed( float* ptr = data ) {
                 for( int i = 0; i < data.Length; i++ ) {
                     ptr[i] = Math.Min( 1, Math.Max( 0, ptr[i] * steepness * 2 - steepness ) );
@@ -416,7 +423,8 @@ namespace fCraft {
         }
 
 
-        public unsafe static void Invert( float[,] data ) {
+        public unsafe static void Invert( [NotNull] float[,] data ) {
+            if( data == null ) throw new ArgumentNullException( "data" );
             fixed( float* ptr = data ) {
                 for( int i = 0; i < data.Length; i++ ) {
                     ptr[i] = 1 - ptr[i];
@@ -426,7 +434,8 @@ namespace fCraft {
 
 
         const float BoxBlurDivisor = 1 / 23f;
-        public static float[,] BoxBlur( float[,] heightmap ) {
+        public static float[,] BoxBlur( [NotNull] float[,] heightmap ) {
+            if( heightmap == null ) throw new ArgumentNullException( "heightmap" );
             float[,] output = new float[heightmap.GetLength( 0 ), heightmap.GetLength( 1 )];
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
@@ -444,7 +453,8 @@ namespace fCraft {
 
 
         const float GaussianBlurDivisor = 1 / 273f;
-        public static float[,] GaussianBlur5X5( float[,] heightmap ) {
+        public static float[,] GaussianBlur5X5( [NotNull] float[,] heightmap ) {
+            if( heightmap == null ) throw new ArgumentNullException( "heightmap" );
             float[,] output = new float[heightmap.GetLength( 0 ), heightmap.GetLength( 1 )];
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
@@ -463,7 +473,8 @@ namespace fCraft {
         }
 
 
-        public static float[,] CalculateSlope( float[,] heightmap ) {
+        public static float[,] CalculateSlope( [NotNull] float[,] heightmap ) {
+            if( heightmap == null ) throw new ArgumentNullException( "heightmap" );
             float[,] output = new float[heightmap.GetLength( 0 ), heightmap.GetLength( 1 )];
 
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
@@ -490,7 +501,8 @@ namespace fCraft {
 
         const int ThresholdSearchPasses = 10;
 
-        public unsafe static float FindThreshold( float[,] data, float desiredCoverage ) {
+        public unsafe static float FindThreshold( [NotNull] float[,] data, float desiredCoverage ) {
+            if( data == null ) throw new ArgumentNullException( "data" );
             if( desiredCoverage == 0 ) return 0;
             if( desiredCoverage == 1 ) return 1;
             float threshold = 0.5f;
@@ -508,7 +520,8 @@ namespace fCraft {
         }
 
 
-        public unsafe static float FindThreshold( float[,,] data, float desiredCoverage ) {
+        public unsafe static float FindThreshold( [NotNull] float[,,] data, float desiredCoverage ) {
+            if( data == null ) throw new ArgumentNullException( "data" );
             if( desiredCoverage == 0 ) return 0;
             if( desiredCoverage == 1 ) return 1;
             float threshold = 0.5f;
@@ -526,7 +539,8 @@ namespace fCraft {
         }
 
 
-        public unsafe static float CalculateCoverage( float* data, int length, float threshold ) {
+        public unsafe static float CalculateCoverage( [NotNull] float* data, int length, float threshold ) {
+            if( data == null ) throw new ArgumentNullException( "data" );
             int coveredVoxels = 0;
             float* end = data + length;
             while( data < end ) {
