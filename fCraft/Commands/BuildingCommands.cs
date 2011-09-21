@@ -1367,13 +1367,13 @@ namespace fCraft {
         };
 
         static void UndoXHandler( Player player, Command cmd ) {
-            if( !BlockDB.IsEnabled ) {
+            if( !BlockDB.IsEnabledGlobally ) {
                 player.Message( "&WBlockDB is disabled on this server." );
                 return;
             }
 
             World world = player.World;
-            if( !world.BlockDB.Enabled ) {
+            if( !world.BlockDB.IsEnabled ) {
                 player.Message( "&WBlockDB is disabled in this world." );
                 return;
             }

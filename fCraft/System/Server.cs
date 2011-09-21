@@ -482,7 +482,7 @@ namespace fCraft {
                     lock( WorldManager.WorldListLock ) {
                         // unload all worlds (includes saving)
                         foreach( World world in WorldManager.WorldList ) {
-                            if( world.BlockDB.Enabled ) world.BlockDB.Flush();
+                            if( world.BlockDB.IsEnabled ) world.BlockDB.Flush();
                             world.SaveMap();
                         }
                     }
