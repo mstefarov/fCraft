@@ -141,7 +141,7 @@ namespace fCraft {
      * 
      * 147 - r926 - Renamed EnableBlockDB to BlockDBEnabled
      * 
-     * 148 - r1015 - Added BlockDBAutoEnable and BlockDBAutoEnableRank keys
+     * 148 - r1014 - Added BlockDBAutoEnable and BlockDBAutoEnableRank keys
      *               Moved BlockDBEnabled to Security ConfigSection
      * 
      */
