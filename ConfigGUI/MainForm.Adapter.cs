@@ -72,11 +72,16 @@ namespace fCraft.ConfigGUI {
                 XElement root = doc.Root;
 
                 string errorLog = "";
-                foreach( XElement el in root.Elements( "World" ) ) {
-                    try {
-                        Worlds.Add( new WorldListEntry( el ) );
-                    } catch( Exception ex ) {
-                        errorLog += ex + Environment.NewLine;
+                using( LogRecorder logRecorder = new LogRecorder() ) {
+                    foreach( XElement el in root.Elements( "World" ) ) {
+                        try {
+                            Worlds.Add( new WorldListEntry( el ) );
+                        } catch( Exception ex ) {
+                            errorLog += ex + Environment.NewLine;
+                        }
+                    }
+                    if( logRecorder.HasMessages ) {
+                        MessageBox.Show( logRecorder.MessageString, "World list loading warnings." );
                     }
                 }
                 if( errorLog.Length > 0 ) {
