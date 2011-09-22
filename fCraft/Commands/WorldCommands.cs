@@ -193,14 +193,12 @@ namespace fCraft {
                         if( db.EnabledState == YesNoAuto.Auto ) {
                             player.Message( "BlockDB is already set to automatically enable/disable itself on world {0}", world.ClassyName );
                         } else {
+                            db.EnabledState = YesNoAuto.Auto;
+                            WorldManager.SaveWorldList();
                             if( db.IsEnabled ) {
-                                db.EnabledState = YesNoAuto.Auto;
-                                WorldManager.SaveWorldList();
                                 player.Message( "BlockDB is now automatically enabled on world {0}&S.",
                                                 world.ClassyName );
                             } else {
-                                db.EnabledState = YesNoAuto.Auto;
-                                WorldManager.SaveWorldList();
                                 player.Message( "BlockDB is now automatically disabled on world {0}&S.",
                                                 world.ClassyName );
                             }
@@ -1744,7 +1742,7 @@ namespace fCraft {
                             Logger.Log( "{0} created a new world named \"{1}\" (loaded from \"{2}\")", LogType.UserActivity,
                                         player.Name, worldName, fileName );
                             WorldManager.SaveWorldList();
-                            player.MessageNow( "Reminder: New world's access permission is {0}+&S, and build permission is {1}+",
+                            player.MessageNow( "Access permission is {0}+&S, and build permission is {1}+",
                                 // ReSharper disable PossibleNullReferenceException
                                                newWorld.AccessSecurity.MinRank.ClassyName,
                                 // ReSharper restore PossibleNullReferenceException

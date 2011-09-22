@@ -617,11 +617,11 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
 
             FillRankList( cDefaultRank, "(lowest rank)" );
             cDefaultRank.SelectedIndex = RankManager.GetIndex( RankManager.DefaultRank );
-            FillRankList( cDefaultBuildRank, "(lowest rank)" );
+            FillRankList( cDefaultBuildRank, "(default rank)" );
             cDefaultBuildRank.SelectedIndex = RankManager.GetIndex( RankManager.DefaultBuildRank );
-            FillRankList( cPatrolledRank, "(lowest rank)" );
+            FillRankList( cPatrolledRank, "(default rank)" );
             cPatrolledRank.SelectedIndex = RankManager.GetIndex( RankManager.PatrolledRank );
-            FillRankList( cBlockDBAutoEnableRank, "(lowest rank)" );
+            FillRankList( cBlockDBAutoEnableRank, "(default rank)" );
             cBlockDBAutoEnableRank.SelectedIndex = RankManager.GetIndex( RankManager.BlockDBAutoEnableRank );
 
             foreach( var box in permissionLimitBoxes.Values ) {
