@@ -55,8 +55,10 @@ namespace fCraft {
         }
 
 
-        public void CheckIfShouldBeAutoEnabled() {
+        public bool CheckIfShouldBeAutoEnabled() {
+            bool oldEnabled = IsEnabled;
             EnabledState = enabledState;
+            return (oldEnabled != IsEnabled);
         }
 
 

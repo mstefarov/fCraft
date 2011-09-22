@@ -515,20 +515,20 @@ namespace fCraft {
                     break;
                 case BanStatus.IPBanExempt:
                     if( addExemption ) {
-                        player.Message( "IP-Ban exemption already exists for player {0}&S.", target.ClassyName );
+                        player.Message( "IP-Ban exemption already exists for player {0}", target.ClassyName );
                     } else {
-                        player.Message( "IP-Ban exemption removed for player {0}&S.",
+                        player.Message( "IP-Ban exemption removed for player {0}",
                                         target.ClassyName );
                         target.BanStatus = BanStatus.NotBanned;
                     }
                     break;
                 case BanStatus.NotBanned:
                     if( addExemption ) {
-                        player.Message( "IP-Ban exemption added for player {0}&S.",
+                        player.Message( "IP-Ban exemption added for player {0}",
                                         target.ClassyName );
                         target.BanStatus = BanStatus.IPBanExempt;
                     } else {
-                        player.Message( "No IP-Ban exemption exists for player {0}&S.",
+                        player.Message( "No IP-Ban exemption exists for player {0}",
                                         target.ClassyName );
                     }
                     break;
@@ -1180,7 +1180,7 @@ namespace fCraft {
                                 player.JoinWorld( target.World, WorldChangeReason.Tp, target.Position );
                                 break;
                             case SecurityCheckResult.BlackListed:
-                                player.Message( "Cannot teleport to {0}&S because you are blacklisted on world {1}&S.",
+                                player.Message( "Cannot teleport to {0}&S because you are blacklisted on world {1}",
                                                 target.ClassyName,
                                                 target.World.ClassyName );
                                 break;
