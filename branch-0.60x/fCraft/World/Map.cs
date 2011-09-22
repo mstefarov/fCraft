@@ -128,7 +128,6 @@ namespace fCraft {
         /// <summary> Saves this map to a file in the default format (FCMv3). </summary>
         /// <returns> Whether the saving succeeded. </returns>
         public bool Save( [NotNull] string fileName ) {
-            // ReSharper disable EmptyGeneralCatchClause
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             string tempFileName = fileName + ".temp";
 
@@ -143,7 +142,8 @@ namespace fCraft {
                 HasChangedSinceSave = true;
                 Logger.Log( "Map.Save: Unable to open file \"{0}\" for writing: {1}", LogType.Error,
                                tempFileName, ex );
-                try { File.Delete( tempFileName ); } catch { }
+                if( File.Exists( tempFileName ) ) 
+                    File.Delete( tempFileName );
                 return false;
             }
 
@@ -158,7 +158,8 @@ namespace fCraft {
                 HasChangedSinceSave = true;
                 Logger.Log( "Error trying to replace file \"{0}\": {1}", LogType.Error,
                             fileName, ex );
-                try { File.Delete( tempFileName ); } catch { }
+                if( File.Exists( tempFileName ) )
+                    File.Delete( tempFileName );
                 return false;
             }
             return true;
