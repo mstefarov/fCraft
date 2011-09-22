@@ -968,7 +968,7 @@ namespace fCraft {
             Permissions = new[] { Permission.CopyAndPaste },
             Help = "Flips copied blocks along specified axis/axes. " +
                    "The axes are: X = horizontal (east-west), Y = horizontal (north-south), Z = vertical. " +
-                   "You can mirror more than one axis at a time, e.g. &H/copymirror X Y&S.",
+                   "You can mirror more than one axis at a time, e.g. &H/copymirror X Y",
             Usage = "/mirror [X] [Y] [Z]",
             Handler = MirrorHandler
         };

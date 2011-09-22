@@ -185,7 +185,7 @@ namespace fCraft {
                             db.EnabledState = YesNoAuto.No;
                             WorldManager.SaveWorldList();
                             player.Message( "BlockDB is was auto-disabled, and is now manually disabled on world {0}&S.",
-                                            world.ClassyName, world.Name );
+                                            world.ClassyName );
                         }
                         break;
 
@@ -196,10 +196,10 @@ namespace fCraft {
                             db.EnabledState = YesNoAuto.Auto;
                             WorldManager.SaveWorldList();
                             if( db.IsEnabled ) {
-                                player.Message( "BlockDB is now automatically enabled on world {0}&S.",
+                                player.Message( "BlockDB is now auto-enabled on world {0}",
                                                 world.ClassyName );
                             } else {
-                                player.Message( "BlockDB is now automatically disabled on world {0}&S.",
+                                player.Message( "BlockDB is now auto-disabled on world {0}",
                                                 world.ClassyName );
                             }
                         }
@@ -1352,7 +1352,15 @@ namespace fCraft {
 
                         // apply changes
                         world.BuildSecurity.MinRank = rank;
-                        world.BlockDB.CheckIfShouldBeAutoEnabled();
+                        if( BlockDB.IsEnabledGlobally && world.BlockDB.CheckIfShouldBeAutoEnabled() ) {
+                            if( world.BlockDB.IsEnabled ) {
+                                player.Message( "BlockDB is now auto-enabled on world {0}",
+                                                world.ClassyName );
+                            } else {
+                                player.Message( "BlockDB is now auto-disabled on world {0}",
+                                                world.ClassyName );
+                            }
+                        }
                         changesWereMade = true;
                         if( world.BuildSecurity.MinRank == RankManager.LowestRank ) {
                             Server.Message( "{0}&S allowed anyone to build on world {1}",
@@ -1735,6 +1743,9 @@ namespace fCraft {
                             newWorld.BuildSecurity.MinRank = buildRank;
                             newWorld.AccessSecurity.MinRank = accessRank;
                             newWorld.BlockDB.CheckIfShouldBeAutoEnabled();
+                            if( BlockDB.IsEnabledGlobally && newWorld.BlockDB.IsEnabled ) {
+                                player.Message( "BlockDB is now auto-enabled on world {0}", newWorld.ClassyName );
+                            }
                             newWorld.LoadedBy = player.Name;
                             newWorld.LoadedOn = DateTime.UtcNow;
                             Server.Message( "{0}&S created a new world named {1}",
