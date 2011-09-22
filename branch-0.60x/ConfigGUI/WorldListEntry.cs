@@ -261,7 +261,7 @@ namespace fCraft.ConfigGUI {
             blockDB.Add( new XAttribute( "enabled", BlockDBEnabled ) );
             blockDB.Add( new XAttribute( "preload", blockDBIsPreloaded ) );
             blockDB.Add( new XAttribute( "limit", blockDBLimit ) );
-            blockDB.Add( new XAttribute( "timeLimit", blockDBTimeLimit.ToTickString() ) );
+            blockDB.Add( new XAttribute( "timeLimit", (int)blockDBTimeLimit.TotalSeconds ) );
             element.Add( blockDB );
             return element;
         }

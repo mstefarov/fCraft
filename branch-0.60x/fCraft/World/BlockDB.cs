@@ -32,21 +32,25 @@ namespace fCraft {
         public YesNoAuto EnabledState {
             get { return enabledState; }
             set {
-                if( value != enabledState ) {
-                    Logger.Log( "BlockDB({0}): Enabled={1}", LogType.Debug, World.Name, value );
-                }
-                if( value == YesNoAuto.No && IsEnabled ) {
-                    Flush();
-                    CacheClear();
-                    IsEnabled = false;
-                } else if( !IsEnabled && (value == YesNoAuto.Yes || value == YesNoAuto.Auto && ShouldBeAutoEnabled) ) {
-                    cacheStore = new BlockDBEntry[MinCacheSize];
-                    if( isPreloaded ) {
-                        Preload();
+                lock( SyncRoot ) {
+                    if( IsEnabledGlobally ) {
+                        if( value != enabledState ) {
+                            Logger.Log( "BlockDB({0}): Enabled={1}", LogType.Debug, World.Name, value );
+                        }
+                        if( value == YesNoAuto.No && IsEnabled ) {
+                            Flush();
+                            CacheClear();
+                            IsEnabled = false;
+                        } else if( !IsEnabled && (value == YesNoAuto.Yes || value == YesNoAuto.Auto && ShouldBeAutoEnabled) ) {
+                            cacheStore = new BlockDBEntry[MinCacheSize];
+                            if( isPreloaded ) {
+                                Preload();
+                            }
+                            IsEnabled = true;
+                        }
                     }
-                    IsEnabled = true;
+                    enabledState = value;
                 }
-                enabledState = value;
             }
         }
 
@@ -58,7 +62,7 @@ namespace fCraft {
 
         public bool ShouldBeAutoEnabled {
             get {
-                return (World.BuildSecurity.MinRank <= RankManager.BlockDBAutoEnableRank);
+                return ( World.BuildSecurity.MinRank <= RankManager.BlockDBAutoEnableRank );
             }
         }
 
@@ -171,14 +175,16 @@ namespace fCraft {
             }
             set {
                 lock( SyncRoot ) {
-                    if( value == isPreloaded ) return;
-                    Flush();
-                    if( value && File.Exists( FileName ) ) {
-                        Preload();
-                    } else if( value == false ) {
-                        CacheClear();
+                    if( IsEnabledGlobally ) {
+                        if( value == isPreloaded ) return;
+                        Flush();
+                        if( value && File.Exists( FileName ) ) {
+                            Preload();
+                        } else if( value == false ) {
+                            CacheClear();
+                        }
+                        Logger.Log( "BlockDB({0}): Preloaded={1}", LogType.Debug, World.Name, value );
                     }
-                    Logger.Log( "BlockDB({0}): Preloaded={1}", LogType.Debug, World.Name, value );
                     isPreloaded = value;
                 }
             }
@@ -284,6 +290,7 @@ namespace fCraft {
                 }
             }
         }
+
         public bool HasLimit {
             get { return limit > 0; }
         }
@@ -311,7 +318,7 @@ namespace fCraft {
 
 
         void EnforceLimit() {
-            if( limit > 0 ) {
+            if( IsEnabled && limit > 0 ) {
                 int oldCap = CacheCapacity;
                 int oldSize = CacheSize;
                 if( isPreloaded ) {
@@ -326,7 +333,7 @@ namespace fCraft {
 
 
         void EnforceTimeLimit() {
-            if( timeLimit > TimeSpan.Zero ) {
+            if( IsEnabled && timeLimit > TimeSpan.Zero ) {
                 int oldCap = CacheCapacity;
                 int oldSize = CacheSize;
                 int newCapacity = CountNewerEntries( timeLimit );
@@ -431,6 +438,9 @@ namespace fCraft {
 
 
         internal BlockDBEntry[] Lookup( short x, short y, short z ) {
+            if( !IsEnabled || !IsEnabledGlobally ) {
+                throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
+            }
             List<BlockDBEntry> results = new List<BlockDBEntry>();
 
             if( isPreloaded ) {
@@ -462,6 +472,9 @@ namespace fCraft {
 
 
         internal BlockDBEntry[] Lookup( [NotNull] PlayerInfo info, int max ) {
+            if( !IsEnabled || !IsEnabledGlobally ) {
+                throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
+            }
             if( info == null ) throw new ArgumentNullException( "info" );
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
             int count = 0;
@@ -500,6 +513,9 @@ namespace fCraft {
 
 
         internal BlockDBEntry[] Lookup( [NotNull] PlayerInfo info, TimeSpan span ) {
+            if( !IsEnabled || !IsEnabledGlobally ) {
+                throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
+            }
             if( info == null ) throw new ArgumentNullException( "info" );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
@@ -540,6 +556,7 @@ namespace fCraft {
         public const string XmlRootName = "BlockDB";
         public XElement SaveSettings() {
             XElement root = new XElement( XmlRootName );
+            root.Add( new XAttribute( "enabled", EnabledState ) );
             root.Add( new XAttribute( "preload", IsPreloaded ) );
             if( HasLimit ) {
                 root.Add( new XAttribute( "limit", Limit ) );
