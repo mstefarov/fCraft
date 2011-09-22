@@ -630,9 +630,9 @@ namespace fCraft {
                 }
             } else {
                 player.MessageNow( "Generation done. Changing map..." );
-                player.World.ChangeMap( map );
                 player.World.MapChangedBy = player.Name;
                 player.World.MapChangedOn = DateTime.UtcNow;
+                player.World.ChangeMap( map );
             }
         }
 
@@ -1524,28 +1524,28 @@ namespace fCraft {
                 try {
                     map = MapUtility.LoadHeader( Path.Combine( Paths.MapPath, world.MapFileName ) );
                 } catch( Exception ex ) {
-                    player.Message( "Map information could not be loaded: {0}: {1}",
+                    player.Message( "  Map information could not be loaded: {0}: {1}",
                                     ex.GetType().Name, ex.Message );
                 }
             }
 
             if( map != null ) {
-                player.Message( "Map dimensions are {0} x {1} x {2}",
+                player.Message( "  Map dimensions are {0} x {1} x {2}",
                                 map.Width, map.Length, map.Height );
             }
 
             // Print access/build limits
-            player.Message( world.AccessSecurity.GetDescription( world, "world", "accessed" ) );
-            player.Message( world.BuildSecurity.GetDescription( world, "world", "modified" ) );
+            player.Message( "  " + world.AccessSecurity.GetDescription( world, "world", "accessed" ) );
+            player.Message( "  " + world.BuildSecurity.GetDescription( world, "world", "modified" ) );
 
             // Print lock/unlock information
             if( world.IsLocked ) {
-                player.Message( "{0}&S was locked {1} ago by {2}",
+                player.Message( "  {0}&S was locked {1} ago by {2}",
                                 world.ClassyName,
                                 DateTime.UtcNow.Subtract( world.LockedDate ).ToMiniString(),
                                 world.LockedBy );
             } else if( world.UnlockedBy != null ) {
-                player.Message( "{0}&S was unlocked {1} ago by {2}",
+                player.Message( "  {0}&S was unlocked {1} ago by {2}",
                                 world.ClassyName,
                                 DateTime.UtcNow.Subtract( world.UnlockedDate ).ToMiniString(),
                                 world.UnlockedBy );
@@ -1633,9 +1633,9 @@ namespace fCraft {
                 }
 
                 // Loading to current world
-                player.World.ChangeMap( map );
                 player.World.MapChangedBy = player.Name;
                 player.World.MapChangedOn = DateTime.UtcNow;
+                player.World.ChangeMap( map );
 
                 player.World.Players.Message( player, "{0}&S loaded a new map for this world.",
                                               player.ClassyName );
@@ -1690,9 +1690,9 @@ namespace fCraft {
                         }
 
                         try {
-                            world.ChangeMap( map );
                             world.MapChangedBy = player.Name;
                             world.MapChangedOn = DateTime.UtcNow;
+                            world.ChangeMap( map );
                         } catch( WorldOpException ex ) {
                             Logger.Log( "Could not complete WorldLoad operation: {0}", LogType.Error, ex.Message );
                             player.Message( "&WWLoad: {0}", ex.Message );
