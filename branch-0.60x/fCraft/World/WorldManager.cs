@@ -277,6 +277,21 @@ namespace fCraft {
                         temp.Add( new XElement( "RankMainWorld", mainedRank.FullName ) );
                     }
 
+                    if( !String.IsNullOrEmpty( world.LoadedBy ) ) {
+                        temp.Add( new XElement( "LoadedBy", world.LoadedBy ) );
+                    }
+                    if( world.LoadedOn != DateTime.MinValue ) {
+                        temp.Add( new XElement( "LoadedBy", world.LoadedOn.ToUnixTime() ) );
+                    }
+
+
+                    if( !String.IsNullOrEmpty( world.MapChangedBy ) ) {
+                        temp.Add( new XElement( "MapChangedBy", world.MapChangedBy ) );
+                    }
+                    if( world.MapChangedOn != DateTime.MinValue ) {
+                        temp.Add( new XElement( "MapChangedOn", world.MapChangedOn.ToUnixTime() ) );
+                    }
+
                     root.Add( temp );
                 }
                 root.Add( new XAttribute( "main", MainWorld.Name ) );
