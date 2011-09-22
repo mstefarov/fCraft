@@ -309,6 +309,8 @@ namespace fCraft {
             Player.Console = new Player( ConfigKey.ConsoleName.GetString() );
             Player.AutoRank = new Player( "(AutoRank)" );
 
+            if( ConfigKey.BlockDBEnabled.Enabled() ) BlockDB.Init();
+
             // try to load the world list
             if( !WorldManager.LoadWorldList() ) return false;
             WorldManager.SaveWorldList();
@@ -418,8 +420,6 @@ namespace fCraft {
             if( ConfigKey.IRCBotEnabled.Enabled() ) IRC.Start();
 
             Scheduler.NewTask( AutoRankManager.TaskCallback ).RunForever( AutoRankManager.TickInterval );
-
-            if( ConfigKey.BlockDBEnabled.Enabled() ) BlockDB.Init();
 
             // start the main loop - server is now connectible
             Scheduler.Start();
