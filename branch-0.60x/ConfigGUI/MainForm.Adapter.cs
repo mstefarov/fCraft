@@ -211,7 +211,7 @@ namespace fCraft.ConfigGUI {
                 //dgvWorlds.DataSource = worlds;
             }
 
-            FillRankList( cDefaultBuildRank, "(lowest rank)" );
+            FillRankList( cDefaultBuildRank, "(default rank)" );
             if( ConfigKey.DefaultBuildRank.IsBlank() ) {
                 cDefaultBuildRank.SelectedIndex = 0;
             } else {
@@ -262,7 +262,7 @@ namespace fCraft.ConfigGUI {
             xAnnounceRankChangeReasons.Checked = ConfigKey.AnnounceRankChangeReasons.Enabled();
             xAnnounceRankChangeReasons.Enabled = xAnnounceRankChanges.Checked;
 
-            FillRankList( cPatrolledRank, "(lowest rank)" );
+            FillRankList( cPatrolledRank, "(default rank)" );
             if( ConfigKey.PatrolledRank.IsBlank() ) {
                 cPatrolledRank.SelectedIndex = 0;
             } else {
@@ -276,7 +276,7 @@ namespace fCraft.ConfigGUI {
             xBlockDBEnabled.Checked = ConfigKey.BlockDBEnabled.Enabled();
             xBlockDBAutoEnable.Checked = ConfigKey.BlockDBAutoEnable.Enabled();
 
-            FillRankList( cBlockDBAutoEnableRank, "(lowest rank)" );
+            FillRankList( cBlockDBAutoEnableRank, "(default rank)" );
             if( ConfigKey.BlockDBAutoEnableRank.IsBlank() ) {
                 cBlockDBAutoEnableRank.SelectedIndex = 0;
             } else {
