@@ -454,6 +454,14 @@ namespace fCraft {
                     Player.AntispamMessageCount = key.GetInt();
                     break;
 
+                case ConfigKey.DefaultBuildRank:
+                    RankManager.DefaultBuildRank = Rank.Parse( key.GetString() );
+                    break;
+
+                case ConfigKey.DefaultRank:
+                    RankManager.DefaultRank = Rank.Parse( key.GetString() );
+                    break;
+
                 case ConfigKey.BandwidthUseMode:
                     Player[] playerListCache = Server.Players;
                     if( playerListCache != null ) {
@@ -464,6 +472,10 @@ namespace fCraft {
                             }
                         }
                     }
+                    break;
+
+                case ConfigKey.BlockDBAutoEnableRank:
+                    RankManager.BlockDBAutoEnableRank = Rank.Parse( key.GetString() );
                     break;
 
                 case ConfigKey.BlockUpdateThrottling:
@@ -514,6 +526,10 @@ namespace fCraft {
                     } else {
                         Player.FullPositionUpdateInterval = Player.FullPositionUpdateIntervalDefault;
                     }
+                    break;
+
+                case ConfigKey.PatrolledRank:
+                    RankManager.PatrolledRank = Rank.Parse( key.GetString() );
                     break;
 
                 case ConfigKey.PrivateMessageColor:
