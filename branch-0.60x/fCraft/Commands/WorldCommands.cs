@@ -150,7 +150,7 @@ namespace fCraft {
                 switch( op.ToLower() ) {
                     case "on":
                         // enables BlockDB
-                        if( db.EnabledState == YesNoAuto.Yes) {
+                        if( db.EnabledState == YesNoAuto.Yes ) {
                             player.Message( "BlockDB is already manually enabled on world {0}", world.ClassyName );
 
                         } else if( db.EnabledState == YesNoAuto.Auto && db.IsEnabled ) {
@@ -158,7 +158,7 @@ namespace fCraft {
                             WorldManager.SaveWorldList();
                             player.Message( "BlockDB was auto-enabled, and is now manually enabled on world {0}", world.ClassyName );
 
-                        }else{
+                        } else {
                             db.EnabledState = YesNoAuto.Yes;
                             WorldManager.SaveWorldList();
                             player.Message( "BlockDB is now manually enabled on world {0}", world.ClassyName );
@@ -170,7 +170,7 @@ namespace fCraft {
                         if( db.EnabledState == YesNoAuto.No ) {
                             player.Message( "BlockDB is already manually disabled on world {0}", world.ClassyName );
 
-                        } else if( db.IsEnabled ){
+                        } else if( db.IsEnabled ) {
                             if( cmd.IsConfirmed ) {
                                 db.EnabledState = YesNoAuto.No;
                                 WorldManager.SaveWorldList();
@@ -631,6 +631,8 @@ namespace fCraft {
             } else {
                 player.MessageNow( "Generation done. Changing map..." );
                 player.World.ChangeMap( map );
+                player.World.MapChangedBy = player.Name;
+                player.World.MapChangedOn = DateTime.UtcNow;
             }
         }
 
@@ -1632,6 +1634,9 @@ namespace fCraft {
 
                 // Loading to current world
                 player.World.ChangeMap( map );
+                player.World.MapChangedBy = player.Name;
+                player.World.MapChangedOn = DateTime.UtcNow;
+
                 player.World.Players.Message( player, "{0}&S loaded a new map for this world.",
                                               player.ClassyName );
                 player.MessageNow( "New map loaded for the world {0}", player.World.ClassyName );
@@ -1686,6 +1691,8 @@ namespace fCraft {
 
                         try {
                             world.ChangeMap( map );
+                            world.MapChangedBy = player.Name;
+                            world.MapChangedOn = DateTime.UtcNow;
                         } catch( WorldOpException ex ) {
                             Logger.Log( "Could not complete WorldLoad operation: {0}", LogType.Error, ex.Message );
                             player.Message( "&WWLoad: {0}", ex.Message );
@@ -1730,6 +1737,8 @@ namespace fCraft {
                             newWorld.BuildSecurity.MinRank = buildRank;
                             newWorld.AccessSecurity.MinRank = accessRank;
                             newWorld.BlockDB.CheckIfShouldBeAutoEnabled();
+                            newWorld.LoadedBy = player.Name;
+                            newWorld.LoadedOn = DateTime.UtcNow;
                             Server.Message( "{0}&S created a new world named {1}",
                                               player.ClassyName, newWorld.ClassyName );
                             Logger.Log( "{0} created a new world named \"{1}\" (loaded from \"{2}\")", LogType.UserActivity,

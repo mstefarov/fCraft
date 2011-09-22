@@ -12,6 +12,7 @@ namespace fCraft.ConfigGUI {
     /// All these properties map directly to the UI controls.
     /// </summary>
     sealed class WorldListEntry : ICloneable {
+        public const string WorldInfoSignature = "(ConfigGUI)";
         public const string DefaultRankOption = "(everyone)";
         const string MapFileExtension = ".fcm";
 
@@ -35,6 +36,10 @@ namespace fCraft.ConfigGUI {
             blockDBTimeLimit = original.blockDBTimeLimit;
             accessSecurity = new SecurityController( original.accessSecurity );
             buildSecurity = new SecurityController( original.buildSecurity );
+            loadedBy = original.loadedBy;
+            loadedOn = original.loadedOn;
+            mapChangedBy = original.mapChangedBy;
+            mapChangedOn = original.mapChangedOn;
         }
 
 
@@ -130,7 +135,28 @@ namespace fCraft.ConfigGUI {
                     }
                 }
             }
+
+            if( (tempEl = el.Element( "LoadedBy" )) != null ) {
+                loadedBy = tempEl.Value;
+            }
+            if( (tempEl = el.Element( "MapChangedBy" )) != null ) {
+                mapChangedBy = tempEl.Value;
+            }
+
+            if( (tempEl = el.Element( "LoadedOn" )) != null ) {
+                if( !DateTimeUtil.ToDateTime( tempEl.Value, ref loadedOn ) ) {
+                    loadedOn = DateTime.MinValue;
+                }
+            }
+            if( (tempEl = el.Element( "MapChangedOn" )) != null ) {
+                if( !DateTimeUtil.ToDateTime( tempEl.Value, ref mapChangedOn ) ) {
+                    mapChangedOn = DateTime.MinValue;
+                }
+            }
         }
+
+        public string loadedBy, mapChangedBy;
+        public DateTime loadedOn, mapChangedOn;
 
 
         #region List Properties
@@ -263,6 +289,11 @@ namespace fCraft.ConfigGUI {
             blockDB.Add( new XAttribute( "limit", blockDBLimit ) );
             blockDB.Add( new XAttribute( "timeLimit", (int)blockDBTimeLimit.TotalSeconds ) );
             element.Add( blockDB );
+
+            if( !String.IsNullOrEmpty( loadedBy ) ) element.Add( new XElement( "LoadedBy", loadedBy ) );
+            if( !String.IsNullOrEmpty( mapChangedBy ) ) element.Add( new XElement( "MapChangedBy", mapChangedBy ) );
+            if( loadedOn != DateTime.MinValue ) element.Add( new XElement( "LoadedOn", loadedOn ) );
+            if( mapChangedOn != DateTime.MinValue ) element.Add( new XElement( "MapChangedOn", mapChangedOn ) );
             return element;
         }
 

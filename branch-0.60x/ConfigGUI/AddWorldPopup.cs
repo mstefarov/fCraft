@@ -202,6 +202,8 @@ namespace fCraft.ConfigGUI {
                 fileToLoad = fileBrowser.FileName;
                 ShowMapDetails( tLoadFileInfo, fileToLoad );
                 StartLoadingMap();
+                World.mapChangedBy = WorldListEntry.WorldInfoSignature;
+                World.mapChangedOn = DateTime.UtcNow;
             }
         }
 
@@ -214,6 +216,8 @@ namespace fCraft.ConfigGUI {
                 fileToLoad = folderBrowser.SelectedPath;
                 ShowMapDetails( tLoadFileInfo, fileToLoad );
                 StartLoadingMap();
+                World.mapChangedBy = WorldListEntry.WorldInfoSignature;
+                World.mapChangedOn = DateTime.UtcNow;
             }
         }
 
@@ -339,6 +343,8 @@ namespace fCraft.ConfigGUI {
 
             Refresh();
             bwGenerator.RunWorkerAsync();
+            World.mapChangedBy = WorldListEntry.WorldInfoSignature;
+            World.mapChangedOn = DateTime.UtcNow;
         }
 
         void AsyncGen( object sender, DoWorkEventArgs e ) {

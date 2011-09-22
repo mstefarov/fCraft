@@ -217,6 +217,8 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             AddWorldPopup popup = new AddWorldPopup( null );
             if( popup.ShowDialog() == DialogResult.OK ) {
                 Worlds.Add( popup.World );
+                popup.World.loadedBy = WorldListEntry.WorldInfoSignature;
+                popup.World.loadedOn = DateTime.UtcNow;
             }
             if( cMainWorld.SelectedItem == null ) {
                 FillWorldList();

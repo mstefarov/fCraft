@@ -281,7 +281,7 @@ namespace fCraft {
                         temp.Add( new XElement( "LoadedBy", world.LoadedBy ) );
                     }
                     if( world.LoadedOn != DateTime.MinValue ) {
-                        temp.Add( new XElement( "LoadedBy", world.LoadedOn.ToUnixTime() ) );
+                        temp.Add( new XElement( "LoadedOn", world.LoadedOn.ToUnixTime() ) );
                     }
 
 
