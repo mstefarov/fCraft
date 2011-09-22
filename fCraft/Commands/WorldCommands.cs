@@ -121,7 +121,11 @@ namespace fCraft {
                 string op = cmd.Next();
                 if( op == null ) {
                     if( !db.IsEnabled ) {
-                        player.Message( "BlockDB is disabled on world {0}", world.ClassyName );
+                        if( db.EnabledState == YesNoAuto.Auto ) {
+                            player.Message( "BlockDB is disabled (auto) on world {0}", world.ClassyName );
+                        } else {
+                            player.Message( "BlockDB is disabled on world {0}", world.ClassyName );
+                        }
                     } else {
                         if( db.IsPreloaded ) {
                             if( db.EnabledState == YesNoAuto.Auto ) {
@@ -137,8 +141,8 @@ namespace fCraft {
                             }
                         }
                         player.Message( "    Change limit: {0}    Time limit: {1}",
-                            db.Limit == 0 ? "none" : db.Limit.ToString(),
-                            db.TimeLimit == TimeSpan.Zero ? "none" : db.TimeLimit.ToMiniString() );
+                                        db.Limit == 0 ? "none" : db.Limit.ToString(),
+                                        db.TimeLimit == TimeSpan.Zero ? "none" : db.TimeLimit.ToMiniString() );
                     }
                     return;
                 }
@@ -1543,6 +1547,28 @@ namespace fCraft {
                                 world.ClassyName,
                                 DateTime.UtcNow.Subtract( world.UnlockedDate ).ToMiniString(),
                                 world.UnlockedBy );
+            }
+
+            if( !String.IsNullOrEmpty( world.LoadedBy ) && world.LoadedOn != DateTime.MinValue ) {
+                player.Message( "  {0}&S was created/loaded {0} ago by {1}",
+                                DateTime.UtcNow.Subtract( world.LoadedOn ).ToMiniString(),
+                                world.LoadedBy );
+            }
+
+            if( !String.IsNullOrEmpty( world.MapChangedBy ) && world.MapChangedOn != DateTime.MinValue ) {
+                player.Message( "  Map was last changed {0} ago by {1}",
+                                DateTime.UtcNow.Subtract( world.MapChangedOn ).ToMiniString(),
+                                world.MapChangedBy );
+            }
+
+            if( world.BlockDB.IsEnabled ) {
+                if( world.BlockDB.EnabledState == YesNoAuto.Auto ) {
+                    player.Message( "  BlockDB is enabled (auto) on {0}", world.ClassyName );
+                } else {
+                    player.Message( "  BlockDB is enabled on {0}", world.ClassyName );
+                }
+            } else {
+                player.Message( "  BlockDB is disabled on {0}", world.ClassyName );
             }
         }
 

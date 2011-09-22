@@ -35,6 +35,11 @@ namespace fCraft {
 
         public SecurityController BuildSecurity { get; internal set; }
 
+        public DateTime LoadedOn { get; internal set; }
+        public string LoadedBy { get; internal set; }
+        public DateTime MapChangedOn { get; internal set; }
+        public string MapChangedBy { get; internal set; }
+
 
         // used to synchronize player joining/parting with map loading/saving
         internal readonly object WorldLock = new object();
