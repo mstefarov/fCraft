@@ -384,7 +384,8 @@ namespace fCraft {
         internal void Clear() {
             lock( SyncRoot ) {
                 CacheClear();
-                File.Delete( FileName );
+                if( File.Exists( FileName ) )
+                    File.Delete( FileName );
             }
         }
 

@@ -252,13 +252,9 @@ namespace fCraft {
             Config.RunSelfTest();
 #else
             // delete the old updater, if exists
-            // ReSharper disable EmptyGeneralCatchClause
-            try {
-                if( File.Exists( Paths.UpdaterFileName ) ) {
-                    File.Delete( Paths.UpdaterFileName );
-                }
-            } catch { }
-            // ReSharper restore EmptyGeneralCatchClause
+            if( File.Exists( Paths.UpdaterFileName ) ) {
+                File.Delete( Paths.UpdaterFileName );
+            }
 #endif
 
             // try to load the config
