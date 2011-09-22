@@ -720,7 +720,7 @@ namespace fCraft {
         }
 
 
-        public bool ProcessBan( [CanBeNull] Player bannedBy, [NotNull] string bannedByName, [NotNull] string banReason ) {
+        internal bool ProcessBan( [CanBeNull] Player bannedBy, [NotNull] string bannedByName, [NotNull] string banReason ) {
             if( bannedByName == null ) throw new ArgumentNullException( "bannedByName" );
             if( banReason == null ) throw new ArgumentNullException( "banReason" );
             if( !IsBanned ) {

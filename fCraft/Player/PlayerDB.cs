@@ -584,19 +584,6 @@ namespace fCraft {
         }
 
 
-        internal static void RecoverIPBans() {
-            PlayerInfo[] playerInfoListCache = PlayerInfoList;
-            for( int i = 0; i < playerInfoListCache.Length; i++ ) {
-                PlayerInfo p = playerInfoListCache[i];
-                if( p.IsBanned && p.BanReason.EndsWith( "~BanAll", StringComparison.OrdinalIgnoreCase ) && IPBanList.Get( p.LastIP ) == null ) {
-                    IPBanList.Add( new IPBanInfo( p.LastIP, p.Name, p.BannedBy, p.BanReason ) );
-                    Logger.Log( "PlayerDB.RecoverIPBans: Banned {0} by association with {1}. Banned by {2}. Reason: {3}", LogType.SystemActivity,
-                                p.LastIP, p.Name, p.BannedBy, p.BanReason );
-                }
-            }
-        }
-
-
         internal static void SwapPlayerInfo( PlayerInfo p1, PlayerInfo p2 ) {
             lock( AddLocker ) {
                 lock( SaveLoadLocker ) {
