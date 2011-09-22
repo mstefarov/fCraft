@@ -98,7 +98,9 @@ namespace fCraft {
                 return;
             }
 
+            // ReSharper disable AssignNullToNotNullAttribute
             if( Paths.IsProtectedFileName( Path.GetFileName( fileName ) ) ) {
+                // ReSharper restore AssignNullToNotNullAttribute
                 player.Message( "You may not use this file." );
                 return;
             }
@@ -1190,7 +1192,7 @@ namespace fCraft {
             IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB },
             Usage = "/infoswap Player1 Player2",
-            Help = "Swaps records between two players.",
+            Help = "Swaps records between two players. EXPERIMENTAL, use at your own risk.",
             Handler = DoPlayerDB
         };
 

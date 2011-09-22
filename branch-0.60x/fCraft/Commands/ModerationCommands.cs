@@ -199,7 +199,7 @@ namespace fCraft {
             if( banIP && Server.IsIP( nameOrIP ) && IPAddress.TryParse( nameOrIP, out address ) ) {
                 DoIPBan( player, address, reason, null, banAll, unban );
 
-            // ban online players
+                // ban online players
             } else if( !unban && target != null ) {
 
                 // check permissions
@@ -350,7 +350,7 @@ namespace fCraft {
 
             if( unban ) {
                 IPBanInfo banInfo = IPBanList.Get( address );
-                if( IPBanList.Remove( address ) ) {
+                if( IPBanList.Remove( address, true ) ) {
                     Logger.Log( "{0} unbanned {1}", LogType.UserActivity, player.Name, address );
                     if( player.Can( Permission.ViewPlayerIPs ) ) {
                         player.Message( "{0} has been removed from the IP ban list.", address );
@@ -413,7 +413,7 @@ namespace fCraft {
                     return;
                 }
 
-                if( IPBanList.Add( new IPBanInfo( address, targetName, player.Name, reason ) ) ) {
+                if( IPBanList.Add( new IPBanInfo( address, targetName, player.Name, reason ), true ) ) {
                     Logger.Log( "{0} banned {1}", LogType.UserActivity, player.Name, address );
                     if( player.Can( Permission.ViewPlayerIPs ) ) {
                         player.Message( "{0} was added to the IP ban list.", address );
@@ -440,9 +440,9 @@ namespace fCraft {
                     }
 
                     foreach( Player other in Server.Players.FromIP( address ) ) {
-                        if( other.Info.BanStatus== BanStatus.IPBanExempt ) {
+                        if( other.Info.BanStatus == BanStatus.IPBanExempt ) {
                             player.Message( "&WPlayer {0}&W shares the IP, but is exempt from IP bans.", other.ClassyName );
-                        }else{
+                        } else {
                             DoKick( player, other, reason, true, false, LeaveReason.BanIP );
                         }
                     }
@@ -480,7 +480,6 @@ namespace fCraft {
         }
 
 
-
         static readonly CommandDescriptor CdBanEx = new CommandDescriptor {
             Name = "banex",
             Category = CommandCategory.Moderation,
@@ -494,12 +493,12 @@ namespace fCraft {
 
         static void BanExHandler( Player player, Command cmd ) {
             string playerName = cmd.Next();
-            if( playerName == null || playerName.Length < 2 || (playerName[0]!='-' &&playerName[0]!='+') ) {
+            if( playerName == null || playerName.Length < 2 || (playerName[0] != '-' && playerName[0] != '+') ) {
                 CdBanEx.PrintUsage( player );
                 return;
             }
             bool addExemption = (playerName[0] == '+');
-            string targetName =playerName.Substring( 1 );
+            string targetName = playerName.Substring( 1 );
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
             if( target == null ) return;
 
@@ -628,7 +627,7 @@ namespace fCraft {
                     target.Info.ProcessKick( player, reason );
                 }
 
-                Player[] otherPlayers = Server.Players.FromIP(target.Info.LastIP).Except(target).ToArray();
+                Player[] otherPlayers = Server.Players.FromIP( target.Info.LastIP ).Except( target ).ToArray();
                 if( otherPlayers.Length > 0 ) {
                     player.Message( "&WWarning: Other player(s) share IP with {0}&W: {1}",
                                     target.Info.ClassyName,

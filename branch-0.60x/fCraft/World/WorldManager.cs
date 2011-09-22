@@ -219,7 +219,9 @@ namespace fCraft {
                     FileInfo[] matches = Paths.FindFiles( fullMapFileName );
                     if( matches.Length == 1 ) {
                         // Try to rename the map file to match world's capitalization
+// ReSharper disable AssignNullToNotNullAttribute
                         Paths.ForceRename( matches[0].FullName, fileName );
+// ReSharper restore AssignNullToNotNullAttribute
                         if( Paths.FileExists( fullMapFileName, true ) ) {
                             Logger.Log( "WorldManager.CheckMapFile: Map file for world \"{0}\" was renamed from \"{1}\" to \"{2}\"",
                                         LogType.Warning,

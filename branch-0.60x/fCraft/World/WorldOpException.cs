@@ -64,6 +64,9 @@ namespace fCraft {
                     case WorldOpExceptionCode.SecurityError:
                         return "You are not allowed to do this operation to world \"" + worldName + "\".";
 
+                    case WorldOpExceptionCode.Unexpected:
+                        return "Unexpected problem occured with world \"" + worldName + "\".";
+
                     case WorldOpExceptionCode.WorldNotFound:
                         return "No world found with the name \"" + worldName + "\".";
 
@@ -107,6 +110,9 @@ namespace fCraft {
                     case WorldOpExceptionCode.SecurityError:
                         return "You are not allowed to do this operation.";
 
+                    case WorldOpExceptionCode.Unexpected:
+                        return "Unexpected problem occured.";
+
                     case WorldOpExceptionCode.WorldNotFound:
                         return "Specified world was not found.";
 
@@ -120,6 +126,8 @@ namespace fCraft {
 
     /// <summary> List of common world operation issues. Used by WorldOpException. </summary>
     public enum WorldOpExceptionCode {
+        Unexpected,
+
         /// <summary> No changes were needed or made (e.g. renaming a world to the same name). </summary>
         NoChangeNeeded,
 

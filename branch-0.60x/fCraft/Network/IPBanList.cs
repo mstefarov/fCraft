@@ -73,14 +73,6 @@ namespace fCraft {
                                         fields.Length, IPBanInfo.FieldCount, String.Join( ",", fields ) );
                         }
                     }
-
-                    if( version == 0 ) {
-                        Logger.Log( "IPBanList.Load: Attempting to recover IP bans...", LogType.SystemActivity );
-                        int oldBanCount = Bans.Count;
-                        PlayerDB.RecoverIPBans();
-                        Logger.Log( "IPBanList.Load: {0} IP bans recovered.", LogType.SystemActivity,
-                                    Bans.Count - oldBanCount );
-                    }
                 }
 
                 Logger.Log( "IPBanList.Load: Done loading IP ban list ({0} records).", LogType.Debug, Bans.Count );
@@ -130,14 +122,19 @@ namespace fCraft {
 
         /// <summary> Adds a new IP Ban. </summary>
         /// <param name="ban"> Ban information </param>
+        /// <param name="raiseEvent"> Whether AddingIPBan and AddedIPBan events should be raised. </param>
         /// <returns> True if ban was added, false if it was already on the list </returns>
-        public static bool Add( [NotNull] IPBanInfo ban ) {
+        public static bool Add( [NotNull] IPBanInfo ban, bool raiseEvent ) {
             if( ban == null ) throw new ArgumentNullException( "ban" );
             lock( BanListLock ) {
                 if( Bans.ContainsKey( ban.Address.ToString() ) ) return false;
-                if( RaiseAddingIPBanEvent( ban ) ) return false;
-                Bans.Add( ban.Address.ToString(), ban );
-                RaiseAddedIPBanEvent( ban );
+                if( raiseEvent ) {
+                    if( RaiseAddingIPBanEvent( ban ) ) return false;
+                    Bans.Add( ban.Address.ToString(), ban );
+                    RaiseAddedIPBanEvent( ban );
+                } else {
+                    Bans.Add( ban.Address.ToString(), ban );
+                }
                 Save();
                 return true;
             }
@@ -158,18 +155,23 @@ namespace fCraft {
         }
 
 
-        // Returns true if address was banned (and was unbanned)
-        // Returns false if address was not banned (and is still not banned) or if address is null
-        public static bool Remove( [NotNull] IPAddress address ) {
+        /// <summary> Removes a given IP address from the ban list (if present). </summary>
+        /// <param name="address"> Address to unban. </param>
+        /// <param name="raiseEvents"> Whether to raise RemovingIPBan and RemovedIPBan events. </param>
+        /// <returns> True if IP was unbanned.
+        /// False if it was not banned in the first place, or if it was cancelled by an event. </returns>
+        public static bool Remove( [NotNull] IPAddress address, bool raiseEvents ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             lock( BanListLock ) {
                 if( !Bans.ContainsKey( address.ToString() ) ) {
                     return false;
                 }
                 IPBanInfo info = Bans[address.ToString()];
-                if( RaiseRemovingIPBanEvent( info ) ) return false;
+                if( raiseEvents ) {
+                    if( RaiseRemovingIPBanEvent( info ) ) return false;
+                }
                 if( Bans.Remove( address.ToString() ) ) {
-                    RaiseRemovedIPBanEvent( info );
+                    if( raiseEvents ) RaiseRemovedIPBanEvent( info );
                     Save();
                     return true;
                 } else {
@@ -251,15 +253,14 @@ namespace fCraft {
         IPBanInfo() { }
 
 
-        public IPBanInfo( [NotNull] IPAddress address, string playerName, [NotNull] string bannedBy, string banReason ) {
+        public IPBanInfo( [NotNull] IPAddress address, string playerName, [NotNull] string bannedBy, [NotNull] string banReason ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             if( bannedBy == null ) throw new ArgumentNullException( "bannedBy" );
+            if( banReason == null ) throw new ArgumentNullException( "banReason" );
             Address = address;
             BannedBy = bannedBy;
             BanDate = DateTime.UtcNow;
-            if( banReason != null ) {
-                BanReason = banReason;
-            }
+            BanReason = banReason;
             PlayerName = playerName;
             LastAttemptName = playerName;
             LastAttemptDate = DateTime.MinValue;
