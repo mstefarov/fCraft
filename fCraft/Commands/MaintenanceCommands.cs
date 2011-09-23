@@ -84,7 +84,7 @@ namespace fCraft {
             Handler = DumpStatsHandler
         };
 
-        const int TopPlayersToList = 3;
+        const int TopPlayersToList = 5;
 
         static void DumpStatsHandler( Player player, Command cmd ) {
             string fileName = cmd.Next();
@@ -132,15 +132,18 @@ namespace fCraft {
                         DumpPlayerGroupStats( writer, infos, "(TOTAL)" );
                     }
 
+                    List<PlayerInfo> rankPlayers = new List<PlayerInfo>();
                     foreach( Rank rank in RankManager.Ranks ) {
-                        Rank rank1 = rank;
-                        infos = infos.Where( p => p.Rank == rank1 ).ToArray();
-                        if( infos.Length == 0 ) {
+                        for( int i = 0; i < infos.Length; i++ ) {
+                            if( infos[i].Rank == rank ) rankPlayers.Add( infos[i] );
+                        }
+                        if( rankPlayers.Count == 0 ) {
                             writer.WriteLine( "{0}: 0 players, 0 banned, 0 inactive", rank.Name );
                             writer.WriteLine();
                         } else {
-                            DumpPlayerGroupStats( writer, infos, rank.Name );
+                            DumpPlayerGroupStats( writer, rankPlayers, rank.Name );
                         }
+                        rankPlayers.Clear();
                     }
                 }
             }
@@ -148,26 +151,25 @@ namespace fCraft {
             player.Message( "Stats saved to \"{0}\"", Path.GetFileName( fileName ) );
         }
 
-        static void DumpPlayerGroupStats( TextWriter writer, PlayerInfo[] infos, string groupName ) {
-
+        static void DumpPlayerGroupStats( TextWriter writer, IList<PlayerInfo> infos, string groupName ) {
             RankStats stat = new RankStats();
             foreach( Rank rank2 in RankManager.Ranks ) {
                 stat.PreviousRank.Add( rank2, 0 );
             }
 
-            int totalCount = infos.Length;
+            int totalCount = infos.Count;
             int bannedCount = infos.Count( info => info.IsBanned );
             int inactiveCount = infos.Count( info => info.TimeSinceLastSeen.TotalDays >= 30 );
-            infos = infos.Where( info => (info.TimeSinceLastSeen.TotalDays < 30 && !info.IsBanned) ).ToArray();
+            infos = infos.Where( info => (info.TimeSinceLastSeen.TotalDays < 30 && !info.IsBanned) ).ToList();
 
-            if( infos.Length == 0 ) {
+            if( infos.Count == 0 ) {
                 writer.WriteLine( "{0}: {1} players, {2} banned, {3} inactive",
                                   groupName, totalCount, bannedCount, inactiveCount );
                 writer.WriteLine();
                 return;
             }
 
-            for( int i = 0; i < infos.Length; i++ ) {
+            for( int i = 0; i < infos.Count; i++ ) {
                 stat.TimeSinceFirstLogin += infos[i].TimeSinceFirstLogin;
                 stat.TimeSinceLastLogin += infos[i].TimeSinceLastLogin;
                 stat.TotalTime += infos[i].TotalTime;
@@ -187,23 +189,23 @@ namespace fCraft {
 
 
             stat.TimeSinceFirstLoginMedian = DateTime.UtcNow.Subtract( infos.OrderByDescending( info => info.FirstLoginDate )
-                                                                            .ElementAt( infos.Length / 2 ).FirstLoginDate );
+                                                                            .ElementAt( infos.Count / 2 ).FirstLoginDate );
             stat.TimeSinceLastLoginMedian = DateTime.UtcNow.Subtract( infos.OrderByDescending( info => info.LastLoginDate )
-                                                                           .ElementAt( infos.Length / 2 ).LastLoginDate );
-            stat.TotalTimeMedian = infos.OrderByDescending( info => info.TotalTime ).ElementAt( infos.Length / 2 ).TotalTime;
-            stat.BlocksBuiltMedian = infos.OrderByDescending( info => info.BlocksBuilt ).ElementAt( infos.Length / 2 ).BlocksBuilt;
-            stat.BlocksDeletedMedian = infos.OrderByDescending( info => info.BlocksDeleted ).ElementAt( infos.Length / 2 ).BlocksDeleted;
-            stat.BlocksDrawnMedian = infos.OrderByDescending( info => info.BlocksDrawn ).ElementAt( infos.Length / 2 ).BlocksDrawn;
-            PlayerInfo medianBlocksChangedPlayerInfo = infos.OrderByDescending( info => (info.BlocksDeleted + info.BlocksBuilt) ).ElementAt( infos.Length / 2 );
+                                                                           .ElementAt( infos.Count / 2 ).LastLoginDate );
+            stat.TotalTimeMedian = infos.OrderByDescending( info => info.TotalTime ).ElementAt( infos.Count / 2 ).TotalTime;
+            stat.BlocksBuiltMedian = infos.OrderByDescending( info => info.BlocksBuilt ).ElementAt( infos.Count / 2 ).BlocksBuilt;
+            stat.BlocksDeletedMedian = infos.OrderByDescending( info => info.BlocksDeleted ).ElementAt( infos.Count / 2 ).BlocksDeleted;
+            stat.BlocksDrawnMedian = infos.OrderByDescending( info => info.BlocksDrawn ).ElementAt( infos.Count / 2 ).BlocksDrawn;
+            PlayerInfo medianBlocksChangedPlayerInfo = infos.OrderByDescending( info => (info.BlocksDeleted + info.BlocksBuilt) ).ElementAt( infos.Count / 2 );
             stat.BlocksChangedMedian = medianBlocksChangedPlayerInfo.BlocksDeleted + medianBlocksChangedPlayerInfo.BlocksBuilt;
             PlayerInfo medianBlockRatioPlayerInfo = infos.OrderByDescending( info => (info.BlocksBuilt / (double)Math.Max( info.BlocksDeleted, 1 )) )
-                                                    .ElementAt( infos.Length / 2 );
+                                                    .ElementAt( infos.Count / 2 );
             stat.BlockRatioMedian = medianBlockRatioPlayerInfo.BlocksBuilt / (double)Math.Max( medianBlockRatioPlayerInfo.BlocksDeleted, 1 );
-            stat.TimesVisitedMedian = infos.OrderByDescending( info => info.TimesVisited ).ElementAt( infos.Length / 2 ).TimesVisited;
-            stat.MessagesWrittenMedian = infos.OrderByDescending( info => info.MessagesWritten ).ElementAt( infos.Length / 2 ).MessagesWritten;
-            stat.TimesKickedMedian = infos.OrderByDescending( info => info.TimesKicked ).ElementAt( infos.Length / 2 ).TimesKicked;
-            stat.TimesKickedOthersMedian = infos.OrderByDescending( info => info.TimesKickedOthers ).ElementAt( infos.Length / 2 ).TimesKickedOthers;
-            stat.TimesBannedOthersMedian = infos.OrderByDescending( info => info.TimesBannedOthers ).ElementAt( infos.Length / 2 ).TimesBannedOthers;
+            stat.TimesVisitedMedian = infos.OrderByDescending( info => info.TimesVisited ).ElementAt( infos.Count / 2 ).TimesVisited;
+            stat.MessagesWrittenMedian = infos.OrderByDescending( info => info.MessagesWritten ).ElementAt( infos.Count / 2 ).MessagesWritten;
+            stat.TimesKickedMedian = infos.OrderByDescending( info => info.TimesKicked ).ElementAt( infos.Count / 2 ).TimesKicked;
+            stat.TimesKickedOthersMedian = infos.OrderByDescending( info => info.TimesKickedOthers ).ElementAt( infos.Count / 2 ).TimesKickedOthers;
+            stat.TimesBannedOthersMedian = infos.OrderByDescending( info => info.TimesBannedOthers ).ElementAt( infos.Count / 2 ).TimesBannedOthers;
 
 
             stat.TopTimeSinceFirstLogin = infos.OrderBy( info => info.FirstLoginDate ).ToArray();
@@ -224,7 +226,7 @@ namespace fCraft {
             writer.WriteLine( "{0}: {1} players, {2} banned, {3} inactive",
                               groupName, totalCount, bannedCount, inactiveCount );
             writer.WriteLine( "    TimeSinceFirstLogin: {0} mean,  {1} median,  {2} total",
-                              TimeSpan.FromTicks( stat.TimeSinceFirstLogin.Ticks / infos.Length ).ToCompactString(),
+                              TimeSpan.FromTicks( stat.TimeSinceFirstLogin.Ticks / infos.Count ).ToCompactString(),
                               stat.TimeSinceFirstLoginMedian.ToCompactString(),
                               stat.TimeSinceFirstLogin.ToCompactString() );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
@@ -244,7 +246,7 @@ namespace fCraft {
 
 
             writer.WriteLine( "    TimeSinceLastLogin: {0} mean,  {1} median,  {2} total",
-                              TimeSpan.FromTicks( stat.TimeSinceLastLogin.Ticks / infos.Length ).ToCompactString(),
+                              TimeSpan.FromTicks( stat.TimeSinceLastLogin.Ticks / infos.Count ).ToCompactString(),
                               stat.TimeSinceLastLoginMedian.ToCompactString(),
                               stat.TimeSinceLastLogin.ToCompactString() );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
@@ -264,7 +266,7 @@ namespace fCraft {
 
 
             writer.WriteLine( "    TotalTime: {0} mean,  {1} median,  {2} total",
-                              TimeSpan.FromTicks( stat.TotalTime.Ticks / infos.Length ).ToCompactString(),
+                              TimeSpan.FromTicks( stat.TotalTime.Ticks / infos.Count ).ToCompactString(),
                               stat.TotalTimeMedian.ToCompactString(),
                               stat.TotalTime.ToCompactString() );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
@@ -285,7 +287,7 @@ namespace fCraft {
 
 
             writer.WriteLine( "    BlocksBuilt: {0} mean,  {1} median,  {2} total",
-                              stat.BlocksBuilt / infos.Length,
+                              stat.BlocksBuilt / infos.Count,
                               stat.BlocksBuiltMedian,
                               stat.BlocksBuilt );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
@@ -305,7 +307,7 @@ namespace fCraft {
 
 
             writer.WriteLine( "    BlocksDeleted: {0} mean,  {1} median,  {2} total",
-                              stat.BlocksDeleted / infos.Length,
+                              stat.BlocksDeleted / infos.Count,
                               stat.BlocksDeletedMedian,
                               stat.BlocksDeleted );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
@@ -326,7 +328,7 @@ namespace fCraft {
 
 
             writer.WriteLine( "    BlocksChanged: {0} mean,  {1} median,  {2} total",
-                              stat.BlocksChanged / infos.Length,
+                              stat.BlocksChanged / infos.Count,
                               stat.BlocksChangedMedian,
                               stat.BlocksChanged );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
@@ -346,7 +348,7 @@ namespace fCraft {
 
 
             writer.WriteLine( "    BlocksDrawn: {0} mean,  {1} median,  {2} total",
-                              stat.BlocksDrawn / infos.Length,
+                              stat.BlocksDrawn / infos.Count,
                               stat.BlocksDrawnMedian,
                               stat.BlocksDrawn );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
@@ -384,7 +386,7 @@ namespace fCraft {
 
 
             writer.WriteLine( "    TimesVisited: {0} mean,  {1} median,  {2} total",
-                              stat.TimesVisited / infos.Length,
+                              stat.TimesVisited / infos.Count,
                               stat.TimesVisitedMedian,
                               stat.TimesVisited );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
@@ -404,7 +406,7 @@ namespace fCraft {
 
 
             writer.WriteLine( "    MessagesWritten: {0} mean,  {1} median,  {2} total",
-                              stat.MessagesWritten / infos.Length,
+                              stat.MessagesWritten / infos.Count,
                               stat.MessagesWrittenMedian,
                               stat.MessagesWritten );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
@@ -424,7 +426,7 @@ namespace fCraft {
 
 
             writer.WriteLine( "    TimesKicked: {0:0.0} mean,  {1} median,  {2} total",
-                              stat.TimesKicked / (double)infos.Length,
+                              stat.TimesKicked / (double)infos.Count,
                               stat.TimesKickedMedian,
                               stat.TimesKicked );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
@@ -444,7 +446,7 @@ namespace fCraft {
 
 
             writer.WriteLine( "    TimesKickedOthers: {0:0.0} mean,  {1} median,  {2} total",
-                              stat.TimesKickedOthers / (double)infos.Length,
+                              stat.TimesKickedOthers / (double)infos.Count,
                               stat.TimesKickedOthersMedian,
                               stat.TimesKickedOthers );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
@@ -464,7 +466,7 @@ namespace fCraft {
 
 
             writer.WriteLine( "    TimesBannedOthers: {0:0.0} mean,  {1} median,  {2} total",
-                              stat.TimesBannedOthers / (double)infos.Length,
+                              stat.TimesBannedOthers / (double)infos.Count,
                               stat.TimesBannedOthersMedian,
                               stat.TimesBannedOthers );
             if( infos.Count() > TopPlayersToList * 2 + 1 ) {
