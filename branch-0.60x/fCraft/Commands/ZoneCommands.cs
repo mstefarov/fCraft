@@ -573,8 +573,8 @@ namespace fCraft {
             zones.Rename( oldZone, newName );
 
             // announce the rename
-            player.World.Players.Message( "Zone \"{0}\" was renamed to \"{1}\" by player {2}",
-                                          fullOldName, newName, player.ClassyName );
+            player.World.Players.Message( "&SZone \"{0}\" was renamed to \"{1}&S\" by {2}",
+                                          fullOldName, oldZone.ClassyName, player.ClassyName );
             Logger.Log( "Player {0} renamed zone \"{1}\" to \"{2}\" on world {3}", LogType.UserActivity,
                         player.Name, fullOldName, newName, player.World.Name );
         }
