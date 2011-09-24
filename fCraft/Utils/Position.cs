@@ -3,10 +3,8 @@ using System;
 
 namespace fCraft {
 
-    /// <summary>
-    /// Struct representing a position (with orientation) in the world. Takes up 8 bytes of memory.
-    /// Note that, as a struct, Position objects are COPIED when assigned or passed as an argument.
-    /// </summary>
+    /// <summary> Struct representing a position (with orientation) in the world. Takes up 8 bytes of memory.
+    /// Note that, as a struct, Position objects are COPIED when assigned or passed as an argument. </summary>
     public struct Position : IEquatable<Position> {
         public readonly static Position Zero = new Position( 0, 0, 0 );
 

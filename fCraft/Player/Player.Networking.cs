@@ -253,7 +253,6 @@ namespace fCraft {
         }
 
 
-
         bool firstMessage = true;
         bool ProcessMessagePacket() {
             BytesReceived += 66;
@@ -382,7 +381,7 @@ namespace fCraft {
             short x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
             short z = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
             short y = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
-            bool isBuilding = (reader.ReadByte() == 1);
+            ClickAction action = (reader.ReadByte() == 1) ? ClickAction.Build : ClickAction.Delete;
             byte type = reader.ReadByte();
 
             // if a player is using InDev or SurvivalTest client, they may try to
@@ -396,12 +395,12 @@ namespace fCraft {
             // like at map transitions or at the top layer of the world.
             // Those clicks should be simply ignored.
             if( World.Map.InBounds( x, y, z ) ) {
-                var e = new PlayerClickingEventArgs( this, x, y, z, isBuilding, (Block)type );
+                var e = new PlayerClickingEventArgs( this, x, y, z, action, (Block)type );
                 if( RaisePlayerClickingEvent( e ) ) {
                     RevertBlockNow( x, y, z );
                 } else {
-                    RaisePlayerClickedEvent( this, x, y, z, e.IsBuilding, e.Block );
-                    PlaceBlock( x, y, z, e.IsBuilding, e.Block );
+                    RaisePlayerClickedEvent( this, x, y, z, e.Action, e.Block );
+                    PlaceBlock( x, y, z, e.Action, e.Block );
                 }
             }
         }
@@ -853,7 +852,7 @@ namespace fCraft {
                 SendNow( PacketWriter.MakeHandshake( this, textLine1, textLine2 ) );
             }
 
-            writer.WriteLevelBegin();
+            writer.WriteMapBegin();
             BytesSent++;
 
             // enable Nagle's algorithm (in case it was turned off by LowLatencyMode)
@@ -886,13 +885,13 @@ namespace fCraft {
                 byte progress = (byte)(100 * mapBytesSent / blockData.Length);
 
                 // write in chunks of 1024 bytes or less
-                writer.WriteLevelChunk( buffer, chunkSize, progress );
+                writer.WriteMapChunk( buffer, chunkSize, progress );
                 BytesSent += 1028;
                 mapBytesSent += chunkSize;
             }
 
             // Done sending over level copy
-            writer.WriteLevelEnd( map );
+            writer.WriteMapEnd( map );
             BytesSent += 7;
 
             // Sets player's spawn point to map spawn
@@ -1240,9 +1239,11 @@ namespace fCraft {
                     // incremental position update
                     packet = PacketWriter.MakeMove( entity.Id, delta );
 
-                } else {
+                } else if( rotChanged ) {
                     // absolute rotation update
                     packet = PacketWriter.MakeRotate( entity.Id, newPos );
+                } else {
+                    return;
                 }
 
             } else {
