@@ -73,7 +73,18 @@ namespace fCraft {
         };
 
         static void BanHandler( Player player, Command cmd ) {
-            DoBan( player, cmd.Next(), cmd.NextAll(), false, false, false );
+            string targetName = cmd.Next();
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
+            if( target == null ) return;
+            string reason = cmd.NextAll();
+
+            try {
+                BanHelper.Ban( target, player, reason, true, true );
+            } catch( PlayerOpException ex ) {
+                player.Message( "&WCan't ban: {0}", ex.ErrorCode );
+            }
+
+            //DoBan( player, cmd.Next(), cmd.NextAll(), false, false, false );
         }
 
 

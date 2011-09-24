@@ -3,9 +3,14 @@ using System;
 
 namespace fCraft {
     sealed class PlayerOpException : Exception {
-        public PlayerOpException( PlayerOpExceptionCode errorCode ) {
+        public PlayerOpException( Player player, PlayerInfo target, PlayerOpExceptionCode errorCode ) {
+            Player = player;
+            Target = target;
             ErrorCode = errorCode;
         }
+
+        public Player Player { get; private set; }
+        public PlayerInfo Target { get; private set; }
         public PlayerOpExceptionCode ErrorCode { get; private set; }
     }
 
