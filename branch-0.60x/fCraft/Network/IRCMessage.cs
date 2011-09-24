@@ -27,19 +27,18 @@
 
 namespace fCraft {
     // ReSharper disable FieldCanBeMadeReadOnly.Global
-    // ReSharper disable UnaccessedField.Global
     public sealed class IRCMessage {
-        public string From;
-        public string Nick;
-        public string Ident;
-        public string Host;
-        public string Channel;
-        public string Message;
-        public string[] MessageArray;
-        public string RawMessage;
-        public string[] RawMessageArray;
-        public IRCMessageType Type;
-        public IRCReplyCode ReplyCode;
+        public string From { get; private set; }
+        public string Nick { get; private set; }
+        public string Ident { get; private set; }
+        public string Host { get; private set; }
+        public string Channel { get; private set; }
+        public string Message { get; private set; }
+        public string[] MessageArray { get; private set; }
+        public string RawMessage { get; private set; }
+        public string[] RawMessageArray { get; private set; }
+        public IRCMessageType Type { get; private set; }
+        public IRCReplyCode ReplyCode { get; private set; }
 
         public IRCMessage( string from, string nick, string ident, string host, string channel, string message, string rawMessage, IRCMessageType type, IRCReplyCode replycode ) {
             RawMessage = rawMessage;

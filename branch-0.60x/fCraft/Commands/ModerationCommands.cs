@@ -167,11 +167,14 @@ namespace fCraft {
         }
 
 
-        public static void DoBan( Player player, string nameOrIP, string reason, bool banIP, bool banAll, bool unban ) {
+        public static void DoBan( [NotNull] Player player, string nameOrIP, [NotNull] string reason,
+                                  bool banIP, bool banAll, bool unban ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             if( nameOrIP == null ) {
                 player.Message( "Please specify player name or IP to ban." );
                 return;
             }
+            if( reason == null ) throw new ArgumentNullException( "reason" );
 
             IPAddress address;
             Player target = Server.FindPlayerExact( nameOrIP );
