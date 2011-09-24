@@ -5,7 +5,6 @@ using JetBrains.Annotations;
 using System.Collections.Generic;
 #endif
 
-// ReSharper disable VirtualMemberNeverOverriden.Global
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable MemberCanBeProtected.Global
 namespace fCraft.Drawing {
@@ -94,11 +93,11 @@ namespace fCraft.Drawing {
         public abstract int DrawBatch( int maxBlocksToDraw );
 
 
-        public virtual void Cancel() {
+        public void Cancel() {
             IsCancelled = true;
         }
 
-        public virtual void End() {
+        public void End() {
             Player.Info.ProcessDrawCommand( BlocksUpdated );
             Brush.End();
         }

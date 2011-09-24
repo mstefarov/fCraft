@@ -60,9 +60,4 @@ namespace fCraft {
         MossyRocks = 48,
         Obsidian = 49
     }
-
-    public enum ClickAction : byte {
-        Delete = 0,
-        Build = 1
-    }
 }
