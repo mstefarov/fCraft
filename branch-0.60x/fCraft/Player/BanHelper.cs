@@ -39,18 +39,19 @@ namespace fCraft {
             if( reason == null ) throw new ArgumentNullException( "reason" );
 
             // Check if player is trying to ban self
-            if( player.Info == targetInfo ) throw new PlayerOpException( PlayerOpExceptionCode.CannotDoThatToSelf );
+            if( player.Info == targetInfo ) throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.CannotDoThatToSelf );
 
             // See if target is already banned
-            if( !targetInfo.IsBanned ) {
-                throw new PlayerOpException( PlayerOpExceptionCode.NoActionNeeded );
+            if( unban && targetInfo.BanStatus != BanStatus.Banned ||
+                !unban && targetInfo.BanStatus == BanStatus.Banned ) {
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.NoActionNeeded );
             }
 
-            CheckIfReasonIsRequired( reason );
+            CheckIfReasonIsRequired( reason, player, targetInfo );
 
             // Check if player has sufficient permissions
             if( !unban && !player.Can( Permission.Ban, targetInfo.Rank ) ) {
-                throw new PlayerOpException( PlayerOpExceptionCode.PermissionLimitTooLow );
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.PermissionLimitTooLow );
             }
 
             // Raise PlayerInfo.BanChanging event
@@ -112,7 +113,7 @@ namespace fCraft {
 
             } else {
                 // Player is already banned
-                throw new PlayerOpException( PlayerOpExceptionCode.NoActionNeeded );
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.NoActionNeeded );
             }
         }
 
@@ -136,21 +137,21 @@ namespace fCraft {
             }
 
             // Check if player is trying to ban self
-            if( player.IP == targetAddress ) throw new PlayerOpException( PlayerOpExceptionCode.CannotDoThatToSelf );
+            if( player.IP == targetAddress ) throw new PlayerOpException( player, null, PlayerOpExceptionCode.CannotDoThatToSelf );
 
             // Check if target is already banned
             IPBanInfo existingBan = IPBanList.Get( targetAddress );
             if( existingBan != null ) {
-                throw new PlayerOpException( PlayerOpExceptionCode.NoActionNeeded );
+                throw new PlayerOpException( player, null, PlayerOpExceptionCode.NoActionNeeded );
             }
 
-            CheckIfReasonIsRequired( reason );
+            CheckIfReasonIsRequired( reason, player, null );
 
             // Check if any high-ranked players use this address
             PlayerInfo infosWhomPlayerCantBan = PlayerDB.FindPlayers( targetAddress )
                                                         .FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
             if( infosWhomPlayerCantBan != null ) {
-                throw new PlayerOpException( PlayerOpExceptionCode.PermissionLimitTooLow );
+                throw new PlayerOpException( player, infosWhomPlayerCantBan, PlayerOpExceptionCode.PermissionLimitTooLow );
             }
 
             // Actually ban
@@ -187,7 +188,7 @@ namespace fCraft {
 
             } else {
                 // address is already banned
-                throw new PlayerOpException( PlayerOpExceptionCode.NoActionNeeded );
+                throw new PlayerOpException( player, null, PlayerOpExceptionCode.NoActionNeeded );
             }
         }
 
@@ -211,9 +212,11 @@ namespace fCraft {
             }
 
             // Check if player is trying to unban self
-            if( player.IP == targetAddress ) throw new PlayerOpException( PlayerOpExceptionCode.CannotDoThatToSelf );
+            if( player.IP == targetAddress ) {
+                throw new PlayerOpException( player, null, PlayerOpExceptionCode.CannotDoThatToSelf );
+            }
 
-            CheckIfReasonIsRequired( reason );
+            CheckIfReasonIsRequired( reason, player, null );
 
             // Actually unban
             bool result = IPBanList.Remove( targetAddress, raiseEvents );
@@ -229,7 +232,7 @@ namespace fCraft {
                     }
                 }
             } else {
-                throw new PlayerOpException( PlayerOpExceptionCode.NoActionNeeded );
+                throw new PlayerOpException( player, null, PlayerOpExceptionCode.NoActionNeeded );
             }
         }
 
@@ -250,26 +253,28 @@ namespace fCraft {
             IPAddress address = targetInfo.LastIP;
 
             // Check if player is trying to ban self
-            if( player.Info == targetInfo || player.IP == address ) throw new PlayerOpException( PlayerOpExceptionCode.CannotDoThatToSelf );
+            if( player.Info == targetInfo || player.IP == address ) {
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.CannotDoThatToSelf );
+            }
 
             // Check if any high-ranked players use this address
             PlayerInfo infosWhomPlayerCantBan = PlayerDB.FindPlayers( address )
                                                         .FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
             if( infosWhomPlayerCantBan != null ) {
-                throw new PlayerOpException( PlayerOpExceptionCode.PermissionLimitTooLow );
+                throw new PlayerOpException( player, infosWhomPlayerCantBan, PlayerOpExceptionCode.PermissionLimitTooLow );
             }
 
-            CheckIfReasonIsRequired( reason );
+            CheckIfReasonIsRequired( reason, player, targetInfo );
 
             // Check existing ban statuses
             bool needNameBan = !targetInfo.IsBanned;
             bool needIPBan = (IPBanList.Get( address ) == null);
             bool targetIsExempt = (targetInfo.BanStatus == BanStatus.IPBanExempt);
             if( !needIPBan && !needNameBan ) {
-                throw new PlayerOpException( PlayerOpExceptionCode.NoActionNeeded );
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.NoActionNeeded );
             }
             if( !needIPBan && needNameBan && targetIsExempt ) {
-                throw new PlayerOpException( PlayerOpExceptionCode.TargetIsExempt );
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.TargetIsExempt );
             }
 
             // Ban the name
@@ -297,7 +302,7 @@ namespace fCraft {
                         }
                     }
                 } else {
-                    throw new PlayerOpException( PlayerOpExceptionCode.NoActionNeeded );
+                    throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.NoActionNeeded );
                 }
             }
         }
@@ -318,15 +323,17 @@ namespace fCraft {
             IPAddress address = targetInfo.LastIP;
 
             // Check if player is trying to unban self
-            if( player.Info == targetInfo || player.IP == address ) throw new PlayerOpException( PlayerOpExceptionCode.CannotDoThatToSelf );
+            if( player.Info == targetInfo || player.IP == address ) {
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.CannotDoThatToSelf );
+            }
 
-            CheckIfReasonIsRequired( reason );
+            CheckIfReasonIsRequired( reason, player, targetInfo );
 
             // Check existing unban statuses
             bool needNameUnban = targetInfo.IsBanned;
             bool needIPUnban = (IPBanList.Get( address ) != null);
             if( !needIPUnban && !needNameUnban ) {
-                throw new PlayerOpException( PlayerOpExceptionCode.NoActionNeeded );
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.NoActionNeeded );
             }
 
             // Unban the name
@@ -353,7 +360,7 @@ namespace fCraft {
                         }
                     }
                 } else {
-                    throw new PlayerOpException( PlayerOpExceptionCode.NoActionNeeded );
+                    throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.NoActionNeeded );
                 }
             }
         }
@@ -375,16 +382,18 @@ namespace fCraft {
             IPAddress address = targetInfo.LastIP;
 
             // Check if player is trying to ban self
-            if( player.Info == targetInfo || player.IP == address ) throw new PlayerOpException( PlayerOpExceptionCode.CannotDoThatToSelf );
+            if( player.Info == targetInfo || player.IP == address ) {
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.CannotDoThatToSelf );
+            }
 
             // Check if any high-ranked players use this address
             PlayerInfo[] allPlayersOnIP = PlayerDB.FindPlayers( address );
             PlayerInfo infosWhomPlayerCantBan = allPlayersOnIP.FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
             if( infosWhomPlayerCantBan != null ) {
-                throw new PlayerOpException( PlayerOpExceptionCode.PermissionLimitTooLow );
+                throw new PlayerOpException( player, infosWhomPlayerCantBan, PlayerOpExceptionCode.PermissionLimitTooLow );
             }
 
-            CheckIfReasonIsRequired( reason );
+            CheckIfReasonIsRequired( reason, player, targetInfo );
             bool somethingGotBanned = false;
 
             // Ban the IP
@@ -447,7 +456,7 @@ namespace fCraft {
 
             // If no one ended up getting banned, quit here
             if( !somethingGotBanned ) {
-                throw new PlayerOpException( PlayerOpExceptionCode.NoActionNeeded );
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.NoActionNeeded );
             }
 
             // Announce banall reason towards the end of all bans
@@ -486,10 +495,12 @@ namespace fCraft {
             IPAddress address = targetInfo.LastIP;
 
             // Check if player is trying to unban self
-            if( player.Info == targetInfo || player.IP == address ) throw new PlayerOpException( PlayerOpExceptionCode.CannotDoThatToSelf );
+            if( player.Info == targetInfo || player.IP == address ) {
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.CannotDoThatToSelf );
+            }
 
 
-            CheckIfReasonIsRequired( reason );
+            CheckIfReasonIsRequired( reason, player, targetInfo );
             bool somethingGotUnbanned = false;
 
 
@@ -555,7 +566,7 @@ namespace fCraft {
 
             // If no one ended up getting unbanned, quit here
             if( !somethingGotUnbanned ) {
-                throw new PlayerOpException( PlayerOpExceptionCode.NoActionNeeded );
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.NoActionNeeded );
             }
 
             // Announce unbanall reason towards the end of all unbans
@@ -579,16 +590,18 @@ namespace fCraft {
             if( reason == null ) throw new ArgumentNullException( "reason" );
 
             // Check if player is trying to ban self
-            if( player.IP == targetAddress ) throw new PlayerOpException( PlayerOpExceptionCode.CannotDoThatToSelf );
+            if( player.IP == targetAddress ) {
+                throw new PlayerOpException( player, null, PlayerOpExceptionCode.CannotDoThatToSelf );
+            }
 
             // Check if any high-ranked players use this address
             PlayerInfo[] allPlayersOnIP = PlayerDB.FindPlayers( targetAddress );
-            PlayerInfo infosWhomPlayerCantBan = allPlayersOnIP.FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
-            if( infosWhomPlayerCantBan != null ) {
-                throw new PlayerOpException( PlayerOpExceptionCode.PermissionLimitTooLow );
+            PlayerInfo infoWhomPlayerCantBan = allPlayersOnIP.FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
+            if( infoWhomPlayerCantBan != null ) {
+                throw new PlayerOpException( player, infoWhomPlayerCantBan, PlayerOpExceptionCode.PermissionLimitTooLow );
             }
 
-            CheckIfReasonIsRequired( reason );
+            CheckIfReasonIsRequired( reason, player, null );
             bool somethingGotBanned = false;
 
             // Ban the IP
@@ -640,7 +653,7 @@ namespace fCraft {
 
             // If no one ended up getting banned, quit here
             if( !somethingGotBanned ) {
-                throw new PlayerOpException( PlayerOpExceptionCode.NoActionNeeded );
+                throw new PlayerOpException( player, null, PlayerOpExceptionCode.NoActionNeeded );
             }
 
             // Announce banall reason towards the end of all bans
@@ -677,10 +690,12 @@ namespace fCraft {
             if( reason == null ) throw new ArgumentNullException( "reason" );
 
             // Check if player is trying to unban self
-            if( player.IP == targetAddress ) throw new PlayerOpException( PlayerOpExceptionCode.CannotDoThatToSelf );
+            if( player.IP == targetAddress ) {
+                throw new PlayerOpException( player, null, PlayerOpExceptionCode.CannotDoThatToSelf );
+            }
 
 
-            CheckIfReasonIsRequired( reason );
+            CheckIfReasonIsRequired( reason, player, null );
             bool somethingGotUnbanned = false;
 
 
@@ -735,7 +750,7 @@ namespace fCraft {
 
             // If no one ended up getting unbanned, quit here
             if( !somethingGotUnbanned ) {
-                throw new PlayerOpException( PlayerOpExceptionCode.NoActionNeeded );
+                throw new PlayerOpException( player, null, PlayerOpExceptionCode.NoActionNeeded );
             }
 
             // Announce unbanall reason towards the end of all unbans
@@ -745,10 +760,11 @@ namespace fCraft {
         }
 
 
-        static void CheckIfReasonIsRequired( [NotNull] string reason ) {
+        static void CheckIfReasonIsRequired( [NotNull] string reason, [NotNull] Player player, PlayerInfo targetInfo ) {
             if( reason == null ) throw new ArgumentNullException( "reason" );
+            if( player == null ) throw new ArgumentNullException( "player" );
             if( ConfigKey.RequireBanReason.Enabled() && reason.Length == 0 ) {
-                throw new PlayerOpException( PlayerOpExceptionCode.ReasonRequired );
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.ReasonRequired );
             }
         }
     }
