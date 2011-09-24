@@ -124,10 +124,10 @@ namespace fCraft {
         }
 
 
-        internal static void RaisePlayerClickedEvent( Player player, short x, short y, short z, bool mode, Block block ) {
+        internal static void RaisePlayerClickedEvent( Player player, short x, short y, short z, ClickAction action, Block block ) {
             var handler = Clicked;
             if( handler != null ) {
-                handler( null, new PlayerClickedEventArgs( player, x, y, z, mode, block ) );
+                handler( null, new PlayerClickedEventArgs( player, x, y, z, action, block ) );
             }
         }
 
@@ -274,12 +274,12 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerClickingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
-        internal PlayerClickingEventArgs( Player player, short x, short y, short z, bool isBuilding, Block block ) {
+        internal PlayerClickingEventArgs( Player player, short x, short y, short z, ClickAction action, Block block ) {
             Player = player;
             X = x;
             Y = y;
             Z = z;
-            IsBuilding = isBuilding;
+            Action = action;
             Block = block;
         }
 
@@ -289,19 +289,19 @@ namespace fCraft.Events {
         public short Z { get; private set; }
         public Block Block { get; set; }
         /// <summary> Whether the player is building a block (right-click) or deleting it (left-click). </summary>
-        public bool IsBuilding { get; set; }
+        public ClickAction Action { get; set; }
         public bool Cancel { get; set; }
     }
 
 
     public sealed class PlayerClickedEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerClickedEventArgs( Player player, short x, short y, short z, bool isBuilding, Block block ) {
+        internal PlayerClickedEventArgs( Player player, short x, short y, short z, ClickAction action, Block block ) {
             Player = player;
             X = x;
             Y = y;
             Z = z;
             Block = block;
-            IsBuilding = isBuilding;
+            Action = action;
         }
 
         public Player Player { get; private set; }
@@ -309,8 +309,7 @@ namespace fCraft.Events {
         public short Y { get; private set; }
         public short Z { get; private set; }
         public Block Block { get; private set; }
-        /// <summary> Whether the player is building a block (right-click) or deleting it (left-click). </summary>
-        public bool IsBuilding { get; private set; }
+        public ClickAction Action { get; private set; }
     }
 
 

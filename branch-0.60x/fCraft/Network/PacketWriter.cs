@@ -45,11 +45,11 @@ namespace fCraft {
             Write( OpCode.Ping );
         }
 
-        public void WriteLevelBegin() {
+        public void WriteMapBegin() {
             Write( OpCode.MapBegin );
         }
 
-        public void WriteLevelChunk( [NotNull] byte[] chunk, int chunkSize, byte progress ) {
+        public void WriteMapChunk( [NotNull] byte[] chunk, int chunkSize, byte progress ) {
             if( chunk == null ) throw new ArgumentNullException( "chunk" );
             Write( OpCode.MapChunk );
             Write( (short)chunkSize );
@@ -57,7 +57,7 @@ namespace fCraft {
             Write( progress );
         }
 
-        internal void WriteLevelEnd( [NotNull] Map map ) {
+        internal void WriteMapEnd( [NotNull] Map map ) {
             if( map == null ) throw new ArgumentNullException( "map" );
             Write( OpCode.MapEnd );
             Write( (short)map.Width );
@@ -110,7 +110,7 @@ namespace fCraft {
             if( message == null ) throw new ArgumentNullException( "message" );
 
             Packet packet = new Packet( OpCode.Message );
-            packet.Data[1] = 0;
+            packet.Data[1] = 0; // unused
             Encoding.ASCII.GetBytes( message.PadRight( 64 ), 0, 64, packet.Data, 2 );
             return packet;
         }

@@ -3,9 +3,7 @@ using System;
 
 namespace fCraft {
 
-    /// <summary>
-    /// Integer 3D vector, used by Forester.
-    /// </summary>
+    /// <summary> Integer 3D vector, used by Forester. </summary>
     public struct Vector3I : IEquatable<Vector3I>, IComparable<Vector3I>, IComparable<Vector3F> {
         public int X, Y, Z;
 
