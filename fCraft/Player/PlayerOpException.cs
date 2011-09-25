@@ -19,6 +19,7 @@ namespace fCraft {
         CannotDoThatToSelf,
         NoActionNeeded,
         ReasonRequired,
+        PermissionMissing,
         PermissionLimitTooLow,
         TargetIsExempt
     }
