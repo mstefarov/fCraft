@@ -38,8 +38,14 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason == null ) throw new ArgumentNullException( "reason" );
 
+            if( !player.Can( Permission.Ban ) ) {
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.PermissionMissing );
+            }
+
             // Check if player is trying to ban self
-            if( player.Info == targetInfo ) throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.CannotDoThatToSelf );
+            if( player.Info == targetInfo ) {
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.CannotDoThatToSelf );
+            }
 
             // See if target is already banned
             if( unban && targetInfo.BanStatus != BanStatus.Banned ||
@@ -131,13 +137,19 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason == null ) throw new ArgumentNullException( "reason" );
 
+            if( !player.Can( Permission.Ban, Permission.BanIP ) ) {
+                throw new PlayerOpException( player, null, PlayerOpExceptionCode.PermissionMissing );
+            }
+
             // Check if a non-bannable address was given (0.0.0.0 or 255.255.255.255)
             if( targetAddress.Equals( IPAddress.None ) || targetAddress.Equals( IPAddress.Any ) ) {
                 throw new ArgumentException( "Invalid IP", "targetAddress" );
             }
 
             // Check if player is trying to ban self
-            if( player.IP == targetAddress ) throw new PlayerOpException( player, null, PlayerOpExceptionCode.CannotDoThatToSelf );
+            if( player.IP == targetAddress ) {
+                throw new PlayerOpException( player, null, PlayerOpExceptionCode.CannotDoThatToSelf );
+            }
 
             // Check if target is already banned
             IPBanInfo existingBan = IPBanList.Get( targetAddress );
@@ -206,6 +218,10 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason == null ) throw new ArgumentNullException( "reason" );
 
+            if( !player.Can( Permission.Ban, Permission.BanIP ) ) {
+                throw new PlayerOpException( player, null, PlayerOpExceptionCode.PermissionMissing );
+            }
+
             // Check if a non-bannable address was given (0.0.0.0 or 255.255.255.255)
             if( targetAddress.Equals( IPAddress.None ) || targetAddress.Equals( IPAddress.Any ) ) {
                 throw new ArgumentException( "Invalid IP", "targetAddress" );
@@ -249,6 +265,10 @@ namespace fCraft {
             if( targetInfo == null ) throw new ArgumentNullException( "targetInfo" );
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason == null ) throw new ArgumentNullException( "reason" );
+
+            if( !player.Can( Permission.Ban, Permission.BanIP ) ) {
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.PermissionMissing );
+            }
 
             IPAddress address = targetInfo.LastIP;
 
@@ -320,6 +340,10 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason == null ) throw new ArgumentNullException( "reason" );
 
+            if( !player.Can( Permission.Ban, Permission.BanIP ) ) {
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.PermissionMissing );
+            }
+
             IPAddress address = targetInfo.LastIP;
 
             // Check if player is trying to unban self
@@ -378,6 +402,10 @@ namespace fCraft {
             if( targetInfo == null ) throw new ArgumentNullException( "targetInfo" );
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason == null ) throw new ArgumentNullException( "reason" );
+
+            if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.PermissionMissing );
+            }
 
             IPAddress address = targetInfo.LastIP;
 
@@ -492,6 +520,10 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason == null ) throw new ArgumentNullException( "reason" );
 
+            if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.PermissionMissing );
+            }
+
             IPAddress address = targetInfo.LastIP;
 
             // Check if player is trying to unban self
@@ -588,6 +620,10 @@ namespace fCraft {
             if( targetAddress == null ) throw new ArgumentNullException( "targetAddress" );
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason == null ) throw new ArgumentNullException( "reason" );
+
+            if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
+                throw new PlayerOpException( player, null, PlayerOpExceptionCode.PermissionMissing );
+            }
 
             // Check if player is trying to ban self
             if( player.IP == targetAddress ) {
@@ -689,15 +725,17 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason == null ) throw new ArgumentNullException( "reason" );
 
+            if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
+                throw new PlayerOpException( player, null, PlayerOpExceptionCode.PermissionMissing );
+            }
+
             // Check if player is trying to unban self
             if( player.IP == targetAddress ) {
                 throw new PlayerOpException( player, null, PlayerOpExceptionCode.CannotDoThatToSelf );
             }
 
-
             CheckIfReasonIsRequired( reason, player, null );
             bool somethingGotUnbanned = false;
-
 
             // Unban the IP
             if( IPBanList.Get( targetAddress ) != null ) {
