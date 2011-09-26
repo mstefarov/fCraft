@@ -1250,9 +1250,11 @@ namespace fCraft {
                     // incremental position update
                     packet = PacketWriter.MakeMove( entity.Id, delta );
 
-                } else {
+                } else if( rotChanged ) {
                     // absolute rotation update
                     packet = PacketWriter.MakeRotate( entity.Id, newPos );
+                } else {
+                    return;
                 }
 
             } else {
