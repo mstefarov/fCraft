@@ -65,29 +65,21 @@ namespace fCraft {
 
         public static readonly string WorkingPathDefault;
 
-        /// <summary>
-        /// Path to save maps to (default: .\maps)
+        /// <summary> Path to save maps to (default: .\maps)
         /// Can be overridden at startup via command-line argument "--mappath=",
-        /// or via "MapPath" ConfigKey
-        /// </summary>
+        /// or via "MapPath" ConfigKey </summary>
         public static string MapPath { get; set; }
 
-        /// <summary>
-        /// Working path (default: whatever directory fCraft.dll is located in)
-        /// Can be overridden at startup via command line argument "--path="
-        /// </summary>
+        /// <summary> Working path (default: whatever directory fCraft.dll is located in)
+        /// Can be overridden at startup via command line argument "--path=" </summary>
         public static string WorkingPath { get; set; }
 
-        /// <summary>
-        /// Path to save logs to (default: .\logs)
-        /// Can be overridden at startup via command-line argument "--logpath="
-        /// </summary>
+        /// <summary> Path to save logs to (default: .\logs)
+        /// Can be overridden at startup via command-line argument "--logpath=" </summary>
         public static string LogPath { get; set; }
 
-        /// <summary>
-        /// Path to load/save config to/from (default: .\config.xml)
-        /// Can be overridden at startup via command-line argument "--config="
-        /// </summary>
+        /// <summary> Path to load/save config to/from (default: .\config.xml)
+        /// Can be overridden at startup via command-line argument "--config=" </summary>
         public static string ConfigFileName { get; set; }
 
 
@@ -115,7 +107,7 @@ namespace fCraft {
 
 
         public static string BlockDBPath {
-            get { return Path.Combine( MapPath, BlockDBDirectory ); }
+            get { return Path.Combine( WorkingPath, BlockDBDirectory ); }
         }
 
         public static string RulesPath {
@@ -138,14 +130,11 @@ namespace fCraft {
         }
 
 
-        /// <summary>
-        /// Makes sure that the path format is valid, that it exists, that it is accessible and writeable.
-        /// </summary>
-        /// <param name="pathLabel">name of the path that's being tested (e.g. "map path").
-        /// Used for logging.</param>
-        /// <param name="path">full or partial path</param>
-        /// <param name="checkForWriteAccess"></param>
-        /// <returns>full path of the directory (on success) or null (on failure)</returns>
+        /// <summary> Makes sure that the path format is valid, that it exists, that it is accessible and writeable. </summary>
+        /// <param name="pathLabel"> Name of the path that's being tested (e.g. "map path"). Used for logging. </param>
+        /// <param name="path"> Full or partial path. </param>
+        /// <param name="checkForWriteAccess"> If set, tries to write to the given directory. </param>
+        /// <returns> Full path of the directory (on success) or null (on failure). </returns>
         public static bool TestDirectory( [NotNull] string pathLabel, [NotNull] string path, bool checkForWriteAccess ) {
             if( pathLabel == null ) throw new ArgumentNullException( "pathLabel" );
             if( path == null ) throw new ArgumentNullException( "path" );

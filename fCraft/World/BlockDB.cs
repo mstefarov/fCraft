@@ -642,7 +642,7 @@ namespace fCraft {
         public static bool IsEnabledGlobally { get; private set; }
 
         internal static void Init() {
-            Paths.TestDirectory( "BlockDB", Paths.BlockDBDirectory, true );
+            Paths.TestDirectory( "BlockDB", Paths.BlockDBPath, true );
             Player.PlacedBlock += OnPlayerPlacedBlock;
             Scheduler.NewBackgroundTask( FlushAll ).RunForever( FlushInterval, FlushInterval );
             IsEnabledGlobally = true;
