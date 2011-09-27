@@ -98,9 +98,9 @@ namespace fCraft {
                     if( !unban ) {
                         string kickReason;
                         if( reason.Length > 0 ) {
-                            kickReason = String.Format( "Banned by {0}: {1}", player.ClassyName, reason );
+                            kickReason = String.Format( "Banned by {0}: {1}", player.Name, reason );
                         } else {
-                            kickReason = String.Format( "Banned by {0}", player.ClassyName );
+                            kickReason = String.Format( "Banned by {0}", player.Name );
                         }
                         target.Kick( kickReason, LeaveReason.Ban ); // TODO: check side effects of not using DoKick
                     }
@@ -201,9 +201,9 @@ namespace fCraft {
                 // Kick all players connected from address
                 string kickReason;
                 if( reason.Length > 0 ) {
-                    kickReason = String.Format( "IP-Banned by {0}: {1}", player.ClassyName, reason );
+                    kickReason = String.Format( "IP-Banned by {0}: {1}", player.Name, reason );
                 } else {
-                    kickReason = String.Format( "IP-Banned by {0}", player.ClassyName );
+                    kickReason = String.Format( "IP-Banned by {0}", player.Name );
                 }
                 foreach( Player other in Server.Players.FromIP( targetAddress ) ) {
                     if( other.Info.BanStatus != BanStatus.IPBanExempt ) {
@@ -555,9 +555,9 @@ namespace fCraft {
             if( targetsOnline.Length > 0 ) {
                 string kickReason;
                 if( reason.Length > 0 ) {
-                    kickReason = String.Format( "Banned by {0}: {1}", player.ClassyName, reason );
+                    kickReason = String.Format( "Banned by {0}: {1}", player.Name, reason );
                 } else {
-                    kickReason = String.Format( "Banned by {0}", player.ClassyName );
+                    kickReason = String.Format( "Banned by {0}", player.Name );
                 }
                 for( int i = 0; i < targetsOnline.Length; i++ ) {
                     targetsOnline[i].Kick( kickReason, LeaveReason.BanAll );
@@ -760,9 +760,9 @@ namespace fCraft {
             if( targetsOnline.Length > 0 ) {
                 string kickReason;
                 if( reason.Length > 0 ) {
-                    kickReason = String.Format( "Banned by {0}: {1}", player.ClassyName, reason );
+                    kickReason = String.Format( "Banned by {0}: {1}", player.Name, reason );
                 } else {
-                    kickReason = String.Format( "Banned by {0}", player.ClassyName );
+                    kickReason = String.Format( "Banned by {0}", player.Name );
                 }
                 for( int i = 0; i < targetsOnline.Length; i++ ) {
                     targetsOnline[i].Kick( kickReason, LeaveReason.BanAll );
@@ -883,17 +883,17 @@ namespace fCraft {
             if( player.Can( Permission.ViewPlayerIPs ) ) {
                 msg = String.Format( "IP {0} is used by player {1}, ranked {2}. You may only ban players ranked {3} and below.",
                                      targetAddress, infoWhomPlayerCantBan.Name, infoWhomPlayerCantBan.Rank.Name,
-                                     player.Info.Rank.GetLimit( Permission.Ban ) );
+                                     player.Info.Rank.GetLimit( Permission.Ban ).Name );
                 colorMsg = String.Format( "&WIP {0} is used by player {1}&W, ranked {2}&W. You may only ban players ranked {3}&W and below.",
-                                          targetAddress, infoWhomPlayerCantBan.Name, infoWhomPlayerCantBan.Rank.Name,
-                                          player.Info.Rank.GetLimit( Permission.Ban ) );
+                                          targetAddress, infoWhomPlayerCantBan.ClassyName, infoWhomPlayerCantBan.Rank.ClassyName,
+                                          player.Info.Rank.GetLimit( Permission.Ban ).ClassyName );
             } else {
                 msg = String.Format( "Given IP is used by player {0}, ranked {1}. You may only ban players ranked {2} and below.",
                                      infoWhomPlayerCantBan.Name, infoWhomPlayerCantBan.Rank.Name,
-                                     player.Info.Rank.GetLimit( Permission.Ban ) );
+                                     player.Info.Rank.GetLimit( Permission.Ban ).Name );
                 colorMsg = String.Format( "&WGiven IP is used by player {0}&W, ranked {1}&W. You may only ban players ranked {2}&W and below.",
-                                          infoWhomPlayerCantBan.Name, infoWhomPlayerCantBan.Rank.Name,
-                                          player.Info.Rank.GetLimit( Permission.Ban ) );
+                                          infoWhomPlayerCantBan.ClassyName, infoWhomPlayerCantBan.Rank.ClassyName,
+                                          player.Info.Rank.GetLimit( Permission.Ban ).ClassyName );
             }
             throw new PlayerOpException( player, infoWhomPlayerCantBan, PlayerOpExceptionCode.PermissionLimitTooLow,
                                          msg, colorMsg );
@@ -904,10 +904,10 @@ namespace fCraft {
         static void ThrowPermissionLimit( [NotNull] Player player, [NotNull] PlayerInfo infoWhomPlayerCantBan ) {
             string msg = String.Format( "Cannot ban {0} (ranked {1}): you may only ban players ranked {2} and below.",
                                         infoWhomPlayerCantBan.Name, infoWhomPlayerCantBan.Rank.Name,
-                                        player.Info.Rank.GetLimit( Permission.Ban ) );
-            string colorMsg = String.Format( "&WCannot ban {0}&W (ranked {1}&W): you may only ban players ranked {2}&W and below.",
-                                             infoWhomPlayerCantBan.Name, infoWhomPlayerCantBan.Rank.Name,
-                                             player.Info.Rank.GetLimit( Permission.Ban ) );
+                                        player.Info.Rank.GetLimit( Permission.Ban ).Name );
+            string colorMsg = String.Format( "&SCannot ban {0}&S (ranked {1}&S): you may only ban players ranked {2}&S and below.",
+                                             infoWhomPlayerCantBan.ClassyName, infoWhomPlayerCantBan.Rank.ClassyName,
+                                             player.Info.Rank.GetLimit( Permission.Ban ).ClassyName );
             throw new PlayerOpException( player, infoWhomPlayerCantBan, PlayerOpExceptionCode.PermissionLimitTooLow,
                                          msg, colorMsg );
         }
