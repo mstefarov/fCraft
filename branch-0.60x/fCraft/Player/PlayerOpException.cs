@@ -28,7 +28,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( action == null ) throw new ArgumentNullException( "action" );
             string msg = String.Format( "You cannot {0} yourself.", action );
-            string colorMsg = String.Format( "&WYou cannot {0} yourself.", action );
+            string colorMsg = String.Format( "&SYou cannot {0} yourself.", action );
             throw new PlayerOpException( player, target, PlayerOpExceptionCode.CannotTargetSelf, msg, colorMsg );
         }
 

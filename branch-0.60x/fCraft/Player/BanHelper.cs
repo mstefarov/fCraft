@@ -155,7 +155,7 @@ namespace fCraft {
             }
 
             // Check if player is trying to ban self
-            if( player.IP == targetAddress ) {
+            if( player.IP.Equals( targetAddress ) ) {
                 PlayerOpException.CannotTargetSelf( player, null, "IP-ban" );
             }
 
@@ -248,7 +248,7 @@ namespace fCraft {
             }
 
             // Check if player is trying to unban self
-            if( player.IP == targetAddress ) {
+            if( player.IP.Equals( targetAddress ) ) {
                 PlayerOpException.CannotTargetSelf( player, null, "IP-unban" );
             }
 
@@ -299,7 +299,7 @@ namespace fCraft {
             IPAddress address = targetInfo.LastIP;
 
             // Check if player is trying to ban self
-            if( player.Info == targetInfo || player.IP == address ) {
+            if( player.Info == targetInfo || player.IP.Equals( address ) ) {
                 PlayerOpException.CannotTargetSelf( player, targetInfo, "IP-ban" );
             }
 
@@ -404,7 +404,7 @@ namespace fCraft {
             IPAddress address = targetInfo.LastIP;
 
             // Check if player is trying to unban self
-            if( player.Info == targetInfo || player.IP == address ) {
+            if( player.Info == targetInfo || player.IP.Equals( address ) ) {
                 PlayerOpException.CannotTargetSelf( player, targetInfo, "IP-unban" );
             }
 
@@ -468,7 +468,7 @@ namespace fCraft {
             IPAddress address = targetInfo.LastIP;
 
             // Check if player is trying to ban self
-            if( player.Info == targetInfo || player.IP == address ) {
+            if( player.Info == targetInfo || player.IP.Equals( address ) ) {
                 PlayerOpException.CannotTargetSelf( player, targetInfo, "ban-all" );
             }
 
@@ -525,14 +525,14 @@ namespace fCraft {
                         Logger.Log( "{0} was banned by {1} (BanAll). Reason: {3}", LogType.UserActivity,
                                     targetAlt.Name, player.Name, reason );
                         if( announce ) {
-                            Server.Message( "Player {0}&W was banned by {1}&W (BanAll)",
+                            Server.Message( "&WPlayer {0}&W was banned by {1}&W (BanAll)",
                                             targetAlt.ClassyName, player.ClassyName );
                         }
                     } else {
                         Logger.Log( "{0} was banned by {1} (BanAll by association with {2}). Reason: {3}", LogType.UserActivity,
                                     targetAlt.Name, player.Name, targetInfo.Name, reason );
                         if( announce ) {
-                            Server.Message( "Player {0}&W was banned by {1}&W by association with {2}",
+                            Server.Message( "&WPlayer {0}&W was banned by {1}&W by association with {2}",
                                             targetAlt.ClassyName, player.ClassyName, targetInfo.ClassyName );
                         }
                     }
@@ -586,7 +586,7 @@ namespace fCraft {
             IPAddress address = targetInfo.LastIP;
 
             // Check if player is trying to unban self
-            if( player.Info == targetInfo || player.IP == address ) {
+            if( player.Info == targetInfo || player.IP.Equals( address ) ) {
                 PlayerOpException.CannotTargetSelf( player, targetInfo, "unban-all" );
             }
 
@@ -638,14 +638,14 @@ namespace fCraft {
                         Logger.Log( "{0} was unbanned by {1} (UnbanAll). Reason: {3}", LogType.UserActivity,
                                     targetAlt.Name, player.Name, reason );
                         if( announce ) {
-                            Server.Message( "Player {0}&W was unbanned by {1}&W (UnbanAll)",
+                            Server.Message( "&WPlayer {0}&W was unbanned by {1}&W (UnbanAll)",
                                             targetAlt.ClassyName, player.ClassyName );
                         }
                     } else {
                         Logger.Log( "{0} was unbanned by {1} (UnbanAll by association with {2}). Reason: {3}", LogType.UserActivity,
                                     targetAlt.Name, player.Name, targetInfo.Name, reason );
                         if( announce ) {
-                            Server.Message( "Player {0}&W was unbanned by {1}&W by association with {2}",
+                            Server.Message( "&WPlayer {0}&W was unbanned by {1}&W by association with {2}",
                                             targetAlt.ClassyName, player.ClassyName, targetInfo.ClassyName );
                         }
                     }
@@ -684,7 +684,7 @@ namespace fCraft {
             }
 
             // Check if player is trying to ban self
-            if( player.IP == targetAddress ) {
+            if( player.IP.Equals( targetAddress ) ) {
                 PlayerOpException.CannotTargetSelf( player, null, "ban-all" );
             }
 
@@ -738,7 +738,7 @@ namespace fCraft {
                     Logger.Log( "{0} was banned by {1} (BanAll). Reason: {3}", LogType.UserActivity,
                                 targetAlt.Name, player.Name, reason );
                     if( announce ) {
-                        Server.Message( "Player {0}&W was banned by {1}&W (BanAll)",
+                        Server.Message( "&WPlayer {0}&W was banned by {1}&W (BanAll)",
                                         targetAlt.ClassyName, player.ClassyName );
                     }
                     somethingGotBanned = true;
@@ -789,7 +789,7 @@ namespace fCraft {
             }
 
             // Check if player is trying to unban self
-            if( player.IP == targetAddress ) {
+            if( player.IP.Equals( targetAddress ) ) {
                 PlayerOpException.CannotTargetSelf( player, null, "unban-all" );
             }
 
@@ -838,7 +838,7 @@ namespace fCraft {
                     Logger.Log( "{0} was unbanned by {1} (UnbanAll). Reason: {3}", LogType.UserActivity,
                                 targetAlt.Name, player.Name, reason );
                     if( announce ) {
-                        Server.Message( "Player {0}&W was unbanned by {1}&W (UnbanAll)",
+                        Server.Message( "&WPlayer {0}&W was unbanned by {1}&W (UnbanAll)",
                                         targetAlt.ClassyName, player.ClassyName );
                     }
                     somethingGotUnbanned = true;
@@ -868,7 +868,8 @@ namespace fCraft {
                 } else {
                     msg = "Please specify an ban reason.";
                 }
-                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.ReasonRequired, msg, msg );
+                string colorMsg = "&S" + msg;
+                throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.ReasonRequired, msg, colorMsg );
             }
         }
 
@@ -884,14 +885,14 @@ namespace fCraft {
                 msg = String.Format( "IP {0} is used by player {1}, ranked {2}. You may only ban players ranked {3} and below.",
                                      targetAddress, infoWhomPlayerCantBan.Name, infoWhomPlayerCantBan.Rank.Name,
                                      player.Info.Rank.GetLimit( Permission.Ban ).Name );
-                colorMsg = String.Format( "&WIP {0} is used by player {1}&W, ranked {2}&W. You may only ban players ranked {3}&W and below.",
+                colorMsg = String.Format( "&SIP {0} is used by player {1}&S, ranked {2}&S. You may only ban players ranked {3}&S and below.",
                                           targetAddress, infoWhomPlayerCantBan.ClassyName, infoWhomPlayerCantBan.Rank.ClassyName,
                                           player.Info.Rank.GetLimit( Permission.Ban ).ClassyName );
             } else {
                 msg = String.Format( "Given IP is used by player {0}, ranked {1}. You may only ban players ranked {2} and below.",
                                      infoWhomPlayerCantBan.Name, infoWhomPlayerCantBan.Rank.Name,
                                      player.Info.Rank.GetLimit( Permission.Ban ).Name );
-                colorMsg = String.Format( "&WGiven IP is used by player {0}&W, ranked {1}&W. You may only ban players ranked {2}&W and below.",
+                colorMsg = String.Format( "&SGiven IP is used by player {0}&S, ranked {1}&S. You may only ban players ranked {2}&S and below.",
                                           infoWhomPlayerCantBan.ClassyName, infoWhomPlayerCantBan.Rank.ClassyName,
                                           player.Info.Rank.GetLimit( Permission.Ban ).ClassyName );
             }
@@ -942,7 +943,8 @@ namespace fCraft {
             } else {
                 msg = "Given IP and all players who use it are already banned.";
             }
-            throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.NoActionNeeded, msg, msg );
+            string colorMsg = "&S" + msg;
+            throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
         }
 
 
@@ -957,7 +959,8 @@ namespace fCraft {
             } else {
                 msg = "None of the players who use given IP are banned.";
             }
-            throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.NoActionNeeded, msg, msg );
+            string colorMsg = "&S" + msg;
+            throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
         }
 
 
@@ -967,7 +970,7 @@ namespace fCraft {
             if( target == null ) throw new ArgumentNullException( "target" );
             if( action == null ) throw new ArgumentNullException( "action" );
             string msg = String.Format( "Player {0} is already {1}.", target.Name, action );
-            string msgColored = String.Format( "Player {0}&S is already {1}.", target.ClassyName, action );
+            string msgColored = String.Format( "&SPlayer {0}&S is already {1}.", target.ClassyName, action );
             throw new PlayerOpException( player, target, PlayerOpExceptionCode.NoActionNeeded, msg, msgColored );
         }
 
@@ -978,7 +981,7 @@ namespace fCraft {
             if( target == null ) throw new ArgumentNullException( "target" );
             if( action == null ) throw new ArgumentNullException( "action" );
             string msg = String.Format( "Player {0} is not currently {1}.", target.Name, action );
-            string msgColored = String.Format( "Player {0}&S is not currently {1}.", target.ClassyName, action );
+            string msgColored = String.Format( "&SPlayer {0}&S is not currently {1}.", target.ClassyName, action );
             throw new PlayerOpException( player, target, PlayerOpExceptionCode.NoActionNeeded, msg, msgColored );
         }
     }

@@ -116,49 +116,49 @@ namespace fCraft {
 #if !DEBUG
                                         try {
 #endif
-                                            PlayerInfo info;
-                                            switch( version ) {
-                                                case 0:
-                                                    info = PlayerInfo.LoadFormat0( fields, true );
-                                                    break;
-                                                case 1:
-                                                    info = PlayerInfo.LoadFormat1( fields );
-                                                    break;
-                                                case 2:
-                                                case 3:
-                                                case 4:
-                                                    // Versions 2-4 differ in semantics only, not in actual serialization format.
-                                                    info = PlayerInfo.LoadFormat2( fields );
-                                                    break;
-                                                default:
-                                                    return;
-                                            }
+                                        PlayerInfo info;
+                                        switch( version ) {
+                                            case 0:
+                                                info = PlayerInfo.LoadFormat0( fields, true );
+                                                break;
+                                            case 1:
+                                                info = PlayerInfo.LoadFormat1( fields );
+                                                break;
+                                            case 2:
+                                            case 3:
+                                            case 4:
+                                                // Versions 2-4 differ in semantics only, not in actual serialization format.
+                                                info = PlayerInfo.LoadFormat2( fields );
+                                                break;
+                                            default:
+                                                return;
+                                        }
 
-                                            if( info.ID > maxID ) {
-                                                maxID = info.ID;
-                                                Logger.Log( "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1}).", LogType.Warning );
-                                            }
+                                        if( info.ID > maxID ) {
+                                            maxID = info.ID;
+                                            Logger.Log( "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1}).", LogType.Warning );
+                                        }
 
-                                            // A record is considered "empty" if the player has never logged in.
-                                            // Empty records may be created by /import, /ban, and /rank commands on typos.
-                                            // Deleting such records should have no negative impact on DB completeness.
-                                            if( (info.LastIP == IPAddress.None || info.TimesVisited == 0) &&
-                                                !info.IsBanned && info.Rank == RankManager.DefaultRank ) {
+                                        // A record is considered "empty" if the player has never logged in.
+                                        // Empty records may be created by /import, /ban, and /rank commands on typos.
+                                        // Deleting such records should have no negative impact on DB completeness.
+                                        if( (info.LastIP.Equals( IPAddress.None ) || info.TimesVisited == 0) &&
+                                            !info.IsBanned && info.Rank == RankManager.DefaultRank ) {
 
-                                                Logger.Log( "PlayerDB.Load: Skipping an empty record for player \"{0}\"", LogType.SystemActivity,
-                                                            info.Name );
-                                                emptyRecords++;
-                                                continue;
-                                            }
+                                            Logger.Log( "PlayerDB.Load: Skipping an empty record for player \"{0}\"", LogType.SystemActivity,
+                                                        info.Name );
+                                            emptyRecords++;
+                                            continue;
+                                        }
 
-                                            // Check for duplicates. Unless PlayerDB.txt was altered externally, this does not happen.
-                                            if( Trie.ContainsKey( info.Name ) ) {
-                                                Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.", LogType.Error,
-                                                            info.Name );
-                                            } else {
-                                                Trie.Add( info.Name, info );
-                                                list.Add( info );
-                                            }
+                                        // Check for duplicates. Unless PlayerDB.txt was altered externally, this does not happen.
+                                        if( Trie.ContainsKey( info.Name ) ) {
+                                            Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.", LogType.Error,
+                                                        info.Name );
+                                        } else {
+                                            Trie.Add( info.Name, info );
+                                            list.Add( info );
+                                        }
 #if !DEBUG
                                         } catch( Exception ex ) {
                                             Logger.LogAndReportCrash( "Error while parsing PlayerInfo record",
