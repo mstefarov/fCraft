@@ -155,7 +155,7 @@ namespace fCraft {
             }
 
             // Check if player is trying to ban self
-            if( player.IP.Equals( targetAddress ) ) {
+            if( targetAddress.Equals( player.IP ) && !player.IsSuper ) {
                 PlayerOpException.CannotTargetSelf( player, null, "IP-ban" );
             }
 
@@ -248,7 +248,7 @@ namespace fCraft {
             }
 
             // Check if player is trying to unban self
-            if( player.IP.Equals( targetAddress ) ) {
+            if( targetAddress.Equals( player.IP ) && !player.IsSuper ) {
                 PlayerOpException.CannotTargetSelf( player, null, "IP-unban" );
             }
 
@@ -299,7 +299,7 @@ namespace fCraft {
             IPAddress address = targetInfo.LastIP;
 
             // Check if player is trying to ban self
-            if( player.Info == targetInfo || player.IP.Equals( address ) ) {
+            if( player.Info == targetInfo || address.Equals( player.IP ) && !player.IsSuper ) {
                 PlayerOpException.CannotTargetSelf( player, targetInfo, "IP-ban" );
             }
 
@@ -404,7 +404,7 @@ namespace fCraft {
             IPAddress address = targetInfo.LastIP;
 
             // Check if player is trying to unban self
-            if( player.Info == targetInfo || player.IP.Equals( address ) ) {
+            if( player.Info == targetInfo || address.Equals( player.IP ) && !player.IsSuper ) {
                 PlayerOpException.CannotTargetSelf( player, targetInfo, "IP-unban" );
             }
 
@@ -468,7 +468,7 @@ namespace fCraft {
             IPAddress address = targetInfo.LastIP;
 
             // Check if player is trying to ban self
-            if( player.Info == targetInfo || player.IP.Equals( address ) ) {
+            if( player.Info == targetInfo || address.Equals( player.IP ) && !player.IsSuper ) {
                 PlayerOpException.CannotTargetSelf( player, targetInfo, "ban-all" );
             }
 
@@ -586,7 +586,7 @@ namespace fCraft {
             IPAddress address = targetInfo.LastIP;
 
             // Check if player is trying to unban self
-            if( player.Info == targetInfo || player.IP.Equals( address ) ) {
+            if( player.Info == targetInfo || address.Equals( player.IP ) && !player.IsSuper ) {
                 PlayerOpException.CannotTargetSelf( player, targetInfo, "unban-all" );
             }
 
@@ -684,7 +684,7 @@ namespace fCraft {
             }
 
             // Check if player is trying to ban self
-            if( player.IP.Equals( targetAddress ) ) {
+            if( targetAddress.Equals( player.IP ) && !player.IsSuper ) {
                 PlayerOpException.CannotTargetSelf( player, null, "ban-all" );
             }
 
@@ -789,7 +789,7 @@ namespace fCraft {
             }
 
             // Check if player is trying to unban self
-            if( player.IP.Equals( targetAddress ) ) {
+            if( targetAddress.Equals( player.IP ) && !player.IsSuper ) {
                 PlayerOpException.CannotTargetSelf( player, null, "unban-all" );
             }
 

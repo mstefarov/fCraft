@@ -862,7 +862,7 @@ namespace fCraft {
             Handler = WhereHandler
         };
 
-        internal static void WhereHandler( Player player, Command cmd ) {
+        static void WhereHandler( Player player, Command cmd ) {
             string name = cmd.Next();
 
             Player target = player;
@@ -870,7 +870,7 @@ namespace fCraft {
             if( name != null ) {
                 target = Server.FindPlayerOrPrintMatches( player, name, false, true );
                 if( target == null ) return;
-            } else if( player.World == null ) {
+            } else if( target.World == null ) {
                 player.Message( "When called form console, &H/where&S requires a player name." );
                 return;
             }
