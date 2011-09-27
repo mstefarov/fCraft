@@ -683,7 +683,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 Name = "rank" + number,
                 Prefix = "",
                 ReservedSlot = false,
-                Color = ""
+                Color = Color.White
             };
 
             RankManager.AddRank( rank );

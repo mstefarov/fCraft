@@ -1352,7 +1352,7 @@ namespace fCraft {
 
                         // apply changes
                         world.BuildSecurity.MinRank = rank;
-                        if( BlockDB.IsEnabledGlobally && world.BlockDB.CheckIfShouldBeAutoEnabled() ) {
+                        if( BlockDB.IsEnabledGlobally && world.BlockDB.AutoToggleIfNeeded() ) {
                             if( world.BlockDB.IsEnabled ) {
                                 player.Message( "BlockDB is now auto-enabled on world {0}",
                                                 world.ClassyName );
@@ -1742,7 +1742,7 @@ namespace fCraft {
                         if( newWorld != null ) {
                             newWorld.BuildSecurity.MinRank = buildRank;
                             newWorld.AccessSecurity.MinRank = accessRank;
-                            newWorld.BlockDB.CheckIfShouldBeAutoEnabled();
+                            newWorld.BlockDB.AutoToggleIfNeeded();
                             if( BlockDB.IsEnabledGlobally && newWorld.BlockDB.IsEnabled ) {
                                 player.Message( "BlockDB is now auto-enabled on world {0}", newWorld.ClassyName );
                             }

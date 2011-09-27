@@ -147,12 +147,24 @@ namespace fCraft {
         public static IPBanInfo Get( [NotNull] IPAddress address ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             lock( BanListLock ) {
-                if( !Bans.ContainsKey( address.ToString() ) ) {
+                IPBanInfo info;
+                if( Bans.TryGetValue( address.ToString(), out info ) ) {
+                    return info;
+                } else {
                     return null;
                 }
-                return Bans[address.ToString()];
             }
         }
+
+
+        /// <summary> Checks whether the given address is banned. </summary>
+        public static bool Contains( [NotNull] IPAddress address ) {
+            if( address == null ) throw new ArgumentNullException( "address" );
+            lock( BanListLock ) {
+                return Bans.ContainsKey( address.ToString() );
+            }
+        }
+
 
 
         /// <summary> Removes a given IP address from the ban list (if present). </summary>

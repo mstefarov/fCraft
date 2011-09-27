@@ -10,6 +10,7 @@ namespace fCraft {
     /// </summary>
     public sealed class BoundingBox {
         public static readonly BoundingBox Empty = new BoundingBox( 0, 0, 0, 0, 0, 0 );
+
         // ReSharper disable FieldCanBeMadeReadOnly.Global
         public int XMin, YMin, ZMin, XMax, YMax, ZMax;
         // ReSharper restore FieldCanBeMadeReadOnly.Global

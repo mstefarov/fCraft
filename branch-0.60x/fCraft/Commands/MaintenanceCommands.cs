@@ -1110,11 +1110,16 @@ namespace fCraft {
             string reason = "(import from " + serverName + ")";
             foreach( string name in names ) {
                 if( Player.IsValidName( name ) ) {
-                    ModerationCommands.DoBan( player, name, reason, false, false, false );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoExact( name );
+                    if( info == null ) {
+                        info = PlayerDB.AddFakeEntry( name, RankChangeType.Default );
+                    }
+                    info.Ban( player, reason, true, true );
+
                 } else {
                     IPAddress ip;
                     if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
-                        ModerationCommands.DoIPBan( player, ip, reason, "", false, false );
+                        ip.BanIP( player, reason, true, true );
                     } else {
                         player.Message( "Could not parse \"{0}\" as either name or IP. Skipping.", name );
                     }

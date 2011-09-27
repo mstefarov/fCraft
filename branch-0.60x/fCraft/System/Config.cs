@@ -479,7 +479,7 @@ namespace fCraft {
                     if( BlockDB.IsEnabledGlobally ) {
                         World[] worldListCache = WorldManager.WorldList;
                         foreach( World world in worldListCache ) {
-                            if( world.BlockDB.CheckIfShouldBeAutoEnabled() ) {
+                            if( world.BlockDB.AutoToggleIfNeeded() ) {
                                 if( world.BlockDB.IsEnabled ) {
                                     Logger.Log( "BlockDB is now auto-enabled on world {0}", LogType.SystemActivity,
                                                     world.Name );

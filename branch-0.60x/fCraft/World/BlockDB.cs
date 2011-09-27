@@ -16,16 +16,15 @@ namespace fCraft {
 
     public unsafe sealed class BlockDB {
 
-        public BlockDB( [NotNull] World world ) {
+        internal BlockDB( [NotNull] World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );
             World = world;
         }
 
-
-        internal readonly object SyncRoot = new object();
+        public readonly object SyncRoot = new object();
 
         [NotNull]
-        public World World { get; set; }
+        public World World { get; internal set; }
 
 
         YesNoAuto enabledState;
@@ -55,7 +54,7 @@ namespace fCraft {
         }
 
 
-        public bool CheckIfShouldBeAutoEnabled() {
+        public bool AutoToggleIfNeeded() {
             bool oldEnabled = IsEnabled;
             EnabledState = enabledState;
             return (oldEnabled != IsEnabled);
@@ -64,14 +63,17 @@ namespace fCraft {
 
         public bool ShouldBeAutoEnabled {
             get {
-                return ( World.BuildSecurity.MinRank <= RankManager.BlockDBAutoEnableRank );
+                return (World.BuildSecurity.MinRank <= RankManager.BlockDBAutoEnableRank);
             }
         }
 
 
+        /// <summary> Checks whether this BlockDB is enabled (either automatically or manually).
+        /// Set EnabledState to enable/disable. </summary>
         public bool IsEnabled { get; private set; }
 
 
+        /// <summary> Full path to the file where BlockDB data is stored. </summary>
         [NotNull]
         public string FileName {
             get {
@@ -82,19 +84,27 @@ namespace fCraft {
 
         #region Cache
 
-        const int BufferSize = 64 * 1024; // 64 KB
+        const int BufferSize = 64 * 1024; // 64 KB (at 16 bytes/entry)
         readonly byte[] ioBuffer = new byte[BufferSize];
 
         BlockDBEntry[] cacheStore = new BlockDBEntry[MinCacheSize];
         internal int CacheSize;
-        const int MinCacheSize = 2 * 1024, // 32 KB
-                  CacheLinearResizeThreshold = 64 * 1024; // 1 MB
+        const int MinCacheSize = 2 * 1024, // 32 KB (at 16 bytes/entry)
+                  CacheLinearResizeThreshold = 64 * 1024; // 1 MB (at 16 bytes/entry)
 
-        void CacheAdd( BlockDBEntry item ) {
-            if( CacheSize == cacheStore.Length ) {
-                EnsureCapacity( CacheSize + 1 );
+        void AddEntry( BlockDBEntry item ) {
+            lock( SyncRoot ) {
+                if( CacheSize == cacheStore.Length ) {
+                    if( !isPreloaded && CacheSize >= CacheLinearResizeThreshold ) {
+                        // Avoid bloating the cacheStore if we are not preloaded.
+                        // This might cause lag spikes, since it's ran from main scheduler thread.
+                        Flush();
+                    } else {
+                        EnsureCapacity( CacheSize + 1 );
+                    }
+                }
+                cacheStore[CacheSize++] = item;
             }
-            cacheStore[CacheSize++] = item;
         }
 
 
@@ -376,18 +386,13 @@ namespace fCraft {
         #endregion
 
 
-        public void AddEntry( BlockDBEntry newEntry ) {
-            lock( SyncRoot ) {
-                CacheAdd( newEntry );
-            }
-        }
-
-
-        internal void Clear() {
+        /// <summary> Clears cache and deletes the BlockDB file. </summary>
+        public void Clear() {
             lock( SyncRoot ) {
                 CacheClear();
-                if( File.Exists( FileName ) )
+                if( File.Exists( FileName ) ) {
                     File.Delete( FileName );
+                }
             }
         }
 
@@ -395,7 +400,7 @@ namespace fCraft {
         static readonly TimeSpan MinLimitDelay = TimeSpan.FromMinutes( 5 ),
                                  MinTimeLimitDelay = TimeSpan.FromMinutes( 10 );
 
-        internal void Flush() {
+        public void Flush() {
             lock( SyncRoot ) {
                 if( LastFlushedIndex < CacheSize ) {
                     Logger.Log( "BlockDB({0}): Flushing. CC={1} CS={2} LFI={3}", LogType.Debug,
@@ -440,11 +445,14 @@ namespace fCraft {
         }
 
 
-        internal BlockDBEntry[] Lookup( short x, short y, short z ) {
+        public BlockDBEntry[] Lookup( short x, short y, short z ) {
             if( !IsEnabled || !IsEnabledGlobally ) {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
             }
             List<BlockDBEntry> results = new List<BlockDBEntry>();
+            if( x < 0 || y < 0 || z < 0 ) {
+                return results.ToArray();
+            }
 
             if( isPreloaded ) {
                 lock( SyncRoot ) {
@@ -474,7 +482,7 @@ namespace fCraft {
         }
 
 
-        internal BlockDBEntry[] Lookup( [NotNull] PlayerInfo info, int max ) {
+        public BlockDBEntry[] Lookup( [NotNull] PlayerInfo info, int max ) {
             if( !IsEnabled || !IsEnabledGlobally ) {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
             }
@@ -515,7 +523,7 @@ namespace fCraft {
         }
 
 
-        internal BlockDBEntry[] Lookup( [NotNull] PlayerInfo info, TimeSpan span ) {
+        public BlockDBEntry[] Lookup( [NotNull] PlayerInfo info, TimeSpan span ) {
             if( !IsEnabled || !IsEnabledGlobally ) {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
             }
@@ -557,8 +565,13 @@ namespace fCraft {
         #region Serialization
 
         public const string XmlRootName = "BlockDB";
+
         public XElement SaveSettings() {
-            XElement root = new XElement( XmlRootName );
+            return SaveSettings( XmlRootName );
+        }
+
+        public XElement SaveSettings( string rootName ) {
+            XElement root = new XElement( rootName );
             root.Add( new XAttribute( "enabled", EnabledState ) );
             root.Add( new XAttribute( "preload", IsPreloaded ) );
             if( HasLimit ) {
@@ -621,12 +634,15 @@ namespace fCraft {
 
         #region Static
 
-        public const int BlockDBEntrySize = 16;
-        public static bool IsEnabledGlobally { get; private set; }
+        public const int BlockDBEntrySize = 16; // sizeof(BlockDBEntry)
         static readonly TimeSpan FlushInterval = TimeSpan.FromSeconds( 90 );
 
+        /// <summary> Whether BlockDB was enabled at startup.
+        /// Changing this setting currently requires a server restart. </summary>
+        public static bool IsEnabledGlobally { get; private set; }
+
         internal static void Init() {
-            Paths.TestDirectory( "BlockDB", Paths.BlockDBPath, true );
+            Paths.TestDirectory( "BlockDB", Paths.BlockDBDirectory, true );
             Player.PlacedBlock += OnPlayerPlacedBlock;
             Scheduler.NewBackgroundTask( FlushAll ).RunForever( FlushInterval, FlushInterval );
             IsEnabledGlobally = true;
