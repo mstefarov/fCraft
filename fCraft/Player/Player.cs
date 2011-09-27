@@ -125,6 +125,7 @@ namespace fCraft {
             if( name == null ) throw new ArgumentNullException( "name" );
             Info = new PlayerInfo( name, RankManager.HighestRank, true, RankChangeType.AutoPromoted );
             spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
+            IP = IPAddress.Loopback;
             ResetAllBinds();
             IsSuper = true;
         }
@@ -777,7 +778,7 @@ namespace fCraft {
         /// <summary>  Gets the block from given location in player's world, and sends it (sync) to the player.
         /// Used to undo player's attempted block placement/deletion.
         /// To avoid threading issues, only use this from this player's IoThread. </summary>
-        internal void RevertBlockNow( short x, short y, short z ) {
+        void RevertBlockNow( short x, short y, short z ) {
             SendNow( PacketWriter.MakeSetBlock( x, y, z, World.Map.GetBlockByte( x, y, z ) ) );
         }
 

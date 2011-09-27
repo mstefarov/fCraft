@@ -696,9 +696,11 @@ namespace fCraft {
             }
 
             // Check if other banned players logged in from this IP
-            PlayerInfo[] bannedPlayerNames = PlayerDB.FindPlayers( IP, 25 ).Where( playerFromSameIP => playerFromSameIP.IsBanned ).ToArray();
+            PlayerInfo[] bannedPlayerNames = PlayerDB.FindPlayers( IP, 25 )
+                                                     .Where( playerFromSameIP => playerFromSameIP.IsBanned )
+                                                     .ToArray();
             if( bannedPlayerNames.Length > 0 ) {
-                string logString = String.Format( "&WPlayer {0}&W logged in from an IP previously used by banned players: {1}",
+                string logString = String.Format( "&WPlayer {0}&W logged in from an IP shared by banned players: {1}",
                                                   ClassyName,
                                                   bannedPlayerNames.JoinToClassyString() );
                 canSee.Message( logString );

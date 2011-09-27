@@ -999,7 +999,7 @@ namespace fCraft {
             if( toName != null ) {
                 toPlayer = Server.FindPlayerOrPrintMatches( player, toName, false, true );
                 if( toPlayer == null ) return;
-            } else if( player.World == null ) {
+            } else if( toPlayer.World == null ) {
                 player.Message( "When used from console, /bring requires both names to be given." );
                 return;
             }

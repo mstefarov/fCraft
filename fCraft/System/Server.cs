@@ -830,7 +830,11 @@ namespace fCraft {
             sb.Replace( "{RANK}", player.Info.Rank.ClassyName );
             sb.Replace( "{PLAYER_NAME}", player.ClassyName );
             sb.Replace( "{TIME}", DateTime.Now.ToShortTimeString() ); // localized
-            sb.Replace( "{WORLD}", player.World.ClassyName );
+            if( player.World == null ) {
+                sb.Replace( "{WORLD}", "(No World)" );
+            } else {
+                sb.Replace( "{WORLD}", player.World.ClassyName );
+            }
             sb.Replace( "{PLAYERS}", CountVisiblePlayers( player ).ToString() );
             sb.Replace( "{WORLDS}", WorldManager.WorldList.Length.ToString() );
             sb.Replace( "{MOTD}", ConfigKey.MOTD.GetString() );
@@ -918,7 +922,8 @@ namespace fCraft {
             lock( SessionLock ) {
                 if( maxSessions > 0 ) {
                     int sessionCount = 0;
-                    foreach( Player p in Sessions ) {
+                    for( int i = 0; i < Sessions.Count; i++ ) {
+                        Player p = Sessions[i];
                         if( p.IP.Equals( session.IP ) ) {
                             sessionCount++;
                             if( sessionCount >= maxSessions ) {

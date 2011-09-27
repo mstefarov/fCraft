@@ -876,7 +876,7 @@ namespace fCraft {
         }
 
 
-        unsafe internal static void PasteCallback( Player player, Position[] marks, object tag ) {
+        unsafe static void PasteCallback( Player player, Position[] marks, object tag ) {
             CopyInformation info = player.GetCopyInformation();
 
             PasteArgs args = (PasteArgs)tag;

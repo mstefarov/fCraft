@@ -1404,7 +1404,7 @@ namespace fCraft {
                 world = WorldManager.FindWorldOrPrintMatches( player, worldName );
                 if( world == null ) return;
 
-            } else if( player.World == null ) {
+            } else if( world == null ) {
                 player.Message( "When using /wflush from console, you must specify a world name." );
                 return;
             }
@@ -1637,18 +1637,19 @@ namespace fCraft {
                     player.MessageNow( "Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message );
                     return;
                 }
+                World world = player.World;
 
                 // Loading to current world
-                player.World.MapChangedBy = player.Name;
-                player.World.MapChangedOn = DateTime.UtcNow;
-                player.World.ChangeMap( map );
+                world.MapChangedBy = player.Name;
+                world.MapChangedOn = DateTime.UtcNow;
+                world.ChangeMap( map );
 
-                player.World.Players.Message( player, "{0}&S loaded a new map for this world.",
+                world.Players.Message( player, "{0}&S loaded a new map for this world.",
                                               player.ClassyName );
-                player.MessageNow( "New map loaded for the world {0}", player.World.ClassyName );
+                player.MessageNow( "New map loaded for the world {0}", world.ClassyName );
 
                 Logger.Log( "{0} loaded new map for world \"{1}\" from {2}", LogType.UserActivity,
-                            player.Name, player.World.Name, fileName );
+                            player.Name, world.Name, fileName );
 
 
             } else {
