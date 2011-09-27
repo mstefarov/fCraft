@@ -6,7 +6,6 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     public sealed class Rank : IClassy, IComparable<Rank> {
-
         public string Name { get; set; }
 
         public string Color { get; set; }
@@ -45,7 +44,7 @@ namespace fCraft {
             Permissions = new bool[Enum.GetValues( typeof( Permission ) ).Length];
             PermissionLimits = new Rank[Permissions.Length];
             PermissionLimitStrings = new string[Permissions.Length];
-            Color = "";
+            Color = fCraft.Color.White;
         }
 
 
@@ -90,10 +89,10 @@ namespace fCraft {
             if( (attr = el.Attribute( "color" )) != null ) {
                 if( (Color = fCraft.Color.Parse( attr.Value )) == null ) {
                     Logger.Log( "Rank({0}): Could not parse rank color. Assuming default (none).", LogType.Warning, Name );
-                    Color = "";
+                    Color = fCraft.Color.White;
                 }
             } else {
-                Color = "";
+                Color = fCraft.Color.White;
             }
 
 

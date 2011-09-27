@@ -91,7 +91,6 @@ namespace fCraft {
         public static string ConfigFileName { get; set; }
 
 
-
         public const string PlayerDBFileName = "PlayerDB.txt";
 
         public const string IPBanListFileName = "ipbans.txt";
@@ -112,7 +111,16 @@ namespace fCraft {
 
         public const string AutoRankFileName = "autorank.xml";
 
-        public const string BlockDBPath = "blockdb";
+        public const string BlockDBDirectory = "blockdb";
+
+
+        public static string BlockDBPath {
+            get { return Path.Combine( MapPath, BlockDBDirectory ); }
+        }
+
+        public static string RulesPath {
+            get { return Path.Combine( WorkingPath, RulesDirectory ); }
+        }
 
         #endregion
 

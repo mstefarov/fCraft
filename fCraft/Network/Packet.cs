@@ -6,7 +6,6 @@ namespace fCraft {
 
     /// <summary> Packet struct, just a wrapper for a byte array. </summary>
     public struct Packet {
-
         public readonly byte[] Data;
 
         public OpCode OpCode {
@@ -37,11 +36,11 @@ namespace fCraft {
         static readonly int[] PacketSizes = {
             131,    // Handshake
             1,      // Ping
-            1,      // LevelBegin
-            1028,   // LevelChunk
-            7,      // LevelEnd
-            9,      // SetTile (clientside)
-            8,      // SetTile (serverside)
+            1,      // MapBegin
+            1028,   // MapChunk
+            7,      // MapEnd
+            9,      // SetBlockClient
+            8,      // SetBlockServer
             74,     // AddEntity
             10,     // Teleport
             7,      // MoveRotate
@@ -49,7 +48,7 @@ namespace fCraft {
             4,      // Rotate
             2,      // RemoveEntity
             66,     // Message
-            65,     // Disconnect
+            65,     // Kick
             2       // SetPermission
         };
     }
