@@ -522,7 +522,7 @@ namespace fCraft {
 
                     // Log and announce ban
                     if( targetAlt == targetInfo ) {
-                        Logger.Log( "{0} was banned by {1} (BanAll). Reason: {3}", LogType.UserActivity,
+                        Logger.Log( "{0} was banned by {1} (BanAll). Reason: {2}", LogType.UserActivity,
                                     targetAlt.Name, player.Name, reason );
                         if( announce ) {
                             Server.Message( "&WPlayer {0}&W was banned by {1}&W (BanAll)",
@@ -635,7 +635,7 @@ namespace fCraft {
 
                     // Log and announce ban
                     if( targetAlt == targetInfo ) {
-                        Logger.Log( "{0} was unbanned by {1} (UnbanAll). Reason: {3}", LogType.UserActivity,
+                        Logger.Log( "{0} was unbanned by {1} (UnbanAll). Reason: {2}", LogType.UserActivity,
                                     targetAlt.Name, player.Name, reason );
                         if( announce ) {
                             Server.Message( "&WPlayer {0}&W was unbanned by {1}&W (UnbanAll)",
@@ -735,7 +735,7 @@ namespace fCraft {
                     }
 
                     // Log and announce ban
-                    Logger.Log( "{0} was banned by {1} (BanAll). Reason: {3}", LogType.UserActivity,
+                    Logger.Log( "{0} was banned by {1} (BanAll). Reason: {2}", LogType.UserActivity,
                                 targetAlt.Name, player.Name, reason );
                     if( announce ) {
                         Server.Message( "&WPlayer {0}&W was banned by {1}&W (BanAll)",
@@ -835,7 +835,7 @@ namespace fCraft {
                     }
 
                     // Log and announce ban
-                    Logger.Log( "{0} was unbanned by {1} (UnbanAll). Reason: {3}", LogType.UserActivity,
+                    Logger.Log( "{0} was unbanned by {1} (UnbanAll). Reason: {2}", LogType.UserActivity,
                                 targetAlt.Name, player.Name, reason );
                     if( announce ) {
                         Server.Message( "&WPlayer {0}&W was unbanned by {1}&W (UnbanAll)",

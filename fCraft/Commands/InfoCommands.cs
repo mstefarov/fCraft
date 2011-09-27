@@ -687,13 +687,13 @@ namespace fCraft {
             }
 
             // if a section name is given, but no section files exist
-            if( !Directory.Exists( Paths.RulesDirectory ) ) {
+            if( !Directory.Exists( Paths.RulesPath ) ) {
                 player.Message( "There are no rule sections defined." );
                 return;
             }
 
             string ruleFileName = null;
-            string[] sectionFiles = Directory.GetFiles( Paths.RulesDirectory,
+            string[] sectionFiles = Directory.GetFiles( Paths.RulesPath,
                                                         "*.txt",
                                                         SearchOption.TopDirectoryOnly );
 
@@ -732,8 +732,8 @@ namespace fCraft {
 
 
         static string[] GetRuleSectionList() {
-            if( Directory.Exists( Paths.RulesDirectory ) ) {
-                string[] sections = Directory.GetFiles( Paths.RulesDirectory, "*.txt", SearchOption.TopDirectoryOnly )
+            if( Directory.Exists( Paths.RulesPath ) ) {
+                string[] sections = Directory.GetFiles( Paths.RulesPath, "*.txt", SearchOption.TopDirectoryOnly )
                                              .Select( name => Path.GetFileNameWithoutExtension( name ) )
                                              .Where( name => !String.IsNullOrEmpty( name ) )
                                              .ToArray();
