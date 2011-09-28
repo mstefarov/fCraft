@@ -783,7 +783,7 @@ namespace fCraft {
 
         public void JoinWorld( [NotNull] World newWorld, WorldChangeReason reason, Position position ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
-            if( Enum.IsDefined( typeof( WorldChangeReason ), reason ) ) {
+            if( !Enum.IsDefined( typeof( WorldChangeReason ), reason ) ) {
                 throw new ArgumentOutOfRangeException( "reason" );
             }
             lock( joinWorldLock ) {
@@ -797,7 +797,7 @@ namespace fCraft {
 
         internal bool JoinWorldNow( [NotNull] World newWorld, bool doUseWorldSpawn, WorldChangeReason reason ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
-            if( Enum.IsDefined( typeof( WorldChangeReason ), reason ) ) {
+            if( !Enum.IsDefined( typeof( WorldChangeReason ), reason ) ) {
                 throw new ArgumentOutOfRangeException( "reason" );
             }
             if( Thread.CurrentThread != ioThread ) {
@@ -979,7 +979,7 @@ namespace fCraft {
         /// until client thread has sent the kick packet. </summary>
         public void Kick( [NotNull] string message, LeaveReason leaveReason ) {
             if( message == null ) throw new ArgumentNullException( "message" );
-            if( Enum.IsDefined( typeof( LeaveReason ), leaveReason ) ) {
+            if( !Enum.IsDefined( typeof( LeaveReason ), leaveReason ) ) {
                 throw new ArgumentOutOfRangeException( "leaveReason" );
             }
             LeaveReason = leaveReason;
@@ -1000,7 +1000,7 @@ namespace fCraft {
         /// Can only be used from IoThread (this is not thread-safe). </summary>
         internal void KickNow( [NotNull] string message, LeaveReason leaveReason ) {
             if( message == null ) throw new ArgumentNullException( "message" );
-            if( Enum.IsDefined( typeof( LeaveReason ), leaveReason ) ) {
+            if( !Enum.IsDefined( typeof( LeaveReason ), leaveReason ) ) {
                 throw new ArgumentOutOfRangeException( "leaveReason" );
             }
             if( Thread.CurrentThread != ioThread ) {

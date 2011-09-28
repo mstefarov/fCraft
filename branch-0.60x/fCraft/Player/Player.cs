@@ -1205,7 +1205,7 @@ namespace fCraft {
                           bool announce, bool raiseEvents, bool recordToPlayerDB ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason == null ) throw new ArgumentNullException( "reason" );
-            if( Enum.IsDefined( typeof( LeaveReason ), context ) ) {
+            if( !Enum.IsDefined( typeof( LeaveReason ), context ) ) {
                 throw new ArgumentOutOfRangeException( "context" );
             }
 
