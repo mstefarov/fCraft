@@ -568,6 +568,7 @@ namespace fCraft {
 
             bool promoting = (newRank > Rank);
             string verb = (promoting ? "promote" : "demote");
+            string verbed = (promoting ? "promoted" : "demoted");
 
             // Check if player is trying to promote/demote self
             if( player.Info == this ) {
@@ -626,7 +627,7 @@ namespace fCraft {
 
             // Log the rank change
             Logger.Log( "{0} {1} {2} from {3} to {4}. Reason: {5}", LogType.UserActivity,
-                        player.Name, verb, Name, Rank.Name, newRank.Name, reason );
+                        player.Name, verbed, Name, Rank.Name, newRank.Name, reason );
 
             // Actually change rank
             ProcessRankChange( newRank, player.Name, reason, changeType );
@@ -670,8 +671,8 @@ namespace fCraft {
                 target.InitCopySlots();
 
                 // inform the player of the rank change
-                target.Message( "You have been {0} to {1}&S by {2}",
-                                verb,
+                target.Message( "You were {0} to {1}&S by {2}",
+                                verbed,
                                 newRank.ClassyName,
                                 player.ClassyName );
             }
@@ -680,10 +681,10 @@ namespace fCraft {
             if( announce ) {
                 if( ConfigKey.AnnounceRankChanges.Enabled() ) {
                     Server.Message( target,
-                                    "{0}&S {1} {2} from {3}&S to {4}",
+                                    "{0}&S {1} {2}&S from {3}&S to {4}",
                                     player.ClassyName,
-                                    verb,
-                                    Name,
+                                    verbed,
+                                    ClassyName,
                                     oldRank.ClassyName,
                                     newRank.ClassyName );
                     if( ConfigKey.AnnounceRankChangeReasons.Enabled() && reason.Length > 0 ) {
@@ -693,7 +694,7 @@ namespace fCraft {
                     }
                 } else {
                     player.Message( "You {0} {1}&S from {2}&S to {3}",
-                                    promoting ? "promoted" : "demoted",
+                                    verbed,
                                     ClassyName,
                                     oldRank.ClassyName,
                                     newRank.ClassyName );
