@@ -1220,7 +1220,7 @@ namespace fCraft {
             }
 
             // Check if player has sufficiently high permission limit
-            if( player.Can( Permission.Kick, Info.Rank ) ) {
+            if( !player.Can( Permission.Kick, Info.Rank ) ) {
                 PlayerOpException.ThrowPermissionLimit( player, Info, "kick", Permission.Kick );
             }
 
