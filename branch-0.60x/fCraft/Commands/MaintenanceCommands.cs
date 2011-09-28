@@ -921,7 +921,7 @@ namespace fCraft {
                 ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delayTime, true, false );
                 Server.Shutdown( sp, false );
             } else {
-                Server.Message( "&Shutdown reason: {0}", reason );
+                Server.Message( "&SShutdown reason: {0}", reason );
                 Logger.Log( "{0} scheduled a shutdown ({1} delay). Reason: {2}", LogType.UserActivity,
                             player.Name, delayTime.ToCompactString(), reason );
                 ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delayTime, true, false, reason, player );
