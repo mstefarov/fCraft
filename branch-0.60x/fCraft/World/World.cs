@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
 
@@ -586,6 +587,23 @@ namespace fCraft {
         public override string ToString() {
             return String.Format( "World({0})", Name );
         }
+
+
+        public string GenerateWoMConfig() {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine( "server.name = " + ConfigKey.ServerName.GetString() );
+            sb.AppendLine( "server.detail = Loading world " + ClassyName );
+            sb.AppendLine( "user.detail = World " + ClassyName );
+            Random rand = new Random();
+            sb.AppendLine( "environment.cloud = " + rand.Next( 256 * 256 * 256 ) );
+            sb.AppendLine( "environment.fog = " + rand.Next( 256 * 256 * 256 ) );
+            sb.AppendLine( "environment.sky = " + rand.Next( 256 * 256 * 256 ) );
+            sb.AppendLine( "server.sendwomid = true" );
+            return sb.ToString();
+        }
+
+
+        public int CloudColor, FogColor, SkyColor;
     }
 }
 
