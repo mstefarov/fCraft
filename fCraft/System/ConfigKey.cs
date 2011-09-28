@@ -100,10 +100,6 @@ will not show custom skins for players with prefixed names." )]
         ShowConnectionMessages,
 
         [BoolKey( ConfigSection.Chat, true,
-@"Announce IP-banned players trying to connect to the server." )]
-        ShowBannedConnectionMessages,
-
-        [BoolKey( ConfigSection.Chat, true,
 @"Show messages when players change worlds." )]
         ShowJoinedWorldMessages,
 

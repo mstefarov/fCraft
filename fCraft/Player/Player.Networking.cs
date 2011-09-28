@@ -566,14 +566,6 @@ namespace fCraft {
                 Info.ProcessFailedLogin( this );
                 Logger.Log( "Banned player {0} tried to log in from {1}", LogType.SuspiciousActivity,
                             Name, IP );
-                if( ConfigKey.ShowBannedConnectionMessages.Enabled() ) {
-                    var can = Server.Players.Can( Permission.ViewPlayerIPs );
-                    can.Message( "&SBanned player {0}&S tried to log in from {1}",
-                                 ClassyName, IP );
-                    var cant = Server.Players.Cant( Permission.ViewPlayerIPs );
-                    cant.Message( "&SBanned player {0}&S tried to log in.",
-                                  ClassyName );
-                }
                 string bannedMessage = String.Format( "Banned {0} ago by {1}: {2}",
                                                       Info.TimeSinceBan.ToMiniString(),
                                                       Info.BannedBy,
@@ -588,9 +580,6 @@ namespace fCraft {
             if( ipBanInfo != null && Info.BanStatus != BanStatus.IPBanExempt ) {
                 Info.ProcessFailedLogin( this );
                 ipBanInfo.ProcessAttempt( this );
-                if( ConfigKey.ShowBannedConnectionMessages.Enabled() ) {
-                    Server.Message( "{0}&S tried to log in from a banned IP.", ClassyName );
-                }
                 Logger.Log( "{0} tried to log in from a banned IP.", LogType.SuspiciousActivity,
                             Name );
                 string bannedMessage = String.Format( "IP-banned {0} ago by {1}: {2}",

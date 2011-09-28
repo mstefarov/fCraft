@@ -1110,10 +1110,8 @@ namespace fCraft {
             string reason = "(import from " + serverName + ")";
             foreach( string name in names ) {
                 if( Player.IsValidName( name ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoExact( name );
-                    if( info == null ) {
-                        info = PlayerDB.AddFakeEntry( name, RankChangeType.Default );
-                    }
+                    PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
+                                      PlayerDB.AddFakeEntry( name, RankChangeType.Default );
                     info.Ban( player, reason, true, true );
 
                 } else {
