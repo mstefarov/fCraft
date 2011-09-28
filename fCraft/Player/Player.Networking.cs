@@ -12,6 +12,7 @@ using fCraft.Drawing;
 using fCraft.Events;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
+using System.Text.RegularExpressions;
 
 namespace fCraft {
     /// <summary> Represents a connection to a Minecraft client. Handles low-level interactions (e.g. networking). </summary>
@@ -41,6 +42,7 @@ namespace fCraft {
 
         Thread ioThread;
         TcpClient client;
+        NetworkStream stream;
         BinaryReader reader;
         PacketWriter writer;
         readonly ConcurrentQueue<Packet> outputQueue = new ConcurrentQueue<Packet>(),
@@ -71,8 +73,9 @@ namespace fCraft {
                 IP = ((IPEndPoint)(client.Client.RemoteEndPoint)).Address;
                 if( Server.RaiseSessionConnectingEvent( IP ) ) return;
 
-                reader = new BinaryReader( client.GetStream() );
-                writer = new PacketWriter( client.GetStream() );
+                stream = client.GetStream();
+                reader = new BinaryReader( stream );
+                writer = new PacketWriter( stream );
 
                 Logger.Log( "Incoming connection from {0}", LogType.Debug, IP );
 
@@ -198,7 +201,7 @@ namespace fCraft {
 
 
                     // get input from player
-                    while( canReceive && client.GetStream().DataAvailable ) {
+                    while( canReceive && stream.DataAvailable ) {
                         byte opcode = reader.ReadByte();
                         switch( (OpCode)opcode ) {
 
@@ -253,18 +256,16 @@ namespace fCraft {
         }
 
 
-        bool firstMessage = true;
         bool ProcessMessagePacket() {
             BytesReceived += 66;
             ResetIdleTimer();
             reader.ReadByte();
             string message = ReadString();
 
-            if( firstMessage && !IsSuper && message.StartsWith( "/womid" ) ) {
+            if(!IsSuper && message.StartsWith( "/womid " ) ) {
                 IsUsingWoM = true;
                 return true;
             }
-            firstMessage = false;
 
             if( Chat.ContainsInvalidChars( message ) ) {
                 Logger.Log( "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.",
@@ -440,42 +441,24 @@ namespace fCraft {
         bool LoginSequence() {
             byte opcode = reader.ReadByte();
 
-            if( opcode != (byte)OpCode.Handshake ) {
-                if( opcode == 2 ) {
-                    // This may be someone connecting with an SMP client
-                    int strLen = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
+            switch( opcode ) {
+                case (byte)OpCode.Handshake:
+                    break;
 
-                    if( strLen >= 2 && strLen <= 16 ) {
-                        string smpPlayerName = Encoding.UTF8.GetString( reader.ReadBytes( strLen ) );
-
-                        Logger.Log( "Player.LoginSequence: Player \"{0}\" tried connecting with SMP/Beta client from {1}. " +
-                                    "fCraft does not support SMP/Beta.", LogType.Warning,
-                                    smpPlayerName, IP );
-
-                        // send SMP KICK packet
-                        writer.Write( (byte)255 );
-                        byte[] stringData = Encoding.UTF8.GetBytes( NoSmpMessage );
-                        writer.Write( (short)stringData.Length );
-                        writer.Write( stringData );
-                        BytesSent += (1 + stringData.Length);
-                        writer.Flush();
-
-                    } else {
-                        // Not SMP client (invalid player name length)
-                        Logger.Log( "Player.LoginSequence: Unexpected opcode in the first packet from {0}: {1}.", LogType.Error,
-                                    IP, opcode );
-                        KickNow( "Unexpected handshake message - possible protocol mismatch!", LeaveReason.ProtocolViolation );
-                    }
+                case 2:
+                    LoginBeta();
                     return false;
 
-                } else {
+                case (byte)'G':
+                    ServeHTTP();
+                    return false;
+
+                default:
                     Logger.Log( "Player.LoginSequence: Unexpected opcode in the first packet from {0}: {1}.", LogType.Error,
                                 IP, opcode );
                     KickNow( "Incompatible client, or a network error.", LeaveReason.ProtocolViolation );
                     return false;
-                }
             }
-
 
             // Check protocol version
             int clientProtocolVersion = reader.ReadByte();
@@ -643,7 +626,14 @@ namespace fCraft {
             startingWorld = RaisePlayerConnectedEvent( this, startingWorld );
 
             // Send server information
-            SendNow( PacketWriter.MakeHandshake( this, ConfigKey.ServerName.GetString(), ConfigKey.MOTD.GetString() ) );
+            string serverName = ConfigKey.ServerName.GetString();
+            string motd;
+            if( IP.Equals( IPAddress.Loopback ) ) {
+                motd = "&0cfg=localhost:" + Server.Port + "/" + startingWorld.Name;
+            } else {
+                motd = "&0cfg=" + Server.ExternalIP + ":" + Server.Port + "/" + startingWorld.Name;
+            }
+            SendNow( PacketWriter.MakeHandshake( this, serverName, motd ) );
 
             // AutoRank
             if( ConfigKey.AutoRankEnabled.Enabled() ) {
@@ -761,6 +751,63 @@ namespace fCraft {
         }
 
 
+        void LoginBeta() {
+            // This may be someone connecting with an SMP client
+            int strLen = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
+
+            if( strLen >= 2 && strLen <= 16 ) {
+                string smpPlayerName = Encoding.UTF8.GetString( reader.ReadBytes( strLen ) );
+
+                Logger.Log( "Player.LoginSequence: Player \"{0}\" tried connecting with SMP/Beta client from {1}. " +
+                            "fCraft does not support SMP/Beta.", LogType.Warning,
+                            smpPlayerName, IP );
+
+                // send SMP KICK packet
+                writer.Write( (byte)255 );
+                byte[] stringData = Encoding.UTF8.GetBytes( NoSmpMessage );
+                writer.Write( (short)stringData.Length );
+                writer.Write( stringData );
+                BytesSent += (1 + stringData.Length);
+                writer.Flush();
+
+            } else {
+                // Not SMP client (invalid player name length)
+                Logger.Log( "Player.LoginSequence: Unexpected opcode in the first packet from {0}: 2.", LogType.Error,
+                            IP );
+                KickNow( "Unexpected handshake message - possible protocol mismatch!", LeaveReason.ProtocolViolation );
+            }
+        }
+
+
+        static readonly Regex httpFirstLine = new Regex( "GET /([a-zA-Z0-9_]{1,16}) .+", RegexOptions.Compiled );
+        void ServeHTTP() {
+            using( StreamReader textReader = new StreamReader( stream ) ) {
+                using( StreamWriter textWriter = new StreamWriter( stream ) ) {
+                    string firstLine = "G" + textReader.ReadLine();
+                    var match = httpFirstLine.Match( firstLine );
+                    if( match.Success ) {
+                        string worldName = match.Groups[1].Value;
+                        World world = WorldManager.FindWorldExact( worldName );
+                        if( world != null ) {
+                            string cfg = world.GenerateWoMConfig();
+                            byte[] content = Encoding.UTF8.GetBytes( cfg );
+                            textWriter.WriteLine( "HTTP/1.1 200 OK" );
+                            textWriter.WriteLine( "Date: " + DateTime.UtcNow.ToString( "R" ) );
+                            textWriter.WriteLine( "Content-Type: text/plain" );
+                            textWriter.WriteLine( "Content-Length: " + content.Length );
+                            textWriter.WriteLine();
+                            textWriter.WriteLine( cfg );
+                        } else {
+                            textWriter.WriteLine( "HTTP/1.1 404 Not Found" );
+                        }
+                    } else {
+                        textWriter.WriteLine( "HTTP/1.1 400 Bad Request" );
+                    }
+                }
+            }
+        }
+
+
         #region Joining Worlds
 
         readonly object joinWorldLock = new object();
@@ -806,7 +853,17 @@ namespace fCraft {
             }
 
             string textLine1 = ConfigKey.ServerName.GetString();
-            string textLine2 = "Loading world " + newWorld.ClassyName;
+            string textLine2;
+
+            if( IsUsingWoM ) {
+                if( IP.Equals( IPAddress.Loopback ) ) {
+                    textLine2 = "cfg=localhost:" + Server.Port + "/" + newWorld.Name;
+                } else {
+                    textLine2 = "cfg=" + Server.ExternalIP + ":" + Server.Port + "/" + newWorld.Name;
+                }
+            } else {
+                textLine2 = "Loading world " + newWorld.ClassyName;
+            }
 
             if( RaisePlayerJoiningWorldEvent( this, newWorld, reason, textLine1, textLine2 ) ) {
                 Logger.Log( "Player.JoinWorldNow: Player {0} was prevented from joining world {1} by an event callback.", LogType.Warning,
