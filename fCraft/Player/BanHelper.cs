@@ -258,6 +258,8 @@ namespace fCraft {
             bool result = IPBanList.Remove( targetAddress, raiseEvents );
 
             if( result ) {
+                Logger.Log( "{0} unbanned {1}. Reason: {2}", LogType.UserActivity,
+                            player.Name, targetAddress, reason );
                 if( announce ) {
                     var can = Server.Players.Can( Permission.ViewPlayerIPs );
                     can.Message( "&W{0} was unbanned by {1}", targetAddress, player.ClassyName );
@@ -936,14 +938,28 @@ namespace fCraft {
         static void ThrowNoOneToBan( [NotNull] Player player, [CanBeNull] PlayerInfo targetInfo, [NotNull] IPAddress address ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( address == null ) throw new ArgumentNullException( "address" );
-            string msg;
-            if( player.Can( Permission.ViewPlayerIPs ) ) {
-                msg = String.Format( "Given IP ({0}) and all players who use it are already banned.",
-                                     address );
+            string msg, colorMsg;
+            if( targetInfo == null ) {
+                if( player.Can( Permission.ViewPlayerIPs ) ) {
+                    msg = String.Format( "Given IP ({0}) and all players who use it are already banned.",
+                                         address );
+                } else {
+                    msg = "Given IP and all players who use it are already banned.";
+                }
+                colorMsg = "&S" + msg;
             } else {
-                msg = "Given IP and all players who use it are already banned.";
+                if( player.Can( Permission.ViewPlayerIPs ) ) {
+                    msg = String.Format( "Player {0}, their IP ({1}), and all players who use this IP are already banned.",
+                                         targetInfo.Name, address );
+                    colorMsg = String.Format( "&SPlayer {0}&S, their IP ({1}), and all players who use this IP are already banned.",
+                                              targetInfo.ClassyName, address );
+                } else {
+                    msg = String.Format( "Player {0}, their IP, and all players who use this IP are already banned.",
+                                         targetInfo.Name );
+                    colorMsg = String.Format( "&SPlayer {0}&S, their IP, and all players who use this IP are already banned.",
+                                              targetInfo.ClassyName );
+                }
             }
-            string colorMsg = "&S" + msg;
             throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
         }
 
