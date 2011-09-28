@@ -56,7 +56,7 @@ namespace fCraft {
             if( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
             LoginTime = DateTime.UtcNow;
             LastActiveTime = DateTime.UtcNow;
-            LastPatrolTime = DateTime.MinValue;
+            LastPatrolTime = DateTime.UtcNow;
             LeaveReason = LeaveReason.Unknown;
             LastUsedBlockType = Block.Undefined;
 
