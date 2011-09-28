@@ -378,7 +378,7 @@ namespace fCraft {
                 RankManager.DefaultRank = Rank.Parse( ConfigKey.DefaultRank.GetString() );
                 RankManager.DefaultBuildRank = Rank.Parse( ConfigKey.DefaultBuildRank.GetString() );
                 RankManager.PatrolledRank = Rank.Parse( ConfigKey.PatrolledRank.GetString() );
-                RankManager.BlockDBAutoEnableRank = Rank.Parse( ConfigKey.PatrolledRank.GetString() );
+                RankManager.BlockDBAutoEnableRank = Rank.Parse( ConfigKey.BlockDBAutoEnableRank.GetString() );
             }
 
             // key relation validation

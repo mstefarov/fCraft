@@ -3,9 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using fCraft.Drawing;
 using fCraft.Events;
-using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary>
@@ -59,7 +57,7 @@ namespace fCraft {
         }
 
 
-        #region Ban
+        #region Ban / Unban
 
         static readonly CommandDescriptor CdBan = new CommandDescriptor {
             Name = "ban",
@@ -79,8 +77,12 @@ namespace fCraft {
             string reason = cmd.NextAll();
             try {
                 target.Ban( player, reason, true, true );
+                WarnIfOtherPlayersOnIP( player, target );
             } catch( PlayerOpException ex ) {
                 player.Message( ex.MessageColored );
+                if( ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired ) {
+                    FreezeIfAllowed( player, target );
+                }
             }
         }
 
@@ -102,17 +104,24 @@ namespace fCraft {
             string targetNameOrIP = cmd.Next();
             string reason = cmd.NextAll();
 
-            try {
-                IPAddress targetAddress;
-                if( IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
+            IPAddress targetAddress;
+            if( IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
+                try {
                     targetAddress.BanIP( player, reason, true, true );
-                } else {
-                    PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
-                    if( target == null ) return;
-                    target.BanIP( player, reason, true, true );
+                } catch( PlayerOpException ex ) {
+                    player.Message( ex.MessageColored );
                 }
-            } catch( PlayerOpException ex ) {
-                player.Message( ex.MessageColored );
+            } else {
+                PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
+                if( target == null ) return;
+                try {
+                    target.BanIP( player, reason, true, true );
+                } catch( PlayerOpException ex ) {
+                    player.Message( ex.MessageColored );
+                    if( ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired ) {
+                        FreezeIfAllowed( player, target );
+                    }
+                }
             }
         }
 
@@ -135,17 +144,24 @@ namespace fCraft {
             string targetNameOrIP = cmd.Next();
             string reason = cmd.NextAll();
 
-            try {
-                IPAddress targetAddress;
-                if( IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
+            IPAddress targetAddress;
+            if( IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
+                try {
                     targetAddress.BanAll( player, reason, true, true );
-                } else {
-                    PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
-                    if( target == null ) return;
-                    target.BanAll( player, reason, true, true );
+                } catch( PlayerOpException ex ) {
+                    player.Message( ex.MessageColored );
                 }
-            } catch( PlayerOpException ex ) {
-                player.Message( ex.MessageColored );
+            } else {
+                PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
+                if( target == null ) return;
+                try {
+                    target.BanAll( player, reason, true, true );
+                } catch( PlayerOpException ex ) {
+                    player.Message( ex.MessageColored );
+                    if( ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired ) {
+                        FreezeIfAllowed( player, target );
+                    }
+                }
             }
         }
 
@@ -312,104 +328,48 @@ namespace fCraft {
 
         static void KickHandler( Player player, Command cmd ) {
             string name = cmd.Next();
-            if( name != null ) {
-                string reason = cmd.NextAll();
-
-                Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
-                if( target == null ) return;
-
-                DateTime previousKickDate = target.Info.LastKickDate;
-                string previousKickedBy = target.Info.LastKickBy;
-                string previousKickReason = target.Info.LastKickReason;
-
-                if( ConfigKey.RequireKickReason.Enabled() && String.IsNullOrEmpty( reason ) ) {
-                    player.Message( "&WPlease specify a kick reason: &H/k PlayerName Reason" );
-                    // freeze the target player to prevent further damage
-                    if( !target.Info.IsFrozen && player.Can( Permission.Freeze ) && player.Can( Permission.Kick, target.Info.Rank ) ) {
-                        player.Message( "{0}&S has been frozen while you retry.",
-                                        target.ClassyName );
-                        FreezeHandler( player, new Command( "/freeze " + target.Name ) );
-                    }
-                    return;
-                }
-
-                if( DoKick( player, target, reason, false, true, LeaveReason.Kick ) ) {
-                    if( target.Info.TimesKicked > 1 ) {
-                        player.Message( "Warning: {0}&S has been kicked {1} times before.",
-                                        target.ClassyName, target.Info.TimesKicked - 1 );
-                        if( previousKickDate != DateTime.MinValue ) {
-                            player.Message( "Most recent kick was {0} ago, by {1}.",
-                                            DateTime.UtcNow.Subtract( previousKickDate ).ToMiniString(),
-                                            previousKickedBy );
-                        }
-                        if( !String.IsNullOrEmpty( previousKickReason ) ) {
-                            player.Message( "Most recent kick reason was: {0}",
-                                            previousKickReason );
-                        }
-                    }
-                }
-            } else {
+            if( name == null ) {
                 player.Message( "Usage: &H/kick PlayerName [Message]" );
-            }
-        }
-
-
-        public static bool DoKick( [NotNull] Player player, [NotNull] Player target,
-                                   string reason, bool silent, bool recordToPlayerDB, LeaveReason leaveReason ) {
-
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( target == null ) throw new ArgumentNullException( "target" );
-
-            if( player == target ) {
-                player.Message( "You cannot kick yourself." );
-                return false;
+                return;
             }
 
-            if( !player.Can( Permission.Kick, target.Info.Rank ) ) {
-                player.Message( "You can only kick players ranked {0}&S or lower.",
-                                player.Info.Rank.GetLimit( Permission.Kick ).ClassyName );
-                player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
-                return false;
+            // find the target
+            Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
+            if( target == null ) return;
 
-            } else {
+            string reason = cmd.NextAll();
+            DateTime previousKickDate = target.Info.LastKickDate;
+            string previousKickedBy = target.Info.LastKickBy;
+            string previousKickReason = target.Info.LastKickReason;
 
-                var e = new PlayerBeingKickedEventArgs( target, player, reason, silent, recordToPlayerDB, leaveReason );
-                Player.RaisePlayerBeingKickedEvent( e );
-                if( e.Cancel ) return false;
+            // do the kick
+            try {
+                target.Kick( player, reason, LeaveReason.Kick, true, true, true );
 
-                if( !e.IsSilent ) {
-                    Server.Message( "{0}&W was kicked by {1}",
-                                      target.ClassyName, player.ClassyName );
+            } catch( PlayerOpException ex ) {
+                player.Message( ex.MessageColored );
+                if( ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired ) {
+                    FreezeIfAllowed( player, target.Info );
                 }
-
-                if( e.RecordToPlayerDB ) {
-                    target.Info.ProcessKick( player, reason );
-                }
-
-                Player[] otherPlayers = Server.Players.FromIP( target.Info.LastIP ).Except( target ).ToArray();
-                if( otherPlayers.Length > 0 ) {
-                    player.Message( "&WWarning: Other player(s) share IP with {0}&W: {1}",
-                                    target.Info.ClassyName,
-                                    otherPlayers.JoinToClassyString() );
-
-                }
-
-                Player.RaisePlayerKickedEvent( e );
-                if( !string.IsNullOrEmpty( reason ) ) {
-                    if( !e.IsSilent && ConfigKey.AnnounceKickAndBanReasons.Enabled() ) {
-                        Server.Message( "&WKick reason: {0}", reason );
-                    }
-                    Logger.Log( "{0} was kicked by {1}. Reason: {2}", LogType.UserActivity,
-                                target.Name, player.Name, reason );
-                    target.Kick( "Kicked by " + player.ClassyName + Color.White + ": " + reason, leaveReason );
-
-                } else {
-                    Logger.Log( "{0} was kicked by {1}", LogType.UserActivity,
-                                target.Name, player.Name );
-                    target.Kick( "You were kicked by " + player.ClassyName, leaveReason );
-                }
-                return true;
+                return;
             }
+
+            // warn player if target has been kicked before
+            if( target.Info.TimesKicked > 1 ) {
+                player.Message( "Warning: {0}&S has been kicked {1} times before.",
+                                target.ClassyName, target.Info.TimesKicked - 1 );
+                if( previousKickDate != DateTime.MinValue ) {
+                    player.Message( "Most recent kick was {0} ago, by {1}.",
+                                    DateTime.UtcNow.Subtract( previousKickDate ).ToMiniString(),
+                                    previousKickedBy );
+                }
+                if( !String.IsNullOrEmpty( previousKickReason ) ) {
+                    player.Message( "Most recent kick reason was: {0}",
+                                    previousKickReason );
+                }
+            }
+
+            WarnIfOtherPlayersOnIP( player, target.Info );
         }
 
         #endregion
@@ -475,180 +435,13 @@ namespace fCraft {
                 }
             }
 
-            DoChangeRank( player, targetInfo, newRank, cmd.NextAll(), false, false );
-        }
-
-
-        /// <summary> Changes player's rank. This needs refactoring BADLY. </summary>
-        /// <param name="player"> Player who originated the promotion/demotion action. Must not be null. </param>
-        /// <param name="targetInfo"> PlayerInfo of the target player (the one getting promoted/demoted). Must not be null. </param>
-        /// <param name="newRank"> New rank to give to target. Must not be null. </param>
-        /// <param name="reason"> Reason for promotion/demotion. May be null. </param>
-        /// <param name="silent"> Whether rank change should be announced or not. </param>
-        /// <param name="automatic"> Whether rank change should be marked as "automatic" or manual. </param>
-        public static void DoChangeRank( [NotNull] Player player, [NotNull] PlayerInfo targetInfo, [NotNull] Rank newRank,
-                                         string reason, bool silent, bool automatic ) {
-
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( targetInfo == null ) throw new ArgumentNullException( "targetInfo" );
-            if( newRank == null ) throw new ArgumentNullException( "newRank" );
-
-            bool promote = (targetInfo.Rank < newRank);
-            Player target = targetInfo.PlayerObject;
-
-            // Make sure it's not same rank
-            if( targetInfo.Rank == newRank ) {
-                player.Message( "{0}&S is already ranked {1}",
-                                targetInfo.ClassyName,
-                                newRank.ClassyName );
-                return;
-            }
-
-            // Make sure player has the general permissions
-            if( promote && !player.Can( Permission.Promote ) ) {
-                player.MessageNoAccess( Permission.Promote );
-                return;
-            } else if( !promote && !player.Can( Permission.Demote ) ) {
-                player.MessageNoAccess( Permission.Demote );
-                return;
-            }
-
-            // Make sure player has the specific permissions (including limits)
-            if( promote && !player.Can( Permission.Promote, newRank ) ) {
-                player.Message( "You can only promote players up to {0}",
-                                player.Info.Rank.GetLimit( Permission.Promote ).ClassyName );
-                player.Message( "{0}&S is ranked {1}",
-                                targetInfo.ClassyName,
-                                targetInfo.Rank.ClassyName );
-                return;
-            } else if( !promote && !player.Can( Permission.Demote, targetInfo.Rank ) ) {
-                player.Message( "You can only demote players ranked {0}&S or lower",
-                                player.Info.Rank.GetLimit( Permission.Demote ).ClassyName );
-                player.Message( "{0}&S is ranked {1}",
-                                targetInfo.ClassyName,
-                                targetInfo.Rank.ClassyName );
-                return;
-            }
-
-            if( ConfigKey.RequireRankChangeReason.Enabled() && String.IsNullOrEmpty( reason ) ) {
-                if( promote ) {
-                    player.Message( "&WPlease specify a promotion reason." );
-                } else {
-                    player.Message( "&WPlease specify a demotion reason." );
-                }
-                CdRank.PrintUsage( player );
-                return;
-            }
-
-            RankChangeType changeType;
-            if( newRank >= targetInfo.Rank ) {
-                changeType = (automatic ? RankChangeType.AutoPromoted : RankChangeType.Promoted);
-            } else {
-                changeType = (automatic ? RankChangeType.AutoDemoted : RankChangeType.Demoted);
-            }
-
-            string verb = (promote ? "promoted" : "demoted");
-
-            // Do the rank change
-            if( (promote && targetInfo.Rank < newRank) ||
-                (!promote && targetInfo.Rank > newRank) ) {
-                Rank oldRank = targetInfo.Rank;
-
-                if( PlayerInfo.RaiseRankChangingEvent( targetInfo, player, newRank, reason, changeType ) ) {
-                    throw new OperationCanceledException( "Cancelled by plugin." );
-                }
-
-                if( !silent ) Logger.Log( "{0} {1} {2} from {3} to {4}.", LogType.UserActivity,
-                                          player.Name, verb, targetInfo.Name, targetInfo.Rank.Name, newRank.Name );
-
-                // if player is online, toggle visible/invisible players
-                if( target != null && target.World != null ) {
-
-                    // ==== Actual rank change happens here ====
-                    targetInfo.ProcessRankChange( newRank, player.Name, reason, changeType );
-                    Server.RaisePlayerListChangedEvent();
-                    PlayerInfo.RaiseRankChangedEvent( targetInfo, player, oldRank, reason, changeType );
-                    // ==== Actual rank change happens here ====
-
-                    // reset binds (water, lava, admincrete)
-                    target.ResetAllBinds();
-
-                    // reset admincrete deletion permission
-                    target.Send( PacketWriter.MakeSetPermission( target ) );
-
-                    // cancel selection in progress
-                    if( target.IsMakingSelection ) {
-                        target.Message( "Selection cancelled." );
-                        target.SelectionCancel();
-                    }
-
-                    // reset brush to normal, if not allowed to draw advanced
-                    if( !target.Can( Permission.DrawAdvanced ) ) {
-                        target.Brush = NormalBrushFactory.Instance;
-                    }
-
-                    // unhide, if needed
-                    if( targetInfo.IsHidden && !target.Can( Permission.Hide ) ) {
-                        targetInfo.IsHidden = false;
-                        player.Message( "You are no longer hidden." );
-                    }
-
-                    // ensure copy slot consistency
-                    Array.Resize( ref target.CopyInformation, target.Info.Rank.CopySlots );
-                    target.CopySlot = Math.Min( target.CopySlot, target.Info.Rank.CopySlots - 1 );
-
-                    // inform the player of the rank change
-                    target.Message( "You have been {0} to {1}&S by {2}",
-                                    verb,
-                                    newRank.ClassyName,
-                                    player.ClassyName );
-
-                } else {
-                    // ==== Actual rank change happens here (offline) ====
-                    targetInfo.ProcessRankChange( newRank, player.Name, reason, changeType );
-                    PlayerInfo.RaiseRankChangedEvent( targetInfo, player, oldRank, reason, changeType );
-                    // ==== Actual rank change happens here (offline) ====
-
-                    if( targetInfo.IsHidden && !targetInfo.Rank.Can( Permission.Hide ) ) {
-                        targetInfo.IsHidden = false;
-                    }
-                }
-
-                if( !silent ) {
-                    if( ConfigKey.AnnounceRankChanges.Enabled() ) {
-                        Server.Message( target,
-                                        "{0}&S {1} {2} from {3}&S to {4}",
-                                        player.ClassyName,
-                                        verb,
-                                        targetInfo.Name,
-                                        oldRank.ClassyName,
-                                        newRank.ClassyName );
-                        if( ConfigKey.AnnounceRankChangeReasons.Enabled() && !String.IsNullOrEmpty( reason ) ) {
-                            Server.Message( "&S{0} reason: {1}",
-                                            promote ? "Promotion" : "Demotion",
-                                            reason );
-                        }
-                    } else {
-                        player.Message( "You {0} {1} from {2}&S to {3}",
-                                        verb,
-                                        targetInfo.Name,
-                                        oldRank.ClassyName,
-                                        newRank.ClassyName );
-                        if( target != null && !String.IsNullOrEmpty( reason ) ) {
-                            target.Message( "&S{0} reason: {1}",
-                                            promote ? "Promotion" : "Demotion",
-                                            reason );
-                        }
-                    }
-                }
-
-            } else {
-                player.Message( "{0}&S is already same or {1} rank than {2}",
-                                targetInfo.ClassyName,
-                                (promote ? "higher" : "lower"),
-                                newRank.ClassyName );
+            try {
+                targetInfo.ChangeRank( player, newRank, cmd.NextAll(), true, true, false );
+            } catch( PlayerOpException ex ) {
+                player.Message( ex.MessageColored );
             }
         }
+
 
         #endregion
 
@@ -1443,5 +1236,24 @@ namespace fCraft {
         }
 
         #endregion
+
+
+        // freeze target if player is allowed to do so
+        static void FreezeIfAllowed( Player player, PlayerInfo targetInfo ) {
+            if( !targetInfo.IsFrozen && player.Can( Permission.Freeze, targetInfo.Rank ) ) {
+                FreezeHandler( player, new Command( "/freeze " + targetInfo.Name ) );
+            }
+        }
+
+
+        // warn player if others are still online from target's IP
+        static void WarnIfOtherPlayersOnIP( Player player, PlayerInfo targetInfo ) {
+            Player[] otherPlayers = Server.Players.FromIP( targetInfo.LastIP ).Except( targetInfo.PlayerObject ).ToArray();
+            if( otherPlayers.Length > 0 ) {
+                player.Message( "&WWarning: Other player(s) share IP with {0}&W: {1}",
+                                targetInfo.ClassyName,
+                                otherPlayers.JoinToClassyString() );
+            }
+        }
     }
 }

@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Cache;
 using System.Threading;
 using fCraft.Drawing;
+using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
@@ -816,7 +817,7 @@ namespace fCraft {
             bindings[(byte)type] = type;
         }
 
-        public void ResetBind( params Block[] types ) {
+        public void ResetBind( [NotNull] params Block[] types ) {
             if( types == null ) throw new ArgumentNullException( "types" );
             foreach( Block type in types ) {
                 ResetBind( type );
@@ -871,6 +872,7 @@ namespace fCraft {
         /// <summary> Returns true if player is allowed to run
         /// draw commands that affect a given number of blocks. </summary>
         public bool CanDraw( int volume ) {
+            if( volume < 0 ) throw new ArgumentOutOfRangeException( "volume" );
             return IsSuper || (Info.Rank.DrawLimit == 0) || (volume <= Info.Rank.DrawLimit);
         }
 
@@ -1046,19 +1048,25 @@ namespace fCraft {
 
         #region Copy/Paste
 
-        public CopyInformation[] CopyInformation;
+        CopyInformation[] copyInformation;
+        public CopyInformation[] CopyInformation {
+            get { return copyInformation; }
+        }
 
         int copySlot;
         public int CopySlot {
-            get {
-                return copySlot;
-            }
+            get { return copySlot; }
             set {
                 if( value < 0 || value > Info.Rank.CopySlots ) {
                     throw new ArgumentOutOfRangeException( "value" );
                 }
                 copySlot = value;
             }
+        }
+
+        internal void InitCopySlots() {
+            Array.Resize( ref copyInformation, Info.Rank.CopySlots );
+            CopySlot = Math.Min( CopySlot, Info.Rank.CopySlots - 1 );
         }
 
         public CopyInformation GetCopyInformation() {
@@ -1074,17 +1082,17 @@ namespace fCraft {
 
         #region Spectating
 
+        [CanBeNull]
         Player spectatedPlayer;
+
         /// <summary> Player currently being spectated. Use Spectate/StopSpectate methods to set. </summary>
+        [CanBeNull]
         public Player SpectatedPlayer {
             get { return spectatedPlayer; }
         }
 
-        public PlayerInfo LastSpectatedPlayer {
-            get;
-            private set;
-        }
-
+        [CanBeNull]
+        public PlayerInfo LastSpectatedPlayer { get; private set; }
 
         public bool IsSpectating {
             get { return (spectatedPlayer != null); }
@@ -1182,6 +1190,86 @@ namespace fCraft {
         public void ResetIdleTimer() {
             LastActiveTime = DateTime.UtcNow;
         }
+
+
+        #region Kick
+
+        /// <summary> Advanced kick command. </summary>
+        /// <param name="player"> Player who is kicking. </param>
+        /// <param name="reason"> Reason for kicking. May be blank if allowed by server configuration. </param>
+        /// <param name="context"> Classification of kick context. </param>
+        /// <param name="announce"> Whether the kick should be announced publicly on the server and IRC. </param>
+        /// <param name="raiseEvents"> Whether Player.BeingKicked and Player.Kicked events should be raised. </param>
+        /// <param name="recordToPlayerDB"> Whether the kick should be counted towards player's record.</param>
+        public void Kick( [NotNull] Player player, [NotNull] string reason, LeaveReason context,
+                          bool announce, bool raiseEvents, bool recordToPlayerDB ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( reason == null ) throw new ArgumentNullException( "reason" );
+            if( Enum.IsDefined( typeof( LeaveReason ), context ) ) {
+                throw new ArgumentOutOfRangeException( "context" );
+            }
+
+            // Check if player can ban/unban in general
+            if( !player.Can( Permission.Kick ) ) {
+                PlayerOpException.ThrowPermissionMissing( player, Info, "kick", Permission.Kick );
+            }
+
+            // Check if player is trying to ban/unban self
+            if( player == this ) {
+                PlayerOpException.ThrowCannotTargetSelf( player, Info, "kick" );
+            }
+
+            // Check if player has sufficiently high permission limit
+            if( player.Can( Permission.Kick, Info.Rank ) ) {
+                PlayerOpException.ThrowPermissionLimit( player, Info, "kick", Permission.Kick );
+            }
+
+            // check if kick reason is missing but required
+            PlayerOpException.CheckKickReason( reason, player, Info );
+
+            // raise Player.BeingKicked event
+            if( raiseEvents ) {
+                var e = new PlayerBeingKickedEventArgs( this, player, reason, !announce, recordToPlayerDB, context );
+                RaisePlayerBeingKickedEvent( e );
+                if( e.Cancel ) return;
+                recordToPlayerDB = e.RecordToPlayerDB;
+            }
+
+            // actually kick
+            string kickReason;
+            if( reason.Length > 0 ) {
+                kickReason = String.Format( "Kicked by {0}: {1}", player.Name, reason );
+            } else {
+                kickReason = String.Format( "Kicked by {0}", player.Name );
+            }
+            Kick( kickReason, context );
+
+            // log and record kick to PlayerDB
+            Logger.Log( "{0} was kicked by {1}. Reason: {2}", LogType.UserActivity,
+                        Name, player.Name, reason );
+            if( recordToPlayerDB ) {
+                Info.ProcessKick( player, reason );
+            }
+
+            // announce kick
+            if( announce ) {
+                if( reason.Length > 0 && ConfigKey.AnnounceKickAndBanReasons.Enabled() ) {
+                    Server.Message( "{0}&W was kicked by {1}&W: {2}",
+                                    ClassyName, player.ClassyName, reason );
+                } else {
+                    Server.Message( "{0}&W was kicked by {1}",
+                                    ClassyName, player.ClassyName );
+                }
+            }
+
+            // raise Player.Kicked event
+            if( raiseEvents ) {
+                var e = new PlayerKickedEventArgs( this, player, reason, !announce, recordToPlayerDB, context );
+                RaisePlayerKickedEvent( e );
+            }
+        }
+
+        #endregion
 
 
         /// <summary> Name formatted for the debugger. </summary>

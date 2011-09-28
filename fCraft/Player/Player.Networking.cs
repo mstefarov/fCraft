@@ -649,7 +649,12 @@ namespace fCraft {
             if( ConfigKey.AutoRankEnabled.Enabled() ) {
                 Rank newRank = AutoRankManager.Check( Info );
                 if( newRank != null ) {
-                    ModerationCommands.DoChangeRank( AutoRank, Info, newRank, "~AutoRank", false, true );
+                    try {
+                        Info.ChangeRank( AutoRank, newRank, "~AutoRank", true, true, true );
+                    } catch( PlayerOpException ex ) {
+                        Logger.Log( "AutoRank failed on player {0}: {1}", LogType.Error,
+                                    ex.Player.Name, ex.Message );
+                    }
                 }
             }
 
@@ -746,7 +751,7 @@ namespace fCraft {
                          Name, RankManager.HighestRank.Name );
             }
 
-            CopyInformation = new CopyInformation[Info.Rank.CopySlots];
+            InitCopySlots();
 
             RaisePlayerReadyEvent( this );
             HasFullyConnected = true;
@@ -778,6 +783,9 @@ namespace fCraft {
 
         public void JoinWorld( [NotNull] World newWorld, WorldChangeReason reason, Position position ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
+            if( Enum.IsDefined( typeof( WorldChangeReason ), reason ) ) {
+                throw new ArgumentOutOfRangeException( "reason" );
+            }
             lock( joinWorldLock ) {
                 useWorldSpawn = false;
                 postJoinPosition = position;
@@ -789,6 +797,9 @@ namespace fCraft {
 
         internal bool JoinWorldNow( [NotNull] World newWorld, bool doUseWorldSpawn, WorldChangeReason reason ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
+            if( Enum.IsDefined( typeof( WorldChangeReason ), reason ) ) {
+                throw new ArgumentOutOfRangeException( "reason" );
+            }
             if( Thread.CurrentThread != ioThread ) {
                 throw new InvalidOperationException( "Player.JoinWorldNow may only be called from player's own thread. " +
                                                      "Use Player.JoinWorld instead." );
@@ -968,6 +979,9 @@ namespace fCraft {
         /// until client thread has sent the kick packet. </summary>
         public void Kick( [NotNull] string message, LeaveReason leaveReason ) {
             if( message == null ) throw new ArgumentNullException( "message" );
+            if( Enum.IsDefined( typeof( LeaveReason ), leaveReason ) ) {
+                throw new ArgumentOutOfRangeException( "leaveReason" );
+            }
             LeaveReason = leaveReason;
 
             canReceive = false;
@@ -984,8 +998,11 @@ namespace fCraft {
 
         /// <summary> Kick (synchronous). Immediately sends the kick packet.
         /// Can only be used from IoThread (this is not thread-safe). </summary>
-        public void KickNow( [NotNull] string message, LeaveReason leaveReason ) {
+        internal void KickNow( [NotNull] string message, LeaveReason leaveReason ) {
             if( message == null ) throw new ArgumentNullException( "message" );
+            if( Enum.IsDefined( typeof( LeaveReason ), leaveReason ) ) {
+                throw new ArgumentOutOfRangeException( "leaveReason" );
+            }
             if( Thread.CurrentThread != ioThread ) {
                 throw new InvalidOperationException( "KickNow may only be called from player's own thread." );
             }
@@ -1060,14 +1077,14 @@ namespace fCraft {
                     Message( "Stopped spectating {0}&S (disconnected)", spectatedPlayer.ClassyName );
                     spectatedPlayer = null;
                 } else {
-                    Position spectatePos = SpectatedPlayer.Position;
-                    World spectateWorld = SpectatedPlayer.World;
+                    Position spectatePos = spectatedPlayer.Position;
+                    World spectateWorld = spectatedPlayer.World;
                     if( spectateWorld != World ) {
                         if( CanJoin( spectateWorld ) ) {
                             postJoinPosition = spectatePos;
                             Message( "Joined {0}&S to continue spectating {1}",
                                      spectateWorld.ClassyName,
-                                     SpectatedPlayer.ClassyName );
+                                     spectatedPlayer.ClassyName );
                             JoinWorldNow( spectateWorld, false, WorldChangeReason.SpectateTargetJoined );
                         } else {
                             Message( "Stopped spectating {0}&S (cannot join {1}&S)",

@@ -15,6 +15,7 @@ namespace fCraft {
 
         public IPAddress LastIP;
 
+        [NotNull]
         public Rank Rank;
         public DateTime RankChangeDate;
 
@@ -110,8 +111,11 @@ namespace fCraft {
         }
 
         // fabricate info for an unrecognized player
-        public PlayerInfo( string name, Rank rank, bool setLoginDate, RankChangeType rankChangeType )
+        public PlayerInfo( [NotNull] string name, [NotNull] Rank rank,
+                           bool setLoginDate, RankChangeType rankChangeType )
             : this() {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( rank == null ) throw new ArgumentNullException( "rank" );
             Name = name;
             Rank = rank;
             if( setLoginDate ) {
@@ -125,8 +129,11 @@ namespace fCraft {
 
 
         // generate blank info for a new player
-        public PlayerInfo( string name, IPAddress lastIP, Rank startingRank )
+        public PlayerInfo( [NotNull] string name, [NotNull] IPAddress lastIP, [NotNull] Rank startingRank )
             : this() {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( lastIP == null ) throw new ArgumentNullException( "lastIP" );
+            if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
             FirstLoginDate = DateTime.UtcNow;
             LastSeen = DateTime.UtcNow;
             LastLoginDate = DateTime.UtcNow;
@@ -719,43 +726,6 @@ namespace fCraft {
             LastModified = DateTime.UtcNow;
         }
 
-
-        internal bool ProcessBan( [CanBeNull] Player bannedBy, [NotNull] string bannedByName, [NotNull] string banReason ) {
-            if( bannedByName == null ) throw new ArgumentNullException( "bannedByName" );
-            if( banReason == null ) throw new ArgumentNullException( "banReason" );
-            if( !IsBanned ) {
-                BanStatus = BanStatus.Banned;
-                BannedBy = bannedByName;
-                BanDate = DateTime.UtcNow;
-                BanReason = banReason;
-                if( bannedBy != null ) {
-                    Interlocked.Increment( ref bannedBy.Info.TimesBannedOthers );
-                }
-                Unmute();
-                Unfreeze();
-                IsHidden = false;
-                LastModified = DateTime.UtcNow;
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-
-        public bool ProcessUnban( [NotNull] string unbannedByName, [NotNull] string unbanReason ) {
-            if( unbannedByName == null ) throw new ArgumentNullException( "unbannedByName" );
-            if( unbanReason == null ) throw new ArgumentNullException( "unbanReason" );
-            if( IsBanned ) {
-                BanStatus = BanStatus.NotBanned;
-                UnbannedBy = unbannedByName;
-                UnbanDate = DateTime.UtcNow;
-                UnbanReason = unbanReason;
-                LastModified = DateTime.UtcNow;
-                return true;
-            } else {
-                return false;
-            }
-        }
 
 
         public void ProcessRankChange( [NotNull] Rank newRank, [NotNull] string changer, [NotNull] string reason, RankChangeType type ) {

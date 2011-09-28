@@ -80,8 +80,6 @@ You can use any color codes, and these special variables:
 
             toolTip.SetToolTip( xShowConnectionMessages, ConfigKey.ShowConnectionMessages.GetDescription() );
 
-            // TODO: ShowBannedConnectionMessages
-
             toolTip.SetToolTip( xShowJoinedWorldMessages, ConfigKey.ShowJoinedWorldMessages.GetDescription() );
 
             toolTip.SetToolTip( bColorSys, ConfigKey.SystemMessageColor.GetDescription() );

@@ -152,13 +152,13 @@ namespace fCraft {
         }
 
 
-        internal static void RaisePlayerBeingKickedEvent( PlayerBeingKickedEventArgs e ) {
+        static void RaisePlayerBeingKickedEvent( PlayerBeingKickedEventArgs e ) {
             var h = BeingKicked;
             if( h != null ) h( null, e );
         }
 
 
-        internal static void RaisePlayerKickedEvent( PlayerKickedEventArgs e ) {
+        static void RaisePlayerKickedEvent( PlayerKickedEventArgs e ) {
             var h = Kicked;
             if( h != null ) h( null, e );
         }

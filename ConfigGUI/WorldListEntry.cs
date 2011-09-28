@@ -66,7 +66,7 @@ namespace fCraft.ConfigGUI {
                 Hidden = false;
             }
 
-            if( (temp = el.Attribute( "backup" )) != null ) { // TODO: Make per-world backup settings actually work
+            if( (temp = el.Attribute( "backup" )) != null ) {
                 TimeSpan realBackupTimer;
                 if( temp.Value.ToTimeSpan( out realBackupTimer ) ) {
                     Backup = BackupNameFromValue( realBackupTimer );
