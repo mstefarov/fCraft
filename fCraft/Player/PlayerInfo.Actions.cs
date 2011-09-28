@@ -590,7 +590,7 @@ namespace fCraft {
             }
 
             // Check if player's specific permission limits are enough
-            if( promoting && !player.Can( Permission.Promote, Rank )) {
+            if( promoting && !player.Can( Permission.Promote, newRank )) {
                 string msg = String.Format( "Cannot promote {0} to {1}: you may only promote players up to rank {2}.",
                                             Name, newRank.Name,
                                             player.Info.Rank.GetLimit( Permission.Promote ).Name );
