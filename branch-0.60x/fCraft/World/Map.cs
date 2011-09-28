@@ -344,7 +344,7 @@ namespace fCraft {
                 HasChangedSinceSave = true;
                 if( !InBounds( update.X, update.Y, update.Z ) ) continue;
                 int blockIndex = Index( update.X, update.Y, update.Z );
-                Blocks[blockIndex] = update.BlockType; // TODO: investigate IndexOutOfRangeException here
+                Blocks[blockIndex] = update.BlockType;
 
                 if( !World.IsFlushing ) {
                     Packet packet = PacketWriter.MakeSetBlock( update.X, update.Y, update.Z, update.BlockType );

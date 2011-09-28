@@ -73,7 +73,7 @@ namespace fCraft {
             if( CaveDensity <= 0 || CaveSize <= 0 ) {
                 throw new ArgumentException( "caveDensity and caveSize must be > 0" );
             }
-            // todo: additional validation
+            // TODO: additional validation
         }
 
         public MapGeneratorArgs() {

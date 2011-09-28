@@ -198,10 +198,6 @@ namespace fCraft {
             Logger.Log( "Map path: {0}", LogType.Debug, Path.GetFullPath( Paths.MapPath ) );
             Logger.Log( "Config path: {0}", LogType.Debug, Path.GetFullPath( Paths.ConfigFileName ) );
 
-            //if( ConfigKey.LoadPlugins.GetBool() ) { // TODO
-            //    LoadAllPlugins();
-            //}
-
             libraryInitialized = true;
         }
 
@@ -665,12 +661,8 @@ namespace fCraft {
                     Message( "{0}&S was kicked for being idle for {1} min",
                              player.ClassyName,
                              player.Info.Rank.IdleKickTimer );
-                    ModerationCommands.DoKick( Player.Console,
-                                               player,
-                                               "Idle for " + player.Info.Rank.IdleKickTimer + " minutes",
-                                               true,
-                                               false,
-                                               LeaveReason.IdleKick );
+                    string kickReason = "Idle for " + player.Info.Rank.IdleKickTimer + " minutes";
+                    player.Kick( Player.Console, kickReason, LeaveReason.IdleKick, false, true, false );
                     player.ResetIdleTimer(); // to prevent kick from firing more than once
                 }
             }

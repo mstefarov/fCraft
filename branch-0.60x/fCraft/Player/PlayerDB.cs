@@ -470,20 +470,21 @@ namespace fCraft {
         }
 
 
-        public static int MassRankChange( [NotNull] Player player, [NotNull] Rank from, [NotNull] Rank to, bool silent ) {
+        public static int MassRankChange( [NotNull] Player player, [NotNull] Rank from, [NotNull] Rank to, [NotNull] string reason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( from == null ) throw new ArgumentNullException( "from" );
             if( to == null ) throw new ArgumentNullException( "to" );
+            if( reason == null ) throw new ArgumentNullException( "reason" );
             int affected = 0;
+            string fullReason = reason + "~MassRank";
             lock( AddLocker ) {
                 for( int i = 0; i < PlayerInfoList.Length; i++ ) {
                     if( PlayerInfoList[i].Rank == from ) {
-                        ModerationCommands.DoChangeRank( player,
-                                                         PlayerInfoList[i],
-                                                         to,
-                                                         "~MassRank",
-                                                         silent,
-                                                         false );
+                        try {
+                            list[i].ChangeRank( player, to, fullReason, true, true, false );
+                        } catch( PlayerOpException ex ) {
+                            player.Message( ex.MessageColored );
+                        }
                         affected++;
                     }
                 }

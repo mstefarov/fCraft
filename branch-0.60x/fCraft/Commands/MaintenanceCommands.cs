@@ -590,7 +590,11 @@ namespace fCraft {
                     } else if( newRank < list[i].Rank ) {
                         demoted++;
                     }
-                    ModerationCommands.DoChangeRank( player, list[i], newRank, message, silent, true );
+                    try {
+                        list[i].ChangeRank( player, newRank, message, !silent, true, true );
+                    } catch (PlayerOpException ex){
+                        player.Message( ex.MessageColored );
+                    }
                 }
             }
             sw.Stop();
@@ -609,14 +613,14 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
             Help = "",
-            Usage = "/massrank FromRank ToRank [silent]",
+            Usage = "/massrank FromRank ToRank Reason",
             Handler = MassRankHandler
         };
 
         static void MassRankHandler( Player player, Command cmd ) {
             string fromRankName = cmd.Next();
             string toRankName = cmd.Next();
-            bool silent = (cmd.Next() != null);
+            string reason = cmd.NextAll();
             if( toRankName == null ) {
                 CdMassRank.PrintUsage( player );
                 return;
@@ -651,7 +655,7 @@ namespace fCraft {
             player.Message( "MassRank: {0}ing {1} players...",
                             verb, playerCount );
 
-            int affected = PlayerDB.MassRankChange( player, fromRank, toRank, silent );
+            int affected = PlayerDB.MassRankChange( player, fromRank, toRank, reason );
             player.Message( "MassRank: done, {0} records affected.", affected );
         }
 
@@ -1179,11 +1183,15 @@ namespace fCraft {
                 return;
             }
 
-            string reason = "(import from " + serverName + ")";
+            string reason = "~Import from " + serverName;
             foreach( string name in names ) {
                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
                                   PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
-                ModerationCommands.DoChangeRank( player, info, targetRank, reason, silent, false );
+                try {
+                    info.ChangeRank( player, targetRank, reason, !silent, true, false );
+                } catch( PlayerOpException ex ) {
+                    player.Message( ex.MessageColored );
+                }
             }
 
             PlayerDB.Save();

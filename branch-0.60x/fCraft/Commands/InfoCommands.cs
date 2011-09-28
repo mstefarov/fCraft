@@ -509,7 +509,7 @@ namespace fCraft {
         };
 
         // Shows general information about a particular rank.
-        internal static void RankInfoHandler( Player player, Command cmd ) {
+        static void RankInfoHandler( Player player, Command cmd ) {
             Rank rank;
 
             string rankName = cmd.Next();
@@ -523,49 +523,47 @@ namespace fCraft {
                 }
             }
 
-            if( rank != null ) {
-
-                List<Permission> permissions = new List<Permission>();
-                for( int i = 0; i < rank.Permissions.Length; i++ ) {
-                    if( rank.Permissions[i] ) {
-                        permissions.Add( (Permission)i );
-                    }
+            List<Permission> permissions = new List<Permission>();
+            for( int i = 0; i < rank.Permissions.Length; i++ ) {
+                if( rank.Permissions[i] ) {
+                    permissions.Add( (Permission)i );
                 }
+            }
 
-                Permission[] sortedPermissionNames = permissions.OrderBy( s => s.ToString(), StringComparer.OrdinalIgnoreCase ).ToArray();
-                {
-                    StringBuilder sb = new StringBuilder();
-                    sb.AppendFormat( "Players of rank {0}&S can: ", rank.ClassyName );
-                    bool first = true;
-                    for( int i = 0; i < sortedPermissionNames.Length; i++ ) {
-                        Permission p = sortedPermissionNames[i];
-                        if( !first ) sb.Append( ',' ).Append( ' ' );
-                        Rank permissionLimit = rank.PermissionLimits[(int)p];
-                        sb.Append( p );
-                        if( permissionLimit != null ) {
-                            sb.AppendFormat( "({0}&S)", permissionLimit.ClassyName );
-                        }
-                        first = false;
+            Permission[] sortedPermissionNames =
+                permissions.OrderBy( s => s.ToString(), StringComparer.OrdinalIgnoreCase ).ToArray();
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendFormat( "Players of rank {0}&S can: ", rank.ClassyName );
+                bool first = true;
+                for( int i = 0; i < sortedPermissionNames.Length; i++ ) {
+                    Permission p = sortedPermissionNames[i];
+                    if( !first ) sb.Append( ',' ).Append( ' ' );
+                    Rank permissionLimit = rank.PermissionLimits[(int)p];
+                    sb.Append( p );
+                    if( permissionLimit != null ) {
+                        sb.AppendFormat( "({0}&S)", permissionLimit.ClassyName );
                     }
-                    player.Message( sb.ToString() );
+                    first = false;
                 }
+                player.Message( sb.ToString() );
+            }
 
-                if( rank.Can( Permission.Draw ) ) {
-                    StringBuilder sb = new StringBuilder();
-                    if( rank.DrawLimit > 0 ) {
-                        sb.AppendFormat( "Draw limit: {0} blocks.", rank.DrawLimit );
-                    } else {
-                        sb.AppendFormat( "Draw limit: None (unlimited)." );
-                    }
-                    if( rank.Can( Permission.CopyAndPaste ) ) {
-                        sb.AppendFormat( " Copy/paste slots: {0}", rank.CopySlots );
-                    }
-                    player.Message( sb.ToString() );
+            if( rank.Can( Permission.Draw ) ) {
+                StringBuilder sb = new StringBuilder();
+                if( rank.DrawLimit > 0 ) {
+                    sb.AppendFormat( "Draw limit: {0} blocks.", rank.DrawLimit );
+                } else {
+                    sb.AppendFormat( "Draw limit: None (unlimited)." );
                 }
+                if( rank.Can( Permission.CopyAndPaste ) ) {
+                    sb.AppendFormat( " Copy/paste slots: {0}", rank.CopySlots );
+                }
+                player.Message( sb.ToString() );
+            }
 
-                if( rank.IdleKickTimer > 0 ) {
-                    player.Message( "Idle kick after {0}", TimeSpan.FromMinutes( rank.IdleKickTimer ).ToMiniString() );
-                }
+            if( rank.IdleKickTimer > 0 ) {
+                player.Message( "Idle kick after {0}", TimeSpan.FromMinutes( rank.IdleKickTimer ).ToMiniString() );
             }
         }
 
