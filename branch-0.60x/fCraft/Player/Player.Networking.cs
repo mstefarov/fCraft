@@ -664,7 +664,7 @@ namespace fCraft {
             // Announce join
             if( ConfigKey.ShowConnectionMessages.Enabled() ) {
                 string message = Server.MakePlayerConnectedMessage( this, firstTime, World );
-                canSee.Message( message );
+                canSee.MessageAlt( message );
             }
 
             if( !IsVerified ) {

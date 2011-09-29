@@ -360,6 +360,31 @@ namespace fCraft {
         }
 
 
+        const string WoMAlertPrefix = "^detail.user.alert=";
+        public void MessageAlt( [NotNull] string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( this == Console ) {
+                Logger.LogToConsole( message );
+            } else if( IsUsingWoM ) {
+                foreach( Packet p in LineWrapper.WrapPrefixed( WoMAlertPrefix, WoMAlertPrefix + Color.Sys + message ) ) {
+                    Send( p );
+                }
+            } else {
+                foreach( Packet p in LineWrapper.Wrap( Color.Sys + message ) ) {
+                    Send( p );
+                }
+            }
+        }
+
+        [StringFormatMethod( "message" )]
+        public void MessageAlt( [NotNull] string message, [NotNull] params object[] args ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( args == null ) throw new ArgumentNullException( "args" );
+            MessageAlt( String.Format( message, args ) );
+        }
+
+
+
         public void Message( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( this == Console ) {

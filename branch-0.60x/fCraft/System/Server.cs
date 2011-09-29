@@ -974,14 +974,12 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( world == null ) throw new ArgumentNullException( "world" );
             if( firstTime ) {
-                return String.Format( "&S{0} ({1}&S) connected, joined {2}",
+                return String.Format( "&S{0} connected, joined {1}",
                                       player.Name,
-                                      player.Info.Rank.ClassyName,
                                       world.ClassyName );
             } else {
-                return String.Format( "&S{0} ({1}&S) connected again, joined {2}",
+                return String.Format( "&S{0} connected again, joined {1}",
                                       player.Name,
-                                      player.Info.Rank.ClassyName,
                                       world.ClassyName );
             }
         }
@@ -998,8 +996,8 @@ namespace fCraft {
                 Logger.Log( "{0} left the server.", LogType.UserActivity,
                             player.Name );
                 if( player.HasRegistered && ConfigKey.ShowConnectionMessages.Enabled() ) {
-                    Players.CanSee( player ).Message( "&SPlayer {0}&S left the server.",
-                                                      player.ClassyName );
+                    Players.CanSee( player ).MessageAlt( "&SPlayer {0}&S left the server.",
+                                                         player.ClassyName );
                 }
 
                 if( player.World != null ) {

@@ -436,7 +436,8 @@ namespace fCraft {
         /// <param name="source"> List of players who will receive the message. </param>
         /// <param name="message"> String/message to send. </param>
         /// <returns> Number of players who received the message. </returns>
-        public static int Message( [NotNull] this IEnumerable<Player> source, [NotNull] string message ) {
+        public static int Message( [NotNull] this IEnumerable<Player> source,
+                                   [NotNull] string message ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( message == null ) throw new ArgumentNullException( "message" );
             int i = 0;
@@ -454,7 +455,9 @@ namespace fCraft {
         /// <param name="except"> Player to exclude from the recepient list. </param>
         /// <param name="message"> String/message to send. </param>
         /// <returns> Number of players who received the message. </returns>
-        public static int Message( [NotNull] this IEnumerable<Player> source, [CanBeNull] Player except, [NotNull] string message ) {
+        public static int Message( [NotNull] this IEnumerable<Player> source,
+                                   [CanBeNull] Player except,
+                                   [NotNull] string message ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( message == null ) throw new ArgumentNullException( "message" );
             int i = 0;
@@ -477,7 +480,8 @@ namespace fCraft {
         [StringFormatMethod( "message" )]
         public static int Message( [NotNull] this IEnumerable<Player> source,
                                    [CanBeNull] Player except,
-                                   [NotNull] string message, [NotNull] params object[] formatArgs ) {
+                                   [NotNull] string message,
+                                   [NotNull] params object[] formatArgs ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
@@ -498,8 +502,10 @@ namespace fCraft {
         /// <param name="message"> String/message to send. </param>
         /// <param name="formatArgs"> Format parameters. Same semantics as String.Format </param>
         /// <returns> Number of players who received the message. </returns>
-        [StringFormatMethod("message")]
-        public static int Message( [NotNull] this IEnumerable<Player> source, [NotNull] string message, [NotNull] params object[] formatArgs ) {
+        [StringFormatMethod( "message" )]
+        public static int Message( [NotNull] this IEnumerable<Player> source,
+                                   [NotNull] string message,
+                                   [NotNull] params object[] formatArgs ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
@@ -554,6 +560,29 @@ namespace fCraft {
                     player.Send( packet );
                     i++;
                 }
+            }
+            return i;
+        }
+
+
+
+
+        /// <summary> Formats and broadcasts a message, showing on top-left for those who use WoM. </summary>
+        /// <param name="source"> List of players who will receive the message. </param>
+        /// <param name="message"> String/message to send. </param>
+        /// <param name="formatArgs"> Format parameters. Same semantics as String.Format </param>
+        /// <returns> Number of players who received the message. </returns>
+        [StringFormatMethod( "message" )]
+        public static int MessageAlt( [NotNull] this IEnumerable<Player> source,
+                                      [NotNull] string message,
+                                      [NotNull] params object[] formatArgs ) {
+            if( source == null ) throw new ArgumentNullException( "source" );
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
+            int i = 0;
+            foreach( Player player in source ) {
+                player.MessageAlt( message, formatArgs );
+                i++;
             }
             return i;
         }

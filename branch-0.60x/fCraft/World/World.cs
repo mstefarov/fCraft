@@ -256,8 +256,9 @@ namespace fCraft {
                 UpdatePlayerList();
 
                 if( announce && ConfigKey.ShowJoinedWorldMessages.Enabled() ) {
-                    Server.Players.CanSee( player ).Message( "&SPlayer {0}&S joined {1}",
-                                                             player.ClassyName, ClassyName );
+                    Server.Players.CanSee( player )
+                                  .MessageAlt( "&SPlayer {0}&S joined {1}",
+                                                                player.ClassyName, ClassyName );
                 }
 
                 Logger.Log( "Player {0} joined world {1}.", LogType.UserActivity,
@@ -592,10 +593,10 @@ namespace fCraft {
         public string GenerateWoMConfig() {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine( "server.name = " + ConfigKey.ServerName.GetString() );
-            sb.AppendLine( "server.detail = Loading world " + ClassyName );
+            sb.AppendLine( "server.detail = " + ClassyName );
             sb.AppendLine( "user.detail = World " + ClassyName );
             Random rand = new Random();
-            if(CloudColor>-1) sb.AppendLine( "environment.cloud = " + CloudColor );
+            if( CloudColor > -1 ) sb.AppendLine( "environment.cloud = " + CloudColor );
             if( FogColor > -1 ) sb.AppendLine( "environment.fog = " + FogColor );
             if( SkyColor > -1 ) sb.AppendLine( "environment.sky = " + SkyColor );
             sb.AppendLine( "server.sendwomid = true" );
