@@ -595,15 +595,15 @@ namespace fCraft {
             sb.AppendLine( "server.detail = Loading world " + ClassyName );
             sb.AppendLine( "user.detail = World " + ClassyName );
             Random rand = new Random();
-            sb.AppendLine( "environment.cloud = " + rand.Next( 256 * 256 * 256 ) );
-            sb.AppendLine( "environment.fog = " + rand.Next( 256 * 256 * 256 ) );
-            sb.AppendLine( "environment.sky = " + rand.Next( 256 * 256 * 256 ) );
+            if(CloudColor>-1) sb.AppendLine( "environment.cloud = " + CloudColor );
+            if( FogColor > -1 ) sb.AppendLine( "environment.fog = " + FogColor );
+            if( SkyColor > -1 ) sb.AppendLine( "environment.sky = " + SkyColor );
             sb.AppendLine( "server.sendwomid = true" );
             return sb.ToString();
         }
 
 
-        public int CloudColor, FogColor, SkyColor;
+        public int CloudColor = -1, FogColor = -1, SkyColor = -1;
     }
 }
 
