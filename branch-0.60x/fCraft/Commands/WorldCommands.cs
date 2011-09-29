@@ -488,11 +488,14 @@ namespace fCraft {
             string variable = cmd.Next();
             string valueText = cmd.Next();
             if( variable == null ) {
-                player.Message( "Environment settings for world {0}&S:", world );
+                player.Message( "Environment settings for world {0}&S:", world.ClassyName );
                 player.Message( "  Cloud: {0}   Fog: {1}   Sky: {2}",
-                                world.CloudColor == -1 ? "normal" : world.CloudColor.ToString( "X6" ),
-                                world.FogColor == -1 ? "normal" : world.FogColor.ToString( "X6" ),
-                                world.SkyColor == -1 ? "normal" : world.SkyColor.ToString( "X6" ) );
+                                world.CloudColor == -1 ? "normal" : '#' + world.CloudColor.ToString( "X6" ),
+                                world.FogColor == -1 ? "normal" : '#' + world.FogColor.ToString( "X6" ),
+                                world.SkyColor == -1 ? "normal" : '#' + world.SkyColor.ToString( "X6" ) );
+                if( !player.IsUsingWoM ) {
+                    player.Message( "  You need WoM client to see the changes." );
+                }
                 return;
             }
 
@@ -514,7 +517,7 @@ namespace fCraft {
                     if( value == -1 ) {
                         player.Message( "Reset fog color for {0}&S to normal", world.ClassyName );
                     } else {
-                        player.Message( "Set fog color for {0}&S to {1:X6}", world.ClassyName, value );
+                        player.Message( "Set fog color for {0}&S to #{1:X6}", world.ClassyName, value );
                     }
                     break;
 
@@ -524,7 +527,7 @@ namespace fCraft {
                     if( value == -1 ) {
                         player.Message( "Reset cloud color for {0}&S to normal", world.ClassyName );
                     } else {
-                        player.Message( "Set cloud color for {0}&S to {1:X6}", world.ClassyName, value );
+                        player.Message( "Set cloud color for {0}&S to #{1:X6}", world.ClassyName, value );
                     }
                     break;
 
@@ -533,7 +536,7 @@ namespace fCraft {
                     if( value == -1 ) {
                         player.Message( "Reset sky color for {0}&S to normal", world.ClassyName );
                     } else {
-                        player.Message( "Set sky color for {0}&S to {1:X6}", world.ClassyName, value );
+                        player.Message( "Set sky color for {0}&S to #{1:X6}", world.ClassyName, value );
                     }
                     break;
 
@@ -542,6 +545,7 @@ namespace fCraft {
                     return;
             }
 
+            WorldManager.SaveWorldList();
             if( player.IsUsingWoM ) {
                 player.JoinWorld( world, WorldChangeReason.Rejoin, player.Position );
             } else {
