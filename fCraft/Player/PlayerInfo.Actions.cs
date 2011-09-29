@@ -630,10 +630,10 @@ namespace fCraft {
                         player.Name, verbed, Name, Rank.Name, newRank.Name, reason );
 
             // Actually change rank
+            Rank oldRank = Rank;
             ProcessRankChange( newRank, player.Name, reason, changeType );
 
             // Make necessary adjustments related to rank change
-            Rank oldRank = Rank;
             Player target = PlayerObject;
             if( target == null ) {
                 if( raiseEvents ) RaiseRankChangedEvent( this, player, oldRank, reason, changeType );
