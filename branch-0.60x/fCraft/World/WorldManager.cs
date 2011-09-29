@@ -11,7 +11,8 @@ using JetBrains.Annotations;
 namespace fCraft {
     public static class WorldManager {
         public const string BuildSecurityXmlTagName = "BuildSecurity",
-                            AccessSecurityXmlTagName = "AccessSecurity";
+                            AccessSecurityXmlTagName = "AccessSecurity",
+                            EnvironmentXmlTagName = "Environment";
 
         public static World[] WorldList { get; private set; }
         static readonly SortedDictionary<string, World> Worlds = new SortedDictionary<string, World>();
@@ -123,7 +124,6 @@ namespace fCraft {
             return true;
         }
 
-
         static void LoadWorldListEntry( [NotNull] XElement el, ref World firstWorld ) {
             if( el == null ) throw new ArgumentNullException( "el" );
             XAttribute temp;
@@ -188,6 +188,35 @@ namespace fCraft {
             if( blockEl != null ) {
                 world.BlockDB.LoadSettings( blockEl );
             }
+
+            XElement envEl = el.Element( EnvironmentXmlTagName );
+            if( envEl != null ) {
+                if( (temp = envEl.Attribute( "cloud" )) != null ) {
+                    if( !Int32.TryParse( temp.Value, out world.CloudColor ) ) {
+                        world.CloudColor = -1;
+                        Logger.Log( "WorldManager: Could not parse \"cloud\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
+                                    LogType.Warning,
+                                    worldName );
+                    }
+                }
+                if( (temp = envEl.Attribute( "fog" )) != null ) {
+                    if( !Int32.TryParse( temp.Value, out world.FogColor ) ) {
+                        world.FogColor = -1;
+                        Logger.Log( "WorldManager: Could not parse \"fog\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
+                                    LogType.Warning,
+                                    worldName );
+                    }
+                }
+                if( (temp = envEl.Attribute( "sky" )) != null ) {
+                    if( !Int32.TryParse( temp.Value, out world.SkyColor ) ) {
+                        world.SkyColor = -1;
+                        Logger.Log( "WorldManager: Could not parse \"sky\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
+                                    LogType.Warning,
+                                    worldName );
+                    }
+                }
+            }
+
 
             foreach( XElement mainedRankEl in el.Elements( "RankMainWorld" ) ) {
                 Rank rank = Rank.Parse( mainedRankEl.Value );
@@ -293,6 +322,12 @@ namespace fCraft {
                     if( world.MapChangedOn != DateTime.MinValue ) {
                         temp.Add( new XElement( "MapChangedOn", world.MapChangedOn.ToUnixTime() ) );
                     }
+
+                    XElement elEnv = new XElement( EnvironmentXmlTagName );
+                    if( world.CloudColor > -1 ) elEnv.Add( new XAttribute( "cloud", world.CloudColor ) );
+                    if( world.FogColor > -1 ) elEnv.Add( new XAttribute( "fog", world.FogColor ) );
+                    if( world.SkyColor > -1 ) elEnv.Add( new XAttribute( "sky", world.SkyColor ) );
+                    temp.Add( elEnv );
 
                     root.Add( temp );
                 }

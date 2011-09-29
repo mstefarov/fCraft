@@ -149,7 +149,10 @@ namespace fCraft {
                     LoadedBy = LoadedBy,
                     LoadedOn = LoadedOn,
                     MapChangedBy = MapChangedBy,
-                    MapChangedOn = MapChangedOn
+                    MapChangedOn = MapChangedOn,
+                    FogColor = FogColor,
+                    CloudColor = CloudColor,
+                    SkyColor = SkyColor
                 };
                 newMap.World = newWorld;
                 newWorld.Map = newMap;
@@ -604,7 +607,9 @@ namespace fCraft {
         }
 
 
-        public int CloudColor = -1, FogColor = -1, SkyColor = -1;
+        public int CloudColor = -1,
+                   FogColor = -1,
+                   SkyColor = -1;
     }
 }
 
