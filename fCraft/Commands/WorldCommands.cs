@@ -477,15 +477,24 @@ namespace fCraft {
 
         static void EnvHandler( Player player, Command cmd ) {
             string worldName = cmd.Next();
-            string variable = cmd.Next();
-            string valueText = cmd.Next();
-            if( worldName == null || variable == null || valueText == null ) {
-                CdEnv.PrintUsage( player );
-                return;
+            World world;
+            if( worldName == null ) {
+                world = player.World;
+            } else {
+                world = WorldManager.FindWorldOrPrintMatches( player, worldName );
+                if( world == null ) return;
             }
 
-            World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-            if( world == null ) return;
+            string variable = cmd.Next();
+            string valueText = cmd.Next();
+            if( variable == null ) {
+                player.Message( "Environment settings for world {0}&S:", world );
+                player.Message( "  Cloud: {0}   Fog: {1}   Sky: {2}",
+                                world.CloudColor == -1 ? "normal" : world.CloudColor.ToString( "X6" ),
+                                world.FogColor == -1 ? "normal" : world.FogColor.ToString( "X6" ),
+                                world.SkyColor == -1 ? "normal" : world.SkyColor.ToString( "X6" ) );
+                return;
+            }
 
             int value;
             if( valueText.Equals( "normal", StringComparison.OrdinalIgnoreCase ) ) {
@@ -502,17 +511,30 @@ namespace fCraft {
             switch( variable.ToLower() ) {
                 case "fog":
                     world.FogColor = value;
-                    player.Message( "Set fog color for {0}&S to {1:X6}", world.ClassyName, value );
+                    if( value == -1 ) {
+                        player.Message( "Reset fog color for {0}&S to normal", world.ClassyName );
+                    } else {
+                        player.Message( "Set fog color for {0}&S to {1:X6}", world.ClassyName, value );
+                    }
                     break;
 
                 case "cloud":
+                case "clouds":
                     world.CloudColor = value;
-                    player.Message( "Set cloud color for {0}&S to {1:X6}", world.ClassyName, value );
+                    if( value == -1 ) {
+                        player.Message( "Reset cloud color for {0}&S to normal", world.ClassyName );
+                    } else {
+                        player.Message( "Set cloud color for {0}&S to {1:X6}", world.ClassyName, value );
+                    }
                     break;
 
                 case "sky":
                     world.SkyColor = value;
-                    player.Message( "Set sky color for {0}&S to {1:X6}", world.ClassyName, value );
+                    if( value == -1 ) {
+                        player.Message( "Reset sky color for {0}&S to normal", world.ClassyName );
+                    } else {
+                        player.Message( "Set sky color for {0}&S to {1:X6}", world.ClassyName, value );
+                    }
                     break;
 
                 default:
@@ -520,22 +542,26 @@ namespace fCraft {
                     return;
             }
 
-            player.JoinWorld( world, WorldChangeReason.Rejoin, player.Position );
+            if( player.IsUsingWoM ) {
+                player.JoinWorld( world, WorldChangeReason.Rejoin, player.Position );
+            } else {
+                player.Message( "You need WoM client to see the changes." );
+            }
         }
 
         static int ParseColor( string text ) {
             byte red, green, blue;
             switch( text.Length ) {
                 case 3:
-                    red = (byte)(HexToValue( text[0] ) * 16);
-                    green = (byte)(HexToValue( text[1] ) * 16);
-                    blue = (byte)(HexToValue( text[2] ) * 16);
+                    red = (byte)(HexToValue( text[0] ) * 16 + HexToValue( text[0] ));
+                    green = (byte)(HexToValue( text[1] ) * 16 + HexToValue( text[1] ));
+                    blue = (byte)(HexToValue( text[2] ) * 16 + HexToValue( text[2] ));
                     break;
                 case 4:
                     if( text[0] != '#' ) throw new FormatException();
-                    red = (byte)(HexToValue( text[1] ) * 16);
-                    green = (byte)(HexToValue( text[2] ) * 16);
-                    blue = (byte)(HexToValue( text[3] ) * 16);
+                    red = (byte)(HexToValue( text[1] ) * 16 + HexToValue( text[1] ));
+                    green = (byte)(HexToValue( text[2] ) * 16 + HexToValue( text[2] ));
+                    blue = (byte)(HexToValue( text[3] ) * 16 + HexToValue( text[3] ));
                     break;
                 case 6:
                     red = (byte)(HexToValue( text[0] ) * 16 + HexToValue( text[1] ));

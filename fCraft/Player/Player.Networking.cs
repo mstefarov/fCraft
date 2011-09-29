@@ -450,7 +450,7 @@ namespace fCraft {
                     return false;
 
                 case (byte)'G':
-                    ServeHTTP();
+                    ServeHttp();
                     return false;
 
                 default:
@@ -779,12 +779,12 @@ namespace fCraft {
         }
 
 
-        static readonly Regex httpFirstLine = new Regex( "GET /([a-zA-Z0-9_]{1,16}) .+", RegexOptions.Compiled );
-        void ServeHTTP() {
+        static readonly Regex HttpFirstLine = new Regex( "GET /([a-zA-Z0-9_]{1,16}) .+", RegexOptions.Compiled );
+        void ServeHttp() {
             using( StreamReader textReader = new StreamReader( stream ) ) {
                 using( StreamWriter textWriter = new StreamWriter( stream ) ) {
                     string firstLine = "G" + textReader.ReadLine();
-                    var match = httpFirstLine.Match( firstLine );
+                    var match = HttpFirstLine.Match( firstLine );
                     if( match.Success ) {
                         string worldName = match.Groups[1].Value;
                         World world = WorldManager.FindWorldExact( worldName );
@@ -922,9 +922,9 @@ namespace fCraft {
             byte[] buffer = new byte[1024];
             int mapBytesSent = 0;
             byte[] blockData;
-            using( MemoryStream stream = new MemoryStream() ) {
-                map.GetCompressedCopy( stream, true );
-                blockData = stream.ToArray();
+            using( MemoryStream mapStream = new MemoryStream() ) {
+                map.GetCompressedCopy( mapStream, true );
+                blockData = mapStream.ToArray();
             }
             Logger.Log( "Player.JoinWorldNow: Sending compressed level copy ({0} bytes) to {1}.", LogType.Debug,
                         blockData.Length, Name );
