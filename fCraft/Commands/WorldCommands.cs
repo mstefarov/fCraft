@@ -502,17 +502,17 @@ namespace fCraft {
             switch( variable.ToLower() ) {
                 case "fog":
                     world.FogColor = value;
-                    player.Message( "Set fog color for {0}&S to {1}", world.ClassyName, value );
+                    player.Message( "Set fog color for {0}&S to {1:X6}", world.ClassyName, value );
                     break;
 
                 case "cloud":
                     world.CloudColor = value;
-                    player.Message( "Set cloud color for {0}&S to {1}", world.ClassyName, value );
+                    player.Message( "Set cloud color for {0}&S to {1:X6}", world.ClassyName, value );
                     break;
 
                 case "sky":
                     world.SkyColor = value;
-                    player.Message( "Set sky color for {0}&S to {1}", world.ClassyName, value );
+                    player.Message( "Set sky color for {0}&S to {1:X6}", world.ClassyName, value );
                     break;
 
                 default:
@@ -527,15 +527,15 @@ namespace fCraft {
             byte red, green, blue;
             switch( text.Length ) {
                 case 3:
-                    red = HexToValue( text[0] );
-                    green = HexToValue( text[1] );
-                    blue = HexToValue( text[2] );
+                    red = (byte)(HexToValue( text[0] ) * 16);
+                    green = (byte)(HexToValue( text[1] ) * 16);
+                    blue = (byte)(HexToValue( text[2] ) * 16);
                     break;
                 case 4:
                     if( text[0] != '#' ) throw new FormatException();
-                    red = HexToValue( text[1] );
-                    green = HexToValue( text[2] );
-                    blue = HexToValue( text[3] );
+                    red = (byte)(HexToValue( text[1] ) * 16);
+                    green = (byte)(HexToValue( text[2] ) * 16);
+                    blue = (byte)(HexToValue( text[3] ) * 16);
                     break;
                 case 6:
                     red = (byte)(HexToValue( text[0] ) * 16 + HexToValue( text[1] ));
