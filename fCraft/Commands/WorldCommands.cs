@@ -15,6 +15,8 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdBlockDB );
             CommandManager.RegisterCommand( CdBlockInfo );
 
+            CommandManager.RegisterCommand( CdEnv );
+
             CdGenerate.Help = "Generates a new map. If no dimensions are given, uses current world's dimensions. " +
                               "If no filename is given, loads generated world into current world.\n" +
                               "Available themes: Grass, " + Enum.GetNames( typeof( MapGenTheme ) ).JoinToString() + '\n' +
@@ -463,6 +465,110 @@ namespace fCraft {
         #endregion
 
 
+        #region Env
+
+        static readonly CommandDescriptor CdEnv = new CommandDescriptor {
+            Name = "env",
+            Category = CommandCategory.World,
+            Permissions = new[] { Permission.ManageWorlds },
+            Help = "Sets environmental variables for the current world (if WoM extensions are enabled).",
+            Handler = EnvHandler
+        };
+
+        static void EnvHandler( Player player, Command cmd ) {
+            string worldName = cmd.Next();
+            string variable = cmd.Next();
+            string valueText = cmd.Next();
+            if( worldName == null || variable == null || valueText == null ) {
+                CdEnv.PrintUsage( player );
+                return;
+            }
+
+            World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
+            if( world == null ) return;
+
+            int value;
+            if( valueText.Equals( "normal", StringComparison.OrdinalIgnoreCase ) ) {
+                value = -1;
+            } else {
+                try {
+                    value = ParseColor( valueText );
+                } catch( FormatException ) {
+                    CdEnv.PrintUsage( player );
+                    return;
+                }
+            }
+
+            switch( variable.ToLower() ) {
+                case "fog":
+                    world.FogColor = value;
+                    player.Message( "Set fog color for {0}&S to {1}", world.ClassyName, value );
+                    break;
+
+                case "cloud":
+                    world.CloudColor = value;
+                    player.Message( "Set cloud color for {0}&S to {1}", world.ClassyName, value );
+                    break;
+
+                case "sky":
+                    world.SkyColor = value;
+                    player.Message( "Set sky color for {0}&S to {1}", world.ClassyName, value );
+                    break;
+
+                default:
+                    CdEnv.PrintUsage( player );
+                    return;
+            }
+
+            player.JoinWorld( world, WorldChangeReason.Rejoin, player.Position );
+        }
+
+        static int ParseColor( string text ) {
+            byte red, green, blue;
+            switch( text.Length ) {
+                case 3:
+                    red = HexToValue( text[0] );
+                    green = HexToValue( text[1] );
+                    blue = HexToValue( text[2] );
+                    break;
+                case 4:
+                    if( text[0] != '#' ) throw new FormatException();
+                    red = HexToValue( text[1] );
+                    green = HexToValue( text[2] );
+                    blue = HexToValue( text[3] );
+                    break;
+                case 6:
+                    red = (byte)(HexToValue( text[0] ) * 16 + HexToValue( text[1] ));
+                    green = (byte)(HexToValue( text[2] ) * 16 + HexToValue( text[3] ));
+                    blue = (byte)(HexToValue( text[4] ) * 16 + HexToValue( text[5] ));
+                    break;
+                case 7:
+                    if( text[0] != '#' ) throw new FormatException();
+                    red = (byte)(HexToValue( text[1] ) * 16 + HexToValue( text[2] ));
+                    green = (byte)(HexToValue( text[3] ) * 16 + HexToValue( text[4] ));
+                    blue = (byte)(HexToValue( text[5] ) * 16 + HexToValue( text[6] ));
+                    break;
+                default:
+                    throw new FormatException();
+            }
+            return red * 256 * 256 + green * 256 + blue;
+        }
+
+        static byte HexToValue( char c ) {
+            if( c >= '0' && c <= '9' ) {
+                return (byte)(c - '0');
+            } else if( c >= 'A' && c <= 'F' ) {
+                return (byte)(c - 'A' + 10);
+            } else if( c >= 'a' && c <= 'f' ) {
+                return (byte)(c - 'a' + 10);
+            } else {
+                throw new FormatException();
+            }
+        }
+
+        #endregion
+
+
         #region Gen
 
         static readonly CommandDescriptor CdGenerate = new CommandDescriptor {
@@ -476,7 +582,6 @@ namespace fCraft {
         };
 
         static void GenHandler( Player player, Command cmd ) {
-
             string themeName = cmd.Next();
             string templateName = cmd.Next();
 
