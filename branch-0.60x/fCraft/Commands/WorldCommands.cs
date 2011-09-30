@@ -493,7 +493,9 @@ namespace fCraft {
                                 world.CloudColor == -1 ? "normal" : '#' + world.CloudColor.ToString( "X6" ),
                                 world.FogColor == -1 ? "normal" : '#' + world.FogColor.ToString( "X6" ),
                                 world.SkyColor == -1 ? "normal" : '#' + world.SkyColor.ToString( "X6" ) );
-                player.Message( "  Edge level: {0}", world.EdgeLevel == -1 ? "normal" : world.EdgeLevel + " blocks" );
+                player.Message( "  Edge level: {0}  Edge texture: {1}",
+                                world.EdgeLevel == -1 ? "normal" : world.EdgeLevel + " blocks",
+                                world.EdgeBlock );
                 if( !player.IsUsingWoM ) {
                     player.Message( "  You need WoM client to see the changes." );
                 }
@@ -511,6 +513,7 @@ namespace fCraft {
                     world.CloudColor = -1;
                     world.SkyColor = -1;
                     world.EdgeLevel = -1;
+                    world.EdgeBlock = Block.Water;
                     player.Message( "Reset enviroment settings for world {0}", world.ClassyName );
                     WorldManager.SaveWorldList();
                 } else {
@@ -580,9 +583,29 @@ namespace fCraft {
                     }
                     world.EdgeLevel = value;
                     if( value == -1 ) {
-                        player.Message( "Edge level for {0}&S to normal", world.ClassyName );
+                        player.Message( "Reset edge level for {0}&S to normal", world.ClassyName );
                     } else {
-                        player.Message( "Edge level for {0}&S to {1}", world.ClassyName, value );
+                        player.Message( "Set edge level for {0}&S to {1}", world.ClassyName, value );
+                    }
+                    break;
+
+                case "edge":
+                    Block block = Map.GetBlockByName( valueText );
+                    if( block == Block.Undefined ) {
+                        CdEnv.PrintUsage( player );
+                        return;
+                    }
+                    if( block == Block.Water || valueText.Equals( "normal", StringComparison.OrdinalIgnoreCase ) ) {
+                        player.Message( "Reset edge block for {0}&S to normal (water)", world.ClassyName );
+                        world.EdgeBlock = Block.Water;
+                    } else {
+                        string textName = Map.GetEdgeTexture( block );
+                        if( textName == null ) {
+                            player.Message( "Cannot use {0} for edge textures.", block );
+                            return;
+                        } else {
+                            world.EdgeBlock = block;
+                        }
                     }
                     break;
 

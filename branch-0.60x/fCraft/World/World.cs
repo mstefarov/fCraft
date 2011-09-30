@@ -153,7 +153,8 @@ namespace fCraft {
                     FogColor = FogColor,
                     CloudColor = CloudColor,
                     SkyColor = SkyColor,
-                    EdgeLevel = EdgeLevel
+                    EdgeLevel = EdgeLevel,
+                    EdgeBlock = EdgeBlock
                 };
                 newMap.World = newWorld;
                 newWorld.Map = newMap;
@@ -603,6 +604,12 @@ namespace fCraft {
             if( FogColor > -1 ) sb.AppendLine( "environment.fog = " + FogColor );
             if( SkyColor > -1 ) sb.AppendLine( "environment.sky = " + SkyColor );
             if( EdgeLevel > -1 ) sb.AppendLine( "environment.level = " + EdgeLevel );
+            if( EdgeBlock != Block.Water ) {
+                string edgeTexture = Map.GetEdgeTexture( EdgeBlock );
+                if( edgeTexture != null ) {
+                    sb.AppendLine( "environment.edge = " + edgeTexture );
+                }
+            }
             sb.AppendLine( "server.sendwomid = true" );
             return sb.ToString();
         }
@@ -612,6 +619,8 @@ namespace fCraft {
                    FogColor = -1,
                    SkyColor = -1,
                    EdgeLevel = -1;
+
+        public Block EdgeBlock = Block.Water;
     }
 }
 

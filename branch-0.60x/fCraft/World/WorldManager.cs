@@ -215,6 +215,32 @@ namespace fCraft {
                                     worldName );
                     }
                 }
+                if( (temp = envEl.Attribute( "level" )) != null ) {
+                    if( !Int32.TryParse( temp.Value, out world.EdgeLevel ) ) {
+                        world.EdgeLevel = -1;
+                        Logger.Log( "WorldManager: Could not parse \"level\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
+                                    LogType.Warning,
+                                    worldName );
+                    }
+                }
+                if( (temp = envEl.Attribute( "edge" )) != null ) {
+                    Block block = Map.GetBlockByName( temp.Value );
+                    if( block == Block.Undefined ) {
+                        world.EdgeBlock = Block.Water;
+                        Logger.Log( "WorldManager: Could not parse \"edge\" attribute of Environment settings for world \"{0}\", assuming default (Water).",
+                                    LogType.Warning,
+                                    worldName );
+                    } else {
+                        if( Map.GetEdgeTexture( block ) == null ) {
+                            world.EdgeBlock = Block.Water;
+                            Logger.Log( "WorldManager: Unacceptable blocktype given for \"edge\" attribute of Environment settings for world \"{0}\", assuming default (Water).",
+                                        LogType.Warning,
+                                        worldName );
+                        } else {
+                            world.EdgeBlock = block;
+                        }
+                    }
+                }
             }
 
 
@@ -327,6 +353,8 @@ namespace fCraft {
                     if( world.CloudColor > -1 ) elEnv.Add( new XAttribute( "cloud", world.CloudColor ) );
                     if( world.FogColor > -1 ) elEnv.Add( new XAttribute( "fog", world.FogColor ) );
                     if( world.SkyColor > -1 ) elEnv.Add( new XAttribute( "sky", world.SkyColor ) );
+                    if( world.EdgeLevel > -1 ) elEnv.Add( new XAttribute( "level", world.EdgeLevel ) );
+                    if( world.EdgeBlock != Block.Water ) elEnv.Add( new XAttribute( "edge", world.EdgeBlock ) );
                     temp.Add( elEnv );
 
                     root.Add( temp );
