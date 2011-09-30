@@ -499,6 +499,24 @@ namespace fCraft {
                 return;
             }
 
+            if( valueText == null ) {
+                CdEnv.PrintUsage( player );
+                return;
+            }
+
+            if( variable.Equals( "normal", StringComparison.OrdinalIgnoreCase ) ) {
+                if( cmd.IsConfirmed ) {
+                    world.FogColor = -1;
+                    world.CloudColor = -1;
+                    world.SkyColor = -1;
+                    player.Message( "Reset enviroment settings for world {0}", world.ClassyName );
+                    WorldManager.SaveWorldList();
+                } else {
+                    player.Confirm( cmd, "Reset enviroment settings for world {0}&S?", world.ClassyName );
+                }
+                return;
+            }
+
             int value;
             if( valueText.Equals( "normal", StringComparison.OrdinalIgnoreCase ) ) {
                 value = -1;
@@ -546,10 +564,12 @@ namespace fCraft {
             }
 
             WorldManager.SaveWorldList();
-            if( player.IsUsingWoM ) {
-                player.JoinWorld( world, WorldChangeReason.Rejoin, player.Position );
-            } else {
-                player.Message( "You need WoM client to see the changes." );
+            if( player.World == world ) {
+                if( player.IsUsingWoM ) {
+                    player.Message( "Rejoin the world to see the changes." );
+                } else {
+                    player.Message( "You need WoM client to see the changes." );
+                }
             }
         }
 
