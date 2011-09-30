@@ -595,10 +595,14 @@ namespace fCraft {
         }
 
 
-        public string GenerateWoMConfig() {
+        public string GenerateWoMConfig( bool sendMotd ) {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine( "server.name = " + ConfigKey.ServerName.GetString() );
-            sb.AppendLine( "server.detail = " + ClassyName );
+            if( sendMotd ) {
+                sb.AppendLine( "server.detail = " + ConfigKey.MOTD.GetString() );
+            } else {
+                sb.AppendLine( "server.detail = " + ClassyName );
+            }
             sb.AppendLine( "user.detail = World " + ClassyName );
             if( CloudColor > -1 ) sb.AppendLine( "environment.cloud = " + CloudColor );
             if( FogColor > -1 ) sb.AppendLine( "environment.fog = " + FogColor );
