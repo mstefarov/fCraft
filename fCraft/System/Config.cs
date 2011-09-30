@@ -143,6 +143,8 @@ namespace fCraft {
      * 
      * 148 - r1014 - Added BlockDBAutoEnable and BlockDBAutoEnableRank keys
      *               Moved BlockDBEnabled to Security ConfigSection
+     *               
+     * 149 - r1061 - Added HeartbeatToWoMDirect, WoMDirectDescription, and WoMEnableEnvExtensions keys
      * 
      */
 
@@ -154,7 +156,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 148;
+        public const int CurrentVersion = 149;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY

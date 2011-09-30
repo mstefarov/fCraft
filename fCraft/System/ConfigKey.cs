@@ -504,6 +504,10 @@ If disabled, heartbeat data is written to heartbeatdata.txt." )]
 @"Server description, as shown in WoM (if HeartbeatToWoMDirect is enabled)")]
         WoMDirectDescription,
 
+        [BoolKey( ConfigSection.Advanced, true,
+@"If enabled, allows changing enviromnent settings for WoM clients via /env" )]
+        WoMEnableEnvExtensions,
+
         [IPKey( ConfigSection.Advanced, IPKeyAttribute.BlankValueMeaning.Any,
 @"If the machine has more than one available IP address (for example
 if you have more than one NIC) you can use this setting to make

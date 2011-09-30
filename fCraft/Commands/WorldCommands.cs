@@ -476,6 +476,10 @@ namespace fCraft {
         };
 
         static void EnvHandler( Player player, Command cmd ) {
+            if( !ConfigKey.WoMEnableEnvExtensions.Enabled() ) {
+                player.Message( "Env command is disabled on this server." );
+                return;
+            }
             string worldName = cmd.Next();
             World world;
             if( worldName == null ) {

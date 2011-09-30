@@ -446,11 +446,11 @@ namespace fCraft {
                     break;
 
                 case 2:
-                    LoginBeta();
+                    GentlyKickBetaClients();
                     return false;
 
                 case (byte)'G':
-                    ServeHttp();
+                    ServeCfg();
                     return false;
 
                 default:
@@ -628,10 +628,14 @@ namespace fCraft {
             // Send server information
             string serverName = ConfigKey.ServerName.GetString();
             string motd;
-            if( IP.Equals( IPAddress.Loopback ) ) {
-                motd = "&0cfg=localhost:" + Server.Port + "/" + startingWorld.Name;
+            if( ConfigKey.WoMEnableEnvExtensions.Enabled() ) {
+                if( IP.Equals( IPAddress.Loopback ) ) {
+                    motd = "&0cfg=localhost:" + Server.Port + "/" + startingWorld.Name + "#";
+                } else {
+                    motd = "&0cfg=" + Server.ExternalIP + ":" + Server.Port + "/" + startingWorld.Name + "#";
+                }
             } else {
-                motd = "&0cfg=" + Server.ExternalIP + ":" + Server.Port + "/" + startingWorld.Name;
+                motd = ConfigKey.MOTD.GetString();
             }
             SendNow( PacketWriter.MakeHandshake( this, serverName, motd ) );
 
@@ -751,7 +755,7 @@ namespace fCraft {
         }
 
 
-        void LoginBeta() {
+        void GentlyKickBetaClients() {
             // This may be someone connecting with an SMP client
             int strLen = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
 
@@ -779,17 +783,18 @@ namespace fCraft {
         }
 
 
-        static readonly Regex HttpFirstLine = new Regex( "GET /([a-zA-Z0-9_]{1,16}) .+", RegexOptions.Compiled );
-        void ServeHttp() {
+        static readonly Regex HttpFirstLine = new Regex( "GET /([a-zA-Z0-9_]{1,16})(#) .+", RegexOptions.Compiled );
+        void ServeCfg() {
             using( StreamReader textReader = new StreamReader( stream ) ) {
                 using( StreamWriter textWriter = new StreamWriter( stream ) ) {
                     string firstLine = "G" + textReader.ReadLine();
                     var match = HttpFirstLine.Match( firstLine );
                     if( match.Success ) {
                         string worldName = match.Groups[1].Value;
+                        bool firstTime = match.Groups[2].Success;
                         World world = WorldManager.FindWorldExact( worldName );
                         if( world != null ) {
-                            string cfg = world.GenerateWoMConfig();
+                            string cfg = world.GenerateWoMConfig( firstTime );
                             byte[] content = Encoding.UTF8.GetBytes( cfg );
                             textWriter.WriteLine( "HTTP/1.1 200 OK" );
                             textWriter.WriteLine( "Date: " + DateTime.UtcNow.ToString( "R" ) );
@@ -855,7 +860,7 @@ namespace fCraft {
             string textLine1 = ConfigKey.ServerName.GetString();
             string textLine2;
 
-            if( IsUsingWoM ) {
+            if( IsUsingWoM && ConfigKey.WoMEnableEnvExtensions.Enabled() ) {
                 if( IP.Equals( IPAddress.Loopback ) ) {
                     textLine2 = "cfg=localhost:" + Server.Port + "/" + newWorld.Name;
                 } else {
