@@ -526,71 +526,71 @@ namespace fCraft {
                 return;
             }
 
-            int value;
+            int value = 0;
             if( valueText.Equals( "normal", StringComparison.OrdinalIgnoreCase ) ) {
                 value = -1;
             }
 
             switch( variable.ToLower() ) {
                 case "fog":
-                    try {
-                        value = ParseColor( valueText );
-                    } catch( FormatException ) {
-                        CdEnv.PrintUsage( player );
-                        return;
-                    }
-                    world.FogColor = value;
                     if( value == -1 ) {
                         player.Message( "Reset fog color for {0}&S to normal", world.ClassyName );
                     } else {
+                        try {
+                            value = ParseColor( valueText );
+                        } catch( FormatException ) {
+                            CdEnv.PrintUsage( player );
+                            return;
+                        }
                         player.Message( "Set fog color for {0}&S to #{1:X6}", world.ClassyName, value );
                     }
+                    world.FogColor = value;
                     break;
 
                 case "cloud":
                 case "clouds":
-                    try {
-                        value = ParseColor( valueText );
-                    } catch( FormatException ) {
-                        CdEnv.PrintUsage( player );
-                        return;
-                    }
-                    world.CloudColor = value;
                     if( value == -1 ) {
                         player.Message( "Reset cloud color for {0}&S to normal", world.ClassyName );
                     } else {
+                        try {
+                            value = ParseColor( valueText );
+                        } catch( FormatException ) {
+                            CdEnv.PrintUsage( player );
+                            return;
+                        }
                         player.Message( "Set cloud color for {0}&S to #{1:X6}", world.ClassyName, value );
                     }
+                    world.CloudColor = value;
                     break;
 
                 case "sky":
-                    try {
-                        value = ParseColor( valueText );
-                    } catch( FormatException ) {
-                        CdEnv.PrintUsage( player );
-                        return;
-                    }
-                    world.SkyColor = value;
                     if( value == -1 ) {
                         player.Message( "Reset sky color for {0}&S to normal", world.ClassyName );
                     } else {
+                        try {
+                            value = ParseColor( valueText );
+                        } catch( FormatException ) {
+                            CdEnv.PrintUsage( player );
+                            return;
+                        }
                         player.Message( "Set sky color for {0}&S to #{1:X6}", world.ClassyName, value );
                     }
+                    world.SkyColor = value;
                     break;
 
                 case "level":
-                    try {
-                        value = UInt16.Parse( valueText );
-                    } catch( FormatException ) {
-                        CdEnv.PrintUsage( player );
-                        return;
-                    }
-                    world.EdgeLevel = value;
                     if( value == -1 ) {
                         player.Message( "Reset edge level for {0}&S to normal", world.ClassyName );
                     } else {
+                        try {
+                            value = UInt16.Parse( valueText );
+                        } catch( FormatException ) {
+                            CdEnv.PrintUsage( player );
+                            return;
+                        }
                         player.Message( "Set edge level for {0}&S to {1}", world.ClassyName, value );
                     }
+                    world.EdgeLevel = value;
                     break;
 
                 case "edge":

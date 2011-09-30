@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     public sealed partial class PlayerInfo {
-        object actionLock = new object();
+        readonly object actionLock = new object();
 
         #region Ban / Unban
 
