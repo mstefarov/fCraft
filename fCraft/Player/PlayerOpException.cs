@@ -63,8 +63,8 @@ namespace fCraft {
             if( reason == null ) throw new ArgumentNullException( "reason" );
             if( player == null ) throw new ArgumentNullException( "player" );
             if( ConfigKey.RequireKickReason.Enabled() && reason.Length == 0 ) {
-                string msg = "Please specify a kick reason.";
-                string colorMsg = "&S" + msg;
+                const string msg = "Please specify a kick reason.";
+                const string colorMsg = "&S" + msg;
                 throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.ReasonRequired, msg, colorMsg );
             }
         }

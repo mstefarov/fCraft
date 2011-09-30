@@ -42,7 +42,7 @@ namespace fCraft {
 
         Thread ioThread;
         TcpClient client;
-        NetworkStream stream;
+        readonly NetworkStream stream;
         BinaryReader reader;
         PacketWriter writer;
         readonly ConcurrentQueue<Packet> outputQueue = new ConcurrentQueue<Packet>(),
@@ -630,9 +630,9 @@ namespace fCraft {
             string motd;
             if( ConfigKey.WoMEnableEnvExtensions.Enabled() ) {
                 if( IP.Equals( IPAddress.Loopback ) ) {
-                    motd = "&0cfg=localhost:" + Server.Port + "/" + startingWorld.Name + "#";
+                    motd = "&0cfg=localhost:" + Server.Port + "/" + startingWorld.Name + "~motd";
                 } else {
-                    motd = "&0cfg=" + Server.ExternalIP + ":" + Server.Port + "/" + startingWorld.Name + "#";
+                    motd = "&0cfg=" + Server.ExternalIP + ":" + Server.Port + "/" + startingWorld.Name + "~motd";
                 }
             } else {
                 motd = ConfigKey.MOTD.GetString();
@@ -783,7 +783,7 @@ namespace fCraft {
         }
 
 
-        static readonly Regex HttpFirstLine = new Regex( "GET /([a-zA-Z0-9_]{1,16})(#) .+", RegexOptions.Compiled );
+        static readonly Regex HttpFirstLine = new Regex( "GET /([a-zA-Z0-9_]{1,16})(~motd)? .+", RegexOptions.Compiled );
         void ServeCfg() {
             using( StreamReader textReader = new StreamReader( stream ) ) {
                 using( StreamWriter textWriter = new StreamWriter( stream ) ) {
