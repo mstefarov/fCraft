@@ -72,6 +72,10 @@ namespace fCraft {
 
         static void BanHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
+            if( targetName == null ) {
+                CdBan.PrintUsage( player );
+                return;
+            }
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
             if( target == null ) return;
             string reason = cmd.NextAll();
@@ -102,6 +106,10 @@ namespace fCraft {
 
         static void BanIPHandler( Player player, Command cmd ) {
             string targetNameOrIP = cmd.Next();
+            if( targetNameOrIP == null ) {
+                CdBanIP.PrintUsage( player );
+                return;
+            }
             string reason = cmd.NextAll();
 
             IPAddress targetAddress;
@@ -142,6 +150,10 @@ namespace fCraft {
 
         static void BanAllHandler( Player player, Command cmd ) {
             string targetNameOrIP = cmd.Next();
+            if( targetNameOrIP == null ) {
+                CdBanAll.PrintUsage( player );
+                return;
+            }
             string reason = cmd.NextAll();
 
             IPAddress targetAddress;
@@ -180,6 +192,10 @@ namespace fCraft {
 
         static void UnbanHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
+            if( targetName == null ) {
+                CdUnban.PrintUsage( player );
+                return;
+            }
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
             if( target == null ) return;
             string reason = cmd.NextAll();
@@ -206,6 +222,10 @@ namespace fCraft {
 
         static void UnbanIPHandler( Player player, Command cmd ) {
             string targetNameOrIP = cmd.Next();
+            if( targetNameOrIP == null ) {
+                CdUnbanIP.PrintUsage( player );
+                return;
+            }
             string reason = cmd.NextAll();
 
             try {
@@ -238,6 +258,10 @@ namespace fCraft {
 
         static void UnbanAllHandler( Player player, Command cmd ) {
             string targetNameOrIP = cmd.Next();
+            if( targetNameOrIP == null ) {
+                CdUnbanAll.PrintUsage( player );
+                return;
+            }
             string reason = cmd.NextAll();
 
             try {
