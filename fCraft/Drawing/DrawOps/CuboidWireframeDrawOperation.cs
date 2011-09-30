@@ -21,11 +21,11 @@ namespace fCraft.Drawing {
             if( !base.Begin( marks ) ) return false;
 
             int hollowVolume = Math.Max( 0, Bounds.Width - 2 ) * Math.Max( 0, Bounds.Length - 2 ) * Math.Max( 0, Bounds.Height - 2 );
-            int sideVolume = Math.Max( 0, Bounds.Width - 2 ) * Math.Max( 0, Bounds.Length - 2 ) * (Bounds.XMax != Bounds.XMin ? 2 : 1) +
-                             Math.Max( 0, Bounds.Length - 2 ) * Math.Max( 0, Bounds.Height - 2 ) * (Bounds.YMax != Bounds.YMin ? 2 : 1) +
-                             Math.Max( 0, Bounds.Height - 2 ) * Math.Max( 0, Bounds.Width - 2 ) * (Bounds.ZMax != Bounds.ZMin ? 2 : 1);
+            int sideVolumeX = Math.Max( 0, Bounds.Width - 2 ) * Math.Max( 0, Bounds.Length - 2 ) * (Bounds.ZMax != Bounds.ZMin ? 2 : 1);
+            int sideVolumeY = Math.Max( 0, Bounds.Length - 2 ) * Math.Max( 0, Bounds.Height - 2 ) * (Bounds.XMax != Bounds.XMin ? 2 : 1);
+            int sideVolumeZ = Math.Max( 0, Bounds.Height - 2 ) * Math.Max( 0, Bounds.Width - 2 ) * (Bounds.YMax != Bounds.YMin ? 2 : 1);
 
-            BlocksTotalEstimate = Bounds.Volume - hollowVolume - sideVolume;
+            BlocksTotalEstimate = Bounds.Volume - hollowVolume - sideVolumeX - sideVolumeY - sideVolumeZ;
 
             coordEnumerator = BlockEnumerator().GetEnumerator();
             return true;
