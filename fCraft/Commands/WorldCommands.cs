@@ -493,6 +493,7 @@ namespace fCraft {
                                 world.CloudColor == -1 ? "normal" : '#' + world.CloudColor.ToString( "X6" ),
                                 world.FogColor == -1 ? "normal" : '#' + world.FogColor.ToString( "X6" ),
                                 world.SkyColor == -1 ? "normal" : '#' + world.SkyColor.ToString( "X6" ) );
+                player.Message( "  Edge level: {0}", world.EdgeLevel == -1 ? "normal" : world.EdgeLevel + " blocks" );
                 if( !player.IsUsingWoM ) {
                     player.Message( "  You need WoM client to see the changes." );
                 }
@@ -509,6 +510,7 @@ namespace fCraft {
                     world.FogColor = -1;
                     world.CloudColor = -1;
                     world.SkyColor = -1;
+                    world.EdgeLevel = -1;
                     player.Message( "Reset enviroment settings for world {0}", world.ClassyName );
                     WorldManager.SaveWorldList();
                 } else {
@@ -520,17 +522,16 @@ namespace fCraft {
             int value;
             if( valueText.Equals( "normal", StringComparison.OrdinalIgnoreCase ) ) {
                 value = -1;
-            } else {
-                try {
-                    value = ParseColor( valueText );
-                } catch( FormatException ) {
-                    CdEnv.PrintUsage( player );
-                    return;
-                }
             }
 
             switch( variable.ToLower() ) {
                 case "fog":
+                    try {
+                        value = ParseColor( valueText );
+                    } catch( FormatException ) {
+                        CdEnv.PrintUsage( player );
+                        return;
+                    }
                     world.FogColor = value;
                     if( value == -1 ) {
                         player.Message( "Reset fog color for {0}&S to normal", world.ClassyName );
@@ -541,6 +542,12 @@ namespace fCraft {
 
                 case "cloud":
                 case "clouds":
+                    try {
+                        value = ParseColor( valueText );
+                    } catch( FormatException ) {
+                        CdEnv.PrintUsage( player );
+                        return;
+                    }
                     world.CloudColor = value;
                     if( value == -1 ) {
                         player.Message( "Reset cloud color for {0}&S to normal", world.ClassyName );
@@ -550,11 +557,32 @@ namespace fCraft {
                     break;
 
                 case "sky":
+                    try {
+                        value = ParseColor( valueText );
+                    } catch( FormatException ) {
+                        CdEnv.PrintUsage( player );
+                        return;
+                    }
                     world.SkyColor = value;
                     if( value == -1 ) {
                         player.Message( "Reset sky color for {0}&S to normal", world.ClassyName );
                     } else {
                         player.Message( "Set sky color for {0}&S to #{1:X6}", world.ClassyName, value );
+                    }
+                    break;
+
+                case "level":
+                    try {
+                        value = UInt16.Parse( valueText );
+                    } catch( FormatException ) {
+                        CdEnv.PrintUsage( player );
+                        return;
+                    }
+                    world.EdgeLevel = value;
+                    if( value == -1 ) {
+                        player.Message( "Edge level for {0}&S to normal", world.ClassyName );
+                    } else {
+                        player.Message( "Edge level for {0}&S to {1}", world.ClassyName, value );
                     }
                     break;
 
