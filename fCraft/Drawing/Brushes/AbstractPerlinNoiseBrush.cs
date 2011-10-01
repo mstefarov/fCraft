@@ -99,7 +99,7 @@ namespace fCraft.Drawing {
 
         public virtual Block NextBlock( [NotNull] DrawOperation state ) {
             if( state == null ) throw new ArgumentNullException( "state" );
-            Vector3I relativeCoords = state.Coords - state.Bounds.MinVertexV;
+            Vector3I relativeCoords = state.Coords - state.Bounds.MinVertex;
             float value = noise3D.Compute( relativeCoords.X, relativeCoords.Y, relativeCoords.Z );
 
             // normalize value

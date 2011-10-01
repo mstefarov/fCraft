@@ -17,7 +17,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public override bool Begin( Position[] marks ) {
+        public override bool Begin( Vector3I[] marks ) {
             if( !base.Begin( marks ) ) return false;
 
             double rx = Bounds.Width / 2d;
@@ -37,7 +37,7 @@ namespace fCraft.Drawing {
                         Bounds.Length > 2 &&
                         Bounds.Height > 2;
 
-            Coords = Bounds.MinVertexV;
+            Coords = Bounds.MinVertex;
 
             if( fillInner ) {
                 BlocksTotalEstimate = (int)(4 / 3d * Math.PI * rx * ry * rz);

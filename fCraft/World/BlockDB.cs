@@ -205,7 +205,7 @@ namespace fCraft {
 
         void Preload() {
             using( FileStream fs = OpenRead() ) {
-                CacheSize = (int)(fs.Length / BlockDBEntrySize);
+                CacheSize = (int)(fs.Length / BlockDBEntry.Size);
                 EnsureCapacity( CacheSize );
                 LastFlushedIndex = CacheSize;
 
@@ -239,9 +239,9 @@ namespace fCraft {
             }
             string tempFileName = FileName + ".tmp";
             using( FileStream source = File.OpenRead( FileName ) ) {
-                int entries = (int)(source.Length / BlockDBEntrySize);
+                int entries = (int)(source.Length / BlockDBEntry.Size);
                 if( entries <= maxCapacity ) return;
-                source.Seek( (entries - maxCapacity) * BlockDBEntrySize, SeekOrigin.Begin );
+                source.Seek( (entries - maxCapacity) * BlockDBEntry.Size, SeekOrigin.Begin );
                 using( FileStream destination = File.Create( tempFileName ) ) {
                     while( source.Position < source.Length ) {
                         int bytesRead = source.Read( ioBuffer, 0, ioBuffer.Length );
@@ -269,7 +269,7 @@ namespace fCraft {
 
             } else {
                 byte[] bytes = Load();
-                int entryCount = bytes.Length / BlockDBEntrySize;
+                int entryCount = bytes.Length / BlockDBEntry.Size;
                 fixed( byte* parr = bytes ) {
                     BlockDBEntry* entries = (BlockDBEntry*)parr;
                     for( int i = entryCount - 1; i >= 0; i-- ) {
@@ -307,6 +307,20 @@ namespace fCraft {
             get { return limit > 0; }
         }
 
+        void EnforceLimit() {
+            if( IsEnabled && limit > 0 ) {
+                int oldCap = CacheCapacity;
+                int oldSize = CacheSize;
+                if( isPreloaded ) {
+                    LimitCapacity( limit );
+                }
+                TrimFile( limit );
+                lastLimit = DateTime.UtcNow;
+                Logger.Log( "BlockDB({0}): Enforce Limit, CC {1}->{2}, CS {3}->{4}", LogType.Debug,
+                            World.Name, oldCap, CacheCapacity, oldSize, CacheSize );
+            }
+        }
+
 
         TimeSpan timeLimit;
         public TimeSpan TimeLimit {
@@ -324,25 +338,10 @@ namespace fCraft {
                 }
             }
         }
+
         public bool HasTimeLimit {
             get { return timeLimit > TimeSpan.Zero; }
         }
-
-
-        void EnforceLimit() {
-            if( IsEnabled && limit > 0 ) {
-                int oldCap = CacheCapacity;
-                int oldSize = CacheSize;
-                if( isPreloaded ) {
-                    LimitCapacity( limit );
-                }
-                TrimFile( limit );
-                lastLimit = DateTime.UtcNow;
-                Logger.Log( "BlockDB({0}): Enforce Limit, CC {1}->{2}, CS {3}->{4}", LogType.Debug,
-                            World.Name, oldCap, CacheCapacity, oldSize, CacheSize );
-            }
-        }
-
 
         void EnforceTimeLimit() {
             if( IsEnabled && timeLimit > TimeSpan.Zero ) {
@@ -445,7 +444,7 @@ namespace fCraft {
         }
 
 
-        public BlockDBEntry[] Lookup( short x, short y, short z ) {
+        public BlockDBEntry[] Lookup( int x, int y, int z ) {
             if( !IsEnabled || !IsEnabledGlobally ) {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
             }
@@ -467,7 +466,7 @@ namespace fCraft {
             } else {
                 Flush();
                 byte[] bytes = Load();
-                int entryCount = bytes.Length / BlockDBEntrySize;
+                int entryCount = bytes.Length / BlockDBEntry.Size;
                 fixed( byte* parr = bytes ) {
                     BlockDBEntry* entries = (BlockDBEntry*)parr;
                     for( int i = 0; i < entryCount; i++ ) {
@@ -506,7 +505,7 @@ namespace fCraft {
             } else {
                 Flush();
                 byte[] bytes = Load();
-                int entryCount = bytes.Length / BlockDBEntrySize;
+                int entryCount = bytes.Length / BlockDBEntry.Size;
                 fixed( byte* parr = bytes ) {
                     BlockDBEntry* entries = (BlockDBEntry*)parr;
                     for( int i = entryCount - 1; i >= 0; i-- ) {
@@ -546,7 +545,7 @@ namespace fCraft {
             } else {
                 Flush();
                 byte[] bytes = Load();
-                int entryCount = bytes.Length / BlockDBEntrySize;
+                int entryCount = bytes.Length / BlockDBEntry.Size;
                 fixed( byte* parr = bytes ) {
                     BlockDBEntry* entries = (BlockDBEntry*)parr;
                     for( int i = entryCount - 1; i >= 0; i-- ) {
@@ -634,7 +633,6 @@ namespace fCraft {
 
         #region Static
 
-        public const int BlockDBEntrySize = 16; // sizeof(BlockDBEntry)
         static readonly TimeSpan FlushInterval = TimeSpan.FromSeconds( 90 );
 
         /// <summary> Whether BlockDB was enabled at startup.
@@ -664,7 +662,7 @@ namespace fCraft {
 
 
         static void FlushAll( SchedulerTask task ) {
-            lock( WorldManager.WorldListLock ) {
+            lock( WorldManager.SyncRoot ) {
                 foreach( World w in WorldManager.WorldList.Where( w => w.BlockDB.IsEnabled ) ) {
                     w.BlockDB.Flush();
                 }

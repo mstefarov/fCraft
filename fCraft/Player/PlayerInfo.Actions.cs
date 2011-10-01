@@ -18,6 +18,7 @@ namespace fCraft {
         /// <param name="reason"> Reason for ban. May be empty, if permitted by server configuration. </param>
         /// <param name="announce"> Whether ban should be publicly announced on the server. </param>
         /// <param name="raiseEvents"> Whether BanChanging and BanChanged events should be raised. </param>
+        /// <exception cref="fCraft.PlayerOpException" />
         public void Ban( [NotNull] Player player, [NotNull] string reason, bool announce, bool raiseEvents ) {
             BanPlayerInfoInternal( player, reason, false, announce, raiseEvents );
         }
@@ -28,6 +29,7 @@ namespace fCraft {
         /// <param name="reason"> Reason for unban. May be empty, if permitted by server configuration. </param>
         /// <param name="announce"> Whether unban should be publicly announced on the server. </param>
         /// <param name="raiseEvents"> Whether BanChanging and BanChanged events should be raised. </param>
+        /// <exception cref="fCraft.PlayerOpException" />
         public void Unban( [NotNull] Player player, [NotNull] string reason, bool announce, bool raiseEvents ) {
             BanPlayerInfoInternal( player, reason, true, announce, raiseEvents );
         }
@@ -138,6 +140,7 @@ namespace fCraft {
         /// <param name="reason"> Reason for ban. May be empty, if permitted by server configuration. </param>
         /// <param name="announce"> Whether ban should be publicly announced on the server. </param>
         /// <param name="raiseEvents"> Whether AddingIPBan, AddedIPBan, BanChanging, and BanChanged events should be raised. </param>
+        /// <exception cref="fCraft.PlayerOpException" />
         public void BanIP( [NotNull] Player player, [NotNull] string reason, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason == null ) throw new ArgumentNullException( "reason" );
@@ -241,6 +244,7 @@ namespace fCraft {
         /// <param name="reason"> Reason for unban. May be empty, if permitted by server configuration. </param>
         /// <param name="announce"> Whether unban should be publicly announced on the server. </param>
         /// <param name="raiseEvents"> Whether RemovingIPBan, RemovedIPBan, BanChanging, and BanChanged events should be raised. </param>
+        /// <exception cref="fCraft.PlayerOpException" />
         public void UnbanIP( [NotNull] Player player, [NotNull] string reason, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason == null ) throw new ArgumentNullException( "reason" );
@@ -302,6 +306,7 @@ namespace fCraft {
         /// <param name="reason"> Reason for ban. May be empty, if permitted by server configuration. </param>
         /// <param name="announce"> Whether ban should be publicly announced on the server. </param>
         /// <param name="raiseEvents"> Whether AddingIPBan, AddedIPBan, BanChanging, and BanChanged events should be raised. </param>
+        /// <exception cref="fCraft.PlayerOpException" />
         public void BanAll( [NotNull] Player player, [NotNull] string reason, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason == null ) throw new ArgumentNullException( "reason" );
@@ -418,6 +423,7 @@ namespace fCraft {
         /// <param name="reason"> Reason for unban. May be empty, if permitted by server configuration. </param>
         /// <param name="announce"> Whether unban should be publicly announced on the server. </param>
         /// <param name="raiseEvents"> Whether RemovingIPBan, RemovedIPBan, BanChanging, and BanChanged events should be raised. </param>
+        /// <exception cref="fCraft.PlayerOpException" />
         public void UnbanAll( [NotNull] Player player, [NotNull] string reason, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason == null ) throw new ArgumentNullException( "reason" );
@@ -560,6 +566,7 @@ namespace fCraft {
         /// <param name="announce"> Whether rank change should be publicly announced or not. </param>
         /// <param name="raiseEvents"> Whether PlayerInfo.RankChanging and PlayerInfo.RankChanged events should be raised. </param>
         /// <param name="auto"> Whether rank change should be marked as "automatic" or manual. </param>
+        /// <exception cref="fCraft.PlayerOpException" />
         public void ChangeRank( [NotNull] Player player, [NotNull] Rank newRank, [NotNull] string reason,
                                 bool announce, bool raiseEvents, bool auto ) {
             if( player == null ) throw new ArgumentNullException( "player" );

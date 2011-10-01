@@ -18,7 +18,6 @@ namespace fCraft {
 
         // Register help commands
         internal static void Init() {
-
             CommandManager.RegisterCommand( CdInfo );
             CommandManager.RegisterCommand( CdBanInfo );
             CommandManager.RegisterCommand( CdRankInfo );
@@ -585,43 +584,50 @@ namespace fCraft {
         internal static void ServerInfoHandler( Player player, Command cmd ) {
             Process.GetCurrentProcess().Refresh();
 
-            player.Message( "Servers stats: Up for {0:0.0} hours, using {1:0} MB of memory",
+            player.Message( "Servers status: Up for {0:0.0} hours, using {1:0} MB",
                             DateTime.UtcNow.Subtract( Server.StartTime ).TotalHours,
                             (Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024)) );
 
             if( Server.IsMonitoringCPUUsage ) {
-                player.Message( "   Averaging {0:0.0}% CPU in last minute, {1:0.0}% CPU overall",
+                player.Message( "  Averaging {0:0.0}% CPU now, {1:0.0}% overall",
                                 Server.CPUUsageLastMinute * 100,
                                 Server.CPUUsageTotal * 100 );
             }
 
             if( MonoCompat.IsMono ) {
-                player.Message( "   Running fCraft {0}, under Mono {1}",
+                player.Message( "  Running fCraft {0}, under Mono {1}",
                                 Updater.CurrentRelease.VersionString,
                                 MonoCompat.MonoVersionString );
             } else {
-                player.Message( "   Running fCraft {0}, under .NET {1}",
+                player.Message( "  Running fCraft {0}, under .NET {1}",
                                 Updater.CurrentRelease.VersionString,
                                 Environment.Version );
             }
 
-            double bytesReceivedRate = Server.Players.Aggregate( (double)0,
-                                                                    ( i, p ) => i + p.BytesReceivedRate );
-            double bytesSentRate = Server.Players.Aggregate( (double)0,
-                                                                ( i, p ) => i + p.BytesSentRate );
-            player.Message( "   Upstream {0:0.0} KB/s, downstream {1:0.0} KB/s",
+            double bytesReceivedRate = Server.Players.Aggregate( 0d, ( i, p ) => i + p.BytesReceivedRate );
+            double bytesSentRate = Server.Players.Aggregate( 0d, ( i, p ) => i + p.BytesSentRate );
+            player.Message( "  Bandwidth: {0:0.0} KB/s up, {1:0.0} KB/s down",
                             bytesSentRate / 1000, bytesReceivedRate / 1000 );
 
 
-            player.Message( "   Database contains {0} players ({1} online, {2} banned, {3} IP-banned)",
-                            PlayerDB.CountTotalPlayers(),
+            player.Message( "  Tracking {0} players ({1} online, {2} banned, {3} IP-banned).",
+                            PlayerDB.PlayerInfoList.Length,
                             Server.CountVisiblePlayers( player ),
                             PlayerDB.CountBannedPlayers(),
                             IPBanList.Count );
 
-            player.Message( "   There are {0} worlds available ({1} loaded)",
+            player.Message( "  Players built {0}, deleted {1}, drew {2} blocks, wrote {3} messages, issued {4} kicks, spent {5:0} hours total.",
+                            PlayerDB.PlayerInfoList.Sum( p => p.BlocksBuilt ),
+                            PlayerDB.PlayerInfoList.Sum( p => p.BlocksDeleted ),
+                            PlayerDB.PlayerInfoList.Sum( p => p.BlocksDrawn ),
+                            PlayerDB.PlayerInfoList.Sum( p => p.MessagesWritten ),
+                            PlayerDB.PlayerInfoList.Sum( p => p.TimesKickedOthers ),
+                            PlayerDB.PlayerInfoList.Sum( p => p.TotalTime.TotalHours ) );
+
+            player.Message( "  There are {0} worlds available ({1} loaded, {2} hidden).",
                             WorldManager.WorldList.Length,
-                            WorldManager.CountLoadedWorlds( player ) );
+                            WorldManager.CountLoadedWorlds( player ),
+                            WorldManager.WorldList.Count( w => w.IsHidden ) );
         }
 
         #endregion
@@ -774,7 +780,7 @@ namespace fCraft {
             player.Message( "Measure: Select the area to be measured" );
         }
 
-        internal static void MeasureCallback( Player player, Position[] marks, object tag ) {
+        internal static void MeasureCallback( Player player, Vector3I[] marks, object tag ) {
             BoundingBox box = new BoundingBox( marks[0], marks[1] );
             player.Message( "Measure: {0} x {1} wide, {2} tall, {3} blocks.",
                             box.Width,

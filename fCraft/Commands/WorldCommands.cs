@@ -403,13 +403,11 @@ namespace fCraft {
             player.SelectionStart( 1, BlockInfoSelectionCallback, null, CdBlockInfo.Permissions );
         }
 
-        static void BlockInfoSelectionCallback( Player player, Position[] marks, object tag ) {
+        static void BlockInfoSelectionCallback( Player player, Vector3I[] marks, object tag ) {
             var args = new BlockInfoLookupArgs {
                 Player = player,
                 World = player.World,
-                X = marks[0].X,
-                Y = marks[0].Y,
-                Z = marks[0].Z
+                Coordinate = marks[0]
             };
 
             Scheduler.NewBackgroundTask( BlockInfoSchedulerCallback, args ).RunOnce();
@@ -419,7 +417,7 @@ namespace fCraft {
         sealed class BlockInfoLookupArgs {
             public Player Player;
             public World World;
-            public short X, Y, Z;
+            public Vector3I Coordinate;
         }
 
         const int MaxBlockChangesToList = 15;
@@ -429,7 +427,7 @@ namespace fCraft {
                 args.Player.Message( "&WBlockDB is disabled in this world." );
                 return;
             }
-            BlockDBEntry[] results = args.World.BlockDB.Lookup( args.X, args.Y, args.Z );
+            BlockDBEntry[] results = args.World.BlockDB.Lookup( args.Coordinate.X, args.Coordinate.Y, args.Coordinate.Z );
             if( results.Length > 0 ) {
                 int startIndex = Math.Max( 0, results.Length - MaxBlockChangesToList );
                 for( int i = startIndex; i < results.Length; i++ ) {
@@ -458,7 +456,7 @@ namespace fCraft {
                 }
             } else {
                 args.Player.Message( "BlockInfo: No results for ({0},{1},{2}).",
-                                     args.X, args.Y, args.Z );
+                                     args.Coordinate.X, args.Coordinate.Y, args.Coordinate.Z );
             }
         }
 
@@ -506,11 +504,6 @@ namespace fCraft {
                 return;
             }
 
-            if( valueText == null ) {
-                CdEnv.PrintUsage( player );
-                return;
-            }
-
             if( variable.Equals( "normal", StringComparison.OrdinalIgnoreCase ) ) {
                 if( cmd.IsConfirmed ) {
                     world.FogColor = -1;
@@ -523,6 +516,11 @@ namespace fCraft {
                 } else {
                     player.Confirm( cmd, "Reset enviroment settings for world {0}&S?", world.ClassyName );
                 }
+                return;
+            }
+
+            if( valueText == null ) {
+                CdEnv.PrintUsage( player );
                 return;
             }
 
@@ -1888,7 +1886,7 @@ namespace fCraft {
                     }
                 }
 
-                lock( WorldManager.WorldListLock ) {
+                lock( WorldManager.SyncRoot ) {
                     World world = WorldManager.FindWorldExact( worldName );
                     if( world != null ) {
                         // Replacing existing world's map

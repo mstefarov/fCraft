@@ -18,7 +18,7 @@ namespace fCraft {
     /// <param name="marks"> An array of 3D marks/blocks, in terms of block coordinates. </param>
     /// <param name="tag"> An optional argument to pass to the callback,
     /// the value of player.selectionArgs </param>
-    public delegate void SelectionCallback( Player player, Position[] marks, object tag );
+    public delegate void SelectionCallback( Player player, Vector3I[] marks, object tag );
 
 
     /// <summary> Object representing volatile state of connected player.
@@ -709,7 +709,7 @@ namespace fCraft {
             // selection handling
             if( SelectionMarksExpected > 0 ) {
                 RevertBlockNow( x, y, z );
-                SelectionAddMark( new Position( x, y, z ), true );
+                SelectionAddMark( new Vector3I( x, y, z ), true );
                 return false;
             }
 
@@ -1006,12 +1006,12 @@ namespace fCraft {
 
 
         SelectionCallback selectionCallback;
-        readonly Queue<Position> selectionMarks = new Queue<Position>();
+        readonly Queue<Vector3I> selectionMarks = new Queue<Vector3I>();
         object selectionArgs;
         Permission[] selectionPermissions;
 
 
-        public void SelectionAddMark( Position pos, bool executeCallbackIfNeeded ) {
+        public void SelectionAddMark( Vector3I pos, bool executeCallbackIfNeeded ) {
             if( !IsMakingSelection ) throw new InvalidOperationException( "No selection in progress." );
             selectionMarks.Enqueue( pos );
             if( SelectionMarkCount >= SelectionMarksExpected ) {

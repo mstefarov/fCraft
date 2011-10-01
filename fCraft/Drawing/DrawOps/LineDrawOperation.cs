@@ -18,7 +18,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public override bool Begin( Position[] marks ) {
+        public override bool Begin( Vector3I[] marks ) {
             if( !base.Begin( marks ) ) return false;
 
             BlocksTotalEstimate = Math.Max( Bounds.Width, Math.Max( Bounds.Height, Bounds.Length ) );

@@ -545,7 +545,7 @@ namespace fCraft {
             player.Info.IsHidden = false;
             if( !silent ) {
                 if( ConfigKey.ShowConnectionMessages.Enabled() ) {
-                    Server.Players.CantSee( player ).MessageAlt( Server.MakePlayerConnectedMessage( player, false, player.World ) );
+                    Server.Players.CantSee( player ).Message( Server.MakePlayerConnectedMessage( player, false, player.World ) );
                 }
                 if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() ) {
                     IRC.PlayerReadyHandler( null, new PlayerConnectedEventArgs( player, player.World ) );

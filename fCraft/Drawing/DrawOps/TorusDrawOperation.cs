@@ -22,13 +22,13 @@ namespace fCraft.Drawing {
         }
 
 
-        public override bool Begin( Position[] marks ) {
+        public override bool Begin( Vector3I[] marks ) {
             if( !base.Begin( marks ) ) return false;
 
             // center of the torus
-            center = marks[0].ToVector3I();
+            center = marks[0];
 
-            Vector3I radiusVector = (marks[1].ToVector3I() - center).Abs();
+            Vector3I radiusVector = (marks[1] - center).Abs();
 
             // tube radius is figured out from Z component of the mark vector
             tubeR = radiusVector.Z + 1;

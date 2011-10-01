@@ -19,7 +19,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public override bool Begin( Position[] marks ) {
+        public override bool Begin( Vector3I[] marks ) {
             if( !base.Begin( marks ) ) return false;
 
             fillInner = Brush.HasAlternateBlock && Bounds.Width > 2 && Bounds.Length > 2 && Bounds.Height > 2;

@@ -17,7 +17,7 @@ namespace fCraft {
         public static World[] WorldList { get; private set; }
         static readonly SortedDictionary<string, World> Worlds = new SortedDictionary<string, World>();
 
-        internal static readonly object WorldListLock = new object();
+        internal static readonly object SyncRoot = new object();
 
 
         static World mainWorld;
@@ -35,7 +35,7 @@ namespace fCraft {
                     throw new WorldOpException( value.Name, WorldOpExceptionCode.PluginDenied );
                 }
                 World oldWorld;
-                lock( WorldListLock ) {
+                lock( SyncRoot ) {
                     value.NeverUnload = true;
                     oldWorld = mainWorld;
                     if( oldWorld != null ) {
@@ -312,7 +312,7 @@ namespace fCraft {
         public static void SaveWorldList() {
             const string worldListTempFileName = Paths.WorldListFileName + ".tmp";
             // Save world list
-            lock( WorldListLock ) {
+            lock( SyncRoot ) {
                 XDocument doc = new XDocument();
                 XElement root = new XElement( "fCraftWorldList" );
 
@@ -457,7 +457,7 @@ namespace fCraft {
                 throw new WorldOpException( name, WorldOpExceptionCode.InvalidWorldName );
             }
 
-            lock( WorldListLock ) {
+            lock( SyncRoot ) {
                 if( Worlds.ContainsKey( name.ToLower() ) ) {
                     throw new WorldOpException( name, WorldOpExceptionCode.DuplicateWorldName );
                 }
@@ -503,7 +503,7 @@ namespace fCraft {
                     throw new WorldOpException( world.Name, WorldOpExceptionCode.NoChangeNeeded );
                 }
 
-                lock( WorldListLock ) {
+                lock( SyncRoot ) {
                     World newWorld = FindWorldExact( newName );
                     if( newWorld != null && newWorld != world ) {
                         throw new WorldOpException( newName, WorldOpExceptionCode.DuplicateWorldName );
@@ -550,7 +550,7 @@ namespace fCraft {
             if( oldWorld == null ) throw new ArgumentNullException( "oldWorld" );
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
 
-            lock( WorldListLock ) {
+            lock( SyncRoot ) {
                 if( oldWorld == newWorld ) {
                     throw new WorldOpException( oldWorld.Name, WorldOpExceptionCode.NoChangeNeeded );
                 }
@@ -587,7 +587,7 @@ namespace fCraft {
         public static void RemoveWorld( [NotNull] World worldToDelete ) {
             if( worldToDelete == null ) throw new ArgumentNullException( "worldToDelete" );
 
-            lock( WorldListLock ) {
+            lock( SyncRoot ) {
                 if( worldToDelete == MainWorld ) {
                     throw new WorldOpException( worldToDelete.Name, WorldOpExceptionCode.CannotDoThatToMainWorld );
                 }
@@ -633,7 +633,7 @@ namespace fCraft {
 
 
         public static void UpdateWorldList() {
-            lock( WorldListLock ) {
+            lock( SyncRoot ) {
                 WorldList = Worlds.Values.ToArray();
             }
         }

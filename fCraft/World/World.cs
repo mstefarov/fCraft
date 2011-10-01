@@ -9,13 +9,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     public sealed class World : IClassy {
-        public static readonly TimeSpan DefaultBackupInterval = TimeSpan.FromSeconds( -1 );
 
-        const string TimedBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}.fcm",
-                     JoinBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm";
-
-        public TimeSpan BackupInterval { get; set; }
-        public static readonly TimeSpan BackupIntervalDefault = TimeSpan.FromMinutes( 30 );
 
         /// <summary> World name (no formatting).
         /// Use WorldManager.RenameWorld() method to change this. </summary>
@@ -262,8 +256,8 @@ namespace fCraft {
 
                 if( announce && ConfigKey.ShowJoinedWorldMessages.Enabled() ) {
                     Server.Players.CanSee( player )
-                                  .MessageAlt( "&SPlayer {0}&S joined {1}",
-                                                                player.ClassyName, ClassyName );
+                                  .Message( "&SPlayer {0}&S joined {1}",
+                                            player.ClassyName, ClassyName );
                 }
 
                 Logger.Log( "Player {0} joined world {1}.", LogType.UserActivity,
@@ -475,7 +469,7 @@ namespace fCraft {
         readonly object taskLock = new object();
 
 
-        internal void StopTasks() {
+        void StopTasks() {
             lock( taskLock ) {
                 if( updateTask != null ) {
                     updateTask.Stop();
@@ -489,7 +483,7 @@ namespace fCraft {
         }
 
 
-        internal void StartTasks() {
+        void StartTasks() {
             lock( taskLock ) {
                 updateTask = Scheduler.NewTask( UpdateTask );
                 updateTask.RunForever( this,
@@ -513,6 +507,13 @@ namespace fCraft {
             }
         }
 
+
+        const string TimedBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}.fcm",
+                     JoinBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm";
+
+        public static readonly TimeSpan DefaultBackupInterval = TimeSpan.FromSeconds( -1 );
+
+        public TimeSpan BackupInterval { get; set; }
 
         DateTime lastBackup = DateTime.UtcNow;
 
@@ -542,6 +543,41 @@ namespace fCraft {
                     SaveMap();
                 }
             }
+        }
+
+        #endregion
+
+
+        #region WoM Extensions
+
+        public int CloudColor = -1,
+                   FogColor = -1,
+                   SkyColor = -1,
+                   EdgeLevel = -1;
+
+        public Block EdgeBlock = Block.Water;
+
+        public string GenerateWoMConfig( bool sendMotd ) {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine( "server.name = " + ConfigKey.ServerName.GetString() );
+            if( sendMotd ) {
+                sb.AppendLine( "server.detail = " + ConfigKey.MOTD.GetString() );
+            } else {
+                sb.AppendLine( "server.detail = " + ClassyName );
+            }
+            sb.AppendLine( "user.detail = World " + ClassyName );
+            if( CloudColor > -1 ) sb.AppendLine( "environment.cloud = " + CloudColor );
+            if( FogColor > -1 ) sb.AppendLine( "environment.fog = " + FogColor );
+            if( SkyColor > -1 ) sb.AppendLine( "environment.sky = " + SkyColor );
+            if( EdgeLevel > -1 ) sb.AppendLine( "environment.level = " + EdgeLevel );
+            if( EdgeBlock != Block.Water ) {
+                string edgeTexture = Map.GetEdgeTexture( EdgeBlock );
+                if( edgeTexture != null ) {
+                    sb.AppendLine( "environment.edge = " + edgeTexture );
+                }
+            }
+            sb.AppendLine( "server.sendwomid = true" );
+            return sb.ToString();
         }
 
         #endregion
@@ -593,38 +629,6 @@ namespace fCraft {
         public override string ToString() {
             return String.Format( "World({0})", Name );
         }
-
-
-        public string GenerateWoMConfig( bool sendMotd ) {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine( "server.name = " + ConfigKey.ServerName.GetString() );
-            if( sendMotd ) {
-                sb.AppendLine( "server.detail = " + ConfigKey.MOTD.GetString() );
-            } else {
-                sb.AppendLine( "server.detail = " + ClassyName );
-            }
-            sb.AppendLine( "user.detail = World " + ClassyName );
-            if( CloudColor > -1 ) sb.AppendLine( "environment.cloud = " + CloudColor );
-            if( FogColor > -1 ) sb.AppendLine( "environment.fog = " + FogColor );
-            if( SkyColor > -1 ) sb.AppendLine( "environment.sky = " + SkyColor );
-            if( EdgeLevel > -1 ) sb.AppendLine( "environment.level = " + EdgeLevel );
-            if( EdgeBlock != Block.Water ) {
-                string edgeTexture = Map.GetEdgeTexture( EdgeBlock );
-                if( edgeTexture != null ) {
-                    sb.AppendLine( "environment.edge = " + edgeTexture );
-                }
-            }
-            sb.AppendLine( "server.sendwomid = true" );
-            return sb.ToString();
-        }
-
-
-        public int CloudColor = -1,
-                   FogColor = -1,
-                   SkyColor = -1,
-                   EdgeLevel = -1;
-
-        public Block EdgeBlock = Block.Water;
     }
 }
 

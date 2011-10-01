@@ -221,7 +221,7 @@ namespace fCraft {
         }
 
 
-        static void DrawOperationCallback( Player player, Position[] marks, object tag ) {
+        static void DrawOperationCallback( Player player, Vector3I[] marks, object tag ) {
             DrawOperation op = (DrawOperation)tag;
             if( !op.Begin( marks ) ) return;
             if( !player.CanDraw( op.BlocksTotalEstimate ) ) {
@@ -565,7 +565,7 @@ namespace fCraft {
                     DrawOneBlock( player, changeToUndo.BlockType, changeToUndo.X, changeToUndo.Y, changeToUndo.Z,
                                   ref blocks, ref blocksDenied, ref cannotUndo );
                 }
-                DrawingFinished( player, "undid", blocks, blocksDenied );
+                DrawingFinished( player, "Undone", blocks, blocksDenied );
 
             } else {
                 player.MessageNow( "There is currently nothing to undo." );
@@ -638,7 +638,7 @@ namespace fCraft {
             player.MessageNow( "Copy: Place a block or type /mark to use your location." );
         }
 
-        internal static void CopyCallback( Player player, Position[] marks, object tag ) {
+        internal static void CopyCallback( Player player, Vector3I[] marks, object tag ) {
             int sx = Math.Min( marks[0].X, marks[1].X );
             int ex = Math.Max( marks[0].X, marks[1].X );
             int sy = Math.Min( marks[0].Y, marks[1].Y );
@@ -700,76 +700,17 @@ namespace fCraft {
 
         internal static void CutHandler( Player player, Command cmd ) {
             Block fillBlock = Block.Air;
-            string fillBlockName = cmd.Next();
-            if( fillBlockName != null ) {
-                fillBlock = Map.GetBlockByName( fillBlockName );
-                if( fillBlock == Block.Undefined ) {
-                    player.Message( "Cut: Unknown block type \"{0}\"", fillBlockName );
-                    return;
-                }
-            }
-            player.SelectionStart( 2, CutCallback, fillBlock, CdCut.Permissions );
-            player.MessageNow( "Cut: Place a block or type /mark to use your location." );
-        }
-
-        internal static void CutCallback( Player player, Position[] marks, object tag ) {
-            int sx = Math.Min( marks[0].X, marks[1].X );
-            int ex = Math.Max( marks[0].X, marks[1].X );
-            int sy = Math.Min( marks[0].Y, marks[1].Y );
-            int ey = Math.Max( marks[0].Y, marks[1].Y );
-            int sz = Math.Min( marks[0].Z, marks[1].Z );
-            int ez = Math.Max( marks[0].Z, marks[1].Z );
-
-            byte fillType = (byte)tag;
-
-            int volume = (ex - sx + 1) * (ey - sy + 1) * (ez - sz + 1);
-            if( !player.CanDraw( volume ) ) {
-                player.MessageNow( String.Format( "You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
-                                               player.Info.Rank.DrawLimit, volume ) );
-                return;
+            if( cmd.HasNext ) {
+                fillBlock = cmd.NextBlock( player );
+                if( fillBlock == Block.Undefined ) return;
             }
 
-            // remember dimensions and orientation
-            CopyInformation copyInfo = new CopyInformation {
-                Width = marks[1].X - marks[0].X,
-                Length = marks[1].Y - marks[0].Y,
-                Height = marks[1].Z - marks[0].Z,
-                Buffer = new byte[ex - sx + 1, ey - sy + 1, ez - sz + 1]
-            };
+            CutDrawOperation op = new CutDrawOperation( player );
+            op.Brush = new NormalBrush( fillBlock, Block.Undefined );
 
-            player.LastDrawOp = null;
-            player.UndoBuffer.Clear();
-            int blocks = 0, blocksDenied = 0;
-            bool cannotUndo = false;
-
-            for( int x = sx; x <= ex; x++ ) {
-                for( int y = sy; y <= ey; y++ ) {
-                    for( int z = sz; z <= ez; z++ ) {
-                        copyInfo.Buffer[x - sx, y - sy, z - sz] = player.World.Map.GetBlockByte( x, y, z );
-                        DrawOneBlock( player, fillType, x, y, z, ref blocks, ref blocksDenied, ref cannotUndo );
-                    }
-                }
-            }
-
-            copyInfo.OriginWorld = player.World.Name;
-            copyInfo.CopyTime = DateTime.UtcNow;
-            player.SetCopyInformation( copyInfo );
-            player.MessageNow( "{0} blocks cut into slot #{1}. You can now &H/paste",
-                               volume, player.CopySlot + 1 );
-            player.MessageNow( "Origin at {0} {1}{2} corner.",
-                               (copyInfo.Height > 0 ? "bottom" : "top"),
-                               (copyInfo.Length > 0 ? "south" : "north"),
-                               (copyInfo.Width > 0 ? "west" : "east") );
-
-            Logger.Log( "{0} cut {1} blocks from world {2} (@{3},{4},{5} - {6},{7},{8}), replacing {9} blocks with {10}.", LogType.UserActivity,
-                        player.Name, volume,
-                        player.World.Name,
-                        sx, sy, sz,
-                        ex, ey, ez,
-                        blocks, (Block)fillType );
-
-            player.UndoBuffer.TrimExcess();
-            Server.RequestGC();
+            player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
+            player.MessageNow( "{0}: Click 2 blocks or use &H/mark&S to make a selection.",
+                               op.Brush.InstanceDescription );
         }
 
 
@@ -876,7 +817,7 @@ namespace fCraft {
         }
 
 
-        unsafe static void PasteCallback( Player player, Position[] marks, object tag ) {
+        unsafe static void PasteCallback( Player player, Vector3I[] marks, object tag ) {
             CopyInformation info = player.GetCopyInformation();
 
             PasteArgs args = (PasteArgs)tag;
@@ -887,7 +828,7 @@ namespace fCraft {
             }
             Map map = player.World.Map;
 
-            Position mark2 = new Position {
+            Vector3I mark2 = new Vector3I {
                 X = (short)(marks[0].X + info.Width),
                 Y = (short)(marks[0].Y + info.Length),
                 Z = (short)(marks[0].Z + info.Height)
@@ -956,7 +897,7 @@ namespace fCraft {
                         player.Name, blocks, player.World.Name,
                         bounds.XMin, bounds.YMin, bounds.ZMin,
                         bounds.XMax, bounds.YMax, bounds.ZMax );
-            DrawingFinished( player, "pasted", blocks, blocksDenied );
+            DrawingFinished( player, "Pasted", blocks, blocksDenied );
         }
 
 
@@ -1261,7 +1202,7 @@ namespace fCraft {
         }
 
 
-        static void RestoreCallback( Player player, Position[] marks, object tag ) {
+        static void RestoreCallback( Player player, Vector3I[] marks, object tag ) {
             BoundingBox selection = new BoundingBox( marks[0], marks[1] );
             Map map = (Map)tag;
 
@@ -1294,7 +1235,7 @@ namespace fCraft {
                         selection.XMax, selection.YMax, selection.ZMax,
                         map.Metadata["fCraft.Temp", "FileName"] );
 
-            DrawingFinished( player, "restored", blocksDrawn, blocksSkipped );
+            DrawingFinished( player, "Restored", blocksDrawn, blocksSkipped );
         }
 
         #endregion
@@ -1327,7 +1268,7 @@ namespace fCraft {
             pos.Z = (short)Math.Min( player.World.Map.Height - 1, Math.Max( 0, (int)pos.Z ) );
 
             if( player.SelectionMarksExpected > 0 ) {
-                player.SelectionAddMark( pos, true );
+                player.SelectionAddMark( pos.ToVector3I(), true );
             } else {
                 player.MessageNow( "Cannot mark - no selection in progress." );
             }
@@ -1448,7 +1389,7 @@ namespace fCraft {
                         target.Name,
                         world.Name );
 
-            DrawingFinished( player, "Undone", blocks, blocksDenied );
+            DrawingFinished( player, "UndoneX", blocks, blocksDenied );
         }
 
         #endregion

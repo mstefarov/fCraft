@@ -471,7 +471,7 @@ namespace fCraft {
                 IRC.Disconnect();
 
                 if( WorldManager.WorldList != null ) {
-                    lock( WorldManager.WorldListLock ) {
+                    lock( WorldManager.SyncRoot ) {
                         // unload all worlds (includes saving)
                         foreach( World world in WorldManager.WorldList ) {
                             if( world.BlockDB.IsEnabled ) world.BlockDB.Flush();
@@ -996,8 +996,8 @@ namespace fCraft {
                 Logger.Log( "{0} left the server.", LogType.UserActivity,
                             player.Name );
                 if( player.HasRegistered && ConfigKey.ShowConnectionMessages.Enabled() ) {
-                    Players.CanSee( player ).MessageAlt( "&SPlayer {0}&S left the server.",
-                                                         player.ClassyName );
+                    Players.CanSee( player ).Message( "&SPlayer {0}&S left the server.",
+                                                      player.ClassyName );
                 }
 
                 if( player.World != null ) {

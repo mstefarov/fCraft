@@ -27,13 +27,29 @@ namespace fCraft {
             this( p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z ) {
         }
 
+        /// <summary> Constructs a bounding box at a given origin, with given dimensions. </summary>
+        /// <param name="origin"> Origin point of the bounding box. </param>
+        /// <param name="width"> Width (X-axis, horizontal). May be negative. </param>
+        /// <param name="length"> Length (Y-axis, horizontal). May be negative. </param>
+        /// <param name="height"> Width (Z-axis, vertical). May be negative. </param>
+        public BoundingBox( Position origin, int width, int length, int height ) :
+            this( origin.X, origin.Y, origin.Z,
+                  origin.X + width - 1,
+                  origin.Y + length - 1,
+                  origin.Z + height - 1 ) {
+        }
+
 
         /// <summary> Constructs a bounding box at a given origin, with given dimensions. </summary>
-        public BoundingBox( Position pos, int width, int length, int height ) :
-            this( pos.X, pos.Y, pos.Z,
-                  pos.X + width -1,
-                  pos.Y + length -1,
-                  pos.Z + height -1 ) {
+        /// <param name="origin"> Origin point of the bounding box. </param>
+        /// <param name="width"> Width (X-axis, horizontal). May be negative. </param>
+        /// <param name="length"> Length (Y-axis, horizontal). May be negative. </param>
+        /// <param name="height"> Width (Z-axis, vertical). May be negative. </param>
+        public BoundingBox( Vector3I origin, int width, int length, int height ) :
+            this( origin.X, origin.Y, origin.Z,
+                  origin.X + width - 1,
+                  origin.Y + length - 1,
+                  origin.Z + height - 1 ) {
         }
 
 
@@ -74,6 +90,24 @@ namespace fCraft {
         }
 
 
+
+        /// <summary> Checks if a given point is inside this bounding box. </summary>
+        public bool Contains( Vector3I point ) {
+            return point.X >= XMin && point.X <= XMax &&
+                   point.Y >= YMin && point.Y <= YMax &&
+                   point.Z >= ZMin && point.Z <= ZMax;
+        }
+
+
+
+        /// <summary> Checks if a given point is inside this bounding box. </summary>
+        public bool Contains( Position point ) {
+            return point.X >= XMin && point.X <= XMax &&
+                   point.Y >= YMin && point.Y <= YMax &&
+                   point.Z >= ZMin && point.Z <= ZMax;
+        }
+
+
         /// <summary> Returns a BoundingBox object that describes the space shared between this and another box. </summary>
         /// <returns> Intersecting volume, or BoundingBox.Empty if there is no overlap. </returns>
         public BoundingBox GetIntersection( [NotNull] BoundingBox other ) {
@@ -107,26 +141,19 @@ namespace fCraft {
             get { return (ZMax - ZMin + 1); }
         }
 
-        /// <summary> Returns the vertex closest to the origin, opposite MaxVertex. </summary>
-        public Position MinVertex {
-            get { return new Position( XMin, YMin, ZMin ); }
-        }
-
-        public Vector3I MinVertexV {
+        /// <summary> Returns the vertex closest to the coordinate origin, opposite MaxVertex. </summary>
+        public Vector3I MinVertex {
             get { return new Vector3I( XMin, YMin, ZMin ); }
         }
 
         /// <summary> Returns the vertex farthest from the origin, opposite MinVertex. </summary>
-        public Position MaxVertex {
-            get { return new Position( XMax, YMax, ZMax ); }
+        public Vector3I MaxVertex {
+            get { return new Vector3I( XMax, YMax, ZMax ); }
         }
 
-        public Position Center {
-            get { return new Position( (XMax - XMin) / 2, (YMax - YMin) / 2, (ZMax - ZMin) / 2 ); }
-        }
-
-        public Vector3I CenterV {
-            get { return new Vector3I( (XMax - XMin) / 2, (YMax - YMin) / 2, (ZMax - ZMin) / 2 ); }
+        /// <summary> Returns the center point of the bounding box. </summary>
+        public Vector3F Center {
+            get { return new Vector3F( (XMax - XMin) / 2f, (YMax - YMin) / 2f, (ZMax - ZMin) / 2f ); }
         }                       
 
 

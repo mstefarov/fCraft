@@ -7,6 +7,8 @@ namespace fCraft{
     /// You may safely cast byte* pointers directly to BlockDBEntry* and vice versa. </summary>
     [StructLayout( LayoutKind.Sequential, Pack = 1 )]
     public struct BlockDBEntry {
+        public const int Size = 16; // sizeof(BlockDBEntry)
+
         /// <summary> UTC Unix timestamp of the change. </summary>
         public readonly int Timestamp;
 
