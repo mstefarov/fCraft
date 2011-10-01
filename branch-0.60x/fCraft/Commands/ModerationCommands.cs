@@ -80,8 +80,9 @@ namespace fCraft {
             if( target == null ) return;
             string reason = cmd.NextAll();
             try {
+                Player targetPlayer = target.PlayerObject;
                 target.Ban( player, reason, true, true );
-                WarnIfOtherPlayersOnIP( player, target );
+                WarnIfOtherPlayersOnIP( player, target, targetPlayer );
             } catch( PlayerOpException ex ) {
                 player.Message( ex.MessageColored );
                 if( ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired ) {
@@ -368,7 +369,9 @@ namespace fCraft {
 
             // do the kick
             try {
+                Player targetPlayer = target;
                 target.Kick( player, reason, LeaveReason.Kick, true, true, true );
+                WarnIfOtherPlayersOnIP( player, target.Info, targetPlayer );
 
             } catch( PlayerOpException ex ) {
                 player.Message( ex.MessageColored );
@@ -392,8 +395,6 @@ namespace fCraft {
                                     previousKickReason );
                 }
             }
-
-            WarnIfOtherPlayersOnIP( player, target.Info );
         }
 
         #endregion
@@ -1271,8 +1272,10 @@ namespace fCraft {
 
 
         // warn player if others are still online from target's IP
-        static void WarnIfOtherPlayersOnIP( Player player, PlayerInfo targetInfo ) {
-            Player[] otherPlayers = Server.Players.FromIP( targetInfo.LastIP ).Except( targetInfo.PlayerObject ).ToArray();
+        static void WarnIfOtherPlayersOnIP( Player player, PlayerInfo targetInfo, Player except ) {
+            Player[] otherPlayers = Server.Players.FromIP( targetInfo.LastIP )
+                                                  .Except( except )
+                                                  .ToArray();
             if( otherPlayers.Length > 0 ) {
                 player.Message( "&WWarning: Other player(s) share IP with {0}&W: {1}",
                                 targetInfo.ClassyName,
