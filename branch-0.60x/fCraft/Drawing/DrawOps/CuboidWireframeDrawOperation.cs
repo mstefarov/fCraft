@@ -17,7 +17,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public override bool Begin( Position[] marks ) {
+        public override bool Begin( Vector3I[] marks ) {
             if( !base.Begin( marks ) ) return false;
 
             int hollowVolume = Math.Max( 0, Bounds.Width - 2 ) * Math.Max( 0, Bounds.Length - 2 ) * Math.Max( 0, Bounds.Height - 2 );

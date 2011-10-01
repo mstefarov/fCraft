@@ -139,7 +139,7 @@ namespace fCraft {
             }
         }
 
-        static void ZoneAddCallback( Player player, Position[] marks, object tag ) {
+        static void ZoneAddCallback( Player player, Vector3I[] marks, object tag ) {
             if( !player.Info.Rank.AllowSecurityCircumvention ) {
                 SecurityCheckResult buildCheck = player.World.BuildSecurity.CheckDetailed( player.Info );
                 switch( buildCheck ) {
@@ -596,7 +596,7 @@ namespace fCraft {
             player.Message( "Click the block that you would like to test." );
         }
 
-        static void ZoneTestCallback( Player player, Position[] marks, object tag ) {
+        static void ZoneTestCallback( Player player, Vector3I[] marks, object tag ) {
             Zone[] allowed, denied;
             if( player.World.Map.Zones.CheckDetailed( marks[0].X, marks[0].Y, marks[0].Z, player, out allowed, out denied ) ) {
                 foreach( Zone zone in allowed ) {

@@ -11,7 +11,7 @@ namespace fCraft.Drawing {
             : base( player ) {
         }
 
-        public override bool Begin( Position[] marks ) {
+        public override bool Begin( Vector3I[] marks ) {
             double radius = Math.Sqrt( (marks[0].X - marks[1].X) * (marks[0].X - marks[1].X) +
                                        (marks[0].Y - marks[1].Y) * (marks[0].Y - marks[1].Y) +
                                        (marks[0].Z - marks[1].Z) * (marks[0].Z - marks[1].Z) );

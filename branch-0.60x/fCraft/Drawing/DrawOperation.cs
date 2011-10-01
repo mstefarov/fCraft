@@ -18,7 +18,7 @@ namespace fCraft.Drawing {
         [NotNull]
         public IBrushInstance Brush;
 
-        public Position[] Marks;
+        public Vector3I[] Marks;
         public DateTime StartTime { get; protected set; }
 
         public BoundingBox Bounds;
@@ -76,7 +76,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public virtual bool Begin( [NotNull] Position[] marks ) {
+        public virtual bool Begin( [NotNull] Vector3I[] marks ) {
             if( marks == null ) throw new ArgumentNullException( "marks" );
             if( marks.Length < 2 ) throw new ArgumentException( "At least two marks needed.", "marks" );
             Marks = marks;

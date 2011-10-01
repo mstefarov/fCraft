@@ -319,7 +319,7 @@ namespace fCraft {
             };
 
             // skip everything if player hasn't moved
-            if( delta.IsZero() ) return;
+            if( delta.IsZero ) return;
 
             bool rotChanged = (delta.R != 0) || (delta.L != 0);
 
@@ -668,7 +668,7 @@ namespace fCraft {
             // Announce join
             if( ConfigKey.ShowConnectionMessages.Enabled() ) {
                 string message = Server.MakePlayerConnectedMessage( this, firstTime, World );
-                canSee.MessageAlt( message );
+                canSee.Message( message );
             }
 
             if( !IsVerified ) {
@@ -1294,7 +1294,7 @@ namespace fCraft {
 
             Packet packet;
             // create the movement packet
-            if( partialUpdates && delta.FitsIntoByte() && fullUpdateCounter < FullPositionUpdateInterval ) {
+            if( partialUpdates && delta.FitsIntoMoveRotatePacket && fullUpdateCounter < FullPositionUpdateInterval ) {
                 if( posChanged && rotChanged ) {
                     // incremental position + rotation update
                     packet = PacketWriter.MakeMoveRotate( entity.Id, new Position {

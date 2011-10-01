@@ -60,16 +60,16 @@ namespace fCraft {
         public bool HasChangedSinceSave { get; internal set; }
 
         /// <summary> Whether the map was saved since last time it was backed up. </summary>
-        public bool HasChangedSinceBackup { get; internal set; }
+        public bool HasChangedSinceBackup { get; private set; }
 
         // used by IsoCat and MapGenerator
         public short[,] Shadows;
 
 
         // FCMv3 additions
-        public DateTime DateModified = DateTime.UtcNow;
-        public DateTime DateCreated = DateTime.UtcNow;
-        public Guid Guid = Guid.NewGuid();
+        public DateTime DateModified { get; set; }
+        public DateTime DateCreated { get; set; }
+        public Guid Guid { get; set; }
 
         /// <summary> Array of map blocks.
         /// Use Index(x,y,h) to convert coordinates to array indices.
@@ -95,6 +95,9 @@ namespace fCraft {
             if( !IsValidDimension( width ) ) throw new ArgumentException( "Invalid map dimension.", "width" );
             if( !IsValidDimension( length ) ) throw new ArgumentException( "Invalid map dimension.", "length" );
             if( !IsValidDimension( height ) ) throw new ArgumentException( "Invalid map dimension.", "height" );
+            DateCreated = DateTime.UtcNow;
+            DateModified = DateCreated;
+            Guid = Guid.NewGuid();
 
             Metadata = new MetadataCollection<string>();
             Metadata.Changed += OnMetaOrZoneChange;
@@ -617,7 +620,6 @@ namespace fCraft {
             BlockNames["none"] = Block.Undefined;
 
             BlockNames["a"] = Block.Air; // common typo
-            BlockNames["aire"] = Block.Air; // common typo
             BlockNames["nothing"] = Block.Air;
             BlockNames["empty"] = Block.Air;
             BlockNames["delete"] = Block.Air;
@@ -646,6 +648,8 @@ namespace fCraft {
             BlockNames["solid"] = Block.Admincrete;
             BlockNames["bedrock"] = Block.Admincrete;
             BlockNames["w"] = Block.Water;
+            BlockNames["l"] = Block.Lava;
+            BlockNames["magma"] = Block.Lava;
             BlockNames["gold_ore"] = Block.GoldOre;
             BlockNames["iron_ore"] = Block.IronOre;
             BlockNames["copper"] = Block.IronOre;

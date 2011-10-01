@@ -3,8 +3,9 @@ using System;
 
 namespace fCraft {
 
-    /// <summary> Struct representing a position (with orientation) in the world. Takes up 8 bytes of memory.
-    /// Note that, as a struct, Position objects are COPIED when assigned or passed as an argument. </summary>
+    /// <summary> Struct representing a position AND orientation. Takes up 8 bytes of memory.
+    /// Use Vector3I if you just need X/Y/Z coordinates without orientation.
+    /// Note that, as a struct, Positions are COPIED when assigned or passed as an argument. </summary>
     public struct Position : IEquatable<Position> {
         public readonly static Position Zero = new Position( 0, 0, 0 );
 
@@ -19,15 +20,19 @@ namespace fCraft {
             L = 0;
         }
 
-        public bool FitsIntoByte() {
-            return X >= SByte.MinValue && X <= SByte.MaxValue &&
-                   Y >= SByte.MinValue && Y <= SByte.MaxValue &&
-                   Z >= SByte.MinValue && Z <= SByte.MaxValue;
+        internal bool FitsIntoMoveRotatePacket {
+            get {
+                return X >= SByte.MinValue && X <= SByte.MaxValue &&
+                       Y >= SByte.MinValue && Y <= SByte.MaxValue &&
+                       Z >= SByte.MinValue && Z <= SByte.MaxValue;
+            }
         }
 
 
-        public bool IsZero() {
-            return X == 0 && Y == 0 && Z == 0 && R == 0 && L == 0;
+        public bool IsZero {
+            get {
+                return X == 0 && Y == 0 && Z == 0 && R == 0 && L == 0;
+            }
         }
 
 
