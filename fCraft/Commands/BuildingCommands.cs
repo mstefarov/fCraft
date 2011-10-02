@@ -705,8 +705,9 @@ namespace fCraft {
                 if( fillBlock == Block.Undefined ) return;
             }
 
-            CutDrawOperation op = new CutDrawOperation( player );
-            op.Brush = new NormalBrush( fillBlock, Block.Undefined );
+            CutDrawOperation op = new CutDrawOperation( player ) {
+                Brush = new NormalBrush( fillBlock, Block.Undefined )
+            };
 
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
             player.MessageNow( "{0}: Click 2 blocks or use &H/mark&S to make a selection.",

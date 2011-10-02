@@ -954,6 +954,9 @@ namespace fCraft {
                 mapBytesSent += chunkSize;
             }
 
+            // Turn off Nagel's algorithm again for LowLatencyMode
+            client.NoDelay = ConfigKey.LowLatencyMode.Enabled();
+
             // Done sending over level copy
             writer.WriteMapEnd( map );
             BytesSent += 7;
@@ -972,11 +975,6 @@ namespace fCraft {
                 Message( "Rejoined world {0}", newWorld.ClassyName );
             } else {
                 Message( "Joined world {0}", newWorld.ClassyName );
-            }
-
-            // Turn off Nagel's algorithm again for LowLatencyMode
-            if( ConfigKey.LowLatencyMode.Enabled() ) {
-                client.NoDelay = true;
             }
 
             RaisePlayerJoinedWorldEvent( this, oldWorld, reason );

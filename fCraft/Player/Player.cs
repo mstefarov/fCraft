@@ -673,7 +673,6 @@ namespace fCraft {
         /// <summary> Handles manually-placed/deleted blocks.
         /// Returns true if player's action should result in a kick. </summary>
         public bool PlaceBlock( short x, short y, short z, ClickAction action, Block type ) {
-
             LastUsedBlockType = type;
 
             // check if player is frozen or too far away to legitimately place a block
@@ -1200,6 +1199,7 @@ namespace fCraft {
         public void TeleportTo( Position pos ) {
             StopSpectating();
             Send( PacketWriter.MakeSelfTeleport( pos ) );
+            Position = pos;
         }
 
 

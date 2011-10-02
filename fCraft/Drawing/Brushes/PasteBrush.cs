@@ -1,4 +1,4 @@
-﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+﻿/*// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -147,7 +147,7 @@ namespace fCraft.Drawing {
                 player.Message( "Nothing to paste." );
                 return false;
             }
-            /*
+            
             if( bounds.XMin < 0 || bounds.XMax > map.Width - 1 ) {
                 player.MessageNow( "Warning: Not enough room horizontally (X), paste cut off." );
             }
@@ -157,7 +157,7 @@ namespace fCraft.Drawing {
             if( bounds.ZMin < 0 || bounds.ZMax > map.Height - 1 ) {
                 player.MessageNow( "Warning: Not enough room vertically, paste cut off." );
             }
-            */
+            
 
             return true;
         }
@@ -178,3 +178,4 @@ namespace fCraft.Drawing {
         #endregion
     }
 }
+*/
