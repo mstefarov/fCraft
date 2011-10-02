@@ -395,13 +395,13 @@ namespace fCraft {
             for( int i = 0; i < drawOps.Count; i++ ) {
                 DrawOperation op = drawOps[i];
                 if( op.IsCancelled ) {
-                    op.Player.Message( "{0}/{1}: Cancelled after {2}. P={3} U={4} S={5} D={6}",
-                                       op.Description, op.Brush.InstanceDescription,
+                    op.Player.Message( "{0}: Cancelled after {1}. P={2} U={3} S={4} D={5}",
+                                       op.DescriptionWithBrush,
                                        DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
                                        op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
-                    Logger.Log( "Player {0} cancelled {1}/{2} on world {3}. Processed {4}, Updated {5}, Skipped {6}, Denied {7} blocks.",
+                    Logger.Log( "Player {0} cancelled {1} on world {2}. Processed {3}, Updated {4}, Skipped {5}, Denied {6} blocks.",
                              LogType.UserActivity,
-                             op.Player, op.Description, op.Brush.InstanceDescription, World.Name,
+                             op.Player, op.DescriptionWithBrush, World.Name,
                              op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
                     op.End();
                     drawOps.RemoveAt( i );
@@ -418,14 +418,14 @@ namespace fCraft {
                 maxTotalUpdates -= blocksDrawn;
                 if( op.IsDone ) {
                     if( op.AnnounceCompletion ) {
-                        op.Player.Message( "{0}/{1}: Finished in {2}. P={3} U={4} S={5} D={6}",
-                                           op.Description, op.Brush.InstanceDescription,
+                        op.Player.Message( "{0}: Finished in {1}. P={2} U={3} S={4} D={5}",
+                                           op.DescriptionWithBrush,
                                            DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
                                            op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
                     }
-                    Logger.Log( "Player {0} executed {1}/{2} on world {3}. Processed {4}, Updated {5}, Skipped {6}, Denied {7} blocks.",
+                    Logger.Log( "Player {0} executed {1} on world {2}. Processed {3}, Updated {4}, Skipped {5}, Denied {6} blocks.",
                              LogType.UserActivity,
-                             op.Player, op.Description, op.Brush.InstanceDescription, World.Name,
+                             op.Player, op.DescriptionWithBrush, World.Name,
                              op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
                     op.End();
                     drawOps.RemoveAt( i );

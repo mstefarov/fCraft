@@ -10,10 +10,6 @@ namespace fCraft.Drawing {
             get { return "CuboidH"; }
         }
 
-        public override string Description {
-            get { return Name; }
-        }
-
         public CuboidHollowDrawOperation( Player player )
             : base( player ) {
         }

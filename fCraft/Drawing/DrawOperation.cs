@@ -46,7 +46,15 @@ namespace fCraft.Drawing {
 
         public abstract string Name { get; }
 
-        public abstract string Description { get; }
+        public virtual string Description {
+            get { return Name; }
+        }
+
+        public virtual string DescriptionWithBrush {
+            get {
+                return String.Format( "{0}/{1}", Description, Brush.InstanceDescription );
+            }
+        }
 
         public bool AnnounceCompletion { get; set; }
 
@@ -146,7 +154,7 @@ namespace fCraft.Drawing {
                 Player.LastDrawOp = null;
                 Player.UndoBuffer.Clear();
                 Player.UndoBuffer.TrimExcess();
-                Player.Message( "{0}: Too many blocks to undo.", Description );
+                Player.Message( "{0}: Too many blocks to undo.", DescriptionWithBrush );
                 IsTooLargeToUndo = true;
             }
             BlocksUpdated++;

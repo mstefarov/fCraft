@@ -9,10 +9,6 @@ namespace fCraft.Drawing {
             get { return "Line"; }
         }
 
-        public override string Description {
-            get { return Name; }
-        }
-
         public LineDrawOperation( Player player )
             : base( player ) {
         }

@@ -13,10 +13,6 @@ namespace fCraft.Drawing {
             get { return "Torus"; }
         }
 
-        public override string Description {
-            get { return Name; }
-        }
-
         public TorusDrawOperation( Player player )
             : base( player ) {
         }
