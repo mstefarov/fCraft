@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using fCraft.Events;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary>
@@ -838,10 +839,6 @@ namespace fCraft {
             if( target.World == world ) {
                 // teleport within the same world
                 target.TeleportTo( toPlayer.Position );
-                target.Position = toPlayer.Position;
-                if( target.Info.IsFrozen ) {
-                    target.Position = toPlayer.Position;
-                }
 
             } else {
                 if( world.AccessSecurity.CheckDetailed( target.Info ) == SecurityCheckResult.RankTooLow && !cmd.IsConfirmed ) {
@@ -852,7 +849,7 @@ namespace fCraft {
                     return;
                 }
                 // teleport to a different world
-                BringPlayerToWorld( player, target, world, true );
+                BringPlayerToWorld( player, target, world, true, true );
             }
         }
 
@@ -901,7 +898,7 @@ namespace fCraft {
                                 world );
                 return;
             }
-            BringPlayerToWorld( player, target, world, true );
+            BringPlayerToWorld( player, target, world, true, false );
         }
 
 
@@ -1000,7 +997,7 @@ namespace fCraft {
 
                 } else {
                     // teleport to a different world
-                    BringPlayerToWorld( player, targetPlayer, player.World, false );
+                    BringPlayerToWorld( player, targetPlayer, player.World, false, true );
                 }
                 count++;
             }
@@ -1015,7 +1012,10 @@ namespace fCraft {
 
 
 
-        static void BringPlayerToWorld( Player player, Player target, World world, bool overridePermissions ) {
+        static void BringPlayerToWorld( [NotNull] Player player, [NotNull] Player target, [NotNull] World world, bool overridePermissions, bool usePlayerPosition ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( target == null ) throw new ArgumentNullException( "target" );
+            if( world == null ) throw new ArgumentNullException( "world" );
             switch( world.AccessSecurity.CheckDetailed( target.Info ) ) {
                 case SecurityCheckResult.Allowed:
                 case SecurityCheckResult.WhiteListed:
@@ -1026,7 +1026,11 @@ namespace fCraft {
                         return;
                     }
                     target.StopSpectating();
-                    target.JoinWorld( world, WorldChangeReason.Bring );
+                    if( usePlayerPosition ) {
+                        target.JoinWorld( world, WorldChangeReason.Bring, player.Position );
+                    } else {
+                        target.JoinWorld( world, WorldChangeReason.Bring );
+                    }
                     break;
 
                 case SecurityCheckResult.BlackListed:
@@ -1038,7 +1042,11 @@ namespace fCraft {
                 case SecurityCheckResult.RankTooLow:
                     if( overridePermissions ) {
                         target.StopSpectating();
-                        target.JoinWorld( world, WorldChangeReason.Bring );
+                        if( usePlayerPosition ) {
+                            target.JoinWorld( world, WorldChangeReason.Bring, player.Position );
+                        } else {
+                            target.JoinWorld( world, WorldChangeReason.Bring );
+                        }
                     } else {
                         player.Message( "Cannot bring {0}&S because world {1}&S requires {2}+&S to join.",
                                         target.ClassyName,

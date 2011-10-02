@@ -228,8 +228,8 @@ namespace fCraft {
         internal static void ThrowCancelled( [NotNull] Player player, [NotNull] PlayerInfo target ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( target == null ) throw new ArgumentNullException( "target" );
-            string msg = "Cancelled by plugin.";
-            string colorMsg = "&S" + msg;
+            const string msg = "Cancelled by plugin.";
+            const string colorMsg = "&S" + msg;
             throw new PlayerOpException( player, target, PlayerOpExceptionCode.Cancelled, msg, colorMsg );
         }
     }
