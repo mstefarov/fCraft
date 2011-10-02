@@ -7,8 +7,15 @@ namespace fCraft.Drawing {
             get { return "Cut"; }
         }
 
-        public override string Description {
-            get { return Name; }
+        public override string DescriptionWithBrush {
+            get {
+                var normalBrush = Brush as NormalBrush;
+                if( normalBrush != null && normalBrush.Block != Block.Air ) {
+                    return String.Format( "{0}/{1}", Name, normalBrush.Block );
+                } else {
+                    return Name;
+                }
+            }
         }
 
         public CutDrawOperation( Player player )

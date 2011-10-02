@@ -216,8 +216,8 @@ namespace fCraft {
             if( brush == null ) return;
             op.Brush = brush;
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
-            player.MessageNow( "{0}/{1}: Click 2 blocks or use &H/mark&S to make a selection.",
-                               op.Description, op.Brush.InstanceDescription );
+            player.Message( "{0}: Click 2 blocks or use &H/mark&S to make a selection.",
+                            op.DescriptionWithBrush );
         }
 
 
@@ -233,7 +233,7 @@ namespace fCraft {
             }
             op.Map.QueueDrawOp( op );
             player.Message( "{0}: Now processing ~{1} blocks.",
-                            op.Description, op.BlocksTotalEstimate );
+                            op.DescriptionWithBrush, op.BlocksTotalEstimate );
         }
 
         #endregion
@@ -546,7 +546,7 @@ namespace fCraft {
                 if( lastDrawOp != null && !lastDrawOp.IsDone ) {
                     lastDrawOp.Cancel();
                     msg = String.Format( "Cancelled {0} (was {1}% done). ",
-                                         lastDrawOp.Description,
+                                         lastDrawOp.DescriptionWithBrush,
                                          lastDrawOp.PercentDone );
                 }
                 // no need to set player.drawingInProgress here because this is done on the user thread
@@ -710,8 +710,12 @@ namespace fCraft {
             };
 
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
-            player.MessageNow( "{0}: Click 2 blocks or use &H/mark&S to make a selection.",
-                               op.Brush.InstanceDescription );
+            if( fillBlock != Block.Air ) {
+                player.Message( "Cut/{0}: Click 2 blocks or use &H/mark&S to make a selection.",
+                                fillBlock );
+            } else {
+                player.Message( "Cut: Click 2 blocks or use &H/mark&S to make a selection." );
+            }
         }
 
 

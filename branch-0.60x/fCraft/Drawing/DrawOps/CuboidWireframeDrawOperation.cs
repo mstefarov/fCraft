@@ -8,10 +8,6 @@ namespace fCraft.Drawing {
             get { return "CuboidW"; }
         }
 
-        public override string Description {
-            get { return Name; }
-        }
-
         public CuboidWireframeDrawOperation( Player player )
             : base( player ) {
         }

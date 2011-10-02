@@ -10,10 +10,6 @@ namespace fCraft.Drawing {
             get { return "Ellipsoid"; }
         }
 
-        public override string Description {
-            get { return Name; }
-        }
-
         public EllipsoidDrawOperation( Player player )
             : base( player ) {
         }
