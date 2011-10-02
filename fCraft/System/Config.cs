@@ -146,6 +146,8 @@ namespace fCraft {
      *               
      * 149 - r1061 - Added HeartbeatToWoMDirect, WoMDirectDescription, and WoMEnableEnvExtensions keys
      * 
+     * 150 - r1066 - Removed WoMDirectDescription key
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -156,7 +158,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 149;
+        public const int CurrentVersion = 150;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY

@@ -227,7 +227,7 @@ namespace fCraft {
             }
 
             if( info.IsFrozen ) {
-                player.Message( "  Frozen {0} ago by {1}", info.TimeSinceFrozen, info.FrozenBy );
+                player.Message( "  Frozen {0} ago by {1}", info.TimeSinceFrozen.ToMiniString(), info.FrozenBy );
             }
 
             // Show ban information

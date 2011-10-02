@@ -116,6 +116,8 @@ You can use any color codes, and these special variables:
 
             toolTip.SetToolTip( tMapPath, ConfigKey.MapPath.GetDescription() );
             toolTip.SetToolTip( xMapPath, ConfigKey.MapPath.GetDescription() );
+
+            toolTip.SetToolTip( xWoMEnableEnvExtensions, ConfigKey.WoMEnableEnvExtensions.GetDescription() );
         }
 
 
@@ -671,6 +673,8 @@ or type in address/port manually below.";
 
             toolTip.SetToolTip( xIP, ConfigKey.IP.GetDescription() );
             toolTip.SetToolTip( tIP, ConfigKey.IP.GetDescription() );
+
+            toolTip.SetToolTip( xHeartbeatToWoMDirect, ConfigKey.HeartbeatToWoMDirect.GetDescription() );
         }
     }
 }

@@ -25,8 +25,8 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( MainForm ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -277,6 +277,8 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
+            this.xHeartbeatToWoMDirect = new System.Windows.Forms.CheckBox();
+            this.xWoMEnableEnvExtensions = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -1099,6 +1101,7 @@
             // 
             // tabWorlds
             // 
+            this.tabWorlds.Controls.Add( this.xWoMEnableEnvExtensions );
             this.tabWorlds.Controls.Add( this.bMapPath );
             this.tabWorlds.Controls.Add( this.xMapPath );
             this.tabWorlds.Controls.Add( this.tMapPath );
@@ -1122,7 +1125,7 @@
             // 
             this.bMapPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bMapPath.Enabled = false;
-            this.bMapPath.Location = new System.Drawing.Point( 587, 474 );
+            this.bMapPath.Location = new System.Drawing.Point( 587, 451 );
             this.bMapPath.Name = "bMapPath";
             this.bMapPath.Size = new System.Drawing.Size( 57, 23 );
             this.bMapPath.TabIndex = 10;
@@ -1134,7 +1137,7 @@
             // 
             this.xMapPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.xMapPath.AutoSize = true;
-            this.xMapPath.Location = new System.Drawing.Point( 8, 474 );
+            this.xMapPath.Location = new System.Drawing.Point( 8, 451 );
             this.xMapPath.Name = "xMapPath";
             this.xMapPath.Size = new System.Drawing.Size( 189, 19 );
             this.xMapPath.TabIndex = 8;
@@ -1148,7 +1151,7 @@
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.tMapPath.Enabled = false;
             this.tMapPath.Font = new System.Drawing.Font( "Lucida Console", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.tMapPath.Location = new System.Drawing.Point( 203, 476 );
+            this.tMapPath.Location = new System.Drawing.Point( 203, 453 );
             this.tMapPath.Name = "tMapPath";
             this.tMapPath.Size = new System.Drawing.Size( 378, 19 );
             this.tMapPath.TabIndex = 9;
@@ -1157,7 +1160,7 @@
             // 
             this.lDefaultBuildRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lDefaultBuildRank.AutoSize = true;
-            this.lDefaultBuildRank.Location = new System.Drawing.Point( 24, 450 );
+            this.lDefaultBuildRank.Location = new System.Drawing.Point( 24, 423 );
             this.lDefaultBuildRank.Name = "lDefaultBuildRank";
             this.lDefaultBuildRank.Size = new System.Drawing.Size( 342, 15 );
             this.lDefaultBuildRank.TabIndex = 6;
@@ -1168,7 +1171,7 @@
             this.cDefaultBuildRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cDefaultBuildRank.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cDefaultBuildRank.FormattingEnabled = true;
-            this.cDefaultBuildRank.Location = new System.Drawing.Point( 372, 447 );
+            this.cDefaultBuildRank.Location = new System.Drawing.Point( 372, 420 );
             this.cDefaultBuildRank.Name = "cDefaultBuildRank";
             this.cDefaultBuildRank.Size = new System.Drawing.Size( 121, 23 );
             this.cDefaultBuildRank.TabIndex = 7;
@@ -1247,10 +1250,10 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvWorlds.Size = new System.Drawing.Size( 636, 394 );
+            this.dgvWorlds.Size = new System.Drawing.Size( 636, 367 );
             this.dgvWorlds.TabIndex = 0;
             this.dgvWorlds.SelectionChanged += new System.EventHandler( this.dgvWorlds_Click );
             this.dgvWorlds.Click += new System.EventHandler( this.dgvWorlds_Click );
@@ -1306,8 +1309,8 @@
             // dgvcBlockDB
             // 
             this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle3;
             this.dgvcBlockDB.FalseValue = "";
             this.dgvcBlockDB.HeaderText = "BlockDB";
             this.dgvcBlockDB.IndeterminateValue = "";
@@ -2868,6 +2871,7 @@
             this.gAdvancedMisc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gAdvancedMisc.Controls.Add( this.xHeartbeatToWoMDirect );
             this.gAdvancedMisc.Controls.Add( this.lIPWarning );
             this.gAdvancedMisc.Controls.Add( this.tIP );
             this.gAdvancedMisc.Controls.Add( this.xIP );
@@ -3254,6 +3258,26 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
+            // xHeartbeatToWoMDirect
+            // 
+            this.xHeartbeatToWoMDirect.AutoSize = true;
+            this.xHeartbeatToWoMDirect.Location = new System.Drawing.Point( 12, 336 );
+            this.xHeartbeatToWoMDirect.Name = "xHeartbeatToWoMDirect";
+            this.xHeartbeatToWoMDirect.Size = new System.Drawing.Size( 354, 19 );
+            this.xHeartbeatToWoMDirect.TabIndex = 21;
+            this.xHeartbeatToWoMDirect.Text = "Send heartbeats to WoM Direct (direct.worldofminecraft.net).";
+            this.xHeartbeatToWoMDirect.UseVisualStyleBackColor = true;
+            // 
+            // xWoMEnableEnvExtensions
+            // 
+            this.xWoMEnableEnvExtensions.AutoSize = true;
+            this.xWoMEnableEnvExtensions.Location = new System.Drawing.Point( 8, 478 );
+            this.xWoMEnableEnvExtensions.Name = "xWoMEnableEnvExtensions";
+            this.xWoMEnableEnvExtensions.Size = new System.Drawing.Size( 266, 19 );
+            this.xWoMEnableEnvExtensions.TabIndex = 22;
+            this.xWoMEnableEnvExtensions.Text = "Enable WoM environment extensions (/env).";
+            this.xWoMEnableEnvExtensions.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -3604,5 +3628,7 @@
         private System.Windows.Forms.DataGridViewComboBoxColumn dgvcBackup;
         private System.Windows.Forms.DataGridViewCheckBoxColumn dgvcHidden;
         private System.Windows.Forms.DataGridViewCheckBoxColumn dgvcBlockDB;
+        private System.Windows.Forms.CheckBox xWoMEnableEnvExtensions;
+        private System.Windows.Forms.CheckBox xHeartbeatToWoMDirect;
     }
 }
