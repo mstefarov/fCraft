@@ -500,10 +500,6 @@ If disabled, heartbeat data is written to heartbeatdata.txt." )]
 @"If enabled, sends heartbeats to WoM Direct service, http://direct.worldofminecraft.com/")]
         HeartbeatToWoMDirect,
 
-        [StringKey(ConfigSection.Advanced, "",
-@"Server description, as shown in WoM (if HeartbeatToWoMDirect is enabled)")]
-        WoMDirectDescription,
-
         [BoolKey( ConfigSection.Advanced, true,
 @"If enabled, allows changing enviromnent settings for WoM clients via /env" )]
         WoMEnableEnvExtensions,
