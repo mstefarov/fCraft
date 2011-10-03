@@ -20,6 +20,8 @@ namespace fCraft {
     /// the value of player.selectionArgs </param>
     public delegate void SelectionCallback( Player player, Vector3I[] marks, object tag );
 
+    public delegate void ConfirmationCallback( Player player, object tag, bool fromConsole );
+
 
     /// <summary> Object representing volatile state of connected player.
     /// For persistent state of a known player account, see PlayerInfo. </summary>
@@ -134,7 +136,7 @@ namespace fCraft {
 
         #region Chat and Messaging
 
-        const int ConfirmationTimeout = 60;
+        static readonly TimeSpan ConfirmationTimeout = TimeSpan.FromSeconds( 60 );
 
         int muteWarnings;
         string partialMessage;
@@ -334,11 +336,11 @@ namespace fCraft {
                             MessageNow( "&WYou cannot use any commands while frozen." );
                             return;
                         }
-                        if( ConfirmCommand != null ) {
-                            if( DateTime.UtcNow.Subtract( ConfirmRequestTime ).TotalSeconds < ConfirmationTimeout ) {
-                                ConfirmCommand.IsConfirmed = true;
-                                CommandManager.ParseCommand( this, ConfirmCommand, fromConsole );
-                                ConfirmCommand = null;
+                        if( ConfirmCallback != null ) {
+                            if( DateTime.UtcNow.Subtract( ConfirmRequestTime ) < ConfirmationTimeout ) {
+                                ConfirmCallback( this, ConfirmArgument, fromConsole );
+                                ConfirmCallback = null;
+                                ConfirmArgument = null;
                             } else {
                                 MessageNow( "Confirmation timed out. Enter the command again." );
                             }
@@ -599,8 +601,16 @@ namespace fCraft {
 
         #region Confirmation
 
-        /// <summary> Most recent command that needed confirmation. May be null. </summary>
-        public Command ConfirmCommand { get; private set; }
+        public ConfirmationCallback ConfirmCallback { get; private set; }
+
+        public object ConfirmArgument { get; private set; }
+
+        static void ConfirmCommandCallback( Player player, object tag, bool fromConsole ){
+            Command cmd = (Command)tag;
+            cmd.Rewind();
+            cmd.IsConfirmed = true;
+            CommandManager.ParseCommand( player, cmd, fromConsole );
+        }
 
         /// <summary> Time when the confirmation was requested. UTC. </summary>
         public DateTime ConfirmRequestTime { get; private set; }
@@ -612,14 +622,19 @@ namespace fCraft {
         /// <param name="message"> Message to print before "Type /ok to continue". </param>
         /// <param name="args"> Optional String.Format() arguments, for the message. </param>
         [StringFormatMethod( "message" )]
-        public void Confirm( [NotNull] Command cmd, [NotNull] string message, [NotNull] params object[] args ) {
-            if( cmd == null ) throw new ArgumentNullException( "cmd" );
+        public void Confirm( [NotNull] Command cmd, [NotNull] string message, [NotNull] params object[] args ){
+            Confirm( ConfirmCommandCallback, cmd, message, args );
+        }
+
+        [StringFormatMethod( "message" )]
+        public void Confirm( [NotNull] ConfirmationCallback callback, [CanBeNull] object arg, [NotNull] string message, [NotNull] params object[] args ) {
+            if( callback == null ) throw new ArgumentNullException( "cmd" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
-            ConfirmCommand = cmd;
+            ConfirmCallback = callback;
+            ConfirmArgument = arg;
             ConfirmRequestTime = DateTime.UtcNow;
             Message( "{0} Type &H/ok&S to continue.", String.Format( message, args ) );
-            ConfirmCommand.Rewind();
         }
 
         #endregion

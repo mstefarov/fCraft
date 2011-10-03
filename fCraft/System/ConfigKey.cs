@@ -245,7 +245,7 @@ but will also prevent many legitimate players from joining." )]
         AnnounceRankChangeReasons,
 
         [BoolKey(ConfigSection.Security, false,
-@"If enabled, allows edit information to be stored per-block. Enables /blockdb, /bi, and /undox commands.")]
+@"If enabled, allows edit information to be stored per-block. Enables /blockdb, /bi, /undoarea, and /undoplayer commands.")]
         BlockDBEnabled,
 
         [BoolKey( ConfigSection.General, true,

@@ -561,6 +561,87 @@ namespace fCraft {
         }
 
 
+        public BlockDBEntry[] Lookup( [NotNull] PlayerInfo info, [NotNull] BoundingBox area, int max ) {
+            if( !IsEnabled || !IsEnabledGlobally ) {
+                throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
+            }
+            if( info == null ) throw new ArgumentNullException( "info" );
+            if( area == null ) throw new ArgumentNullException( "area" );
+            Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
+            int count = 0;
+
+            if( isPreloaded ) {
+                lock( SyncRoot ) {
+                    fixed( BlockDBEntry* entries = cacheStore ) {
+                        for( int i = CacheSize - 1; i >= 0; i-- ) {
+                            if( entries[i].PlayerID == info.ID && area.Contains( entries[i].X, entries[i].Y, entries[i].Z ) ) {
+                                int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                results[index] = entries[i];
+                                count++;
+                                if( count >= max ) break;
+                            }
+                        }
+                    }
+                }
+            } else {
+                Flush();
+                byte[] bytes = Load();
+                int entryCount = bytes.Length / BlockDBEntry.Size;
+                fixed( byte* parr = bytes ) {
+                    BlockDBEntry* entries = (BlockDBEntry*)parr;
+                    for( int i = entryCount - 1; i >= 0; i-- ) {
+                        if( entries[i].PlayerID == info.ID && area.Contains( entries[i].X, entries[i].Y, entries[i].Z ) ) {
+                            int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                            results[index] = entries[i];
+                            count++;
+                            if( count >= max ) break;
+                        }
+                    }
+                }
+            }
+            return results.Values.ToArray();
+        }
+
+        public BlockDBEntry[] Lookup( [NotNull] PlayerInfo info, [NotNull] BoundingBox area, TimeSpan span ) {
+            if( !IsEnabled || !IsEnabledGlobally ) {
+                throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
+            }
+            if( info == null ) throw new ArgumentNullException( "info" );
+            if( area == null ) throw new ArgumentNullException( "area" );
+            long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
+            Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
+
+            if( isPreloaded ) {
+                lock( SyncRoot ) {
+                    fixed( BlockDBEntry* entries = cacheStore ) {
+                        for( int i = CacheSize - 1; i >= 0; i-- ) {
+                            if( entries[i].Timestamp < ticks ) break;
+                            if( entries[i].PlayerID == info.ID && area.Contains( entries[i].X, entries[i].Y, entries[i].Z ) ) {
+                                int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                results[index] = entries[i];
+                            }
+                        }
+                    }
+                }
+            } else {
+                Flush();
+                byte[] bytes = Load();
+                int entryCount = bytes.Length / BlockDBEntry.Size;
+                fixed( byte* parr = bytes ) {
+                    BlockDBEntry* entries = (BlockDBEntry*)parr;
+                    for( int i = entryCount - 1; i >= 0; i-- ) {
+                        if( entries[i].Timestamp < ticks ) break;
+                        if( entries[i].PlayerID == info.ID && area.Contains( entries[i].X, entries[i].Y, entries[i].Z ) ) {
+                            int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                            results[index] = entries[i];
+                        }
+                    }
+                }
+            }
+            return results.Values.ToArray();
+        }
+
+
         #region Serialization
 
         public const string XmlRootName = "BlockDB";
