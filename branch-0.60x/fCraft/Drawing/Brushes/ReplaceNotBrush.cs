@@ -7,17 +7,15 @@ namespace fCraft.Drawing {
     public sealed class ReplaceNotBrushFactory : IBrushFactory {
         public static readonly ReplaceNotBrushFactory Instance = new ReplaceNotBrushFactory();
 
-        ReplaceNotBrushFactory() { }
+        ReplaceNotBrushFactory() {
+            Aliases = new[] { "rn" };
+        }
 
         public string Name {
             get { return "ReplaceNot"; }
         }
 
-
-        static readonly string[] aliases = new[] { "rn" };
-        public string[] Aliases {
-            get { return aliases; }
-        }
+        public string[] Aliases { get; private set; }
 
         const string HelpString = "ReplaceNot brush: Replaces all blocks except the given type(s) with another type. " +
                                   "Usage similar to &H/replacenot&S command.";

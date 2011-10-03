@@ -6,17 +6,16 @@ namespace fCraft.Drawing {
     public sealed class NormalBrushFactory : IBrushFactory, IBrush {
         public static readonly NormalBrushFactory Instance = new NormalBrushFactory();
 
-        NormalBrushFactory() { }
+        NormalBrushFactory() {
+            Aliases = new[] { "default", "-" };
+        }
 
 
         public string Name {
             get { return "Normal"; }
         }
 
-        static readonly string[] aliases = new[] { "default", "-" };
-        public string[] Aliases {
-            get { return aliases; }
-        }
+        public string[] Aliases { get; private set; }
 
         const string HelpString = "Normal brush: Fills the area with solid color. " +
                                   "If no block name is given, uses the last block that player has placed.";

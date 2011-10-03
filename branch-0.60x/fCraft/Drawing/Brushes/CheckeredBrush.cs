@@ -6,16 +6,15 @@ namespace fCraft.Drawing {
     public sealed class CheckeredBrushFactory : IBrushFactory {
         public static readonly CheckeredBrushFactory Instance = new CheckeredBrushFactory();
 
-        CheckeredBrushFactory() { }
+        CheckeredBrushFactory() {
+            Aliases = new[] { "ch" };
+        }
 
         public string Name {
             get { return "Checkered"; }
         }
 
-        static readonly string[] aliases = new[] { "ch" };
-        public string[] Aliases {
-            get { return aliases; }
-        }
+        public string[] Aliases { get; private set; }
 
         const string HelpString = "Checkered brush: Fills the area with alternating checkered pattern. " +
                                   "If only one block name is given, leaves every other block untouched.";

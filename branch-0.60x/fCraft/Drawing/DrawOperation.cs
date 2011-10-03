@@ -46,7 +46,9 @@ namespace fCraft.Drawing {
 
         public abstract string Name { get; }
 
+// ReSharper disable VirtualMemberNeverOverriden.Global
         public virtual string Description {
+// ReSharper restore VirtualMemberNeverOverriden.Global
             get { return Name; }
         }
 
