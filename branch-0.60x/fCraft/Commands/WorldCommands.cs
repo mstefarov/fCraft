@@ -469,7 +469,25 @@ namespace fCraft {
             Name = "env",
             Category = CommandCategory.World,
             Permissions = new[] { Permission.ManageWorlds },
-            Help = "Sets environmental variables for the current world (if WoM extensions are enabled).",
+            Help = "Prints or changes the environmental variables for a given world. " +
+                   "Variables are: clouds, fog, sky, level, edge. " +
+                   "See &H/help env <Variable>&S for details about each variable. " +
+                   "Type &H/env <WorldName> normal&S to reset everything for a world.",
+            HelpSections = new Dictionary<string, string>{
+                { "normal",     "&H/env <WorldName> normal&S - Resets all environment settings to their defaults for the given world." },
+                { "clouds",     "&H/env <WorldName> clouds <Color>&S - Sets color of the clouds. Use \"normal\" instead of color to reset." },
+                { "fog",        "&H/env <WorldName> fog <Color>&S - Sets color of the fog. " +
+                                "Sky color blends with fog color in the distance. Use \"normal\" instead of color to reset." },
+                { "sky",        "&H/env <WorldName> sky <Color>&S - Sets color of the sky. " +
+                                "Sky color blends with fog color in the distance. Use \"normal\" instead of color to reset." },
+                { "level",      "&H/env <WorldName> level <#>&S - Sets height of the map edges/water level, " +
+                                "in terms of blocks from the bottom of the map. " +
+                                "Use \"normal\" instead of a number to reset to default (halfway up the map)." },
+                { "edge",       "&H/env <WorldName> edge <BlockType>&S - Changes the type of block that's visible beyond the map boundaries. "+
+                                "Use \"normal\" instead of a number to reset to default (water)." }
+            },
+            Usage = "/env <WorldName> <Variable>",
+            IsConsoleSafe = true,
             Handler = EnvHandler
         };
 
@@ -482,6 +500,10 @@ namespace fCraft {
             World world;
             if( worldName == null ) {
                 world = player.World;
+                if( world == null ) {
+                    player.Message( "When used from console, /env requires a world name." );
+                    return;
+                }
             } else {
                 world = WorldManager.FindWorldOrPrintMatches( player, worldName );
                 if( world == null ) return;
