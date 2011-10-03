@@ -1329,7 +1329,7 @@ namespace fCraft {
             string name = cmd.Next();
             string range = cmd.Next();
             if( name == null || range == null ) {
-                CdUndoPlayer.PrintUsage( player );
+                CdUndoArea.PrintUsage( player );
                 return;
             }
 

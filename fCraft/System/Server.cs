@@ -410,7 +410,7 @@ namespace fCraft {
             if( ConfigKey.RestartInterval.GetInt() > 0 ) {
                 TimeSpan restartIn = TimeSpan.FromSeconds( ConfigKey.RestartInterval.GetInt() );
                 Shutdown( new ShutdownParams( ShutdownReason.Restarting, restartIn, true, true ), false );
-                ChatTimer.Start( restartIn, "Automatic Server Restart" );
+                ChatTimer.Start( restartIn, "Automatic Server Restart", Player.Console.Name );
             }
 
             if( ConfigKey.IRCBotEnabled.Enabled() ) IRC.Start();
@@ -505,19 +505,24 @@ namespace fCraft {
                 Name = "fCraft.Shutdown"
             };
             if( shutdownParams.Delay >= ChatTimer.MinDuration ) {
-                if( shutdownParams.Restart ) {
-                    shutdownTimer = ChatTimer.Start( shutdownParams.Delay,
-                                                     "Server restart (" + shutdownParams.ReasonString + ")" );
+                string timerMsg = String.Format( "Server {0} ({1})",
+                                                 shutdownParams.Restart ? "restart" : "shutdown",
+                                                 shutdownParams.ReasonString );
+                string nameOnTimer;
+                if( shutdownParams.InitiatedBy == null ) {
+                    nameOnTimer = Player.Console.Name;
                 } else {
-                    shutdownTimer = ChatTimer.Start( shutdownParams.Delay,
-                                                     "Server shutdown (" + shutdownParams.ReasonString + ")" );
+                    nameOnTimer = shutdownParams.InitiatedBy.Name;
                 }
+                shutdownTimer = ChatTimer.Start( shutdownParams.Delay, timerMsg, nameOnTimer );
             }
             shutdownThread.Start( shutdownParams );
             if( waitForShutdown ) {
                 ShutdownWaiter.WaitOne();
             }
         }
+
+
         static ChatTimer shutdownTimer;
 
 
