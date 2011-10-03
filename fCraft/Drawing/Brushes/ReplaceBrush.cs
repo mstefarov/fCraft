@@ -7,16 +7,15 @@ namespace fCraft.Drawing {
     public sealed class ReplaceBrushFactory : IBrushFactory {
         public static readonly ReplaceBrushFactory Instance = new ReplaceBrushFactory();
 
-        ReplaceBrushFactory() { }
+        ReplaceBrushFactory() {
+            Aliases = new[] { "r" };
+        }
 
         public string Name {
             get { return "Replace"; }
         }
 
-        static readonly string[] aliases = new[] { "r" };
-        public string[] Aliases {
-            get { return aliases; }
-        }
+        public string[] Aliases { get; private set; }
 
         const string HelpString = "Replace brush: Replaces blocks of a given type(s) with another type. " +
                                   "Usage similar to &H/replace&S command.";

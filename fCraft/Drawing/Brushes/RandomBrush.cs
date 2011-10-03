@@ -9,16 +9,15 @@ namespace fCraft.Drawing {
     public sealed class RandomBrushFactory : IBrushFactory {
         public static readonly RandomBrushFactory Instance = new RandomBrushFactory();
 
-        RandomBrushFactory() { }
+        RandomBrushFactory() {
+            Aliases = new[] { "rand" };
+        }
 
         public string Name {
             get { return "Random"; }
         }
 
-        static readonly string[] aliases = new[] { "rand" };
-        public string[] Aliases {
-            get { return aliases; }
-        }
+        public string[] Aliases { get; private set; }
 
         const string HelpString = "Random brush: Chaotic pattern of two or more random block types. " +
                                   "If only one block name is given, leaves every other block untouched.";

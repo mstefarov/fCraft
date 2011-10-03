@@ -628,7 +628,7 @@ namespace fCraft {
 
         [StringFormatMethod( "message" )]
         public void Confirm( [NotNull] ConfirmationCallback callback, [CanBeNull] object arg, [NotNull] string message, [NotNull] params object[] args ) {
-            if( callback == null ) throw new ArgumentNullException( "cmd" );
+            if( callback == null ) throw new ArgumentNullException( "callback" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
             ConfirmCallback = callback;
