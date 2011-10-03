@@ -1109,6 +1109,8 @@ namespace fCraft {
 
         #region Mute / Unmute
 
+        static readonly TimeSpan MaxMuteDuration = TimeSpan.FromDays( 700 ); // 100w0d
+
         static readonly CommandDescriptor CdMute = new CommandDescriptor {
             Name = "mute",
             Category = CommandCategory.Moderation | CommandCategory.Chat,
@@ -1130,6 +1132,11 @@ namespace fCraft {
                 duration <= TimeSpan.Zero ) {
                 CdMute.PrintUsage( player );
                 return;
+            }
+
+            if( duration > MaxMuteDuration ) {
+                player.Message( "Maximum mute duration is {0}.", MaxMuteDuration.ToMiniString() );
+                duration = MaxMuteDuration;
             }
 
             // find the target
