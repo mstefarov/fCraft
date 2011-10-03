@@ -292,7 +292,7 @@ namespace fCraft {
 
         public bool Can( Permission permission, [NotNull] Rank other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            return GetLimit( permission ) >= other;
+            return Permissions[(int)permission] && GetLimit( permission ) >= other;
         }
 
 

@@ -1,11 +1,20 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using JetBrains.Annotations;
 
 namespace fCraft {
     public sealed class ChatTimer {
-        public static readonly TimeSpan MinDuration = TimeSpan.FromSeconds( 1 ),
-                                        Hour = TimeSpan.FromHours( 1 );
+        public static readonly TimeSpan MinDuration = TimeSpan.FromSeconds( 1 );
+        static readonly TimeSpan Hour = TimeSpan.FromHours( 1 );
 
+        public readonly int Id;
+
+        public bool IsRunning { get; private set; }
+
+        [CanBeNull]
         public string Message { get; private set; }
 
         public DateTime StartTime { get; private set; }
@@ -20,18 +29,16 @@ namespace fCraft {
             }
         }
 
+        public string StartedBy { get; private set; }
+
+
         readonly SchedulerTask task;
+        int announceIntervalIndex, lastHourAnnounced;
 
-        int announceIntervalIndex;
 
-        public bool IsRunning { get; private set; }
-
-        public void Stop() {
-            IsRunning = false;
-            task.Stop();
-        }
-
-        ChatTimer( TimeSpan duration, string message ) {
+        ChatTimer( TimeSpan duration, string message, [NotNull] string startedBy ) {
+            if( startedBy == null ) throw new ArgumentNullException( "startedBy" );
+            StartedBy = startedBy;
             Message = message;
             StartTime = DateTime.UtcNow;
             EndTime = StartTime.Add( duration );
@@ -49,14 +56,14 @@ namespace fCraft {
                 }
             }
             task = Scheduler.NewTask( TimerCallback, this );
+            Id = Interlocked.Increment( ref timerCounter );
+            AddTimerToList( this );
             IsRunning = true;
             task.RunRepeating( TimeSpan.Zero,
                                TimeSpan.FromSeconds( 1 ),
                                oneSecondRepeats );
         }
 
-
-        int lastHourAnnounced;
         static void TimerCallback( SchedulerTask task ) {
             ChatTimer timer = (ChatTimer)task.UserState;
             if( task.MaxRepeats == 1 ) {
@@ -65,7 +72,7 @@ namespace fCraft {
                 } else {
                     Chat.SendSay( Player.Console, "(Timer Up) " + timer.Message );
                 }
-                timer.IsRunning = false;
+                timer.Stop();
 
             } else if( timer.announceIntervalIndex >= 0 ) {
                 if( timer.lastHourAnnounced != (int)timer.TimeLeft.TotalHours ) {
@@ -90,14 +97,22 @@ namespace fCraft {
             }
         }
 
+        public void Stop() {
+            IsRunning = false;
+            task.Stop();
+            RemoveTimerFromList( this );
+        }
 
-        public static ChatTimer Start( TimeSpan duration, string message ) {
+
+        #region Static
+
+        public static ChatTimer Start( TimeSpan duration, string message, [NotNull] string startedBy ) {
+            if( startedBy == null ) throw new ArgumentNullException( "startedBy" );
             if( duration < MinDuration ) {
                 throw new ArgumentException( "Timer duration should be at least 1s", "duration" );
             }
-            return new ChatTimer( duration, message );
+            return new ChatTimer( duration, message, startedBy );
         }
-
 
         static readonly TimeSpan[] AnnounceIntervals = new[] {
             TimeSpan.FromSeconds(1),
@@ -121,5 +136,42 @@ namespace fCraft {
             TimeSpan.FromMinutes(40),
             TimeSpan.FromMinutes(50)
         };
+
+        static int timerCounter;
+        static readonly object TimerListLock = new object();
+        static readonly Dictionary<int, ChatTimer> Timers = new Dictionary<int, ChatTimer>();
+
+        static void AddTimerToList( ChatTimer timer ) {
+            lock( TimerListLock ) {
+                Timers.Add( timer.Id, timer );
+            }
+        }
+
+        static void RemoveTimerFromList( ChatTimer timer ) {
+            lock( TimerListLock ) {
+                Timers.Remove( timer.Id );
+            }
+        }
+
+        public static ChatTimer[] TimerList {
+            get {
+                lock( TimerListLock ) {
+                    return Timers.Values.ToArray();
+                }
+            }
+        }
+
+        public static ChatTimer FindTimerById( int id ) {
+            lock( TimerListLock ) {
+                ChatTimer result;
+                if( Timers.TryGetValue( id, out result ) ) {
+                    return result;
+                } else {
+                    return null;
+                }
+            }
+        }
+
+        #endregion
     }
 }

@@ -62,15 +62,12 @@ namespace fCraft {
 }
 
 namespace fCraft.Events {
-
-    // ReSharper disable MemberCanBeProtected.Global
     public class PlayerInfoEventArgs : EventArgs {
-        public PlayerInfoEventArgs( PlayerInfo playerInfo ) {
+        protected PlayerInfoEventArgs( PlayerInfo playerInfo ) {
             PlayerInfo = playerInfo;
         }
         public PlayerInfo PlayerInfo { get; private set; }
     }
-    // ReSharper restore MemberCanBeProtected.Global
 
 
     public sealed class PlayerInfoCreatingEventArgs : EventArgs, ICancellableEvent {

@@ -1,5 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace fCraft {
     static class ChatCommands {
@@ -305,24 +307,61 @@ namespace fCraft {
             Permissions = new[] { Permission.Say },
             IsConsoleSafe = true,
             Category = CommandCategory.Chat,
-            Usage = "/timer Duration Message",
+            Usage = "/timer <Duration> <Message>",
             Help = "Starts a timer with a given duration and message. " +
-                   "As the timer counts down, announcements are shown globally.",
+                   "As the timer counts down, announcements are shown globally. See also: &H/help timer abort",
+            HelpSections = new Dictionary<string, string> {
+                { "abort",  "&H/timer abort <TimerID>&S - Aborts a timer with the given ID number. " +
+                            "To see a list of timers and their IDs, type &H/timer&S without any parameters." }
+            },
             Handler = TimerHandler
         };
 
         static void TimerHandler( Player player, Command cmd ) {
+            string param = cmd.Next();
+
+            // List timers
+            if( param == null ) {
+                ChatTimer[] list = ChatTimer.TimerList.OrderBy( timer => timer.TimeLeft ).ToArray();
+                if( list.Length == 0 ) {
+                    player.Message( "No timers running." );
+                } else {
+                    player.Message( "There are {0} timers running:", list.Length );
+                    foreach( ChatTimer timer in list ) {
+                        player.Message( "  #{0} \"{1}\" (started by {2}, {3} left)",
+                                        timer.Id, timer.Message, timer.StartedBy, timer.TimeLeft.ToMiniString() );
+                    }
+                }
+                return;
+            }
+
+            // Abort a timer
+            if( param.Equals( "abort", StringComparison.OrdinalIgnoreCase ) ) {
+                int timerId;
+                if( cmd.NextInt( out timerId ) ) {
+                    ChatTimer timer = ChatTimer.FindTimerById( timerId );
+                    if( timer == null || !timer.IsRunning ) {
+                        player.Message( "Given timer (#{0}) does not exist.", timerId );
+                    } else {
+                        timer.Stop();
+                        string abortMsg = String.Format( "&Y(Timer) {0}&Y aborted a timer with {1} left: {2}",
+                                                         player.ClassyName, timer.TimeLeft.ToMiniString(), timer.Message );
+                        Chat.SendSay( player, abortMsg );
+                    }
+                } else {
+                    CdTimer.PrintUsage( player );
+                }
+                return;
+            }
+
+            // Start a timer
             if( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
             }
-
             if( player.DetectChatSpam() ) return;
-
-            string time = cmd.Next();
-            string message = cmd.NextAll();
             TimeSpan duration;
-            if( time == null || !time.TryParseMiniTimespan( out duration ) ) {
+            if( !param.TryParseMiniTimespan( out duration ) ) {
                 CdTimer.PrintUsage( player );
                 return;
             }
@@ -330,7 +369,9 @@ namespace fCraft {
                 player.Message( "Timer: Must be at least 1 second." );
                 return;
             }
+
             string sayMessage;
+            string message = cmd.NextAll();
             if( String.IsNullOrEmpty( message ) ) {
                 sayMessage = String.Format( "&Y(Timer) {0}&Y started a {1} timer",
                                             player.ClassyName,
@@ -342,7 +383,7 @@ namespace fCraft {
                                             message );
             }
             Chat.SendSay( player, sayMessage );
-            ChatTimer.Start( duration, message );
+            ChatTimer.Start( duration, message, player.Name );
         }
 
         #endregion
