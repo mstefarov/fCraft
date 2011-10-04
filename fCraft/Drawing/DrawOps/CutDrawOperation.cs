@@ -56,7 +56,7 @@ namespace fCraft.Drawing {
             Player.Message( "Origin at {0} {1}{2} corner.",
                             (copyInfo.Height > 0 ? "bottom" : "top"),
                             (copyInfo.Length > 0 ? "south" : "north"),
-                            (copyInfo.Width > 0 ? "west" : "east") );
+                            (copyInfo.Width > 0 ? "east" : "west") );
             return true;
         }
 
