@@ -680,7 +680,7 @@ namespace fCraft {
             player.MessageNow( "Origin at {0} {1}{2} corner.",
                                (copyInfo.Height > 0 ? "bottom" : "top"),
                                (copyInfo.Length > 0 ? "south" : "north"),
-                               (copyInfo.Width > 0 ? "west" : "east") );
+                               (copyInfo.Width > 0 ? "east" : "west") );
 
             Logger.Log( "{0} copied {1} blocks from {2}.", LogType.UserActivity,
                         player.Name, volume, player.World.Name );
