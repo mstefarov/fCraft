@@ -53,6 +53,7 @@ namespace fCraft {
         /// <summary> Returns value of a given command-line argument (if present). Use HasArg to check flag arguments. </summary>
         /// <param name="key"> Command-line argument name (enumerated) </param>
         /// <returns> Value of the command-line argument, or null if this argument was not set or argument is a flag. </returns>
+        [CanBeNull]
         public static string GetArg( ArgKey key ) {
             if( Args.ContainsKey( key ) ) {
                 return Args[key];
@@ -141,8 +142,9 @@ namespace fCraft {
             Directory.SetCurrentDirectory( Paths.WorkingPath );
 
             // set custom working path (if specified)
-            if( HasArg( ArgKey.Path ) && Paths.TestDirectory( "WorkingPath", GetArg( ArgKey.Path ), true ) ) {
-                Paths.WorkingPath = Path.GetFullPath( GetArg( ArgKey.Path ) );
+            string path = GetArg( ArgKey.Path );
+            if( path != null && Paths.TestDirectory( "WorkingPath", path, true ) ) {
+                Paths.WorkingPath = Path.GetFullPath( path );
                 Directory.SetCurrentDirectory( Paths.WorkingPath );
             } else if( Paths.TestDirectory( "WorkingPath", Paths.WorkingPathDefault, true ) ) {
                 Paths.WorkingPath = Path.GetFullPath( Paths.WorkingPathDefault );
@@ -152,8 +154,9 @@ namespace fCraft {
             }
 
             // set log path
-            if( HasArg( ArgKey.LogPath ) && Paths.TestDirectory( "LogPath", GetArg( ArgKey.LogPath ), true ) ) {
-                Paths.LogPath = Path.GetFullPath( GetArg( ArgKey.LogPath ) );
+            string logPath = GetArg( ArgKey.LogPath );
+            if( logPath != null && Paths.TestDirectory( "LogPath", logPath, true ) ) {
+                Paths.LogPath = Path.GetFullPath( logPath );
             } else if( Paths.TestDirectory( "LogPath", Paths.LogPathDefault, true ) ) {
                 Paths.LogPath = Path.GetFullPath( Paths.LogPathDefault );
             } else {
@@ -167,8 +170,9 @@ namespace fCraft {
             }
 
             // set map path
-            if( HasArg( ArgKey.MapPath ) && Paths.TestDirectory( "MapPath", GetArg( ArgKey.MapPath ), true ) ) {
-                Paths.MapPath = Path.GetFullPath( GetArg( ArgKey.MapPath ) );
+            string mapPath = GetArg( ArgKey.MapPath );
+            if( mapPath != null && Paths.TestDirectory( "MapPath", mapPath, true ) ) {
+                Paths.MapPath = Path.GetFullPath( mapPath );
                 Paths.IgnoreMapPathConfigKey = true;
             } else if( Paths.TestDirectory( "MapPath", Paths.MapPathDefault, true ) ) {
                 Paths.MapPath = Path.GetFullPath( Paths.MapPathDefault );
@@ -178,10 +182,10 @@ namespace fCraft {
 
             // set config path
             Paths.ConfigFileName = Paths.ConfigFileNameDefault;
-            if( HasArg( ArgKey.Config ) ) {
-                string fileName = GetArg( ArgKey.Config );
-                if( Paths.TestFile( "config.xml", fileName, false, true, false ) ) {
-                    Paths.ConfigFileName = new FileInfo( fileName ).FullName;
+            string configFile = GetArg( ArgKey.Config );
+            if( configFile != null ) {
+                if( Paths.TestFile( "config.xml", configFile, false, true, false ) ) {
+                    Paths.ConfigFileName = new FileInfo( configFile ).FullName;
                 }
             }
 
@@ -711,8 +715,7 @@ namespace fCraft {
             if( lines.Length == 0 ) return;
             string line = lines[new Random().Next( 0, lines.Length )].Trim();
             if( line.Length == 0 ) return;
-            foreach( Player player in Players ) {
-                if( player.World == null ) continue;
+            foreach( Player player in Players.Where( player => player.World != null ) ) {
                 player.Message( "&R" + ReplaceTextKeywords( player, line ) );
             }
         }
@@ -1073,14 +1076,13 @@ namespace fCraft {
             List<Player> results = new List<Player>();
             Player[] tempList = Players;
             for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && player.CanSee( tempList[i] ) ) {
-                    if( tempList[i].Name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
-                        results.Clear();
-                        results.Add( tempList[i] );
-                        break;
-                    } else if( tempList[i].Name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
-                        results.Add( tempList[i] );
-                    }
+                if( tempList[i] == null || !player.CanSee( tempList[i] ) ) continue;
+                if( tempList[i].Name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
+                    results.Clear();
+                    results.Add( tempList[i] );
+                    break;
+                } else if( tempList[i].Name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
+                    results.Add( tempList[i] );
                 }
             }
             if( raiseEvent ) {
@@ -1102,6 +1104,7 @@ namespace fCraft {
         /// <param name="includeHidden"> Whether to include hidden players in the search. </param>
         /// <param name="raiseEvent"> Whether to raise Server.SearchingForPlayer event. </param>
         /// <returns> Player object, or null if no player was found. </returns>
+        [CanBeNull]
         public static Player FindPlayerOrPrintMatches( [NotNull] Player player, [NotNull] string name, bool includeHidden, bool raiseEvent ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -1129,6 +1132,7 @@ namespace fCraft {
         /// <summary> Finds a player by name, without any kind of autocompletion. </summary>
         /// <param name="name"> Name of the player (case-insensitive). </param>
         /// <returns> Player object, or null if player was not found. </returns>
+        [CanBeNull]
         public static Player FindPlayerExact( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             return Players.FirstOrDefault( t => t != null &&

@@ -32,6 +32,7 @@ namespace fCraft.AutoRank {
         /// <summary> Checks whether a given player is due for a promotion or demotion. </summary>
         /// <param name="info"> PlayerInfo to check. </param>
         /// <returns> Null if no rank change is needed, or a rank to promote/demote to. </returns>
+        [CanBeNull]
         public static Rank Check( [NotNull] PlayerInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
             // ReSharper disable LoopCanBeConvertedToQuery

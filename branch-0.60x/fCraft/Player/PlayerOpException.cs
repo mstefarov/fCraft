@@ -86,10 +86,18 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( action == null ) throw new ArgumentNullException( "action" );
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
-            string msg = String.Format( "You need to be ranked {0}+ to {1}.",
-                                        RankManager.GetMinRankWithAllPermissions( permissions ).Name, action );
-            string colorMsg = String.Format( "&SYou need to be ranked {0}&S+ to {1}.",
-                                             RankManager.GetMinRankWithAllPermissions( permissions ).ClassyName, action );
+            Rank minRank = RankManager.GetMinRankWithAllPermissions( permissions );
+            string msg, colorMsg;
+            if( minRank != null ) {
+                msg = String.Format( "You need to be ranked {0}+ to {1}.",
+                                     minRank.Name, action );
+                colorMsg = String.Format( "&SYou need to be ranked {0}&S+ to {1}.",
+                                          minRank.ClassyName, action );
+            } else {
+                msg = String.Format( "No one is allowed to {0} on this server.", action );
+                colorMsg = String.Format( "&SNo one is allowed to {0} on this server.", action );
+            }
+
             throw new PlayerOpException( player, target, PlayerOpExceptionCode.PermissionMissing, msg, colorMsg );
         }
 

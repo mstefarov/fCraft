@@ -36,7 +36,7 @@ namespace fCraft {
         int announceIntervalIndex, lastHourAnnounced;
 
 
-        ChatTimer( TimeSpan duration, string message, [NotNull] string startedBy ) {
+        ChatTimer( TimeSpan duration, [CanBeNull] string message, [NotNull] string startedBy ) {
             if( startedBy == null ) throw new ArgumentNullException( "startedBy" );
             StartedBy = startedBy;
             Message = message;
@@ -64,7 +64,8 @@ namespace fCraft {
                                oneSecondRepeats );
         }
 
-        static void TimerCallback( SchedulerTask task ) {
+        static void TimerCallback( [NotNull] SchedulerTask task ) {
+            if( task == null ) throw new ArgumentNullException( "task" );
             ChatTimer timer = (ChatTimer)task.UserState;
             if( task.MaxRepeats == 1 ) {
                 if( String.IsNullOrEmpty( timer.Message ) ) {
@@ -106,7 +107,7 @@ namespace fCraft {
 
         #region Static
 
-        public static ChatTimer Start( TimeSpan duration, string message, [NotNull] string startedBy ) {
+        public static ChatTimer Start( TimeSpan duration, [CanBeNull] string message, [NotNull] string startedBy ) {
             if( startedBy == null ) throw new ArgumentNullException( "startedBy" );
             if( duration < MinDuration ) {
                 throw new ArgumentException( "Timer duration should be at least 1s", "duration" );
@@ -141,17 +142,21 @@ namespace fCraft {
         static readonly object TimerListLock = new object();
         static readonly Dictionary<int, ChatTimer> Timers = new Dictionary<int, ChatTimer>();
 
-        static void AddTimerToList( ChatTimer timer ) {
+        static void AddTimerToList( [NotNull] ChatTimer timer ) {
+            if( timer == null ) throw new ArgumentNullException( "timer" );
             lock( TimerListLock ) {
                 Timers.Add( timer.Id, timer );
             }
         }
 
-        static void RemoveTimerFromList( ChatTimer timer ) {
+
+        static void RemoveTimerFromList( [NotNull] ChatTimer timer ) {
+            if( timer == null ) throw new ArgumentNullException( "timer" );
             lock( TimerListLock ) {
                 Timers.Remove( timer.Id );
             }
         }
+
 
         public static ChatTimer[] TimerList {
             get {
@@ -161,6 +166,7 @@ namespace fCraft {
             }
         }
 
+        [CanBeNull]
         public static ChatTimer FindTimerById( int id ) {
             lock( TimerListLock ) {
                 ChatTimer result;

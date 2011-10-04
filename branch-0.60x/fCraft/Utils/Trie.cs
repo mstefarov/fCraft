@@ -44,6 +44,7 @@ namespace fCraft {
 
 
         // Find a node that exactly matches the given key
+        [CanBeNull]
         TrieNode GetNode( [NotNull] string key ) {
             if( key == null ) throw new ArgumentNullException( "key" );
 
@@ -221,6 +222,7 @@ namespace fCraft {
         /// <summary> Get payload for an exact key (no autocompletion). </summary>
         /// <param name="key"> Full key. </param>
         /// <returns> Payload object, if found. Null if not found. </returns>
+        [CanBeNull]
         public T Get( [NotNull] string key ) {
             if( key == null ) throw new ArgumentNullException( "key" );
             TrieNode node = GetNode( key );

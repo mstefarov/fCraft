@@ -54,14 +54,13 @@ namespace fCraft {
         /// <summary> Removes all zones from the collection. </summary>
         public void Clear() {
             lock( syncRoot ) {
-                if( store.Count > 0 ) {
-                    foreach( Zone zone in store.Values ) {
-                        zone.Changed -= OnZoneChanged;
-                    }
-                    store.Clear();
-                    UpdateCache();
-                    RaiseChangedEvent();
+                if( store.Count <= 0 ) return;
+                foreach( Zone zone in store.Values ) {
+                    zone.Changed -= OnZoneChanged;
                 }
+                store.Clear();
+                UpdateCache();
+                RaiseChangedEvent();
             }
         }
 
@@ -198,6 +197,7 @@ namespace fCraft {
         /// <param name="player"> Player to check. </param>
         /// <returns> First zone to deny the player.
         /// null if none of the zones deny the player. </returns>
+        [CanBeNull]
         public Zone FindDenied( int x, int y, int z, [NotNull] Player player ) {
             // ReSharper disable LoopCanBeConvertedToQuery
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -218,6 +218,7 @@ namespace fCraft {
         /// <param name="name"> Full zone name. </param>
         /// <returns> Zone object if it was found.
         /// null if no Zone with the given name could be found. </returns>
+        [CanBeNull]
         public Zone FindExact( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             lock( syncRoot ) {
@@ -236,6 +237,7 @@ namespace fCraft {
         /// <param name="name"> Full zone name. </param>
         /// <returns> Zone object if it was found.
         /// null if no Zone with the given name could be found. </returns>
+        [CanBeNull]
         public Zone Find( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             // try to find exact match

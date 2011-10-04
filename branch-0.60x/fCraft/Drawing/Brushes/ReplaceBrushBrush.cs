@@ -22,7 +22,7 @@ namespace fCraft.Drawing {
             get { return HelpString; }
         }
 
-
+        [CanBeNull]
         public IBrush MakeBrush( [NotNull] Player player, [NotNull] Command cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
@@ -92,6 +92,7 @@ namespace fCraft.Drawing {
         }
 
 
+        [CanBeNull]
         public IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] Command cmd, [NotNull] DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );

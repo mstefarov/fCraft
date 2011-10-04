@@ -516,26 +516,30 @@ namespace fCraft {
 
 
 
-        internal bool ProcessBan( [CanBeNull] Player bannedBy, [NotNull] string bannedByName, [NotNull] string banReason ) {
+        internal bool ProcessBan( [NotNull] Player bannedBy, [NotNull] string bannedByName, [NotNull] string banReason ) {
+            if( bannedBy == null ) throw new ArgumentNullException( "bannedBy" );
             if( bannedByName == null ) throw new ArgumentNullException( "bannedByName" );
             if( banReason == null ) throw new ArgumentNullException( "banReason" );
             lock( actionLock ) {
-                if( !IsBanned ) {
-                    BanStatus = BanStatus.Banned;
-                    BannedBy = bannedByName;
-                    BanDate = DateTime.UtcNow;
-                    BanReason = banReason;
-                    if( bannedBy != null ) {
-                        Interlocked.Increment( ref bannedBy.Info.TimesBannedOthers );
-                    }
-                    Unmute();
-                    Unfreeze();
-                    IsHidden = false;
-                    LastModified = DateTime.UtcNow;
-                    return true;
-                } else {
+                if( IsBanned ) {
                     return false;
                 }
+                BanStatus = BanStatus.Banned;
+                BannedBy = bannedByName;
+                BanDate = DateTime.UtcNow;
+                BanReason = banReason;
+                Interlocked.Increment( ref bannedBy.Info.TimesBannedOthers );
+                Unmute();
+                if( IsFrozen ) {
+                    try {
+                        Unfreeze( bannedBy, false, true );
+                    } catch( PlayerOpException ex ) {
+                        Logger.Log( "PlayerInfo.ProcessBan: {0}", LogType.Warning, ex.Message );
+                    }
+                }
+                IsHidden = false;
+                LastModified = DateTime.UtcNow;
+                return true;
             }
         }
 
@@ -711,6 +715,107 @@ namespace fCraft {
                                         reason );
                     }
                 }
+            }
+        }
+
+        public void Freeze( [NotNull] Player player, bool announce, bool raiseEvents ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+
+            // Check if player is trying to freeze self
+            if( player.Info == this ) {
+                PlayerOpException.ThrowCannotTargetSelf( player, this, "freeze" );
+            }
+
+            lock( actionLock ) {
+                // Check if player can freeze in general
+                if( !player.Can( Permission.Freeze ) ) {
+                    PlayerOpException.ThrowPermissionMissing( player, this, "freeze", Permission.Freeze );
+                }
+
+                // Check if player has sufficient rank permissions
+                if( !player.Can( Permission.Freeze, Rank ) ) {
+                    PlayerOpException.ThrowPermissionLimit( player, this, "freeze", Permission.Freeze );
+                }
+
+                // Check if target is already frozen
+                if( IsFrozen ) {
+                    string msg = String.Format( "Player {0} is already frozen.", Name );
+                    string colorMsg = String.Format( "&SPlayer {0}&S is already frozen.", ClassyName );
+                    throw new PlayerOpException( player, this, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
+                }
+
+                // Raise PlayerInfo.FreezeChanging event
+                if( raiseEvents && RaiseFreezeChangingEvent( this, player, false ) ) {
+                    PlayerOpException.ThrowCancelled( player, this );
+                }
+
+                // Actually freeze
+                IsFrozen = true;
+                IsHidden = false;
+                FrozenOn = DateTime.UtcNow;
+                FrozenBy = player.Name;
+                LastModified = DateTime.UtcNow;
+
+                // Log and announce
+                Logger.Log( "{0} froze {1}", LogType.UserActivity, player.Name, Name );
+                if( announce ) {
+                    Player target = PlayerObject;
+                    if( target != null ) {
+                        target.Message( "&WYou were frozen by {0}", player.ClassyName );
+                    }
+                    Server.Message( target, "&SPlayer {0}&S was frozen by {1}",
+                                            ClassyName, player.ClassyName );
+                }
+
+                // Raise PlayerInfo.FreezeChanged event
+                if( raiseEvents ) RaiseFreezeChangedEvent( this, player, false );
+            }
+        }
+
+
+        public void Unfreeze( [NotNull] Player player, bool announce, bool raiseEvents ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+
+            // Check if player is trying to freeze self
+            if( player.Info == this ) {
+                PlayerOpException.ThrowCannotTargetSelf( player, this, "unfreeze" );
+            }
+
+            lock( actionLock ) {
+                // Check if player can freeze in general
+                if( !player.Can( Permission.Freeze ) ) {
+                    PlayerOpException.ThrowPermissionMissing( player, this, "unfreeze", Permission.Freeze );
+                }
+
+                // Check if target is already frozen
+                if( !IsFrozen ) {
+                    string msg = String.Format( "Player {0} is not currently frozen.", Name );
+                    string colorMsg = String.Format( "&SPlayer {0}&S is not currently frozen.", ClassyName );
+                    throw new PlayerOpException( player, this, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
+                }
+
+                // Raise PlayerInfo.FreezeChanging event
+                if( raiseEvents && RaiseFreezeChangingEvent( this, player, true ) ) {
+                    PlayerOpException.ThrowCancelled( player, this );
+                }
+
+                // Actually unfreeze
+                IsFrozen = false;
+                LastModified = DateTime.UtcNow;
+
+                // Log and announce unfreeze
+                Logger.Log( "{0} unfroze {1}", LogType.UserActivity, player.Name, Name );
+                if( announce ) {
+                    Player target = PlayerObject;
+                    if( target != null ) {
+                        target.Message( "&WYou were unfrozen by {0}", player.ClassyName );
+                    }
+                    Server.Message( target, "&SPlayer {0}&S was unfrozen by {1}",
+                                            ClassyName, player.ClassyName );
+                }
+
+                // Raise PlayerInfo.FreezeChanged event
+                if( raiseEvents ) RaiseFreezeChangedEvent( this, player, true );
             }
         }
     }

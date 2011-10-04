@@ -16,6 +16,7 @@ namespace fCraft.Drawing {
             get { return "Rainbow"; }
         }
 
+        [CanBeNull]
         public string[] Aliases {
             get { return null; }
         }

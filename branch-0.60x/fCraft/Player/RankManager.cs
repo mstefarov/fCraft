@@ -67,6 +67,7 @@ namespace fCraft {
         /// <summary> Parses rank name (without the ID) using autocompletion. </summary>
         /// <param name="name"> Full or partial rank name. </param>
         /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. </returns>
+        [CanBeNull]
         public static Rank FindRank( string name ) {
             if( name == null ) return null;
 
@@ -89,6 +90,7 @@ namespace fCraft {
 
         /// <summary> Finds rank by index. Rank at index 0 is the highest. </summary>
         /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. </returns>
+        [CanBeNull]
         public static Rank FindRank( int index ) {
             if( index < 0 || index >= Ranks.Count ) {
                 return null;
@@ -221,6 +223,7 @@ namespace fCraft {
         /// <summary> Finds the lowest rank that has all the required permissions. </summary>
         /// <param name="permissions"> One or more permissions to check for. </param>
         /// <returns> A relevant Rank object, or null of none were found. </returns>
+        [CanBeNull]
         public static Rank GetMinRankWithAllPermissions( [NotNull] params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
             for( int r = Ranks.Count - 1; r >= 0; r-- ) {
@@ -235,6 +238,7 @@ namespace fCraft {
         /// <summary> Finds the lowest rank that has all the required permissions. </summary>
         /// <param name="permissions"> One or more permissions to check for. </param>
         /// <returns> A relevant Rank object, or null of none were found. </returns>
+        [CanBeNull]
         public static Rank GetMinRankWithAnyPermission( [NotNull] params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
             for( int r = Ranks.Count - 1; r >= 0; r-- ) {

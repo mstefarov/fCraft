@@ -20,6 +20,11 @@ namespace fCraft {
         /// Can be assigned directly. </summary>
         public bool IsHidden { get; set; }
 
+        public bool IsVisible( [NotNull] Player observer ) {
+            if( observer == null ) throw new ArgumentNullException( "observer" );
+            return observer.CanJoin( this ) && !IsHidden;
+        }
+
 
         /// <summary> Whether this world is currently pending unload 
         /// (waiting for block updates to finish processing before unloading). </summary>
@@ -218,6 +223,7 @@ namespace fCraft {
         readonly Dictionary<string, Player> playerIndex = new Dictionary<string, Player>();
         public Player[] Players { get; private set; }
 
+        [CanBeNull]
         public Map AcceptPlayer( [NotNull] Player player, bool announce ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
@@ -302,6 +308,7 @@ namespace fCraft {
 
 
         // Find player by name using autocompletion
+        [CanBeNull]
         public Player FindPlayer( [NotNull] string playerName ) {
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
             Player[] tempList = Players;
@@ -340,6 +347,7 @@ namespace fCraft {
 
 
         /// <summary> Gets player by name (without autocompletion) </summary>
+        [CanBeNull]
         public Player FindPlayerExact( [NotNull] string playerName ) {
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
             Player[] tempList = Players;
@@ -629,32 +637,5 @@ namespace fCraft {
         public override string ToString() {
             return String.Format( "World({0})", Name );
         }
-    }
-}
-
-
-namespace fCraft.Events {
-    public sealed class WorldCreatingEventArgs : EventArgs, ICancellableEvent {
-        public WorldCreatingEventArgs( Player player, string worldName, Map map ) {
-            Player = player;
-            WorldName = worldName;
-            Map = map;
-        }
-
-        public Player Player { get; private set; }
-        public string WorldName { get; set; }
-        public Map Map { get; private set; }
-        public bool Cancel { get; set; }
-    }
-
-
-    public sealed class WorldCreatedEventArgs : EventArgs, IPlayerEvent, IWorldEvent {
-        public WorldCreatedEventArgs( Player player, World world ) {
-            Player = player;
-            World = world;
-        }
-
-        public Player Player { get; private set; }
-        public World World { get; private set; }
     }
 }

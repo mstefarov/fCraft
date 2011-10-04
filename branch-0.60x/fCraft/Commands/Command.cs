@@ -27,8 +27,11 @@ namespace fCraft {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
             offset = 1;
             Message = rawMessage;
-            Name = Next().ToLower();
+            string name = Next();
+            if( name == null ) throw new ArgumentException( "rawMessage" );
+            Name = name.ToLower();
         }
+
 
         /// <summary> Creates a copy of this command.
         /// Use the copy constructor instead of this, if possible. </summary>
@@ -42,6 +45,7 @@ namespace fCraft {
         /// or several words in double quotes (""). </summary>
         /// <returns> Next argument (string), or null if there are no more arguments. </returns>
         [DebuggerStepThrough]
+        [CanBeNull]
         public string Next() {
             for( ; offset < Message.Length; offset++ ) {
                 int t, j;

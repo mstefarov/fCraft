@@ -621,7 +621,7 @@ namespace fCraft {
             string fromRankName = cmd.Next();
             string toRankName = cmd.Next();
             string reason = cmd.NextAll();
-            if( toRankName == null ) {
+            if( fromRankName == null || toRankName == null ) {
                 CdMassRank.PrintUsage( player );
                 return;
             }
@@ -1016,10 +1016,15 @@ namespace fCraft {
                                     inactivePlayers );
                 }
             } else {
-                Scheduler.NewBackgroundTask( delegate {
-                    PlayerDB.RemoveInactivePlayers( player );
-                } ).RunOnce();
+                Scheduler.NewBackgroundTask( PruneDBTask, player ).RunOnce();
             }
+        }
+
+
+        static void PruneDBTask( SchedulerTask task ) {
+            int removedCount = PlayerDB.RemoveInactivePlayers();
+            Player player = (Player)task.UserState;
+            player.Message( "PruneDB: Removed {0} inactive players!", removedCount );
         }
 
         #endregion
@@ -1075,7 +1080,7 @@ namespace fCraft {
             string file = cmd.Next();
 
             // Make sure all parameters are specified
-            if( file == null ) {
+            if( serverName == null || file == null ) {
                 CdImport.PrintUsage( player );
                 return;
             }
@@ -1141,7 +1146,7 @@ namespace fCraft {
 
 
             // Make sure all parameters are specified
-            if( rankName == null ) {
+            if( serverName == null || fileName == null || rankName == null ) {
                 CdImport.PrintUsage( player );
                 return;
             }

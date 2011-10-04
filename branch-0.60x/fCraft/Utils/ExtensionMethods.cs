@@ -91,12 +91,11 @@ namespace fCraft {
 
 
         public static bool ToDateTimeLegacy( this string str, ref DateTime result ) {
-            if( str.Length > 1 ) {
-                result = ToDateTimeLegacy( Int64.Parse( str ) );
-                return true;
-            } else {
+            if( str.Length <= 1 ) {
                 return false;
             }
+            result = ToDateTimeLegacy( Int64.Parse( str ) );
+            return true;
         }
 
         #endregion

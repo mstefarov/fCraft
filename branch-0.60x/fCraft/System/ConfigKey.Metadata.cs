@@ -342,9 +342,10 @@ namespace fCraft {
 
         public override void Validate( string value ) {
             base.Validate( value );
-            if( Color.Parse( value ) == null ) {
+            string parsedValue = Color.Parse( value );
+            if( parsedValue == null ) {
                 throw new FormatException( "Value cannot be parsed as a color." );
-            } else if( Color.Parse( value ).Length == 0 && NotBlank ) {
+            } else if( parsedValue.Length == 0 && NotBlank ) {
                 throw new FormatException( "Value may not represent absence of color." );
             }
         }

@@ -26,7 +26,8 @@ namespace fCraft {
         /// The map of the new main world is preloaded, and old one is unloaded, if needed. </summary>
         /// <exception cref="System.ArgumentNullException" />
         /// <exception cref="fCraft.WorldOpException" />
-        [NotNull] public static World MainWorld {
+        [NotNull]
+        public static World MainWorld {
             get { return mainWorld; }
             set {
                 if( value == null ) throw new ArgumentNullException( "value" );
@@ -243,7 +244,6 @@ namespace fCraft {
                 }
             }
 
-
             foreach( XElement mainedRankEl in el.Elements( "RankMainWorld" ) ) {
                 Rank rank = Rank.Parse( mainedRankEl.Value );
                 if( rank != null ) {
@@ -375,6 +375,7 @@ namespace fCraft {
         /// <summary> Finds a world by full name.
         /// Target world is not guaranteed to have a loaded map. </summary>
         /// <returns> World if found, or null if not found. </returns>
+        [CanBeNull]
         public static World FindWorldExact( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             return WorldList.FirstOrDefault( w => w.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
@@ -428,6 +429,7 @@ namespace fCraft {
         /// Returns null if zero or multiple worlds matched. </summary>
         /// <param name="player"> Player who will receive messages regarding zero or multiple matches. </param>
         /// <param name="worldName"> Full or partial world name. </param>
+        [CanBeNull]
         public static World FindWorldOrPrintMatches( [NotNull] Player player, [NotNull] string worldName ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
@@ -639,6 +641,7 @@ namespace fCraft {
         }
 
 
+        [CanBeNull]
         public static string FindMapFile( [NotNull] Player player, [NotNull] string fileName ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
@@ -719,7 +722,8 @@ namespace fCraft {
         public static event EventHandler<WorldCreatedEventArgs> WorldCreated;
 
 
-        static bool RaiseMainWorldChangingEvent( World oldWorld, World newWorld ) {
+        static bool RaiseMainWorldChangingEvent( World oldWorld, [NotNull] World newWorld ) {
+            if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             var h = MainWorldChanging;
             if( h == null ) return false;
             var e = new MainWorldChangingEventArgs( oldWorld, newWorld );
@@ -727,12 +731,14 @@ namespace fCraft {
             return e.Cancel;
         }
 
-        static void RaiseMainWorldChangedEvent( World oldWorld, World newWorld ) {
+        static void RaiseMainWorldChangedEvent( World oldWorld, [NotNull] World newWorld ) {
+            if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             var h = MainWorldChanged;
             if( h != null ) h( null, new MainWorldChangedEventArgs( oldWorld, newWorld ) );
         }
 
-        static bool RaiseWorldCreatingEvent( Player player, string worldName, Map map ) {
+        static bool RaiseWorldCreatingEvent( [CanBeNull] Player player, [NotNull] string worldName, Map map ) {
+            if( worldName == null ) throw new ArgumentNullException( "worldName" );
             var h = WorldCreating;
             if( h == null ) return false;
             var e = new WorldCreatingEventArgs( player, worldName, map );
@@ -740,41 +746,12 @@ namespace fCraft {
             return e.Cancel;
         }
 
-        static void RaiseWorldCreatedEvent( Player player, World world ) {
+        static void RaiseWorldCreatedEvent( [CanBeNull] Player player, [NotNull] World world ) {
+            if( world == null ) throw new ArgumentNullException( "world" );
             var h = WorldCreated;
             if( h != null ) h( null, new WorldCreatedEventArgs( player, world ) );
         }
 
         #endregion
-    }
-}
-
-
-namespace fCraft.Events {
-    public class MainWorldChangedEventArgs : EventArgs {
-        internal MainWorldChangedEventArgs( World oldWorld, World newWorld ) {
-            OldMainWorld = oldWorld;
-            NewMainWorld = newWorld;
-        }
-        public World OldMainWorld { get; private set; }
-        public World NewMainWorld { get; private set; }
-    }
-
-
-    public sealed class MainWorldChangingEventArgs : MainWorldChangedEventArgs, ICancellableEvent {
-        internal MainWorldChangingEventArgs( World oldWorld, World newWorld ) : base( oldWorld, newWorld ) { }
-        public bool Cancel { get; set; }
-    }
-
-
-    public sealed class SearchingForWorldEventArgs : EventArgs, IPlayerEvent {
-        internal SearchingForWorldEventArgs( Player player, string searchTerm, List<World> matches ) {
-            Player = player;
-            SearchTerm = searchTerm;
-            Matches = matches;
-        }
-        public Player Player { get; private set; }
-        public string SearchTerm { get; private set; }
-        public List<World> Matches { get; set; }
     }
 }

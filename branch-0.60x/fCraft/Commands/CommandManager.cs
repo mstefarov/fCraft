@@ -140,6 +140,7 @@ namespace fCraft {
         /// <param name="commandName"> Command to find. </param>
         /// <param name="alsoCheckAliases"> Whether to check command aliases. </param>
         /// <returns> CommandDesriptor object if found, null if not found. </returns>
+        [CanBeNull]
         public static CommandDescriptor GetDescriptor( [NotNull] string commandName, bool alsoCheckAliases ) {
             if( commandName == null ) throw new ArgumentNullException( "commandName" );
             commandName = commandName.ToLower();

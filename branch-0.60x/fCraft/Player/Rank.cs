@@ -236,7 +236,10 @@ namespace fCraft {
             XElement rankTag = new XElement( "Rank" );
             rankTag.Add( new XAttribute( "name", Name ) );
             rankTag.Add( new XAttribute( "id", ID ) );
-            rankTag.Add( new XAttribute( "color", fCraft.Color.GetName( Color ) ) );
+            string colorName = fCraft.Color.GetName( Color );
+            if( colorName != null ) {
+                rankTag.Add( new XAttribute( "color", colorName ) );
+            }
             if( Prefix.Length > 0 ) rankTag.Add( new XAttribute( "prefix", Prefix ) );
             rankTag.Add( new XAttribute( "antiGriefBlocks", AntiGriefBlocks ) );
             rankTag.Add( new XAttribute( "antiGriefSeconds", AntiGriefSeconds ) );
@@ -434,6 +437,7 @@ namespace fCraft {
         /// Uses legacy rank mapping table for unrecognized ranks. Does not autocomple. </summary>
         /// <param name="name"> Full rank name </param>
         /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. </returns>
+        [CanBeNull]
         public static Rank Parse( string name ) {
             if( name == null ) return null;
 

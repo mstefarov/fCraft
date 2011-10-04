@@ -118,7 +118,7 @@ namespace fCraft {
             if( message == null ) throw new ArgumentNullException( "message" );
             var h = ProgressChanged;
             if( h != null ) {
-                h( this, new ProgressChangedEventArgs( ( 100 * progressRunningTotal / progressTotalEstimate ), message ) );
+                h( this, new ProgressChangedEventArgs( (100 * progressRunningTotal / progressTotalEstimate), message ) );
             }
             progressRunningTotal += relativeIncrease;
         }
@@ -908,8 +908,10 @@ namespace fCraft {
                         FeatureScale = 0,
                         AddCliffs = false
                     };
+
+                default:
+                    throw new ArgumentOutOfRangeException( "template" );
             }
-            return null; // can never happen
         }
 
         #endregion

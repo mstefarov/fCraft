@@ -40,16 +40,19 @@ namespace fCraft {
         void HandleLog( object sender, LogEventArgs e ) {
             if( creatingThread != null && creatingThread != Thread.CurrentThread ) return;
             for( int i = 0; i < thingsToLog.Length; i++ ) {
-                if( thingsToLog[i] == e.MessageType ) {
-                    if( e.MessageType == LogType.Error || e.MessageType == LogType.SeriousError ) {
+                if( thingsToLog[i] != e.MessageType ) continue;
+                switch( e.MessageType ) {
+                    case LogType.SeriousError:
+                    case LogType.Error:
                         HasErrors = true;
-                    } else if( e.MessageType == LogType.Warning ) {
+                        break;
+                    case LogType.Warning:
                         HasWarnings = true;
-                    }
-                    HasMessages = true;
-                    lock( locker ) {
-                        messages.Add( e.MessageType + ": " + e.RawMessage );
-                    }
+                        break;
+                }
+                HasMessages = true;
+                lock( locker ) {
+                    messages.Add( e.MessageType + ": " + e.RawMessage );
                 }
             }
         }
