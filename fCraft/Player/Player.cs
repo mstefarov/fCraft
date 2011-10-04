@@ -486,8 +486,7 @@ namespace fCraft {
             if( itemType == null ) throw new ArgumentNullException( "itemType" );
             if( names == null ) throw new ArgumentNullException( "names" );
 
-            string nameList = names.JoinToString( ", ",
-                                                  p => p.ClassyName );
+            string nameList = names.JoinToString( ", ", p => p.ClassyName );
             Message( "More than one {0} matched: {1}",
                      itemType, nameList );
         }

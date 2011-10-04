@@ -149,6 +149,7 @@ namespace fCraft {
         /// <summary> Retrieves ban information for a given IP address. </summary>
         /// <param name="address"> IP address to check. </param>
         /// <returns> IPBanInfo object if found, otherwise null. </returns>
+        [CanBeNull]
         public static IPBanInfo Get( [NotNull] IPAddress address ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             lock( BanListLock ) {
@@ -242,7 +243,8 @@ namespace fCraft {
                 } else {
                     msg = String.Format( "Given IP address is already banned." );
                 }
-                throw new PlayerOpException( player, null, PlayerOpExceptionCode.NoActionNeeded, msg, msg );
+                string colorMsg = "&S" + msg;
+                throw new PlayerOpException( player, null, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
             }
 
             // Check if any high-ranked players use this address
@@ -293,7 +295,8 @@ namespace fCraft {
                 } else {
                     msg = "Given IP address is already banned.";
                 }
-                throw new PlayerOpException( player, null, PlayerOpExceptionCode.NoActionNeeded, msg, msg );
+                string colorMsg = "&S" + msg;
+                throw new PlayerOpException( player, null, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
             }
         }
 
@@ -350,7 +353,8 @@ namespace fCraft {
                 } else {
                     msg = String.Format( "Given IP address is not currently banned." );
                 }
-                throw new PlayerOpException( player, null, PlayerOpExceptionCode.NoActionNeeded, msg, msg );
+                string colorMsg = "&S" + msg;
+                throw new PlayerOpException( player, null, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
             }
         }
 

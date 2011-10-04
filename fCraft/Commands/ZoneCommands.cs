@@ -158,8 +158,8 @@ namespace fCraft {
             Zone zone = (Zone)tag;
             var zones = player.World.Map.Zones;
             lock( zones.SyncRoot ) {
-                if( zones.Contains( zone.Name ) ) {
-                    Zone dupeZone = zones.FindExact( zone.Name );
+                Zone dupeZone = zones.FindExact( zone.Name );
+                if( dupeZone != null ) {
                     player.Message( "A zone named \"{0}\" has just been created by {1}",
                                     dupeZone.Name, dupeZone.CreatedBy );
                     return;

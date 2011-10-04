@@ -3,13 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using fCraft.MapConversion;
 
 namespace fCraft {
-    /// <summary>
-    /// Contains commands related to world management.
-    /// </summary>
+    /// <summary> Contains commands related to world management. </summary>
     static class WorldCommands {
         internal static void Init() {
             CommandManager.RegisterCommand( CdBlockDB );
@@ -710,7 +707,7 @@ namespace fCraft {
             string themeName = cmd.Next();
             string templateName = cmd.Next();
 
-            if( templateName == null ) {
+            if( themeName == null || templateName == null ) {
                 CdGenerate.PrintUsage( player );
                 return;
             }
@@ -1058,66 +1055,79 @@ namespace fCraft {
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
             Aliases = new[] { "maps", "levels" },
-            Usage = "/worlds [all|hidden|loaded]",
-            Help = "Shows a list of worlds available for you to join. " +
-                   "If the optional \"all\" is added, also shows unavailable (restricted) worlds. " +
-                   "If \"hidden\" is added, shows only hidden and inaccessible worlds.",
+            Usage = "/worlds [all/hidden/populated]",
+            Help = "Shows a list of available worlds. To join a world, type &H/join WorldName&S. " +
+                   "If the optional \"all\" is added, also shows inaccessible or hidden worlds. " +
+                   "If \"hidden\" is added, shows only inaccessible and hidden worlds. " +
+                   "If \"populated\" is added, shows only worlds with players online.",
             Handler = WorldsHandler
         };
 
+        const int WorldNamesPerPage = 30;
+
         static void WorldsHandler( Player player, Command cmd ) {
             string param = cmd.Next();
-            bool listVisible = true,
-                 listHidden = false,
-                 listAllLoaded = false;
-            if( !String.IsNullOrEmpty( param ) ) {
+            World[] worlds;
+
+            string listName;
+            string extraParam;
+            int offset = 0;
+
+            if( param == null || Int32.TryParse( param, out offset ) ) {
+                listName = "available worlds";
+                extraParam = "";
+                worlds = WorldManager.WorldList.Where( w => w.IsVisible( player ) ).ToArray();
+
+            } else {
                 switch( Char.ToLower( param[0] ) ) {
                     case 'a':
-                        listHidden = true;
+                        listName = "worlds total";
+                        extraParam = "all ";
+                        worlds = WorldManager.WorldList;
                         break;
                     case 'h':
-                        listVisible = false;
-                        listHidden = true;
+                        listName = "hidden worlds";
+                        extraParam = "hidden ";
+                        worlds = WorldManager.WorldList.Where( w => !w.IsVisible( player ) ).ToArray();
                         break;
-                    case 'l':
-                        listAllLoaded = true;
-                        listVisible = false;
+                    case 'p':
+                        listName = "populated worlds";
+                        extraParam = "populated ";
+                        worlds = WorldManager.WorldList.Where( w => w.IsLoaded ).ToArray();
                         break;
                     default:
                         CdWorlds.PrintUsage( player );
                         return;
                 }
-            }
-
-            StringBuilder sb = new StringBuilder();
-            bool first = true;
-            int count = 0;
-
-            World[] worldListCache = WorldManager.WorldList;
-            foreach( World world in worldListCache ) {
-                bool visible = player.CanJoin( world ) && !world.IsHidden;
-                if( (world.IsLoaded && listAllLoaded) || (visible && listVisible) || (!visible && listHidden) ) {
-                    if( !first ) {
-                        sb.Append( "  " );
-                    }
-                    sb.Append( world.ClassyName );
-                    count++;
-                    first = false;
+                if( cmd.HasNext && !cmd.NextInt( out offset ) ) {
+                    CdWorlds.PrintUsage( player );
+                    return;
                 }
             }
 
-            string listName;
-            if( listAllLoaded ) {
-                listName = "loaded worlds";
-            } else if( listVisible && !listHidden ) {
-                listName = "available worlds";
-            } else if( !listVisible ) {
-                listName = "hidden worlds";
+            if( worlds.Length == 0 ) {
+                player.Message( "There are no {0}", listName );
+            } else if( worlds.Length <= WorldNamesPerPage ) {
+                player.MessagePrefixed( "&S   ", "&SThere are {0} {1}: {2}",
+                                        worlds.Length, listName, worlds.JoinToClassyString() );
             } else {
-                listName = "worlds total";
-            }
+                if( offset >= worlds.Length ) {
+                    player.Message( "Worlds: Given offset ({0}) is greater than the number of {1} ({2}).",
+                                    offset, listName, worlds.Length );
+                }
+                World[] worldsPart = worlds.Skip( offset ).Take( WorldNamesPerPage ).ToArray();
+                player.MessagePrefixed( "&S   ", "&SThere are {0} {1}: {2}",
+                                        worlds.Length, listName, worldsPart.JoinToClassyString() );
 
-            player.MessagePrefixed( "&S   ", "&SThere are {0} {1}: {2}", count, listName, sb );
+                if( offset + worldsPart.Length < worlds.Length ) {
+                    player.Message( "Showing {0}-{1} (out of {2}). Next: &H/worlds{3} {4}",
+                                    offset + 1, offset + worldsPart.Length, worlds.Length,
+                                    extraParam, offset + worldsPart.Length );
+                } else {
+                    player.Message( "Showing worlds {0}-{1} (out of {2}).",
+                                    offset + 1, offset + worldsPart.Length, worlds.Length );
+                }
+            }
         }
 
         #endregion

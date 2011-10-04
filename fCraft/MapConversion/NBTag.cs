@@ -58,6 +58,7 @@ namespace fCraft.MapConversion {
 
         #region Shorthand Contructors
 
+        [CanBeNull]
         public NBTag Append( NBTag tag ) {
             if( !(this is NBTCompound) ) {
                 return null;

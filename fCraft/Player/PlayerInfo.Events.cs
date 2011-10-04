@@ -2,6 +2,7 @@
 using System;
 using System.Net;
 using fCraft.Events;
+using JetBrains.Annotations;
 
 namespace fCraft {
     sealed partial class PlayerInfo {
@@ -24,6 +25,13 @@ namespace fCraft {
 
         /// <summary> Occurs after a player has been banned or unbanned. </summary>
         public static event EventHandler<PlayerInfoBanChangedEventArgs> BanChanged;
+
+        /// <summary> Occurs when a player is about to be frozen or unfrozen. </summary>
+        public static event EventHandler<PlayerInfoFrozenChangingEventArgs> FreezeChanging;
+
+        /// <summary> Occurs after a player has been frozen or unfrozen. </summary>
+        public static event EventHandler<PlayerInfoFrozenChangedEventArgs> FreezeChanged;
+
 
 
         internal static void RaiseCreatingEvent( PlayerInfoCreatingEventArgs e ) {
@@ -58,14 +66,30 @@ namespace fCraft {
             var h = BanChanged;
             if( h != null ) h( null, new PlayerInfoBanChangedEventArgs( e.PlayerInfo, e.Banner, e.IsBeingUnbanned, e.Reason ) );
         }
+
+        internal static bool RaiseFreezeChangingEvent( PlayerInfo target, Player freezer, bool unfreezing ) {
+            var h = FreezeChanging;
+            if( h == null ) return false;
+            var e = new PlayerInfoFrozenChangingEventArgs( target, freezer, unfreezing );
+            h( null, e );
+            return e.Cancel;
+        }
+
+        internal static void RaiseFreezeChangedEvent( PlayerInfo target, Player freezer, bool unfreezing ) {
+            var h = FreezeChanged;
+            if( h != null ) h( null, new PlayerInfoFrozenChangedEventArgs( target, freezer, unfreezing ) );
+        }
     }
 }
 
 namespace fCraft.Events {
     public class PlayerInfoEventArgs : EventArgs {
-        protected PlayerInfoEventArgs( PlayerInfo playerInfo ) {
+        protected PlayerInfoEventArgs( [NotNull] PlayerInfo playerInfo ) {
+            if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
             PlayerInfo = playerInfo;
         }
+
+        [NotNull]
         public PlayerInfo PlayerInfo { get; private set; }
     }
 
@@ -77,6 +101,7 @@ namespace fCraft.Events {
             IP = ip;
             IsUnrecognized = isUnrecognized;
         }
+
         public string Name { get; private set; }
         public Rank StartingRank { get; set; }
         public IPAddress IP { get; private set; }
@@ -122,7 +147,7 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerInfoBanChangedEventArgs : PlayerInfoEventArgs {
-        public PlayerInfoBanChangedEventArgs( PlayerInfo target, Player banner, bool isBeingUnbanned,  string reason )
+        public PlayerInfoBanChangedEventArgs( PlayerInfo target, Player banner, bool isBeingUnbanned, string reason )
             : base( target ) {
             Banner = banner;
             IsBeingUnbanned = isBeingUnbanned;
@@ -147,5 +172,24 @@ namespace fCraft.Events {
         public bool IsBeingUnbanned { get; private set; }
         public string Reason { get; set; }
         public bool Cancel { get; set; }
+    }
+
+
+    public sealed class PlayerInfoFrozenChangingEventArgs : PlayerInfoFrozenChangedEventArgs, ICancellableEvent {
+        public PlayerInfoFrozenChangingEventArgs( PlayerInfo target, Player freezer, bool unfreezing )
+            : base( target, freezer, unfreezing ) {
+        }
+        public bool Cancel { get; set; }
+    }
+
+
+    public class PlayerInfoFrozenChangedEventArgs : PlayerInfoEventArgs {
+        public PlayerInfoFrozenChangedEventArgs( PlayerInfo target, Player freezer, bool unfreezing )
+            : base( target ) {
+            Freezer = freezer;
+            Unfreezing = unfreezing;
+        }
+        public Player Freezer { get; private set; }
+        public bool Unfreezing { get; private set; }
     }
 }

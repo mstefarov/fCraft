@@ -14,7 +14,7 @@ namespace fCraft.Drawing {
             get { return "Marbled"; }
         }
 
-
+        [CanBeNull]
         public string[] Aliases {
             get { return null; }
         }
@@ -26,6 +26,7 @@ namespace fCraft.Drawing {
         }
 
 
+        [CanBeNull]
         public IBrush MakeBrush( [NotNull] Player player, [NotNull] Command cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
@@ -110,6 +111,7 @@ namespace fCraft.Drawing {
         }
 
 
+        [CanBeNull]
         public IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] Command cmd, [NotNull] DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using fCraftGUI.Properties;
+using JetBrains.Annotations;
 
 namespace fCraft.GUI {
 
@@ -129,6 +130,7 @@ namespace fCraft.GUI {
         }
 
         byte* bp, ctp;
+        [CanBeNull]
         public Bitmap Draw( out Rectangle cropRectangle, BackgroundWorker worker ) {
             cropRectangle = Rectangle.Empty;
             try {

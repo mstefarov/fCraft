@@ -12,22 +12,23 @@ namespace fCraft.AutoRank {
         public abstract bool Eval( PlayerInfo info );
 
         public static Condition Parse( XElement el ) {
-            if( el.Name == "AND" ) {
-                return new ConditionAND( el );
-            } else if( el.Name == "OR" ) {
-                return new ConditionOR( el );
-            } else if( el.Name == "NOR" ) {
-                return new ConditionNOR( el );
-            } else if( el.Name == "NAND" ) {
-                return new ConditionNAND( el );
-            } else if( el.Name == "ConditionIntRange" ) {
-                return new ConditionIntRange( el );
-            } else if( el.Name == "ConditionRankChangeType" ) {
-                return new ConditionRankChangeType( el );
-            } else if( el.Name == "ConditionPreviousRank" ) {
-                return new ConditionPreviousRank( el );
-            } else {
-                return null;
+            switch( el.Name.ToString() ) {
+                case "AND":
+                    return new ConditionAND( el );
+                case "OR":
+                    return new ConditionOR( el );
+                case "NOR":
+                    return new ConditionNOR( el );
+                case "NAND":
+                    return new ConditionNAND( el );
+                case "ConditionIntRange":
+                    return new ConditionIntRange( el );
+                case "ConditionRankChangeType":
+                    return new ConditionRankChangeType( el );
+                case "ConditionPreviousRank":
+                    return new ConditionPreviousRank( el );
+                default:
+                    throw new FormatException();
             }
         }
 

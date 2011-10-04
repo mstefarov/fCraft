@@ -421,7 +421,7 @@ namespace fCraft {
             string newRankName = cmd.Next();
 
             // Check arguments
-            if( newRankName == null ) {
+            if( name == null || newRankName == null ) {
                 CdRank.PrintUsage( player );
                 player.Message( "See &H/ranks&S for list of ranks." );
                 return;
@@ -637,23 +637,10 @@ namespace fCraft {
             Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
             if( target == null ) return;
 
-            if( target == player ) {
-                player.Message( "You cannot freeze yourself." );
-                return;
-            }
-
-            if( player.Can( Permission.Freeze, target.Info.Rank ) ) {
-                target.Info.IsHidden = false;
-                if( target.Info.Freeze( player.Name ) ) {
-                    Server.Message( "{0}&S has been frozen by {1}",
-                                      target.ClassyName, player.ClassyName );
-                } else {
-                    player.Message( "{0}&S is already frozen.", target.ClassyName );
-                }
-            } else {
-                player.Message( "You can only freeze players ranked {0}&S or lower",
-                                player.Info.Rank.GetLimit( Permission.Freeze ).ClassyName );
-                player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
+            try {
+                target.Info.Freeze( player, true, true );
+            } catch( PlayerOpException ex ) {
+                player.Message( ex.MessageColored );
             }
         }
 
@@ -679,16 +666,10 @@ namespace fCraft {
             Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
             if( target == null ) return;
 
-            if( player.Can( Permission.Freeze, target.Info.Rank ) ) {
-                if( target.Info.Unfreeze() ) {
-                    Server.Message( "{0}&S is no longer frozen.", target.ClassyName );
-                } else {
-                    player.Message( "{0}&S is currently not frozen.", target.ClassyName );
-                }
-            } else {
-                player.Message( "You can only unfreeze players ranked {0}&S or lower",
-                                player.Info.Rank.GetLimit( Permission.Freeze ).ClassyName );
-                player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
+            try {
+                target.Info.Unfreeze( player, true, true );
+            } catch( PlayerOpException ex ) {
+                player.Message( ex.MessageColored );
             }
         }
 
@@ -985,8 +966,7 @@ namespace fCraft {
             int count = 0;
 
             // Actually bring all the players
-            foreach( Player targetPlayer in targetPlayers ) {
-                if( !player.CanSee( targetPlayer ) ) continue;
+            foreach( Player targetPlayer in targetPlayers.Where( player.CanSee ) ) {
                 if( targetPlayer.World == player.World ) {
                     // teleport within the same world
                     targetPlayer.TeleportTo( player.Position );
@@ -1192,8 +1172,7 @@ namespace fCraft {
                     return;
                 }
 
-                if( target.Info.MutedUntil >= DateTime.UtcNow ) {
-                    target.Info.Unmute();
+                if( target.Info.Unmute() ) {
                     target.Message( "You were unmuted by {0}", player.ClassyName );
                     Server.Message( target,
                                     "&SPlayer {0}&S was unmuted by {1}",

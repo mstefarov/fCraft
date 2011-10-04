@@ -34,7 +34,7 @@ namespace fCraft.Drawing {
 
         public int PercentDone {
             get {
-                return (BlocksProcessed * 100) / BlocksTotalEstimate;
+                return ( BlocksProcessed * 100 ) / BlocksTotalEstimate;
             }
         }
 
@@ -46,9 +46,9 @@ namespace fCraft.Drawing {
 
         public abstract string Name { get; }
 
-// ReSharper disable VirtualMemberNeverOverriden.Global
+        // ReSharper disable VirtualMemberNeverOverriden.Global
         public virtual string Description {
-// ReSharper restore VirtualMemberNeverOverriden.Global
+            // ReSharper restore VirtualMemberNeverOverriden.Global
             get { return Name; }
         }
 
@@ -65,7 +65,7 @@ namespace fCraft.Drawing {
         int batchStartProcessedCount;
         protected bool TimeToEndBatch {
             get {
-                return (BlocksProcessed - batchStartProcessedCount) > MaxBlocksToProcessPerBatch;
+                return ( BlocksProcessed - batchStartProcessedCount ) > MaxBlocksToProcessPerBatch;
             }
         }
 

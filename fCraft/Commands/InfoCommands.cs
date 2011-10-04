@@ -111,7 +111,7 @@ namespace fCraft {
                     int offset;
                     if( !cmd.NextInt( out offset ) ) offset = 0;
                     if( offset >= infos.Length ) {
-                        player.Message( "Info: Given offset ({0}) is greater than the number of matches ({1})",
+                        player.Message( "Info: Given offset ({0}) is greater than the number of matches ({1}).",
                                         offset, infos.Length );
                     } else {
                         PlayerInfo[] infosPart = infos.Skip( offset ).Take( MatchesToShow ).ToArray();
@@ -171,7 +171,7 @@ namespace fCraft {
                             }
                         }
                     } else {
-                        if( idle.TotalMinutes > 2 ) {
+                        if( idle.TotalMinutes > 1 ) {
                             if( player.Can( Permission.ViewPlayerIPs ) ) {
                                 player.Message( "About {0}&S: Online now from {1} (idle {2})",
                                                 info.ClassyName,
@@ -230,6 +230,10 @@ namespace fCraft {
                 player.Message( "  Frozen {0} ago by {1}", info.TimeSinceFrozen.ToMiniString(), info.FrozenBy );
             }
 
+            if( info.IsMuted ) {
+                player.Message( "  Muted for {0} by {1}", info.MutedUntil.Subtract( DateTime.UtcNow ).ToMiniString(), info.MutedBy );
+            }
+
             // Show ban information
             IPBanInfo ipBan = IPBanList.Get( info.LastIP );
             switch( info.BanStatus ) {
@@ -260,11 +264,10 @@ namespace fCraft {
                 List<PlayerInfo> altNames = new List<PlayerInfo>();
                 int bannedAltCount = 0;
                 foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( info.LastIP, 25 ) ) {
-                    if( playerFromSameIP != info ) {
-                        altNames.Add( playerFromSameIP );
-                        if( playerFromSameIP.IsBanned ) {
-                            bannedAltCount++;
-                        }
+                    if( playerFromSameIP == info ) continue;
+                    altNames.Add( playerFromSameIP );
+                    if( playerFromSameIP.IsBanned ) {
+                        bannedAltCount++;
                     }
                 }
 
@@ -609,11 +612,12 @@ namespace fCraft {
             player.Message( "  Bandwidth: {0:0.0} KB/s up, {1:0.0} KB/s down",
                             bytesSentRate / 1000, bytesReceivedRate / 1000 );
 
-
-            player.Message( "  Tracking {0} players ({1} online, {2} banned, {3} IP-banned).",
+            int bannedCount = PlayerDB.CountBannedPlayers();
+            player.Message( "  Tracking {0} players ({1} online, {2} banned ({3:0.0}%), {4} IP-banned).",
                             PlayerDB.PlayerInfoList.Length,
                             Server.CountVisiblePlayers( player ),
                             PlayerDB.CountBannedPlayers(),
+                            (bannedCount * 100f) / PlayerDB.PlayerInfoList.Length,
                             IPBanList.Count );
 
             player.Message( "  Players built {0}, deleted {1}, drew {2} blocks, wrote {3} messages, issued {4} kicks, spent {5:0} hours total.",
@@ -725,8 +729,13 @@ namespace fCraft {
             }
 
             if( ruleFileName == null ) {
-                player.Message( "No rule section defined for \"{0}\". Available sections: {1}",
-                                sectionName, GetRuleSectionList().JoinToString() );
+                var sectionList = GetRuleSectionList();
+                if( sectionList == null ) {
+                    player.Message( "There are no rule sections defined." );
+                } else {
+                    player.Message( "No rule section defined for \"{0}\". Available sections: {1}",
+                                    sectionName, sectionList.JoinToString() );
+                }
             } else {
                 player.Message( "Rule section \"{0}\":",
                                 Path.GetFileNameWithoutExtension( ruleFileName ) );
@@ -735,6 +744,7 @@ namespace fCraft {
         }
 
 
+        [CanBeNull]
         static string[] GetRuleSectionList() {
             if( Directory.Exists( Paths.RulesPath ) ) {
                 string[] sections = Directory.GetFiles( Paths.RulesPath, "*.txt", SearchOption.TopDirectoryOnly )

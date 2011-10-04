@@ -550,10 +550,9 @@ namespace fCraft {
                     BlockDBEntry* entries = (BlockDBEntry*)parr;
                     for( int i = entryCount - 1; i >= 0; i-- ) {
                         if( entries[i].Timestamp < ticks ) break;
-                        if( entries[i].PlayerID == info.ID ) {
-                            int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                            results[index] = entries[i];
-                        }
+                        if( entries[i].PlayerID != info.ID ) continue;
+                        int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                        results[index] = entries[i];
                     }
                 }
             }

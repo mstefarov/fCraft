@@ -62,6 +62,7 @@ namespace fCraft {
         /// <summary> Gets color name for hex color code. </summary>
         /// <param name="code"> Hexadecimal color code (between '0' and 'f'). </param>
         /// <returns> Lowercase color name. </returns>
+        [CanBeNull]
         public static string GetName( char code ) {
             code = Char.ToLower( code );
             if( IsValidColorCode( code ) ) {
@@ -78,6 +79,7 @@ namespace fCraft {
         /// <summary> Gets color name for a numeric color code. </summary>
         /// <param name="index"> Ordinal numeric color code (between 0 and 15). </param>
         /// <returns> Lowercase color name. If input is out of range, returns null. </returns>
+        [CanBeNull]
         public static string GetName( int index ) {
             if( index >= 0 && index <= 15 ) {
                 return ColorNames.Values[index];
@@ -92,6 +94,7 @@ namespace fCraft {
         /// <returns> Lowercase color name.
         /// If input is an empty string, returns empty string.
         /// If input is null or cannot be parsed, returns null. </returns>
+        [CanBeNull]
         public static string GetName( string color ) {
             if( color == null ) {
                 return null;
@@ -114,6 +117,7 @@ namespace fCraft {
         /// <param name="code"> Color code character. </param>
         /// <returns> Two-character color string, readable by Minecraft client.
         /// If input is null or cannot be parsed, returns null. </returns>
+        [CanBeNull]
         public static string Parse( char code ) {
             code = Char.ToLower( code );
             if( IsValidColorCode( code ) ) {
@@ -139,6 +143,7 @@ namespace fCraft {
         /// <param name="index"> Ordinal numeric color code (between 0 and 15). </param>
         /// <returns> Two-character color string, readable by Minecraft client.
         /// If input cannot be parsed, returns null. </returns>
+        [CanBeNull]
         public static string Parse( int index ) {
             if( index >= 0 && index <= 15 ) {
                 return "&" + ColorNames.Keys[index];
@@ -154,6 +159,7 @@ namespace fCraft {
         /// <returns> Two-character color string, readable by Minecraft client.
         /// If input is an empty string, returns empty string.
         /// If input is null or cannot be parsed, returns null. </returns>
+        [CanBeNull]
         public static string Parse( string color ) {
             if( color == null ) {
                 return null;

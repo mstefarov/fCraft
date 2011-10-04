@@ -30,14 +30,15 @@ namespace fCraft {
          * Version 1 - 0.530-0.536 - all dates and times are stored as UTC unix timestamps (milliseconds)
          * Version 2 - 0.600 dev - all dates and times are stored as UTC unix timestamps (seconds)
          * Version 3 - 0.600 dev - same as v2, but sorting by ID is enforced
-         * Version 4 - 0.600+ - added LastModified column, forced banned players to be unfrozen/unmuted/unhidden.
+         * Version 4 - 0.600 dev - added LastModified column, forced banned players to be unfrozen/unmuted/unhidden.
+         * Version 5 - 0.600+ - removed FailedLoginCount column
          */
-        public const int FormatVersion = 4;
+        public const int FormatVersion = 5;
 
         const string Header = "fCraft PlayerDB | Row format: " +
                               "Name,IPAddress,Rank,RankChangeDate,RankChangedBy,Banned,BanDate,BannedBy," +
                               "UnbanDate,UnbannedBy,BanReason,UnbanReason,LastFailedLoginDate," +
-                              "LastFailedLoginIP,FailedLoginCount,FirstLoginDate,LastLoginDate,TotalTime," +
+                              "LastFailedLoginIP,UNUSED,FirstLoginDate,LastLoginDate,TotalTime," +
                               "BlocksBuilt,BlocksDeleted,TimesVisited,LinesWritten,UNUSED,UNUSED," +
                               "PreviousRank,RankChangeReason,TimesKicked,TimesKickedOthers," +
                               "TimesBannedOthers,ID,RankChangeType,LastKickDate,LastSeen,BlocksDrawn," +
@@ -193,13 +194,12 @@ namespace fCraft {
                                                 unhid++;
                                                 list[i].IsHidden = false;
                                             }
-                                            if( list[i].IsFrozen ) {
+                                            try {
+                                                list[i].Unfreeze( Player.Console, false, false );
                                                 unfroze++;
-                                                list[i].Unfreeze();
-                                            }
-                                            if( list[i].IsMuted ) {
+                                            } catch( PlayerOpException ) { }
+                                            if( list[i].Unmute() ) {
                                                 unmuted++;
-                                                list[i].Unmute();
                                             }
                                         }
                                     }
@@ -407,7 +407,7 @@ namespace fCraft {
             }
         }
 
-
+        [CanBeNull]
         public static PlayerInfo FindPlayerInfoOrPrintMatches( [NotNull] Player player, [NotNull] string name ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -457,6 +457,7 @@ namespace fCraft {
 
 
         /// <summary> Finds PlayerInfo by ID. Returns null of not found. </summary>
+        [CanBeNull]
         public static PlayerInfo FindPlayerInfoByID( int id ) {
             PlayerInfo dummy = new PlayerInfo( id );
             lock( AddLocker ) {
@@ -524,9 +525,7 @@ namespace fCraft {
         }
 
 
-        internal static int RemoveInactivePlayers( [NotNull] Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            int estimate = CountInactivePlayers();
+        internal static int RemoveInactivePlayers() {
             int count = 0;
             lock( AddLocker ) {
                 Dictionary<IPAddress, List<PlayerInfo>> playersByIP = new Dictionary<IPAddress, List<PlayerInfo>>();
@@ -542,9 +541,6 @@ namespace fCraft {
                     PlayerInfo p = playerInfoListCache[i];
                     if( PlayerIsInactive( playersByIP, p, true ) ) {
                         count++;
-                        if( (count % (estimate / 4) == 0) ) {
-                            player.Message( "PruneDB: {0}% complete.", (count * 100 + 1) / estimate );
-                        }
                     } else {
                         newList.Add( p );
                     }
@@ -559,7 +555,6 @@ namespace fCraft {
                 list.TrimExcess();
                 UpdateCache();
             }
-            player.Message( "PruneDB: Removed {0} inactive players!", count );
             return count;
         }
 
@@ -601,7 +596,6 @@ namespace fCraft {
                     Swap( ref p1.BlocksDeleted, ref p2.BlocksDeleted );
                     Swap( ref p1.BlocksDrawn, ref p2.BlocksDrawn );
                     Swap( ref p1.DisplayedName, ref p2.DisplayedName );
-                    Swap( ref p1.FailedLoginCount, ref p2.FailedLoginCount );
                     Swap( ref p1.FirstLoginDate, ref p2.FirstLoginDate );
                     Swap( ref p1.FrozenBy, ref p2.FrozenBy );
                     Swap( ref p1.FrozenOn, ref p2.FrozenOn );
@@ -625,7 +619,11 @@ namespace fCraft {
                     Swap( ref p1.Password, ref p2.Password );
                     //Swap( ref p1.PlayerObject, ref p2.PlayerObject );
                     Swap( ref p1.PreviousRank, ref p2.PreviousRank );
-                    Swap( ref p1.Rank, ref p2.Rank );
+
+                    Rank p1Rank = p1.Rank;
+                    p1.Rank = p2.Rank;
+                    p2.Rank = p1Rank;
+
                     Swap( ref p1.RankChangeDate, ref p2.RankChangeDate );
                     Swap( ref p1.RankChangedBy, ref p2.RankChangedBy );
                     Swap( ref p1.RankChangeReason, ref p2.RankChangeReason );

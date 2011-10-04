@@ -29,12 +29,11 @@ namespace fCraft.Drawing {
             for( ; Coords.X <= Bounds.XMax; Coords.X++ ) {
                 for( ; Coords.Y <= Bounds.YMax; Coords.Y++ ) {
                     for( ; Coords.Z <= Bounds.ZMax; Coords.Z++ ) {
-                        if( DrawOneBlock() ) {
-                            blocksDone++;
-                            if( blocksDone >= maxBlocksToDraw ) {
-                                Coords.Z++;
-                                return blocksDone;
-                            }
+                        if( !DrawOneBlock() ) continue;
+                        blocksDone++;
+                        if( blocksDone >= maxBlocksToDraw ) {
+                            Coords.Z++;
+                            return blocksDone;
                         }
                     }
                     Coords.Z = Bounds.ZMin;

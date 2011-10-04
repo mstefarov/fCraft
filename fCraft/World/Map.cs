@@ -572,21 +572,9 @@ namespace fCraft {
         }
 
 
-        public bool RemoveUnknownBlocktypes() {
-            bool foundUnknownTypes = false;
-            fixed( byte* ptr = Blocks ) {
-                for( int j = 0; j < Blocks.Length; j++ ) {
-                    if( ptr[j] > 49 ) {
-                        ptr[j] = 0;
-                        foundUnknownTypes = true;
-                    }
-                }
-            }
-            if( foundUnknownTypes ) HasChangedSinceSave = true;
-            return !foundUnknownTypes;
-        }
-
-
+        /// <summary> Converts nonstandard (50-255) blocks using the given mapping. </summary>
+        /// <param name="mapping"> Byte array of length 256. </param>
+        /// <returns> True if any blocks needed conversion/mapping. </returns>
         public bool ConvertBlockTypes( [NotNull] byte[] mapping ) {
             if( mapping == null ) throw new ArgumentNullException( "mapping" );
             if( mapping.Length != 256 ) throw new ArgumentException( "Mapping must list all 256 blocks", "mapping" );
@@ -604,6 +592,13 @@ namespace fCraft {
             return mapped;
         }
 
+        static readonly byte[] ZeroMapping = new byte[256];
+
+        /// <summary> Replaces all nonstandard (50-255) blocks with air. </summary>
+        /// <returns> True if any blocks needed replacement. </returns>
+        public bool RemoveUnknownBlocktypes() {
+            return ConvertBlockTypes( ZeroMapping );
+        }
 
         static readonly Dictionary<string, Block> BlockNames = new Dictionary<string, Block>();
         static readonly Dictionary<Block, string> BlockEdgeTextures = new Dictionary<Block, string>();
@@ -857,7 +852,7 @@ namespace fCraft {
             }
         }
 
-
+        [CanBeNull]
         internal static string GetEdgeTexture( Block block ) {
             string result;
             if( BlockEdgeTextures.TryGetValue( block, out result ) ) {

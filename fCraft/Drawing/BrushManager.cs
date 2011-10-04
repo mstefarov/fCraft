@@ -67,6 +67,7 @@ namespace fCraft.Drawing {
         }
 
 
+        [CanBeNull]
         public static IBrushFactory GetBrushFactory( [NotNull] string brushName ) {
             if( brushName == null ) throw new ArgumentNullException( "brushName" );
             IBrushFactory factory;
