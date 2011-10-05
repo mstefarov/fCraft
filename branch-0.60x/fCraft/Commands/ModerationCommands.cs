@@ -1140,10 +1140,10 @@ namespace fCraft {
                 Logger.Log( "Player {0} was muted by {1} for {2}", LogType.UserActivity,
                             target.Name, player.Name, duration.ToMiniString() );
             } else {
-                player.Message( "Player {0}&S is already muted by {1}&S for another {2}.",
+                player.Message( "Player {0}&S is already muted by {1}&S for {2} longer",
                                 target.ClassyName,
-                                target.Info.MutedBy,
-                                target.Info.MutedUntil.Subtract( DateTime.UtcNow ).ToMiniString() );
+                                target.Info.MutedByClassy,
+                                target.Info.TimeMutedLeft.ToMiniString() );
             }
         }
 

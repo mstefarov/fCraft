@@ -531,10 +531,10 @@ namespace fCraft {
     }
 
     public static class EnumUtil {
-        public static bool TryParse<TEnum>( [NotNull] string value, out TEnum output ) {
+        public static bool TryParse<TEnum>( [NotNull] string value, out TEnum output, bool ignoreCase ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             try {
-                output = (TEnum)Enum.Parse( typeof( TEnum ), value );
+                output = (TEnum)Enum.Parse( typeof( TEnum ), value, ignoreCase );
                 return true;
             } catch( ArgumentException ) {
                 output = default( TEnum );

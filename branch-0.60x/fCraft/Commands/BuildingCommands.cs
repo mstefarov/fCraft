@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using fCraft.Drawing;
 using fCraft.MapConversion;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Commands for placing specific blocks (solid, water, grass),
@@ -66,13 +67,14 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdSphereHollow );
             CommandManager.RegisterCommand( CdTorus );
 
+            CommandManager.RegisterCommand( CdTree );
+
             CommandManager.RegisterCommand( CdUndoArea );
             CommandManager.RegisterCommand( CdUndoPlayer );
         }
 
 
         #region DrawOperations & Brushes
-
 
         static readonly CommandDescriptor CdCuboid = new CommandDescriptor {
             Name = "cuboid",
@@ -149,6 +151,7 @@ namespace fCraft {
         }
 
 
+
         static readonly CommandDescriptor CdSphere = new CommandDescriptor {
             Name = "sphere",
             Aliases = new[] { "sp", "spheroid" },
@@ -163,6 +166,7 @@ namespace fCraft {
         static void SphereHandler( Player player, Command cmd ) {
             DrawOperationBegin( player, cmd, new SphereDrawOperation( player ) );
         }
+
 
 
         static readonly CommandDescriptor CdSphereHollow = new CommandDescriptor {
@@ -181,6 +185,7 @@ namespace fCraft {
         }
 
 
+
         static readonly CommandDescriptor CdLine = new CommandDescriptor {
             Name = "line",
             Aliases = new[] { "ln" },
@@ -194,6 +199,7 @@ namespace fCraft {
         static void LineHandler( Player player, Command cmd ) {
             DrawOperationBegin( player, cmd, new LineDrawOperation( player ) );
         }
+
 
 
         static readonly CommandDescriptor CdTorus = new CommandDescriptor {
@@ -210,6 +216,7 @@ namespace fCraft {
         static void TorusHandler( Player player, Command cmd ) {
             DrawOperationBegin( player, cmd, new TorusDrawOperation( player ) );
         }
+
 
 
         static void DrawOperationBegin( Player player, Command cmd, DrawOperation op ) {
@@ -251,7 +258,7 @@ namespace fCraft {
             Handler = SolidHandler
         };
 
-        internal static void SolidHandler( Player player, Command cmd ) {
+        static void SolidHandler( Player player, Command cmd ) {
             if( player.GetBind( Block.Stone ) == Block.Admincrete ) {
                 player.ResetBind( Block.Stone );
                 player.Message( "Solid: OFF" );
@@ -272,7 +279,7 @@ namespace fCraft {
             Handler = PaintHandler
         };
 
-        internal static void PaintHandler( Player player, Command cmd ) {
+        static void PaintHandler( Player player, Command cmd ) {
             player.IsPainting = !player.IsPainting;
             if( player.IsPainting ) {
                 player.Message( "Paint mode: ON" );
@@ -292,7 +299,7 @@ namespace fCraft {
             Handler = GrassHandler
         };
 
-        internal static void GrassHandler( Player player, Command cmd ) {
+        static void GrassHandler( Player player, Command cmd ) {
             if( player.GetBind( Block.Dirt ) == Block.Grass ) {
                 player.ResetBind( Block.Dirt );
                 player.Message( "Grass: OFF" );
@@ -313,7 +320,7 @@ namespace fCraft {
             Handler = WaterHandler
         };
 
-        internal static void WaterHandler( Player player, Command cmd ) {
+        static void WaterHandler( Player player, Command cmd ) {
             if( player.GetBind( Block.Aqua ) == Block.Water ||
                 player.GetBind( Block.Cyan ) == Block.Water ||
                 player.GetBind( Block.Blue ) == Block.Water ) {
@@ -338,7 +345,7 @@ namespace fCraft {
             Handler = LavaHandler
         };
 
-        internal static void LavaHandler( Player player, Command cmd ) {
+        static void LavaHandler( Player player, Command cmd ) {
             if( player.GetBind( Block.Red ) == Block.Lava ) {
                 player.ResetBind( Block.Red );
                 player.Message( "Lava: OFF" );
@@ -362,7 +369,7 @@ namespace fCraft {
             Handler = BindHandler
         };
 
-        internal static void BindHandler( Player player, Command cmd ) {
+        static void BindHandler( Player player, Command cmd ) {
             string originalBlockName = cmd.Next();
             if( originalBlockName == null ) {
                 player.Message( "All bindings have been reset." );
@@ -420,12 +427,14 @@ namespace fCraft {
         #endregion
 
 
-        static void DrawOneBlock( Player player, byte drawBlock, int x, int y, int z, ref int blocks, ref int blocksDenied, ref bool cannotUndo ) {
+        static void DrawOneBlock( [NotNull] Player player, byte drawBlock, int x, int y, int z,
+                                  BlockChangeContext context, ref int blocks, ref int blocksDenied, ref bool cannotUndo ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             if( !player.World.Map.InBounds( x, y, z ) ) return;
             byte block = player.World.Map.GetBlockByte( x, y, z );
             if( block == drawBlock ) return;
 
-            if( player.CanPlace( x, y, z, (Block)drawBlock, false ) != CanPlaceResult.Allowed ) {
+            if( player.CanPlace( x, y, z, (Block)drawBlock, context ) != CanPlaceResult.Allowed ) {
                 blocksDenied++;
                 return;
             }
@@ -433,7 +442,7 @@ namespace fCraft {
             // this would've been an easy way to do block tracking for draw commands BUT
             // if i set "origin" to player, he will not receive the block update. I tried.
             player.World.Map.QueueUpdate( new BlockUpdate( null, x, y, z, drawBlock ) );
-            Player.RaisePlayerPlacedBlockEvent( player, player.World.Map, (short)x, (short)y, (short)z, (Block)block, (Block)drawBlock, false );
+            Player.RaisePlayerPlacedBlockEvent( player, player.World.Map, (short)x, (short)y, (short)z, (Block)block, (Block)drawBlock, context );
 
             if( MaxUndoCount < 1 || blocks < MaxUndoCount ) {
                 player.UndoBuffer.Enqueue( new BlockUpdate( null, x, y, z, block ) );
@@ -451,7 +460,8 @@ namespace fCraft {
         }
 
 
-        static void DrawingFinished( Player player, string verb, int blocks, int blocksDenied ) {
+        static void DrawingFinished( [NotNull] Player player, string verb, int blocks, int blocksDenied ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             if( blocks == 0 ) {
                 if( blocksDenied > 0 ) {
                     player.MessageNow( "No blocks could be {0} due to permission issues.", verb.ToLower() );
@@ -501,6 +511,7 @@ namespace fCraft {
         }
 
 
+
         static readonly CommandDescriptor CdReplaceNot = new CommandDescriptor {
             Name = "replacenot",
             Aliases = new[] { "rn" },
@@ -530,6 +541,8 @@ namespace fCraft {
 
         #region Undo
 
+        const BlockChangeContext UndoContext = BlockChangeContext.Drawn | BlockChangeContext.UndoneSelf;
+
         static readonly CommandDescriptor CdUndo = new CommandDescriptor {
             Name = "undo",
             Category = CommandCategory.Building,
@@ -539,7 +552,7 @@ namespace fCraft {
             Handler = UndoHandler
         };
 
-        internal static void UndoHandler( Player player, Command command ) {
+        static void UndoHandler( Player player, Command command ) {
             Queue<BlockUpdate> oldBuffer = player.UndoBuffer;
             if( oldBuffer.Count > 0 ) {
                 string msg = "Undo: ";
@@ -563,7 +576,7 @@ namespace fCraft {
                 bool cannotUndo = false;
                 while( oldBuffer.Count > 0 ) {
                     BlockUpdate changeToUndo = oldBuffer.Dequeue();
-                    DrawOneBlock( player, changeToUndo.BlockType, changeToUndo.X, changeToUndo.Y, changeToUndo.Z,
+                    DrawOneBlock( player, changeToUndo.BlockType, changeToUndo.X, changeToUndo.Y, changeToUndo.Z, UndoContext,
                                   ref blocks, ref blocksDenied, ref cannotUndo );
                 }
                 DrawingFinished( player, "Undone", blocks, blocksDenied );
@@ -583,6 +596,9 @@ namespace fCraft {
             public Block[] BlockTypes;
         }
 
+        const BlockChangeContext PasteContext = BlockChangeContext.Drawn | BlockChangeContext.Pasted;
+
+
         static readonly CommandDescriptor CdCopySlot = new CommandDescriptor {
             Name = "copyslot",
             Category = CommandCategory.Building,
@@ -592,7 +608,7 @@ namespace fCraft {
             Handler = CopySlotHandler
         };
 
-        internal static void CopySlotHandler( Player player, Command cmd ) {
+        static void CopySlotHandler( Player player, Command cmd ) {
             int slotNumber;
             if( cmd.NextInt( out slotNumber ) ) {
                 if( slotNumber < 1 || slotNumber > player.Info.Rank.CopySlots ) {
@@ -634,12 +650,13 @@ namespace fCraft {
             Handler = CopyHandler
         };
 
-        internal static void CopyHandler( Player player, Command cmd ) {
+        static void CopyHandler( Player player, Command cmd ) {
             player.SelectionStart( 2, CopyCallback, null, CdCopy.Permissions );
             player.MessageNow( "Copy: Place a block or type /mark to use your location." );
         }
 
-        internal static void CopyCallback( Player player, Vector3I[] marks, object tag ) {
+
+        static void CopyCallback( Player player, Vector3I[] marks, object tag ) {
             int sx = Math.Min( marks[0].X, marks[1].X );
             int ex = Math.Max( marks[0].X, marks[1].X );
             int sy = Math.Min( marks[0].Y, marks[1].Y );
@@ -699,7 +716,7 @@ namespace fCraft {
             Handler = CutHandler
         };
 
-        internal static void CutHandler( Player player, Command cmd ) {
+        static void CutHandler( Player player, Command cmd ) {
             Block fillBlock = Block.Air;
             if( cmd.HasNext ) {
                 fillBlock = cmd.NextBlock( player );
@@ -732,7 +749,7 @@ namespace fCraft {
             Handler = PasteNotHandler
         };
 
-        internal static void PasteNotHandler( Player player, Command cmd ) {
+        static void PasteNotHandler( Player player, Command cmd ) {
             if( player.GetCopyInformation() == null ) {
                 player.MessageNow( "Nothing to paste! Copy something first." );
                 return;
@@ -784,7 +801,7 @@ namespace fCraft {
             Handler = PasteHandler
         };
 
-        internal static void PasteHandler( Player player, Command cmd ) {
+        static void PasteHandler( Player player, Command cmd ) {
             if( player.GetCopyInformation() == null ) {
                 player.MessageNow( "Nothing to paste! Copy something first." );
                 return;
@@ -892,7 +909,8 @@ namespace fCraft {
                                     }
                                     if( skip ) continue;
                                 }
-                                DrawOneBlock( player, block, x + x3, y + y3, z, ref blocks, ref blocksDenied, ref cannotUndo );
+                                DrawOneBlock( player, block, x + x3, y + y3, z, PasteContext,
+                                              ref blocks, ref blocksDenied, ref cannotUndo );
                             }
                         }
                     }
@@ -920,7 +938,7 @@ namespace fCraft {
             Handler = MirrorHandler
         };
 
-        internal static void MirrorHandler( Player player, Command cmd ) {
+        static void MirrorHandler( Player player, Command cmd ) {
             CopyInformation info = player.GetCopyInformation();
             if( info == null ) {
                 player.MessageNow( "Nothing to flip! Copy something first." );
@@ -1031,7 +1049,7 @@ namespace fCraft {
             Handler = RotateHandler
         };
 
-        internal static void RotateHandler( Player player, Command cmd ) {
+        static void RotateHandler( Player player, Command cmd ) {
             CopyInformation info = player.GetCopyInformation();
             if( info == null ) {
                 player.MessageNow( "Nothing to rotate! Copy something first." );
@@ -1162,6 +1180,9 @@ namespace fCraft {
 
         #region Restore
 
+        const BlockChangeContext RestoreContext = BlockChangeContext.Drawn | BlockChangeContext.Restored;
+
+
         static readonly CommandDescriptor CdRestore = new CommandDescriptor {
             Name = "restore",
             Category = CommandCategory.World,
@@ -1176,8 +1197,7 @@ namespace fCraft {
             Handler = RestoreHandler
         };
 
-
-        internal static void RestoreHandler( Player player, Command cmd ) {
+        static void RestoreHandler( Player player, Command cmd ) {
             string fileName = cmd.Next();
             if( fileName == null ) {
                 CdRestore.PrintUsage( player );
@@ -1228,7 +1248,7 @@ namespace fCraft {
             for( int x = selection.XMin; x <= selection.XMax; x++ ) {
                 for( int y = selection.YMin; y <= selection.YMax; y++ ) {
                     for( int z = selection.ZMin; z <= selection.ZMax; z++ ) {
-                        DrawOneBlock( player, map.GetBlockByte( x, y, z ), x, y, z,
+                        DrawOneBlock( player, map.GetBlockByte( x, y, z ), x, y, z, RestoreContext,
                                                        ref blocksDrawn, ref blocksSkipped, ref cannotUndo );
                     }
                 }
@@ -1247,6 +1267,66 @@ namespace fCraft {
         #endregion
 
 
+        #region Tree
+
+        static readonly CommandDescriptor CdTree = new CommandDescriptor {
+            Name = "Tree",
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
+            Usage = "/Tree Shape Height",
+            Help = "Plants a tree of given shape and height. Available shapes: Normal, Bamboo, Palm, Round, Cone, Rainforest, Mangrove.",
+            Handler = TreeHandler
+        };
+
+        static void TreeHandler( Player player, Command cmd ) {
+            string shapeName = cmd.Next();
+            int height;
+            Forester.TreeShape shape;
+
+            // that's one ugly if statement... does the job though.
+            if( shapeName == null ||
+                !cmd.NextInt( out height ) ||
+                !EnumUtil.TryParse( shapeName, out shape, true ) ||
+                shape == Forester.TreeShape.Stickly ||
+                shape == Forester.TreeShape.Procedural ) {
+
+                CdTree.PrintUsage( player );
+                return;
+            }
+
+            if( height < 2 || height > 1024 ) {
+                player.Message( "Tree height must be between 2 and 1024 blocks." );
+                return;
+            }
+
+            Map map = player.World.Map;
+
+            ForesterArgs args = new ForesterArgs {
+                Height = height,
+                Shape = shape,
+                Map = map
+            };
+
+            player.SelectionStart( 1, TreeCallback, args, CdTree.Permissions );
+        }
+
+
+        static void TreeCallback( Player player, Vector3I[] marks, object tag ) {
+            ForesterArgs args = (ForesterArgs)tag;
+            int blocksPlaced = 0, blocksDenied = 0;
+            bool cannotUndo = false;
+            args.BlockPlacing +=
+                ( sender, e ) =>
+                DrawOneBlock( player, (byte)e.Block, e.Coordinate.X, e.Coordinate.Y, e.Coordinate.Z,
+                              BlockChangeContext.Drawn,
+                              ref blocksPlaced, ref blocksDenied, ref cannotUndo );
+            Forester.Plant( args, marks[0] );
+            DrawingFinished( player, "planted", blocksPlaced, blocksDenied );
+        }
+
+        #endregion
+
+
         #region Mark, Cancel
 
         static readonly CommandDescriptor CdMark = new CommandDescriptor {
@@ -1259,7 +1339,7 @@ namespace fCraft {
             Handler = MarkHandler
         };
 
-        internal static void MarkHandler( Player player, Command command ) {
+        static void MarkHandler( Player player, Command command ) {
             int x, y, z;
             Position pos;
             if( command.NextInt( out x ) && command.NextInt( out y ) && command.NextInt( out z ) ) {
@@ -1290,7 +1370,7 @@ namespace fCraft {
             Handler = CancelHandler
         };
 
-        internal static void CancelHandler( Player player, Command command ) {
+        static void CancelHandler( Player player, Command command ) {
             if( player.IsMakingSelection ) {
                 player.SelectionCancel();
                 player.MessageNow( "Selection cancelled." );
@@ -1303,6 +1383,20 @@ namespace fCraft {
 
 
         #region UndoPlayer and UndoArea
+
+        struct UndoAreaCountArgs {
+            public PlayerInfo Target;
+            public World World;
+            public int MaxBlocks;
+            public BoundingBox Area;
+        }
+
+        struct UndoAreaTimeArgs {
+            public PlayerInfo Target;
+            public World World;
+            public TimeSpan Time;
+            public BoundingBox Area;
+        }
 
         static readonly CommandDescriptor CdUndoArea = new CommandDescriptor {
             Name = "UndoArea",
@@ -1369,19 +1463,6 @@ namespace fCraft {
             player.MessageNow( "UndoPlayer: Click 2 blocks or use &H/mark&S to make a selection." );
         }
 
-        struct UndoAreaCountArgs {
-            public PlayerInfo Target;
-            public World World;
-            public int MaxBlocks;
-            public BoundingBox Area;
-        }
-
-        struct UndoAreaTimeArgs {
-            public PlayerInfo Target;
-            public World World;
-            public TimeSpan Time;
-            public BoundingBox Area;
-        }
 
         static void UndoAreaCountSelectionCallback( Player player, Vector3I[] marks, object tag ) {
             UndoAreaCountArgs args = (UndoAreaCountArgs)tag;
@@ -1396,6 +1477,7 @@ namespace fCraft {
             }
         }
 
+
         static void UndoAreaTimeSelectionCallback( Player player, Vector3I[] marks, object tag ) {
             UndoAreaTimeArgs args = (UndoAreaTimeArgs)tag;
             args.World = player.World;
@@ -1409,16 +1491,26 @@ namespace fCraft {
             }
         }
 
+
         static void UndoAreaCountConfirmCallback( Player player, object tag, bool fromConsole ) {
             UndoAreaCountArgs args = (UndoAreaCountArgs)tag;
             BlockDBEntry[] changes = args.World.BlockDB.Lookup( args.Target, args.Area, args.MaxBlocks );
+
+            BlockChangeContext context = BlockChangeContext.Drawn;
+            if( player.Info == args.Target ) {
+                context |= BlockChangeContext.UndoneSelf;
+            } else {
+                context |= BlockChangeContext.UndoneOther;
+            }
+
             int blocks = 0, blocksDenied = 0;
             bool cannotUndo = false;
             player.LastDrawOp = null;
             player.UndoBuffer.Clear();
+
             for( int i = 0; i < changes.Length; i++ ) {
                 DrawOneBlock( player, (byte)changes[i].OldBlock,
-                              changes[i].X, changes[i].Y, changes[i].Z,
+                              changes[i].X, changes[i].Y, changes[i].Z, context,
                               ref blocks, ref blocksDenied, ref cannotUndo );
             }
 
@@ -1431,16 +1523,26 @@ namespace fCraft {
             DrawingFinished( player, "UndoArea'd", blocks, blocksDenied );
         }
 
+
         static void UndoAreaTimeConfirmCallback( Player player, object tag, bool fromConsole ) {
             UndoAreaTimeArgs args = (UndoAreaTimeArgs)tag;
             BlockDBEntry[] changes = args.World.BlockDB.Lookup( args.Target, args.Area, args.Time );
+
+            BlockChangeContext context = BlockChangeContext.Drawn;
+            if( player.Info == args.Target ) {
+                context |= BlockChangeContext.UndoneSelf;
+            } else {
+                context |= BlockChangeContext.UndoneOther;
+            }
+
             int blocks = 0, blocksDenied = 0;
             bool cannotUndo = false;
             player.LastDrawOp = null;
             player.UndoBuffer.Clear();
+
             for( int i = 0; i < changes.Length; i++ ) {
                 DrawOneBlock( player, (byte)changes[i].OldBlock,
-                              changes[i].X, changes[i].Y, changes[i].Z,
+                              changes[i].X, changes[i].Y, changes[i].Z, context,
                               ref blocks, ref blocksDenied, ref cannotUndo );
             }
 
@@ -1452,6 +1554,7 @@ namespace fCraft {
 
             DrawingFinished( player, "UndoArea'd", blocks, blocksDenied );
         }
+
 
 
         static readonly CommandDescriptor CdUndoPlayer = new CommandDescriptor {
@@ -1530,13 +1633,20 @@ namespace fCraft {
                 return;
             }
 
+            BlockChangeContext context = BlockChangeContext.Drawn;
+            if( player.Info == target ) {
+                context |= BlockChangeContext.UndoneSelf;
+            } else {
+                context |= BlockChangeContext.UndoneOther;
+            }
+
             int blocks = 0, blocksDenied = 0;
             bool cannotUndo = false;
             player.LastDrawOp = null;
             player.UndoBuffer.Clear();
             for( int i = 0; i < changes.Length; i++ ) {
                 DrawOneBlock( player, (byte)changes[i].OldBlock,
-                              changes[i].X, changes[i].Y, changes[i].Z,
+                              changes[i].X, changes[i].Y, changes[i].Z, context,
                               ref blocks, ref blocksDenied, ref cannotUndo );
             }
 

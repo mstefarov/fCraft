@@ -2,6 +2,7 @@
 using System;
 using System.Net;
 using fCraft.Events;
+using JetBrains.Annotations;
 
 namespace fCraft {
     partial class Player {
@@ -76,8 +77,8 @@ namespace fCraft {
         public static event EventHandler<PlayerJoinedWorldEventArgs> JoinedWorld;
 
 
-
-        internal static bool RaisePlayerConnectingEvent( Player player ) {
+        static bool RaisePlayerConnectingEvent( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             var h = Connecting;
             if( h == null ) return false;
             var e = new PlayerConnectingEventArgs( player );
@@ -86,7 +87,8 @@ namespace fCraft {
         }
 
 
-        internal static World RaisePlayerConnectedEvent( Player player, World world ) {
+        static World RaisePlayerConnectedEvent( [NotNull] Player player, World world ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             var h = Connected;
             if( h == null ) return world;
             var e = new PlayerConnectedEventArgs( player, world );
@@ -95,13 +97,15 @@ namespace fCraft {
         }
 
 
-        internal static void RaisePlayerReadyEvent( Player player ) {
+        static void RaisePlayerReadyEvent( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             var h = Ready;
             if( h != null ) h( null, new PlayerEventArgs( player ) );
         }
 
 
-        internal static bool RaisePlayerMovingEvent( Player player, Position newPos ) {
+        static bool RaisePlayerMovingEvent( [NotNull] Player player, Position newPos ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             var h = Moving;
             if( h == null ) return false;
             var e = new PlayerMovingEventArgs( player, newPos );
@@ -110,13 +114,15 @@ namespace fCraft {
         }
 
 
-        internal static void RaisePlayerMovedEvent( Player player, Position oldPos ) {
+        static void RaisePlayerMovedEvent( [NotNull] Player player, Position oldPos ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             var h = Moved;
             if( h != null ) h( null, new PlayerMovedEventArgs( player, oldPos ) );
         }
 
 
-        internal static bool RaisePlayerClickingEvent( PlayerClickingEventArgs e ) {
+        static bool RaisePlayerClickingEvent( [NotNull] PlayerClickingEventArgs e ) {
+            if( e == null ) throw new ArgumentNullException( "e" );
             var h = Clicking;
             if( h == null ) return false;
             h( null, e );
@@ -124,7 +130,8 @@ namespace fCraft {
         }
 
 
-        internal static void RaisePlayerClickedEvent( Player player, short x, short y, short z, ClickAction action, Block block ) {
+        static void RaisePlayerClickedEvent( Player player, short x, short y, short z,
+                                             ClickAction action, Block block ) {
             var handler = Clicked;
             if( handler != null ) {
                 handler( null, new PlayerClickedEventArgs( player, x, y, z, action, block ) );
@@ -132,51 +139,58 @@ namespace fCraft {
         }
 
 
-        internal static CanPlaceResult RaisePlayerPlacingBlockEvent( Player player, Map map, short x, short y, short z,
-                                                                     Block oldBlock, Block newBlock, bool manual,
-                                                                     CanPlaceResult result ) {
+        static CanPlaceResult RaisePlayerPlacingBlockEvent( Player player, Map map, short x, short y, short z,
+                                                            Block oldBlock, Block newBlock, BlockChangeContext context,
+                                                            CanPlaceResult result ) {
             var handler = PlacingBlock;
             if( handler == null ) return result;
-            var e = new PlayerPlacingBlockEventArgs( player, map, x, y, z, oldBlock, newBlock, manual, result );
+            var e = new PlayerPlacingBlockEventArgs( player, map, x, y, z, oldBlock, newBlock, context, result );
             handler( null, e );
             return e.Result;
         }
 
 
         internal static void RaisePlayerPlacedBlockEvent( Player player, Map map, short x, short y, short z,
-                                                          Block oldBlock, Block newBlock, bool manual ) {
+                                                          Block oldBlock, Block newBlock, BlockChangeContext context ) {
             var handler = PlacedBlock;
             if( handler != null ) {
-                handler( null, new PlayerPlacedBlockEventArgs( player, map, x, y, z, oldBlock, newBlock, manual ) );
+                handler( null, new PlayerPlacedBlockEventArgs( player, map, x, y, z, oldBlock, newBlock, context ) );
             }
         }
 
 
-        static void RaisePlayerBeingKickedEvent( PlayerBeingKickedEventArgs e ) {
+        static void RaisePlayerBeingKickedEvent( [NotNull] PlayerBeingKickedEventArgs e ) {
+            if( e == null ) throw new ArgumentNullException( "e" );
             var h = BeingKicked;
             if( h != null ) h( null, e );
         }
 
 
-        static void RaisePlayerKickedEvent( PlayerKickedEventArgs e ) {
+        static void RaisePlayerKickedEvent( [NotNull] PlayerKickedEventArgs e ) {
+            if( e == null ) throw new ArgumentNullException( "e" );
             var h = Kicked;
             if( h != null ) h( null, e );
         }
 
 
-        internal static void RaisePlayerHideChangedEvent( Player player ) {
+        internal static void RaisePlayerHideChangedEvent( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             var h = HideChanged;
             if( h != null ) h( null, new PlayerEventArgs( player ) );
         }
 
 
-        internal static void RaisePlayerDisconnectedEvent( Player player, LeaveReason leaveReason ) {
+        static void RaisePlayerDisconnectedEvent( [NotNull] Player player, LeaveReason leaveReason ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             var h = Disconnected;
             if( h != null ) h( null, new PlayerDisconnectedEventArgs( player, leaveReason, false ) );
         }
 
 
-        internal static bool RaisePlayerJoiningWorldEvent( Player player, World newWorld, WorldChangeReason reason, string textLine1, string textLine2 ) {
+        static bool RaisePlayerJoiningWorldEvent( [NotNull] Player player, [NotNull] World newWorld, WorldChangeReason reason,
+                                                  string textLine1, string textLine2 ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             var h = JoiningWorld;
             if( h == null ) return false;
             var e = new PlayerJoiningWorldEventArgs( player, player.World, newWorld, reason, textLine1, textLine2 );
@@ -185,7 +199,7 @@ namespace fCraft {
         }
 
 
-        internal static void RaisePlayerJoinedWorldEvent( Player player, World oldWorld, WorldChangeReason reason ) {
+        static void RaisePlayerJoinedWorldEvent( Player player, World oldWorld, WorldChangeReason reason ) {
             var h = JoinedWorld;
             if( h != null ) h( null, new PlayerJoinedWorldEventArgs( player, oldWorld, player.World, reason ) );
         }
@@ -193,7 +207,6 @@ namespace fCraft {
 }
 
 namespace fCraft.Events {
-
 
     public sealed class PlayerEventArgs : EventArgs, IPlayerEvent {
         public PlayerEventArgs( Player player ) {
@@ -205,54 +218,63 @@ namespace fCraft.Events {
 
 
     public sealed class SessionConnectingEventArgs : EventArgs, ICancellableEvent {
-        public SessionConnectingEventArgs( IPAddress ip ) {
+        public SessionConnectingEventArgs( [NotNull] IPAddress ip ) {
+            if( ip == null ) throw new ArgumentNullException( "ip" );
             IP = ip;
         }
 
+        [NotNull]
         public IPAddress IP { get; private set; }
         public bool Cancel { get; set; }
     }
 
 
     public sealed class SessionDisconnectedEventArgs : EventArgs {
-        public SessionDisconnectedEventArgs( Player player, LeaveReason leaveReason ) {
+        public SessionDisconnectedEventArgs( [NotNull] Player player, LeaveReason leaveReason ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             LeaveReason = leaveReason;
         }
 
+        [NotNull]
         public Player Player { get; private set; }
         public LeaveReason LeaveReason { get; private set; }
     }
 
 
     public sealed class PlayerConnectingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
-        internal PlayerConnectingEventArgs( Player player ) {
+        internal PlayerConnectingEventArgs( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
         }
 
+        [NotNull]
         public Player Player { get; private set; }
         public bool Cancel { get; set; }
     }
 
 
     public sealed class PlayerConnectedEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerConnectedEventArgs( Player player, World startingWorld ) {
+        internal PlayerConnectedEventArgs( [NotNull] Player player, World startingWorld ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             StartingWorld = startingWorld;
         }
 
+        [NotNull]
         public Player Player { get; private set; }
         public World StartingWorld { get; set; }
     }
 
 
     public sealed class PlayerMovingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
-        internal PlayerMovingEventArgs( Player player, Position newPos ) {
+        internal PlayerMovingEventArgs( [NotNull] Player player, Position newPos ) {
             Player = player;
             OldPosition = player.Position;
             NewPosition = newPos;
         }
 
+        [NotNull]
         public Player Player { get; private set; }
         public Position OldPosition { get; private set; }
         public Position NewPosition { get; set; }
@@ -261,12 +283,14 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerMovedEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerMovedEventArgs( Player player, Position oldPos ) {
+        internal PlayerMovedEventArgs( [NotNull] Player player, Position oldPos ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             OldPosition = oldPos;
             NewPosition = player.Position;
         }
 
+        [NotNull]
         public Player Player { get; private set; }
         public Position OldPosition { get; private set; }
         public Position NewPosition { get; private set; }
@@ -274,7 +298,9 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerClickingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
-        internal PlayerClickingEventArgs( Player player, short x, short y, short z, ClickAction action, Block block ) {
+        internal PlayerClickingEventArgs( [NotNull] Player player, short x, short y, short z,
+                                          ClickAction action, Block block ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             X = x;
             Y = y;
@@ -283,6 +309,7 @@ namespace fCraft.Events {
             Block = block;
         }
 
+        [NotNull]
         public Player Player { get; private set; }
         public short X { get; private set; }
         public short Y { get; private set; }
@@ -295,7 +322,8 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerClickedEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerClickedEventArgs( Player player, short x, short y, short z, ClickAction action, Block block ) {
+        internal PlayerClickedEventArgs( [NotNull] Player player, short x, short y, short z, ClickAction action, Block block ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             X = x;
             Y = y;
@@ -304,6 +332,7 @@ namespace fCraft.Events {
             Action = action;
         }
 
+        [NotNull]
         public Player Player { get; private set; }
         public short X { get; private set; }
         public short Y { get; private set; }
@@ -314,8 +343,10 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerPlacingBlockEventArgs : PlayerPlacedBlockEventArgs {
-        internal PlayerPlacingBlockEventArgs( Player player, Map map, short x, short y, short z, Block oldBlock, Block newBlock, bool isManual, CanPlaceResult result )
-            : base( player, map, x, y, z, oldBlock, newBlock, isManual ) {
+        internal PlayerPlacingBlockEventArgs( [NotNull] Player player, Map map, short x, short y, short z,
+                                              Block oldBlock, Block newBlock, BlockChangeContext context, CanPlaceResult result )
+            : base( player, map, x, y, z, oldBlock, newBlock, context ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             Result = result;
         }
 
@@ -324,7 +355,8 @@ namespace fCraft.Events {
 
 
     public class PlayerPlacedBlockEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerPlacedBlockEventArgs( Player player, Map map, short x, short y, short z, Block oldBlock, Block newBlock, bool isManual ) {
+        internal PlayerPlacedBlockEventArgs( [NotNull] Player player, Map map, short x, short y, short z,
+                                             Block oldBlock, Block newBlock, BlockChangeContext context ) {
             Player = player;
             Map = map;
             X = x;
@@ -332,23 +364,25 @@ namespace fCraft.Events {
             Z = z;
             OldBlock = oldBlock;
             NewBlock = newBlock;
-            IsManual = isManual;
+            Context = context;
         }
 
+
+        [NotNull]
         public Player Player { get; private set; }
         public Map Map { get; private set; }
         public short X { get; private set; }
         public short Y { get; private set; }
         public short Z { get; private set; }
-        /// <summary> Whether this change was the result of a manual click, or a command/drawOp. </summary>
-        public bool IsManual { get; private set; }
         public Block OldBlock { get; private set; }
         public Block NewBlock { get; private set; }
+        public BlockChangeContext Context { get; private set; }
     }
 
 
     public sealed class PlayerBeingKickedEventArgs : PlayerKickedEventArgs, ICancellableEvent {
-        internal PlayerBeingKickedEventArgs( Player player, Player kicker, string reason, bool isSilent, bool recordToPlayerDB, LeaveReason context )
+        internal PlayerBeingKickedEventArgs( Player player, Player kicker, string reason,
+                                              bool isSilent, bool recordToPlayerDB, LeaveReason context )
             : base( player, kicker, reason, isSilent, recordToPlayerDB, context ) {
         }
 
@@ -387,11 +421,14 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerDisconnectedEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerDisconnectedEventArgs( Player player, LeaveReason leaveReason, bool isFake ) {
+        internal PlayerDisconnectedEventArgs( [NotNull] Player player, LeaveReason leaveReason, bool isFake ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             LeaveReason = leaveReason;
             IsFake = isFake;
         }
+
+        [NotNull]
         public Player Player { get; private set; }
         public LeaveReason LeaveReason { get; private set; }
         public bool IsFake { get; private set; }
@@ -399,7 +436,9 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerJoiningWorldEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
-        public PlayerJoiningWorldEventArgs( Player player, World oldWorld, World newWorld, WorldChangeReason reason, string textLine1, string textLine2 ) {
+        public PlayerJoiningWorldEventArgs( [NotNull] Player player, World oldWorld, World newWorld, WorldChangeReason reason,
+                                            string textLine1, string textLine2 ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             OldWorld = oldWorld;
             NewWorld = newWorld;
@@ -408,6 +447,7 @@ namespace fCraft.Events {
             TextLine2 = textLine2;
         }
 
+        [NotNull]
         public Player Player { get; private set; }
         public World OldWorld { get; private set; }
         public World NewWorld { get; private set; }
@@ -419,13 +459,15 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerJoinedWorldEventArgs : EventArgs, IPlayerEvent {
-        public PlayerJoinedWorldEventArgs( Player player, World oldWorld, World newWorld, WorldChangeReason reason ) {
+        public PlayerJoinedWorldEventArgs( [NotNull] Player player, World oldWorld, World newWorld, WorldChangeReason reason ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             OldWorld = oldWorld;
             NewWorld = newWorld;
             Reason = reason;
         }
 
+        [NotNull]
         public Player Player { get; private set; }
         public World OldWorld { get; private set; }
         public World NewWorld { get; private set; }

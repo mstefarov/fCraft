@@ -18,6 +18,8 @@ namespace fCraft.Drawing {
         [NotNull]
         public IBrushInstance Brush;
 
+        public BlockChangeContext Context;
+
         public Vector3I[] Marks;
         public DateTime StartTime { get; protected set; }
 
@@ -96,6 +98,7 @@ namespace fCraft.Drawing {
             Player.LastDrawOp = this;
             Player.UndoBuffer.Clear();
             StartTime = DateTime.UtcNow;
+            Context = BlockChangeContext.Drawn;
             return true;
         }
 
@@ -135,7 +138,7 @@ namespace fCraft.Drawing {
                 return false;
             }
 
-            if( Player.CanPlace( Coords.X, Coords.Y, Coords.Z, newBlock, false ) != CanPlaceResult.Allowed ) {
+            if( Player.CanPlace( Coords.X, Coords.Y, Coords.Z, newBlock, Context ) != CanPlaceResult.Allowed ) {
                 BlocksDenied++;
                 return false;
             }
@@ -148,7 +151,7 @@ namespace fCraft.Drawing {
             }
 
             Player.RaisePlayerPlacedBlockEvent( Player, Map, (short)Coords.X, (short)Coords.Y, (short)Coords.Z,
-                                                oldBlock, newBlock, false );
+                                                oldBlock, newBlock, Context );
 
             if( BuildingCommands.MaxUndoCount < 1 || BlocksUpdated < BuildingCommands.MaxUndoCount ) {
                 Player.UndoBuffer.Enqueue( new BlockUpdate( null, Coords.X, Coords.Y, Coords.Z, oldBlock ) );

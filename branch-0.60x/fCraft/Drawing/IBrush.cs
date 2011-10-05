@@ -41,9 +41,9 @@ namespace fCraft.Drawing {
         /// Errors and warnings about the brush creation should be communicated by messaging the player. </param>
         /// <param name="cmd"> Parameters passed to the DrawOperation.
         /// If any are given, these parameters should generally replace any stored configuration. </param>
-        /// <param name="state"> DrawOperation that will be using this brush. </param>
+        /// <param name="op"> DrawOperation that will be using this brush. </param>
         /// <returns> A newly-made brush, or null if there was some problem with parameters/permissions. </returns>
-        IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] Command cmd, [NotNull] DrawOperation state );
+        IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] Command cmd, [NotNull] DrawOperation op );
     }
 
 
@@ -65,13 +65,13 @@ namespace fCraft.Drawing {
         /// <summary> Called when the DrawOperation starts. Should be used to verify that the brush is ready for use.
         /// Resources used by the brush should be obtained here. </summary>
         /// <param name="player"> Player who started the DrawOperation. </param>
-        /// <param name="state"> DrawOperation that will be using this brush. </param>
+        /// <param name="op"> DrawOperation that will be using this brush. </param>
         /// <returns> Whether this brush instance has successfully began or not. </returns>
-        bool Begin( [NotNull] Player player, [NotNull] DrawOperation state );
+        bool Begin( [NotNull] Player player, [NotNull] DrawOperation op );
 
         /// <summary> Provides the next Block type for the given DrawOperation. </summary>
         /// <returns> Block type to place, or Block.Undefined to skip. </returns>
-        Block NextBlock( [NotNull] DrawOperation state );
+        Block NextBlock( [NotNull] DrawOperation op );
 
         /// <summary> Called when the DrawOperation is done or cancelled.
         /// Resources used by the brush should be freed/disposed here. </summary>

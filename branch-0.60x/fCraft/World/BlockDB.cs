@@ -666,7 +666,7 @@ namespace fCraft {
             XAttribute temp;
             if( (temp = el.Attribute( "enabled" )) != null ) {
                 YesNoAuto enabledStateTemp;
-                if( EnumUtil.TryParse( temp.Value, out enabledStateTemp ) ) {
+                if( EnumUtil.TryParse( temp.Value, out enabledStateTemp, true ) ) {
                     EnabledState = enabledStateTemp;
                 } else {
                     Logger.Log( "WorldManager: Could not parse BlockDB \"enabled\" attribute of world \"{0}\", assuming AUTO.",
@@ -735,7 +735,8 @@ namespace fCraft {
                                                           e.Player.Info.ID,
                                                           e.X, e.Y, e.Z,
                                                           e.OldBlock,
-                                                          e.NewBlock );
+                                                          e.NewBlock,
+                                                          e.Context );
                 world.BlockDB.AddEntry( newEntry );
             }
         }

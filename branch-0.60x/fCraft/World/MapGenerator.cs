@@ -380,15 +380,15 @@ namespace fCraft {
                 ReportProgress( 5, "Processing: Planting trees" );
                 Map outMap = new Map( null, map.Width, map.Length, map.Height, false ) { Blocks = (byte[])map.Blocks.Clone() };
 
-                Forester treeGen = new Forester( new ForesterArgs {
-                    InMap = map,
-                    OutMap = outMap,
+                var foresterArgs = new ForesterArgs {
+                    Map = map,
                     Rand = rand,
                     TreeCount = (int)(map.Width * map.Length * 4 / (1024f * (args.TreeSpacingMax + args.TreeSpacingMin) / 2)),
                     Operation = Forester.ForesterOperation.Add,
                     PlantOn = bGroundSurface
-                } );
-                treeGen.Generate();
+                };
+                foresterArgs.BlockPlacing += ( sender, e ) => outMap.SetBlock( e.Coordinate, e.Block );
+                Forester.Generate( foresterArgs );
                 map = outMap;
 
                 GenerateTrees( map );

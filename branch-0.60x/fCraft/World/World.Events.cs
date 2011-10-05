@@ -4,7 +4,8 @@ using JetBrains.Annotations;
 
 namespace fCraft.Events {
     public class MainWorldChangedEventArgs : EventArgs {
-        internal MainWorldChangedEventArgs( World oldWorld, World newWorld ) {
+        internal MainWorldChangedEventArgs( World oldWorld, [NotNull] World newWorld ) {
+            if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             OldMainWorld = oldWorld;
             NewMainWorld = newWorld;
         }
@@ -14,7 +15,8 @@ namespace fCraft.Events {
 
 
     public sealed class MainWorldChangingEventArgs : MainWorldChangedEventArgs, ICancellableEvent {
-        internal MainWorldChangingEventArgs( World oldWorld, World newWorld ) : base( oldWorld, newWorld ) { }
+        internal MainWorldChangingEventArgs( World oldWorld, World newWorld )
+            : base( oldWorld, newWorld ) { }
         public bool Cancel { get; set; }
     }
 
@@ -49,7 +51,8 @@ namespace fCraft.Events {
 
 
     public sealed class WorldCreatedEventArgs : EventArgs, IPlayerEvent, IWorldEvent {
-        public WorldCreatedEventArgs( Player player, World world ) {
+        public WorldCreatedEventArgs( Player player, [NotNull] World world ) {
+            if( world == null ) throw new ArgumentNullException( "world" );
             Player = player;
             World = world;
         }

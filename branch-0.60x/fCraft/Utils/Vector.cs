@@ -5,6 +5,9 @@ namespace fCraft {
 
     /// <summary> Integer 3D vector, used by Forester. </summary>
     public struct Vector3I : IEquatable<Vector3I>, IComparable<Vector3I>, IComparable<Vector3F> {
+        public static readonly Vector3I Zero = new Vector3I( 0, 0, 0 );
+        public static readonly Vector3I Down = new Vector3I( 0, 0, -1 );
+
         public int X, Y, Z;
 
         public Vector3I( int x, int y, int z ) {
@@ -155,7 +158,7 @@ namespace fCraft {
         }
 
         public override string ToString() {
-            return String.Format( "Vector({0},{1},{2})", X, Y, Z );
+            return String.Format( "Vector3I({0},{1},{2})", X, Y, Z );
         }
 
         public Position ToPosition() {
@@ -172,6 +175,8 @@ namespace fCraft {
     /// Floating-point (float) 3D vector, used by Forester
     /// </summary>
     public struct Vector3F : IEquatable<Vector3F>, IComparable<Vector3I>, IComparable<Vector3F> {
+        public static readonly Vector3F Down = new Vector3F( 0, 0, -1 );
+        public static readonly Vector3F Zero = new Vector3F( 0, 0, 0 );
 
         public float X, Y, Z;
         public float X2 { get { return X * X; } }
@@ -337,7 +342,7 @@ namespace fCraft {
 
 
         public override string ToString() {
-            return String.Format( "Vector({0},{1},{2})", X, Y, Z );
+            return String.Format( "Vector3F({0},{1},{2})", X, Y, Z );
         }
     }
 }

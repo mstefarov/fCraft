@@ -54,11 +54,11 @@ namespace fCraft.Drawing {
         }
 
 
-        public virtual bool Begin( [NotNull] Player player, [NotNull] DrawOperation state ) {
+        public virtual bool Begin( [NotNull] Player player, [NotNull] DrawOperation op ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( state == null ) throw new ArgumentNullException( "state" );
+            if( op == null ) throw new ArgumentNullException( "op" );
 
-            if( state.Bounds.Volume > 32 * 32 * 32 ) {
+            if( op.Bounds.Volume > 32 * 32 * 32 ) {
                 player.Message( "{0} brush: Preparing, please wait...", Brush.Factory.Name );
             }
 
@@ -70,10 +70,10 @@ namespace fCraft.Drawing {
             };
 
             // generate and normalize the raw (float) data
-            float[, ,] rawData = new float[state.Bounds.Width, state.Bounds.Length, state.Bounds.Height];
-            for( int x = 0; x < state.Bounds.Width; x++ ) {
-                for( int y = 0; y < state.Bounds.Length; y++ ) {
-                    for( int z = 0; z < state.Bounds.Height; z++ ) {
+            float[, ,] rawData = new float[op.Bounds.Width, op.Bounds.Length, op.Bounds.Height];
+            for( int x = 0; x < op.Bounds.Width; x++ ) {
+                for( int y = 0; y < op.Bounds.Length; y++ ) {
+                    for( int z = 0; z < op.Bounds.Height; z++ ) {
                         rawData[x, y, z] = noise3D.Compute( x, y, z );
                     }
                 }
@@ -97,9 +97,9 @@ namespace fCraft.Drawing {
         }
 
 
-        public virtual Block NextBlock( [NotNull] DrawOperation state ) {
-            if( state == null ) throw new ArgumentNullException( "state" );
-            Vector3I relativeCoords = state.Coords - state.Bounds.MinVertex;
+        public virtual Block NextBlock( [NotNull] DrawOperation op ) {
+            if( op == null ) throw new ArgumentNullException( "op" );
+            Vector3I relativeCoords = op.Coords - op.Bounds.MinVertex;
             float value = noise3D.Compute( relativeCoords.X, relativeCoords.Y, relativeCoords.Z );
 
             // normalize value

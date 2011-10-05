@@ -294,9 +294,9 @@ If exceeded, oldest backups will be deleted first." )]
         MaxBackups,
 
         [IntKey( ConfigSection.SavingAndBackup, 0,
-@"Maximum combined filesize of all backups.
+@"Maximum combined filesize of all backups, in MB.
 If exceeded, oldest backups will be deleted first." )]
-        MaxBackupSize, // in megabytes
+        MaxBackupSize,
 
         [BoolKey( ConfigSection.SavingAndBackup, true,
 @"Create backups of server data (PlayerDB and IPBanList) on startup." )]

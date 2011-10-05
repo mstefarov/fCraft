@@ -110,6 +110,14 @@ namespace fCraft {
             get { return Info.ClassyName; }
         }
 
+        public string ClassyNameWithHiddenStar( Player observer ) {
+            if( Info.IsHidden && observer.CanSee( this ) ) {
+                return Info.ClassyName + Color.Gray + '*';
+            } else {
+                return Info.ClassyName;
+            }
+        }
+
         /// <summary> Whether the client supports advanced WoM client functionality. </summary>
         public bool IsUsingWoM { get; private set; }
 
@@ -534,8 +542,8 @@ namespace fCraft {
 
 
         public void MessageMuted() {
-            Message( "You are muted for another {0:0} seconds.",
-                     Info.MutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds );
+            Message( "You are muted for {0} longer.",
+                     Info.TimeMutedLeft.ToMiniString() );
         }
 
         #endregion
@@ -712,6 +720,11 @@ namespace fCraft {
 
             if( CheckBlockSpam() ) return true;
 
+            BlockChangeContext context = BlockChangeContext.Manual;
+            if( IsPainting && action == ClickAction.Delete ) {
+                context = BlockChangeContext.Replaced;
+            }
+
             // bindings
             bool requiresUpdate = (type != bindings[(byte)type] || IsPainting);
             if( action == ClickAction.Delete && !IsPainting ) {
@@ -729,10 +742,10 @@ namespace fCraft {
             CanPlaceResult canPlaceResult;
             if( type == Block.Stair && z > 0 && World.Map.GetBlock( x, y, z - 1 ) == Block.Stair ) {
                 // stair stacking
-                canPlaceResult = CanPlace( x, y, z - 1, Block.DoubleStair, true );
+                canPlaceResult = CanPlace( x, y, z - 1, Block.DoubleStair, context );
             } else {
                 // normal placement
-                canPlaceResult = CanPlace( x, y, z, type, true );
+                canPlaceResult = CanPlace( x, y, z, type, context );
             }
 
             // if all is well, try placing it
@@ -744,7 +757,7 @@ namespace fCraft {
                         blockUpdate = new BlockUpdate( this, x, y, z - 1, Block.DoubleStair );
                         Info.ProcessBlockPlaced( (byte)Block.DoubleStair );
                         World.Map.QueueUpdate( blockUpdate );
-                        RaisePlayerPlacedBlockEvent( this, World.Map, x, y, (short)(z - 1), Block.Stair, Block.DoubleStair, true );
+                        RaisePlayerPlacedBlockEvent( this, World.Map, x, y, (short)(z - 1), Block.Stair, Block.DoubleStair, context );
                         SendNow( PacketWriter.MakeSetBlock( x, y, z - 1, Block.DoubleStair ) );
                         RevertBlockNow( x, y, z );
                         break;
@@ -755,7 +768,7 @@ namespace fCraft {
                         Info.ProcessBlockPlaced( (byte)type );
                         Block old = World.Map.GetBlock( x, y, z );
                         World.Map.QueueUpdate( blockUpdate );
-                        RaisePlayerPlacedBlockEvent( this, World.Map, x, y, z, old, type, true );
+                        RaisePlayerPlacedBlockEvent( this, World.Map, x, y, z, old, type, context );
                         if( requiresUpdate || RelayAllUpdates ) {
                             SendNow( PacketWriter.MakeSetBlock( x, y, z, type ) );
                         }
@@ -924,7 +937,7 @@ namespace fCraft {
 
         /// <summary> Checks whether player is allowed to place a block on the current world at given coordinates.
         /// Raises the PlayerPlacingBlock event. </summary>
-        public CanPlaceResult CanPlace( int x, int y, int z, Block newBlock, bool isManual ) {
+        public CanPlaceResult CanPlace( int x, int y, int z, Block newBlock, BlockChangeContext context ) {
             CanPlaceResult result;
             Map map = World.Map;
 
@@ -981,7 +994,7 @@ namespace fCraft {
             }
 
         eventCheck:
-            return RaisePlayerPlacingBlockEvent( this, map, (short)x, (short)y, (short)z, block, newBlock, isManual, result );
+            return RaisePlayerPlacingBlockEvent( this, map, (short)x, (short)y, (short)z, block, newBlock, context, result );
         }
 
 

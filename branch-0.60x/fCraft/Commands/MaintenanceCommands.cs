@@ -711,10 +711,16 @@ namespace fCraft {
                         Rank oldPreviousRank = info.PreviousRank;
                         if( newPreviousRank != null ) {
                             info.PreviousRank = newPreviousRank;
-                            player.Message( "PreviousRank for {0}&S changed from {1}&S to {2}",
-                                            info.ClassyName,
-                                            oldPreviousRank.ClassyName,
-                                            info.PreviousRank.ClassyName );
+                            if( oldPreviousRank != null ) {
+                                player.Message( "PreviousRank for {0}&S changed from {1}&S to {2}",
+                                                info.ClassyName,
+                                                oldPreviousRank.ClassyName,
+                                                info.PreviousRank.ClassyName );
+                            } else {
+                                player.Message( "PreviousRank for {0}&S set to {1}",
+                                                info.ClassyName,
+                                                info.PreviousRank.ClassyName );
+                            }
                         } else {
                             player.MessageNoRank( valName );
                         }

@@ -182,9 +182,9 @@ namespace fCraft.Drawing {
         }
 
 
-        public bool Begin( [NotNull] Player player, [NotNull] DrawOperation state ) {
+        public bool Begin( [NotNull] Player player, [NotNull] DrawOperation op ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( state == null ) throw new ArgumentNullException( "state" );
+            if( op == null ) throw new ArgumentNullException( "op" );
             if( Blocks == null || Blocks.Length == 0 ) {
                 throw new InvalidOperationException( "No blocks given." );
             }
@@ -192,8 +192,8 @@ namespace fCraft.Drawing {
         }
 
 
-        public Block NextBlock( [NotNull] DrawOperation state ) {
-            if( state == null ) throw new ArgumentNullException( "state" );
+        public Block NextBlock( [NotNull] DrawOperation op ) {
+            if( op == null ) throw new ArgumentNullException( "op" );
             return actualBlocks[rand.Next( actualBlocks.Length )];
         }
 

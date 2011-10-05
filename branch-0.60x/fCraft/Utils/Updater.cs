@@ -17,10 +17,10 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             600,
-            1072,
+            1076,
             new DateTime( 2011, 10, 2, 18, 0, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Dev
+            ReleaseFlags.Dev | ReleaseFlags.Unstable
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
@@ -344,11 +344,11 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
-
     public sealed class CheckingForUpdatesEventArgs : EventArgs, ICancellableEvent {
         internal CheckingForUpdatesEventArgs( string url ) {
             Url = url;
         }
+
         public string Url { get; set; }
         public bool Cancel { get; set; }
     }
@@ -359,8 +359,8 @@ namespace fCraft.Events {
             Url = url;
             Result = result;
         }
+
         public string Url { get; private set; }
         public UpdaterResult Result { get; private set; }
     }
-
 }

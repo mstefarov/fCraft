@@ -563,6 +563,7 @@ namespace fCraft {
 
         #endregion
 
+
         /// <summary> Changes rank of the player (promotes or demotes). Throws PlayerOpException on problems. </summary>
         /// <param name="player"> Player who originated the promotion/demotion action. </param>
         /// <param name="newRank"> New rank. </param>
@@ -601,7 +602,7 @@ namespace fCraft {
             }
 
             // Check if player's specific permission limits are enough
-            if( promoting && !player.Can( Permission.Promote, newRank )) {
+            if( promoting && !player.Can( Permission.Promote, newRank ) ) {
                 string msg = String.Format( "Cannot promote {0} to {1}: you may only promote players up to rank {2}.",
                                             Name, newRank.Name,
                                             player.Info.Rank.GetLimit( Permission.Promote ).Name );
@@ -718,6 +719,8 @@ namespace fCraft {
             }
         }
 
+        #region Freeze / Unfreeze
+
         public void Freeze( [NotNull] Player player, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
@@ -818,5 +821,68 @@ namespace fCraft {
                 if( raiseEvents ) RaiseFreezeChangedEvent( this, player, true );
             }
         }
+
+        #endregion
+
+
+        #region Mute / Unmute
+
+
+        public void Mute( [NotNull] Player player, TimeSpan duration, bool announce, bool raiseEvents ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( duration <= TimeSpan.Zero ) {
+                throw new ArgumentException( "Mute duration must be longer than 0.", "duration" );
+            }
+
+            // Check if player is trying to mute self
+            if( player.Info == this ) {
+                PlayerOpException.ThrowCannotTargetSelf( player, this, "mute" );
+            }
+
+            lock( actionLock ) {
+                // Check if player can mute in general
+                if( !player.Can( Permission.Mute ) ) {
+                    PlayerOpException.ThrowPermissionMissing( player, this, "mute", Permission.Mute );
+                }
+
+                // Check if player has sufficient rank permissions
+                if( !player.Can( Permission.Mute, Rank ) ) {
+                    PlayerOpException.ThrowPermissionLimit( player, this, "mute", Permission.Mute );
+                }
+
+                // Check if target is already muted for longer
+                DateTime newMutedUntil = DateTime.UtcNow.Add( duration );
+                if( newMutedUntil > MutedUntil ) {
+
+                    if( raiseEvents ) {
+                        // TODO: PlayerInfo.BeingMuted event
+                    }
+
+                    // actually mute
+                    MutedUntil = newMutedUntil;
+                    MutedBy = player.Name;
+                    LastModified = DateTime.UtcNow;
+
+                    if( raiseEvents ) {
+                        // TODO: PlayerInfo.Muted event
+                    }
+
+                    if( announce ) {
+                        // TODO: Announce
+                    }
+
+                } else {
+                    string msg = String.Format( "Player {0} is already muted by {1} for another {2}",
+                                                ClassyName, MutedBy,
+                                                TimeMutedLeft.ToMiniString() );
+                    string colorMsg = String.Format( "&SPlayer {0}&S is already muted by {1}&S for another {2}",
+                                                     ClassyName, MutedByClassy,
+                                                     TimeMutedLeft.ToMiniString() );
+                    throw new PlayerOpException( player, this, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
+                }
+            }
+        }
+
+        #endregion
     }
 }
