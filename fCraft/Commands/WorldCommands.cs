@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using fCraft.MapConversion;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Contains commands related to world management. </summary>
@@ -1147,7 +1148,8 @@ namespace fCraft {
             Handler = WorldAccessHandler
         };
 
-        static void WorldAccessHandler( Player player, Command cmd ) {
+        static void WorldAccessHandler( [NotNull] Player player, Command cmd ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             string worldName = cmd.Next();
 
             // Print information about the current world
@@ -1394,7 +1396,8 @@ namespace fCraft {
             Handler = WorldBuildHandler
         };
 
-        static void WorldBuildHandler( Player player, Command cmd ) {
+        static void WorldBuildHandler( [NotNull] Player player, Command cmd ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             string worldName = cmd.Next();
 
             // Print information about the current world

@@ -159,6 +159,16 @@ namespace fCraft {
         /// <summary> Name of the entity that most recently froze this player. May be empty. </summary>
         public string FrozenBy = "";
 
+        public string FrozenByClassy {
+            get {
+                if( FrozenBy.Length == 0 ) {
+                    return "?";
+                } else {
+                    return PlayerDB.FindExactClassyName( FrozenBy );
+                }
+            }
+        }
+
         /// <summary> Whether this player is currently muted. </summary>
         public bool IsMuted {
             get {
@@ -171,6 +181,16 @@ namespace fCraft {
 
         /// <summary> Name of the entity that most recently muted this player. May be empty. </summary>
         public string MutedBy = "";
+
+        public string MutedByClassy {
+            get {
+                if( MutedBy.Length == 0 ) {
+                    return "?";
+                } else {
+                    return PlayerDB.FindExactClassyName( MutedBy );
+                }
+            }
+        }
 
         #endregion
 
@@ -979,6 +999,10 @@ namespace fCraft {
             get { return DateTime.UtcNow.Subtract( FrozenOn ); }
         }
 
+        public TimeSpan TimeMutedLeft {
+            get { return MutedUntil.Subtract( DateTime.UtcNow ); }
+        }
+
         #endregion
 
 
@@ -1053,8 +1077,11 @@ namespace fCraft {
         }
 
         public int Compare( PlayerInfo x, PlayerInfo y ) {
-            bool xIsOnline = x.IsOnline && observer.CanSee( x.PlayerObject );
-            bool yIsOnline = y.IsOnline && observer.CanSee( y.PlayerObject );
+            Player xPlayer = x.PlayerObject;
+            Player yPlayer = y.PlayerObject;
+            bool xIsOnline = xPlayer != null && observer.CanSee( xPlayer );
+            bool yIsOnline = yPlayer != null && observer.CanSee( yPlayer );
+
             if( !xIsOnline && yIsOnline ) {
                 return 1;
             } else if( xIsOnline && !yIsOnline ) {

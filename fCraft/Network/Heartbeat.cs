@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Cache;
 using System.Text;
 using fCraft.Events;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Static class responsible for sending heartbeats. </summary>
@@ -205,7 +206,8 @@ namespace fCraft {
 
 
     public sealed class HeartbeatData {
-        internal HeartbeatData( Uri heartbeatUri ) {
+        internal HeartbeatData( [NotNull] Uri heartbeatUri ) {
+            if( heartbeatUri == null ) throw new ArgumentNullException( "heartbeatUri" );
             IsPublic = ConfigKey.IsPublic.Enabled();
             MaxPlayers = ConfigKey.MaxPlayers.GetInt();
             PlayerCount = Server.CountPlayers( false );
@@ -218,6 +220,7 @@ namespace fCraft {
             HeartbeatUri = heartbeatUri;
         }
 
+        [NotNull]
         public Uri HeartbeatUri { get; private set; }
         public string Salt { get; set; }
         public IPAddress ServerIP { get; set; }
@@ -263,6 +266,7 @@ namespace fCraft.Events {
             ResponseStatusCode = status;
             ResponseText = text;
         }
+
         public HeartbeatData HeartbeatData { get; private set; }
         public WebHeaderCollection ResponseHeaders { get; private set; }
         public HttpStatusCode ResponseStatusCode { get; private set; }
@@ -276,6 +280,7 @@ namespace fCraft.Events {
             Uri = uri;
             GetServerUri = getServerUri;
         }
+
         public HeartbeatData HeartbeatData { get; private set; }
         public Uri Uri { get; set; }
         public bool GetServerUri { get; set; }
@@ -288,6 +293,7 @@ namespace fCraft.Events {
             OldUri = oldUri;
             NewUri = newUri;
         }
+
         public Uri OldUri { get; private set; }
         public Uri NewUri { get; private set; }
     }

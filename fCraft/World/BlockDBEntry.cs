@@ -1,13 +1,14 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
-using System.Runtime.InteropServices;
+using System;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace fCraft{
     /// <summary> Struct representing a single block change.
     /// You may safely cast byte* pointers directly to BlockDBEntry* and vice versa. </summary>
     [StructLayout( LayoutKind.Sequential, Pack = 1 )]
     public struct BlockDBEntry {
-        public const int Size = 16; // sizeof(BlockDBEntry)
+        public const int Size = 20; // sizeof(BlockDBEntry)
 
         /// <summary> UTC Unix timestamp of the change. </summary>
         public readonly int Timestamp;
@@ -30,7 +31,9 @@ namespace fCraft{
         /// <summary> Block that now occupies this coordinate </summary>
         public readonly Block NewBlock;
 
-        public BlockDBEntry( int timestamp, int playerID, short x, short y, short z, Block oldBlock, Block newBlock ) {
+        public readonly BlockChangeContext Flags;
+
+        public BlockDBEntry( int timestamp, int playerID, short x, short y, short z, Block oldBlock, Block newBlock, BlockChangeContext flags ) {
             Timestamp = timestamp;
             PlayerID = playerID;
             X = x;
@@ -38,6 +41,7 @@ namespace fCraft{
             Z = z;
             OldBlock = oldBlock;
             NewBlock = newBlock;
+            Flags = flags;
         }
 
         public void Serialize( BinaryWriter writer ) {
@@ -48,6 +52,20 @@ namespace fCraft{
             writer.Write( Z );
             writer.Write( (byte)OldBlock );
             writer.Write( (byte)NewBlock );
+            writer.Write( (int)Flags );
         }
+    }
+
+    [Flags]
+    public enum BlockChangeContext {
+        Unknown = 0,
+        Manual = 1,
+        Drawn = 2,
+        Replaced = 4,
+        Pasted = 8,
+        Cut = 16,
+        UndoneSelf = 32,
+        UndoneOther = 64,
+        Restored = 64
     }
 }

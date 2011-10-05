@@ -93,10 +93,10 @@ namespace fCraft.Drawing {
 
 
         [CanBeNull]
-        public IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] Command cmd, [NotNull] DrawOperation state ) {
+        public IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] Command cmd, [NotNull] DrawOperation op ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
-            if( state == null ) throw new ArgumentNullException( "state" );
+            if( op == null ) throw new ArgumentNullException( "op" );
 
             if( cmd.HasNext ) {
                 Block block = cmd.NextBlock( player );
@@ -122,7 +122,7 @@ namespace fCraft.Drawing {
                 Replacement = replacement;
             }
 
-            ReplacementInstance = Replacement.MakeInstance( player, cmd, state );
+            ReplacementInstance = Replacement.MakeInstance( player, cmd, op );
             if( ReplacementInstance == null ) return null;
 
             return new ReplaceBrushBrush( this );
@@ -148,18 +148,19 @@ namespace fCraft.Drawing {
         }
 
 
-        public bool Begin( [NotNull] Player player, [NotNull] DrawOperation state ) {
+        public bool Begin( [NotNull] Player player, [NotNull] DrawOperation op ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( state == null ) throw new ArgumentNullException( "state" );
-            return ReplacementInstance.Begin( player, state );
+            if( op == null ) throw new ArgumentNullException( "op" );
+            op.Context |= BlockChangeContext.Replaced;
+            return ReplacementInstance.Begin( player, op );
         }
 
 
-        public Block NextBlock( [NotNull] DrawOperation state ) {
-            if( state == null ) throw new ArgumentNullException( "state" );
-            Block block = state.Map.GetBlock( state.Coords.X, state.Coords.Y, state.Coords.Z );
+        public Block NextBlock( [NotNull] DrawOperation op ) {
+            if( op == null ) throw new ArgumentNullException( "op" );
+            Block block = op.Map.GetBlock( op.Coords.X, op.Coords.Y, op.Coords.Z );
             if( block == Block ) {
-                return ReplacementInstance.NextBlock( state );
+                return ReplacementInstance.NextBlock( op );
             }
             return Block.Undefined;
         }

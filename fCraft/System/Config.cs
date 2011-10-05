@@ -365,15 +365,14 @@ namespace fCraft {
 
 
             // read the rest of the keys
-            string[] keyNames = Enum.GetNames( typeof( ConfigKey ) );
             if( version < FirstVersionWithSectionTags ) {
                 foreach( XElement element in config.Elements() ) {
-                    ParseKeyElement( element, keyNames );
+                    ParseKeyElement( element );
                 }
             } else {
                 foreach( XElement section in config.Elements( "Section" ) ) {
                     foreach( XElement keyElement in section.Elements() ) {
-                        ParseKeyElement( keyElement, keyNames );
+                        ParseKeyElement( keyElement );
                     }
                 }
             }
@@ -402,28 +401,28 @@ namespace fCraft {
         }
 
 
-        static void ParseKeyElement( [NotNull] XElement element, [NotNull] IEnumerable<string> keyNames ) {
+        static void ParseKeyElement( [NotNull] XElement element ) {
             if( element == null ) throw new ArgumentNullException( "element" );
-            if( keyNames == null ) throw new ArgumentNullException( "keyNames" );
 
-            string key = element.Name.ToString().ToLower();
-            if( keyNames.Contains( key, StringComparer.OrdinalIgnoreCase ) ) {
+            string keyName = element.Name.ToString().ToLower();
+            ConfigKey key;
+            if(EnumUtil.TryParse(keyName,out key,true)){
                 // known key
-                TrySetValue( (ConfigKey)Enum.Parse( typeof( ConfigKey ), key, true ), element.Value );
+                TrySetValue( key, element.Value );
 
-            } else if( LegacyConfigKeys.ContainsKey( key ) ) { // LEGACY
+            } else if( LegacyConfigKeys.ContainsKey( keyName ) ) { // LEGACY
                 // renamed/legacy key
-                TrySetValue( LegacyConfigKeys[key], element.Value );
+                TrySetValue( LegacyConfigKeys[keyName], element.Value );
 
-            } else if( key.Equals( "LimitOneConnectionPerIP", StringComparison.OrdinalIgnoreCase ) ) {
+            } else if( keyName == "limitoneconnectionperip" ) { // LEGACY
                 Logger.Log( "Config.Load: LimitOneConnectionPerIP (bool) was replaced by MaxConnectionsPerIP (int). Adjust your configuration accordingly.",
                             LogType.Warning );
                 ConfigKey.MaxConnectionsPerIP.TrySetValue( 1 );
 
-            } else if( key != "consoleoptions" &&
-                       key != "logfileoptions" &&
-                       key != "ranks" &&
-                       key != "legacyrankmapping" ) {
+            } else if( keyName != "consoleoptions" &&
+                       keyName != "logfileoptions" &&
+                       keyName != "ranks" &&
+                       keyName != "legacyrankmapping" ) {
                 // unknown key
                 Logger.Log( "Unrecognized entry ignored: {0} = {1}", LogType.Debug, element.Name, element.Value );
             }

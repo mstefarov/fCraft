@@ -428,6 +428,12 @@ namespace fCraft {
             return target;
         }
 
+        public static string FindExactClassyName( [NotNull] string name ) {
+            PlayerInfo info = FindPlayerInfoExact( name );
+            if( info == null ) return name;
+            else return info.ClassyName;
+        }
+
         #endregion
 
 

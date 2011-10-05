@@ -127,10 +127,10 @@ namespace fCraft {
                         argKeyName = arg.Substring( 2 );
                         argValue = null;
                     }
-                    try {
-                        ArgKey tryKey = (ArgKey)Enum.Parse( typeof( ArgKey ), argKeyName, true );
-                        Args.Add( tryKey, argValue );
-                    } catch( ArgumentException ) {
+                    ArgKey key;
+                    if( EnumUtil.TryParse( argKeyName, out key, true ) ) {
+                        Args.Add( key, argValue );
+                    } else {
                         Console.Error.WriteLine( "Unknown argument: {0}", arg );
                     }
                 } else {
@@ -982,12 +982,12 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( world == null ) throw new ArgumentNullException( "world" );
             if( firstTime ) {
-                return String.Format( "&S{0} connected, joined {1}",
-                                      player.Name,
+                return String.Format( "&SPlayer {0}&S connected, joined {1}",
+                                      player.ClassyName,
                                       world.ClassyName );
             } else {
-                return String.Format( "&S{0} connected again, joined {1}",
-                                      player.Name,
+                return String.Format( "&SPlayer {0}&S connected again, joined {1}",
+                                      player.ClassyName,
                                       world.ClassyName );
             }
         }

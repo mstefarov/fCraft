@@ -697,11 +697,10 @@ namespace fCraft {
 
             // check if player is still muted
             if( Info.MutedUntil > DateTime.UtcNow ) {
-                int secondsLeft = (int)Info.MutedUntil.Subtract( DateTime.UtcNow ).TotalSeconds;
-                Message( "&WYou were previously muted by {0}, {1} seconds left.",
-                         Info.MutedBy, secondsLeft );
-                canSee.Message( "&WPlayer {0}&W was previously muted by {1}&W, {2} seconds left.",
-                                ClassyName, Info.MutedBy, secondsLeft );
+                Message( "&WYou were previously muted by {0}&W, {1} left.",
+                         Info.MutedByClassy, Info.TimeMutedLeft.ToMiniString() );
+                canSee.Message( "&WPlayer {0}&W was previously muted by {1}&W, {2} left.",
+                                ClassyName, Info.MutedByClassy, Info.TimeMutedLeft.ToMiniString() );
             }
 
             // check if player is still frozen
@@ -709,16 +708,16 @@ namespace fCraft {
                 if( Info.FrozenOn != DateTime.MinValue ) {
                     Message( "&WYou were previously frozen {0} ago by {1}",
                              Info.TimeSinceFrozen.ToMiniString(),
-                             Info.FrozenBy );
-                    canSee.Message( "&WPlayer {0}&W was previously frozen {1} ago by {2}.",
+                             Info.FrozenByClassy );
+                    canSee.Message( "&WPlayer {0}&W was previously frozen {1} ago by {2}",
                                     ClassyName,
                                     Info.TimeSinceFrozen.ToMiniString(),
-                                    Info.FrozenBy );
+                                    Info.FrozenByClassy );
                 } else {
                     Message( "&WYou were previously frozen by {0}",
-                             Info.FrozenBy );
-                    canSee.Message( "&WPlayer {0}&W was previously frozen by {1}.",
-                                    ClassyName, Info.FrozenBy );
+                             Info.FrozenByClassy );
+                    canSee.Message( "&WPlayer {0}&W was previously frozen by {1}",
+                                    ClassyName, Info.FrozenByClassy );
                 }
             }
 

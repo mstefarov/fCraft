@@ -227,11 +227,15 @@ namespace fCraft {
             }
 
             if( info.IsFrozen ) {
-                player.Message( "  Frozen {0} ago by {1}", info.TimeSinceFrozen.ToMiniString(), info.FrozenBy );
+                player.Message( "  Frozen {0} ago by {1}",
+                                info.TimeSinceFrozen.ToMiniString(),
+                                info.FrozenByClassy );
             }
 
             if( info.IsMuted ) {
-                player.Message( "  Muted for {0} by {1}", info.MutedUntil.Subtract( DateTime.UtcNow ).ToMiniString(), info.MutedBy );
+                player.Message( "  Muted for {0} by {1}",
+                                info.TimeMutedLeft.ToMiniString(),
+                                info.MutedByClassy );
             }
 
             // Show ban information
@@ -840,7 +844,7 @@ namespace fCraft {
             if( players.Length > 0 ) {
                 string[] playerNameList = players.Where( player.CanSee )
                                                  .OrderBy( p => p, PlayerListSorter.Instance )
-                                                 .Select( p => p.ClassyName )
+                                                 .Select( p => p.ClassyNameWithHiddenStar( player ) )
                                                  .ToArray();
 
                 if( playerNameList.Length > 0 ) {
@@ -1011,6 +1015,7 @@ namespace fCraft {
         internal static void CommandsHandler( Player player, Command cmd ) {
             string param = cmd.Next();
             CommandDescriptor[] cd;
+            CommandCategory category;
 
             if( param == null ) {
                 player.Message( "List of available commands:" );
@@ -1035,8 +1040,7 @@ namespace fCraft {
                 player.Message( "List of hidden commands:" );
                 cd = CommandManager.GetCommands( true );
 
-            } else if( Enum.GetNames( typeof( CommandCategory ) ).Contains( param, StringComparer.OrdinalIgnoreCase ) ) {
-                CommandCategory category = (CommandCategory)Enum.Parse( typeof( CommandCategory ), param, true );
+            } else if( EnumUtil.TryParse( param, out category, true ) ) {
                 player.Message( "List of {0} commands:", category );
                 cd = CommandManager.GetCommands( category, false );
 

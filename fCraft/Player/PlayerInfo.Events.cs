@@ -34,7 +34,8 @@ namespace fCraft {
 
 
 
-        internal static void RaiseCreatingEvent( PlayerInfoCreatingEventArgs e ) {
+        internal static void RaiseCreatingEvent( [NotNull] PlayerInfoCreatingEventArgs e ) {
+            if( e == null ) throw new ArgumentNullException( "e" );
             var h = Creating;
             if( h != null ) h( null, e );
         }
@@ -44,7 +45,8 @@ namespace fCraft {
             if( h != null ) h( null, new PlayerInfoCreatedEventArgs( info, isUnrecognized ) );
         }
 
-        internal static bool RaiseRankChangingEvent( PlayerInfo playerInfo, Player rankChanger, Rank newRank, string reason, RankChangeType rankChangeType ) {
+
+        static bool RaiseRankChangingEvent( PlayerInfo playerInfo, Player rankChanger, Rank newRank, string reason, RankChangeType rankChangeType ) {
             var h = RankChanging;
             if( h == null ) return false;
             var e = new PlayerInfoRankChangingEventArgs( playerInfo, rankChanger, newRank, reason, rankChangeType );
@@ -52,7 +54,8 @@ namespace fCraft {
             return e.Cancel;
         }
 
-        internal static void RaiseRankChangedEvent( PlayerInfo playerInfo, Player rankChanger, Rank oldRank, string reason, RankChangeType rankChangeType ) {
+
+        static void RaiseRankChangedEvent( PlayerInfo playerInfo, Player rankChanger, Rank oldRank, string reason, RankChangeType rankChangeType ) {
             var h = RankChanged;
             if( h != null ) h( null, new PlayerInfoRankChangedEventArgs( playerInfo, rankChanger, oldRank, reason, rankChangeType ) );
         }
@@ -67,7 +70,8 @@ namespace fCraft {
             if( h != null ) h( null, new PlayerInfoBanChangedEventArgs( e.PlayerInfo, e.Banner, e.IsBeingUnbanned, e.Reason ) );
         }
 
-        internal static bool RaiseFreezeChangingEvent( PlayerInfo target, Player freezer, bool unfreezing ) {
+
+        static bool RaiseFreezeChangingEvent( PlayerInfo target, Player freezer, bool unfreezing ) {
             var h = FreezeChanging;
             if( h == null ) return false;
             var e = new PlayerInfoFrozenChangingEventArgs( target, freezer, unfreezing );
@@ -75,7 +79,8 @@ namespace fCraft {
             return e.Cancel;
         }
 
-        internal static void RaiseFreezeChangedEvent( PlayerInfo target, Player freezer, bool unfreezing ) {
+
+        static void RaiseFreezeChangedEvent( PlayerInfo target, Player freezer, bool unfreezing ) {
             var h = FreezeChanged;
             if( h != null ) h( null, new PlayerInfoFrozenChangedEventArgs( target, freezer, unfreezing ) );
         }
@@ -95,13 +100,16 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerInfoCreatingEventArgs : EventArgs, ICancellableEvent {
-        public PlayerInfoCreatingEventArgs( string name, IPAddress ip, Rank startingRank, bool isUnrecognized ) {
+        internal PlayerInfoCreatingEventArgs( [NotNull] string name, IPAddress ip, Rank startingRank, bool isUnrecognized ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
             Name = name;
             StartingRank = startingRank;
             IP = ip;
             IsUnrecognized = isUnrecognized;
         }
 
+
+        [NotNull]
         public string Name { get; private set; }
         public Rank StartingRank { get; set; }
         public IPAddress IP { get; private set; }
@@ -111,7 +119,7 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerInfoCreatedEventArgs : PlayerInfoEventArgs {
-        public PlayerInfoCreatedEventArgs( PlayerInfo playerInfo, bool isUnrecognized )
+        internal PlayerInfoCreatedEventArgs( PlayerInfo playerInfo, bool isUnrecognized )
             : base( playerInfo ) {
             IsUnrecognized = isUnrecognized;
         }
@@ -120,8 +128,10 @@ namespace fCraft.Events {
 
 
     public class PlayerInfoRankChangedEventArgs : PlayerInfoEventArgs {
-        public PlayerInfoRankChangedEventArgs( PlayerInfo playerInfo, Player rankChanger, Rank oldRank, string reason, RankChangeType rankChangeType )
+        internal PlayerInfoRankChangedEventArgs( [NotNull] PlayerInfo playerInfo, [NotNull] Player rankChanger,
+                                                 Rank oldRank, string reason, RankChangeType rankChangeType )
             : base( playerInfo ) {
+            if( rankChanger == null ) throw new ArgumentNullException( "rankChanger" );
             RankChanger = rankChanger;
             OldRank = oldRank;
             NewRank = playerInfo.Rank;
@@ -129,6 +139,8 @@ namespace fCraft.Events {
             RankChangeType = rankChangeType;
         }
 
+
+        [NotNull]
         public Player RankChanger { get; private set; }
         public Rank OldRank { get; protected set; }
         public Rank NewRank { get; protected set; }
@@ -138,7 +150,8 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerInfoRankChangingEventArgs : PlayerInfoRankChangedEventArgs, ICancellableEvent {
-        public PlayerInfoRankChangingEventArgs( PlayerInfo playerInfo, Player rankChanger, Rank newRank, string reason, RankChangeType rankChangeType )
+        internal PlayerInfoRankChangingEventArgs( [NotNull] PlayerInfo playerInfo, [NotNull] Player rankChanger,
+                                                  [NotNull] Rank newRank, string reason, RankChangeType rankChangeType )
             : base( playerInfo, rankChanger, playerInfo.Rank, reason, rankChangeType ) {
             NewRank = newRank;
         }
@@ -147,13 +160,17 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerInfoBanChangedEventArgs : PlayerInfoEventArgs {
-        public PlayerInfoBanChangedEventArgs( PlayerInfo target, Player banner, bool isBeingUnbanned, string reason )
+        internal PlayerInfoBanChangedEventArgs( [NotNull] PlayerInfo target, [NotNull] Player banner,
+                                                bool isBeingUnbanned, string reason )
             : base( target ) {
+            if( banner == null ) throw new ArgumentNullException( "banner" );
             Banner = banner;
             IsBeingUnbanned = isBeingUnbanned;
             Reason = reason;
         }
 
+
+        [NotNull]
         public Player Banner { get; private set; }
         public bool IsBeingUnbanned { get; private set; }
         public string Reason { get; private set; }
@@ -161,13 +178,16 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerInfoBanChangingEventArgs : PlayerInfoEventArgs, ICancellableEvent {
-        public PlayerInfoBanChangingEventArgs( PlayerInfo target, Player banner, bool isBeingUnbanned, string reason )
+        internal PlayerInfoBanChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player banner,
+                                                 bool isBeingUnbanned, string reason )
             : base( target ) {
             Banner = banner;
             IsBeingUnbanned = isBeingUnbanned;
             Reason = reason;
         }
 
+
+        [NotNull]
         public Player Banner { get; private set; }
         public bool IsBeingUnbanned { get; private set; }
         public string Reason { get; set; }
@@ -176,19 +196,24 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerInfoFrozenChangingEventArgs : PlayerInfoFrozenChangedEventArgs, ICancellableEvent {
-        public PlayerInfoFrozenChangingEventArgs( PlayerInfo target, Player freezer, bool unfreezing )
+        internal PlayerInfoFrozenChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing )
             : base( target, freezer, unfreezing ) {
         }
+
+
         public bool Cancel { get; set; }
     }
 
 
     public class PlayerInfoFrozenChangedEventArgs : PlayerInfoEventArgs {
-        public PlayerInfoFrozenChangedEventArgs( PlayerInfo target, Player freezer, bool unfreezing )
+        internal PlayerInfoFrozenChangedEventArgs( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing )
             : base( target ) {
+            if( freezer == null ) throw new ArgumentNullException( "freezer" );
             Freezer = freezer;
             Unfreezing = unfreezing;
         }
+
+        [NotNull]
         public Player Freezer { get; private set; }
         public bool Unfreezing { get; private set; }
     }

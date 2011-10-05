@@ -4,28 +4,32 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using fCraft.Events;
 using JetBrains.Annotations;
 
-namespace fCraft {
+namespace fCraft.Events {
+    public sealed class ForesterBlockPlacingEventArgs : EventArgs {
+        internal ForesterBlockPlacingEventArgs( Vector3I coordinate, Block block ) {
+            Coordinate = coordinate;
+            Block = block;
+        }
+        public Vector3I Coordinate { get; private set; }
+        public Block Block { get; private set; }
+    }
+}
 
+namespace fCraft {
     /// <summary> Vegetation generator for MapGenerator. </summary>
-    public sealed class Forester {
+    public static class Forester {
         const int MaxTries = 1000;
 
-        readonly ForesterArgs args;
-
-        public Forester( [NotNull] ForesterArgs foresterArgs ) {
-            if( foresterArgs == null ) throw new ArgumentNullException( "foresterArgs" );
-            args = foresterArgs;
+        public static void Generate( [NotNull] ForesterArgs args ) {
+            if( args == null ) throw new ArgumentNullException( "args" );
             args.Validate();
-        }
-
-
-        public void Generate() {
             List<Tree> treeList = new List<Tree>();
 
             if( args.Operation == ForesterOperation.Conserve ) {
-                FindTrees( treeList );
+                FindTrees( args, treeList );
             }
 
             if( args.TreeCount > 0 && treeList.Count > args.TreeCount ) {
@@ -35,19 +39,19 @@ namespace fCraft {
             if( args.Operation == ForesterOperation.Replant || args.Operation == ForesterOperation.Add ) {
                 switch( args.Shape ) {
                     case TreeShape.Rainforest:
-                        PlantRainForestTrees( treeList );
+                        PlantRainForestTrees( args, treeList );
                         break;
                     case TreeShape.Mangrove:
-                        PlantMangroves( treeList );
+                        PlantMangroves( args, treeList );
                         break;
                     default:
-                        PlantTrees( treeList );
+                        PlantTrees( args, treeList );
                         break;
                 }
             }
 
             if( args.Operation != ForesterOperation.ClearCut ) {
-                ProcessTrees( treeList );
+                ProcessTrees( args, treeList );
                 if( args.Foliage ) {
                     foreach( Tree tree in treeList ) {
                         tree.MakeFoliage();
@@ -62,18 +66,51 @@ namespace fCraft {
         }
 
 
-        void FindTrees( ICollection<Tree> treelist ) {
+        public static void Plant( [NotNull] ForesterArgs args, Vector3I treeCoordinate ) {
+            List<Tree> treeList = new List<Tree> {
+                new Tree {
+                    Args = args,
+                    Height = args.Height,
+                    Pos = treeCoordinate
+                }
+            };
+            switch( args.Shape ) {
+                case TreeShape.Rainforest:
+                    PlantRainForestTrees( args, treeList );
+                    break;
+                case TreeShape.Mangrove:
+                    PlantMangroves( args, treeList );
+                    break;
+                default:
+                    PlantTrees( args, treeList );
+                    break;
+            }
+            ProcessTrees( args, treeList );
+            if( args.Foliage ) {
+                foreach( Tree tree in treeList ) {
+                    tree.MakeFoliage();
+                }
+            }
+            if( args.Wood ) {
+                foreach( Tree tree in treeList ) {
+                    tree.MakeTrunk();
+                }
+            }
+        }
+
+
+        static void FindTrees( ForesterArgs args, ICollection<Tree> treelist ) {
             int treeheight = args.Height;
 
-            for( int x = 0; x < args.InMap.Width; x++ ) {
-                for( int z = 0; z < args.InMap.Length; z++ ) {
-                    int y = args.InMap.Height - 1;
+            for( int x = 0; x < args.Map.Width; x++ ) {
+                for( int z = 0; z < args.Map.Length; z++ ) {
+                    int y = args.Map.Height - 1;
                     while( true ) {
-                        int foliagetop = args.InMap.SearchColumn( x, z, args.FoliageBlock, y );
+                        int foliagetop = args.Map.SearchColumn( x, z, args.FoliageBlock, y );
                         if( foliagetop < 0 ) break;
                         y = foliagetop;
                         Vector3I trunktop = new Vector3I( x, y - 1, z );
-                        int height = DistanceToBlock( args.InMap, new Vector3F( trunktop ), new Vector3F( 0, 0, -1 ), args.TrunkBlock, true );
+                        int height = DistanceToBlock( args.Map, new Vector3F( trunktop ), Vector3F.Down, args.TrunkBlock, true );
                         if( height == 0 ) {
                             y--;
                             continue;
@@ -95,7 +132,7 @@ namespace fCraft {
         }
 
 
-        void PlantTrees( ICollection<Tree> treelist ) {
+        static void PlantTrees( ForesterArgs args, ICollection<Tree> treelist ) {
             int treeheight = args.Height;
 
             int attempts = 0;
@@ -104,7 +141,7 @@ namespace fCraft {
                 int height = args.Rand.Next( treeheight - args.HeightVariation,
                                              treeheight + args.HeightVariation + 1 );
 
-                Vector3I treeLoc = FindRandomTreeLocation( height );
+                Vector3I treeLoc = FindRandomTreeLocation( args, height );
                 if( treeLoc.Y < 0 ) continue;
                 else treeLoc.Y++;
                 treelist.Add( new Tree {
@@ -116,20 +153,20 @@ namespace fCraft {
         }
 
 
-        Vector3I FindRandomTreeLocation( int height ) {
+        static Vector3I FindRandomTreeLocation( ForesterArgs args, int height ) {
             int padding = (int)(height / 3f + 1);
-            int mindim = Math.Min( args.InMap.Width, args.InMap.Length );
+            int mindim = Math.Min( args.Map.Width, args.Map.Length );
             if( padding > mindim / 2.2 ) {
                 padding = (int)(mindim / 2.2);
             }
-            int x = args.Rand.Next( padding, args.InMap.Width - padding - 1 );
-            int z = args.Rand.Next( padding, args.InMap.Length - padding - 1 );
-            int y = args.InMap.SearchColumn( x, z, args.PlantOn );
+            int x = args.Rand.Next( padding, args.Map.Width - padding - 1 );
+            int z = args.Rand.Next( padding, args.Map.Length - padding - 1 );
+            int y = args.Map.SearchColumn( x, z, args.PlantOn );
             return new Vector3I( x, y, z);
         }
 
 
-        void PlantRainForestTrees( ICollection<Tree> treelist ) {
+        static void PlantRainForestTrees( ForesterArgs args, ICollection<Tree> treelist ) {
             int treeHeight = args.Height;
 
             int existingTreeNum = treelist.Count;
@@ -147,7 +184,7 @@ namespace fCraft {
                 } else {
                     height = (int)( treeHeight - randomfac );
                 }
-                Vector3I xyz = FindRandomTreeLocation( height );
+                Vector3I xyz = FindRandomTreeLocation( args, height );
                 if( xyz.Y < 0 ) continue;
 
                 xyz.Y++;
@@ -178,7 +215,7 @@ namespace fCraft {
         }
 
 
-        void PlantMangroves( ICollection<Tree> treelist ) {
+        static void PlantMangroves( ForesterArgs args, ICollection<Tree> treelist ) {
             int treeheight = args.Height;
 
             int attempts = 0;
@@ -187,16 +224,16 @@ namespace fCraft {
                 int height = args.Rand.Next( treeheight - args.HeightVariation,
                                              treeheight + args.HeightVariation + 1 );
                 int padding = (int)(height / 3f + 1);
-                int mindim = Math.Min( args.InMap.Width, args.InMap.Length );
+                int mindim = Math.Min( args.Map.Width, args.Map.Length );
                 if( padding > mindim / 2.2 ) {
                     padding = (int)(mindim / 2.2);
                 }
-                int x = args.Rand.Next( padding, args.InMap.Width - padding - 1 );
-                int z = args.Rand.Next( padding, args.InMap.Length - padding - 1 );
-                int top = args.InMap.Height - 1;
+                int x = args.Rand.Next( padding, args.Map.Width - padding - 1 );
+                int z = args.Rand.Next( padding, args.Map.Length - padding - 1 );
+                int top = args.Map.Height - 1;
 
-                int y = top - DistanceToBlock( args.InMap, new Vector3F( x, z, top ), new Vector3F( 0, 0, -1 ), Block.Air, true );
-                int dist = DistanceToBlock( args.InMap, new Vector3F( x, z, y ), new Vector3F( 0, 0, -1 ), Block.Water, true );
+                int y = top - DistanceToBlock( args.Map, new Vector3F( x, z, top ), Vector3F.Down, Block.Air, true );
+                int dist = DistanceToBlock( args.Map, new Vector3F( x, z, y ), Vector3F.Down, Block.Water, true );
 
                 if( dist > height * .618 || dist == 0 ) {
                     continue;
@@ -212,17 +249,17 @@ namespace fCraft {
         }
 
 
-        void ProcessTrees( IList<Tree> treelist ) {
+        static void ProcessTrees( ForesterArgs args, IList<Tree> treelist ) {
             TreeShape[] shapeChoices;
             switch( args.Shape ) {
                 case TreeShape.Stickly:
                     shapeChoices = new[]{ TreeShape.Normal,
-                                                     TreeShape.Bamboo,
-                                                     TreeShape.Palm};
+                                          TreeShape.Bamboo,
+                                          TreeShape.Palm };
                     break;
                 case TreeShape.Procedural:
                     shapeChoices = new[]{ TreeShape.Round,
-                                                     TreeShape.Cone };
+                                          TreeShape.Cone };
                     break;
                 default:
                     shapeChoices = new[] { args.Shape };
@@ -262,7 +299,7 @@ namespace fCraft {
                 if( args.MapHeightLimit ) {
                     int height = newTree.Height;
                     int ybase = newTree.Pos[1];
-                    int mapHeight = args.InMap.Height;
+                    int mapHeight = args.Map.Height;
                     int foliageHeight;
                     if( args.Shape == TreeShape.Rainforest ) {
                         foliageHeight = 2;
@@ -305,7 +342,7 @@ namespace fCraft {
         class StickTree : Tree {
             public override void MakeTrunk() {
                 for( int i = 0; i < Height; i++ ) {
-                    Args.OutMap.SetBlock( Pos.X, Pos.Z, Pos.Y + i, Args.TrunkBlock );
+                    Args.PlaceBlock( Pos.X, Pos.Z, Pos.Y + i, Args.TrunkBlock );
                 }
             }
         }
@@ -331,7 +368,7 @@ namespace fCraft {
                                 Math.Abs( xoff ) == rad ) {
                                 continue;
                             }
-                            Args.OutMap.SetBlock( Pos[0] + xoff, Pos[2] + zoff, y, Args.FoliageBlock );
+                            Args.PlaceBlock( Pos[0] + xoff, Pos[2] + zoff, y, Args.FoliageBlock );
                         }
                     }
                 }
@@ -347,7 +384,7 @@ namespace fCraft {
                     for( int i = 0; i < 2; i++ ) {
                         int xoff = Args.Rand.Next( 0, 2 ) * 2 - 1;
                         int zoff = Args.Rand.Next( 0, 2 ) * 2 - 1;
-                        Args.OutMap.SetBlock( Pos[0] + xoff, Pos[2] + zoff, y, Args.FoliageBlock );
+                        Args.PlaceBlock( Pos[0] + xoff, Pos[2] + zoff, y, Args.FoliageBlock );
                     }
                 }
             }
@@ -360,7 +397,7 @@ namespace fCraft {
                 for( int xoff = -2; xoff < 3; xoff++ ) {
                     for( int zoff = -2; zoff < 3; zoff++ ) {
                         if( Math.Abs( xoff ) == Math.Abs( zoff ) ) {
-                            Args.OutMap.SetBlock( Pos[0] + xoff, Pos[2] + zoff, y, Args.FoliageBlock );
+                            Args.PlaceBlock( Pos[0] + xoff, Pos[2] + zoff, y, Args.FoliageBlock );
                         }
                     }
                 }
@@ -400,7 +437,7 @@ namespace fCraft {
                         coord[diraxis] = pri;
                         coord[secidx1] = sec1;
                         coord[secidx2] = sec2;
-                        Args.OutMap.SetBlock( coord, matidx );
+                        Args.PlaceBlock( coord, matidx );
                     }
                 }
             }
@@ -460,7 +497,7 @@ namespace fCraft {
                     FoliageCluster( coord );
                 }
                 foreach( Vector3I coord in FoliageCoords ) {
-                    Args.OutMap.SetBlock( coord, Args.FoliageBlock );
+                    Args.PlaceBlock( coord, Args.FoliageBlock );
                 }
             }
 
@@ -565,7 +602,7 @@ namespace fCraft {
                         int startdist = (int)(Args.Rand.NextDouble() * 6 * Math.Sqrt( rootstartsize ) + 2.8);
                         Vector3I searchstart = new Vector3I( startcoord + vec * startdist );
 
-                        dist = startdist + DistanceToBlock( Args.InMap, new Vector3F( searchstart ), vec, searchIndex );
+                        dist = startdist + DistanceToBlock( Args.Map, new Vector3F( searchstart ), vec, searchIndex );
 
                         if( dist < offlength ) {
                             rootmid += (rootstartsize - endsize) * (1 - dist / offlength);
@@ -850,7 +887,6 @@ namespace fCraft {
         }
 
         #endregion
-
     }
 
     // TODO: Add a UI to ConfigGUI.AddWorldPopup to set these
@@ -872,13 +908,24 @@ namespace fCraft {
         public bool MapHeightLimit = true;
         public Block PlantOn = Block.Grass;
         public Random Rand;
-        public Map InMap;
-        public Map OutMap;
+        public Map Map;
 
         public Block TrunkBlock = Block.Log;
         public Block FoliageBlock = Block.Leaves;
 
-        public void Validate() {
+        public event EventHandler<ForesterBlockPlacingEventArgs> BlockPlacing;
+
+        internal void PlaceBlock( int x, int y, int z, Block block ) {
+            var h = BlockPlacing;
+            if( h != null ) h( this, new ForesterBlockPlacingEventArgs( new Vector3I( x, y, z ), block ) );
+        }
+
+        internal void PlaceBlock( Vector3I coord, Block block ) {
+            var h = BlockPlacing;
+            if( h != null ) h( this, new ForesterBlockPlacingEventArgs( coord, block ) );
+        }
+
+        internal void Validate() {
             if( TreeCount < 0 ) TreeCount = 0;
             if( Height < 1 ) Height = 1;
             if( HeightVariation > Height ) HeightVariation = Height;

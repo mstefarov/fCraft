@@ -3,6 +3,7 @@ using System;
 using System.Net;
 using System.Collections.Generic;
 using fCraft.Events;
+using JetBrains.Annotations;
 
 namespace fCraft {
     partial class Server {
@@ -68,7 +69,8 @@ namespace fCraft {
 
 
 
-        internal static bool RaiseSessionConnectingEvent( IPAddress ip ) {
+        internal static bool RaiseSessionConnectingEvent( [NotNull] IPAddress ip ) {
+            if( ip == null ) throw new ArgumentNullException( "ip" );
             var h = SessionConnecting;
             if( h == null ) return false;
             var e = new SessionConnectingEventArgs( ip );
@@ -77,13 +79,15 @@ namespace fCraft {
         }
 
 
-        internal static void RaiseSessionConnectedEvent( Player player ) {
+        internal static void RaiseSessionConnectedEvent( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             var h = SessionConnected;
             if( h != null ) h( null, new PlayerEventArgs( player ) );
         }
 
 
-        internal static void RaiseSessionDisconnectedEvent( Player player, LeaveReason leaveReason ) {
+        internal static void RaiseSessionDisconnectedEvent( [NotNull] Player player, LeaveReason leaveReason ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             var h = SessionDisconnected;
             if( h != null ) h( null, new SessionDisconnectedEventArgs( player, leaveReason ) );
         }
@@ -97,25 +101,31 @@ namespace fCraft {
 namespace fCraft.Events {
 
     public sealed class ShutdownEventArgs : EventArgs {
-        internal ShutdownEventArgs( ShutdownParams shutdownParams ) {
+        internal ShutdownEventArgs( [NotNull] ShutdownParams shutdownParams ) {
+            if( shutdownParams == null ) throw new ArgumentNullException( "shutdownParams" );
             ShutdownParams = shutdownParams;
         }
 
+        [NotNull]
         public ShutdownParams ShutdownParams { get; private set; }
     }
 
 
     public sealed class SearchingForPlayerEventArgs : EventArgs, IPlayerEvent {
-        internal SearchingForPlayerEventArgs( Player player, string searchTerm, List<Player> matches ) {
+        internal SearchingForPlayerEventArgs( [CanBeNull] Player player, [NotNull] string searchTerm, List<Player> matches ) {
+            if( searchTerm == null ) throw new ArgumentNullException( "searchTerm" );
             Player = player;
             SearchTerm = searchTerm;
             Matches = matches;
         }
+
+        [CanBeNull]
         public Player Player { get; private set; }
         public string SearchTerm { get; private set; }
+        public List<Player> Matches { get; set; }
+
         public bool CheckVisibility {
             get { return Player != null; }
         }
-        public List<Player> Matches { get; set; }
     }
 }

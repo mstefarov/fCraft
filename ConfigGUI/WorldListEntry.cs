@@ -94,7 +94,7 @@ namespace fCraft.ConfigGUI {
             } else {
                 if( (temp = blockEl.Attribute( "enabled" )) != null ) {
                     YesNoAuto enabledStateTemp;
-                    if( EnumUtil.TryParse( temp.Value, out enabledStateTemp ) ) {
+                    if( EnumUtil.TryParse( temp.Value, out enabledStateTemp, true ) ) {
                         BlockDBEnabled = enabledStateTemp;
                     } else {
                         Logger.Log( "WorldListEntity: Could not parse BlockDB \"enabled\" attribute of world \"{0}\", assuming AUTO.",

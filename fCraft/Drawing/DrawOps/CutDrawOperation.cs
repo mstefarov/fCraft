@@ -57,6 +57,8 @@ namespace fCraft.Drawing {
                             (copyInfo.Height > 0 ? "bottom" : "top"),
                             (copyInfo.Length > 0 ? "south" : "north"),
                             (copyInfo.Width > 0 ? "east" : "west") );
+
+            Context |= BlockChangeContext.Cut;
             return true;
         }
 
