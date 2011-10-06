@@ -50,7 +50,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdCopySlot );
             CommandManager.RegisterCommand( CdCopy );
             CommandManager.RegisterCommand( CdCut );
-            CommandManager.RegisterCommand( CdPaste );
+            //CommandManager.RegisterCommand( CdPaste );
             CommandManager.RegisterCommand( CdPasteNot );
             CommandManager.RegisterCommand( CdPasteX );
             CommandManager.RegisterCommand( CdMirror );
@@ -1166,7 +1166,7 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdPasteX = new CommandDescriptor {
-            Name = "pastex",
+            Name = "paste",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             Help = "EXPERIMENTAL. Pastes previously copied blocks. Used together with &H/copy&S command. " +

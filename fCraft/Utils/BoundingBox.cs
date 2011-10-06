@@ -67,18 +67,18 @@ namespace fCraft {
         /// <summary> Checks whether this bounding box intersects/touches another one. </summary>
         public bool Insersects( [NotNull] BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            return XMin > other.XMax || XMax < other.XMin ||
-                   YMin > other.YMax || YMax < other.YMin ||
-                   ZMin > other.ZMax || ZMax < other.ZMin;
+            return XMin >= other.XMax || XMax <= other.XMin ||
+                   YMin >= other.YMax || YMax <= other.YMin ||
+                   ZMin >= other.ZMax || ZMax <= other.ZMin;
         }
 
 
         /// <summary> Checks if another bounding box is wholly contained inside this one. </summary>
         public bool Contains( [NotNull] BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            return XMin >= other.XMin && XMax <= other.XMax &&
-                   YMin >= other.YMin && YMax <= other.YMax &&
-                   ZMin >= other.ZMin && ZMax <= other.ZMax;
+            return XMin <= other.XMin && XMax >= other.XMax &&
+                   YMin <= other.YMin && YMax >= other.YMax &&
+                   ZMin <= other.ZMin && ZMax >= other.ZMax;
         }
 
 
@@ -112,7 +112,11 @@ namespace fCraft {
         /// <returns> Intersecting volume, or BoundingBox.Empty if there is no overlap. </returns>
         public BoundingBox GetIntersection( [NotNull] BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            if( Insersects( other ) ) {
+            if( Contains( other ) ) {
+                return other;
+            } else if( other.Contains( this ) ) {
+                return this;
+            } else if( Insersects( other ) ) {
                 return new BoundingBox( Math.Max( XMin, other.XMin ),
                                         Math.Max( YMin, other.YMin ),
                                         Math.Max( ZMin, other.ZMin ),

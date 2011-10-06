@@ -52,9 +52,9 @@ namespace fCraft.Drawing {
             };
 
             // Calculate the start/end coordinates for pasting
-            marks[1] = marks[0] + new Vector3I( orientation.X * CopyInfo.Dimensions.X,
-                                                orientation.Y * CopyInfo.Dimensions.Y,
-                                                orientation.Z * CopyInfo.Dimensions.Z );
+            marks[1] = marks[0] + new Vector3I( orientation.X * (CopyInfo.Dimensions.X - 1),
+                                                orientation.Y * (CopyInfo.Dimensions.Y - 1),
+                                                orientation.Z * (CopyInfo.Dimensions.Z - 1) );
             Bounds = new BoundingBox( marks[0], marks[1] );
             Marks = marks;
 
@@ -126,6 +126,7 @@ namespace fCraft.Drawing {
             if( blocks.Count > 0 ) {
                 Blocks = blocks.ToArray();
             }
+            this.Brush = this;
             return true;
         }
 
