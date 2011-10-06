@@ -291,8 +291,7 @@ namespace fCraft {
 
                 // clear undo & selection
                 player.LastDrawOp = null;
-                player.UndoBuffer.Clear();
-                player.UndoBuffer.TrimExcess();
+                player.UndoBuffer = new Queue<BlockUpdate>();
                 player.SelectionCancel();
 
                 // update player list

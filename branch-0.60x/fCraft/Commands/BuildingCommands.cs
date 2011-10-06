@@ -67,7 +67,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdSphereHollow );
             CommandManager.RegisterCommand( CdTorus );
 
-            CommandManager.RegisterCommand( CdTree );
+            //CommandManager.RegisterCommand( CdTree );
 
             CommandManager.RegisterCommand( CdUndoArea );
             CommandManager.RegisterCommand( CdUndoPlayer );
@@ -1304,7 +1304,8 @@ namespace fCraft {
             ForesterArgs args = new ForesterArgs {
                 Height = height,
                 Shape = shape,
-                Map = map
+                Map = map,
+                Rand = new Random()
             };
 
             player.SelectionStart( 1, TreeCallback, args, CdTree.Permissions );

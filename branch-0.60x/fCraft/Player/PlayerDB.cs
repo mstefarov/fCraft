@@ -125,14 +125,10 @@ namespace fCraft {
                                             case 1:
                                                 info = PlayerInfo.LoadFormat1( fields );
                                                 break;
-                                            case 2:
-                                            case 3:
-                                            case 4:
-                                                // Versions 2-4 differ in semantics only, not in actual serialization format.
+                                            default:
+                                                // Versions 2-5 differ in semantics only, not in actual serialization format.
                                                 info = PlayerInfo.LoadFormat2( fields );
                                                 break;
-                                            default:
-                                                return;
                                         }
 
                                         if( info.ID > maxID ) {

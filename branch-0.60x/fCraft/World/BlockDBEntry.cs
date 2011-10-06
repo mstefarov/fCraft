@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Text;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -31,7 +32,7 @@ namespace fCraft{
         /// <summary> Block that now occupies this coordinate </summary>
         public readonly Block NewBlock;
 
-        public readonly BlockChangeContext Flags;
+        public readonly BlockChangeContext Context;
 
         public BlockDBEntry( int timestamp, int playerID, short x, short y, short z, Block oldBlock, Block newBlock, BlockChangeContext flags ) {
             Timestamp = timestamp;
@@ -41,7 +42,7 @@ namespace fCraft{
             Z = z;
             OldBlock = oldBlock;
             NewBlock = newBlock;
-            Flags = flags;
+            Context = flags;
         }
 
         public void Serialize( BinaryWriter writer ) {
@@ -52,7 +53,7 @@ namespace fCraft{
             writer.Write( Z );
             writer.Write( (byte)OldBlock );
             writer.Write( (byte)NewBlock );
-            writer.Write( (int)Flags );
+            writer.Write( (int)Context );
         }
     }
 
