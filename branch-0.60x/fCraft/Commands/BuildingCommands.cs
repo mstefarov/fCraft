@@ -50,9 +50,8 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdCopySlot );
             CommandManager.RegisterCommand( CdCopy );
             CommandManager.RegisterCommand( CdCut );
-            //CommandManager.RegisterCommand( CdPaste );
+            CommandManager.RegisterCommand( CdPaste );
             CommandManager.RegisterCommand( CdPasteNot );
-            CommandManager.RegisterCommand( CdPasteX );
             CommandManager.RegisterCommand( CdMirror );
             CommandManager.RegisterCommand( CdRotate );
 
@@ -592,14 +591,6 @@ namespace fCraft {
 
         #region Copy and Paste
 
-        sealed class PasteArgs {
-            public bool DoInclude, DoExclude;
-            public Block[] BlockTypes;
-        }
-
-        const BlockChangeContext PasteContext = BlockChangeContext.Drawn | BlockChangeContext.Pasted;
-
-
         static readonly CommandDescriptor CdCopySlot = new CommandDescriptor {
             Name = "copyslot",
             Category = CommandCategory.Building,
@@ -733,195 +724,6 @@ namespace fCraft {
         }
 
 
-
-        static readonly CommandDescriptor CdPasteNot = new CommandDescriptor {
-            Name = "pastenot",
-            Category = CommandCategory.Building,
-            Permissions = new[] { Permission.CopyAndPaste },
-            Help = "Paste previously copied blocks, excluding specified block type(s). " +
-                   "Used together with &H/copy&S command. " +
-                   "Note that pasting starts at the same corner that you started &H/copy&S from. ",
-            Usage = "/pastenot ExcludedBlock [AnotherOne [AndAnother]]",
-            Handler = PasteNotHandler
-        };
-
-        static void PasteNotHandler( Player player, Command cmd ) {
-            if( player.GetCopyInformation() == null ) {
-                player.MessageNow( "Nothing to paste! Copy something first." );
-                return;
-            }
-
-            PasteArgs args;
-
-            List<Block> excludedTypes = new List<Block>();
-            string excludedBlockName = cmd.Next();
-            if( excludedBlockName != null ) {
-                do {
-                    Block excludedType = Map.GetBlockByName( excludedBlockName );
-                    if( excludedType != Block.Undefined ) {
-                        excludedTypes.Add( excludedType );
-                    } else {
-                        player.MessageNow( "PasteNot: Unrecognized block type: {0}", excludedBlockName );
-                        return;
-                    }
-                } while( (excludedBlockName = cmd.Next()) != null );
-            }
-
-            if( excludedTypes.Count > 0 ) {
-                args = new PasteArgs {
-                    DoExclude = true,
-                    BlockTypes = excludedTypes.ToArray()
-                };
-                player.MessageNow( "Ready to paste all EXCEPT {0}",
-                                   excludedTypes.JoinToString() );
-            } else {
-                player.MessageNow( "PasteNot: Please specify block(s) to exclude." );
-                return;
-            }
-
-            player.SelectionStart( 1, PasteCallback, args, CdPasteNot.Permissions );
-
-            player.MessageNow( "PasteNot: Place a block or type /mark to use your location." );
-        }
-
-
-
-        static readonly CommandDescriptor CdPaste = new CommandDescriptor {
-            Name = "paste",
-            Category = CommandCategory.Building,
-            Permissions = new[] { Permission.CopyAndPaste },
-            Help = "Pastes previously copied blocks. Used together with &H/copy&S command. " +
-                   "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
-                   "Note that pasting starts at the same corner that you started &H/copy&S from.",
-            Usage = "/paste [IncludedBlock [AnotherOne etc]]",
-            Handler = PasteHandler
-        };
-
-        static void PasteHandler( Player player, Command cmd ) {
-            if( player.GetCopyInformation() == null ) {
-                player.MessageNow( "Nothing to paste! Copy something first." );
-                return;
-            }
-
-            List<Block> includedTypes = new List<Block>();
-            string includedBlockName = cmd.Next();
-            if( includedBlockName != null ) {
-                do {
-                    Block includedType = Map.GetBlockByName( includedBlockName );
-                    if( includedType != Block.Undefined ) {
-                        includedTypes.Add( includedType );
-                    } else {
-                        player.MessageNow( "PasteNot: Unrecognized block type: {0}", includedBlockName );
-                        return;
-                    }
-                } while( (includedBlockName = cmd.Next()) != null );
-            }
-
-            PasteArgs args;
-            if( includedTypes.Count > 0 ) {
-                args = new PasteArgs {
-                    DoInclude = true,
-                    BlockTypes = includedTypes.ToArray()
-                };
-                player.MessageNow( "Ready to paste ONLY {0}", includedTypes.JoinToString() );
-            } else {
-                args = new PasteArgs {
-                    BlockTypes = new Block[0]
-                };
-            }
-
-            player.SelectionStart( 1, PasteCallback, args, CdPaste.Permissions );
-
-            player.MessageNow( "Paste: Place a block or type /mark to use your location." );
-        }
-
-
-        unsafe static void PasteCallback( Player player, Vector3I[] marks, object tag ) {
-            CopyInformation info = player.GetCopyInformation();
-
-            PasteArgs args = (PasteArgs)tag;
-            byte* specialTypes = stackalloc byte[args.BlockTypes.Length];
-            int specialTypeCount = args.BlockTypes.Length;
-            for( int i = 0; i < args.BlockTypes.Length; i++ ) {
-                specialTypes[i] = (byte)args.BlockTypes[i];
-            }
-            Map map = player.World.Map;
-
-            Vector3I mark2 = new Vector3I {
-                X = (short)(marks[0].X + info.Dimensions.X),
-                Y = (short)(marks[0].Y + info.Dimensions.Y),
-                Z = (short)(marks[0].Z + info.Dimensions.Z)
-            };
-
-            BoundingBox bounds = new BoundingBox( marks[0], mark2 );
-
-            int pasteVolume = bounds.GetIntersection( map.Bounds ).Volume;
-            if( !player.CanDraw( pasteVolume ) ) {
-                player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
-                                   player.Info.Rank.DrawLimit,
-                                   pasteVolume );
-                return;
-            }
-
-            if( bounds.XMin < 0 || bounds.XMax > map.Width - 1 ) {
-                player.MessageNow( "Warning: Not enough room horizontally (X), paste cut off." );
-            }
-            if( bounds.YMin < 0 || bounds.YMax > map.Length - 1 ) {
-                player.MessageNow( "Warning: Not enough room horizontally (Y), paste cut off." );
-            }
-            if( bounds.ZMin < 0 || bounds.ZMax > map.Height - 1 ) {
-                player.MessageNow( "Warning: Not enough room vertically, paste cut off." );
-            }
-
-            player.LastDrawOp = null;
-            player.UndoBuffer.Clear();
-
-            int blocks = 0, blocksDenied = 0;
-            bool cannotUndo = false;
-
-            for( int x = bounds.XMin; x <= bounds.XMax; x += DrawStride ) {
-                for( int y = bounds.YMin; y <= bounds.YMax; y += DrawStride ) {
-                    for( int z = bounds.ZMin; z <= bounds.ZMax; z++ ) {
-                        for( int y3 = 0; y3 < DrawStride && y + y3 <= bounds.YMax; y3++ ) {
-                            for( int x3 = 0; x3 < DrawStride && x + x3 <= bounds.XMax; x3++ ) {
-                                byte block = info.Buffer[x + x3 - bounds.XMin, y + y3 - bounds.YMin, z - bounds.ZMin];
-
-                                if( args.DoInclude ) {
-                                    bool skip = true;
-                                    for( int i = 0; i < specialTypeCount; i++ ) {
-                                        if( block == specialTypes[i] ) {
-                                            skip = false;
-                                            break;
-                                        }
-                                    }
-                                    if( skip ) continue;
-                                } else if( args.DoExclude ) {
-                                    bool skip = false;
-                                    for( int i = 0; i < specialTypeCount; i++ ) {
-                                        if( block == specialTypes[i] ) {
-                                            skip = true;
-                                            break;
-                                        }
-                                    }
-                                    if( skip ) continue;
-                                }
-                                DrawOneBlock( player, block, x + x3, y + y3, z, PasteContext,
-                                              ref blocks, ref blocksDenied, ref cannotUndo );
-                            }
-                        }
-                    }
-                }
-            }
-
-            Logger.Log( "{0} pasted {1} blocks to world {2} (@ {3},{4},{5} - {6},{7},{8}).", LogType.UserActivity,
-                        player.Name, blocks, player.World.Name,
-                        bounds.XMin, bounds.YMin, bounds.ZMin,
-                        bounds.XMax, bounds.YMax, bounds.ZMax );
-            DrawingFinished( player, "Pasted", blocks, blocksDenied );
-        }
-
-
-
         static readonly CommandDescriptor CdMirror = new CommandDescriptor {
             Name = "mirror",
             Aliases = new[] { "flip" },
@@ -960,10 +762,10 @@ namespace fCraft {
 
             if( flipX ) {
                 int left = 0;
-                int right = info.Buffer.GetLength( 0 ) - 1;
+                int right = info.Dimensions.X - 1;
                 while( left < right ) {
-                    for( int y = info.Buffer.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                        for( int z = info.Buffer.GetLength( 2 ) - 1; z >= 0; z-- ) {
+                    for( int y = info.Dimensions.Y - 1; y >= 0; y-- ) {
+                        for( int z = info.Dimensions.Z - 1; z >= 0; z-- ) {
                             block = info.Buffer[left, y, z];
                             info.Buffer[left, y, z] = info.Buffer[right, y, z];
                             info.Buffer[right, y, z] = block;
@@ -976,10 +778,10 @@ namespace fCraft {
 
             if( flipY ) {
                 int left = 0;
-                int right = info.Buffer.GetLength( 1 ) - 1;
+                int right = info.Dimensions.Y - 1;
                 while( left < right ) {
-                    for( int x = info.Buffer.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                        for( int z = info.Buffer.GetLength( 2 ) - 1; z >= 0; z-- ) {
+                    for( int x = info.Dimensions.X - 1; x >= 0; x-- ) {
+                        for( int z = info.Dimensions.Z - 1; z >= 0; z-- ) {
                             block = info.Buffer[x, left, z];
                             info.Buffer[x, left, z] = info.Buffer[x, right, z];
                             info.Buffer[x, right, z] = block;
@@ -992,10 +794,10 @@ namespace fCraft {
 
             if( flipH ) {
                 int left = 0;
-                int right = info.Buffer.GetLength( 2 ) - 1;
+                int right = info.Dimensions.Z - 1;
                 while( left < right ) {
-                    for( int x = info.Buffer.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                        for( int y = info.Buffer.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                    for( int x = info.Dimensions.X - 1; x >= 0; x-- ) {
+                        for( int y = info.Dimensions.Y - 1; y >= 0; y-- ) {
                             block = info.Buffer[x, y, left];
                             info.Buffer[x, y, left] = info.Buffer[x, y, right];
                             info.Buffer[x, y, right] = block;
@@ -1092,10 +894,9 @@ namespace fCraft {
             } else if( axis == Axis.Y ) {
                 newBuffer = new byte[oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 )];
 
-            } else {
+            } else { // axis == Axis.Z
                 newBuffer = new byte[oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 )];
             }
-
 
             // construct the rotation matrix
             int[,] matrix = new[,]{
@@ -1158,14 +959,15 @@ namespace fCraft {
                 }
             }
 
-            player.Message( "Rotated copy by {0} degrees around {1} axis.", degrees, axis );
+            player.Message( "Rotated copy (slot {0}) by {1} degrees around {2} axis.",
+                            info.Slot, degrees, axis );
             info.Buffer = newBuffer;
         }
 
 
 
 
-        static readonly CommandDescriptor CdPasteX = new CommandDescriptor {
+        static readonly CommandDescriptor CdPaste = new CommandDescriptor {
             Name = "paste",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
@@ -1173,15 +975,35 @@ namespace fCraft {
                    "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
                    "Alignment semantics are... complicated.",
             Usage = "/paste [IncludedBlock [AnotherOne etc]]",
-            Handler = PasteXHandler
+            Handler = PasteHandler
         };
 
-        static void PasteXHandler( Player player, Command cmd ) {
-            PasteDrawOperation op = new PasteDrawOperation( player );
+        static void PasteHandler( Player player, Command cmd ) {
+            PasteDrawOperation op = new PasteDrawOperation( player, false );
             if( !op.ReadParams( cmd ) ) return;
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
             player.MessageNow( "{0}: Click 2 blocks or use &H/mark&S to make a selection.",
-                               op.Brush.InstanceDescription );
+                               op.Description );
+        }
+
+
+        static readonly CommandDescriptor CdPasteNot = new CommandDescriptor {
+            Name = "pastenot",
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.CopyAndPaste },
+            Help = "EXPERIMENTAL. Pastes previously copied blocks, except the given block type(s). " +
+                    "Used together with &H/copy&S command. " +
+                   "Alignment semantics are... complicated.",
+            Usage = "/PasteNot ExcludedBlock [AnotherOne etc]",
+            Handler = PasteNotHandler
+        };
+
+        static void PasteNotHandler( Player player, Command cmd ) {
+            PasteDrawOperation op = new PasteDrawOperation( player, true );
+            if( !op.ReadParams( cmd ) ) return;
+            player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
+            player.MessageNow( "{0}: Click 2 blocks or use &H/mark&S to make a selection.",
+                               op.Description );
         }
 
         #endregion

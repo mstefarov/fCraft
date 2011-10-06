@@ -7,7 +7,13 @@ namespace fCraft.Drawing {
         const BlockChangeContext PasteContext = BlockChangeContext.Drawn | BlockChangeContext.Pasted;
 
         public override string Name {
-            get { return "Paste"; }
+            get {
+                if( Not ) {
+                    return "PasteNot";
+                } else {
+                    return "Paste";
+                }
+            }
         }
 
         public override string DescriptionWithBrush {
@@ -22,13 +28,15 @@ namespace fCraft.Drawing {
             }
         }
 
+        public bool Not { get; private set; }
         public Block[] Blocks { get; private set; }
 
         public CopyInformation CopyInfo { get; private set; }
 
 
-        public PasteDrawOperation( Player player )
+        public PasteDrawOperation( Player player, bool not )
             : base( player ) {
+            Not=not;
         }
 
 
@@ -122,27 +130,36 @@ namespace fCraft.Drawing {
                 if( block == Block.Undefined ) return false;
                 blocks.Add( block );
             }
-
             if( blocks.Count > 0 ) {
                 Blocks = blocks.ToArray();
+            } else if( Not ) {
+                Player.Message( "PasteNot requires at least 1 block." );
+                return false;
             }
-            this.Brush = this;
+            Brush = this;
             return true;
         }
 
 
         Block IBrushInstance.NextBlock( DrawOperation op ) {
+            // ReSharper disable LoopCanBeConvertedToQuery
             Block block = (Block)CopyInfo.Buffer[Coords.X - Bounds.XMin, Coords.Y - Bounds.YMin, Coords.Z - Bounds.ZMin];
             if( Blocks != null ) {
-                // ReSharper disable LoopCanBeConvertedToQuery
-                for( int i = 0; i < Blocks.Length; i++ ) {
-                    // ReSharper restore LoopCanBeConvertedToQuery
-                    if( block == Blocks[i] ) return block;
+                if( Not ) {
+                    for( int i = 0; i < Blocks.Length; i++ ) {
+                        if( block == Blocks[i] ) return Block.Undefined;
+                    }
+                    return block;
+                } else {
+                    for( int i = 0; i < Blocks.Length; i++ ) {
+                        if( block == Blocks[i] ) return block;
+                    }
+                    return Block.Undefined;
                 }
-                return Block.Undefined;
             } else {
                 return block;
             }
+            // ReSharper restore LoopCanBeConvertedToQuery
         }
 
 

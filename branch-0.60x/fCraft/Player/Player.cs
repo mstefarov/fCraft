@@ -1125,6 +1125,7 @@ namespace fCraft {
         }
 
         public void SetCopyInformation( [CanBeNull] CopyInformation info ) {
+            if( info != null ) info.Slot = copySlot;
             CopyInformation[copySlot] = info;
         }
 

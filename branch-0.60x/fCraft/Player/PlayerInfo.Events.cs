@@ -233,7 +233,7 @@ namespace fCraft.Events {
     }
 
 
-    public class PlayerInfoMuteChangingEventArgs : PlayerInfoMuteChangedEventArgs, ICancellableEvent {
+    public sealed class PlayerInfoMuteChangingEventArgs : PlayerInfoMuteChangedEventArgs, ICancellableEvent {
         internal PlayerInfoMuteChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player muter, TimeSpan duration, bool unmuting )
             : base( target, muter, duration, unmuting ) {
         }
