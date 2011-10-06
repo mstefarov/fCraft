@@ -18,12 +18,12 @@ namespace fCraft {
                                           "Use &H/undo&S to stop and undo the last draw operation.";
 
         internal static void Init() {
-            CommandManager.RegisterCommand( CdSolid );
-            CommandManager.RegisterCommand( CdPaint );
-            CommandManager.RegisterCommand( CdGrass );
-            CommandManager.RegisterCommand( CdWater );
-            CommandManager.RegisterCommand( CdLava );
             CommandManager.RegisterCommand( CdBind );
+            CommandManager.RegisterCommand( CdGrass );
+            CommandManager.RegisterCommand( CdLava );
+            CommandManager.RegisterCommand( CdPaint );
+            CommandManager.RegisterCommand( CdSolid );
+            CommandManager.RegisterCommand( CdWater );
 
             CdCuboid.Help += GeneralDrawingHelp;
             CdCuboidHollow.Help += GeneralDrawingHelp;
@@ -43,15 +43,16 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdReplace );
             CommandManager.RegisterCommand( CdReplaceNot );
 
-            CommandManager.RegisterCommand( CdMark );
             CommandManager.RegisterCommand( CdCancel );
+            CommandManager.RegisterCommand( CdMark );
             CommandManager.RegisterCommand( CdUndo );
 
             CommandManager.RegisterCommand( CdCopySlot );
             CommandManager.RegisterCommand( CdCopy );
             CommandManager.RegisterCommand( CdCut );
-            CommandManager.RegisterCommand( CdPasteNot );
             CommandManager.RegisterCommand( CdPaste );
+            CommandManager.RegisterCommand( CdPasteNot );
+            CommandManager.RegisterCommand( CdPasteX );
             CommandManager.RegisterCommand( CdMirror );
             CommandManager.RegisterCommand( CdRotate );
 
@@ -500,7 +501,7 @@ namespace fCraft {
             var replaceBrush = ReplaceBrushFactory.Instance.MakeBrush( player, cmd );
             if( replaceBrush == null ) return;
 
-            CuboidDrawOperation op = new CuboidDrawOperation(player);
+            CuboidDrawOperation op = new CuboidDrawOperation( player );
             IBrushInstance brush = replaceBrush.MakeInstance( player, cmd, op );
             if( brush == null ) return;
             op.Brush = brush;
@@ -672,12 +673,7 @@ namespace fCraft {
             }
 
             // remember dimensions and orientation
-            CopyInformation copyInfo = new CopyInformation {
-                Width = marks[1].X - marks[0].X,
-                Length = marks[1].Y - marks[0].Y,
-                Height = marks[1].Z - marks[0].Z,
-                Buffer = new byte[ex - sx + 1, ey - sy + 1, ez - sz + 1]
-            };
+            CopyInformation copyInfo = new CopyInformation( marks[0], marks[1] );
 
             Map map = player.World.Map;
             for( int x = sx; x <= ex; x++ ) {
@@ -695,9 +691,9 @@ namespace fCraft {
             player.MessageNow( "{0} blocks copied into slot #{1}. You can now &H/paste",
                                volume, player.CopySlot + 1 );
             player.MessageNow( "Origin at {0} {1}{2} corner.",
-                               (copyInfo.Height > 0 ? "bottom" : "top"),
-                               (copyInfo.Length > 0 ? "south" : "north"),
-                               (copyInfo.Width > 0 ? "east" : "west") );
+                               (copyInfo.Orientation.X == 1 ? "bottom" : "top"),
+                               (copyInfo.Orientation.Y == 1 ? "south" : "north"),
+                               (copyInfo.Orientation.Z == 1 ? "east" : "west") );
 
             Logger.Log( "{0} copied {1} blocks from {2}.", LogType.UserActivity,
                         player.Name, volume, player.World.Name );
@@ -797,7 +793,7 @@ namespace fCraft {
             Help = "Pastes previously copied blocks. Used together with &H/copy&S command. " +
                    "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
                    "Note that pasting starts at the same corner that you started &H/copy&S from.",
-            Usage = "/paste [IncludedBlock [AnotherOne [AndAnother]]]",
+            Usage = "/paste [IncludedBlock [AnotherOne etc]]",
             Handler = PasteHandler
         };
 
@@ -852,9 +848,9 @@ namespace fCraft {
             Map map = player.World.Map;
 
             Vector3I mark2 = new Vector3I {
-                X = (short)(marks[0].X + info.Width),
-                Y = (short)(marks[0].Y + info.Length),
-                Z = (short)(marks[0].Z + info.Height)
+                X = (short)(marks[0].X + info.Dimensions.X),
+                Y = (short)(marks[0].Y + info.Dimensions.Y),
+                Z = (short)(marks[0].Z + info.Dimensions.Z)
             };
 
             BoundingBox bounds = new BoundingBox( marks[0], mark2 );
@@ -1092,21 +1088,12 @@ namespace fCraft {
 
             } else if( axis == Axis.X ) {
                 newBuffer = new byte[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 )];
-                int dimY = info.Length;
-                info.Length = info.Height;
-                info.Height = dimY;
 
             } else if( axis == Axis.Y ) {
                 newBuffer = new byte[oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 )];
-                int dimX = info.Width;
-                info.Width = info.Height;
-                info.Height = dimX;
 
             } else {
                 newBuffer = new byte[oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 )];
-                int dimY = info.Length;
-                info.Length = info.Width;
-                info.Width = dimY;
             }
 
 
@@ -1173,6 +1160,28 @@ namespace fCraft {
 
             player.Message( "Rotated copy by {0} degrees around {1} axis.", degrees, axis );
             info.Buffer = newBuffer;
+        }
+
+
+
+
+        static readonly CommandDescriptor CdPasteX = new CommandDescriptor {
+            Name = "pastex",
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.CopyAndPaste },
+            Help = "EXPERIMENTAL. Pastes previously copied blocks. Used together with &H/copy&S command. " +
+                   "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
+                   "Alignment semantics are... complicated.",
+            Usage = "/paste [IncludedBlock [AnotherOne etc]]",
+            Handler = PasteXHandler
+        };
+
+        static void PasteXHandler( Player player, Command cmd ) {
+            PasteDrawOperation op = new PasteDrawOperation( player );
+            if( !op.ReadParams( cmd ) ) return;
+            player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
+            player.MessageNow( "{0}: Click 2 blocks or use &H/mark&S to make a selection.",
+                               op.Brush.InstanceDescription );
         }
 
         #endregion

@@ -93,7 +93,8 @@ namespace fCraft.Drawing {
             if( marks.Length < 2 ) throw new ArgumentException( "At least two marks needed.", "marks" );
             Marks = marks;
             Bounds = new BoundingBox( Marks[0], Marks[1] );
-            if( Bounds == null ) throw new InvalidOperationException( "Bounds not set" );
+            if( Bounds == null ) throw new NullReferenceException( Name + ": Bounds not set" );
+            if( Brush == null ) throw new NullReferenceException( Name + ": Brush not set" );
             if( !Brush.Begin( Player, this ) ) return false;
             Player.LastDrawOp = this;
             Player.UndoBuffer.Clear();

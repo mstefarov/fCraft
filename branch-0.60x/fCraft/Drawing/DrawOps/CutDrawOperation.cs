@@ -33,12 +33,7 @@ namespace fCraft.Drawing {
             Coords.Z = Bounds.ZMin;
 
             // remember dimensions and orientation
-            CopyInformation copyInfo = new CopyInformation {
-                Width = marks[1].X - marks[0].X,
-                Length = marks[1].Y - marks[0].Y,
-                Height = marks[1].Z - marks[0].Z,
-                Buffer = new byte[Bounds.Width, Bounds.Length, Bounds.Height]
-            };
+            CopyInformation copyInfo = new CopyInformation( marks[0], marks[1] );
 
             for( int x = Bounds.XMin; x <= Bounds.XMax; x++ ) {
                 for( int y = Bounds.YMin; y <= Bounds.YMax; y++ ) {
@@ -54,9 +49,9 @@ namespace fCraft.Drawing {
             Player.Message( "{0} blocks cut into slot #{1}. You can now &H/paste",
                             Bounds.Volume, Player.CopySlot + 1 );
             Player.Message( "Origin at {0} {1}{2} corner.",
-                            (copyInfo.Height > 0 ? "bottom" : "top"),
-                            (copyInfo.Length > 0 ? "south" : "north"),
-                            (copyInfo.Width > 0 ? "east" : "west") );
+                            (copyInfo.Orientation.X == 1 ? "bottom" : "top"),
+                            (copyInfo.Orientation.Y == 1 ? "south" : "north"),
+                            (copyInfo.Orientation.Z == 1 ? "east" : "west") );
 
             Context |= BlockChangeContext.Cut;
             return true;
