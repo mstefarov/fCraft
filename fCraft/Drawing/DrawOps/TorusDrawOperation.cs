@@ -27,11 +27,11 @@ namespace fCraft.Drawing {
             Vector3I radiusVector = (marks[1] - center).Abs();
 
             // tube radius is figured out from Z component of the mark vector
-            tubeR = radiusVector.Z + 1;
+            tubeR = radiusVector.Z;
 
             // torus radius is figured out from length of vector's X-Y components
             bigR = Math.Sqrt( radiusVector.X * radiusVector.X +
-                              radiusVector.Y * radiusVector.Y + 1 );
+                              radiusVector.Y * radiusVector.Y + .5 );
 
             // tube + torus radius, rounded up. This will be the maximum extend of the torus.
             int combinedRadius = (int)Math.Ceiling( bigR + tubeR );

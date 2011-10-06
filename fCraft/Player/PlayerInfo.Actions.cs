@@ -827,7 +827,6 @@ namespace fCraft {
 
         #region Mute / Unmute
 
-
         public void Mute( [NotNull] Player player, TimeSpan duration, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( duration <= TimeSpan.Zero ) {
@@ -854,8 +853,11 @@ namespace fCraft {
                 DateTime newMutedUntil = DateTime.UtcNow.Add( duration );
                 if( newMutedUntil > MutedUntil ) {
 
+                    // raise MuteChanging event
                     if( raiseEvents ) {
-                        // TODO: PlayerInfo.BeingMuted event
+                        if( RaiseMuteChangingEvent( this, player, duration, false ) ) {
+                            PlayerOpException.ThrowCancelled( player, this );
+                        }
                     }
 
                     // actually mute
@@ -864,12 +866,21 @@ namespace fCraft {
                     LastModified = DateTime.UtcNow;
 
                     if( raiseEvents ) {
-                        // TODO: PlayerInfo.Muted event
+                        RaiseMuteChangedEvent( this, player, duration, false );
                     }
 
                     if( announce ) {
-                        // TODO: Announce
+                        Player target = PlayerObject;
+                        if( target != null ) {
+                            target.Message( "You were muted by {0}&S for {1}",
+                                            player.ClassyName, duration.ToMiniString() );
+                        }
+                        Server.Message( target,
+                                        "&SPlayer {0}&S was muted by {1}&S for {2}",
+                                        ClassyName, player.ClassyName, duration.ToMiniString() );
                     }
+                    Logger.Log( "Player {0} was muted by {1} for {2}", LogType.UserActivity,
+                                Name, player.Name, duration );
 
                 } else {
                     string msg = String.Format( "Player {0} is already muted by {1} for another {2}",
