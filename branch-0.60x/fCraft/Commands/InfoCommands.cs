@@ -46,7 +46,7 @@ namespace fCraft {
 
         #region Info
 
-        const int MatchesToShow = 25;
+        const int MatchesToShow = 30;
 
         static readonly Regex RegexNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\.]", RegexOptions.Compiled );
 
@@ -842,16 +842,15 @@ namespace fCraft {
             }
 
             if( players.Length > 0 ) {
-                string[] playerNameList = players.Where( player.CanSee )
+                Player[] playerNameList = players.Where( player.CanSee )
                                                  .OrderBy( p => p, PlayerListSorter.Instance )
-                                                 .Select( p => p.ClassyNameWithHiddenStar( player ) )
                                                  .ToArray();
 
                 if( playerNameList.Length > 0 ) {
                     player.Message( "There are {0} players {1}: {2}",
                                     playerNameList.Length,
                                     qualifier,
-                                    playerNameList.JoinToString() );
+                                    playerNameList.JoinToClassyString() );
                 } else {
                     player.Message( "There are no players {0}", qualifier );
                 }

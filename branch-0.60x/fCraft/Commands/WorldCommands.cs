@@ -1124,7 +1124,7 @@ namespace fCraft {
                                         worlds.Length, listName, worldsPart.JoinToClassyString() );
 
                 if( offset + worldsPart.Length < worlds.Length ) {
-                    player.Message( "Showing {0}-{1} (out of {2}). Next: &H/worlds{3} {4}",
+                    player.Message( "Showing {0}-{1} (out of {2}). Next: &H/worlds {3}{4}",
                                     offset + 1, offset + worldsPart.Length, worlds.Length,
                                     extraParam, offset + worldsPart.Length );
                 } else {
