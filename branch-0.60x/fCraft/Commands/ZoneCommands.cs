@@ -317,6 +317,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdZoneInfo = new CommandDescriptor {
             Name = "zinfo",
+            Aliases = new[] { "ZoneInfo" },
             Category = CommandCategory.Zone | CommandCategory.Info,
             Help = "Shows detailed information about a zone.",
             Usage = "/zinfo ZoneName",
