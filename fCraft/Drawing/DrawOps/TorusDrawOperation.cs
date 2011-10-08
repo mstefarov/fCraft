@@ -37,7 +37,7 @@ namespace fCraft.Drawing {
             int combinedRadius = (int)Math.Ceiling( bigR + tubeR );
 
             // vector from center of torus to the furthest-away point of the bounding box
-            Vector3I combinedRadiusVector = new Vector3I( combinedRadius, combinedRadius, tubeR );
+            Vector3I combinedRadiusVector = new Vector3I( combinedRadius, combinedRadius, tubeR + 1 );
 
             // adjusted bounding box
             Bounds = new BoundingBox( center - combinedRadiusVector, center + combinedRadiusVector );
@@ -76,7 +76,7 @@ namespace fCraft.Drawing {
 
                         // test if it's inside the torus
                         double r1 = bigR - Math.Sqrt( dx * dx + dy * dy );
-                        if( r1 * r1 + dz * dz <= tubeR * tubeR ) {
+                        if( r1 * r1 + dz * dz <= tubeR * tubeR + .5 ) {
                             yield return new Vector3I( x, y, z );
                         }
                     }
