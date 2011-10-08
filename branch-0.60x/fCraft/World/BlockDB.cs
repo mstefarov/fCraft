@@ -1,4 +1,5 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+//#define DEBUG_BLOCKDB
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,9 +34,11 @@ namespace fCraft {
             set {
                 lock( SyncRoot ) {
                     if( IsEnabledGlobally ) {
+#if DEBUG_BLOCKDB
                         if( value != enabledState ) {
                             Logger.Log( "BlockDB({0}): Enabled={1}", LogType.Debug, World.Name, value );
                         }
+#endif
                         if( value == YesNoAuto.No && IsEnabled ) {
                             Flush();
                             CacheClear();
@@ -170,7 +173,9 @@ namespace fCraft {
                         Array.Copy( cacheStore, 0, destinationArray, 0, Math.Min( cacheStore.Length, CacheSize ) );
                     }
                     cacheStore = destinationArray;
+#if DEBUG_BLOCKDB
                     Logger.Log( "BlockDB({0}): CacheCapacity={1}", LogType.Debug, World.Name, value );
+#endif
                 }
             }
         }
@@ -195,7 +200,9 @@ namespace fCraft {
                         } else if( value == false ) {
                             CacheClear();
                         }
+#if DEBUG_BLOCKDB
                         Logger.Log( "BlockDB({0}): Preloaded={1}", LogType.Debug, World.Name, value );
+#endif
                     }
                     isPreloaded = value;
                 }
@@ -298,7 +305,9 @@ namespace fCraft {
                         oldLimit != 0 && value < oldLimit ) {
                         EnforceLimit();
                     }
+#if DEBUG_BLOCKDB
                     Logger.Log( "BlockDB({0}): Limit={1}", LogType.Debug, World.Name, value );
+#endif
                 }
             }
         }
@@ -316,8 +325,10 @@ namespace fCraft {
                 }
                 TrimFile( limit );
                 lastLimit = DateTime.UtcNow;
+#if DEBUG_BLOCKDB
                 Logger.Log( "BlockDB({0}): Enforce Limit, CC {1}->{2}, CS {3}->{4}", LogType.Debug,
                             World.Name, oldCap, CacheCapacity, oldSize, CacheSize );
+#endif
             }
         }
 
@@ -334,7 +345,9 @@ namespace fCraft {
                         oldTimeLimit != TimeSpan.Zero && value < oldTimeLimit ) {
                         EnforceTimeLimit();
                     }
+#if DEBUG_BLOCKDB
                     Logger.Log( "BlockDB({0}): TimeLimit={1}", LogType.Debug, World.Name, value );
+#endif
                 }
             }
         }
@@ -353,8 +366,10 @@ namespace fCraft {
                 }
                 TrimFile( newCapacity );
                 lastTimeLimit = DateTime.UtcNow;
+#if DEBUG_BLOCKDB
                 Logger.Log( "BlockDB({0}): Enforce TimeLimit, CC {1}->{2}, CS {3}->{4}", LogType.Debug,
                             World.Name, oldCap, CacheCapacity, oldSize, CacheSize );
+#endif
             }
         }
 
@@ -402,8 +417,10 @@ namespace fCraft {
         public void Flush() {
             lock( SyncRoot ) {
                 if( LastFlushedIndex < CacheSize ) {
+#if DEBUG_BLOCKDB
                     Logger.Log( "BlockDB({0}): Flushing. CC={1} CS={2} LFI={3}", LogType.Debug,
                                 World.Name, CacheCapacity, CacheSize, LastFlushedIndex );
+#endif
                     int count = 0;
                     using( FileStream stream = OpenAppend() ) {
                         BinaryWriter writer = new BinaryWriter( stream );
@@ -415,8 +432,10 @@ namespace fCraft {
                     if( !isPreloaded ) CacheSize = 0;
                     LastFlushedIndex = CacheSize;
                     changesSinceLimitEnforcement += count;
+#if DEBUG_BLOCKDB
                     Logger.Log( "BlockDB({0}): Flushed {1} entries. CC={2} CS={3} LFI={4}", LogType.Debug,
                                 World.Name, count, CacheCapacity, CacheSize, LastFlushedIndex );
+#endif
                 }
                 EnforceLimitsIfNeeded();
             }
