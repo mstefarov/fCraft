@@ -1274,9 +1274,9 @@ namespace fCraft {
 
             // raise Player.BeingKicked event
             if( raiseEvents ) {
-                var e = new PlayerBeingKickedEventArgs( this, player, reason, !announce, recordToPlayerDB, context );
+                var e = new PlayerBeingKickedEventArgs( this, player, reason, announce, recordToPlayerDB, context );
                 RaisePlayerBeingKickedEvent( e );
-                if( e.Cancel ) return;
+                if( e.Cancel ) PlayerOpException.ThrowCancelled( player, Info );
                 recordToPlayerDB = e.RecordToPlayerDB;
             }
 
@@ -1309,7 +1309,7 @@ namespace fCraft {
 
             // raise Player.Kicked event
             if( raiseEvents ) {
-                var e = new PlayerKickedEventArgs( this, player, reason, !announce, recordToPlayerDB, context );
+                var e = new PlayerKickedEventArgs( this, player, reason, announce, recordToPlayerDB, context );
                 RaisePlayerKickedEvent( e );
             }
         }

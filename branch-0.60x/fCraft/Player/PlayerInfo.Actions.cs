@@ -66,10 +66,10 @@ namespace fCraft {
                 PlayerOpException.CheckBanReason( reason, player, this, unban );
 
                 // Raise PlayerInfo.BanChanging event
-                PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( this, player, unban, reason );
+                PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( this, player, unban, reason, announce );
                 if( raiseEvents ) {
                     RaiseBanChangingEvent( e );
-                    if( e.Cancel ) return;
+                    if( e.Cancel ) PlayerOpException.ThrowCancelled( player, this );
                     reason = e.Reason;
                 }
 
@@ -363,7 +363,7 @@ namespace fCraft {
                     if( targetAlt.BanStatus != BanStatus.NotBanned ) continue;
 
                     // Raise PlayerInfo.BanChanging event
-                    PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetAlt, player, false, reason );
+                    PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetAlt, player, false, reason, announce );
                     if( raiseEvents ) {
                         RaiseBanChangingEvent( e );
                         if( e.Cancel ) continue;
@@ -476,7 +476,7 @@ namespace fCraft {
                     if( targetAlt.BanStatus != BanStatus.Banned ) continue;
 
                     // Raise PlayerInfo.BanChanging event
-                    PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetAlt, player, true, reason );
+                    PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetAlt, player, true, reason, announce );
                     if( raiseEvents ) {
                         RaiseBanChangingEvent( e );
                         if( e.Cancel ) continue;
@@ -641,7 +641,7 @@ namespace fCraft {
             }
 
             // Raise PlayerInfo.RankChanging event
-            if( raiseEvents && RaiseRankChangingEvent( this, player, newRank, reason, changeType ) ) {
+            if( raiseEvents && RaiseRankChangingEvent( this, player, newRank, reason, changeType, announce ) ) {
                 PlayerOpException.ThrowCancelled( player, this );
             }
 
@@ -656,13 +656,13 @@ namespace fCraft {
             // Make necessary adjustments related to rank change
             Player target = PlayerObject;
             if( target == null ) {
-                if( raiseEvents ) RaiseRankChangedEvent( this, player, oldRank, reason, changeType );
+                if( raiseEvents ) RaiseRankChangedEvent( this, player, oldRank, reason, changeType, announce );
                 if( IsHidden && !Rank.Can( Permission.Hide ) ) {
                     IsHidden = false;
                 }
             } else {
                 Server.RaisePlayerListChangedEvent();
-                if( raiseEvents ) RaiseRankChangedEvent( this, player, oldRank, reason, changeType );
+                if( raiseEvents ) RaiseRankChangedEvent( this, player, oldRank, reason, changeType, announce );
 
                 // reset binds (water, lava, admincrete)
                 target.ResetAllBinds();

@@ -415,7 +415,7 @@ namespace fCraft {
                 if( targetAlt.BanStatus != BanStatus.NotBanned ) continue;
 
                 // Raise PlayerInfo.BanChanging event
-                PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetAlt, player, false, reason );
+                PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetAlt, player, false, reason, announce );
                 if( raiseEvents ) {
                     PlayerInfo.RaiseBanChangingEvent( e );
                     if( e.Cancel ) continue;
@@ -515,7 +515,7 @@ namespace fCraft {
                 if( targetAlt.BanStatus != BanStatus.Banned ) continue;
 
                 // Raise PlayerInfo.BanChanging event
-                PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetAlt, player, true, reason );
+                PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetAlt, player, true, reason, announce );
                 if( raiseEvents ) {
                     PlayerInfo.RaiseBanChangingEvent( e );
                     if( e.Cancel ) continue;
