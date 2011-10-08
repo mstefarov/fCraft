@@ -654,9 +654,10 @@ namespace fCraft {
 
             bool firstTime = (Info.TimesVisited == 1);
             if( !JoinWorldNow( startingWorld, true, WorldChangeReason.FirstWorld ) ) {
-                Logger.Log( "Failed to load main world ({0}) for connecting player {1} (from {2})", LogType.Error,
+                Logger.Log( "Could not load main world ({0}) for connecting player {1} (from {2}): " +
+                            "Either main world is full, or an error occured.", LogType.Warning,
                             startingWorld.Name, Name, IP );
-                KickNow( "Unable to join the main world.", LeaveReason.WorldFull );
+                KickNow( "Either main world is full, or an error occured.", LeaveReason.WorldFull );
                 return false;
             }
 
