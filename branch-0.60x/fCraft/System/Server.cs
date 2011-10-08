@@ -100,6 +100,7 @@ namespace fCraft {
         // flags used to ensure proper initialization order
         static bool libraryInitialized,
                     serverInitialized;
+        public static bool IsRunning { get; private set; }
 
         /// <summary> Reads command-line switches and sets up paths and logging.
         /// This should be called before any other library function.
@@ -109,6 +110,10 @@ namespace fCraft {
         /// <param name="rawArgs"> string arguments passed to the frontend (if any). </param>
         public static void InitLibrary( [NotNull] IEnumerable<string> rawArgs ) {
             if( rawArgs == null ) throw new ArgumentNullException( "rawArgs" );
+
+            if( libraryInitialized ) {
+                throw new InvalidOperationException( "fCraft library is already initialized" );
+            }
 
             ServicePointManager.Expect100Continue = false;
 
@@ -211,6 +216,9 @@ namespace fCraft {
         /// Raises Server.Initializing and Server.Initialized events, and possibly Logger.Logged events.
         /// Throws exceptions on failure. </summary>
         public static void InitServer() {
+            if( serverInitialized ) {
+                throw new InvalidOperationException( "Server is already initialized" );
+            }
             if( !libraryInitialized ) {
                 throw new Exception( "Server.InitLibrary must be called before Server.InitServer" );
             }
@@ -292,8 +300,11 @@ namespace fCraft {
         /// May throw an exception on hard failure. </summary>
         /// <returns> True if server started normally, false on soft failure. </returns>
         public static bool StartServer() {
-            if( !serverInitialized ) {
-                throw new Exception( "Server.InitServer must be called before Server.StartServer" );
+            if( IsRunning ) {
+                throw new InvalidOperationException( "Server is already running" );
+            }
+            if( !libraryInitialized || !serverInitialized ) {
+                throw new InvalidOperationException( "Server.InitServer must be called before Server.StartServer" );
             }
 
             StartTime = DateTime.UtcNow;
@@ -423,6 +434,7 @@ namespace fCraft {
 
             // start the main loop - server is now connectible
             Scheduler.Start();
+            IsRunning = true;
 
             RaiseEvent( Started );
             return true;

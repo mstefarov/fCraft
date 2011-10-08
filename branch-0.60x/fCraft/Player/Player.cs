@@ -110,14 +110,6 @@ namespace fCraft {
             get { return Info.ClassyName; }
         }
 
-        public string ClassyNameWithHiddenStar( Player observer ) {
-            if( Info.IsHidden && observer.CanSee( this ) ) {
-                return Info.ClassyName + Color.Gray + '*';
-            } else {
-                return Info.ClassyName;
-            }
-        }
-
         /// <summary> Whether the client supports advanced WoM client functionality. </summary>
         public bool IsUsingWoM { get; private set; }
 

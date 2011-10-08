@@ -3,8 +3,8 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using fCraft.Events;
 using fCraft.Drawing;
+using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
@@ -42,7 +42,8 @@ namespace fCraft {
             lock( actionLock ) {
                 // Check if player can ban/unban in general
                 if( !player.Can( Permission.Ban ) ) {
-                    PlayerOpException.ThrowPermissionMissing( player, this, unban ? "unban" : "ban", Permission.Ban );
+                    PlayerOpException.ThrowPermissionMissing( player, this,
+                                                              unban ? "unban" : "ban", Permission.Ban );
                 }
 
                 // Check if player is trying to ban/unban self
@@ -104,7 +105,8 @@ namespace fCraft {
                             } else {
                                 kickReason = String.Format( "Banned by {0}", player.Name );
                             }
-                            target.Kick( kickReason, LeaveReason.Ban ); // TODO: check side effects of not using DoKick
+                            // TODO: check side effects of not using DoKick
+                            target.Kick( kickReason, LeaveReason.Ban );
                         }
                     } else {
                         Logger.Log( "{0} (offline) was {1} by {2}. Reason: {3}", LogType.UserActivity,
@@ -139,7 +141,8 @@ namespace fCraft {
         /// <param name="player"> Player who is banning. </param>
         /// <param name="reason"> Reason for ban. May be empty, if permitted by server configuration. </param>
         /// <param name="announce"> Whether ban should be publicly announced on the server. </param>
-        /// <param name="raiseEvents"> Whether AddingIPBan, AddedIPBan, BanChanging, and BanChanged events should be raised. </param>
+        /// <param name="raiseEvents"> Whether AddingIPBan, AddedIPBan,
+        /// BanChanging, and BanChanged events should be raised. </param>
         /// <exception cref="fCraft.PlayerOpException" />
         public void BanIP( [NotNull] Player player, [NotNull] string reason, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -157,10 +160,10 @@ namespace fCraft {
                 }
 
                 // Check if any high-ranked players use this address
-                PlayerInfo infoWhomPlayerCantBan = PlayerDB.FindPlayers( address )
-                                                            .FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
-                if( infoWhomPlayerCantBan != null ) {
-                    PlayerOpException.ThrowPermissionLimitIP( player, infoWhomPlayerCantBan, address );
+                PlayerInfo unbannable = PlayerDB.FindPlayers( address )
+                                                .FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
+                if( unbannable != null ) {
+                    PlayerOpException.ThrowPermissionLimitIP( player, unbannable, address );
                 }
 
                 // Check existing ban statuses
@@ -243,7 +246,8 @@ namespace fCraft {
         /// <param name="player"> Player who is unbanning. </param>
         /// <param name="reason"> Reason for unban. May be empty, if permitted by server configuration. </param>
         /// <param name="announce"> Whether unban should be publicly announced on the server. </param>
-        /// <param name="raiseEvents"> Whether RemovingIPBan, RemovedIPBan, BanChanging, and BanChanged events should be raised. </param>
+        /// <param name="raiseEvents"> Whether RemovingIPBan, RemovedIPBan,
+        /// BanChanging, and BanChanged events should be raised. </param>
         /// <exception cref="fCraft.PlayerOpException" />
         public void UnbanIP( [NotNull] Player player, [NotNull] string reason, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -305,7 +309,8 @@ namespace fCraft {
         /// <param name="player"> Player who is banning. </param>
         /// <param name="reason"> Reason for ban. May be empty, if permitted by server configuration. </param>
         /// <param name="announce"> Whether ban should be publicly announced on the server. </param>
-        /// <param name="raiseEvents"> Whether AddingIPBan, AddedIPBan, BanChanging, and BanChanged events should be raised. </param>
+        /// <param name="raiseEvents"> Whether AddingIPBan, AddedIPBan,
+        /// BanChanging, and BanChanged events should be raised. </param>
         /// <exception cref="fCraft.PlayerOpException" />
         public void BanAll( [NotNull] Player player, [NotNull] string reason, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -418,11 +423,13 @@ namespace fCraft {
         }
 
 
-        /// <summary> Unbans given player, their IP address, and all other accounts on IP. Throws PlayerOpException on problems. </summary>
+        /// <summary> Unbans given player, their IP address, and all other accounts on IP.
+        /// Throws PlayerOpException on problems. </summary>
         /// <param name="player"> Player who is unbanning. </param>
         /// <param name="reason"> Reason for unban. May be empty, if permitted by server configuration. </param>
         /// <param name="announce"> Whether unban should be publicly announced on the server. </param>
-        /// <param name="raiseEvents"> Whether RemovingIPBan, RemovedIPBan, BanChanging, and BanChanged events should be raised. </param>
+        /// <param name="raiseEvents"> Whether RemovingIPBan, RemovedIPBan,
+        /// BanChanging, and BanChanged events should be raised. </param>
         /// <exception cref="fCraft.PlayerOpException" />
         public void UnbanAll( [NotNull] Player player, [NotNull] string reason, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -515,7 +522,6 @@ namespace fCraft {
         }
 
 
-
         internal bool ProcessBan( [NotNull] Player bannedBy, [NotNull] string bannedByName, [NotNull] string banReason ) {
             if( bannedBy == null ) throw new ArgumentNullException( "bannedBy" );
             if( bannedByName == null ) throw new ArgumentNullException( "bannedByName" );
@@ -563,6 +569,8 @@ namespace fCraft {
 
         #endregion
 
+
+        #region ChangeRank
 
         /// <summary> Changes rank of the player (promotes or demotes). Throws PlayerOpException on problems. </summary>
         /// <param name="player"> Player who originated the promotion/demotion action. </param>
@@ -719,8 +727,16 @@ namespace fCraft {
             }
         }
 
+        #endregion
+
+
         #region Freeze / Unfreeze
 
+        /// <summary> Freezes this player (prevents from moving, building, and from using most commands).
+        /// Throws PlayerOpException on problems. </summary>
+        /// <param name="player"> Player who is doing the freezing. </param>
+        /// <param name="announce"> Whether to announce freezing publicly on the server. </param>
+        /// <param name="raiseEvents"> Whether to raise PlayerInfo.FreezeChanging and PlayerInfo.FreezeChanged events. </param>
         public void Freeze( [NotNull] Player player, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
@@ -748,7 +764,7 @@ namespace fCraft {
                 }
 
                 // Raise PlayerInfo.FreezeChanging event
-                if( raiseEvents && RaiseFreezeChangingEvent( this, player, false ) ) {
+                if( raiseEvents && RaiseFreezeChangingEvent( this, player, false,announce ) ) {
                     PlayerOpException.ThrowCancelled( player, this );
                 }
 
@@ -771,11 +787,14 @@ namespace fCraft {
                 }
 
                 // Raise PlayerInfo.FreezeChanged event
-                if( raiseEvents ) RaiseFreezeChangedEvent( this, player, false );
+                if( raiseEvents ) RaiseFreezeChangedEvent( this, player, false, announce );
             }
         }
 
-
+        /// <summary> Unfreezes this player. Throws PlayerOpException on problems. </summary>
+        /// <param name="player"> Player who is doing the unfreezing. </param>
+        /// <param name="announce"> Whether to announce freezing publicly on the server. </param>
+        /// <param name="raiseEvents"> Whether to raise PlayerInfo.FreezeChanging and PlayerInfo.FreezeChanged events. </param>
         public void Unfreeze( [NotNull] Player player, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
@@ -798,7 +817,7 @@ namespace fCraft {
                 }
 
                 // Raise PlayerInfo.FreezeChanging event
-                if( raiseEvents && RaiseFreezeChangingEvent( this, player, true ) ) {
+                if( raiseEvents && RaiseFreezeChangingEvent( this, player, true, announce ) ) {
                     PlayerOpException.ThrowCancelled( player, this );
                 }
 
@@ -818,7 +837,7 @@ namespace fCraft {
                 }
 
                 // Raise PlayerInfo.FreezeChanged event
-                if( raiseEvents ) RaiseFreezeChangedEvent( this, player, true );
+                if( raiseEvents ) RaiseFreezeChangedEvent( this, player, true, announce );
             }
         }
 
@@ -827,6 +846,13 @@ namespace fCraft {
 
         #region Mute / Unmute
 
+        /// <summary> Mutes this player (prevents from writing chat messages). </summary>
+        /// <param name="player"> Player who is doing the muting. </param>
+        /// <param name="duration"> Duration of the mute. If a player is already muted for same or greater length of time,
+        /// PlayerOpException is thrown with NoActionNeeded code. If a player is already muted for a shorter length of time,
+        /// the mute duration is extended. </param>
+        /// <param name="announce"> Whether to announce mute publicly on the sever. </param>
+        /// <param name="raiseEvents"> Whether to raise PlayerInfo.MuteChanging and MuteChanged events. </param>
         public void Mute( [NotNull] Player player, TimeSpan duration, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( duration <= TimeSpan.Zero ) {
@@ -853,9 +879,9 @@ namespace fCraft {
                 DateTime newMutedUntil = DateTime.UtcNow.Add( duration );
                 if( newMutedUntil > MutedUntil ) {
 
-                    // raise MuteChanging event
+                    // raise PlayerInfo.MuteChanging event
                     if( raiseEvents ) {
-                        if( RaiseMuteChangingEvent( this, player, duration, false ) ) {
+                        if( RaiseMuteChangingEvent( this, player, duration, false, announce ) ) {
                             PlayerOpException.ThrowCancelled( player, this );
                         }
                     }
@@ -865,10 +891,14 @@ namespace fCraft {
                     MutedBy = player.Name;
                     LastModified = DateTime.UtcNow;
 
+                    // raise PlayerInfo.MuteChanged event
                     if( raiseEvents ) {
-                        RaiseMuteChangedEvent( this, player, duration, false );
+                        RaiseMuteChangedEvent( this, player, duration, false, announce );
                     }
 
+                    // log and announce mute publicly
+                    Logger.Log( "Player {0} was muted by {1} for {2}", LogType.UserActivity,
+                                Name, player.Name, duration );
                     if( announce ) {
                         Player target = PlayerObject;
                         if( target != null ) {
@@ -879,10 +909,9 @@ namespace fCraft {
                                         "&SPlayer {0}&S was muted by {1}&S for {2}",
                                         ClassyName, player.ClassyName, duration.ToMiniString() );
                     }
-                    Logger.Log( "Player {0} was muted by {1} for {2}", LogType.UserActivity,
-                                Name, player.Name, duration );
 
                 } else {
+                    // no action needed - already muted for same or longer duration
                     string msg = String.Format( "Player {0} is already muted by {1} for another {2}",
                                                 ClassyName, MutedBy,
                                                 TimeMutedLeft.ToMiniString() );
@@ -892,6 +921,10 @@ namespace fCraft {
                     throw new PlayerOpException( player, this, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
                 }
             }
+        }
+
+
+        public void Unmute( [NotNull] Player player, bool announce, bool raiseEvents ) {
         }
 
         #endregion

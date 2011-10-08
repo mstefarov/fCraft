@@ -117,45 +117,45 @@ namespace fCraft {
 #if !DEBUG
                                         try {
 #endif
-                                        PlayerInfo info;
-                                        switch( version ) {
-                                            case 0:
-                                                info = PlayerInfo.LoadFormat0( fields, true );
-                                                break;
-                                            case 1:
-                                                info = PlayerInfo.LoadFormat1( fields );
-                                                break;
-                                            default:
-                                                // Versions 2-5 differ in semantics only, not in actual serialization format.
-                                                info = PlayerInfo.LoadFormat2( fields );
-                                                break;
-                                        }
+                                            PlayerInfo info;
+                                            switch( version ) {
+                                                case 0:
+                                                    info = PlayerInfo.LoadFormat0( fields, true );
+                                                    break;
+                                                case 1:
+                                                    info = PlayerInfo.LoadFormat1( fields );
+                                                    break;
+                                                default:
+                                                    // Versions 2-5 differ in semantics only, not in actual serialization format.
+                                                    info = PlayerInfo.LoadFormat2( fields );
+                                                    break;
+                                            }
 
-                                        if( info.ID > maxID ) {
-                                            maxID = info.ID;
-                                            Logger.Log( "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1}).", LogType.Warning );
-                                        }
+                                            if( info.ID > maxID ) {
+                                                maxID = info.ID;
+                                                Logger.Log( "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1}).", LogType.Warning );
+                                            }
 
-                                        // A record is considered "empty" if the player has never logged in.
-                                        // Empty records may be created by /import, /ban, and /rank commands on typos.
-                                        // Deleting such records should have no negative impact on DB completeness.
-                                        if( (info.LastIP.Equals( IPAddress.None ) || info.TimesVisited == 0) &&
-                                            !info.IsBanned && info.Rank == RankManager.DefaultRank ) {
+                                            // A record is considered "empty" if the player has never logged in.
+                                            // Empty records may be created by /import, /ban, and /rank commands on typos.
+                                            // Deleting such records should have no negative impact on DB completeness.
+                                            if( (info.LastIP.Equals( IPAddress.None ) || info.TimesVisited == 0) &&
+                                                !info.IsBanned && info.Rank == RankManager.DefaultRank ) {
 
-                                            Logger.Log( "PlayerDB.Load: Skipping an empty record for player \"{0}\"", LogType.SystemActivity,
-                                                        info.Name );
-                                            emptyRecords++;
-                                            continue;
-                                        }
+                                                Logger.Log( "PlayerDB.Load: Skipping an empty record for player \"{0}\"", LogType.SystemActivity,
+                                                            info.Name );
+                                                emptyRecords++;
+                                                continue;
+                                            }
 
-                                        // Check for duplicates. Unless PlayerDB.txt was altered externally, this does not happen.
-                                        if( Trie.ContainsKey( info.Name ) ) {
-                                            Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.", LogType.Error,
-                                                        info.Name );
-                                        } else {
-                                            Trie.Add( info.Name, info );
-                                            list.Add( info );
-                                        }
+                                            // Check for duplicates. Unless PlayerDB.txt was altered externally, this does not happen.
+                                            if( Trie.ContainsKey( info.Name ) ) {
+                                                Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.", LogType.Error,
+                                                            info.Name );
+                                            } else {
+                                                Trie.Add( info.Name, info );
+                                                list.Add( info );
+                                            }
 #if !DEBUG
                                         } catch( Exception ex ) {
                                             Logger.LogAndReportCrash( "Error while parsing PlayerInfo record",
@@ -175,33 +175,7 @@ namespace fCraft {
                                     Logger.Log( "PlayerDB.Load: Skipped {0} empty records.", LogType.Warning, emptyRecords );
                                 }
 
-                                //if( version < 3 ) {
-                                // Sorting the list allows finding players by ID using binary search.
-                                Logger.Log( "Sorting PlayerDB by ID...", LogType.SystemActivity );
-                                list.Sort( PlayerIDComparer.Instance );
-                                //}
-
-                                if( version < 4 ) {
-                                    int unhid = 0, unfroze = 0, unmuted = 0;
-                                    Logger.Log( "PlayerDB: Checking consistency of banned player records...", LogType.SystemActivity );
-                                    for( int i = 0; i < list.Count; i++ ) {
-                                        if( list[i].IsBanned ) {
-                                            if( list[i].IsHidden ) {
-                                                unhid++;
-                                                list[i].IsHidden = false;
-                                            }
-                                            try {
-                                                list[i].Unfreeze( Player.Console, false, false );
-                                                unfroze++;
-                                            } catch( PlayerOpException ) { }
-                                            if( list[i].Unmute() ) {
-                                                unmuted++;
-                                            }
-                                        }
-                                    }
-                                    Logger.Log( "PlayerDB: Unhid {0}, unfroze {1}, and unmuted {2} banned accounts.", LogType.SystemActivity,
-                                                unhid, unfroze, unmuted );
-                                }
+                                RunCompatibilityChecks( version );
                             }
                         }
                     }
@@ -213,6 +187,36 @@ namespace fCraft {
                 }
                 UpdateCache();
                 IsLoaded = true;
+            }
+        }
+
+
+        static void RunCompatibilityChecks( int loadedVersion ) {
+            // Sorting the list allows finding players by ID using binary search.
+            // Normally this only needs to be done when 
+            Logger.Log( "Sorting PlayerDB by ID...", LogType.SystemActivity );
+            list.Sort( PlayerIDComparer.Instance );
+
+            if( loadedVersion < 4 ) {
+                int unhid = 0, unfroze = 0, unmuted = 0;
+                Logger.Log( "PlayerDB: Checking consistency of banned player records...", LogType.SystemActivity );
+                for( int i = 0; i < list.Count; i++ ) {
+                    if( list[i].IsBanned ) {
+                        if( list[i].IsHidden ) {
+                            unhid++;
+                            list[i].IsHidden = false;
+                        }
+                        try {
+                            list[i].Unfreeze( Player.Console, false, false );
+                            unfroze++;
+                        } catch( PlayerOpException ) { }
+                        if( list[i].Unmute() ) {
+                            unmuted++;
+                        }
+                    }
+                }
+                Logger.Log( "PlayerDB: Unhid {0}, unfroze {1}, and unmuted {2} banned accounts.", LogType.SystemActivity,
+                            unhid, unfroze, unmuted );
             }
         }
 
