@@ -76,30 +76,30 @@ namespace fCraft {
             if( h != null ) h( null, new PlayerInfoBanChangedEventArgs( e.PlayerInfo, e.Banner, e.IsBeingUnbanned, e.Reason ) );
         }
 
-        static bool RaiseFreezeChangingEvent( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing ) {
+        static bool RaiseFreezeChangingEvent( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing, bool announce ) {
             var h = FreezeChanging;
             if( h == null ) return false;
-            var e = new PlayerInfoFrozenChangingEventArgs( target, freezer, unfreezing );
+            var e = new PlayerInfoFrozenChangingEventArgs( target, freezer, unfreezing, announce );
             h( null, e );
             return e.Cancel;
         }
 
-        static void RaiseFreezeChangedEvent( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing ) {
+        static void RaiseFreezeChangedEvent( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing, bool announce ) {
             var h = FreezeChanged;
-            if( h != null ) h( null, new PlayerInfoFrozenChangedEventArgs( target, freezer, unfreezing ) );
+            if( h != null ) h( null, new PlayerInfoFrozenChangedEventArgs( target, freezer, unfreezing, announce ) );
         }
 
-        static bool RaiseMuteChangingEvent( [NotNull] PlayerInfo target, [NotNull] Player muter, TimeSpan duration, bool unmuting ) {
+        static bool RaiseMuteChangingEvent( [NotNull] PlayerInfo target, [NotNull] Player muter, TimeSpan duration, bool unmuting, bool announce ) {
             var h = MuteChanging;
             if( h == null ) return false;
-            var e = new PlayerInfoMuteChangingEventArgs( target, muter, duration, unmuting );
+            var e = new PlayerInfoMuteChangingEventArgs( target, muter, duration, unmuting, announce );
             h( null, e );
             return !e.Cancel;
         }
 
-        static void RaiseMuteChangedEvent( [NotNull] PlayerInfo target, [NotNull] Player muter, TimeSpan duration, bool unmuting ) {
+        static void RaiseMuteChangedEvent( [NotNull] PlayerInfo target, [NotNull] Player muter, TimeSpan duration, bool unmuting, bool announce ) {
             var h = MuteChanged;
-            if( h != null ) h( null, new PlayerInfoMuteChangedEventArgs( target, muter, duration, unmuting ) );
+            if( h != null ) h( null, new PlayerInfoMuteChangedEventArgs( target, muter, duration, unmuting, announce ) );
         }
     }
 }
@@ -210,8 +210,8 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerInfoFrozenChangingEventArgs : PlayerInfoFrozenChangedEventArgs, ICancellableEvent {
-        internal PlayerInfoFrozenChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing )
-            : base( target, freezer, unfreezing ) {
+        internal PlayerInfoFrozenChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing, bool announce )
+            : base( target, freezer, unfreezing, announce ) {
         }
 
 
@@ -220,36 +220,40 @@ namespace fCraft.Events {
 
 
     public class PlayerInfoFrozenChangedEventArgs : PlayerInfoEventArgs {
-        internal PlayerInfoFrozenChangedEventArgs( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing )
+        internal PlayerInfoFrozenChangedEventArgs( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing, bool announce )
             : base( target ) {
             if( freezer == null ) throw new ArgumentNullException( "freezer" );
             Freezer = freezer;
             Unfreezing = unfreezing;
+            Announce = announce;
         }
 
         [NotNull]
         public Player Freezer { get; private set; }
         public bool Unfreezing { get; private set; }
+        public bool Announce { get; private set; }
     }
 
 
     public sealed class PlayerInfoMuteChangingEventArgs : PlayerInfoMuteChangedEventArgs, ICancellableEvent {
-        internal PlayerInfoMuteChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player muter, TimeSpan duration, bool unmuting )
-            : base( target, muter, duration, unmuting ) {
+        internal PlayerInfoMuteChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player muter, TimeSpan duration, bool unmuting, bool announce )
+            : base( target, muter, duration, unmuting, announce ) {
         }
         public bool Cancel { get; set; }
     }
 
     public class PlayerInfoMuteChangedEventArgs : PlayerInfoEventArgs {
-        internal PlayerInfoMuteChangedEventArgs( [NotNull] PlayerInfo target, [NotNull] Player muter, TimeSpan duration, bool unmuting )
+        internal PlayerInfoMuteChangedEventArgs( [NotNull] PlayerInfo target, [NotNull] Player muter, TimeSpan duration, bool unmuting, bool announce )
             : base( target ) {
             Muter = muter;
             Duration = duration;
             Unmuting = unmuting;
+            Announce = announce;
         }
 
         public Player Muter { get; private set; }
         public TimeSpan Duration { get; private set; }
         public bool Unmuting { get; private set; }
+        public bool Announce { get; private set; }
     }
 }
