@@ -206,13 +206,16 @@ namespace fCraft {
                             unhid++;
                             list[i].IsHidden = false;
                         }
+
                         try {
                             list[i].Unfreeze( Player.Console, false, false );
                             unfroze++;
                         } catch( PlayerOpException ) { }
-                        if( list[i].Unmute() ) {
+
+                        try {
+                            list[i].Unmute( Player.Console, false, false );
                             unmuted++;
-                        }
+                        } catch( PlayerOpException ) { }
                     }
                 }
                 Logger.Log( "PlayerDB: Unhid {0}, unfroze {1}, and unmuted {2} banned accounts.", LogType.SystemActivity,

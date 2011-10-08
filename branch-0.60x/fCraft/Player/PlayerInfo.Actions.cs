@@ -535,7 +535,8 @@ namespace fCraft {
                 BanDate = DateTime.UtcNow;
                 BanReason = banReason;
                 Interlocked.Increment( ref bannedBy.Info.TimesBannedOthers );
-                Unmute();
+                MutedUntil = DateTime.MinValue;
+                MutedBy = "";
                 if( IsFrozen ) {
                     try {
                         Unfreeze( bannedBy, false, true );
@@ -851,7 +852,7 @@ namespace fCraft {
         /// <param name="duration"> Duration of the mute. If a player is already muted for same or greater length of time,
         /// PlayerOpException is thrown with NoActionNeeded code. If a player is already muted for a shorter length of time,
         /// the mute duration is extended. </param>
-        /// <param name="announce"> Whether to announce mute publicly on the sever. </param>
+        /// <param name="announce"> Whether to announce muting publicly on the sever. </param>
         /// <param name="raiseEvents"> Whether to raise PlayerInfo.MuteChanging and MuteChanged events. </param>
         public void Mute( [NotNull] Player player, TimeSpan duration, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -924,7 +925,60 @@ namespace fCraft {
         }
 
 
+        /// <summary> Unmutes this player (allows them to write chat again). </summary>
+        /// <param name="player"> Player who is doing the unmuting. </param>
+        /// <param name="announce"> Whether to announce unmuting publicly on the sever. </param>
+        /// <param name="raiseEvents"> Whether to raise PlayerInfo.MuteChanging and MuteChanged events. </param>
         public void Unmute( [NotNull] Player player, bool announce, bool raiseEvents ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            
+            // Check if player is trying to unmute self
+            if( player.Info == this ) {
+                PlayerOpException.ThrowCannotTargetSelf( player, this, "unmute" );
+            }
+
+            lock( actionLock ) {
+                TimeSpan timeLeft = TimeMutedLeft;
+                // Check if player can unmute in general
+                if( !player.Can( Permission.Mute ) ) {
+                    PlayerOpException.ThrowPermissionMissing( player, this, "unmute", Permission.Mute );
+                }
+
+                if( timeLeft <= TimeSpan.Zero ) {
+                    string msg = String.Format( "Player {0} is not currently muted.", Name );
+                    string msgColor = String.Format( "&SPlayer {0}&S is not currently muted.", ClassyName );
+                    throw new PlayerOpException( player, this, PlayerOpExceptionCode.NoActionNeeded, msg, msgColor );
+                }
+
+                // raise PlayerInfo.MuteChanging event
+                if( raiseEvents ) {
+                    if( RaiseMuteChangingEvent( this, player, timeLeft, true, announce ) ) {
+                        PlayerOpException.ThrowCancelled( player, this );
+                    }
+                }
+
+                MutedUntil = DateTime.MinValue;
+                MutedBy = "";
+                LastModified = DateTime.UtcNow;
+
+                // raise PlayerInfo.MuteChanged event
+                if( raiseEvents ) {
+                    RaiseMuteChangedEvent( this, player, timeLeft, true, announce );
+                }
+
+                // log and announce mute publicly
+                Logger.Log( "Player {0} was unmuted by {1} ({2} was left on the mute)", LogType.UserActivity,
+                            Name, player.Name, timeLeft );
+                if( announce ) {
+                    Player target = PlayerObject;
+                    if( target != null ) {
+                        target.Message( "You were unmuted by {0}", player.ClassyName );
+                    }
+                    Server.Message( target,
+                                    "&SPlayer {0}&S was unmuted by {1}",
+                                    ClassyName, player.ClassyName );
+                }
+            }
         }
 
         #endregion
