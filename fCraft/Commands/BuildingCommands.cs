@@ -553,6 +553,11 @@ namespace fCraft {
         };
 
         static void UndoHandler( Player player, Command command ) {
+            if( command.HasNext ) {
+                player.Message( "Undo command takes no parameters. Did you mean to do &H/UndoPlayer&S or &H/UndoArea&S?" );
+                return;
+            }
+
             Queue<BlockUpdate> oldBuffer = player.UndoBuffer;
             if( oldBuffer.Count > 0 ) {
                 string msg = "Undo: ";

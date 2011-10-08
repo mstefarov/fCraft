@@ -504,12 +504,12 @@ namespace fCraft {
         #region RankInfo
 
         static readonly CommandDescriptor CdRankInfo = new CommandDescriptor {
-            Name = "rinfo",
-            Aliases = new[] { "rankinfo" },
+            Name = "rankinfo",
+            Aliases = new[] { "rinfo" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Usage = "/rinfo RankName",
+            Usage = "/rankinfo RankName",
             Help = "Shows a list of permissions granted to a rank. To see a list of all ranks, use &H/ranks",
             Handler = RankInfoHandler
         };
@@ -579,8 +579,8 @@ namespace fCraft {
         #region ServerInfo
 
         static readonly CommandDescriptor CdServerInfo = new CommandDescriptor {
-            Name = "sinfo",
-            Aliases = new[] { "serverreport", "version" },
+            Name = "ServerInfo",
+            Aliases = new[] { "ServerReport", "Version", "sinfo" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
