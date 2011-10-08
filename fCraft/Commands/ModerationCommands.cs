@@ -822,7 +822,8 @@ namespace fCraft {
                 target.TeleportTo( toPlayer.Position );
 
             } else {
-                if( world.AccessSecurity.CheckDetailed( target.Info ) == SecurityCheckResult.RankTooLow && !cmd.IsConfirmed ) {
+                if( world.AccessSecurity.CheckDetailed( target.Info ) == SecurityCheckResult.RankTooLow &&
+                    player.CanJoin(world) && !cmd.IsConfirmed ) {
                     player.Confirm( cmd,
                                     "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
                                     target.Name,
@@ -872,11 +873,11 @@ namespace fCraft {
                 return;
             }
 
-            if( world.AccessSecurity.CheckDetailed( target.Info ) == SecurityCheckResult.RankTooLow && !cmd.IsConfirmed ) {
+            if( world.AccessSecurity.CheckDetailed( target.Info ) == SecurityCheckResult.RankTooLow &&
+                player.CanJoin( world ) && !cmd.IsConfirmed ) {
                 player.Confirm( cmd,
                                 "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
-                                target.Name,
-                                world );
+                                target.ClassyName, world.ClassyName );
                 return;
             }
             BringPlayerToWorld( player, target, world, true, false );
