@@ -1115,6 +1115,7 @@ namespace fCraft {
                 return;
             }
 
+            // check if given time exceeds maximum (700 days)
             if( duration > MaxMuteDuration ) {
                 player.Message( "Maximum mute duration is {0}.", MaxMuteDuration.ToMiniString() );
                 duration = MaxMuteDuration;
@@ -1124,27 +1125,11 @@ namespace fCraft {
             Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, true );
             if( target == null ) return;
 
-            // check permissions
-            if( !player.Can( Permission.Mute, target.Info.Rank ) ) {
-                player.Message( "You can only mute players ranked {0}&S or lower.",
-                                player.Info.Rank.GetLimit( Permission.Mute ).ClassyName );
-                player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
-                return;
-            }
-
-            // do the muting
-            if( target.Info.Mute( player.Name, duration ) ) {
-                target.Message( "You were muted by {0}&S for {1}", player.ClassyName, duration.ToMiniString() );
-                Server.Message( target,
-                                "&SPlayer {0}&S was muted by {1}&S for {2}",
-                                target.ClassyName, player.ClassyName, duration.ToMiniString() );
-                Logger.Log( "Player {0} was muted by {1} for {2}", LogType.UserActivity,
-                            target.Name, player.Name, duration.ToMiniString() );
-            } else {
-                player.Message( "Player {0}&S is already muted by {1}&S for {2} longer",
-                                target.ClassyName,
-                                target.Info.MutedByClassy,
-                                target.Info.TimeMutedLeft.ToMiniString() );
+            // actually mute
+            try {
+                target.Info.Mute( player, duration, true, true );
+            } catch( PlayerOpException ex ) {
+                player.Message( ex.MessageColored );
             }
         }
 
@@ -1163,25 +1148,14 @@ namespace fCraft {
             string targetName = cmd.Next();
             if( targetName != null && Player.IsValidName( targetName ) ) {
 
+                // find target
                 Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, true );
                 if( target == null ) return;
 
-                if( !player.Can( Permission.Mute, target.Info.Rank ) ) {
-                    player.Message( "You can only unmute players ranked {0}&S or lower.",
-                                    player.Info.Rank.GetLimit( Permission.Mute ).ClassyName );
-                    player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
-                    return;
-                }
-
-                if( target.Info.Unmute() ) {
-                    target.Message( "You were unmuted by {0}", player.ClassyName );
-                    Server.Message( target,
-                                    "&SPlayer {0}&S was unmuted by {1}",
-                                    target.ClassyName, player.ClassyName );
-                    Logger.Log( "Player {0} was unmuted by {1}.", LogType.UserActivity,
-                                target.Name, player.Name );
-                } else {
-                    player.Message( "Player {0}&S is not muted.", target.ClassyName );
+                try {
+                    target.Info.Unmute( player, true, true );
+                } catch( PlayerOpException ex ) {
+                    player.Message( ex.MessageColored );
                 }
 
             } else {

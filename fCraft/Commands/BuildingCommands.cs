@@ -12,7 +12,6 @@ namespace fCraft {
     static class BuildingCommands {
 
         public static int MaxUndoCount = 2000000;
-        const int DrawStride = 16;
 
         const string GeneralDrawingHelp = " Use &H/cancel&S to exit draw mode. " +
                                           "Use &H/undo&S to stop and undo the last draw operation.";

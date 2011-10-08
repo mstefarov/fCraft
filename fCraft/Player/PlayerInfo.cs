@@ -1006,40 +1006,6 @@ namespace fCraft {
         #endregion
 
 
-        #region Actions
-
-        public bool Mute( [NotNull] string by, TimeSpan timespan ) {
-            if( by == null ) throw new ArgumentNullException( "by" );
-            if( timespan <= TimeSpan.Zero ) {
-                throw new ArgumentException( "Mute duration must be longer than 0", "timespan" );
-            }
-            DateTime newMutedUntil = DateTime.UtcNow.Add( timespan );
-            if( newMutedUntil > MutedUntil ) {
-                MutedUntil = newMutedUntil;
-                MutedBy = by;
-                LastModified = DateTime.UtcNow;
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-
-        public bool Unmute() {
-            lock( actionLock ) {
-                if( IsMuted ) {
-                    MutedUntil = DateTime.MinValue;
-                    LastModified = DateTime.UtcNow;
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        #endregion
-
-
         public override string ToString() {
             return String.Format( "PlayerInfo({0},{1})", Name, Rank.Name );
         }

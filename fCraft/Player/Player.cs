@@ -656,7 +656,7 @@ namespace fCraft {
                         Server.Message( "&W{0} was kicked for repeated spamming.", ClassyName );
                     } else {
                         TimeSpan autoMuteDuration = TimeSpan.FromSeconds( ConfigKey.AntispamMuteDuration.GetInt() );
-                        Info.Mute( "(antispam)", autoMuteDuration );
+                        Info.Mute( Player.Console, autoMuteDuration, false, true );
                         Message( "You have been muted for {0} seconds. Slow down.", autoMuteDuration );
                     }
                     return true;
