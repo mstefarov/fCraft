@@ -382,8 +382,8 @@ namespace fCraft.Events {
 
     public sealed class PlayerBeingKickedEventArgs : PlayerKickedEventArgs, ICancellableEvent {
         internal PlayerBeingKickedEventArgs( Player player, Player kicker, string reason,
-                                              bool isSilent, bool recordToPlayerDB, LeaveReason context )
-            : base( player, kicker, reason, isSilent, recordToPlayerDB, context ) {
+                                              bool announce, bool recordToPlayerDB, LeaveReason context )
+            : base( player, kicker, reason, announce, recordToPlayerDB, context ) {
         }
 
         public bool Cancel { get; set; }
@@ -391,11 +391,11 @@ namespace fCraft.Events {
 
 
     public class PlayerKickedEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerKickedEventArgs( Player player, Player kicker, string reason, bool isSilent, bool recordToPlayerDB, LeaveReason context ) {
+        internal PlayerKickedEventArgs( Player player, Player kicker, string reason, bool announce, bool recordToPlayerDB, LeaveReason context ) {
             Player = player;
             Kicker = kicker;
             Reason = reason;
-            IsSilent = isSilent;
+            Announce = announce;
             RecordToPlayerDB = recordToPlayerDB;
             Context = context;
         }
@@ -410,7 +410,7 @@ namespace fCraft.Events {
         public string Reason { get; protected set; }
 
         /// <summary> Whether the kick should be announced in-game and on IRC. </summary>
-        public bool IsSilent { get; protected set; }
+        public bool Announce { get; private set; }
 
         /// <summary> Whether kick should be added to the target's record. </summary>
         public bool RecordToPlayerDB { get; protected set; }

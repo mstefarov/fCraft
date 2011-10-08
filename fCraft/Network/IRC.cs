@@ -563,27 +563,31 @@ namespace fCraft {
 
 
         static void PlayerKickedHandler( object sender, PlayerKickedEventArgs e ) {
-            if( !e.IsSilent && e.Context == LeaveReason.Kick ) {
+            if( e.Announce && e.Context == LeaveReason.Kick ) {
                 PlayerSomethingMessage( e.Kicker, "kicked", e.Player.Info, e.Reason );
             }
         }
 
 
         static void PlayerInfoBanChangedHandler( object sender, PlayerInfoBanChangedEventArgs e ) {
-            if( e.IsBeingUnbanned ) {
-                PlayerSomethingMessage( e.Banner, "unbanned", e.PlayerInfo, e.Reason );
-            } else {
-                PlayerSomethingMessage( e.Banner, "banned", e.PlayerInfo, e.Reason );
+            if( e.Announce ) {
+                if( e.IsBeingUnbanned ) {
+                    PlayerSomethingMessage( e.Banner, "unbanned", e.PlayerInfo, e.Reason );
+                } else {
+                    PlayerSomethingMessage( e.Banner, "banned", e.PlayerInfo, e.Reason );
+                }
             }
         }
 
 
         static void PlayerInfoRankChangedHandler( object sender, PlayerInfoRankChangedEventArgs e ) {
-            string actionString = String.Format( "{0} from {1}&W to {2}&W",
-                                                 e.RankChangeType,
-                                                 e.OldRank.ClassyName,
-                                                 e.NewRank.ClassyName );
-            PlayerSomethingMessage( e.RankChanger, actionString, e.PlayerInfo, e.Reason );
+            if( e.Announce ) {
+                string actionString = String.Format( "{0} from {1}&W to {2}&W",
+                                                     e.RankChangeType,
+                                                     e.OldRank.ClassyName,
+                                                     e.NewRank.ClassyName );
+                PlayerSomethingMessage( e.RankChanger, actionString, e.PlayerInfo, e.Reason );
+            }
         }
 
 
