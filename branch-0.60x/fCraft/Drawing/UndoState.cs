@@ -3,15 +3,13 @@ using System.Runtime.InteropServices;
 
 namespace fCraft.Drawing {
     public sealed class UndoState {
-        public UndoState( Player player, DrawOperation op ) {
+        public UndoState( DrawOperation op ) {
             Op = op;
-            Player = player;
             Buffer = new List<UndoBlock>();
         }
 
         public readonly DrawOperation Op;
         public readonly List<UndoBlock> Buffer;
-        public readonly Player Player;
         public bool IsTooLargeToUndo;
 
         public bool Add( Vector3I coord, Block block ) {

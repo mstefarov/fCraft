@@ -517,7 +517,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             if( nMaxUndo.Value == 0 ) {
                 lMaxUndoUnits.Text = "(unlimited, 1 MB RAM = 65,536 blocks)";
             } else {
-                decimal maxMemUsage = Math.Ceiling( nMaxUndo.Value * 160 / 1024 / 1024 ) / 10;
+                decimal maxMemUsage = Math.Ceiling( nMaxUndo.Value * 40 / 1024 / 1024 ) / 10;
                 lMaxUndoUnits.Text = String.Format( "(up to {0:0.0} MB of RAM per player)", maxMemUsage );
             }
         }
