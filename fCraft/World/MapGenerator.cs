@@ -22,7 +22,6 @@ namespace fCraft {
         Archipelago,
         Atoll,
         Bay,
-        Default,
         Dunes,
         Flat,
         Hills,
@@ -31,6 +30,7 @@ namespace fCraft {
         Lake,
         Mountains,
         Peninsula,
+        Random,
         River,
         Streams
     }
@@ -778,9 +778,6 @@ namespace fCraft {
                         DelayBias = true
                     };
 
-                case MapGenTemplate.Default:
-                    return new MapGeneratorArgs();
-
                 case MapGenTemplate.Dunes:
                     return new MapGeneratorArgs {
                         AddTrees = false,
@@ -831,7 +828,9 @@ namespace fCraft {
                         FeatureScale = 3,
                         DetailScale = 7,
                         MarbledHeightmap = true,
-                        DelayBias = true
+                        DelayBias = true,
+                        AddBeaches = true,
+                        Roughness = 0.45f
                     };
 
                 case MapGenTemplate.Lake:
@@ -855,8 +854,16 @@ namespace fCraft {
                         MaxDepth = 10,
                         FeatureScale = 1,
                         DetailScale = 7,
-                        MarbledHeightmap = true
+                        MarbledHeightmap = true,
+                        AddSnow = true,
+                        MatchWaterCoverage = true,
+                        WaterCoverage = .5f,
+                        Roughness = .55f,
+                        CliffThreshold = .9f
                     };
+
+                case MapGenTemplate.Random:
+                    return new MapGeneratorArgs();
 
                 case MapGenTemplate.River:
                     return new MapGeneratorArgs {
