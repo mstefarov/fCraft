@@ -138,6 +138,7 @@ namespace fCraft {
 
         public void ChangeMap( [NotNull] Map newMap ) {
             if( newMap == null ) throw new ArgumentNullException( "newMap" );
+            MapChangedOn = DateTime.UtcNow;
             lock( WorldLock ) {
                 World newWorld = new World( Name ) {
                     AccessSecurity = (SecurityController)AccessSecurity.Clone(),
