@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
-    public sealed class PasteDrawOperation : DrawOperation, IBrushFactory, IBrush, IBrushInstance {
+    public sealed class PasteDrawOperation : DrawOpWithBrush {
         const BlockChangeContext PasteContext = BlockChangeContext.Drawn | BlockChangeContext.Pasted;
 
         public override string Name {
@@ -31,16 +31,16 @@ namespace fCraft.Drawing {
         public bool Not { get; private set; }
         public Block[] Blocks { get; private set; }
 
-        public CopyInformation CopyInfo { get; private set; }
+        public CopyState CopyInfo { get; private set; }
 
 
         public PasteDrawOperation( Player player, bool not )
             : base( player ) {
-            Not=not;
+            Not = not;
         }
 
 
-        public override bool Begin( Vector3I[] marks ) {
+        public override bool Prepare( Vector3I[] marks ) {
             if( marks == null ) throw new ArgumentNullException( "marks" );
             if( marks.Length < 2 ) throw new ArgumentException( "At least two marks needed.", "marks" );
 
@@ -83,15 +83,14 @@ namespace fCraft.Drawing {
             // Set everything up for pasting
             Brush = this;
             Coords = Bounds.MinVertex;
-            Player.LastDrawOp = this;
-            Player.UndoBuffer.Clear();
+
             StartTime = DateTime.UtcNow;
             Context = PasteContext;
             BlocksTotalEstimate = Bounds.Volume;
             return true;
         }
 
-        
+
         public override int DrawBatch( int maxBlocksToDraw ) {
             // basically same as CuboidDrawOp
             StartBatch();
@@ -119,7 +118,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public bool ReadParams( Command cmd ) {
+        public override bool ReadParams( Command cmd ) {
             if( Player.GetCopyInformation() == null ) {
                 Player.Message( "Nothing to paste! Copy something first." );
                 return false;
@@ -141,7 +140,7 @@ namespace fCraft.Drawing {
         }
 
 
-        Block IBrushInstance.NextBlock( DrawOperation op ) {
+        protected override Block NextBlock() {
             // ReSharper disable LoopCanBeConvertedToQuery
             Block block = (Block)CopyInfo.Buffer[Coords.X - Bounds.XMin, Coords.Y - Bounds.YMin, Coords.Z - Bounds.ZMin];
             if( Blocks != null ) {
@@ -161,68 +160,5 @@ namespace fCraft.Drawing {
             }
             // ReSharper restore LoopCanBeConvertedToQuery
         }
-
-
-        #region IBrushFactory Members
-
-        string IBrushFactory.Name {
-            get { return Name; }
-        }
-
-        string IBrushFactory.Help {
-            get { throw new NotImplementedException(); }
-        }
-
-        string[] IBrushFactory.Aliases {
-            get { throw new NotImplementedException(); }
-        }
-
-        IBrush IBrushFactory.MakeBrush( Player player, Command cmd ) {
-            return this;
-        }
-
-        #endregion
-
-        #region IBrush Members
-
-        IBrushFactory IBrush.Factory {
-            get { return this; }
-        }
-
-        string IBrush.Description {
-            get { throw new NotImplementedException(); }
-        }
-
-        IBrushInstance IBrush.MakeInstance( Player player, Command cmd, DrawOperation op ) {
-            if( ReadParams( cmd ) ) {
-                return this;
-            } else {
-                return null;
-            }
-        }
-
-        #endregion
-
-        #region IBrushInstance Members
-
-        IBrush IBrushInstance.Brush {
-            get { return this; }
-        }
-
-        string IBrushInstance.InstanceDescription {
-            get { return DescriptionWithBrush; }
-        }
-
-        bool IBrushInstance.HasAlternateBlock {
-            get { return false; }
-        }
-
-        bool IBrushInstance.Begin( Player player, DrawOperation op ) {
-            return true;
-        }
-
-        void IBrushInstance.End() { }
-
-        #endregion
     }
 }

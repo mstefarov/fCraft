@@ -318,8 +318,10 @@ namespace fCraft {
 
         void EnforceLimit() {
             if( IsEnabled && limit > 0 ) {
+#if DEBUG_BLOCKDB
                 int oldCap = CacheCapacity;
                 int oldSize = CacheSize;
+#endif
                 if( isPreloaded ) {
                     LimitCapacity( limit );
                 }
@@ -358,8 +360,10 @@ namespace fCraft {
 
         void EnforceTimeLimit() {
             if( IsEnabled && timeLimit > TimeSpan.Zero ) {
+#if DEBUG_BLOCKDB
                 int oldCap = CacheCapacity;
                 int oldSize = CacheSize;
+#endif
                 int newCapacity = CountNewerEntries( timeLimit );
                 if( isPreloaded ) {
                     LimitCapacity( newCapacity );

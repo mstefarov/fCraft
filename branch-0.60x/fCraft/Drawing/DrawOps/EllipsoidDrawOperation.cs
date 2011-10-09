@@ -15,8 +15,8 @@ namespace fCraft.Drawing {
         }
 
 
-        public override bool Begin( Vector3I[] marks ) {
-            if( !base.Begin( marks ) ) return false;
+        public override bool Prepare( Vector3I[] marks ) {
+            if( !base.Prepare( marks ) ) return false;
 
             double rx = Bounds.Width / 2d;
             double ry = Bounds.Length / 2d;

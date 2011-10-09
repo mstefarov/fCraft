@@ -2,8 +2,8 @@
 using System;
 
 namespace fCraft.Drawing {
-    public sealed class CopyInformation {
-        public CopyInformation( Vector3I mark1, Vector3I mark2 ) {
+    public sealed class CopyState {
+        public CopyState( Vector3I mark1, Vector3I mark2 ) {
             BoundingBox box = new BoundingBox( mark1, mark2 );
             Orientation = new Vector3I( mark1.X <= mark2.X ? 1 : -1,
                                         mark1.Y <= mark2.Y ? 1 : -1,
