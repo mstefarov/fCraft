@@ -9,6 +9,13 @@ using System.Collections.Generic;
 // ReSharper disable MemberCanBeProtected.Global
 namespace fCraft.Drawing {
     public abstract class DrawOperation {
+
+        public UndoState Undo { get; protected set; }
+
+        public virtual int ExpectedMarks {
+            get { return 2; }
+        }
+
         [NotNull]
         public readonly Player Player;
 
@@ -85,21 +92,31 @@ namespace fCraft.Drawing {
             }
             Player = player;
             Map = player.World.Map;
+            Context = BlockChangeContext.Drawn;
+            Undo = new UndoState( this );
         }
 
 
         public virtual bool Begin( [NotNull] Vector3I[] marks ) {
             if( marks == null ) throw new ArgumentNullException( "marks" );
-            if( marks.Length < 2 ) throw new ArgumentException( "At least two marks needed.", "marks" );
+            if( marks.Length != ExpectedMarks ) {
+                string msg = String.Format( "Wrong number of marks ({0}), expecting {1}.",
+                                            marks.Length, ExpectedMarks );
+                throw new ArgumentException( msg, "marks" );
+            }
+
             Marks = marks;
-            Bounds = new BoundingBox( Marks[0], Marks[1] );
-            if( Bounds == null ) throw new NullReferenceException( Name + ": Bounds not set" );
+            if( marks.Length == 2 ) {
+                Bounds = new BoundingBox( Marks[0], Marks[1] );
+            }
+
             if( Brush == null ) throw new NullReferenceException( Name + ": Brush not set" );
             if( !Brush.Begin( Player, this ) ) return false;
+
             Player.LastDrawOp = this;
-            Player.UndoBuffer.Clear();
+            Player.UndoPush( Undo );
+
             StartTime = DateTime.UtcNow;
-            Context = BlockChangeContext.Drawn;
             return true;
         }
 
@@ -155,7 +172,9 @@ namespace fCraft.Drawing {
                                                 oldBlock, newBlock, Context );
 
             if( BuildingCommands.MaxUndoCount < 1 || BlocksUpdated < BuildingCommands.MaxUndoCount ) {
-                Player.UndoBuffer.Enqueue( new BlockUpdate( null, Coords.X, Coords.Y, Coords.Z, oldBlock ) );
+                BlockUpdate undoUpdate = new BlockUpdate( null, Coords.X, Coords.Y, Coords.Z, oldBlock );
+                Undo.Buffer.Enqueue( undoUpdate );
+                Player.UndoBuffer.Enqueue( undoUpdate );
             } else if( !IsTooLargeToUndo ) {
                 Player.LastDrawOp = null;
                 Player.UndoBuffer.Clear();

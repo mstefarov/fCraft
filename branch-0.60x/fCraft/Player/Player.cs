@@ -1002,6 +1002,52 @@ namespace fCraft {
 
         #region Drawing, Selection, and Undo
 
+        const int MaxUndoStates = 5;
+
+        LinkedList<UndoState> UndoStack = new LinkedList<UndoState>();
+        LinkedList<UndoState> RedoStack = new LinkedList<UndoState>();
+
+        public UndoState RedoPop() {
+            if( RedoStack.Count > 0 ) {
+                var lastNode = RedoStack.Last;
+                RedoStack.RemoveLast();
+                return lastNode.Value;
+            } else {
+                return null;
+            }
+        }
+
+        public void RedoPush( UndoState newState ) {
+            RedoStack.AddLast( newState );
+            if( RedoStack.Count > MaxUndoStates ) {
+                RedoStack.RemoveFirst();
+            }
+        }
+
+        public UndoState UndoPop() {
+            if( UndoStack.Count > 0 ) {
+                var lastNode = UndoStack.Last;
+                UndoStack.RemoveLast();
+                return lastNode.Value;
+            } else {
+                return null;
+            }
+        }
+        
+        public void UndoPush( UndoState newState ) {
+            UndoStack.AddLast( newState );
+            if( UndoStack.Count > MaxUndoStates ) {
+                UndoStack.RemoveFirst();
+            }
+            RedoStack.Clear();
+        }
+
+        public void UndoClear() {
+            UndoStack.Clear();
+            RedoStack.Clear();
+        }
+
+
         public Queue<BlockUpdate> UndoBuffer = new Queue<BlockUpdate>();
 
         public IBrush Brush { get; set; }

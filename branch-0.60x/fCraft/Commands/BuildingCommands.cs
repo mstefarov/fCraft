@@ -575,6 +575,14 @@ namespace fCraft {
                 msg += String.Format( "Restoring ~{0} blocks. Type &H/undo&S again to reverse.",
                                       player.UndoBuffer.Count );
                 player.MessageNow( msg );
+
+                var op = new UndoDrawOperation( player, new UndoState( oldBuffer ) );
+                op.Begin( new Vector3I[0] );
+                op.Map.QueueDrawOp( op );
+                player.Message( "{0}: Now processing ~{1} blocks.",
+                                op.DescriptionWithBrush, op.BlocksTotalEstimate );
+
+                /*
                 player.UndoBuffer = new Queue<BlockUpdate>();
                 int blocks = 0, blocksDenied = 0;
                 bool cannotUndo = false;
@@ -584,6 +592,7 @@ namespace fCraft {
                                   ref blocks, ref blocksDenied, ref cannotUndo );
                 }
                 DrawingFinished( player, "Undone", blocks, blocksDenied );
+                 */
 
             } else {
                 player.MessageNow( "There is currently nothing to undo." );
