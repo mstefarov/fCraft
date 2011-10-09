@@ -9,7 +9,7 @@ using System.Collections.Generic;
 // ReSharper disable MemberCanBeProtected.Global
 namespace fCraft.Drawing {
     public abstract class DrawOperation {
-        protected UndoState Undo { get; private set; }
+        protected UndoState Undo { get; set; }
 
         public virtual int ExpectedMarks {
             get { return 2; }
@@ -114,8 +114,8 @@ namespace fCraft.Drawing {
         }
 
 
-        public void Begin() {
-            Undo = Player.UndoBegin( this );
+        public virtual void Begin() {
+            Undo = Player.DrawBegin( this );
             Map.QueueDrawOp( this );
         }
 

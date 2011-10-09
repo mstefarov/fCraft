@@ -5,28 +5,45 @@ namespace fCraft.Drawing {
 
         public UndoState State { get; private set; }
 
+        public bool Redo { get; private set; }
+
         public override int ExpectedMarks {
             get { return 0; }
         }
 
         public override string Name {
-            get { return "Undo"; }
+            get {
+                if( Redo ) {
+                    return "Redo";
+                } else {
+                    return "Undo";
+                }
+            }
         }
 
 
-        public UndoDrawOperation( Player player, UndoState state )
+        public UndoDrawOperation( Player player, UndoState state, bool redo )
             : base( player ) {
             State = state;
+            Redo = redo;
         }
 
 
         public override bool Prepare( Vector3I[] marks ) {
             Brush = this;
             if( !base.Prepare( marks ) ) return false;
-            Player.RedoPush( Undo );
             BlocksTotalEstimate = State.Buffer.Count;
             Context = UndoContext;
             return true;
+        }
+
+        public override void Begin() {
+            if( Redo ) {
+                Undo = Player.RedoBegin( this );
+            } else {
+                Undo = Player.UndoBegin( this );
+            }
+            Map.QueueDrawOp( this );
         }
 
         int undoBufferIndex;
