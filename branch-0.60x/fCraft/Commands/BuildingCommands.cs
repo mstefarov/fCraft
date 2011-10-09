@@ -44,6 +44,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdCancel );
             CommandManager.RegisterCommand( CdMark );
             CommandManager.RegisterCommand( CdUndo );
+            CommandManager.RegisterCommand( CdRedo );
 
             CommandManager.RegisterCommand( CdCopySlot );
             CommandManager.RegisterCommand( CdCopy );
@@ -530,7 +531,7 @@ namespace fCraft {
         #endregion
 
 
-        #region Undo
+        #region Undo / Redo
 
         static readonly CommandDescriptor CdUndo = new CommandDescriptor {
             Name = "undo",
@@ -548,7 +549,6 @@ namespace fCraft {
             }
 
             UndoState undoState = player.UndoPop();
-
             if( undoState == null ) {
                 player.MessageNow( "There is currently nothing to undo." );
                 return;
@@ -568,11 +568,53 @@ namespace fCraft {
                         undoState.Buffer.Count,
                         player.World.Name );
 
-            msg += String.Format( "Restoring ~{0} blocks. Type &H/undo&S again to reverse.",
+            msg += String.Format( "Restoring ~{0} blocks. Type &H/redo&S to reverse.",
                                   undoState.Buffer.Count );
             player.MessageNow( msg );
 
-            var op = new UndoDrawOperation( player, undoState );
+            var op = new UndoDrawOperation( player, undoState, false );
+            op.Prepare( new Vector3I[0] );
+            player.Message( "{0}: Now processing ~{1} blocks.",
+                            op.DescriptionWithBrush, op.BlocksTotalEstimate );
+            op.Begin();
+        }
+
+
+        static readonly CommandDescriptor CdRedo = new CommandDescriptor {
+            Name = "redo",
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Draw },
+            Help = "Selectively removes changes from your last drawing command. " +
+                   "Note that commands involving over 2 million blocks cannot be undone due to memory restrictions.",
+            Handler = RedoHandler
+        };
+
+        static void RedoHandler( Player player, Command command ) {
+            UndoState redoState = player.RedoPop();
+            if( redoState == null ) {
+                player.MessageNow( "There is currently nothing to redo." );
+                return;
+            }
+
+            string msg = "Redo: ";
+            if( redoState.Op != null && !redoState.Op.IsDone ) {
+                redoState.Op.Cancel();
+                msg += String.Format( "Cancelled {0} (was {1}% done). ",
+                                     redoState.Op.DescriptionWithBrush,
+                                     redoState.Op.PercentDone );
+            }
+
+            // no need to set player.drawingInProgress here because this is done on the user thread
+            Logger.Log( "Player {0} initiated /redo affecting {1} blocks (on world {2})", LogType.UserActivity,
+                        player.Name,
+                        redoState.Buffer.Count,
+                        player.World.Name );
+
+            msg += String.Format( "Restoring ~{0} blocks. Type &H/undo&S again to reverse.",
+                                  redoState.Buffer.Count );
+            player.MessageNow( msg );
+
+            var op = new UndoDrawOperation( player, redoState, true );
             op.Prepare( new Vector3I[0] );
             player.Message( "{0}: Now processing ~{1} blocks.",
                             op.DescriptionWithBrush, op.BlocksTotalEstimate );
@@ -1065,7 +1107,7 @@ namespace fCraft {
 
             int blocksDrawn = 0,
                 blocksSkipped = 0;
-            UndoState undoState = player.UndoBegin( null );
+            UndoState undoState = player.DrawBegin( null );
 
             for( int x = selection.XMin; x <= selection.XMax; x++ ) {
                 for( int y = selection.YMin; y <= selection.YMax; y++ ) {
@@ -1329,7 +1371,7 @@ namespace fCraft {
             int blocks = 0,
                 blocksDenied = 0;
 
-            UndoState undoState = player.UndoBegin( null );
+            UndoState undoState = player.DrawBegin( null );
 
             for( int i = 0; i < changes.Length; i++ ) {
                 DrawOneBlock( player, changes[i].OldBlock,
@@ -1361,7 +1403,7 @@ namespace fCraft {
             int blocks = 0,
                 blocksDenied = 0;
 
-            UndoState undoState = player.UndoBegin( null );
+            UndoState undoState = player.DrawBegin( null );
 
             for( int i = 0; i < changes.Length; i++ ) {
                 DrawOneBlock( player, changes[i].OldBlock,
@@ -1466,7 +1508,7 @@ namespace fCraft {
             int blocks = 0,
                 blocksDenied = 0;
 
-            UndoState undoState = player.UndoBegin( null );
+            UndoState undoState = player.DrawBegin( null );
 
             for( int i = 0; i < changes.Length; i++ ) {
                 DrawOneBlock( player, changes[i].OldBlock,
