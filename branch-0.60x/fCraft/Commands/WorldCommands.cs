@@ -1753,7 +1753,7 @@ namespace fCraft {
             string worldName = cmd.Next();
             if( worldName == null ) {
                 if( player.World == null ) {
-                    player.Message( "Please specify a world name when calling /winfo form console." );
+                    player.Message( "Please specify a world name when calling /winfo from console." );
                     return;
                 } else {
                     worldName = player.World.Name;
@@ -1802,7 +1802,8 @@ namespace fCraft {
             }
 
             if( !String.IsNullOrEmpty( world.LoadedBy ) && world.LoadedOn != DateTime.MinValue ) {
-                player.Message( "  {0}&S was created/loaded {0} ago by {1}",
+                player.Message( "  {0}&S was created/loaded {1} ago by {2}",
+                                world.ClassyName,
                                 DateTime.UtcNow.Subtract( world.LoadedOn ).ToMiniString(),
                                 world.LoadedBy );
             }
