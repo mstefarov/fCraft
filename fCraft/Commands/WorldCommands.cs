@@ -444,15 +444,25 @@ namespace fCraft {
                             playerName = info.ClassyName + "&S (offline)";
                         }
                     }
-                    if( entry.OldBlock == (byte)Block.Air ) {
-                        args.Player.Message( "&S  {0} ago: {1}&S placed {2} ({3})",
-                                             date, playerName, entry.NewBlock, entry.Context );
-                    } else if( entry.NewBlock == (byte)Block.Air ) {
-                        args.Player.Message( "&S  {0} ago: {1}&S deleted {2} ({3})",
-                                             date, playerName, entry.OldBlock, entry.Context );
+                    string contextString;
+                    if( entry.Context == BlockChangeContext.Manual ) {
+                        contextString = "";
+                    } else if( (entry.Context & BlockChangeContext.Drawn) == BlockChangeContext.Drawn &&
+                        entry.Context != BlockChangeContext.Drawn ) {
+                        contextString = " (" + (entry.Context & ~BlockChangeContext.Drawn)+ ")";
                     } else {
-                        args.Player.Message( "&S  {0} ago: {1}&S replaced {2} with {3} ({4})",
-                                             date, playerName, entry.OldBlock, entry.NewBlock, entry.Context );
+                        contextString = " (" + entry.Context + ")";
+                    }
+
+                    if( entry.OldBlock == (byte)Block.Air ) {
+                        args.Player.Message( "&S  {0} ago: {1}&S placed {2}{3}",
+                                             date, playerName, entry.NewBlock, contextString );
+                    } else if( entry.NewBlock == (byte)Block.Air ) {
+                        args.Player.Message( "&S  {0} ago: {1}&S deleted {2}{3}",
+                                             date, playerName, entry.OldBlock, contextString );
+                    } else {
+                        args.Player.Message( "&S  {0} ago: {1}&S replaced {2} with {3}{4}",
+                                             date, playerName, entry.OldBlock, entry.NewBlock, contextString );
                     }
                 }
             } else {
