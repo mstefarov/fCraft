@@ -860,7 +860,6 @@ namespace fCraft {
             } else {
                 player.MessageNow( "Generation done. Changing map..." );
                 player.World.MapChangedBy = player.Name;
-                player.World.MapChangedOn = DateTime.UtcNow;
                 player.World.ChangeMap( map );
             }
         }
@@ -1660,10 +1659,9 @@ namespace fCraft {
                 player.MessageNow( "WFlush: {0}&S has no updates to process.",
                                    world.ClassyName );
             } else {
-                player.MessageNow( "WFlush: Flushing {0}&S ({1} blocks, {2} commands)...",
+                player.MessageNow( "WFlush: Flushing {0}&S ({1} blocks)...",
                                    world.ClassyName,
-                                   map.UpdateQueueLength,
-                                   map.DrawQueueLength );
+                                   map.UpdateQueueLength + map.DrawQueueBlockCount );
                 world.Flush();
             }
         }
@@ -1887,7 +1885,6 @@ namespace fCraft {
 
                 // Loading to current world
                 world.MapChangedBy = player.Name;
-                world.MapChangedOn = DateTime.UtcNow;
                 world.ChangeMap( map );
 
                 world.Players.Message( player, "{0}&S loaded a new map for this world.",
@@ -1944,7 +1941,6 @@ namespace fCraft {
 
                         try {
                             world.MapChangedBy = player.Name;
-                            world.MapChangedOn = DateTime.UtcNow;
                             world.ChangeMap( map );
                         } catch( WorldOpException ex ) {
                             Logger.Log( "Could not complete WorldLoad operation: {0}", LogType.Error, ex.Message );

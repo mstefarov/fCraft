@@ -380,6 +380,14 @@ namespace fCraft {
             get { return drawOps.Count; }
         }
 
+        public int DrawQueueBlockCount {
+            get {
+                lock( drawOpLock ) {
+                    return drawOps.Sum( op => Math.Max( 0, op.BlocksTotalEstimate - op.BlocksProcessed ) );
+                }
+            }
+        }
+
         readonly List<DrawOperation> drawOps = new List<DrawOperation>();
         readonly object drawOpLock = new object();
 
