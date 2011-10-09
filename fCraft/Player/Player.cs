@@ -1006,7 +1006,6 @@ namespace fCraft {
 
         readonly LinkedList<UndoState> undoStack = new LinkedList<UndoState>();
         readonly LinkedList<UndoState> redoStack = new LinkedList<UndoState>();
-        readonly LinkedList<UndoState> undoRedoStack = new LinkedList<UndoState>();
 
         internal UndoState RedoPop() {
             if( redoStack.Count > 0 ) {
@@ -1020,24 +1019,20 @@ namespace fCraft {
 
         internal UndoState RedoBegin( DrawOperation op ) {
             LastDrawOp = op;
-            UndoState newState = new UndoState( this, op );
-            undoRedoStack.AddLast( newState );
+            UndoState newState = new UndoState( op );
+            undoStack.AddLast( newState );
             return newState;
         }
 
         internal UndoState UndoBegin( DrawOperation op ) {
             LastDrawOp = op;
-            UndoState newState = new UndoState( this, op );
+            UndoState newState = new UndoState( op );
             redoStack.AddLast( newState );
             return newState;
         }
 
         public UndoState UndoPop() {
-            if( undoRedoStack.Count > 0 ) {
-                var lastNode = undoRedoStack.Last;
-                undoRedoStack.RemoveLast();
-                return lastNode.Value;
-            } else if( undoStack.Count > 0 ) {
+            if( undoStack.Count > 0 ) {
                 var lastNode = undoStack.Last;
                 undoStack.RemoveLast();
                 return lastNode.Value;
@@ -1048,20 +1043,18 @@ namespace fCraft {
 
         public UndoState DrawBegin( DrawOperation op ) {
             LastDrawOp = op;
-            UndoState newState = new UndoState( this, op );
+            UndoState newState = new UndoState( op );
             undoStack.AddLast( newState );
             if( undoStack.Count > MaxUndoStates ) {
                 undoStack.RemoveFirst();
             }
             redoStack.Clear();
-            undoRedoStack.Clear();
             return newState;
         }
 
         public void UndoClear() {
             undoStack.Clear();
             redoStack.Clear();
-            undoRedoStack.Clear();
         }
 
         #endregion
