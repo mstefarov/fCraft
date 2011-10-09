@@ -832,6 +832,9 @@ namespace fCraft {
             }
 
             MapGeneratorArgs args = MapGenerator.MakeTemplate( template );
+            if( theme == MapGenTheme.Desert ) {
+                args.AddWater = false;
+            }
             args.MapWidth = wx;
             args.MapLength = wy;
             args.MapHeight = height;
