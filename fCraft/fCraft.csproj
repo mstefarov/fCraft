@@ -198,10 +198,11 @@
     <Compile Include="AutoRank\Criterion.cs" />
     <Compile Include="Commands\ChatCommands.cs" />
     <Compile Include="Drawing\Brushes\ReplaceBrushBrush.cs" />
+    <Compile Include="Drawing\DrawOpWithBrush.cs" />
     <Compile Include="Drawing\DrawOps\UndoDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\PasteDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\CutDrawOperation.cs" />
-    <Compile Include="Drawing\UndoInformation.cs" />
+    <Compile Include="Drawing\UndoState.cs" />
     <Compile Include="MapConversion\INIFile.cs" />
     <Compile Include="Player\ChatTimer.cs" />
     <Compile Include="Drawing\Brushes\AbstractPerlinNoiseBrush.cs" />
@@ -210,7 +211,7 @@
     <Compile Include="Drawing\Brushes\ReplaceBrush.cs" />
     <Compile Include="Drawing\BrushManager.cs" />
     <Compile Include="Drawing\Brushes\CloudyBrush.cs" />
-    <Compile Include="Drawing\CopyInformation.cs" />
+    <Compile Include="Drawing\CopyState.cs" />
     <Compile Include="Drawing\DrawOps\SphereHollowDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\EllipsoidHollowDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\SphereDrawOperation.cs" />

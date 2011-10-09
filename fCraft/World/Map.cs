@@ -391,7 +391,7 @@ namespace fCraft {
         readonly List<DrawOperation> drawOps = new List<DrawOperation>();
         readonly object drawOpLock = new object();
 
-        public void QueueDrawOp( [NotNull] DrawOperation op ) {
+        internal void QueueDrawOp( [NotNull] DrawOperation op ) {
             if( op == null ) throw new ArgumentNullException( "op" );
             lock( drawOpLock ) {
                 drawOps.Add( op );

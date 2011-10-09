@@ -11,7 +11,7 @@ namespace fCraft.Drawing {
             : base( player ) {
         }
 
-        public override bool Begin( Vector3I[] marks ) {
+        public override bool Prepare( Vector3I[] marks ) {
             double radius = Math.Sqrt( (marks[0].X - marks[1].X) * (marks[0].X - marks[1].X) +
                                        (marks[0].Y - marks[1].Y) * (marks[0].Y - marks[1].Y) +
                                        (marks[0].Z - marks[1].Z) * (marks[0].Z - marks[1].Z) );
@@ -24,7 +24,7 @@ namespace fCraft.Drawing {
             marks[0].Y = (short)Math.Round( marks[0].Y + radius );
             marks[0].Z = (short)Math.Round( marks[0].Z + radius );
 
-            return base.Begin( marks );
+            return base.Prepare( marks );
         }
     }
 }

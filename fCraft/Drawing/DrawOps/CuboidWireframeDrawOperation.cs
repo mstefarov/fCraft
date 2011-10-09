@@ -13,8 +13,8 @@ namespace fCraft.Drawing {
         }
 
 
-        public override bool Begin( Vector3I[] marks ) {
-            if( !base.Begin( marks ) ) return false;
+        public override bool Prepare( Vector3I[] marks ) {
+            if( !base.Prepare( marks ) ) return false;
 
             int hollowVolume = Math.Max( 0, Bounds.Width - 2 ) * Math.Max( 0, Bounds.Length - 2 ) * Math.Max( 0, Bounds.Height - 2 );
             int sideVolumeX = Math.Max( 0, Bounds.Width - 2 ) * Math.Max( 0, Bounds.Length - 2 ) * (Bounds.ZMax != Bounds.ZMin ? 2 : 1);

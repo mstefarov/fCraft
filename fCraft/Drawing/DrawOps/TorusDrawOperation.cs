@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace fCraft.Drawing {
     public sealed class TorusDrawOperation : DrawOperation {
-        const float bias = 0.5f;
+        const float Bias = 0.5f;
 
         Vector3I center;
 
@@ -20,8 +20,8 @@ namespace fCraft.Drawing {
         }
 
 
-        public override bool Begin( Vector3I[] marks ) {
-            if( !base.Begin( marks ) ) return false;
+        public override bool Prepare( Vector3I[] marks ) {
+            if( !base.Prepare( marks ) ) return false;
 
             // center of the torus
             center = marks[0];
@@ -44,7 +44,7 @@ namespace fCraft.Drawing {
             // adjusted bounding box
             Bounds = new BoundingBox( center - combinedRadiusVector, center + combinedRadiusVector );
 
-            BlocksTotalEstimate = (int)(2 * Math.PI * Math.PI * bigR * (tubeR * tubeR + bias));
+            BlocksTotalEstimate = (int)(2 * Math.PI * Math.PI * bigR * (tubeR * tubeR + Bias));
 
             coordEnumerator = BlockEnumerator().GetEnumerator();
             return true;
@@ -78,7 +78,7 @@ namespace fCraft.Drawing {
 
                         // test if it's inside the torus
                         double r1 = bigR - Math.Sqrt( dx * dx + dy * dy );
-                        if( r1 * r1 + dz * dz <= tubeR * tubeR + bias ) {
+                        if( r1 * r1 + dz * dz <= tubeR * tubeR + Bias ) {
                             yield return new Vector3I( x, y, z );
                         }
                     }

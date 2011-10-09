@@ -656,7 +656,7 @@ namespace fCraft {
                         Server.Message( "&W{0} was kicked for repeated spamming.", ClassyName );
                     } else {
                         TimeSpan autoMuteDuration = TimeSpan.FromSeconds( ConfigKey.AntispamMuteDuration.GetInt() );
-                        Info.Mute( Player.Console, autoMuteDuration, false, true );
+                        Info.Mute( Console, autoMuteDuration, false, true );
                         Message( "You have been muted for {0} seconds. Slow down.", autoMuteDuration );
                     }
                     return true;
@@ -1000,17 +1000,17 @@ namespace fCraft {
         #endregion
 
 
-        #region Drawing, Selection, and Undo
+        #region Undo
 
         const int MaxUndoStates = 5;
 
-        LinkedList<UndoState> UndoStack = new LinkedList<UndoState>();
-        LinkedList<UndoState> RedoStack = new LinkedList<UndoState>();
+        readonly LinkedList<UndoState> undoStack = new LinkedList<UndoState>();
+        readonly LinkedList<UndoState> redoStack = new LinkedList<UndoState>();
 
         public UndoState RedoPop() {
-            if( RedoStack.Count > 0 ) {
-                var lastNode = RedoStack.Last;
-                RedoStack.RemoveLast();
+            if( redoStack.Count > 0 ) {
+                var lastNode = redoStack.Last;
+                redoStack.RemoveLast();
                 return lastNode.Value;
             } else {
                 return null;
@@ -1018,37 +1018,42 @@ namespace fCraft {
         }
 
         public void RedoPush( UndoState newState ) {
-            RedoStack.AddLast( newState );
-            if( RedoStack.Count > MaxUndoStates ) {
-                RedoStack.RemoveFirst();
+            redoStack.AddLast( newState );
+            if( redoStack.Count > MaxUndoStates ) {
+                redoStack.RemoveFirst();
             }
         }
 
         public UndoState UndoPop() {
-            if( UndoStack.Count > 0 ) {
-                var lastNode = UndoStack.Last;
-                UndoStack.RemoveLast();
+            if( undoStack.Count > 0 ) {
+                var lastNode = undoStack.Last;
+                undoStack.RemoveLast();
                 return lastNode.Value;
             } else {
                 return null;
             }
         }
-        
-        public void UndoPush( UndoState newState ) {
-            UndoStack.AddLast( newState );
-            if( UndoStack.Count > MaxUndoStates ) {
-                UndoStack.RemoveFirst();
+
+        public UndoState UndoBegin( DrawOperation op ) {
+            LastDrawOp = op;
+            UndoState newState = new UndoState( this, op );
+            undoStack.AddLast( newState );
+            if( undoStack.Count > MaxUndoStates ) {
+                undoStack.RemoveFirst();
             }
-            RedoStack.Clear();
+            redoStack.Clear();
+            return newState;
         }
 
         public void UndoClear() {
-            UndoStack.Clear();
-            RedoStack.Clear();
+            undoStack.Clear();
+            redoStack.Clear();
         }
 
+        #endregion
 
-        public Queue<BlockUpdate> UndoBuffer = new Queue<BlockUpdate>();
+
+        #region Drawing, Selection
 
         public IBrush Brush { get; set; }
 
@@ -1137,8 +1142,8 @@ namespace fCraft {
 
         #region Copy/Paste
 
-        CopyInformation[] copyInformation;
-        public CopyInformation[] CopyInformation {
+        CopyState[] copyInformation;
+        public CopyState[] CopyInformation {
             get { return copyInformation; }
         }
 
@@ -1158,11 +1163,11 @@ namespace fCraft {
             CopySlot = Math.Min( CopySlot, Info.Rank.CopySlots - 1 );
         }
 
-        public CopyInformation GetCopyInformation() {
+        public CopyState GetCopyInformation() {
             return CopyInformation[copySlot];
         }
 
-        public void SetCopyInformation( [CanBeNull] CopyInformation info ) {
+        public void SetCopyInformation( [CanBeNull] CopyState info ) {
             if( info != null ) info.Slot = copySlot;
             CopyInformation[copySlot] = info;
         }

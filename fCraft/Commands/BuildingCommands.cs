@@ -1,6 +1,5 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using fCraft.Drawing;
 using fCraft.MapConversion;
@@ -230,7 +229,7 @@ namespace fCraft {
 
         static void DrawOperationCallback( Player player, Vector3I[] marks, object tag ) {
             DrawOperation op = (DrawOperation)tag;
-            if( !op.Begin( marks ) ) return;
+            if( !op.Prepare( marks ) ) return;
             if( !player.CanDraw( op.BlocksTotalEstimate ) ) {
                 player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                    player.Info.Rank.DrawLimit,
@@ -238,9 +237,9 @@ namespace fCraft {
                 op.Cancel();
                 return;
             }
-            op.Map.QueueDrawOp( op );
             player.Message( "{0}: Now processing ~{1} blocks.",
                             op.DescriptionWithBrush, op.BlocksTotalEstimate );
+            op.Begin();
         }
 
         #endregion
@@ -426,14 +425,14 @@ namespace fCraft {
         #endregion
 
 
-        static void DrawOneBlock( [NotNull] Player player, byte drawBlock, int x, int y, int z,
-                                  BlockChangeContext context, ref int blocks, ref int blocksDenied, ref bool cannotUndo ) {
+        static void DrawOneBlock( [NotNull] Player player, Block drawBlock, int x, int y, int z,
+                                  BlockChangeContext context, ref int blocks, ref int blocksDenied, UndoState undoState ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( !player.World.Map.InBounds( x, y, z ) ) return;
-            byte block = player.World.Map.GetBlockByte( x, y, z );
+            Block block = player.World.Map.GetBlock( x, y, z );
             if( block == drawBlock ) return;
 
-            if( player.CanPlace( x, y, z, (Block)drawBlock, context ) != CanPlaceResult.Allowed ) {
+            if( player.CanPlace( x, y, z, drawBlock, context ) != CanPlaceResult.Allowed ) {
                 blocksDenied++;
                 return;
             }
@@ -441,19 +440,13 @@ namespace fCraft {
             // this would've been an easy way to do block tracking for draw commands BUT
             // if i set "origin" to player, he will not receive the block update. I tried.
             player.World.Map.QueueUpdate( new BlockUpdate( null, x, y, z, drawBlock ) );
-            Player.RaisePlayerPlacedBlockEvent( player, player.World.Map, (short)x, (short)y, (short)z, (Block)block, (Block)drawBlock, context );
+            Player.RaisePlayerPlacedBlockEvent( player, player.World.Map, (short)x, (short)y, (short)z, block, drawBlock, context );
 
-            if( MaxUndoCount < 1 || blocks < MaxUndoCount ) {
-                player.UndoBuffer.Enqueue( new BlockUpdate( null, x, y, z, block ) );
-            } else if( !cannotUndo ) {
-                player.LastDrawOp = null;
-                player.UndoBuffer.Clear();
-                player.UndoBuffer.TrimExcess();
-                player.MessageNow( "NOTE: This draw command is too massive to undo." );
-                if( player.Can( Permission.ManageWorlds ) ) {
-                    player.MessageNow( "Reminder: You can use &H/wflush&S to accelerate draw commands." );
+            if( !undoState.IsTooLargeToUndo ) {
+                if( !undoState.Add( x, y, z, block ) ) {
+                    player.MessageNow( "NOTE: This draw command is too massive to undo." );
+                    player.LastDrawOp = null;
                 }
-                cannotUndo = true;
             }
             blocks++;
         }
@@ -477,7 +470,6 @@ namespace fCraft {
             }
             if( blocks > 0 ) {
                 player.Info.ProcessDrawCommand( blocks );
-                player.UndoBuffer.TrimExcess();
                 Server.RequestGC();
             }
         }
@@ -540,8 +532,6 @@ namespace fCraft {
 
         #region Undo
 
-        const BlockChangeContext UndoContext = BlockChangeContext.Drawn | BlockChangeContext.UndoneSelf;
-
         static readonly CommandDescriptor CdUndo = new CommandDescriptor {
             Name = "undo",
             Category = CommandCategory.Building,
@@ -557,46 +547,36 @@ namespace fCraft {
                 return;
             }
 
-            Queue<BlockUpdate> oldBuffer = player.UndoBuffer;
-            if( oldBuffer.Count > 0 ) {
-                string msg = "Undo: ";
-                DrawOperation lastDrawOp = player.LastDrawOp;
-                if( lastDrawOp != null && !lastDrawOp.IsDone ) {
-                    lastDrawOp.Cancel();
-                    msg = String.Format( "Cancelled {0} (was {1}% done). ",
-                                         lastDrawOp.DescriptionWithBrush,
-                                         lastDrawOp.PercentDone );
-                }
-                // no need to set player.drawingInProgress here because this is done on the user thread
-                Logger.Log( "Player {0} initiated /undo affecting {1} blocks (on world {2})", LogType.UserActivity,
-                            player.Name,
-                            player.UndoBuffer.Count,
-                            player.World.Name );
-                msg += String.Format( "Restoring ~{0} blocks. Type &H/undo&S again to reverse.",
-                                      player.UndoBuffer.Count );
-                player.MessageNow( msg );
+            UndoState undoState = player.UndoPop();
 
-                var op = new UndoDrawOperation( player, new UndoState( oldBuffer ) );
-                op.Begin( new Vector3I[0] );
-                op.Map.QueueDrawOp( op );
-                player.Message( "{0}: Now processing ~{1} blocks.",
-                                op.DescriptionWithBrush, op.BlocksTotalEstimate );
-
-                /*
-                player.UndoBuffer = new Queue<BlockUpdate>();
-                int blocks = 0, blocksDenied = 0;
-                bool cannotUndo = false;
-                while( oldBuffer.Count > 0 ) {
-                    BlockUpdate changeToUndo = oldBuffer.Dequeue();
-                    DrawOneBlock( player, changeToUndo.BlockType, changeToUndo.X, changeToUndo.Y, changeToUndo.Z, UndoContext,
-                                  ref blocks, ref blocksDenied, ref cannotUndo );
-                }
-                DrawingFinished( player, "Undone", blocks, blocksDenied );
-                 */
-
-            } else {
+            if( undoState == null ) {
                 player.MessageNow( "There is currently nothing to undo." );
+                return;
             }
+
+            string msg = "Undo: ";
+            if( undoState.Op != null && !undoState.Op.IsDone ) {
+                undoState.Op.Cancel();
+                msg += String.Format( "Cancelled {0} (was {1}% done). ",
+                                     undoState.Op.DescriptionWithBrush,
+                                     undoState.Op.PercentDone );
+            }
+
+            // no need to set player.drawingInProgress here because this is done on the user thread
+            Logger.Log( "Player {0} initiated /undo affecting {1} blocks (on world {2})", LogType.UserActivity,
+                        player.Name,
+                        undoState.Buffer.Count,
+                        player.World.Name );
+
+            msg += String.Format( "Restoring ~{0} blocks. Type &H/undo&S again to reverse.",
+                                  undoState.Buffer.Count );
+            player.MessageNow( msg );
+
+            var op = new UndoDrawOperation( player, undoState );
+            op.Prepare( new Vector3I[0] );
+            player.Message( "{0}: Now processing ~{1} blocks.",
+                            op.DescriptionWithBrush, op.BlocksTotalEstimate );
+            op.Begin();
         }
 
         #endregion
@@ -620,7 +600,7 @@ namespace fCraft {
                     player.Message( "CopySlot: Select a number between 1 and {0}", player.Info.Rank.CopySlots );
                 } else {
                     player.CopySlot = slotNumber - 1;
-                    CopyInformation info = player.GetCopyInformation();
+                    CopyState info = player.GetCopyInformation();
                     if( info == null ) {
                         player.Message( "Selected copy slot {0} (unused).", slotNumber );
                     } else {
@@ -630,7 +610,7 @@ namespace fCraft {
                     }
                 }
             } else {
-                CopyInformation[] slots = player.CopyInformation;
+                CopyState[] slots = player.CopyInformation;
                 player.Message( "Using {0} of {1} slots. Selected slot: {2}",
                                 slots.Count( info => info != null ), player.Info.Rank.CopySlots, player.CopySlot + 1 );
                 for( int i = 0; i < slots.Length; i++ ) {
@@ -677,7 +657,7 @@ namespace fCraft {
             }
 
             // remember dimensions and orientation
-            CopyInformation copyInfo = new CopyInformation( marks[0], marks[1] );
+            CopyState copyInfo = new CopyState( marks[0], marks[1] );
 
             Map map = player.World.Map;
             for( int x = sx; x <= ex; x++ ) {
@@ -750,7 +730,7 @@ namespace fCraft {
         };
 
         static void MirrorHandler( Player player, Command cmd ) {
-            CopyInformation info = player.GetCopyInformation();
+            CopyState info = player.GetCopyInformation();
             if( info == null ) {
                 player.MessageNow( "Nothing to flip! Copy something first." );
                 return;
@@ -861,7 +841,7 @@ namespace fCraft {
         };
 
         static void RotateHandler( Player player, Command cmd ) {
-            CopyInformation info = player.GetCopyInformation();
+            CopyState info = player.GetCopyInformation();
             if( info == null ) {
                 player.MessageNow( "Nothing to rotate! Copy something first." );
                 return;
@@ -1085,15 +1065,13 @@ namespace fCraft {
 
             int blocksDrawn = 0,
                 blocksSkipped = 0;
-            bool cannotUndo = false;
-            player.LastDrawOp = null;
-            player.UndoBuffer.Clear();
+            UndoState undoState = player.UndoBegin( null );
 
             for( int x = selection.XMin; x <= selection.XMax; x++ ) {
                 for( int y = selection.YMin; y <= selection.YMax; y++ ) {
                     for( int z = selection.ZMin; z <= selection.ZMax; z++ ) {
-                        DrawOneBlock( player, map.GetBlockByte( x, y, z ), x, y, z, RestoreContext,
-                                                       ref blocksDrawn, ref blocksSkipped, ref cannotUndo );
+                        DrawOneBlock( player, map.GetBlock( x, y, z ), x, y, z, RestoreContext,
+                                      ref blocksDrawn, ref blocksSkipped, undoState );
                     }
                 }
             }
@@ -1112,7 +1090,7 @@ namespace fCraft {
 
 
         #region Tree
-
+        /*
         static readonly CommandDescriptor CdTree = new CommandDescriptor {
             Name = "Tree",
             Category = CommandCategory.Building,
@@ -1168,7 +1146,7 @@ namespace fCraft {
             Forester.Plant( args, marks[0] );
             DrawingFinished( player, "planted", blocksPlaced, blocksDenied );
         }
-
+        */
         #endregion
 
 
@@ -1348,15 +1326,15 @@ namespace fCraft {
                 context |= BlockChangeContext.UndoneOther;
             }
 
-            int blocks = 0, blocksDenied = 0;
-            bool cannotUndo = false;
-            player.LastDrawOp = null;
-            player.UndoBuffer.Clear();
+            int blocks = 0,
+                blocksDenied = 0;
+
+            UndoState undoState = player.UndoBegin( null );
 
             for( int i = 0; i < changes.Length; i++ ) {
-                DrawOneBlock( player, (byte)changes[i].OldBlock,
+                DrawOneBlock( player, changes[i].OldBlock,
                               changes[i].X, changes[i].Y, changes[i].Z, context,
-                              ref blocks, ref blocksDenied, ref cannotUndo );
+                              ref blocks, ref blocksDenied, undoState );
             }
 
             Logger.Log( "{0} undid {1} blocks changed by player {2} (in a selection  on world {3})", LogType.UserActivity,
@@ -1380,15 +1358,15 @@ namespace fCraft {
                 context |= BlockChangeContext.UndoneOther;
             }
 
-            int blocks = 0, blocksDenied = 0;
-            bool cannotUndo = false;
-            player.LastDrawOp = null;
-            player.UndoBuffer.Clear();
+            int blocks = 0,
+                blocksDenied = 0;
+
+            UndoState undoState = player.UndoBegin( null );
 
             for( int i = 0; i < changes.Length; i++ ) {
-                DrawOneBlock( player, (byte)changes[i].OldBlock,
+                DrawOneBlock( player, changes[i].OldBlock,
                               changes[i].X, changes[i].Y, changes[i].Z, context,
-                              ref blocks, ref blocksDenied, ref cannotUndo );
+                              ref blocks, ref blocksDenied, undoState );
             }
 
             Logger.Log( "{0} undid {1} blocks changed by player {2} (in a selection on world {3})", LogType.UserActivity,
@@ -1485,14 +1463,15 @@ namespace fCraft {
                 context |= BlockChangeContext.UndoneOther;
             }
 
-            int blocks = 0, blocksDenied = 0;
-            bool cannotUndo = false;
-            player.LastDrawOp = null;
-            player.UndoBuffer.Clear();
+            int blocks = 0,
+                blocksDenied = 0;
+
+            UndoState undoState = player.UndoBegin( null );
+
             for( int i = 0; i < changes.Length; i++ ) {
-                DrawOneBlock( player, (byte)changes[i].OldBlock,
+                DrawOneBlock( player, changes[i].OldBlock,
                               changes[i].X, changes[i].Y, changes[i].Z, context,
-                              ref blocks, ref blocksDenied, ref cannotUndo );
+                              ref blocks, ref blocksDenied, undoState );
             }
 
             Logger.Log( "{0} undid {1} blocks changed by player {2} (on world {3})", LogType.UserActivity,

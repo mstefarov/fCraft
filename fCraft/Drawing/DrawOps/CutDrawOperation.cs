@@ -23,8 +23,8 @@ namespace fCraft.Drawing {
         }
 
 
-        public override bool Begin( Vector3I[] marks ) {
-            if( !base.Begin( marks ) ) return false;
+        public override bool Prepare( Vector3I[] marks ) {
+            if( !base.Prepare( marks ) ) return false;
 
             BlocksTotalEstimate = Bounds.Volume;
 
@@ -33,7 +33,7 @@ namespace fCraft.Drawing {
             Coords.Z = Bounds.ZMin;
 
             // remember dimensions and orientation
-            CopyInformation copyInfo = new CopyInformation( marks[0], marks[1] );
+            CopyState copyInfo = new CopyState( marks[0], marks[1] );
 
             for( int x = Bounds.XMin; x <= Bounds.XMax; x++ ) {
                 for( int y = Bounds.YMin; y <= Bounds.YMax; y++ ) {
