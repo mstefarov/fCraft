@@ -10,11 +10,9 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary>
-    /// Contains commands that don't do anything besides displaying some information or text.
-    /// Includes several chat commands.
-    /// </summary>
-    public static class InfoCommands {
+    /// <summary> Contains commands that don't do anything besides displaying some information or text.
+    /// Includes several chat commands. </summary>
+    static class InfoCommands {
 
         // Register help commands
         internal static void Init() {

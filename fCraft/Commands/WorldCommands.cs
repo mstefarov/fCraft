@@ -568,7 +568,7 @@ namespace fCraft {
                         player.Message( "Reset fog color for {0}&S to normal", world.ClassyName );
                     } else {
                         try {
-                            value = ParseColor( valueText );
+                            value = ParseHexColor( valueText );
                         } catch( FormatException ) {
                             CdEnv.PrintUsage( player );
                             return;
@@ -584,7 +584,7 @@ namespace fCraft {
                         player.Message( "Reset cloud color for {0}&S to normal", world.ClassyName );
                     } else {
                         try {
-                            value = ParseColor( valueText );
+                            value = ParseHexColor( valueText );
                         } catch( FormatException ) {
                             CdEnv.PrintUsage( player );
                             return;
@@ -599,7 +599,7 @@ namespace fCraft {
                         player.Message( "Reset sky color for {0}&S to normal", world.ClassyName );
                     } else {
                         try {
-                            value = ParseColor( valueText );
+                            value = ParseHexColor( valueText );
                         } catch( FormatException ) {
                             CdEnv.PrintUsage( player );
                             return;
@@ -659,7 +659,7 @@ namespace fCraft {
             }
         }
 
-        static int ParseColor( string text ) {
+        static int ParseHexColor( string text ) {
             byte red, green, blue;
             switch( text.Length ) {
                 case 3:

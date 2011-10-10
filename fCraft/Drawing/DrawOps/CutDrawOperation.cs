@@ -59,7 +59,6 @@ namespace fCraft.Drawing {
 
 
         public override int DrawBatch( int maxBlocksToDraw ) {
-            StartBatch();
             int blocksDone = 0;
             for( ; Coords.X <= Bounds.XMax; Coords.X++ ) {
                 for( ; Coords.Y <= Bounds.YMax; Coords.Y++ ) {

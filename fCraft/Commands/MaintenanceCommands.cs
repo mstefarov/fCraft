@@ -9,9 +9,7 @@ using fCraft.AutoRank;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary>
-    /// Several yet-undocumented commands, mostly related to AutoRank.
-    /// </summary>
+    /// <summary> Several yet-undocumented commands, mostly related to AutoRank. </summary>
     static class MaintenanceCommands {
 
         internal static void Init() {

@@ -145,7 +145,7 @@ namespace fCraft {
                 HasChangedSinceSave = true;
                 Logger.Log( "Map.Save: Unable to open file \"{0}\" for writing: {1}", LogType.Error,
                                tempFileName, ex );
-                if( File.Exists( tempFileName ) ) 
+                if( File.Exists( tempFileName ) )
                     File.Delete( tempFileName );
                 return false;
             }
@@ -383,13 +383,15 @@ namespace fCraft {
         public int DrawQueueBlockCount {
             get {
                 lock( drawOpLock ) {
-                    return drawOps.Sum( op => Math.Max( 0, op.BlocksTotalEstimate - op.BlocksProcessed ) );
+                    return drawOps.Sum( op => op.BlocksLeftToProcess );
                 }
             }
         }
 
         readonly List<DrawOperation> drawOps = new List<DrawOperation>();
+
         readonly object drawOpLock = new object();
+
 
         internal void QueueDrawOp( [NotNull] DrawOperation op ) {
             if( op == null ) throw new ArgumentNullException( "op" );
@@ -398,10 +400,13 @@ namespace fCraft {
             }
         }
 
+
         int ProcessDrawOps( int maxTotalUpdates ) {
             int blocksDrawnTotal = 0;
             for( int i = 0; i < drawOps.Count; i++ ) {
                 DrawOperation op = drawOps[i];
+
+                // remove a cancelled drawOp from the list
                 if( op.IsCancelled ) {
                     op.Player.Message( "{0}: Cancelled after {1}. P={2} U={3} S={4} D={5}",
                                        op.DescriptionWithBrush,
@@ -417,13 +422,17 @@ namespace fCraft {
                     continue;
                 }
 
+                // draw a batch of blocks
                 int blocksToDraw = maxTotalUpdates / (drawOps.Count - i);
+                op.StartBatch();
                 int blocksDrawn = op.DrawBatch( blocksToDraw );
                 blocksDrawnTotal += blocksDrawn;
                 if( blocksDrawn > 0 ) {
                     HasChangedSinceSave = true;
                 }
                 maxTotalUpdates -= blocksDrawn;
+
+                // remove a completed drawOp from the list
                 if( op.IsDone ) {
                     if( op.AnnounceCompletion ) {
                         op.Player.Message( "{0}: Finished in {1}. P={2} U={3} S={4} D={5}",
@@ -608,10 +617,12 @@ namespace fCraft {
             return ConvertBlockTypes( ZeroMapping );
         }
 
+
         static readonly Dictionary<string, Block> BlockNames = new Dictionary<string, Block>();
         static readonly Dictionary<Block, string> BlockEdgeTextures = new Dictionary<Block, string>();
 
         static Map() {
+            // add default names for blocks, and their numeric codes
             foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
                 if( block != Block.Undefined ) {
                     BlockNames.Add( block.ToString().ToLower(), block );
@@ -619,7 +630,7 @@ namespace fCraft {
                 }
             }
 
-            // alternative names for some blocks
+            // alternative names for blocks
             BlockNames["none"] = Block.Undefined;
 
             BlockNames["a"] = Block.Air; // common typo
@@ -779,7 +790,7 @@ namespace fCraft {
 
             BlockNames["onyx"] = Block.Obsidian;
 
-
+            // add WoM file hashes for edge textures
             BlockEdgeTextures[Block.Aqua] = "246870d16093ff02738b3d42084c6597c02fad36";
             BlockEdgeTextures[Block.Black] = "06f5ba518c5f943f14adf09cc257674e43d8133c";
             BlockEdgeTextures[Block.Blue] = "eea1b7e0a62d90b5b681f142bd2f483a671ba160";
@@ -850,7 +861,7 @@ namespace fCraft {
         /// <summary> Tries to find a blocktype by name. </summary>
         /// <param name="blockName"> Name of the block. </param>
         /// <returns> Described Block, or Block.Undefined if name could not be recognized. </returns>
-        internal static Block GetBlockByName( [NotNull] string blockName ) {
+        public static Block GetBlockByName( [NotNull] string blockName ) {
             if( blockName == null ) throw new ArgumentNullException( "blockName" );
             Block result;
             if( BlockNames.TryGetValue( blockName.ToLower(), out result ) ) {
@@ -860,6 +871,9 @@ namespace fCraft {
             }
         }
 
+        /// <summary> Tries to find WoM file hashes for edge textures. </summary>
+        /// <param name="block"> Blocktype to find edge texture hash for. </param>
+        /// <returns> Hash string if found, or null if not found. </returns>
         [CanBeNull]
         internal static string GetEdgeTexture( Block block ) {
             string result;
@@ -888,6 +902,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Makes an admincrete barrier, 1 block thick, around the lower half of the map. </summary>
         public void MakeFloodBarrier() {
             for( int x = 0; x < Width; x++ ) {
                 for( int y = 0; y < Length; y++ ) {
