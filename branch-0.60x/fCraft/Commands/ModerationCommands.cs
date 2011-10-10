@@ -10,7 +10,7 @@ namespace fCraft {
     /// <summary>
     /// Most commands for server moderation - kick, ban, rank change, etc - are here.
     /// </summary>
-    public static class ModerationCommands {
+    static class ModerationCommands {
         const string BanCommonHelp = "Ban information can be viewed with &H/baninfo";
 
         internal static void Init() {

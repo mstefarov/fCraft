@@ -9,7 +9,7 @@ namespace fCraft.Drawing {
     public interface IBrushFactory {
         [NotNull]
         string Name { get; }
-        
+
         [NotNull]
         string Help { get; }
 

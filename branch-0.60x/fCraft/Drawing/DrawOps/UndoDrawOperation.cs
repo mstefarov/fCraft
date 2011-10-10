@@ -1,4 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
+
 namespace fCraft.Drawing {
     public sealed class UndoDrawOperation : DrawOpWithBrush {
         const BlockChangeContext UndoContext = BlockChangeContext.Drawn | BlockChangeContext.UndoneSelf;
@@ -39,10 +41,12 @@ namespace fCraft.Drawing {
 
         public override void Begin() {
             if( Redo ) {
-                Undo = Player.RedoBegin( this );
+                UndoState = Player.RedoBegin( this );
             } else {
-                Undo = Player.UndoBegin( this );
+                UndoState = Player.UndoBegin( this );
             }
+            StartTime = DateTime.UtcNow;
+            HasBegun = true;
             Map.QueueDrawOp( this );
         }
 
@@ -50,13 +54,12 @@ namespace fCraft.Drawing {
         Block block;
 
         public override int DrawBatch( int maxBlocksToDraw ) {
-            StartBatch();
             int blocksDone = 0;
             for( ; undoBufferIndex < State.Buffer.Count; undoBufferIndex++ ) {
                 UndoBlock blockUpdate = State.Buffer[undoBufferIndex];
                 Coords = new Vector3I( blockUpdate.X, blockUpdate.Y, blockUpdate.Z );
                 block = blockUpdate.Block;
-                if( DrawOneBlock() ){
+                if( DrawOneBlock() ) {
                     blocksDone++;
                     if( TimeToEndBatch ) {
                         return blocksDone;

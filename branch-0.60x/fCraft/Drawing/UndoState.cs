@@ -25,7 +25,7 @@ namespace fCraft.Drawing {
 
         public bool Add( int x, int y, int z, Block block ) {
             if( BuildingCommands.MaxUndoCount < 1 || Buffer.Count <= BuildingCommands.MaxUndoCount ) {
-                Buffer.Add( new UndoBlock( x,y,z, block ) );
+                Buffer.Add( new UndoBlock( x, y, z, block ) );
                 return true;
             } else if( !IsTooLargeToUndo ) {
                 IsTooLargeToUndo = true;

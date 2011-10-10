@@ -93,7 +93,6 @@ namespace fCraft.Drawing {
 
         public override int DrawBatch( int maxBlocksToDraw ) {
             // basically same as CuboidDrawOp
-            StartBatch();
             int blocksDone = 0;
             for( ; Coords.X <= Bounds.XMax; Coords.X++ ) {
                 for( ; Coords.Y <= Bounds.YMax; Coords.Y++ ) {

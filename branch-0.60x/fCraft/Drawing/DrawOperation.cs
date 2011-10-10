@@ -8,75 +8,128 @@ using System.Collections.Generic;
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable MemberCanBeProtected.Global
 namespace fCraft.Drawing {
+    /// <summary> Abstract class representing a drawing operation. </summary>
     public abstract class DrawOperation {
-        protected UndoState Undo { get; set; }
-
+        /// <summary> Expected number of marks to pass to DrawOperation.Prepare() </summary>
         public virtual int ExpectedMarks {
             get { return 2; }
         }
 
+        /// <summary> Player who is executing this command.
+        /// Used for both permission checks and messaging. </summary>
         [NotNull]
         public readonly Player Player;
 
+        /// <summary> Map to draw blocks to. </summary>
         [NotNull]
         public readonly Map Map;
 
+        /// <summary> Brush used to determine which blocks to place.
+        /// Must be assigned before DrawOperation.Prepare() is called. </summary>
         [NotNull]
         public IBrushInstance Brush;
 
+        /// <summary> Block change context, to be reported to BlockDB and Player.PlacingBlock/PlacedBlock events. 
+        /// Should include BlockChangeContext.Drawn flag. </summary>
         public BlockChangeContext Context;
 
-        public Vector3I[] Marks;
+        /// <summary> Marks given by the player to this command. Marks could come from either clicks or /mark command.
+        /// Set by DrawOperation.Prepare() </summary>
+        public Vector3I[] Marks { get; protected set; }
+
+        /// <summary> Time when the draw operatation begun. Set by DrawOperation.Begin() </summary>
         public DateTime StartTime { get; protected set; }
 
-        public BoundingBox Bounds;
+        /// <summary> Area that bounds the DrawOperation's extent, if possible to estimate in advance. </summary>
+        public BoundingBox Bounds { get; protected set; }
 
+        /// <summary> Whether this operation has been started (queued for processing on the Map). </summary>
+        public bool HasBegun { get; protected set; }
+
+        /// <summary> Whether this operation is done (has finished or had been cancelled). </summary>
         public bool IsDone { get; protected set; }
+
+        /// <summary> Whether this operation has been cancelled (e.g. by /undo or /lock). </summary>
         public bool IsCancelled { get; protected set; }
 
-        public int BlocksProcessed,
-                   BlocksUpdated,
-                   BlocksDenied,
-                   BlocksSkipped,
-                   BlocksTotalEstimate;
+        /// <summary> Number of blocks/coordinates that were considered for drawing. </summary>
+        public int BlocksProcessed { get; protected set; }
 
-        public int PercentDone {
+        /// <summary> Number of blocks/coordinates that ended up being changed/updated. </summary>
+        public int BlocksUpdated { get; protected set; }
+
+        /// <summary> Number of blocks/coordinates that were supposed to be changed/updated,
+        /// but left untouched due to permission issues. </summary>
+        public int BlocksDenied { get; protected set; }
+
+        /// <summary> Number of blocks/coordinates that were processed, and left untouched: either because the Brush decided to skip it,
+        /// or because map's current block matched the desired blocktype. </summary>
+        public int BlocksSkipped { get; protected set; }
+
+        /// <summary> Estimate of total number of blocks that will be processed by this command.
+        /// Should be as accurate as reasonably possible. </summary>
+        public int BlocksTotalEstimate { get; protected set; }
+
+        /// <summary> Estimated total blocks left to process. </summary>
+        public int BlocksLeftToProcess {
             get {
-                return ( BlocksProcessed * 100 ) / BlocksTotalEstimate;
+                return Math.Max( 0, BlocksTotalEstimate - BlocksProcessed );
             }
         }
 
-        public Vector3I Coords;
+        /// <summary> Undo state associated with this operation.
+        /// Created at DrawOperation.Begin() </summary>
+        protected UndoState UndoState;
 
-        public bool UseAlternateBlock { get; set; }
-
-        public abstract string Name { get; }
-
-        // ReSharper disable VirtualMemberNeverOverriden.Global
-        public virtual string Description {
-            // ReSharper restore VirtualMemberNeverOverriden.Global
-            get { return Name; }
+        /// <summary> Approximate completion percentage of this command. </summary>
+        public int PercentDone {
+            get {
+                if( IsDone ) {
+                    return 100;
+                } else {
+                    return Math.Min( 100, Math.Max( 0, (BlocksProcessed * 100) / BlocksTotalEstimate ) );
+                }
+            }
         }
 
+        /// <summary> Coordinates that are currently being processed. </summary>
+        public Vector3I Coords;
+
+        /// <summary> Whether the brush should use alternate block (if available)
+        /// for filling insides of hollow DrawOps. </summary>
+        public bool UseAlternateBlock { get; set; }
+
+        /// <summary> General name of this type of draw operation. Should be same for all instances. </summary>
+        public abstract string Name { get; }
+
+        /// <summary> Description of this specific draw operation, with any instance-specific parameters. </summary>
+        // ReSharper disable VirtualMemberNeverOverriden.Global
+        public virtual string Description {
+            get { return Name; }
+        }
+        // ReSharper restore VirtualMemberNeverOverriden.Global
+
+        /// <summary> Full description of both this operation, and the brush's instance. </summary>
         public virtual string DescriptionWithBrush {
             get {
                 return String.Format( "{0}/{1}", Description, Brush.InstanceDescription );
             }
         }
 
+        /// <summary> Whether completion or cancellation of this DrawOperation should be announced to Player. </summary>
         public bool AnnounceCompletion { get; set; }
 
 
-        const int MaxBlocksToProcessPerBatch = 10000;
+        const int MaxBlocksToProcessPerBatch = 25000;
         int batchStartProcessedCount;
         protected bool TimeToEndBatch {
             get {
-                return ( BlocksProcessed - batchStartProcessedCount ) > MaxBlocksToProcessPerBatch;
+                return (BlocksProcessed - batchStartProcessedCount) > MaxBlocksToProcessPerBatch;
             }
         }
 
 
-        protected void StartBatch() {
+        internal void StartBatch() {
             batchStartProcessedCount = BlocksProcessed;
         }
 
@@ -108,14 +161,14 @@ namespace fCraft.Drawing {
 
             if( Brush == null ) throw new NullReferenceException( Name + ": Brush not set" );
             if( !Brush.Begin( Player, this ) ) return false;
-
-            StartTime = DateTime.UtcNow;
             return true;
         }
 
 
         public virtual void Begin() {
-            Undo = Player.DrawBegin( this );
+            UndoState = Player.DrawBegin( this );
+            StartTime = DateTime.UtcNow;
+            HasBegun = true;
             Map.QueueDrawOp( this );
         }
 
@@ -127,10 +180,12 @@ namespace fCraft.Drawing {
             IsCancelled = true;
         }
 
-        public void End() {
+
+        internal void End() {
             Player.Info.ProcessDrawCommand( BlocksUpdated );
             Brush.End();
         }
+
 
         protected bool DrawOneBlock() {
             BlocksProcessed++;
@@ -170,8 +225,8 @@ namespace fCraft.Drawing {
             Player.RaisePlayerPlacedBlockEvent( Player, Map, (short)Coords.X, (short)Coords.Y, (short)Coords.Z,
                                                 oldBlock, newBlock, Context );
 
-            if( !Undo.IsTooLargeToUndo ) {
-                if( !Undo.Add( Coords, oldBlock ) ) {
+            if( !UndoState.IsTooLargeToUndo ) {
+                if( !UndoState.Add( Coords, oldBlock ) ) {
                     Player.LastDrawOp = null;
                     Player.Message( "{0}: Too many blocks to undo.", DescriptionWithBrush );
                 }

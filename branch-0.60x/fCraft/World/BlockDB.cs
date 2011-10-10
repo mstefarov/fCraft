@@ -40,10 +40,13 @@ namespace fCraft {
                         }
 #endif
                         if( value == YesNoAuto.No && IsEnabled ) {
+                            // going from enabled/auto-enabled to disabled
                             Flush();
                             CacheClear();
                             IsEnabled = false;
+
                         } else if( !IsEnabled && (value == YesNoAuto.Yes || value == YesNoAuto.Auto && ShouldBeAutoEnabled) ) {
+                            // going from disabled to enabled/auto-enabled
                             cacheStore = new BlockDBEntry[MinCacheSize];
                             if( isPreloaded ) {
                                 Preload();
@@ -103,6 +106,7 @@ namespace fCraft {
                         // This might cause lag spikes, since it's ran from main scheduler thread.
                         Flush();
                     } else {
+                        // resize cache to fit
                         EnsureCapacity( CacheSize + 1 );
                     }
                 }
@@ -141,12 +145,18 @@ namespace fCraft {
             if( cacheStore.Length > max ) {
                 int newCapacity = max;
                 if( newCapacity < MinCacheSize ) {
+                    // minimum capacity
                     newCapacity = MinCacheSize;
+
                 } else if( newCapacity < CacheLinearResizeThreshold ) {
+                    // exponential resizing (x2 each time)
                     newCapacity = 1 << (int)(1 + Math.Floor( Math.Log( newCapacity, 2 ) ));
+
                 } else {
+                    // linear resizing (in 1 MB increments)
                     newCapacity = (newCapacity / CacheLinearResizeThreshold + 1) * CacheLinearResizeThreshold;
                 }
+
                 CacheCapacity = newCapacity;
                 if( max < CacheSize ) {
                     Array.Copy( cacheStore, CacheSize - max, cacheStore, 0, max );
@@ -166,10 +176,13 @@ namespace fCraft {
                 if( value != cacheStore.Length ) {
                     BlockDBEntry[] destinationArray = new BlockDBEntry[value];
                     if( value < CacheSize ) {
+                        // downsizing the cache
                         Array.Copy( cacheStore, CacheSize - value, destinationArray, 0, value );
                         LastFlushedIndex -= (CacheSize - value);
                         CacheSize = value;
+
                     } else {
+                        // upsizing the cache
                         Array.Copy( cacheStore, 0, destinationArray, 0, Math.Min( cacheStore.Length, CacheSize ) );
                     }
                     cacheStore = destinationArray;
@@ -216,6 +229,8 @@ namespace fCraft {
                 EnsureCapacity( CacheSize );
                 LastFlushedIndex = CacheSize;
 
+                // Converting from byte[] to BlockDBEntry[] on the fly
+                // This is possible because BlockDBEntry is a sequentially packed struct
                 fixed( BlockDBEntry* pCacheStart = cacheStore ) {
                     fixed( byte* pBuffer = ioBuffer ) {
                         byte* pCache = (byte*)pCacheStart;
@@ -248,7 +263,11 @@ namespace fCraft {
             using( FileStream source = File.OpenRead( FileName ) ) {
                 int entries = (int)(source.Length / BlockDBEntry.Size);
                 if( entries <= maxCapacity ) return;
+
+                // skip beginning of the file (that's where old entries are)
                 source.Seek( (entries - maxCapacity) * BlockDBEntry.Size, SeekOrigin.Begin );
+
+                // copy end of the existing file to a new one
                 using( FileStream destination = File.Create( tempFileName ) ) {
                     while( source.Position < source.Length ) {
                         int bytesRead = source.Read( ioBuffer, 0, ioBuffer.Length );
@@ -260,6 +279,9 @@ namespace fCraft {
         }
 
 
+        /// <summary> Counts entries that are newer tha the given age. </summary>
+        /// <param name="age"> Maximum age of entry </param>
+        /// <returns> Number of entries newer than given age. May be 0 if all entries are older than given age. </returns>
         int CountNewerEntries( TimeSpan age ) {
             if( age < TimeSpan.Zero ) throw new ArgumentException( "Age must be non-negative.", "age" );
             int minTimestamp = (int)DateTime.UtcNow.Subtract( age ).ToUnixTime();
@@ -267,7 +289,7 @@ namespace fCraft {
             if( isPreloaded ) {
                 fixed( BlockDBEntry* ptr = cacheStore ) {
                     for( int i = 0; i < CacheSize; i++ ) {
-                        if( ptr[i].Timestamp > minTimestamp ) {
+                        if( ptr[i].Timestamp >= minTimestamp ) {
                             return CacheSize - i;
                         }
                     }
@@ -280,7 +302,7 @@ namespace fCraft {
                 fixed( byte* parr = bytes ) {
                     BlockDBEntry* entries = (BlockDBEntry*)parr;
                     for( int i = entryCount - 1; i >= 0; i-- ) {
-                        if( entries[i].Timestamp > minTimestamp ) {
+                        if( entries[i].Timestamp >= minTimestamp ) {
                             return entryCount - i;
                         }
                     }

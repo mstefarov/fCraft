@@ -257,8 +257,6 @@
     <Compile Include="Utils\MonoCompat.cs" />
     <Compile Include="World\ZoneCollection.cs" />
     <Compile Include="Player\PlayerInfo.Events.cs" />
-    <None Include="Tileset.png" />
-    <None Include="TilesetShadowed.png" />
     <Compile Include="World\World.Events.cs" />
     <Compile Include="Utils\JetBrains.Annotations.cs" />
   </ItemGroup>
