@@ -823,8 +823,7 @@ namespace fCraft {
                 }
 
                 // Actually unfreeze
-                IsFrozen = false;
-                LastModified = DateTime.UtcNow;
+                Unfreeze();
 
                 // Log and announce unfreeze
                 Logger.Log( "{0} unfroze {1}", LogType.UserActivity, player.Name, Name );
@@ -839,6 +838,13 @@ namespace fCraft {
 
                 // Raise PlayerInfo.FreezeChanged event
                 if( raiseEvents ) RaiseFreezeChangedEvent( this, player, true, announce );
+            }
+        }
+
+        internal void Unfreeze() {
+            lock( actionLock ) {
+                IsFrozen = false;
+                LastModified = DateTime.UtcNow;
             }
         }
 
@@ -957,9 +963,7 @@ namespace fCraft {
                     }
                 }
 
-                MutedUntil = DateTime.MinValue;
-                MutedBy = "";
-                LastModified = DateTime.UtcNow;
+                Unmute();
 
                 // raise PlayerInfo.MuteChanged event
                 if( raiseEvents ) {
@@ -978,6 +982,14 @@ namespace fCraft {
                                     "&SPlayer {0}&S was unmuted by {1}",
                                     ClassyName, player.ClassyName );
                 }
+            }
+        }
+
+        internal void Unmute() {
+            lock( actionLock ) {
+                MutedUntil = DateTime.MinValue;
+                MutedBy = "";
+                LastModified = DateTime.UtcNow;
             }
         }
 
