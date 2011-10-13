@@ -207,15 +207,15 @@ namespace fCraft {
                             list[i].IsHidden = false;
                         }
 
-                        try {
-                            list[i].Unfreeze( Player.Console, false, false );
+                        if( list[i].IsFrozen ) {
+                            list[i].Unfreeze();
                             unfroze++;
-                        } catch( PlayerOpException ) { }
+                        }
 
-                        try {
-                            list[i].Unmute( Player.Console, false, false );
+                        if( list[i].IsMuted ) {
+                            list[i].Unmute();
                             unmuted++;
-                        } catch( PlayerOpException ) { }
+                        }
                     }
                 }
                 Logger.Log( "PlayerDB: Unhid {0}, unfroze {1}, and unmuted {2} banned accounts.", LogType.SystemActivity,
