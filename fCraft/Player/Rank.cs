@@ -1,7 +1,8 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Xml.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
@@ -429,6 +430,12 @@ namespace fCraft {
         public IEnumerable<Player> Players {
             get {
                 return Server.Players.Ranked( this );
+            }
+        }
+
+        public int PlayerCount {
+            get {
+                return PlayerDB.PlayerInfoList.Count( t => t.Rank == this );
             }
         }
 

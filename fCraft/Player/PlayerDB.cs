@@ -442,19 +442,29 @@ namespace fCraft {
 
         #region Stats
 
-        public static int CountBannedPlayers() {
-            return PlayerInfoList.Count( t => t.IsBanned );
+        public static int BannedCount {
+            get {
+                return PlayerInfoList.Count( t => t.IsBanned );
+            }
         }
 
 
-        public static int CountTotalPlayers() {
-            return Trie.Count;
+        public static float BannedPercentage {
+            get {
+                var listCache = PlayerInfoList;
+                if( listCache.Length == 0 ) {
+                    return 0;
+                } else {
+                    return listCache.Count( t => t.IsBanned ) * 100f / listCache.Length;
+                }
+            }
         }
 
 
-        public static int CountPlayersByRank( [NotNull] Rank rank ) {
-            if( rank == null ) throw new ArgumentNullException( "rank" );
-            return PlayerInfoList.Count( t => t.Rank == rank );
+        public static int Size {
+            get {
+                return Trie.Count;
+            }
         }
 
         #endregion

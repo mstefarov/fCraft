@@ -614,12 +614,11 @@ namespace fCraft {
             player.Message( "  Bandwidth: {0:0.0} KB/s up, {1:0.0} KB/s down",
                             bytesSentRate / 1000, bytesReceivedRate / 1000 );
 
-            int bannedCount = PlayerDB.CountBannedPlayers();
             player.Message( "  Tracking {0} players ({1} online, {2} banned ({3:0.0}%), {4} IP-banned).",
                             PlayerDB.PlayerInfoList.Length,
                             Server.CountVisiblePlayers( player ),
-                            PlayerDB.CountBannedPlayers(),
-                            (bannedCount * 100f) / PlayerDB.PlayerInfoList.Length,
+                            PlayerDB.BannedCount,
+                            PlayerDB.BannedPercentage,
                             IPBanList.Count );
 
             player.Message( "  Players built {0}, deleted {1}, drew {2} blocks, wrote {3} messages, issued {4} kicks, spent {5:0} hours total.",
@@ -655,7 +654,7 @@ namespace fCraft {
             foreach( Rank rank in RankManager.Ranks ) {
                 player.Message( "&S    {0}  ({1} players)",
                                 rank.ClassyName,
-                                PlayerDB.CountPlayersByRank( rank ) );
+                                rank.PlayerCount );
             }
         }
 

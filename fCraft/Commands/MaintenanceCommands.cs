@@ -641,9 +641,8 @@ namespace fCraft {
                 return;
             }
 
-            int playerCount = PlayerDB.CountPlayersByRank( fromRank );
+            int playerCount = fromRank.PlayerCount;
             string verb = (fromRank > toRank ? "demot" : "promot");
-
 
             if( !cmd.IsConfirmed ) {
                 player.Confirm( cmd, "About to {0}e {1} players.", verb, playerCount );
