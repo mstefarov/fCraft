@@ -1,38 +1,14 @@
 0.600
- API: Added specialized MetadataCollection class to manage per-map and per-player metadata, and ZoneCollection for zones.
- API: Added ReSharper-compatible annotations and more argument checks throughout the codebase.
- API: fCraft now consistently uses [X,Y,Z] for coordinates (where X/Y are horizontal, and Z is vertical), and [Width,Length,Height] for dimensions (Width/Length horizontal, Height vertical).
- API: Merged Session and Player classes. All session-related functionality is in Player.Networking.cs file.
- API: New line-wrapping algorithm provides better performance and safety. Now using "\n" instead of "&N" to force a newline.
- API: Renamed World.PlayerList to World.Players, Server.PlayerList to Server.Players, and added PlayerDB.PlayerInfoList
- API: New LINQ-style API for working with sets of players. This API is now used for all messaging and packet-sending. Old API (Server.Send* and World.Send*) was removed.
- API: New unified API for handling player-generated chat (Chat static class), and new events (Chat.Sending and Chat.Sent).
- API: All cancellable events now implement ICancellableEvent.
- API: MapDAT and MapNBT now implement IMapConverter.LoadHeader.
- API: Converted IClassy.GetClassyName(), Rank.GetFullName(), and Player.GetListName() to properties.
- API: Renamed ConfigKey.GetBool() to ConfigKey.Enabled(). Added ConfigKey.TryGetInt() and ConfigKey.TryGetBool() methods.
- API: CommandManager.RegisterCommand() now checks for reserved command names (currently "ok" and "nvm"), and does a better job at handling command name capitalization differences.
- API: Added ability to override Player.MaxBlockPlacementRange, Player.SocketTimeout, Heartbeat.Delay, and Heartbeat.Timeout.
- API: Renamed RankManager.ParseRank(string) to Rank.Parse(string)
- API: All draw/undo/copy/paste commands have been moved to fCraft.Drawing namespace.
- API: Uncaught exceptions that occur while parsing player messages no longer send crash reports when in DEBUG configuration.
- API: Added support for multiple /help sections per command.
- API: Added CommandCategory.Debug, removed CommandDescriptor.HelpHander and HelpHandler delegate.
- API: Moved Server.Player* events to Player.* and Server.PlayerInfo* to PlayerInfo.*
- API: Expanded the confirmation system (/OK) to allow custom callbacks, decoupled from the command system.
- API Fix: "Bad heartbeat" reply from minecraft.net no longer triggers UrlChanged event.
- API Fix: Fixed a couple bugs in BoundingBox.GetIntersection and BoundingBox.Contains.
- API Fix: Fixed /Replace and /ReplaceNot not firing Player.PlacedBlock events.
  Chat: Added a /Timer command for creating publicly-announced countdowns/timers.
- Chat: Added a way to cancel partial messages (/Nvm)
+ Chat: Added a way to cancel partial messages: /Nvm
+ Chat: Removed "Banned player ___ tried to log in" and "Player ___ tried to log in from a banned IP" messages.
  Chat: /Say, /Staff, and /Me commands can no longer repeated using "/" shortcut.
  Chat: Added a warning when trying to PM deafened players.
  Chat: Added a shortcut for chatting to same rank: "@@ Message"
- Chat: Removed "Banned player ___ tried to log in" and "Player ___ tried to log in from a banned IP" messages.
- Chat: Increased the number of blank lines sent by /Clear to 30, to accomodate players with smaller-than-normal font sizes.
+ Chat: Increased the number of blank lines sent by /Clear to 30, to accommodate players with smaller-than-normal font sizes.
  Chat Fix: Fixed /Say, /Roll, /Staff, and /Me sometimes bypassing Chat permission, mute check, or spam detection check.
  Chat Fix: Fixed rank chat being logged twice.
- Chat Fix: Fixed some messages getting through to deafened players.
+ Chat Fix: Fixed some system messages getting through to deafened players.
  Chat Fix: /Deafen now clears the screen when toggled on.
  Commands: Rank and Zone names now autocomplete.
  Commands: Players can no longer freeze, mute, kick, ban, unban, promote, or demote themselves.
@@ -53,16 +29,16 @@
  Commands: Added /InfoSwap command, for swapping two players' ranks and PlayerDB records.
  Commands: Added a way to abort a server shutdown or restart ("/Shutdown abort" or "/Restart abort").
  Commands: /RankInfo now slows copy/paste slots, idle kick time, and permission limits.
- Commands: More commands now take the compact time format (e.g. 1m30s, 45s, 24h, etc).
+ Commands: Most time-related commands now take the compact format (e.g. 1m30s, 45s, 24h, etc).
  Commands: Color-coded /Commands.
- Commands: Added "/St" as an alias for /Staff. Changed "/L" from being alias for /Join, to being alias for /Lava. Removed "/Cub" alias for "/Cuboid".
  Commands: Limited /Mute duration to range between 1 second and 700 days (100 weeks).
  Commands: /SetInfo now allows changing players' DisplayedName.
  Commands: A warning is now shown when a player is kicked/banned, and other players are still connected from the IP.
  Commands: Added a way to add IP ban exemptions using /BanEx (banning all players from IP except a particular one).
  Commands: Added automatic countdowns to /Shutdown and /Restart.
- Commands: /MassRank now defaults to silent, and takes a "reason" parameter.
  Commands: Added more stats to /ServerInfo.
+ Commands: /MassRank now defaults to silent, and takes a "reason" parameter.
+ Commands: Added "/St" as an alias for /Staff. Changed "/L" from being alias for /Join, to being alias for /Lava. Removed "/Cub" alias for "/Cuboid".
  Commands Fix: Fixed /UnbanIP and /UnbanAll not announcing the unban reason.
  Commands Fix: Fixed /Info not formatting names of offline players.
  Commands Fix: Fixed /Restart breaking under Mono if working path contains spaces.
@@ -96,12 +72,11 @@
  ConfigGUI Fix: Fixed ConfigTool's Chat tab not updating to reflect changes in rank colors/prefixes.
  ConfigGUI Fix: Fixed sort order in Worlds tab when sorting by world size.
  ConfigGUI Fix: Fixed some rank dropdown menus in ConfigGUI showing "(lowest rank)" instead of "(default rank)" as the default option.
+ Drawing: Introduced a brush/pattern system for draw commands. Rewrote (almost) all existing draw commands to take advantage of that new infrastructure. Brushes are: Normal (default), Checkered, Random, Cloudy, Marbled, Replace, ReplaceNot, ReplaceBrush.
  Drawing: Added a way to /Undo up to five commands back. Use /Redo to reverse it.
- Drawing: Added /Torus command, written and contributed by M1_Abrams. Work in progress.
- Drawing: Added support for multiple copy/paste slots (using /CopySlot)
- Drawing: Introduced a "brush" system for draw commands. Rewrote (almost) all existing draw commands to take advantage of that new infrastructure.
- Drawing: Added default brushes: normal, checkered, random, cloudy, marbled, replace, replacenot, replacebrush.
- Drawing: /Replace and /ReplaceNot can now take just one blocktype. The replacement type is infered from the type of block player is holding when clicking.
+ Drawing: Added /Torus drawing command, written and contributed by M1_Abrams.
+ Drawing: Added support for multiple copy/paste slots, using /CopySlot. Number of slots of configurable per-rank.
+ Drawing: /Replace and /ReplaceNot can now take just one blocktype. The replacement type is inferred from the type of block player is holding when clicking.
  Drawing: /Undo now cancels the last drawing commands.
  Drawing Fix: Added a missing volume check to /Line, and fixed /CuboidW volume calculations.
  Drawing Fix: Fixed /Copy and /Cut reporting incorrect orientation.
@@ -134,10 +109,10 @@
  Misc Fix: Fixed a zone-related race condition when exporting to Opticraft map format.
  Misc Fix: Fixed fCraft being unable to start if fCraft.dll is in the root directory of a drive (e.g. in "C:/")
  Misc Fix: Fixed a bug that caused bandwidth to sometimes be wasted on needlessly updating position of non-moving players.
- Misc Fix: Fixed a clock drift problem with periodic SchedulerTasks.
+ Misc Fix: Fixed a clock drift problem in periodic SchedulerTasks.
  Misc Fix: Fixed a case where, in some rank configurations, players would see themselves as offline when hidden (in /Info, /BInfo, /Players, etc).
  PlayerDB: Added 46th column: PlayerInfo.IsHidden ('h' if hidden, otherwise blank).
- PlayerDB: Added 47th column: PlayerInfo.LastModified (utc unix timestamp). Accuracy is not yet guaranteed.
+ PlayerDB: Added 47th column: PlayerInfo.LastModified (UTC unix timestamp). Accuracy is not yet guaranteed.
  PlayerDB: Added 48th column: PlayerInfo.DisplayedName (string or blank). Overrides "Name" field for purposes of displaying formatted name (ClassyName).
  PlayerDB: Removed 14th column (FailedLoginCount) due to disuse.
  PlayerDB: PlayerDB now writes out changes to TotalTime incrementally for online players, instead of applying the change on-logout.
@@ -145,7 +120,7 @@
  Worlds: Per-world settings on backup intervals now work.
  Worlds: Added BlockDB - a system for tracking edits per-block. Added related /BlockDB and /BInfo commands.
  Worlds: Added /UndoPlayer and /UndoArea commands for undoing players' actions using BlockDB.
- Worlds: If a world has a missing mapfile, a warning is now shown, and a default flatgrass map is created.
+ Worlds: If a world has a missing map file, a warning is now shown, and a default flatgrass map is created.
  Worlds: Added a way to set per-rank main world, using /WMain.
  Worlds: Added /Restore command, inspired by good old MinerCPP. Selectively loads a map from another file or backup.
  Worlds: Allowed non-standard dimensions (neither multiples of 16, nor powers of 2). Added a warning about glitches when using nonstandard dimensions.
@@ -162,6 +137,30 @@
  Zones Fix: Fixed a rare case where two players could simultaneously create a zone with the same name on the same world, which would crash one of the players.
  Zones Fix: /Zones no longer crashes if used on a world with a missing or corrupt map file.
  Zones Fix: Tightened security checks of /ZAdd and /ZRemove to prevent a permission exploit.
+ API: Added specialized MetadataCollection class to manage per-map and per-player metadata, and ZoneCollection for zones.
+ API: Added ReSharper-compatible annotations and more argument checks throughout the codebase.
+ API: fCraft now consistently uses [X,Y,Z] for coordinates (where X/Y are horizontal, and Z is vertical), and [Width,Length,Height] for dimensions (Width/Length horizontal, Height vertical).
+ API: Merged Session and Player classes. All session-related functionality is in Player.Networking.cs file.
+ API: New line-wrapping algorithm provides better performance and safety. Now using "\n" instead of "&N" to force a newline.
+ API: Renamed World.PlayerList to World.Players, Server.PlayerList to Server.Players, and added PlayerDB.PlayerInfoList
+ API: New LINQ-style API for working with sets of players. This API is now used for all messaging and packet-sending. Old API (Server.Send* and World.Send*) was removed.
+ API: New unified API for handling player-generated chat (Chat static class), and new events (Chat.Sending and Chat.Sent).
+ API: All cancellable events now implement ICancellableEvent.
+ API: MapDAT and MapNBT now implement IMapConverter.LoadHeader.
+ API: Converted IClassy.GetClassyName(), Rank.GetFullName(), and Player.GetListName() to properties.
+ API: Renamed ConfigKey.GetBool() to ConfigKey.Enabled(). Added ConfigKey.TryGetInt() and ConfigKey.TryGetBool() methods.
+ API: CommandManager.RegisterCommand() now checks for reserved command names (currently "ok" and "nvm"), and does a better job at handling command name capitalization differences.
+ API: Added ability to override Player.MaxBlockPlacementRange, Player.SocketTimeout, Heartbeat.Delay, and Heartbeat.Timeout.
+ API: Renamed RankManager.ParseRank(string) to Rank.Parse(string)
+ API: All draw/undo/copy/paste commands have been moved to fCraft.Drawing namespace.
+ API: Uncaught exceptions that occur while parsing player messages no longer send crash reports when in DEBUG configuration.
+ API: Added support for multiple /help sections per command.
+ API: Added CommandCategory.Debug, removed CommandDescriptor.HelpHander and HelpHandler delegate.
+ API: Moved Server.Player* events to Player.* and Server.PlayerInfo* to PlayerInfo.*
+ API: Expanded the confirmation system (/OK) to allow custom callbacks, decoupled from the command system.
+ API Fix: "Bad heartbeat" reply from minecraft.net no longer triggers UrlChanged event.
+ API Fix: Fixed a couple bugs in BoundingBox.GetIntersection and BoundingBox.Contains.
+ API Fix: Fixed /Replace and /ReplaceNot not firing Player.PlacedBlock events.
 
 0.537
  Fixed another heartbeat-related issue caused by minecraft.net updates.
