@@ -776,10 +776,13 @@ namespace fCraft {
                 FrozenBy = player.Name;
                 LastModified = DateTime.UtcNow;
 
+                // Apply side effects
+                Player target = PlayerObject;
+                target.IsDeaf = false;
+
                 // Log and announce
                 Logger.Log( "{0} froze {1}", LogType.UserActivity, player.Name, Name );
                 if( announce ) {
-                    Player target = PlayerObject;
                     if( target != null ) {
                         target.Message( "&WYou were frozen by {0}", player.ClassyName );
                     }
@@ -791,6 +794,7 @@ namespace fCraft {
                 if( raiseEvents ) RaiseFreezeChangedEvent( this, player, false, announce );
             }
         }
+
 
         /// <summary> Unfreezes this player. Throws PlayerOpException on problems. </summary>
         /// <param name="player"> Player who is doing the unfreezing. </param>
@@ -840,6 +844,7 @@ namespace fCraft {
                 if( raiseEvents ) RaiseFreezeChangedEvent( this, player, true, announce );
             }
         }
+
 
         internal void Unfreeze() {
             lock( actionLock ) {
@@ -984,6 +989,7 @@ namespace fCraft {
                 }
             }
         }
+
 
         internal void Unmute() {
             lock( actionLock ) {
