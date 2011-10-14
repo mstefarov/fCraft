@@ -1,46 +1,51 @@
 0.600
- Config: New config keys: BackupDataOnStartup (default: true), RestartInterval (default: 0), HeartbeatToWoMDirect (default: true), BlockDBEnabled (default: true), BlockDBAutoEnable (default: true), and BlockDBAutoEnableRank (default: DefaultRank), WoMEnableEnvExtensions (default: false).
- Config: Added Spectate permission that covers /Spectate and /SpecPatrol.
- Config: Added DrawAdvanced permission that covers /Brush, /Sphere, /SphereH, /Torus, and /Restore commands.
- Config: Added ManageBlockDB permission that covers /BlockDB.
- Config: Added UndoOthersActions permission that covers /UndoPlayer and /UndoArea.
- Config: /Reload can now update more config keys without needing a restart: AutoRankEnabled, BandwidthUseMode, ConsoleName, DefaultRank, DefaultBuildRank, PatrolledRank.
- Config: Removed obsolete ShowBannedConnectionMessages config key.
- Config: Fix: Fixed DefaultRank/DefaultBuildRank/PatrolledRank settings not being applied.
- ConfigGUI: Added BlockDB settings to "Worlds" tab and "Add/Edit World" dialog.
- ConfigGUI: Reorganized Rank tab.
- ConfigGUI: Relaxed restrictions on rank prefixes.
- ConfigGUI: Added "Insert Color" and "Insert Keyword" buttons to announce/rule/greeting editors in ConfigGUI, and a "Reset" button to revert edits.
- ConfigGUI: Any errors/warnings that are produced while loading worlds.xml in ConfigGUI are now displayed at startup.
- ConfigGUI: Dramatically reduced memory use.
- ConfigGUI: Fix: ConfigGUI no longer loses worlds' whitelists/blacklists.
- ConfigGUI: Fix: Fixed several bugs related to renaming worlds.
- ConfigGUI: Fix: Fixed several "Reset" bugs.
- ConfigGUI: Fix: Fixed "Enable colors in IRC" checkbox remaining disabled in ConfigTool.
- ConfigGUI: Fix: Fixed ConfigTool's Chat tab not updating to reflect changes in rank colors/prefixes.
- ConfigGUI: Fix: Fixed sort order in Worlds tab when sorting by world size.
- ConfigGUI: Fix: Fixed some rank dropdown menus in ConfigGUI showing "(lowest rank)" instead of "(default rank)" as the default option.
+ API: Added specialized MetadataCollection class to manage per-map and per-player metadata, and ZoneCollection for zones.
+ API: Added ReSharper-compatible annotations and more argument checks throughout the codebase.
+ API: fCraft now consistently uses [X,Y,Z] for coordinates (where X/Y are horizontal, and Z is vertical), and [Width,Length,Height] for dimensions (Width/Length horizontal, Height vertical).
+ API: Merged Session and Player classes. All session-related functionality is in Player.Networking.cs file.
+ API: New line-wrapping algorithm provides better performance and safety. Now using "\n" instead of "&N" to force a newline.
+ API: Renamed World.PlayerList to World.Players, Server.PlayerList to Server.Players, and added PlayerDB.PlayerInfoList
+ API: New LINQ-style API for working with sets of players. This API is now used for all messaging and packet-sending. Old API (Server.Send* and World.Send*) was removed.
+ API: New unified API for handling player-generated chat (Chat static class), and new events (Chat.Sending and Chat.Sent).
+ API: All cancellable events now implement ICancellableEvent.
+ API: MapDAT and MapNBT now implement IMapConverter.LoadHeader.
+ API: Converted IClassy.GetClassyName(), Rank.GetFullName(), and Player.GetListName() to properties.
+ API: Renamed ConfigKey.GetBool() to ConfigKey.Enabled(). Added ConfigKey.TryGetInt() and ConfigKey.TryGetBool() methods.
+ API: CommandManager.RegisterCommand() now checks for reserved command names (currently "ok" and "nvm"), and does a better job at handling command name capitalization differences.
+ API: Added ability to override Player.MaxBlockPlacementRange, Player.SocketTimeout, Heartbeat.Delay, and Heartbeat.Timeout.
+ API: Renamed RankManager.ParseRank(string) to Rank.Parse(string)
+ API: All draw/undo/copy/paste commands have been moved to fCraft.Drawing namespace.
+ API: Uncaught exceptions that occur while parsing player messages no longer send crash reports when in DEBUG configuration.
+ API: Added support for multiple /help sections per command.
+ API: Added CommandCategory.Debug, removed CommandDescriptor.HelpHander and HelpHandler delegate.
+ API: Moved Server.Player* events to Player.* and Server.PlayerInfo* to PlayerInfo.*
+ API: Expanded the confirmation system (/OK) to allow custom callbacks, decoupled from the command system.
+ API Fix: "Bad heartbeat" reply from minecraft.net no longer triggers UrlChanged event.
+ API Fix: Fixed a couple bugs in BoundingBox.GetIntersection and BoundingBox.Contains.
+ API Fix: Fixed /Replace and /ReplaceNot not firing Player.PlacedBlock events.
  Chat: Added a /Timer command for creating publicly-announced countdowns/timers.
  Chat: Added a way to cancel partial messages (/Nvm)
- Chat: /Deafen now clears the screen when toggled on.
  Chat: /Say, /Staff, and /Me commands can no longer repeated using "/" shortcut.
  Chat: Added a warning when trying to PM deafened players.
  Chat: Added a shortcut for chatting to same rank: "@@ Message"
  Chat: Removed "Banned player ___ tried to log in" and "Player ___ tried to log in from a banned IP" messages.
  Chat: Increased the number of blank lines sent by /Clear to 30, to accomodate players with smaller-than-normal font sizes.
- Chat: Fix: Fixed /Say, /Roll, /Staff, and /Me sometimes bypassing Chat permission, mute check, or spam detection check.
- Chat: Fix: Fixed rank chat being logged twice.
- Chat: Fix: Fixed some messages getting through to deafened players.
+ Chat Fix: Fixed /Say, /Roll, /Staff, and /Me sometimes bypassing Chat permission, mute check, or spam detection check.
+ Chat Fix: Fixed rank chat being logged twice.
+ Chat Fix: Fixed some messages getting through to deafened players.
+ Chat Fix: /Deafen now clears the screen when toggled on.
+ Commands: Rank and Zone names now autocomplete.
  Commands: Players can no longer freeze, mute, kick, ban, unban, promote, or demote themselves.
  Commands: /Players can now be called with an optional WorldName parameter, to only list players in a particular world.
  Commands: /WLoad now takes two more optional parameters: build rank and access rank names.
  Commands: /Info now shows last leave reason, idle time, freeze/mute information, and ban exemption status.
  Commands: Augmented /Rules to support several rule categories.
- Commands: Added /SpecPatrol (/SPat). Works just like /Patrol, but automatically puts you in /Spectate mode.
+ Commands: Added /Spectate and /SpecPatrol (/SPat) commands.
  Commands: Added /WBring (brings target player to a world);
  Commands: Added /Spawn command (brings you to spawn). Typing "/TP" no longer does the same thing, and /TP now always requires Teleport permission.
  Commands: Algorithm that /Patrol uses to pick next target was improved.
- Commands: Merged /ReloadConfig and /AutoRankReload into /Reload command. Merged /ImportRanks and /ImportBans into /Import command.
+ Commands: Renamed Lock/Unlock to WLock/WUnlock, for consistency.
+ Commands: Merged /ReloadConfig and /AutoRankReload into /Reload command. Merged /ImportRanks and /ImportBans into /Import command. Combined functionality of /LockAll into /WLock, and functionality of /UnlockAll into /WUnlock.
  Commands: /Info and /Worlds now support pagination.
  Commands: When world access permissions are changed with /WAccess, players who lost ability to join the world will automatically be moved to main.
  Commands: Frozen player can no longer call most commands, with exception of: /Clear, /Info, /BanInfo, /RankInfo, /ServerInfo, /Ranks, /Rules, /Where, /Help, /Commands, /Colors, /Worlds, /Zones, and /ZInfo.
@@ -50,28 +55,47 @@
  Commands: /RankInfo now slows copy/paste slots, idle kick time, and permission limits.
  Commands: More commands now take the compact time format (e.g. 1m30s, 45s, 24h, etc).
  Commands: Color-coded /Commands.
- Commands: Added /St as an alias for /Staff. Changed "l" from being alias for "/Join", to being alias for "/Lava". Removed "/Cub" alias for "/Cuboid".
+ Commands: Added "/St" as an alias for /Staff. Changed "/L" from being alias for /Join, to being alias for /Lava. Removed "/Cub" alias for "/Cuboid".
  Commands: Limited /Mute duration to range between 1 second and 700 days (100 weeks).
  Commands: /SetInfo now allows changing players' DisplayedName.
  Commands: A warning is now shown when a player is kicked/banned, and other players are still connected from the IP.
  Commands: Added a way to add IP ban exemptions using /BanEx (banning all players from IP except a particular one).
  Commands: Added automatic countdowns to /Shutdown and /Restart.
- Commands: Renamed Lock/Unlock to WLock/WUnlock, for consistency. Combined functionality of /LockAll into /WLock, and functionality of /UnlockAll into /WUnlock.
  Commands: /MassRank now defaults to silent, and takes a "reason" parameter.
  Commands: Added more stats to /ServerInfo.
- Commands: Fix: Fixed /UnbanIP and /UnbanAll not announcing the unban reason.
- Commands: Fix: Fixed /Info not formatting names of offline players.
- Commands: Fix: Fixed /Restart breaking under Mono if working path contains spaces.
- Commands: Fix: Fixed freeze/unfreeze printing wrong ranks in "You can only freeze players ranked ____ or lower" messages.
- Commands: Fix: Fixed a rare crash in /Rules when used from console.
- Commands: Fix: /BanIP and /BanAll no longer allow to ban the IP if it's shared by any players whom caller is not allowed to ban.
- Commands: Fix: Fixed /Ignore and /Unignore printing all matches at once on autocompletion.
- Commands: Fix: Fixed a case where /BringAll could reveal hidden players.
- Commands: Fix: Fixed a few bugs in /DumpStats, expanded player listing to top-5/bottom-5, and added "BlocksDrawn" stat.
- Commands: Fix: Fixed /Rank and /TP commands showing up in /Commands for ALL players.
- Commands: Fix: Fixed a couple rare bugs in /Roll
- Commands: Fix: Fixed broken /BringAll support for bringing multiple ranks at once.
- Commands: Fix: Fixed several obscure ways of revealing presence of hidden players via commands like /ServerInfo and /Worlds.
+ Commands Fix: Fixed /UnbanIP and /UnbanAll not announcing the unban reason.
+ Commands Fix: Fixed /Info not formatting names of offline players.
+ Commands Fix: Fixed /Restart breaking under Mono if working path contains spaces.
+ Commands Fix: Fixed freeze/unfreeze printing wrong ranks in "You can only freeze players ranked ____ or lower" messages.
+ Commands Fix: Fixed a rare crash in /Rules when used from console.
+ Commands Fix: /BanIP and /BanAll no longer allow to ban the IP if it's shared by any players whom caller is not allowed to ban.
+ Commands Fix: Fixed /Ignore and /Unignore printing all matches at once on autocompletion.
+ Commands Fix: Fixed a case where /BringAll could reveal hidden players.
+ Commands Fix: Fixed a few bugs in /DumpStats, expanded player listing to top-5/bottom-5, and added "BlocksDrawn" stat.
+ Commands Fix: Fixed /Rank and /TP commands showing up in /Commands for ALL players.
+ Commands Fix: Fixed a couple rare bugs in /Roll
+ Commands Fix: Fixed broken /BringAll support for bringing multiple ranks at once.
+ Commands Fix: Fixed several obscure ways of revealing presence of hidden players via commands like /ServerInfo and /Worlds.
+ Config: New config keys: BackupDataOnStartup (default: true), RestartInterval (default: 0), HeartbeatToWoMDirect (default: true), BlockDBEnabled (default: true), BlockDBAutoEnable (default: true), and BlockDBAutoEnableRank (default: DefaultRank), WoMEnableEnvExtensions (default: false).
+ Config: Added Spectate permission that covers /Spectate and /SpecPatrol.
+ Config: Added DrawAdvanced permission that covers /Brush, /Sphere, /SphereH, /Torus, and /Restore commands.
+ Config: Added ManageBlockDB permission that covers /BlockDB.
+ Config: Added UndoOthersActions permission that covers /UndoPlayer and /UndoArea.
+ Config: /Reload can now update more config keys without needing a restart: AutoRankEnabled, BandwidthUseMode, ConsoleName, DefaultRank, DefaultBuildRank, PatrolledRank.
+ Config: Removed obsolete ShowBannedConnectionMessages config key.
+ Config Fix: Fixed DefaultRank/DefaultBuildRank/PatrolledRank settings not being applied.
+ ConfigGUI: Added BlockDB settings to "Worlds" tab and "Add/Edit World" dialog.
+ ConfigGUI: Reorganized Rank tab.
+ ConfigGUI: Relaxed restrictions on rank prefixes.
+ ConfigGUI: Added "Insert Color" and "Insert Keyword" buttons to announce/rule/greeting editors in ConfigGUI, and a "Reset" button to revert edits.
+ ConfigGUI: Any errors/warnings that are produced while loading worlds.xml in ConfigGUI are now displayed at startup.
+ ConfigGUI Fix: ConfigGUI no longer loses worlds' whitelists/blacklists.
+ ConfigGUI Fix: Fixed several bugs related to renaming worlds.
+ ConfigGUI Fix: Fixed several "Reset" bugs.
+ ConfigGUI Fix: Fixed "Enable colors in IRC" checkbox remaining disabled in ConfigTool.
+ ConfigGUI Fix: Fixed ConfigTool's Chat tab not updating to reflect changes in rank colors/prefixes.
+ ConfigGUI Fix: Fixed sort order in Worlds tab when sorting by world size.
+ ConfigGUI Fix: Fixed some rank dropdown menus in ConfigGUI showing "(lowest rank)" instead of "(default rank)" as the default option.
  Drawing: Added a way to /Undo up to five commands back. Use /Redo to reverse it.
  Drawing: Added /Torus command, written and contributed by M1_Abrams. Work in progress.
  Drawing: Added support for multiple copy/paste slots (using /CopySlot)
@@ -79,16 +103,44 @@
  Drawing: Added default brushes: normal, checkered, random, cloudy, marbled, replace, replacenot, replacebrush.
  Drawing: /Replace and /ReplaceNot can now take just one blocktype. The replacement type is infered from the type of block player is holding when clicking.
  Drawing: /Undo now cancels the last drawing commands.
- Drawing: Fix: Added a missing volume check to /Line, and fixed /CuboidW volume calculations.
- Drawing: Fix: Fixed /Copy and /Cut reporting incorrect orientation.
- Zones: Added /ZRename command to rename zones.
- Zones: Added /ZMark command to use zone boundaries for drawing or making selections.
- Zones: Zone and rank names now autocomplete.
- Zones: Fix: Fixed /ZAdd complaining about zone names that partially match existing zone names (unnecessary autocompletion).
- Zones: Fix: Fixed /ZAdd crash when adding more than one personal zone for the same player (/ZAdd +Name).
- Zones: Fix: Fixed a rare case where two players could simultaneously create a zone with the same name on the same world, which would crash one of the players.
- Zones: Fix: /Zones no longer crashes if used on a world with a missing or corrupt map file.
- Zones: Fix: Tightened security checks of /ZAdd and /ZRemove to prevent a permission exploit.
+ Drawing Fix: Added a missing volume check to /Line, and fixed /CuboidW volume calculations.
+ Drawing Fix: Fixed /Copy and /Cut reporting incorrect orientation.
+ FrontEnd: Colored ConfigCLI log messages: red for errors, yellow for warnings, dark gray for debug, default (gray) for everything else. Call with "--noconsolecolor" parameter to disable.
+ FrontEnd: ServerCLI now handles all updater modes properly, and downloads updater/restarts if needed.
+ FrontEnd: Improved window titles.
+ FrontEnd Fix: Fixed ServerCLI writing errors to stdout instead of stderr.
+ Misc: Players who log out hidden will now log in silently, still hidden.
+ Misc: More keywords are now usable in announcements, rules, and greeting files: {SERVER_NAME}, {MOTD}, {RANK}, {PLAYER_NAME}, {TIME}, {WORLD}, {PLAYERS}, and {WORLDS}
+ Misc: Kicked or disconnected players no longer have their TotalTime increased for the time idled.
+ Misc: fCraft will refuse to start up if running old versions of mono (2.4 or earlier).
+ Misc: Crash reporter now prints a reference number for submitted reports.
+ Misc: AutoRank now only evaluates online players on a timer. A full database sweep will only be done on startup or on-demand. This should notably reduce average CPU use on large databases.
+ Misc: Added AutoRank pseudoplayer (similar to Console), who is now credited with all autorank promotions/demotions.
+ Misc: Increased the allowed clicking distance when manually clicking blocks, to account for lag.
+ Misc: IRC bot now announces channel kicks and nick changes.
+ Misc: When a player with a reserved slot tries to join a full world, the longest-idle player will be kicked to make room.
+ Misc: Frozen, demoted, and banned players are now automatically unhidden. Frozen players are undeafened. Banned players are also automatically unfrozen and unmuted.
+ Misc: Added a new block name aliases: "g" for grass, "w" for water, "a" for air.
+ Misc: When a player's rank is changed, their bindings are now reset (to avoid issues with /water, /lava, and /solid), and any in-progress selection is canceled (draw commands, /zone, /ztest, /bi, /measure, etc)
+ Misc: Frozen players now have a little blue star appended to their names, similar to the red star for banned players.
+ Misc: Moved all Heartbeat-related operations to the background thread (fixes lag spikes when minecraft.net times out).
+ Misc: Added a dynamically updated compass at the top-right of the screen, visible to players who use WoM 1.8.8+
+ Misc: Made fCraft.sln default to "Release" configuration when loaded.
+ Misc: Added a check for libMonoPosix on server startup. This allows catching misconfigured Mono setups early.
+ Misc: Ranks now default to "white" color ("&f") instead of "none" color ("").
+ Misc: Edited the "failed to load main world" message to sound less menacing, since it's usually caused just by main world filling up.
+ Misc: Sped up /PruneDB, /MassRank, map generation. Reduced memory use of draw commands, undo buffers, and ConfigTool.
+ Misc Fix: Fixed "duplicate metadata key" warning in FCMv3 maps.
+ Misc Fix: Fixed a zone-related race condition when exporting to Opticraft map format.
+ Misc Fix: Fixed fCraft being unable to start if fCraft.dll is in the root directory of a drive (e.g. in "C:/")
+ Misc Fix: Fixed a bug that caused bandwidth to sometimes be wasted on needlessly updating position of non-moving players.
+ Misc Fix: Fixed a clock drift problem with periodic SchedulerTasks.
+ Misc Fix: Fixed a case where, in some rank configurations, players would see themselves as offline when hidden (in /Info, /BInfo, /Players, etc).
+ PlayerDB: Added 46th column: PlayerInfo.IsHidden ('h' if hidden, otherwise blank).
+ PlayerDB: Added 47th column: PlayerInfo.LastModified (utc unix timestamp). Accuracy is not yet guaranteed.
+ PlayerDB: Added 48th column: PlayerInfo.DisplayedName (string or blank). Overrides "Name" field for purposes of displaying formatted name (ClassyName).
+ PlayerDB: Removed 14th column (FailedLoginCount) due to disuse.
+ PlayerDB: PlayerDB now writes out changes to TotalTime incrementally for online players, instead of applying the change on-logout.
  Worlds: Added a way to change some environment and texture settings per-map, using /Env.
  Worlds: Per-world settings on backup intervals now work.
  Worlds: Added BlockDB - a system for tracking edits per-block. Added related /BlockDB and /BInfo commands.
@@ -99,71 +151,17 @@
  Worlds: Allowed non-standard dimensions (neither multiples of 16, nor powers of 2). Added a warning about glitches when using nonstandard dimensions.
  Worlds: Added LoadedBy, LoadedOn, MapChangedBy, and MapChangedOn to /WInfo and to worlds.xml
  Worlds: MapGenerator tweaks: "default" template is now known as "random," "mountains" template now has more cliffs and snow on mountaintops, "island" template is less rough and has nice beaches, and water is now automatically removed from "desert" maps.
- Worlds: Fix: Fixed a crash that occurred if worlds.xml existed but contained no worlds.
- Worlds: Fix: Fixed an exploit that allowed players to bypass world access permissions in certain rank configurations.
- Worlds: Fix: Fixed some rare crashes in /WLoad.
- Worlds: Fix: Fixed /WAccess and /wbuild occasionally not saving the world list after adding players to the access/build whitelists.
- Worlds: Fix: Fixed being unable to change just the capitalization when renaming worlds from ConfigTool, under Windows.
- API: Added ReSharper-compatible annotations and more argument checks throughout the codebase.
- API: fCraft now consistently uses [X,Y,Z] for coordinates (where X/Y are horizontal, and Z is vertical), and [Width,Length,Height] for dimensions (Width/Length horizontal, Height vertical).
- API: Merged Session and Player classes. All session-related functionality is in Player.Networking.cs file.
- API: New line-wrapping algorithm provides better performance and safety. Now using "\n" instead of "&N" to force a newline.
- API: Moved all map metadata management to MetadataCollection class.
- API: Renamed World.PlayerList to World.Players, Server.PlayerList to Server.Players, and added PlayerDB.PlayerInfoList
- API: New LINQ-style API for working with sets of players. This API is now used for all messaging and packet-sending. Old API (Server.Send* and World.Send*) was removed.
- API: New unified API for handling player-generated chat, and new events (Chat.Sending and Chat.Sent).
- API: Made all cancellable events implement ICancellableEvent.
- API: MapDAT and MapNBT now implement IMapConverter.LoadHeader
- API: Converted IClassy.GetClassyName(), Rank.GetFullName(), and Player.GetListName() to properties.
- API: Renamed ConfigKey.GetBool() to ConfigKey.Enabled(). Added ConfigKey.TryGetInt() and ConfigKey.TryGetBool() methods.
- API: CommandManager.RegisterCommand() now checks for reserved command names (currently "ok" and "nvm"), and does a better job at handling command name capitalization differences.
- API: Added ability to override Player.MaxBlockPlacementRange, Player.SocketTimeout, Heartbeat.Delay, and Heartbeat.Timeout.
- API: Renamed RankManager.ParseRank(string) to Rank.Parse(string)
- API: All draw commands have been moved to fCraft.Drawing namespace.
- API: Uncaught exceptions that occur while parsing player messages no longer send crash reports when in DEBUG configuration.
- API: Added support for multiple /help sections per command.
- API: Added CommandCategory.Debug, removed CommandDescriptor.HelpHander and HelpHandler delegate.
- API: Moved Server.Player* events to Player.* and Server.PlayerInfo* to PlayerInfo.*
- API: Expanded the confirmation system (/OK) to allow custom callbacks, decoupled from the command system.
- API: Fix: "Bad heartbeat" reply from minecraft.net no longer triggers UrlChanged event.
- API: Fix: Fixed a couple bugs in BoundingBox.GetIntersection and BoundingBox.Contains.
- API: Fix: Fixed /Replace and /ReplaceNot not firing PlayerPlacedBlock events for all affected coordinates.
- PlayerDB: Added 46th column: PlayerInfo.IsHidden ('h' if hidden, otherwise blank).
- PlayerDB: Added 47th column: PlayerInfo.LastModified (utc unix timestamp). Accuracy is not yet guaranteed.
- PlayerDB: Added 48th column: PlayerInfo.DisplayedName (string or blank). Overrides "Name" field for purposes of displaying formatted name (ClassyName).
- PlayerDB: Removed 14th column (FailedLoginCount) due to disuse.
- PlayerDB: PlayerDB now writes out changes to TotalTime incrementally for online players, instead of applying the change on-logout.
- FrontEnd: Colored ConfigCLI log messages: red for errors, yellow for warnings, dark gray for debug, default (gray) for everything else. Call with "--noconsolecolor" parameter to disable.
- FrontEnd: ServerCLI now handles all updater modes properly, and downloads updater/restarts if needed.
- FrontEnd: Improved window titles.
- FrontEnd: Fix: Fixed ServerCLI writing errors to stdout instead of stderr.
- Misc: Keywords are now usable (and documented) in announce/rule/greeting files.
- Misc: Players who are idle-kicked no longer have their TotalTime increased for the time idled.
- Misc: fCraft will refuse to start up if running old versions of mono (2.4 or earlier).
- Misc: If a player logs out hidden, they will now log in hidden.
- Misc: Crash reporter now prints a reference number for submitted reports.
- Misc: AutoRank now only evaluates online players on a timer. A full database sweep will only be done on startup or on-demand. This should notably reduce average CPU use on large databases.
- Misc: Added AutoRank pseudoplayer (similar to Console), who is now credited with all autorank promotions/demotions.
- Misc: Increased the allowed clicking distance when manually clicking blocks, to account for lag.
- Misc: IRC bot now announces channel kicks and nick changes.
- Misc: When a player with a reserved slot tries to join a full world, the longest-idle player will be kicked to make room.
- Misc: Frozen, demoted, and banned players are now automatically unhidden. Banned players are also automatically unfrozen and unmuted.
- Misc: Added a new block name aliases: "g" for grass, "w" for water, "a" for air.
- Misc: When a player's rank is changed, their bindings are now reset (to avoid issues with /water, /lava, and /solid), and any in-progress selection is canceled (draw commands, /zone, /ztest, /bi, /measure, etc)
- Misc: Frozen players now have a little blue star appended to their names, similar to the red star for banned players.
- Misc: Moved all Heartbeat-related operations to the background thread (fixes lag spikes when minecraft.net times out).
- Misc: Added a dynamically updated compass at the top-right of the screen, visible to players who use WoM 1.8.8+
- Misc: Made fCraft.sln default to "Release" configuration when loaded.
- Misc: Added a check for libMonoPosix on server startup. This allows catching misconfigured Mono setups early.
- Misc: Ranks now default to "white" color ("&f") instead of "none" color ("").
- Misc: Edited the "failed to load main world" message to sound less menacing, since it's usually caused just by main world filling up.
- Misc: Sped up /PruneDB, /MassRank, map generation.
- Misc: Fix: Fixed "duplicate metadata key" warning in FCMv3 maps.
- Misc: Fix: Fixed a zone-related race condition when exporting to Opticraft map format.
- Misc: Fix: Fixed fCraft being unable to start if fCraft.dll is in the root directory of a drive (e.g. in "C:/")
- Misc: Fix: Fixed a bug that caused bandwidth to sometimes be wasted on needlessly updating position of non-moving players.
- Misc: Fix: Fixed a clock drift problem with periodic SchedulerTasks.
- Misc: Fix: Fixed a case where, in some rank configurations, players would see themselves as offline when hidden (in /Info, /BInfo, /Players, etc).
+ Worlds Fix: Fixed a crash that occurred if worlds.xml existed but contained no worlds.
+ Worlds Fix: Fixed an exploit that allowed players to bypass world access permissions in certain rank configurations.
+ Worlds Fix: Fixed some rare crashes in /WLoad.
+ Worlds Fix: Fixed /WAccess and /wbuild occasionally not saving the world list after adding players to the access/build whitelists.
+ Worlds Fix: Fixed being unable to change just the capitalization when renaming worlds from ConfigTool, under Windows.
+ Zones: Added /ZRename command to rename zones.
+ Zones: Added /ZMark command to use zone boundaries for drawing or making selections.
+ Zones Fix: Fixed /ZAdd crash when adding more than one personal zone for the same player (/ZAdd +Name).
+ Zones Fix: Fixed a rare case where two players could simultaneously create a zone with the same name on the same world, which would crash one of the players.
+ Zones Fix: /Zones no longer crashes if used on a world with a missing or corrupt map file.
+ Zones Fix: Tightened security checks of /ZAdd and /ZRemove to prevent a permission exploit.
 
 0.537
  Fixed another heartbeat-related issue caused by minecraft.net updates.
