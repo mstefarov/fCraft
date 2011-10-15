@@ -30,9 +30,10 @@ namespace fCraft {
         /// (waiting for block updates to finish processing before unloading). </summary>
         public bool IsPendingMapUnload { get; private set; }
 
-
+        [NotNull]
         public SecurityController AccessSecurity { get; internal set; }
 
+        [NotNull]
         public SecurityController BuildSecurity { get; internal set; }
 
         public DateTime LoadedOn { get; internal set; }
@@ -62,6 +63,7 @@ namespace fCraft {
         #region Map
 
         /// <summary> Map of this world. May be null if world is not loaded. </summary>
+        [CanBeNull]
         public Map Map {
             get { return map; }
             set {
@@ -82,7 +84,11 @@ namespace fCraft {
         /// <summary> Loads the map file, if needed.
         /// Generates a default map if mapfile is missing or not loadable.
         /// Guaranteed to return a Map object. </summary>
+        [NotNull]
         public Map LoadMap() {
+            var tempMap = Map;
+            if( tempMap != null ) return tempMap;
+
             lock( WorldLock ) {
                 if( Map != null ) return Map;
 

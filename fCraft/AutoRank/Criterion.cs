@@ -28,19 +28,21 @@ namespace fCraft.AutoRank {
             Condition = condition;
         }
 
-        // ReSharper disable PossibleNullReferenceException
         public Criterion( [NotNull] XElement el ) {
             if( el == null ) throw new ArgumentNullException( "el" );
 
+            // ReSharper disable PossibleNullReferenceException
             FromRank = Rank.Parse( el.Attribute( "fromRank" ).Value );
+            // ReSharper restore PossibleNullReferenceException
             if( FromRank == null ) throw new FormatException( "Could not parse \"fromRank\"" );
 
+            // ReSharper disable PossibleNullReferenceException
             ToRank = Rank.Parse( el.Attribute( "toRank" ).Value );
+            // ReSharper restore PossibleNullReferenceException
             if( ToRank == null ) throw new FormatException( "Could not parse \"toRank\"" );
 
             Condition = (ConditionSet)AutoRank.Condition.Parse( el.Elements().First() );
         }
-        // ReSharper restore PossibleNullReferenceException
 
         public object Clone() {
             return new Criterion( this );

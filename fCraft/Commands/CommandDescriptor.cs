@@ -17,6 +17,7 @@ namespace fCraft {
     public sealed class CommandDescriptor : IClassy {
 
         /// <summary> List of aliases. May be null or empty. Default: null </summary>
+        [CanBeNull]
         public string[] Aliases { get; set; }
 
         /// <summary> Command category. Must be set before registering. </summary>

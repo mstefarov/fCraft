@@ -135,6 +135,9 @@ namespace fCraft {
         /// <summary> Block may be placed/changed. </summary>
         Allowed,
 
+        /// <summary> Block was out of bounds in the given map. </summary>
+        OutOfBounds,
+
         /// <summary> Player was not allowed to place or replace blocks of this particular blocktype. </summary>
         BlocktypeDenied,
 
@@ -180,5 +183,15 @@ namespace fCraft {
     public enum ClickAction : byte {
         Delete = 0,
         Build = 1
+    }
+
+
+    public enum SessionState {
+        Offline,
+        Connecting,
+        LoadingMain,
+        Online,
+        PendingDisconnect,
+        Disconnected
     }
 }

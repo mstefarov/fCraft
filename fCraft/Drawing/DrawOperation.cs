@@ -210,7 +210,7 @@ namespace fCraft.Drawing {
                 return false;
             }
 
-            if( Player.CanPlace( Coords.X, Coords.Y, Coords.Z, newBlock, Context ) != CanPlaceResult.Allowed ) {
+            if( Player.CanPlace( Map, Coords, newBlock, Context ) != CanPlaceResult.Allowed ) {
                 BlocksDenied++;
                 return false;
             }

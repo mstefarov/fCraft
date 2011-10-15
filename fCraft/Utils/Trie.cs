@@ -1241,6 +1241,7 @@ namespace fCraft {
             public TrieNode[] Children;
 
             // May be null (if MultiNode or single-child node)
+            [CanBeNull]
             public T Payload;
 
 

@@ -56,6 +56,7 @@ namespace fCraft {
 
         Player( [NotNull] TcpClient tcpClient ) {
             if( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
+            State = SessionState.Connecting;
             LoginTime = DateTime.UtcNow;
             LastActiveTime = DateTime.UtcNow;
             LastPatrolTime = DateTime.UtcNow;
@@ -409,8 +410,8 @@ namespace fCraft {
         #endregion
 
 
-        public void Disconnect() {
-            IsOnline = false;
+        void Disconnect() {
+            State = SessionState.Disconnected;
             Server.UnregisterSession( this );
             Server.RaiseSessionDisconnectedEvent( this, LeaveReason );
 
@@ -616,6 +617,7 @@ namespace fCraft {
                 return false;
             }
             Info.ProcessLogin( this );
+            State = SessionState.LoadingMain;
 
 
             // ----==== Beyond this point, player is considered connected (authenticated and registered) ====----
@@ -668,7 +670,9 @@ namespace fCraft {
 
             // Announce join
             if( ConfigKey.ShowConnectionMessages.Enabled() ) {
+// ReSharper disable AssignNullToNotNullAttribute
                 string message = Server.MakePlayerConnectedMessage( this, firstTime, World );
+// ReSharper restore AssignNullToNotNullAttribute
                 canSee.Message( message );
             }
 
@@ -747,9 +751,10 @@ namespace fCraft {
 
             InitCopySlots();
 
-            RaisePlayerReadyEvent( this );
             HasFullyConnected = true;
-            IsOnline = true;
+            State = SessionState.Online;
+            Server.UpdatePlayerList();
+            RaisePlayerReadyEvent( this );
 
             return true;
         }
@@ -1042,6 +1047,7 @@ namespace fCraft {
             if( !Enum.IsDefined( typeof( LeaveReason ), leaveReason ) ) {
                 throw new ArgumentOutOfRangeException( "leaveReason" );
             }
+            State = SessionState.PendingDisconnect;
             LeaveReason = leaveReason;
 
             canReceive = false;
@@ -1058,7 +1064,7 @@ namespace fCraft {
 
         /// <summary> Kick (synchronous). Immediately sends the kick packet.
         /// Can only be used from IoThread (this is not thread-safe). </summary>
-        internal void KickNow( [NotNull] string message, LeaveReason leaveReason ) {
+        void KickNow( [NotNull] string message, LeaveReason leaveReason ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( !Enum.IsDefined( typeof( LeaveReason ), leaveReason ) ) {
                 throw new ArgumentOutOfRangeException( "leaveReason" );
@@ -1066,6 +1072,7 @@ namespace fCraft {
             if( Thread.CurrentThread != ioThread ) {
                 throw new InvalidOperationException( "KickNow may only be called from player's own thread." );
             }
+            State = SessionState.PendingDisconnect;
             LeaveReason = leaveReason;
 
             canQueue = false;
@@ -1132,6 +1139,7 @@ namespace fCraft {
 
 
         void UpdateVisibleEntities() {
+            if( World == null ) PlayerOpException.ThrowNoWorld( this );
             if( spectatedPlayer != null ) {
                 if( !spectatedPlayer.IsOnline || !CanSee( spectatedPlayer ) ) {
                     Message( "Stopped spectating {0}&S (disconnected)", spectatedPlayer.ClassyName );
@@ -1139,6 +1147,9 @@ namespace fCraft {
                 } else {
                     Position spectatePos = spectatedPlayer.Position;
                     World spectateWorld = spectatedPlayer.World;
+                    if( spectateWorld == null ) {
+                        throw new InvalidOperationException( "Trying to spectate player without a world." );
+                    }
                     if( spectateWorld != World ) {
                         if( CanJoin( spectateWorld ) ) {
                             postJoinPosition = spectatePos;

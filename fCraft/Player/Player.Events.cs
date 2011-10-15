@@ -391,7 +391,8 @@ namespace fCraft.Events {
 
 
     public class PlayerKickedEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerKickedEventArgs( Player player, Player kicker, string reason, bool announce, bool recordToPlayerDB, LeaveReason context ) {
+        internal PlayerKickedEventArgs( Player player, Player kicker, string reason,
+                                        bool announce, bool recordToPlayerDB, LeaveReason context ) {
             Player = player;
             Kicker = kicker;
             Reason = reason;
@@ -406,7 +407,7 @@ namespace fCraft.Events {
         /// <summary> Player who kicked. </summary>
         public Player Kicker { get; protected set; }
 
-        /// <summary> Given kick reason (may be null). </summary>
+        /// <summary> Given kick reason (may be blank). </summary>
         public string Reason { get; protected set; }
 
         /// <summary> Whether the kick should be announced in-game and on IRC. </summary>

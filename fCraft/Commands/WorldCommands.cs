@@ -385,6 +385,8 @@ namespace fCraft {
         };
 
         static void BlockInfoHandler( Player player, Command cmd ) {
+            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+
             if( !BlockDB.IsEnabledGlobally ) {
                 player.Message( "&WBlockDB is disabled on this server." );
                 return;
@@ -466,8 +468,8 @@ namespace fCraft {
                     }
                 }
             } else {
-                args.Player.Message( "BlockInfo: No results for ({0},{1},{2}).",
-                                     args.Coordinate.X, args.Coordinate.Y, args.Coordinate.Z );
+                args.Player.Message( "BlockInfo: No results for {0}",
+                                     args.Coordinate );
             }
         }
 
@@ -718,6 +720,7 @@ namespace fCraft {
         };
 
         static void GenHandler( Player player, Command cmd ) {
+            World playerWorld = player.World;
             string themeName = cmd.Next();
             string templateName = cmd.Next();
 
@@ -731,10 +734,12 @@ namespace fCraft {
 
             int wx, wy, height;
             if( !(cmd.NextInt( out wx ) && cmd.NextInt( out wy ) && cmd.NextInt( out height )) ) {
-                if( player.World != null ) {
-                    wx = player.World.Map.Width;
-                    wy = player.World.Map.Length;
-                    height = player.World.Map.Height;
+                if( playerWorld != null ) {
+                    // ReSharper disable PossibleNullReferenceException
+                    wx = playerWorld.Map.Width;
+                    wy = playerWorld.Map.Length;
+                    height = playerWorld.Map.Height;
+                    // ReSharper restore PossibleNullReferenceException
                 } else {
                     player.Message( "When used from console, /gen requires map dimensions." );
                     CdGenerate.PrintUsage( player );
@@ -768,7 +773,7 @@ namespace fCraft {
             string fullFileName = null;
 
             if( fileName == null ) {
-                if( player.World == null ) {
+                if( playerWorld == null ) {
                     player.Message( "When used from console, /gen requires FileName." );
                     CdGenerate.PrintUsage( player );
                     return;
@@ -871,9 +876,10 @@ namespace fCraft {
                     player.Message( "&WAn error occured while saving generated map to {0}", fileName );
                 }
             } else {
+                if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
                 player.MessageNow( "Generation done. Changing map..." );
-                player.World.MapChangedBy = player.Name;
-                player.World.ChangeMap( map );
+                playerWorld.MapChangedBy = player.Name;
+                playerWorld.ChangeMap( map );
             }
         }
 
@@ -1057,7 +1063,8 @@ namespace fCraft {
         };
 
         static void SpawnHandler( Player player, Command cmd ) {
-            player.TeleportTo( player.World.Map.Spawn );
+            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+            player.TeleportTo( player.World.LoadMap().Spawn );
         }
 
         #endregion
@@ -1998,7 +2005,11 @@ namespace fCraft {
 
                         if( newWorld != null ) {
                             newWorld.BuildSecurity.MinRank = buildRank;
-                            newWorld.AccessSecurity.MinRank = accessRank;
+                            if( accessRank == null ) {
+                                newWorld.AccessSecurity.ResetMinRank();
+                            } else {
+                                newWorld.AccessSecurity.MinRank = accessRank;
+                            }
                             newWorld.BlockDB.AutoToggleIfNeeded();
                             if( BlockDB.IsEnabledGlobally && newWorld.BlockDB.IsEnabled ) {
                                 player.Message( "BlockDB is now auto-enabled on world {0}", newWorld.ClassyName );
@@ -2011,9 +2022,7 @@ namespace fCraft {
                                         player.Name, worldName, fileName );
                             WorldManager.SaveWorldList();
                             player.MessageNow( "Access permission is {0}+&S, and build permission is {1}+",
-                                // ReSharper disable PossibleNullReferenceException
                                                newWorld.AccessSecurity.MinRank.ClassyName,
-                                // ReSharper restore PossibleNullReferenceException
                                                newWorld.BuildSecurity.MinRank.ClassyName );
                         } else {
                             player.MessageNow( "Failed to create a new world." );

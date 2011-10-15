@@ -158,7 +158,7 @@ namespace fCraft {
         }
 
         public override string ToString() {
-            return String.Format( "Vector3I({0},{1},{2})", X, Y, Z );
+            return String.Format( "({0},{1},{2})", X, Y, Z );
         }
 
         public Position ToPosition() {
@@ -342,7 +342,7 @@ namespace fCraft {
 
 
         public override string ToString() {
-            return String.Format( "Vector3F({0},{1},{2})", X, Y, Z );
+            return String.Format( "({0},{1},{2})", X, Y, Z );
         }
     }
 }

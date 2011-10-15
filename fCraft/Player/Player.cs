@@ -38,6 +38,10 @@ namespace fCraft {
 
         public readonly bool IsSuper;
 
+
+        /// <summary> Whether the player has completed the login sequence. </summary>
+        public SessionState State { get; private set; }
+
         /// <summary> Whether the player has completed the login sequence. </summary>
         public bool HasRegistered { get; internal set; }
 
@@ -45,7 +49,11 @@ namespace fCraft {
         public bool HasFullyConnected { get; private set; }
 
         /// <summary> Whether the client is currently connected. </summary>
-        public bool IsOnline { get; private set; }
+        public bool IsOnline {
+            get {
+                return State == SessionState.Online;
+            }
+        }
 
         /// <summary> Whether the player name was verified at login. </summary>
         public bool IsVerified { get; private set; }
@@ -63,6 +71,7 @@ namespace fCraft {
 
         /// <summary> The world that the player is currently on. May be null.
         /// Use .JoinWorld() to make players teleport to another world. </summary>
+        [CanBeNull]
         public World World { get; private set; }
 
         /// <summary> Player's position in the current world. </summary>
@@ -130,6 +139,7 @@ namespace fCraft {
             spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
             IP = IPAddress.Loopback;
             ResetAllBinds();
+            State = SessionState.Offline;
             IsSuper = true;
         }
 
@@ -687,6 +697,8 @@ namespace fCraft {
         /// <summary> Handles manually-placed/deleted blocks.
         /// Returns true if player's action should result in a kick. </summary>
         public bool PlaceBlock( short x, short y, short z, ClickAction action, Block type ) {
+            if( World == null ) PlayerOpException.ThrowNoWorld( this );
+            Map map = World.LoadMap();
             LastUsedBlockType = type;
 
             // check if player is frozen or too far away to legitimately place a block
@@ -732,23 +744,23 @@ namespace fCraft {
             }
 
             CanPlaceResult canPlaceResult;
-            if( type == Block.Stair && z > 0 && World.Map.GetBlock( x, y, z - 1 ) == Block.Stair ) {
+            if( type == Block.Stair && z > 0 && map.GetBlock( x, y, z - 1 ) == Block.Stair ) {
                 // stair stacking
-                canPlaceResult = CanPlace( x, y, z - 1, Block.DoubleStair, context );
+                canPlaceResult = CanPlace( map, new Vector3I(x, y, z - 1), Block.DoubleStair, context );
             } else {
                 // normal placement
-                canPlaceResult = CanPlace( x, y, z, type, context );
+                canPlaceResult = CanPlace( map, new Vector3I( x, y, z ), type, context );
             }
 
             // if all is well, try placing it
             switch( canPlaceResult ) {
                 case CanPlaceResult.Allowed:
                     BlockUpdate blockUpdate;
-                    if( type == Block.Stair && z > 0 && World.Map.GetBlock( x, y, z - 1 ) == Block.Stair ) {
+                    if( type == Block.Stair && z > 0 && map.GetBlock( x, y, z - 1 ) == Block.Stair ) {
                         // handle stair stacking
                         blockUpdate = new BlockUpdate( this, x, y, z - 1, Block.DoubleStair );
                         Info.ProcessBlockPlaced( (byte)Block.DoubleStair );
-                        World.Map.QueueUpdate( blockUpdate );
+                        map.QueueUpdate( blockUpdate );
                         RaisePlayerPlacedBlockEvent( this, World.Map, x, y, (short)(z - 1), Block.Stair, Block.DoubleStair, context );
                         SendNow( PacketWriter.MakeSetBlock( x, y, z - 1, Block.DoubleStair ) );
                         RevertBlockNow( x, y, z );
@@ -758,8 +770,8 @@ namespace fCraft {
                         // handle normal blocks
                         blockUpdate = new BlockUpdate( this, x, y, z, type );
                         Info.ProcessBlockPlaced( (byte)type );
-                        Block old = World.Map.GetBlock( x, y, z );
-                        World.Map.QueueUpdate( blockUpdate );
+                        Block old = map.GetBlock( x, y, z );
+                        map.QueueUpdate( blockUpdate );
                         RaisePlayerPlacedBlockEvent( this, World.Map, x, y, z, old, type, context );
                         if( requiresUpdate || RelayAllUpdates ) {
                             SendNow( PacketWriter.MakeSetBlock( x, y, z, type ) );
@@ -791,7 +803,7 @@ namespace fCraft {
                     break;
 
                 case CanPlaceResult.ZoneDenied:
-                    Zone deniedZone = World.Map.Zones.FindDenied( x, y, z, this );
+                    Zone deniedZone = World.LoadMap().Zones.FindDenied( x, y, z, this );
                     if( deniedZone != null ) {
                         Message( "&WYou are not allowed to build in zone \"{0}\".", deniedZone.Name );
                     } else {
@@ -815,6 +827,7 @@ namespace fCraft {
         /// and sends it (async) to the player.
         /// Used to undo player's attempted block placement/deletion. </summary>
         public void RevertBlock( short x, short y, short z ) {
+            if( World == null ) PlayerOpException.ThrowNoWorld( this );
             SendLowPriority( PacketWriter.MakeSetBlock( x, y, z, World.Map.GetBlockByte( x, y, z ) ) );
         }
 
@@ -823,6 +836,7 @@ namespace fCraft {
         /// Used to undo player's attempted block placement/deletion.
         /// To avoid threading issues, only use this from this player's IoThread. </summary>
         void RevertBlockNow( short x, short y, short z ) {
+            if( World == null ) PlayerOpException.ThrowNoWorld( this );
             SendNow( PacketWriter.MakeSetBlock( x, y, z, World.Map.GetBlockByte( x, y, z ) ) );
         }
 
@@ -929,12 +943,16 @@ namespace fCraft {
 
         /// <summary> Checks whether player is allowed to place a block on the current world at given coordinates.
         /// Raises the PlayerPlacingBlock event. </summary>
-        public CanPlaceResult CanPlace( int x, int y, int z, Block newBlock, BlockChangeContext context ) {
+        public CanPlaceResult CanPlace( [NotNull] Map map, Vector3I coords, Block newBlock, BlockChangeContext context ) {
+            if( map == null ) throw new ArgumentNullException( "map" );
             CanPlaceResult result;
-            Map map = World.Map;
 
-            // check deleting admincrete
-            Block block = map.GetBlock( x, y, z );
+            // check whether coordinate is in bounds
+            Block block = map.GetBlock( coords );
+            if( block == Block.Undefined ) {
+                result = CanPlaceResult.OutOfBounds;
+                goto eventCheck;
+            }
 
             // check special blocktypes
             if( newBlock == Block.Admincrete && !Can( Permission.PlaceAdmincrete ) ) {
@@ -955,7 +973,7 @@ namespace fCraft {
             }
 
             // check zones & world permissions
-            PermissionOverride zoneCheckResult = map.Zones.Check( x, y, z, this );
+            PermissionOverride zoneCheckResult = map.Zones.Check( coords.X,coords.Y, coords.Z, this );
             if( zoneCheckResult == PermissionOverride.Allow ) {
                 result = CanPlaceResult.Allowed;
                 goto eventCheck;
@@ -965,7 +983,9 @@ namespace fCraft {
             }
 
             // Check world permissions
+            // ReSharper disable PossibleNullReferenceException
             switch( World.BuildSecurity.CheckDetailed( Info ) ) {
+                // ReSharper restore PossibleNullReferenceException
                 case SecurityCheckResult.Allowed:
                     // Check world's rank permissions
                     if( (Can( Permission.Build ) || newBlock == Block.Air) &&
@@ -986,7 +1006,7 @@ namespace fCraft {
             }
 
         eventCheck:
-            return RaisePlayerPlacingBlockEvent( this, map, (short)x, (short)y, (short)z, block, newBlock, context, result );
+            return RaisePlayerPlacingBlockEvent( this, map, (short)coords.X, (short)coords.Y, (short)coords.Z, block, newBlock, context, result );
         }
 
 
@@ -1094,12 +1114,11 @@ namespace fCraft {
                 if( executeCallbackIfNeeded ) {
                     SelectionExecute();
                 } else {
-                    Message( "Last block marked at ({0},{1},{2}). Type &H/mark&S or click any block to continue.",
-                             pos.X, pos.Y, pos.Z );
+                    Message( "Last block marked at {0}. Type &H/mark&S or click any block to continue.", pos );
                 }
             } else {
-                Message( "Block #{0} marked at ({1},{2},{3}). Place mark #{4}.",
-                         SelectionMarkCount, pos.X, pos.Y, pos.Z, SelectionMarkCount + 1 );
+                Message( "Block #{0} marked at {1}. Place mark #{2}.",
+                         SelectionMarkCount, pos, SelectionMarkCount + 1 );
             }
         }
 

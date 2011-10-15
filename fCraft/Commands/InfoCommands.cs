@@ -798,13 +798,9 @@ namespace fCraft {
                             box.Length,
                             box.Height,
                             box.Volume );
-            player.Message( "Measure: Located between ({0},{1},{2}) and ({3},{4},{5}).",
-                            box.XMin,
-                            box.YMin,
-                            box.ZMin,
-                            box.XMax,
-                            box.YMax,
-                            box.ZMax );
+            player.Message( "Measure: Located between {0} and {1}",
+                            box.MinVertex,
+                            box.MaxVertex );
         }
 
         #endregion
@@ -889,9 +885,15 @@ namespace fCraft {
                 return;
             }
 
-            player.Message( "Player {0}&S is on world {1}&S:",
-                            target.ClassyName,
-                            target.World.ClassyName );
+            if( target.World == null ) {
+                // Chances of this happening are miniscule
+                player.Message( "Player {0}&S is not in any world." );
+                return;
+            } else {
+                player.Message( "Player {0}&S is on world {1}&S:",
+                                target.ClassyName,
+                                target.World.ClassyName );
+            }
 
 
             int offset = (int)(target.Position.R / 255f * 64f) + 32;

@@ -31,9 +31,11 @@ namespace fCraft {
         public DateTime EditedDate { get; private set; }
 
         /// <summary> Player who created this zone. May be null if unknown. </summary>
+        [CanBeNull]
         public PlayerInfo CreatedBy { get; private set; }
 
         /// <summary> Player who was the last to edit this zone. May be null if unknown. </summary>
+        [CanBeNull]
         public PlayerInfo EditedBy { get; private set; }
 
         /// <summary> Map that this zone is on. </summary>
@@ -82,12 +84,10 @@ namespace fCraft {
                 if( world != null ) {
                     Controller.MinRank = world.BuildSecurity.MinRank;
                 } else {
-                    Controller.MinRank = null;
+                    Controller.ResetMinRank();
                 }
-                // ReSharper disable PossibleNullReferenceException
                 Logger.Log( "Zone: Error parsing zone definition: unknown rank \"{0}\". Permission reset to default ({1}).", LogType.Error,
                             header[7], Controller.MinRank.Name );
-                // ReSharper restore PossibleNullReferenceException
             } else {
                 Controller.MinRank = buildRank;
             }
@@ -131,9 +131,9 @@ namespace fCraft {
 
         const string XmlRootElementName = "Zone";
 
-        // ReSharper disable PossibleNullReferenceException
         public Zone( [NotNull] XContainer root ) {
             if( root == null ) throw new ArgumentNullException( "root" );
+            // ReSharper disable PossibleNullReferenceException
             Name = root.Element( "name" ).Value;
 
             if( root.Element( "created" ) != null ) {
@@ -155,8 +155,8 @@ namespace fCraft {
             temp = root.Element( SecurityController.XmlRootElementName );
             if( temp == null ) throw new FormatException( "No SecurityController specified for zone." );
             Controller = new SecurityController( temp, true );
+            // ReSharper restore PossibleNullReferenceException
         }
-        // ReSharper restore PossibleNullReferenceException
 
 
         public XElement Serialize() {

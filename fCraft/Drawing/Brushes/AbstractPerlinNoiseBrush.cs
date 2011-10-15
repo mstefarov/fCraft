@@ -20,12 +20,12 @@ namespace fCraft.Drawing {
         float normMultiplier, normConstant;
         PerlinNoise3D noise3D;
 
-        static object seedGenLock = new object();
-        static Random seedGenerator = new Random();
+        static readonly object SeedGenLock = new object();
+        static readonly Random SeedGenerator = new Random();
 
         protected AbstractPerlinNoiseBrush() {
-            lock( seedGenLock ) {
-                Seed = seedGenerator.Next();
+            lock( SeedGenLock ) {
+                Seed = SeedGenerator.Next();
             }
             Blocks = new Block[0];
             BlockRatios = new int[0];
