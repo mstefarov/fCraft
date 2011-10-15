@@ -27,6 +27,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 using System.Threading;
+using System.Linq;
 using System.Xml.Linq;
 using fCraft.UpdateInstaller.Properties;
 
@@ -41,6 +42,13 @@ namespace fCraft.UpdateInstaller {
             "config.xml",
             "ipbans.txt",
             "worlds.xml"
+        };
+
+        static readonly string[] LegacyFiles = new[]{
+            "fCraftConsole.exe",
+            "fCraftUI.exe",
+            "ConfigTool.exe",
+            "fCraftWinService.exe"
         };
 
 
@@ -109,24 +117,29 @@ namespace fCraft.UpdateInstaller {
                 }
             }
 
+
             // Apply the update
             using( MemoryStream ms = new MemoryStream( Resources.Payload ) ) {
                 using( ZipStorer zs = ZipStorer.Open( ms, FileAccess.Read ) ) {
+
+                    var allFiles = zs.ReadCentralDir().Select( entry => entry.FilenameInZip ).Union( LegacyFiles );
 
                     // ensure that fcraft files are writable
                     bool allPassed;
                     do {
                         allPassed = true;
-                        foreach( var entry in zs.ReadCentralDir() ) {
+                        foreach( var fileName in allFiles ) {
                             try {
-                                FileInfo fi = new FileInfo( entry.FilenameInZip );
+                                FileInfo fi = new FileInfo( fileName );
                                 if( !fi.Exists ) continue;
                                 using( fi.OpenWrite() ) { }
+
                             } catch( Exception ex ) {
                                 if( ex is IOException ) {
                                     Console.WriteLine( "Waiting for fCraft-related applications to close..." );
                                 } else {
-                                    Console.Error.WriteLine( "ERROR: could not write to {0}: {1} - {2}", entry.FilenameInZip, ex.GetType().Name, ex.Message );
+                                    Console.Error.WriteLine( "ERROR: could not write to {0}: {1} - {2}",
+                                                             fileName, ex.GetType().Name, ex.Message );
                                     Console.WriteLine();
                                 }
                                 allPassed = false;
@@ -135,6 +148,15 @@ namespace fCraft.UpdateInstaller {
                             }
                         }
                     } while( !allPassed );
+
+                    // delete legacy files
+                    foreach( var legacyFile in LegacyFiles ) {
+                        try {
+                            File.Delete( legacyFile );
+                        } catch( Exception ex ) {
+                            Console.Error.WriteLine( "    ERROR: {0} {1}", ex.GetType().Name, ex.Message );
+                        }
+                    }
 
                     // extract files
                     foreach( var entry in zs.ReadCentralDir() ) {

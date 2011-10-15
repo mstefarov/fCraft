@@ -10,7 +10,7 @@
  Chat Fix: Fixed rank chat being logged twice.
  Chat Fix: Fixed some system messages getting through to deafened players.
  Chat Fix: /Deafen now clears the screen when toggled on.
- Commands: Rank and Zone names now autocomplete.
+ Commands: Rank and zone names now autocomplete.
  Commands: Players can no longer freeze, mute, kick, ban, unban, promote, or demote themselves.
  Commands: /Players can now be called with an optional WorldName parameter, to only list players in a particular world.
  Commands: /WLoad now takes two more optional parameters: build rank and access rank names.
@@ -28,7 +28,7 @@
  Commands: /Bring and /WBring now give the option of overriding worlds' access minimum-rank. Explicitly blacklisted players will continue to be barred.
  Commands: Added /InfoSwap command, for swapping two players' ranks and PlayerDB records.
  Commands: Added a way to abort a server shutdown or restart ("/Shutdown abort" or "/Restart abort").
- Commands: /RankInfo now slows copy/paste slots, idle kick time, and permission limits.
+ Commands: /RankInfo now shows copy/paste slots, idle kick time, and permission limits.
  Commands: Most time-related commands now take the compact format (e.g. 1m30s, 45s, 24h, etc).
  Commands: Color-coded /Commands.
  Commands: Limited /Mute duration to range between 1 second and 700 days (100 weeks).
@@ -78,6 +78,7 @@
  Drawing: Added support for multiple copy/paste slots, using /CopySlot. Number of slots of configurable per-rank.
  Drawing: /Replace and /ReplaceNot can now take just one blocktype. The replacement type is inferred from the type of block player is holding when clicking.
  Drawing: /Undo now cancels the last drawing commands.
+ Drawing: Added a new block name aliases: "g" for grass, "w" for water, "a" for air.
  Drawing Fix: Added a missing volume check to /Line, and fixed /CuboidW volume calculations.
  Drawing Fix: Fixed /Copy and /Cut reporting incorrect orientation.
  FrontEnd: Colored ConfigCLI log messages: red for errors, yellow for warnings, dark gray for debug, default (gray) for everything else. Call with "--noconsolecolor" parameter to disable.
@@ -95,7 +96,6 @@
  Misc: IRC bot now announces channel kicks and nick changes.
  Misc: When a player with a reserved slot tries to join a full world, the longest-idle player will be kicked to make room.
  Misc: Frozen, demoted, and banned players are now automatically unhidden. Frozen players are undeafened. Banned players are also automatically unfrozen and unmuted.
- Misc: Added a new block name aliases: "g" for grass, "w" for water, "a" for air.
  Misc: When a player's rank is changed, their bindings are now reset (to avoid issues with /water, /lava, and /solid), and any in-progress selection is canceled (draw commands, /zone, /ztest, /bi, /measure, etc)
  Misc: Frozen players now have a little blue star appended to their names, similar to the red star for banned players.
  Misc: Moved all Heartbeat-related operations to the background thread (fixes lag spikes when minecraft.net times out).
@@ -153,14 +153,15 @@
  API: Added ability to override Player.MaxBlockPlacementRange, Player.SocketTimeout, Heartbeat.Delay, and Heartbeat.Timeout.
  API: Renamed RankManager.ParseRank(string) to Rank.Parse(string)
  API: All draw/undo/copy/paste commands have been moved to fCraft.Drawing namespace.
- API: Uncaught exceptions that occur while parsing player messages no longer send crash reports when in DEBUG configuration.
  API: Added support for multiple /help sections per command.
  API: Added CommandCategory.Debug, removed CommandDescriptor.HelpHander and HelpHandler delegate.
  API: Moved Server.Player* events to Player.* and Server.PlayerInfo* to PlayerInfo.*
  API: Expanded the confirmation system (/OK) to allow custom callbacks, decoupled from the command system.
  API Fix: "Bad heartbeat" reply from minecraft.net no longer triggers UrlChanged event.
  API Fix: Fixed a couple bugs in BoundingBox.GetIntersection and BoundingBox.Contains.
- API Fix: Fixed /Replace and /ReplaceNot not firing Player.PlacedBlock events.
+ API Fix: Fixed /Replace and /ReplaceNot not firing Player.PlacedBlock
+ events.
+ API Fix: Uncaught exceptions that occur while parsing player messages no longer send crash reports when in DEBUG configuration.
 
 0.537
  Fixed another heartbeat-related issue caused by minecraft.net updates.

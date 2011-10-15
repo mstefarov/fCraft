@@ -48,9 +48,6 @@ front-ends (GUI, CLI, or WinService).
 
 === List of Files =============================================================
 
-   AutoRestarter.exe - EXPERIMENTAL. Automatically launches ServerCLI, and
-                       restarts it if needed (e.g. if it crashed).
-
        ConfigGUI.exe - Graphical interface for editing your server's settings,
                        rank setup, and world list. Also includes a map coverter
                        and terrain generator. If you alter configuration while
