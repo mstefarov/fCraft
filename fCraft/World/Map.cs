@@ -453,21 +453,29 @@ namespace fCraft {
                 // remove a completed drawOp from the list
                 if( op.IsDone ) {
                     if( op.AnnounceCompletion ) {
-
-                        if( op.BlocksDenied > 0 ) {
-                            op.Player.Message( "{0}: Finished in {1}, updated {2} blocks. &WSkipped {3} blocks due to permission issues.",
-                                               op.DescriptionWithBrush,
-                                               DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
-                                               op.BlocksUpdated, op.BlocksDenied );
-                        } else if( op.BlocksUpdated > 0 ) {
-                            op.Player.Message( "{0}: Finished in {1}, updated {2} blocks.",
-                                               op.DescriptionWithBrush,
-                                               DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
-                                               op.BlocksUpdated );
+                        if( op.BlocksUpdated > 0 ) {
+                            if( op.BlocksDenied > 0 ) {
+                                op.Player.Message( "{0}: Finished in {1}, updated {2} blocks. &WSkipped {3} blocks due to permission issues.",
+                                                   op.DescriptionWithBrush,
+                                                   DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
+                                                   op.BlocksUpdated, op.BlocksDenied );
+                            } else {
+                                op.Player.Message( "{0}: Finished in {1}, updated {2} blocks.",
+                                                   op.DescriptionWithBrush,
+                                                   DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
+                                                   op.BlocksUpdated );
+                            }
                         } else {
-                            op.Player.Message( "{0}: Finished in {1}, no changes made.",
-                                               op.DescriptionWithBrush,
-                                               DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString() );
+                            if( op.BlocksDenied > 0 ) {
+                                op.Player.Message( "{0}: Finished in {1}, no changes made. &WSkipped {0} blocks due to permission issues.",
+                                                   op.DescriptionWithBrush,
+                                                   DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
+                                                   op.BlocksDenied );
+                            } else {
+                                op.Player.Message( "{0}: Finished in {1}, no changes needed.",
+                                                   op.DescriptionWithBrush,
+                                                   DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString() );
+                            }
                         }
                     }
                     Logger.Log( "Player {0} executed {1} on world {2} (between {3} and {4}). Processed {5}, Updated {6}, Skipped {7}, Denied {8} blocks.",

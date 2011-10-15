@@ -31,6 +31,10 @@ namespace fCraft{
         /// <summary> Block that now occupies this coordinate </summary>
         public readonly Block NewBlock;
 
+        public Vector3I Coord {
+            get { return new Vector3I( X, Y, Z ); }
+        }
+
         public readonly BlockChangeContext Context;
 
         public BlockDBEntry( int timestamp, int playerID, short x, short y, short z, Block oldBlock, Block newBlock, BlockChangeContext flags ) {

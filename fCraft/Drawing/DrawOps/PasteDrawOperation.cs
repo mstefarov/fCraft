@@ -77,7 +77,7 @@ namespace fCraft.Drawing {
                 Player.MessageNow( "Warning: Not enough room vertically, paste cut off." );
             }
 
-            // Clip bounds to the map, to aboid unnecessary iteration beyond the map boundaries
+            // Clip bounds to the map, to avoid unnecessary iteration beyond the map boundaries
             Bounds = Bounds.GetIntersection( Map.Bounds );
 
             // Set everything up for pasting
