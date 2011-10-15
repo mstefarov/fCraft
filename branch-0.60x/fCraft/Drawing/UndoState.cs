@@ -11,27 +11,54 @@ namespace fCraft.Drawing {
         public readonly DrawOperation Op;
         public readonly List<UndoBlock> Buffer;
         public bool IsTooLargeToUndo;
+        public readonly object SyncRoot = new object();
 
         public bool Add( Vector3I coord, Block block ) {
-            if( BuildingCommands.MaxUndoCount < 1 || Buffer.Count <= BuildingCommands.MaxUndoCount ) {
-                Buffer.Add( new UndoBlock( coord, block ) );
-                return true;
-            } else if( !IsTooLargeToUndo ) {
-                IsTooLargeToUndo = true;
-                Buffer.Clear();
+            lock( SyncRoot ) {
+                if( BuildingCommands.MaxUndoCount < 1 || Buffer.Count <= BuildingCommands.MaxUndoCount ) {
+                    Buffer.Add( new UndoBlock( coord, block ) );
+                    return true;
+                } else if( !IsTooLargeToUndo ) {
+                    IsTooLargeToUndo = true;
+                    Buffer.Clear();
+                }
+                return false;
             }
-            return false;
         }
 
         public bool Add( int x, int y, int z, Block block ) {
-            if( BuildingCommands.MaxUndoCount < 1 || Buffer.Count <= BuildingCommands.MaxUndoCount ) {
-                Buffer.Add( new UndoBlock( x, y, z, block ) );
-                return true;
-            } else if( !IsTooLargeToUndo ) {
-                IsTooLargeToUndo = true;
-                Buffer.Clear();
+            lock( SyncRoot ) {
+                if( BuildingCommands.MaxUndoCount < 1 || Buffer.Count <= BuildingCommands.MaxUndoCount ) {
+                    Buffer.Add( new UndoBlock( x, y, z, block ) );
+                    return true;
+                } else if( !IsTooLargeToUndo ) {
+                    IsTooLargeToUndo = true;
+                    Buffer.Clear();
+                }
+                return false;
             }
-            return false;
+        }
+
+        public UndoBlock Get( int index ) {
+            lock( SyncRoot ) {
+                return Buffer[index];
+            }
+        }
+
+        public BoundingBox GetBounds() {
+            lock( SyncRoot ) {
+                Vector3I min = new Vector3I( int.MaxValue, int.MaxValue, int.MaxValue );
+                Vector3I max = new Vector3I( int.MinValue, int.MinValue, int.MinValue );
+                for( int i = 0; i < Buffer.Count; i++ ) {
+                    if( Buffer[i].X < min.X ) min.X = Buffer[i].X;
+                    if( Buffer[i].Y < min.Y ) min.Y = Buffer[i].Y;
+                    if( Buffer[i].Z < min.Z ) min.Z = Buffer[i].Z;
+                    if( Buffer[i].X > max.X ) max.X = Buffer[i].X;
+                    if( Buffer[i].Y > max.Y ) max.Y = Buffer[i].Y;
+                    if( Buffer[i].Z > max.Z ) max.Z = Buffer[i].Z;
+                }
+                return new BoundingBox( min, max );
+            }
         }
     }
 
