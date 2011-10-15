@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription( "AutoRank Editor GUI" )]
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "matvei.org" )]
-[assembly: AssemblyProduct( "TreeTest" )]
+[assembly: AssemblyProduct( "AutoRank Editor" )]
 [assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2011 (matvei.org)" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
