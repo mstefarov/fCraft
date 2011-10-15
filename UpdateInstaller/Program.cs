@@ -188,6 +188,16 @@ namespace fCraft.UpdateInstaller {
 
             // Restart fCraft (if requested)
             if( restartTarget != null ) {
+                if(restartTarget=="fCraftConsole.exe"){
+                    restartTarget = "ServerCLI.exe";
+                }else if( restartTarget=="fCraftUI.exe"){
+                    restartTarget = "ServerGUI.exe";
+                }
+
+                if( !File.Exists( restartTarget ) ) {
+                    Console.Error.WriteLine( "Restart target not found, quitting: {0}", restartTarget );
+                    return (int)ReturnCodes.RestartTargetNotFound;
+                }
                 string argString = String.Join( " ", argsList.ToArray() );
                 Console.WriteLine( "Starting: {0} {1}", restartTarget, argString );
                 switch( Environment.OSVersion.Platform ) {
@@ -231,6 +241,7 @@ namespace fCraft.UpdateInstaller {
     enum ReturnCodes {
         Ok = 0,
         FailedToRunPreUpdateCommand = 1,
-        FailedToRunPostUpdateCommand = 2
+        FailedToRunPostUpdateCommand = 2,
+        RestartTargetNotFound = 3
     }
 }
