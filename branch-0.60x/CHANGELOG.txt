@@ -1,3 +1,6 @@
+0.601
+ Fixed several issues with /undo and drawing commands.
+
 0.600
  Chat: Added a /Timer command for creating publicly-announced countdowns/timers.
  Chat: Added a way to cancel partial messages: /Nvm

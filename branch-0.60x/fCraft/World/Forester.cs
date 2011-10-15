@@ -922,7 +922,7 @@ namespace fCraft {
 
         internal void PlaceBlock( Vector3I coord, Block block ) {
             var h = BlockPlacing;
-            if( h != null ) h( this, new ForesterBlockPlacingEventArgs( coord, block ) );
+            if( h != null ) h( this, new ForesterBlockPlacingEventArgs( new Vector3I(coord.X,coord.Z,coord.Y), block ) ); // todo: rewrite the whole thing to use XYZ coords
         }
 
         internal void Validate() {
