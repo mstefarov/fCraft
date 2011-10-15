@@ -186,10 +186,10 @@ namespace fCraft {
 
 
         /// <summary> Converts given coordinates to a block array index. </summary>
-        /// <param name="coords"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
+        /// <param name="coords"> Coordinate vector (X,Y,Z). </param>
         /// <returns> Index of the block in Map.Blocks array. </returns>
         public int Index( Vector3I coords ) {
-            return (coords.Y * Length + coords.Z) * Width + coords.X;
+            return (coords.Z * Length + coords.Y) * Width + coords.X;
         }
 
 
@@ -222,22 +222,22 @@ namespace fCraft {
 
 
         /// <summary> Sets a block at given coordinates. Checks bounds. </summary>
-        /// <param name="coords"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
+        /// <param name="coords"> Coordinate vector (X,Y,Z). </param>
         /// <param name="type"> Block type to set. </param>
         public void SetBlock( Vector3I coords, Block type ) {
-            if( coords.X < Width && coords.Z < Length && coords.Y < Height && coords.X >= 0 && coords.Z >= 0 && coords.Y >= 0 && (byte)type < 50 ) {
-                Blocks[Index( coords.X, coords.Z, coords.Y )] = (byte)type;
+            if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 && coords.Z >= 0 && (byte)type < 50 ) {
+                Blocks[Index( coords.X, coords.Y, coords.Z )] = (byte)type;
                 HasChangedSinceSave = true;
             }
         }
 
 
         /// <summary> Sets a block at given coordinates. Checks bounds. </summary>
-        /// <param name="coords"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
+        /// <param name="coords"> Coordinate vector (X,Y,Z). </param>
         /// <param name="type"> Block type to set. </param>
         public void SetBlock( Vector3I coords, byte type ) {
-            if( coords.X < Width && coords.Z < Length && coords.Y < Height && coords.X >= 0 && coords.Z >= 0 && coords.Y >= 0 && type < 50 ) {
-                Blocks[Index( coords.X, coords.Z, coords.Y )] = type;
+            if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 && coords.Z >= 0 && type < 50 ) {
+                Blocks[Index( coords.X, coords.Y, coords.Z )] = type;
                 HasChangedSinceSave = true;
             }
         }
@@ -268,7 +268,7 @@ namespace fCraft {
 
 
         /// <summary> Gets a block at given coordinates. Checks bounds. </summary>
-        /// <param name="coords"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
+        /// <param name="coords"> Coordinate vector (X,Y,Z). </param>
         /// <returns> Blocktype, as a byte. 255 if coordinates were out of bounds. </returns>
         public byte GetBlockByte( Vector3I coords ) {
             if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 && coords.Z >= 0 )
@@ -277,10 +277,10 @@ namespace fCraft {
         }
 
         /// <summary> Gets a block at given coordinates. Checks bounds. </summary>
-        /// <param name="coords"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
+        /// <param name="coords"> Coordinate vector (X,Y,Z). </param>
         /// <returns> Block type, as a Block enumeration. Undefined if coordinates were out of bounds. </returns>
         public Block GetBlock( Vector3I coords ) {
-            if( coords.X < Width && coords.Y < Length && coords.Y < Height && coords.X >= 0 && coords.Y >= 0 && coords.Z >= 0 )
+            if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 && coords.Z >= 0 )
                 return (Block)Blocks[Index( coords.X, coords.Y, coords.Z )];
             return Block.Undefined;
         }
@@ -296,7 +296,7 @@ namespace fCraft {
 
 
         /// <summary> Checks whether the given coordinate (in block units) is within the bounds of the map. </summary>
-        /// <param name="vec"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
+        /// <param name="vec"> Coordinate vector (X,Y,Z). </param>
         public bool InBounds( Vector3I vec ) {
             return vec.X < Width && vec.Y < Length && vec.Z < Height && vec.X >= 0 && vec.Y >= 0 && vec.Z >= 0;
         }
