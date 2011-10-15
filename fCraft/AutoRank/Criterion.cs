@@ -2,58 +2,45 @@
 using System;
 using System.Linq;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft.AutoRank {
     public sealed class Criterion : ICloneable {
-        public CriterionType Type { get; set; }
         public Rank FromRank { get; set; }
         public Rank ToRank { get; set; }
-        public Condition Condition { get; set; }
+        public ConditionSet Condition { get; set; }
 
         public Criterion() { }
 
-        public Criterion( Criterion other ) {
+        public Criterion( [NotNull] Criterion other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            Type = other.Type;
             FromRank = other.FromRank;
             ToRank = other.ToRank;
             Condition = other.Condition;
         }
 
-        public Criterion( CriterionType type, Rank fromRank, Rank toRank, Condition condition ) {
+        public Criterion( [NotNull] Rank fromRank, [NotNull] Rank toRank, [NotNull] ConditionSet condition ) {
             if( fromRank == null ) throw new ArgumentNullException( "fromRank" );
             if( toRank == null ) throw new ArgumentNullException( "toRank" );
             if( condition == null ) throw new ArgumentNullException( "condition" );
-            Type = type;
             FromRank = fromRank;
             ToRank = toRank;
             Condition = condition;
         }
 
-        public Criterion( XElement el ) {
+        // ReSharper disable PossibleNullReferenceException
+        public Criterion( [NotNull] XElement el ) {
             if( el == null ) throw new ArgumentNullException( "el" );
-            Type = (CriterionType)Enum.Parse( typeof( CriterionType ), el.Attribute( "type" ).Value, true );
 
-            FromRank = RankManager.ParseRank( el.Attribute( "fromRank" ).Value );
+            FromRank = Rank.Parse( el.Attribute( "fromRank" ).Value );
             if( FromRank == null ) throw new FormatException( "Could not parse \"fromRank\"" );
 
-            ToRank = RankManager.ParseRank( el.Attribute( "toRank" ).Value );
+            ToRank = Rank.Parse( el.Attribute( "toRank" ).Value );
             if( ToRank == null ) throw new FormatException( "Could not parse \"toRank\"" );
 
-            if( el.Elements().Count() == 1 ) {
-                Condition = Condition.Parse( el.Elements().First() );
-
-            } else if( el.Elements().Count() > 1 ) {
-                ConditionAND cand = new ConditionAND();
-                foreach( XElement cond in el.Elements() ) {
-                    cand.Add( Condition.Parse( cond ) );
-                }
-                Condition = cand;
-
-            } else {
-                throw new FormatException( "At least one condition required." );
-            }
+            Condition = (ConditionSet)AutoRank.Condition.Parse( el.Elements().First() );
         }
+        // ReSharper restore PossibleNullReferenceException
 
         public object Clone() {
             return new Criterion( this );
@@ -68,9 +55,8 @@ namespace fCraft.AutoRank {
 
         public XElement Serialize() {
             XElement el = new XElement( "Criterion" );
-            el.Add( new XAttribute( "type", Type ) );
-            el.Add( new XAttribute( "fromRank", FromRank ) );
-            el.Add( new XAttribute( "toRank", ToRank ) );
+            el.Add( new XAttribute( "fromRank", FromRank.FullName ) );
+            el.Add( new XAttribute( "toRank", ToRank.FullName ) );
             if( Condition != null ) {
                 el.Add( Condition.Serialize() );
             }

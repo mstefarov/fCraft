@@ -2,10 +2,8 @@
 using System.Diagnostics;
 
 namespace fCraft {
-    /// <summary>
-    /// Enumeration of available configuration keys. See comment
-    /// at the top of Config.cs for a history of changes.
-    /// </summary>
+    /// <summary> Enumeration of available configuration keys. See comments
+    /// at the top of Config.cs for a history of changes. </summary>
     public enum ConfigKey {
         #region General
 
@@ -39,7 +37,7 @@ Note that having more people on a world increases everyone's bandwidth use.",
         MaxPlayersPerWorld,
 
 
-        [RankKey( ConfigSection.General, RankKeyAttribute.BlankValueMeaning.LowestRank, 
+        [RankKey( ConfigSection.General, RankKeyAttribute.BlankValueMeaning.LowestRank,
 @"New players will be assigned this rank by default.
 It's generally a good idea not to give new players
 many powers until they prove themselves trustworthy." )]
@@ -58,17 +56,21 @@ changes if your computer's IP or server's port change." )]
 @"Port number on your local machine that fCraft uses to listen for
 incoming connections. If you are behind a router, you may need
 to set up port forwarding. You may also need to add a firewall 
-exception for fCraftUI/fCraftConsole/ConfigTool. Note that your
+exception for ServerGUI/ServerCLI/ConfigGUI. Note that your
 server's URL will change if you change the port number.",
             MinValue = 1, MaxValue = 65535 )]
         Port,
 
-        [IntKey( ConfigSection.General, 100, 
+        [IntKey( ConfigSection.General, 100,
 @"Total available upload bandwidth, in kilobytes. This number
 is used to pace drawing commands to prevent server from
 overwhelming the Internet connection with data.",
             MinValue = 1, MaxValue = short.MaxValue )]
         UploadBandwidth,
+
+        [BoolKey(ConfigSection.General, false,
+@"Whether to load plugins from the /plugins/ folder on startup.")]
+        LoadPlugins,
 
         #endregion
 
@@ -80,7 +82,7 @@ overwhelming the Internet connection with data.",
         RankColorsInChat,
 
         [BoolKey( ConfigSection.Chat, true,
-@"Color world names in chat based on their build and access permissions.")]
+@"Color world names in chat based on their build and access permissions." )]
         RankColorsInWorldNames,
 
         [BoolKey( ConfigSection.Chat, false,
@@ -90,36 +92,32 @@ used to set up IRC-style ""+"" and ""@"" prefixes for ops." )]
 
         [BoolKey( ConfigSection.Chat, false,
 @"Show prefixes in the player list. As a side-effect, Minecraft client
-will not show custom skins for players with prefixed names.")]
+will not show custom skins for players with prefixed names." )]
         RankPrefixesInList,
 
         [BoolKey( ConfigSection.Chat, true,
-@"Announce players joining or leaving the server in chat.")]
+@"Announce players joining or leaving the server in chat." )]
         ShowConnectionMessages,
 
         [BoolKey( ConfigSection.Chat, true,
-@"Announce IP-banned players trying to connect to the server.")]
-        ShowBannedConnectionMessages,
-
-        [BoolKey( ConfigSection.Chat, true,
-@"Show messages when players change worlds.")]
+@"Show messages when players change worlds." )]
         ShowJoinedWorldMessages,
 
         [ColorKey( ConfigSection.Chat, Color.SysDefault,
-@"Color of normal system messages.")]
+@"Color of normal system messages." )]
         SystemMessageColor,
 
         [ColorKey( ConfigSection.Chat, Color.HelpDefault,
-@"Color of command usage examples in help.")]
+@"Color of command usage examples in help." )]
         HelpColor,
 
         [ColorKey( ConfigSection.Chat, Color.SayDefault,
-@"Color of messages produced by ""/say"" command.")]
+@"Color of messages produced by ""/say"" command." )]
         SayColor,
 
         [ColorKey( ConfigSection.Chat, Color.AnnouncementDefault,
 @"Color of announcements and rules. Default is dark-green.
-Note that this default color can be overriden by
+Note that this default color can be overridden by
 colorcodes in announcement and rule files." )]
         AnnouncementColor,
 
@@ -128,17 +126,17 @@ colorcodes in announcement and rule files." )]
         PrivateMessageColor,
 
         [ColorKey( ConfigSection.Chat, Color.MeDefault,
-@"Color of ""/me"" command messages.")]
+@"Color of ""/me"" command messages." )]
         MeColor,
 
         [ColorKey( ConfigSection.Chat, Color.WarningDefault,
-@"Color of error and warning messages.")]
+@"Color of error and warning messages." )]
         WarningColor,
 
         [IntKey( ConfigSection.Chat, 0,
 @"Announcement interval, in minutes. Set to 0 to disable announcements.
 Announcements are shown to all players, one line at a time, in random order.",
-            MinValue=0)]
+            MinValue = 0 )]
         AnnouncementInterval,
 
         #endregion
@@ -146,14 +144,14 @@ Announcements are shown to all players, one line at a time, in random order.",
 
         #region Worlds
 
-        [RankKey( ConfigSection.Worlds,RankKeyAttribute.BlankValueMeaning.DefaultRank,
+        [RankKey( ConfigSection.Worlds, RankKeyAttribute.BlankValueMeaning.DefaultRank,
 @"When new maps are loaded with the /wload command,
 the build permission for new maps will default to this rank." )]
         DefaultBuildRank,
 
         [StringKey( ConfigSection.Worlds, "maps",
 @"Custom path for storing map files. If you change this value,
-make sure to move the map files before starting the server again.")]
+make sure to move the map files before starting the server again." )]
         MapPath,
 
         #endregion
@@ -174,7 +172,7 @@ checks player's current and on-record IP address to eliminate false negatives." 
 Note that all players on the same LAN will share an IP, and may be prevented
 from joining together. Enabling this option is not recommended unless there
 is a specific need/threat.",
-            MinValue=0)]
+            MinValue = 0 )]
         MaxConnectionsPerIP,
 
         [BoolKey( ConfigSection.Security, false,
@@ -210,7 +208,7 @@ Set this to 0 to disable automatic mute (and only leave the warning).",
         [IntKey( ConfigSection.Security, 2,
 @"Number of warnings given to a player (number of times antispam is triggered)
 before the player is muted. Set this to 0 to disable automatic kicks.",
-            AlwaysAllowZero=true, MinValue = 0, MaxValue = 64 )]
+            AlwaysAllowZero = true, MinValue = 0, MaxValue = 64 )]
         AntispamMaxWarnings,
 
 
@@ -226,7 +224,7 @@ but will also prevent many legitimate players from joining." )]
         RequireBanReason,
 
         [BoolKey( ConfigSection.Security, false,
-@"Require players to specify a reason/memo when kicking someone.")]
+@"Require players to specify a reason/memo when kicking someone." )]
         RequireKickReason,
 
         [BoolKey( ConfigSection.Security, false,
@@ -239,12 +237,25 @@ but will also prevent many legitimate players from joining." )]
         AnnounceKickAndBanReasons,
 
         [BoolKey( ConfigSection.Security, true,
-@"Announce promotions and demotions in chat.")]
+@"Announce promotions and demotions in chat." )]
         AnnounceRankChanges,
 
         [BoolKey( ConfigSection.Security, true,
 @"Announce the reason/memo in chat when someone gets promoted or demoted." )]
         AnnounceRankChangeReasons,
+
+        [BoolKey(ConfigSection.Security, false,
+@"If enabled, allows edit information to be stored per-block. Enables /blockdb, /bi, /undoarea, and /undoplayer commands.")]
+        BlockDBEnabled,
+
+        [BoolKey( ConfigSection.General, true,
+@"Automatically enabled BlockDB on all worlds editable by a certain rank or below." )]
+        BlockDBAutoEnable,
+
+        [RankKey( ConfigSection.General, RankKeyAttribute.BlankValueMeaning.DefaultRank,
+@"Worlds editable by players of this rank (or below) will have BlockDB enabled automatically.
+Has no effect until BlockDBAutoEnable key is set." )]
+        BlockDBAutoEnableRank,
 
         #endregion
 
@@ -275,7 +286,7 @@ Both a timestamp and player's name are included in the filename." )]
 @"Create backups of loaded maps automatically once in a while.
 A world is considered ""loaded"" if there is at least one player on it.",
             MinValue = 0 )]
-        BackupInterval,
+        DefaultBackupInterval,
 
         [IntKey( ConfigSection.SavingAndBackup, 0,
 @"Maximum number of backup files that fCraft should keep.
@@ -283,9 +294,13 @@ If exceeded, oldest backups will be deleted first." )]
         MaxBackups,
 
         [IntKey( ConfigSection.SavingAndBackup, 0,
-@"Maximum combined filesize of all backups.
+@"Maximum combined filesize of all backups, in MB.
 If exceeded, oldest backups will be deleted first." )]
-        MaxBackupSize, // in megabytes
+        MaxBackupSize,
+
+        [BoolKey( ConfigSection.SavingAndBackup, true,
+@"Create backups of server data (PlayerDB and IPBanList) on startup." )]
+        BackupDataOnStartup,
 
         #endregion
 
@@ -293,12 +308,12 @@ If exceeded, oldest backups will be deleted first." )]
         #region Logging
 
         [EnumKey( ConfigSection.Logging, LogSplittingType.OneFile,
-@"The way log files are organized.")]
+@"The way log files are organized." )]
         LogMode,
 
         [IntKey( ConfigSection.Logging, 0,
 @"Maximum number of log files to keep.
-If exceeded, oldest logs will be erased first. Set this to 0 to keep all logs.")]
+If exceeded, oldest logs will be erased first. Set this to 0 to keep all logs." )]
         MaxLogs,
 
         #endregion
@@ -351,7 +366,7 @@ Otherwise, only chat messages starting with a hash (#) will be relayed." )]
         IRCBotAnnounceIRCJoins,
 
         [BoolKey( ConfigSection.IRC, false,
-@"Announce server events (kicks, bans, promotions, demotions) on IRC.")]
+@"Announce server events (kicks, bans, promotions, demotions) on IRC." )]
         IRCBotAnnounceServerEvents,
 
         [BoolKey( ConfigSection.IRC, false,
@@ -369,7 +384,7 @@ or requires identification/authentication." )]
         IRCNickServMessage,
 
         [ColorKey( ConfigSection.IRC, Color.IRCDefault,
-@"Color of IRC messages, as seen on the server/in-game.")]
+@"Color of IRC messages, as seen on the server/in-game." )]
         IRCMessageColor,
 
         [IntKey( ConfigSection.IRC, 750,
@@ -388,7 +403,7 @@ with IRC bots falling behind on messages.",
         IRCThreads,
 
         [BoolKey( ConfigSection.IRC, true,
-@"Whether the bots should use colors and formatting on IRC.")]
+@"Whether the bots should use colors and formatting on IRC." )]
         IRCUseColor,
 
         #endregion
@@ -403,11 +418,11 @@ relays the action back. This is not needed, and only wastes bandwidth." )]
 
         [EnumKey( ConfigSection.Advanced, fCraft.UpdaterMode.Prompt,
 @"fCraft can automatically update to latest stable versions.
-If enabled, the update check is done on-startup.")]
+If enabled, the update check is done on-startup." )]
         UpdaterMode,
 
         [StringKey( ConfigSection.Advanced, "",
-@"Command to execute (via operating system's shell) before the update is applied.")]
+@"Command to execute (via operating system's shell) before the update is applied." )]
         RunBeforeUpdate,
 
         [StringKey( ConfigSection.Advanced, "",
@@ -416,7 +431,7 @@ If enabled, the update check is done on-startup.")]
 
         [BoolKey( ConfigSection.Advanced, true,
 @"It is recommended to save a backup of all data files before updating.
-This setting allows the updater to do that for you.")]
+This setting allows the updater to do that for you." )]
         BackupBeforeUpdate,
 
         [BoolKey( ConfigSection.Advanced, false,
@@ -463,7 +478,7 @@ Reports are confidential and are not displayed publicly." )]
 @"The number of blocks that players can undo at a time.
 Only the most-recent draw command can be undo, so the actual
 limit also depends on rank draw limits. Saving undo information
-takes up 16 bytes per block.",
+takes up 16 bytes per block. If set to 0, there is no limit.",
             MinValue = 0 )]
         MaxUndo,
 
@@ -480,6 +495,14 @@ takes up 16 bytes per block.",
 @"Enable heartbeat to minecraft.net.
 If disabled, heartbeat data is written to heartbeatdata.txt." )]
         HeartbeatEnabled,
+        
+        [BoolKey(ConfigSection.Advanced, true,
+@"If enabled, sends heartbeats to WoM Direct service, http://direct.worldofminecraft.com/")]
+        HeartbeatToWoMDirect,
+
+        [BoolKey( ConfigSection.Advanced, true,
+@"If enabled, allows changing enviromnent settings for WoM clients via /env" )]
+        WoMEnableEnvExtensions,
 
         [IPKey( ConfigSection.Advanced, IPKeyAttribute.BlankValueMeaning.Any,
 @"If the machine has more than one available IP address (for example
@@ -487,15 +510,15 @@ if you have more than one NIC) you can use this setting to make
 fCraft bind to the same IP every time." )]
         IP,
 
-        [EnumKey(ConfigSection.Advanced, fCraft.BandwidthUseMode.Normal,
+        [EnumKey( ConfigSection.Advanced, fCraft.BandwidthUseMode.Normal,
 @"Determines the bandwidth use mode.
 High/Highest settings will reduce jitter of player movement, but increase bandwidth use.
 Low/Lowest settings will introduce some popping in/out of players and increase jitter,
-but will reduce bandwidth use.")]
+but will reduce bandwidth use." )]
         BandwidthUseMode,
 
-        [IntKey(ConfigSection.Advanced, 0,
-@"Automatically restarts the server after a given number of seconds.")]
+        [IntKey( ConfigSection.Advanced, 0,
+@"Automatically restarts the server after a given number of seconds." )]
         RestartInterval
 
         #endregion

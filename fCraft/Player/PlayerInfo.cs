@@ -1,78 +1,223 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Threading;
+using JetBrains.Annotations;
 
 namespace fCraft {
-    public sealed class PlayerInfo : IClassy {
+    public sealed partial class PlayerInfo : IClassy {
+        public const int MinFieldCount = 24;
 
-        public const int MinFieldCount = 24,
-                         ExpectedFieldCount = 45;
+        /// <summary> Player's Minecraft account name. </summary>
+        [NotNull]
+        public string Name { get; internal set; }
 
-        public string Name { get; private set; }
+        /// <summary> If set, replaces Name when printing name in chat. </summary>
+        public string DisplayedName = "";
 
-        public IPAddress LastIP;
+        /// <summary> Player's unique numeric ID. Issued on first join. </summary>
+        public int ID;
 
-        public Rank Rank;
-        public DateTime RankChangeDate;
-
-        public string RankChangedBy = "";
-
-        public bool Banned;
-        public DateTime BanDate;
-        public string BannedBy = "";
-        public DateTime UnbanDate;
-        public string UnbannedBy = "";
-        public string BanReason = "";
-        public string UnbanReason = "";
-
-        public DateTime LastFailedLoginDate;
-        public IPAddress LastFailedLoginIP;
-        public int FailedLoginCount;
+        /// <summary> First time the player ever logged in, UTC.
+        /// May be DateTime.MinValue if player has never been online. </summary>
         public DateTime FirstLoginDate;
+
+        /// <summary> Most recent time the player logged in, UTC.
+        /// May be DateTime.MinValue if player has never been online. </summary>
         public DateTime LastLoginDate;
 
-        public TimeSpan TotalTime;
-        public int BlocksBuilt;
-        public int BlocksDeleted;
-        public int TimesVisited;
-        public int LinesWritten;
-
-        public Rank PreviousRank;
-        public string RankChangeReason = "";
-        public int TimesKicked;
-        public int TimesKickedOthers;
-        public int TimesBannedOthers;
-
-        public int ID { get; private set; }
-        public RankChangeType RankChangeType;
-        public DateTime LastKickDate;
+        /// <summary> Last time the player has been seen online (last logout), UTC.
+        /// May be DateTime.MinValue if player has never been online. </summary>
         public DateTime LastSeen;
+
+        /// <summary> Reason for most leaving the server last time. </summary>
+        public LeaveReason LeaveReason;
+
+
+        #region Rank
+
+        /// <summary> Player's current rank. </summary>
+        [NotNull]
+        public Rank Rank { get; internal set; }
+
+        /// <summary> Player's previous rank.
+        /// May be null if player has never been promoted/demoted before. </summary>
+        [CanBeNull]
+        public Rank PreviousRank;
+
+        /// <summary> Date of the most recent promotion/demotion, UTC.
+        /// May be DateTime.MinValue if player has never been promoted/demoted before. </summary>
+        public DateTime RankChangeDate;
+
+        /// <summary> Name of the entity that most recently promoted/demoted this player. May be empty. </summary>
+        public string RankChangedBy = "";
+
+        /// <summary> Reason given for the most recent promotion/demotion. May be empty. </summary>
+        public string RankChangeReason = "";
+
+        /// <summary> Type of the most recent promotion/demotion. </summary>
+        public RankChangeType RankChangeType;
+
+        #endregion
+
+
+        #region Bans
+
+        /// <summary> Player's current BanStatus: Banned, NotBanned, or Exempt. </summary>
+        public BanStatus BanStatus;
+
+        /// <summary> Returns whether player is name-banned or not. </summary>
+        public bool IsBanned {
+            get { return BanStatus == BanStatus.Banned; }
+        }
+
+        /// <summary> Date of most recent ban, UTC. May be DateTime.MinValue if player was never banned. </summary>
+        public DateTime BanDate;
+
+        /// <summary> Name of the entity responsible for most recent ban. May be empty. </summary>
+        public string BannedBy = "";
+
+        /// <summary> Reason given for the most recent ban. May be empty. </summary>
+        public string BanReason = "";
+
+        /// <summary> Date of most recent unban, UTC. May be DateTime.MinValue if player was never unbanned. </summary>
+        public DateTime UnbanDate;
+
+        /// <summary> Name of the entity responsible for most recent unban. May be empty. </summary>
+        public string UnbannedBy = "";
+
+        /// <summary> Reason given for the most recent unban. May be empty. </summary>
+        public string UnbanReason = "";
+
+        /// <summary> Date of most recent failed attempt to log in, UTC. </summary>
+        public DateTime LastFailedLoginDate;
+
+        /// <summary> IP from which player most recently tried (and failed) to log in, UTC. </summary>
+        public IPAddress LastFailedLoginIP;
+
+        #endregion
+
+
+        #region Stats
+
+        /// <summary> Total amount of time the player spent on this server. </summary>
+        public TimeSpan TotalTime;
+
+        /// <summary> Total number of blocks manually built or painted by the player. </summary>
+        public int BlocksBuilt;
+
+        /// <summary> Total number of blocks manually deleted by the player. </summary>
+        public int BlocksDeleted;
+
+        /// <summary> Total number of blocks modified using draw and copy/paste commands. </summary>
         public long BlocksDrawn;
 
+        /// <summary> Number of sessions/logins. </summary>
+        public int TimesVisited;
+
+        /// <summary> Total number of messages written. </summary>
+        public int MessagesWritten;
+
+        /// <summary> Number of kicks issues by this player. </summary>
+        public int TimesKickedOthers;
+
+        /// <summary> Number of bans issued by this player. </summary>
+        public int TimesBannedOthers;
+
+        #endregion
+
+
+        #region Kicks
+
+        /// <summary> Number of times that this player has been manually kicked. </summary>
+        public int TimesKicked;
+
+        /// <summary> Date of the most recent kick.
+        /// May be DateTime.MinValue if the player has never been kicked. </summary>
+        public DateTime LastKickDate;
+
+        /// <summary> Name of the entity that most recently kicked this player. May be empty. </summary>
         public string LastKickBy = "";
+
+        /// <summary> Reason given for the most recent kick. May be empty. </summary>
         public string LastKickReason = "";
 
-        // TODO: start tracking
-        public DateTime BannedUntil;
+        #endregion
+
+
+        #region Freeze And Mute
+
+        /// <summary> Whether this player is currently frozen. </summary>
         public bool IsFrozen;
-        public string FrozenBy = "";
+
+        /// <summary> Date of the most recent freezing.
+        /// May be DateTime.MinValue of the player has never been frozen. </summary>
         public DateTime FrozenOn;
+
+        /// <summary> Name of the entity that most recently froze this player. May be empty. </summary>
+        public string FrozenBy = "";
+
+        public string FrozenByClassy {
+            get {
+                if( FrozenBy.Length == 0 ) {
+                    return "?";
+                } else {
+                    return PlayerDB.FindExactClassyName( FrozenBy );
+                }
+            }
+        }
+
+        /// <summary> Whether this player is currently muted. </summary>
+        public bool IsMuted {
+            get {
+                return DateTime.UtcNow < MutedUntil;
+            }
+        }
+
+        /// <summary> Date until which the player is muted. If the date is in the past, player is NOT muted. </summary>
         public DateTime MutedUntil;
+
+        /// <summary> Name of the entity that most recently muted this player. May be empty. </summary>
         public string MutedBy = "";
 
-        public string Password = ""; // TODO
+        public string MutedByClassy {
+            get {
+                if( MutedBy.Length == 0 ) {
+                    return "?";
+                } else {
+                    return PlayerDB.FindExactClassyName( MutedBy );
+                }
+            }
+        }
 
-        public bool Online { get; private set; }
+        #endregion
+
+
+        /// <summary> Whether the player is currently online.
+        /// Another way to check online status is to check if PlayerObject is null. </summary>
+        public bool IsOnline { get; private set; }
+
+        /// <summary> If player is online, Player object associated with the session.
+        /// If player is offline, null. </summary>
+        [CanBeNull]
         public Player PlayerObject { get; private set; }
-        public LeaveReason LeaveReason;
-        public bool BanExempt;
 
-        public BandwidthUseMode BandwidthUseMode { get; set; }
+        /// <summary> Whether the player is currently hidden.
+        /// Use Player.CanSee() method to check visibility to specific observers. </summary>
+        public bool IsHidden;
+
+        /// <summary> For offline players, last IP used to succesfully log in.
+        /// For online players, current IP. </summary>
+        public IPAddress LastIP;
 
 
         #region Constructors and Serialization
+
+        internal PlayerInfo( int id ) {
+            ID = id;
+        }
 
         PlayerInfo() {
             // reset everything to defaults
@@ -92,11 +237,15 @@ namespace fCraft {
             FrozenOn = DateTime.MinValue;
             MutedUntil = DateTime.MinValue;
             BandwidthUseMode = BandwidthUseMode.Default;
+            LastModified = DateTime.UtcNow;
         }
 
         // fabricate info for an unrecognized player
-        public PlayerInfo( string name, Rank rank, bool setLoginDate, RankChangeType rankChangeType )
+        public PlayerInfo( [NotNull] string name, [NotNull] Rank rank,
+                           bool setLoginDate, RankChangeType rankChangeType )
             : this() {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( rank == null ) throw new ArgumentNullException( "rank" );
             Name = name;
             Rank = rank;
             if( setLoginDate ) {
@@ -110,8 +259,11 @@ namespace fCraft {
 
 
         // generate blank info for a new player
-        public PlayerInfo( string name, IPAddress lastIP, Rank startingRank )
+        public PlayerInfo( [NotNull] string name, [NotNull] IPAddress lastIP, [NotNull] Rank startingRank )
             : this() {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( lastIP == null ) throw new ArgumentNullException( "lastIP" );
+            if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
             FirstLoginDate = DateTime.UtcNow;
             LastSeen = DateTime.UtcNow;
             LastLoginDate = DateTime.UtcNow;
@@ -126,18 +278,28 @@ namespace fCraft {
 
         #region Loading
 
-        internal static PlayerInfo Load( string[] fields ) {
+        internal static PlayerInfo LoadFormat2( string[] fields ) {
             PlayerInfo info = new PlayerInfo { Name = fields[0] };
 
-            if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out info.LastIP ) ) { // LEGACY
+            if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out info.LastIP ) ) {
                 info.LastIP = IPAddress.None;
             }
 
-            info.Rank = RankManager.ParseRank( fields[2] ) ?? RankManager.DefaultRank;
+            info.Rank = Rank.Parse( fields[2] ) ?? RankManager.DefaultRank;
             fields[3].ToDateTime( ref info.RankChangeDate );
             info.RankChangedBy = fields[4];
 
-            info.Banned = (fields[5] == "b");
+            switch( fields[5] ) {
+                case "b":
+                    info.BanStatus = BanStatus.Banned;
+                    break;
+                case "x":
+                    info.BanStatus = BanStatus.IPBanExempt;
+                    break;
+                default:
+                    info.BanStatus = BanStatus.NotBanned;
+                    break;
+            }
 
             // ban information
             if( fields[6].ToDateTime( ref info.BanDate ) ) {
@@ -157,21 +319,22 @@ namespace fCraft {
             if( fields[13].Length > 1 || !IPAddress.TryParse( fields[13], out info.LastFailedLoginIP ) ) { // LEGACY
                 info.LastFailedLoginIP = IPAddress.None;
             }
-            if( fields[14].Length > 0 ) info.FailedLoginCount = Int32.Parse( fields[14] );
+            // skip 14
+            
             fields[15].ToDateTime( ref info.FirstLoginDate );
 
             // login/logout times
             fields[16].ToDateTime( ref info.LastLoginDate );
-            fields[17].ToTimeSpan( ref info.TotalTime );
+            fields[17].ToTimeSpan( out info.TotalTime );
 
             // stats
             if( fields[18].Length > 0 ) Int32.TryParse( fields[18], out info.BlocksBuilt );
             if( fields[19].Length > 0 ) Int32.TryParse( fields[19], out info.BlocksDeleted );
             Int32.TryParse( fields[20], out info.TimesVisited );
-            if( fields[20].Length > 0 ) Int32.TryParse( fields[21], out info.LinesWritten );
+            if( fields[20].Length > 0 ) Int32.TryParse( fields[21], out info.MessagesWritten );
             // fields 22-23 are no longer in use
 
-            if( fields[24].Length > 0 ) info.PreviousRank = RankManager.ParseRank( fields[24] );
+            if( fields[24].Length > 0 ) info.PreviousRank = Rank.Parse( fields[24] );
             if( fields[25].Length > 0 ) info.RankChangeReason = Unescape( fields[25] );
             Int32.TryParse( fields[26], out info.TimesKicked );
             Int32.TryParse( fields[27], out info.TimesKickedOthers );
@@ -219,6 +382,20 @@ namespace fCraft {
                 info.BandwidthUseMode = BandwidthUseMode.Default;
             }
 
+            if( fields.Length > 45 ) {
+                if( fields[45].Length == 0 ) {
+                    info.IsHidden = false;
+                } else {
+                    info.IsHidden = info.Rank.Can( Permission.Hide );
+                }
+            }
+            if( fields.Length > 46 ) {
+                fields[46].ToDateTime( ref info.LastModified );
+            }
+            if( fields.Length > 47 ) {
+                info.DisplayedName = Unescape( fields[47] );
+            }
+
             if( info.LastSeen < info.FirstLoginDate ) {
                 info.LastSeen = info.FirstLoginDate;
             }
@@ -230,19 +407,151 @@ namespace fCraft {
         }
 
 
-        internal static PlayerInfo LoadOldFormat( string[] fields, bool convertDatesToUtc ) {
+        internal static PlayerInfo LoadFormat1( string[] fields ) {
             PlayerInfo info = new PlayerInfo { Name = fields[0] };
 
-            if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out info.LastIP ) ) { // LEGACY
+            if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out info.LastIP ) ) {
                 info.LastIP = IPAddress.None;
             }
 
-            info.Rank = RankManager.ParseRank( fields[2] ) ?? RankManager.DefaultRank;
+            info.Rank = Rank.Parse( fields[2] ) ?? RankManager.DefaultRank;
+            fields[3].ToDateTimeLegacy( ref info.RankChangeDate );
+            info.RankChangedBy = fields[4];
+
+            switch( fields[5] ) {
+                case "b":
+                    info.BanStatus = BanStatus.Banned;
+                    break;
+                case "x":
+                    info.BanStatus = BanStatus.IPBanExempt;
+                    break;
+                default:
+                    info.BanStatus = BanStatus.NotBanned;
+                    break;
+            }
+
+            // ban information
+            if( fields[6].ToDateTimeLegacy( ref info.BanDate ) ) {
+                info.BannedBy = Unescape( fields[7] );
+                info.BanReason = Unescape( fields[10] );
+            }
+
+            // unban information
+            if( fields[8].ToDateTimeLegacy( ref info.UnbanDate ) ) {
+                info.UnbannedBy = Unescape( fields[9] );
+                info.UnbanReason = Unescape( fields[11] );
+            }
+
+            // failed logins
+            fields[12].ToDateTimeLegacy( ref info.LastFailedLoginDate );
+
+            if( fields[13].Length > 1 || !IPAddress.TryParse( fields[13], out info.LastFailedLoginIP ) ) { // LEGACY
+                info.LastFailedLoginIP = IPAddress.None;
+            }
+            // skip 14
+            fields[15].ToDateTimeLegacy( ref info.FirstLoginDate );
+
+            // login/logout times
+            fields[16].ToDateTimeLegacy( ref info.LastLoginDate );
+            fields[17].ToTimeSpanLegacy( ref info.TotalTime );
+
+            // stats
+            if( fields[18].Length > 0 ) Int32.TryParse( fields[18], out info.BlocksBuilt );
+            if( fields[19].Length > 0 ) Int32.TryParse( fields[19], out info.BlocksDeleted );
+            Int32.TryParse( fields[20], out info.TimesVisited );
+            if( fields[20].Length > 0 ) Int32.TryParse( fields[21], out info.MessagesWritten );
+            // fields 22-23 are no longer in use
+
+            if( fields[24].Length > 0 ) info.PreviousRank = Rank.Parse( fields[24] );
+            if( fields[25].Length > 0 ) info.RankChangeReason = Unescape( fields[25] );
+            Int32.TryParse( fields[26], out info.TimesKicked );
+            Int32.TryParse( fields[27], out info.TimesKickedOthers );
+            Int32.TryParse( fields[28], out info.TimesBannedOthers );
+
+            info.ID = Int32.Parse( fields[29] );
+            if( info.ID < 256 )
+                info.ID = PlayerDB.GetNextID();
+
+            int rankChangeTypeCode;
+            if( Int32.TryParse( fields[30], out rankChangeTypeCode ) ) {
+                info.RankChangeType = (RankChangeType)rankChangeTypeCode;
+                if( !Enum.IsDefined( typeof( RankChangeType ), rankChangeTypeCode ) ) {
+                    info.GuessRankChangeType();
+                }
+            } else {
+                info.GuessRankChangeType();
+            }
+
+            fields[31].ToDateTimeLegacy( ref info.LastKickDate );
+            if( !fields[32].ToDateTimeLegacy( ref info.LastSeen ) || info.LastSeen < info.LastLoginDate ) {
+                info.LastSeen = info.LastLoginDate;
+            }
+            Int64.TryParse( fields[33], out info.BlocksDrawn );
+
+            info.LastKickBy = Unescape( fields[34] );
+            info.LastKickReason = Unescape( fields[35] );
+
+            fields[36].ToDateTimeLegacy( ref info.BannedUntil );
+            info.IsFrozen = (fields[37] == "f");
+            info.FrozenBy = Unescape( fields[38] );
+            fields[39].ToDateTimeLegacy( ref info.FrozenOn );
+            fields[40].ToDateTimeLegacy( ref info.MutedUntil );
+            info.MutedBy = Unescape( fields[41] );
+            info.Password = Unescape( fields[42] );
+            // fields[43] is "online", and is ignored
+
+            int bandwidthUseModeCode;
+            if( Int32.TryParse( fields[44], out bandwidthUseModeCode ) ) {
+                info.BandwidthUseMode = (BandwidthUseMode)bandwidthUseModeCode;
+                if( !Enum.IsDefined( typeof( BandwidthUseMode ), bandwidthUseModeCode ) ) {
+                    info.BandwidthUseMode = BandwidthUseMode.Default;
+                }
+            } else {
+                info.BandwidthUseMode = BandwidthUseMode.Default;
+            }
+
+            if( fields.Length > 45 ) {
+                if( fields[45].Length == 0 ) {
+                    info.IsHidden = false;
+                } else {
+                    info.IsHidden = info.Rank.Can( Permission.Hide );
+                }
+            }
+
+            if( info.LastSeen < info.FirstLoginDate ) {
+                info.LastSeen = info.FirstLoginDate;
+            }
+            if( info.LastLoginDate < info.FirstLoginDate ) {
+                info.LastLoginDate = info.FirstLoginDate;
+            }
+
+            return info;
+        }
+
+
+        internal static PlayerInfo LoadFormat0( string[] fields, bool convertDatesToUtc ) {
+            PlayerInfo info = new PlayerInfo { Name = fields[0] };
+
+            if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out info.LastIP ) ) {
+                info.LastIP = IPAddress.None;
+            }
+
+            info.Rank = Rank.Parse( fields[2] ) ?? RankManager.DefaultRank;
             DateTimeUtil.TryParseLocalDate( fields[3], out info.RankChangeDate );
             info.RankChangedBy = fields[4];
             if( info.RankChangedBy == "-" ) info.RankChangedBy = "";
 
-            info.Banned = (fields[5] == "b");
+            switch( fields[5] ) {
+                case "b":
+                    info.BanStatus = BanStatus.Banned;
+                    break;
+                case "x":
+                    info.BanStatus = BanStatus.IPBanExempt;
+                    break;
+                default:
+                    info.BanStatus = BanStatus.NotBanned;
+                    break;
+            }
 
             // ban information
             if( DateTimeUtil.TryParseLocalDate( fields[6], out info.BanDate ) ) {
@@ -265,7 +574,7 @@ namespace fCraft {
             if( fields[13].Length > 1 || !IPAddress.TryParse( fields[13], out info.LastFailedLoginIP ) ) { // LEGACY
                 info.LastFailedLoginIP = IPAddress.None;
             }
-            if( fields[14].Length > 0 ) info.FailedLoginCount = Int32.Parse( fields[14] );
+            // skip 14
 
             // login/logout times
             DateTimeUtil.TryParseLocalDate( fields[15], out info.FirstLoginDate );
@@ -276,11 +585,11 @@ namespace fCraft {
             if( fields[18].Length > 0 ) Int32.TryParse( fields[18], out info.BlocksBuilt );
             if( fields[19].Length > 0 ) Int32.TryParse( fields[19], out info.BlocksDeleted );
             Int32.TryParse( fields[20], out info.TimesVisited );
-            if( fields[20].Length > 0 ) Int32.TryParse( fields[21], out info.LinesWritten );
+            if( fields[20].Length > 0 ) Int32.TryParse( fields[21], out info.MessagesWritten );
             // fields 22-23 are no longer in use
 
             if( fields.Length > MinFieldCount ) {
-                if( fields[24].Length > 0 ) info.PreviousRank = RankManager.ParseRank( fields[24] );
+                if( fields[24].Length > 0 ) info.PreviousRank = Rank.Parse( fields[24] );
                 if( fields[25].Length > 0 ) info.RankChangeReason = UnescapeOldFormat( fields[25] );
                 Int32.TryParse( fields[26], out info.TimesKicked );
                 Int32.TryParse( fields[27], out info.TimesKickedOthers );
@@ -381,248 +690,126 @@ namespace fCraft {
 
         #region Saving
 
-        internal string Serialize() {
-            StringBuilder sb = new StringBuilder();
-
+        internal void Serialize( StringBuilder sb ) {
             sb.Append( Name ).Append( ',' ); // 0
-            if( !LastIP.Equals( IPAddress.None ) ) sb.Append( LastIP.ToString() ); // 1
+            if( !LastIP.Equals( IPAddress.None ) ) sb.Append( LastIP ); // 1
             sb.Append( ',' );
 
-            sb.Append( Rank.GetFullName() ).Append( ',' ); // 2
-            RankChangeDate.ToTickString( sb ).Append( ',' ); // 3
+            sb.Append( Rank.FullName ).Append( ',' ); // 2
+            RankChangeDate.ToUnixTimeString( sb ).Append( ',' ); // 3
 
-            Escape( RankChangedBy, sb ).Append( ',' ); // 4
+            sb.AppendEscaped( RankChangedBy ).Append( ',' ); // 4
 
-            if( Banned ) sb.Append( 'b' ); // 5
-            sb.Append( ',' );
+            switch( BanStatus ) {
+                case BanStatus.Banned:
+                    sb.Append( 'b' );
+                    break;
+                case BanStatus.IPBanExempt:
+                    sb.Append( 'x' );
+                    break;
+            }
+            sb.Append( ',' ); // 5
 
-            BanDate.ToTickString( sb ).Append( ',' ); // 6
-            Escape( BannedBy, sb ).Append( ',' ); // 7
-            UnbanDate.ToTickString( sb ).Append( ',' ); // 8
-            Escape( UnbannedBy, sb ).Append( ',' ); // 9
-            Escape( BanReason, sb ).Append( ',' ); // 10
-            Escape( UnbanReason, sb ).Append( ',' ); // 11
+            BanDate.ToUnixTimeString( sb ).Append( ',' ); // 6
+            sb.AppendEscaped( BannedBy ).Append( ',' ); // 7
+            UnbanDate.ToUnixTimeString( sb ).Append( ',' ); // 8
+            sb.AppendEscaped( UnbannedBy ).Append( ',' ); // 9
+            sb.AppendEscaped( BanReason ).Append( ',' ); // 10
+            sb.AppendEscaped( UnbanReason ).Append( ',' ); // 11
 
-            LastFailedLoginDate.ToTickString( sb ).Append( ',' ); // 12
+            LastFailedLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 12
 
             if( !LastFailedLoginIP.Equals( IPAddress.None ) ) sb.Append( LastFailedLoginIP.ToString() ); // 13
+            sb.Append( ',', 2 ); // skip 14
+
+            FirstLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 15
+            LastLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 16
+
+            Player pObject = PlayerObject;
+            if( pObject != null ) {
+                (TotalTime.Add( TimeSinceLastLogin )).ToTickString( sb ).Append( ',' ); // 17
+            } else {
+                TotalTime.ToTickString( sb ).Append( ',' ); // 17
+            }
+
+            if( BlocksBuilt > 0 ) sb.Digits( BlocksBuilt ); // 18
             sb.Append( ',' );
 
-            if( FailedLoginCount > 0 ) sb.Append( FailedLoginCount ); // 14
-            sb.Append( ',' );
-
-            FirstLoginDate.ToTickString( sb ).Append( ',' ); // 15
-            LastLoginDate.ToTickString( sb ).Append( ',' ); // 16
-            TotalTime.ToTickString( sb ).Append( ',' ); // 17
-
-
-            if( BlocksBuilt > 0 ) sb.Append( BlocksBuilt ); // 18
-            sb.Append( ',' );
-
-            if( BlocksDeleted > 0 ) sb.Append( BlocksDeleted ); // 19
+            if( BlocksDeleted > 0 ) sb.Digits( BlocksDeleted ); // 19
             sb.Append( ',' );
 
             sb.Append( TimesVisited ).Append( ',' ); // 20
 
 
-            if( LinesWritten > 0 ) sb.Append( LinesWritten ); // 21
+            if( MessagesWritten > 0 ) sb.Digits( MessagesWritten ); // 21
             sb.Append( ',', 3 ); // 22-23 no longer in use
 
-            if( PreviousRank != null ) sb.Append( PreviousRank.GetFullName() ); // 24
+            if( PreviousRank != null ) sb.Append( PreviousRank.FullName ); // 24
             sb.Append( ',' );
 
-            Escape( RankChangeReason, sb ).Append( ',' ); // 25
+            sb.AppendEscaped( RankChangeReason ).Append( ',' ); // 25
 
 
-            if( TimesKicked > 0 ) sb.Append( TimesKicked ); // 26
+            if( TimesKicked > 0 ) sb.Digits( TimesKicked ); // 26
             sb.Append( ',' );
 
-            if( TimesKickedOthers > 0 ) sb.Append( TimesKickedOthers ); // 27
+            if( TimesKickedOthers > 0 ) sb.Digits( TimesKickedOthers ); // 27
             sb.Append( ',' );
 
-            if( TimesBannedOthers > 0 ) sb.Append( TimesBannedOthers ); // 28
+            if( TimesBannedOthers > 0 ) sb.Digits( TimesBannedOthers ); // 28
             sb.Append( ',' );
 
 
             sb.Append( ID ).Append( ',' ); // 29
 
-            sb.Append( (int)RankChangeType ).Append(','); // 30
+            sb.Append( (int)RankChangeType ).Append( ',' ); // 30
 
 
-            LastKickDate.ToTickString( sb ).Append( ',' ); // 31
+            LastKickDate.ToUnixTimeString( sb ).Append( ',' ); // 31
 
-            if( Online ) DateTime.UtcNow.ToTickString( sb ); // 32
-            else LastSeen.ToTickString( sb );
+            if( IsOnline ) DateTime.UtcNow.ToUnixTimeString( sb ); // 32
+            else LastSeen.ToUnixTimeString( sb );
             sb.Append( ',' );
 
             if( BlocksDrawn > 0 ) sb.Append( BlocksDrawn ); // 33
             sb.Append( ',' );
 
-            Escape( LastKickBy, sb ).Append( ',' ); // 34
+            sb.AppendEscaped( LastKickBy ).Append( ',' ); // 34
 
-            Escape( LastKickReason, sb ).Append( ',' ); // 35
+            sb.AppendEscaped( LastKickReason ).Append( ',' ); // 35
 
-            BannedUntil.ToTickString( sb ); // 36
+            BannedUntil.ToUnixTimeString( sb ); // 36
 
             if( IsFrozen ) {
-                sb.Append( ',' ).Append( 'f' ).Append(','); // 37
-                Escape( FrozenBy, sb ).Append( ',' ); // 38
-                FrozenOn.ToTickString( sb ).Append(','); // 39
+                sb.Append( ',' ).Append( 'f' ).Append( ',' ); // 37
+                sb.AppendEscaped( FrozenBy ).Append( ',' ); // 38
+                FrozenOn.ToUnixTimeString( sb ).Append( ',' ); // 39
             } else {
                 sb.Append( ',', 4 ); // 37-39
             }
 
             if( MutedUntil > DateTime.UtcNow ) {
-                MutedUntil.ToTickString( sb ).Append( ',' ); // 40
-                Escape( MutedBy, sb ).Append( ',' ); // 41
+                MutedUntil.ToUnixTimeString( sb ).Append( ',' ); // 40
+                sb.AppendEscaped( MutedBy ).Append( ',' ); // 41
             } else {
                 sb.Append( ',', 2 ); // 40-41
             }
 
-            Escape( Password, sb ).Append( ',' ); // 42
+            sb.AppendEscaped( Password ).Append( ',' ); // 42
 
-            if( Online ) sb.Append( 'o' ); // 43
+            if( IsOnline ) sb.Append( 'o' ); // 43
             sb.Append( ',' );
 
             if( BandwidthUseMode != BandwidthUseMode.Default ) sb.Append( (int)BandwidthUseMode ); // 44
+            sb.Append( ',' );
 
-            return sb.ToString();
-        }
+            if( IsHidden ) sb.Append( 'h' ); // 45
 
+            sb.Append( ',' );
+            LastModified.ToUnixTimeString( sb ); // 46
 
-        internal void SerializeOldFormat( string[] fields ) {
-#if DEBUG
-            string testGuid = Guid.NewGuid().ToString();
-            for( int i = 0; i < fields.Length; i++ ) fields[i] = testGuid;
-#endif
-
-            fields[0] = Name;
-            if( LastIP.ToString() != IPAddress.None.ToString() ) {
-                fields[1] = LastIP.ToString();
-            } else {
-                fields[1] = "";
-            }
-
-            fields[2] = Rank.GetFullName();
-            if( RankChangeDate == DateTime.MinValue ) fields[3] = "";
-            else fields[3] = RankChangeDate.ToString();
-            fields[4] = RankChangedBy;
-
-            if( Banned ) fields[5] = "b";
-            else fields[5] = "";
-
-            if( BanDate == DateTime.MinValue ) fields[6] = "";
-            else fields[6] = BanDate.ToString();
-
-            fields[7] = BannedBy;
-            if( UnbanDate == DateTime.MinValue ) fields[8] = "";
-
-            else fields[8] = UnbanDate.ToString();
-            fields[9] = UnbannedBy;
-
-            if( BanReason.Length > 0 ) fields[10] = EscapeOldFormat( BanReason );
-            else fields[10] = "";
-
-            if( UnbanReason.Length > 0 ) fields[11] = EscapeOldFormat( UnbanReason );
-            else fields[11] = "";
-
-            if( LastFailedLoginDate == DateTime.MinValue ) fields[12] = "";
-            else fields[12] = LastFailedLoginDate.ToString();
-
-            if( LastFailedLoginIP.Equals( IPAddress.None ) ) fields[13] = "";
-            else fields[13] = LastFailedLoginIP.ToString();
-
-            if( FailedLoginCount > 0 ) fields[14] = FailedLoginCount.ToString();
-            else fields[14] = "";
-
-            if( FirstLoginDate == DateTime.MinValue ) fields[15] = "";
-            else fields[15] = FirstLoginDate.ToString();
-
-            if( LastLoginDate == DateTime.MinValue ) fields[16] = "";
-            else fields[16] = LastLoginDate.ToString();
-
-            if( TotalTime == TimeSpan.Zero ) fields[17] = "";
-            else fields[17] = TotalTime.ToString();
-
-            if( BlocksBuilt > 0 ) fields[18] = BlocksBuilt.ToString();
-            else fields[18] = "";
-
-            if( BlocksDeleted > 0 ) fields[19] = BlocksDeleted.ToString();
-            else fields[19] = "";
-
-            fields[20] = TimesVisited.ToString();
-
-            if( LinesWritten > 0 ) fields[21] = LinesWritten.ToString();
-            else fields[21] = "";
-
-            // fields 22-23 are no longer in use
-            fields[22] = "";
-            fields[23] = "";
-
-            if( PreviousRank != null ) fields[24] = PreviousRank.GetFullName();
-            else fields[24] = "";
-
-            if( RankChangeReason.Length > 0 ) fields[25] = EscapeOldFormat( RankChangeReason );
-            else fields[25] = "";
-
-            if( TimesKicked > 0 ) fields[26] = TimesKicked.ToString();
-            else fields[26] = "";
-            if( TimesKickedOthers > 0 ) fields[27] = TimesKickedOthers.ToString();
-            else fields[27] = "";
-            if( TimesBannedOthers > 0 ) fields[28] = TimesBannedOthers.ToString();
-            else fields[28] = "";
-            fields[29] = ID.ToString();
-            fields[30] = ((int)RankChangeType).ToString();
-
-            if( LastKickDate == DateTime.MinValue ) fields[31] = "";
-            else fields[31] = LastKickDate.ToString();
-
-            if( LastSeen == DateTime.MinValue ) fields[32] = "";
-            else if( Online ) fields[32] = DateTime.Now.ToString(); // localized
-            else fields[32] = LastSeen.ToString();
-
-            if( BlocksDrawn > 0 ) fields[33] = BlocksDrawn.ToString();
-            fields[33] = "";
-
-            fields[34] = LastKickBy;
-            if( LastKickReason.Length == 0 ) fields[35] = "";
-            else fields[35] = EscapeOldFormat( LastKickReason );
-
-            if( BannedUntil == DateTime.MinValue ) fields[36] = "";
-            else fields[36] = BannedUntil.ToString();
-
-            if( IsFrozen ) {
-                fields[37] = "f";
-                fields[38] = EscapeOldFormat( FrozenBy );
-                fields[39] = FrozenOn.ToString();
-            } else {
-                fields[37] = "";
-                fields[38] = "";
-                fields[39] = "";
-            }
-
-            if( MutedUntil != DateTime.MinValue ) {
-                fields[40] = MutedUntil.ToString();
-                fields[41] = EscapeOldFormat( MutedBy );
-            } else {
-                fields[40] = "";
-                fields[41] = "";
-            }
-
-            if( !String.IsNullOrEmpty( Password ) ) fields[42] = EscapeOldFormat( Password );
-            else fields[42] = "";
-
-            fields[43] = (Online ? "o" : "");
-
-            fields[44] = (BandwidthUseMode == BandwidthUseMode.Default ? "" : ((int)BandwidthUseMode).ToString());
-
-#if DEBUG
-            for( int i = 0; i < fields.Length; i++ ) {
-                if( fields[i] == null || fields[i] == testGuid ) {
-                    throw new Exception( "PlayerInfo did not save one of the fields properly." );
-                }
-            }
-#endif
+            sb.Append( ',' );
+            sb.AppendEscaped( DisplayedName ); // 47
         }
 
         #endregion
@@ -630,65 +817,55 @@ namespace fCraft {
 
         #region Update Handlers
 
-        public void ProcessLogin( Player player ) {
-            LastIP = player.Session.IP;
+        public void ProcessMessageWritten() {
+            Interlocked.Increment( ref MessagesWritten );
+            LastModified = DateTime.UtcNow;
+        }
+
+
+        public void ProcessLogin( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            LastIP = player.IP;
             LastLoginDate = DateTime.UtcNow;
             LastSeen = DateTime.UtcNow;
             Interlocked.Increment( ref TimesVisited );
-            Online = true;
+            IsOnline = true;
             PlayerObject = player;
+            LastModified = DateTime.UtcNow;
         }
 
 
-        public void ProcessFailedLogin( Session session ) {
+        public void ProcessFailedLogin( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             LastFailedLoginDate = DateTime.UtcNow;
-            LastFailedLoginIP = session.IP;
-            Interlocked.Increment( ref FailedLoginCount );
+            LastFailedLoginIP = player.IP;
+            LastModified = DateTime.UtcNow;
         }
 
 
-        public void ProcessLogout( Session session ) {
-            TotalTime += DateTime.UtcNow.Subtract( session.LoginTime );
+        public void ProcessLogout( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            TotalTime += player.LastActiveTime.Subtract( player.LoginTime );
             LastSeen = DateTime.UtcNow;
-            Online = false;
+            IsOnline = false;
             PlayerObject = null;
+            LeaveReason = player.LeaveReason;
+            LastModified = DateTime.UtcNow;
         }
 
 
-        public bool ProcessBan( Player bannedBy, string banReason ) {
-            if( !Banned ) {
-                Banned = true;
-                BannedBy = bannedBy.Name;
-                BanDate = DateTime.UtcNow;
-                BanReason = banReason;
-                Interlocked.Increment( ref bannedBy.Info.TimesBannedOthers );
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-
-        public bool ProcessUnban( string unbannedBy, string unbanReason ) {
-            if( Banned ) {
-                Banned = false;
-                UnbannedBy = unbannedBy;
-                UnbanDate = DateTime.UtcNow;
-                UnbanReason = unbanReason;
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-
-        public void ProcessRankChange( Rank newRank, Player changer, string reason, RankChangeType type ) {
+        public void ProcessRankChange( [NotNull] Rank newRank, [NotNull] string changer, [NotNull] string reason, RankChangeType type ) {
+            if( newRank == null ) throw new ArgumentNullException( "newRank" );
+            if( changer == null ) throw new ArgumentNullException( "changer" );
+            if( reason == null ) throw new ArgumentNullException( "reason" );
             PreviousRank = Rank;
             Rank = newRank;
             RankChangeDate = DateTime.UtcNow;
-            RankChangedBy = changer.Name;
+
+            RankChangedBy = changer;
             RankChangeReason = reason;
             RankChangeType = type;
+            LastModified = DateTime.UtcNow;
         }
 
 
@@ -698,21 +875,34 @@ namespace fCraft {
             } else {
                 Interlocked.Increment( ref BlocksBuilt );
             }
+            LastModified = DateTime.UtcNow;
         }
 
 
         public void ProcessDrawCommand( int blocksDrawn ) {
             Interlocked.Add( ref BlocksDrawn, blocksDrawn );
+            LastModified = DateTime.UtcNow;
         }
 
 
-        public void ProcessKick( Player kickedBy, string reason ) {
-            Interlocked.Increment( ref TimesKicked );
-            Interlocked.Increment( ref kickedBy.Info.TimesKickedOthers );
-            LastKickDate = DateTime.UtcNow;
-            LastKickBy = kickedBy.Name;
-            LastKickReason = reason ?? "";
-            Unfreeze();
+        public void ProcessKick( [NotNull] Player kickedBy, [NotNull] string reason ) {
+            if( kickedBy == null ) throw new ArgumentNullException( "kickedBy" );
+            if( reason == null ) throw new ArgumentNullException( "reason" );
+            lock( actionLock ) {
+                Interlocked.Increment( ref TimesKicked );
+                Interlocked.Increment( ref kickedBy.Info.TimesKickedOthers );
+                LastKickDate = DateTime.UtcNow;
+                LastKickBy = kickedBy.Name;
+                LastKickReason = reason;
+                if( IsFrozen ) {
+                    try {
+                        Unfreeze( kickedBy, false, true );
+                    } catch( PlayerOpException ex ) {
+                        Logger.Log( "PlayerInfo.ProcessKick: {0}", LogType.Warning, ex.Message );
+                    }
+                }
+                LastModified = DateTime.UtcNow;
+            }
         }
 
         #endregion
@@ -720,20 +910,10 @@ namespace fCraft {
 
         #region Utilities
 
-
-        public static string EscapeOldFormat( string str ) {
+        public static string Escape( [CanBeNull] string str ) {
             if( String.IsNullOrEmpty( str ) ) {
                 return "";
-            } else {
-                return str.Replace( @"\", @"\\" ).Replace( "'", @"\'" ).Replace( ',', '\xFF' );
-            }
-        }
-
-
-        public static string Escape( string str ) {
-            if( String.IsNullOrEmpty( str ) ) {
-                return "";
-            }else if( str.IndexOf( ',' ) > -1 ) {
+            } else if( str.IndexOf( ',' ) > -1 ) {
                 return str.Replace( ',', '\xFF' );
             } else {
                 return str;
@@ -741,26 +921,14 @@ namespace fCraft {
         }
 
 
-        public static StringBuilder Escape( string str, StringBuilder sb ) {
-            if( !String.IsNullOrEmpty( str ) ) {
-                if( str.IndexOf( ',' ) > -1 ) {
-                    int startIndex = sb.Length;
-                    sb.Append( str );
-                    sb.Replace( ',', '\xFF', startIndex, str.Length );
-                } else {
-                    sb.Append( str );
-                }
-            }
-            return sb;
+        public static string UnescapeOldFormat( [NotNull] string str ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
+            return str.Replace( '\xFF', ',' ).Replace( "\'", "'" ).Replace( @"\\", @"\" );
         }
 
 
-        public static string UnescapeOldFormat( string str ) {
-            return str.Replace( '\xFF', ',' ).Replace( @"\'", "'" ).Replace( @"\\", @"\" );
-        }
-
-
-        public static string Unescape( string str ) {
+        public static string Unescape( [NotNull] string str ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
             if( str.IndexOf( '\xFF' ) > -1 ) {
                 return str.Replace( '\xFF', ',' );
             } else {
@@ -770,21 +938,28 @@ namespace fCraft {
 
 
         // implements IClassy interface
-        public string GetClassyName() {
-            StringBuilder sb = new StringBuilder();
-            if( ConfigKey.RankColorsInChat.GetBool() ) {
-                if( Name == "fragmer" ) return "&4f&cr&ea&ag&bm&9e&5r";
-                if( Name == "Kirshi" ) return "&bKir&dshi";
-                sb.Append( Rank.Color );
+        public string ClassyName {
+            get {
+                StringBuilder sb = new StringBuilder();
+                if( ConfigKey.RankColorsInChat.Enabled() ) {
+                    sb.Append( Rank.Color );
+                }
+                if( ConfigKey.RankPrefixesInChat.Enabled() ) {
+                    sb.Append( Rank.Prefix );
+                }
+                if( DisplayedName.Length > 0 ) {
+                    sb.Append( DisplayedName );
+                } else {
+                    sb.Append( Name );
+                }
+                if( IsBanned ) {
+                    sb.Append( Color.Warning ).Append( '*' );
+                }
+                if( IsFrozen ) {
+                    sb.Append( Color.Blue ).Append( '*' );
+                }
+                return sb.ToString();
             }
-            if( ConfigKey.RankPrefixesInChat.GetBool() ) {
-                sb.Append( Rank.Prefix );
-            }
-            sb.Append( Name );
-            if( Banned ) {
-                sb.Append( Color.Warning ).Append( "*" );
-            }
-            return sb.ToString();
         }
 
         #endregion
@@ -802,10 +977,6 @@ namespace fCraft {
 
         public TimeSpan TimeSinceUnban {
             get { return DateTime.UtcNow.Subtract( UnbanDate ); }
-        }
-
-        public TimeSpan TimeSinceLastFailedLogin {
-            get { return DateTime.UtcNow.Subtract( LastFailedLoginDate ); }
         }
 
         public TimeSpan TimeSinceFirstLogin {
@@ -828,61 +999,8 @@ namespace fCraft {
             get { return DateTime.UtcNow.Subtract( FrozenOn ); }
         }
 
-        #endregion
-
-
-        #region Actions
-
-        public bool Mute( string by, TimeSpan timespan ) {
-            if( by == null ) throw new ArgumentNullException( "by" );
-            DateTime newMutedUntil = DateTime.UtcNow.Add( timespan );
-            if( newMutedUntil > MutedUntil ) {
-                MutedUntil = newMutedUntil;
-                MutedBy = by;
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-
-        public bool Unmute() {
-            if( IsMuted ) {
-                MutedUntil = DateTime.MinValue;
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-
-        public bool IsMuted {
-            get {
-                return DateTime.UtcNow < MutedUntil;
-            }
-        }
-
-
-        public bool Freeze( string by ) {
-            if( by == null ) throw new ArgumentNullException( "by" );
-            if( !IsFrozen ) {
-                IsFrozen = true;
-                FrozenOn = DateTime.UtcNow;
-                FrozenBy = by;
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-
-        public bool Unfreeze() {
-            if( IsFrozen ) {
-                IsFrozen = false;
-                return true;
-            } else {
-                return false;
-            }
+        public TimeSpan TimeMutedLeft {
+            get { return MutedUntil.Subtract( DateTime.UtcNow ); }
         }
 
         #endregion
@@ -891,68 +1009,56 @@ namespace fCraft {
         public override string ToString() {
             return String.Format( "PlayerInfo({0},{1})", Name, Rank.Name );
         }
+
+        public bool Can( Permission permission ) {
+            return Rank.Can( permission );
+        }
+
+        public bool Can( Permission permission, Rank rank ) {
+            return Rank.Can( permission, rank );
+        }
+
+
+        #region Unfinished / Not Implemented
+
+        /// <summary> Not implemented (IRC/server password hash). </summary>
+        public string Password = ""; // TODO
+
+        public DateTime LastModified; // TODO
+
+        public BandwidthUseMode BandwidthUseMode; // TODO
+
+        /// <summary> Not implemented (for temp bans). </summary>
+        public DateTime BannedUntil; // TODO
+
+        #endregion
+    }
+
+
+    sealed class PlayerInfoComparer : IComparer<PlayerInfo> {
+        readonly Player observer;
+
+        public PlayerInfoComparer( Player observer ) {
+            this.observer = observer;
+        }
+
+        public int Compare( PlayerInfo x, PlayerInfo y ) {
+            Player xPlayer = x.PlayerObject;
+            Player yPlayer = y.PlayerObject;
+            bool xIsOnline = xPlayer != null && observer.CanSee( xPlayer );
+            bool yIsOnline = yPlayer != null && observer.CanSee( yPlayer );
+
+            if( !xIsOnline && yIsOnline ) {
+                return 1;
+            } else if( xIsOnline && !yIsOnline ) {
+                return -1;
+            }
+
+            if( x.Rank == y.Rank ) {
+                return Math.Sign( y.LastSeen.Ticks - x.LastSeen.Ticks );
+            } else {
+                return x.Rank.Index - y.Rank.Index;
+            }
+        }
     }
 }
-
-
-#region EventArgs
-namespace fCraft.Events {
-
-    public class PlayerInfoEventArgs : EventArgs {
-        public PlayerInfoEventArgs( PlayerInfo playerInfo ) {
-            PlayerInfo = playerInfo;
-        }
-        public PlayerInfo PlayerInfo { get; protected set; }
-    }
-
-
-    public sealed class PlayerInfoCreatingEventArgs : EventArgs {
-        public PlayerInfoCreatingEventArgs( string name, IPAddress ip, Rank startingRank, bool isUnrecognized ) {
-            Name = name;
-            StartingRank = startingRank;
-            IP = ip;
-            IsUnrecognized = isUnrecognized;
-        }
-        public string Name { get; private set; }
-        public Rank StartingRank { get; set; }
-        public IPAddress IP { get; private set; }
-        public bool IsUnrecognized { get; private set; }
-        public bool Cancel { get; set; }
-    }
-
-
-    public sealed class PlayerInfoCreatedEventArgs : PlayerInfoEventArgs {
-        public PlayerInfoCreatedEventArgs( PlayerInfo playerInfo, bool isUnrecognized )
-            : base( playerInfo ) {
-            IsUnrecognized = isUnrecognized;
-        }
-        public bool IsUnrecognized { get; private set; }
-    }
-
-
-    public class PlayerInfoRankChangedEventArgs : PlayerInfoEventArgs {
-        public PlayerInfoRankChangedEventArgs( PlayerInfo playerInfo, Player rankChanger, Rank oldRank, string reason, RankChangeType rankChangeType )
-            :base(playerInfo){
-            RankChanger=rankChanger;
-            OldRank =oldRank;
-            NewRank = playerInfo.Rank;
-            Reason=reason;
-            RankChangeType=rankChangeType;
-        }
-
-        public Player RankChanger { get; private set; }
-        public Rank OldRank { get; protected set; }
-        public Rank NewRank { get; protected set; }
-        public string Reason { get; private set; }
-        public RankChangeType RankChangeType { get; private set; }
-    }
-
-    public class PlayerInfoRankChangingEventArgs : PlayerInfoRankChangedEventArgs {
-        public PlayerInfoRankChangingEventArgs( PlayerInfo playerInfo, Player rankChanger, Rank newRank, string reason, RankChangeType rankChangeType )
-            : base( playerInfo, rankChanger, playerInfo.Rank, reason, rankChangeType ) {
-            NewRank = newRank;
-        }
-        public bool Cancel { get; set; }
-    }
-}
-#endregion

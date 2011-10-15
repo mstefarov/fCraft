@@ -1,28 +1,31 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Cache;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Text;
-using System.Linq;
 using fCraft.Events;
-using System.Diagnostics;
+using JetBrains.Annotations;
+#if DEBUG_EVENTS
+using System.Reflection.Emit;
+#endif
 
 namespace fCraft {
-
     /// <summary> Central logging class. Logs to file, relays messages to the frontend, submits crash reports. </summary>
     public static class Logger {
         static readonly object LogLock = new object();
+        public static bool Enabled { get; set; }
         public static readonly bool[] ConsoleOptions;
         public static readonly bool[] LogFileOptions;
 
         const string DefaultLogFileName = "fCraft.log",
-                     CrashReportUrl = "http://fragmer.net/fcraft/crashreport.php",
                      LongDateFormat = "yyyy'-'MM'-'dd'_'HH'-'mm'-'ss",
                      ShortDateFormat = "yyyy'-'MM'-'dd";
+        static readonly Uri CrashReportUri = new Uri( "http://www.fcraft.net/crashreport.php" );
         public static LogSplittingType SplittingType = LogSplittingType.OneFile;
 
         static readonly string SessionStart = DateTime.Now.ToString( LongDateFormat ); // localized
@@ -31,9 +34,11 @@ namespace fCraft {
 
 
         static Logger() {
-            ConsoleOptions = new bool[Enum.GetNames( typeof( LogType ) ).Length];
-            LogFileOptions = new bool[ConsoleOptions.Length];
-            for( int i = 0; i < ConsoleOptions.Length; i++ ) {
+            Enabled = true;
+            int typeCount = Enum.GetNames( typeof( LogType ) ).Length;
+            ConsoleOptions = new bool[typeCount];
+            LogFileOptions = new bool[typeCount];
+            for( int i = 0; i < typeCount; i++ ) {
                 ConsoleOptions[i] = true;
                 LogFileOptions[i] = true;
             }
@@ -47,16 +52,10 @@ namespace fCraft {
         }
 
 
-        [DebuggerStepThrough]
-        public static void Log( string message, LogType type, params object[] values ) {
-            Log( String.Format( message, values ), type );
-        }
-
-
-        public static void LogToConsole( string message ) {
+        public static void LogToConsole( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
-            if( message.Contains( "&N" ) ) {
-                foreach( string line in message.Split( PacketWriter.NewlineSplitter, StringSplitOptions.RemoveEmptyEntries ) ) {
+            if( message.Contains( '\n' ) ) {
+                foreach( string line in message.Split( '\n' ) ) {
                     LogToConsole( line );
                 }
                 return;
@@ -71,9 +70,18 @@ namespace fCraft {
 
 
         [DebuggerStepThrough]
-        public static void Log( string message, LogType type ) {
-            if( Server.HasArg( ArgKey.NoLog ) ) return;
+        [StringFormatMethod( "message" )]
+        public static void Log( [NotNull] string message, LogType type, [NotNull] params object[] values ) {
             if( message == null ) throw new ArgumentNullException( "message" );
+            if( values == null ) throw new ArgumentNullException( "values" );
+            Log( String.Format( message, values ), type );
+        }
+
+
+        [DebuggerStepThrough]
+        public static void Log( [NotNull] string message, LogType type ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( !Enabled ) return;
             string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message; // localized
 
             lock( LogLock ) {
@@ -133,21 +141,28 @@ namespace fCraft {
         const int MinCrashReportInterval = 61; // minimum interval between submitting crash reports, in seconds
 
 
-        public static void LogAndReportCrash( string message, string assembly, Exception exception, bool shutdownImminent ) {
+        public static void LogAndReportCrash( [CanBeNull] string message, [CanBeNull] string assembly, [CanBeNull] Exception exception, bool shutdownImminent ) {
             if( message == null ) message = "(null)";
             if( assembly == null ) assembly = "(null)";
             if( exception == null ) exception = new Exception( "(null)" );
 
             Log( "{0}: {1}", LogType.SeriousError, message, exception );
 
-            bool submitCrashReport = ConfigKey.SubmitCrashReports.GetBool();
+            bool submitCrashReport = ConfigKey.SubmitCrashReports.Enabled();
             bool isCommon = CheckForCommonErrors( exception );
 
+            // ReSharper disable EmptyGeneralCatchClause
             try {
-                CrashEventArgs eventArgs = new CrashEventArgs( message, assembly, exception, submitCrashReport && !isCommon, isCommon, shutdownImminent );
+                CrashedEventArgs eventArgs = new CrashedEventArgs( message,
+                                                               assembly,
+                                                               exception,
+                                                               submitCrashReport && !isCommon,
+                                                               isCommon,
+                                                               shutdownImminent );
                 RaiseCrashedEvent( eventArgs );
                 isCommon = eventArgs.IsCommonProblem;
             } catch { }
+            // ReSharper restore EmptyGeneralCatchClause
 
             if( !submitCrashReport || isCommon ) {
                 return;
@@ -194,23 +209,44 @@ namespace fCraft {
                     }
                     sb.Append( "&log=" ).Append( Uri.EscapeDataString( String.Join( Environment.NewLine, lastFewLines ) ) );
 
-                    byte[] formData = Encoding.ASCII.GetBytes( sb.ToString() );
+                    byte[] formData = Encoding.UTF8.GetBytes( sb.ToString() );
 
-                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create( CrashReportUrl );
-                    ServicePointManager.Expect100Continue = false;
+                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create( CrashReportUri );
                     request.Method = "POST";
                     request.Timeout = 15000; // 15s timeout
                     request.ContentType = "application/x-www-form-urlencoded";
                     request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
                     request.ContentLength = formData.Length;
+                    request.UserAgent = Updater.UserAgent;
 
                     using( Stream requestStream = request.GetRequestStream() ) {
                         requestStream.Write( formData, 0, formData.Length );
                         requestStream.Flush();
                     }
 
+                    string responseString;
+                    using( HttpWebResponse response = (HttpWebResponse)request.GetResponse() ) {
+                        using( Stream responseStream = response.GetResponseStream() ) {
+                            // ReSharper disable AssignNullToNotNullAttribute
+                            using( StreamReader reader = new StreamReader( responseStream ) ) {
+                                // ReSharper restore AssignNullToNotNullAttribute
+                                responseString = reader.ReadLine();
+                            }
+                        }
+                    }
                     request.Abort();
-                    Log( "Crash report submitted.", LogType.SystemActivity );
+
+                    if( responseString != null && responseString.StartsWith( "ERROR" ) ) {
+                        Log( "Crash report could not be processed by fCraft.net.", LogType.Error );
+                    } else {
+                        int referenceNumber;
+                        if( responseString != null && Int32.TryParse( responseString, out referenceNumber ) ) {
+                            Log( "Crash report submitted (Reference #{0})", LogType.SystemActivity, referenceNumber );
+                        } else {
+                            Log( "Crash report submitted.", LogType.SystemActivity );
+                        }
+                    }
+
 
                 } catch( Exception ex ) {
                     Log( "Logger.SubmitCrashReport: {0}", LogType.Warning, ex.Message );
@@ -221,13 +257,19 @@ namespace fCraft {
 
         // Called by the Logger in case of serious errors to print troubleshooting advice.
         // Returns true if this type of error is common, and crash report should NOT be submitted.
-        public static bool CheckForCommonErrors( Exception ex ) {
+        public static bool CheckForCommonErrors( [CanBeNull] Exception ex ) {
+            if( ex == null ) throw new ArgumentNullException( "ex" );
             string message = null;
             try {
-                if( ex is FileNotFoundException && (ex.Message.Contains( "System.Xml.Linq, Version=3.5" ) ||
-                                                    ex.Message.Contains( "System.Core, Version=3.5" )) ) {
-                    message = "Your crash was likely caused by using an outdated version of .NET or Mono runtime. " +
-                              "Please update to Microsoft .NET Framework 3.5+ (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).";
+                if( ex is FileNotFoundException && ex.Message.Contains( "Version=3.5" ) ) {
+                    message = "Your crash was likely caused by using a wrong version of .NET or Mono runtime. " +
+                              "Please update to Microsoft .NET Framework 3.5 (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).";
+                    return true;
+
+                } else if( ex is MissingMethodException ) {
+                    message = "Something is incompatible with the current revision of fCraft. "+
+                              "If you installed third-party modifications, make sure to use the correct revision (as specified by mod developers). "+
+                              "If your own modifications stopped working, your may need to make some updates.";
                     return true;
 
                 } else if( ex is FileNotFoundException && ex.Message.Contains( "libMonoPosixHelper.so" ) ||
@@ -252,7 +294,7 @@ namespace fCraft {
                     return true;
 
                 } else if( ex is SystemException && ex.Message == "Can't find current process" ) {
-                    // Mono-specific bug in MonitorProcessorUsage()
+                    // Ignore Mono-specific bug in MonitorProcessorUsage()
                     return true;
 
                 } else if( ex is InvalidOperationException && ex.StackTrace.Contains( "MD5CryptoServiceProvider" ) ) {
@@ -260,10 +302,15 @@ namespace fCraft {
                               "See http://support.microsoft.com/kb/811833";
                     return true;
 
+                } else if( ex.StackTrace.Contains( "__Error.WinIOError" ) ) {
+                    message = "A filesystem-related error has occured. Make sure that only one instance of fCraft is running, " +
+                              "and that no other processes are using server's files or directories.";
+                    return true;
+
                 } else if( ex.Message.Contains( "UNSTABLE" ) ) {
                     return true;
 
-                }else{
+                } else {
                     return false;
                 }
             } finally {
@@ -319,6 +366,10 @@ namespace fCraft {
             // find all events in current assembly, and create a handler for each one
             foreach( Type type in asm.GetTypes() ) {
                 foreach( EventInfo eventInfo in type.GetEvents() ) {
+                    // Skip non-static events
+                    if( (eventInfo.GetAddMethod().Attributes & MethodAttributes.Static) != MethodAttributes.Static ) {
+                        continue;
+                    }
                     if( eventInfo.EventHandlerType.FullName.StartsWith( typeof( EventHandler<> ).FullName ) ||
                         eventInfo.EventHandlerType.FullName.StartsWith( typeof( EventHandler ).FullName ) ) {
 
@@ -409,11 +460,13 @@ namespace fCraft {
         /// <summary> Occurs when the server "crashes" (has an unhandled exception).
         /// Note that such occurences will not always cause shutdowns - check ShutdownImminent property.
         /// Reporting of the crash may be suppressed. </summary>
-        public static event EventHandler<CrashEventArgs> Crashed;
+        public static event EventHandler<CrashedEventArgs> Crashed;
 
 
         [DebuggerStepThrough]
-        static void RaiseLoggedEvent( string rawMessage, string line, LogType logType ) {
+        static void RaiseLoggedEvent( [NotNull] string rawMessage, [NotNull] string line, LogType logType ) {
+            if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
+            if( line == null ) throw new ArgumentNullException( "line" );
             var h = Logged;
             if( h != null ) h( null, new LogEventArgs( rawMessage,
                                                        line,
@@ -423,7 +476,7 @@ namespace fCraft {
         }
 
 
-        static void RaiseCrashedEvent( CrashEventArgs e ) {
+        static void RaiseCrashedEvent( CrashedEventArgs e ) {
             var h = Crashed;
             if( h != null ) h( null, e );
         }
@@ -500,9 +553,7 @@ namespace fCraft {
 }
 
 
-#region EventArgs
 namespace fCraft.Events {
-
     public sealed class LogEventArgs : EventArgs {
         [DebuggerStepThrough]
         internal LogEventArgs( string rawMessage, string message, LogType messageType, bool writeToFile, bool writeToConsole ) {
@@ -520,8 +571,8 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class CrashEventArgs : EventArgs {
-        internal CrashEventArgs( string message, string location, Exception exception, bool submitCrashReport, bool isCommonProblem, bool shutdownImminent ) {
+    public sealed class CrashedEventArgs : EventArgs {
+        internal CrashedEventArgs( string message, string location, Exception exception, bool submitCrashReport, bool isCommonProblem, bool shutdownImminent ) {
             Message = message;
             Location = location;
             Exception = exception;
@@ -536,6 +587,4 @@ namespace fCraft.Events {
         public bool IsCommonProblem { get; private set; }
         public bool ShutdownImminent { get; private set; }
     }
-
 }
-#endregion

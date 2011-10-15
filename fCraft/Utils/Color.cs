@@ -2,12 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
-    /// <summary>
-    /// Static class with definitions of Minecraft color codes, parsers/converters, and utilities.
-    /// </summary>
+    /// <summary> Static class with definitions of Minecraft color codes,
+    /// parsers, converters, and utilities. </summary>
     public static class Color {
         public const string Black = "&0",
                             Navy = "&1",
@@ -60,8 +60,9 @@ namespace fCraft {
 
 
         /// <summary> Gets color name for hex color code. </summary>
-        /// <param name="code">Hexadecimal color code (between '0' and 'f')</param>
-        /// <returns>Lowercase color name</returns>
+        /// <param name="code"> Hexadecimal color code (between '0' and 'f'). </param>
+        /// <returns> Lowercase color name. </returns>
+        [CanBeNull]
         public static string GetName( char code ) {
             code = Char.ToLower( code );
             if( IsValidColorCode( code ) ) {
@@ -76,8 +77,9 @@ namespace fCraft {
 
 
         /// <summary> Gets color name for a numeric color code. </summary>
-        /// <param name="index"> Ordinal numeric color code (between 0 and 15) </param>
+        /// <param name="index"> Ordinal numeric color code (between 0 and 15). </param>
         /// <returns> Lowercase color name. If input is out of range, returns null. </returns>
+        [CanBeNull]
         public static string GetName( int index ) {
             if( index >= 0 && index <= 15 ) {
                 return ColorNames.Values[index];
@@ -92,6 +94,7 @@ namespace fCraft {
         /// <returns> Lowercase color name.
         /// If input is an empty string, returns empty string.
         /// If input is null or cannot be parsed, returns null. </returns>
+        [CanBeNull]
         public static string GetName( string color ) {
             if( color == null ) {
                 return null;
@@ -111,9 +114,10 @@ namespace fCraft {
 
         /// <summary> Parses a string to a format readable by Minecraft clients. 
         /// an accept color names and color codes (with or without the ampersand). </summary>
-        /// <param name="code"> Color code character </param>
+        /// <param name="code"> Color code character. </param>
         /// <returns> Two-character color string, readable by Minecraft client.
         /// If input is null or cannot be parsed, returns null. </returns>
+        [CanBeNull]
         public static string Parse( char code ) {
             code = Char.ToLower( code );
             if( IsValidColorCode( code ) ) {
@@ -136,9 +140,10 @@ namespace fCraft {
 
 
         /// <summary> Parses a numeric color code to a string readable by Minecraft clients </summary>
-        /// <param name="index"> Ordinal numeric color code (between 0 and 15) </param>
+        /// <param name="index"> Ordinal numeric color code (between 0 and 15). </param>
         /// <returns> Two-character color string, readable by Minecraft client.
         /// If input cannot be parsed, returns null. </returns>
+        [CanBeNull]
         public static string Parse( int index ) {
             if( index >= 0 && index <= 15 ) {
                 return "&" + ColorNames.Keys[index];
@@ -150,10 +155,11 @@ namespace fCraft {
 
         /// <summary> Parses a string to a format readable by Minecraft clients. 
         /// an accept color names and color codes (with or without the ampersand). </summary>
-        /// <param name="color"> Ordinal numeric color code (between 0 and 15) </param>
+        /// <param name="color"> Ordinal numeric color code (between 0 and 15). </param>
         /// <returns> Two-character color string, readable by Minecraft client.
         /// If input is an empty string, returns empty string.
         /// If input is null or cannot be parsed, returns null. </returns>
+        [CanBeNull]
         public static string Parse( string color ) {
             if( color == null ) {
                 return null;
@@ -180,7 +186,8 @@ namespace fCraft {
         }
 
 
-        public static int ParseToIndex( string color ) {
+        public static int ParseToIndex( [NotNull] string color ) {
+            if( color == null ) throw new ArgumentNullException( "color" );
             color = color.ToLower();
             if( color.Length == 2 && color[0] == '&' ) {
                 if( ColorNames.ContainsKey( color[1] ) ) {
@@ -215,9 +222,8 @@ namespace fCraft {
             return (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f') || (code >= 'A' && code <= 'F');
         }
 
-
-        public static string ReplacePercentCodes( string message ) {
-            StringBuilder sb = new StringBuilder( message );
+        public static void ReplacePercentCodes( [NotNull] StringBuilder sb ) {
+            if( sb == null ) throw new ArgumentNullException( "sb" );
             sb.Replace( "%0", "&0" );
             sb.Replace( "%1", "&1" );
             sb.Replace( "%2", "&2" );
@@ -240,11 +246,18 @@ namespace fCraft {
             sb.Replace( "%D", "&d" );
             sb.Replace( "%E", "&e" );
             sb.Replace( "%F", "&f" );
+        }
+
+        public static string ReplacePercentCodes( [NotNull] string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            StringBuilder sb = new StringBuilder( message );
+            ReplacePercentCodes( sb );
             return sb.ToString();
         }
 
 
-        public static string SubstituteSpecialColors( string input ) {
+        public static string SubstituteSpecialColors( [NotNull] string input ) {
+            if( input == null ) throw new ArgumentNullException( "input" );
             StringBuilder sb = new StringBuilder( input );
             for( int i = sb.Length - 1; i > 0; i-- ) {
                 if( sb[i - 1] == '&' ) {
@@ -295,12 +308,14 @@ namespace fCraft {
         };
 
 
-        public static string EscapeAmpersands( string input ) {
+        public static string EscapeAmpersands( [NotNull] string input ) {
+            if( input == null ) throw new ArgumentNullException( "input" );
             return input.Replace( "&", "&&" );
         }
 
 
-        public static string ToIRCColorCodes( string input ) {
+        public static string ToIRCColorCodes( [NotNull] string input ) {
+            if( input == null ) throw new ArgumentNullException( "input" );
             StringBuilder sb = new StringBuilder( SubstituteSpecialColors( input ) );
 
             foreach( KeyValuePair<string, IRCColor> code in MinecraftToIRCColors ) {

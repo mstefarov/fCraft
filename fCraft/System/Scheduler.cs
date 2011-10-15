@@ -1,9 +1,8 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> A general-purpose task scheduler. </summary>
@@ -40,7 +39,7 @@ namespace fCraft {
                     SchedulerTask task = taskListCache[i];
                     if( task.IsStopped || task.NextTime > ticksNow ) continue;
                     if( task.IsRecurring && task.AdjustForExecutionTime ) {
-                        task.NextTime = ticksNow + task.Interval;
+                        task.NextTime += task.Interval;
                     }
 
                     if( task.IsBackground ) {
@@ -73,7 +72,7 @@ namespace fCraft {
                     }
 
                     if( !task.IsRecurring || task.MaxRepeats == 1 ) {
-                        task.IsStopped = true;
+                        task.Stop();
                         continue;
                     }
                     task.MaxRepeats--;
@@ -124,7 +123,7 @@ namespace fCraft {
 
         /// <summary> Schedules a given task for execution. </summary>
         /// <param name="task"> Task to schedule. </param>
-        internal static void AddTask( SchedulerTask task ) {
+        internal static void AddTask( [NotNull] SchedulerTask task ) {
             if( task == null ) throw new ArgumentNullException( "task" );
             lock( TaskListLock ) {
                 if( Server.IsShuttingDown ) return;
@@ -150,7 +149,7 @@ namespace fCraft {
         /// Use this if your task is time-sensitive or frequent, and your callback won't take too long to execute. </summary>
         /// <param name="callback"> Method to call when the task is triggered. </param>
         /// <returns> Newly created SchedulerTask object. </returns>
-        public static SchedulerTask NewTask( SchedulerCallback callback ) {
+        public static SchedulerTask NewTask( [NotNull] SchedulerCallback callback ) {
             return new SchedulerTask( callback, false );
         }
 
@@ -159,7 +158,7 @@ namespace fCraft {
         /// Use this if your task is not very time-sensitive or frequent, or if your callback is resource-intensive. </summary>
         /// <param name="callback"> Method to call when the task is triggered. </param>
         /// <returns> Newly created SchedulerTask object. </returns>
-        public static SchedulerTask NewBackgroundTask( SchedulerCallback callback ) {
+        public static SchedulerTask NewBackgroundTask( [NotNull] SchedulerCallback callback ) {
             return new SchedulerTask( callback, true );
         }
 
@@ -169,7 +168,7 @@ namespace fCraft {
         /// <param name="callback"> Method to call when the task is triggered. </param>
         /// <param name="userState"> Parameter to pass to the method. </param>
         /// <returns> Newly created SchedulerTask object. </returns>
-        public static SchedulerTask NewTask( SchedulerCallback callback, object userState ) {
+        public static SchedulerTask NewTask( [NotNull] SchedulerCallback callback, [CanBeNull] object userState ) {
             return new SchedulerTask( callback, false, userState );
         }
 
@@ -179,7 +178,7 @@ namespace fCraft {
         /// <param name="callback"> Method to call when the task is triggered. </param>
         /// <param name="userState"> Parameter to pass to the method. </param>
         /// <returns> Newly created SchedulerTask object. </returns>
-        public static SchedulerTask NewBackgroundTask( SchedulerCallback callback, object userState ) {
+        public static SchedulerTask NewBackgroundTask( [NotNull] SchedulerCallback callback, [CanBeNull] object userState ) {
             return new SchedulerTask( callback, true, userState );
         }
 
@@ -237,8 +236,10 @@ namespace fCraft {
         }
 
 
-        /// <summary> Prints a list of active tasks (which may be quite long) to a given player. </summary>
-        public static void PrintTasks( Player player ) {
+#if DEBUG_SCHEDULER
+        
+        public static void PrintTasks( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             lock( TaskListLock ) {
                 foreach( SchedulerTask task in Tasks ) {
                     player.Message( task.ToString() );
@@ -247,7 +248,6 @@ namespace fCraft {
         }
 
 
- #if DEBUG_SCHEDULER
         public static event EventHandler<SchedulerTaskEventArgs> TaskAdded;
 
         public static event EventHandler<SchedulerTaskEventArgs> TaskExecuting;
@@ -263,206 +263,4 @@ namespace fCraft {
         }
 #endif
     }
-
-
-    public sealed class SchedulerTask {
-
-        internal SchedulerTask( SchedulerCallback callback, bool isBackground ) {
-            if( callback == null ) throw new ArgumentNullException( "callback" );
-            Callback = callback;
-            IsBackground = isBackground;
-        }
-
-        internal SchedulerTask( SchedulerCallback callback, bool isBackground, object userState ) {
-            if( callback == null ) throw new ArgumentNullException( "callback" );
-            Callback = callback;
-            IsBackground = isBackground;
-            UserState = userState;
-        }
-
-        public DateTime NextTime;
-        public TimeSpan Delay = TimeSpan.Zero;
-
-        public bool IsRecurring;
-        public bool IsBackground;
-        public bool IsStopped;
-        public bool IsExecuting;
-        public bool AdjustForExecutionTime = true;
-        public TimeSpan Interval = TimeSpan.FromMinutes( 1 );
-        public int MaxRepeats = -1;
-
-        public SchedulerCallback Callback;
-        public object UserState;
-
-
-        #region Run Once
-
-        public SchedulerTask RunOnce() {
-            NextTime = DateTime.UtcNow.Add( Delay );
-            IsRecurring = false;
-            Scheduler.AddTask( this );
-            return this;
-        }
-
-
-        public SchedulerTask RunOnce( TimeSpan delay ) {
-            Delay = delay;
-            return RunOnce();
-        }
-
-
-        public SchedulerTask RunOnce( DateTime time ) {
-            Delay = time.Subtract( DateTime.UtcNow );
-            NextTime = time;
-            IsRecurring = false;
-            Scheduler.AddTask( this );
-            return this;
-        }
-
-
-        public SchedulerTask RunOnce( object userState, TimeSpan delay ) {
-            UserState = userState;
-            return RunOnce( delay );
-        }
-
-
-        public SchedulerTask RunOnce( object userState, DateTime time ) {
-            UserState = userState;
-            return RunOnce( time );
-        }
-
-        #endregion
-
-
-        #region Run Forever
-
-        SchedulerTask RunForever() {
-            IsRecurring = true;
-            NextTime = DateTime.UtcNow.Add( Delay );
-            Scheduler.AddTask( this );
-            return this;
-        }
-
-
-        public SchedulerTask RunForever( TimeSpan interval ) {
-            Interval = interval;
-            return RunForever();
-        }
-
-
-        public SchedulerTask RunForever( TimeSpan interval, TimeSpan delay ) {
-            Interval = interval;
-            Delay = delay;
-            return RunForever();
-        }
-
-
-        public SchedulerTask RunForever( object userState, TimeSpan interval, TimeSpan delay ) {
-            UserState = userState;
-            return RunForever( interval, delay );
-        }
-
-        #endregion
-
-
-        #region Run Repeating
-
-        public SchedulerTask RunRepeating( TimeSpan delay, TimeSpan interval, int times ) {
-            MaxRepeats = times;
-            return RunForever( interval, delay );
-        }
-
-
-        public SchedulerTask RunRepeating( object userState, TimeSpan delay, TimeSpan interval, int times ) {
-            UserState = userState;
-            MaxRepeats = times;
-            return RunForever( interval, delay );
-        }
-
-        #endregion
-
-
-        #region Run Manual
-
-        static readonly TimeSpan CloseEnoughToForever = TimeSpan.FromDays( 36525 ); // >100 years
-        public SchedulerTask RunManual() {
-            Delay = TimeSpan.Zero;
-            IsRecurring = true;
-            NextTime = DateTime.UtcNow;
-            MaxRepeats = -1;
-            Interval = CloseEnoughToForever;
-            Scheduler.AddTask( this );
-            return this;
-        }
-
-        public SchedulerTask RunManual( TimeSpan delay ) {
-            Delay = delay;
-            IsRecurring = true;
-            NextTime = DateTime.UtcNow.Add( Delay );
-            MaxRepeats = -1;
-            Interval = CloseEnoughToForever;
-            Scheduler.AddTask( this );
-            return this;
-        }
-
-        public SchedulerTask RunManual( DateTime time ) {
-            Delay = time.Subtract( DateTime.UtcNow );
-            IsRecurring = true;
-            NextTime = time;
-            MaxRepeats = -1;
-            Interval = CloseEnoughToForever;
-            Scheduler.AddTask( this );
-            return this;
-        }
-
-        #endregion
-
-
-        public SchedulerTask Stop() {
-            IsStopped = true;
-            return this;
-        }
-
-
-        public override string ToString() {
-            StringBuilder sb = new StringBuilder( "Task(" );
-
-            if( IsStopped ) {
-                sb.Append( "STOPPED " );
-            }
-
-            if( Callback.Target != null ) {
-                sb.Append( Callback.Target ).Append( "::" );
-            }
-            sb.Append( Callback.Method.DeclaringType.Name );
-            sb.Append( '.' );
-            sb.Append( Callback.Method.Name );
-            sb.Append( " @ " );
-
-            if( IsRecurring ) {
-                sb.Append( Interval.ToCompactString() );
-            }
-            sb.Append( "+" ).Append( Delay.ToCompactString() );
-
-            if( UserState != null ) {
-                sb.Append( " -> " );
-                sb.Append( UserState );
-            }
-            sb.Append( ')' );
-            return sb.ToString();
-        }
-    }
-
-
-    public delegate void SchedulerCallback( SchedulerTask task );
-
-
-#if DEBUG_SCHEDULER
-    public class SchedulerTaskEventArgs : EventArgs {
-        public SchedulerTaskEventArgs( SchedulerTask task ) {
-            Task = task;
-        }
-        public SchedulerTask Task { get; private set; }
-    }
-#endif
 }

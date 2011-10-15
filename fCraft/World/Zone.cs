@@ -1,26 +1,50 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
-    public sealed class Zone : IClassy {
+    public sealed class Zone : IClassy, INotifiesOnChange {
 
+        /// <summary> Zone boundaries. </summary>
+        [NotNull]
         public BoundingBox Bounds { get; private set; }
+
+        /// <summary> Zone build permission controller. </summary>
+        [NotNull]
         public readonly SecurityController Controller = new SecurityController();
 
-        public string Name;
+        /// <summary> Zone name (case-preserving but case-insensitive). </summary>
+        [NotNull]
+        public string Name { get; set; }
 
-        public SecurityController.PlayerListCollection GetPlayerList() {
-            return Controller.ExceptionList;
+        /// <summary> List of exceptions (included and excluded players). </summary>
+        public PlayerExceptions ExceptionList {
+            get { return Controller.ExceptionList; }
         }
 
+        /// <summary> Zone creation date, UTC. </summary>
         public DateTime CreatedDate { get; private set; }
+
+        /// <summary> Zone editing date, UTC. </summary>
         public DateTime EditedDate { get; private set; }
+
+        /// <summary> Player who created this zone. May be null if unknown. </summary>
         public PlayerInfo CreatedBy { get; private set; }
+
+        /// <summary> Player who was the last to edit this zone. May be null if unknown. </summary>
         public PlayerInfo EditedBy { get; private set; }
 
+        /// <summary> Map that this zone is on. </summary>
+        [NotNull]
+        public Map Map { get; set; }
 
-        public void Create( BoundingBox bounds, PlayerInfo createdBy ) {
+
+        /// <summary> Creates the zone boundaries, and sets CreatedDate/CreatedBy. </summary>
+        /// <param name="bounds"> New zone boundaries. </param>
+        /// <param name="createdBy"> Player who created this zone. May not be null. </param>
+        public void Create( [NotNull] BoundingBox bounds, [NotNull] PlayerInfo createdBy ) {
             if( bounds == null ) throw new ArgumentNullException( "bounds" );
             if( createdBy == null ) throw new ArgumentNullException( "createdBy" );
             CreatedDate = DateTime.UtcNow;
@@ -28,17 +52,23 @@ namespace fCraft {
             CreatedBy = createdBy;
         }
 
-        public void Edit( PlayerInfo editedBy ) {
+
+        public void Edit( [NotNull] PlayerInfo editedBy ) {
             if( editedBy == null ) throw new ArgumentNullException( "editedBy" );
             EditedDate = DateTime.UtcNow;
             EditedBy = editedBy;
+            RaiseChangedEvent();
         }
 
 
-        public Zone() { }
+        public Zone() {
+            Controller.Changed += ( o, e ) => RaiseChangedEvent();
+        }
 
 
-        public Zone( string raw, World world ) {
+        public Zone( [NotNull] string raw, [CanBeNull] World world )
+            : this() {
+            if( raw == null ) throw new ArgumentNullException( "raw" );
             string[] parts = raw.Split( ',' );
 
             string[] header = parts[0].Split( ' ' );
@@ -46,7 +76,7 @@ namespace fCraft {
             Bounds = new BoundingBox( Int32.Parse( header[1] ), Int32.Parse( header[2] ), Int32.Parse( header[3] ),
                                       Int32.Parse( header[4] ), Int32.Parse( header[5] ), Int32.Parse( header[6] ) );
 
-            Rank buildRank = RankManager.ParseRank( header[7] );
+            Rank buildRank = Rank.Parse( header[7] );
             // if all else fails, fall back to lowest class
             if( buildRank == null ) {
                 if( world != null ) {
@@ -54,8 +84,10 @@ namespace fCraft {
                 } else {
                     Controller.MinRank = null;
                 }
+                // ReSharper disable PossibleNullReferenceException
                 Logger.Log( "Zone: Error parsing zone definition: unknown rank \"{0}\". Permission reset to default ({1}).", LogType.Error,
                             header[7], Controller.MinRank.Name );
+                // ReSharper restore PossibleNullReferenceException
             } else {
                 Controller.MinRank = buildRank;
             }
@@ -77,8 +109,6 @@ namespace fCraft {
                 Controller.Exclude( info );
             }
 
-            Controller.UpdatePlayerListCache();
-
             // Part 4: extended header
             if( parts.Length > 3 ) {
                 string[] xheader = parts[3].Split( ' ' );
@@ -90,41 +120,20 @@ namespace fCraft {
         }
 
 
-        public string SerializeFCMv2() {
-            string xheader;
-            if( CreatedBy != null ) {
-                xheader = CreatedBy.Name + " " + CreatedDate.ToCompactString() + " ";
-            } else {
-                xheader = "- - ";
+        public string ClassyName {
+            get {
+                return Controller.MinRank.Color + Name;
             }
-
-            if( EditedBy != null ) {
-                xheader += EditedBy.Name + " " + EditedDate.ToCompactString();
-            } else {
-                xheader += "- -";
-            }
-
-            SecurityController.PlayerListCollection list = Controller.ExceptionList;
-
-            return String.Format( "{0},{1},{2},{3}",
-                                  String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
-                                                 Name, Bounds.XMin, Bounds.YMin, Bounds.HMin, Bounds.XMax, Bounds.YMax, Bounds.HMax, Controller.MinRank.GetFullName() ),
-                                  list.Included.JoinToString( " ", p => p.Name ),
-                                  list.Excluded.JoinToString( " ", p => p.Name ),
-                                  xheader );
         }
 
 
-        public string GetClassyName() {
-            return Controller.MinRank.Color + Name;
-        }
-
-        /*
         #region Xml Serialization
 
         const string XmlRootElementName = "Zone";
 
-        public Zone( XElement root ) {
+        // ReSharper disable PossibleNullReferenceException
+        public Zone( [NotNull] XContainer root ) {
+            if( root == null ) throw new ArgumentNullException( "root" );
             Name = root.Element( "name" ).Value;
 
             if( root.Element( "created" ) != null ) {
@@ -139,9 +148,15 @@ namespace fCraft {
                 EditedDate = DateTime.Parse( edited.Attribute( "on" ).Value );
             }
 
-            Bounds = new BoundingBox( root.Element( BoundingBox.XmlRootElementName ) );
-            Controller = new SecurityController( root.Element( XmlRootElementName ) );
+            XElement temp = root.Element( BoundingBox.XmlRootElementName );
+            if( temp == null ) throw new FormatException( "No BoundingBox specified for zone." );
+            Bounds = new BoundingBox( temp );
+
+            temp = root.Element( SecurityController.XmlRootElementName );
+            if( temp == null ) throw new FormatException( "No SecurityController specified for zone." );
+            Controller = new SecurityController( temp, true );
         }
+        // ReSharper restore PossibleNullReferenceException
 
 
         public XElement Serialize() {
@@ -168,6 +183,13 @@ namespace fCraft {
         }
 
         #endregion
-         */
+
+
+        public event EventHandler Changed;
+
+        void RaiseChangedEvent() {
+            var h = Changed;
+            if( h != null ) h( null, EventArgs.Empty );
+        }
     }
 }

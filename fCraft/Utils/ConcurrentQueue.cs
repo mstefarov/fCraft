@@ -2,10 +2,8 @@
 using System.Threading;
 
 namespace fCraft {
-    /// <summary>
-    /// A lightweight queue implementation with lock-free/concurrent operations.
-    /// </summary>
-    /// <typeparam name="T">Payload type</typeparam>
+    /// <summary> A lightweight queue implementation with lock-free/concurrent operations. </summary>
+    /// <typeparam name="T"> Payload type </typeparam>
     public sealed class ConcurrentQueue<T> {
         sealed class Node {
             public T Value;
@@ -119,6 +117,12 @@ namespace fCraft {
 
             } // endloop
             Interlocked.Increment( ref Length );
+        }
+
+
+        public void Clear() {
+            T t = default( T );
+            while( Dequeue( ref t ) ) { }
         }
     }
 }

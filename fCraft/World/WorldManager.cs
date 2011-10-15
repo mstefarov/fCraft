@@ -1,240 +1,362 @@
-﻿using System;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Xml;
-using System.Xml.Linq;
 using System.IO;
+using System.Linq;
+using System.Xml.Linq;
 using fCraft.Events;
 using fCraft.MapConversion;
+using JetBrains.Annotations;
 
 namespace fCraft {
     public static class WorldManager {
+        public const string BuildSecurityXmlTagName = "BuildSecurity",
+                            AccessSecurityXmlTagName = "AccessSecurity",
+                            EnvironmentXmlTagName = "Environment";
 
         public static World[] WorldList { get; private set; }
         static readonly SortedDictionary<string, World> Worlds = new SortedDictionary<string, World>();
 
-        internal static readonly object WorldListLock = new object();
+        internal static readonly object SyncRoot = new object();
 
 
-        #region Main World
-
-        public static World MainWorld { get; private set; }
-
-
-        public static bool SetMainWorld( this World newWorld ) {
-            if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
-            if( RaiseMainWorldChangingEvent( MainWorld, newWorld ) ) return false;
-            World oldWorld;
-            lock( WorldListLock ) {
-                newWorld.ToggleNeverUnloadFlag( true );
-                oldWorld = MainWorld;
-                oldWorld.ToggleNeverUnloadFlag( false );
-                MainWorld = newWorld;
+        static World mainWorld;
+        /// <summary> Gets or sets the default main world.
+        /// That's the world that players first join upon connecting.
+        /// The map of the new main world is preloaded, and old one is unloaded, if needed. </summary>
+        /// <exception cref="System.ArgumentNullException" />
+        /// <exception cref="fCraft.WorldOpException" />
+        [NotNull]
+        public static World MainWorld {
+            get { return mainWorld; }
+            set {
+                if( value == null ) throw new ArgumentNullException( "value" );
+                if( value == mainWorld ) return;
+                if( RaiseMainWorldChangingEvent( mainWorld, value ) ) {
+                    throw new WorldOpException( value.Name, WorldOpExceptionCode.PluginDenied );
+                }
+                World oldWorld;
+                lock( SyncRoot ) {
+                    value.NeverUnload = true;
+                    oldWorld = mainWorld;
+                    if( oldWorld != null ) {
+                        oldWorld.NeverUnload = false;
+                    }
+                    mainWorld = value;
+                }
+                RaiseMainWorldChangedEvent( oldWorld, value );
             }
-            RaiseMainWorldChangedEvent( oldWorld, newWorld );
-            return true;
         }
-
-        #endregion
 
 
         #region World List Saving/Loading
 
         internal static bool LoadWorldList() {
+            World newMainWorld = null;
+            WorldList = new World[0];
             if( File.Exists( Paths.WorldListFileName ) ) {
                 try {
-                    LoadWorldListXml();
+                    XDocument doc = XDocument.Load( Paths.WorldListFileName );
+                    XElement root = doc.Root;
+                    if( root != null ) {
+                        World firstWorld = null;
+                        foreach( XElement el in root.Elements( "World" ) ) {
+#if !DEBUG
+                            try {
+#endif
+                                LoadWorldListEntry( el, ref firstWorld );
+#if !DEBUG
+                            } catch( Exception ex ) {
+                                Logger.LogAndReportCrash( "An error occured while trying to parse one of the entries on the world list",
+                                                          "fCraft", ex, false );
+                            }
+#endif
+                        }
+
+                        XAttribute temp;
+                        if( (temp = root.Attribute( "main" )) != null ) {
+                            World suggestedMainWorld = FindWorldExact( temp.Value );
+
+                            if( suggestedMainWorld != null ) {
+                                newMainWorld = suggestedMainWorld;
+
+                            } else if( firstWorld != null ) {
+                                // if specified main world does not exist, use first-defined world
+                                Logger.Log( "The specified main world \"{0}\" does not exist. " +
+                                            "\"{1}\" was designated main instead. You can use /wmain to change it.",
+                                            LogType.Warning, temp.Value, firstWorld.Name );
+                                newMainWorld = firstWorld;
+                            }
+                            // if firstWorld was also null, LoadWorldList() should try creating a new mainWorld
+
+                        } else if( firstWorld != null ) {
+                            newMainWorld = firstWorld;
+                        }
+                    }
                 } catch( Exception ex ) {
                     Logger.LogAndReportCrash( "Error occured while trying to load the world list.", "fCraft", ex, true );
                     return false;
                 }
+
+                if( newMainWorld == null ) {
+                    Logger.Log( "Server.Start: Could not load any of the specified worlds, or no worlds were specified. " +
+                                "Creating default \"main\" world.", LogType.Error );
+                    newMainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
+                }
+
             } else {
                 Logger.Log( "Server.Start: No world list found. Creating default \"main\" world.", LogType.SystemActivity );
-                CreateDefaultMainWorld();
-            }
-
-            if( Worlds.Count == 0 ) {
-                Logger.Log( "Server.Start: Could not load any of the specified worlds, or no worlds were specified. " +
-                            "Creating default \"main\" world.", LogType.Error );
-                CreateDefaultMainWorld();
+                newMainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
             }
 
             // if there is no default world still, die.
-            if( MainWorld == null ) {
+            if( newMainWorld == null ) {
                 throw new Exception( "Could not create any worlds" );
-            } else {
-                if( MainWorld.AccessSecurity.HasRestrictions() ) {
-                    Logger.Log( "Server.LoadWorldList: Main world cannot have any access restrictions. " +
-                                "Access permission for \"{0}\" has been reset.", LogType.Warning,
-                                 MainWorld.Name );
-                    MainWorld.AccessSecurity.Reset();
-                }
-                MainWorld.ToggleNeverUnloadFlag( true );
+
+            } else if( newMainWorld.AccessSecurity.HasRestrictions ) {
+                Logger.Log( "Server.LoadWorldList: Main world cannot have any access restrictions. " +
+                            "Access permission for \"{0}\" has been reset.", LogType.Warning,
+                             MainWorld.Name );
+                newMainWorld.AccessSecurity.Reset();
             }
+
+            MainWorld = newMainWorld;
 
             return true;
         }
 
-
-        static void CreateDefaultMainWorld() {
-            Map map = new Map( null, 64, 64, 64, true );
-            MapGenerator.GenerateFlatgrass( map );
-            map.ResetSpawn();
-            MainWorld = AddWorld( null, "main", map, true );
-        }
-
-
-        static void LoadWorldListXml() {
-            XDocument doc = XDocument.Load( Paths.WorldListFileName );
-            XElement root = doc.Root;
-            World firstWorld = null;
+        static void LoadWorldListEntry( [NotNull] XElement el, ref World firstWorld ) {
+            if( el == null ) throw new ArgumentNullException( "el" );
             XAttribute temp;
-
-            foreach( XElement el in root.Elements( "World" ) ) {
-                try {
-                    if( (temp = el.Attribute( "name" )) == null ) {
-                        Logger.Log( "Server.ParseWorldListXML: World tag with no name skipped.", LogType.Error );
-                        continue;
-                    }
-                    string worldName = temp.Value;
-                    if( !World.IsValidName( worldName ) ) {
-                        Logger.Log( "Server.ParseWorldListXML: Invalid world name skipped: \"{0}\"", LogType.Error, worldName );
-                        continue;
-                    }
-
-                    if( Worlds.ContainsKey( worldName.ToLower() ) ) {
-                        Logger.Log( "Server.ParseWorldListXML: Duplicate world name ignored: \"{0}\"", LogType.Error, worldName );
-                        continue;
-                    }
-
-                    World world;
-                    try {
-                        world = AddWorld( null, worldName, null, (el.Attribute( "noUnload" ) != null) );
-                    } catch( WorldOpException ex ) {
-                        Logger.Log( "Server.ParseWorldListXML: Error loading world \"{0}\": {1}", LogType.Error, worldName, ex.Message );
-                        continue;
-                    }
-
-                    if( (temp = el.Attribute( "hidden" )) != null ) {
-                        if( !Boolean.TryParse( temp.Value, out world.IsHidden ) ) {
-                            Logger.Log( "Server.ParseWorldListXML: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
-                                        LogType.Warning, worldName );
-                            world.IsHidden = false;
-                        }
-                    }
-                    if( firstWorld == null ) firstWorld = world;
-
-                    if( el.Element( "accessSecurity" ) != null ) {
-                        world.AccessSecurity = new SecurityController( el.Element( "accessSecurity" ) );
-                    } else {
-                        world.AccessSecurity.MinRank = LoadWorldRankRestriction( world, "access", el ); // LEGACY
-                    }
-
-                    if( el.Element( "buildSecurity" ) != null ) {
-                        world.BuildSecurity = new SecurityController( el.Element( "buildSecurity" ) );
-                    } else {
-                        world.BuildSecurity.MinRank = LoadWorldRankRestriction( world, "build", el ); // LEGACY
-                    }
-
-                    // Check the world's map file
-                    string mapFullName = world.GetMapName();
-                    string mapName = Path.GetFileName( mapFullName );
-
-                    if( Paths.FileExists( mapFullName, false ) ) {
-                        if( !Paths.FileExists( mapFullName, true ) ) {
-                            // Map file has wrong capitalization
-                            FileInfo[] matches = Paths.FindFiles( mapFullName );
-                            if( matches.Length == 1 ) {
-                                // Try to rename the map file to match world's capitalization
-                                Paths.ForceRename( matches[0].FullName, mapName );
-                                if( Paths.FileExists( mapFullName, true ) ) {
-                                    Logger.Log( "Server.LoadWorldListXML: Map file for world \"{0}\" was renamed from \"{1}\" to \"{2}\"", LogType.Warning,
-                                                world.Name, matches[0].Name, mapName );
-                                } else {
-                                    Logger.Log( "Server.LoadWorldListXML: Failed to rename map file of \"{0}\" from \"{1}\" to \"{2}\"", LogType.Error,
-                                                world.Name, matches[0].Name, mapName );
-                                    continue;
-                                }
-                            } else {
-                                Logger.Log( "Server.LoadWorldListXML: More than one map file exists matching the world name \"{0}\". " +
-                                            "Please check the map directory and use /wload to load the correct file.", LogType.Warning,
-                                            world.Name );
-                                continue;
-                            }
-                        }
-                        // Try loading the map header
-                        try {
-                            MapUtility.LoadHeader( world.GetMapName() );
-                        } catch( Exception ex ) {
-                            Logger.Log( "Server.LoadWorldListXML: Could not load map file for world \"{0}\": {1}", LogType.Warning,
-                                        world.Name, ex );
-                        }
-                    } else {
-                        Logger.Log( "Server.LoadWorldListXML: Map file for world \"{0}\" was not found.", LogType.Warning,
-                                    world.Name );
-                    }
-                } catch( Exception ex ) {
-                    Logger.LogAndReportCrash( "An error occured while trying to parse one of the entries on the world list",
-                                              "fCraft", ex, false );
-                }
+            if( (temp = el.Attribute( "name" )) == null ) {
+                Logger.Log( "WorldManager: World tag with no name skipped.",
+                            LogType.Error );
+                return;
             }
 
-            if( (temp = root.Attribute( "main" )) != null ) {
-                MainWorld = FindWorldExact( temp.Value );
-                // if specified main world does not exist, use first-defined world
-                if( MainWorld == null && firstWorld != null ) {
-                    Logger.Log( "The specified main world \"{0}\" does not exist. " +
-                                "\"{1}\" was designated main instead. You can use /wmain to change it.",
-                                LogType.Warning, temp.Value, firstWorld.Name );
-                    MainWorld = firstWorld;
-                }
-                // if firstWorld was also null, LoadWorldList() should try creating a new mainWorld
+            string worldName = temp.Value;
 
+            bool neverUnload = (el.Attribute( "noUnload" ) != null);
+
+            World world;
+            try {
+                world = AddWorld( null, worldName, null, neverUnload );
+            } catch( WorldOpException ex ) {
+                Logger.Log( "WorldManager: Error adding world \"{0}\": {1}",
+                            LogType.Error,
+                            worldName, ex.Message );
+                return;
+            }
+
+            if( (temp = el.Attribute( "hidden" )) != null ) {
+                bool isHidden;
+                if( Boolean.TryParse( temp.Value, out isHidden ) ) {
+                    world.IsHidden = isHidden;
+                } else {
+                    Logger.Log( "WorldManager: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
+                                LogType.Warning,
+                                worldName );
+                }
+            }
+            if( firstWorld == null ) firstWorld = world;
+
+            XElement tempEl;
+            if( (tempEl = el.Element( AccessSecurityXmlTagName )) != null ) {
+                world.AccessSecurity = new SecurityController( tempEl, true );
+            }else if( (tempEl=el.Element( "accessSecurity" )) != null ) {
+                world.AccessSecurity = new SecurityController( tempEl, true );
+            }
+            if( (tempEl = el.Element( BuildSecurityXmlTagName )) != null ) {
+                world.BuildSecurity = new SecurityController( tempEl, true );
+            }else if( (tempEl=el.Element( "buildSecurity" )) != null ) {
+                world.BuildSecurity = new SecurityController( tempEl, true );
+            }
+
+            if( (temp = el.Attribute( "backup" )) != null ) {
+                TimeSpan backupInterval;
+                if( !temp.Value.ToTimeSpan( out backupInterval ) ) {
+                    Logger.Log( "WorldManager: Could not parse \"backup\" attribute of world \"{0}\", assuming default ({1}).",
+                                LogType.Warning,
+                                worldName,
+                                backupInterval.ToMiniString() );
+                }
+                world.BackupInterval = backupInterval;
             } else {
-                MainWorld = firstWorld;
+                world.BackupInterval = World.DefaultBackupInterval;
             }
+
+            XElement blockEl = el.Element( BlockDB.XmlRootName );
+            if( blockEl != null ) {
+                world.BlockDB.LoadSettings( blockEl );
+            }
+
+            XElement envEl = el.Element( EnvironmentXmlTagName );
+            if( envEl != null ) {
+                if( (temp = envEl.Attribute( "cloud" )) != null ) {
+                    if( !Int32.TryParse( temp.Value, out world.CloudColor ) ) {
+                        world.CloudColor = -1;
+                        Logger.Log( "WorldManager: Could not parse \"cloud\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
+                                    LogType.Warning,
+                                    worldName );
+                    }
+                }
+                if( (temp = envEl.Attribute( "fog" )) != null ) {
+                    if( !Int32.TryParse( temp.Value, out world.FogColor ) ) {
+                        world.FogColor = -1;
+                        Logger.Log( "WorldManager: Could not parse \"fog\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
+                                    LogType.Warning,
+                                    worldName );
+                    }
+                }
+                if( (temp = envEl.Attribute( "sky" )) != null ) {
+                    if( !Int32.TryParse( temp.Value, out world.SkyColor ) ) {
+                        world.SkyColor = -1;
+                        Logger.Log( "WorldManager: Could not parse \"sky\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
+                                    LogType.Warning,
+                                    worldName );
+                    }
+                }
+                if( (temp = envEl.Attribute( "level" )) != null ) {
+                    if( !Int32.TryParse( temp.Value, out world.EdgeLevel ) ) {
+                        world.EdgeLevel = -1;
+                        Logger.Log( "WorldManager: Could not parse \"level\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
+                                    LogType.Warning,
+                                    worldName );
+                    }
+                }
+                if( (temp = envEl.Attribute( "edge" )) != null ) {
+                    Block block = Map.GetBlockByName( temp.Value );
+                    if( block == Block.Undefined ) {
+                        world.EdgeBlock = Block.Water;
+                        Logger.Log( "WorldManager: Could not parse \"edge\" attribute of Environment settings for world \"{0}\", assuming default (Water).",
+                                    LogType.Warning,
+                                    worldName );
+                    } else {
+                        if( Map.GetEdgeTexture( block ) == null ) {
+                            world.EdgeBlock = Block.Water;
+                            Logger.Log( "WorldManager: Unacceptable blocktype given for \"edge\" attribute of Environment settings for world \"{0}\", assuming default (Water).",
+                                        LogType.Warning,
+                                        worldName );
+                        } else {
+                            world.EdgeBlock = block;
+                        }
+                    }
+                }
+            }
+
+            foreach( XElement mainedRankEl in el.Elements( "RankMainWorld" ) ) {
+                Rank rank = Rank.Parse( mainedRankEl.Value );
+                if( rank != null ) {
+                    if( rank < world.AccessSecurity.MinRank ) {
+                        world.AccessSecurity.MinRank = rank;
+                        Logger.Log( "WorldManager: Lowered access MinRank of world {0} to allow it to be the main world for that rank.",
+                                    LogType.Warning,
+                                    rank.Name );
+                    }
+                    rank.MainWorld = world;
+                }
+            }
+
+            CheckMapFile( world );
         }
 
 
-        static Rank LoadWorldRankRestriction( World world, string fieldType, XElement element ) {
+        // Makes sure that the map file exists, is properly named, and is loadable.
+        static void CheckMapFile( [NotNull] World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );
-            if( element == null ) throw new ArgumentNullException( "element" );
-            XAttribute temp;
-            if( (temp = element.Attribute( fieldType )) == null ) {
-                return RankManager.LowestRank;
+            // Check the world's map file
+            string fullMapFileName = world.MapFileName;
+            string fileName = Path.GetFileName( fullMapFileName );
+
+            if( Paths.FileExists( fullMapFileName, false ) ) {
+                if( !Paths.FileExists( fullMapFileName, true ) ) {
+                    // Map file has wrong capitalization
+                    FileInfo[] matches = Paths.FindFiles( fullMapFileName );
+                    if( matches.Length == 1 ) {
+                        // Try to rename the map file to match world's capitalization
+// ReSharper disable AssignNullToNotNullAttribute
+                        Paths.ForceRename( matches[0].FullName, fileName );
+// ReSharper restore AssignNullToNotNullAttribute
+                        if( Paths.FileExists( fullMapFileName, true ) ) {
+                            Logger.Log( "WorldManager.CheckMapFile: Map file for world \"{0}\" was renamed from \"{1}\" to \"{2}\"",
+                                        LogType.Warning,
+                                        world.Name, matches[0].Name, fileName );
+                        } else {
+                            Logger.Log( "WorldManager.CheckMapFile: Failed to rename map file of \"{0}\" from \"{1}\" to \"{2}\"",
+                                        LogType.Error,
+                                        world.Name, matches[0].Name, fileName );
+                            return;
+                        }
+                    } else {
+                        Logger.Log( "WorldManager.CheckMapFile: More than one map file exists matching the world name \"{0}\". " +
+                                    "Please check the map directory and use /wload to load the correct file.", LogType.Warning,
+                                    world.Name );
+                        return;
+                    }
+                }
+                // Try loading the map header
+                try {
+                    MapUtility.LoadHeader( world.MapFileName );
+                } catch( Exception ex ) {
+                    Logger.Log( "WorldManager.CheckMapFile: Could not load map file for world \"{0}\": {1}", LogType.Warning,
+                                world.Name, ex );
+                }
+            } else {
+                Logger.Log( "WorldManager.CheckMapFile: Map file for world \"{0}\" was not found.", LogType.Warning,
+                            world.Name );
             }
-            Rank rank;
-            if( (rank = RankManager.ParseRank( temp.Value )) != null ) {
-                return rank;
-            }
-            Logger.Log( "Server.ParseWorldListXML: Could not parse the specified {0} rank for world \"{1}\": \"{2}\". No {0} limit was set.",
-                        LogType.Error, fieldType, world.Name, temp.Value );
-            return RankManager.LowestRank;
         }
 
 
+        /// <summary> Saves the current world list to worlds.xml. Thread-safe. </summary>
         public static void SaveWorldList() {
             const string worldListTempFileName = Paths.WorldListFileName + ".tmp";
             // Save world list
-            try {
+            lock( SyncRoot ) {
                 XDocument doc = new XDocument();
                 XElement root = new XElement( "fCraftWorldList" );
-                XElement temp;
-                World[] worldListCache = WorldList;
 
-                foreach( World world in worldListCache ) {
-                    temp = new XElement( "World" );
+                foreach( World world in WorldList ) {
+                    XElement temp = new XElement( "World" );
                     temp.Add( new XAttribute( "name", world.Name ) );
-                    temp.Add( new XAttribute( "access", world.AccessSecurity.MinRank ) ); // LEGACY
-                    temp.Add( new XAttribute( "build", world.BuildSecurity.MinRank ) ); // LEGACY
-                    temp.Add( world.AccessSecurity.Serialize( "accessSecurity" ) );
-                    temp.Add( world.BuildSecurity.Serialize( "buildSecurity" ) );
+                    temp.Add( world.AccessSecurity.Serialize( AccessSecurityXmlTagName ) );
+                    temp.Add( world.BuildSecurity.Serialize( BuildSecurityXmlTagName ) );
                     if( world.NeverUnload ) {
                         temp.Add( new XAttribute( "noUnload", true ) );
                     }
                     if( world.IsHidden ) {
                         temp.Add( new XAttribute( "hidden", true ) );
                     }
+                    temp.Add( world.BlockDB.SaveSettings() );
+
+                    World world1 = world;
+                    foreach( Rank mainedRank in RankManager.Ranks.Where( r => r.MainWorld == world1 ) ) {
+                        temp.Add( new XElement( "RankMainWorld", mainedRank.FullName ) );
+                    }
+
+                    if( !String.IsNullOrEmpty( world.LoadedBy ) ) {
+                        temp.Add( new XElement( "LoadedBy", world.LoadedBy ) );
+                    }
+                    if( world.LoadedOn != DateTime.MinValue ) {
+                        temp.Add( new XElement( "LoadedOn", world.LoadedOn.ToUnixTime() ) );
+                    }
+
+
+                    if( !String.IsNullOrEmpty( world.MapChangedBy ) ) {
+                        temp.Add( new XElement( "MapChangedBy", world.MapChangedBy ) );
+                    }
+                    if( world.MapChangedOn != DateTime.MinValue ) {
+                        temp.Add( new XElement( "MapChangedOn", world.MapChangedOn.ToUnixTime() ) );
+                    }
+
+                    XElement elEnv = new XElement( EnvironmentXmlTagName );
+                    if( world.CloudColor > -1 ) elEnv.Add( new XAttribute( "cloud", world.CloudColor ) );
+                    if( world.FogColor > -1 ) elEnv.Add( new XAttribute( "fog", world.FogColor ) );
+                    if( world.SkyColor > -1 ) elEnv.Add( new XAttribute( "sky", world.SkyColor ) );
+                    if( world.EdgeLevel > -1 ) elEnv.Add( new XAttribute( "level", world.EdgeLevel ) );
+                    if( world.EdgeBlock != Block.Water ) elEnv.Add( new XAttribute( "edge", world.EdgeBlock ) );
+                    temp.Add( elEnv );
+
                     root.Add( temp );
                 }
                 root.Add( new XAttribute( "main", MainWorld.Name ) );
@@ -242,8 +364,6 @@ namespace fCraft {
                 doc.Add( root );
                 doc.Save( worldListTempFileName );
                 Paths.MoveOrReplace( worldListTempFileName, Paths.WorldListFileName );
-            } catch( Exception ex ) {
-                Logger.Log( "Server.SaveWorldList: An error occured while trying to save the world list: {0}", LogType.Error, ex );
             }
         }
 
@@ -252,13 +372,20 @@ namespace fCraft {
 
         #region Finding Worlds
 
-        public static World FindWorldExact( string name ) {
+        /// <summary> Finds a world by full name.
+        /// Target world is not guaranteed to have a loaded map. </summary>
+        /// <returns> World if found, or null if not found. </returns>
+        [CanBeNull]
+        public static World FindWorldExact( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             return WorldList.FirstOrDefault( w => w.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
         }
 
 
-        public static World[] FindWorlds( string name ) {
+        /// <summary> Finds all worlds that match the given world name.
+        /// Autocompletes. Does not raise SearchingForWorld event.
+        /// Target worlds are not guaranteed to have a loaded map. </summary>
+        public static World[] FindWorldsNoEvent( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             World[] worldListCache = WorldList;
 
@@ -278,36 +405,61 @@ namespace fCraft {
         }
 
 
-        public static World FindWorldOrPrintMatches( Player player, string worldName ) {
+        /// <summary> Finds all worlds that match the given name.
+        /// Autocompletes. Raises SearchingForWorld event.
+        /// Target worlds are not guaranteed to have a loaded map.</summary>
+        /// <param name="player"> Player who is calling the query. May be null. </param>
+        /// <param name="name"> Full or partial world name. </param>
+        /// <returns> An array of 0 or more worlds that matched the name. </returns>
+        public static World[] FindWorlds( [NotNull] Player player, [NotNull] string name ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( name == null ) throw new ArgumentNullException( "name" );
+            World[] matches = FindWorldsNoEvent( name );
+            var h = SearchingForWorld;
+            if( h != null ) {
+                SearchingForWorldEventArgs e = new SearchingForWorldEventArgs( player, name, matches.ToList() );
+                h( null, e );
+                matches = e.Matches.ToArray();
+            }
+            return matches;
+        }
+
+
+        /// <summary> Tries to find a single world by full or partial name.
+        /// Returns null if zero or multiple worlds matched. </summary>
+        /// <param name="player"> Player who will receive messages regarding zero or multiple matches. </param>
+        /// <param name="worldName"> Full or partial world name. </param>
+        [CanBeNull]
+        public static World FindWorldOrPrintMatches( [NotNull] Player player, [NotNull] string worldName ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
-            List<World> matches = new List<World>( FindWorlds( worldName ) );
-            SearchingForWorldEventArgs e = new SearchingForWorldEventArgs( player, worldName, matches, false );
-            RaiseSearchingForWorldEvent( e );
-            matches = e.Matches;
 
-            if( matches.Count == 0 ) {
-                player.NoWorldMessage( worldName );
+            World[] matches = FindWorlds( player, worldName );
+
+            if( matches.Length == 0 ) {
+                player.MessageNoWorld( worldName );
                 return null;
-            } else if( matches.Count > 1 ) {
-                player.ManyMatchesMessage( "world", matches.ToArray() );
-                return null;
-            } else {
-                return matches[0];
             }
+
+            if( matches.Length > 1 ) {
+                player.MessageManyMatches( "world", matches );
+                return null;
+            }
+
+            return matches[0];
         }
 
         #endregion
 
 
-        public static World AddWorld( Player player, string name, Map map, bool neverUnload ) {
+        public static World AddWorld( [CanBeNull] Player player, [NotNull] string name, [CanBeNull] Map map, bool neverUnload ) {
             if( name == null ) throw new ArgumentNullException( "name" );
 
             if( !World.IsValidName( name ) ) {
                 throw new WorldOpException( name, WorldOpExceptionCode.InvalidWorldName );
             }
 
-            lock( WorldListLock ) {
+            lock( SyncRoot ) {
                 if( Worlds.ContainsKey( name.ToLower() ) ) {
                     throw new WorldOpException( name, WorldOpExceptionCode.DuplicateWorldName );
                 }
@@ -316,42 +468,16 @@ namespace fCraft {
                     throw new WorldOpException( name, WorldOpExceptionCode.PluginDenied );
                 }
 
-                World newWorld = new World( name, neverUnload );
+                World newWorld = new World( name ) {
+                    Map = map
+                };
+
+                if( neverUnload ) {
+                    newWorld.NeverUnload = true;
+                }
 
                 if( map != null ) {
-                    newWorld.Map = map;
-                    map.World = newWorld;
-
-                    /*
-                    string accessSecurityString = map.GetMeta( "security", "access" );
-                    if( accessSecurityString != null ) {
-                        try {
-                            newWorld.AccessSecurity = new SecurityController( XElement.Parse( accessSecurityString ) );
-                        } catch( XmlException ex ) {
-                            Logger.Log( "WorldManager.AddWorld: Error loading stored access permissions: {0}", LogType.Error, ex );
-                        }
-                    }
-
-                    string buildSecurityString = map.GetMeta( "security", "build" );
-                    if( buildSecurityString != null ) {
-                        try {
-                            newWorld.BuildSecurity = new SecurityController( XElement.Parse( buildSecurityString ) );
-                        } catch( XmlException ex ) {
-                            Logger.Log( "WorldManager.AddWorld: Error loading stored build permissions: {0}", LogType.Error, ex );
-                        }
-                    }
-                    */
-
-                    // if a map is given
-                    if( neverUnload ) {
-                        newWorld.StartTasks();
-                    }else{
-                        newWorld.UnloadMap( false );
-                    }
-
-                } else if( neverUnload ){
-                    newWorld.LoadMap();
-                    map = newWorld.Map;
+                    newWorld.SaveMap();
                 }
 
                 Worlds.Add( name.ToLower(), newWorld );
@@ -365,15 +491,12 @@ namespace fCraft {
 
 
         /// <summary> Changes the name of the given world. </summary>
-        public static void RenameWorld( World world, string newName, bool moveMapFile ) {
+        public static void RenameWorld( [NotNull] World world, [NotNull] string newName, bool moveMapFile ) {
             if( newName == null ) throw new ArgumentNullException( "newName" );
+            if( world == null ) throw new ArgumentNullException( "world" );
 
             if( !World.IsValidName( newName ) ) {
                 throw new WorldOpException( newName, WorldOpExceptionCode.InvalidWorldName );
-            }
-
-            if( world == null ) {
-                throw new WorldOpException( null, WorldOpExceptionCode.WorldNotFound );
             }
 
             lock( world.WorldLock ) {
@@ -382,7 +505,7 @@ namespace fCraft {
                     throw new WorldOpException( world.Name, WorldOpExceptionCode.NoChangeNeeded );
                 }
 
-                lock( WorldListLock ) {
+                lock( SyncRoot ) {
                     World newWorld = FindWorldExact( newName );
                     if( newWorld != null && newWorld != world ) {
                         throw new WorldOpException( newName, WorldOpExceptionCode.DuplicateWorldName );
@@ -394,15 +517,29 @@ namespace fCraft {
                     UpdateWorldList();
 
                     if( moveMapFile ) {
-                        string oldFullFileName = Path.Combine( Paths.MapPath, oldName + ".fcm" );
-                        string newFileName = newName + ".fcm";
-                        if( File.Exists( oldFullFileName ) ) {
+                        string oldMapFile = Path.Combine( Paths.MapPath, oldName + ".fcm" );
+                        string newMapFile = newName + ".fcm";
+                        if( File.Exists( oldMapFile ) ) {
                             try {
-                                Paths.ForceRename( oldFullFileName, newFileName );
+                                Paths.ForceRename( oldMapFile, newMapFile );
                             } catch( Exception ex ) {
                                 throw new WorldOpException( world.Name,
                                                             WorldOpExceptionCode.MapMoveError,
                                                             ex );
+                            }
+                        }
+
+                        lock( world.BlockDB.SyncRoot ) {
+                            string oldBlockDBFile = Path.Combine( Paths.BlockDBDirectory, oldName + ".fbdb" );
+                            string newBockDBFile = newName + ".fbdb";
+                            if( File.Exists( oldBlockDBFile ) ) {
+                                try {
+                                    Paths.ForceRename( oldBlockDBFile, newBockDBFile );
+                                } catch( Exception ex ) {
+                                    throw new WorldOpException( world.Name,
+                                                                WorldOpExceptionCode.MapMoveError,
+                                                                ex );
+                                }
                             }
                         }
                     }
@@ -411,11 +548,11 @@ namespace fCraft {
         }
 
 
-        internal static void ReplaceWorld( World oldWorld, World newWorld ) {
+        internal static void ReplaceWorld( [NotNull] World oldWorld, [NotNull] World newWorld ) {
             if( oldWorld == null ) throw new ArgumentNullException( "oldWorld" );
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
 
-            lock( WorldListLock ) {
+            lock( SyncRoot ) {
                 if( oldWorld == newWorld ) {
                     throw new WorldOpException( oldWorld.Name, WorldOpExceptionCode.NoChangeNeeded );
                 }
@@ -430,9 +567,14 @@ namespace fCraft {
 
                 // cycle load/unload on the new world to save it under the new name
                 newWorld.Name = oldWorld.Name;
-                newWorld.UnloadMap( false );
+                if( newWorld.NeverUnload ) {
+                    newWorld.SaveMap();
+                } else {
+                    newWorld.UnloadMap( false );
+                }
 
                 Worlds[oldWorld.Name.ToLower()] = newWorld;
+                oldWorld.Map = null;
 
                 // change the main world, if needed
                 if( oldWorld == MainWorld ) {
@@ -444,18 +586,24 @@ namespace fCraft {
         }
 
 
-        public static void RemoveWorld( World worldToDelete ) {
+        public static void RemoveWorld( [NotNull] World worldToDelete ) {
             if( worldToDelete == null ) throw new ArgumentNullException( "worldToDelete" );
 
-            lock( WorldListLock ) {
+            lock( SyncRoot ) {
                 if( worldToDelete == MainWorld ) {
                     throw new WorldOpException( worldToDelete.Name, WorldOpExceptionCode.CannotDoThatToMainWorld );
                 }
 
-                Player[] worldPlayerList = worldToDelete.PlayerList;
-                worldToDelete.SendToAll( "&SYou have been moved to the main world." );
+                Player[] worldPlayerList = worldToDelete.Players;
+                worldToDelete.Players.Message( "&SYou have been moved to the main world." );
                 foreach( Player player in worldPlayerList ) {
-                    player.Session.JoinWorld( MainWorld );
+                    player.JoinWorld( MainWorld, WorldChangeReason.WorldRemoved );
+                }
+
+                try {
+                    worldToDelete.BlockDB.Clear();
+                } catch( Exception ex ) {
+                    Logger.Log( "WorldManager.RemoveWorld: Could not delete BlockDB file: {0}", LogType.Error, ex );
                 }
 
                 Worlds.Remove( worldToDelete.Name.ToLower() );
@@ -465,14 +613,89 @@ namespace fCraft {
 
 
         public static int CountLoadedWorlds() {
-            return WorldList.Count( world => (world.Map != null) );
+            return WorldList.Count( world => world.IsLoaded );
+        }
+
+
+        public static int CountLoadedWorlds( [NotNull] Player observer ) {
+            if( observer == null ) throw new ArgumentNullException( "observer" );
+            return ListLoadedWorlds( observer ).Count();
+        }
+
+
+        public static IEnumerable<World> ListLoadedWorlds() {
+            return WorldList.Where( world => world.IsLoaded );
+        }
+
+
+        public static IEnumerable<World> ListLoadedWorlds( [NotNull] Player observer ) {
+            if( observer == null ) throw new ArgumentNullException( "observer" );
+            return WorldList.Where( w => w.Players.Any( observer.CanSee ) );
         }
 
 
         public static void UpdateWorldList() {
-            lock( WorldListLock ) {
+            lock( SyncRoot ) {
                 WorldList = Worlds.Values.ToArray();
             }
+        }
+
+
+        [CanBeNull]
+        public static string FindMapFile( [NotNull] Player player, [NotNull] string fileName ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            // Check if path contains missing drives or invalid characters
+            if( !Paths.IsValidPath( fileName ) ) {
+                player.Message( "Invalid filename or path." );
+                return null;
+            }
+
+            // Look for the file
+            string sourceFullFileName = Path.Combine( Paths.MapPath, fileName );
+            if( !File.Exists( sourceFullFileName ) && !Directory.Exists( sourceFullFileName ) ) {
+
+                if( File.Exists( sourceFullFileName + ".fcm" ) ) {
+                    // Try with extension added
+                    sourceFullFileName += ".fcm";
+
+                } else if( MonoCompat.IsCaseSensitive ) {
+                    try {
+                        // If we're on a case-sensitive OS, try case-insensitive search
+                        FileInfo[] candidates = Paths.FindFiles( sourceFullFileName + ".fcm" );
+                        if( candidates.Length == 0 ) {
+                            candidates = Paths.FindFiles( sourceFullFileName );
+                        }
+
+                        if( candidates.Length == 0 ) {
+                            player.Message( "File/directory not found: {0}", fileName );
+
+                        } else if( candidates.Length == 1 ) {
+                            player.Message( "Filenames are case-sensitive! Did you mean to load \"{0}\"?", candidates[0].Name );
+
+                        } else {
+                            player.Message( "Filenames are case-sensitive! Did you mean to load one of these: {0}",
+                                            String.Join( ", ", candidates.Select( c => c.Name ).ToArray() ) );
+                        }
+                    } catch( DirectoryNotFoundException ex ) {
+                        player.Message( ex.Message );
+                    }
+                    return null;
+
+                } else {
+                    // Nothing found!
+                    player.Message( "File/directory not found: {0}", fileName );
+                    return null;
+                }
+            }
+
+            // Make sure that the given file is within the map directory
+            if( !Paths.Contains( Paths.MapPath, sourceFullFileName ) ) {
+                player.MessageUnsafePath();
+                return null;
+            }
+
+            return sourceFullFileName;
         }
 
 
@@ -499,7 +722,8 @@ namespace fCraft {
         public static event EventHandler<WorldCreatedEventArgs> WorldCreated;
 
 
-        static bool RaiseMainWorldChangingEvent( World oldWorld, World newWorld ) {
+        static bool RaiseMainWorldChangingEvent( World oldWorld, [NotNull] World newWorld ) {
+            if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             var h = MainWorldChanging;
             if( h == null ) return false;
             var e = new MainWorldChangingEventArgs( oldWorld, newWorld );
@@ -507,17 +731,14 @@ namespace fCraft {
             return e.Cancel;
         }
 
-        static void RaiseMainWorldChangedEvent( World oldWorld, World newWorld ) {
+        static void RaiseMainWorldChangedEvent( World oldWorld, [NotNull] World newWorld ) {
+            if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             var h = MainWorldChanged;
             if( h != null ) h( null, new MainWorldChangedEventArgs( oldWorld, newWorld ) );
         }
 
-        internal static void RaiseSearchingForWorldEvent( SearchingForWorldEventArgs e ) {
-            var h = SearchingForWorld;
-            if( h != null ) h( null, e );
-        }
-
-        static bool RaiseWorldCreatingEvent( Player player, string worldName, Map map ) {
+        static bool RaiseWorldCreatingEvent( [CanBeNull] Player player, [NotNull] string worldName, Map map ) {
+            if( worldName == null ) throw new ArgumentNullException( "worldName" );
             var h = WorldCreating;
             if( h == null ) return false;
             var e = new WorldCreatingEventArgs( player, worldName, map );
@@ -525,7 +746,8 @@ namespace fCraft {
             return e.Cancel;
         }
 
-        static void RaiseWorldCreatedEvent( Player player, World world ) {
+        static void RaiseWorldCreatedEvent( [CanBeNull] Player player, [NotNull] World world ) {
+            if( world == null ) throw new ArgumentNullException( "world" );
             var h = WorldCreated;
             if( h != null ) h( null, new WorldCreatedEventArgs( player, world ) );
         }
@@ -533,39 +755,3 @@ namespace fCraft {
         #endregion
     }
 }
-
-
-#region EventArgs
-namespace fCraft.Events {
-
-    public class MainWorldChangedEventArgs : EventArgs {
-        internal MainWorldChangedEventArgs( World oldWorld, World newWorld ) {
-            OldMainWorld = oldWorld;
-            NewMainWorld = newWorld;
-        }
-        public World OldMainWorld { get; private set; }
-        public World NewMainWorld { get; private set; }
-    }
-
-
-    public sealed class MainWorldChangingEventArgs : MainWorldChangedEventArgs {
-        internal MainWorldChangingEventArgs( World oldWorld, World newWorld ) : base( oldWorld, newWorld ) { }
-        public bool Cancel { get; set; }
-    }
-
-
-    public sealed class SearchingForWorldEventArgs : EventArgs {
-        internal SearchingForWorldEventArgs( Player player, string searchTerm, List<World> matches, bool toJoin ) {
-            Player = player;
-            SearchTerm = searchTerm;
-            Matches = matches;
-            ToJoin = toJoin;
-        }
-        public Player Player { get; private set; }
-        public string SearchTerm { get; private set; }
-        public List<World> Matches { get; set; }
-        public bool ToJoin { get; private set; }
-    }
-
-}
-#endregion

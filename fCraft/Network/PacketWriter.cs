@@ -1,9 +1,9 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace fCraft {
     // Protocol encoder for outgoing packets
@@ -18,16 +18,22 @@ namespace fCraft {
             Write( (byte)opcode );
         }
 
+        /// <summary>  Writes a 16-bit short integer in Big-Endian order. </summary>
         public override void Write( short data ) {
             base.Write( IPAddress.HostToNetworkOrder( data ) );
         }
 
+        /// <summary>  Writes a 32-bit integer in Big-Endian order. </summary>
         public override void Write( int data ) {
             base.Write( IPAddress.HostToNetworkOrder( data ) );
         }
 
-        public override void Write( string data ) {
-            Write( Encoding.ASCII.GetBytes( data.PadRight( 64 ).Substring( 0, 64 ) ) );
+        /// <summary> Writes a string in Minecraft protocol format.
+        /// Maximum length: 64 characters. </summary>
+        public override void Write( [NotNull] string str ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
+            if( str.Length > 64 ) throw new ArgumentException( "String is too long (>64).", "str" );
+            Write( Encoding.ASCII.GetBytes( str.PadRight( 64 ) ) );
         }
 
         #endregion
@@ -35,17 +41,15 @@ namespace fCraft {
 
         #region Direct Writing Whole Packets
 
-        // below are builders for specific packet codes
-
         public void WritePing() {
             Write( OpCode.Ping );
         }
 
-        public void WriteLevelBegin() {
+        public void WriteMapBegin() {
             Write( OpCode.MapBegin );
         }
 
-        public void WriteLevelChunk( byte[] chunk, int chunkSize, byte progress ) {
+        public void WriteMapChunk( [NotNull] byte[] chunk, int chunkSize, byte progress ) {
             if( chunk == null ) throw new ArgumentNullException( "chunk" );
             Write( OpCode.MapChunk );
             Write( (short)chunkSize );
@@ -53,21 +57,21 @@ namespace fCraft {
             Write( progress );
         }
 
-        internal void WriteLevelEnd( Map map ) {
+        internal void WriteMapEnd( [NotNull] Map map ) {
             if( map == null ) throw new ArgumentNullException( "map" );
             Write( OpCode.MapEnd );
-            Write( (short)map.WidthX );
+            Write( (short)map.Width );
             Write( (short)map.Height );
-            Write( (short)map.WidthY );
+            Write( (short)map.Length );
         }
 
-        public void WriteAddEntity( byte id, Player player, Position pos ) {
+        public void WriteAddEntity( byte id, [NotNull] Player player, Position pos ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Write( OpCode.AddEntity );
             Write( id );
-            Write( player.GetListName() );
+            Write( player.ListName );
             Write( pos.X );
-            Write( pos.H );
+            Write( pos.Z );
             Write( pos.Y );
             Write( pos.R );
             Write( pos.L );
@@ -77,7 +81,7 @@ namespace fCraft {
             Write( OpCode.Teleport );
             Write( id );
             Write( pos.X );
-            Write( pos.H );
+            Write( pos.Z );
             Write( pos.Y );
             Write( pos.R );
             Write( pos.L );
@@ -88,7 +92,7 @@ namespace fCraft {
 
         #region Packet Making
 
-        internal static Packet MakeHandshake( Player player, string serverName, string motd ) {
+        internal static Packet MakeHandshake( [NotNull] Player player, [NotNull] string serverName, [NotNull] string motd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( serverName == null ) throw new ArgumentNullException( "serverName" );
             if( motd == null ) throw new ArgumentNullException( "motd" );
@@ -97,29 +101,29 @@ namespace fCraft {
             packet.Data[1] = Config.ProtocolVersion;
             Encoding.ASCII.GetBytes( serverName.PadRight( 64 ), 0, 64, packet.Data, 2 );
             Encoding.ASCII.GetBytes( motd.PadRight( 64 ), 0, 64, packet.Data, 66 );
-            packet.Data[130] = player.GetOpPacketCode();
+            packet.Data[130] = (byte)(player.Can( Permission.DeleteAdmincrete ) ? 100 : 0);
             return packet;
         }
 
 
-        internal static Packet MakeMessage( string message ) {
+        internal static Packet MakeMessage( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
 
             Packet packet = new Packet( OpCode.Message );
-            packet.Data[1] = 0;
+            packet.Data[1] = 0; // unused
             Encoding.ASCII.GetBytes( message.PadRight( 64 ), 0, 64, packet.Data, 2 );
             return packet;
         }
 
 
-        internal static Packet MakeAddEntity( int id, string name, Position pos ) {
+        internal static Packet MakeAddEntity( int id, [NotNull] string name, Position pos ) {
             if( name == null ) throw new ArgumentNullException( "name" );
 
             Packet packet = new Packet( OpCode.AddEntity );
             packet.Data[1] = (byte)id;
             Encoding.ASCII.GetBytes( name.PadRight( 64 ), 0, 64, packet.Data, 2 );
             ToNetOrder( pos.X, packet.Data, 66 );
-            ToNetOrder( pos.H, packet.Data, 68 );
+            ToNetOrder( pos.Z, packet.Data, 68 );
             ToNetOrder( pos.Y, packet.Data, 70 );
             packet.Data[72] = pos.R;
             packet.Data[73] = pos.L;
@@ -127,7 +131,7 @@ namespace fCraft {
         }
 
 
-        internal static Packet MakeDisconnect( string reason ) {
+        internal static Packet MakeDisconnect( [NotNull] string reason ) {
             if( reason == null ) throw new ArgumentNullException( "reason" );
 
             Packet packet = new Packet( OpCode.Kick );
@@ -147,7 +151,7 @@ namespace fCraft {
             Packet packet = new Packet( OpCode.Teleport );
             packet.Data[1] = (byte)id;
             ToNetOrder( pos.X, packet.Data, 2 );
-            ToNetOrder( pos.H, packet.Data, 4 );
+            ToNetOrder( pos.Z, packet.Data, 4 );
             ToNetOrder( pos.Y, packet.Data, 6 );
             packet.Data[8] = pos.R;
             packet.Data[9] = pos.L;
@@ -164,7 +168,7 @@ namespace fCraft {
             Packet packet = new Packet( OpCode.MoveRotate );
             packet.Data[1] = (byte)id;
             packet.Data[2] = (byte)(pos.X & 0xFF);
-            packet.Data[3] = (byte)(pos.H & 0xFF);
+            packet.Data[3] = (byte)(pos.Z & 0xFF);
             packet.Data[4] = (byte)(pos.Y & 0xFF);
             packet.Data[5] = pos.R;
             packet.Data[6] = pos.L;
@@ -176,7 +180,7 @@ namespace fCraft {
             Packet packet = new Packet( OpCode.Move );
             packet.Data[1] = (byte)id;
             packet.Data[2] = (byte)pos.X;
-            packet.Data[3] = (byte)pos.H;
+            packet.Data[3] = (byte)pos.Z;
             packet.Data[4] = (byte)pos.Y;
             return packet;
         }
@@ -191,31 +195,31 @@ namespace fCraft {
         }
 
 
-        internal static Packet MakeSetBlock( int x, int y, int h, byte type ) {
+        internal static Packet MakeSetBlock( int x, int y, int z, byte type ) {
             Packet packet = new Packet( OpCode.SetBlockServer );
             ToNetOrder( x, packet.Data, 1 );
-            ToNetOrder( h, packet.Data, 3 );
+            ToNetOrder( z, packet.Data, 3 );
             ToNetOrder( y, packet.Data, 5 );
             packet.Data[7] = type;
             return packet;
         }
 
 
-        internal static Packet MakeSetBlock( int x, int y, int h, Block type ) {
+        internal static Packet MakeSetBlock( int x, int y, int z, Block type ) {
             Packet packet = new Packet( OpCode.SetBlockServer );
             ToNetOrder( x, packet.Data, 1 );
-            ToNetOrder( h, packet.Data, 3 );
+            ToNetOrder( z, packet.Data, 3 );
             ToNetOrder( y, packet.Data, 5 );
             packet.Data[7] = (byte)type;
             return packet;
         }
 
 
-        internal static Packet MakeSetPermission( Player player ) {
+        internal static Packet MakeSetPermission( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             Packet packet = new Packet( OpCode.SetPermission );
-            packet.Data[1] = player.GetOpPacketCode();
+            packet.Data[1] = (byte)(player.Can( Permission.DeleteAdmincrete ) ? 100 : 0);
             return packet;
         }
 
@@ -230,121 +234,5 @@ namespace fCraft {
         }
 
         #endregion
-
-
-        internal static readonly string[] NewlineSplitter = new[] { "&N" };
-
-        internal static IEnumerable<Packet> MakeWrappedMessage( string prefix, string text, bool appendPrefixToFirstLine ) {
-            if( appendPrefixToFirstLine ) text = prefix + text;
-
-            /* STEP 1: Split by lines */
-            if( text.Contains( "&N" ) ) {
-                bool first = true;
-                foreach( string subline in text.Split( NewlineSplitter, StringSplitOptions.None ) ) {
-                    foreach( Packet p in MakeWrappedMessage( prefix, subline, !first ) ) {
-                        yield return p;
-                    }
-                    first = false;
-                }
-                yield break;
-            }
-
-            /* STEP 2: Replace special colorcodes */
-            text = Color.SubstituteSpecialColors( text );
-
-            /* STEP 3: Remove consecutive colorcodes */
-            for( int i = 0; i < text.Length - 3; i++ ) {
-                if( text[i] == '&' && IsColorCode( text[i + 1] ) && text[i + 2] == '&' && IsColorCode( text[i + 3] ) ) {
-                    text = text.Substring( 0, i ) + text.Substring( i + 2 );
-                    i--;
-                }
-            }
-
-            /* STEP 4: Split */
-            int lastIndex = 0;
-
-            List<string> segments = new List<string>();
-            for( int i = 0; i < text.Length; i++ ) {
-                if( IsColorCode( text[i] ) && i > 0 && text[i - 1] == '&' ) {
-                    // split at color codes
-                    if( i > 1 ) {
-                        segments.Add( text.Substring( lastIndex, i - lastIndex - 1 ) );
-                        lastIndex = i - 1;
-                    }
-
-                } else if( text[i] == ' ' ) {
-                    for( ; i < text.Length && text[i] == ' '; i++ ) { }
-                    i--;
-                    // split at spaces
-                    segments.Add( text.Substring( lastIndex, i - lastIndex ) );
-                    lastIndex = i;
-                }
-            }
-
-            // add remainder of the string
-            if( lastIndex != text.Length ) {
-                segments.Add( text.Substring( lastIndex ) );
-            }
-
-
-            /* STEP 5: Delete empty segments */
-            for( int i = segments.Count - 1; i >= 0; i-- ) {
-                if( segments[i].Length == 0 ) segments.RemoveAt( i );
-            }
-
-
-            /* STEP 6: Join segments into strings */
-            string line = "";
-            string lastColorCode = "";
-            List<string> lines = new List<string>();
-
-            for( int i = 0; i < segments.Count; i++ ) {
-                if( line.Length + segments[i].TrimEnd().Length + 1 > 64 ) {
-                    // end of line, start new one
-                    lines.Add( line );
-
-                    if( segments[i].TrimStart().StartsWith( "&" ) ) {
-                        lastColorCode = segments[i].Substring( 0, 2 );
-                        line = prefix + segments[i].TrimStart();
-
-                    } else {
-                        line = prefix + lastColorCode + segments[i].TrimStart();
-                    }
-                } else {
-                    // apending to line
-                    if( segments[i].TrimStart().StartsWith( "&" ) ) {
-                        lastColorCode = segments[i].Substring( 0, 2 );
-                        line += segments[i];
-                    } else {
-                        line += segments[i];
-                    }
-                }
-            }
-
-            // last line
-            lines.Add( line );
-
-
-            /* STEP 7: Remove trailing whitespace and colorcodes */
-            for( int l = lines.Count - 1; l >= 0; l-- ) {
-                int i = lines[l].Length - 1;
-                for( ; i >= 0 && (lines[l][i] == ' ' || lines[l][i] == '&' || IsColorCode( lines[l][i] ) && i > 0 && lines[l][i - 1] == '&'); i-- ) { }
-                if( i == 0 ) {
-                    lines.RemoveAt( l );
-                } else {
-                    lines[l] = lines[l].Substring( 0, i + 1 );
-                }
-            }
-
-            /* STEP 8: DONE */
-            foreach( string processedLine in lines ) {
-                yield return MakeMessage( processedLine );
-            }
-        }
-
-
-        static bool IsColorCode( char c ) {
-            return (c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F');
-        }
     }
 }

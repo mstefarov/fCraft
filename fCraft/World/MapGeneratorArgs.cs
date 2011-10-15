@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
@@ -9,9 +10,9 @@ namespace fCraft {
 
         public MapGenTheme Theme = MapGenTheme.Forest;
         public int   Seed,
-                     WidthX = 256,
-                     WidthY = 256,
-                     Height = 96,
+                     MapWidth = 256,
+                     MapLength = 256,
+                     MapHeight = 96,
                      MaxHeight = 20,
                      MaxDepth = 12,
                      MaxHeightVariation = 4,
@@ -66,22 +67,22 @@ namespace fCraft {
 
         public void Validate() {
             if( RaisedCorners < 0 || RaisedCorners > 4 || LoweredCorners < 0 || RaisedCorners > 4 || RaisedCorners + LoweredCorners > 4 ) {
-                throw new ArgumentOutOfRangeException( "raisedCorners/loweredCorners",
-                                                       "raisedCorners and loweredCorners must be between 0 and 4." );
+                throw new ArgumentException( "The sum of raisedCorners and loweredCorners must be between 0 and 4." );
             }
 
             if( CaveDensity <= 0 || CaveSize <= 0 ) {
-                throw new ArgumentOutOfRangeException( "caveDensity/caveSize",
-                                                       "caveDensity and caveSize must be > 0" );
+                throw new ArgumentException( "caveDensity and caveSize must be > 0" );
             }
-            // todo: additional validation
+            // TODO: additional validation
         }
 
         public MapGeneratorArgs() {
             Seed = (new Random()).Next();
         }
 
-        public MapGeneratorArgs( string fileName ) {
+        // ReSharper disable PossibleNullReferenceException
+        public MapGeneratorArgs( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             XDocument doc = XDocument.Load( fileName );
             XElement root = doc.Root;
 
@@ -93,9 +94,9 @@ namespace fCraft {
 
             Theme = (MapGenTheme)Enum.Parse( typeof( MapGenTheme ), root.Element( "theme" ).Value, true );
             Seed = Int32.Parse( root.Element( "seed" ).Value );
-            WidthX = Int32.Parse( root.Element( "dimX" ).Value );
-            WidthY = Int32.Parse( root.Element( "dimY" ).Value );
-            Height = Int32.Parse( root.Element( "dimH" ).Value );
+            MapWidth = Int32.Parse( root.Element( "dimX" ).Value );
+            MapLength = Int32.Parse( root.Element( "dimY" ).Value );
+            MapHeight = Int32.Parse( root.Element( "dimH" ).Value );
             MaxHeight = Int32.Parse( root.Element( "maxHeight" ).Value );
             MaxDepth = Int32.Parse( root.Element( "maxDepth" ).Value );
 
@@ -158,6 +159,7 @@ namespace fCraft {
 
             Validate();
         }
+        // ReSharper restore PossibleNullReferenceException
 
 
         const string RootTagName = "fCraftMapGeneratorArgs";
@@ -174,9 +176,9 @@ namespace fCraft {
 
             root.Add( new XElement( "theme", Theme ) );
             root.Add( new XElement( "seed", Seed ) );
-            root.Add( new XElement( "dimX", WidthX ) );
-            root.Add( new XElement( "dimY", WidthY ) );
-            root.Add( new XElement( "dimH", Height ) );
+            root.Add( new XElement( "dimX", MapWidth ) );
+            root.Add( new XElement( "dimY", MapLength ) );
+            root.Add( new XElement( "dimH", MapHeight ) );
             root.Add( new XElement( "maxHeight", MaxHeight ) );
             root.Add( new XElement( "maxDepth", MaxDepth ) );
 

@@ -3,6 +3,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     public sealed class MapMCSharp : IMapConverter {
@@ -14,7 +15,7 @@ namespace fCraft.MapConversion {
             Mapping[101] = (byte)Block.Obsidian;    // opsidian
             Mapping[102] = (byte)Block.Brick;       // op_brick
             Mapping[103] = (byte)Block.Stone;       // op_stone
-            Mapping[104] = (byte)Block.Rocks;       // op_cobblestone
+            Mapping[104] = (byte)Block.Cobblestone;       // op_cobblestone
             // 105 = op_air
             Mapping[106] = (byte)Block.Water;       // op_water
 
@@ -99,7 +100,7 @@ namespace fCraft.MapConversion {
             // 186 unused
             Mapping[187] = (byte)Block.Glass;       // rocketstart
             Mapping[188] = (byte)Block.Gold;        // rockethead
-            Mapping[189] = (byte)Block.Steel;       // firework
+            Mapping[189] = (byte)Block.Iron;       // firework
 
             Mapping[190] = (byte)Block.Lava;        // deathlava
             Mapping[191] = (byte)Block.Water;       // deathwater
@@ -142,8 +143,8 @@ namespace fCraft.MapConversion {
         }
 
 
-        public MapFormatType FormatType {
-            get { return MapFormatType.SingleFile; }
+        public MapStorageType StorageType {
+            get { return MapStorageType.SingleFile; }
         }
 
 
@@ -152,12 +153,14 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool ClaimsName( string fileName ) {
+        public bool ClaimsName( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".lvl", StringComparison.OrdinalIgnoreCase );
         }
 
 
-        public bool Claims( string fileName ) {
+        public bool Claims( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
                     mapStream.Seek( 0, SeekOrigin.Begin );
@@ -171,7 +174,8 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map LoadHeader( string fileName ) {
+        public Map LoadHeader( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
                     return LoadHeaderInternal( gs );
@@ -180,7 +184,8 @@ namespace fCraft.MapConversion {
         }
 
 
-        static Map LoadHeaderInternal( Stream stream ) {
+        static Map LoadHeaderInternal( [NotNull] Stream stream ) {
+            if( stream == null ) throw new ArgumentNullException( "stream" );
             BinaryReader bs = new BinaryReader( stream );
 
             // Read in the magic number
@@ -189,16 +194,22 @@ namespace fCraft.MapConversion {
             }
 
             // Read in the map dimesions
-            int widthX = bs.ReadInt16();
-            int widthY = bs.ReadInt16();
+            int width = bs.ReadInt16();
+            int length = bs.ReadInt16();
             int height = bs.ReadInt16();
 
-            Map map = new Map( null, widthX, widthY, height, false );
+            // ReSharper disable UseObjectOrCollectionInitializer
+            Map map = new Map( null, width, length, height, false );
+            // ReSharper restore UseObjectOrCollectionInitializer
 
             // Read in the spawn location
-            map.Spawn.X = (short)(bs.ReadInt16() * 32);
-            map.Spawn.H = (short)(bs.ReadInt16() * 32);
-            map.Spawn.Y = (short)(bs.ReadInt16() * 32);
+            map.Spawn = new Position {
+                X = (short)(bs.ReadInt16() * 32),
+                Z = (short)(bs.ReadInt16() * 32),
+                Y = (short)(bs.ReadInt16() * 32),
+                R = 0,
+                L = 0
+            };
 
             // Skip over the VisitPermission and BuildPermission bytes
             bs.ReadByte();
@@ -208,7 +219,8 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map Load( string fileName ) {
+        public Map Load( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
 
@@ -219,7 +231,7 @@ namespace fCraft.MapConversion {
                     }
 
                     // Read in the map data
-                    map.Blocks = new byte[map.WidthX * map.WidthY * map.Height];
+                    map.Blocks = new byte[map.Volume];
                     MapUtility.ReadAll( gs, map.Blocks );
 
                     map.ConvertBlockTypes( Mapping );
@@ -230,7 +242,9 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool Save( Map mapToSave, string fileName ) {
+        public bool Save( [NotNull] Map mapToSave, [NotNull] string fileName ) {
+            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.Create( fileName ) ) {
                 using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress ) ) {
                     BinaryWriter bs = new BinaryWriter( gs );
@@ -239,13 +253,13 @@ namespace fCraft.MapConversion {
                     bs.Write( (ushort)0x752 );
 
                     // Write the map dimensions
-                    bs.Write( mapToSave.WidthX );
-                    bs.Write( mapToSave.WidthY );
+                    bs.Write( mapToSave.Width );
+                    bs.Write( mapToSave.Length );
                     bs.Write( mapToSave.Height );
 
                     // Write the spawn location
                     bs.Write( mapToSave.Spawn.X / 32 );
-                    bs.Write( mapToSave.Spawn.H / 32 );
+                    bs.Write( mapToSave.Spawn.Z / 32 );
                     bs.Write( mapToSave.Spawn.Y / 32 );
 
                     //Write the spawn orientation

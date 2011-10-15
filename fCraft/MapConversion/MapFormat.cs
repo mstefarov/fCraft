@@ -37,12 +37,12 @@ namespace fCraft.MapConversion {
         Opticraft,
 
         /// <summary> Universal map format, planned for future use by fCraft. Currently unsupported. </summary>
-        XMap
+        FCMv4
     }
 
 
     /// <summary> Type of map storage (file or folder-based). </summary>
-    public enum MapFormatType {
+    public enum MapStorageType {
         SingleFile,
         Directory
     }

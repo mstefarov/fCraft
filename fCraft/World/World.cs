@@ -3,241 +3,104 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using fCraft.MapConversion;
-
+using JetBrains.Annotations;
 
 namespace fCraft {
-
     public sealed class World : IClassy {
 
-        [Obsolete]
-        public static readonly string[] BackupEnum = new[] {
-            "Never", "5 Minutes", "10 Minutes", "15 Minutes", "20 Minutes",
-            "30 Minutes", "45 Minutes", "1 Hour", "2 Hours", "3 Hours",
-            "4 Hours", "6 Hours", "8 Hours", "12 Hours", "24 Hours"
-        };
 
-        public Map Map;
-        public string Name;
-        readonly SortedDictionary<string, Player> players = new SortedDictionary<string, Player>();
-        public Player[] PlayerList;
-        public bool IsLocked,
-                    IsHidden,
-                    PendingUnload,
-                    IsFlushing;
-        public bool NeverUnload { get; private set; }
-        public SecurityController AccessSecurity = new SecurityController(),
-                                  BuildSecurity = new SecurityController();
+        /// <summary> World name (no formatting).
+        /// Use WorldManager.RenameWorld() method to change this. </summary>
+        public string Name { get; internal set; }
 
-        public string LockedBy, UnlockedBy;
-        public DateTime LockedDate, UnlockedDate;
 
-        readonly object lockLock = new object(),
-                        patrolLock = new object();
+        /// <summary> Whether the world shows up on the /worlds list.
+        /// Can be assigned directly. </summary>
+        public bool IsHidden { get; set; }
 
+        public bool IsVisible( [NotNull] Player observer ) {
+            if( observer == null ) throw new ArgumentNullException( "observer" );
+            return observer.CanJoin( this ) && !IsHidden;
+        }
+
+
+        /// <summary> Whether this world is currently pending unload 
+        /// (waiting for block updates to finish processing before unloading). </summary>
+        public bool IsPendingMapUnload { get; private set; }
+
+
+        public SecurityController AccessSecurity { get; internal set; }
+
+        public SecurityController BuildSecurity { get; internal set; }
+
+        public DateTime LoadedOn { get; internal set; }
+        public string LoadedBy { get; internal set; }
+        public DateTime MapChangedOn { get; internal set; }
+        public string MapChangedBy { get; internal set; }
+
+
+        // used to synchronize player joining/parting with map loading/saving
         internal readonly object WorldLock = new object();
 
+        public BlockDB BlockDB { get; private set; }
 
-        internal World( string name, bool neverUnload ) {
-            if( name == null ) {
-                throw new ArgumentException( "name" );
-            }
+        internal World( [NotNull] string name ) {
+            if( name == null ) throw new ArgumentException( "name" );
             if( !IsValidName( name ) ) {
                 throw new ArgumentException( "Incorrect world name format" );
             }
+            BlockDB = new BlockDB( this );
+            AccessSecurity = new SecurityController();
+            BuildSecurity = new SecurityController();
             Name = name;
-            NeverUnload = neverUnload;
             UpdatePlayerList();
         }
 
 
         #region Map
 
+        /// <summary> Map of this world. May be null if world is not loaded. </summary>
+        public Map Map {
+            get { return map; }
+            set {
+                if( map != null && value == null ) StopTasks();
+                if( map == null && value != null ) StartTasks();
+                if( value != null ) value.World = this;
+                map = value;
+            }
+        }
+        Map map;
+
+        /// <summary> Whether the map is currently loaded. </summary>
         public bool IsLoaded {
             get { return Map != null; }
         }
 
 
-        public Map EnsureMapLoaded() {
-            Map map = Map;
-            if( map != null ) {
-                return map;
-            } else {
-                lock( WorldLock ) {
-                    LoadMap();
-                    return Map;
-                }
-            }
-        }
-
-        
-        public void LoadMap() {
+        /// <summary> Loads the map file, if needed.
+        /// Generates a default map if mapfile is missing or not loadable.
+        /// Guaranteed to return a Map object. </summary>
+        public Map LoadMap() {
             lock( WorldLock ) {
-                if( Map != null ) return;
+                if( Map != null ) return Map;
 
+                if( File.Exists( MapFileName ) ) {
                     try {
-                        Map = MapUtility.Load( GetMapName() );
+                        Map = MapUtility.Load( MapFileName );
                     } catch( Exception ex ) {
                         Logger.Log( "World.LoadMap: Failed to load map ({0}): {1}", LogType.Error,
-                                    GetMapName(), ex );
+                                    MapFileName, ex );
                     }
+                }
 
                 // or generate a default one
-                if( Map != null ) {
-                    Map.World = this;
-                } else {
-                    Logger.Log( "World.LoadMap: Generating default flatgrass level.", LogType.SystemActivity );
-                    Map = new Map( this, 64, 64, 64, true );
-
-                    MapGenerator.GenerateFlatgrass( Map );
-                    Map.ResetSpawn();
-                }
-                StartTasks();
-
-                if( OnLoaded != null ) OnLoaded();
-            }
-        }
-
-
-        public void UnloadMap( bool expectedPendingFlag ) {
-            Map thisMap = Map;
-            lock( WorldLock ) {
-                if( expectedPendingFlag != PendingUnload ) return;
-                SaveMap();
-                Map = null;
-                StopTasks();
-                PendingUnload = false;
-                if( OnUnloaded != null ) OnUnloaded();
-            }
-            Server.RequestGC();
-        }
-
-
-        public string GetMapName() {
-            return Path.Combine( Paths.MapPath, Name + ".fcm" );
-        }
-
-
-        public void SaveMap() {
-            lock( WorldLock ) {
-                if( Map != null ) {
-                    Map.Save( GetMapName() );
-                }
-            }
-        }
-
-
-        public void ChangeMap( Map newMap ) {
-            if( newMap == null ) throw new ArgumentNullException( "newMap" );
-            lock( WorldLock ) {
-                World newWorld = new World( Name, NeverUnload ) {
-                    Map = newMap,
-                    AccessSecurity = (SecurityController)AccessSecurity.Clone(),
-                    BuildSecurity = (SecurityController)BuildSecurity.Clone(),
-                    IsHidden = IsHidden
-                };
-                newMap.World = newWorld;
-                WorldManager.ReplaceWorld( this, newWorld );
-                Map = null;
-                foreach( Player player in PlayerList ) {
-                    player.Session.JoinWorld( newWorld );
-                }
-            }
-        }
-
-
-        public void ToggleNeverUnloadFlag( bool newValue ) {
-            lock( WorldLock ) {
-                if( NeverUnload == newValue ) return;
-                NeverUnload = newValue;
-                if( NeverUnload ) {
-                    if( Map == null ) LoadMap();
-                } else {
-                    if( Map != null && players.Count == 0 ) UnloadMap( false );
-                }
-            }
-        }
-
-
-        public void BeginFlushMapBuffer() {
-            lock( WorldLock ) {
-                if( Map == null ) return;
-                SendToAll( "&WMap is being flushed. Stay put, world will reload shortly." );
-                IsFlushing = true;
-            }
-        }
-
-
-        public void EndFlushMapBuffer() {
-            lock( WorldLock ) {
-                IsFlushing = false;
-                SendToAll( "&WMap flushed. Reloading..." );
-                foreach( Player player in PlayerList ) {
-                    player.Session.JoinWorld( this, player.Position );
-                }
-            }
-        }
-
-
-        #endregion
-
-
-        #region PlayerList
-
-        public Map AcceptPlayer( Player player, bool announce ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-
-            lock( WorldLock ) {
-
-                if( IsFull ) {
-                    return null;
-                }
-
-                if( players.ContainsKey( player.Name.ToLower() ) ) {
-                    Logger.Log( "This world already contains the player by name ({0}). " +
-                                "Some sort of state corruption must have occured.", LogType.Error,
-                                player.Name );
-                    players.Remove( player.Name.ToLower() );
-                }
-
-                players.Add( player.Name.ToLower(), player );
-
-                // load the map, if it's not yet loaded
-                PendingUnload = false;
                 if( Map == null ) {
-                    LoadMap();
-                }
-
-                if( ConfigKey.BackupOnJoin.GetBool() ) {
-                    string backupFileName = String.Format( "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm",
-                                                           Name, DateTime.Now, player.Name ); // localized
-                    Map.SaveBackup( Path.Combine( Paths.MapPath, GetMapName() ),
-                                    Path.Combine( Paths.BackupPath, backupFileName ),
-                                    true );
-                }
-
-                AddPlayerForPatrol( player );
-
-                UpdatePlayerList();
-
-                if( announce && ConfigKey.ShowJoinedWorldMessages.GetBool() ) {
-                    string message = String.Format( "&SPlayer {0}&S joined {1}", player.GetClassyName(), GetClassyName() );
-                    foreach( Packet packet in PacketWriter.MakeWrappedMessage( ">", message, false ) ) {
-                        Server.SendToSeeing( packet, player );
-                    }
-                }
-
-                Logger.Log( "Player {0} joined world {1}.", LogType.UserActivity,
-                            player.Name, Name );
-
-                if( OnPlayerJoined != null ) OnPlayerJoined( player, this );
-
-                if( IsLocked ) {
-                    player.Message( "&WThis map is currently locked (read-only)." );
-                }
-
-                if( player.IsHidden ) {
-                    player.Message( "Reminder: You are still hidden." );
+                    Server.Message( "&WMapfile is missing for world {0}&W. A new map has been created.", ClassyName );
+                    Logger.Log( "World.LoadMap: Map file missing for world {0}. Generating default flatgrass map.", LogType.SystemActivity,
+                                Name );
+                    Map = MapGenerator.GenerateFlatgrass( 128, 128, 64 );
                 }
 
                 return Map;
@@ -245,29 +108,199 @@ namespace fCraft {
         }
 
 
-        public bool ReleasePlayer( Player player ) {
+        public void UnloadMap( bool expectedPendingFlag ) {
+            lock( WorldLock ) {
+                if( expectedPendingFlag != IsPendingMapUnload ) return;
+                SaveMap();
+                Map = null;
+                IsPendingMapUnload = false;
+            }
+            Server.RequestGC();
+        }
+
+
+        /// <summary> Returns the map filename, including MapPath. </summary>
+        public string MapFileName {
+            get {
+                return Path.Combine( Paths.MapPath, Name + ".fcm" );
+            }
+        }
+
+
+        public void SaveMap() {
+            lock( WorldLock ) {
+                if( Map != null ) {
+                    Map.Save( MapFileName );
+                }
+            }
+        }
+
+
+        public void ChangeMap( [NotNull] Map newMap ) {
+            if( newMap == null ) throw new ArgumentNullException( "newMap" );
+            MapChangedOn = DateTime.UtcNow;
+            lock( WorldLock ) {
+                World newWorld = new World( Name ) {
+                    AccessSecurity = (SecurityController)AccessSecurity.Clone(),
+                    BuildSecurity = (SecurityController)BuildSecurity.Clone(),
+                    IsHidden = IsHidden,
+                    BlockDB = BlockDB,
+                    lastBackup = lastBackup,
+                    LoadedBy = LoadedBy,
+                    LoadedOn = LoadedOn,
+                    MapChangedBy = MapChangedBy,
+                    MapChangedOn = MapChangedOn,
+                    FogColor = FogColor,
+                    CloudColor = CloudColor,
+                    SkyColor = SkyColor,
+                    EdgeLevel = EdgeLevel,
+                    EdgeBlock = EdgeBlock
+                };
+                newMap.World = newWorld;
+                newWorld.Map = newMap;
+                newWorld.NeverUnload = neverUnload;
+                WorldManager.ReplaceWorld( this, newWorld );
+                lock( BlockDB.SyncRoot ) {
+                    BlockDB.Clear();
+                    BlockDB.World = newWorld;
+                }
+                foreach( Player player in Players ) {
+                    player.JoinWorld( newWorld, WorldChangeReason.Rejoin );
+                }
+            }
+        }
+
+
+        bool neverUnload;
+        public bool NeverUnload {
+            get {
+                return neverUnload;
+            }
+            set {
+                lock( WorldLock ) {
+                    if( neverUnload == value ) return;
+                    neverUnload = value;
+                    if( neverUnload ) {
+                        if( Map == null ) LoadMap();
+                    } else {
+                        if( Map != null && playerIndex.Count == 0 ) UnloadMap( false );
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+
+        #region Flush
+
+        public bool IsFlushing { get; private set; }
+
+
+        public void Flush() {
+            lock( WorldLock ) {
+                if( Map == null ) return;
+                Players.Message( "&WMap is being flushed. Stay put, world will reload shortly." );
+                IsFlushing = true;
+            }
+        }
+
+
+        internal void EndFlushMapBuffer() {
+            lock( WorldLock ) {
+                IsFlushing = false;
+                Players.Message( "&WMap flushed. Reloading..." );
+                foreach( Player player in Players ) {
+                    player.JoinWorld( this, WorldChangeReason.Rejoin, player.Position );
+                }
+            }
+        }
+
+        #endregion
+
+
+        #region PlayerList
+
+        readonly Dictionary<string, Player> playerIndex = new Dictionary<string, Player>();
+        public Player[] Players { get; private set; }
+
+        [CanBeNull]
+        public Map AcceptPlayer( [NotNull] Player player, bool announce ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+
+            if( IsFull && player.Info.Rank.ReservedSlot ) {
+                Player idlestPlayer = Players.OrderBy( p => p.LastActiveTime ).FirstOrDefault();
+                if( idlestPlayer != null ) {
+                    idlestPlayer.Kick( "Auto-kicked to make room (idle).", LeaveReason.IdleKick );
+                    idlestPlayer.WaitForDisconnect();
+                }
+            }
+
+            lock( WorldLock ) {
+                if( IsFull ) return null;
+
+                if( playerIndex.ContainsKey( player.Name.ToLower() ) ) {
+                    Logger.Log( "This world already contains the player by name ({0}). " +
+                                "Some sort of state corruption must have occured.", LogType.Error,
+                                player.Name );
+                    playerIndex.Remove( player.Name.ToLower() );
+                }
+
+                playerIndex.Add( player.Name.ToLower(), player );
+
+                // load the map, if it's not yet loaded
+                IsPendingMapUnload = false;
+                Map = LoadMap();
+
+                if( ConfigKey.BackupOnJoin.Enabled() && (Map.HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled()) ) {
+                    string backupFileName = String.Format( JoinBackupFormat,
+                                                           Name, DateTime.Now, player.Name ); // localized
+                    Map.SaveBackup( MapFileName,
+                                    Path.Combine( Paths.BackupPath, backupFileName ) );
+                }
+
+                UpdatePlayerList();
+
+                if( announce && ConfigKey.ShowJoinedWorldMessages.Enabled() ) {
+                    Server.Players.CanSee( player )
+                                  .Message( "&SPlayer {0}&S joined {1}",
+                                            player.ClassyName, ClassyName );
+                }
+
+                Logger.Log( "Player {0} joined world {1}.", LogType.UserActivity,
+                            player.Name, Name );
+
+                if( IsLocked ) {
+                    player.Message( "&WThis map is currently locked (read-only)." );
+                }
+
+                if( player.Info.IsHidden ) {
+                    player.Message( "&8Reminder: You are still hidden." );
+                }
+
+                return Map;
+            }
+        }
+
+
+        public bool ReleasePlayer( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             lock( WorldLock ) {
-                if( !players.Remove( player.Name.ToLower() ) ) {
+                if( !playerIndex.Remove( player.Name.ToLower() ) ) {
                     return false;
                 }
 
-                RemovePlayerFromPatrol( player );
-
-                // clear drawing status
-                player.UndoBuffer.Clear();
-                player.UndoBuffer.TrimExcess();
-                player.SelectionMarksExpected = 0;
-                player.SelectionMarks.Clear();
-                player.SelectionMarkCount = 0;
+                // clear undo & selection
+                player.LastDrawOp = null;
+                player.UndoClear();
+                player.SelectionCancel();
 
                 // update player list
                 UpdatePlayerList();
-                if( OnPlayerLeft != null ) OnPlayerLeft( player, this );
 
                 // unload map (if needed)
-                if( players.Count == 0 && !NeverUnload ) {
-                    PendingUnload = true;
+                if( playerIndex.Count == 0 && !neverUnload ) {
+                    IsPendingMapUnload = true;
                 }
                 return true;
             }
@@ -275,9 +308,10 @@ namespace fCraft {
 
 
         // Find player by name using autocompletion
-        public Player FindPlayer( string playerName ) {
+        [CanBeNull]
+        public Player FindPlayer( [NotNull] string playerName ) {
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
-            Player[] tempList = PlayerList;
+            Player[] tempList = Players;
             Player result = null;
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && tempList[i].Name.StartsWith( playerName, StringComparison.OrdinalIgnoreCase ) ) {
@@ -292,10 +326,10 @@ namespace fCraft {
         }
 
 
-        public Player[] FindPlayers( Player player, string playerName ) {
+        public Player[] FindPlayers( [NotNull] Player player, [NotNull] string playerName ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
-            Player[] tempList = PlayerList;
+            Player[] tempList = Players;
             List<Player> results = new List<Player>();
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && player.CanSee( tempList[i] ) ) {
@@ -313,14 +347,17 @@ namespace fCraft {
 
 
         /// <summary> Gets player by name (without autocompletion) </summary>
-        public Player FindPlayerExact( string playerName ) {
+        [CanBeNull]
+        public Player FindPlayerExact( [NotNull] string playerName ) {
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
-            Player[] tempList = PlayerList;
+            Player[] tempList = Players;
+            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && tempList[i].Name.Equals( playerName, StringComparison.OrdinalIgnoreCase ) ) {
                     return tempList[i];
                 }
             }
+            // ReSharper restore LoopCanBeConvertedToQuery
             return null;
         }
 
@@ -328,12 +365,7 @@ namespace fCraft {
         /// <summary> Caches the player list to an array (Players -> PlayerList) </summary>
         public void UpdatePlayerList() {
             lock( WorldLock ) {
-                Player[] newPlayerList = new Player[players.Count];
-                int i = 0;
-                foreach( Player player in players.Values ) {
-                    newPlayerList[i++] = player;
-                }
-                PlayerList = newPlayerList;
+                Players = playerIndex.Values.ToArray();
             }
         }
 
@@ -341,142 +373,41 @@ namespace fCraft {
         /// <summary> Counts all players (optionally includes all hidden players). </summary>
         public int CountPlayers( bool includeHiddenPlayers ) {
             if( includeHiddenPlayers ) {
-                return PlayerList.Length;
+                return Players.Length;
             } else {
-                return PlayerList.Count( player => !player.IsHidden );
+                return Players.Count( player => !player.Info.IsHidden );
             }
         }
 
 
         /// <summary> Counts only the players who are not hidden from a given observer. </summary>
-        public int CountVisiblePlayers( Player observer ) {
+        public int CountVisiblePlayers( [NotNull] Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
-            return PlayerList.Count( observer.CanSee );
+            return Players.Count( observer.CanSee );
         }
 
 
         public bool IsFull {
             get {
-                return (PlayerList.Length >= ConfigKey.MaxPlayersPerWorld.GetInt());
+                return (Players.Length >= ConfigKey.MaxPlayersPerWorld.GetInt());
             }
         }
 
-        #endregion
-
-
-        #region Communication
-
-        public void SendToAll( Packet packet ) {
-            SendToAll( packet, null );
-        }
-
-
-        public void SendToAll( Packet packet, Player except ) {
-            Player[] tempList = PlayerList;
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != except ) {
-                    tempList[i].Send( packet );
-                }
-            }
-        }
-
-
-        public void SendToAllDelayed( Packet packet, Player except ) {
-            Player[] tempList = PlayerList;
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != except ) {
-                    tempList[i].SendDelayed( packet );
-                }
-            }
-        }
-
-        public void SendToAll( string message, params object[] args ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( args == null ) throw new ArgumentNullException( "args" );
-            if( args.Length > 0 ) message = String.Format( message, args );
-            foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message, false ) ) {
-                SendToAll( p, null );
-            }
-        }
-
-        public void SendToAllExcept( string message, Player except, params object[] args ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( args == null ) throw new ArgumentNullException( "args" );
-            if( args.Length > 0 ) message = String.Format( message, args );
-            foreach( Packet p in PacketWriter.MakeWrappedMessage( "> ", message, false ) ) {
-                SendToAll( p, except );
-            }
-        }
-
-
-        public void SendToSeeing( Packet packet, Player source ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            Player[] playerListCopy = PlayerList;
-            for( int i = 0; i < playerListCopy.Length; i++ ) {
-                if( playerListCopy[i] != source && playerListCopy[i].CanSee( source ) ) {
-                    playerListCopy[i].Send( packet );
-                }
-            }
-        }
-
-        public void SendToBlind( Packet packet, Player source ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            Player[] playerListCopy = PlayerList;
-            for( int i = 0; i < playerListCopy.Length; i++ ) {
-                if( playerListCopy[i] != source && !playerListCopy[i].CanSee( source ) ) {
-                    playerListCopy[i].Send( packet );
-                }
-            }
-        }
-
-        #endregion
-
-
-        #region Obsolete Events
-        [Obsolete]
-        public event SimpleEventHandler OnLoaded;
-        [Obsolete]
-        public event SimpleEventHandler OnUnloaded;
-        [Obsolete]
-        public event PlayerJoinedWorldEventHandler OnPlayerJoined;
-        [Obsolete]
-        public event PlayerTriedToJoinWorldEventHandler OnPlayerTriedToJoin;
-        [Obsolete]
-        public event PlayerLeftWorldEventHandler OnPlayerLeft;
-        [Obsolete]
-        public event PlayerChangedBlockEventHandler OnPlayerChangedBlock;
-        [Obsolete]
-        public event PlayerSentMessageEventHandler OnPlayerSentMessage;
-
-        public bool FireChangedBlockEvent( ref BlockUpdate update ) {
-            bool cancel = false;
-            if( OnPlayerChangedBlock != null ) {
-                OnPlayerChangedBlock( this, ref update, ref cancel );
-            }
-            return !cancel;
-        }
-
-        public bool FireSentMessageEvent( Player player, ref string message ) {
-            bool cancel = false;
-            if( OnPlayerSentMessage != null ) {
-                OnPlayerSentMessage( player, this, ref message, ref cancel );
-            }
-            return !cancel;
-        }
-
-        public bool FirePlayerTriedToJoinEvent( Player player ) {
-            bool cancel = false;
-            if( OnPlayerTriedToJoin != null ) {
-                OnPlayerTriedToJoin( player, this, ref cancel );
-            }
-            return !cancel;
-        }
         #endregion
 
 
         #region Lock / Unlock
 
-        public bool Lock( Player player ) {
+        /// <summary> Whether the world is currently locked (in read-only mode). </summary>
+        public bool IsLocked { get; private set; }
+
+        public string LockedBy, UnlockedBy;
+        public DateTime LockedDate, UnlockedDate;
+
+        readonly object lockLock = new object();
+
+
+        public bool Lock( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             lock( lockLock ) {
                 if( IsLocked ) {
@@ -486,7 +417,7 @@ namespace fCraft {
                     LockedDate = DateTime.UtcNow;
                     IsLocked = true;
                     if( Map != null ) Map.ClearUpdateQueue();
-                    SendToAll( "&WMap was locked by {0}", player.GetClassyName() );
+                    Players.Message( "&WMap was locked by {0}", player.ClassyName );
                     Logger.Log( "World {0} was locked by {1}", LogType.UserActivity,
                                 Name, player.Name );
                     return true;
@@ -495,14 +426,14 @@ namespace fCraft {
         }
 
 
-        public bool Unlock( Player player ) {
+        public bool Unlock( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             lock( lockLock ) {
                 if( IsLocked ) {
                     UnlockedBy = player.Name;
                     UnlockedDate = DateTime.UtcNow;
                     IsLocked = false;
-                    SendToAll( "&WMap was unlocked by {0}", player.GetClassyName() );
+                    Players.Message( "&WMap was unlocked by {0}", player.ClassyName );
                     Logger.Log( "World \"{0}\" was unlocked by {1}", LogType.UserActivity,
                                 Name, player.Name );
                     return true;
@@ -517,52 +448,23 @@ namespace fCraft {
 
         #region Patrol
 
-        readonly LinkedList<Player> patrolList = new LinkedList<Player>();
-        internal static Rank RankToPatrol;
+        readonly object patrolLock = new object();
+        static readonly TimeSpan MinPatrolInterval = TimeSpan.FromSeconds( 20 );
 
-        public Player GetNextPatrolTarget() {
+        public Player GetNextPatrolTarget( [NotNull] Player observer ) {
+            if( observer == null ) throw new ArgumentNullException( "observer" );
             lock( patrolLock ) {
-                if( patrolList.Count == 0 ) {
-                    return null;
-                } else {
-                    Player player = patrolList.First.Value;
-                    patrolList.RemoveFirst();
-                    patrolList.AddLast( player );
-                    return player;
+                Player candidate = Players.RankedAtMost( RankManager.PatrolledRank )
+                                          .CanBeSeen( observer )
+                                          .Where( p => p.LastActiveTime > p.LastPatrolTime &&
+                                                       p.HasFullyConnected &&
+                                                       DateTime.UtcNow.Subtract( p.LastPatrolTime ) > MinPatrolInterval )
+                                          .OrderBy( p => p.LastPatrolTime.Ticks )
+                                          .FirstOrDefault();
+                if( candidate != null ) {
+                    candidate.LastPatrolTime = DateTime.UtcNow;
                 }
-            }
-        }
-
-        void RemovePlayerFromPatrol( Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            lock( patrolLock ) {
-                if( patrolList.Contains( player ) ) {
-                    patrolList.Remove( player );
-                }
-            }
-        }
-
-
-        void AddPlayerForPatrol( Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( player.Info.Rank <= RankToPatrol ) {
-                lock( patrolLock ) {
-                    patrolList.AddLast( player );
-                }
-            }
-        }
-
-
-        internal void CheckIfPlayerIsPatrollable( Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            lock( patrolLock ) {
-                if( patrolList.Contains( player ) ) {
-                    if( player.Info.Rank > RankToPatrol ) {
-                        RemovePlayerFromPatrol( player );
-                    }
-                } else if( player.Info.Rank <= RankToPatrol ) {
-                    AddPlayerForPatrol( player );
-                }
+                return candidate;
             }
         }
 
@@ -571,11 +473,11 @@ namespace fCraft {
 
         #region Scheduled Tasks
 
-        SchedulerTask updateTask, saveTask, backupTask;
-        object taskLock = new object();
+        SchedulerTask updateTask, saveTask;
+        readonly object taskLock = new object();
 
 
-        internal void StopTasks() {
+        void StopTasks() {
             lock( taskLock ) {
                 if( updateTask != null ) {
                     updateTask.Stop();
@@ -585,15 +487,11 @@ namespace fCraft {
                     saveTask.Stop();
                     saveTask = null;
                 }
-                if( backupTask != null ) {
-                    backupTask.Stop();
-                    backupTask = null;
-                }
             }
         }
 
 
-        internal void StartTasks() {
+        void StartTasks() {
             lock( taskLock ) {
                 updateTask = Scheduler.NewTask( UpdateTask );
                 updateTask.RunForever( this,
@@ -601,18 +499,10 @@ namespace fCraft {
                                        TimeSpan.Zero );
 
                 if( ConfigKey.SaveInterval.GetInt() > 0 ) {
-                    saveTask = Scheduler.NewTask( SaveTask );
+                    saveTask = Scheduler.NewBackgroundTask( SaveTask );
                     saveTask.RunForever( this,
                                          TimeSpan.FromSeconds( ConfigKey.SaveInterval.GetInt() ),
                                          TimeSpan.FromSeconds( ConfigKey.SaveInterval.GetInt() ) );
-                }
-
-                if( ConfigKey.BackupInterval.GetInt() > 0 ) {
-                    backupTask = Scheduler.NewTask( BackupTask );
-                    TimeSpan interval = TimeSpan.FromMinutes( ConfigKey.BackupInterval.GetInt() );
-                    backupTask.RunForever( this,
-                                           interval,
-                                           (ConfigKey.BackupOnStartup.GetBool() ? TimeSpan.Zero : interval) );
                 }
             }
         }
@@ -626,55 +516,121 @@ namespace fCraft {
         }
 
 
-        void BackupTask( SchedulerTask task ) {
-            Map tempMap = Map;
-            if( tempMap != null ) {
-                tempMap.SaveBackup( Path.Combine( Paths.MapPath, GetMapName() ),
-                                    Path.Combine( Paths.BackupPath, String.Format( "{0}_{1:yyyy-MM-dd_HH-mm}.fcm", Name, DateTime.Now ) ), // localized
-                                    true );
-            }
-        }
+        const string TimedBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}.fcm",
+                     JoinBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm";
 
+        public static readonly TimeSpan DefaultBackupInterval = TimeSpan.FromSeconds( -1 );
+
+        public TimeSpan BackupInterval { get; set; }
+
+        DateTime lastBackup = DateTime.UtcNow;
 
         void SaveTask( SchedulerTask task ) {
-            Map tempMap = Map;
-            if( tempMap != null && tempMap.ChangedSinceSave ) {
-                SaveMap();
+            if( Map == null ) return;
+            lock( WorldLock ) {
+                // ReSharper disable ConditionIsAlwaysTrueOrFalse
+                // ReSharper disable HeuristicUnreachableCode
+                if( Map == null ) return;
+                // ReSharper restore HeuristicUnreachableCode
+                // ReSharper restore ConditionIsAlwaysTrueOrFalse
+                TimeSpan actualBackupInterval = BackupInterval;
+                if( actualBackupInterval == DefaultBackupInterval ) {
+                    actualBackupInterval = TimeSpan.FromMinutes( ConfigKey.DefaultBackupInterval.GetInt() );
+                }
+                if( actualBackupInterval != TimeSpan.Zero &&
+                    DateTime.UtcNow.Subtract( lastBackup ) > actualBackupInterval &&
+                    (Map.HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled()) ) {
+
+                    string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
+                    Map.SaveBackup( MapFileName,
+                                    Path.Combine( Paths.BackupPath, backupFileName ) );
+                    lastBackup = DateTime.UtcNow;
+                }
+
+                if( Map.HasChangedSinceSave ) {
+                    SaveMap();
+                }
             }
         }
 
         #endregion
 
 
-        // ensures that player name has the correct length and character set
-        public static bool IsValidName( string name ) {
+        #region WoM Extensions
+
+        public int CloudColor = -1,
+                   FogColor = -1,
+                   SkyColor = -1,
+                   EdgeLevel = -1;
+
+        public Block EdgeBlock = Block.Water;
+
+        public string GenerateWoMConfig( bool sendMotd ) {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine( "server.name = " + ConfigKey.ServerName.GetString() );
+            if( sendMotd ) {
+                sb.AppendLine( "server.detail = " + ConfigKey.MOTD.GetString() );
+            } else {
+                sb.AppendLine( "server.detail = " + ClassyName );
+            }
+            sb.AppendLine( "user.detail = World " + ClassyName );
+            if( CloudColor > -1 ) sb.AppendLine( "environment.cloud = " + CloudColor );
+            if( FogColor > -1 ) sb.AppendLine( "environment.fog = " + FogColor );
+            if( SkyColor > -1 ) sb.AppendLine( "environment.sky = " + SkyColor );
+            if( EdgeLevel > -1 ) sb.AppendLine( "environment.level = " + EdgeLevel );
+            if( EdgeBlock != Block.Water ) {
+                string edgeTexture = Map.GetEdgeTexture( EdgeBlock );
+                if( edgeTexture != null ) {
+                    sb.AppendLine( "environment.edge = " + edgeTexture );
+                }
+            }
+            sb.AppendLine( "server.sendwomid = true" );
+            return sb.ToString();
+        }
+
+        #endregion
+
+
+        /// <summary> Ensures that player name has the correct length (2-16 characters)
+        /// and character set (alphanumeric chars and underscores allowed). </summary>
+        public static bool IsValidName( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( name.Length < 2 || name.Length > 16 ) return false;
+            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < name.Length; i++ ) {
                 char ch = name[i];
-                if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') || ch > 'z' ) {
+                if( ch < '0' ||
+                    ch > '9' && ch < 'A' ||
+                    ch > 'Z' && ch < '_' ||
+                    ch > '_' && ch < 'a' ||
+                    ch > 'z' ) {
                     return false;
                 }
             }
+            // ReSharper restore LoopCanBeConvertedToQuery
             return true;
         }
 
 
-        public string GetClassyName() {
-            string displayedName = Name;
-            if( ConfigKey.RankColorsInWorldNames.GetBool() ) {
-                if( ConfigKey.RankPrefixesInChat.GetBool() ) {
-                    displayedName = BuildSecurity.MinRank.Prefix + displayedName;
-                }
-                if( ConfigKey.RankColorsInChat.GetBool() ) {
+        /// <summary> Returns a nicely formatted name, with optional color codes. </summary>
+        public string ClassyName {
+            get {
+                if( ConfigKey.RankColorsInWorldNames.Enabled() ) {
+                    Rank maxRank;
                     if( BuildSecurity.MinRank >= AccessSecurity.MinRank ) {
-                        displayedName = BuildSecurity.MinRank.Color + displayedName;
+                        maxRank = BuildSecurity.MinRank;
                     } else {
-                        displayedName = AccessSecurity.MinRank.Color + displayedName;
+                        maxRank = AccessSecurity.MinRank;
                     }
+                    if( ConfigKey.RankPrefixesInChat.Enabled() ) {
+                        return maxRank.Color + maxRank.Prefix + Name;
+                    } else {
+                        return maxRank.Color + Name;
+                    }
+                } else {
+                    return Name;
                 }
             }
-            return displayedName;
         }
 
 
@@ -683,34 +639,3 @@ namespace fCraft {
         }
     }
 }
-
-
-#region EventArgs
-namespace fCraft.Events {
-
-    public sealed class WorldCreatingEventArgs : EventArgs {
-        public WorldCreatingEventArgs( Player player, string worldName, Map map ) {
-            Player = player;
-            WorldName = worldName;
-            Map = map;
-        }
-
-        public Player Player { get; private set; }
-        public string WorldName { get; set; }
-        public Map Map { get; private set; }
-        public bool Cancel { get; set; }
-    }
-
-
-    public sealed class WorldCreatedEventArgs : EventArgs {
-        public WorldCreatedEventArgs( Player player, World world ) {
-            Player = player;
-            World = world;
-        }
-
-        public Player Player { get; private set; }
-        public World World { get; private set; }
-    }
-
-}
-#endregion

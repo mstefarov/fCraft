@@ -2,66 +2,67 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft.AutoRank {
     public static class AutoRankManager {
 
-        static readonly TimeSpan TickInterval = TimeSpan.FromSeconds( 60 );
-        static SchedulerTask task;
+        internal static readonly TimeSpan TickInterval = TimeSpan.FromSeconds( 60 );
 
+        public static readonly List<Criterion> Criteria = new List<Criterion>();
+
+        public const string TagName = "fCraftAutoRankConfig";
+
+        /// <summary> Whether any criteria are defined. </summary>
         public static bool HasCriteria {
-            get {
-                return Criteria.Count > 0;
-            }
+            get { return Criteria.Count > 0; }
         }
 
 
-        public static void CheckAutoRankSetting() {
-            if( ConfigKey.AutoRankEnabled.GetBool() ) {
-                if( task == null ) {
-                    task = Scheduler.NewBackgroundTask( TaskCallback );
-                    task.RunForever( TickInterval );
-                } else if( task.IsStopped ) {
-                    task.RunForever( TickInterval );
-                }
-            } else if( task != null && !task.IsStopped ) {
-                task.Stop();
-            }
-        }
-
-
-        public static void TaskCallback( SchedulerTask schedulerTask ) {
-            MaintenanceCommands.DoAutoRankAll( Player.Console, PlayerDB.GetPlayerListCopy(), false, "~AutoRank" );
-        }
-
-
-        static readonly List<Criterion> Criteria = new List<Criterion>();
-
-
-        public static void Add( Criterion criterion ) {
+        /// <summary> Adds a new criterion to the list. Throws an ArgumentException on duplicates. </summary>
+        public static void Add( [NotNull] Criterion criterion ) {
             if( criterion == null ) throw new ArgumentNullException( "criterion" );
+            if( Criteria.Contains( criterion ) ) throw new ArgumentException( "This criterion has already been added." );
             Criteria.Add( criterion );
         }
 
 
-        public static Rank Check( PlayerInfo info ) {
+        /// <summary> Checks whether a given player is due for a promotion or demotion. </summary>
+        /// <param name="info"> PlayerInfo to check. </param>
+        /// <returns> Null if no rank change is needed, or a rank to promote/demote to. </returns>
+        [CanBeNull]
+        public static Rank Check( [NotNull] PlayerInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
-            foreach( Criterion c in Criteria ) {
-                if( c.FromRank == info.Rank && !info.Banned && c.Condition.Eval( info ) ) {
-                    return c.ToRank;
+            // ReSharper disable LoopCanBeConvertedToQuery
+            for( int i = 0; i < Criteria.Count; i++ ) {
+                if( Criteria[i].FromRank == info.Rank &&
+                    !info.IsBanned &&
+                    Criteria[i].Condition.Eval( info ) ) {
+
+                    return Criteria[i].ToRank;
                 }
             }
+            // ReSharper restore LoopCanBeConvertedToQuery
             return null;
         }
 
 
-        public static void Init() {
+        internal static void TaskCallback( SchedulerTask schedulerTask ) {
+            if( !ConfigKey.AutoRankEnabled.Enabled() ) return;
+            PlayerInfo[] onlinePlayers = Server.Players.Select( p => p.Info ).ToArray();
+            MaintenanceCommands.DoAutoRankAll( Player.AutoRank, onlinePlayers, false, "~AutoRank" );
+        }
+
+
+        public static bool Init() {
             Criteria.Clear();
 
-            if( File.Exists( Paths.AutoRankFile ) ) {
+            if( File.Exists( Paths.AutoRankFileName ) ) {
                 try {
-                    XDocument doc = XDocument.Load( Paths.AutoRankFile );
+                    XDocument doc = XDocument.Load( Paths.AutoRankFileName );
+                    if( doc.Root == null ) return false;
                     foreach( XElement el in doc.Root.Elements( "Criterion" ) ) {
                         try {
                             Add( new Criterion( el ) );
@@ -72,11 +73,14 @@ namespace fCraft.AutoRank {
                     if( Criteria.Count == 0 ) {
                         Logger.Log( "AutoRank.Init: No criteria loaded.", LogType.Warning );
                     }
+                    return true;
                 } catch( Exception ex ) {
                     Logger.Log( "AutoRank.Init: Could not parse the AutoRank file: {0}", LogType.Error, ex );
+                    return false;
                 }
             } else {
                 Logger.Log( "AutoRank.Init: autorank.xml not found. No criteria loaded.", LogType.Warning );
+                return false;
             }
         }
     }
@@ -85,24 +89,25 @@ namespace fCraft.AutoRank {
     #region Enums
 
     /// <summary>  Operators used to compare PlayerInfo fields. </summary>
-    public enum ComparisonOperation {
-        /// <summary> Less Than </summary>
-        Lt,
-
-        /// <summary> Less Than or Equal </summary>
-        Lte,
-
-        /// <summary> Greater Than or Equal </summary>
-        Gte,
-
-        /// <summary> Greater Than </summary>
-        Gt,
+    public enum ComparisonOp {
 
         /// <summary> EQuals to </summary>
         Eq,
 
         /// <summary> Not EQual to </summary>
-        Neq
+        Neq,
+
+        /// <summary> Greater Than </summary>
+        Gt,
+
+        /// <summary> Greater Than or Equal </summary>
+        Gte,
+
+        /// <summary> Less Than </summary>
+        Lt,
+
+        /// <summary> Less Than or Equal </summary>
+        Lte
     }
 
 
@@ -157,23 +162,6 @@ namespace fCraft.AutoRank {
         /// <summary> Time since the player has been kicked by other players or by console.
         /// Does not reset from any kind of automated kicks (AFK kicks, anti-grief or anti-spam, server shutdown, etc). </summary>
         TimeSinceLastKick
-    }
-
-
-    // Not yet implemented.
-    public enum ConditionScopeType {
-        Total,
-        SinceRankChange,
-        SinceKick,
-        TimeSpan
-    }
-
-
-    // Not yet implemented.
-    public enum CriterionType {
-        Required,
-        Suggested,
-        Automatic
     }
 
     #endregion

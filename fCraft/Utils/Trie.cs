@@ -5,10 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 using System.Text;
+using JetBrains.Annotations;
 
+// ReSharper disable ClassCanBeSealed.Global
 namespace fCraft {
     /// <summary> Specialized data structure for partial-matching of large sparse sets of words.
     /// Used as a searchable index of players for PlayerDB. </summary>
+    /// <typeparam name="T"> Payload type (reference types only). </typeparam>
     [DebuggerDisplay( "Count = {Count}" )]
     public class Trie<T> : IDictionary<string, T>, IDictionary, ICloneable where T : class {
         const byte LeafNode = 254,
@@ -31,7 +34,7 @@ namespace fCraft {
 
         /// <summary> Creates a new trie from an existing dictionary. Values are shallowly copied. </summary>
         /// <param name="dictionary"> Source dictionary to copy from. </param>
-        public Trie( IEnumerable<KeyValuePair<string, T>> dictionary )
+        public Trie( [NotNull] IEnumerable<KeyValuePair<string, T>> dictionary )
             : this() {
             if( dictionary == null ) throw new ArgumentNullException( "dictionary" );
             foreach( var pair in dictionary ) {
@@ -41,7 +44,8 @@ namespace fCraft {
 
 
         // Find a node that exactly matches the given key
-        TrieNode GetNode( string key ) {
+        [CanBeNull]
+        TrieNode GetNode( [NotNull] string key ) {
             if( key == null ) throw new ArgumentNullException( "key" );
 
             TrieNode temp = root;
@@ -76,7 +80,7 @@ namespace fCraft {
         /// This method uses the value enumerator and runs in O(n). </summary>
         /// <param name="value"> Value to search for. </param>
         /// <returns> True if the trie contains at least one copy of the value. </returns>
-        public bool ContainsValue( T value ) {
+        public bool ContainsValue( [NotNull] T value ) {
             // ReSharper restore UnusedMember.Global
             if( value == null ) throw new ArgumentNullException( "value" );
             return Values.Contains( value );
@@ -91,7 +95,7 @@ namespace fCraft {
         /// If one match was found, returns true and sets payload to the value.
         /// If more than one match was found, returns false and sets payload to null.
         /// </returns>
-        public bool GetOneMatch( string keyPart, out T payload ) {
+        public bool GetOneMatch( [NotNull] string keyPart, out T payload ) {
             if( keyPart == null ) throw new ArgumentNullException( "keyPart" );
             TrieNode node = GetNode( keyPart );
 
@@ -135,7 +139,7 @@ namespace fCraft {
         /// <param name="keyPart"> Partial or full key. </param>
         /// <param name="limit"> Limit on the number of payloads to find/return. </param>
         /// <returns> List of matches (if there are no matches, length is zero). </returns>
-        public List<T> GetList( string keyPart, int limit ) {
+        public List<T> GetList( [NotNull] string keyPart, int limit ) {
             if( keyPart == null ) throw new ArgumentNullException( "keyPart" );
             List<T> results = new List<T>();
 
@@ -153,7 +157,7 @@ namespace fCraft {
         /// <param name="payload"> Object associated with the key. </param>
         /// <param name="overwriteOnDuplicate"> Whether to overwrite the value in case this key already exists. </param>
         /// <returns> True if object was added, false if an entry for this key already exists. </returns>
-        public bool Add( string key, T payload, bool overwriteOnDuplicate ) {
+        public bool Add( [NotNull] string key, [NotNull] T payload, bool overwriteOnDuplicate ) {
             if( key == null ) throw new ArgumentNullException( "key" );
             if( payload == null ) throw new ArgumentNullException( "payload" );
 
@@ -218,7 +222,8 @@ namespace fCraft {
         /// <summary> Get payload for an exact key (no autocompletion). </summary>
         /// <param name="key"> Full key. </param>
         /// <returns> Payload object, if found. Null if not found. </returns>
-        public T Get( string key ) {
+        [CanBeNull]
+        public T Get( [NotNull] string key ) {
             if( key == null ) throw new ArgumentNullException( "key" );
             TrieNode node = GetNode( key );
             if( node != null ) {
@@ -355,7 +360,7 @@ namespace fCraft {
             protected readonly Stack<int> ParentIndices = new Stack<int>();
 
 
-            protected EnumeratorBase( TrieNode node, Trie<T> trie, string prefix ) {
+            protected EnumeratorBase( [NotNull] TrieNode node, [NotNull] Trie<T> trie, [NotNull] string prefix ) {
                 if( node == null ) throw new ArgumentNullException( "node" );
                 if( trie == null ) throw new ArgumentNullException( "trie" );
                 if( prefix == null ) throw new ArgumentNullException( "prefix" );
@@ -523,7 +528,7 @@ namespace fCraft {
         /// <summary> Removes an entry by key. </summary>
         /// <param name="key"> Key for the entry to remove. </param>
         /// <returns> True if the entry was removed, false if no entry was found for this key. </returns>
-        public bool Remove( string key ) {
+        public bool Remove( [NotNull] string key ) {
             if( key == null ) throw new ArgumentNullException( "key" );
             if( key.Length == 0 ) {
                 if( root.Payload == null ) return false;
@@ -617,7 +622,7 @@ namespace fCraft {
         }
 
 
-        object IDictionary.this[object key] {
+        object IDictionary.this[[NotNull] object key] {
             get {
                 if( key == null ) {
                     throw new ArgumentNullException( "key" );
@@ -648,7 +653,7 @@ namespace fCraft {
         }
 
 
-        void IDictionary.Remove( object key ) {
+        void IDictionary.Remove( [NotNull] object key ) {
             if( key == null ) {
                 throw new ArgumentNullException( "key" );
             }
@@ -660,7 +665,7 @@ namespace fCraft {
         }
 
 
-        void IDictionary.Add( object key, object value ) {
+        void IDictionary.Add( [NotNull] object key, [NotNull] object value ) {
             if( key == null ) {
                 throw new ArgumentNullException( "key" );
             }
@@ -679,7 +684,7 @@ namespace fCraft {
         }
 
 
-        bool IDictionary.Contains( object key ) {
+        bool IDictionary.Contains( [NotNull] object key ) {
             if( key == null ) {
                 throw new ArgumentNullException( "key" );
             }
@@ -761,7 +766,7 @@ namespace fCraft {
             readonly Trie<T> trie;
 
 
-            public TrieValueCollection( Trie<T> trie ) {
+            public TrieValueCollection( [NotNull] Trie<T> trie ) {
                 if( trie == null ) throw new ArgumentNullException( "trie" );
                 this.trie = trie;
             }
@@ -779,7 +784,7 @@ namespace fCraft {
             public object SyncRoot { get { return trie.syncRoot; } }
 
 
-            public void CopyTo( Array array, int index ) {
+            public void CopyTo( [NotNull] Array array, int index ) {
                 if( array == null ) throw new ArgumentNullException( "array" );
                 if( index < 0 || index > array.Length ) throw new ArgumentOutOfRangeException( "index" );
 
@@ -796,7 +801,7 @@ namespace fCraft {
             }
 
 
-            public void CopyTo( T[] array, int index ) {
+            public void CopyTo( [NotNull] T[] array, int index ) {
                 if( array == null ) throw new ArgumentNullException( "array" );
                 if( index < 0 || index > array.Length ) throw new ArgumentOutOfRangeException( "index" );
 
@@ -844,7 +849,7 @@ namespace fCraft {
                 readonly Trie<T> trie;
                 readonly string prefix;
 
-                public TrieValueSubset( Trie<T> trie, string prefix ) {
+                public TrieValueSubset( [NotNull] Trie<T> trie, [NotNull] string prefix ) {
                     if( trie == null ) throw new ArgumentNullException( "trie" );
                     if( prefix == null ) throw new ArgumentNullException( "prefix" );
                     this.trie = trie;
@@ -929,7 +934,7 @@ namespace fCraft {
             readonly Trie<T> trie;
 
 
-            public TrieKeyCollection( Trie<T> trie ) {
+            public TrieKeyCollection( [NotNull] Trie<T> trie ) {
                 if( trie == null ) throw new ArgumentNullException( "trie" );
                 this.trie = trie;
             }
@@ -947,7 +952,7 @@ namespace fCraft {
             public object SyncRoot { get { return trie.syncRoot; } }
 
 
-            public void CopyTo( Array array, int index ) {
+            public void CopyTo( [NotNull] Array array, int index ) {
                 if( array == null ) throw new ArgumentNullException( "array" );
                 if( index < 0 || index > array.Length ) throw new ArgumentOutOfRangeException( "index" );
 
@@ -964,7 +969,7 @@ namespace fCraft {
             }
 
 
-            public void CopyTo( string[] array, int index ) {
+            public void CopyTo( [NotNull] string[] array, int index ) {
                 if( array == null ) throw new ArgumentNullException( "array" );
                 if( index < 0 || index > array.Length ) throw new ArgumentOutOfRangeException( "index" );
 
@@ -1012,7 +1017,7 @@ namespace fCraft {
                 readonly Trie<T> trie;
                 readonly string prefix;
 
-                public TrieKeySubset( Trie<T> trie, string prefix ) {
+                public TrieKeySubset( [NotNull] Trie<T> trie, [NotNull] string prefix ) {
                     if( trie == null ) throw new ArgumentNullException( "trie" );
                     if( prefix == null ) throw new ArgumentNullException( "prefix" );
                     this.trie = trie;
@@ -1170,7 +1175,7 @@ namespace fCraft {
         }
 
 
-        public void CopyTo( KeyValuePair<string, T>[] pairArray, int index ) {
+        public void CopyTo( [NotNull] KeyValuePair<string, T>[] pairArray, int index ) {
             if( pairArray == null ) throw new ArgumentNullException( "pairArray" );
             if( index < 0 || index > pairArray.Length ) throw new ArgumentOutOfRangeException( "index" );
 
@@ -1193,7 +1198,7 @@ namespace fCraft {
         public object SyncRoot { get { return syncRoot; } }
 
 
-        public void CopyTo( Array pairArray, int index ) {
+        public void CopyTo( [NotNull] Array pairArray, int index ) {
             if( pairArray == null ) throw new ArgumentNullException( "pairArray" );
             if( index < 0 || index > pairArray.Length ) throw new ArgumentOutOfRangeException( "index" );
 
@@ -1302,7 +1307,7 @@ namespace fCraft {
             }
 
 
-            public bool GetAllChildren( IList<T> list, int limit ) {
+            public bool GetAllChildren( ICollection<T> list, int limit ) {
                 if( list.Count >= limit ) return false;
                 if( Payload != null ) {
                     list.Add( Payload );
@@ -1311,10 +1316,12 @@ namespace fCraft {
 
                 switch( Tag ) {
                     case MultiNode:
+                        // ReSharper disable LoopCanBeConvertedToQuery
                         for( int i = 0; i < Children.Length; i++ ) {
                             if( Children[i] == null ) continue;
                             if( !Children[i].GetAllChildren( list, limit ) ) return false;
                         }
+                        // ReSharper restore LoopCanBeConvertedToQuery
                         return true;
 
                     case LeafNode:

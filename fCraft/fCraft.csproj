@@ -40,6 +40,8 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -81,7 +83,6 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
@@ -94,7 +95,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DrawOperationState.cs" />
+    <Compile Include="Drawing\DrawOperation.cs" />
     <Compile Include="AutoRank\AutoRankManager.cs" />
     <Compile Include="Commands\ModerationCommands.cs" />
     <Compile Include="Commands\MaintenanceCommands.cs" />
@@ -126,15 +127,9 @@
     <Compile Include="Network\IRCCommands.cs" />
     <Compile Include="Network\IRCMessage.cs" />
     <Compile Include="Player\PlayerConstants.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Utils\BoundingBox.cs" />
     <Compile Include="Utils\ConcurrentQueue.cs" />
     <Compile Include="System\ConfigKey.cs" />
-    <Compile Include="Utils\IsoCat.cs" />
     <Compile Include="Utils\Noise.cs" />
     <Compile Include="Utils\Updater.cs" />
     <Compile Include="Player\RankManager.cs" />
@@ -146,7 +141,7 @@
     <Compile Include="System\Logger.cs" />
     <Compile Include="Network\PacketWriter.cs" />
     <Compile Include="Network\Packet.cs" />
-    <Compile Include="Network\Session.cs" />
+    <Compile Include="Player\Player.Networking.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Player\Rank.cs" />
     <Compile Include="Player\Player.cs" />
@@ -158,7 +153,6 @@
     <Compile Include="Utils\Position.cs" />
     <Compile Include="World\Block.cs" />
     <Compile Include="World\BlockUpdate.cs" />
-    <Compile Include="World\EventHandlers.cs" />
     <Compile Include="World\Forester.cs" />
     <Compile Include="World\Map.cs" />
     <Compile Include="World\MapGenerator.cs">
@@ -200,31 +194,71 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="AutoRank\Conditions.cs" />
     <Compile Include="AutoRank\Criterion.cs" />
     <Compile Include="Commands\ChatCommands.cs" />
-    <Compile Include="Commands\ChatMessage.cs" />
+    <Compile Include="Drawing\Brushes\ReplaceBrushBrush.cs" />
+    <Compile Include="Drawing\DrawOpWithBrush.cs" />
+    <Compile Include="Drawing\DrawOps\UndoDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\PasteDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\CutDrawOperation.cs" />
+    <Compile Include="Drawing\UndoState.cs" />
+    <Compile Include="MapConversion\INIFile.cs" />
+    <Compile Include="Player\ChatTimer.cs" />
+    <Compile Include="Drawing\Brushes\AbstractPerlinNoiseBrush.cs" />
+    <Compile Include="Drawing\Brushes\CheckeredBrush.cs" />
+    <Compile Include="Drawing\Brushes\ReplaceNotBrush.cs" />
+    <Compile Include="Drawing\Brushes\ReplaceBrush.cs" />
+    <Compile Include="Drawing\BrushManager.cs" />
+    <Compile Include="Drawing\Brushes\CloudyBrush.cs" />
+    <Compile Include="Drawing\CopyState.cs" />
+    <Compile Include="Drawing\DrawOps\SphereHollowDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\EllipsoidHollowDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\SphereDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\LineDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\EllipsoidDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\CuboidHollowDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\CuboidWireframeDrawOperation.cs" />
+    <Compile Include="Drawing\Brushes\MarbledBrush.cs" />
+    <Compile Include="Drawing\Brushes\RainbowBrush.cs" />
+    <Compile Include="Drawing\Brushes\RandomBrush.cs" />
+    <Compile Include="Drawing\DrawOps\CuboidDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\TorusDrawOperation.cs" />
+    <Compile Include="Drawing\IBrush.cs" />
+    <Compile Include="Drawing\Brushes\NormalBrush.cs" />
+    <Compile Include="Drawing\Axis.cs" />
+    <Compile Include="Player\Chat.cs" />
     <Compile Include="Commands\CommandCategory.cs" />
     <Compile Include="MapConversion\MapFormatException.cs" />
     <Compile Include="MapConversion\MapOpticraft.cs" />
-    <Compile Include="MapConversion\MapXMap.cs" />
+    <Compile Include="MapConversion\MapFCMv4.cs" />
+    <Compile Include="Network\LineWrapper.cs" />
     <Compile Include="Network\OpCode.cs" />
+    <Compile Include="Player\PlayerInfo.Actions.cs" />
+    <Compile Include="Player\Player.Events.cs" />
+    <Compile Include="Player\PlayerEnumerable.cs" />
+    <Compile Include="Player\PlayerOpException.cs" />
+    <Compile Include="System\ArgKey.cs" />
     <Compile Include="System\ConfigKey.Metadata.cs" />
     <Compile Include="System\ConfigSection.cs" />
+    <Compile Include="World\BlockDB.cs" />
+    <Compile Include="Utils\EventInterfaces.cs" />
+    <Compile Include="System\SchedulerTask.cs" />
+    <Compile Include="Utils\IClassy.cs" />
     <Compile Include="System\Server.Events.cs" />
     <Compile Include="Utils\ExtensionMethods.cs" />
     <Compile Include="Utils\LogRecorder.cs" />
+    <Compile Include="Utils\PerlinNoise3D.cs" />
+    <Compile Include="Utils\ZipStorer.cs" />
+    <Compile Include="World\BlockDBEntry.cs" />
+    <Compile Include="World\MetadataCollection.cs" />
     <Compile Include="World\WorldManager.cs" />
     <Compile Include="World\WorldOpException.cs" />
     <Compile Include="Utils\MonoCompat.cs" />
-    <None Include="Tileset.png" />
-    <None Include="TilesetShadowed.png" />
+    <Compile Include="World\ZoneCollection.cs" />
+    <Compile Include="Player\PlayerInfo.Events.cs" />
+    <Compile Include="World\World.Events.cs" />
+    <Compile Include="Utils\JetBrains.Annotations.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

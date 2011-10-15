@@ -1,13 +1,16 @@
-﻿using System;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Net;
 using System.Globalization;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
     static class IPAddressUtil {
-        public static bool IsLAN( this IPAddress addr ) {
+        /// <summary> Checks whether an IP address may belong to LAN (192.168.0.0/16 or 10.0.0.0/24). </summary>
+        public static bool IsLAN( [NotNull] this IPAddress addr ) {
             if( addr == null ) throw new ArgumentNullException( "addr" );
             byte[] bytes = addr.GetAddressBytes();
             return (bytes[0] == 192 && bytes[1] == 168) ||
@@ -16,78 +19,65 @@ namespace fCraft {
     }
 
 
-    static class DateTimeUtil {
+    public static class DateTimeUtil {
+        public static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1, 0, 0, 0, DateTimeKind.Utc );
+        public static readonly long TicksToUnixEpoch;
+        const long TicksPerMillisecond = 10000;
 
         static DateTimeUtil() {
             TicksToUnixEpoch = UnixEpoch.Ticks;
         }
 
-        public static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1 );
-        public static readonly long TicksToUnixEpoch;
-        public const int TicksPerSecond = 10000;
 
-        public static string ToCompactString( this DateTime date ) {
-            return date.ToString( "yyyy'-'MM'-'dd'T'HH':'mm':'ssK" );
+        #region To Unix Time
+
+        /// <summary> Converts a DateTime to Utc Unix Timestamp. </summary>
+        public static long ToUnixTime( this DateTime date ) {
+            return (long)date.Subtract( UnixEpoch ).TotalSeconds;
         }
 
-        public static string ToTickString( this DateTime date ) {
+
+        public static long ToUnixTimeLegacy( this DateTime date ) {
+            return (date.Ticks - TicksToUnixEpoch) / TicksPerMillisecond;
+        }
+
+
+        /// <summary> Converts a DateTime to a string containing the Utc Unix Timestamp.
+        /// If the date equals DateTime.MinValue, returns an empty string. </summary>
+        public static string ToUnixTimeString( this DateTime date ) {
             if( date == DateTime.MinValue ) {
                 return "";
             } else {
-                return ((date.Ticks - TicksToUnixEpoch) / TicksPerSecond).ToString();
+                return date.ToUnixTime().ToString();
             }
         }
 
-        public static StringBuilder ToTickString( this DateTime date, StringBuilder sb ) {
+
+        /// <summary> Appends a Utc Unix Timestamp to the given StringBuilder.
+        /// If the date equals DateTime.MinValue, nothing is appended. </summary>
+        public static StringBuilder ToUnixTimeString( this DateTime date, StringBuilder sb ) {
             if( date != DateTime.MinValue ) {
-                sb.Append( (date.Ticks - TicksToUnixEpoch) / TicksPerSecond );
+                sb.Append( date.ToUnixTime() );
             }
             return sb;
-        }
-
-
-
-        public static long ToTimestamp( this DateTime timestamp ) {
-            return (long)(timestamp - UnixEpoch).TotalSeconds;
-        }
-
-        public static long ToUtcTimestamp( this DateTime timestamp ) {
-            if( timestamp.Kind != DateTimeKind.Utc ) {
-                timestamp = TimeZone.CurrentTimeZone.ToUniversalTime( timestamp );
-            }
-            return timestamp.ToTimestamp();
-        }
-
-
-        #region ToDateTime
-
-        public static DateTime ToDateTime( this long timestamp ) {
-            return UnixEpoch.AddSeconds( timestamp );
-        }
-
-        public static DateTime ToDateTime( this int timestamp ) {
-            return UnixEpoch.AddSeconds( timestamp );
-        }
-
-        public static DateTime ToDateTime( this uint timestamp ) {
-            return UnixEpoch.AddSeconds( timestamp );
-        }
-
-        public static bool ToDateTime( this string str, ref DateTime date ) {
-            if( str.Length > 1 ) {
-                date = new DateTime( Int64.Parse( str ) * TicksPerSecond + TicksToUnixEpoch, DateTimeKind.Utc );
-                return true;
-            } else {
-                return false;
-            }
         }
 
         #endregion
 
 
-        public static bool ToTimeSpan( this string str, ref TimeSpan date ) {
+        #region To Date Time
+
+        /// <summary> Creates a DateTime from a Utc Unix Timestamp. </summary>
+        public static DateTime ToDateTime( this long timestamp ) {
+            return UnixEpoch.AddSeconds( timestamp );
+        }
+
+
+        /// <summary> Tries to create a DateTime from a string containing a Utc Unix Timestamp.
+        /// If the string was empty, returns false and does not affect result. </summary>
+        public static bool ToDateTime( this string str, ref DateTime result ) {
             if( str.Length > 1 ) {
-                date = new TimeSpan( Int64.Parse( str ) * TicksPerSecond );
+                result = UnixEpoch.AddSeconds( Int64.Parse( str ) );
                 return true;
             } else {
                 return false;
@@ -95,25 +85,67 @@ namespace fCraft {
         }
 
 
-        public static string ToCompactString( this TimeSpan span ) {
-            return String.Format( "{0}.{1:00}:{2:00}:{3:00}",
-                span.Days, span.Hours, span.Minutes, span.Seconds );
+        public static DateTime ToDateTimeLegacy( long timestamp ) {
+            return new DateTime( timestamp * TicksPerMillisecond + TicksToUnixEpoch, DateTimeKind.Utc );
         }
 
 
-        #region Mini-string (very compact format)
+        public static bool ToDateTimeLegacy( this string str, ref DateTime result ) {
+            if( str.Length <= 1 ) {
+                return false;
+            }
+            result = ToDateTimeLegacy( Int64.Parse( str ) );
+            return true;
+        }
 
+        #endregion
+
+
+        /// <summary> Converts a TimeSpan to a string containing the number of seconds.
+        /// If the timestamp is zero seconds, returns an empty string. </summary>
         public static string ToTickString( this TimeSpan time ) {
             if( time == TimeSpan.Zero ) {
                 return "";
             } else {
-                return (time.Ticks / TicksPerSecond).ToString();
+                return (time.Ticks / TimeSpan.TicksPerSecond).ToString();
             }
         }
 
+
+        /// <summary> Tries to create a TimeSpan from a string containing the number of seconds.
+        /// If the string was empty, returns false and does not affect result. </summary>
+        public static bool ToTimeSpan( [NotNull] this string str, out TimeSpan result ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
+            if( str.Length == 0 ) {
+                result = TimeSpan.Zero;
+                return true;
+            }
+            long ticks;
+            if( Int64.TryParse( str, out ticks ) ) {
+                result = new TimeSpan( ticks * TimeSpan.TicksPerSecond );
+                return true;
+            } else {
+                result = TimeSpan.Zero;
+                return false;
+            }
+        }
+
+
+        public static bool ToTimeSpanLegacy( this string str, ref TimeSpan result ) {
+            if( str.Length > 1 ) {
+                result = new TimeSpan( Int64.Parse( str ) * TicksPerMillisecond );
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+
+        #region MiniString
+
         public static StringBuilder ToTickString( this TimeSpan time, StringBuilder sb ) {
             if( time != TimeSpan.Zero ) {
-                sb.Append( time.Ticks / TicksPerSecond );
+                sb.Append( time.Ticks / TimeSpan.TicksPerSecond );
             }
             return sb;
         }
@@ -138,15 +170,15 @@ namespace fCraft {
             try {
                 result = ParseMiniTimespan( text );
                 return true;
-            } catch( ArgumentNullException ) {
             } catch( ArgumentException ) {
+            } catch( OverflowException ) {
             } catch( FormatException ) { }
             result = TimeSpan.Zero;
             return false;
         }
 
 
-        public static TimeSpan ParseMiniTimespan( this string text ) {
+        public static TimeSpan ParseMiniTimespan( [NotNull] this string text ) {
             if( text == null ) throw new ArgumentNullException( "text" );
 
             int secondCount;
@@ -199,6 +231,20 @@ namespace fCraft {
         #endregion
 
 
+        #region CompactString
+
+        public static string ToCompactString( this DateTime date ) {
+            return date.ToString( "yyyy'-'MM'-'dd'T'HH':'mm':'ssK" );
+        }
+
+
+        public static string ToCompactString( this TimeSpan span ) {
+            return String.Format( "{0}.{1:00}:{2:00}:{3:00}",
+                                  span.Days, span.Hours, span.Minutes, span.Seconds );
+        }
+
+        #endregion
+
 
         static CultureInfo cultureInfo = CultureInfo.CurrentCulture;
 
@@ -210,7 +256,8 @@ namespace fCraft {
         /// <param name="dateString"> String to parse. </param>
         /// <param name="date"> Date to output. </param>
         /// <returns> True if date string could be parsed and was not empty/MinValue. </returns>
-        public static bool TryParseLocalDate( string dateString, out DateTime date ) {
+        public static bool TryParseLocalDate( [NotNull] string dateString, out DateTime date ) {
+            if( dateString == null ) throw new ArgumentNullException( "dateString" );
             if( dateString.Length <= 1 ) {
                 date = DateTime.MinValue;
                 return false;
@@ -239,8 +286,10 @@ namespace fCraft {
 
 
     static class EnumerableUtil {
-
-        public static string JoinToString<T>( this IEnumerable<T> items ) {
+        /// <summary> Joins all items in a collection into one comma-separated string.
+        /// If the items are not strings, .ToString() is called on them. </summary>
+        public static string JoinToString<T>( [NotNull] this IEnumerable<T> items ) {
+            if( items == null ) throw new ArgumentNullException( "items" );
             StringBuilder sb = new StringBuilder();
             bool first = true;
             foreach( T item in items ) {
@@ -252,7 +301,11 @@ namespace fCraft {
         }
 
 
-        public static string JoinToString<T>( this IEnumerable<T> items, string separator ) {
+        /// <summary> Joins all items in a collection into one string separated with the given separator.
+        /// If the items are not strings, .ToString() is called on them. </summary>
+        public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] string separator ) {
+            if( items == null ) throw new ArgumentNullException( "items" );
+            if( separator == null ) throw new ArgumentNullException( "separator" );
             StringBuilder sb = new StringBuilder();
             bool first = true;
             foreach( T item in items ) {
@@ -264,7 +317,28 @@ namespace fCraft {
         }
 
 
-        public static string JoinToString<T>( this IEnumerable<T> items, string separator, Func<T, string> stringConversionFunction ) {
+        /// <summary> Joins all items in a collection into one string separated with the given separator.
+        /// A specified string conversion function is called on each item before contactenation. </summary>
+        public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] Func<T, string> stringConversionFunction ) {
+            if( items == null ) throw new ArgumentNullException( "items" );
+            if( stringConversionFunction == null ) throw new ArgumentNullException( "stringConversionFunction" );
+            StringBuilder sb = new StringBuilder();
+            bool first = true;
+            foreach( T item in items ) {
+                if( !first ) sb.Append( ',' ).Append( ' ' );
+                sb.Append( stringConversionFunction( item ) );
+                first = false;
+            }
+            return sb.ToString();
+        }
+
+
+        /// <summary> Joins all items in a collection into one string separated with the given separator.
+        /// A specified string conversion function is called on each item before contactenation. </summary>
+        public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] string separator, [NotNull] Func<T, string> stringConversionFunction ) {
+            if( items == null ) throw new ArgumentNullException( "items" );
+            if( separator == null ) throw new ArgumentNullException( "separator" );
+            if( stringConversionFunction == null ) throw new ArgumentNullException( "stringConversionFunction" );
             StringBuilder sb = new StringBuilder();
             bool first = true;
             foreach( T item in items ) {
@@ -276,9 +350,196 @@ namespace fCraft {
         }
 
 
-        // TODO: After switching to 4.0, mess with generics to allow IEnumerable<IClassy>
-        public static string JoinToClassyString( this IEnumerable<IClassy> list ) {
-            return list.JoinToString( "&S, ", p => p.GetClassyName() );
+        /// <summary> Joins formatted names of all IClassy objects in a collection into one comma-separated string. </summary>
+        public static string JoinToClassyString( [NotNull] this IEnumerable<IClassy> items ) {
+            if( items == null ) throw new ArgumentNullException( "items" );
+            return items.JoinToString( "  ", p => p.ClassyName );
+        }
+    }
+
+
+    unsafe static class IntUtil {
+        // Quicker StringBuilder.Append(int) by Sam Allen of http://www.dotnetperls.com
+        public static void Digits( [NotNull] this StringBuilder builder, int number ) {
+            if( builder == null ) throw new ArgumentNullException( "builder" );
+            if( number >= 100000000 ) {
+                // Use system ToString.
+                builder.Append( number.ToString() );
+                return;
+            }
+            if( number < 0 ) {
+                // Negative.
+                builder.Append( number.ToString() );
+                return;
+            }
+            int copy;
+            int digit;
+            if( number >= 10000000 ) {
+                // 8.
+                copy = number % 100000000;
+                digit = copy / 10000000;
+                builder.Append( (char)(digit + 48) );
+            }
+            if( number >= 1000000 ) {
+                // 7.
+                copy = number % 10000000;
+                digit = copy / 1000000;
+                builder.Append( (char)(digit + 48) );
+            }
+            if( number >= 100000 ) {
+                // 6.
+                copy = number % 1000000;
+                digit = copy / 100000;
+                builder.Append( (char)(digit + 48) );
+            }
+            if( number >= 10000 ) {
+                // 5.
+                copy = number % 100000;
+                digit = copy / 10000;
+                builder.Append( (char)(digit + 48) );
+            }
+            if( number >= 1000 ) {
+                // 4.
+                copy = number % 10000;
+                digit = copy / 1000;
+                builder.Append( (char)(digit + 48) );
+            }
+            if( number >= 100 ) {
+                // 3.
+                copy = number % 1000;
+                digit = copy / 100;
+                builder.Append( (char)(digit + 48) );
+            }
+            if( number >= 10 ) {
+                // 2.
+                copy = number % 100;
+                digit = copy / 10;
+                builder.Append( (char)(digit + 48) );
+            }
+            if( number >= 0 ) {
+                // 1.
+                copy = number % 10;
+                digit = copy / 1;
+                builder.Append( (char)(digit + 48) );
+            }
+        }
+
+
+        // Quicker Int32.Parse(string) by Karl Seguin
+        public static int Parse( [NotNull] string stringToConvert ) {
+            if( stringToConvert == null ) throw new ArgumentNullException( "stringToConvert" );
+            int value = 0;
+            int length = stringToConvert.Length;
+            fixed( char* characters = stringToConvert ) {
+                for( int i = 0; i < length; ++i ) {
+                    value = 10 * value + (characters[i] - 48);
+                }
+            }
+            return value;
+        }
+    }
+
+    unsafe static class BufferUtil {
+        public static void MemSet( [NotNull] this byte[] array, byte value ) {
+            if( array == null ) throw new ArgumentNullException( "array" );
+            byte[] rawValue = new[] { value, value, value, value, value, value, value, value };
+            Int64 fillValue = BitConverter.ToInt64( rawValue, 0 );
+
+            fixed( byte* ptr = array ) {
+                Int64* dest = (Int64*)ptr;
+                int length = array.Length;
+                while( length >= 8 ) {
+                    *dest = fillValue;
+                    dest++;
+                    length -= 8;
+                }
+                byte* bDest = (byte*)dest;
+                for( byte i = 0; i < length; i++ ) {
+                    *bDest = value;
+                    bDest++;
+                }
+            }
+        }
+
+
+        public static void MemSet( [NotNull] this byte[] array, byte value, int startIndex, int length ) {
+            if( array == null ) throw new ArgumentNullException( "array" );
+            if( length < 0 || length > array.Length ) {
+                throw new ArgumentOutOfRangeException( "length" );
+            }
+            if( startIndex < 0 || startIndex + length > array.Length ) {
+                throw new ArgumentOutOfRangeException( "startIndex" );
+            }
+
+            byte[] rawValue = new[] { value, value, value, value, value, value, value, value };
+            Int64 fillValue = BitConverter.ToInt64( rawValue, 0 );
+
+            fixed( byte* ptr = &array[startIndex] ) {
+                Int64* dest = (Int64*)ptr;
+                while( length >= 8 ) {
+                    *dest = fillValue;
+                    dest++;
+                    length -= 8;
+                }
+                byte* bDest = (byte*)dest;
+                for( byte i = 0; i < length; i++ ) {
+                    *bDest = value;
+                    bDest++;
+                }
+            }
+        }
+
+
+        public static void MemCpy( [NotNull] byte* src, [NotNull] byte* dest, int len ) {
+            if( src == null ) throw new ArgumentNullException( "src" );
+            if( dest == null ) throw new ArgumentNullException( "dest" );
+            if( len >= 0x10 ) {
+                do {
+                    *((int*)dest) = *((int*)src);
+                    *((int*)(dest + 4)) = *((int*)(src + 4));
+                    *((int*)(dest + 8)) = *((int*)(src + 8));
+                    *((int*)(dest + 12)) = *((int*)(src + 12));
+                    dest += 0x10;
+                    src += 0x10;
+                }
+                while( (len -= 0x10) >= 0x10 );
+            }
+            if( len > 0 ) {
+                if( (len & 8) != 0 ) {
+                    *((int*)dest) = *((int*)src);
+                    *((int*)(dest + 4)) = *((int*)(src + 4));
+                    dest += 8;
+                    src += 8;
+                }
+                if( (len & 4) != 0 ) {
+                    *((int*)dest) = *((int*)src);
+                    dest += 4;
+                    src += 4;
+                }
+                if( (len & 2) != 0 ) {
+                    *((short*)dest) = *((short*)src);
+                    dest += 2;
+                    src += 2;
+                }
+                if( (len & 1) != 0 ) {
+                    dest++;
+                    src++;
+                    dest[0] = src[0];
+                }
+            }
+        }
+    }
+
+    public static class EnumUtil {
+        public static bool TryParse<TEnum>( [NotNull] string value, out TEnum output, bool ignoreCase ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
+            try {
+                output = (TEnum)Enum.Parse( typeof( TEnum ), value, ignoreCase );
+                return true;
+            } catch( ArgumentException ) {
+                output = default( TEnum );
+                return false;
+            }
         }
     }
 }

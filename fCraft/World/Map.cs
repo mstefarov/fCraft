@@ -5,167 +5,567 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
-using System.Text;
+using fCraft.Drawing;
 using fCraft.MapConversion;
+using JetBrains.Annotations;
 
 namespace fCraft {
     public unsafe sealed class Map {
+        public const MapFormat SaveFormat = MapFormat.FCMv3;
 
-        public World World;
+        /// <summary> The world associated with this map, if any. May be null. </summary>
+        public World World { get; set; }
 
-        /// <summary> Map width, in blocks. Equivalent to Notch's X (horizontal)</summary>
-        public readonly int WidthX;
+        /// <summary> Map width, in blocks. Equivalent to Notch's X (horizontal). </summary>
+        public readonly int Width;
 
-        /// <summary> Map length, in blocks. Equivalent to Notch's Z (horizontal)</summary>
-        public readonly int WidthY;
+        /// <summary> Map length, in blocks. Equivalent to Notch's Z (horizontal). </summary>
+        public readonly int Length;
 
-        /// <summary> Map height, in blocks. Equivalent to Notch's Y (vertical)</summary>
+        /// <summary> Map height, in blocks. Equivalent to Notch's Y (vertical). </summary>
         public readonly int Height;
 
-        public BoundingBox Bounds {
-            get { return new BoundingBox( Position.Zero, WidthX, WidthY, Height ); }
+        /// <summary> Map boundaries. Can be useful for calculating volume or interesections. </summary>
+        public readonly BoundingBox Bounds;
+
+        /// <summary> Map volume, in terms of blocks. </summary>
+        public readonly int Volume;
+
+
+        /// <summary> Default spawning point on the map. </summary>
+        Position spawn;
+        public Position Spawn {
+            get {
+                return spawn;
+            }
+            set {
+                spawn = value;
+                HasChangedSinceSave = true;
+            }
         }
 
-        public Position Spawn;
+        /// <summary> Resets spawn to the default location (top center of the map). </summary>
+        public void ResetSpawn() {
+            Spawn = new Position {
+                X = (short)(Width * 16),
+                Y = (short)(Length * 16),
+                Z = (short)Math.Min( short.MaxValue, Height * 32 ),
+                R = 0,
+                L = 0
+            };
+        }
 
-        readonly Dictionary<string, Dictionary<string, string>> metadata = new Dictionary<string, Dictionary<string, string>>();
 
-        // Queue of block updates. Updates are applied by ProcessUpdates()
-        readonly ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
+        /// <summary> Whether the map was modified since last time it was saved. </summary>
+        public bool HasChangedSinceSave { get; internal set; }
 
-        readonly object metaLock = new object(),
-                        backupLock = new object();
+        /// <summary> Whether the map was saved since last time it was backed up. </summary>
+        public bool HasChangedSinceBackup { get; private set; }
 
-        // used to skip backups/saves if no changes were made
-        public bool ChangedSinceSave { get; internal set; }
-        public bool ChangedSinceBackup { get; internal set; }
-
+        // used by IsoCat and MapGenerator
         public short[,] Shadows;
 
-        // FCMv3 additions
-        public DateTime DateModified = DateTime.UtcNow;
-        public DateTime DateCreated = DateTime.UtcNow;
-        public Guid Guid = Guid.NewGuid();
 
-        // block data
+        // FCMv3 additions
+        public DateTime DateModified { get; set; }
+        public DateTime DateCreated { get; set; }
+        public Guid Guid { get; set; }
+
+        /// <summary> Array of map blocks.
+        /// Use Index(x,y,h) to convert coordinates to array indices.
+        /// Use QueueUpdate() for working on live maps to
+        /// ensure that all players get updated. </summary>
         public byte[] Blocks;
 
+        /// <summary> Map metadata, excluding zones. </summary>
+        public MetadataCollection<string> Metadata { get; private set; }
 
-        internal Map() {
-            UpdateZoneCache();
-        }
+        /// <summary> All zones within a map. </summary>
+        public ZoneCollection Zones { get; private set; }
 
-        // creates an empty new world of specified dimensions
-        public Map( World world, int widthX, int widthY, int height, bool initBlockArray )
-            : this() {
+
+        /// <summary> Creates an empty new map of given dimensions.
+        /// Dimensions cannot be changed after creation. </summary>
+        /// <param name="world"> World that owns this map. May be null, and may be changed later. </param>
+        /// <param name="width"> Width (horizontal, Notch's X). </param>
+        /// <param name="length"> Length (horizontal, Notch's Z). </param>
+        /// <param name="height"> Height (vertical, Notch's Y). </param>
+        /// <param name="initBlockArray"> If true, the Blocks array will be created. </param>
+        public Map( World world, int width, int length, int height, bool initBlockArray ) {
+            if( !IsValidDimension( width ) ) throw new ArgumentException( "Invalid map dimension.", "width" );
+            if( !IsValidDimension( length ) ) throw new ArgumentException( "Invalid map dimension.", "length" );
+            if( !IsValidDimension( height ) ) throw new ArgumentException( "Invalid map dimension.", "height" );
+            DateCreated = DateTime.UtcNow;
+            DateModified = DateCreated;
+            Guid = Guid.NewGuid();
+
+            Metadata = new MetadataCollection<string>();
+            Metadata.Changed += OnMetaOrZoneChange;
+
+            Zones = new ZoneCollection();
+            Zones.Changed += OnMetaOrZoneChange;
+
             World = world;
 
-            WidthX = widthX;
-            WidthY = widthY;
+            Width = width;
+            Length = length;
             Height = height;
+            Bounds = new BoundingBox( Position.Zero, Width, Length, Height );
+            Volume = Bounds.Volume;
 
             if( initBlockArray ) {
-                int blockCount = WidthX * WidthY * Height;
-                Blocks = new byte[blockCount];
-                Blocks.Initialize();
+                Blocks = new byte[Volume];
             }
+
+            ResetSpawn();
+        }
+
+
+        void OnMetaOrZoneChange( object sender, EventArgs args ) {
+            HasChangedSinceSave = true;
         }
 
 
         #region Saving
 
-        public bool Save( string fileName ) {
+        /// <summary> Saves this map to a file in the default format (FCMv3). </summary>
+        /// <returns> Whether the saving succeeded. </returns>
+        public bool Save( [NotNull] string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             string tempFileName = fileName + ".temp";
 
+            // save to a temporary file
             try {
-                ChangedSinceSave = false;
-                if( !MapUtility.TrySave( this, tempFileName, MapFormat.FCMv3 ) ) {
-                    ChangedSinceSave = true;
+                HasChangedSinceSave = false;
+                if( !MapUtility.TrySave( this, tempFileName, SaveFormat ) ) {
+                    HasChangedSinceSave = true;
                 }
 
             } catch( IOException ex ) {
-                ChangedSinceSave = true;
+                HasChangedSinceSave = true;
                 Logger.Log( "Map.Save: Unable to open file \"{0}\" for writing: {1}", LogType.Error,
-                               tempFileName, ex.Message );
-                try { File.Delete( tempFileName ); } catch { }
+                               tempFileName, ex );
+                if( File.Exists( tempFileName ) )
+                    File.Delete( tempFileName );
                 return false;
             }
 
+            // move newly-written file into its permanent destination
             try {
                 Paths.MoveOrReplace( tempFileName, fileName );
                 Logger.Log( "Saved map successfully to {0}", LogType.SystemActivity,
                             fileName );
-                ChangedSinceBackup = true;
+                HasChangedSinceBackup = true;
 
             } catch( Exception ex ) {
-                ChangedSinceSave = true;
+                HasChangedSinceSave = true;
                 Logger.Log( "Error trying to replace file \"{0}\": {1}", LogType.Error,
                             fileName, ex );
-                try { File.Delete( tempFileName ); } catch { }
+                if( File.Exists( tempFileName ) )
+                    File.Delete( tempFileName );
                 return false;
             }
             return true;
-        }
-
-
-        internal int WriteMetadataFCMv3( Stream stream ) {
-            if( stream == null ) throw new ArgumentNullException( "stream" );
-            BinaryWriter writer = new BinaryWriter( stream );
-            int metaCount = 0;
-            lock( metaLock ) {
-                foreach( var group in metadata ) {
-                    foreach( var key in group.Value ) {
-                        MapFCMv3.WriteLengthPrefixedString( writer, group.Key );
-                        MapFCMv3.WriteLengthPrefixedString( writer, key.Key );
-                        MapFCMv3.WriteLengthPrefixedString( writer, key.Value );
-                        metaCount++;
-                    }
-                }
-            }
-            lock( zoneLock ) {
-                foreach( Zone zone in zones.Values ) {
-                    MapFCMv3.WriteLengthPrefixedString( writer, "zones" );
-                    MapFCMv3.WriteLengthPrefixedString( writer, zone.Name );
-                    MapFCMv3.WriteLengthPrefixedString( writer, zone.SerializeFCMv2() );
-                    metaCount++;
-                }
-            }
-            World thisWorld = World;
-            if( thisWorld != null ) {
-                MapFCMv3.WriteLengthPrefixedString( writer, "security" );
-                MapFCMv3.WriteLengthPrefixedString( writer, "access" );
-                MapFCMv3.WriteLengthPrefixedString( writer, thisWorld.AccessSecurity.Serialize().ToString() );
-                MapFCMv3.WriteLengthPrefixedString( writer, "security" );
-                MapFCMv3.WriteLengthPrefixedString( writer, "build" );
-                MapFCMv3.WriteLengthPrefixedString( writer, thisWorld.BuildSecurity.Serialize().ToString() );
-                metaCount += 2;
-            }
-            return metaCount;
+            // ReSharper restore EmptyGeneralCatchClause
         }
 
         #endregion
 
 
-        #region Loading
+        #region Block Getters / Setters
 
-        internal bool ValidateHeader() {
-            if( !IsValidDimension( WidthX ) ) {
-                Logger.Log( "Map.ValidateHeader: Invalid dimension specified for widthX: {0}.", LogType.Error, WidthX );
+        /// <summary> Converts given coordinates to a block array index. </summary>
+        /// <param name="x"> X coordinate (width). </param>
+        /// <param name="y"> Y coordinate (length, Notch's Z). </param>
+        /// <param name="z"> Z coordinate (height, Notch's Y). </param>
+        /// <returns> Index of the block in Map.Blocks array. </returns>
+        public int Index( int x, int y, int z ) {
+            return (z * Length + y) * Width + x;
+        }
+
+
+        /// <summary> Converts given coordinates to a block array index. </summary>
+        /// <param name="coords"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
+        /// <returns> Index of the block in Map.Blocks array. </returns>
+        public int Index( Vector3I coords ) {
+            return (coords.Y * Length + coords.Z) * Width + coords.X;
+        }
+
+
+        /// <summary> Sets a block in a safe way.
+        /// Note that using SetBlock does not relay changes to players.
+        /// Use QueueUpdate() for changing blocks on live maps/worlds. </summary>
+        /// <param name="x"> X coordinate (width). </param>
+        /// <param name="y"> Y coordinate (length, Notch's Z). </param>
+        /// <param name="z"> Z coordinate (height, Notch's Y). </param>
+        /// <param name="type"> Block type to set. </param>
+        public void SetBlock( int x, int y, int z, Block type ) {
+            if( x < Width && y < Length && z < Height && x >= 0 && y >= 0 && z >= 0 ) {
+                Blocks[Index( x, y, z )] = (byte)type;
+                HasChangedSinceSave = true;
+            }
+        }
+
+
+        /// <summary> Sets a block at given coordinates. Checks bounds. </summary>
+        /// <param name="x"> X coordinate (width). </param>
+        /// <param name="y"> Y coordinate (length, Notch's Z). </param>
+        /// <param name="z"> Z coordinate (height, Notch's Y). </param>
+        /// <param name="type"> Block type to set. </param>
+        public void SetBlock( int x, int y, int z, byte type ) {
+            if( z < Height && x < Width && y < Length && x >= 0 && y >= 0 && z >= 0 && type < 50 ) {
+                Blocks[Index( x, y, z )] = type;
+                HasChangedSinceSave = true;
+            }
+        }
+
+
+        /// <summary> Sets a block at given coordinates. Checks bounds. </summary>
+        /// <param name="coords"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
+        /// <param name="type"> Block type to set. </param>
+        public void SetBlock( Vector3I coords, Block type ) {
+            if( coords.X < Width && coords.Z < Length && coords.Y < Height && coords.X >= 0 && coords.Z >= 0 && coords.Y >= 0 && (byte)type < 50 ) {
+                Blocks[Index( coords.X, coords.Z, coords.Y )] = (byte)type;
+                HasChangedSinceSave = true;
+            }
+        }
+
+
+        /// <summary> Sets a block at given coordinates. Checks bounds. </summary>
+        /// <param name="coords"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
+        /// <param name="type"> Block type to set. </param>
+        public void SetBlock( Vector3I coords, byte type ) {
+            if( coords.X < Width && coords.Z < Length && coords.Y < Height && coords.X >= 0 && coords.Z >= 0 && coords.Y >= 0 && type < 50 ) {
+                Blocks[Index( coords.X, coords.Z, coords.Y )] = type;
+                HasChangedSinceSave = true;
+            }
+        }
+
+
+        /// <summary> Gets a block at given coordinates. Checks bounds. </summary>
+        /// <param name="x"> X coordinate (width). </param>
+        /// <param name="y"> Y coordinate (length, Notch's Z). </param>
+        /// <param name="z"> Z coordinate (height, Notch's Y). </param>
+        /// <returns> Block type, as a byte. 255 if coordinates were out of bounds. </returns>
+        public byte GetBlockByte( int x, int y, int z ) {
+            if( x < Width && y < Length && z < Height && x >= 0 && y >= 0 && z >= 0 )
+                return Blocks[Index( x, y, z )];
+            return (byte)Block.Undefined;
+        }
+
+
+        /// <summary> Gets a block at given coordinates. Checks bounds. </summary>
+        /// <param name="x"> X coordinate (width). </param>
+        /// <param name="y"> Y coordinate (length, Notch's Z). </param>
+        /// <param name="z"> Z coordinate (height, Notch's Y). </param>
+        /// <returns> Block type, as a Block enumeration. Undefined if coordinates were out of bounds. </returns>
+        public Block GetBlock( int x, int y, int z ) {
+            if( x < Width && y < Length && z < Height && x >= 0 && y >= 0 && z >= 0 )
+                return (Block)Blocks[Index( x, y, z )];
+            return Block.Undefined;
+        }
+
+
+        /// <summary> Gets a block at given coordinates. Checks bounds. </summary>
+        /// <param name="coords"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
+        /// <returns> Block type, as a Block enumeration. Undefined if coordinates were out of bounds. </returns>
+        public byte GetBlockByte( Vector3I coords ) {
+            if( coords.X < Width && coords.Z < Length && coords.Y < Height && coords.X >= 0 && coords.Z >= 0 && coords.Y >= 0 )
+                return Blocks[Index( coords.X, coords.Z, coords.Y )];
+            return (byte)Block.Undefined;
+        }
+
+
+        /// <summary> Checks whether the given coordinate (in block units) is within the bounds of the map. </summary>
+        /// <param name="x"> X coordinate (width). </param>
+        /// <param name="y"> Y coordinate (length, Notch's Z). </param>
+        /// <param name="z"> Z coordinate (height, Notch's Y). </param>
+        public bool InBounds( int x, int y, int z ) {
+            return x < Width && y < Length && z < Height && x >= 0 && y >= 0 && z >= 0;
+        }
+
+
+        /// <summary> Checks whether the given coordinate (in block units) is within the bounds of the map. </summary>
+        /// <param name="vec"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
+        public bool InBounds( Vector3I vec ) {
+            return vec.X < Width && vec.Z < Length && vec.Y < Height && vec.X >= 0 && vec.Z >= 0 && vec.Y >= 0;
+        }
+
+        #endregion
+
+
+        #region Block Updates & Simulation
+
+        // Queue of block updates. Updates are applied by ProcessUpdates()
+        readonly ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
+
+
+        /// <summary> Number of blocks that are waiting to be processed. </summary>
+        public int UpdateQueueLength {
+            get { return updates.Length; }
+        }
+
+
+        /// <summary> Queues a new block update to be processed.
+        /// Due to concurrent nature of the server, there is no guarantee
+        /// that updates will be applied in any specific order. </summary>
+        public void QueueUpdate( BlockUpdate update ) {
+            updates.Enqueue( update );
+        }
+
+
+        /// <summary> Clears all pending updates. </summary>
+        public void ClearUpdateQueue() {
+            updates.Clear();
+        }
+
+
+        // Applies pending updates and sends them to players (if applicable).
+        internal void ProcessUpdates() {
+            if( World == null ) {
+                throw new InvalidOperationException( "Map must be assigned to a world to process updates." );
+            }
+
+            if( World.IsLocked ) {
+                if( World.IsPendingMapUnload ) {
+                    World.UnloadMap( true );
+                }
+                return;
+            }
+
+            int packetsSent = 0;
+            bool canFlush = false;
+            int maxPacketsPerUpdate = Server.CalculateMaxPacketsPerUpdate( World );
+            BlockUpdate update = new BlockUpdate();
+            while( packetsSent < maxPacketsPerUpdate ) {
+                if( !updates.Dequeue( ref update ) ) {
+                    if( World.IsFlushing ) {
+                        canFlush = true;
+                    }
+                    break;
+                }
+                HasChangedSinceSave = true;
+                if( !InBounds( update.X, update.Y, update.Z ) ) continue;
+                int blockIndex = Index( update.X, update.Y, update.Z );
+                Blocks[blockIndex] = update.BlockType;
+
+                if( !World.IsFlushing ) {
+                    Packet packet = PacketWriter.MakeSetBlock( update.X, update.Y, update.Z, update.BlockType );
+                    World.Players.SendLowPriority( update.Origin, packet );
+                }
+                packetsSent++;
+            }
+
+            if( drawOps.Count > 0 ) {
+                lock( drawOpLock ) {
+                    if( drawOps.Count > 0 ) {
+                        packetsSent += ProcessDrawOps( maxPacketsPerUpdate - packetsSent );
+                    }
+                }
+            } else if( canFlush ) {
+                World.EndFlushMapBuffer();
+            }
+
+            if( packetsSent == 0 && World.IsPendingMapUnload ) {
+                World.UnloadMap( true );
+            }
+        }
+
+        #endregion
+
+
+        #region Draw Operations
+
+        public int DrawQueueLength {
+            get { return drawOps.Count; }
+        }
+
+        public int DrawQueueBlockCount {
+            get {
+                lock( drawOpLock ) {
+                    return drawOps.Sum( op => op.BlocksLeftToProcess );
+                }
+            }
+        }
+
+        readonly List<DrawOperation> drawOps = new List<DrawOperation>();
+
+        readonly object drawOpLock = new object();
+
+
+        internal void QueueDrawOp( [NotNull] DrawOperation op ) {
+            if( op == null ) throw new ArgumentNullException( "op" );
+            lock( drawOpLock ) {
+                drawOps.Add( op );
+            }
+        }
+
+
+        int ProcessDrawOps( int maxTotalUpdates ) {
+            int blocksDrawnTotal = 0;
+            for( int i = 0; i < drawOps.Count; i++ ) {
+                DrawOperation op = drawOps[i];
+
+                // remove a cancelled drawOp from the list
+                if( op.IsCancelled ) {
+                    op.Player.Message( "{0}: Cancelled after {1}. P={2} U={3} S={4} D={5}",
+                                       op.DescriptionWithBrush,
+                                       DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
+                                       op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
+                    Logger.Log( "Player {0} cancelled {1} on world {2}. Processed {3}, Updated {4}, Skipped {5}, Denied {6} blocks.",
+                             LogType.UserActivity,
+                             op.Player, op.DescriptionWithBrush, World.Name,
+                             op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
+                    op.End();
+                    drawOps.RemoveAt( i );
+                    i--;
+                    continue;
+                }
+
+                // draw a batch of blocks
+                int blocksToDraw = maxTotalUpdates / (drawOps.Count - i);
+                op.StartBatch();
+                int blocksDrawn = op.DrawBatch( blocksToDraw );
+                blocksDrawnTotal += blocksDrawn;
+                if( blocksDrawn > 0 ) {
+                    HasChangedSinceSave = true;
+                }
+                maxTotalUpdates -= blocksDrawn;
+
+                // remove a completed drawOp from the list
+                if( op.IsDone ) {
+                    if( op.AnnounceCompletion ) {
+                        op.Player.Message( "{0}: Finished in {1}. P={2} U={3} S={4} D={5}",
+                                           op.DescriptionWithBrush,
+                                           DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
+                                           op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
+                    }
+                    Logger.Log( "Player {0} executed {1} on world {2}. Processed {3}, Updated {4}, Skipped {5}, Denied {6} blocks.",
+                             LogType.UserActivity,
+                             op.Player, op.DescriptionWithBrush, World.Name,
+                             op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
+                    op.End();
+                    drawOps.RemoveAt( i );
+                    i--;
+                }
+            }
+            return blocksDrawnTotal;
+        }
+
+        #endregion
+
+
+        #region Backup
+
+        readonly object backupLock = new object();
+
+
+        public void SaveBackup( [NotNull] string sourceName, [NotNull] string targetName ) {
+            if( sourceName == null ) throw new ArgumentNullException( "sourceName" );
+            if( targetName == null ) throw new ArgumentNullException( "targetName" );
+
+            lock( backupLock ) {
+                DirectoryInfo directory = new DirectoryInfo( Paths.BackupPath );
+
+                if( !directory.Exists ) {
+                    try {
+                        directory.Create();
+                    } catch( Exception ex ) {
+                        Logger.Log( "Map.SaveBackup: Error occured while trying to create backup directory: {0}", LogType.Error,
+                                    ex );
+                        return;
+                    }
+                }
+
+                try {
+                    HasChangedSinceBackup = false;
+                    File.Copy( sourceName, targetName, true );
+                } catch( Exception ex ) {
+                    HasChangedSinceBackup = true;
+                    Logger.Log( "Map.SaveBackup: Error occured while trying to save backup to \"{0}\": {1}", LogType.Error,
+                                targetName, ex );
+                    return;
+                }
+
+                if( ConfigKey.MaxBackups.GetInt() > 0 || ConfigKey.MaxBackupSize.GetInt() > 0 ) {
+                    DeleteOldBackups( directory );
+                }
+            }
+
+            Logger.Log( "AutoBackup: " + targetName, LogType.SystemActivity );
+        }
+
+
+        static void DeleteOldBackups( [NotNull] DirectoryInfo directory ) {
+            if( directory == null ) throw new ArgumentNullException( "directory" );
+            var backupList = directory.GetFiles( "*.fcm" ).OrderBy( fi => -fi.CreationTimeUtc.Ticks ).ToList();
+
+            int maxFileCount = ConfigKey.MaxBackups.GetInt();
+
+            if( maxFileCount > 0 ) {
+                while( backupList.Count > maxFileCount ) {
+                    FileInfo info = backupList[backupList.Count - 1];
+                    backupList.RemoveAt( backupList.Count - 1 );
+                    try {
+                        File.Delete( info.FullName );
+                    } catch( Exception ex ) {
+                        Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}", LogType.Error,
+                                    info.FullName, ex );
+                        break;
+                    }
+                    Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.SystemActivity,
+                                info.Name );
+                }
+            }
+
+            int maxFileSize = ConfigKey.MaxBackupSize.GetInt();
+
+            if( maxFileSize > 0 ) {
+                while( true ) {
+                    FileInfo[] fis = directory.GetFiles();
+                    long size = fis.Sum( fi => fi.Length );
+
+                    if( size / 1024 / 1024 > maxFileSize ) {
+                        FileInfo info = backupList[backupList.Count - 1];
+                        backupList.RemoveAt( backupList.Count - 1 );
+                        try {
+                            File.Delete( info.FullName );
+                        } catch( Exception ex ) {
+                            Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}", LogType.Error,
+                                        info.Name, ex );
+                            break;
+                        }
+                        Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.SystemActivity,
+                                    info.Name );
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+
+        #region Utilities
+
+        public bool ValidateHeader() {
+            if( !IsValidDimension( Width ) ) {
+                Logger.Log( "Map.ValidateHeader: Unsupported map width: {0}.", LogType.Error, Width );
                 return false;
             }
 
-            if( !IsValidDimension( WidthY ) ) {
-                Logger.Log( "Map.ValidateHeader: Invalid dimension specified for widthY: {0}.", LogType.Error, WidthY );
+            if( !IsValidDimension( Length ) ) {
+                Logger.Log( "Map.ValidateHeader: Unsupported map length: {0}.", LogType.Error, Length );
                 return false;
             }
 
             if( !IsValidDimension( Height ) ) {
-                Logger.Log( "Map.ValidateHeader: Invalid dimension specified for height: {0}.", LogType.Error, Height );
+                Logger.Log( "Map.ValidateHeader: Unsupported map height: {0}.", LogType.Error, Height );
                 return false;
             }
 
-            if( Spawn.X > WidthX * 32 || Spawn.Y > WidthY * 32 || Spawn.H > Height * 32 || Spawn.X < 0 || Spawn.Y < 0 || Spawn.H < 0 ) {
+            if( Spawn.X > Width * 32 || Spawn.Y > Length * 32 || Spawn.Z > Height * 32 || Spawn.X < 0 || Spawn.Y < 0 || Spawn.Z < 0 ) {
                 Logger.Log( "Map.ValidateHeader: Spawn coordinates are outside the valid range! Using center of the map instead.",
                             LogType.Warning );
                 ResetSpawn();
@@ -175,30 +575,27 @@ namespace fCraft {
         }
 
 
-        // Only multiples of 16 are allowed, between 16 and 2032
+        /// <summary> Checks if a given map dimension (width, height, or length) is acceptible.
+        /// Values between 1 and 2047 are technically allowed. </summary>
         public static bool IsValidDimension( int dimension ) {
-            return dimension > 0 && dimension % 16 == 0 && dimension < 2048;
+            return dimension > 0 && dimension < 2048;
         }
 
 
-
-        internal bool RemoveUnknownBlocktypes( bool returnOnErrors ) {
-            bool foundUnknownTypes = false;
-            fixed( byte* ptr = Blocks ) {
-                for( int j = 0; j < Blocks.Length; j++ ) {
-                    if( ptr[j] > 49 ) {
-                        if( returnOnErrors ) return false;
-                        ptr[j] = 0;
-                        foundUnknownTypes = true;
-                    }
-                }
-            }
-            if( foundUnknownTypes ) ChangedSinceSave = true;
-            return !foundUnknownTypes;
+        /// <summary> Checks if a given map dimension (width, height, or length) is among the set of recommended values
+        /// Recommended values are: 16, 32, 64, 128, 256, 512, 1024 </summary>
+        public static bool IsRecommendedDimension( int dimension ) {
+            return dimension >= 16 && (dimension & (dimension - 1)) == 0 && dimension <= 1024;
         }
 
 
-        public bool ConvertBlockTypes( byte[] mapping ) {
+        /// <summary> Converts nonstandard (50-255) blocks using the given mapping. </summary>
+        /// <param name="mapping"> Byte array of length 256. </param>
+        /// <returns> True if any blocks needed conversion/mapping. </returns>
+        public bool ConvertBlockTypes( [NotNull] byte[] mapping ) {
+            if( mapping == null ) throw new ArgumentNullException( "mapping" );
+            if( mapping.Length != 256 ) throw new ArgumentException( "Mapping must list all 256 blocks", "mapping" );
+
             bool mapped = false;
             fixed( byte* ptr = Blocks ) {
                 for( int j = 0; j < Blocks.Length; j++ ) {
@@ -208,63 +605,24 @@ namespace fCraft {
                     }
                 }
             }
-            if( mapped ) ChangedSinceSave = true;
+            if( mapped ) HasChangedSinceSave = true;
             return mapped;
         }
 
+        static readonly byte[] ZeroMapping = new byte[256];
 
-        #endregion
-
-
-        #region Metadata
-
-        public string GetMeta( string key ) {
-            if( key == null ) throw new ArgumentNullException( "key" );
-            return GetMeta( "", key );
+        /// <summary> Replaces all nonstandard (50-255) blocks with air. </summary>
+        /// <returns> True if any blocks needed replacement. </returns>
+        public bool RemoveUnknownBlocktypes() {
+            return ConvertBlockTypes( ZeroMapping );
         }
 
-
-        public string GetMeta( string group, string key ) {
-            if( group == null ) throw new ArgumentNullException( "group" );
-            if( key == null ) throw new ArgumentNullException( "key" );
-            try {
-                lock( metaLock ) {
-                    return metadata[group][key];
-                }
-            } catch( KeyNotFoundException ) {
-                return null;
-            }
-        }
-
-
-        public void SetMeta( string key, string value ) {
-            if( key == null ) throw new ArgumentNullException( "key" );
-            if( value == null ) throw new ArgumentNullException( "value" );
-            SetMeta( "", key, value );
-        }
-
-
-        public void SetMeta( string group, string key, string value ) {
-            if( group == null ) throw new ArgumentNullException( "group" );
-            if( key == null ) throw new ArgumentNullException( "key" );
-            if( value == null ) throw new ArgumentNullException( "value" );
-            lock( metaLock ) {
-                if( !metadata.ContainsKey( group ) ) {
-                    metadata[group] = new Dictionary<string, string>();
-                }
-                metadata[group][key] = value;
-            }
-            ChangedSinceSave = true;
-        }
-
-        #endregion
-
-
-        #region Utilities
 
         static readonly Dictionary<string, Block> BlockNames = new Dictionary<string, Block>();
+        static readonly Dictionary<Block, string> BlockEdgeTextures = new Dictionary<Block, string>();
 
         static Map() {
+            // add default names for blocks, and their numeric codes
             foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
                 if( block != Block.Undefined ) {
                     BlockNames.Add( block.ToString().ToLower(), block );
@@ -272,9 +630,10 @@ namespace fCraft {
                 }
             }
 
-            // alternative names for some blocks
-            BlockNames["none"] = Block.Air;
-            BlockNames["aire"] = Block.Air; // common typo
+            // alternative names for blocks
+            BlockNames["none"] = Block.Undefined;
+
+            BlockNames["a"] = Block.Air; // common typo
             BlockNames["nothing"] = Block.Air;
             BlockNames["empty"] = Block.Air;
             BlockNames["delete"] = Block.Air;
@@ -284,11 +643,12 @@ namespace fCraft {
             BlockNames["cement"] = Block.Stone;
             BlockNames["concrete"] = Block.Stone;
 
+            BlockNames["g"] = Block.Grass;
             BlockNames["gras"] = Block.Grass; // common typo
 
             BlockNames["soil"] = Block.Dirt;
-            BlockNames["stones"] = Block.Rocks;
-            BlockNames["cobblestone"] = Block.Rocks;
+            BlockNames["stones"] = Block.Cobblestone;
+            BlockNames["rocks"] = Block.Cobblestone;
             BlockNames["plank"] = Block.Wood;
             BlockNames["planks"] = Block.Wood;
             BlockNames["board"] = Block.Wood;
@@ -301,6 +661,9 @@ namespace fCraft {
             BlockNames["hardrock"] = Block.Admincrete;
             BlockNames["solid"] = Block.Admincrete;
             BlockNames["bedrock"] = Block.Admincrete;
+            BlockNames["w"] = Block.Water;
+            BlockNames["l"] = Block.Lava;
+            BlockNames["magma"] = Block.Lava;
             BlockNames["gold_ore"] = Block.GoldOre;
             BlockNames["iron_ore"] = Block.IronOre;
             BlockNames["copper"] = Block.IronOre;
@@ -385,10 +748,10 @@ namespace fCraft {
             BlockNames["copper"] = Block.Gold;
             BlockNames["brass"] = Block.Gold;
 
-            BlockNames["ironblock"] = Block.Steel;
-            BlockNames["iron"] = Block.Steel;
-            BlockNames["metal"] = Block.Steel;
-            BlockNames["silver"] = Block.Steel;
+            BlockNames["ironblock"] = Block.Iron;
+            BlockNames["steel"] = Block.Iron;
+            BlockNames["metal"] = Block.Iron;
+            BlockNames["silver"] = Block.Iron;
 
             BlockNames["slab"] = Block.Stair;
             BlockNames["slabs"] = Block.DoubleStair;
@@ -426,43 +789,66 @@ namespace fCraft {
             BlockNames["blockthathasgreypixelsonitmostlybutsomeareactuallygreen"] = Block.MossyRocks;
 
             BlockNames["onyx"] = Block.Obsidian;
-        }
 
-
-        public void SetSpawn( Position newSpawn ) {
-            Spawn = newSpawn;
-            ChangedSinceSave = true;
-        }
-
-
-        public void ResetSpawn() {
-            Spawn.X = (short)(WidthX * 16);
-            Spawn.Y = (short)(WidthY * 16);
-            Spawn.H = (short)(Height * 32);
-            Spawn.R = 0;
-            Spawn.L = 0;
-            ChangedSinceSave = true;
+            // add WoM file hashes for edge textures
+            BlockEdgeTextures[Block.Aqua] = "246870d16093ff02738b3d42084c6597c02fad36";
+            BlockEdgeTextures[Block.Black] = "06f5ba518c5f943f14adf09cc257674e43d8133c";
+            BlockEdgeTextures[Block.Blue] = "eea1b7e0a62d90b5b681f142bd2f483a671ba160";
+            BlockEdgeTextures[Block.Brick] = "b4a23c66dc4ba488a97becd62f2bae8d61eb8ad2";
+            BlockEdgeTextures[Block.Coal] = "1f9eb8aff893a43860fcd1f9c1e7ef84e0bfd77b";
+            BlockEdgeTextures[Block.Cobblestone] = "b4d9c39d00102f1b3b67c9e885b62cb8e27efd03";
+            BlockEdgeTextures[Block.Cyan] = "2532a657b5525ad10a0ccab78bd4343d44a0bfb7";
+            BlockEdgeTextures[Block.Dirt] = "e35227f0b78041e45523c3bf250f4922e82585e2";
+            BlockEdgeTextures[Block.Gold] = "7e2a41d578bde6fc253863ccc9a25eb099ff6daf";
+            BlockEdgeTextures[Block.GoldOre] = "1f61ef253653b9cd8f98a92922b3dbf50d939d09";
+            BlockEdgeTextures[Block.Grass] = "1acfce7a8cd70b8ca6047b66a5734e9a3c1d737d";
+            BlockEdgeTextures[Block.Gravel] = "e61083cd5396f207267391d5a1f0491c1ce6d404";
+            BlockEdgeTextures[Block.Gray] = "1cf2d2b250184516b22f351fa804c243d3ed64fe";
+            BlockEdgeTextures[Block.Green] = "8f4be9678eb1b6cc4175ff7f45b78fc9f0d76962";
+            BlockEdgeTextures[Block.Indigo] = "dfa3c9ff4b7cc393e84257ae6744edb6c53ded09";
+            BlockEdgeTextures[Block.Iron] = "6ec104eba32c595dd7c8c08bb99c422e0e2fc1b7";
+            BlockEdgeTextures[Block.IronOre] = "6b8ad341eb0f3209e67f4a1723ca8994f9517fae";
+            BlockEdgeTextures[Block.Lime] = "b6e1831c9b30d4e6f7012dd8b2f39e1150ef67fb";
+            BlockEdgeTextures[Block.Log] = "f3a13b17c5d906d165581c019b2a44eddd0ad5b7";
+            BlockEdgeTextures[Block.Magenta] = "578abc6d183d8a33b548ea92b0982cfb8201498b";
+            BlockEdgeTextures[Block.MossyRocks] = "182bf0fe9cf4476a573df4f470ac1b7e55936543";
+            BlockEdgeTextures[Block.Obsidian] = "73963ffce5d7d845eb3216a6766655fc405b473c";
+            BlockEdgeTextures[Block.Orange] = "cfd84200707e41556d1bb0ace3ca37c69b51cc54";
+            BlockEdgeTextures[Block.Pink] = "19fcc81e8204de91fdbfdc2b59cffe0bfb2ba823";
+            BlockEdgeTextures[Block.Red] = "be9c5e2ff1d4bbfcd0826c04db5684359acecf28";
+            BlockEdgeTextures[Block.Sand] = "1a2dda7ed25ad5e94da4c6a0ac7e63f4a9a72590";
+            BlockEdgeTextures[Block.Admincrete] = "7abdd25d9229087f29655a1974aed01cbd3eb753";
+            BlockEdgeTextures[Block.Sponge] = "eaecd6ec9c24ed8a2c20ffb10e83409f04409ddd";
+            BlockEdgeTextures[Block.Stair] = "9106fb8ac7a4eb6f30ce28921f071e6b31bdd74b";
+            BlockEdgeTextures[Block.DoubleStair] = BlockEdgeTextures[Block.Stair];
+            BlockEdgeTextures[Block.Stone] = "c2eaac7631e184e4e7f6eeca4c4d6a74f6d953f9";
+            BlockEdgeTextures[Block.Teal] = "9cbd25d433c533207b9946a0228ddd9aef7b17e5";
+            BlockEdgeTextures[Block.TNT] = "7314851e18cdfe9dd1513f9eab86901221421239";
+            BlockEdgeTextures[Block.Violet] = "a171372d9fca63df911485602a5120fd5422f2b9";
+            BlockEdgeTextures[Block.White] = "2d9077489d1d86217c89685b12c5a206b23b976f";
+            BlockEdgeTextures[Block.Wood] = "af65cd0d0756d357a1abd5390b8de2e5ad1f29af";
+            BlockEdgeTextures[Block.Yellow] = "eff6823a987deb65ad21020a3151bb809d3d062c";
         }
 
 
         public void CalculateShadows() {
             if( Shadows != null ) return;
 
-            Shadows = new short[WidthX, WidthY];
-            for( int x = 0; x < WidthX; x++ ) {
-                for( int y = 0; y < WidthY; y++ ) {
-                    for( short h = (short)(Height - 1); h >= 0; h-- ) {
-                        switch( GetBlock( x, y, h ) ) {
+            Shadows = new short[Width, Length];
+            for( int x = 0; x < Width; x++ ) {
+                for( int y = 0; y < Length; y++ ) {
+                    for( short z = (short)(Height - 1); z >= 0; z-- ) {
+                        switch( GetBlock( x, y, z ) ) {
                             case Block.Air:
-                            case Block.Leaves:
+                            case Block.BrownMushroom:
                             case Block.Glass:
+                            case Block.Leaves:
                             case Block.RedFlower:
                             case Block.RedMushroom:
                             case Block.YellowFlower:
-                            case Block.BrownMushroom:
                                 continue;
                             default:
-                                Shadows[x, y] = h;
+                                Shadows[x, y] = z;
                                 break;
                         }
                         break;
@@ -472,233 +858,71 @@ namespace fCraft {
         }
 
 
-        internal static Block GetBlockByName( string block ) {
-            if( block == null ) throw new ArgumentNullException( "block" );
-            block = block.ToLower();
-            return BlockNames.ContainsKey( block ) ? BlockNames[block] : Block.Undefined;
+        /// <summary> Tries to find a blocktype by name. </summary>
+        /// <param name="blockName"> Name of the block. </param>
+        /// <returns> Described Block, or Block.Undefined if name could not be recognized. </returns>
+        public static Block GetBlockByName( [NotNull] string blockName ) {
+            if( blockName == null ) throw new ArgumentNullException( "blockName" );
+            Block result;
+            if( BlockNames.TryGetValue( blockName.ToLower(), out result ) ) {
+                return result;
+            } else {
+                return Block.Undefined;
+            }
+        }
+
+        /// <summary> Tries to find WoM file hashes for edge textures. </summary>
+        /// <param name="block"> Blocktype to find edge texture hash for. </param>
+        /// <returns> Hash string if found, or null if not found. </returns>
+        [CanBeNull]
+        internal static string GetEdgeTexture( Block block ) {
+            string result;
+            if( BlockEdgeTextures.TryGetValue( block, out result ) ) {
+                return result;
+            } else {
+                return null;
+            }
         }
 
 
-
-
-        /// <summary> Writes a copy of the current map to a specified stream, compressed with GZipStream. </summary>
+        /// <summary> Writes a copy of the current map to a given stream, compressed with GZipStream. </summary>
         /// <param name="stream"> Stream to write the compressed data to. </param>
         /// <param name="prependBlockCount"> If true, prepends block data with signed, 32bit, big-endian block count. </param>
-        public void GetCompressedCopy( Stream stream, bool prependBlockCount ) {
+        public void GetCompressedCopy( [NotNull] Stream stream, bool prependBlockCount ) {
             if( stream == null ) throw new ArgumentNullException( "stream" );
             using( GZipStream compressor = new GZipStream( stream, CompressionMode.Compress ) ) {
                 if( prependBlockCount ) {
                     // convert block count to big-endian
                     int convertedBlockCount = IPAddress.HostToNetworkOrder( Blocks.Length );
                     // write block count to gzip stream
-                    compressor.Write( BitConverter.GetBytes( convertedBlockCount ), 0, sizeof( int ) );
+                    compressor.Write( BitConverter.GetBytes( convertedBlockCount ), 0, 4 );
                 }
                 compressor.Write( Blocks, 0, Blocks.Length );
             }
         }
 
 
+        /// <summary> Makes an admincrete barrier, 1 block thick, around the lower half of the map. </summary>
         public void MakeFloodBarrier() {
-            for( int x = 0; x < WidthX; x++ ) {
-                for( int y = 0; y < WidthY; y++ ) {
+            for( int x = 0; x < Width; x++ ) {
+                for( int y = 0; y < Length; y++ ) {
                     SetBlock( x, y, 0, Block.Admincrete );
                 }
             }
 
-            for( int x = 0; x < WidthX; x++ ) {
-                for( int h = 0; h < Height / 2; h++ ) {
-                    SetBlock( x, 0, h, Block.Admincrete );
-                    SetBlock( x, WidthY - 1, h, Block.Admincrete );
+            for( int x = 0; x < Width; x++ ) {
+                for( int z = 0; z < Height / 2; z++ ) {
+                    SetBlock( x, 0, z, Block.Admincrete );
+                    SetBlock( x, Length - 1, z, Block.Admincrete );
                 }
             }
 
-            for( int y = 0; y < WidthY; y++ ) {
-                for( int h = 0; h < Height / 2; h++ ) {
-                    SetBlock( 0, y, h, Block.Admincrete );
-                    SetBlock( WidthX - 1, y, h, Block.Admincrete );
+            for( int y = 0; y < Length; y++ ) {
+                for( int z = 0; z < Height / 2; z++ ) {
+                    SetBlock( 0, y, z, Block.Admincrete );
+                    SetBlock( Width - 1, y, z, Block.Admincrete );
                 }
             }
-        }
-
-
-        /// <summary>
-        /// Returns the block count (volume) of the map.
-        /// </summary>
-        public int GetBlockCount() {
-            return WidthX * WidthY * Height;
-        }
-
-        #endregion
-
-
-        #region Zones
-
-        readonly object zoneLock = new object(); // zone list (only needed when using "zones" dictionary, not "zoneList" cached array)
-        readonly Dictionary<string, Zone> zones = new Dictionary<string, Zone>();
-        public Zone[] ZoneList { get; private set; }
-
-
-        public bool AddZone( Zone zone ) {
-            if( zone == null ) throw new ArgumentNullException( "zone" );
-            lock( zoneLock ) {
-                if( zones.ContainsKey( zone.Name.ToLower() ) ) return false;
-                zones.Add( zone.Name.ToLower(), zone );
-                ChangedSinceSave = true;
-                UpdateZoneCache();
-            }
-            return true;
-        }
-
-
-        public bool RemoveZone( string zone ) {
-            if( zone == null ) throw new ArgumentNullException( "zone" );
-            lock( zoneLock ) {
-                if( !zones.ContainsKey( zone.ToLower() ) ) return false;
-                zones.Remove( zone.ToLower() );
-                ChangedSinceSave = true;
-                UpdateZoneCache();
-            }
-            return true;
-        }
-
-
-        public PermissionOverride CheckZones( int x, int y, int h, Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            PermissionOverride result = PermissionOverride.None;
-            Zone[] zoneListCache = ZoneList;
-            for( int i = 0; i < zoneListCache.Length; i++ ) {
-                if( zoneListCache[i].Bounds.Contains( x, y, h ) ) {
-                    if( zoneListCache[i].Controller.Check( player.Info ) ) {
-                        result = PermissionOverride.Allow;
-                    } else {
-                        return PermissionOverride.Deny;
-                    }
-                }
-            }
-            return result;
-        }
-
-
-        public Zone FindDeniedZone( int x, int y, int h, Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            Zone[] zoneListCache = ZoneList;
-            for( int i = 0; i < zoneListCache.Length; i++ ) {
-                if( zoneListCache[i].Bounds.Contains( x, y, h ) && !zoneListCache[i].Controller.Check( player.Info ) ) {
-                    return zoneListCache[i];
-                }
-            }
-            return null;
-        }
-
-
-        public bool TestZones( short x, short y, short h, Player player, out Zone[] allowedZones, out Zone[] deniedZones ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            List<Zone> allowed = new List<Zone>(), denied = new List<Zone>();
-            bool found = false;
-
-            Zone[] zoneListCache = ZoneList;
-            for( int i = 0; i < zoneListCache.Length; i++ ) {
-                if( zoneListCache[i].Bounds.Contains( x, y, h ) ) {
-                    found = true;
-                    if( zoneListCache[i].Controller.Check( player.Info ) ) {
-                        allowed.Add( zoneListCache[i] );
-                    } else {
-                        denied.Add( zoneListCache[i] );
-                    }
-                }
-            }
-            allowedZones = allowed.ToArray();
-            deniedZones = denied.ToArray();
-            return found;
-        }
-
-
-        public Zone FindZone( string name ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
-            lock( zoneLock ) {
-                if( zones.ContainsKey( name.ToLower() ) ) {
-                    return zones[name.ToLower()];
-                }
-            }
-            return null;
-        }
-
-
-        void UpdateZoneCache() {
-            lock( zoneLock ) {
-                Zone[] newZoneList = new Zone[zones.Count];
-                int i = 0;
-                foreach( Zone zone in zones.Values ) {
-                    newZoneList[i++] = zone;
-                }
-                ZoneList = newZoneList;
-            }
-        }
-
-        #endregion
-
-
-        #region Block Updates & Simulation
-
-        public int Index( int x, int y, int h ) {
-            return (h * WidthY + y) * WidthX + x;
-        }
-
-
-        public void SetBlock( int x, int y, int h, Block type ) {
-            if( x < WidthX && y < WidthY && h < Height && x >= 0 && y >= 0 && h >= 0 ) {
-                Blocks[Index( x, y, h )] = (byte)type;
-                ChangedSinceSave = true;
-            }
-        }
-
-        public void SetBlock( int x, int y, int h, byte type ) {
-            if( h < Height && x < WidthX && y < WidthY && x >= 0 && y >= 0 && h >= 0 && type < 50 ) {
-                Blocks[Index( x, y, h )] = type;
-                ChangedSinceSave = true;
-            }
-        }
-
-        public void SetBlock( Vector3i vec, Block type ) {
-            if( vec.X < WidthX && vec.Z < WidthY && vec.Y < Height && vec.X >= 0 && vec.Z >= 0 && vec.Y >= 0 && (byte)type < 50 ) {
-                Blocks[Index( vec.X, vec.Z, vec.Y )] = (byte)type;
-                ChangedSinceSave = true;
-            }
-        }
-
-        public void SetBlock( Vector3i vec, byte type ) {
-            if( vec.X < WidthX && vec.Z < WidthY && vec.Y < Height && vec.X >= 0 && vec.Z >= 0 && vec.Y >= 0 && type < 50 ) {
-                Blocks[Index( vec.X, vec.Z, vec.Y )] = type;
-                ChangedSinceSave = true;
-            }
-        }
-
-
-        public byte GetBlockByte( int x, int y, int h ) {
-            if( x < WidthX && y < WidthY && h < Height && x >= 0 && y >= 0 && h >= 0 )
-                return Blocks[Index( x, y, h )];
-            return 0;
-        }
-
-        public Block GetBlock( int x, int y, int h ) {
-            if( x < WidthX && y < WidthY && h < Height && x >= 0 && y >= 0 && h >= 0 )
-                return (Block)Blocks[Index( x, y, h )];
-            return Block.Undefined;
-        }
-
-        public byte GetBlockByte( Vector3i vec ) {
-            if( vec.X < WidthX && vec.Z < WidthY && vec.Y < Height && vec.X >= 0 && vec.Z >= 0 && vec.Y >= 0 )
-                return Blocks[Index( vec.X, vec.Z, vec.Y )];
-            return 0;
-        }
-
-
-        public bool InBounds( int x, int y, int h ) {
-            return x < WidthX && y < WidthY && h < Height && x >= 0 && y >= 0 && h >= 0;
-        }
-
-        public bool InBounds( Vector3i vec ) {
-            return vec.X < WidthX && vec.Z < WidthY && vec.Y < Height && vec.X >= 0 && vec.Z >= 0 && vec.Y >= 0;
         }
 
 
@@ -706,152 +930,14 @@ namespace fCraft {
             return SearchColumn( x, y, id, Height - 1 );
         }
 
-        public int SearchColumn( int x, int y, Block id, int startH ) {
-            for( int h = startH; h > 0; h-- ) {
-                if( GetBlock( x, y, h ) == id ) {
-                    return h;
+
+        public int SearchColumn( int x, int y, Block id, int zStart ) {
+            for( int z = zStart; z > 0; z-- ) {
+                if( GetBlock( x, y, z ) == id ) {
+                    return z;
                 }
             }
             return -1; // -1 means 'not found'
-        }
-
-
-        public void QueueUpdate( BlockUpdate update ) {
-            updates.Enqueue( update );
-        }
-
-
-        public void ClearUpdateQueue() {
-            BlockUpdate temp = new BlockUpdate();
-            while( updates.Dequeue( ref temp ) ) { }
-        }
-
-
-        public int UpdateQueueSize() {
-            return updates.Length;
-        }
-
-
-        public void ProcessUpdates() {
-            if( World.IsLocked ) {
-                if( World.PendingUnload ) {
-                    World.UnloadMap( true );
-                }
-                return;
-            }
-
-            int packetsSent = 0;
-            int maxPacketsPerUpdate = Server.CalculateMaxPacketsPerUpdate( World );
-            BlockUpdate update = new BlockUpdate();
-            while( packetsSent < maxPacketsPerUpdate ) {
-                if( !updates.Dequeue( ref update ) ) {
-                    if( World.IsFlushing ) {
-                        World.EndFlushMapBuffer();
-                    }
-                    break;
-                }
-                ChangedSinceSave = true;
-                if( !InBounds( update.X, update.Y, update.H ) ) continue;
-                int blockIndex = Index( update.X, update.Y, update.H );
-                Blocks[blockIndex] = update.BlockType; // TODO: investigate IndexOutOfRangeException here
-
-                if( !World.IsFlushing ) {
-                    World.SendToAllDelayed( PacketWriter.MakeSetBlock( update.X, update.Y, update.H, update.BlockType ), update.Origin );
-                }
-                packetsSent++;
-            }
-
-            if( packetsSent == 0 && World.PendingUnload ) {
-                World.UnloadMap( true );
-            }
-        }
-
-        #endregion
-
-
-        #region Backup
-
-        public void SaveBackup( string sourceName, string targetName, bool onlyIfChanged ) {
-            if( sourceName == null ) throw new ArgumentNullException( "sourceName" );
-            if( targetName == null ) throw new ArgumentNullException( "targetName" );
-            if( onlyIfChanged && !ChangedSinceBackup && ConfigKey.BackupOnlyWhenChanged.GetBool() ) return;
-
-            lock( backupLock ) {
-                DirectoryInfo d = new DirectoryInfo( Paths.BackupPath );
-
-                if( !d.Exists ) {
-                    try {
-                        d.Create();
-                    } catch( Exception ex ) {
-                        Logger.Log( "Map.SaveBackup: Error occured while trying to create backup directory: {0}", LogType.Error,
-                                    ex );
-                        return;
-                    }
-                }
-
-                try {
-                    ChangedSinceBackup = false;
-                    File.Copy( sourceName, targetName, true );
-                } catch( Exception ex ) {
-                    ChangedSinceBackup = true;
-                    Logger.Log( "Map.SaveBackup: Error occured while trying to save backup to \"{0}\": {1}", LogType.Error,
-                                targetName, ex );
-                    return;
-                }
-
-                List<FileInfo> backupList = new List<FileInfo>( d.GetFiles( "*.fcm" ) );
-                backupList.Sort( FileInfoComparer.Instance );
-
-                if( ConfigKey.MaxBackups.GetInt() > 0 ) {
-                    while( backupList.Count > ConfigKey.MaxBackups.GetInt() ) {
-                        FileInfo info = backupList[backupList.Count - 1];
-                        backupList.RemoveAt( backupList.Count - 1 );
-                        try {
-                            File.Delete( info.FullName );
-                        } catch( Exception ex ) {
-                            Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}", LogType.Error,
-                                        info.FullName, ex );
-                            break;
-                        }
-                        Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.SystemActivity,
-                                    info.Name );
-                    }
-                }
-
-
-                if( ConfigKey.MaxBackupSize.GetInt() > 0 ) {
-                    while( true ) {
-                        FileInfo[] fis = d.GetFiles();
-                        long size = fis.Sum( fi => fi.Length );
-
-                        if( size / 1024 / 1024 > ConfigKey.MaxBackupSize.GetInt() ) {
-                            FileInfo info = backupList[backupList.Count - 1];
-                            backupList.RemoveAt( backupList.Count - 1 );
-                            try {
-                                File.Delete( info.FullName );
-                            } catch( Exception ex ) {
-                                Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}", LogType.Error,
-                                            info.Name, ex );
-                                break;
-                            }
-                            Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.SystemActivity,
-                                        info.Name );
-                        } else {
-                            break;
-                        }
-                    }
-                }
-            }
-
-            Logger.Log( "AutoBackup: " + targetName, LogType.SystemActivity );
-        }
-
-
-        sealed class FileInfoComparer : IComparer<FileInfo> {
-            public static readonly FileInfoComparer Instance = new FileInfoComparer();
-            public int Compare( FileInfo x, FileInfo y ) {
-                return -x.CreationTime.CompareTo( y.CreationTime );
-            }
         }
 
         #endregion

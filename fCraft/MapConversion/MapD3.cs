@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
+using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     public sealed class MapD3 : IMapConverter {
@@ -22,7 +23,7 @@ namespace fCraft.MapConversion {
             Mapping[58] = (byte)Block.TNT;          // Workbench
             Mapping[59] = (byte)Block.Leaves;       // Crops
             Mapping[60] = (byte)Block.Obsidian;     // Soil
-            Mapping[61] = (byte)Block.Rocks;        // Furnace
+            Mapping[61] = (byte)Block.Cobblestone;        // Furnace
             Mapping[62] = (byte)Block.StillLava;    // Burning Furnace
             // 63-199 unused
             Mapping[200] = (byte)Block.Lava;        // Kill Lava
@@ -52,8 +53,8 @@ namespace fCraft.MapConversion {
             Mapping[225] = (byte)Block.Lava;        // Red Spark
             Mapping[226] = (byte)Block.TNT;         // Fire Fountain
             Mapping[227] = (byte)Block.TNT;         // Admin TNT
-            Mapping[228] = (byte)Block.Steel;       // Fan
-            Mapping[229] = (byte)Block.Steel;       // Door
+            Mapping[228] = (byte)Block.Iron;       // Fan
+            Mapping[229] = (byte)Block.Iron;       // Door
             Mapping[230] = (byte)Block.Lava;        // Campfire
             Mapping[231] = (byte)Block.Red;         // Laser
             Mapping[232] = (byte)Block.Black;       // Ash
@@ -64,7 +65,7 @@ namespace fCraft.MapConversion {
             Mapping[244] = (byte)Block.Leaves;      // Vines
             Mapping[245] = (byte)Block.Lava;        // Flamethrower
             // 246 unused
-            Mapping[247] = (byte)Block.Steel;       // Cannon
+            Mapping[247] = (byte)Block.Iron;       // Cannon
             Mapping[248] = (byte)Block.Obsidian;    // Blob
             // all others default to 0/air
         }
@@ -75,8 +76,8 @@ namespace fCraft.MapConversion {
         }
 
 
-        public MapFormatType FormatType {
-            get { return MapFormatType.SingleFile; }
+        public MapStorageType StorageType {
+            get { return MapStorageType.SingleFile; }
         }
 
 
@@ -85,12 +86,14 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool ClaimsName( string fileName ) {
+        public bool ClaimsName( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".map", StringComparison.OrdinalIgnoreCase );
         }
 
 
-        public bool Claims( string fileName ) {
+        public bool Claims( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
                     using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
@@ -106,7 +109,8 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map LoadHeader( string fileName ) {
+        public Map LoadHeader( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 return LoadHeaderInternal( mapStream );
             }
@@ -114,6 +118,7 @@ namespace fCraft.MapConversion {
 
 
         static Map LoadHeaderInternal( Stream stream ) {
+            if( stream == null ) throw new ArgumentNullException( "stream" );
             // Setup a GZipStream to decompress and read the map file
             using( GZipStream gs = new GZipStream( stream, CompressionMode.Decompress, true ) ) {
                 BinaryReader bs = new BinaryReader( gs );
@@ -121,24 +126,23 @@ namespace fCraft.MapConversion {
                 int formatVersion = IPAddress.NetworkToHostOrder( bs.ReadInt32() );
 
                 // Read in the map dimesions
-                int widthX = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                int widthY = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                int width = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                int length = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
                 int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
 
-                Map map = new Map( null, widthX, widthY, height, false );
+                Map map = new Map( null, width, length, height, false );
 
                 Position spawn = new Position();
 
                 switch( formatVersion ) {
                     case 1000:
                     case 1010:
-                        map.ResetSpawn();
                         break;
                     case 1020:
                         spawn.X = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
                         spawn.Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        spawn.H = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        map.SetSpawn( spawn );
+                        spawn.Z = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        map.Spawn = spawn;
                         break;
                     //case 1030:
                     //case 1040:
@@ -146,10 +150,10 @@ namespace fCraft.MapConversion {
                     default:
                         spawn.X = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
                         spawn.Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        spawn.H = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        spawn.Z = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
                         spawn.R = (byte)IPAddress.NetworkToHostOrder( bs.ReadInt16() );
                         spawn.L = (byte)IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        map.SetSpawn( spawn );
+                        map.Spawn = spawn;
                         break;
                 }
 
@@ -158,7 +162,8 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map Load( string fileName ) {
+        public Map Load( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
 
                 Map map = LoadHeaderInternal( mapStream );
@@ -168,7 +173,7 @@ namespace fCraft.MapConversion {
                 }
 
                 // Read in the map data
-                map.Blocks = new byte[map.WidthX * map.WidthY * map.Height];
+                map.Blocks = new byte[map.Volume];
                 mapStream.Read( map.Blocks, 0, map.Blocks.Length );
                 map.ConvertBlockTypes( Mapping );
 
@@ -177,7 +182,9 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool Save( Map mapToSave, string fileName ) {
+        public bool Save( [NotNull] Map mapToSave, [NotNull] string fileName ) {
+            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.Create( fileName ) ) {
                 using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress ) ) {
                     BinaryWriter bs = new BinaryWriter( gs );
@@ -188,8 +195,8 @@ namespace fCraft.MapConversion {
                     bs.Write( (byte)0 );
 
                     // Write the map dimensions
-                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.WidthX ) );
-                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.WidthY ) );
+                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.Width ) );
+                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.Length ) );
                     bs.Write( IPAddress.NetworkToHostOrder( mapToSave.Height ) );
 
                     // Write the map data

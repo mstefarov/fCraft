@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     public sealed class MapNBT : IMapConverter {
@@ -11,8 +12,8 @@ namespace fCraft.MapConversion {
         }
 
 
-        public MapFormatType FormatType {
-            get { return MapFormatType.SingleFile; }
+        public MapStorageType StorageType {
+            get { return MapStorageType.SingleFile; }
         }
 
 
@@ -21,12 +22,14 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool ClaimsName( string fileName ) {
+        public bool ClaimsName( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".mclevel", StringComparison.OrdinalIgnoreCase );
         }
 
 
-        public bool Claims( string fileName ) {
+        public bool Claims( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
                     GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
@@ -39,18 +42,23 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map LoadHeader( string fileName ) {
-            throw new NotImplementedException();
+        public Map LoadHeader( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            Map map = Load( fileName );
+            map.Blocks = null;
+            return map;
         }
 
 
-        public Map Load( string fileName ) {
+        public Map Load( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
                 NBTag tag = NBTag.ReadStream( gs );
 
 
                 NBTag mapTag = tag["Map"];
+                // ReSharper disable UseObjectOrCollectionInitializer
                 Map map = new Map( null,
                                    mapTag["Width"].GetShort(),
                                    mapTag["Length"].GetShort(),
@@ -58,25 +66,28 @@ namespace fCraft.MapConversion {
                                    false );
                 map.Spawn = new Position {
                     X = mapTag["Spawn"][0].GetShort(),
-                    H = mapTag["Spawn"][1].GetShort(),
+                    Z = mapTag["Spawn"][1].GetShort(),
                     Y = mapTag["Spawn"][2].GetShort(),
                     R = 0,
                     L = 0
                 };
+                // ReSharper restore UseObjectOrCollectionInitializer
 
                 if( !map.ValidateHeader() ) {
                     throw new MapFormatException( "One or more of the map dimensions are invalid." );
                 }
 
                 map.Blocks = mapTag["Blocks"].GetBytes();
-                map.RemoveUnknownBlocktypes( false );
+                map.RemoveUnknownBlocktypes();
 
                 return map;
             }
         }
 
 
-        public bool Save( Map mapToSave, string fileName ) {
+        public bool Save( [NotNull] Map mapToSave, [NotNull] string fileName ) {
+            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             throw new NotImplementedException();
         }
     }

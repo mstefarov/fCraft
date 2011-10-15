@@ -9,31 +9,34 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using fCraft.Events;
+using JetBrains.Annotations;
 
 namespace fCraft {
-
-    /// <summary>
-    /// Checks for updates, and keeps track of current version/revision.
-    /// </summary>
+    /// <summary> Checks for updates, and keeps track of current version/revision. </summary>
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            537,
-            1033,
-            new DateTime( 2011, 9, 26, 4, 17, 0, DateTimeKind.Utc ),
+            600,
+            1107,
+            new DateTime( 2011, 10, 15, 1, 35, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Bugfix
+            ReleaseFlags.APIChange | ReleaseFlags.Bugfix | ReleaseFlags.ConfigFormatChange | ReleaseFlags.Feature |
+            ReleaseFlags.Optimized | ReleaseFlags.PlayerDBFormatChange | ReleaseFlags.Security
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
-        );
+ );
 
-        public const string LatestStable = "0.537_r991";
+        public static string UserAgent {
+            get { return "fCraft " + CurrentRelease.VersionString; }
+        }
+
+        public const string LatestStable = "0.600_r1107";
 
         public static string UpdateUrl { get; set; }
 
         static Updater() {
-            UpdateCheckTimeout = 3000;
+            UpdateCheckTimeout = 3500;
             UpdateUrl = "http://www.fcraft.net/UpdateCheck.php?r={0}";
         }
 
@@ -45,7 +48,7 @@ namespace fCraft {
             if( mode == UpdaterMode.Disabled ) return UpdaterResult.NoUpdate;
 
             string url = String.Format( UpdateUrl, CurrentRelease.Revision );
-            if( FireCheckingForUpdatesEvent( ref url ) ) return UpdaterResult.NoUpdate;
+            if( RaiseCheckingForUpdatesEvent( ref url ) ) return UpdaterResult.NoUpdate;
 
             Logger.Log( "Checking for fCraft updates...", LogType.SystemActivity );
             try {
@@ -56,41 +59,52 @@ namespace fCraft {
                 request.Timeout = UpdateCheckTimeout;
                 request.ReadWriteTimeout = UpdateCheckTimeout;
                 request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
+                request.UserAgent = UserAgent;
 
                 using( WebResponse response = request.GetResponse() ) {
+                    // ReSharper disable PossibleNullReferenceException
+                    // ReSharper disable AssignNullToNotNullAttribute
                     using( XmlTextReader reader = new XmlTextReader( response.GetResponseStream() ) ) {
+                        // ReSharper restore AssignNullToNotNullAttribute
                         XDocument doc = XDocument.Load( reader );
                         XElement root = doc.Root;
                         if( root.Attribute( "result" ).Value == "update" ) {
                             string downloadUrl = root.Attribute( "url" ).Value;
                             var releases = new List<ReleaseInfo>();
+                            // ReSharper disable LoopCanBeConvertedToQuery
                             foreach( XElement el in root.Elements( "Release" ) ) {
-                                releases.Add( new ReleaseInfo(
-                                    Int32.Parse( el.Attribute( "v" ).Value ),
-                                    Int32.Parse( el.Attribute( "r" ).Value ),
-                                    Int64.Parse( el.Attribute( "date" ).Value ).ToDateTime(),
-                                    el.Element( "Summary" ).Value,
-                                    el.Element( "ChangeLog" ).Value,
-                                    ReleaseInfo.StringToReleaseFlags( el.Attribute( "flags" ).Value )
-                                ) );
+                                releases.Add(
+                                    new ReleaseInfo(
+                                        Int32.Parse( el.Attribute( "v" ).Value ),
+                                        Int32.Parse( el.Attribute( "r" ).Value ),
+                                        Int64.Parse( el.Attribute( "date" ).Value ).ToDateTime(),
+                                        el.Element( "Summary" ).Value,
+                                        el.Element( "ChangeLog" ).Value,
+                                        ReleaseInfo.StringToReleaseFlags( el.Attribute( "flags" ).Value )
+                                    )
+                                );
                             }
-                            UpdaterResult result = new UpdaterResult( (releases.Count > 0), downloadUrl, releases.ToArray() );
-                            FireCheckedForUpdatesEvent( UpdateUrl, result );
+                            // ReSharper restore LoopCanBeConvertedToQuery
+                            UpdaterResult result = new UpdaterResult( (releases.Count > 0), new Uri( downloadUrl ),
+                                                                      releases.ToArray() );
+                            RaiseCheckedForUpdatesEvent( UpdateUrl, result );
                             return result;
                         } else {
                             return UpdaterResult.NoUpdate;
                         }
                     }
+                    // ReSharper restore PossibleNullReferenceException
                 }
             } catch( Exception ex ) {
                 Logger.Log( "An error occured while trying to check for updates: {0}: {1}", LogType.Error,
-                            ex.GetType().ToString(), ex.Message );
+                            ex.GetType(), ex.Message );
                 return UpdaterResult.NoUpdate;
             }
         }
 
 
         public static bool RunAtShutdown { get; set; }
+
 
         #region Events
 
@@ -103,7 +117,7 @@ namespace fCraft {
         public static event EventHandler<CheckedForUpdatesEventArgs> CheckedForUpdates;
 
 
-        static bool FireCheckingForUpdatesEvent( ref string updateUrl ) {
+        static bool RaiseCheckingForUpdatesEvent( ref string updateUrl ) {
             var h = CheckingForUpdates;
             if( h == null ) return false;
             var e = new CheckingForUpdatesEventArgs( updateUrl );
@@ -113,7 +127,7 @@ namespace fCraft {
         }
 
 
-        static void FireCheckedForUpdatesEvent( string url, UpdaterResult result ) {
+        static void RaiseCheckedForUpdatesEvent( string url, UpdaterResult result ) {
             var h = CheckedForUpdates;
             if( h != null ) h( null, new CheckedForUpdatesEventArgs( url, result ) );
         }
@@ -128,14 +142,14 @@ namespace fCraft {
                 return new UpdaterResult( false, null, new ReleaseInfo[0] );
             }
         }
-        internal UpdaterResult( bool updateAvailable, string downloadUrl, IEnumerable<ReleaseInfo> releases ) {
+        internal UpdaterResult( bool updateAvailable, Uri downloadUri, IEnumerable<ReleaseInfo> releases ) {
             UpdateAvailable = updateAvailable;
-            DownloadUrl = downloadUrl;
+            DownloadUri = downloadUri;
             History = releases.OrderByDescending( r => r.Revision ).ToArray();
             LatestRelease = releases.FirstOrDefault();
         }
         public bool UpdateAvailable { get; private set; }
-        public string DownloadUrl { get; private set; }
+        public Uri DownloadUri { get; private set; }
         public ReleaseInfo[] History { get; private set; }
         public ReleaseInfo LatestRelease { get; private set; }
     }
@@ -189,7 +203,8 @@ namespace fCraft {
 
         public string[] ChangeLog { get; private set; }
 
-        public static ReleaseFlags StringToReleaseFlags( string str ) {
+        public static ReleaseFlags StringToReleaseFlags( [NotNull] string str ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
             ReleaseFlags flags = ReleaseFlags.None;
             for( int i = 0; i < str.Length; i++ ) {
                 switch( Char.ToUpper( str[i] ) ) {
@@ -276,7 +291,7 @@ namespace fCraft {
 
         /// <summary>
         /// Checks for updates and prompts to install them.
-        /// Behavior is frontend-specific: in fCraftUI, downloads the update and promots to install. In fCraftConsole, acts same as Notify.
+        /// Behavior is frontend-specific: in ServerGUI, downloads the update and promots to install. In ServerCLI, acts same as Notify.
         /// Note: Requires user interaction (if you restart the server remotely while unattended, it may get stuck on this dialog).
         /// </summary>
         Prompt,
@@ -328,13 +343,13 @@ namespace fCraft {
 
 }
 
-#region EventArgs
-namespace fCraft.Events {
 
-    public sealed class CheckingForUpdatesEventArgs : EventArgs {
+namespace fCraft.Events {
+    public sealed class CheckingForUpdatesEventArgs : EventArgs, ICancellableEvent {
         internal CheckingForUpdatesEventArgs( string url ) {
             Url = url;
         }
+
         public string Url { get; set; }
         public bool Cancel { get; set; }
     }
@@ -345,9 +360,8 @@ namespace fCraft.Events {
             Url = url;
             Result = result;
         }
+
         public string Url { get; private set; }
         public UpdaterResult Result { get; private set; }
     }
-
 }
-#endregion

@@ -1,15 +1,14 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
-    /// <summary>
-    /// fCraft map format converter, for format version #3 (2011)
-    /// </summary>
-    sealed class MapFCMv3 : IMapConverter {
+    /// <summary> fCraft map format converter, for format version #3 (2011).
+    /// Soon to be obsoleted by FCMv4. </summary>
+    public sealed class MapFCMv3 : IMapConverter {
         public const int Identifier = 0x0FC2AF40;
         public const byte Revision = 13;
 
@@ -18,8 +17,8 @@ namespace fCraft.MapConversion {
         }
 
 
-        public MapFormatType FormatType {
-            get { return MapFormatType.SingleFile; }
+        public MapStorageType StorageType {
+            get { return MapStorageType.SingleFile; }
         }
 
 
@@ -28,12 +27,14 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool ClaimsName( string fileName ) {
+        public bool ClaimsName( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase );
         }
 
 
-        public bool Claims( string fileName ) {
+        public bool Claims( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 try {
                     BinaryReader reader = new BinaryReader( mapStream );
@@ -47,77 +48,41 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map LoadHeader( string fileName ) {
+        public Map LoadHeader( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 BinaryReader reader = new BinaryReader( mapStream );
-                if( reader.ReadInt32() != Identifier || reader.ReadByte() != Revision ) {
-                    throw new MapFormatException();
-                }
 
-                // read dimensions
-                int widthX = reader.ReadInt16();
-                int height = reader.ReadInt16();
-                int widthY = reader.ReadInt16();
+                Map map = LoadHeaderInternal( reader );
 
-                Map map = new Map( null, widthX, widthY, height, false );
-
-                // read spawn
-                map.Spawn.X = (short)reader.ReadInt32();
-                map.Spawn.H = (short)reader.ReadInt32();
-                map.Spawn.Y = (short)reader.ReadInt32();
-                map.Spawn.R = reader.ReadByte();
-                map.Spawn.L = reader.ReadByte();
-
-
-                // read modification/creation times
-                map.DateModified = reader.ReadUInt32().ToDateTime();
-                map.DateCreated = reader.ReadUInt32().ToDateTime();
-
-                // read UUID
-                map.Guid = new Guid( reader.ReadBytes( 16 ) );
-
-
-                // read the index
+                // skip the index
                 int layerCount = reader.ReadByte();
-                List<DataLayer> layers = new List<DataLayer>( layerCount );
-                for( int i = 0; i < layerCount; i++ ) {
-                    DataLayer layer = new DataLayer {
-                        Type = (DataLayerType)reader.ReadByte(),
-                        Offset = reader.ReadInt64(),
-                        CompressedLength = reader.ReadInt32(),
-                        GeneralPurposeField = reader.ReadInt32(),
-                        ElementSize = reader.ReadInt32(),
-                        ElementCount = reader.ReadInt32()
-                    };
-                    layers.Add( layer );
-                }
-
+                mapStream.Seek( 25 * layerCount, SeekOrigin.Current );
 
                 // read metadata
-                int metaSize = reader.ReadInt32();
+                int metaCount = reader.ReadInt32();
 
                 using( DeflateStream ds = new DeflateStream( mapStream, CompressionMode.Decompress ) ) {
                     BinaryReader br = new BinaryReader( ds );
-                    for( int i = 0; i < metaSize; i++ ) {
+                    for( int i = 0; i < metaCount; i++ ) {
                         string group = ReadLengthPrefixedString( br ).ToLowerInvariant();
                         string key = ReadLengthPrefixedString( br ).ToLowerInvariant();
                         string newValue = ReadLengthPrefixedString( br );
 
-                        string oldValue = map.GetMeta( group, key );
-
-                        if( oldValue != null && oldValue != newValue ) {
+                        string oldValue;
+                        if( map.Metadata.TryGetValue( key, group, out oldValue ) && oldValue != newValue ) {
                             Logger.Log( "MapFCMv3.LoadHeader: Duplicate metadata entry found for [{0}].[{1}]. " +
                                         "Old value (overwritten): \"{2}\". New value: \"{3}\"", LogType.Warning,
-                                        group, key, map.GetMeta( group, key ), newValue );
+                                        group, key, oldValue, newValue );
                         }
                         if( group == "zones" ) {
                             try {
-                                map.AddZone( new Zone( newValue, map.World ) );
+                                map.Zones.Add( new Zone( newValue, map.World ) );
                             } catch( Exception ex ) {
                                 Logger.Log( "MapFCMv3.LoadHeader: Error importing zone definition: {0}", LogType.Error, ex );
                             }
                         } else {
-                            map.SetMeta( group, key, newValue );
+                            map.Metadata[group, key] = newValue;
                         }
                     }
                 }
@@ -127,54 +92,19 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map Load( string fileName ) {
+        public Map Load( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 BinaryReader reader = new BinaryReader( mapStream );
-                if( reader.ReadInt32() != Identifier || reader.ReadByte() != Revision ) {
-                    throw new MapFormatException();
-                }
 
-                // read dimensions
-                int widthX = reader.ReadInt16();
-                int height = reader.ReadInt16();
-                int widthY = reader.ReadInt16();
+                Map map = LoadHeaderInternal( reader );
 
-                Map map = new Map( null, widthX, widthY, height, false );
-
-                // read spawn
-                map.Spawn.X = (short)reader.ReadInt32();
-                map.Spawn.H = (short)reader.ReadInt32();
-                map.Spawn.Y = (short)reader.ReadInt32();
-                map.Spawn.R = reader.ReadByte();
-                map.Spawn.L = reader.ReadByte();
-
-                if( !map.ValidateHeader() ) {
-                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
-                }
-
-                // read modification/creation times
-                map.DateModified = reader.ReadUInt32().ToDateTime();
-                map.DateCreated = reader.ReadUInt32().ToDateTime();
-
-                // read UUID
-                map.Guid = new Guid( reader.ReadBytes( 16 ) );
-
-
-                // read the index
+                // read the layer index
                 int layerCount = reader.ReadByte();
-                List<DataLayer> layers = new List<DataLayer>( layerCount );
-                for( int i = 0; i < layerCount; i++ ) {
-                    DataLayer layer = new DataLayer {
-                        Type = (DataLayerType)reader.ReadByte(),
-                        Offset = reader.ReadInt64(),
-                        CompressedLength = reader.ReadInt32(),
-                        GeneralPurposeField = reader.ReadInt32(),
-                        ElementSize = reader.ReadInt32(),
-                        ElementCount = reader.ReadInt32()
-                    };
-                    layers.Add( layer );
+                if( layerCount < 1 ) {
+                    throw new MapFormatException( "No data layers found." );
                 }
-
+                mapStream.Seek( 25 * layerCount, SeekOrigin.Current );
 
                 // read metadata
                 int metaSize = reader.ReadInt32();
@@ -186,58 +116,93 @@ namespace fCraft.MapConversion {
                         string key = ReadLengthPrefixedString( br ).ToLowerInvariant();
                         string newValue = ReadLengthPrefixedString( br );
 
-                        string oldValue = map.GetMeta( group, key );
-
-                        if( oldValue != null && oldValue != newValue ) {
-                            Logger.Log( "MapFCMv3.Load: Duplicate metadata entry found for [{0}].[{1}]. " +
+                        string oldValue;
+                        if( map.Metadata.TryGetValue( key, group, out oldValue ) && oldValue != newValue ) {
+                            Logger.Log( "MapFCMv3.LoadHeader: Duplicate metadata entry found for [{0}].[{1}]. " +
                                         "Old value (overwritten): \"{2}\". New value: \"{3}\"", LogType.Warning,
-                                        group, key, map.GetMeta( group, key ), newValue );
+                                        group, key, oldValue, newValue );
                         }
                         if( group == "zones" ) {
                             try {
-                                map.AddZone( new Zone( newValue, map.World ) );
+                                map.Zones.Add( new Zone( newValue, map.World ) );
                             } catch( Exception ex ) {
-                                Logger.Log( "MapFCMv3.Load: Error importing zone definition: {0}", LogType.Error, ex );
+                                Logger.Log( "MapFCMv3.LoadHeader: Error importing zone definition: {0}", LogType.Error, ex );
                             }
                         } else {
-                            map.SetMeta( group, key, newValue );
+                            map.Metadata[group, key] = newValue;
                         }
                     }
-
-                    for( int i = 0; i < layerCount; i++ ) {
-                        ReadLayer( layers[i], ds, map );
-                    }
+                    map.Blocks = new byte[map.Volume];
+                    ds.Read( map.Blocks, 0, map.Blocks.Length );
+                    map.RemoveUnknownBlocktypes();
                 }
                 return map;
             }
         }
 
 
-        public bool Save( Map mapToSave, string fileName ) {
+        static Map LoadHeaderInternal( [NotNull] BinaryReader reader ) {
+            if( reader == null ) throw new ArgumentNullException( "reader" );
+            if( reader.ReadInt32() != Identifier || reader.ReadByte() != Revision ) {
+                throw new MapFormatException();
+            }
+
+            // read dimensions
+            int width = reader.ReadInt16();
+            int height = reader.ReadInt16();
+            int length = reader.ReadInt16();
+
+            // ReSharper disable UseObjectOrCollectionInitializer
+            Map map = new Map( null, width, length, height, false );
+            // ReSharper restore UseObjectOrCollectionInitializer
+
+            // read spawn
+            map.Spawn = new Position {
+                X = (short)reader.ReadInt32(),
+                Z = (short)reader.ReadInt32(),
+                Y = (short)reader.ReadInt32(),
+                R = reader.ReadByte(),
+                L = reader.ReadByte()
+            };
+
+
+            // read modification/creation times
+            map.DateModified = DateTimeUtil.ToDateTimeLegacy( reader.ReadUInt32() );
+            map.DateCreated = DateTimeUtil.ToDateTimeLegacy( reader.ReadUInt32() );
+
+            // read UUID
+            map.Guid = new Guid( reader.ReadBytes( 16 ) );
+            return map;
+        }
+
+
+        public bool Save( [NotNull] Map mapToSave, [NotNull] string fileName ) {
+            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.Create( fileName ) ) {
                 BinaryWriter writer = new BinaryWriter( mapStream );
 
                 writer.Write( Identifier );
                 writer.Write( Revision );
 
-                writer.Write( (short)mapToSave.WidthX );
+                writer.Write( (short)mapToSave.Width );
                 writer.Write( (short)mapToSave.Height );
-                writer.Write( (short)mapToSave.WidthY );
+                writer.Write( (short)mapToSave.Length );
 
                 writer.Write( (int)mapToSave.Spawn.X );
-                writer.Write( (int)mapToSave.Spawn.H );
+                writer.Write( (int)mapToSave.Spawn.Z );
                 writer.Write( (int)mapToSave.Spawn.Y );
 
                 writer.Write( mapToSave.Spawn.R );
                 writer.Write( mapToSave.Spawn.L );
 
                 mapToSave.DateModified = DateTime.UtcNow;
-                writer.Write( (uint)mapToSave.DateModified.ToTimestamp() ); // extension methods
-                writer.Write( (uint)mapToSave.DateCreated.ToTimestamp() );
+                writer.Write( (uint)mapToSave.DateModified.ToUnixTimeLegacy() );
+                writer.Write( (uint)mapToSave.DateCreated.ToUnixTimeLegacy() );
 
                 writer.Write( mapToSave.Guid.ToByteArray() );
 
-                writer.Write( (byte)1 );
+                writer.Write( (byte)1 ); // layer count
 
                 // skip over index and metacount
                 long indexOffset = mapStream.Position;
@@ -249,90 +214,98 @@ namespace fCraft.MapConversion {
                 using( DeflateStream ds = new DeflateStream( mapStream, CompressionMode.Compress, true ) ) {
                     using( BufferedStream bs = new BufferedStream( ds ) ) {
                         // write metadata
-                        metaCount = mapToSave.WriteMetadataFCMv3( ds );
-                        offset = mapStream.Position;
+                        metaCount = WriteMetadata( bs, mapToSave );
+                        offset = mapStream.Position; // inaccurate, but who cares
                         bs.Write( blocksCache, 0, blocksCache.Length );
-                        bs.Flush();
-                        ds.Flush();
                         compressedLength = (int)(mapStream.Position - offset);
                     }
                 }
 
                 // come back to write the index
                 writer.BaseStream.Seek( indexOffset, SeekOrigin.Begin );
-                writer.Write( (byte)0 );
-                writer.Write( offset ); // written later
-                writer.Write( compressedLength );  // written later
-                writer.Write( 0 );
-                writer.Write( 1 );
-                writer.Write( blocksCache.Length ); // to be written later for PlayerIDs
-                writer.Write( metaCount );
 
+                writer.Write( (byte)0 );            // data layer type (Blocks)
+                writer.Write( offset );             // offset, in bytes, from start of stream
+                writer.Write( compressedLength );   // compressed length, in bytes
+                writer.Write( 0 );                  // general purpose field
+                writer.Write( 1 );                  // element size
+                writer.Write( blocksCache.Length ); // element count
+
+                writer.Write( metaCount );
                 return true;
             }
         }
 
 
-        static string ReadLengthPrefixedString( BinaryReader reader ) {
+        static string ReadLengthPrefixedString( [NotNull] BinaryReader reader ) {
+            if( reader == null ) throw new ArgumentNullException( "reader" );
             int length = reader.ReadUInt16();
             byte[] stringData = reader.ReadBytes( length );
             return Encoding.ASCII.GetString( stringData );
         }
 
 
-        public static void WriteLengthPrefixedString( BinaryWriter writer, string s ) {
-            byte[] stringData = Encoding.ASCII.GetBytes( s );
+        public static void WriteLengthPrefixedString( [NotNull] BinaryWriter writer, [NotNull] string str ) {
+            if( writer == null ) throw new ArgumentNullException( "writer" );
+            if( str == null ) throw new ArgumentNullException( "str" );
+            if( str.Length > ushort.MaxValue ) throw new ArgumentException( "String is too long.", "str" );
+            byte[] stringData = Encoding.ASCII.GetBytes( str );
             writer.Write( (ushort)stringData.Length );
             writer.Write( stringData );
         }
 
 
-        static void ReadLayer( DataLayer layer, DeflateStream stream, Map map ) {
-            if( layer == null ) throw new ArgumentNullException( "layer" );
+        static int WriteMetadata( [NotNull] Stream stream, [NotNull] Map map ) {
             if( stream == null ) throw new ArgumentNullException( "stream" );
-            switch( layer.Type ) {
-                case DataLayerType.Blocks:
-                    map.Blocks = new byte[layer.ElementCount];
-                    stream.Read( map.Blocks, 0, map.Blocks.Length );
-                    map.RemoveUnknownBlocktypes( false );
-                    break;
-
-                default:
-                    Logger.Log( "Map.ReadLayer: Skipping unknown layer ({0})", LogType.Warning, layer.Type );
-                    stream.BaseStream.Seek( layer.CompressedLength, SeekOrigin.Current );
-                    break;
+            if( map == null ) throw new ArgumentNullException( "map" );
+            BinaryWriter writer = new BinaryWriter( stream );
+            int metaCount = 0;
+            lock( map.Metadata.SyncRoot ) {
+                foreach( var entry in map.Metadata ) {
+                    WriteLengthPrefixedString( writer, entry.Group );
+                    WriteLengthPrefixedString( writer, entry.Key );
+                    WriteLengthPrefixedString( writer, entry.Value );
+                    metaCount++;
+                }
             }
+
+            Zone[] zoneList = map.Zones.Cache;
+            foreach( Zone zone in zoneList ) {
+                WriteLengthPrefixedString( writer, "zones" );
+                WriteLengthPrefixedString( writer, zone.Name );
+                WriteLengthPrefixedString( writer, SerializeZone( zone ) );
+                metaCount++;
+            }
+            return metaCount;
         }
 
 
-        sealed class DataLayer {
-            public DataLayerType Type;        // see "DataLayerType" below
-            public int GeneralPurposeField;   // 32 bits that can be used in implementation-specific ways
-            public int ElementSize;           // size of each data element (if elements are variable-size, set this to 1)
-            public int ElementCount;          // number of fixed-sized elements (if elements are variable-size, set this to total number of bytes)
-            public long Offset;
-            public int CompressedLength;
+        static string SerializeZone( [NotNull] Zone zone ) {
+            if( zone == null ) throw new ArgumentNullException( "zone" );
+            string xheader;
+            if( zone.CreatedBy != null ) {
+                xheader = zone.CreatedBy.Name + " " + zone.CreatedDate.ToCompactString() + " ";
+            } else {
+                xheader = "- - ";
+            }
+
+            if( zone.EditedBy != null ) {
+                xheader += zone.EditedBy.Name + " " + zone.EditedDate.ToCompactString();
+            } else {
+                xheader += "- -";
+            }
+
+            var zoneExceptions = zone.Controller.ExceptionList;
+
+            return String.Format( "{0},{1},{2},{3}",
+                                  String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
+                                                 zone.Name,
+                                                 zone.Bounds.XMin, zone.Bounds.YMin, zone.Bounds.ZMin,
+                                                 zone.Bounds.XMax, zone.Bounds.YMax, zone.Bounds.ZMax,
+                                                 zone.Controller.MinRank.FullName ),
+                                  zoneExceptions.Included.JoinToString( " ", p => p.Name ),
+                                  zoneExceptions.Excluded.JoinToString( " ", p => p.Name ),
+                                  xheader );
         }
-
-
-        // type of block - allows storing multiple layers of information about blocks
-        enum DataLayerType : byte {
-            Blocks = 0, // Block types (El.Size=1)
-
-            BlockUndo = 1, // Previous block type (per-block) (El.Size=1)
-
-            BlockOwnership = 2, // IDs of block changers (per-block) (El.Size=2)
-
-            BlockTimestamps = 3, // Modification date/time (per-block) (El.Size=4)
-
-            BlockChangeFlags = 4, // Type of action that resulted in the block change
-            // See BlockChangeFlags flags (El.Size=1)
-
-            PlayerIDs = 5  // mapping of player names to ID numbers (El.Size=2)
-
-            // 4-31 reserved
-            // 32-255 custom
-
-        } // 1 byte
     }
 }

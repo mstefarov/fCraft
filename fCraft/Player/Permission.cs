@@ -1,6 +1,4 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
-using System.ComponentModel;
-
 namespace fCraft {
 
     // See comment at the top of Config.cs for a history of changes.
@@ -14,12 +12,12 @@ namespace fCraft {
         Chat,
 
         /// <summary> Ability to place blocks on maps.
-        /// This is a baseline permission that can be overriden by
+        /// This is a baseline permission that can be overridden by
         /// world-specific and zone-specific permissions. </summary>
         Build,
 
         /// <summary> Ability to delete or replace blocks on maps.
-        /// This is a baseline permission that can be overriden by
+        /// This is a baseline permission that can be overridden by
         /// world-specific and zone-specific permissions. </summary>
         Delete,
 
@@ -87,15 +85,19 @@ namespace fCraft {
         /// Hidden players are completely invisible to other players. </summary>
         Hide,
 
-        /// <summary>
-        /// Ability to use drawing tools (commands capable of affecting many blocks
-        /// at once). This permission can be overriden by world-specific and
-        /// zone-specific building permissions. </summary>
+        /// <summary> Ability to use drawing tools (commands capable of affecting
+        /// many blocks at once). This permission can be overridden by world-specific
+        /// and zone-specific building permissions. </summary>
         Draw,
 
+        /// <summary> Ability to use advanced draw commands: sphere, torus, brushes. </summary>
+        DrawAdvanced,
+
+        /// <summary> Ability to undo actions of other players (undoarea and undoplayer). </summary>
+        UndoOthersActions,
+
         /// <summary> Ability to copy (or cut) and paste blocks. The total number of
-        /// blocks that can be copied or pasted at a time is affected by
-        /// the draw limit. </summary>
+        /// blocks that can be copied or pasted at a time is affected by the draw limit. </summary>
         CopyAndPaste,
 
         /// <summary> Ability to teleport to other players. </summary>
@@ -113,11 +115,11 @@ namespace fCraft {
         /// usually while hidden. </summary>
         Patrol,
 
-        ///// <summary> Ability to use /spectate. </summary>
-        //Spectate,
+        /// <summary> Ability to use /spectate. </summary>
+        Spectate,
 
         /// <summary> Ability to freeze/unfreeze players.
-        /// Frozen players cannot move or build/delete.</summary>
+        /// Frozen players cannot move or build/delete. </summary>
         Freeze,
 
         /// <summary> Ability to temporarily mute players.
@@ -140,6 +142,9 @@ namespace fCraft {
         /// adding, renaming, and deleting worlds, loading/saving maps,
         /// changing per-world permissions, and using the map generator. </summary>
         ManageWorlds,
+
+        /// <summary> Ability to enable/disable, clear, and configure BlockDB. </summary>
+        ManageBlockDB,
 
         /// <summary> Ability to import rank and ban lists from files.
         /// Useful if you are switching from another server software. </summary>

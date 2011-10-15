@@ -1,28 +1,33 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
+    /// <summary> Describes attributes and metadata of a configuration key. </summary>
     [AttributeUsage( AttributeTargets.Field )]
-    public class ConfigKeyAttribute : Attribute {
-        protected ConfigKeyAttribute( ConfigSection section, Type valueType, object defaultValue, string description ) {
+    public class ConfigKeyAttribute : DescriptionAttribute {
+        protected ConfigKeyAttribute( ConfigSection section, [NotNull] Type valueType, object defaultValue, [NotNull] string description )
+            : base( description ) {
             if( valueType == null ) throw new ArgumentNullException( "valueType" );
             if( description == null ) throw new ArgumentNullException( "description" );
             ValueType = valueType;
             DefaultValue = defaultValue;
             Section = section;
-            Description = description;
             NotBlank = false;
         }
         public Type ValueType { get; protected set; }
         public object DefaultValue { get; protected set; }
-        public ConfigSection Section { get; protected set; }
+        public ConfigSection Section { get; private set; }
+        // ReSharper disable MemberCanBeProtected.Global
         public bool NotBlank { get; set; }
+        // ReSharper restore MemberCanBeProtected.Global
         public ConfigKey Key { get; internal set; }
-        public string Description { get; set; }
 
 
         public bool TryValidate( string value ) {
@@ -35,7 +40,7 @@ namespace fCraft {
         }
 
 
-        public virtual void Validate( string value ) {
+        public virtual void Validate( [NotNull] string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             if( NotBlank && value.Length == 0 ) {
                 throw new FormatException( "Value cannot be blank or null." );
@@ -43,6 +48,7 @@ namespace fCraft {
         }
 
 
+        [DebuggerStepThrough]
         public virtual string Process( string value ) {
             return value;
         }
@@ -73,7 +79,7 @@ namespace fCraft {
                 throw new FormatException( String.Format( "Value string too long; expected at most {0} characters.",
                                                           MaxLength ) );
             }
-            if( RestrictedChars && Player.ContainsIllegalChars( value ) ) {
+            if( RestrictedChars && Chat.ContainsInvalidChars( value ) ) {
                 throw new FormatException( String.Format( "Value contains restricted characters." ) );
             }
             if( Regex != null && !Regex.IsMatch( value ) ) {
@@ -172,7 +178,7 @@ namespace fCraft {
                 rank = GetBlankValueSubstitute();
                 if( rank == null ) return; // ranks must not have loaded yet; can't validate
             } else {
-                rank = RankManager.ParseRank( value );
+                rank = Rank.Parse( value );
                 if( rank == null ) {
                     throw new FormatException( "Value cannot be parsed as a rank." );
                 }
@@ -192,7 +198,7 @@ namespace fCraft {
                 if( defaultRank == null ) {
                     return "";
                 } else {
-                    return defaultRank.GetFullName();
+                    return defaultRank.FullName;
                 }
             } else {
                 return value;
@@ -211,7 +217,7 @@ namespace fCraft {
                 case BlankValueMeaning.Invalid:
                     throw new FormatException( "Value may not be blank." );
                 default:
-                    throw new ArgumentOutOfRangeException( "BlankMeaning" );
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -306,7 +312,7 @@ namespace fCraft {
                 case BlankValueMeaning.None:
                     return IPAddress.None;
                 default:
-                    throw new ArgumentOutOfRangeException( "BlankMeaning" );
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -336,9 +342,10 @@ namespace fCraft {
 
         public override void Validate( string value ) {
             base.Validate( value );
-            if( Color.Parse( value ) == null ) {
+            string parsedValue = Color.Parse( value );
+            if( parsedValue == null ) {
                 throw new FormatException( "Value cannot be parsed as a color." );
-            } else if( Color.Parse( value ).Length == 0 && NotBlank ) {
+            } else if( parsedValue.Length == 0 && NotBlank ) {
                 throw new FormatException( "Value may not represent absence of color." );
             }
         }
@@ -358,7 +365,10 @@ namespace fCraft {
             try {
                 Enum.Parse( ValueType, value, true );
             } catch( ArgumentException ) {
-                throw new FormatException( String.Format( "Could not parse value as {0}", ValueType.Name ) );
+                string message = String.Format( "Could not parse value as {0}. Valid values are: {1}",
+                                                ValueType.Name,
+                                                Enum.GetNames(ValueType).JoinToString() );
+                throw new FormatException( message );
             }
         }
 

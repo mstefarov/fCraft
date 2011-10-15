@@ -1,21 +1,13 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary>
-    /// Interface that provides a method for printing an object's name beautified with Minecraft color codes.
-    /// It was "classy" in a sense that it was colored based on "class" (rank) of a player/world/zone.
-    /// </summary>
-    public interface IClassy {
-        string GetClassyName();
-    }
-
     public sealed class Rank : IClassy, IComparable<Rank> {
-
         public string Name { get; set; }
-
-        public byte LegacyNumericRank;
 
         public string Color { get; set; }
 
@@ -27,6 +19,7 @@ namespace fCraft {
         }
 
         public bool AllowSecurityCircumvention;
+        public readonly int CopySlots = 2;
 
         public string Prefix = "";
         public int IdleKickTimer,
@@ -36,10 +29,13 @@ namespace fCraft {
         public bool ReservedSlot;
         public int Index;
 
-        public Rank NextRankUp, NextRankDown;
+        public Rank NextRankUp { get; internal set; }
+        public Rank NextRankDown { get; internal set; }
+
+        public World MainWorld { get; set; }
 
 
-        public int CompareTo( Rank other ) {
+        public int CompareTo( [NotNull] Rank other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             return other.Index - Index;
         }
@@ -49,13 +45,12 @@ namespace fCraft {
             Permissions = new bool[Enum.GetValues( typeof( Permission ) ).Length];
             PermissionLimits = new Rank[Permissions.Length];
             PermissionLimitStrings = new string[Permissions.Length];
-            Color = "";
+            Color = fCraft.Color.White;
         }
 
 
-        public Rank( XElement el )
+        public Rank( [NotNull] XElement el )
             : this() {
-
             if( el == null ) throw new ArgumentNullException( "el" );
 
             // Name
@@ -91,20 +86,14 @@ namespace fCraft {
             }
 
 
-            // Rank
-            if( (attr = el.Attribute( "rank" )) != null ) {
-                Byte.TryParse( attr.Value, out LegacyNumericRank );
-            }
-
-
             // Color (optional)
             if( (attr = el.Attribute( "color" )) != null ) {
                 if( (Color = fCraft.Color.Parse( attr.Value )) == null ) {
                     Logger.Log( "Rank({0}): Could not parse rank color. Assuming default (none).", LogType.Warning, Name );
-                    Color = "";
+                    Color = fCraft.Color.White;
                 }
             } else {
-                Color = "";
+                Color = fCraft.Color.White;
             }
 
 
@@ -120,9 +109,10 @@ namespace fCraft {
 
             // AntiGrief block limit (assuming unlimited if not given)
             int value;
-            if( (el.Attribute( "antiGriefBlocks" ) != null) && (el.Attribute( "antiGriefSeconds" ) != null) ) {
-                attr = el.Attribute( "antiGriefBlocks" );
-                if( Int32.TryParse( attr.Value, out value ) ) {
+            XAttribute agBlocks = el.Attribute( "antiGriefBlocks" );
+            XAttribute agSeconds = el.Attribute( "antiGriefSeconds" );
+            if( agBlocks != null && agSeconds != null ) {
+                if( Int32.TryParse( agBlocks.Value, out value ) ) {
                     if( value >= 0 && value < 1000 ) {
                         AntiGriefBlocks = value;
 
@@ -135,8 +125,7 @@ namespace fCraft {
                                 Name, AntiGriefBlocks );
                 }
 
-                attr = el.Attribute( "antiGriefSeconds" );
-                if( Int32.TryParse( attr.Value, out value ) ) {
+                if( Int32.TryParse( agSeconds.Value, out value ) ) {
                     if( value >= 0 && value < 100 ) {
                         AntiGriefSeconds = value;
                     } else {
@@ -199,6 +188,22 @@ namespace fCraft {
             }
 
 
+            // Draw command limit, in number-of-blocks (assuming unlimited if not given)
+            if( (attr = el.Attribute( "copySlots" )) != null ) {
+                if( Int32.TryParse( attr.Value, out value ) ) {
+                    if( value > 0 && value < 256 ) {
+                        CopySlots = value;
+                    } else {
+                        Logger.Log( "Rank({0}): Value for copySlots is not within valid range (1-256). Assuming default ({1}).", LogType.Warning,
+                                    Name, CopySlots );
+                    }
+                } else {
+                    Logger.Log( "Rank({0}): Could not parse the value for copySlots. Assuming default ({1}).", LogType.Warning,
+                                Name, CopySlots );
+                }
+            }
+
+
             // Permissions
             XElement temp;
             for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
@@ -232,7 +237,10 @@ namespace fCraft {
             XElement rankTag = new XElement( "Rank" );
             rankTag.Add( new XAttribute( "name", Name ) );
             rankTag.Add( new XAttribute( "id", ID ) );
-            rankTag.Add( new XAttribute( "color", fCraft.Color.GetName( Color ) ) );
+            string colorName = fCraft.Color.GetName( Color );
+            if( colorName != null ) {
+                rankTag.Add( new XAttribute( "color", colorName ) );
+            }
             if( Prefix.Length > 0 ) rankTag.Add( new XAttribute( "prefix", Prefix ) );
             rankTag.Add( new XAttribute( "antiGriefBlocks", AntiGriefBlocks ) );
             rankTag.Add( new XAttribute( "antiGriefSeconds", AntiGriefSeconds ) );
@@ -240,6 +248,7 @@ namespace fCraft {
             if( IdleKickTimer > 0 ) rankTag.Add( new XAttribute( "idleKickAfter", IdleKickTimer ) );
             if( ReservedSlot ) rankTag.Add( new XAttribute( "reserveSlot", ReservedSlot ) );
             if( AllowSecurityCircumvention ) rankTag.Add( new XAttribute( "allowSecurityCircumvention", AllowSecurityCircumvention ) );
+            rankTag.Add( new XAttribute( "copySlots", CopySlots ) );
 
             XElement temp;
             for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
@@ -247,7 +256,7 @@ namespace fCraft {
                     temp = new XElement( ((Permission)i).ToString() );
 
                     if( PermissionLimits[i] != null ) {
-                        temp.Add( new XAttribute( "max", GetLimit( (Permission)i ).GetFullName() ) );
+                        temp.Add( new XAttribute( "max", GetLimit( (Permission)i ).FullName ) );
                     }
                     rankTag.Add( temp );
                 }
@@ -285,14 +294,16 @@ namespace fCraft {
             return Permissions[(int)permission];
         }
 
-        public bool Can( Permission permission, Rank other ) {
-            return GetLimit( permission ) >= other;
+        public bool Can( Permission permission, [NotNull] Rank other ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
+            return Permissions[(int)permission] && GetLimit( permission ) >= other;
         }
 
-        public bool CanSee( Rank other ) {
+
+        public bool CanSee( [NotNull] Rank other ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
             return this > other.GetLimit( Permission.Hide );
         }
-
 
         #endregion
 
@@ -310,18 +321,13 @@ namespace fCraft {
         }
 
 
-        public void SetLimit( Permission permission, Rank limit ) {
+        public void SetLimit( Permission permission, [CanBeNull] Rank limit ) {
             PermissionLimits[(int)permission] = limit;
         }
 
 
         public void ResetLimit( Permission permission ) {
             SetLimit( permission, null );
-        }
-
-
-        public bool IsLimitDefault( Permission permission ) {
-            return (PermissionLimits[(int)permission] == null);
         }
 
 
@@ -338,34 +344,42 @@ namespace fCraft {
 
         #region Validation
 
-        public static bool IsValidRankName( string rankName ) {
+        public static bool IsValidRankName( [NotNull] string rankName ) {
             if( rankName == null ) throw new ArgumentNullException( "rankName" );
             if( rankName.Length < 1 || rankName.Length > 16 ) return false;
+            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < rankName.Length; i++ ) {
                 char ch = rankName[i];
-                if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') || ch > 'z' ) {
+                if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') ||
+                    ch > 'z' ) {
                     return false;
                 }
             }
+            // ReSharper restore LoopCanBeConvertedToQuery
             return true;
         }
 
-        public static bool IsValidID( string id ) {
+
+        public static bool IsValidID( [NotNull] string id ) {
             if( id == null ) throw new ArgumentNullException( "id" );
             if( id.Length != 16 ) return false;
+            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < id.Length; i++ ) {
                 char ch = id[i];
                 if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < 'a') || ch > 'z' ) {
                     return false;
                 }
             }
+            // ReSharper restore LoopCanBeConvertedToQuery
             return true;
         }
 
-        public static bool IsValidPrefix( string val ) {
-            if( val.Length == 0 ) return true;
-            if( val.Length > 1 ) return false;
-            return val[0] > ' ' && val[0] != '&' && val[0] != '`' && val[0] != '^' && val[0] <= '}';
+
+        public static bool IsValidPrefix( [NotNull] string prefix ) {
+            if( prefix == null ) throw new ArgumentNullException( "prefix" );
+            if( prefix.Length == 0 ) return true;
+            if( prefix.Length > 1 ) return false;
+            return !Chat.ContainsInvalidChars( prefix );
         }
 
         #endregion
@@ -381,20 +395,24 @@ namespace fCraft {
         }
 
 
-        public string GetFullName() {
-            return Name + "#" + ID;
+        public string FullName {
+            get {
+                return Name + "#" + ID;
+            }
         }
 
 
-        public string GetClassyName() {
-            string displayedName = Name;
-            if( ConfigKey.RankPrefixesInChat.GetBool() ) {
-                displayedName = Prefix + displayedName;
+        public string ClassyName {
+            get {
+                string displayedName = Name;
+                if( ConfigKey.RankPrefixesInChat.Enabled() ) {
+                    displayedName = Prefix + displayedName;
+                }
+                if( ConfigKey.RankColorsInChat.Enabled() ) {
+                    displayedName = Color + displayedName;
+                }
+                return displayedName;
             }
-            if( ConfigKey.RankColorsInChat.GetBool() ) {
-                displayedName = Color + displayedName;
-            }
-            return displayedName;
         }
 
 
@@ -402,10 +420,73 @@ namespace fCraft {
             bool ok = true;
             for( int i = 0; i < PermissionLimits.Length; i++ ) {
                 if( PermissionLimitStrings[i] == null ) continue;
-                SetLimit( (Permission)i, RankManager.ParseRank( PermissionLimitStrings[i] ) );
+                SetLimit( (Permission)i, Parse( PermissionLimitStrings[i] ) );
                 ok &= (GetLimit( (Permission)i ) != null);
             }
             return ok;
+        }
+
+
+        public IEnumerable<Player> Players {
+            get {
+                return Server.Players.Ranked( this );
+            }
+        }
+
+        public int PlayerCount {
+            get {
+                return PlayerDB.PlayerInfoList.Count( t => t.Rank == this );
+            }
+        }
+
+
+        /// <summary> Parses serialized rank. Accepts either the "name" or "name#ID" format.
+        /// Uses legacy rank mapping table for unrecognized ranks. Does not autocomple. </summary>
+        /// <param name="name"> Full rank name </param>
+        /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. </returns>
+        [CanBeNull]
+        public static Rank Parse( string name ) {
+            if( name == null ) return null;
+
+            if( RankManager.RanksByFullName.ContainsKey( name ) ) {
+                return RankManager.RanksByFullName[name];
+            }
+
+            if( name.Contains( "#" ) ) {
+                // new format
+                string id = name.Substring( name.IndexOf( "#" ) + 1 );
+
+                if( RankManager.RanksByID.ContainsKey( id ) ) {
+                    // current class
+                    return RankManager.RanksByID[id];
+
+                } else {
+                    // unknown class
+                    int tries = 0;
+                    while( RankManager.LegacyRankMapping.ContainsKey( id ) ) {
+                        id = RankManager.LegacyRankMapping[id];
+                        if( RankManager.RanksByID.ContainsKey( id ) ) {
+                            return RankManager.RanksByID[id];
+                        }
+                        // avoid infinite loops due to recursive definitions
+                        tries++;
+                        if( tries > 100 ) {
+                            throw new RankDefinitionException( "Recursive legacy rank definition" );
+                        }
+                    }
+                    // try to fall back to name-only
+                    name = name.Substring( 0, name.IndexOf( '#' ) ).ToLower();
+                    return RankManager.RanksByName.ContainsKey( name ) ? RankManager.RanksByName[name] : null;
+                }
+
+            } else if( RankManager.RanksByName.ContainsKey( name.ToLower() ) ) {
+                // old format
+                return RankManager.RanksByName[name.ToLower()]; // LEGACY
+
+            } else {
+                // totally unknown rank
+                return null;
+            }
         }
     }
 

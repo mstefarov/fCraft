@@ -3,11 +3,10 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
-    /// <summary>
-    /// fCraft map format converter, for format version #2 (2010)
-    /// </summary>
+    /// <summary> fCraft map format converter, for obsolete format version #2 (2010). </summary>
     public sealed class MapFCMv2 : IMapConverter {
         public const uint Identifier = 0xfc000002;
 
@@ -16,8 +15,8 @@ namespace fCraft.MapConversion {
         }
 
 
-        public MapFormatType FormatType {
-            get { return MapFormatType.SingleFile; }
+        public MapStorageType StorageType {
+            get { return MapStorageType.SingleFile; }
         }
 
 
@@ -26,12 +25,14 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool ClaimsName( string fileName ) {
+        public bool ClaimsName( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase );
         }
 
 
-        public bool Claims( string fileName ) {
+        public bool Claims( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
                     BinaryReader reader = new BinaryReader( mapStream );
@@ -44,14 +45,16 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map LoadHeader( string fileName ) {
+        public Map LoadHeader( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 return LoadHeaderInternal( mapStream );
             }
         }
 
 
-        static Map LoadHeaderInternal( Stream stream ) {
+        static Map LoadHeaderInternal( [NotNull] Stream stream ) {
+            if( stream == null ) throw new ArgumentNullException( "stream" );
             BinaryReader reader = new BinaryReader( stream );
 
             // Read in the magic number
@@ -60,26 +63,29 @@ namespace fCraft.MapConversion {
             }
 
             // Read in the map dimesions
-            int widthX = reader.ReadInt16();
-            int widthY = reader.ReadInt16();
+            int width = reader.ReadInt16();
+            int length = reader.ReadInt16();
             int height = reader.ReadInt16();
 
-            Map map = new Map( null, widthX, widthY, height, false );
+            // ReSharper disable UseObjectOrCollectionInitializer
+            Map map = new Map( null, width, length, height, false );
+            // ReSharper restore UseObjectOrCollectionInitializer
 
             // Read in the spawn location
-            map.Spawn.X = reader.ReadInt16();
-            map.Spawn.Y = reader.ReadInt16();
-            map.Spawn.H = reader.ReadInt16();
-
-            // Read in the spawn orientation
-            map.Spawn.R = reader.ReadByte();
-            map.Spawn.L = reader.ReadByte();
+            map.Spawn = new Position {
+                X = reader.ReadInt16(),
+                Y = reader.ReadInt16(),
+                Z = reader.ReadInt16(),
+                R = reader.ReadByte(),
+                L = reader.ReadByte()
+            };
 
             return map;
         }
 
 
-        public Map Load( string fileName ) {
+        public Map Load( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
 
                 Map map = LoadHeaderInternal( mapStream );
@@ -98,34 +104,38 @@ namespace fCraft.MapConversion {
                     string value = ReadLengthPrefixedString( reader );
                     if( key.StartsWith( "@zone", StringComparison.OrdinalIgnoreCase ) ) {
                         try {
-                            map.AddZone( new Zone( value, map.World ) );
+                            map.Zones.Add( new Zone( value, map.World ) );
                         } catch( Exception ex ) {
                             Logger.Log( "MapFCMv2.Load: Error importing zone definition: {0}", LogType.Error, ex );
                         }
                     } else {
-                        map.SetMeta( key, value );
+                        Logger.Log( "MapFCMv2.Load: Metadata discarded: \"{0}\"=\"{1}\"", LogType.Warning,
+                                    key, value );
                     }
                 }
 
                 // Read in the map data
-                map.Blocks = new Byte[map.GetBlockCount()];
+                map.Blocks = new Byte[map.Volume];
                 using( GZipStream decompressor = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
                     decompressor.Read( map.Blocks, 0, map.Blocks.Length );
                 }
 
-                map.RemoveUnknownBlocktypes( false );
+                map.RemoveUnknownBlocktypes();
 
                 return map;
             }
         }
 
 
-        public bool Save( Map mapToSave, string fileName ) {
+        public bool Save( [NotNull] Map mapToSave, [NotNull] string fileName ) {
+            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             throw new NotImplementedException();
         }
 
 
-        static string ReadLengthPrefixedString( BinaryReader reader ) {
+        static string ReadLengthPrefixedString( [NotNull] BinaryReader reader ) {
+            if( reader == null ) throw new ArgumentNullException( "reader" );
             int length = reader.ReadInt32();
             byte[] stringData = reader.ReadBytes( length );
             return Encoding.ASCII.GetString( stringData );
