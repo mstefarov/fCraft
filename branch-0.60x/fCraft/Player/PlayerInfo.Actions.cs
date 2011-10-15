@@ -778,7 +778,7 @@ namespace fCraft {
 
                 // Apply side effects
                 Player target = PlayerObject;
-                target.IsDeaf = false;
+                if(target != null) target.IsDeaf = false;
 
                 // Log and announce
                 Logger.Log( "{0} froze {1}", LogType.UserActivity, player.Name, Name );

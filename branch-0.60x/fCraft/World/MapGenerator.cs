@@ -72,6 +72,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         public static Map GenerateFlatgrass( int width, int length, int height ) {
             Map map = new Map( null, width, length, height, true );
             map.Blocks.MemSet( (byte)Block.Stone, 0, width * length * (height / 2 - 5) );

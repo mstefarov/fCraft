@@ -534,12 +534,13 @@ namespace fCraft {
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
             int count = 0;
 
+            Map map = World.LoadMap();
             if( isPreloaded ) {
                 lock( SyncRoot ) {
                     fixed( BlockDBEntry* entries = cacheStore ) {
                         for( int i = CacheSize - 1; i >= 0; i-- ) {
                             if( entries[i].PlayerID == info.ID ) {
-                                int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
                                 results[index] = entries[i];
                                 count++;
                                 if( count >= max ) break;
@@ -555,7 +556,7 @@ namespace fCraft {
                     BlockDBEntry* entries = (BlockDBEntry*)parr;
                     for( int i = entryCount - 1; i >= 0; i-- ) {
                         if( entries[i].PlayerID == info.ID ) {
-                            int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                            int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
                             results[index] = entries[i];
                             count++;
                             if( count >= max ) break;
@@ -574,6 +575,7 @@ namespace fCraft {
             if( info == null ) throw new ArgumentNullException( "info" );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
+            Map map = World.LoadMap();
 
             if( isPreloaded ) {
                 lock( SyncRoot ) {
@@ -581,7 +583,7 @@ namespace fCraft {
                         for( int i = CacheSize - 1; i >= 0; i-- ) {
                             if( entries[i].Timestamp < ticks ) break;
                             if( entries[i].PlayerID == info.ID ) {
-                                int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
                                 results[index] = entries[i];
                             }
                         }
@@ -596,7 +598,7 @@ namespace fCraft {
                     for( int i = entryCount - 1; i >= 0; i-- ) {
                         if( entries[i].Timestamp < ticks ) break;
                         if( entries[i].PlayerID != info.ID ) continue;
-                        int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                        int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
                         results[index] = entries[i];
                     }
                 }
@@ -613,13 +615,14 @@ namespace fCraft {
             if( area == null ) throw new ArgumentNullException( "area" );
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
             int count = 0;
+            Map map = World.LoadMap();
 
             if( isPreloaded ) {
                 lock( SyncRoot ) {
                     fixed( BlockDBEntry* entries = cacheStore ) {
                         for( int i = CacheSize - 1; i >= 0; i-- ) {
                             if( entries[i].PlayerID == info.ID && area.Contains( entries[i].X, entries[i].Y, entries[i].Z ) ) {
-                                int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
                                 results[index] = entries[i];
                                 count++;
                                 if( count >= max ) break;
@@ -635,7 +638,7 @@ namespace fCraft {
                     BlockDBEntry* entries = (BlockDBEntry*)parr;
                     for( int i = entryCount - 1; i >= 0; i-- ) {
                         if( entries[i].PlayerID == info.ID && area.Contains( entries[i].X, entries[i].Y, entries[i].Z ) ) {
-                            int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                            int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
                             results[index] = entries[i];
                             count++;
                             if( count >= max ) break;
@@ -654,6 +657,7 @@ namespace fCraft {
             if( area == null ) throw new ArgumentNullException( "area" );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
+            Map map = World.LoadMap();
 
             if( isPreloaded ) {
                 lock( SyncRoot ) {
@@ -661,7 +665,7 @@ namespace fCraft {
                         for( int i = CacheSize - 1; i >= 0; i-- ) {
                             if( entries[i].Timestamp < ticks ) break;
                             if( entries[i].PlayerID == info.ID && area.Contains( entries[i].X, entries[i].Y, entries[i].Z ) ) {
-                                int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
                                 results[index] = entries[i];
                             }
                         }
@@ -676,7 +680,7 @@ namespace fCraft {
                     for( int i = entryCount - 1; i >= 0; i-- ) {
                         if( entries[i].Timestamp < ticks ) break;
                         if( entries[i].PlayerID == info.ID && area.Contains( entries[i].X, entries[i].Y, entries[i].Z ) ) {
-                            int index = World.Map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                            int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
                             results[index] = entries[i];
                         }
                     }
@@ -774,8 +778,8 @@ namespace fCraft {
 
         static void OnPlayerPlacedBlock( object sender, [NotNull] PlayerPlacedBlockEventArgs e ) {
             if( e == null ) throw new ArgumentNullException( "e" );
-            World world = e.Player.World;
-            if( world.BlockDB.IsEnabled ) {
+            World world = e.Map.World;
+            if( world != null && world.BlockDB.IsEnabled ) {
                 BlockDBEntry newEntry = new BlockDBEntry( (int)DateTime.UtcNow.ToUnixTime(),
                                                           e.Player.Info.ID,
                                                           e.X, e.Y, e.Z,

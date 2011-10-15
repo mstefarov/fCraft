@@ -405,9 +405,6 @@ namespace fCraft {
             // garbage collection
             gcTask = Scheduler.NewTask( DoGC ).RunForever( GCInterval, TimeSpan.FromSeconds( 45 ) );
 
-            // Write out initial (empty) playerlist cache
-            UpdatePlayerList();
-
             Heartbeat.Start();
             if( ConfigKey.HeartbeatToWoMDirect.Enabled() ) {
                 //Heartbeat.SetWoMDirectSettings();
@@ -982,8 +979,6 @@ namespace fCraft {
                     return false;
                 }
                 PlayerIndex.Add( player.Name, player );
-                UpdatePlayerList();
-                RaiseEvent( PlayerListChanged );
                 player.HasRegistered = true;
             }
             return true;
@@ -1025,7 +1020,6 @@ namespace fCraft {
                 }
                 PlayerIndex.Remove( player.Name );
                 UpdatePlayerList();
-                RaiseEvent( PlayerListChanged );
             }
         }
 
@@ -1039,9 +1033,12 @@ namespace fCraft {
         }
 
 
-        public static void UpdatePlayerList() {
+        internal static void UpdatePlayerList() {
             lock( PlayerListLock ) {
-                Players = PlayerIndex.Values.OrderBy( player => player.Name ).ToArray();
+                Players = PlayerIndex.Values.Where( p => p.IsOnline )
+                                            .OrderBy( player => player.Name )
+                                            .ToArray();
+                RaiseEvent( PlayerListChanged );
             }
         }
 
@@ -1145,7 +1142,7 @@ namespace fCraft {
         /// <param name="name"> Name of the player (case-insensitive). </param>
         /// <returns> Player object, or null if player was not found. </returns>
         [CanBeNull]
-        public static Player FindPlayerExact( [NotNull] string name ) {
+        public static Player FindPlayer( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             return Players.FirstOrDefault( t => t != null &&
                                                 t.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );

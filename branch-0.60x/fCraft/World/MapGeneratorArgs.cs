@@ -80,8 +80,8 @@ namespace fCraft {
             Seed = (new Random()).Next();
         }
 
-        // ReSharper disable PossibleNullReferenceException
         public MapGeneratorArgs( [NotNull] string fileName ) {
+            // ReSharper disable PossibleNullReferenceException
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             XDocument doc = XDocument.Load( fileName );
             XElement root = doc.Root;
@@ -156,10 +156,10 @@ namespace fCraft {
 
             if( root.Element( "maxHeightVariation" ) != null ) MaxHeightVariation = Int32.Parse( root.Element( "maxHeightVariation" ).Value );
             if( root.Element( "maxDepthVariation" ) != null ) MaxDepthVariation = Int32.Parse( root.Element( "maxDepthVariation" ).Value );
+            // ReSharper restore PossibleNullReferenceException
 
             Validate();
         }
-        // ReSharper restore PossibleNullReferenceException
 
 
         const string RootTagName = "fCraftMapGeneratorArgs";

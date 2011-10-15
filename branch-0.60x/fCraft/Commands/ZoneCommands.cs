@@ -33,6 +33,8 @@ namespace fCraft {
         };
 
         static void ZoneAddHandler( Player player, Command cmd ) {
+            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+
             string givenZoneName = cmd.Next();
             if( givenZoneName == null ) {
                 CdZoneAdd.PrintUsage( player );
@@ -54,8 +56,8 @@ namespace fCraft {
                 }
             }
 
-            Zone zone = new Zone();
-            ZoneCollection zoneCollection = player.World.Map.Zones;
+            Zone newZone = new Zone();
+            ZoneCollection zoneCollection = player.World.LoadMap().Zones;
 
             if( givenZoneName.StartsWith( "+" ) ) {
                 // personal zone (/zadd +Name)
@@ -74,16 +76,16 @@ namespace fCraft {
 
                 // Make sure that the name is not taken already.
                 // If a zone named after the player already exists, try adding a number after the name (e.g. "Notch2")
-                zone.Name = givenZoneName;
-                for( int i = 2; zoneCollection.Contains( zone.Name ); i++ ) {
-                    zone.Name = givenZoneName + i;
+                newZone.Name = givenZoneName;
+                for( int i = 2; zoneCollection.Contains( newZone.Name ); i++ ) {
+                    newZone.Name = givenZoneName + i;
                 }
 
-                zone.Controller.MinRank = info.Rank.NextRankUp ?? info.Rank;
-                zone.Controller.Include( info );
+                newZone.Controller.MinRank = info.Rank.NextRankUp ?? info.Rank;
+                newZone.Controller.Include( info );
                 player.Message( "Zone: Creating a {0}+&S zone for player {1}&S. Place a block or type /mark to use your location.",
-                                zone.Controller.MinRank.ClassyName, info.ClassyName );
-                player.SelectionStart( 2, ZoneAddCallback, zone, CdZoneAdd.Permissions );
+                                newZone.Controller.MinRank.ClassyName, info.ClassyName );
+                player.SelectionStart( 2, ZoneAddCallback, newZone, CdZoneAdd.Permissions );
 
             } else {
                 // Adding an ordinary, rank-restricted zone.
@@ -97,7 +99,7 @@ namespace fCraft {
                     return;
                 }
 
-                zone.Name = givenZoneName;
+                newZone.Name = givenZoneName;
 
                 string rankName = cmd.Next();
                 if( rankName == null ) {
@@ -123,14 +125,14 @@ namespace fCraft {
                         }
 
                         if( name.StartsWith( "+" ) ) {
-                            zone.Controller.Include( info );
+                            newZone.Controller.Include( info );
                         } else if( name.StartsWith( "-" ) ) {
-                            zone.Controller.Exclude( info );
+                            newZone.Controller.Exclude( info );
                         }
                     }
 
-                    zone.Controller.MinRank = minRank;
-                    player.SelectionStart( 2, ZoneAddCallback, zone, CdZoneAdd.Permissions );
+                    newZone.Controller.MinRank = minRank;
+                    player.SelectionStart( 2, ZoneAddCallback, newZone, CdZoneAdd.Permissions );
                     player.Message( "Zone: Place a block or type /mark to use your location." );
 
                 } else {
@@ -140,6 +142,7 @@ namespace fCraft {
         }
 
         static void ZoneAddCallback( Player player, Vector3I[] marks, object tag ) {
+            if(player.World==null) PlayerOpException.ThrowNoWorld( player );
             if( !player.Info.Rank.AllowSecurityCircumvention ) {
                 SecurityCheckResult buildCheck = player.World.BuildSecurity.CheckDetailed( player.Info );
                 switch( buildCheck ) {
@@ -156,7 +159,7 @@ namespace fCraft {
             }
 
             Zone zone = (Zone)tag;
-            var zones = player.World.Map.Zones;
+            var zones = player.World.LoadMap().Zones;
             lock( zones.SyncRoot ) {
                 Zone dupeZone = zones.FindExact( zone.Name );
                 if( dupeZone != null ) {
@@ -195,6 +198,8 @@ namespace fCraft {
         };
 
         static void ZoneEditHandler( Player player, Command cmd ) {
+            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+
             bool changesWereMade = false;
             string zoneName = cmd.Next();
             if( zoneName == null ) {
@@ -326,6 +331,7 @@ namespace fCraft {
         };
 
         static void ZoneInfoHandler( Player player, Command cmd ) {
+            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
             string zoneName = cmd.Next();
             if( zoneName == null ) {
                 player.Message( "No zone name specified. See &H/help zinfo" );
@@ -409,7 +415,7 @@ namespace fCraft {
                 return;
             }
 
-            Map map = world.LoadMap();
+            Map map = world.Map;
             if( map == null ) {
                 if( !MapUtility.TryLoadHeader( world.MapFileName, out map ) ) {
                     player.Message( "&WERROR:Could not load mapfile for world {0}.",
@@ -448,6 +454,7 @@ namespace fCraft {
         };
 
         static void ZoneMarkHandler( Player player, Command cmd ) {
+            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
             if( player.SelectionMarksExpected == 0 ) {
                 player.MessageNow( "Cannot zmark - no selection in progress." );
             } else if( player.SelectionMarksExpected == 2 ) {
@@ -487,13 +494,16 @@ namespace fCraft {
         };
 
         static void ZoneRemoveHandler( Player player, Command cmd ) {
+            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+
             string zoneName = cmd.Next();
             if( zoneName == null ) {
                 CdZoneRemove.PrintUsage( player );
                 return;
             }
 
-            Zone zone = player.World.Map.Zones.Find( zoneName );
+            ZoneCollection zones = player.World.LoadMap().Zones;
+            Zone zone = zones.Find( zoneName );
             if( zone != null ) {
                 if( !player.Info.Rank.AllowSecurityCircumvention ) {
                     switch( zone.Controller.CheckDetailed( player.Info ) ) {
@@ -510,7 +520,7 @@ namespace fCraft {
                     return;
                 }
 
-                if( player.World.Map.Zones.Remove( zone.Name ) ) {
+                if( zones.Remove( zone.Name ) ) {
                     player.Message( "Zone \"{0}\" removed.", zone.Name );
                 }
 
@@ -534,6 +544,7 @@ namespace fCraft {
         };
 
         static void ZoneRenameHandler( Player player, Command cmd ) {
+            if(player.World==null) PlayerOpException.ThrowNoWorld( player );
             // make sure that both parameters are given
             string oldName = cmd.Next();
             string newName = cmd.Next();
@@ -598,6 +609,7 @@ namespace fCraft {
         }
 
         static void ZoneTestCallback( Player player, Vector3I[] marks, object tag ) {
+            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
             Zone[] allowed, denied;
             if( player.World.Map.Zones.CheckDetailed( marks[0].X, marks[0].Y, marks[0].Z, player, out allowed, out denied ) ) {
                 foreach( Zone zone in allowed ) {

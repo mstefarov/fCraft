@@ -57,6 +57,7 @@ namespace fCraft {
                 IsHidden = true,
                 Category = CommandCategory.Maintenance | CommandCategory.Debug,
                 Handler = delegate( Player player, Command cmd ) {
+                    if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
                     BlockDB db = player.World.BlockDB;
                     lock( db.SyncRoot ) {
                         player.Message( "BlockDB: CAP={0} SZ={1} FI={2}",

@@ -14,6 +14,7 @@ namespace fCraft.Drawing {
         string Help { get; }
 
         /// <summary> List of aliases/alternate names for this brush. May be null. </summary>
+        [CanBeNull]
         string[] Aliases { get; }
 
         /// <summary> Creates a new brush for a player, based on given parameters. </summary>

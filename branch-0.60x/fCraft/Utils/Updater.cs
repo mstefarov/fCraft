@@ -17,8 +17,8 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             600,
-            1108,
-            new DateTime( 2011, 10, 15, 1, 35, 0, DateTimeKind.Utc ),
+            1109,
+            new DateTime( 2011, 10, 15, 16, 10, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.APIChange | ReleaseFlags.Bugfix | ReleaseFlags.ConfigFormatChange | ReleaseFlags.Feature |
             ReleaseFlags.Optimized | ReleaseFlags.PlayerDBFormatChange | ReleaseFlags.Security
@@ -62,8 +62,8 @@ namespace fCraft {
                 request.UserAgent = UserAgent;
 
                 using( WebResponse response = request.GetResponse() ) {
-                    // ReSharper disable PossibleNullReferenceException
                     // ReSharper disable AssignNullToNotNullAttribute
+                    // ReSharper disable PossibleNullReferenceException
                     using( XmlTextReader reader = new XmlTextReader( response.GetResponseStream() ) ) {
                         // ReSharper restore AssignNullToNotNullAttribute
                         XDocument doc = XDocument.Load( reader );
@@ -85,6 +85,7 @@ namespace fCraft {
                                 );
                             }
                             // ReSharper restore LoopCanBeConvertedToQuery
+                            // ReSharper restore PossibleNullReferenceException
                             UpdaterResult result = new UpdaterResult( (releases.Count > 0), new Uri( downloadUrl ),
                                                                       releases.ToArray() );
                             RaiseCheckedForUpdatesEvent( UpdateUrl, result );
@@ -93,7 +94,6 @@ namespace fCraft {
                             return UpdaterResult.NoUpdate;
                         }
                     }
-                    // ReSharper restore PossibleNullReferenceException
                 }
             } catch( Exception ex ) {
                 Logger.Log( "An error occured while trying to check for updates: {0}: {1}", LogType.Error,

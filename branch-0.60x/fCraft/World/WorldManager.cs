@@ -411,8 +411,7 @@ namespace fCraft {
         /// <param name="player"> Player who is calling the query. May be null. </param>
         /// <param name="name"> Full or partial world name. </param>
         /// <returns> An array of 0 or more worlds that matched the name. </returns>
-        public static World[] FindWorlds( [NotNull] Player player, [NotNull] string name ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
+        public static World[] FindWorlds( [CanBeNull] Player player, [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             World[] matches = FindWorldsNoEvent( name );
             var h = SearchingForWorld;

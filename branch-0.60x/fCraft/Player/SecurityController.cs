@@ -19,6 +19,7 @@ namespace fCraft {
 
         Rank minRank;
         /// <summary> Lowest allowed player rank. </summary>
+        [NotNull]
         public Rank MinRank {
             get {
                 return minRank ?? RankManager.LowestRank;
@@ -28,6 +29,13 @@ namespace fCraft {
                     minRank = value;
                     RaiseChangedEvent();
                 }
+            }
+        }
+
+        public void ResetMinRank() {
+            if( minRank != null ) {
+                minRank = null;
+                RaiseChangedEvent();
             }
         }
 
@@ -209,11 +217,12 @@ namespace fCraft {
 
         readonly XElement[] rawExceptions;
 
-        // ReSharper disable PossibleNullReferenceException
         public SecurityController( [NotNull] XContainer el, bool parseExceptions ) {
             if( el == null ) throw new ArgumentNullException( "el" );
             if( el.Element( "minRank" ) != null ) {
+                // ReSharper disable PossibleNullReferenceException
                 minRank = Rank.Parse( el.Element( "minRank" ).Value );
+                // ReSharper restore PossibleNullReferenceException
             } else {
                 minRank = null;
             }
@@ -236,7 +245,6 @@ namespace fCraft {
             }
             UpdatePlayerListCache();
         }
-        // ReSharper restore PossibleNullReferenceException
 
 
         public XElement Serialize() {
@@ -295,7 +303,7 @@ namespace fCraft {
         /// <summary> Resets all permissions: minimum rank,
         /// excluded player list, and included player list. </summary>
         public void Reset() {
-            MinRank = null;
+            ResetMinRank();
             ResetIncludedList();
             ResetExcludedList();
         }

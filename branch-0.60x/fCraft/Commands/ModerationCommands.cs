@@ -532,6 +532,8 @@ namespace fCraft {
         };
 
         static void UnhideHandler( Player player, Command cmd ) {
+            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+
             if( !player.Info.IsHidden ) {
                 player.Message( "You are not currently hidden." );
                 return;
@@ -546,7 +548,10 @@ namespace fCraft {
             player.Info.IsHidden = false;
             if( !silent ) {
                 if( ConfigKey.ShowConnectionMessages.Enabled() ) {
-                    Server.Players.CantSee( player ).Message( Server.MakePlayerConnectedMessage( player, false, player.World ) );
+// ReSharper disable AssignNullToNotNullAttribute
+                    string msg = Server.MakePlayerConnectedMessage( player, false, player.World );
+// ReSharper restore AssignNullToNotNullAttribute
+                    Server.Players.CantSee( player ).Message( msg );
                 }
                 if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() ) {
                     IRC.PlayerReadyHandler( null, new PlayerConnectedEventArgs( player, player.World ) );
@@ -572,17 +577,20 @@ namespace fCraft {
         };
 
         static void SetSpawnHandler( Player player, Command cmd ) {
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
+
             string playerName = cmd.Next();
             if( playerName == null ) {
-                player.World.Map.Spawn = player.Position;
-                player.TeleportTo( player.World.Map.Spawn );
+                playerWorld.Map.Spawn = player.Position;
+                player.TeleportTo( playerWorld.Map.Spawn );
                 player.Send( PacketWriter.MakeAddEntity( 255, player.ListName, player.Position ) );
                 player.Message( "New spawn point saved." );
                 Logger.Log( "{0} changed the spawned point.", LogType.UserActivity,
                             player.Name );
 
             } else if( player.Can( Permission.Bring ) ) {
-                Player[] infos = player.World.FindPlayers( player, playerName );
+                Player[] infos = playerWorld.FindPlayers( player, playerName );
                 if( infos.Length == 1 ) {
                     Player target = infos[0];
                     if( player.Can( Permission.Bring, target.Info.Rank ) ) {
@@ -689,6 +697,8 @@ namespace fCraft {
         };
 
         static void TPHandler( Player player, Command cmd ) {
+            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+
             string name = cmd.Next();
             if( name == null ) {
                 CdTP.PrintUsage( player );
@@ -720,33 +730,35 @@ namespace fCraft {
                 Player[] matches = Server.FindPlayers( player, name, true );
                 if( matches.Length == 1 ) {
                     Player target = matches[0];
+                    World targetWorld = target.World;
+                    if( targetWorld == null ) PlayerOpException.ThrowNoWorld( target );
 
-                    if( target.World == player.World ) {
+                    if( targetWorld == player.World ) {
                         player.TeleportTo( target.Position );
 
                     } else {
-                        switch( target.World.AccessSecurity.CheckDetailed( player.Info ) ) {
+                        switch( targetWorld.AccessSecurity.CheckDetailed( player.Info ) ) {
                             case SecurityCheckResult.Allowed:
                             case SecurityCheckResult.WhiteListed:
-                                if( target.World.IsFull ) {
+                                if( targetWorld.IsFull ) {
                                     player.Message( "Cannot teleport to {0}&S because world {1}&S is full.",
                                                     target.ClassyName,
-                                                    target.World.ClassyName );
+                                                    targetWorld.ClassyName );
                                     return;
                                 }
                                 player.StopSpectating();
-                                player.JoinWorld( target.World, WorldChangeReason.Tp, target.Position );
+                                player.JoinWorld( targetWorld, WorldChangeReason.Tp, target.Position );
                                 break;
                             case SecurityCheckResult.BlackListed:
                                 player.Message( "Cannot teleport to {0}&S because you are blacklisted on world {1}",
                                                 target.ClassyName,
-                                                target.World.ClassyName );
+                                                targetWorld.ClassyName );
                                 break;
                             case SecurityCheckResult.RankTooLow:
                                 player.Message( "Cannot teleport to {0}&S because world {1}&S requires {2}+&S to join.",
                                                 target.ClassyName,
-                                                target.World.ClassyName,
-                                                target.World.AccessSecurity.MinRank.ClassyName );
+                                                targetWorld.ClassyName,
+                                                targetWorld.AccessSecurity.MinRank.ClassyName );
                                 break;
                             // TODO: case PermissionType.RankTooHigh:
                         }
@@ -787,6 +799,7 @@ namespace fCraft {
         };
 
         static void BringHandler( Player player, Command cmd ) {
+            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
             string name = cmd.Next();
             if( name == null ) {
                 CdBring.PrintUsage( player );
@@ -805,6 +818,7 @@ namespace fCraft {
             }
 
             World world = toPlayer.World;
+            if(world==null) PlayerOpException.ThrowNoWorld( toPlayer );
 
             Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
             if( target == null ) return;
@@ -896,6 +910,8 @@ namespace fCraft {
         };
 
         static void BringAllHandler( Player player, Command cmd ) {
+            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+
             List<World> targetWorlds = new List<World>();
             List<Rank> targetRanks = new List<Rank>();
             bool allWorlds = false;
@@ -978,7 +994,9 @@ namespace fCraft {
 
                 } else {
                     // teleport to a different world
+// ReSharper disable AssignNullToNotNullAttribute
                     BringPlayerToWorld( player, targetPlayer, player.World, false, true );
+// ReSharper restore AssignNullToNotNullAttribute
                 }
                 count++;
             }
@@ -1054,6 +1072,8 @@ namespace fCraft {
         };
 
         static void PatrolHandler( Player player, Command cmd ) {
+            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+
             Player target = player.World.GetNextPatrolTarget( player );
             if( target == null ) {
                 player.Message( "Patrol: No one to patrol in this world." );
@@ -1075,6 +1095,7 @@ namespace fCraft {
         };
 
         static void SpecPatrolHandler( Player player, Command cmd ) {
+            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
             Player target = player.World.GetNextPatrolTarget( player );
             if( target == null ) {
                 player.Message( "Patrol: No one to patrol in this world." );

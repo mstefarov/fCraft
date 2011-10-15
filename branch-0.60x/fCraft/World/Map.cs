@@ -14,6 +14,7 @@ namespace fCraft {
         public const MapFormat SaveFormat = MapFormat.FCMv3;
 
         /// <summary> The world associated with this map, if any. May be null. </summary>
+        [CanBeNull]
         public World World { get; set; }
 
         /// <summary> Map width, in blocks. Equivalent to Notch's X (horizontal). </summary>
@@ -268,11 +269,20 @@ namespace fCraft {
 
         /// <summary> Gets a block at given coordinates. Checks bounds. </summary>
         /// <param name="coords"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
-        /// <returns> Block type, as a Block enumeration. Undefined if coordinates were out of bounds. </returns>
+        /// <returns> Blocktype, as a byte. 255 if coordinates were out of bounds. </returns>
         public byte GetBlockByte( Vector3I coords ) {
             if( coords.X < Width && coords.Z < Length && coords.Y < Height && coords.X >= 0 && coords.Z >= 0 && coords.Y >= 0 )
                 return Blocks[Index( coords.X, coords.Z, coords.Y )];
             return (byte)Block.Undefined;
+        }
+
+        /// <summary> Gets a block at given coordinates. Checks bounds. </summary>
+        /// <param name="coords"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
+        /// <returns> Block type, as a Block enumeration. Undefined if coordinates were out of bounds. </returns>
+        public Block GetBlock( Vector3I coords ) {
+            if( coords.X < Width && coords.Z < Length && coords.Y < Height && coords.X >= 0 && coords.Z >= 0 && coords.Y >= 0 )
+                return (Block)Blocks[Index( coords.X, coords.Z, coords.Y )];
+            return Block.Undefined;
         }
 
 
@@ -402,16 +412,24 @@ namespace fCraft {
 
 
         int ProcessDrawOps( int maxTotalUpdates ) {
+            if( World == null ) throw new InvalidOperationException( "No world assigned" );
             int blocksDrawnTotal = 0;
             for( int i = 0; i < drawOps.Count; i++ ) {
                 DrawOperation op = drawOps[i];
 
                 // remove a cancelled drawOp from the list
                 if( op.IsCancelled ) {
-                    op.Player.Message( "{0}: Cancelled after {1}. P={2} U={3} S={4} D={5}",
-                                       op.DescriptionWithBrush,
-                                       DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
-                                       op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
+                    if( op.BlocksDenied > 0 ) {
+                        op.Player.Message( "{0}: Cancelled after {1}. Processed {2}, updated {3}. Skipped {4} due to permission issues.",
+                                           op.DescriptionWithBrush,
+                                           DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
+                                           op.BlocksProcessed, op.BlocksUpdated, op.BlocksDenied );
+                    } else {
+                        op.Player.Message( "{0}: Cancelled after {1}. Processed {2} blocks, updated {3} blocks.",
+                                           op.DescriptionWithBrush,
+                                           DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
+                                           op.BlocksProcessed, op.BlocksUpdated );
+                    }
                     Logger.Log( "Player {0} cancelled {1} on world {2}. Processed {3}, Updated {4}, Skipped {5}, Denied {6} blocks.",
                              LogType.UserActivity,
                              op.Player, op.DescriptionWithBrush, World.Name,
@@ -435,14 +453,27 @@ namespace fCraft {
                 // remove a completed drawOp from the list
                 if( op.IsDone ) {
                     if( op.AnnounceCompletion ) {
-                        op.Player.Message( "{0}: Finished in {1}. P={2} U={3} S={4} D={5}",
-                                           op.DescriptionWithBrush,
-                                           DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
-                                           op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
+
+                        if( op.BlocksDenied > 0 ) {
+                            op.Player.Message( "{0}: Finished in {1}, updated {2} blocks. &WSkipped {3} blocks due to permission issues.",
+                                               op.DescriptionWithBrush,
+                                               DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
+                                               op.BlocksUpdated, op.BlocksDenied );
+                        } else if( op.BlocksUpdated > 0 ) {
+                            op.Player.Message( "{0}: Finished in {1}, updated {2} blocks.",
+                                               op.DescriptionWithBrush,
+                                               DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
+                                               op.BlocksUpdated );
+                        } else {
+                            op.Player.Message( "{0}: Finished in {1}, no changes made.",
+                                               op.DescriptionWithBrush,
+                                               DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString() );
+                        }
                     }
-                    Logger.Log( "Player {0} executed {1} on world {2}. Processed {3}, Updated {4}, Skipped {5}, Denied {6} blocks.",
+                    Logger.Log( "Player {0} executed {1} on world {2} (between {3} and {4}). Processed {5}, Updated {6}, Skipped {7}, Denied {8} blocks.",
                              LogType.UserActivity,
                              op.Player, op.DescriptionWithBrush, World.Name,
+                             op.Bounds.MinVertex, op.Bounds.MaxVertex,
                              op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
                     op.End();
                     drawOps.RemoveAt( i );

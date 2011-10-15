@@ -233,12 +233,22 @@ namespace fCraft {
         }
 
 
+        [TerminatesProgram]
         internal static void ThrowCancelled( [NotNull] Player player, [NotNull] PlayerInfo target ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( target == null ) throw new ArgumentNullException( "target" );
             const string msg = "Cancelled by plugin.";
             const string colorMsg = "&S" + msg;
             throw new PlayerOpException( player, target, PlayerOpExceptionCode.Cancelled, msg, colorMsg );
+        }
+
+
+        [TerminatesProgram]
+        internal static void ThrowNoWorld( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            const string msg = "Player must be in a world to do this.";
+            const string colorMsg = "&S" + msg;
+            throw new PlayerOpException( player, null, PlayerOpExceptionCode.MustBeInAWorld, msg, colorMsg );
         }
     }
 
@@ -250,6 +260,7 @@ namespace fCraft {
         PermissionMissing,
         PermissionLimitTooLow,
         TargetIsExempt,
+        MustBeInAWorld,
         Cancelled
     }
 }
