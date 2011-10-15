@@ -426,28 +426,24 @@ namespace fCraft {
         #endregion
 
 
-        static void DrawOneBlock( [NotNull] Player player, Block drawBlock, int x, int y, int z,
+        static void DrawOneBlock( [NotNull] Player player, [NotNull] Map map, Block drawBlock, Vector3I coord,
                                   BlockChangeContext context, ref int blocks, ref int blocksDenied, UndoState undoState ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
-            World world =player.World;
-            if( world == null ) PlayerOpException.ThrowNoWorld( player );
-            Map map = world.Map;
-
-            if( !map.InBounds( x, y, z ) ) return;
-            Block block = map.GetBlock( x, y, z );
+            if( !map.InBounds( coord ) ) return;
+            Block block = map.GetBlock( coord );
             if( block == drawBlock ) return;
 
-            if( player.CanPlace( map, new Vector3I(x,y,z), drawBlock, context ) != CanPlaceResult.Allowed ) {
+            if( player.CanPlace( map, coord, drawBlock, context ) != CanPlaceResult.Allowed ) {
                 blocksDenied++;
                 return;
             }
 
-            map.QueueUpdate( new BlockUpdate( null, x, y, z, drawBlock ) );
-            Player.RaisePlayerPlacedBlockEvent( player, world.Map, (short)x, (short)y, (short)z, block, drawBlock, context );
+            map.QueueUpdate( new BlockUpdate( null, coord.X, coord.Y, coord.Z, drawBlock ) );
+            Player.RaisePlayerPlacedBlockEvent( player, map, (short)coord.X, (short)coord.Y, (short)coord.Z, block, drawBlock, context );
 
             if( !undoState.IsTooLargeToUndo ) {
-                if( !undoState.Add( x, y, z, block ) ) {
+                if( !undoState.Add( coord, block ) ) {
                     player.MessageNow( "NOTE: This draw command is too massive to undo." );
                     player.LastDrawOp = null;
                 }
@@ -711,7 +707,7 @@ namespace fCraft {
             // remember dimensions and orientation
             CopyState copyInfo = new CopyState( marks[0], marks[1] );
 
-            Map map = playerWorld.Map;
+            Map map = playerWorld.LoadMap();
             for( int x = sx; x <= ex; x++ ) {
                 for( int y = sy; y <= ey; y++ ) {
                     for( int z = sz; z <= ez; z++ ) {
@@ -1106,8 +1102,7 @@ namespace fCraft {
 
 
         static void RestoreCallback( Player player, Vector3I[] marks, object tag ) {
-            World playerWorld = player.World;
-            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
+            Map playerMap = player.World.Map;
 
             BoundingBox selection = new BoundingBox( marks[0], marks[1] );
             Map map = (Map)tag;
@@ -1126,7 +1121,7 @@ namespace fCraft {
             for( int x = selection.XMin; x <= selection.XMax; x++ ) {
                 for( int y = selection.YMin; y <= selection.YMax; y++ ) {
                     for( int z = selection.ZMin; z <= selection.ZMax; z++ ) {
-                        DrawOneBlock( player, map.GetBlock( x, y, z ), x, y, z, RestoreContext,
+                        DrawOneBlock( player, playerMap, map.GetBlock( x, y, z ), new Vector3I( x, y, z ), RestoreContext,
                                       ref blocksDrawn, ref blocksSkipped, undoState );
                     }
                 }
@@ -1134,7 +1129,7 @@ namespace fCraft {
 
             Logger.Log( "{0} restored {1} blocks on world {2} (@{3},{4},{5} - {6},{7},{8}) from file {9}.", LogType.UserActivity,
                         player.Name, blocksDrawn,
-                        playerWorld.Name,
+                        playerMap.World.Name,
                         selection.XMin, selection.YMin, selection.ZMin,
                         selection.XMax, selection.YMax, selection.ZMax,
                         map.Metadata["fCraft.Temp", "FileName"] );
@@ -1394,10 +1389,11 @@ namespace fCraft {
                 blocksDenied = 0;
 
             UndoState undoState = player.DrawBegin( null );
+            Map map = player.World.Map;
 
             for( int i = 0; i < changes.Length; i++ ) {
-                DrawOneBlock( player, changes[i].OldBlock,
-                              changes[i].X, changes[i].Y, changes[i].Z, context,
+                DrawOneBlock( player, map, changes[i].OldBlock,
+                              changes[i].Coord, context,
                               ref blocks, ref blocksDenied, undoState );
             }
 
@@ -1426,10 +1422,11 @@ namespace fCraft {
                 blocksDenied = 0;
 
             UndoState undoState = player.DrawBegin( null );
+            Map map = player.World.Map;
 
             for( int i = 0; i < changes.Length; i++ ) {
-                DrawOneBlock( player, changes[i].OldBlock,
-                              changes[i].X, changes[i].Y, changes[i].Z, context,
+                DrawOneBlock( player, map, changes[i].OldBlock,
+                              changes[i].Coord, context,
                               ref blocks, ref blocksDenied, undoState );
             }
 
@@ -1533,10 +1530,11 @@ namespace fCraft {
                 blocksDenied = 0;
 
             UndoState undoState = player.DrawBegin( null );
+            Map map = player.World.Map;
 
             for( int i = 0; i < changes.Length; i++ ) {
-                DrawOneBlock( player, changes[i].OldBlock,
-                              changes[i].X, changes[i].Y, changes[i].Z, context,
+                DrawOneBlock( player, map, changes[i].OldBlock,
+                              changes[i].Coord, context,
                               ref blocks, ref blocksDenied, undoState );
             }
 

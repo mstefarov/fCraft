@@ -973,7 +973,7 @@ namespace fCraft {
             }
 
             // check zones & world permissions
-            PermissionOverride zoneCheckResult = map.Zones.Check( coords.X,coords.Y, coords.Z, this );
+            PermissionOverride zoneCheckResult = map.Zones.Check( coords.X, coords.Y, coords.Z, this );
             if( zoneCheckResult == PermissionOverride.Allow ) {
                 result = CanPlaceResult.Allowed;
                 goto eventCheck;
