@@ -271,8 +271,8 @@ namespace fCraft {
         /// <param name="coords"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
         /// <returns> Blocktype, as a byte. 255 if coordinates were out of bounds. </returns>
         public byte GetBlockByte( Vector3I coords ) {
-            if( coords.X < Width && coords.Z < Length && coords.Y < Height && coords.X >= 0 && coords.Z >= 0 && coords.Y >= 0 )
-                return Blocks[Index( coords.X, coords.Z, coords.Y )];
+            if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 && coords.Z >= 0 )
+                return Blocks[Index( coords.X, coords.Y, coords.Z )];
             return (byte)Block.Undefined;
         }
 
@@ -280,8 +280,8 @@ namespace fCraft {
         /// <param name="coords"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
         /// <returns> Block type, as a Block enumeration. Undefined if coordinates were out of bounds. </returns>
         public Block GetBlock( Vector3I coords ) {
-            if( coords.X < Width && coords.Z < Length && coords.Y < Height && coords.X >= 0 && coords.Z >= 0 && coords.Y >= 0 )
-                return (Block)Blocks[Index( coords.X, coords.Z, coords.Y )];
+            if( coords.X < Width && coords.Y < Length && coords.Y < Height && coords.X >= 0 && coords.Y >= 0 && coords.Z >= 0 )
+                return (Block)Blocks[Index( coords.X, coords.Y, coords.Z )];
             return Block.Undefined;
         }
 
@@ -298,7 +298,7 @@ namespace fCraft {
         /// <summary> Checks whether the given coordinate (in block units) is within the bounds of the map. </summary>
         /// <param name="vec"> Coordinate vector. Vector's (X,Y,Z) maps to map's (X,H,Y). </param>
         public bool InBounds( Vector3I vec ) {
-            return vec.X < Width && vec.Z < Length && vec.Y < Height && vec.X >= 0 && vec.Z >= 0 && vec.Y >= 0;
+            return vec.X < Width && vec.Y < Length && vec.Z < Height && vec.X >= 0 && vec.Y >= 0 && vec.Z >= 0;
         }
 
         #endregion
