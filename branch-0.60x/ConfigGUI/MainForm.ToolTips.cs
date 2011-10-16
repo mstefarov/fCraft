@@ -321,9 +321,18 @@ Affected commands:
     /cuboid, /cuboidh, and /cuboidw
     /ellipsoid
     /line
-    /sphere and /sphereh
     /replace and /replacenot
     /undo";
+
+            vPermissions.Items[(int)Permission.DrawAdvanced].ToolTipText =
+@"Ability to use advanced drawing tools, such as brushes.
+Required permission: Build, Delete, Draw
+Affected commands:
+    /brush
+    /replacebrush
+    /restore
+    /sphere and /sphereh
+    /torus";
 
             vPermissions.Items[(int)Permission.EditPlayerDB].ToolTipText =
 @"Ability to edit the player database directly. This also adds the ability to

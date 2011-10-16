@@ -40,6 +40,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdReplace );
             CommandManager.RegisterCommand( CdReplaceNot );
+            CommandManager.RegisterCommand( CdReplaceBrush );
 
             CommandManager.RegisterCommand( CdCancel );
             CommandManager.RegisterCommand( CdMark );
@@ -477,8 +478,20 @@ namespace fCraft {
 
         #region Replace
 
+        static void ReplaceHandlerInternal( IBrush factory, Player player, Command cmd ) {
+            CuboidDrawOperation op = new CuboidDrawOperation( player );
+            IBrushInstance brush = factory.MakeInstance( player, cmd, op );
+            if( brush == null ) return;
+            op.Brush = brush;
+
+            player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
+            player.MessageNow( "{0}: Click 2 blocks or use &H/mark&S to make a selection.",
+                               op.Brush.InstanceDescription );
+        }
+
+
         static readonly CommandDescriptor CdReplace = new CommandDescriptor {
-            Name = "replace",
+            Name = "Replace",
             Aliases = new[] { "r" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
@@ -490,21 +503,13 @@ namespace fCraft {
         static void ReplaceHandler( Player player, Command cmd ) {
             var replaceBrush = ReplaceBrushFactory.Instance.MakeBrush( player, cmd );
             if( replaceBrush == null ) return;
-
-            CuboidDrawOperation op = new CuboidDrawOperation( player );
-            IBrushInstance brush = replaceBrush.MakeInstance( player, cmd, op );
-            if( brush == null ) return;
-            op.Brush = brush;
-
-            player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
-            player.MessageNow( "{0}: Click 2 blocks or use &H/mark&S to make a selection.",
-                               op.Brush.InstanceDescription );
+            ReplaceHandlerInternal( replaceBrush, player, cmd );
         }
 
 
 
         static readonly CommandDescriptor CdReplaceNot = new CommandDescriptor {
-            Name = "replacenot",
+            Name = "ReplaceNot",
             Aliases = new[] { "rn" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
@@ -516,17 +521,27 @@ namespace fCraft {
         static void ReplaceNotHandler( Player player, Command cmd ) {
             var replaceBrush = ReplaceNotBrushFactory.Instance.MakeBrush( player, cmd );
             if( replaceBrush == null ) return;
-
-            CuboidDrawOperation op = new CuboidDrawOperation( player );
-            IBrushInstance brush = replaceBrush.MakeInstance( player, cmd, op );
-            if( brush == null ) return;
-            op.Brush = brush;
-
-            player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
-            player.MessageNow( "{0}: Click 2 blocks or use &H/mark&S to make a selection.",
-                               op.Brush.InstanceDescription );
+            ReplaceHandlerInternal( replaceBrush, player, cmd );
         }
 
+
+
+        static readonly CommandDescriptor CdReplaceBrush = new CommandDescriptor {
+            Name = "ReplaceBrush",
+            Aliases = new[] { "rb" },
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
+            Usage = "/replacebrush Block BrushName [Params]",
+            Help = "Replaces all blocks of specified type(s) in an area with output of a given brush. " +
+                   "See &H/help brush&S for a list of available brushes.",
+            Handler = ReplaceBrushHandler
+        };
+
+        static void ReplaceBrushHandler( Player player, Command cmd ) {
+            var replaceBrush = ReplaceBrushBrushFactory.Instance.MakeBrush( player, cmd );
+            if( replaceBrush == null ) return;
+            ReplaceHandlerInternal( replaceBrush, player, cmd );
+        }
         #endregion
 
 
