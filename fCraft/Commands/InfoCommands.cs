@@ -881,7 +881,7 @@ namespace fCraft {
                 target = Server.FindPlayerOrPrintMatches( player, name, false, true );
                 if( target == null ) return;
             } else if( target.World == null ) {
-                player.Message( "When called form console, &H/where&S requires a player name." );
+                player.Message( "When called from console, &H/where&S requires a player name." );
                 return;
             }
 

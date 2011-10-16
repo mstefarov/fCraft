@@ -475,7 +475,7 @@
  Maps: Zone definitions are now serialized to XML. Zones saved with this revision of fCraft will no longer be readable by older version of fCraft.
  Maps: Fixed a bug when loading JTE's format maps.
  Maps: Fixed format of backup filenames.
- PlayerDB: Added new fields: bannedUntil, loggedOutFrozen, frozenBy, mutedUntil, mutedBy, IRCPassword, online, leaveReason, mutedBy, mutedUntil, frozenBy, frozenOn
+ PlayerDB: Added new fields: bannedUntil, frozenOn, frozenBy, mutedUntil, mutedBy, IRCPassword, online, leaveReason
  PlayerDB: Fixed PlayerInfo.ID not being assigned for new players until sever restart / DB reload.
  PlayerDB: Fixed off-by-one error with PlayerInfo.timesVisited
  PlayerDB: Fixed /me, /say, rank chat, and /staff not counting towards PlayerInfo.linesWritten
