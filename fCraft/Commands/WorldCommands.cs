@@ -19,7 +19,7 @@ namespace fCraft {
                               "If no filename is given, loads generated world into current world.\n" +
                               "Available themes: Grass, " + Enum.GetNames( typeof( MapGenTheme ) ).JoinToString() + '\n' +
                               "Available terrain types: " + Enum.GetNames( typeof( MapGenTemplate ) ).JoinToString() + '\n' +
-                              "NOTE: Map is saved TO FILE ONLY, use /wload to load it.";
+                              "NOTE: Map is saved TO FILE ONLY, use /WLoad to load it.";
             CommandManager.RegisterCommand( CdGenerate );
 
             CommandManager.RegisterCommand( CdJoin );
@@ -49,14 +49,14 @@ namespace fCraft {
         #region BlockDB
 
         static readonly CommandDescriptor CdBlockDB = new CommandDescriptor {
-            Name = "blockdb",
+            Name = "BlockDB",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageBlockDB },
-            Usage = "/blockdb WorldName <Operation>",
+            Usage = "/BlockDB WorldName <Operation>",
             Help = "Manages BlockDB on a given world. " +
                    "Operations are: on, off, clear, limit, timelimit, and preload. " +
-                   "See &H/help blockdb <Operation>&S for operation-specific help. " +
+                   "See &H/help BlockDB <Operation>&S for operation-specific help. " +
                    "If no operation is given, BlockDB status is shown.",
             HelpSections = new Dictionary<string, string>{
                 { "auto",       "Allows BlockDB to decide whether it should be enabled or disabled based on each world's permissions (default)." },
@@ -174,7 +174,7 @@ namespace fCraft {
                             if( cmd.IsConfirmed ) {
                                 db.EnabledState = YesNoAuto.No;
                                 WorldManager.SaveWorldList();
-                                player.Message( "BlockDB is now manually disabled on world {0}&S. Use &H/blockdb {1} clear&S to delete all the data.",
+                                player.Message( "BlockDB is now manually disabled on world {0}&S. Use &H/BlockDB {1} clear&S to delete all the data.",
                                                 world.ClassyName, world.Name );
                             } else {
                                 player.Confirm( cmd,
@@ -1104,7 +1104,7 @@ namespace fCraft {
             } else {
                 switch( Char.ToLower( param[0] ) ) {
                     case 'a':
-                        listName = "worlds total";
+                        listName = "all worlds";
                         extraParam = "all ";
                         worlds = WorldManager.WorldList;
                         break;
@@ -1131,16 +1131,16 @@ namespace fCraft {
             if( worlds.Length == 0 ) {
                 player.Message( "There are no {0}", listName );
             } else if( worlds.Length <= WorldNamesPerPage ) {
-                player.MessagePrefixed( "&S   ", "&SThere are {0} {1}: {2}",
-                                        worlds.Length, listName, worlds.JoinToClassyString() );
+                player.MessagePrefixed( "&S  ", "&SThere are {0} {1}: {2}",
+                                        listName.UppercaseFirst(), worlds.JoinToClassyString() );
             } else {
                 if( offset >= worlds.Length ) {
                     player.Message( "Worlds: Given offset ({0}) is greater than the number of {1} ({2}).",
                                     offset, listName, worlds.Length );
                 }
                 World[] worldsPart = worlds.Skip( offset ).Take( WorldNamesPerPage ).ToArray();
-                player.MessagePrefixed( "&S   ", "&SThere are {0} {1}: {2}",
-                                        worlds.Length, listName, worldsPart.JoinToClassyString() );
+                player.MessagePrefixed( "&S   ", "&S{0}: {1}",
+                                        listName.UppercaseFirst(), worldsPart.JoinToClassyString() );
 
                 if( offset + worldsPart.Length < worlds.Length ) {
                     player.Message( "Showing {0}-{1} (out of {2}). Next: &H/worlds {3}{4}",
@@ -1159,11 +1159,11 @@ namespace fCraft {
         #region WorldAccess
 
         static readonly CommandDescriptor CdWorldAccess = new CommandDescriptor {
-            Name = "waccess",
+            Name = "WAccess",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/waccess [WorldName [RankName]]",
+            Usage = "/WAccess [WorldName [RankName]]",
             Help = "Shows access permission for player's current world. " +
                    "If optional WorldName parameter is given, shows access permission for another world. " +
                    "If RankName parameter is also given, sets access permission for specified world.",
@@ -1177,7 +1177,7 @@ namespace fCraft {
             // Print information about the current world
             if( worldName == null ) {
                 if( player.World == null ) {
-                    player.Message( "When calling /waccess from console, you must specify a world name." );
+                    player.Message( "When calling /WAccess from console, you must specify a world name." );
                 } else {
                     player.Message( player.World.AccessSecurity.GetDescription( player.World, "world", "accessed" ) );
                 }
@@ -1407,11 +1407,11 @@ namespace fCraft {
         #region WorldBuild
 
         static readonly CommandDescriptor CdWorldBuild = new CommandDescriptor {
-            Name = "wbuild",
+            Name = "WBuild",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/wbuild [WorldName [RankName]]",
+            Usage = "/WBuild [WorldName [RankName]]",
             Help = "Shows build permissions for player's current world. " +
                    "If optional WorldName parameter is given, shows build permission for another world. " +
                    "If RankName parameter is also given, sets build permission for specified world.",
@@ -1425,7 +1425,7 @@ namespace fCraft {
             // Print information about the current world
             if( worldName == null ) {
                 if( player.World == null ) {
-                    player.Message( "When calling /wbuild from console, you must specify a world name." );
+                    player.Message( "When calling /WBuild from console, you must specify a world name." );
                 } else {
                     player.Message( player.World.BuildSecurity.GetDescription( player.World, "world", "modified" ) );
                 }
@@ -1651,11 +1651,11 @@ namespace fCraft {
         #region WorldFlush
 
         static readonly CommandDescriptor CdWorldFlush = new CommandDescriptor {
-            Name = "wflush",
+            Name = "WFlush",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/wflush [WorldName]",
+            Usage = "/WFlush [WorldName]",
             Help = "Flushes the update buffer on specified map by causing players to rejoin. " +
                    "Makes cuboids and other draw commands finish REALLY fast.",
             Handler = WorldFlushHandler
@@ -1670,7 +1670,7 @@ namespace fCraft {
                 if( world == null ) return;
 
             } else if( world == null ) {
-                player.Message( "When using /wflush from console, you must specify a world name." );
+                player.Message( "When using /WFlush from console, you must specify a world name." );
                 return;
             }
 
@@ -1758,12 +1758,12 @@ namespace fCraft {
         #region WorldInfo
 
         static readonly CommandDescriptor CdWorldInfo = new CommandDescriptor {
-            Name = "winfo",
+            Name = "WInfo",
             Aliases = new[] { "mapinfo" },
             Category = CommandCategory.World | CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Usage = "/winfo [WorldName]",
+            Usage = "/WInfo [WorldName]",
             Help = "Shows information about a world: player count, map dimensions, permissions, etc." +
                    "If no WorldName is given, shows info for current world.",
             Handler = WorldInfoHandler
@@ -1773,7 +1773,7 @@ namespace fCraft {
             string worldName = cmd.Next();
             if( worldName == null ) {
                 if( player.World == null ) {
-                    player.Message( "Please specify a world name when calling /winfo from console." );
+                    player.Message( "Please specify a world name when calling /WInfo from console." );
                     return;
                 } else {
                     worldName = player.World.Name;
@@ -1851,17 +1851,17 @@ namespace fCraft {
         #region WorldLoad
 
         static readonly CommandDescriptor CdWorldLoad = new CommandDescriptor {
-            Name = "wload",
+            Name = "WLoad",
             Aliases = new[] { "wadd" },
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/wload FileName [WorldName [BuildRank [AccessRank]]]",
+            Usage = "/WLoad FileName [WorldName [BuildRank [AccessRank]]]",
             Help = "If WorldName parameter is not given, replaces the current world's map with the specified map. The old map is overwritten. " +
                    "If the world with the specified name exists, its map is replaced with the specified map file. " +
                    "Otherwise, a new world is created using the given name and map file. " +
                    "NOTE: For security reasons, you may only load files from the map folder. " +
-                   "For a list of supported formats, see &H/help wload formats",
+                   "For a list of supported formats, see &H/help WLoad formats",
             HelpSections = new Dictionary<string, string>{
                 { "formats",    "Supported formats: fCraft FCM (versions 2, 3, and 4), MCSharp/MCZall/MCLawl (.lvl), " +
                                 "D3 (.map), Classic (.dat), InDev (.mclevel), MinerCPP/LuaCraft (.dat), " +
@@ -1876,7 +1876,7 @@ namespace fCraft {
             string worldName = cmd.Next();
 
             if( worldName == null && player.World == null ) {
-                player.Message( "When using /wload from console, you must specify the world name." );
+                player.Message( "When using /WLoad from console, you must specify the world name." );
                 return;
             }
 
@@ -2040,11 +2040,11 @@ namespace fCraft {
         #region WorldMain
 
         static readonly CommandDescriptor CdWorldMain = new CommandDescriptor {
-            Name = "wmain",
+            Name = "WMain",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/wmain [@RankName] [WorldName]",
+            Usage = "/WMain [@RankName] [WorldName]",
             Help = "Sets the specified world as the new main world. " +
                    "Main world is what newly-connected players join first. " +
                    "You can specify a rank name to set a different starting world for that particular rank.",
@@ -2141,7 +2141,7 @@ namespace fCraft {
                 player.Message( "World {0}&S is already set as main.", world.ClassyName );
 
             } else if( !player.Info.Rank.AllowSecurityCircumvention && !player.CanJoin( world ) ) {
-                // Prevent players from exploiting /wmain to gain access to restricted maps
+                // Prevent players from exploiting /WMain to gain access to restricted maps
                 switch( world.AccessSecurity.CheckDetailed( player.Info ) ) {
                     case SecurityCheckResult.RankTooHigh:
                     case SecurityCheckResult.RankTooLow:
@@ -2182,11 +2182,11 @@ namespace fCraft {
         #region WorldRename
 
         static readonly CommandDescriptor CdWorldRename = new CommandDescriptor {
-            Name = "wrename",
+            Name = "WRename",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/wrename OldName NewName",
+            Usage = "/WRename OldName NewName",
             Help = "Changes the name of a world. Does not require any reloading.",
             Handler = WorldRenameHandler
         };
@@ -2203,13 +2203,19 @@ namespace fCraft {
             if( oldWorld == null ) return;
             oldName = oldWorld.Name;
 
+            World newWorld = WorldManager.FindWorldExact( newName );
+            if( !cmd.IsConfirmed && newWorld != null && newWorld != oldWorld ) {
+                player.Confirm( cmd, "A world named {0}&S already exists. Replace it?", newWorld.ClassyName );
+                return;
+            }
+
             if( !cmd.IsConfirmed && File.Exists( Path.Combine( Paths.MapPath, newName + ".fcm" ) ) ) {
                 player.Confirm( cmd, "Renaming this world will overwrite an existing map file \"{0}.fcm\".", newName );
                 return;
             }
 
             try {
-                WorldManager.RenameWorld( oldWorld, newName, true );
+                WorldManager.RenameWorld( oldWorld, newName, true, true );
             } catch( WorldOpException ex ) {
                 switch( ex.ErrorCode ) {
                     case WorldOpExceptionCode.NoChangeNeeded:
@@ -2344,12 +2350,12 @@ namespace fCraft {
         #region WorldUnload
 
         static readonly CommandDescriptor CdWorldUnload = new CommandDescriptor {
-            Name = "wunload",
+            Name = "WUnload",
             Aliases = new[] { "wremove", "wdelete" },
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/wunload WorldName",
+            Usage = "/WUnload WorldName",
             Help = "Removes the specified world from the world list, and moves all players from it to the main world. " +
                    "The main world itself cannot be removed with this command. You will need to delete the map file manually.",
             Handler = WorldUnloadHandler

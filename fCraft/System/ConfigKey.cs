@@ -145,7 +145,7 @@ Announcements are shown to all players, one line at a time, in random order.",
         #region Worlds
 
         [RankKey( ConfigSection.Worlds, RankKeyAttribute.BlankValueMeaning.DefaultRank,
-@"When new maps are loaded with the /wload command,
+@"When new maps are loaded with the /WLoad command,
 the build permission for new maps will default to this rank." )]
         DefaultBuildRank,
 
@@ -245,7 +245,7 @@ but will also prevent many legitimate players from joining." )]
         AnnounceRankChangeReasons,
 
         [BoolKey(ConfigSection.Security, false,
-@"If enabled, allows edit information to be stored per-block. Enables /blockdb, /bi, /undoarea, and /undoplayer commands.")]
+@"If enabled, allows edit information to be stored per-block. Enables /BlockDB, /bi, /UndoArea, and /UndoPlayer commands.")]
         BlockDBEnabled,
 
         [BoolKey( ConfigSection.General, true,

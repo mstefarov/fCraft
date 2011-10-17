@@ -444,7 +444,7 @@ namespace fCraft {
                 PlayerOpException.ThrowNoOneToBan( player, null, targetAddress );
             }
 
-            // Announce banall reason towards the end of all bans
+            // Announce BanAll reason towards the end of all bans
             if( announce && ConfigKey.AnnounceKickAndBanReasons.Enabled() && reason.Length > 0 ) {
                 Server.Message( "&WBanAll reason: {0}", reason );
             }
@@ -544,7 +544,7 @@ namespace fCraft {
                 PlayerOpException.ThrowNoOneToUnban( player, null, targetAddress );
             }
 
-            // Announce unbanall reason towards the end of all unbans
+            // Announce UnbanAll reason towards the end of all unbans
             if( announce && ConfigKey.AnnounceKickAndBanReasons.Enabled() && reason.Length > 0 ) {
                 Server.Message( "&WUnbanAll reason: {0}", reason );
             }

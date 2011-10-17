@@ -83,7 +83,7 @@ namespace fCraft {
                             } else if( firstWorld != null ) {
                                 // if specified main world does not exist, use first-defined world
                                 Logger.Log( "The specified main world \"{0}\" does not exist. " +
-                                            "\"{1}\" was designated main instead. You can use /wmain to change it.",
+                                            "\"{1}\" was designated main instead. You can use /WMain to change it.",
                                             LogType.Warning, temp.Value, firstWorld.Name );
                                 newMainWorld = firstWorld;
                             }
@@ -289,7 +289,7 @@ namespace fCraft {
                         }
                     } else {
                         Logger.Log( "WorldManager.CheckMapFile: More than one map file exists matching the world name \"{0}\". " +
-                                    "Please check the map directory and use /wload to load the correct file.", LogType.Warning,
+                                    "Please check the map directory and use /WLoad to load the correct file.", LogType.Warning,
                                     world.Name );
                         return;
                     }
@@ -490,7 +490,7 @@ namespace fCraft {
 
 
         /// <summary> Changes the name of the given world. </summary>
-        public static void RenameWorld( [NotNull] World world, [NotNull] string newName, bool moveMapFile ) {
+        public static void RenameWorld( [NotNull] World world, [NotNull] string newName, bool moveMapFile, bool overwrite ) {
             if( newName == null ) throw new ArgumentNullException( "newName" );
             if( world == null ) throw new ArgumentNullException( "world" );
 
@@ -507,7 +507,11 @@ namespace fCraft {
                 lock( SyncRoot ) {
                     World newWorld = FindWorldExact( newName );
                     if( newWorld != null && newWorld != world ) {
-                        throw new WorldOpException( newName, WorldOpExceptionCode.DuplicateWorldName );
+                        if( overwrite ) {
+                            RemoveWorld( newWorld );
+                        } else {
+                            throw new WorldOpException( newName, WorldOpExceptionCode.DuplicateWorldName );
+                        }
                     }
 
                     Worlds.Remove( world.Name.ToLower() );

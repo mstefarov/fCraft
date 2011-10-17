@@ -1457,7 +1457,7 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdUndoPlayer = new CommandDescriptor {
-            Name = "undoplayer",
+            Name = "UndoPlayer",
             Aliases = new[] { "up", "undox" },
             Category = CommandCategory.Moderation | CommandCategory.Building,
             Permissions = new[] { Permission.UndoOthersActions },

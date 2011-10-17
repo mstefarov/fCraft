@@ -93,7 +93,7 @@ namespace fCraft {
         /// <summary> Ability to use advanced draw commands: sphere, torus, brushes. </summary>
         DrawAdvanced,
 
-        /// <summary> Ability to undo actions of other players (undoarea and undoplayer). </summary>
+        /// <summary> Ability to undo actions of other players (UndoArea and UndoPlayer). </summary>
         UndoOthersActions,
 
         /// <summary> Ability to copy (or cut) and paste blocks. The total number of

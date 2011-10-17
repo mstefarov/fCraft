@@ -11,7 +11,7 @@ namespace fCraft {
     /// Most commands for server moderation - kick, ban, rank change, etc - are here.
     /// </summary>
     static class ModerationCommands {
-        const string BanCommonHelp = "Ban information can be viewed with &H/baninfo";
+        const string BanCommonHelp = "Ban information can be viewed with &H/BanInfo";
 
         internal static void Init() {
             CdBan.Help += BanCommonHelp;
@@ -95,11 +95,11 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdBanIP = new CommandDescriptor {
-            Name = "banip",
+            Name = "BanIP",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban, Permission.BanIP },
-            Usage = "/banip PlayerName|IPAddress [Reason]",
+            Usage = "/BanIP PlayerName|IPAddress [Reason]",
             Help = "Bans the player's name and IP. If player is not online, last known IP associated with the name is used. " +
                    "You can also type in the IP address directly. " +
                    "Any text after PlayerName/IP will be saved as a memo. ",
@@ -138,11 +138,11 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdBanAll = new CommandDescriptor {
-            Name = "banall",
+            Name = "BanAll",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban, Permission.BanIP, Permission.BanAll },
-            Usage = "/banall PlayerName|IPAddress [Reason]",
+            Usage = "/BanAll PlayerName|IPAddress [Reason]",
             Help = "Bans the player's name, IP, and all other names associated with the IP. " +
                    "If player is not online, last known IP associated with the name is used. " +
                    "You can also type in the IP address directly. " +
@@ -247,11 +247,11 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdUnbanAll = new CommandDescriptor {
-            Name = "unbanall",
+            Name = "UnbanAll",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban, Permission.BanIP, Permission.BanAll },
-            Usage = "/unbanall PlayerName|IPaddress [Reason]",
+            Usage = "/UnbanAll PlayerName|IPaddress [Reason]",
             Help = "Removes ban for a specified player's name, last known IP, and all other names associated with the IP. " +
                    "You can also type in the IP address directly. " +
                    "Any text after the player name will be saved as a memo. ",

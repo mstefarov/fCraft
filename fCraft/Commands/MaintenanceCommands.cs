@@ -606,13 +606,13 @@ namespace fCraft {
         #region MassRank
 
         static readonly CommandDescriptor CdMassRank = new CommandDescriptor {
-            Name = "massrank",
+            Name = "MassRank",
             Category = CommandCategory.Maintenance | CommandCategory.Moderation,
             IsHidden = true,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
             Help = "",
-            Usage = "/massrank FromRank ToRank Reason",
+            Usage = "/MassRank FromRank ToRank Reason",
             Handler = MassRankHandler
         };
 
@@ -669,8 +669,8 @@ namespace fCraft {
             Permissions = new[] { Permission.EditPlayerDB },
             Help = "Allows direct editing of player information. Editable properties: " +
                    "TimesKicked, PreviousRank, TotalTime, RankChangeType, " +
-                   "BanReason, UnbanReason, RankChangeReason, LastKickReason",
-            Usage = "/setinfo PlayerName Key Value",
+                   "BanReason, UnbanReason, RankReason, KickReason, DisplayedName",
+            Usage = "/SetInfo PlayerName Key Value",
             Handler = SetInfoHandler
         };
 
