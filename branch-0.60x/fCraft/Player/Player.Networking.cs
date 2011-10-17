@@ -484,7 +484,9 @@ namespace fCraft {
             reader.ReadByte(); // unused
             BytesReceived += 131;
 
+            // ReSharper disable PossibleNullReferenceException
             Position = WorldManager.MainWorld.Map.Spawn;
+            // ReSharper restore PossibleNullReferenceException
             Info = PlayerDB.FindOrCreateInfoForPlayer( playerName, IP );
             ResetAllBinds();
 

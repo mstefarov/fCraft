@@ -111,7 +111,7 @@ namespace fCraft {
             Width = width;
             Length = length;
             Height = height;
-            Bounds = new BoundingBox( Position.Zero, Width, Length, Height );
+            Bounds = new BoundingBox( Vector3I.Zero, Width, Length, Height );
             Volume = Bounds.Volume;
 
             if( initBlockArray ) {
@@ -467,7 +467,7 @@ namespace fCraft {
                             }
                         } else {
                             if( op.BlocksDenied > 0 ) {
-                                op.Player.Message( "{0}: Finished in {1}, no changes made. &WSkipped {0} blocks due to permission issues.",
+                                op.Player.Message( "{0}: Finished in {1}, no changes made. &WSkipped {2} blocks due to permission issues.",
                                                    op.DescriptionWithBrush,
                                                    DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
                                                    op.BlocksDenied );
