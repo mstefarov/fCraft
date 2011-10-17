@@ -241,21 +241,21 @@ namespace fCraft {
             switch( info.BanStatus ) {
                 case BanStatus.Banned:
                     if( ipBan != null ) {
-                        player.Message( "  Account and IP are &CBANNED&S. See &H/baninfo" );
+                        player.Message( "  Account and IP are &CBANNED&S. See &H/BanInfo" );
                     } else {
-                        player.Message( "  Account is &CBANNED&S. See &H/baninfo" );
+                        player.Message( "  Account is &CBANNED&S. See &H/BanInfo" );
                     }
                     break;
                 case BanStatus.IPBanExempt:
                     if( ipBan != null ) {
-                        player.Message( "  IP is &CBANNED&S, but account is exempt. See &H/baninfo" );
+                        player.Message( "  IP is &CBANNED&S, but account is exempt. See &H/BanInfo" );
                     } else {
-                        player.Message( "  IP is not banned, and account is exempt. See &H/baninfo" );
+                        player.Message( "  IP is not banned, and account is exempt. See &H/BanInfo" );
                     }
                     break;
                 case BanStatus.NotBanned:
                     if( ipBan != null ) {
-                        player.Message( "  IP is &CBANNED&S. See &H/baninfo" );
+                        player.Message( "  IP is &CBANNED&S. See &H/BanInfo" );
                     }
                     break;
             }
@@ -388,11 +388,11 @@ namespace fCraft {
         #region BanInfo
 
         static readonly CommandDescriptor CdBanInfo = new CommandDescriptor {
-            Name = "baninfo",
+            Name = "BanInfo",
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Usage = "/baninfo [PlayerName|IPAddress]",
+            Usage = "/BanInfo [PlayerName|IPAddress]",
             Help = "Prints information about past and present bans/unbans associated with the PlayerName or IP. " +
                    "If no name is given, this prints your own ban info.",
             Handler = BanInfoHandler
@@ -578,7 +578,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdServerInfo = new CommandDescriptor {
             Name = "ServerInfo",
-            Aliases = new[] { "ServerReport", "Version", "sinfo" },
+            Aliases = new[] { "ServerReport", "Version", "SInfo" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,

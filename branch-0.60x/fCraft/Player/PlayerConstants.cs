@@ -38,10 +38,10 @@ namespace fCraft {
         /// <summary> Banned directly by name </summary>
         Ban = 0x20,
 
-        /// <summary> Banned indirectly by /banip </summary>
+        /// <summary> Banned indirectly by /BanIP </summary>
         BanIP = 0x21,
 
-        /// <summary> Banned indirectly by /banall </summary>
+        /// <summary> Banned indirectly by /BanAll </summary>
         BanAll = 0x22,
 
 

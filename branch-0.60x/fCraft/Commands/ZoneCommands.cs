@@ -21,11 +21,11 @@ namespace fCraft {
         #region ZoneAdd
 
         static readonly CommandDescriptor CdZoneAdd = new CommandDescriptor {
-            Name = "zadd",
+            Name = "ZAdd",
             Category = CommandCategory.Zone,
             Aliases = new[] { "zone" },
             Permissions = new[] { Permission.ManageZones },
-            Usage = "/zadd ZoneName RankName",
+            Usage = "/ZAdd ZoneName RankName",
             Help = "Create a zone that overrides build permissions. " +
                    "This can be used to restrict access to an area (by setting RankName to a high rank) " +
                    "or to designate a guest area (by lowering RankName).",
@@ -60,7 +60,7 @@ namespace fCraft {
             ZoneCollection zoneCollection = player.World.LoadMap().Zones;
 
             if( givenZoneName.StartsWith( "+" ) ) {
-                // personal zone (/zadd +Name)
+                // personal zone (/ZAdd +Name)
                 givenZoneName = givenZoneName.Substring( 1 );
 
                 // Find the target player
@@ -95,7 +95,7 @@ namespace fCraft {
                 }
 
                 if( zoneCollection.Contains( givenZoneName ) ) {
-                    player.Message( "A zone with this name already exists. Use &H/zedit&S to edit." );
+                    player.Message( "A zone with this name already exists. Use &H/ZEdit&S to edit." );
                     return;
                 }
 
@@ -188,10 +188,10 @@ namespace fCraft {
         #region ZoneEdit
 
         static readonly CommandDescriptor CdZoneEdit = new CommandDescriptor {
-            Name = "zedit",
+            Name = "ZEdit",
             Category = CommandCategory.Zone,
             Permissions = new[] { Permission.ManageZones },
-            Usage = "/zedit ZoneName [RankName] [+IncludedName] [-ExcludedName]",
+            Usage = "/ZEdit ZoneName [RankName] [+IncludedName] [-ExcludedName]",
             Help = "Allows editing the zone permissions after creation. " +
                    "You can change the rank restrictions, and include or exclude individual players.",
             Handler = ZoneEditHandler
@@ -203,7 +203,7 @@ namespace fCraft {
             bool changesWereMade = false;
             string zoneName = cmd.Next();
             if( zoneName == null ) {
-                player.Message( "No zone name specified. See &H/help zedit" );
+                player.Message( "No zone name specified. See &H/help ZEdit" );
                 return;
             }
 
@@ -484,11 +484,11 @@ namespace fCraft {
         #region ZoneRemove
 
         static readonly CommandDescriptor CdZoneRemove = new CommandDescriptor {
-            Name = "zremove",
+            Name = "ZRemove",
             Aliases = new[] { "zdelete" },
             Category = CommandCategory.Zone,
             Permissions = new[] { Permission.ManageZones },
-            Usage = "/zremove ZoneName",
+            Usage = "/ZRemove ZoneName",
             Help = "Removes a zone with the specified name from the map.",
             Handler = ZoneRemoveHandler
         };
@@ -535,11 +535,11 @@ namespace fCraft {
         #region ZoneRename
 
         static readonly CommandDescriptor CdZoneRename = new CommandDescriptor {
-            Name = "zrename",
+            Name = "ZRename",
             Category = CommandCategory.Zone,
             Permissions = new[] { Permission.ManageZones },
             Help = "Renames a zone",
-            Usage = "/zrename OldName NewName",
+            Usage = "/ZRename OldName NewName",
             Handler = ZoneRenameHandler
         };
 

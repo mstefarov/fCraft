@@ -358,7 +358,7 @@ namespace fCraft {
     }
 
 
-    unsafe static class IntUtil {
+    unsafe static class FormatUtil {
         // Quicker StringBuilder.Append(int) by Sam Allen of http://www.dotnetperls.com
         public static void Digits( [NotNull] this StringBuilder builder, int number ) {
             if( builder == null ) throw new ArgumentNullException( "builder" );
@@ -437,7 +437,19 @@ namespace fCraft {
             }
             return value;
         }
+
+
+        // UppercaseFirst by Sam Allen of http://www.dotnetperls.com
+        public static string UppercaseFirst( this string s ) {
+            if( string.IsNullOrEmpty( s ) ) {
+                return string.Empty;
+            }
+            char[] a = s.ToCharArray();
+            a[0] = char.ToUpper( a[0] );
+            return new string( a );
+        }
     }
+
 
     unsafe static class BufferUtil {
         public static void MemSet( [NotNull] this byte[] array, byte value ) {
@@ -529,6 +541,7 @@ namespace fCraft {
             }
         }
     }
+
 
     public static class EnumUtil {
         public static bool TryParse<TEnum>( [NotNull] string value, out TEnum output, bool ignoreCase ) {

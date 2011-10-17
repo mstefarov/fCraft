@@ -128,10 +128,10 @@ You can use any color codes, and these special variables:
 in order to join restricted worlds, or to build in worlds/zones. Normally
 players with ManageWorlds and ManageZones permissions are not allowed to do this.
 Affected commands:
-    /waccess
-    /wbuild
-    /wmain
-    /zedit" );
+    /WAccess
+    /WBuild
+    /WMain
+    /ZEdit" );
 
             toolTip.SetToolTip( bAddRank, "Add a new rank to the list." );
             toolTip.SetToolTip( bDeleteRank,
@@ -251,14 +251,14 @@ Affected commands:
 BanAll/UnbanAll commands can be used on players who keep evading bans.
 Required permissions: Ban & BanIP
 Affected commands:
-    /banall
-    /unbanall";
+    /BanAll
+    /UnbanAll";
 
             vPermissions.Items[(int)Permission.BanIP].ToolTipText =
 @"Ability to ban/unban players by IP.
 Required permission: Ban
 Affected commands:
-    /banip
+    /BanIP
     /unbanip";
 
             vPermissions.Items[(int)Permission.Bring].ToolTipText =
@@ -310,7 +310,7 @@ Required permission: Delete";
 @"Ability to demote other players to a lower rank.
 Affected commands:
     /rank
-    /massrank";
+    /MassRank";
 
             vPermissions.Items[(int)Permission.Draw].ToolTipText =
 @"Ability to use drawing tools (commands capable of affecting many blocks
@@ -319,7 +319,7 @@ zone-specific permissions.
 Required permission: Build, Delete
 Affected commands:
     /cuboid, /cuboidh, and /cuboidw
-    /ellipsoid
+    /ellipsoid and /ellipsoidh
     /line
     /replace and /replacenot
     /undo";
@@ -336,13 +336,15 @@ Affected commands:
 
             vPermissions.Items[(int)Permission.EditPlayerDB].ToolTipText =
 @"Ability to edit the player database directly. This also adds the ability to
-promote/demote/ban players by name, even if they have not visited the server yet.
+promote/demote players by name, even if they have not visited the server yet.
 Also allows to manipulate players' records, and to promote/demote players in batches.
 Affected commands:
-    /autorankall
-    /autorankreload
-    /massrank
-    /setinfo";
+    /PruneDB
+    /AutoRankAll
+    /MassRank
+    /SetInfo
+    /InfoSwap
+    /DumpStats";
 
             vPermissions.Items[(int)Permission.Freeze].ToolTipText =
 @"Ability to freeze/unfreeze players. Frozen players cannot
@@ -380,27 +382,27 @@ Affected commands:
 @"Ability to manipulate the world list: adding, renaming, and deleting worlds,
 loading/saving maps, change per-world permissions, and using the map generator.
 Affected commands:
-    /wload
-    /wunload
-    /wrename
-    /wmain
-    /waccess and /wbuild
-    /wflush
+    /WLoad
+    /WUnload
+    /WRename
+    /WMain
+    /WAccess and /WBuild
+    /WFlush
     /gen";
 
 
             vPermissions.Items[(int)Permission.ManageBlockDB].ToolTipText =
 @"Ability to enable/disable, clear, and configure BlockDB.
 Affected command:
-    /blockdb";
+    /BlockDB";
 
             vPermissions.Items[(int)Permission.ManageZones].ToolTipText =
 @"Ability to manipulate zones: adding, editing, renaming, and removing zones.
 Affected commands:
-    /zadd
-    /zedit
-    /zremove
-    /zrename";
+    /ZAdd
+    /ZEdit
+    /ZRemove
+    /ZRename";
 
             vPermissions.Items[(int)Permission.Mute].ToolTipText =
 @"Ability to temporarily mute players. Muted players cannot write chat or 
@@ -485,6 +487,12 @@ Affected commands:
 Affected commands:
     /tp";
 
+            vPermissions.Items[(int)Permission.UndoOthersActions].ToolTipText =
+@"Ability to undo actions of other players, using the BlockDB.
+Affected commands:
+    /UndoArea
+    /UndoPlayer";
+
             vPermissions.Items[(int)Permission.UseColorCodes].ToolTipText =
 @"Ability to use color codes in chat messages.";
 
@@ -497,15 +505,15 @@ false positives - especially on laggy servers.";
 @"Ability to view extended information about other players.
 Affected commands:
     /info
-    /baninfo
+    /BanInfo
     /where";
 
             vPermissions.Items[(int)Permission.ViewPlayerIPs].ToolTipText =
 @"Ability to view players' IP addresses.
 Affected commands:
     /info
-    /baninfo
-    /banip, /banall, /unbanip, /unbanall";
+    /BanInfo
+    /BanIP, /BanAll, /unbanip, /UnbanAll";
         }
 
 
