@@ -207,7 +207,7 @@ namespace fCraft {
             Aliases = new[] { "donut", "bagel" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
-            Help = "EXPERIMENTAL: Draws a horizontally-oriented torus. The first mark denotes the CENTER of the torus, horizontal " +
+            Help = "Draws a horizontally-oriented torus. The first mark denotes the CENTER of the torus, horizontal " +
                    "distance to the second mark denotes the ring radius, and the vertical distance to the second mark denotes the " +
                    "tube radius",
             Handler = TorusHandler
@@ -223,9 +223,9 @@ namespace fCraft {
             IBrushInstance brush = player.Brush.MakeInstance( player, cmd, op );
             if( brush == null ) return;
             op.Brush = brush;
-            player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
-            player.Message( "{0}: Click 2 blocks or use &H/mark&S to make a selection.",
-                            op.DescriptionWithBrush );
+            player.SelectionStart( op.ExpectedMarks, DrawOperationCallback, op, Permission.Draw );
+            player.Message( "{0}: Click {1} blocks or use &H/mark&S to make a selection.",
+                            op.DescriptionWithBrush, op.ExpectedMarks );
         }
 
 
@@ -1027,7 +1027,7 @@ namespace fCraft {
             Name = "paste",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
-            Help = "EXPERIMENTAL. Pastes previously copied blocks. Used together with &H/copy&S command. " +
+            Help = "Pastes previously copied blocks. Used together with &H/copy&S command. " +
                    "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
                    "Alignment semantics are... complicated.",
             Usage = "/paste [IncludedBlock [AnotherOne etc]]",
@@ -1047,7 +1047,7 @@ namespace fCraft {
             Name = "pastenot",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
-            Help = "EXPERIMENTAL. Pastes previously copied blocks, except the given block type(s). " +
+            Help = "Pastes previously copied blocks, except the given block type(s). " +
                     "Used together with &H/copy&S command. " +
                    "Alignment semantics are... complicated.",
             Usage = "/PasteNot ExcludedBlock [AnotherOne etc]",

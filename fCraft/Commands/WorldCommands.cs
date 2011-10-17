@@ -1132,7 +1132,7 @@ namespace fCraft {
                 player.Message( "There are no {0}", listName );
             } else if( worlds.Length <= WorldNamesPerPage ) {
                 player.MessagePrefixed( "&S  ", "&SThere are {0} {1}: {2}",
-                                        listName.UppercaseFirst(), worlds.JoinToClassyString() );
+                                        worlds.Length, listName.UppercaseFirst(), worlds.JoinToClassyString() );
             } else {
                 if( offset >= worlds.Length ) {
                     player.Message( "Worlds: Given offset ({0}) is greater than the number of {1} ({2}).",

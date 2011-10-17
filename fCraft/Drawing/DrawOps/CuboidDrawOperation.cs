@@ -13,12 +13,8 @@ namespace fCraft.Drawing {
 
         public override bool Prepare( Vector3I[] marks ) {
             if( !base.Prepare( marks ) ) return false;
-
             BlocksTotalEstimate = Bounds.Volume;
-
-            Coords.X = Bounds.XMin;
-            Coords.Y = Bounds.YMin;
-            Coords.Z = Bounds.ZMin;
+            Coords = Bounds.MinVertex;
             return true;
         }
 

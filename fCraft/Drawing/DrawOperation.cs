@@ -27,20 +27,21 @@ namespace fCraft.Drawing {
         /// <summary> Brush used to determine which blocks to place.
         /// Must be assigned before DrawOperation.Prepare() is called. </summary>
         [NotNull]
-        public IBrushInstance Brush;
+        public IBrushInstance Brush { get; set; }
 
         /// <summary> Block change context, to be reported to BlockDB and Player.PlacingBlock/PlacedBlock events. 
         /// Should include BlockChangeContext.Drawn flag. </summary>
-        public BlockChangeContext Context;
+        public BlockChangeContext Context { get; set; }
 
         /// <summary> Marks given by the player to this command. Marks could come from either clicks or /mark command.
         /// Set by DrawOperation.Prepare() </summary>
         public Vector3I[] Marks { get; protected set; }
 
-        /// <summary> Time when the draw operatation begun. Set by DrawOperation.Begin() </summary>
+        /// <summary> Time when the draw operatation began. Set by DrawOperation.Begin() </summary>
         public DateTime StartTime { get; protected set; }
 
-        /// <summary> Area that bounds the DrawOperation's extent, if possible to estimate in advance. </summary>
+        /// <summary> Area that bounds the DrawOperation's extent, if possible to estimate in advance.
+        /// Used for logging. Should be assigned, as accurately as possible, before DrawOp finishes. </summary>
         public BoundingBox Bounds { get; protected set; }
 
         /// <summary> Whether this operation has been started (queued for processing on the Map). </summary>
@@ -59,7 +60,7 @@ namespace fCraft.Drawing {
         public int BlocksUpdated { get; protected set; }
 
         /// <summary> Number of blocks/coordinates that were supposed to be changed/updated,
-        /// but left untouched due to permission issues. </summary>
+        /// but were left untouched due to permission issues. </summary>
         public int BlocksDenied { get; protected set; }
 
         /// <summary> Number of blocks/coordinates that were processed, and left untouched: either because the Brush decided to skip it,
@@ -67,7 +68,8 @@ namespace fCraft.Drawing {
         public int BlocksSkipped { get; protected set; }
 
         /// <summary> Estimate of total number of blocks that will be processed by this command.
-        /// Should be as accurate as reasonably possible. </summary>
+        /// Should be as accurate as reasonably possible by DrawOperation.Prepare().
+        /// Used for volume permission checks. Must not be negative. </summary>
         public int BlocksTotalEstimate { get; protected set; }
 
         /// <summary> Estimated total blocks left to process. </summary>
@@ -77,14 +79,15 @@ namespace fCraft.Drawing {
             }
         }
 
-        /// <summary> Undo state associated with this operation.
-        /// Created at DrawOperation.Begin() </summary>
+        /// <summary> Undo state associated with this operation. Created by DrawOperation.Begin(). </summary>
         protected UndoState UndoState;
 
         /// <summary> Approximate completion percentage of this command. </summary>
         public int PercentDone {
             get {
-                if( IsDone ) {
+                if( !HasBegun ) {
+                    return 0;
+                }else if( IsDone ) {
                     return 100;
                 } else {
                     return Math.Min( 100, Math.Max( 0, (BlocksProcessed * 100) / BlocksTotalEstimate ) );
@@ -96,7 +99,7 @@ namespace fCraft.Drawing {
         public Vector3I Coords;
 
         /// <summary> Whether the brush should use alternate block (if available)
-        /// for filling insides of hollow DrawOps. </summary>
+        /// for filling insides of hollow DrawOps. Currently only usable with NormalBrush. </summary>
         public bool UseAlternateBlock { get; set; }
 
         /// <summary> General name of this type of draw operation. Should be same for all instances. </summary>

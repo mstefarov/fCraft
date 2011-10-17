@@ -28,10 +28,7 @@ namespace fCraft.Drawing {
             if( !base.Prepare( marks ) ) return false;
 
             BlocksTotalEstimate = Bounds.Volume;
-
-            Coords.X = Bounds.XMin;
-            Coords.Y = Bounds.YMin;
-            Coords.Z = Bounds.ZMin;
+            Coords = Bounds.MinVertex;
 
             // remember dimensions and orientation
             CopyState copyInfo = new CopyState( marks[0], marks[1] );
@@ -59,6 +56,7 @@ namespace fCraft.Drawing {
         }
 
 
+        // lifted straight from CuboidDrawOp
         public override int DrawBatch( int maxBlocksToDraw ) {
             int blocksDone = 0;
             for( ; Coords.X <= Bounds.XMax; Coords.X++ ) {
