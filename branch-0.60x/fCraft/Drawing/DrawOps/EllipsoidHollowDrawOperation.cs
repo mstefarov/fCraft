@@ -98,9 +98,7 @@ namespace fCraft.Drawing {
                                     ((delta.X + 1) * (delta.X + 1) * radius.X + delta.Y2 * radius.Y + delta.Z2 * radius.Z > 1 ||
                                     (delta.X - 1) * (delta.X - 1) * radius.X + delta.Y2 * radius.Y + delta.Z2 * radius.Z > 1 ||
                                     delta.X2 * radius.X + (delta.Y + 1) * (delta.Y + 1) * radius.Y + delta.Z2 * radius.Z > 1 ||
-                                    delta.X2 * radius.X + (delta.Y - 1) * (delta.Y - 1) * radius.Y + delta.Z2 * radius.Z > 1 ||
-                                    delta.X2 * radius.X + delta.Y2 * radius.Y + (delta.Z + 1) * (delta.Z + 1) * radius.Z > 1 ||
-                                    delta.X2 * radius.X + delta.Y2 * radius.Y + (delta.Z - 1) * (delta.Z - 1) * radius.Z > 1) ) {
+                                    delta.X2 * radius.X + (delta.Y - 1) * (delta.Y - 1) * radius.Y + delta.Z2 * radius.Z > 1) ) {
                                     goto case State.OuterBlock1;
                                 }
 
