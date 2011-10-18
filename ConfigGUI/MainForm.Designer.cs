@@ -1123,6 +1123,7 @@
             // 
             // xWoMEnableEnvExtensions
             // 
+            this.xWoMEnableEnvExtensions.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.xWoMEnableEnvExtensions.AutoSize = true;
             this.xWoMEnableEnvExtensions.Location = new System.Drawing.Point( 8, 478 );
             this.xWoMEnableEnvExtensions.Name = "xWoMEnableEnvExtensions";
