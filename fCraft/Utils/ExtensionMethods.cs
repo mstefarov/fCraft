@@ -113,7 +113,7 @@ namespace fCraft {
 
 
         /// <summary> Tries to create a TimeSpan from a string containing the number of seconds.
-        /// If the string was empty, returns false and does not affect result. </summary>
+        /// If the string was empty, returns false and sets result to TimeSpan.Zero </summary>
         public static bool ToTimeSpan( [NotNull] this string str, out TimeSpan result ) {
             if( str == null ) throw new ArgumentNullException( "str" );
             if( str.Length == 0 ) {
