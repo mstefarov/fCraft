@@ -580,6 +580,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             nAntiGriefSeconds.Enabled = xAntiGrief.Checked;
             xDrawLimit.Checked = (rank.DrawLimit > 0);
             nDrawLimit.Value = rank.DrawLimit;
+            nCopyPasteSlots.Value = rank.CopySlots;
             xAllowSecurityCircumvention.Checked = rank.AllowSecurityCircumvention;
 
             foreach( ListViewItem item in vPermissions.Items ) {
@@ -652,6 +653,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             xDrawLimit.Checked = false;
             nDrawLimit.Value = 0;
             xAllowSecurityCircumvention.Checked = false;
+            nCopyPasteSlots.Value = 0;
             foreach( ListViewItem item in vPermissions.Items ) {
                 item.Checked = false;
                 item.Font = vPermissions.Font;
@@ -825,6 +827,11 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed );
         }
 
+        private void nCopyPasteSlots_ValueChanged( object sender, EventArgs e ) {
+            if( selectedRank == null ) return;
+            selectedRank.CopySlots = Convert.ToInt32( nCopyPasteSlots.Value );
+        }
+
         private void xAllowSecurityCircumvention_CheckedChanged( object sender, EventArgs e ) {
             if( selectedRank == null ) return;
             selectedRank.AllowSecurityCircumvention = xAllowSecurityCircumvention.Checked;
@@ -945,9 +952,24 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                     break;
 
                 case Permission.Draw:
+                    xDrawLimit.Enabled = vPermissions.Items[(int)Permission.Draw].Checked ||
+                                         vPermissions.Items[(int)Permission.CopyAndPaste].Checked;
+                    if( check ) {
+                        vPermissions.Items[(int)Permission.DrawAdvanced].ForeColor = SystemColors.ControlText;
+                        vPermissions.Items[(int)Permission.CopyAndPaste].ForeColor = SystemColors.ControlText;
+                    } else {
+                        vPermissions.Items[(int)Permission.DrawAdvanced].Checked = false;
+                        vPermissions.Items[(int)Permission.DrawAdvanced].ForeColor = SystemColors.GrayText;
+                        vPermissions.Items[(int)Permission.CopyAndPaste].Checked = false;
+                        vPermissions.Items[(int)Permission.CopyAndPaste].ForeColor = SystemColors.GrayText;
+                    }
+                    break;
+
                 case Permission.CopyAndPaste:
                     xDrawLimit.Enabled = vPermissions.Items[(int)Permission.Draw].Checked ||
                                          vPermissions.Items[(int)Permission.CopyAndPaste].Checked;
+                    lCopyPasteSlots.Enabled = check;
+                    nCopyPasteSlots.Enabled = check;
                     break;
 
                 case Permission.ManageWorlds:

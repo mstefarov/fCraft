@@ -25,8 +25,8 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( MainForm ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -279,6 +279,8 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
+            this.lCopyPasteSlots = new System.Windows.Forms.Label();
+            this.nCopyPasteSlots = new System.Windows.Forms.NumericUpDown();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -336,6 +338,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             this.gCrashReport.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nCopyPasteSlots)).BeginInit();
             this.SuspendLayout();
             // 
             // tabs
@@ -1261,8 +1264,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 367 );
             this.dgvWorlds.TabIndex = 0;
@@ -1320,8 +1323,8 @@
             // dgvcBlockDB
             // 
             this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle3;
             this.dgvcBlockDB.FalseValue = "";
             this.dgvcBlockDB.HeaderText = "BlockDB";
             this.dgvcBlockDB.IndeterminateValue = "";
@@ -1356,9 +1359,9 @@
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.gPermissionLimits.Controls.Add( this.permissionLimitBoxContainer );
-            this.gPermissionLimits.Location = new System.Drawing.Point( 160, 237 );
+            this.gPermissionLimits.Location = new System.Drawing.Point( 160, 267 );
             this.gPermissionLimits.Name = "gPermissionLimits";
-            this.gPermissionLimits.Size = new System.Drawing.Size( 307, 270 );
+            this.gPermissionLimits.Size = new System.Drawing.Size( 307, 240 );
             this.gPermissionLimits.TabIndex = 7;
             this.gPermissionLimits.TabStop = false;
             this.gPermissionLimits.Text = "Permission Limits";
@@ -1371,7 +1374,7 @@
             this.permissionLimitBoxContainer.Location = new System.Drawing.Point( 3, 17 );
             this.permissionLimitBoxContainer.Margin = new System.Windows.Forms.Padding( 0 );
             this.permissionLimitBoxContainer.Name = "permissionLimitBoxContainer";
-            this.permissionLimitBoxContainer.Size = new System.Drawing.Size( 301, 250 );
+            this.permissionLimitBoxContainer.Size = new System.Drawing.Size( 301, 220 );
             this.permissionLimitBoxContainer.TabIndex = 0;
             this.permissionLimitBoxContainer.WrapContents = false;
             // 
@@ -1410,6 +1413,8 @@
             // 
             this.gRankOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gRankOptions.Controls.Add( this.nCopyPasteSlots );
+            this.gRankOptions.Controls.Add( this.lCopyPasteSlots );
             this.gRankOptions.Controls.Add( this.xAllowSecurityCircumvention );
             this.gRankOptions.Controls.Add( this.lAntiGrief1 );
             this.gRankOptions.Controls.Add( this.lAntiGrief3 );
@@ -1432,7 +1437,7 @@
             this.gRankOptions.Controls.Add( this.lRankName );
             this.gRankOptions.Location = new System.Drawing.Point( 160, 13 );
             this.gRankOptions.Name = "gRankOptions";
-            this.gRankOptions.Size = new System.Drawing.Size( 307, 218 );
+            this.gRankOptions.Size = new System.Drawing.Size( 307, 248 );
             this.gRankOptions.TabIndex = 6;
             this.gRankOptions.TabStop = false;
             this.gRankOptions.Text = "Rank Options";
@@ -3280,6 +3285,28 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
+            // lCopyPasteSlots
+            // 
+            this.lCopyPasteSlots.AutoSize = true;
+            this.lCopyPasteSlots.Location = new System.Drawing.Point( 50, 218 );
+            this.lCopyPasteSlots.Name = "lCopyPasteSlots";
+            this.lCopyPasteSlots.Size = new System.Drawing.Size( 118, 15 );
+            this.lCopyPasteSlots.TabIndex = 20;
+            this.lCopyPasteSlots.Text = "Copy/paste slot limit:";
+            // 
+            // nCopyPasteSlots
+            // 
+            this.nCopyPasteSlots.Location = new System.Drawing.Point( 174, 216 );
+            this.nCopyPasteSlots.Maximum = new decimal( new int[] {
+            1000,
+            0,
+            0,
+            0} );
+            this.nCopyPasteSlots.Name = "nCopyPasteSlots";
+            this.nCopyPasteSlots.Size = new System.Drawing.Size( 59, 21 );
+            this.nCopyPasteSlots.TabIndex = 21;
+            this.nCopyPasteSlots.ValueChanged += new System.EventHandler( this.nCopyPasteSlots_ValueChanged );
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -3375,6 +3402,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             this.gCrashReport.ResumeLayout( false );
             this.gCrashReport.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nCopyPasteSlots)).EndInit();
             this.ResumeLayout( false );
 
         }
@@ -3632,5 +3660,7 @@
         private System.Windows.Forms.DataGridViewCheckBoxColumn dgvcBlockDB;
         private System.Windows.Forms.CheckBox xWoMEnableEnvExtensions;
         private System.Windows.Forms.CheckBox xHeartbeatToWoMDirect;
+        private System.Windows.Forms.NumericUpDown nCopyPasteSlots;
+        private System.Windows.Forms.Label lCopyPasteSlots;
     }
 }
