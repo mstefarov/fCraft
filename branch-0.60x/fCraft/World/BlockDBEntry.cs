@@ -70,6 +70,6 @@ namespace fCraft{
         Cut = 16,
         UndoneSelf = 32,
         UndoneOther = 64,
-        Restored = 64
+        Restored = 128
     }
 }
