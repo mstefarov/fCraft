@@ -25,9 +25,9 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( MainForm ) );
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
             this.gUpdaterSettings = new System.Windows.Forms.GroupBox();
@@ -104,13 +104,6 @@
             this.bAddWorld = new System.Windows.Forms.Button();
             this.bWorldDelete = new System.Windows.Forms.Button();
             this.dgvWorlds = new System.Windows.Forms.DataGridView();
-            this.dgvcName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvcDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvcAccess = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.dgvcBuild = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.dgvcBackup = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.dgvcHidden = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.dgvcBlockDB = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.tabRanks = new System.Windows.Forms.TabPage();
             this.gPermissionLimits = new System.Windows.Forms.GroupBox();
             this.permissionLimitBoxContainer = new System.Windows.Forms.FlowLayoutPanel();
@@ -118,6 +111,8 @@
             this.bLowerRank = new System.Windows.Forms.Button();
             this.bRaiseRank = new System.Windows.Forms.Button();
             this.gRankOptions = new System.Windows.Forms.GroupBox();
+            this.nCopyPasteSlots = new System.Windows.Forms.NumericUpDown();
+            this.lCopyPasteSlots = new System.Windows.Forms.Label();
             this.xAllowSecurityCircumvention = new System.Windows.Forms.CheckBox();
             this.lAntiGrief1 = new System.Windows.Forms.Label();
             this.lAntiGrief3 = new System.Windows.Forms.Label();
@@ -279,8 +274,13 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.lCopyPasteSlots = new System.Windows.Forms.Label();
-            this.nCopyPasteSlots = new System.Windows.Forms.NumericUpDown();
+            this.dgvcName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvcDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvcAccess = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.dgvcBuild = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.dgvcBackup = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.dgvcHidden = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.dgvcBlockDB = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -301,6 +301,7 @@
             this.tabRanks.SuspendLayout();
             this.gPermissionLimits.SuspendLayout();
             this.gRankOptions.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nCopyPasteSlots)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefSeconds)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nDrawLimit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nKickIdle)).BeginInit();
@@ -338,7 +339,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             this.gCrashReport.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nCopyPasteSlots)).BeginInit();
             this.SuspendLayout();
             // 
             // tabs
@@ -1264,74 +1264,13 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle4.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 367 );
             this.dgvWorlds.TabIndex = 0;
             this.dgvWorlds.SelectionChanged += new System.EventHandler( this.dgvWorlds_Click );
             this.dgvWorlds.Click += new System.EventHandler( this.dgvWorlds_Click );
-            // 
-            // dgvcName
-            // 
-            this.dgvcName.DataPropertyName = "Name";
-            this.dgvcName.HeaderText = "World Name";
-            this.dgvcName.Name = "dgvcName";
-            this.dgvcName.Width = 110;
-            // 
-            // dgvcDescription
-            // 
-            this.dgvcDescription.DataPropertyName = "Description";
-            this.dgvcDescription.HeaderText = "";
-            this.dgvcDescription.Name = "dgvcDescription";
-            this.dgvcDescription.ReadOnly = true;
-            this.dgvcDescription.Width = 130;
-            // 
-            // dgvcAccess
-            // 
-            this.dgvcAccess.DataPropertyName = "AccessPermission";
-            this.dgvcAccess.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
-            this.dgvcAccess.HeaderText = "Access";
-            this.dgvcAccess.Name = "dgvcAccess";
-            this.dgvcAccess.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // dgvcBuild
-            // 
-            this.dgvcBuild.DataPropertyName = "BuildPermission";
-            this.dgvcBuild.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
-            this.dgvcBuild.HeaderText = "Build";
-            this.dgvcBuild.Name = "dgvcBuild";
-            this.dgvcBuild.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // dgvcBackup
-            // 
-            this.dgvcBackup.DataPropertyName = "Backup";
-            this.dgvcBackup.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
-            this.dgvcBackup.HeaderText = "Backup";
-            this.dgvcBackup.Name = "dgvcBackup";
-            this.dgvcBackup.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.dgvcBackup.Width = 90;
-            // 
-            // dgvcHidden
-            // 
-            this.dgvcHidden.DataPropertyName = "Hidden";
-            this.dgvcHidden.HeaderText = "Hide";
-            this.dgvcHidden.Name = "dgvcHidden";
-            this.dgvcHidden.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.dgvcHidden.Width = 40;
-            // 
-            // dgvcBlockDB
-            // 
-            this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle3;
-            this.dgvcBlockDB.FalseValue = "";
-            this.dgvcBlockDB.HeaderText = "BlockDB";
-            this.dgvcBlockDB.IndeterminateValue = "";
-            this.dgvcBlockDB.Name = "dgvcBlockDB";
-            this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.dgvcBlockDB.ThreeState = true;
-            this.dgvcBlockDB.Width = 60;
             // 
             // tabRanks
             // 
@@ -1441,6 +1380,28 @@
             this.gRankOptions.TabIndex = 6;
             this.gRankOptions.TabStop = false;
             this.gRankOptions.Text = "Rank Options";
+            // 
+            // nCopyPasteSlots
+            // 
+            this.nCopyPasteSlots.Location = new System.Drawing.Point( 174, 216 );
+            this.nCopyPasteSlots.Maximum = new decimal( new int[] {
+            1000,
+            0,
+            0,
+            0} );
+            this.nCopyPasteSlots.Name = "nCopyPasteSlots";
+            this.nCopyPasteSlots.Size = new System.Drawing.Size( 59, 21 );
+            this.nCopyPasteSlots.TabIndex = 21;
+            this.nCopyPasteSlots.ValueChanged += new System.EventHandler( this.nCopyPasteSlots_ValueChanged );
+            // 
+            // lCopyPasteSlots
+            // 
+            this.lCopyPasteSlots.AutoSize = true;
+            this.lCopyPasteSlots.Location = new System.Drawing.Point( 50, 218 );
+            this.lCopyPasteSlots.Name = "lCopyPasteSlots";
+            this.lCopyPasteSlots.Size = new System.Drawing.Size( 118, 15 );
+            this.lCopyPasteSlots.TabIndex = 20;
+            this.lCopyPasteSlots.Text = "Copy/paste slot limit:";
             // 
             // xAllowSecurityCircumvention
             // 
@@ -3285,27 +3246,64 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // lCopyPasteSlots
+            // dgvcName
             // 
-            this.lCopyPasteSlots.AutoSize = true;
-            this.lCopyPasteSlots.Location = new System.Drawing.Point( 50, 218 );
-            this.lCopyPasteSlots.Name = "lCopyPasteSlots";
-            this.lCopyPasteSlots.Size = new System.Drawing.Size( 118, 15 );
-            this.lCopyPasteSlots.TabIndex = 20;
-            this.lCopyPasteSlots.Text = "Copy/paste slot limit:";
+            this.dgvcName.DataPropertyName = "Name";
+            this.dgvcName.HeaderText = "World Name";
+            this.dgvcName.Name = "dgvcName";
+            this.dgvcName.Width = 110;
             // 
-            // nCopyPasteSlots
+            // dgvcDescription
             // 
-            this.nCopyPasteSlots.Location = new System.Drawing.Point( 174, 216 );
-            this.nCopyPasteSlots.Maximum = new decimal( new int[] {
-            1000,
-            0,
-            0,
-            0} );
-            this.nCopyPasteSlots.Name = "nCopyPasteSlots";
-            this.nCopyPasteSlots.Size = new System.Drawing.Size( 59, 21 );
-            this.nCopyPasteSlots.TabIndex = 21;
-            this.nCopyPasteSlots.ValueChanged += new System.EventHandler( this.nCopyPasteSlots_ValueChanged );
+            this.dgvcDescription.DataPropertyName = "Description";
+            this.dgvcDescription.HeaderText = "";
+            this.dgvcDescription.Name = "dgvcDescription";
+            this.dgvcDescription.ReadOnly = true;
+            this.dgvcDescription.Width = 130;
+            // 
+            // dgvcAccess
+            // 
+            this.dgvcAccess.DataPropertyName = "AccessPermission";
+            this.dgvcAccess.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
+            this.dgvcAccess.HeaderText = "Access";
+            this.dgvcAccess.Name = "dgvcAccess";
+            this.dgvcAccess.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
+            // dgvcBuild
+            // 
+            this.dgvcBuild.DataPropertyName = "BuildPermission";
+            this.dgvcBuild.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
+            this.dgvcBuild.HeaderText = "Build";
+            this.dgvcBuild.Name = "dgvcBuild";
+            this.dgvcBuild.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
+            // dgvcBackup
+            // 
+            this.dgvcBackup.DataPropertyName = "Backup";
+            this.dgvcBackup.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
+            this.dgvcBackup.HeaderText = "Backup";
+            this.dgvcBackup.Name = "dgvcBackup";
+            this.dgvcBackup.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.dgvcBackup.Width = 90;
+            // 
+            // dgvcHidden
+            // 
+            this.dgvcHidden.DataPropertyName = "Hidden";
+            this.dgvcHidden.HeaderText = "Hide";
+            this.dgvcHidden.Name = "dgvcHidden";
+            this.dgvcHidden.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.dgvcHidden.Width = 40;
+            // 
+            // dgvcBlockDB
+            // 
+            this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
+            this.dgvcBlockDB.HeaderText = "BlockDB";
+            this.dgvcBlockDB.Name = "dgvcBlockDB";
+            this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.dgvcBlockDB.ThreeState = true;
+            this.dgvcBlockDB.Width = 60;
             // 
             // MainForm
             // 
@@ -3351,6 +3349,7 @@
             this.gPermissionLimits.ResumeLayout( false );
             this.gRankOptions.ResumeLayout( false );
             this.gRankOptions.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nCopyPasteSlots)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefSeconds)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nDrawLimit)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nKickIdle)).EndInit();
@@ -3402,7 +3401,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             this.gCrashReport.ResumeLayout( false );
             this.gCrashReport.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nCopyPasteSlots)).EndInit();
             this.ResumeLayout( false );
 
         }
@@ -3651,6 +3649,10 @@
         private System.Windows.Forms.ComboBox cBlockDBAutoEnableRank;
         private System.Windows.Forms.CheckBox xBlockDBAutoEnable;
         private System.Windows.Forms.CheckBox xBlockDBEnabled;
+        private System.Windows.Forms.CheckBox xWoMEnableEnvExtensions;
+        private System.Windows.Forms.CheckBox xHeartbeatToWoMDirect;
+        private System.Windows.Forms.NumericUpDown nCopyPasteSlots;
+        private System.Windows.Forms.Label lCopyPasteSlots;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvcName;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvcDescription;
         private System.Windows.Forms.DataGridViewComboBoxColumn dgvcAccess;
@@ -3658,9 +3660,5 @@
         private System.Windows.Forms.DataGridViewComboBoxColumn dgvcBackup;
         private System.Windows.Forms.DataGridViewCheckBoxColumn dgvcHidden;
         private System.Windows.Forms.DataGridViewCheckBoxColumn dgvcBlockDB;
-        private System.Windows.Forms.CheckBox xWoMEnableEnvExtensions;
-        private System.Windows.Forms.CheckBox xHeartbeatToWoMDirect;
-        private System.Windows.Forms.NumericUpDown nCopyPasteSlots;
-        private System.Windows.Forms.Label lCopyPasteSlots;
     }
 }
