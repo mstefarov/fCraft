@@ -51,6 +51,7 @@ namespace fCraft {
 
         #region World List Saving/Loading
 
+        static World firstWorld;
         internal static bool LoadWorldList() {
             World newMainWorld = null;
             WorldList = new World[0];
@@ -59,12 +60,11 @@ namespace fCraft {
                     XDocument doc = XDocument.Load( Paths.WorldListFileName );
                     XElement root = doc.Root;
                     if( root != null ) {
-                        World firstWorld = null;
                         foreach( XElement el in root.Elements( "World" ) ) {
 #if !DEBUG
                             try {
 #endif
-                                LoadWorldListEntry( el, ref firstWorld );
+                                LoadWorldListEntry( el );
 #if !DEBUG
                             } catch( Exception ex ) {
                                 Logger.LogAndReportCrash( "An error occured while trying to parse one of the entries on the world list",
@@ -125,16 +125,14 @@ namespace fCraft {
             return true;
         }
 
-        static void LoadWorldListEntry( [NotNull] XElement el, ref World firstWorld ) {
+        static void LoadWorldListEntry( [NotNull] XElement el ) {
             if( el == null ) throw new ArgumentNullException( "el" );
-            XAttribute temp;
-            if( (temp = el.Attribute( "name" )) == null ) {
-                Logger.Log( "WorldManager: World tag with no name skipped.",
-                            LogType.Error );
+            XAttribute tempAttr;
+            if( (tempAttr = el.Attribute( "name" )) == null ) {
+                Logger.Log( "WorldManager: World tag with no name skipped.", LogType.Error );
                 return;
             }
-
-            string worldName = temp.Value;
+            string worldName = tempAttr.Value;
 
             bool neverUnload = (el.Attribute( "noUnload" ) != null);
 
@@ -148,9 +146,9 @@ namespace fCraft {
                 return;
             }
 
-            if( (temp = el.Attribute( "hidden" )) != null ) {
+            if( (tempAttr = el.Attribute( "hidden" )) != null ) {
                 bool isHidden;
-                if( Boolean.TryParse( temp.Value, out isHidden ) ) {
+                if( Boolean.TryParse( tempAttr.Value, out isHidden ) ) {
                     world.IsHidden = isHidden;
                 } else {
                     Logger.Log( "WorldManager: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
@@ -172,9 +170,9 @@ namespace fCraft {
                 world.BuildSecurity = new SecurityController( tempEl, true );
             }
 
-            if( (temp = el.Attribute( "backup" )) != null ) {
+            if( (tempAttr = el.Attribute( "backup" )) != null ) {
                 TimeSpan backupInterval;
-                if( !temp.Value.ToTimeSpan( out backupInterval ) ) {
+                if( !tempAttr.Value.ToTimeSpan( out backupInterval ) ) {
                     Logger.Log( "WorldManager: Could not parse \"backup\" attribute of world \"{0}\", assuming default ({1}).",
                                 LogType.Warning,
                                 worldName,
@@ -192,40 +190,40 @@ namespace fCraft {
 
             XElement envEl = el.Element( EnvironmentXmlTagName );
             if( envEl != null ) {
-                if( (temp = envEl.Attribute( "cloud" )) != null ) {
-                    if( !Int32.TryParse( temp.Value, out world.CloudColor ) ) {
+                if( (tempAttr = envEl.Attribute( "cloud" )) != null ) {
+                    if( !Int32.TryParse( tempAttr.Value, out world.CloudColor ) ) {
                         world.CloudColor = -1;
                         Logger.Log( "WorldManager: Could not parse \"cloud\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
                                     LogType.Warning,
                                     worldName );
                     }
                 }
-                if( (temp = envEl.Attribute( "fog" )) != null ) {
-                    if( !Int32.TryParse( temp.Value, out world.FogColor ) ) {
+                if( (tempAttr = envEl.Attribute( "fog" )) != null ) {
+                    if( !Int32.TryParse( tempAttr.Value, out world.FogColor ) ) {
                         world.FogColor = -1;
                         Logger.Log( "WorldManager: Could not parse \"fog\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
                                     LogType.Warning,
                                     worldName );
                     }
                 }
-                if( (temp = envEl.Attribute( "sky" )) != null ) {
-                    if( !Int32.TryParse( temp.Value, out world.SkyColor ) ) {
+                if( (tempAttr = envEl.Attribute( "sky" )) != null ) {
+                    if( !Int32.TryParse( tempAttr.Value, out world.SkyColor ) ) {
                         world.SkyColor = -1;
                         Logger.Log( "WorldManager: Could not parse \"sky\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
                                     LogType.Warning,
                                     worldName );
                     }
                 }
-                if( (temp = envEl.Attribute( "level" )) != null ) {
-                    if( !Int32.TryParse( temp.Value, out world.EdgeLevel ) ) {
+                if( (tempAttr = envEl.Attribute( "level" )) != null ) {
+                    if( !Int32.TryParse( tempAttr.Value, out world.EdgeLevel ) ) {
                         world.EdgeLevel = -1;
                         Logger.Log( "WorldManager: Could not parse \"level\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
                                     LogType.Warning,
                                     worldName );
                     }
                 }
-                if( (temp = envEl.Attribute( "edge" )) != null ) {
-                    Block block = Map.GetBlockByName( temp.Value );
+                if( (tempAttr = envEl.Attribute( "edge" )) != null ) {
+                    Block block = Map.GetBlockByName( tempAttr.Value );
                     if( block == Block.Undefined ) {
                         world.EdgeBlock = Block.Water;
                         Logger.Log( "WorldManager: Could not parse \"edge\" attribute of Environment settings for world \"{0}\", assuming default (Water).",
@@ -319,8 +317,14 @@ namespace fCraft {
                 foreach( World world in WorldList ) {
                     XElement temp = new XElement( "World" );
                     temp.Add( new XAttribute( "name", world.Name ) );
-                    temp.Add( world.AccessSecurity.Serialize( AccessSecurityXmlTagName ) );
-                    temp.Add( world.BuildSecurity.Serialize( BuildSecurityXmlTagName ) );
+
+                    if( world.AccessSecurity.HasRestrictions ) {
+                        temp.Add( world.AccessSecurity.Serialize( AccessSecurityXmlTagName ) );
+                    }
+                    if( world.BuildSecurity.HasRestrictions ) {
+                        temp.Add( world.BuildSecurity.Serialize( BuildSecurityXmlTagName ) );
+                    }
+
                     if( world.NeverUnload ) {
                         temp.Add( new XAttribute( "noUnload", true ) );
                     }
@@ -355,7 +359,9 @@ namespace fCraft {
                     if( world.SkyColor > -1 ) elEnv.Add( new XAttribute( "sky", world.SkyColor ) );
                     if( world.EdgeLevel > -1 ) elEnv.Add( new XAttribute( "level", world.EdgeLevel ) );
                     if( world.EdgeBlock != Block.Water ) elEnv.Add( new XAttribute( "edge", world.EdgeBlock ) );
-                    temp.Add( elEnv );
+                    if( elEnv.HasAttributes ) {
+                        temp.Add( elEnv );
+                    }
 
                     root.Add( temp );
                 }
