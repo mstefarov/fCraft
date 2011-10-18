@@ -30,6 +30,7 @@ namespace fCraft.Drawing {
 
         public bool Not { get; private set; }
         public Block[] Blocks { get; private set; }
+        public Vector3I Start { get; private set; }
 
         public CopyState CopyInfo { get; private set; }
 
@@ -68,16 +69,17 @@ namespace fCraft.Drawing {
 
             // Warn if paste will be cut off
             if( Bounds.XMin < 0 || Bounds.XMax > Map.Width - 1 ) {
-                Player.MessageNow( "Warning: Not enough room horizontally (X), paste cut off." );
+                Player.Message( "Warning: Not enough room horizontally (X), paste cut off." );
             }
             if( Bounds.YMin < 0 || Bounds.YMax > Map.Length - 1 ) {
-                Player.MessageNow( "Warning: Not enough room horizontally (Y), paste cut off." );
+                Player.Message( "Warning: Not enough room horizontally (Y), paste cut off." );
             }
             if( Bounds.ZMin < 0 || Bounds.ZMax > Map.Height - 1 ) {
-                Player.MessageNow( "Warning: Not enough room vertically, paste cut off." );
+                Player.Message( "Warning: Not enough room vertically, paste cut off." );
             }
 
             // Clip bounds to the map, to avoid unnecessary iteration beyond the map boundaries
+            Start = Bounds.MinVertex;
             Bounds = Bounds.GetIntersection( Map.Bounds );
 
             // Set everything up for pasting
@@ -141,7 +143,7 @@ namespace fCraft.Drawing {
 
         protected override Block NextBlock() {
             // ReSharper disable LoopCanBeConvertedToQuery
-            Block block = (Block)CopyInfo.Buffer[Coords.X - Bounds.XMin, Coords.Y - Bounds.YMin, Coords.Z - Bounds.ZMin];
+            Block block = (Block)CopyInfo.Buffer[Coords.X - Start.X, Coords.Y - Start.Y, Coords.Z - Start.Z];
             if( Blocks != null ) {
                 if( Not ) {
                     for( int i = 0; i < Blocks.Length; i++ ) {

@@ -16,6 +16,12 @@ namespace fCraft {
         // ReSharper restore FieldCanBeMadeReadOnly.Global
 
 
+        public Vector3I Dimensions {
+            get {
+                return new Vector3I( Width, Length, Height );
+            }
+        }
+
         /// <summary> Constructs a bounding box using two vectors as opposite corners. </summary>
         public BoundingBox( Vector3I p1, Vector3I p2 ) :
             this( p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z ) {
@@ -49,9 +55,9 @@ namespace fCraft {
         /// <summary> Checks whether this bounding box intersects/touches another one. </summary>
         public bool Insersects( [NotNull] BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            return XMin >= other.XMax || XMax <= other.XMin ||
-                   YMin >= other.YMax || YMax <= other.YMin ||
-                   ZMin >= other.ZMax || ZMax <= other.ZMin;
+            return !(XMax < other.XMin || XMin > other.XMax ||
+                     YMax < other.YMin || YMin > other.YMax ||
+                     ZMax < other.ZMin || ZMin > other.ZMax);
         }
 
 
