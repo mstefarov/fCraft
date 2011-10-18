@@ -40,6 +40,7 @@ namespace fCraft.ConfigGUI {
             loadedOn = original.loadedOn;
             mapChangedBy = original.mapChangedBy;
             mapChangedOn = original.mapChangedOn;
+            environmentEl = original.environmentEl;
         }
 
 
@@ -330,14 +331,7 @@ namespace fCraft.ConfigGUI {
         }
 
 
-        #region ICloneable Members
-
-        public object Clone() {
-            return new WorldListEntry( this );
-        }
-
-        #endregion
-
+        #region Backup
 
         public static string BackupNameFromValue( TimeSpan value ) {
             TimeSpan closestMatch = BackupEnumValues.OrderBy( t => Math.Abs( value.Subtract( t ).Ticks ) ).First();
@@ -388,11 +382,18 @@ namespace fCraft.ConfigGUI {
             TimeSpan.FromHours(48)
         };
 
+        #endregion
+
 
         public YesNoAuto BlockDBEnabled { get; set; }
         readonly bool blockDBIsPreloaded;
         readonly int blockDBLimit;
         TimeSpan blockDBTimeLimit;
+
+
+        public object Clone() {
+            return new WorldListEntry( this );
+        }
 
 
         // Comparison method used to customize sorting
