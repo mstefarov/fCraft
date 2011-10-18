@@ -1107,7 +1107,7 @@ namespace fCraft {
             } else {
                 switch( Char.ToLower( param[0] ) ) {
                     case 'a':
-                        listName = "all worlds";
+                        listName = "worlds";
                         extraParam = "all ";
                         worlds = WorldManager.WorldList;
                         break;
@@ -1135,7 +1135,7 @@ namespace fCraft {
                 player.Message( "There are no {0}", listName );
             } else if( worlds.Length <= WorldNamesPerPage ) {
                 player.MessagePrefixed( "&S  ", "&SThere are {0} {1}: {2}",
-                                        worlds.Length, listName.UppercaseFirst(), worlds.JoinToClassyString() );
+                                        worlds.Length, listName, worlds.JoinToClassyString() );
             } else {
                 if( offset >= worlds.Length ) {
                     player.Message( "Worlds: Given offset ({0}) is greater than the number of {1} ({2}).",
@@ -1146,9 +1146,8 @@ namespace fCraft {
                                         listName.UppercaseFirst(), worldsPart.JoinToClassyString() );
 
                 if( offset + worldsPart.Length < worlds.Length ) {
-                    player.Message( "Showing {0}-{1} (out of {2}). Next: &H/worlds {3}{4}",
-                                    offset + 1, offset + worldsPart.Length, worlds.Length,
-                                    extraParam, offset + worldsPart.Length );
+                    player.Message( "Showing {0}-{1} (out of {2}). Next: &H/worlds {3}{1}",
+                                    offset + 1, offset + worldsPart.Length, worlds.Length, extraParam );
                 } else {
                     player.Message( "Showing worlds {0}-{1} (out of {2}).",
                                     offset + 1, offset + worldsPart.Length, worlds.Length );

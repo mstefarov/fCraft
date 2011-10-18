@@ -592,6 +592,10 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 }
             }
 
+            foreach( ListViewItem item in vPermissions.Items ) {
+                CheckPermissionConsistency( (Permission)item.Tag, item.Checked );
+            }
+
             xDrawLimit.Enabled = rank.Can( Permission.Draw ) || rank.Can( Permission.CopyAndPaste );
             nDrawLimit.Enabled = xDrawLimit.Checked;
             xAllowSecurityCircumvention.Enabled = rank.Can( Permission.ManageWorlds ) || rank.Can( Permission.ManageZones );
@@ -611,10 +615,6 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             foreach( Rank rank in RankManager.Ranks ) {
                 vRanks.Items.Add( rank.ToComboBoxOption() );
             }
-            if( selectedRank != null ) {
-                vRanks.SelectedIndex = selectedRank.Index;
-            }
-            SelectRank( selectedRank );
 
             FillRankList( cDefaultRank, "(lowest rank)" );
             cDefaultRank.SelectedIndex = RankManager.GetIndex( RankManager.DefaultRank );
@@ -624,6 +624,11 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             cPatrolledRank.SelectedIndex = RankManager.GetIndex( RankManager.PatrolledRank );
             FillRankList( cBlockDBAutoEnableRank, "(default rank)" );
             cBlockDBAutoEnableRank.SelectedIndex = RankManager.GetIndex( RankManager.BlockDBAutoEnableRank );
+
+            if( selectedRank != null ) {
+                vRanks.SelectedIndex = selectedRank.Index;
+            }
+            SelectRank( selectedRank );
 
             foreach( var box in permissionLimitBoxes.Values ) {
                 box.RebuildList();
@@ -900,7 +905,12 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             if( selectedRank == null ) return;
 
             Permission permission = (Permission)e.Item.Tag;
+            CheckPermissionConsistency( permission, check );
 
+            selectedRank.Permissions[(int)e.Item.Tag] = e.Item.Checked;
+        }
+
+        void CheckPermissionConsistency( Permission permission, bool check) {
             switch( permission ) {
                 case Permission.Chat:
                     if( !check ) {
@@ -1047,10 +1057,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             if( permissionLimitBoxes.ContainsKey( permission ) ) {
                 permissionLimitBoxes[permission].PermissionToggled( check );
             }
-
-            selectedRank.Permissions[(int)e.Item.Tag] = e.Item.Checked;
         }
-
 
         private void tRankName_Validating( object sender, CancelEventArgs e ) {
             if( selectedRank == null ) return;

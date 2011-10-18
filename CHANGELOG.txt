@@ -1,3 +1,27 @@
+0.602
+ Feature: One-click paste commands are now the default. Two-click aligned paste commands are now known as pastex/pastenotx (or px/pnx)
+ Feature: Added /rb command (shortcut for /brush replacebrush + /c).
+ Feature: Added a way to change number of copy/paste slots per rank from ConfigGUI.
+ Fix: Fixed a few typos and missing help entries.
+ Fix: Fixed DrawOp completion message and log entry.
+ Fix: Fixed /paste and /pastenot not properly clipping against world boundaries.
+ Fix: Fixed ConfigGUI not preserving environment settings for worlds.
+ Fix: Fixed ConfigGUI losing some worlds and showing some errors when importing from 0.5xx.
+ Fix: Fixed /bring not being usable from console.
+ Fix: Fixed /wrename crashing if invalid characters (from filesystem's point of view) are present in the new name.
+ Fix: Fixed /specpatrol (/spat) not checking for Spectate permission.
+ Fix: Fixed /undoarea'd and /undoplayer'ed blocks having "Restored" flag set in /bi
+ Fix: Fixed a detached checkbox on "Worlds" tab of ConfigGUI.
+ Fix: Fixed /say, /staff, and /me getting logged twice.
+ Fix: Fixed per-world backup settings being cleared on server restart.
+ Fix: Fixed a rare NullReferenceException in WorldManager.LoadWorldList that occurred if the main world was missing, and the fallback world had access restrictions.
+ Fix: Fixed some issues with BlockDB settings in "Add World" and "Edit World" popups of ConfiGUI.
+ Fix: Fixed a rare ConfigGUI crash when resetting the rank tab whole one of the old ranks is selected.
+ Change: Sped up /eh and /sph slightly (thanks to Redshift).
+ Change: Improved error handling in /env when setting level.
+ Change: Double-buffered the preview on "Chat" tab of ConfigGUI, to get rid of flicker.
+ Change: Clarified auto-freeze message when trying to kick/ban someone without a required reason string.
+
 0.601
  Fixed several issues with /undo and drawing commands.
 
