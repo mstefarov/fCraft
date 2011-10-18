@@ -344,8 +344,6 @@ namespace fCraft {
                     if( world.LoadedOn != DateTime.MinValue ) {
                         temp.Add( new XElement( "LoadedOn", world.LoadedOn.ToUnixTime() ) );
                     }
-
-
                     if( !String.IsNullOrEmpty( world.MapChangedBy ) ) {
                         temp.Add( new XElement( "MapChangedBy", world.MapChangedBy ) );
                     }
