@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace fCraft.Drawing {
-    class QuickPasteDrawOperation : PasteDrawOperation {
+﻿namespace fCraft.Drawing {
+    sealed class QuickPasteDrawOperation : PasteDrawOperation {
         public override string Name {
             get {
-                if( Not ) {
-                    return "QPasteNot";
-                } else {
-                    return "QPaste";
-                }
+                return Not ? "QPasteNot" : "QPaste";
             }
         }
 
@@ -20,7 +11,7 @@ namespace fCraft.Drawing {
         }
 
         public override bool Prepare( Vector3I[] marks ) {
-            return base.Prepare( new Vector3I[] { marks[0], marks[0] } );
+            return base.Prepare( new[] { marks[0], marks[0] } );
         }
     }
 }

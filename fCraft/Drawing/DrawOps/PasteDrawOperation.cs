@@ -8,11 +8,7 @@ namespace fCraft.Drawing {
 
         public override string Name {
             get {
-                if( Not ) {
-                    return "PasteNot";
-                } else {
-                    return "Paste";
-                }
+                return Not ? "PasteNot" : "Paste";
             }
         }
 
@@ -28,7 +24,9 @@ namespace fCraft.Drawing {
             }
         }
 
+// ReSharper disable MemberCanBeProtected.Global
         public bool Not { get; private set; }
+// ReSharper restore MemberCanBeProtected.Global
         public Block[] Blocks { get; private set; }
         public Vector3I Start { get; private set; }
 

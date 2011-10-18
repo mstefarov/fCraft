@@ -116,7 +116,7 @@ namespace fCraft {
             } else if( newMainWorld.AccessSecurity.HasRestrictions ) {
                 Logger.Log( "Server.LoadWorldList: Main world cannot have any access restrictions. " +
                             "Access permission for \"{0}\" has been reset.", LogType.Warning,
-                             MainWorld.Name );
+                             newMainWorld.Name );
                 newMainWorld.AccessSecurity.Reset();
             }
 
