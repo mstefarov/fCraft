@@ -1024,15 +1024,15 @@ namespace fCraft {
 
 
 
-
         static readonly CommandDescriptor CdPaste = new CommandDescriptor {
-            Name = "paste",
+            Name = "PasteX",
+            Aliases = new[] { "px" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
-            Help = "Pastes previously copied blocks. Used together with &H/copy&S command. " +
+            Help = "Pastes previously copied blocks, aligned. Used together with &H/copy&S command. " +
                    "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
-                   "Alignment semantics are... complicated.",
-            Usage = "/paste [IncludedBlock [AnotherOne etc]]",
+                   "Takes 2 marks: first sets the origin of pasting, and second sets the direction where to paste.",
+            Usage = "/PasteX [IncludedBlock [AnotherOne etc]]",
             Handler = PasteHandler
         };
 
@@ -1045,14 +1045,16 @@ namespace fCraft {
         }
 
 
+
         static readonly CommandDescriptor CdPasteNot = new CommandDescriptor {
-            Name = "PasteNot",
+            Name = "PasteNotX",
+            Aliases = new[] { "pnx", "pxn" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
-            Help = "Pastes previously copied blocks, except the given block type(s). " +
+            Help = "Pastes previously copied blocks, aligned, except the given block type(s). " +
                     "Used together with &H/Copy&S command. " +
-                   "Alignment semantics are... complicated.",
-            Usage = "/PasteNot ExcludedBlock [AnotherOne etc]",
+                   "Takes 2 marks: first sets the origin of pasting, and second sets the direction where to paste.",
+            Usage = "/PasteNotX ExcludedBlock [AnotherOne etc]",
             Handler = PasteNotHandler
         };
 
@@ -1066,10 +1068,8 @@ namespace fCraft {
 
 
 
-
         static readonly CommandDescriptor CdQuickPaste = new CommandDescriptor {
-            Name = "QPaste",
-            Aliases= new[]{"qp"},
+            Name = "Paste",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             Help = "Pastes previously copied blocks. Used together with &H/Copy&S command. " +
@@ -1088,9 +1088,10 @@ namespace fCraft {
         }
 
 
+
         static readonly CommandDescriptor CdQuickPasteNot = new CommandDescriptor {
-            Name = "QPasteNot",
-            Aliases = new[] { "qpn" },
+            Name = "PasteNot",
+            Aliases = new[] { "pn" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             Help = "Pastes previously copied blocks, except the given block type(s). " +

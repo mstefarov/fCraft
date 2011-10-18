@@ -940,8 +940,8 @@ namespace fCraft {
             owner.Add( new XElement( Permission.Import.ToString() ) );
             owner.Add( new XElement( Permission.Draw.ToString() ) );
             owner.Add( new XElement( Permission.DrawAdvanced.ToString() ) );
-            owner.Add( new XElement( Permission.UndoOthersActions.ToString() ) );
             owner.Add( new XElement( Permission.CopyAndPaste.ToString() ) );
+            owner.Add( new XElement( Permission.UndoOthersActions.ToString() ) );
 
             owner.Add( new XElement( Permission.ReloadConfig.ToString() ) );
             owner.Add( new XElement( Permission.ShutdownServer.ToString() ) );
@@ -1009,8 +1009,8 @@ namespace fCraft {
             op.Add( new XElement( Permission.Lock.ToString() ) );
             op.Add( new XElement( Permission.Draw.ToString() ) );
             op.Add( new XElement( Permission.DrawAdvanced.ToString() ) );
-            op.Add( new XElement( Permission.UndoOthersActions.ToString() ) );
             op.Add( new XElement( Permission.CopyAndPaste.ToString() ) );
+            op.Add( new XElement( Permission.UndoOthersActions.ToString() ) );
             permissions.Add( op );
             try {
                 RankManager.AddRank( new Rank( op ) );

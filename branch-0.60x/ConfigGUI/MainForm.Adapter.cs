@@ -232,10 +232,7 @@ namespace fCraft.ConfigGUI {
 
 
         void ApplyTabRanks() {
-            vRanks.Items.Clear();
-            foreach( Rank rank in RankManager.Ranks ) {
-                vRanks.Items.Add( rank.ToComboBoxOption() );
-            }
+            selectedRank = null;
             RebuildRankList();
             DisableRankOptions();
         }
