@@ -131,6 +131,7 @@ namespace fCraft.ConfigGUI {
                 cAccess.SelectedIndex = 0;
                 cBuild.SelectedIndex = 0;
                 cBackup.SelectedIndex = 5;
+                xBlockDB.CheckState = CheckState.Indeterminate;
                 Map = null;
 
             } else {
@@ -949,7 +950,7 @@ Could not load more information:
             gBeaches.Visible = xAdvanced.Checked && xAddBeaches.Checked;
         }
 
-        private void xBlockDB_CheckedChanged( object sender, EventArgs e ) {
+        private void xBlockDB_CheckStateChanged( object sender, EventArgs e ) {
             switch( xBlockDB.CheckState ) {
                 case CheckState.Indeterminate:
                     World.BlockDBEnabled = YesNoAuto.Auto;

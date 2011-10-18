@@ -2313,7 +2313,7 @@
             this.xBlockDB.Text = "Enable BlockDB";
             this.xBlockDB.ThreeState = true;
             this.xBlockDB.UseVisualStyleBackColor = true;
-            this.xBlockDB.CheckedChanged += new System.EventHandler( this.xBlockDB_CheckedChanged );
+            this.xBlockDB.CheckStateChanged += new System.EventHandler( this.xBlockDB_CheckStateChanged );
             // 
             // AddWorldPopup
             // 
