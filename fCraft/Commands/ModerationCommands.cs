@@ -1088,7 +1088,7 @@ namespace fCraft {
             Name = "specpatrol",
             Aliases = new[] { "spat" },
             Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.Patrol },
+            Permissions = new[] { Permission.Patrol, Permission.Spectate },
             Help = "Teleports you to the next player in need of checking.",
             Handler = SpecPatrolHandler
         };

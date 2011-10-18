@@ -8,19 +8,12 @@ namespace fCraft {
     /// <summary>
     /// Defines a 3D bounding box, in integer cartesian coordinates
     /// </summary>
-    public sealed class BoundingBox {
+    public sealed class BoundingBox : IEquatable<BoundingBox> {
         public static readonly BoundingBox Empty = new BoundingBox( 0, 0, 0, 0, 0, 0 );
 
         // ReSharper disable FieldCanBeMadeReadOnly.Global
         public int XMin, YMin, ZMin, XMax, YMax, ZMax;
         // ReSharper restore FieldCanBeMadeReadOnly.Global
-
-
-        public Vector3I Dimensions {
-            get {
-                return new Vector3I( Width, Length, Height );
-            }
-        }
 
         /// <summary> Constructs a bounding box using two vectors as opposite corners. </summary>
         public BoundingBox( Vector3I p1, Vector3I p2 ) :
@@ -52,6 +45,8 @@ namespace fCraft {
         }
 
 
+        #region Collision Detection
+
         /// <summary> Checks whether this bounding box intersects/touches another one. </summary>
         public bool Insersects( [NotNull] BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
@@ -78,18 +73,8 @@ namespace fCraft {
         }
 
 
-
         /// <summary> Checks if a given point is inside this bounding box. </summary>
         public bool Contains( Vector3I point ) {
-            return point.X >= XMin && point.X <= XMax &&
-                   point.Y >= YMin && point.Y <= YMax &&
-                   point.Z >= ZMin && point.Z <= ZMax;
-        }
-
-
-
-        /// <summary> Checks if a given point is inside this bounding box. </summary>
-        public bool Contains( Position point ) {
             return point.X >= XMin && point.X <= XMax &&
                    point.Y >= YMin && point.Y <= YMax &&
                    point.Z >= ZMin && point.Z <= ZMax;
@@ -116,10 +101,22 @@ namespace fCraft {
             }
         }
 
+        #endregion
+
 
         public int Volume {
             get { return (XMax - XMin + 1) * (YMax - YMin + 1) * (ZMax - ZMin + 1); }
         }
+
+
+        public Vector3I Dimensions {
+            get {
+                return new Vector3I( XMax - XMin + 1,
+                                     YMax - YMin + 1,
+                                     ZMax - ZMin + 1 );
+            }
+        }
+
 
         public int Width {
             get { return (XMax - XMin + 1); }
@@ -133,20 +130,17 @@ namespace fCraft {
             get { return (ZMax - ZMin + 1); }
         }
 
+
         /// <summary> Returns the vertex closest to the coordinate origin, opposite MaxVertex. </summary>
         public Vector3I MinVertex {
             get { return new Vector3I( XMin, YMin, ZMin ); }
         }
 
+
         /// <summary> Returns the vertex farthest from the origin, opposite MinVertex. </summary>
         public Vector3I MaxVertex {
             get { return new Vector3I( XMax, YMax, ZMax ); }
         }
-
-        /// <summary> Returns the center point of the bounding box. </summary>
-        public Vector3F Center {
-            get { return new Vector3F( (XMax - XMin) / 2f, (YMax - YMin) / 2f, (ZMax - ZMin) / 2f ); }
-        }                       
 
 
         #region Serialization
@@ -182,5 +176,16 @@ namespace fCraft {
         }
 
         #endregion
+
+
+        public bool Equals( BoundingBox other ) {
+            return XMin == other.XMin && XMax == other.XMax &&
+                   YMin == other.YMin && YMax == other.YMax &&
+                   ZMin == other.ZMin && ZMax == other.ZMax;
+        }
+
+        public override string ToString() {
+            return "BoundingBox" + Dimensions;
+        }
     }
 }

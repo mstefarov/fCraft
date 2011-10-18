@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using fCraft.Drawing;
 
 namespace fCraft {
 
@@ -54,6 +55,23 @@ namespace fCraft {
                 switch( i ) {
                     case 0: X = value; return;
                     case 1: Y = value; return;
+                    default: Z = value; return;
+                }
+            }
+        }
+
+        public int this[Axis i] {
+            get {
+                switch( i ) {
+                    case Axis.X: return X;
+                    case Axis.Y: return Y;
+                    default: return Z;
+                }
+            }
+            set {
+                switch( i ) {
+                    case Axis.X: X = value; return;
+                    case Axis.Y: Y = value; return;
                     default: Z = value; return;
                 }
             }
@@ -229,6 +247,24 @@ namespace fCraft {
                     case 0: X = value; return;
                     case 1: Z = value; return;
                     default: Y = value; return;
+                }
+            }
+        }
+
+
+        public float this[Axis i] {
+            get {
+                switch( i ) {
+                    case Axis.X: return X;
+                    case Axis.Y: return Y;
+                    default: return Z;
+                }
+            }
+            set {
+                switch( i ) {
+                    case Axis.X: X = value; return;
+                    case Axis.Y: Y = value; return;
+                    default: Z = value; return;
                 }
             }
         }
