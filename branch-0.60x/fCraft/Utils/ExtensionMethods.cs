@@ -76,12 +76,12 @@ namespace fCraft {
         /// <summary> Tries to create a DateTime from a string containing a Utc Unix Timestamp.
         /// If the string was empty, returns false and does not affect result. </summary>
         public static bool ToDateTime( this string str, ref DateTime result ) {
-            if( str.Length > 1 ) {
+            long t;
+            if( str.Length > 1 && Int64.TryParse( str, out t ) ) {
                 result = UnixEpoch.AddSeconds( Int64.Parse( str ) );
                 return true;
-            } else {
-                return false;
             }
+            return false;
         }
 
 
