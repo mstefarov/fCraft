@@ -617,6 +617,9 @@ namespace fCraft {
                     } else {
                         try {
                             value = UInt16.Parse( valueText );
+                        } catch( OverflowException ) {
+                            CdEnv.PrintUsage( player );
+                            return;
                         } catch( FormatException ) {
                             CdEnv.PrintUsage( player );
                             return;
@@ -1919,7 +1922,7 @@ namespace fCraft {
             } else {
                 // Loading to some other (or new) world
                 if( !World.IsValidName( worldName ) ) {
-                    player.MessageNow( "Invalid world name: \"{0}\".", worldName );
+                    player.MessageInvalidWorldName( worldName );
                     return;
                 }
 
@@ -2202,6 +2205,11 @@ namespace fCraft {
             World oldWorld = WorldManager.FindWorldOrPrintMatches( player, oldName );
             if( oldWorld == null ) return;
             oldName = oldWorld.Name;
+
+            if( !World.IsValidName( newName ) ) {
+                player.MessageInvalidWorldName( newName );
+                return;
+            }
 
             World newWorld = WorldManager.FindWorldExact( newName );
             if( !cmd.IsConfirmed && newWorld != null && newWorld != oldWorld ) {

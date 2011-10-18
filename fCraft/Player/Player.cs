@@ -543,6 +543,12 @@ namespace fCraft {
         }
 
 
+        public void MessageInvalidWorldName( [NotNull] string worldName ) {
+            Message( "Unacceptible world name: \"{0}\"", worldName );
+            Message( "World names must be 1-16 characters long, and only contain letters, numbers, and underscores." );
+        }
+
+
         public void MessageMuted() {
             Message( "You are muted for {0} longer.",
                      Info.TimeMutedLeft.ToMiniString() );
