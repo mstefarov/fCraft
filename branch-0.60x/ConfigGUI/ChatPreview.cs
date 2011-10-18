@@ -53,6 +53,7 @@ namespace fCraft.ConfigGUI {
 
         public ChatPreview() {
             InitializeComponent();
+            DoubleBuffered = true;
         }
 
 
@@ -71,7 +72,6 @@ namespace fCraft.ConfigGUI {
         TextSegment[] segments;
 
         public void SetText( string[] lines ) {
-
             List<TextSegment> newSegments = new List<TextSegment>();
             using( Bitmap b = new Bitmap( 1, 1 ) ) {
                 using( Graphics g = Graphics.FromImage( b ) ) { // graphics for string mesaurement
