@@ -480,7 +480,7 @@ namespace fCraft {
                     }
                     Logger.Log( "Player {0} executed {1} on world {2} (between {3} and {4}). Processed {5}, Updated {6}, Skipped {7}, Denied {8} blocks.",
                              LogType.UserActivity,
-                             op.Player, op.DescriptionWithBrush, World.Name,
+                             op.Player.Name, op.DescriptionWithBrush, World.Name,
                              op.Bounds.MinVertex, op.Bounds.MaxVertex,
                              op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
                     op.End();

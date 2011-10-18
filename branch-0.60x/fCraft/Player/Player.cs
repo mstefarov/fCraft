@@ -210,8 +210,10 @@ namespace fCraft {
                         } else if( Info.IsFrozen && !commandDescriptor.UsableByFrozenPlayers ) {
                             MessageNow( "&WYou cannot use this command while frozen." );
                         } else {
-                            Logger.Log( "{0}: {1}", LogType.UserCommand,
-                                        Name, rawMessage );
+                            if( !commandDescriptor.DisableLogging ) {
+                                Logger.Log( "{0}: {1}", LogType.UserCommand,
+                                            Name, rawMessage );
+                            }
                             CommandManager.ParseCommand( this, cmd, fromConsole );
                             if( !commandDescriptor.NotRepeatable ) {
                                 LastCommand = cmd;

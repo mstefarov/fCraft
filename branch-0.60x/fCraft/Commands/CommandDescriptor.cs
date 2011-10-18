@@ -44,6 +44,9 @@ namespace fCraft {
         /// <summary> Whether the command should be usable by frozen players. Default: false </summary>
         public bool UsableByFrozenPlayers { get; set; }
 
+        /// <summary> Whether calls to this command should not be logged. </summary>
+        public bool DisableLogging { get; set; }
+
         /// <summary> Primary command name. Must be set before registering. </summary>
         public string Name { get; set; }
 

@@ -32,6 +32,7 @@ namespace fCraft {
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
             NotRepeatable = true,
+            DisableLogging = true,
             Permissions = new[] { Permission.Chat, Permission.Say },
             Usage = "/say Message",
             Help = "Shows a message in special color, without the player name prefix. " +
@@ -74,6 +75,7 @@ namespace fCraft {
             Permissions = new[] { Permission.Chat },
             NotRepeatable = true,
             IsConsoleSafe = true,
+            DisableLogging = true,
             Usage = "/staff Message",
             Help = "Broadcasts your message to all operators/moderators on the server at once.",
             Handler = StaffHandler
@@ -177,6 +179,7 @@ namespace fCraft {
             Permissions = new[] { Permission.Chat },
             IsConsoleSafe = true,
             NotRepeatable = true,
+            DisableLogging = true,
             Usage = "/me Message",
             Help = "Sends IRC-style action message prefixed with your name.",
             Handler = MeHandler
