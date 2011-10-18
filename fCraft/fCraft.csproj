@@ -198,6 +198,7 @@
     <Compile Include="AutoRank\Criterion.cs" />
     <Compile Include="Commands\ChatCommands.cs" />
     <Compile Include="Drawing\Brushes\ReplaceBrushBrush.cs" />
+    <Compile Include="Drawing\DrawOps\QuickPasteDrawOperation.cs" />
     <Compile Include="Drawing\DrawOpWithBrush.cs" />
     <Compile Include="Drawing\DrawOps\UndoDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\PasteDrawOperation.cs" />

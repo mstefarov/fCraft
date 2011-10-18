@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
-    public sealed class PasteDrawOperation : DrawOpWithBrush {
+    public class PasteDrawOperation : DrawOpWithBrush {
         const BlockChangeContext PasteContext = BlockChangeContext.Drawn | BlockChangeContext.Pasted;
 
         public override string Name {
