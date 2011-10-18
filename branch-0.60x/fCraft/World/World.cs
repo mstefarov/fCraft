@@ -539,12 +539,9 @@ namespace fCraft {
                 if( Map == null ) return;
                 // ReSharper restore HeuristicUnreachableCode
                 // ReSharper restore ConditionIsAlwaysTrueOrFalse
-                TimeSpan actualBackupInterval = BackupInterval;
-                if( actualBackupInterval == DefaultBackupInterval ) {
-                    actualBackupInterval = TimeSpan.FromMinutes( ConfigKey.DefaultBackupInterval.GetInt() );
-                }
-                if( actualBackupInterval != TimeSpan.Zero &&
-                    DateTime.UtcNow.Subtract( lastBackup ) > actualBackupInterval &&
+
+                if( BackupInterval != TimeSpan.Zero &&
+                    DateTime.UtcNow.Subtract( lastBackup ) > BackupInterval &&
                     (Map.HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled()) ) {
 
                     string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized

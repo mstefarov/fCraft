@@ -172,13 +172,15 @@ namespace fCraft {
 
             if( (tempAttr = el.Attribute( "backup" )) != null ) {
                 TimeSpan backupInterval;
-                if( !tempAttr.Value.ToTimeSpan( out backupInterval ) ) {
+                if( tempAttr.Value.ToTimeSpan( out backupInterval ) ) {
+                    world.BackupInterval = backupInterval;
+                } else {
+                    world.BackupInterval = World.DefaultBackupInterval;
                     Logger.Log( "WorldManager: Could not parse \"backup\" attribute of world \"{0}\", assuming default ({1}).",
                                 LogType.Warning,
                                 worldName,
-                                backupInterval.ToMiniString() );
+                                world.BackupInterval.ToMiniString() );
                 }
-                world.BackupInterval = backupInterval;
             } else {
                 world.BackupInterval = World.DefaultBackupInterval;
             }
@@ -323,6 +325,10 @@ namespace fCraft {
                     }
                     if( world.BuildSecurity.HasRestrictions ) {
                         temp.Add( world.BuildSecurity.Serialize( BuildSecurityXmlTagName ) );
+                    }
+
+                    if( world.BackupInterval != World.DefaultBackupInterval ) {
+                        temp.Add( new XAttribute( "backup", world.BackupInterval.ToTickString() ) );
                     }
 
                     if( world.NeverUnload ) {
