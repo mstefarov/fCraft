@@ -111,7 +111,7 @@ namespace fCraft {
 
             // if there is no default world still, die.
             if( newMainWorld == null ) {
-                throw new Exception( "Could not create any worlds" );
+                throw new Exception( "Could not create any worlds." );
 
             } else if( newMainWorld.AccessSecurity.HasRestrictions ) {
                 Logger.Log( "Server.LoadWorldList: Main world cannot have any access restrictions. " +
