@@ -799,7 +799,6 @@ namespace fCraft {
         };
 
         static void BringHandler( Player player, Command cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
             string name = cmd.Next();
             if( name == null ) {
                 CdBring.PrintUsage( player );
@@ -1255,8 +1254,11 @@ namespace fCraft {
 
         // freeze target if player is allowed to do so
         static void FreezeIfAllowed( Player player, PlayerInfo targetInfo ) {
-            if( !targetInfo.IsFrozen && player.Can( Permission.Freeze, targetInfo.Rank ) ) {
-                FreezeHandler( player, new Command( "/freeze " + targetInfo.Name ) );
+            if( targetInfo.IsOnline && !targetInfo.IsFrozen && player.Can( Permission.Freeze, targetInfo.Rank ) ) {
+                try {
+                    targetInfo.Freeze( player, true, true );
+                    player.Message( "Player {0}&S has been frozen while you retry.", targetInfo.ClassyName );
+                } catch( PlayerOpException) { }
             }
         }
 
