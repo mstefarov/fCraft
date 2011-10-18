@@ -153,10 +153,12 @@ namespace fCraft.ConfigGUI {
                     mapChangedOn = DateTime.MinValue;
                 }
             }
+            environmentEl = el.Element( WorldManager.EnvironmentXmlTagName );
         }
 
         public string loadedBy, mapChangedBy;
         public DateTime loadedOn, mapChangedOn;
+        public XElement environmentEl;
 
 
         #region List Properties
@@ -289,6 +291,8 @@ namespace fCraft.ConfigGUI {
             blockDB.Add( new XAttribute( "limit", blockDBLimit ) );
             blockDB.Add( new XAttribute( "timeLimit", (int)blockDBTimeLimit.TotalSeconds ) );
             element.Add( blockDB );
+
+            if( environmentEl != null ) element.Add( environmentEl );
 
             if( !String.IsNullOrEmpty( loadedBy ) ) element.Add( new XElement( "LoadedBy", loadedBy ) );
             if( !String.IsNullOrEmpty( mapChangedBy ) ) element.Add( new XElement( "MapChangedBy", mapChangedBy ) );
