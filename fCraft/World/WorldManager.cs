@@ -442,7 +442,14 @@ namespace fCraft {
         public static World FindWorldOrPrintMatches( [NotNull] Player player, [NotNull] string worldName ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
-
+            if( worldName.Equals( "-" ) ) {
+                if( player.LastUsedWorldName != null ) {
+                    worldName = player.LastUsedWorldName;
+                } else {
+                    player.Message( "Cannot repeat world name: you haven't used any names yet." );
+                    return null;
+                }
+            }
             World[] matches = FindWorlds( player, worldName );
 
             if( matches.Length == 0 ) {
@@ -455,6 +462,7 @@ namespace fCraft {
                 return null;
             }
 
+            player.LastUsedWorldName = matches[0].Name;
             return matches[0];
         }
 

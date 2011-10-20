@@ -1405,6 +1405,10 @@ namespace fCraft {
         #endregion
 
 
+        public string LastUsedPlayerName { get; set; }
+        public string LastUsedWorldName { get; set; }
+
+
         /// <summary> Name formatted for the debugger. </summary>
         public override string ToString() {
             if( Info != null ) {

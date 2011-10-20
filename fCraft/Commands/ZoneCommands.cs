@@ -64,15 +64,8 @@ namespace fCraft {
                 givenZoneName = givenZoneName.Substring( 1 );
 
                 // Find the target player
-                PlayerInfo info;
-                if( !PlayerDB.FindPlayerInfo( givenZoneName, out info ) ) {
-                    player.Message( "More than one player found matching \"{0}\"", givenZoneName.Substring( 1 ) );
-                    return;
-                }
-                if( info == null ) {
-                    player.MessageNoPlayer( givenZoneName );
-                    return;
-                }
+                PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, givenZoneName );
+                if( info == null ) return;
 
                 // Make sure that the name is not taken already.
                 // If a zone named after the player already exists, try adding a number after the name (e.g. "Notch2")
@@ -114,15 +107,8 @@ namespace fCraft {
 
                         if( name.Length == 0 ) continue;
 
-                        PlayerInfo info;
-                        if( !PlayerDB.FindPlayerInfo( name.Substring( 1 ), out info ) ) {
-                            player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
-                            return;
-                        }
-                        if( info == null ) {
-                            player.MessageNoPlayer( name.Substring( 1 ) );
-                            return;
-                        }
+                        PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
+                        if( info == null ) return;
 
                         if( name.StartsWith( "+" ) ) {
                             newZone.Controller.Include( info );
@@ -219,16 +205,8 @@ namespace fCraft {
                 if( name.Length < 2 ) continue;
 
                 if( name.StartsWith( "+" ) ) {
-                    PlayerInfo info;
-                    if( !PlayerDB.FindPlayerInfo( name.Substring( 1 ), out info ) ) {
-                        player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
-                        return;
-                    }
-
-                    if( info == null ) {
-                        player.MessageNoPlayer( name.Substring( 1 ) );
-                        return;
-                    }
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
+                    if( info == null ) return;
 
                     // prevent players from whitelisting themselves to bypass protection
                     if( !player.Info.Rank.AllowSecurityCircumvention && player.Info == info ) {
@@ -257,16 +235,8 @@ namespace fCraft {
                     }
 
                 } else if( name.StartsWith( "-" ) ) {
-                    PlayerInfo info;
-                    if( !PlayerDB.FindPlayerInfo( name.Substring( 1 ), out info ) ) {
-                        player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
-                        return;
-                    }
-
-                    if( info == null ) {
-                        player.MessageNoPlayer( name.Substring( 1 ) );
-                        return;
-                    }
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
+                    if( info == null ) return;
 
                     switch( zone.Controller.Exclude( info ) ) {
                         case PermissionOverride.Deny:

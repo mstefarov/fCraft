@@ -100,6 +100,7 @@ namespace fCraft {
             Array.Sort( infos, new PlayerInfoComparer( player ) );
 
             if( infos.Length == 1 ) {
+                player.LastUsedPlayerName = infos[0].Name;
                 PrintPlayerInfo( player, infos[0] );
 
             } else if( infos.Length > 1 ) {
@@ -433,65 +434,61 @@ namespace fCraft {
                 }
 
             } else {
-                PlayerInfo info;
-                if( !PlayerDB.FindPlayerInfo( name, out info ) ) {
-                    player.Message( "More than one player found matching \"{0}\"", name );
-                } else if( info != null ) {
-                    IPBanInfo ipBan = IPBanList.Get( info.LastIP );
-                    switch( info.BanStatus ) {
-                        case BanStatus.Banned:
-                            if( ipBan != null ) {
-                                player.Message( "Player {0}&S and their IP are &CBANNED&S.", info.ClassyName );
-                            } else {
-                                player.Message( "Player {0}&S is &CBANNED&S (but their IP is not).", info.ClassyName );
-                            }
-                            break;
-                        case BanStatus.IPBanExempt:
-                            if( ipBan != null ) {
-                                player.Message( "Player {0}&S is exempt from an existing IP ban.", info.ClassyName );
-                            } else {
-                                player.Message( "Player {0}&S is exempt from IP bans.", info.ClassyName );
-                            }
-                            break;
-                        case BanStatus.NotBanned:
-                            if( ipBan != null ) {
-                                player.Message( "Player {0}&s is not banned, but their IP is.", info.ClassyName );
-                            } else {
-                                player.Message( "Player {0}&s is not banned.", info.ClassyName );
-                            }
-                            break;
-                    }
+                PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
+                if( info == null ) return;
 
-                    if( !String.IsNullOrEmpty( info.BannedBy ) || info.BanDate != DateTime.MinValue ) {
-                        player.Message( "  Last ban by {0} on {1:dd MMM yyyy} ({2} ago).",
-                                        info.BannedBy,
-                                        info.BanDate,
-                                        info.TimeSinceBan.ToMiniString() );
-                        if( info.BanReason.Length > 0 ) {
-                            player.Message( "  Last ban reason: {0}", info.BanReason );
-                        }
-                    }
-                    if( !String.IsNullOrEmpty( info.UnbannedBy ) || info.UnbanDate != DateTime.MinValue ) {
-                        player.Message( "  Unbanned by {0} on {1:dd MMM yyyy} ({2} ago).",
-                                        info.UnbannedBy,
-                                        info.UnbanDate,
-                                        info.TimeSinceUnban.ToMiniString() );
-                        if( info.UnbanReason.Length > 0 ) {
-                            player.Message( "  Last unban reason: {0}", info.UnbanReason );
-                        }
-                    }
-                    if( info.BanDate != DateTime.MinValue ) {
-                        TimeSpan banDuration;
-                        if( info.IsBanned ) {
-                            banDuration = info.TimeSinceBan;
+                IPBanInfo ipBan = IPBanList.Get( info.LastIP );
+                switch( info.BanStatus ) {
+                    case BanStatus.Banned:
+                        if( ipBan != null ) {
+                            player.Message( "Player {0}&S and their IP are &CBANNED&S.", info.ClassyName );
                         } else {
-                            banDuration = info.UnbanDate.Subtract( info.BanDate );
+                            player.Message( "Player {0}&S is &CBANNED&S (but their IP is not).", info.ClassyName );
                         }
-                        player.Message( "  Last ban duration: {0}",
-                                        banDuration.ToMiniString() );
+                        break;
+                    case BanStatus.IPBanExempt:
+                        if( ipBan != null ) {
+                            player.Message( "Player {0}&S is exempt from an existing IP ban.", info.ClassyName );
+                        } else {
+                            player.Message( "Player {0}&S is exempt from IP bans.", info.ClassyName );
+                        }
+                        break;
+                    case BanStatus.NotBanned:
+                        if( ipBan != null ) {
+                            player.Message( "Player {0}&s is not banned, but their IP is.", info.ClassyName );
+                        } else {
+                            player.Message( "Player {0}&s is not banned.", info.ClassyName );
+                        }
+                        break;
+                }
+
+                if( !String.IsNullOrEmpty( info.BannedBy ) || info.BanDate != DateTime.MinValue ) {
+                    player.Message( "  Last ban by {0} on {1:dd MMM yyyy} ({2} ago).",
+                                    info.BannedBy,
+                                    info.BanDate,
+                                    info.TimeSinceBan.ToMiniString() );
+                    if( info.BanReason.Length > 0 ) {
+                        player.Message( "  Last ban reason: {0}", info.BanReason );
                     }
-                } else {
-                    player.MessageNoPlayer( name );
+                }
+                if( !String.IsNullOrEmpty( info.UnbannedBy ) || info.UnbanDate != DateTime.MinValue ) {
+                    player.Message( "  Unbanned by {0} on {1:dd MMM yyyy} ({2} ago).",
+                                    info.UnbannedBy,
+                                    info.UnbanDate,
+                                    info.TimeSinceUnban.ToMiniString() );
+                    if( info.UnbanReason.Length > 0 ) {
+                        player.Message( "  Last unban reason: {0}", info.UnbanReason );
+                    }
+                }
+                if( info.BanDate != DateTime.MinValue ) {
+                    TimeSpan banDuration;
+                    if( info.IsBanned ) {
+                        banDuration = info.TimeSinceBan;
+                    } else {
+                        banDuration = info.UnbanDate.Subtract( info.BanDate );
+                    }
+                    player.Message( "  Last ban duration: {0}",
+                                    banDuration.ToMiniString() );
                 }
             }
         }

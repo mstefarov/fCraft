@@ -1117,6 +1117,14 @@ namespace fCraft {
         public static Player FindPlayerOrPrintMatches( [NotNull] Player player, [NotNull] string name, bool includeHidden, bool raiseEvent ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( name == null ) throw new ArgumentNullException( "name" );
+            if( name.Equals( "-" ) ) {
+                if( player.LastUsedPlayerName != null ) {
+                    name = player.LastUsedPlayerName;
+                } else {
+                    player.Message( "Cannot repeat player name: you haven't used any names yet." );
+                    return null;
+                }
+            }
             Player[] matches;
             if( includeHidden ) {
                 matches = FindPlayers( name, raiseEvent );
@@ -1133,6 +1141,7 @@ namespace fCraft {
                 return null;
 
             } else {
+                player.LastUsedPlayerName = matches[0].Name;
                 return matches[0];
             }
         }
