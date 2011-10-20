@@ -25,6 +25,7 @@ namespace fCraft {
                 return minRank ?? RankManager.LowestRank;
             }
             set {
+                if( value == null ) throw new ArgumentNullException( "value" );
                 if( minRank != value ) {
                     minRank = value;
                     RaiseChangedEvent();

@@ -566,18 +566,29 @@ namespace fCraft {
                 return;
             }
 
+            string msg = "Undo: ";
             UndoState undoState = player.UndoPop();
             if( undoState == null ) {
                 player.MessageNow( "There is currently nothing to undo." );
                 return;
             }
 
-            string msg = "Undo: ";
+            // Cancel the last DrawOp, if still in progress
             if( undoState.Op != null && !undoState.Op.IsDone ) {
                 undoState.Op.Cancel();
                 msg += String.Format( "Cancelled {0} (was {1}% done). ",
                                      undoState.Op.DescriptionWithBrush,
                                      undoState.Op.PercentDone );
+            }
+
+            // Check if command was too massive.
+            if( undoState.IsTooLargeToUndo ) {
+                if( undoState.Op != null ) {
+                    player.MessageNow( "Cannot undo {0}: too massive.", undoState.Op.DescriptionWithBrush );
+                } else {
+                    player.MessageNow( "Cannot undo: too massive." );
+                }
+                return;
             }
 
             // no need to set player.drawingInProgress here because this is done on the user thread
@@ -795,11 +806,14 @@ namespace fCraft {
         };
 
         static void MirrorHandler( Player player, Command cmd ) {
-            CopyState info = player.GetCopyInformation();
-            if( info == null ) {
+            CopyState originalInfo = player.GetCopyInformation();
+            if( originalInfo == null ) {
                 player.MessageNow( "Nothing to flip! Copy something first." );
                 return;
             }
+
+            // clone to avoid messing up any paste-in-progress
+            CopyState info = new CopyState( originalInfo );
 
             bool flipX = false, flipY = false, flipH = false;
             string axis;
@@ -891,6 +905,8 @@ namespace fCraft {
                     player.Message( "Flipped copy along Z (vertical) axis." );
                 }
             }
+
+            player.SetCopyInformation( info );
         }
 
 
@@ -906,8 +922,8 @@ namespace fCraft {
         };
 
         static void RotateHandler( Player player, Command cmd ) {
-            CopyState info = player.GetCopyInformation();
-            if( info == null ) {
+            CopyState originalInfo = player.GetCopyInformation();
+            if( originalInfo == null ) {
                 player.MessageNow( "Nothing to rotate! Copy something first." );
                 return;
             }
@@ -938,9 +954,8 @@ namespace fCraft {
                 }
             }
 
-
             // allocate the new buffer
-            byte[, ,] oldBuffer = info.Buffer;
+            byte[, ,] oldBuffer = originalInfo.Buffer;
             byte[, ,] newBuffer;
 
             if( degrees == 180 ) {
@@ -955,6 +970,9 @@ namespace fCraft {
             } else { // axis == Axis.Z
                 newBuffer = new byte[oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 )];
             }
+
+            // clone to avoid messing up any paste-in-progress
+            CopyState info = new CopyState( originalInfo, newBuffer );
 
             // construct the rotation matrix
             int[,] matrix = new[,]{
@@ -1019,7 +1037,7 @@ namespace fCraft {
 
             player.Message( "Rotated copy (slot {0}) by {1} degrees around {2} axis.",
                             info.Slot, degrees, axis );
-            info.Buffer = newBuffer;
+            player.SetCopyInformation( info );
         }
 
 

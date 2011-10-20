@@ -1082,6 +1082,8 @@ namespace fCraft {
 
         public void UndoClear() {
             undoStack.Clear();
+        }
+        public void RedoClear() {
             redoStack.Clear();
         }
 
@@ -1197,6 +1199,7 @@ namespace fCraft {
             CopySlot = Math.Min( CopySlot, Info.Rank.CopySlots - 1 );
         }
 
+        [CanBeNull]
         public CopyState GetCopyInformation() {
             return CopyInformation[copySlot];
         }

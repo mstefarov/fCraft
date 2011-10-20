@@ -33,7 +33,7 @@ namespace fCraft {
                 if( value == null ) throw new ArgumentNullException( "value" );
                 if( value == mainWorld ) return;
                 if( RaiseMainWorldChangingEvent( mainWorld, value ) ) {
-                    throw new WorldOpException( value.Name, WorldOpExceptionCode.PluginDenied );
+                    throw new WorldOpException( value.Name, WorldOpExceptionCode.Cancelled );
                 }
                 World oldWorld;
                 lock( SyncRoot ) {
@@ -474,7 +474,7 @@ namespace fCraft {
                 }
 
                 if( RaiseWorldCreatingEvent( player, name, map ) ) {
-                    throw new WorldOpException( name, WorldOpExceptionCode.PluginDenied );
+                    throw new WorldOpException( name, WorldOpExceptionCode.Cancelled );
                 }
 
                 World newWorld = new World( name ) {

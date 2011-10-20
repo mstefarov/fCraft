@@ -217,8 +217,8 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             AddWorldPopup popup = new AddWorldPopup( null );
             if( popup.ShowDialog() == DialogResult.OK ) {
                 Worlds.Add( popup.World );
-                popup.World.loadedBy = WorldListEntry.WorldInfoSignature;
-                popup.World.loadedOn = DateTime.UtcNow;
+                popup.World.LoadedBy = WorldListEntry.WorldInfoSignature;
+                popup.World.LoadedOn = DateTime.UtcNow;
             }
             if( cMainWorld.SelectedItem == null ) {
                 FillWorldList();
@@ -707,6 +707,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
                 selectedRank = null;
                 int index = vRanks.SelectedIndex;
                 Rank deletedRank = RankManager.FindRank( index );
+                if( deletedRank == null ) return;
 
                 string messages = "";
 
@@ -910,7 +911,7 @@ Your rank is {RANK}&S. Type &H/help&S for help." );
             selectedRank.Permissions[(int)e.Item.Tag] = e.Item.Checked;
         }
 
-        void CheckPermissionConsistency( Permission permission, bool check) {
+        void CheckPermissionConsistency( Permission permission, bool check ) {
             switch( permission ) {
                 case Permission.Chat:
                     if( !check ) {

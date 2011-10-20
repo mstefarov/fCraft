@@ -7,14 +7,18 @@ namespace fCraft {
     /// <summary> Integer 3D vector, used by Forester. </summary>
     public struct Vector3I : IEquatable<Vector3I>, IComparable<Vector3I>, IComparable<Vector3F> {
         public static readonly Vector3I Zero = new Vector3I( 0, 0, 0 );
+        public static readonly Vector3I Up = new Vector3I( 0, 0, 1 );
         public static readonly Vector3I Down = new Vector3I( 0, 0, -1 );
 
         public int X, Y, Z;
+        public int X2 { get { return X * X; } }
+        public int Y2 { get { return Y * Y; } }
+        public int Z2 { get { return Z * Z; } }
 
         public Vector3I( int x, int y, int z ) {
             X = x;
-            Z = z;
             Y = y;
+            Z = z;
         }
 
         public Vector3I( Vector3I other ) {
@@ -25,8 +29,8 @@ namespace fCraft {
 
         public Vector3I( Vector3F other ) {
             X = (int)other.X;
-            Y = (int)other.Z;
-            Z = (int)other.Y;
+            Y = (int)other.Y;
+            Z = (int)other.Z;
         }
 
 
@@ -168,11 +172,11 @@ namespace fCraft {
         #endregion
 
 
-        public int GetLargestComponent() {
+        public Axis GetLargestComponent() {
             int maxVal = Math.Max( Math.Abs( X ), Math.Max( Math.Abs( Y ), Math.Abs( Z ) ) );
-            if( maxVal == Math.Abs( X ) ) return 0;
-            if( maxVal == Math.Abs( Y ) ) return 1;
-            return 2;
+            if( maxVal == Math.Abs( X ) ) return Axis.X;
+            if( maxVal == Math.Abs( Y ) ) return Axis.Y;
+            return Axis.Z;
         }
 
         public override string ToString() {
@@ -193,8 +197,9 @@ namespace fCraft {
     /// Floating-point (float) 3D vector, used by Forester
     /// </summary>
     public struct Vector3F : IEquatable<Vector3F>, IComparable<Vector3I>, IComparable<Vector3F> {
-        public static readonly Vector3F Down = new Vector3F( 0, 0, -1 );
         public static readonly Vector3F Zero = new Vector3F( 0, 0, 0 );
+        public static readonly Vector3F Up = new Vector3F( 0, 0, 1 );
+        public static readonly Vector3F Down = new Vector3F( 0, 0, -1 );
 
         public float X, Y, Z;
         public float X2 { get { return X * X; } }
@@ -216,8 +221,8 @@ namespace fCraft {
 
         public Vector3F( Vector3I other ) {
             X = other.X;
-            Y = other.Z;
-            Z = other.Y;
+            Y = other.Y;
+            Z = other.Z;
         }
 
 
@@ -238,15 +243,15 @@ namespace fCraft {
             get {
                 switch( i ) {
                     case 0: return X;
-                    case 1: return Z;
-                    default: return Y;
+                    case 1: return Y;
+                    default: return Z;
                 }
             }
             set {
                 switch( i ) {
                     case 0: X = value; return;
-                    case 1: Z = value; return;
-                    default: Y = value; return;
+                    case 1: Y = value; return;
+                    default: Z = value; return;
                 }
             }
         }
@@ -289,7 +294,7 @@ namespace fCraft {
         }
 
         public static Vector3F operator *( Vector3F a, float scalar ) {
-            return new Vector3F( (a.X * scalar), (a.Y * scalar), (a.Z * scalar) );
+            return new Vector3F( a.X * scalar, a.Y * scalar, a.Z * scalar );
         }
 
         public static Vector3F operator /( Vector3F a, double scalar ) {
@@ -298,19 +303,19 @@ namespace fCraft {
 
 
         public static Vector3F operator +( Vector3I a, Vector3F b ) {
-            return new Vector3F( a.X + b.X, a.Z + b.Y, a.Y + b.Z );
+            return new Vector3F( a.X + b.X, a.Y + b.Y, a.Z + b.Z );
         }
 
         public static Vector3F operator +( Vector3F a, Vector3I b ) {
-            return new Vector3F( a.X + b.X, a.Y + b.Z, a.Z + b.Y );
+            return new Vector3F( a.X + b.X, a.Y + b.Y, a.Z + b.Z );
         }
 
         public static Vector3F operator -( Vector3I a, Vector3F b ) {
-            return new Vector3F( a.X - b.X, a.Z - b.Y, a.Y - b.Z );
+            return new Vector3F( a.X - b.X, a.Y - b.Y, a.Z - b.Z );
         }
 
         public static Vector3F operator -( Vector3F a, Vector3I b ) {
-            return new Vector3F( a.X - b.X, a.Y - b.Z, a.Z - b.Y );
+            return new Vector3F( a.X - b.X, a.Y - b.Y, a.Z - b.Z );
         }
 
         #endregion
@@ -359,19 +364,19 @@ namespace fCraft {
 
 
         public static bool operator >( Vector3F a, Vector3F b ) {
-            return (a.X * a.X + a.Z * a.Z + a.Y * a.Y) > (b.X * b.X + b.Z * b.Z + b.Y * b.Y);
+            return (a.X * a.X + a.Y * a.Y + a.Z * a.Z) > (b.X * b.X + b.Y * b.Y + b.Z * b.Z);
         }
 
         public static bool operator <( Vector3F a, Vector3F b ) {
-            return (a.X * a.X + a.Z * a.Z + a.Y * a.Y) < (b.X * b.X + b.Z * b.Z + b.Y * b.Y);
+            return (a.X * a.X + a.Y * a.Y + a.Z * a.Z) < (b.X * b.X + b.Y * b.Y + b.Z * b.Z);
         }
 
         public static bool operator >=( Vector3F a, Vector3F b ) {
-            return (a.X * a.X + a.Z * a.Z + a.Y * a.Y) >= (b.X * b.X + b.Z * b.Z + b.Y * b.Y);
+            return (a.X * a.X + a.Y * a.Y + a.Z * a.Z) >= (b.X * b.X + b.Y * b.Y + b.Z * b.Z);
         }
 
         public static bool operator <=( Vector3F a, Vector3F b ) {
-            return (a.X * a.X + a.Z * a.Z + a.Y * a.Y) <= (b.X * b.X + b.Z * b.Z + b.Y * b.Y);
+            return (a.X * a.X + a.Y * a.Y + a.Z * a.Z) <= (b.X * b.X + b.Y * b.Y + b.Z * b.Z);
         }
 
         #endregion

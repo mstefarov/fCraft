@@ -36,10 +36,10 @@ namespace fCraft.ConfigGUI {
             blockDBTimeLimit = original.blockDBTimeLimit;
             accessSecurity = new SecurityController( original.accessSecurity );
             buildSecurity = new SecurityController( original.buildSecurity );
-            loadedBy = original.loadedBy;
-            loadedOn = original.loadedOn;
-            mapChangedBy = original.mapChangedBy;
-            mapChangedOn = original.mapChangedOn;
+            LoadedBy = original.LoadedBy;
+            LoadedOn = original.LoadedOn;
+            MapChangedBy = original.MapChangedBy;
+            MapChangedOn = original.MapChangedOn;
             environmentEl = original.environmentEl;
         }
 
@@ -138,28 +138,28 @@ namespace fCraft.ConfigGUI {
             }
 
             if( (tempEl = el.Element( "LoadedBy" )) != null ) {
-                loadedBy = tempEl.Value;
+                LoadedBy = tempEl.Value;
             }
             if( (tempEl = el.Element( "MapChangedBy" )) != null ) {
-                mapChangedBy = tempEl.Value;
+                MapChangedBy = tempEl.Value;
             }
 
             if( (tempEl = el.Element( "LoadedOn" )) != null ) {
-                if( !DateTimeUtil.ToDateTime( tempEl.Value, ref loadedOn ) ) {
-                    loadedOn = DateTime.MinValue;
+                if( !tempEl.Value.ToDateTime( ref LoadedOn ) ) {
+                    LoadedOn = DateTime.MinValue;
                 }
             }
             if( (tempEl = el.Element( "MapChangedOn" )) != null ) {
-                if( !DateTimeUtil.ToDateTime( tempEl.Value, ref mapChangedOn ) ) {
-                    mapChangedOn = DateTime.MinValue;
+                if( !tempEl.Value.ToDateTime( ref MapChangedOn ) ) {
+                    MapChangedOn = DateTime.MinValue;
                 }
             }
             environmentEl = el.Element( WorldManager.EnvironmentXmlTagName );
         }
 
-        public string loadedBy, mapChangedBy;
-        public DateTime loadedOn, mapChangedOn;
-        public XElement environmentEl;
+        public string LoadedBy, MapChangedBy;
+        public DateTime LoadedOn, MapChangedOn;
+        readonly XElement environmentEl;
 
 
         #region List Properties
@@ -242,7 +242,7 @@ namespace fCraft.ConfigGUI {
                         return;
                     }
                 }
-                accessSecurity.MinRank = null;
+                accessSecurity.ResetMinRank();
                 accessRankString = "";
             }
         }
@@ -266,7 +266,7 @@ namespace fCraft.ConfigGUI {
                         return;
                     }
                 }
-                buildSecurity.MinRank = null;
+                buildSecurity.ResetMinRank();
                 buildRankString = null;
             }
         }
@@ -295,17 +295,28 @@ namespace fCraft.ConfigGUI {
 
             if( environmentEl != null ) element.Add( environmentEl );
 
-            if( !String.IsNullOrEmpty( loadedBy ) ) element.Add( new XElement( "LoadedBy", loadedBy ) );
-            if( !String.IsNullOrEmpty( mapChangedBy ) ) element.Add( new XElement( "MapChangedBy", mapChangedBy ) );
-            if( loadedOn != DateTime.MinValue ) element.Add( new XElement( "LoadedOn", loadedOn ) );
-            if( mapChangedOn != DateTime.MinValue ) element.Add( new XElement( "MapChangedOn", mapChangedOn ) );
+            if( !String.IsNullOrEmpty( LoadedBy ) ) element.Add( new XElement( "LoadedBy", LoadedBy ) );
+            if( !String.IsNullOrEmpty( MapChangedBy ) ) element.Add( new XElement( "MapChangedBy", MapChangedBy ) );
+            if( LoadedOn != DateTime.MinValue ) element.Add( new XElement( "LoadedOn", LoadedOn ) );
+            if( MapChangedOn != DateTime.MinValue ) element.Add( new XElement( "MapChangedOn", MapChangedOn ) );
             return element;
         }
 
 
         public void ReparseRanks() {
-            accessSecurity.MinRank = Rank.Parse( accessRankString );
-            buildSecurity.MinRank = Rank.Parse( buildRankString );
+            Rank accessMinRank = Rank.Parse( accessRankString );
+            if( accessMinRank != null ) {
+                accessSecurity.MinRank = accessMinRank;
+            } else {
+                accessSecurity.ResetMinRank();
+            }
+
+            Rank buildMinRank = Rank.Parse( buildRankString );
+            if( buildMinRank != null ) {
+                buildSecurity.MinRank = buildMinRank;
+            } else {
+                buildSecurity.ResetMinRank();
+            }
         }
 
 

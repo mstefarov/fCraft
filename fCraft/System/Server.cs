@@ -189,7 +189,7 @@ namespace fCraft {
             Paths.ConfigFileName = Paths.ConfigFileNameDefault;
             string configFile = GetArg( ArgKey.Config );
             if( configFile != null ) {
-                if( Paths.TestFile( "config.xml", configFile, false, true, false ) ) {
+                if( Paths.TestFile( "config.xml", configFile, false, FileAccess.Read ) ) {
                     Paths.ConfigFileName = new FileInfo( configFile ).FullName;
                 }
             }

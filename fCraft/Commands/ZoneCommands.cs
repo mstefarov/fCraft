@@ -198,7 +198,8 @@ namespace fCraft {
         };
 
         static void ZoneEditHandler( Player player, Command cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
             bool changesWereMade = false;
             string zoneName = cmd.Next();
@@ -207,7 +208,7 @@ namespace fCraft {
                 return;
             }
 
-            Zone zone = player.World.Map.Zones.Find( zoneName );
+            Zone zone = playerWorld.LoadMap().Zones.Find( zoneName );
             if( zone == null ) {
                 player.MessageNoZone( zoneName );
                 return;
