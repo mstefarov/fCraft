@@ -436,6 +436,7 @@ namespace fCraft {
 
             // Parse player name
             PlayerInfo targetInfo = PlayerDB.FindPlayerInfoExact( name );
+            player.LastUsedPlayerName = name;
 
             if( targetInfo == null ) {
                 if( !player.Can( Permission.EditPlayerDB ) ) {
@@ -462,7 +463,6 @@ namespace fCraft {
             }
 
             try {
-                player.LastUsedPlayerName = targetInfo.Name;
                 targetInfo.ChangeRank( player, newRank, cmd.NextAll(), true, true, false );
             } catch( PlayerOpException ex ) {
                 player.Message( ex.MessageColored );
@@ -594,6 +594,7 @@ namespace fCraft {
                 Player[] infos = playerWorld.FindPlayers( player, playerName );
                 if( infos.Length == 1 ) {
                     Player target = infos[0];
+                    player.LastUsedPlayerName = target.Name;
                     if( player.Can( Permission.Bring, target.Info.Rank ) ) {
                         target.Send( PacketWriter.MakeAddEntity( 255, target.ListName, player.Position ) );
                     } else {
@@ -731,7 +732,6 @@ namespace fCraft {
                 Player[] matches = Server.FindPlayers( player, name, true );
                 if( matches.Length == 1 ) {
                     Player target = matches[0];
-                    player.LastUsedPlayerName = target.Name;
                     World targetWorld = target.World;
                     if( targetWorld == null ) PlayerOpException.ThrowNoWorld( target );
 

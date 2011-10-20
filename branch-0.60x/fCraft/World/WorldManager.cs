@@ -450,6 +450,8 @@ namespace fCraft {
                     return null;
                 }
             }
+            player.LastUsedWorldName = worldName;
+
             World[] matches = FindWorlds( player, worldName );
 
             if( matches.Length == 0 ) {
@@ -461,8 +463,6 @@ namespace fCraft {
                 player.MessageManyMatches( "world", matches );
                 return null;
             }
-
-            player.LastUsedWorldName = matches[0].Name;
             return matches[0];
         }
 

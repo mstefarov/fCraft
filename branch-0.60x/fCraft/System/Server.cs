@@ -1082,6 +1082,14 @@ namespace fCraft {
         public static Player[] FindPlayers( [NotNull] Player player, [NotNull] string name, bool raiseEvent ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( name == null ) throw new ArgumentNullException( "name" );
+            if( name.Equals( "-" ) ) {
+                if( player.LastUsedPlayerName != null ) {
+                    name = player.LastUsedPlayerName;
+                } else {
+                    return new Player[0];
+                }
+            }
+            player.LastUsedPlayerName = name;
             List<Player> results = new List<Player>();
             Player[] tempList = Players;
             for( int i = 0; i < tempList.Length; i++ ) {
@@ -1125,6 +1133,7 @@ namespace fCraft {
                     return null;
                 }
             }
+            player.LastUsedPlayerName = name;
             Player[] matches;
             if( includeHidden ) {
                 matches = FindPlayers( name, raiseEvent );
@@ -1141,20 +1150,8 @@ namespace fCraft {
                 return null;
 
             } else {
-                player.LastUsedPlayerName = matches[0].Name;
                 return matches[0];
             }
-        }
-
-
-        /// <summary> Finds a player by name, without any kind of autocompletion. </summary>
-        /// <param name="name"> Name of the player (case-insensitive). </param>
-        /// <returns> Player object, or null if player was not found. </returns>
-        [CanBeNull]
-        public static Player FindPlayer( [NotNull] string name ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
-            return Players.FirstOrDefault( t => t != null &&
-                                                t.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
         }
 
 

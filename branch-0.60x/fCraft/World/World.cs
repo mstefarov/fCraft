@@ -312,25 +312,6 @@ namespace fCraft {
         }
 
 
-        // Find player by name using autocompletion
-        [CanBeNull]
-        public Player FindPlayer( [NotNull] string playerName ) {
-            if( playerName == null ) throw new ArgumentNullException( "playerName" );
-            Player[] tempList = Players;
-            Player result = null;
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] != null && tempList[i].Name.StartsWith( playerName, StringComparison.OrdinalIgnoreCase ) ) {
-                    if( result == null ) {
-                        result = tempList[i];
-                    } else {
-                        return null;
-                    }
-                }
-            }
-            return result;
-        }
-
-
         public Player[] FindPlayers( [NotNull] Player player, [NotNull] string playerName ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
