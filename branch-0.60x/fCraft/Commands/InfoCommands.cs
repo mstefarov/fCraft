@@ -502,12 +502,12 @@ namespace fCraft {
         #region RankInfo
 
         static readonly CommandDescriptor CdRankInfo = new CommandDescriptor {
-            Name = "rankinfo",
+            Name = "RankInfo",
             Aliases = new[] { "rinfo" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Usage = "/rankinfo RankName",
+            Usage = "/RankInfo RankName",
             Help = "Shows a list of permissions granted to a rank. To see a list of all ranks, use &H/ranks",
             Handler = RankInfoHandler
         };
@@ -780,7 +780,7 @@ namespace fCraft {
         #region Measure
 
         static readonly CommandDescriptor CdMeasure = new CommandDescriptor {
-            Name = "measure",
+            Name = "Measure",
             Category = CommandCategory.Info | CommandCategory.Building,
             Help = "Shows information about a selection: width/length/height and volume.",
             Handler = MeasureHandler
@@ -931,7 +931,7 @@ namespace fCraft {
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Usage = "/help [CommandName]",
+            Usage = "/Help [CommandName]",
             Help = "Derp.",
             Handler = HelpHandler
         };
@@ -983,12 +983,12 @@ namespace fCraft {
 
             } else {
                 player.Message( "  To see a list of all commands, write &H/commands" );
-                player.Message( "  To see detailed help for a command, write &H/help Command" );
+                player.Message( "  To see detailed help for a command, write &H/Help Command" );
                 if( player != Player.Console ) {
                     player.Message( "  To see your stats, write &H/info" );
                 }
-                player.Message( "  To list available worlds, write &H/worlds" );
-                player.Message( "  To join a world, write &H/join WorldName" );
+                player.Message( "  To list available worlds, write &H/Worlds" );
+                player.Message( "  To join a world, write &H/Join WorldName" );
                 player.Message( "  To send private messages, write &H@PlayerName Message" );
             }
         }

@@ -258,7 +258,7 @@ namespace fCraft {
         #region Deafen
 
         static readonly CommandDescriptor CdDeafen = new CommandDescriptor {
-            Name = "deafen",
+            Name = "Deafen",
             Aliases = new[] { "deaf" },
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
@@ -272,7 +272,7 @@ namespace fCraft {
                     player.MessageNow( "" );
                 }
                 player.MessageNow( "Deafened mode: ON" );
-                player.MessageNow( "You will not see ANY messages until you type &H/deafen&S again." );
+                player.MessageNow( "You will not see ANY messages until you type &H/Deafen&S again." );
                 player.IsDeaf = true;
             } else {
                 player.IsDeaf = false;
@@ -312,7 +312,7 @@ namespace fCraft {
             Category = CommandCategory.Chat,
             Usage = "/timer <Duration> <Message>",
             Help = "Starts a timer with a given duration and message. " +
-                   "As the timer counts down, announcements are shown globally. See also: &H/help timer abort",
+                   "As the timer counts down, announcements are shown globally. See also: &H/Help timer abort",
             HelpSections = new Dictionary<string, string> {
                 { "abort",  "&H/timer abort <TimerID>&S - Aborts a timer with the given ID number. " +
                             "To see a list of timers and their IDs, type &H/timer&S without any parameters." }

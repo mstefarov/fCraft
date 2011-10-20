@@ -166,7 +166,7 @@ namespace fCraft.ConfigGUI {
         private void bGreeting_Click( object sender, EventArgs e ) {
             TextEditorPopup popup = new TextEditorPopup( Paths.GreetingFileName,
 @"Welcome to {SERVER_NAME}
-Your rank is {RANK}&S. Type &H/help&S for help." );
+Your rank is {RANK}&S. Type &H/Help&S for help." );
             popup.ShowDialog();
         }
 

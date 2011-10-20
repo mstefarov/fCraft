@@ -663,7 +663,7 @@ namespace fCraft {
         #region SetInfo
 
         static readonly CommandDescriptor CdSetInfo = new CommandDescriptor {
-            Name = "setinfo",
+            Name = "SetInfo",
             Category = CommandCategory.Maintenance | CommandCategory.Moderation,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.EditPlayerDB },

@@ -741,7 +741,7 @@ namespace fCraft {
                     MessageNow( "Welcome back to {0}", ConfigKey.ServerName.GetString() );
                 }
 
-                MessageNow( "Your rank is {0}&S. Type &H/help&S for help.",
+                MessageNow( "Your rank is {0}&S. Type &H/Help&S for help.",
                             Info.Rank.ClassyName );
             }
 
@@ -974,7 +974,7 @@ namespace fCraft {
 
             // Teleport player to the target location
             // This allows preserving spawn rotation/look, and allows
-            // teleporting player to a specific location (e.g. /tp or /bring)
+            // teleporting player to a specific location (e.g. /TP or /Bring)
             writer.WriteTeleport( 255, Position );
             BytesSent += 10;
 

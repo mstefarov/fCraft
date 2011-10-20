@@ -30,7 +30,7 @@ namespace fCraft {
         /// <summary> The godly pseudo-player for commands called from the server console.
         /// Console has all the permissions granted.
         /// Note that Player.Console.World is always null,
-        /// and that prevents console from calling certain commands (like /tp). </summary>
+        /// and that prevents console from calling certain commands (like /TP). </summary>
         public static Player Console, AutoRank;
 
 
@@ -490,7 +490,7 @@ namespace fCraft {
 
         public void MessageNoWorld( [NotNull] string worldName ) {
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
-            Message( "No worlds found matching \"{0}\". See &H/worlds", worldName );
+            Message( "No worlds found matching \"{0}\". See &H/Worlds", worldName );
         }
 
 
@@ -541,7 +541,7 @@ namespace fCraft {
 
         public void MessageNoZone( [NotNull] string zoneName ) {
             if( zoneName == null ) throw new ArgumentNullException( "zoneName" );
-            Message( "No zones found matching \"{0}\". See &H/zones", zoneName );
+            Message( "No zones found matching \"{0}\". See &H/Zones", zoneName );
         }
 
 

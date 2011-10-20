@@ -314,7 +314,7 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdWater = new CommandDescriptor {
-            Name = "water",
+            Name = "Water",
             Aliases = new[] { "w" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.PlaceWater },
@@ -535,7 +535,7 @@ namespace fCraft {
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
             Usage = "/replacebrush Block BrushName [Params]",
             Help = "Replaces all blocks of specified type(s) in an area with output of a given brush. " +
-                   "See &H/help brush&S for a list of available brushes.",
+                   "See &H/Help brush&S for a list of available brushes.",
             Handler = ReplaceBrushHandler
         };
 
