@@ -103,7 +103,7 @@ namespace fCraft {
 
                 string rankName = cmd.Next();
                 if( rankName == null ) {
-                    player.Message( "No rank was specified. See &H/help zone" );
+                    player.Message( "No rank was specified. See &H/Help zone" );
                     return;
                 }
                 Rank minRank = RankManager.FindRank( rankName );
@@ -204,7 +204,7 @@ namespace fCraft {
             bool changesWereMade = false;
             string zoneName = cmd.Next();
             if( zoneName == null ) {
-                player.Message( "No zone name specified. See &H/help ZEdit" );
+                player.Message( "No zone name specified. See &H/Help ZEdit" );
                 return;
             }
 
@@ -322,11 +322,11 @@ namespace fCraft {
         #region ZoneInfo
 
         static readonly CommandDescriptor CdZoneInfo = new CommandDescriptor {
-            Name = "zinfo",
+            Name = "ZInfo",
             Aliases = new[] { "ZoneInfo" },
             Category = CommandCategory.Zone | CommandCategory.Info,
             Help = "Shows detailed information about a zone.",
-            Usage = "/zinfo ZoneName",
+            Usage = "/ZInfo ZoneName",
             UsableByFrozenPlayers = true,
             Handler = ZoneInfoHandler
         };
@@ -335,7 +335,7 @@ namespace fCraft {
             if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
             string zoneName = cmd.Next();
             if( zoneName == null ) {
-                player.Message( "No zone name specified. See &H/help zinfo" );
+                player.Message( "No zone name specified. See &H/Help ZInfo" );
                 return;
             }
 
@@ -390,11 +390,11 @@ namespace fCraft {
         #region ZoneList
 
         static readonly CommandDescriptor CdZoneList = new CommandDescriptor {
-            Name = "zones",
+            Name = "Zones",
             Category = CommandCategory.Zone | CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Usage = "/zones [WorldName]",
+            Usage = "/Zones [WorldName]",
             Help = "Lists all zones defined on the current map/world.",
             Handler = ZoneListHandler
         };
@@ -412,7 +412,7 @@ namespace fCraft {
                 player.Message( "List of zones on this world:" );
 
             } else {
-                player.Message( "When used from console, &H/zones&S command requires a world name." );
+                player.Message( "When used from console, &H/Zones&S command requires a world name." );
                 return;
             }
 
@@ -435,7 +435,7 @@ namespace fCraft {
                                     zone.Bounds.Length,
                                     zone.Bounds.Height );
                 }
-                player.Message( "   Type &H/zinfo ZoneName&S for details." );
+                player.Message( "   Type &H/ZInfo ZoneName&S for details." );
             } else {
                 player.Message( "   No zones defined." );
             }
@@ -598,7 +598,7 @@ namespace fCraft {
         #region ZoneTest
 
         static readonly CommandDescriptor CdZoneTest = new CommandDescriptor {
-            Name = "ztest",
+            Name = "ZTest",
             Category = CommandCategory.Zone | CommandCategory.Info,
             Help = "Allows to test exactly which zones affect a particular block. Can be used to find and resolve zone overlaps.",
             Handler = ZoneTestHandler

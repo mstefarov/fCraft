@@ -259,19 +259,19 @@ Affected commands:
 Required permission: Ban
 Affected commands:
     /BanIP
-    /unbanip";
+    /UnbanIP";
 
             vPermissions.Items[(int)Permission.Bring].ToolTipText =
 @"Ability to bring/summon other players to your location.
 This works a bit like reverse-teleport - other player is sent to you.
 Affected commands:
-    /bring
-    /bringall";
+    /Bring
+    /BringAll";
 
             vPermissions.Items[(int)Permission.BringAll].ToolTipText =
 @"Ability to bring/summon many players at a time to your location.
 Affected command:
-    /bringall";
+    /BringAll";
 
             vPermissions.Items[(int)Permission.Build].ToolTipText =
 @"Ability to place blocks on maps. This is a baseline permission
@@ -351,7 +351,7 @@ Affected commands:
 move or build/delete.
 Affected commands:
     /freeze
-    /unfreeze";
+    /Unfreeze";
 
             vPermissions.Items[(int)Permission.Hide].ToolTipText =
 @"Ability to appear hidden from other players. You can still chat,
@@ -375,8 +375,8 @@ Affected commands:
             vPermissions.Items[(int)Permission.Lock].ToolTipText =
 @"Ability to lock/unlock maps (locking puts a map into read-only state).
 Affected commands:
-    /wlock
-    /wunlock";
+    /WLock
+    /WUnlock";
 
             vPermissions.Items[(int)Permission.ManageWorlds].ToolTipText =
 @"Ability to manipulate the world list: adding, renaming, and deleting worlds,
@@ -388,7 +388,7 @@ Affected commands:
     /WMain
     /WAccess and /WBuild
     /WFlush
-    /gen";
+    /Gen";
 
 
             vPermissions.Items[(int)Permission.ManageBlockDB].ToolTipText =
@@ -408,8 +408,8 @@ Affected commands:
 @"Ability to temporarily mute players. Muted players cannot write chat or 
 send PMs, but they can still type in commands, receive PMs, and read chat.
 Affected commands:
-    /mute
-    /unmute";
+    /Mute
+    /Unmute";
 
             vPermissions.Items[(int)Permission.Patrol].ToolTipText =
 @"Ability to patrol lower-ranked players. ""Patrolling"" means teleporting
@@ -443,7 +443,7 @@ Affected commands:
 @"Ability to place water blocks. This also affects draw commands.
 Required permission: Build
 Affected commands:
-    /water
+    /Water
     /bind";
 
             vPermissions.Items[(int)Permission.Promote].ToolTipText =
@@ -485,7 +485,7 @@ Affected commands:
             vPermissions.Items[(int)Permission.Teleport].ToolTipText =
 @"Ability to teleport to other players.
 Affected commands:
-    /tp";
+    /TP";
 
             vPermissions.Items[(int)Permission.UndoOthersActions].ToolTipText =
 @"Ability to undo actions of other players, using the BlockDB.
@@ -513,7 +513,7 @@ Affected commands:
 Affected commands:
     /info
     /BanInfo
-    /BanIP, /BanAll, /unbanip, /UnbanAll";
+    /BanIP, /BanAll, /UnbanIP, /UnbanAll";
         }
 
 

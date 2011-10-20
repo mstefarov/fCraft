@@ -56,7 +56,7 @@ namespace fCraft {
             Usage = "/BlockDB WorldName <Operation>",
             Help = "Manages BlockDB on a given world. " +
                    "Operations are: on, off, clear, limit, timelimit, and preload. " +
-                   "See &H/help BlockDB <Operation>&S for operation-specific help. " +
+                   "See &H/Help BlockDB <Operation>&S for operation-specific help. " +
                    "If no operation is given, BlockDB status is shown.",
             HelpSections = new Dictionary<string, string>{
                 { "auto",       "Allows BlockDB to decide whether it should be enabled or disabled based on each world's permissions (default)." },
@@ -484,7 +484,7 @@ namespace fCraft {
             Permissions = new[] { Permission.ManageWorlds },
             Help = "Prints or changes the environmental variables for a given world. " +
                    "Variables are: clouds, fog, sky, level, edge. " +
-                   "See &H/help env <Variable>&S for details about each variable. " +
+                   "See &H/Help env <Variable>&S for details about each variable. " +
                    "Type &H/env <WorldName> normal&S to reset everything for a world.",
             HelpSections = new Dictionary<string, string>{
                 { "normal",     "&H/env <WorldName> normal&S - Resets all environment settings to their defaults for the given world." },
@@ -713,11 +713,11 @@ namespace fCraft {
         #region Gen
 
         static readonly CommandDescriptor CdGenerate = new CommandDescriptor {
-            Name = "gen",
+            Name = "Gen",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/gen ThemeName TemplateName [X Y Height [FileName]]",
+            Usage = "/Gen ThemeName TemplateName [X Y Height [FileName]]",
             //Help is assigned by WorldCommands.Init
             Handler = GenHandler
         };
@@ -744,7 +744,7 @@ namespace fCraft {
                     height = playerWorld.Map.Height;
                     // ReSharper restore PossibleNullReferenceException
                 } else {
-                    player.Message( "When used from console, /gen requires map dimensions." );
+                    player.Message( "When used from console, /Gen requires map dimensions." );
                     CdGenerate.PrintUsage( player );
                     return;
                 }
@@ -777,7 +777,7 @@ namespace fCraft {
 
             if( fileName == null ) {
                 if( playerWorld == null ) {
-                    player.Message( "When used from console, /gen requires FileName." );
+                    player.Message( "When used from console, /Gen requires FileName." );
                     CdGenerate.PrintUsage( player );
                     return;
                 }
@@ -892,11 +892,11 @@ namespace fCraft {
         #region Join
 
         static readonly CommandDescriptor CdJoin = new CommandDescriptor {
-            Name = "join",
+            Name = "Join",
             Aliases = new[] { "j", "load", "goto", "map" },
             Category = CommandCategory.World,
-            Usage = "/join WorldName",
-            Help = "Teleports the player to a specified world. You can see the list of available worlds by using &H/worlds",
+            Usage = "/Join WorldName",
+            Help = "Teleports the player to a specified world. You can see the list of available worlds by using &H/Worlds",
             Handler = JoinHandler
         };
 
@@ -937,11 +937,11 @@ namespace fCraft {
                 }
 
             } else {
-                // no worlds found - see if player meant to type in "/join" and not "/tp"
+                // no worlds found - see if player meant to type in "/Join" and not "/TP"
                 Player[] players = Server.FindPlayers( player, worldName, true );
                 if( players.Length == 1 ) {
                     player.StopSpectating();
-                    player.ParseMessage( "/tp " + players[0].Name, false );
+                    player.ParseMessage( "/TP " + players[0].Name, false );
                 } else {
                     player.MessageNoWorld( worldName );
                 }
@@ -954,12 +954,12 @@ namespace fCraft {
         #region WLock, WUnlock
 
         static readonly CommandDescriptor CdWorldLock = new CommandDescriptor {
-            Name = "wlock",
+            Name = "WLock",
             Aliases = new[] { "lock" },
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Lock },
-            Usage = "/wlock [*|WorldName]",
+            Usage = "/WLock [*|WorldName]",
             Help = "Puts the world into a locked, read-only mode. " +
                    "No one can place or delete blocks during lockdown. " +
                    "By default this locks the world you're on, but you can also lock any world by name. " +
@@ -993,7 +993,7 @@ namespace fCraft {
                 world = player.World;
 
             } else {
-                player.Message( "When called from console, /wlock requires a world name." );
+                player.Message( "When called from console, /WLock requires a world name." );
                 return;
             }
 
@@ -1006,13 +1006,13 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdWorldUnlock = new CommandDescriptor {
-            Name = "wunlock",
+            Name = "WUnlock",
             Aliases = new[] { "unlock" },
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Lock },
-            Usage = "/wunlock [*|WorldName]",
-            Help = "Removes the lockdown set by &H/lock&S. See &H/help lock&S for more information.",
+            Usage = "/WUnlock [*|WorldName]",
+            Help = "Removes the lockdown set by &H/lock&S. See &H/Help lock&S for more information.",
             Handler = WorldUnlockHandler
         };
 
@@ -1076,13 +1076,13 @@ namespace fCraft {
         #region Worlds
 
         static readonly CommandDescriptor CdWorlds = new CommandDescriptor {
-            Name = "worlds",
+            Name = "Worlds",
             Category = CommandCategory.World | CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
             Aliases = new[] { "maps", "levels" },
-            Usage = "/worlds [all/hidden/populated]",
-            Help = "Shows a list of available worlds. To join a world, type &H/join WorldName&S. " +
+            Usage = "/Worlds [all/hidden/populated]",
+            Help = "Shows a list of available worlds. To join a world, type &H/Join WorldName&S. " +
                    "If the optional \"all\" is added, also shows inaccessible or hidden worlds. " +
                    "If \"hidden\" is added, shows only inaccessible and hidden worlds. " +
                    "If \"populated\" is added, shows only worlds with players online.",
@@ -1146,7 +1146,7 @@ namespace fCraft {
                                         listName.UppercaseFirst(), worldsPart.JoinToClassyString() );
 
                 if( offset + worldsPart.Length < worlds.Length ) {
-                    player.Message( "Showing {0}-{1} (out of {2}). Next: &H/worlds {3}{1}",
+                    player.Message( "Showing {0}-{1} (out of {2}). Next: &H/Worlds {3}{1}",
                                     offset + 1, offset + worldsPart.Length, worlds.Length, extraParam );
                 } else {
                     player.Message( "Showing worlds {0}-{1} (out of {2}).",
@@ -1694,13 +1694,13 @@ namespace fCraft {
         #region WorldHide / WorldUnhide
 
         static readonly CommandDescriptor CdWorldHide = new CommandDescriptor {
-            Name = "whide",
+            Name = "WHide",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/whide WorldName",
-            Help = "Hides the specified world from the &H/worlds&S list. " +
-                   "Hidden worlds can be seen by typing &H/worlds all",
+            Usage = "/WHide WorldName",
+            Help = "Hides the specified world from the &H/Worlds&S list. " +
+                   "Hidden worlds can be seen by typing &H/Worlds all",
             Handler = WorldHideHandler
         };
 
@@ -1725,13 +1725,13 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdWorldUnhide = new CommandDescriptor {
-            Name = "wunhide",
+            Name = "WUnhide",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/wunhide WorldName",
-            Help = "Unhides the specified world from the &H/worlds&S list. " +
-                   "Hidden worlds can be listed by typing &H/worlds all",
+            Usage = "/WUnhide WorldName",
+            Help = "Unhides the specified world from the &H/Worlds&S list. " +
+                   "Hidden worlds can be listed by typing &H/Worlds all",
             Handler = WorldUnhideHandler
         };
 
@@ -1863,7 +1863,7 @@ namespace fCraft {
                    "If the world with the specified name exists, its map is replaced with the specified map file. " +
                    "Otherwise, a new world is created using the given name and map file. " +
                    "NOTE: For security reasons, you may only load files from the map folder. " +
-                   "For a list of supported formats, see &H/help WLoad formats",
+                   "For a list of supported formats, see &H/Help WLoad formats",
             HelpSections = new Dictionary<string, string>{
                 { "formats",    "Supported formats: fCraft FCM (versions 2, 3, and 4), MCSharp/MCZall/MCLawl (.lvl), " +
                                 "D3 (.map), Classic (.dat), InDev (.mclevel), MinerCPP/LuaCraft (.dat), " +
@@ -2259,12 +2259,12 @@ namespace fCraft {
         #region WorldSave
 
         static readonly CommandDescriptor CdWorldSave = new CommandDescriptor {
-            Name = "wsave",
+            Name = "WSave",
             Aliases = new[] { "save" },
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/wsave FileName &Sor&H /save WorldName FileName",
+            Usage = "/WSave FileName &Sor&H /WSave WorldName FileName",
             Help = "Saves a map copy to a file with the specified name. " +
                    "The \".fcm\" file extension can be omitted. " +
                    "If a file with the same name already exists, it will be overwritten.",
@@ -2283,7 +2283,7 @@ namespace fCraft {
             if( p2 == null ) {
                 fileName = p1;
                 if( world == null ) {
-                    player.Message( "When called from console, /save requires WorldName. See \"/help save\" for details." );
+                    player.Message( "When called from console, /wsave requires WorldName. See \"/Help save\" for details." );
                     return;
                 }
             } else {

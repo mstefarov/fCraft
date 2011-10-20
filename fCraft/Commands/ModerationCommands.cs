@@ -211,11 +211,11 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdUnbanIP = new CommandDescriptor {
-            Name = "unbanip",
+            Name = "UnbanIP",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban, Permission.BanIP },
-            Usage = "/unbanip PlayerName|IPaddress [Reason]",
+            Usage = "/UnbanIP PlayerName|IPaddress [Reason]",
             Help = "Removes ban for a specified player's name and last known IP. " +
                    "You can also type in the IP address directly. " +
                    "Any text after the player name will be saved as a memo. ",
@@ -654,13 +654,13 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdUnfreeze = new CommandDescriptor {
-            Name = "unfreeze",
+            Name = "Unfreeze",
             Aliases = new[] { "uf" },
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Freeze },
-            Usage = "/unfreeze PlayerName",
-            Help = "Releases the player from a frozen state. See &H/help freeze&S for more information.",
+            Usage = "/Unfreeze PlayerName",
+            Help = "Releases the player from a frozen state. See &H/Help freeze&S for more information.",
             Handler = UnfreezeHandler
         };
 
@@ -687,10 +687,10 @@ namespace fCraft {
         #region TP
 
         static readonly CommandDescriptor CdTP = new CommandDescriptor {
-            Name = "tp",
+            Name = "TP",
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Teleport },
-            Usage = "/tp PlayerName&S or &H/tp X Y Z",
+            Usage = "/TP PlayerName&S or &H/TP X Y Z",
             Help = "Teleports you to a specified player's location. " +
                    "If coordinates are given, teleports to that location.",
             Handler = TPHandler
@@ -768,12 +768,12 @@ namespace fCraft {
                     player.MessageManyMatches( "player", matches );
 
                 } else {
-                    // Try to guess if player typed "/tp" instead of "/join"
+                    // Try to guess if player typed "/TP" instead of "/Join"
                     World[] worlds = WorldManager.FindWorlds( player, name );
 
                     if( worlds.Length == 1 ) {
                         player.StopSpectating();
-                        player.ParseMessage( "/join " + name, false );
+                        player.ParseMessage( "/Join " + name, false );
                     } else {
                         player.MessageNoPlayer( name );
                     }
@@ -787,12 +787,12 @@ namespace fCraft {
         #region Bring / WorldBring / BringAll
 
         static readonly CommandDescriptor CdBring = new CommandDescriptor {
-            Name = "bring",
+            Name = "Bring",
             IsConsoleSafe = true,
             Aliases = new[] { "summon", "fetch" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Bring },
-            Usage = "/bring PlayerName [ToPlayer]",
+            Usage = "/Bring PlayerName [ToPlayer]",
             Help = "Teleports another player to your location. " +
                    "If the optional second parameter is given, teleports player to another player.",
             Handler = BringHandler
@@ -812,7 +812,7 @@ namespace fCraft {
                 toPlayer = Server.FindPlayerOrPrintMatches( player, toName, false, true );
                 if( toPlayer == null ) return;
             } else if( toPlayer.World == null ) {
-                player.Message( "When used from console, /bring requires both names to be given." );
+                player.Message( "When used from console, /Bring requires both names to be given." );
                 return;
             }
 
@@ -898,10 +898,10 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdBringAll = new CommandDescriptor {
-            Name = "bringall",
+            Name = "BringAll",
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Bring, Permission.BringAll },
-            Usage = "/bringall [@Rank [@AnotherRank]] [*|World [AnotherWorld]]",
+            Usage = "/BringAll [@Rank [@AnotherRank]] [*|World [AnotherWorld]]",
             Help = "Teleports all players from your world to you. " +
                    "If any world names are given, only teleports players from those worlds. " +
                    "If any rank names are given, only teleports players of those ranks.",
@@ -928,7 +928,7 @@ namespace fCraft {
                         if( player.Can( Permission.Bring, rank ) ) {
                             targetRanks.Add( rank );
                         } else {
-                            player.Message( "&WYou are not allowed to &H/bring&W players of rank {0}",
+                            player.Message( "&WYou are not allowed to &H/Bring&W players of rank {0}",
                                             rank.ClassyName );
                         }
                         allRanks = false;
@@ -1085,7 +1085,7 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdSpecPatrol = new CommandDescriptor {
-            Name = "specpatrol",
+            Name = "SpecPatrol",
             Aliases = new[] { "spat" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Patrol, Permission.Spectate },
@@ -1113,12 +1113,12 @@ namespace fCraft {
         static readonly TimeSpan MaxMuteDuration = TimeSpan.FromDays( 700 ); // 100w0d
 
         static readonly CommandDescriptor CdMute = new CommandDescriptor {
-            Name = "mute",
+            Name = "Mute",
             Category = CommandCategory.Moderation | CommandCategory.Chat,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Mute },
             Help = "Mutes a player for a specified length of time.",
-            Usage = "/mute PlayerName Duration",
+            Usage = "/Mute PlayerName Duration",
             Handler = MuteHandler
         };
 
@@ -1155,12 +1155,12 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdUnmute = new CommandDescriptor {
-            Name = "unmute",
+            Name = "Unmute",
             Category = CommandCategory.Moderation | CommandCategory.Chat,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Mute },
             Help = "Unmutes a player.",
-            Usage = "/unmute PlayerName",
+            Usage = "/Unmute PlayerName",
             Handler = UnmuteHandler
         };
 

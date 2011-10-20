@@ -14,7 +14,7 @@ namespace fCraft {
         public string Name { get; internal set; }
 
 
-        /// <summary> Whether the world shows up on the /worlds list.
+        /// <summary> Whether the world shows up on the /Worlds list.
         /// Can be assigned directly. </summary>
         public bool IsHidden { get; set; }
 
