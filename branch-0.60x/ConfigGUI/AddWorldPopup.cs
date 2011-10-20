@@ -11,7 +11,6 @@ using System.Threading;
 using System.Windows.Forms;
 using fCraft.GUI;
 using fCraft.MapConversion;
-using JetBrains.Annotations;
 
 
 namespace fCraft.ConfigGUI {
@@ -203,8 +202,8 @@ namespace fCraft.ConfigGUI {
                 fileToLoad = fileBrowser.FileName;
                 ShowMapDetails( tLoadFileInfo, fileToLoad );
                 StartLoadingMap();
-                World.mapChangedBy = WorldListEntry.WorldInfoSignature;
-                World.mapChangedOn = DateTime.UtcNow;
+                World.MapChangedBy = WorldListEntry.WorldInfoSignature;
+                World.MapChangedOn = DateTime.UtcNow;
             }
         }
 
@@ -217,8 +216,8 @@ namespace fCraft.ConfigGUI {
                 fileToLoad = folderBrowser.SelectedPath;
                 ShowMapDetails( tLoadFileInfo, fileToLoad );
                 StartLoadingMap();
-                World.mapChangedBy = WorldListEntry.WorldInfoSignature;
-                World.mapChangedOn = DateTime.UtcNow;
+                World.MapChangedBy = WorldListEntry.WorldInfoSignature;
+                World.MapChangedOn = DateTime.UtcNow;
             }
         }
 
@@ -344,8 +343,8 @@ namespace fCraft.ConfigGUI {
 
             Refresh();
             bwGenerator.RunWorkerAsync();
-            World.mapChangedBy = WorldListEntry.WorldInfoSignature;
-            World.mapChangedOn = DateTime.UtcNow;
+            World.MapChangedBy = WorldListEntry.WorldInfoSignature;
+            World.MapChangedOn = DateTime.UtcNow;
         }
 
         void AsyncGen( object sender, DoWorkEventArgs e ) {

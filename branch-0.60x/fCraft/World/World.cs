@@ -9,8 +9,6 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     public sealed class World : IClassy {
-
-
         /// <summary> World name (no formatting).
         /// Use WorldManager.RenameWorld() method to change this. </summary>
         public string Name { get; internal set; }
@@ -299,6 +297,7 @@ namespace fCraft {
                 // clear undo & selection
                 player.LastDrawOp = null;
                 player.UndoClear();
+                player.RedoClear();
                 player.SelectionCancel();
 
                 // update player list

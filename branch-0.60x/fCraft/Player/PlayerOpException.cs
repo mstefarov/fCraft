@@ -254,13 +254,31 @@ namespace fCraft {
 
 
     public enum PlayerOpExceptionCode {
+        /// <summary> Other/unknown/unexpected error. </summary>
+        Other,
+
+        /// <summary> Player cannot execute this operation on himself/herself. </summary>
         CannotTargetSelf,
+
+        /// <summary> Operation is not needed (e.g. target is already in the desired state). </summary>
         NoActionNeeded,
+
+        /// <summary> Server configuration requires a reason to be given to complete this operation. </summary>
         ReasonRequired,
+
+        /// <summary> A permission needed to execute this operation is missing. </summary>
         PermissionMissing,
+
+        /// <summary> All needed permissions are present, but rank limit is not high enough. </summary>
         PermissionLimitTooLow,
+
+        /// <summary> Target cannot be affected by this operation. </summary>
         TargetIsExempt,
+
+        /// <summary> Player must have a world to execute this operation. </summary>
         MustBeInAWorld,
+
+        /// <summary> Operation was cancelled by an event callback (e.g. by a mod or a plugin). </summary>
         Cancelled
     }
 }

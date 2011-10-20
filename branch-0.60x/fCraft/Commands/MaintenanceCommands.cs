@@ -115,7 +115,7 @@ namespace fCraft {
                 return;
             }
 
-            if( !Paths.TestFile( "dumpstats file", fileName, false, true, false ) ) {
+            if( !Paths.TestFile( "dumpstats file", fileName, false, FileAccess.Write ) ) {
                 player.Message( "Cannot create specified file. See log for details." );
                 return;
             }

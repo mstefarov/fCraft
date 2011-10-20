@@ -58,7 +58,7 @@ namespace fCraft {
                     case WorldOpExceptionCode.NoChangeNeeded:
                         return "No change needed for world \"" + worldName + "\".";
 
-                    case WorldOpExceptionCode.PluginDenied:
+                    case WorldOpExceptionCode.Cancelled:
                         return "Operation for world \"" + worldName + "\" was cancelled by a plugin.";
 
                     case WorldOpExceptionCode.SecurityError:
@@ -104,7 +104,7 @@ namespace fCraft {
                     case WorldOpExceptionCode.NoChangeNeeded:
                         return "No change needed.";
 
-                    case WorldOpExceptionCode.PluginDenied:
+                    case WorldOpExceptionCode.Cancelled:
                         return "Operation cancelled by a plugin.";
 
                     case WorldOpExceptionCode.SecurityError:
@@ -162,6 +162,6 @@ namespace fCraft {
         MapMoveError,
 
         /// <summary> A plugin callback cancelled the operation. </summary>
-        PluginDenied
+        Cancelled
     }
 }

@@ -114,6 +114,13 @@ namespace fCraft {
             get { return Path.Combine( WorkingPath, RulesDirectory ); }
         }
 
+        /// <summary> Path where map backups are stored </summary>
+        public static string BackupPath {
+            get {
+                return Path.Combine( MapPath, "backups" );
+            }
+        }
+
         #endregion
 
 
@@ -171,17 +178,25 @@ namespace fCraft {
         }
 
 
+        /// <summary> Makes sure that the path format is valid, and optionally whether it is readable/writeable. </summary>
+        /// <param name="fileLabel"> Name of the path that's being tested (e.g. "map path"). Used for logging. </param>
+        /// <param name="filename"> Full or partial path of the file. </param>
+        /// <param name="createIfDoesNotExist"> If target file is missing and this option is OFF, TestFile returns true.
+        /// If target file is missing and this option is ON, TestFile tries to create
+        /// a file and returns whether it succeeded. </param>
+        /// <param name="neededAccess"> If file is present, type of access to test. </param>
+        /// <returns> Whether target file passed all tests. </returns>
         public static bool TestFile( [NotNull] string fileLabel, [NotNull] string filename,
-                                     bool createIfDoesNotExist, bool checkForReadAccess, bool checkForWriteAccess ) {
+                                     bool createIfDoesNotExist, FileAccess neededAccess ) {
             if( fileLabel == null ) throw new ArgumentNullException( "fileLabel" );
             if( filename == null ) throw new ArgumentNullException( "filename" );
             try {
                 new FileInfo( filename );
                 if( File.Exists( filename ) ) {
-                    if( checkForReadAccess ) {
+                    if( neededAccess == FileAccess.Read || neededAccess == FileAccess.ReadWrite ) {
                         using( File.OpenRead( filename ) ) { }
                     }
-                    if( checkForWriteAccess ) {
+                    if( neededAccess == FileAccess.Write || neededAccess == FileAccess.ReadWrite ) {
                         using( File.OpenWrite( filename ) ) { }
                     }
                 } else if( createIfDoesNotExist ) {
@@ -207,14 +222,6 @@ namespace fCraft {
                 }
             }
             return false;
-        }
-
-
-        /// <summary> Path where map backups are stored </summary>
-        public static string BackupPath {
-            get {
-                return Path.Combine( MapPath, "backups" );
-            }
         }
 
 
