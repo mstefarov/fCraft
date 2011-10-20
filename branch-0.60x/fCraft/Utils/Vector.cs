@@ -171,6 +171,25 @@ namespace fCraft {
 
         #endregion
 
+        public int Dot( Vector3I b ) {
+            return (X * b.X) + (Y * b.Y) + (Z * b.Z);
+        }
+
+        public float Dot( Vector3F b ) {
+            return (X * b.X) + (Y * b.Y) + (Z * b.Z);
+        }
+
+        public Vector3I Cross( Vector3I b ) {
+            return new Vector3I( (Y * b.Z) - (Z * b.Y),
+                                 (Z * b.X) - (X * b.Z),
+                                 (X * b.Y) - (Y * b.X) );
+        }
+
+        public Vector3F Cross( Vector3F b ) {
+            return new Vector3F( (Y * b.Z) - (Z * b.Y),
+                                 (Z * b.X) - (X * b.Z),
+                                 (X * b.Y) - (Y * b.X) );
+        }
 
         public Axis GetLargestComponent() {
             int maxVal = Math.Max( Math.Abs( X ), Math.Max( Math.Abs( Y ), Math.Abs( Z ) ) );
@@ -380,7 +399,26 @@ namespace fCraft {
         }
 
         #endregion
+        
+        public float Dot(Vector3I b) {
+            return ( X * b.X ) + ( Y * b.Y ) + ( Z * b.Z );
+        }
 
+        public float Dot(Vector3F b) {
+            return ( X * b.X ) + ( Y * b.Y ) + ( Z * b.Z );
+        }
+
+        public Vector3F Cross( Vector3I b ) {
+            return new Vector3F( (Y * b.Z) - (Z * b.Y),
+                                 (Z * b.X) - (X * b.Z),
+                                 (X * b.Y) - (Y * b.X) );
+        }
+
+        public Vector3F Cross( Vector3F b ) {
+            return new Vector3F( (Y * b.Z) - (Z * b.Y),
+                                 (Z * b.X) - (X * b.Z),
+                                 (X * b.Y) - (Y * b.X) );
+        }
 
         public override string ToString() {
             return String.Format( "({0},{1},{2})", X, Y, Z );
