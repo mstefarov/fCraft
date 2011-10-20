@@ -567,12 +567,12 @@ namespace fCraft {
         #region Set Spawn
 
         static readonly CommandDescriptor CdSetSpawn = new CommandDescriptor {
-            Name = "setspawn",
+            Name = "SetSpawn",
             Category = CommandCategory.Moderation | CommandCategory.World,
             Permissions = new[] { Permission.SetSpawn },
             Help = "Assigns your current location to be the spawn point of the map/world. " +
                    "If an optional PlayerName param is given, the spawn point of only that player is changed instead.",
-            Usage = "/setspawn [PlayerName]",
+            Usage = "/SetSpawn [PlayerName]",
             Handler = SetSpawnHandler
         };
 

@@ -468,7 +468,7 @@ Affected commands:
             vPermissions.Items[(int)Permission.SetSpawn].ToolTipText =
 @"Ability to change the spawn point of a world or a player.
 Affected commands:
-    /setspawn";
+    /SetSpawn";
 
             vPermissions.Items[(int)Permission.ShutdownServer].ToolTipText =
 @"Ability to shut down or restart the server remotely.
