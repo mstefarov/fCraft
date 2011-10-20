@@ -1,3 +1,8 @@
+0.603
+ Fix: /cancel can no longer be repeated with "/" (no longer replaces previously-called command).
+ Fix: Fixed /rotate and /mirror messing up if a paste command is in progress.
+ Fix: Re-enabled crash interception and reporting.
+
 0.602
  Feature: One-click paste commands are now the default. Two-click aligned paste commands are now known as pastex/pastenotx (or px/pnx)
  Feature: Added /rb command (shortcut for /brush replacebrush + /c).
