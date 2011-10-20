@@ -74,6 +74,15 @@ namespace fCraft {
 
             PlayerInfo[] infos;
             IPAddress ip;
+            if( name.Equals( "-" ) ) {
+                if( player.LastUsedPlayerName != null ) {
+                    name = player.LastUsedPlayerName;
+                } else {
+                    player.Message( "Cannot repeat player name: you haven't used any names yet." );
+                    return;
+                }
+            }
+
             if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
                 // find players by IP
                 infos = PlayerDB.FindPlayers( ip );

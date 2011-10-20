@@ -422,6 +422,7 @@ namespace fCraft {
                     return null;
                 }
             }
+            player.LastUsedPlayerName = name;
             PlayerInfo target = FindPlayerInfoExact( name );
             if( target == null ) {
                 PlayerInfo[] targets = FindPlayers( name );
@@ -436,9 +437,9 @@ namespace fCraft {
                 }
                 target = targets[0];
             }
-            player.LastUsedPlayerName = target.Name;
             return target;
         }
+
 
         public static string FindExactClassyName( [NotNull] string name ) {
             PlayerInfo info = FindPlayerInfoExact( name );
