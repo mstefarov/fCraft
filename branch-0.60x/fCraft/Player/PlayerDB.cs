@@ -414,6 +414,14 @@ namespace fCraft {
         public static PlayerInfo FindPlayerInfoOrPrintMatches( [NotNull] Player player, [NotNull] string name ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( name == null ) throw new ArgumentNullException( "name" );
+            if( name.Equals( "-" ) ) {
+                if( player.LastUsedPlayerName != null ) {
+                    name = player.LastUsedPlayerName;
+                } else {
+                    player.Message( "Cannot repeat player name: you haven't used any names yet." );
+                    return null;
+                }
+            }
             PlayerInfo target = FindPlayerInfoExact( name );
             if( target == null ) {
                 PlayerInfo[] targets = FindPlayers( name );
@@ -428,6 +436,7 @@ namespace fCraft {
                 }
                 target = targets[0];
             }
+            player.LastUsedPlayerName = target.Name;
             return target;
         }
 

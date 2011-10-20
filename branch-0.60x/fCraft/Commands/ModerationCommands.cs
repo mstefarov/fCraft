@@ -462,6 +462,7 @@ namespace fCraft {
             }
 
             try {
+                player.LastUsedPlayerName = targetInfo.Name;
                 targetInfo.ChangeRank( player, newRank, cmd.NextAll(), true, true, false );
             } catch( PlayerOpException ex ) {
                 player.Message( ex.MessageColored );
@@ -730,6 +731,7 @@ namespace fCraft {
                 Player[] matches = Server.FindPlayers( player, name, true );
                 if( matches.Length == 1 ) {
                     Player target = matches[0];
+                    player.LastUsedPlayerName = target.Name;
                     World targetWorld = target.World;
                     if( targetWorld == null ) PlayerOpException.ThrowNoWorld( target );
 
@@ -772,8 +774,9 @@ namespace fCraft {
                     World[] worlds = WorldManager.FindWorlds( player, name );
 
                     if( worlds.Length == 1 ) {
+                        player.LastUsedWorldName = worlds[0].Name;
                         player.StopSpectating();
-                        player.ParseMessage( "/Join " + name, false );
+                        player.ParseMessage( "/Join " + worlds[0].Name, false );
                     } else {
                         player.MessageNoPlayer( name );
                     }

@@ -914,6 +914,7 @@ namespace fCraft {
 
             } else if( worlds.Length == 1 ) {
                 World world = worlds[0];
+                player.LastUsedWorldName = world.Name;
                 switch( world.AccessSecurity.CheckDetailed( player.Info ) ) {
                     case SecurityCheckResult.Allowed:
                     case SecurityCheckResult.WhiteListed:
@@ -940,6 +941,7 @@ namespace fCraft {
                 // no worlds found - see if player meant to type in "/Join" and not "/TP"
                 Player[] players = Server.FindPlayers( player, worldName, true );
                 if( players.Length == 1 ) {
+                    player.LastUsedPlayerName = players[0].Name;
                     player.StopSpectating();
                     player.ParseMessage( "/TP " + players[0].Name, false );
                 } else {
@@ -1206,15 +1208,8 @@ namespace fCraft {
                 if( name.Length < 2 ) continue;
                 // Whitelisting individuals
                 if( name.StartsWith( "+" ) ) {
-                    PlayerInfo info;
-                    if( !PlayerDB.FindPlayerInfo( name.Substring( 1 ), out info ) ) {
-                        player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
-                        continue;
-
-                    } else if( info == null ) {
-                        player.MessageNoPlayer( name.Substring( 1 ) );
-                        continue;
-                    }
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
+                    if( info == null ) return;
 
                     // prevent players from whitelisting themselves to bypass protection
                     if( player.Info == info && !player.Info.Rank.AllowSecurityCircumvention ) {
@@ -1285,14 +1280,8 @@ namespace fCraft {
 
                     // Blacklisting individuals
                 } else if( name.StartsWith( "-" ) ) {
-                    PlayerInfo info;
-                    if( !PlayerDB.FindPlayerInfo( name.Substring( 1 ), out info ) ) {
-                        player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
-                        continue;
-                    } else if( info == null ) {
-                        player.MessageNoPlayer( name.Substring( 1 ) );
-                        continue;
-                    }
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
+                    if( info == null ) return;
 
                     if( world.AccessSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooHigh ||
                         world.AccessSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooLow ) {
@@ -1450,14 +1439,8 @@ namespace fCraft {
                 if( name.Length < 2 ) continue;
                 // Whitelisting individuals
                 if( name.StartsWith( "+" ) ) {
-                    PlayerInfo info;
-                    if( !PlayerDB.FindPlayerInfo( name.Substring( 1 ), out info ) ) {
-                        player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
-                        continue;
-                    } else if( info == null ) {
-                        player.MessageNoPlayer( name.Substring( 1 ) );
-                        continue;
-                    }
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
+                    if( info == null ) return;
 
                     // prevent players from whitelisting themselves to bypass protection
                     if( player.Info == info && !player.Info.Rank.AllowSecurityCircumvention ) {
@@ -1528,14 +1511,8 @@ namespace fCraft {
 
                     // Blacklisting individuals
                 } else if( name.StartsWith( "-" ) ) {
-                    PlayerInfo info;
-                    if( !PlayerDB.FindPlayerInfo( name.Substring( 1 ), out info ) ) {
-                        player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
-                        continue;
-                    } else if( info == null ) {
-                        player.MessageNoPlayer( name.Substring( 1 ) );
-                        continue;
-                    }
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
+                    if( info == null ) return;
 
                     if( world.BuildSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooHigh ||
                         world.BuildSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooLow ) {
@@ -1944,6 +1921,7 @@ namespace fCraft {
                     }
                 }
 
+                player.LastUsedWorldName = worldName;
                 lock( WorldManager.SyncRoot ) {
                     World world = WorldManager.FindWorldExact( worldName );
                     if( world != null ) {
