@@ -39,11 +39,11 @@ namespace fCraft {
                               "Name,IPAddress,Rank,RankChangeDate,RankChangedBy,Banned,BanDate,BannedBy," +
                               "UnbanDate,UnbannedBy,BanReason,UnbanReason,LastFailedLoginDate," +
                               "LastFailedLoginIP,UNUSED,FirstLoginDate,LastLoginDate,TotalTime," +
-                              "BlocksBuilt,BlocksDeleted,TimesVisited,LinesWritten,UNUSED,UNUSED," +
+                              "BlocksBuilt,BlocksDeleted,TimesVisited,MessagesWritten,UNUSED,UNUSED," +
                               "PreviousRank,RankChangeReason,TimesKicked,TimesKickedOthers," +
                               "TimesBannedOthers,ID,RankChangeType,LastKickDate,LastSeen,BlocksDrawn," +
-                              "LastKickBy,LastKickReason,IsFrozen,FrozenBy,FrozenOn, MutedUntil,MutedBy," +
-                              "Password,Online,BandwidthUseMode,LastModified";
+                              "LastKickBy,LastKickReason,BannedUntil,IsFrozen,FrozenBy,FrozenOn,MutedUntil,MutedBy," +
+                              "Password,IsOnline,BandwidthUseMode,IsHidden,LastModified,DisplayedName";
 
 
         // used to ensure PlayerDB consistency when adding/removing PlayerDB entries

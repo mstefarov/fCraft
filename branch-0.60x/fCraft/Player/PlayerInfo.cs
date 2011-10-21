@@ -760,9 +760,9 @@ namespace fCraft {
             sb.Append( ',' );
 
 
-            sb.Append( ID ).Append( ',' ); // 29
+            sb.Digits( ID ).Append( ',' ); // 29
 
-            sb.Append( (int)RankChangeType ).Append( ',' ); // 30
+            sb.Digits( (int)RankChangeType ).Append( ',' ); // 30
 
 
             LastKickDate.ToUnixTimeString( sb ).Append( ',' ); // 31
