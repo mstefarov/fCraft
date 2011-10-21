@@ -317,7 +317,7 @@ namespace fCraft {
         /// <summary> Creates a copy of an existing controller. </summary>
         public SecurityController( [NotNull] SecurityController other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            MinRank = other.minRank;
+            minRank = other.minRank;
             lock( other.locker ) {
                 includedPlayers = new Dictionary<string, PlayerInfo>( other.includedPlayers );
                 excludedPlayers = new Dictionary<string, PlayerInfo>( other.excludedPlayers );
