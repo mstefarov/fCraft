@@ -816,6 +816,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdPlayers = new CommandDescriptor {
             Name = "Players",
+            Aliases = new[]{ "/pl" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             Usage = "/Players [WorldName]",
