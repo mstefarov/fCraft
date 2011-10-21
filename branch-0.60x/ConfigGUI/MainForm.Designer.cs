@@ -26,8 +26,8 @@
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( MainForm ) );
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( MainForm ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
             this.gUpdaterSettings = new System.Windows.Forms.GroupBox();
@@ -90,7 +90,6 @@
             this.xRankPrefixesInList = new System.Windows.Forms.CheckBox();
             this.xRankPrefixesInChat = new System.Windows.Forms.CheckBox();
             this.xRankColorsInChat = new System.Windows.Forms.CheckBox();
-            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.xWoMEnableEnvExtensions = new System.Windows.Forms.CheckBox();
             this.bMapPath = new System.Windows.Forms.Button();
@@ -104,6 +103,13 @@
             this.bAddWorld = new System.Windows.Forms.Button();
             this.bWorldDelete = new System.Windows.Forms.Button();
             this.dgvWorlds = new System.Windows.Forms.DataGridView();
+            this.dgvcName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvcDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvcAccess = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.dgvcBuild = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.dgvcBackup = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.dgvcHidden = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.dgvcBlockDB = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.tabRanks = new System.Windows.Forms.TabPage();
             this.gPermissionLimits = new System.Windows.Forms.GroupBox();
             this.permissionLimitBoxContainer = new System.Windows.Forms.FlowLayoutPanel();
@@ -274,13 +280,7 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.dgvcName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvcDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvcAccess = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.dgvcBuild = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.dgvcBackup = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.dgvcHidden = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.dgvcBlockDB = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -977,7 +977,7 @@
             this.lColorSay.AutoSize = true;
             this.lColorSay.Location = new System.Drawing.Point( 407, 53 );
             this.lColorSay.Name = "lColorSay";
-            this.lColorSay.Size = new System.Drawing.Size( 112, 15 );
+            this.lColorSay.Size = new System.Drawing.Size( 114, 15 );
             this.lColorSay.TabIndex = 10;
             this.lColorSay.Text = "/Say message color";
             // 
@@ -996,7 +996,7 @@
             this.lColorAnnouncement.AutoSize = true;
             this.lColorAnnouncement.Location = new System.Drawing.Point( 342, 24 );
             this.lColorAnnouncement.Name = "lColorAnnouncement";
-            this.lColorAnnouncement.Size = new System.Drawing.Size( 177, 15 );
+            this.lColorAnnouncement.Size = new System.Drawing.Size( 182, 15 );
             this.lColorAnnouncement.TabIndex = 8;
             this.lColorAnnouncement.Text = "Announcement and /Rules color";
             // 
@@ -1095,13 +1095,6 @@
             this.xRankColorsInChat.Text = "Show rank colors.";
             this.xRankColorsInChat.UseVisualStyleBackColor = true;
             // 
-            // chatPreview
-            // 
-            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size( 637, 241 );
-            this.chatPreview.TabIndex = 2;
-            // 
             // tabWorlds
             // 
             this.tabWorlds.Controls.Add( this.xWoMEnableEnvExtensions );
@@ -1130,7 +1123,7 @@
             this.xWoMEnableEnvExtensions.AutoSize = true;
             this.xWoMEnableEnvExtensions.Location = new System.Drawing.Point( 8, 478 );
             this.xWoMEnableEnvExtensions.Name = "xWoMEnableEnvExtensions";
-            this.xWoMEnableEnvExtensions.Size = new System.Drawing.Size( 266, 19 );
+            this.xWoMEnableEnvExtensions.Size = new System.Drawing.Size( 267, 19 );
             this.xWoMEnableEnvExtensions.TabIndex = 22;
             this.xWoMEnableEnvExtensions.Text = "Enable WoM environment extensions (/Env).";
             this.xWoMEnableEnvExtensions.UseVisualStyleBackColor = true;
@@ -1271,6 +1264,65 @@
             this.dgvWorlds.TabIndex = 0;
             this.dgvWorlds.SelectionChanged += new System.EventHandler( this.dgvWorlds_Click );
             this.dgvWorlds.Click += new System.EventHandler( this.dgvWorlds_Click );
+            // 
+            // dgvcName
+            // 
+            this.dgvcName.DataPropertyName = "Name";
+            this.dgvcName.HeaderText = "World Name";
+            this.dgvcName.Name = "dgvcName";
+            this.dgvcName.Width = 110;
+            // 
+            // dgvcDescription
+            // 
+            this.dgvcDescription.DataPropertyName = "Description";
+            this.dgvcDescription.HeaderText = "";
+            this.dgvcDescription.Name = "dgvcDescription";
+            this.dgvcDescription.ReadOnly = true;
+            this.dgvcDescription.Width = 130;
+            // 
+            // dgvcAccess
+            // 
+            this.dgvcAccess.DataPropertyName = "AccessPermission";
+            this.dgvcAccess.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
+            this.dgvcAccess.HeaderText = "Access";
+            this.dgvcAccess.Name = "dgvcAccess";
+            this.dgvcAccess.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
+            // dgvcBuild
+            // 
+            this.dgvcBuild.DataPropertyName = "BuildPermission";
+            this.dgvcBuild.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
+            this.dgvcBuild.HeaderText = "Build";
+            this.dgvcBuild.Name = "dgvcBuild";
+            this.dgvcBuild.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
+            // dgvcBackup
+            // 
+            this.dgvcBackup.DataPropertyName = "Backup";
+            this.dgvcBackup.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
+            this.dgvcBackup.HeaderText = "Backup";
+            this.dgvcBackup.Name = "dgvcBackup";
+            this.dgvcBackup.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.dgvcBackup.Width = 90;
+            // 
+            // dgvcHidden
+            // 
+            this.dgvcHidden.DataPropertyName = "Hidden";
+            this.dgvcHidden.HeaderText = "Hide";
+            this.dgvcHidden.Name = "dgvcHidden";
+            this.dgvcHidden.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.dgvcHidden.Width = 40;
+            // 
+            // dgvcBlockDB
+            // 
+            this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
+            this.dgvcBlockDB.HeaderText = "BlockDB";
+            this.dgvcBlockDB.Name = "dgvcBlockDB";
+            this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.dgvcBlockDB.ThreeState = true;
+            this.dgvcBlockDB.Width = 60;
             // 
             // tabRanks
             // 
@@ -2013,7 +2065,7 @@
             this.gVerify.Size = new System.Drawing.Size( 636, 81 );
             this.gVerify.TabIndex = 0;
             this.gVerify.TabStop = false;
-            this.gVerify.Text = "Name Verification";
+            this.gVerify.Text = "Connection";
             // 
             // nMaxConnectionsPerIP
             // 
@@ -2037,9 +2089,10 @@
             this.xAllowUnverifiedLAN.AutoSize = true;
             this.xAllowUnverifiedLAN.Location = new System.Drawing.Point( 42, 49 );
             this.xAllowUnverifiedLAN.Name = "xAllowUnverifiedLAN";
-            this.xAllowUnverifiedLAN.Size = new System.Drawing.Size( 455, 19 );
+            this.xAllowUnverifiedLAN.Size = new System.Drawing.Size( 490, 19 );
             this.xAllowUnverifiedLAN.TabIndex = 2;
-            this.xAllowUnverifiedLAN.Text = "Allow connections from LAN without verification (192.168.0.0/16 and 10.0.0.0/8)";
+            this.xAllowUnverifiedLAN.Text = "Allow connections from LAN without name verification (192.168.0.0/16 and 10.0.0.0" +
+                "/8)";
             this.xAllowUnverifiedLAN.UseVisualStyleBackColor = true;
             // 
             // xMaxConnectionsPerIP
@@ -2060,19 +2113,19 @@
             this.lVerifyNames.Name = "lVerifyNames";
             this.lVerifyNames.Size = new System.Drawing.Size( 102, 15 );
             this.lVerifyNames.TabIndex = 0;
-            this.lVerifyNames.Text = "Verification mode";
+            this.lVerifyNames.Text = "Name verification";
             // 
             // cVerifyNames
             // 
             this.cVerifyNames.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cVerifyNames.FormattingEnabled = true;
             this.cVerifyNames.Items.AddRange( new object[] {
-            "Never",
-            "Balanced",
+            "None (Unsafe)",
+            "Normal",
             "Strict"} );
             this.cVerifyNames.Location = new System.Drawing.Point( 153, 20 );
             this.cVerifyNames.Name = "cVerifyNames";
-            this.cVerifyNames.Size = new System.Drawing.Size( 100, 23 );
+            this.cVerifyNames.Size = new System.Drawing.Size( 120, 23 );
             this.cVerifyNames.TabIndex = 1;
             this.cVerifyNames.SelectedIndexChanged += new System.EventHandler( this.cVerifyNames_SelectedIndexChanged );
             // 
@@ -3246,64 +3299,12 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // dgvcName
+            // chatPreview
             // 
-            this.dgvcName.DataPropertyName = "Name";
-            this.dgvcName.HeaderText = "World Name";
-            this.dgvcName.Name = "dgvcName";
-            this.dgvcName.Width = 110;
-            // 
-            // dgvcDescription
-            // 
-            this.dgvcDescription.DataPropertyName = "Description";
-            this.dgvcDescription.HeaderText = "";
-            this.dgvcDescription.Name = "dgvcDescription";
-            this.dgvcDescription.ReadOnly = true;
-            this.dgvcDescription.Width = 130;
-            // 
-            // dgvcAccess
-            // 
-            this.dgvcAccess.DataPropertyName = "AccessPermission";
-            this.dgvcAccess.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
-            this.dgvcAccess.HeaderText = "Access";
-            this.dgvcAccess.Name = "dgvcAccess";
-            this.dgvcAccess.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // dgvcBuild
-            // 
-            this.dgvcBuild.DataPropertyName = "BuildPermission";
-            this.dgvcBuild.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
-            this.dgvcBuild.HeaderText = "Build";
-            this.dgvcBuild.Name = "dgvcBuild";
-            this.dgvcBuild.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // dgvcBackup
-            // 
-            this.dgvcBackup.DataPropertyName = "Backup";
-            this.dgvcBackup.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
-            this.dgvcBackup.HeaderText = "Backup";
-            this.dgvcBackup.Name = "dgvcBackup";
-            this.dgvcBackup.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.dgvcBackup.Width = 90;
-            // 
-            // dgvcHidden
-            // 
-            this.dgvcHidden.DataPropertyName = "Hidden";
-            this.dgvcHidden.HeaderText = "Hide";
-            this.dgvcHidden.Name = "dgvcHidden";
-            this.dgvcHidden.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.dgvcHidden.Width = 40;
-            // 
-            // dgvcBlockDB
-            // 
-            this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
-            this.dgvcBlockDB.HeaderText = "BlockDB";
-            this.dgvcBlockDB.Name = "dgvcBlockDB";
-            this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.dgvcBlockDB.ThreeState = true;
-            this.dgvcBlockDB.Width = 60;
+            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size( 637, 241 );
+            this.chatPreview.TabIndex = 2;
             // 
             // MainForm
             // 

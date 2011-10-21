@@ -16,8 +16,10 @@ namespace fCraft {
 
         public PlayerExceptions ExceptionList { get; private set; }
         readonly object locker = new object();
-
+        
+        [CanBeNull]
         Rank minRank;
+
         /// <summary> Lowest allowed player rank. </summary>
         [NotNull]
         public Rank MinRank {

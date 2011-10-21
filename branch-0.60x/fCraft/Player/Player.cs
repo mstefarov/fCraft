@@ -74,6 +74,18 @@ namespace fCraft {
         [CanBeNull]
         public World World { get; private set; }
 
+        /// <summary> Map from the world that the player is on.
+        /// Throws PlayerOpException if player does not have a world.
+        /// Loads the map if it's not loaded. Guaranteed to not return null. </summary>
+        [NotNull]
+        public Map WorldMap {
+            get {
+                World world = World;
+                if( world == null ) PlayerOpException.ThrowNoWorld( this );
+                return world.LoadMap();
+            }
+        }
+
         /// <summary> Player's position in the current world. </summary>
         public Position Position;
 
@@ -618,11 +630,14 @@ namespace fCraft {
 
         #region Confirmation
 
+        [CanBeNull]
         public ConfirmationCallback ConfirmCallback { get; private set; }
 
+        [CanBeNull]
         public object ConfirmArgument { get; private set; }
 
-        static void ConfirmCommandCallback( Player player, object tag, bool fromConsole ){
+        static void ConfirmCommandCallback( [NotNull] Player player, object tag, bool fromConsole ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             Command cmd = (Command)tag;
             cmd.Rewind();
             cmd.IsConfirmed = true;
@@ -639,7 +654,7 @@ namespace fCraft {
         /// <param name="message"> Message to print before "Type /ok to continue". </param>
         /// <param name="args"> Optional String.Format() arguments, for the message. </param>
         [StringFormatMethod( "message" )]
-        public void Confirm( [NotNull] Command cmd, [NotNull] string message, [NotNull] params object[] args ){
+        public void Confirm( [NotNull] Command cmd, [NotNull] string message, [NotNull] params object[] args ) {
             Confirm( ConfirmCommandCallback, cmd, message, args );
         }
 
@@ -706,7 +721,7 @@ namespace fCraft {
         /// Returns true if player's action should result in a kick. </summary>
         public bool PlaceBlock( short x, short y, short z, ClickAction action, Block type ) {
             if( World == null ) PlayerOpException.ThrowNoWorld( this );
-            Map map = World.LoadMap();
+            Map map = WorldMap;
             LastUsedBlockType = type;
 
             // check if player is frozen or too far away to legitimately place a block
@@ -754,7 +769,7 @@ namespace fCraft {
             CanPlaceResult canPlaceResult;
             if( type == Block.Stair && z > 0 && map.GetBlock( x, y, z - 1 ) == Block.Stair ) {
                 // stair stacking
-                canPlaceResult = CanPlace( map, new Vector3I(x, y, z - 1), Block.DoubleStair, context );
+                canPlaceResult = CanPlace( map, new Vector3I( x, y, z - 1 ), Block.DoubleStair, context );
             } else {
                 // normal placement
                 canPlaceResult = CanPlace( map, new Vector3I( x, y, z ), type, context );
@@ -835,8 +850,7 @@ namespace fCraft {
         /// and sends it (async) to the player.
         /// Used to undo player's attempted block placement/deletion. </summary>
         public void RevertBlock( short x, short y, short z ) {
-            if( World == null ) PlayerOpException.ThrowNoWorld( this );
-            SendLowPriority( PacketWriter.MakeSetBlock( x, y, z, World.Map.GetBlockByte( x, y, z ) ) );
+            SendLowPriority( PacketWriter.MakeSetBlock( x, y, z, WorldMap.GetBlockByte( x, y, z ) ) );
         }
 
 
@@ -844,8 +858,7 @@ namespace fCraft {
         /// Used to undo player's attempted block placement/deletion.
         /// To avoid threading issues, only use this from this player's IoThread. </summary>
         void RevertBlockNow( short x, short y, short z ) {
-            if( World == null ) PlayerOpException.ThrowNoWorld( this );
-            SendNow( PacketWriter.MakeSetBlock( x, y, z, World.Map.GetBlockByte( x, y, z ) ) );
+            SendNow( PacketWriter.MakeSetBlock( x, y, z, WorldMap.GetBlockByte( x, y, z ) ) );
         }
 
 
@@ -1094,6 +1107,7 @@ namespace fCraft {
 
         public IBrush Brush { get; set; }
 
+        [CanBeNull]
         public DrawOperation LastDrawOp { get; set; }
 
 
@@ -1404,8 +1418,10 @@ namespace fCraft {
 
         #endregion
 
-
+        [CanBeNull]
         public string LastUsedPlayerName { get; set; }
+
+        [CanBeNull]
         public string LastUsedWorldName { get; set; }
 
 

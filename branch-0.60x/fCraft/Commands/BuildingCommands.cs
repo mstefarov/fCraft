@@ -716,8 +716,6 @@ namespace fCraft {
 
 
         static void CopyCallback( Player player, Vector3I[] marks, object tag ) {
-            World playerWorld = player.World;
-            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
             int sx = Math.Min( marks[0].X, marks[1].X );
             int ex = Math.Max( marks[0].X, marks[1].X );
             int sy = Math.Min( marks[0].Y, marks[1].Y );
@@ -735,7 +733,10 @@ namespace fCraft {
             // remember dimensions and orientation
             CopyState copyInfo = new CopyState( marks[0], marks[1] );
 
-            Map map = playerWorld.LoadMap();
+            Map map = player.WorldMap;
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
+
             for( int x = sx; x <= ex; x++ ) {
                 for( int y = sy; y <= ey; y++ ) {
                     for( int z = sz; z <= ez; z++ ) {
@@ -1150,7 +1151,6 @@ namespace fCraft {
         };
 
         static void RestoreHandler( Player player, Command cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
             string fileName = cmd.Next();
             if( fileName == null ) {
                 CdRestore.PrintUsage( player );
@@ -1166,7 +1166,7 @@ namespace fCraft {
                 return;
             }
 
-            Map playerMap = player.World.Map;
+            Map playerMap = player.WorldMap;
             if( playerMap.Width != map.Width || playerMap.Length != map.Length || playerMap.Height != map.Height ) {
                 player.Message( "Mapfile dimensions must match your current world's dimensions ({0}x{1}x{2})",
                                 playerMap.Width,
@@ -1182,15 +1182,14 @@ namespace fCraft {
 
 
         static void RestoreCallback( Player player, Vector3I[] marks, object tag ) {
-            Map playerMap = player.World.Map;
-
             BoundingBox selection = new BoundingBox( marks[0], marks[1] );
             Map map = (Map)tag;
 
             if( !player.CanDraw( selection.Volume ) ) {
-                player.MessageNow( "You are only allowed to restore up to {0} blocks at a time. This would affect {1} blocks.",
-                                   player.Info.Rank.DrawLimit,
-                                   selection.Volume );
+                player.MessageNow(
+                    "You are only allowed to restore up to {0} blocks at a time. This would affect {1} blocks.",
+                    player.Info.Rank.DrawLimit,
+                    selection.Volume );
                 return;
             }
 
@@ -1198,18 +1197,23 @@ namespace fCraft {
                 blocksSkipped = 0;
             UndoState undoState = player.DrawBegin( null );
 
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
+            Map playerMap = player.WorldMap;
             for( int x = selection.XMin; x <= selection.XMax; x++ ) {
                 for( int y = selection.YMin; y <= selection.YMax; y++ ) {
                     for( int z = selection.ZMin; z <= selection.ZMax; z++ ) {
-                        DrawOneBlock( player, playerMap, map.GetBlock( x, y, z ), new Vector3I( x, y, z ), RestoreContext,
+                        DrawOneBlock( player, playerMap, map.GetBlock( x, y, z ), new Vector3I( x, y, z ),
+                                      RestoreContext,
                                       ref blocksDrawn, ref blocksSkipped, undoState );
                     }
                 }
             }
 
-            Logger.Log( "{0} restored {1} blocks on world {2} (@{3},{4},{5} - {6},{7},{8}) from file {9}.", LogType.UserActivity,
+            Logger.Log( "{0} restored {1} blocks on world {2} (@{3},{4},{5} - {6},{7},{8}) from file {9}.",
+                        LogType.UserActivity,
                         player.Name, blocksDrawn,
-                        playerMap.World.Name,
+                        playerWorld.Name,
                         selection.XMin, selection.YMin, selection.ZMin,
                         selection.XMax, selection.YMax, selection.ZMax,
                         map.Metadata["fCraft.Temp", "FileName"] );
@@ -1294,8 +1298,7 @@ namespace fCraft {
         };
 
         static void MarkHandler( Player player, Command command ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
-            Map map = player.World.LoadMap();
+            Map map = player.WorldMap;
             int x, y, z;
             Position pos;
             if( command.NextInt( out x ) && command.NextInt( out y ) && command.NextInt( out z ) ) {
@@ -1342,16 +1345,28 @@ namespace fCraft {
         #region UndoPlayer and UndoArea
 
         struct UndoAreaCountArgs {
+            [NotNull]
             public PlayerInfo Target;
+
+            [NotNull]
             public World World;
+
             public int MaxBlocks;
+
+            [NotNull]
             public BoundingBox Area;
         }
 
         struct UndoAreaTimeArgs {
+            [NotNull]
             public PlayerInfo Target;
+
+            [NotNull]
             public World World;
+
             public TimeSpan Time;
+
+            [NotNull]
             public BoundingBox Area;
         }
 
@@ -1366,15 +1381,15 @@ namespace fCraft {
         };
 
         static void UndoAreaHandler( Player player, Command cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
 
             if( !BlockDB.IsEnabledGlobally ) {
                 player.Message( "&WBlockDB is disabled on this server." );
                 return;
             }
 
-            World world = player.World;
-            if( !world.BlockDB.IsEnabled ) {
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
+            if( !playerWorld.BlockDB.IsEnabled ) {
                 player.Message( "&WBlockDB is disabled in this world." );
                 return;
             }
@@ -1401,7 +1416,7 @@ namespace fCraft {
             if( Int32.TryParse( range, out count ) ) {
                 UndoAreaCountArgs args = new UndoAreaCountArgs {
                     Target = target,
-                    World = player.World,
+                    World = playerWorld,
                     MaxBlocks = count
                 };
                 player.SelectionStart( 2, UndoAreaCountSelectionCallback, args, Permission.UndoOthersActions );
@@ -1410,7 +1425,7 @@ namespace fCraft {
                 UndoAreaTimeArgs args = new UndoAreaTimeArgs {
                     Target = target,
                     Time = span,
-                    World = player.World
+                    World = playerWorld
                 };
                 player.SelectionStart( 2, UndoAreaTimeSelectionCallback, args, Permission.UndoOthersActions );
 
@@ -1424,12 +1439,13 @@ namespace fCraft {
 
 
         static void UndoAreaCountSelectionCallback( Player player, Vector3I[] marks, object tag ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
             UndoAreaCountArgs args = (UndoAreaCountArgs)tag;
-            args.World = player.World;
+            args.World = playerWorld;
             args.Area = new BoundingBox( marks[0], marks[1] );
-            BlockDBEntry[] changes = args.World.BlockDB.Lookup( args.Target, args.Area, args.MaxBlocks );
+            BlockDBEntry[] changes = playerWorld.BlockDB.Lookup( args.Target, args.Area, args.MaxBlocks );
             if( changes.Length > 0 ) {
                 player.Confirm( UndoAreaCountConfirmCallback, args, "Undo last {0} changes made by player {1}&S in this area?",
                                 changes.Length, args.Target.ClassyName );
@@ -1440,12 +1456,13 @@ namespace fCraft {
 
 
         static void UndoAreaTimeSelectionCallback( Player player, Vector3I[] marks, object tag ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
             UndoAreaTimeArgs args = (UndoAreaTimeArgs)tag;
-            args.World = player.World;
+            args.World = playerWorld;
             args.Area = new BoundingBox( marks[0], marks[1] );
-            BlockDBEntry[] changes = args.World.BlockDB.Lookup( args.Target, args.Area, args.Time );
+            BlockDBEntry[] changes = playerWorld.BlockDB.Lookup( args.Target, args.Area, args.Time );
             if( changes.Length > 0 ) {
                 player.Confirm( UndoAreaTimeConfirmCallback, args, "Undo changes ({0}) made by {1}&S in this area in the last {2}?",
                                 changes.Length, args.Target.ClassyName, args.Time.ToMiniString() );
@@ -1470,7 +1487,7 @@ namespace fCraft {
                 blocksDenied = 0;
 
             UndoState undoState = player.DrawBegin( null );
-            Map map = player.World.Map;
+            Map map = player.WorldMap;
 
             for( int i = 0; i < changes.Length; i++ ) {
                 DrawOneBlock( player, map, changes[i].OldBlock,
@@ -1503,7 +1520,7 @@ namespace fCraft {
                 blocksDenied = 0;
 
             UndoState undoState = player.DrawBegin( null );
-            Map map = player.World.Map;
+            Map map = player.WorldMap;
 
             for( int i = 0; i < changes.Length; i++ ) {
                 DrawOneBlock( player, map, changes[i].OldBlock,
@@ -1533,15 +1550,15 @@ namespace fCraft {
         };
 
         static void UndoPlayerHandler( Player player, Command cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
             if( !BlockDB.IsEnabledGlobally ) {
                 player.Message( "&WBlockDB is disabled on this server." );
                 return;
             }
 
-            World world = player.World;
-            if( !world.BlockDB.IsEnabled ) {
+            if( !playerWorld.BlockDB.IsEnabled ) {
                 player.Message( "&WBlockDB is disabled in this world." );
                 return;
             }
@@ -1571,7 +1588,7 @@ namespace fCraft {
                     player.Message( "Searching for last {0} changes made by {1}&s...",
                                     count, target.ClassyName );
                 }
-                changes = world.BlockDB.Lookup( target, count );
+                changes = playerWorld.BlockDB.Lookup( target, count );
                 if( changes.Length > 0 && !cmd.IsConfirmed ) {
                     player.Confirm( cmd, "Undo last {0} changes made by player {1}&S?",
                                     changes.Length, target.ClassyName );
@@ -1583,7 +1600,7 @@ namespace fCraft {
                     player.Message( "Searching for changes made by {0}&s in the last {1}...",
                                     target.ClassyName, span.ToMiniString() );
                 }
-                changes = world.BlockDB.Lookup( target, span );
+                changes = playerWorld.BlockDB.Lookup( target, span );
                 if( changes.Length > 0 && !cmd.IsConfirmed ) {
                     player.Confirm( cmd, "Undo changes ({0}) made by {1}&S in the last {2}?",
                                     changes.Length, target.ClassyName, span.ToMiniString() );
@@ -1611,7 +1628,7 @@ namespace fCraft {
                 blocksDenied = 0;
 
             UndoState undoState = player.DrawBegin( null );
-            Map map = player.World.Map;
+            Map map = player.WorldMap;
 
             for( int i = 0; i < changes.Length; i++ ) {
                 DrawOneBlock( player, map, changes[i].OldBlock,
@@ -1623,7 +1640,7 @@ namespace fCraft {
                         player.Name,
                         blocks,
                         target.Name,
-                        world.Name );
+                        playerWorld.Name );
 
             DrawingFinished( player, "UndoPlayer'ed", blocks, blocksDenied );
         }

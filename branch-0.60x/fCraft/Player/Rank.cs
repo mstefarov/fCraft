@@ -29,9 +29,13 @@ namespace fCraft {
         public bool ReservedSlot;
         public int Index;
 
+        [CanBeNull]
         public Rank NextRankUp { get; internal set; }
+
+        [CanBeNull]
         public Rank NextRankDown { get; internal set; }
 
+        [CanBeNull]
         public World MainWorld { get; set; }
 
 

@@ -442,9 +442,11 @@ namespace fCraft {
 
         #region Shutdown
 
+        static readonly object ShutdownLock = new object();
         public static bool IsShuttingDown;
         static readonly AutoResetEvent ShutdownWaiter = new AutoResetEvent( false );
         static Thread shutdownThread;
+        static ChatTimer shutdownTimer;
 
 
         static void ShutdownNow( [NotNull] ShutdownParams shutdownParams ) {
@@ -513,47 +515,48 @@ namespace fCraft {
         /// <param name="waitForShutdown"> If true, blocks the calling thread until shutdown is complete or cancelled. </param>
         public static void Shutdown( [NotNull] ShutdownParams shutdownParams, bool waitForShutdown ) {
             if( shutdownParams == null ) throw new ArgumentNullException( "shutdownParams" );
-            if( !CancelShutdown() ) return;
-            shutdownThread = new Thread( ShutdownThread ) {
-                Name = "fCraft.Shutdown"
-            };
-            if( shutdownParams.Delay >= ChatTimer.MinDuration ) {
-                string timerMsg = String.Format( "Server {0} ({1})",
-                                                 shutdownParams.Restart ? "restart" : "shutdown",
-                                                 shutdownParams.ReasonString );
-                string nameOnTimer;
-                if( shutdownParams.InitiatedBy == null ) {
-                    nameOnTimer = Player.Console.Name;
-                } else {
-                    nameOnTimer = shutdownParams.InitiatedBy.Name;
+            lock( ShutdownLock ) {
+                if( !CancelShutdown() ) return;
+                shutdownThread = new Thread( ShutdownThread ) {
+                    Name = "fCraft.Shutdown"
+                };
+                if( shutdownParams.Delay >= ChatTimer.MinDuration ) {
+                    string timerMsg = String.Format( "Server {0} ({1})",
+                                                     shutdownParams.Restart ? "restart" : "shutdown",
+                                                     shutdownParams.ReasonString );
+                    string nameOnTimer;
+                    if( shutdownParams.InitiatedBy == null ) {
+                        nameOnTimer = Player.Console.Name;
+                    } else {
+                        nameOnTimer = shutdownParams.InitiatedBy.Name;
+                    }
+                    shutdownTimer = ChatTimer.Start( shutdownParams.Delay, timerMsg, nameOnTimer );
                 }
-                shutdownTimer = ChatTimer.Start( shutdownParams.Delay, timerMsg, nameOnTimer );
+                shutdownThread.Start( shutdownParams );
             }
-            shutdownThread.Start( shutdownParams );
             if( waitForShutdown ) {
                 ShutdownWaiter.WaitOne();
             }
         }
 
 
-        static ChatTimer shutdownTimer;
-
-
         /// <summary> Attempts to cancel the shutdown timer. </summary>
         /// <returns> True if a shutdown timer was cancelled, false if no shutdown is in progress.
         /// Also returns false if it's too late to cancel (shutdown has begun). </returns>
         public static bool CancelShutdown() {
-            if( shutdownThread != null ) {
-                if( IsShuttingDown || shutdownThread.ThreadState != ThreadState.WaitSleepJoin ) {
-                    return false;
+            lock( ShutdownLock ) {
+                if( shutdownThread != null ) {
+                    if( IsShuttingDown || shutdownThread.ThreadState != ThreadState.WaitSleepJoin ) {
+                        return false;
+                    }
+                    if( shutdownTimer != null ) {
+                        shutdownTimer.Stop();
+                        shutdownTimer = null;
+                    }
+                    ShutdownWaiter.Set();
+                    shutdownThread.Abort();
+                    shutdownThread = null;
                 }
-                if( shutdownTimer != null ) {
-                    shutdownTimer.Stop();
-                    shutdownTimer = null;
-                }
-                ShutdownWaiter.Set();
-                shutdownThread.Abort();
-                shutdownThread = null;
             }
             return true;
         }
@@ -873,7 +876,7 @@ namespace fCraft {
         const int IPCheckTimeout = 30000;
 
         /// <summary> Checks server's external IP, as reported by checkip.dyndns.org. </summary>
-        [CanBeNull] 
+        [CanBeNull]
         static IPAddress CheckExternalIP() {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( IPCheckUri );
             request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
@@ -1241,5 +1244,4 @@ namespace fCraft {
         /// <summary> Server process is being closed/killed. </summary>
         ProcessClosing
     }
-
 }

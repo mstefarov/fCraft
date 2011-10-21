@@ -187,7 +187,7 @@ namespace fCraft {
                 } else {
                     if( descriptor.Call( player, cmd, true ) ) {
                         return true;
-                    }else{
+                    } else {
                         player.Message( "Command was cancelled." );
                     }
                 }
@@ -206,8 +206,8 @@ namespace fCraft {
             // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < name.Length; i++ ) {
                 char ch = name[i];
-                if( ( ch < '0' && ch != '.' ) || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < '_' ) ||
-                    ( ch > '_' && ch < 'a' ) || ch > 'z' ) {
+                if( (ch < '0' && ch != '.') || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') ||
+                    (ch > '_' && ch < 'a') || ch > 'z' ) {
                     return false;
                 }
             }

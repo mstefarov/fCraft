@@ -16,7 +16,6 @@ namespace fCraft {
     }
 
     public unsafe sealed class BlockDB {
-
         internal BlockDB( [NotNull] World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );
             World = world;

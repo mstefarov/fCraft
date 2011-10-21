@@ -581,10 +581,12 @@ namespace fCraft {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
+
             string playerName = cmd.Next();
             if( playerName == null ) {
-                playerWorld.Map.Spawn = player.Position;
-                player.TeleportTo( playerWorld.Map.Spawn );
+                Map map = player.WorldMap;
+                map.Spawn = player.Position;
+                player.TeleportTo( map.Spawn );
                 player.Send( PacketWriter.MakeAddEntity( 255, player.ListName, player.Position ) );
                 player.Message( "New spawn point saved." );
                 Logger.Log( "{0} changed the spawned point.", LogType.UserActivity,
@@ -699,8 +701,6 @@ namespace fCraft {
         };
 
         static void TPHandler( Player player, Command cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
-
             string name = cmd.Next();
             if( name == null ) {
                 CdTP.PrintUsage( player );
@@ -1097,8 +1097,9 @@ namespace fCraft {
         };
 
         static void SpecPatrolHandler( Player player, Command cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
-            Player target = player.World.GetNextPatrolTarget( player );
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
+            Player target = playerWorld.GetNextPatrolTarget( player );
             if( target == null ) {
                 player.Message( "Patrol: No one to patrol in this world." );
                 return;

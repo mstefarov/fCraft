@@ -824,6 +824,7 @@ namespace fCraft {
 
         readonly object joinWorldLock = new object();
 
+        [CanBeNull]
         World forcedWorldToJoin;
         WorldChangeReason worldChangeReason;
         Position postJoinPosition;

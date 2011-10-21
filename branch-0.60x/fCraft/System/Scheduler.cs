@@ -18,6 +18,9 @@ namespace fCraft {
 
 
         internal static void Start() {
+#if DEBUG_SCHEDULER
+            Logger.Log( "Scheduler: Starting...", LogType.Debug );
+#endif
             schedulerThread = new Thread( MainLoop ) {
                 Name = "fCraft.Main"
             };
@@ -209,6 +212,9 @@ namespace fCraft {
 
         // Clears the task list
         internal static void BeginShutdown() {
+#if DEBUG_SCHEDULER
+            Logger.Log( "Scheduler: BeginShutdown...", LogType.Debug );
+#endif
             lock( TaskListLock ) {
                 foreach( SchedulerTask task in Tasks ) {
                     task.Stop();
@@ -221,6 +227,9 @@ namespace fCraft {
 
         // Makes sure that both scheduler threads finish and quit.
         internal static void EndShutdown() {
+#if DEBUG_SCHEDULER
+            Logger.Log( "Scheduler: EndShutdown...", LogType.Debug );
+#endif
             try {
                 if( schedulerThread != null && schedulerThread.IsAlive ) {
                     schedulerThread.Join();

@@ -816,7 +816,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdPlayers = new CommandDescriptor {
             Name = "Players",
-            Aliases = new[]{ "who" },
+            Aliases = new[] { "who" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             Usage = "/Players [WorldName]",
@@ -1088,7 +1088,7 @@ namespace fCraft {
 
 #if DEBUG_SCHEDULER
         static CommandDescriptor cdTaskDebug = new CommandDescriptor {
-            Name = "taskdebug",
+            Name = "TaskDebug",
             Category = CommandCategory.Info | CommandCategory.Debug,
             IsConsoleSafe = true,
             IsHidden = true,
