@@ -360,17 +360,11 @@ namespace fCraft {
 
     unsafe static class FormatUtil {
         // Quicker StringBuilder.Append(int) by Sam Allen of http://www.dotnetperls.com
-        public static void Digits( [NotNull] this StringBuilder builder, int number ) {
+        public static StringBuilder Digits( [NotNull] this StringBuilder builder, int number ) {
             if( builder == null ) throw new ArgumentNullException( "builder" );
-            if( number >= 100000000 ) {
+            if( number >= 100000000 || number < 0 ) {
                 // Use system ToString.
-                builder.Append( number.ToString() );
-                return;
-            }
-            if( number < 0 ) {
-                // Negative.
-                builder.Append( number.ToString() );
-                return;
+                builder.Append( number );
             }
             int copy;
             int digit;
@@ -422,6 +416,7 @@ namespace fCraft {
                 digit = copy / 1;
                 builder.Append( (char)(digit + 48) );
             }
+            return builder;
         }
 
 
