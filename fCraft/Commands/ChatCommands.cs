@@ -28,13 +28,13 @@ namespace fCraft {
         #region Say
 
         static readonly CommandDescriptor CdSay = new CommandDescriptor {
-            Name = "say",
+            Name = "Say",
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
             NotRepeatable = true,
             DisableLogging = true,
             Permissions = new[] { Permission.Chat, Permission.Say },
-            Usage = "/say Message",
+            Usage = "/Say Message",
             Help = "Shows a message in special color, without the player name prefix. " +
                    "Can be used for making announcements.",
             Handler = SayHandler
@@ -69,14 +69,14 @@ namespace fCraft {
         #region Staff
 
         static readonly CommandDescriptor CdStaff = new CommandDescriptor {
-            Name = "staff",
+            Name = "Staff",
             Aliases = new[] { "st" },
             Category = CommandCategory.Chat | CommandCategory.Moderation,
             Permissions = new[] { Permission.Chat },
             NotRepeatable = true,
             IsConsoleSafe = true,
             DisableLogging = true,
-            Usage = "/staff Message",
+            Usage = "/Staff Message",
             Help = "Broadcasts your message to all operators/moderators on the server at once.",
             Handler = StaffHandler
         };
@@ -104,10 +104,10 @@ namespace fCraft {
         #region Ignore / Unignore
 
         static readonly CommandDescriptor CdIgnore = new CommandDescriptor {
-            Name = "ignore",
+            Name = "Ignore",
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
-            Usage = "/ignore [PlayerName]",
+            Usage = "/Ignore [PlayerName]",
             Help = "Temporarily blocks the other player from messaging you. " +
                    "If no player name is given, lists all ignored players.",
             Handler = IgnoreHandler
@@ -138,10 +138,10 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdUnignore = new CommandDescriptor {
-            Name = "unignore",
+            Name = "Unignore",
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
-            Usage = "/unignore PlayerName",
+            Usage = "/Unignore PlayerName",
             Help = "Unblocks the other player from messaging you.",
             Handler = UnignoreHandler
         };
@@ -174,13 +174,13 @@ namespace fCraft {
         #region Me
 
         static readonly CommandDescriptor CdMe = new CommandDescriptor {
-            Name = "me",
+            Name = "Me",
             Category = CommandCategory.Chat,
             Permissions = new[] { Permission.Chat },
             IsConsoleSafe = true,
             NotRepeatable = true,
             DisableLogging = true,
-            Usage = "/me Message",
+            Usage = "/Me Message",
             Help = "Sends IRC-style action message prefixed with your name.",
             Handler = MeHandler
         };
@@ -209,14 +209,14 @@ namespace fCraft {
         #region Roll
 
         static readonly CommandDescriptor CdRoll = new CommandDescriptor {
-            Name = "roll",
+            Name = "Roll",
             Category = CommandCategory.Chat,
             Permissions = new[] { Permission.Chat },
             IsConsoleSafe = true,
             Help = "Gives random number between 1 and 100.\n" +
-                   "&H/roll MaxNumber\n" +
+                   "&H/Roll MaxNumber\n" +
                    "&S  Gives number between 1 and max.\n" +
-                   "&H/roll MinNumber MaxNumber\n" +
+                   "&H/Roll MinNumber MaxNumber\n" +
                    "&S  Gives number between min and max.",
             Handler = RollHandler
         };
@@ -287,7 +287,7 @@ namespace fCraft {
 
         const int LinesToClear = 30;
         static readonly CommandDescriptor CdClear = new CommandDescriptor {
-            Name = "clear",
+            Name = "Clear",
             UsableByFrozenPlayers = true,
             Category = CommandCategory.Chat,
             Help = "Clears the chat screen.",
@@ -306,16 +306,16 @@ namespace fCraft {
         #region Timer
 
         static readonly CommandDescriptor CdTimer = new CommandDescriptor {
-            Name = "timer",
+            Name = "Timer",
             Permissions = new[] { Permission.Say },
             IsConsoleSafe = true,
             Category = CommandCategory.Chat,
-            Usage = "/timer <Duration> <Message>",
+            Usage = "/Timer <Duration> <Message>",
             Help = "Starts a timer with a given duration and message. " +
                    "As the timer counts down, announcements are shown globally. See also: &H/Help timer abort",
             HelpSections = new Dictionary<string, string> {
-                { "abort",  "&H/timer abort <TimerID>&S - Aborts a timer with the given ID number. " +
-                            "To see a list of timers and their IDs, type &H/timer&S without any parameters." }
+                { "abort",  "&H/Timer abort <TimerID>&S - Aborts a timer with the given ID number. " +
+                            "To see a list of timers and their IDs, type &H/Timer&S without any parameters." }
             },
             Handler = TimerHandler
         };

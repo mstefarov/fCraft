@@ -376,7 +376,7 @@ namespace fCraft {
         #region BlockInfo
 
         static readonly CommandDescriptor CdBlockInfo = new CommandDescriptor {
-            Name = "binfo",
+            Name = "BInfo",
             Category = CommandCategory.World,
             Aliases = new[] { "bi", "whodid" },
             Permissions = new[] { Permission.ViewOthersInfo },
@@ -479,27 +479,27 @@ namespace fCraft {
         #region Env
 
         static readonly CommandDescriptor CdEnv = new CommandDescriptor {
-            Name = "env",
+            Name = "Env",
             Category = CommandCategory.World,
             Permissions = new[] { Permission.ManageWorlds },
             Help = "Prints or changes the environmental variables for a given world. " +
                    "Variables are: clouds, fog, sky, level, edge. " +
                    "See &H/Help env <Variable>&S for details about each variable. " +
-                   "Type &H/env <WorldName> normal&S to reset everything for a world.",
+                   "Type &H/Env <WorldName> normal&S to reset everything for a world.",
             HelpSections = new Dictionary<string, string>{
-                { "normal",     "&H/env <WorldName> normal&S - Resets all environment settings to their defaults for the given world." },
-                { "clouds",     "&H/env <WorldName> clouds <Color>&S - Sets color of the clouds. Use \"normal\" instead of color to reset." },
-                { "fog",        "&H/env <WorldName> fog <Color>&S - Sets color of the fog. " +
+                { "normal",     "&H/Env <WorldName> normal&S - Resets all environment settings to their defaults for the given world." },
+                { "clouds",     "&H/Env <WorldName> clouds <Color>&S - Sets color of the clouds. Use \"normal\" instead of color to reset." },
+                { "fog",        "&H/Env <WorldName> fog <Color>&S - Sets color of the fog. " +
                                 "Sky color blends with fog color in the distance. Use \"normal\" instead of color to reset." },
-                { "sky",        "&H/env <WorldName> sky <Color>&S - Sets color of the sky. " +
+                { "sky",        "&H/Env <WorldName> sky <Color>&S - Sets color of the sky. " +
                                 "Sky color blends with fog color in the distance. Use \"normal\" instead of color to reset." },
-                { "level",      "&H/env <WorldName> level <#>&S - Sets height of the map edges/water level, " +
+                { "level",      "&H/Env <WorldName> level <#>&S - Sets height of the map edges/water level, " +
                                 "in terms of blocks from the bottom of the map. " +
                                 "Use \"normal\" instead of a number to reset to default (halfway up the map)." },
-                { "edge",       "&H/env <WorldName> edge <BlockType>&S - Changes the type of block that's visible beyond the map boundaries. "+
+                { "edge",       "&H/Env <WorldName> edge <BlockType>&S - Changes the type of block that's visible beyond the map boundaries. "+
                                 "Use \"normal\" instead of a number to reset to default (water)." }
             },
-            Usage = "/env <WorldName> <Variable>",
+            Usage = "/Env <WorldName> <Variable>",
             IsConsoleSafe = true,
             Handler = EnvHandler
         };
@@ -514,7 +514,7 @@ namespace fCraft {
             if( worldName == null ) {
                 world = player.World;
                 if( world == null ) {
-                    player.Message( "When used from console, /env requires a world name." );
+                    player.Message( "When used from console, /Env requires a world name." );
                     return;
                 }
             } else {
@@ -966,7 +966,7 @@ namespace fCraft {
                    "No one can place or delete blocks during lockdown. " +
                    "By default this locks the world you're on, but you can also lock any world by name. " +
                    "Put an asterisk (*) for world name to lock ALL worlds at once. " +
-                   "Call &H/unlock&S to release lock on a world.",
+                   "Call &H/WUnlock&S to release lock on a world.",
             Handler = WorldLockHandler
         };
 
@@ -1014,7 +1014,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Lock },
             Usage = "/WUnlock [*|WorldName]",
-            Help = "Removes the lockdown set by &H/lock&S. See &H/Help lock&S for more information.",
+            Help = "Removes the lockdown set by &H/WLock&S. See &H/Help WLock&S for more information.",
             Handler = WorldUnlockHandler
         };
 
@@ -1043,7 +1043,7 @@ namespace fCraft {
                 world = player.World;
 
             } else {
-                player.Message( "When called from console, /lock requires a world name." );
+                player.Message( "When called from console, /WLock requires a world name." );
                 return;
             }
 
@@ -1060,9 +1060,8 @@ namespace fCraft {
         #region Spawn
 
         static readonly CommandDescriptor CdSpawn = new CommandDescriptor {
-            Name = "spawn",
+            Name = "Spawn",
             Category = CommandCategory.World,
-            Usage = "/spawn",
             Help = "Teleports you to the current map's spawn.",
             Handler = SpawnHandler
         };

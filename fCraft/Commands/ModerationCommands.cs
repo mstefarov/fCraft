@@ -61,11 +61,11 @@ namespace fCraft {
         #region Ban / Unban
 
         static readonly CommandDescriptor CdBan = new CommandDescriptor {
-            Name = "ban",
+            Name = "Ban",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban },
-            Usage = "/ban PlayerName [Reason]",
+            Usage = "/Ban PlayerName [Reason]",
             Help = "Bans a specified player by name. Note: Does NOT ban IP. " +
                    "Any text after the player name will be saved as a memo. ",
             Handler = BanHandler
@@ -182,11 +182,11 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdUnban = new CommandDescriptor {
-            Name = "unban",
+            Name = "Unban",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban },
-            Usage = "/unban PlayerName [Reason]",
+            Usage = "/Unban PlayerName [Reason]",
             Help = "Removes ban for a specified player. Does NOT remove associated IP bans. " +
                    "Any text after the player name will be saved as a memo. ",
             Handler = UnbanHandler
@@ -282,11 +282,11 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdBanEx = new CommandDescriptor {
-            Name = "banex",
+            Name = "BanEx",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban, Permission.BanIP },
-            Usage = "/banex +PlayerName&S or &H/banex -PlayerName",
+            Usage = "/BanEx +PlayerName&S or &H/BanEx -PlayerName",
             Help = "Adds or removes an IP-ban exemption for an account. " +
                    "Exempt accounts can log in from any IP, including banned ones.",
             Handler = BanExHandler
@@ -341,12 +341,12 @@ namespace fCraft {
         #region Kick
 
         static readonly CommandDescriptor CdKick = new CommandDescriptor {
-            Name = "kick",
+            Name = "Kick",
             Aliases = new[] { "k" },
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Kick },
-            Usage = "/kick PlayerName [Reason]",
+            Usage = "/Kick PlayerName [Reason]",
             Help = "Kicks the specified player from the server. " +
                    "Optional kick reason/message is shown to the kicked player and logged.",
             Handler = KickHandler
@@ -355,7 +355,7 @@ namespace fCraft {
         static void KickHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
-                player.Message( "Usage: &H/kick PlayerName [Message]" );
+                player.Message( "Usage: &H/Kick PlayerName [Message]" );
                 return;
             }
 
@@ -404,13 +404,13 @@ namespace fCraft {
         #region Changing Rank (Promotion / Demotion)
 
         static readonly CommandDescriptor CdRank = new CommandDescriptor {
-            Name = "rank",
+            Name = "Rank",
             Aliases = new[] { "user", "promote", "demote" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Promote, Permission.Demote },
             AnyPermission = true,
             IsConsoleSafe = true,
-            Usage = "/rank PlayerName RankName [Reason]",
+            Usage = "/Rank PlayerName RankName [Reason]",
             Help = "Changes the rank of a player to a specified rank. " +
                    "Any text specified after the RankName will be saved as a memo.",
             Handler = RankHandler
@@ -423,7 +423,7 @@ namespace fCraft {
             // Check arguments
             if( name == null || newRankName == null ) {
                 CdRank.PrintUsage( player );
-                player.Message( "See &H/ranks&S for list of ranks." );
+                player.Message( "See &H/Ranks&S for list of ranks." );
                 return;
             }
 
@@ -476,14 +476,14 @@ namespace fCraft {
         #region Hide
 
         static readonly CommandDescriptor CdHide = new CommandDescriptor {
-            Name = "hide",
+            Name = "Hide",
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Hide },
-            Usage = "/hide [silent]",
+            Usage = "/Hide [silent]",
             Help = "Enables invisible mode. It looks to other players like you left the server, " +
                    "but you can still do anything - chat, build, delete, type commands - as usual. " +
                    "Great way to spy on griefers and scare newbies. " +
-                   "Call &H/unhide&S to reveal yourself.",
+                   "Call &H/Unhide&S to reveal yourself.",
             Handler = HideHandler
         };
 
@@ -502,7 +502,7 @@ namespace fCraft {
             player.Info.IsHidden = true;
             player.Message( "&8You are now hidden." );
 
-            // to make it look like player just logged out in /info
+            // to make it look like player just logged out in /Info
             player.Info.LastSeen = DateTime.UtcNow;
 
             if( !silent ) {
@@ -523,11 +523,11 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdUnhide = new CommandDescriptor {
-            Name = "unhide",
+            Name = "Unhide",
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Hide },
-            Usage = "/unhide [silent]",
-            Help = "Disables the &H/hide&S invisible mode. " +
+            Usage = "/Unhide [silent]",
+            Help = "Disables the &H/Hide&S invisible mode. " +
                    "It looks to other players like you just joined the server.",
             Handler = UnhideHandler
         };
@@ -598,7 +598,7 @@ namespace fCraft {
                     if( player.Can( Permission.Bring, target.Info.Rank ) ) {
                         target.Send( PacketWriter.MakeAddEntity( 255, target.ListName, player.Position ) );
                     } else {
-                        player.Message( "You can only set spawn of players ranked {0}&S or lower.",
+                        player.Message( "You may only set spawn of players ranked {0}&S or lower.",
                                         player.Info.Rank.GetLimit( Permission.Bring ).ClassyName );
                         player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
                     }
@@ -609,7 +609,7 @@ namespace fCraft {
                 } else {
                     infos = Server.FindPlayers( player, playerName, true );
                     if( infos.Length > 0 ) {
-                        player.Message( "You can only set spawn of players on the same world as you." );
+                        player.Message( "You may only set spawn of players on the same world as you." );
                     } else {
                         player.MessageNoPlayer( playerName );
                     }
@@ -625,12 +625,12 @@ namespace fCraft {
         #region Freeze
 
         static readonly CommandDescriptor CdFreeze = new CommandDescriptor {
-            Name = "freeze",
+            Name = "Freeze",
             Aliases = new[] { "f" },
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Freeze },
-            Usage = "/freeze PlayerName",
+            Usage = "/Freeze PlayerName",
             Help = "Freezes the specified player in place. " +
                    "This is usually effective, but not hacking-proof. " +
                    "To release the player, use &H/unfreeze PlayerName",
@@ -826,7 +826,7 @@ namespace fCraft {
             if( target == null ) return;
 
             if( !player.Can( Permission.Bring, target.Info.Rank ) ) {
-                player.Message( "You can only bring players ranked {0}&S or lower.",
+                player.Message( "You may only bring players ranked {0}&S or lower.",
                                 player.Info.Rank.GetLimit( Permission.Bring ).ClassyName );
                 player.Message( "{0}&S is ranked {1}",
                                 target.ClassyName, target.Info.Rank.ClassyName );
@@ -853,11 +853,11 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdWorldBring = new CommandDescriptor {
-            Name = "wbring",
+            Name = "WBring",
             IsConsoleSafe = true,
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Bring },
-            Usage = "/wbring PlayerName WorldName",
+            Usage = "/WBring PlayerName WorldName",
             Help = "Teleports a player to the given world's spawn.",
             Handler = WorldBringHandler
         };
@@ -876,7 +876,7 @@ namespace fCraft {
             if( target == null || world == null ) return;
 
             if( !player.Can( Permission.Bring, target.Info.Rank ) ) {
-                player.Message( "You can only wbring players ranked {0}&S or lower.",
+                player.Message( "You may only bring players ranked {0}&S or lower.",
                                 player.Info.Rank.GetLimit( Permission.Bring ).ClassyName );
                 player.Message( "{0}&S is ranked {1}",
                                 target.ClassyName, target.Info.Rank.ClassyName );
@@ -1065,7 +1065,7 @@ namespace fCraft {
         #region Patrol & SpecPatrol
 
         static readonly CommandDescriptor CdPatrol = new CommandDescriptor {
-            Name = "patrol",
+            Name = "Patrol",
             Aliases = new[] { "pat" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Patrol },
@@ -1192,10 +1192,11 @@ namespace fCraft {
         #region Spectate / Unspectate
 
         static readonly CommandDescriptor CdSpectate = new CommandDescriptor {
-            Name = "spectate",
+            Name = "Spectate",
             Aliases = new[] { "follow", "spec" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Spectate },
+            Usage = "/Spectate PlayerName",
             Handler = SpectateHandler
         };
 
@@ -1225,7 +1226,7 @@ namespace fCraft {
             }
 
             if( !player.Can( Permission.Spectate, target.Info.Rank ) ) {
-                player.Message( "You can only spectate players ranked {0}&S or lower.",
+                player.Message( "You may only spectate players ranked {0}&S or lower.",
                 player.Info.Rank.GetLimit( Permission.Spectate ).ClassyName );
                 player.Message( "{0}&S is ranked {1}",
                                 target.ClassyName, target.Info.Rank.ClassyName );
@@ -1239,7 +1240,7 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdUnspectate = new CommandDescriptor {
-            Name = "unspectate",
+            Name = "Unspectate",
             Aliases = new[] { "unfollow", "unspec" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Spectate },

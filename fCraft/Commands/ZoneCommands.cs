@@ -76,7 +76,7 @@ namespace fCraft {
 
                 newZone.Controller.MinRank = info.Rank.NextRankUp ?? info.Rank;
                 newZone.Controller.Include( info );
-                player.Message( "Zone: Creating a {0}+&S zone for player {1}&S. Place a block or type /mark to use your location.",
+                player.Message( "Zone: Creating a {0}+&S zone for player {1}&S. Place a block or type /Mark to use your location.",
                                 newZone.Controller.MinRank.ClassyName, info.ClassyName );
                 player.SelectionStart( 2, ZoneAddCallback, newZone, CdZoneAdd.Permissions );
 
@@ -119,7 +119,7 @@ namespace fCraft {
 
                     newZone.Controller.MinRank = minRank;
                     player.SelectionStart( 2, ZoneAddCallback, newZone, CdZoneAdd.Permissions );
-                    player.Message( "Zone: Place a block or type /mark to use your location." );
+                    player.Message( "Zone: Place a block or type /Mark to use your location." );
 
                 } else {
                     player.MessageNoRank( rankName );
@@ -417,9 +417,9 @@ namespace fCraft {
         #region ZoneMark
 
         static readonly CommandDescriptor CdZoneMark = new CommandDescriptor {
-            Name = "zmark",
+            Name = "ZMark",
             Category = CommandCategory.Zone | CommandCategory.Building,
-            Usage = "/zmark ZoneName",
+            Usage = "/ZMark ZoneName",
             Help = "Uses zone boundaries to make a selection.",
             Handler = ZoneMarkHandler
         };
@@ -427,7 +427,7 @@ namespace fCraft {
         static void ZoneMarkHandler( Player player, Command cmd ) {
             if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
             if( player.SelectionMarksExpected == 0 ) {
-                player.MessageNow( "Cannot zmark - no selection in progress." );
+                player.MessageNow( "Cannot use ZMark - no selection in progress." );
             } else if( player.SelectionMarksExpected == 2 ) {
                 string zoneName = cmd.Next();
                 if( zoneName == null ) {

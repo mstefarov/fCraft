@@ -48,10 +48,10 @@ namespace fCraft {
         /// manipulate players' records, and to promote/demote players in batches. </summary>
         EditPlayerDB,
 
-        /// <summary> Ability to use /say command. </summary>
+        /// <summary> Ability to use /Say command. </summary>
         Say,
 
-        /// <summary> Ability to read /staff chat. </summary>
+        /// <summary> Ability to read /Staff chat. </summary>
         ReadStaffChat,
 
         /// <summary> Ability to use color codes in chat messages. </summary>
@@ -115,7 +115,7 @@ namespace fCraft {
         /// usually while hidden. </summary>
         Patrol,
 
-        /// <summary> Ability to use /spectate. </summary>
+        /// <summary> Ability to use /Spectate. </summary>
         Spectate,
 
         /// <summary> Ability to freeze/unfreeze players.

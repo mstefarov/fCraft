@@ -9,7 +9,7 @@ namespace fCraft.Drawing {
         static readonly Dictionary<string, IBrushFactory> BrushAliases = new Dictionary<string, IBrushFactory>();
 
         static readonly CommandDescriptor CdBrush = new CommandDescriptor {
-            Name = "brush",
+            Name = "Brush",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
             Help = "Gets or sets the current brush. Available brushes are: ",

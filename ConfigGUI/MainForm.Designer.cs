@@ -894,7 +894,7 @@
             this.lColorMe.Name = "lColorMe";
             this.lColorMe.Size = new System.Drawing.Size( 117, 15 );
             this.lColorMe.TabIndex = 12;
-            this.lColorMe.Text = "/me command color";
+            this.lColorMe.Text = "/Me command color";
             // 
             // bColorMe
             // 
@@ -979,7 +979,7 @@
             this.lColorSay.Name = "lColorSay";
             this.lColorSay.Size = new System.Drawing.Size( 112, 15 );
             this.lColorSay.TabIndex = 10;
-            this.lColorSay.Text = "/say message color";
+            this.lColorSay.Text = "/Say message color";
             // 
             // bColorAnnouncement
             // 
@@ -998,7 +998,7 @@
             this.lColorAnnouncement.Name = "lColorAnnouncement";
             this.lColorAnnouncement.Size = new System.Drawing.Size( 177, 15 );
             this.lColorAnnouncement.TabIndex = 8;
-            this.lColorAnnouncement.Text = "Announcement and /rules color";
+            this.lColorAnnouncement.Text = "Announcement and /Rules color";
             // 
             // bColorHelp
             // 
@@ -1132,7 +1132,7 @@
             this.xWoMEnableEnvExtensions.Name = "xWoMEnableEnvExtensions";
             this.xWoMEnableEnvExtensions.Size = new System.Drawing.Size( 266, 19 );
             this.xWoMEnableEnvExtensions.TabIndex = 22;
-            this.xWoMEnableEnvExtensions.Text = "Enable WoM environment extensions (/env).";
+            this.xWoMEnableEnvExtensions.Text = "Enable WoM environment extensions (/Env).";
             this.xWoMEnableEnvExtensions.UseVisualStyleBackColor = true;
             // 
             // bMapPath

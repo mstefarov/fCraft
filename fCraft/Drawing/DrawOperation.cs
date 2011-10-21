@@ -33,7 +33,7 @@ namespace fCraft.Drawing {
         /// Should include BlockChangeContext.Drawn flag. </summary>
         public BlockChangeContext Context { get; set; }
 
-        /// <summary> Marks given by the player to this command. Marks could come from either clicks or /mark command.
+        /// <summary> Marks given by the player to this command. Marks could come from either clicks or /Mark command.
         /// Set by DrawOperation.Prepare() </summary>
         public Vector3I[] Marks { get; protected set; }
 
@@ -50,7 +50,7 @@ namespace fCraft.Drawing {
         /// <summary> Whether this operation is done (has finished or had been cancelled). </summary>
         public bool IsDone { get; protected set; }
 
-        /// <summary> Whether this operation has been cancelled (e.g. by /undo or /lock). </summary>
+        /// <summary> Whether this operation has been cancelled (e.g. by /Undo or /WLock). </summary>
         public bool IsCancelled { get; protected set; }
 
         /// <summary> Number of blocks/coordinates that were considered for drawing. </summary>

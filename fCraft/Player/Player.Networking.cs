@@ -747,7 +747,7 @@ namespace fCraft {
 
             // A reminder for first-time users
             if( PlayerDB.Size == 1 && Info.Rank != RankManager.HighestRank ) {
-                Message( "Type &H/rank {0} {1}&S in console to promote yourself",
+                Message( "Type &H/Rank {0} {1}&S in console to promote yourself",
                          Name, RankManager.HighestRank.Name );
             }
 

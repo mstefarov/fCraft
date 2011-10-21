@@ -61,7 +61,7 @@ namespace fCraft {
         /// <summary> Persistent information record associated with this player. </summary>
         public PlayerInfo Info { get; private set; }
 
-        /// <summary> Whether the player is in paint mode (deleting blocks replaces them). Used by /paint. </summary>
+        /// <summary> Whether the player is in paint mode (deleting blocks replaces them). Used by /Paint. </summary>
         public bool IsPainting { get; set; }
 
         /// <summary> Whether player has blocked all incoming chat.
@@ -206,7 +206,7 @@ namespace fCraft {
                         CommandDescriptor commandDescriptor = CommandManager.GetDescriptor( cmd.Name, true );
 
                         if( commandDescriptor == null ) {
-                            MessageNow( "Unknown command \"{0}\". See &H/commands", cmd.Name );
+                            MessageNow( "Unknown command \"{0}\". See &H/Commands", cmd.Name );
                         } else if( Info.IsFrozen && !commandDescriptor.UsableByFrozenPlayers ) {
                             MessageNow( "&WYou cannot use this command while frozen." );
                         } else {
@@ -530,7 +530,7 @@ namespace fCraft {
 
         public void MessageNoRank( [NotNull] string rankName ) {
             if( rankName == null ) throw new ArgumentNullException( "rankName" );
-            Message( "Unrecognized rank \"{0}\". See &H/ranks", rankName );
+            Message( "Unrecognized rank \"{0}\". See &H/Ranks", rankName );
         }
 
 
@@ -1124,7 +1124,7 @@ namespace fCraft {
                 if( executeCallbackIfNeeded ) {
                     SelectionExecute();
                 } else {
-                    Message( "Last block marked at {0}. Type &H/mark&S or click any block to continue.", pos );
+                    Message( "Last block marked at {0}. Type &H/Mark&S or click any block to continue.", pos );
                 }
             } else {
                 Message( "Block #{0} marked at {1}. Place mark #{2}.",
