@@ -320,7 +320,7 @@ namespace fCraft {
                 info.LastFailedLoginIP = IPAddress.None;
             }
             // skip 14
-            
+
             fields[15].ToDateTime( ref info.FirstLoginDate );
 
             // login/logout times

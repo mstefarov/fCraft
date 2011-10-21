@@ -162,9 +162,10 @@ make sure to move the map files before starting the server again." )]
         [EnumKey( ConfigSection.Security, NameVerificationMode.Balanced,
 @"Name verification ensures that connecting players are not impersonating
 someone else. Strict verification uses only the main verification method.
-Sometimes it can produce false negatives - for example if server has just
-restarted, or if minecraft.net heartbeats are timing out. Balanced verification
-checks player's current and on-record IP address to eliminate false negatives." )]
+It can produce false negatives - for example if server has just restarted,
+or if minecraft.net heartbeats are timing out. Normal verification checks
+player's current and on-record IP address to eliminate false negatives.
+No verification is dangerous, and may allow players to impersonate others." )]
         VerifyNames,
 
         [IntKey( ConfigSection.Security, 0,

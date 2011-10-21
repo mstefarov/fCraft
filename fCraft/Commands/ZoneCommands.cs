@@ -128,24 +128,26 @@ namespace fCraft {
         }
 
         static void ZoneAddCallback( Player player, Vector3I[] marks, object tag ) {
-            if(player.World==null) PlayerOpException.ThrowNoWorld( player );
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
+
             if( !player.Info.Rank.AllowSecurityCircumvention ) {
-                SecurityCheckResult buildCheck = player.World.BuildSecurity.CheckDetailed( player.Info );
+                SecurityCheckResult buildCheck = playerWorld.BuildSecurity.CheckDetailed( player.Info );
                 switch( buildCheck ) {
                     case SecurityCheckResult.BlackListed:
                         player.Message( "Cannot add zones to world {0}&S: You are barred from building here.",
-                                        player.World.ClassyName );
+                                        playerWorld.ClassyName );
                         return;
                     case SecurityCheckResult.RankTooLow:
                         player.Message( "Cannot add zones to world {0}&S: You are not allowed to build here.",
-                                        player.World.ClassyName );
+                                        playerWorld.ClassyName );
                         return;
                     //case SecurityCheckResult.RankTooHigh:
                 }
             }
 
             Zone zone = (Zone)tag;
-            var zones = player.World.LoadMap().Zones;
+            var zones = player.WorldMap.Zones;
             lock( zones.SyncRoot ) {
                 Zone dupeZone = zones.FindExact( zone.Name );
                 if( dupeZone != null ) {
@@ -184,9 +186,6 @@ namespace fCraft {
         };
 
         static void ZoneEditHandler( Player player, Command cmd ) {
-            World playerWorld = player.World;
-            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
-
             bool changesWereMade = false;
             string zoneName = cmd.Next();
             if( zoneName == null ) {
@@ -194,7 +193,7 @@ namespace fCraft {
                 return;
             }
 
-            Zone zone = playerWorld.LoadMap().Zones.Find( zoneName );
+            Zone zone = player.WorldMap.Zones.Find( zoneName );
             if( zone == null ) {
                 player.MessageNoZone( zoneName );
                 return;
@@ -302,14 +301,13 @@ namespace fCraft {
         };
 
         static void ZoneInfoHandler( Player player, Command cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
             string zoneName = cmd.Next();
             if( zoneName == null ) {
                 player.Message( "No zone name specified. See &H/Help ZInfo" );
                 return;
             }
 
-            Zone zone = player.World.Map.Zones.Find( zoneName );
+            Zone zone = player.WorldMap.Zones.Find( zoneName );
             if( zone == null ) {
                 player.MessageNoZone( zoneName );
                 return;
@@ -425,7 +423,6 @@ namespace fCraft {
         };
 
         static void ZoneMarkHandler( Player player, Command cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
             if( player.SelectionMarksExpected == 0 ) {
                 player.MessageNow( "Cannot use ZMark - no selection in progress." );
             } else if( player.SelectionMarksExpected == 2 ) {
@@ -435,7 +432,7 @@ namespace fCraft {
                     return;
                 }
 
-                Zone zone = player.World.Map.Zones.Find( zoneName );
+                Zone zone = player.WorldMap.Zones.Find( zoneName );
                 if( zone == null ) {
                     player.MessageNoZone( zoneName );
                     return;
@@ -515,7 +512,9 @@ namespace fCraft {
         };
 
         static void ZoneRenameHandler( Player player, Command cmd ) {
-            if(player.World==null) PlayerOpException.ThrowNoWorld( player );
+            World playerWorld = player.World;
+            if(playerWorld==null)PlayerOpException.ThrowNoWorld( player );
+
             // make sure that both parameters are given
             string oldName = cmd.Next();
             string newName = cmd.Next();
@@ -531,7 +530,7 @@ namespace fCraft {
             }
 
             // find the old zone
-            var zones = player.World.Map.Zones;
+            var zones = player.WorldMap.Zones;
             Zone oldZone = zones.Find( oldName );
             if( oldZone == null ) {
                 player.MessageNoZone( oldName );
@@ -556,10 +555,10 @@ namespace fCraft {
             zones.Rename( oldZone, newName );
 
             // announce the rename
-            player.World.Players.Message( "&SZone \"{0}\" was renamed to \"{1}&S\" by {2}",
-                                          fullOldName, oldZone.ClassyName, player.ClassyName );
+            playerWorld.Players.Message( "&SZone \"{0}\" was renamed to \"{1}&S\" by {2}",
+                                         fullOldName, oldZone.ClassyName, player.ClassyName );
             Logger.Log( "Player {0} renamed zone \"{1}\" to \"{2}\" on world {3}", LogType.UserActivity,
-                        player.Name, fullOldName, newName, player.World.Name );
+                        player.Name, fullOldName, newName, playerWorld.Name );
         }
 
         #endregion
@@ -580,9 +579,8 @@ namespace fCraft {
         }
 
         static void ZoneTestCallback( Player player, Vector3I[] marks, object tag ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
             Zone[] allowed, denied;
-            if( player.World.Map.Zones.CheckDetailed( marks[0].X, marks[0].Y, marks[0].Z, player, out allowed, out denied ) ) {
+            if( player.WorldMap.Zones.CheckDetailed( marks[0].X, marks[0].Y, marks[0].Z, player, out allowed, out denied ) ) {
                 foreach( Zone zone in allowed ) {
                     SecurityCheckResult status = zone.Controller.CheckDetailed( player.Info );
                     player.Message( "> Zone {0}&S: {1}{2}", zone.ClassyName, Color.Lime, status );

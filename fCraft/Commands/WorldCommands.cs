@@ -385,15 +385,15 @@ namespace fCraft {
         };
 
         static void BlockInfoHandler( Player player, Command cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
             if( !BlockDB.IsEnabledGlobally ) {
                 player.Message( "&WBlockDB is disabled on this server." );
                 return;
             }
 
-            World world = player.World;
-            if( !world.BlockDB.IsEnabled ) {
+            if( !playerWorld.BlockDB.IsEnabled ) {
                 player.Message( "&WBlockDB is disabled in this world." );
                 return;
             }
