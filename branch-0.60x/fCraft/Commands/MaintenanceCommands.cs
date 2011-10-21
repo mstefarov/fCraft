@@ -32,9 +32,10 @@ namespace fCraft {
 
 #if DEBUG
             CommandManager.RegisterCommand( new CommandDescriptor {
-                Name = "bum",
+                Name = "BUM",
                 IsHidden = true,
                 Category = CommandCategory.Maintenance | CommandCategory.Debug,
+                Help = "Bandwidth Use Mode statistics.",
                 Handler = delegate( Player player, Command cmd ) {
                     string newModeName = cmd.Next();
                     if( newModeName == null ) {
@@ -53,9 +54,10 @@ namespace fCraft {
             } );
 
             CommandManager.RegisterCommand( new CommandDescriptor {
-                Name = "bdbdb",
+                Name = "BDBDB",
                 IsHidden = true,
                 Category = CommandCategory.Maintenance | CommandCategory.Debug,
+                Help = "BlockDB Debug",
                 Handler = delegate( Player player, Command cmd ) {
                     if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
                     BlockDB db = player.World.BlockDB;
@@ -72,14 +74,14 @@ namespace fCraft {
         #region DumpStats
 
         static readonly CommandDescriptor CdDumpStats = new CommandDescriptor {
-            Name = "dumpstats",
+            Name = "DumpStats",
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
             IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB },
             Help = "Writes out a number of statistics about the server. " +
                    "Only non-banned players active in the last 30 days are counted.",
-            Usage = "/dumpstats FileName",
+            Usage = "/DumpStats FileName",
             Handler = DumpStatsHandler
         };
 
@@ -115,7 +117,7 @@ namespace fCraft {
                 return;
             }
 
-            if( !Paths.TestFile( "dumpstats file", fileName, false, FileAccess.Write ) ) {
+            if( !Paths.TestFile( "DumpStats file", fileName, false, FileAccess.Write ) ) {
                 player.Message( "Cannot create specified file. See log for details." );
                 return;
             }
@@ -538,13 +540,13 @@ namespace fCraft {
         #region AutoRank
 
         static readonly CommandDescriptor CdAutoRankAll = new CommandDescriptor {
-            Name = "autorankall",
+            Name = "AutoRankAll",
             Category = CommandCategory.Maintenance | CommandCategory.Moderation,
             IsConsoleSafe = true,
             IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
             Help = "If AutoRank is disabled, it can still be called manually using this command.",
-            Usage = "/autorankall [FromRank]",
+            Usage = "/AutoRankAll [FromRank]",
             Handler = AutoRankAllHandler
         };
 
@@ -821,12 +823,12 @@ namespace fCraft {
         #region Reload
 
         static readonly CommandDescriptor CdReload = new CommandDescriptor {
-            Name = "reload",
+            Name = "Reload",
             Aliases = new[] { "configreload", "reloadconfig", "autorankreload", "reloadautorank" },
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.ReloadConfig },
             IsConsoleSafe = true,
-            Usage = "/reload config&S or &H/reload autorank",
+            Usage = "/Reload config&S or &H/Reload autorank",
             Help = "Reloads a given configuration file. Note that changes to ranks " +
                    "and IRC settings still require a full restart.",
             Handler = ReloadHandler
@@ -877,14 +879,14 @@ namespace fCraft {
         #region Shutdown, Restart
 
         static readonly CommandDescriptor CdShutdown = new CommandDescriptor {
-            Name = "shutdown",
+            Name = "Shutdown",
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.ShutdownServer },
             IsConsoleSafe = true,
             Help = "Shuts down the server remotely after a given delay. " +
                    "A shutdown reason or message can be specified to be shown to players. " +
-                   "Type &H/shutdown abort&S to cancel.",
-            Usage = "/shutdown Delay [Reason]&S or &H/shutdown abort",
+                   "Type &H/Shutdown abort&S to cancel.",
+            Usage = "/Shutdown Delay [Reason]&S or &H/Shutdown abort",
             Handler = ShutdownHandler
         };
 
@@ -936,14 +938,14 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdRestart = new CommandDescriptor {
-            Name = "restart",
+            Name = "Restart",
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.ShutdownServer },
             IsConsoleSafe = true,
             Help = "Restarts the server remotely after a given delay. " +
                    "A restart reason or message can be specified to be shown to players. " +
-                   "Type &H/restart abort&S to cancel.",
-            Usage = "/restart Delay [Reason]&S or &H/restart abort",
+                   "Type &H/Restart abort&S to cancel.",
+            Usage = "/Restart Delay [Reason]&S or &H/Restart abort",
             Handler = RestartHandler
         };
 
@@ -996,7 +998,7 @@ namespace fCraft {
         #region PruneDB
 
         static readonly CommandDescriptor CdPruneDB = new CommandDescriptor {
-            Name = "prunedb",
+            Name = "PruneDB",
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
             IsHidden = true,
@@ -1033,12 +1035,12 @@ namespace fCraft {
         #region Importing
 
         static readonly CommandDescriptor CdImport = new CommandDescriptor {
-            Name = "import",
+            Name = "Import",
             Aliases = new[] { "importbans", "importranks" },
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Import },
-            Usage = "/import bans Software File&S or &H/import ranks Software File Rank",
+            Usage = "/Import bans Software File&S or &H/Import ranks Software File Rank",
             Help = "Imports data from formats used by other servers. " +
                    "Currently only MCSharp/MCZall files are supported.",
             Handler = ImportHandler
@@ -1206,12 +1208,12 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdInfoSwap = new CommandDescriptor {
-            Name = "infoswap",
+            Name = "InfoSwap",
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
             IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB },
-            Usage = "/infoswap Player1 Player2",
+            Usage = "/InfoSwap Player1 Player2",
             Help = "Swaps records between two players. EXPERIMENTAL, use at your own risk.",
             Handler = DoPlayerDB
         };

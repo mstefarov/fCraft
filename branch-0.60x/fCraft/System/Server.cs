@@ -1229,13 +1229,13 @@ namespace fCraft {
         /// <summary> StartServer failed. </summary>
         FailedToStart,
 
-        /// <summary> Server is restarting, usually because someone called /restart. </summary>
+        /// <summary> Server is restarting, usually because someone called /Restart. </summary>
         Restarting,
 
         /// <summary> Server has experienced a non-recoverable crash. </summary>
         Crashed,
 
-        /// <summary> Server is shutting down, usually because someone called /shutdown. </summary>
+        /// <summary> Server is shutting down, usually because someone called /Shutdown. </summary>
         ShuttingDown,
 
         /// <summary> Server process is being closed/killed. </summary>

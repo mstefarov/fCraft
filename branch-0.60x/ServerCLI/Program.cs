@@ -63,11 +63,11 @@ namespace fCraft.ServerCLI {
 
                 if( Server.StartServer() ) {
                     Console.WriteLine( "** Running fCraft version {0}. **", Updater.CurrentRelease.VersionString );
-                    Console.WriteLine( "** Server is now ready. Type /shutdown to exit safely. **" );
+                    Console.WriteLine( "** Server is now ready. Type /Shutdown to exit safely. **" );
 
                     while( !Server.IsShuttingDown ) {
                         string cmd = Console.ReadLine();
-                        if( cmd.Equals( "/clear", StringComparison.OrdinalIgnoreCase ) ) {
+                        if( cmd.Equals( "/Clear", StringComparison.OrdinalIgnoreCase ) ) {
                             Console.Clear();
                         } else {
                             try {

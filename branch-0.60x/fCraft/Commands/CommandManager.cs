@@ -101,6 +101,10 @@ namespace fCraft {
                 }
             }
 
+            if( !Char.IsUpper( descriptor.Name[0] ) ) {
+                throw new CommandRegistrationException( "Command names must start with an uppercase letter." );
+            }
+
             if( descriptor.Usage == null ) {
                 descriptor.Usage = "/" + descriptor.Name;
             }
@@ -165,7 +169,7 @@ namespace fCraft {
             CommandDescriptor descriptor = GetDescriptor( cmd.Name, true );
 
             if( descriptor == null ) {
-                player.Message( "Unknown command \"{0}\". See &H/commands", cmd.Name );
+                player.Message( "Unknown command \"{0}\". See &H/Commands", cmd.Name );
                 return false;
             }
 

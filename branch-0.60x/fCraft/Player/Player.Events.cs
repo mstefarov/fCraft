@@ -49,7 +49,7 @@ namespace fCraft {
 
 
         /// <summary> Occurs before a player is kicked (cancellable). 
-        /// Kick may be caused by /kick, /ban, /BanIP, or /BanAll commands, or by idling.
+        /// Kick may be caused by /Kick, /Ban, /BanIP, or /BanAll commands, or by idling.
         /// Callbacks may override whether the kick will be announced or recorded in PlayerDB. </summary>
         public static event EventHandler<PlayerBeingKickedEventArgs> BeingKicked;
 
@@ -57,7 +57,7 @@ namespace fCraft {
         /// <summary> Occurs after a player has been kicked. Specifically, it happens after
         /// kick has been announced and recorded to PlayerDB (if applicable), just before the
         /// target player disconnects.
-        /// Kick may be caused by /kick, /ban, /BanIP, or /BanAll commands, or by idling. </summary>
+        /// Kick may be caused by /Kick, /Ban, /BanIP, or /BanAll commands, or by idling. </summary>
         public static event EventHandler<PlayerKickedEventArgs> Kicked;
 
 

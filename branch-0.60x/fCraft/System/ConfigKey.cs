@@ -112,7 +112,7 @@ will not show custom skins for players with prefixed names." )]
         HelpColor,
 
         [ColorKey( ConfigSection.Chat, Color.SayDefault,
-@"Color of messages produced by ""/say"" command." )]
+@"Color of messages produced by ""/Say"" command." )]
         SayColor,
 
         [ColorKey( ConfigSection.Chat, Color.AnnouncementDefault,
@@ -126,7 +126,7 @@ colorcodes in announcement and rule files." )]
         PrivateMessageColor,
 
         [ColorKey( ConfigSection.Chat, Color.MeDefault,
-@"Color of ""/me"" command messages." )]
+@"Color of ""/Me"" command messages." )]
         MeColor,
 
         [ColorKey( ConfigSection.Chat, Color.WarningDefault,
@@ -182,7 +182,7 @@ Warning: Unverified players can log in with ANY name - even as you!" )]
         AllowUnverifiedLAN,
 
         [RankKey( ConfigSection.Security, RankKeyAttribute.BlankValueMeaning.DefaultRank,
-@"When players use the /patrol command, they will be  teleported
+@"When players use the /Patrol command, they will be  teleported
 to players of this (or lower) rank. ""Patrolling"" means teleporting
 to other players to check on them, usually while hidden." )]
         PatrolledRank,
@@ -245,7 +245,7 @@ but will also prevent many legitimate players from joining." )]
         AnnounceRankChangeReasons,
 
         [BoolKey(ConfigSection.Security, false,
-@"If enabled, allows edit information to be stored per-block. Enables /BlockDB, /bi, /UndoArea, and /UndoPlayer commands.")]
+@"If enabled, allows edit information to be stored per-block. Enables /BlockDB, /BInfo, /UndoArea, and /UndoPlayer commands.")]
         BlockDBEnabled,
 
         [BoolKey( ConfigSection.General, true,
@@ -501,7 +501,7 @@ If disabled, heartbeat data is written to heartbeatdata.txt." )]
         HeartbeatToWoMDirect,
 
         [BoolKey( ConfigSection.Advanced, true,
-@"If enabled, allows changing enviromnent settings for WoM clients via /env" )]
+@"If enabled, allows changing enviromnent settings for WoM clients via /Env" )]
         WoMEnableEnvExtensions,
 
         [IPKey( ConfigSection.Advanced, IPKeyAttribute.BlankValueMeaning.Any,

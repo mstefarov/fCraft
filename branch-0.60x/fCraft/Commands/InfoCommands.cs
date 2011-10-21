@@ -49,12 +49,12 @@ namespace fCraft {
         static readonly Regex RegexNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\.]", RegexOptions.Compiled );
 
         static readonly CommandDescriptor CdInfo = new CommandDescriptor {
-            Name = "info",
+            Name = "Info",
             Aliases = new[] { "pinfo" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Usage = "/info [PlayerName or IP [Offset]]",
+            Usage = "/Info [PlayerName or IP [Offset]]",
             Help = "Prints information and stats for a given player. " +
                    "Prints your own stats if no name is given. " +
                    "Prints a list of names if a partial name or an IP is given. ",
@@ -125,7 +125,7 @@ namespace fCraft {
                         PlayerInfo[] infosPart = infos.Skip( offset ).Take( MatchesToShow ).ToArray();
                         player.MessageManyMatches( "player", infosPart );
                         if( offset + infosPart.Length < infos.Length ) {
-                            player.Message( "Showing {0}-{1} (out of {2}). Next: &H/info {3} {4}",
+                            player.Message( "Showing {0}-{1} (out of {2}). Next: &H/Info {3} {4}",
                                             offset + 1, offset + infosPart.Length, infos.Length,
                                             name, offset + infosPart.Length );
                         } else {
@@ -514,7 +514,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
             Usage = "/RankInfo RankName",
-            Help = "Shows a list of permissions granted to a rank. To see a list of all ranks, use &H/ranks",
+            Help = "Shows a list of permissions granted to a rank. To see a list of all ranks, use &H/Ranks",
             Handler = RankInfoHandler
         };
 
@@ -528,7 +528,7 @@ namespace fCraft {
             } else {
                 rank = RankManager.FindRank( rankName );
                 if( rank == null ) {
-                    player.Message( "No such rank: \"{0}\". See &H/ranks", rankName );
+                    player.Message( "No such rank: \"{0}\". See &H/Ranks", rankName );
                     return;
                 }
             }
@@ -647,7 +647,7 @@ namespace fCraft {
         #region Ranks
 
         static readonly CommandDescriptor CdRanks = new CommandDescriptor {
-            Name = "ranks",
+            Name = "Ranks",
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
@@ -672,7 +672,7 @@ namespace fCraft {
         const string DefaultRules = "Rules: Use common sense!";
 
         static readonly CommandDescriptor CdRules = new CommandDescriptor {
-            Name = "rules",
+            Name = "Rules",
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
@@ -696,7 +696,7 @@ namespace fCraft {
                 // print a list of available sections
                 string[] sections = GetRuleSectionList();
                 if( sections != null ) {
-                    player.Message( "Rule sections: {0}. Type &H/rules SectionName&S to read.", sections.JoinToString() );
+                    player.Message( "Rule sections: {0}. Type &H/Rules SectionName&S to read.", sections.JoinToString() );
                 }
                 return;
             }
@@ -815,10 +815,10 @@ namespace fCraft {
         #region Players
 
         static readonly CommandDescriptor CdPlayers = new CommandDescriptor {
-            Name = "players",
+            Name = "Players",
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
-            Usage = "/players [WorldName]",
+            Usage = "/Players [WorldName]",
             Help = "Lists all players on the server (in all worlds). " +
                    "If a WorldName is given, only lists players on that one world.",
             Handler = PlayersHandler
@@ -866,13 +866,13 @@ namespace fCraft {
         const string Compass = "N . . . ne. . . E . . . se. . . S . . . sw. . . W . . . nw. . . " +
                                "N . . . ne. . . E . . . se. . . S . . . sw. . . W . . . nw. . . ";
         static readonly CommandDescriptor CdWhere = new CommandDescriptor {
-            Name = "where",
+            Name = "Where",
             Aliases = new[] { "compass", "whereis", "whereami" },
             Category = CommandCategory.Info,
             Permissions = new[] { Permission.ViewOthersInfo },
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Usage = "/where [PlayerName]",
+            Usage = "/Where [PlayerName]",
             Help = "Shows information about the location and orientation of a player. " +
                    "If no name is given, shows player's own info.",
             Handler = WhereHandler
@@ -887,7 +887,7 @@ namespace fCraft {
                 target = Server.FindPlayerOrPrintMatches( player, name, false, true );
                 if( target == null ) return;
             } else if( target.World == null ) {
-                player.Message( "When called from console, &H/where&S requires a player name." );
+                player.Message( "When called from console, &H/Where&S requires a player name." );
                 return;
             }
 
@@ -933,7 +933,8 @@ namespace fCraft {
         const string HelpPrefix = "&S    ";
 
         static readonly CommandDescriptor CdHelp = new CommandDescriptor {
-            Name = "help",
+            Name = "Help",
+            Aliases = new[] { "herp", "man" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
@@ -988,10 +989,10 @@ namespace fCraft {
                 }
 
             } else {
-                player.Message( "  To see a list of all commands, write &H/commands" );
+                player.Message( "  To see a list of all commands, write &H/Commands" );
                 player.Message( "  To see detailed help for a command, write &H/Help Command" );
                 if( player != Player.Console ) {
-                    player.Message( "  To see your stats, write &H/info" );
+                    player.Message( "  To see your stats, write &H/Info" );
                 }
                 player.Message( "  To list available worlds, write &H/Worlds" );
                 player.Message( "  To join a world, write &H/Join WorldName" );
@@ -1005,12 +1006,12 @@ namespace fCraft {
         #region Commands
 
         static readonly CommandDescriptor CdCommands = new CommandDescriptor {
-            Name = "commands",
+            Name = "Commands",
             Aliases = new[] { "cmds", "cmdlist" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Usage = "/commands [Category|@RankName]",
+            Usage = "/Commands [Category|@RankName]",
             Help = "Shows a list of commands, by category, permission, or rank. " +
                    "Categories are: Building, Chat, Info, Maintenance, Moderation, World, and Zone.",
             Handler = CommandsHandler
@@ -1062,7 +1063,7 @@ namespace fCraft {
         #region Colors
 
         static readonly CommandDescriptor CdColors = new CommandDescriptor {
-            Name = "colors",
+            Name = "Colors",
             Aliases = new[] { "colours" },
             Category = CommandCategory.Info | CommandCategory.Chat,
             IsConsoleSafe = true,

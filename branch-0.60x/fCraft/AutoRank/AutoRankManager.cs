@@ -148,7 +148,7 @@ namespace fCraft.AutoRank {
         TimesVisited,
 
         /// <summary> Number of messages written in chat.
-        /// Includes normal chat, PMs, rank chat, /staff, /say, and /me messages. </summary>
+        /// Includes normal chat, PMs, rank chat, /Staff, /Say, and /Me messages. </summary>
         MessagesWritten,
 
         /// <summary> Number of times kicked by other players or by console.

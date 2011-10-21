@@ -1294,7 +1294,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
         private void bColorSay_Click( object sender, EventArgs e ) {
-            ColorPicker picker = new ColorPicker( "/say message color", colorSay );
+            ColorPicker picker = new ColorPicker( "/Say message color", colorSay );
             picker.ShowDialog();
             colorSay = picker.ColorIndex;
             ApplyColor( bColorSay, colorSay );
@@ -1326,7 +1326,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
         private void bColorMe_Click( object sender, EventArgs e ) {
-            ColorPicker picker = new ColorPicker( "/me command color", colorMe );
+            ColorPicker picker = new ColorPicker( "/Me command color", colorMe );
             picker.ShowDialog();
             colorMe = picker.ColorIndex;
             ApplyColor( bColorMe, colorMe );
@@ -1363,13 +1363,13 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                                           xRankPrefixesInChat.Checked ? RankManager.LowestRank.Prefix : "" ) );
             }
             lines.Add( "&R<*- This is a random announcement -*>" );
-            lines.Add( "&YSomeone wrote this message with /say" );
+            lines.Add( "&YSomeone wrote this message with /Say" );
             lines.Add( String.Format( "{0}{1}Notch&F: This is a normal chat message",
                                       xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
                                       xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "" ) );
             lines.Add( "&Pfrom Notch: This is a private message / whisper" );
-            lines.Add( "* &MNotch is using /me to write this" );
-            lines.Add( "&SUnknown command \"kic\", see &H/commands" );
+            lines.Add( "* &MNotch is using /Me to write this" );
+            lines.Add( "&SUnknown command \"kic\", see &H/Commands" );
             lines.Add( String.Format( "&W{0}{1}Notch&W was kicked by {0}{1}gamer1",
                                       xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
                                       xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "" ) );

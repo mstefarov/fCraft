@@ -35,7 +35,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Sends an action message (/me). </summary>
+        /// <summary> Sends an action message (/Me). </summary>
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
@@ -121,7 +121,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Sends a global announcement (/say). </summary>
+        /// <summary> Sends a global announcement (/Say). </summary>
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
@@ -146,7 +146,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Sends a staff message (/staff). </summary>
+        /// <summary> Sends a staff message (/Staff). </summary>
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>

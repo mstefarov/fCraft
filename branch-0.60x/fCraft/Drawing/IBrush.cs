@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 // ReSharper disable UnusedMemberInSuper.Global
 namespace fCraft.Drawing {
 
-    /// <summary> Class that desribes a type of brush in general, and allows creating new brushes with /brush.
+    /// <summary> Class that desribes a type of brush in general, and allows creating new brushes with /Brush.
     /// One instance of IBrushFactory for each type of brush is kept by the BrushManager. </summary>
     public interface IBrushFactory {
         [NotNull]
@@ -20,7 +20,7 @@ namespace fCraft.Drawing {
         /// <summary> Creates a new brush for a player, based on given parameters. </summary>
         /// <param name="player"> Player who will be using this brush.
         /// Errors and warnings about the brush creation should be communicated by messaging the player. </param>
-        /// <param name="cmd"> Parameters passed to the /brush command (after the brush name). </param>
+        /// <param name="cmd"> Parameters passed to the /Brush command (after the brush name). </param>
         /// <returns> A newly-made brush, or null if there was some problem with parameters/permissions. </returns>
         IBrush MakeBrush( [NotNull] Player player, [NotNull] Command cmd );
     }
