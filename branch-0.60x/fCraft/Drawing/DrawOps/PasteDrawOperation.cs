@@ -8,7 +8,7 @@ namespace fCraft.Drawing {
 
         public override string Name {
             get {
-                return Not ? "PasteNot" : "Paste";
+                return Not ? "PasteNotX" : "PasteX";
             }
         }
 
