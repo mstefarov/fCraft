@@ -2,7 +2,7 @@
     sealed class QuickPasteDrawOperation : PasteDrawOperation {
         public override string Name {
             get {
-                return Not ? "QPasteNot" : "QPaste";
+                return Not ? "PasteNot" : "Paste";
             }
         }
 

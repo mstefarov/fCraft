@@ -34,8 +34,8 @@ namespace fCraft {
             CdReplace.Help += GeneralDrawingHelp;
             CdReplaceNot.Help += GeneralDrawingHelp;
             CdCut.Help += GeneralDrawingHelp;
-            CdPasteNot.Help += GeneralDrawingHelp;
-            CdPaste.Help += GeneralDrawingHelp;
+            CdPasteNotX.Help += GeneralDrawingHelp;
+            CdPasteX.Help += GeneralDrawingHelp;
             CdRestore.Help += GeneralDrawingHelp;
 
             CommandManager.RegisterCommand( CdReplace );
@@ -50,10 +50,10 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdCopySlot );
             CommandManager.RegisterCommand( CdCopy );
             CommandManager.RegisterCommand( CdCut );
+            CommandManager.RegisterCommand( CdPasteX );
+            CommandManager.RegisterCommand( CdPasteNotX );
             CommandManager.RegisterCommand( CdPaste );
             CommandManager.RegisterCommand( CdPasteNot );
-            CommandManager.RegisterCommand( CdQuickPaste );
-            CommandManager.RegisterCommand( CdQuickPasteNot );
             CommandManager.RegisterCommand( CdMirror );
             CommandManager.RegisterCommand( CdRotate );
 
@@ -1043,7 +1043,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor CdPaste = new CommandDescriptor {
+        static readonly CommandDescriptor CdPasteX = new CommandDescriptor {
             Name = "PasteX",
             Aliases = new[] { "px" },
             Category = CommandCategory.Building,
@@ -1052,10 +1052,10 @@ namespace fCraft {
                    "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
                    "Takes 2 marks: first sets the origin of pasting, and second sets the direction where to paste.",
             Usage = "/PasteX [IncludedBlock [AnotherOne etc]]",
-            Handler = PasteHandler
+            Handler = PasteXHandler
         };
 
-        static void PasteHandler( Player player, Command cmd ) {
+        static void PasteXHandler( Player player, Command cmd ) {
             PasteDrawOperation op = new PasteDrawOperation( player, false );
             if( !op.ReadParams( cmd ) ) return;
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
@@ -1065,7 +1065,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor CdPasteNot = new CommandDescriptor {
+        static readonly CommandDescriptor CdPasteNotX = new CommandDescriptor {
             Name = "PasteNotX",
             Aliases = new[] { "pnx", "pxn" },
             Category = CommandCategory.Building,
@@ -1074,10 +1074,10 @@ namespace fCraft {
                     "Used together with &H/Copy&S command. " +
                    "Takes 2 marks: first sets the origin of pasting, and second sets the direction where to paste.",
             Usage = "/PasteNotX ExcludedBlock [AnotherOne etc]",
-            Handler = PasteNotHandler
+            Handler = PasteNotXHandler
         };
 
-        static void PasteNotHandler( Player player, Command cmd ) {
+        static void PasteNotXHandler( Player player, Command cmd ) {
             PasteDrawOperation op = new PasteDrawOperation( player, true );
             if( !op.ReadParams( cmd ) ) return;
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
@@ -1087,18 +1087,18 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor CdQuickPaste = new CommandDescriptor {
+        static readonly CommandDescriptor CdPaste = new CommandDescriptor {
             Name = "Paste",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             Help = "Pastes previously copied blocks. Used together with &H/Copy&S command. " +
                    "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
                    "Alignment semantics are... complicated.",
-            Usage = "/QPaste [IncludedBlock [AnotherOne etc]]",
-            Handler = QuickPasteHandler
+            Usage = "/Paste [IncludedBlock [AnotherOne etc]]",
+            Handler = PasteHandler
         };
 
-        static void QuickPasteHandler( Player player, Command cmd ) {
+        static void PasteHandler( Player player, Command cmd ) {
             QuickPasteDrawOperation op = new QuickPasteDrawOperation( player, false );
             if( !op.ReadParams( cmd ) ) return;
             player.SelectionStart( 1, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
@@ -1108,7 +1108,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor CdQuickPasteNot = new CommandDescriptor {
+        static readonly CommandDescriptor CdPasteNot = new CommandDescriptor {
             Name = "PasteNot",
             Aliases = new[] { "pn" },
             Category = CommandCategory.Building,
@@ -1116,11 +1116,11 @@ namespace fCraft {
             Help = "Pastes previously copied blocks, except the given block type(s). " +
                    "Used together with &H/Copy&S command. " +
                    "Alignment semantics are... complicated.",
-            Usage = "/QPasteNot ExcludedBlock [AnotherOne etc]",
-            Handler = QuickPasteNotHandler
+            Usage = "/PasteNot ExcludedBlock [AnotherOne etc]",
+            Handler = PasteNotHandler
         };
 
-        static void QuickPasteNotHandler( Player player, Command cmd ) {
+        static void PasteNotHandler( Player player, Command cmd ) {
             QuickPasteDrawOperation op = new QuickPasteDrawOperation( player, true );
             if( !op.ReadParams( cmd ) ) return;
             player.SelectionStart( 1, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
