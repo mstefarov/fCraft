@@ -192,7 +192,7 @@ namespace fCraft {
             }
 
 
-            // Draw command limit, in number-of-blocks (assuming unlimited if not given)
+            // Copy slots (assuming default 2 if not given)
             if( (attr = el.Attribute( "copySlots" )) != null ) {
                 if( Int32.TryParse( attr.Value, out value ) ) {
                     if( value > 0 && value < 256 ) {

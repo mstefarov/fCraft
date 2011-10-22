@@ -1236,9 +1236,11 @@ namespace fCraft {
 
         void AddEntity( [NotNull] Player player, Position newPos ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            var pos = new VisibleEntity( newPos, freePlayerIDs.Pop(), player.Info.Rank );
-            entities.Add( player, pos );
-            SendNow( PacketWriter.MakeAddEntity( pos.Id, player.ListName, newPos ) );
+            if( freePlayerIDs.Count > 0 ) {
+                var pos = new VisibleEntity( newPos, freePlayerIDs.Pop(), player.Info.Rank );
+                entities.Add( player, pos );
+                SendNow( PacketWriter.MakeAddEntity( pos.Id, player.ListName, newPos ) );
+            }
         }
 
 
