@@ -150,7 +150,7 @@ Thanks to Minecraft servers that helped test and improve fCraft:
 
 Thanks to people who submitted bug reports and feature requests:
     Clhdrums87, Dogwatch, Epiclolwut, Fehzor, Gamma-Metroid, Hellenion,
-    Sunfall, Mavinstar, Unison, and all anonymous submitters.
+    Sunfall, maintrain97, Mavinstar, Unison, and all anonymous submitters.
 
 Special thanks for inspiration and suggestions:
     CO2, Descension, ElectricFuzzball, Exe, Hearty0, iKJames, LG_Legacy,

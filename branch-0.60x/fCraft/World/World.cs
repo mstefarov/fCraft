@@ -232,16 +232,24 @@ namespace fCraft {
         public Map AcceptPlayer( [NotNull] Player player, bool announce ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
-            if( IsFull && player.Info.Rank.ReservedSlot ) {
-                Player idlestPlayer = Players.OrderBy( p => p.LastActiveTime ).FirstOrDefault();
-                if( idlestPlayer != null ) {
-                    idlestPlayer.Kick( "Auto-kicked to make room (idle).", LeaveReason.IdleKick );
-                    idlestPlayer.WaitForDisconnect();
-                }
-            }
-
             lock( WorldLock ) {
-                if( IsFull ) return null;
+                if( IsFull ) {
+                    if( player.Info.Rank.ReservedSlot ) {
+                        Player idlestPlayer = Players.Where( p => p.Info.Rank.IdleKickTimer != 0 )
+                                                     .OrderBy( p => p.LastActiveTime )
+                                                     .FirstOrDefault();
+                        if( idlestPlayer != null ) {
+                            idlestPlayer.Kick( Player.Console, "Auto-kicked to make room (idle).",
+                                               LeaveReason.IdleKick, false, false, false );
+                            Server.Message( "Player {0}&S was auto-kicked to make room for {1}",
+                                            idlestPlayer.ClassyName, player.ClassyName );
+                        } else {
+                            return null;
+                        }
+                    } else {
+                        return null;
+                    }
+                }
 
                 if( playerIndex.ContainsKey( player.Name.ToLower() ) ) {
                     Logger.Log( "This world already contains the player by name ({0}). " +
