@@ -285,7 +285,7 @@ namespace fCraft {
         public static TimeSpan SaveInterval {
             get { return saveInterval; }
             set {
-                if( value.Ticks < 0 ) throw new ArgumentException();
+                if( value.Ticks < 0 ) throw new ArgumentException( "Save interval may not be negative" );
                 saveInterval = value;
                 if( saveTask != null ) saveTask.Interval = value;
             }

@@ -33,7 +33,8 @@ namespace fCraft {
         };
 
         static void ZoneAddHandler( Player player, Command cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
             string givenZoneName = cmd.Next();
             if( givenZoneName == null ) {
@@ -42,22 +43,22 @@ namespace fCraft {
             }
 
             if( !player.Info.Rank.AllowSecurityCircumvention ) {
-                SecurityCheckResult buildCheck = player.World.BuildSecurity.CheckDetailed( player.Info );
+                SecurityCheckResult buildCheck = playerWorld.BuildSecurity.CheckDetailed( player.Info );
                 switch( buildCheck ) {
                     case SecurityCheckResult.BlackListed:
                         player.Message( "Cannot add zones to world {0}&S: You are barred from building here.",
-                                        player.World.ClassyName );
+                                        playerWorld.ClassyName );
                         return;
                     case SecurityCheckResult.RankTooLow:
                         player.Message( "Cannot add zones to world {0}&S: You are not allowed to build here.",
-                                        player.World.ClassyName );
+                                        playerWorld.ClassyName );
                         return;
                     //case SecurityCheckResult.RankTooHigh:
                 }
             }
 
             Zone newZone = new Zone();
-            ZoneCollection zoneCollection = player.World.LoadMap().Zones;
+            ZoneCollection zoneCollection = player.WorldMap.Zones;
 
             if( givenZoneName.StartsWith( "+" ) ) {
                 // personal zone (/ZAdd +Name)
@@ -119,7 +120,7 @@ namespace fCraft {
 
                     newZone.Controller.MinRank = minRank;
                     player.SelectionStart( 2, ZoneAddCallback, newZone, CdZoneAdd.Permissions );
-                    player.Message( "Zone: Place a block or type /Mark to use your location." );
+                    player.Message( "Zone: Place a block or type &H/Mark&S to use your location." );
 
                 } else {
                     player.MessageNoRank( rankName );
@@ -462,15 +463,13 @@ namespace fCraft {
         };
 
         static void ZoneRemoveHandler( Player player, Command cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
-
             string zoneName = cmd.Next();
             if( zoneName == null ) {
                 CdZoneRemove.PrintUsage( player );
                 return;
             }
 
-            ZoneCollection zones = player.World.LoadMap().Zones;
+            ZoneCollection zones = player.WorldMap.Zones;
             Zone zone = zones.Find( zoneName );
             if( zone != null ) {
                 if( !player.Info.Rank.AllowSecurityCircumvention ) {

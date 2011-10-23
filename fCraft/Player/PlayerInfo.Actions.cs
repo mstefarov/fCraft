@@ -868,7 +868,7 @@ namespace fCraft {
         public void Mute( [NotNull] Player player, TimeSpan duration, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( duration <= TimeSpan.Zero ) {
-                throw new ArgumentException( "Mute duration must be longer than 0.", "duration" );
+                throw new ArgumentException( "Mute duration may not be zero or negative.", "duration" );
             }
 
             // Check if player is trying to mute self

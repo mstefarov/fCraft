@@ -28,7 +28,9 @@ namespace fCraft {
             offset = 1;
             Message = rawMessage;
             string name = Next();
-            if( name == null ) throw new ArgumentException( "rawMessage" );
+            if( name == null ) {
+                throw new ArgumentException( "Raw message must contain the command name.", "rawMessage" );
+            }
             Name = name.ToLower();
         }
 

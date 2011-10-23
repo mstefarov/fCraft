@@ -826,7 +826,7 @@ namespace fCraft {
                     break;
 
                 case CanPlaceResult.ZoneDenied:
-                    Zone deniedZone = World.LoadMap().Zones.FindDenied( x, y, z, this );
+                    Zone deniedZone = WorldMap.Zones.FindDenied( x, y, z, this );
                     if( deniedZone != null ) {
                         Message( "&WYou are not allowed to build in zone \"{0}\".", deniedZone.Name );
                     } else {

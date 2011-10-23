@@ -46,7 +46,7 @@ namespace fCraft {
         public BlockDB BlockDB { get; private set; }
 
         internal World( [NotNull] string name ) {
-            if( name == null ) throw new ArgumentException( "name" );
+            if( name == null ) throw new ArgumentNullException( "name" );
             if( !IsValidName( name ) ) {
                 throw new ArgumentException( "Unacceptible world name." );
             }

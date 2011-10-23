@@ -727,7 +727,7 @@ namespace fCraft {
 
                     } else {
                         var matches = sectionFiles.Select( f => Path.GetFileNameWithoutExtension( f ) )
-                                                  .Where( sn => sn != null && sn.StartsWith( sectionName ) );
+                                                  .Where( sn => sn != null && sn.StartsWith( sectionName, StringComparison.OrdinalIgnoreCase ) );
                         // if there are multiple matches, print a list
                         player.Message( "Multiple rule sections matched \"{0}\": {1}",
                                         sectionName, matches.JoinToString() );
