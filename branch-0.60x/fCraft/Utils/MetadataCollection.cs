@@ -15,7 +15,7 @@ namespace fCraft {
         public string Group {
             get { return group; }
             set {
-                if( value == null ) throw new ArgumentNullException();
+                if( value == null ) throw new ArgumentNullException( "value" );
                 group = value;
             }
         }
@@ -25,7 +25,7 @@ namespace fCraft {
         public string Key {
             get { return key; }
             set {
-                if( value == null ) throw new ArgumentNullException();
+                if( value == null ) throw new ArgumentNullException( "value" );
                 key = value;
             }
         }
@@ -35,7 +35,7 @@ namespace fCraft {
         public T Value {
             get { return value; }
             set {
-                if( value == this.value ) throw new ArgumentNullException();
+                if( value == this.value ) throw new ArgumentNullException( "value" );
                 this.value = value;
             }
         }
@@ -117,7 +117,7 @@ namespace fCraft {
 
         #region Index / Get / Set
 
-        public T this[ [NotNull] string group, [NotNull] string key] {
+        public T this[[NotNull] string group, [NotNull] string key] {
             get {
                 if( group == null ) throw new ArgumentNullException( "group" );
                 if( key == null ) throw new ArgumentNullException( "key" );
@@ -253,12 +253,12 @@ namespace fCraft {
             if( array == null ) throw new ArgumentNullException( "array" );
 
             if( arrayIndex < 0 || arrayIndex >= array.Length ) {
-                throw new ArgumentException( "arrayIndex" );
+                throw new ArgumentOutOfRangeException( "arrayIndex" );
             }
 
             lock( syncRoot ) {
                 if( array.Length < arrayIndex + Count ) {
-                    throw new ArgumentException( "array" );
+                    throw new ArgumentOutOfRangeException( "array" );
                 }
 
                 int i = 0;

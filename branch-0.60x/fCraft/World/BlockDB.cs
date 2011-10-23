@@ -171,7 +171,9 @@ namespace fCraft {
                 return cacheStore.Length;
             }
             set {
-                if( value < MinCacheSize ) throw new ArgumentOutOfRangeException();
+                if( value < MinCacheSize ) {
+                    throw new ArgumentOutOfRangeException( "value", "MinCacheSize may not be negative" );
+                }
                 if( value != cacheStore.Length ) {
                     BlockDBEntry[] destinationArray = new BlockDBEntry[value];
                     if( value < CacheSize ) {
@@ -282,7 +284,9 @@ namespace fCraft {
         /// <param name="age"> Maximum age of entry </param>
         /// <returns> Number of entries newer than given age. May be 0 if all entries are older than given age. </returns>
         int CountNewerEntries( TimeSpan age ) {
-            if( age < TimeSpan.Zero ) throw new ArgumentException( "Age must be non-negative.", "age" );
+            if( age < TimeSpan.Zero ) {
+                throw new ArgumentOutOfRangeException( "age", "Age must be non-negative." );
+            }
             int minTimestamp = (int)DateTime.UtcNow.Subtract( age ).ToUnixTime();
 
             if( isPreloaded ) {
@@ -318,7 +322,9 @@ namespace fCraft {
         public int Limit {
             get { return limit; }
             set {
-                if( value < 0 ) throw new ArgumentOutOfRangeException();
+                if( value < 0 ) {
+                    throw new ArgumentOutOfRangeException( "value", "Limit may not be negative." );
+                }
                 lock( SyncRoot ) {
                     int oldLimit = limit;
                     limit = value;
@@ -360,7 +366,9 @@ namespace fCraft {
         public TimeSpan TimeLimit {
             get { return timeLimit; }
             set {
-                if( value < TimeSpan.Zero ) throw new ArgumentOutOfRangeException();
+                if( value < TimeSpan.Zero ) {
+                    throw new ArgumentOutOfRangeException( "value", "TimeLimit may not be negative." );
+                }
                 lock( SyncRoot ) {
                     TimeSpan oldTimeLimit = timeLimit;
                     timeLimit = value;

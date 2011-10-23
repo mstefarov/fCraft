@@ -642,7 +642,7 @@ namespace fCraft {
         public static TimeSpan CheckConnectionsInterval {
             get { return checkConnectionsInterval; }
             set {
-                if( value.Ticks < 0 ) throw new ArgumentException();
+                if( value.Ticks < 0 ) throw new ArgumentException("CheckConnectionsInterval may not be negative.");
                 checkConnectionsInterval = value;
                 if( checkConnectionsTask != null ) checkConnectionsTask.Interval = value;
             }
@@ -666,7 +666,7 @@ namespace fCraft {
         public static TimeSpan CheckIdlesInterval {
             get { return checkIdlesInterval; }
             set {
-                if( value.Ticks < 0 ) throw new ArgumentException();
+                if( value.Ticks < 0 ) throw new ArgumentException("CheckIdlesInterval may not be negative.");
                 checkIdlesInterval = value;
                 if( checkIdlesTask != null ) checkIdlesTask.Interval = checkIdlesInterval;
             }
@@ -696,7 +696,7 @@ namespace fCraft {
         public static TimeSpan GCInterval {
             get { return gcInterval; }
             set {
-                if( value.Ticks < 0 ) throw new ArgumentException();
+                if( value.Ticks < 0 ) throw new ArgumentException("GCInterval may not be negative.");
                 gcInterval = value;
                 if( gcTask != null ) gcTask.Interval = gcInterval;
             }

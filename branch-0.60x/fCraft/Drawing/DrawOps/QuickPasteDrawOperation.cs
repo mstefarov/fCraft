@@ -1,4 +1,5 @@
-﻿namespace fCraft.Drawing {
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+namespace fCraft.Drawing {
     sealed class QuickPasteDrawOperation : PasteDrawOperation {
         public override string Name {
             get {

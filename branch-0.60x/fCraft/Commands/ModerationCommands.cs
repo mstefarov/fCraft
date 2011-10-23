@@ -875,6 +875,11 @@ namespace fCraft {
 
             if( target == null || world == null ) return;
 
+            if( target == player ) {
+                player.Message( "&WYou cannot &H/WBring&W yourself." );
+                return;
+            }
+
             if( !player.Can( Permission.Bring, target.Info.Rank ) ) {
                 player.Message( "You may only bring players ranked {0}&S or lower.",
                                 player.Info.Rank.GetLimit( Permission.Bring ).ClassyName );
@@ -889,14 +894,19 @@ namespace fCraft {
                 return;
             }
 
-            if( world.AccessSecurity.CheckDetailed( target.Info ) == SecurityCheckResult.RankTooLow &&
-                player.CanJoin( world ) && !cmd.IsConfirmed ) {
-                player.Confirm( cmd,
-                                "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
-                                target.ClassyName, world.ClassyName );
-                return;
+            bool overridePermission = false;
+            if( world.AccessSecurity.CheckDetailed( target.Info ) == SecurityCheckResult.RankTooLow && player.CanJoin( world ) ) {
+                if( cmd.IsConfirmed ) {
+                    overridePermission = true;
+                } else {
+                    player.Confirm( cmd,
+                                    "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
+                                    target.ClassyName, world.ClassyName );
+                    return;
+                }
             }
-            BringPlayerToWorld( player, target, world, true, false );
+
+            BringPlayerToWorld( player, target, world, overridePermission, false );
         }
 
 
@@ -1013,7 +1023,8 @@ namespace fCraft {
 
 
 
-        static void BringPlayerToWorld( [NotNull] Player player, [NotNull] Player target, [NotNull] World world, bool overridePermissions, bool usePlayerPosition ) {
+        static void BringPlayerToWorld( [NotNull] Player player, [NotNull] Player target, [NotNull] World world,
+                                        bool overridePermissions, bool usePlayerPosition ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( target == null ) throw new ArgumentNullException( "target" );
             if( world == null ) throw new ArgumentNullException( "world" );

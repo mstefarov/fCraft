@@ -928,7 +928,7 @@ namespace fCraft {
                         }
                         break;
                     case SecurityCheckResult.BlackListed:
-                        player.Message( "Cannot join world {0}&S: you are blacklisted",
+                        player.Message( "Cannot join world {0}&S: you are blacklisted.",
                                         world.ClassyName );
                         break;
                     case SecurityCheckResult.RankTooLow:
@@ -2034,11 +2034,14 @@ namespace fCraft {
             string param = cmd.Next();
             if( param == null ) {
                 player.Message( "Main world is {0}", WorldManager.MainWorld.ClassyName );
-                var mainedRanks = RankManager.Ranks.Where( r => r.MainWorld != null && r.MainWorld != WorldManager.MainWorld );
+                var mainedRanks = RankManager.Ranks
+                                             .Where( r => r.MainWorld != null && r.MainWorld != WorldManager.MainWorld );
                 if( mainedRanks.Count() > 0 ) {
                     player.Message( "Rank mains: {0}",
                                     mainedRanks.JoinToString( r => String.Format( "{0}&S for {1}&S",
+                                                                                  // ReSharper disable PossibleNullReferenceException
                                                                                   r.MainWorld.ClassyName,
+                                                                                  // ReSharper restore PossibleNullReferenceException
                                                                                   r.ClassyName ) ) );
                 }
                 return;
