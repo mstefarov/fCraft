@@ -442,7 +442,7 @@ namespace fCraft {
         public static World FindWorldOrPrintMatches( [NotNull] Player player, [NotNull] string worldName ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
-            if( worldName.Equals( "-" ) ) {
+            if( worldName == "-" ) {
                 if( player.LastUsedWorldName != null ) {
                     worldName = player.LastUsedWorldName;
                 } else {
