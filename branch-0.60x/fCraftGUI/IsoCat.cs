@@ -300,8 +300,9 @@ namespace fCraft.GUI {
             //BlendPixel( pos + 12, tileOffset + 60 ); // bottom right block, always blank in current tileset
         }
 
-        readonly int blendDivisor, mh34;
 
+        const byte ShadingStrength = 48;
+        readonly int blendDivisor, mh34;
 
         // inspired by http://www.devmaster.net/wiki/Alpha_blending
         void BlendPixel( int imageOffset, int tileOffset ) {
@@ -329,7 +330,7 @@ namespace fCraft.GUI {
                 image[imageOffset + 1] = (byte)((ctp[tileOffset + 1] * sourceAlpha * shadow + image[imageOffset + 1] * destAlpha * Map.Height) / blendDivisor);
                 image[imageOffset + 2] = (byte)((ctp[tileOffset + 2] * sourceAlpha * shadow + image[imageOffset + 2] * destAlpha * Map.Height) / blendDivisor);
             } else {
-                int shadow = (z - (Map.Height >> 1)) * 64;
+                int shadow = (z - (Map.Height >> 1)) * ShadingStrength;
                 image[imageOffset] = (byte)Math.Min( 255, (ctp[tileOffset] * sourceAlpha + shadow + image[imageOffset] * destAlpha) / 255 );
                 image[imageOffset + 1] = (byte)Math.Min( 255, (ctp[tileOffset + 1] * sourceAlpha + shadow + image[imageOffset + 1] * destAlpha) / 255 );
                 image[imageOffset + 2] = (byte)Math.Min( 255, (ctp[tileOffset + 2] * sourceAlpha + shadow + image[imageOffset + 2] * destAlpha) / 255 );

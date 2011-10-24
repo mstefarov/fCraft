@@ -207,11 +207,13 @@ namespace fCraft.MapConversion {
         internal static void ReadAll( [NotNull] Stream source, [NotNull] byte[] destination ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( destination == null ) throw new ArgumentNullException( "destination" );
-            int read = 0;
-            while( read < destination.Length ) {
-                int readPass = source.Read( destination, read, destination.Length - read );
+            int bytesRead = 0;
+            int bytesLeft = destination.Length;
+            while( bytesLeft > 0 ) {
+                int readPass = source.Read( destination, bytesRead, bytesLeft );
                 if( readPass == 0 ) throw new EndOfStreamException();
-                read += readPass;
+                bytesRead += readPass;
+                bytesLeft -= readPass;
             }
         }
     }
