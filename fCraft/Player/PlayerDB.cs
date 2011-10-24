@@ -340,11 +340,39 @@ namespace fCraft {
 
         public static PlayerInfo[] FindPlayers( [NotNull] IPAddress address, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
+            if( limit < 0 ) throw new ArgumentOutOfRangeException( "limit" );
             List<PlayerInfo> result = new List<PlayerInfo>();
             int count = 0;
             PlayerInfo[] cache = PlayerInfoList;
             for( int i = 0; i < cache.Length; i++ ) {
                 if( cache[i].LastIP.Equals( address ) ) {
+                    result.Add( cache[i] );
+                    count++;
+                    if( count >= limit ) return result.ToArray();
+                }
+            }
+            return result.ToArray();
+        }
+
+
+        public static PlayerInfo[] FindPlayersCIDR( [NotNull] IPAddress address, byte range ) {
+            if( address == null ) throw new ArgumentNullException( "address" );
+            if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
+            return FindPlayersCIDR( address, range, Int32.MaxValue );
+        }
+
+
+        public static PlayerInfo[] FindPlayersCIDR( [NotNull] IPAddress address, byte range, int limit ) {
+            if( address == null ) throw new ArgumentNullException( "address" );
+            if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
+            if( limit < 0 ) throw new ArgumentOutOfRangeException( "limit" );
+            List<PlayerInfo> result = new List<PlayerInfo>();
+            int count = 0;
+            uint addressInt = address.AsUInt();
+            uint netMask = IPAddressUtil.NetMask( range );
+            PlayerInfo[] cache = PlayerInfoList;
+            for( int i = 0; i < cache.Length; i++ ) {
+                if( cache[i].LastIP.Match( addressInt, netMask ) ) {
                     result.Add( cache[i] );
                     count++;
                     if( count >= limit ) return result.ToArray();

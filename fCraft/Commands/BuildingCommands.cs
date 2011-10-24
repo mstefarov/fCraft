@@ -1434,7 +1434,7 @@ namespace fCraft {
                 return;
             }
 
-            player.MessageNow( "UndoPlayer: Click 2 blocks or use &H/Mark&S to make a selection." );
+            player.MessageNow( "UndoArea: Click 2 blocks or use &H/Mark&S to make a selection." );
         }
 
 

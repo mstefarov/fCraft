@@ -92,7 +92,22 @@ namespace fCraft {
 
             PlayerInfo[] infos;
             IPAddress ip;
-            if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
+
+            if( name.Contains( "/" ) ) {
+                // IP range matching (CIDR notation)
+                string ipString = name.Substring( 0, name.IndexOf( '/' ) );
+                string rangeString = name.Substring( name.IndexOf( '/' ) + 1 );
+                byte range;
+                if( Server.IsIP( ipString ) && IPAddress.TryParse( ipString, out ip ) &&
+                    Byte.TryParse( rangeString, out range ) && range <= 32 ) {
+                    player.Message( "Searching {0}-{1}", ip.RangeMin( range ), ip.RangeMax( range ) );
+                    infos = PlayerDB.FindPlayersCIDR( ip, range );
+                } else {
+                    player.Message( "Info: Invalid IP range format. Use CIDR notation." );
+                    return;
+                }
+
+            }else if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
                 // find players by IP
                 infos = PlayerDB.FindPlayers( ip );
 
