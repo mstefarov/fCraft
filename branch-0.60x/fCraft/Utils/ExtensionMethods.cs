@@ -16,6 +16,47 @@ namespace fCraft {
             return (bytes[0] == 192 && bytes[1] == 168) ||
                    (bytes[0] == 10);
         }
+
+        public static uint AsUInt( [NotNull] this IPAddress thisAddr ) {
+            if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
+            return (uint)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( thisAddr.GetAddressBytes(), 0 ) );
+        }
+
+        public static int AsInt( [NotNull] this IPAddress thisAddr ) {
+            if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
+            return IPAddress.HostToNetworkOrder( BitConverter.ToInt32( thisAddr.GetAddressBytes(), 0 ) );
+        }
+
+        public static bool Match( [NotNull] this IPAddress thisAddr, uint otherAddr, uint mask ) {
+            if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
+            uint thisAsUInt = thisAddr.AsUInt();
+            return (thisAsUInt & mask) == (otherAddr & mask);
+        }
+
+        public static IPAddress RangeMin( [NotNull] this IPAddress thisAddr, byte range ) {
+            if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
+            if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
+            int thisAsInt = thisAddr.AsInt();
+            int mask = (int)NetMask( range );
+            return new IPAddress( IPAddress.HostToNetworkOrder( thisAsInt & mask ) );
+        }
+
+        public static IPAddress RangeMax( [NotNull] this IPAddress thisAddr, byte range ) {
+            if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
+            if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
+            int thisAsInt = thisAddr.AsInt();
+            int mask = (int)~NetMask( range );
+            return new IPAddress( (uint)IPAddress.HostToNetworkOrder( thisAsInt | mask ) );
+        }
+
+        public static uint NetMask( byte range ) {
+            if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
+            if( range == 0 ) {
+                return 0;
+            } else {
+                return 0xffffffff << (32 - range);
+            }
+        }
     }
 
 

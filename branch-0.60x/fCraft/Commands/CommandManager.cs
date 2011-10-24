@@ -102,7 +102,7 @@ namespace fCraft {
             }
 
             if( !Char.IsUpper( descriptor.Name[0] ) ) {
-                throw new CommandRegistrationException( "Command names must start with an uppercase letter." );
+                descriptor.Name = descriptor.Name.UppercaseFirst();
             }
 
             if( descriptor.Usage == null ) {
@@ -112,7 +112,8 @@ namespace fCraft {
             if( RaiseCommandRegisteringEvent( descriptor ) ) return;
 
             if( Aliases.ContainsKey( normalizedName ) ) {
-                Logger.Log( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden.", LogType.Warning,
+                Logger.Log( "CommandManager.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", " +
+                            "but has now been replaced by a different command of the same name.", LogType.Warning,
                             descriptor.Name, Aliases[descriptor.Name] );
                 Aliases.Remove( normalizedName );
             }
@@ -121,10 +122,11 @@ namespace fCraft {
                 foreach( string alias in descriptor.Aliases ) {
                     string normalizedAlias = alias.ToLower();
                     if( ReservedCommandNames.Contains( normalizedAlias ) ) {
-                        Logger.Log( "Commands.RegisterCommand: Alias \"{0}\" for \"{1}\" ignored (reserved name).", LogType.Warning,
+                        Logger.Log( "CommandManager.RegisterCommand: Alias \"{0}\" for \"{1}\" ignored (reserved name).", LogType.Warning,
                                     alias, descriptor.Name );
                     } else if( Aliases.ContainsKey( normalizedAlias ) ) {
-                        Logger.Log( "Commands.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", but has been overridden to resolve to \"{2}\" instead.",
+                        Logger.Log( "CommandManager.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", " +
+                                    "but has been overridden to resolve to \"{2}\" instead.",
                                     LogType.Warning,
                                     alias, Aliases[normalizedAlias], descriptor.Name );
                     } else {
