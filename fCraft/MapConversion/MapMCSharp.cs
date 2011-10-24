@@ -184,7 +184,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        static Map LoadHeaderInternal( [NotNull] GZipStream stream ) {
+        static Map LoadHeaderInternal( [NotNull] Stream stream ) {
             if( stream == null ) throw new ArgumentNullException( "stream" );
             BinaryReader bs = new BinaryReader( stream );
 
@@ -198,7 +198,9 @@ namespace fCraft.MapConversion {
             int length = bs.ReadInt16();
             int height = bs.ReadInt16();
 
+            // ReSharper disable UseObjectOrCollectionInitializer
             Map map = new Map( null, width, length, height, false );
+            // ReSharper restore UseObjectOrCollectionInitializer
 
             // Read in the spawn location
             map.Spawn = new Position {

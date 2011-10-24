@@ -414,7 +414,7 @@ namespace fCraft {
         public static PlayerInfo FindPlayerInfoOrPrintMatches( [NotNull] Player player, [NotNull] string name ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( name == null ) throw new ArgumentNullException( "name" );
-            if( name.Equals( "-" ) ) {
+            if( name == "-" ) {
                 if( player.LastUsedPlayerName != null ) {
                     name = player.LastUsedPlayerName;
                 } else {

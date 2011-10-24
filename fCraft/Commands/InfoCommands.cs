@@ -63,16 +63,25 @@ namespace fCraft {
 
         internal static void InfoHandler( Player player, Command cmd ) {
             string name = cmd.Next();
-            if( name == null || name.Equals( player.Name, StringComparison.OrdinalIgnoreCase ) ) {
+            if( name == null ) {
+                // no name given, print own info
+                PrintPlayerInfo( player, player.Info );
+                return;
+
+            } else if( name.Equals( player.Name, StringComparison.OrdinalIgnoreCase ) ) {
+                // own name given
+                player.LastUsedPlayerName = player.Name;
                 PrintPlayerInfo( player, player.Info );
                 return;
 
             } else if( !player.Can( Permission.ViewOthersInfo ) ) {
+                // someone else's name or IP given, permission required.
                 player.MessageNoAccess( Permission.ViewOthersInfo );
                 return;
             }
 
-            if( name.Equals( "-" ) ) {
+            // repeat last-typed name
+            if( name == "-" ) {
                 if( player.LastUsedPlayerName != null ) {
                     name = player.LastUsedPlayerName;
                 } else {
@@ -109,13 +118,18 @@ namespace fCraft {
             Array.Sort( infos, new PlayerInfoComparer( player ) );
 
             if( infos.Length == 1 ) {
+                // only one match found; print it right away
                 player.LastUsedPlayerName = infos[0].Name;
                 PrintPlayerInfo( player, infos[0] );
 
             } else if( infos.Length > 1 ) {
+                // multiple matches found
                 if( infos.Length <= MatchesToShow ) {
+                    // all fit to one page
                     player.MessageManyMatches( "player", infos );
+
                 } else {
+                    // pagination
                     int offset;
                     if( !cmd.NextInt( out offset ) ) offset = 0;
                     if( offset >= infos.Length ) {
@@ -125,16 +139,20 @@ namespace fCraft {
                         PlayerInfo[] infosPart = infos.Skip( offset ).Take( MatchesToShow ).ToArray();
                         player.MessageManyMatches( "player", infosPart );
                         if( offset + infosPart.Length < infos.Length ) {
+                            // normal page
                             player.Message( "Showing {0}-{1} (out of {2}). Next: &H/Info {3} {4}",
                                             offset + 1, offset + infosPart.Length, infos.Length,
                                             name, offset + infosPart.Length );
                         } else {
+                            // last page
                             player.Message( "Showing matches {0}-{1} (out of {2}).",
                                             offset + 1, offset + infosPart.Length, infos.Length );
                         }
                     }
                 }
+
             } else {
+                // no matches found
                 player.MessageNoPlayer( name );
             }
         }
