@@ -832,26 +832,33 @@ namespace fCraft {
             string qualifier;
 
             if( worldName == null ) {
+                // No world name given; Start with a list of all players.
                 players = Server.Players;
                 qualifier = "online";
+
             } else {
+                // Try to find the world
                 World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
                 if( world == null ) return;
+                // If found, grab its player list
                 players = world.Players;
                 qualifier = String.Format( "in world {0}&S", world.ClassyName );
             }
 
             if( players.Length > 0 ) {
-                Player[] playerNameList = players.Where( player.CanSee )
+                // Filter out hidden players, and sort
+                Player[] visiblePlayers = players.Where( player.CanSee )
                                                  .OrderBy( p => p, PlayerListSorter.Instance )
                                                  .ToArray();
 
-                if( playerNameList.Length > 0 ) {
+                if( visiblePlayers.Length > 0 ) {
+                    // If there are visible players left, print list
                     player.Message( "There are {0} players {1}: {2}",
-                                    playerNameList.Length,
+                                    visiblePlayers.Length,
                                     qualifier,
-                                    playerNameList.JoinToClassyString() );
+                                    visiblePlayers.JoinToClassyString() );
                 } else {
+                    // If all are hidden, pretend that world is empty
                     player.Message( "There are no players {0}", qualifier );
                 }
             } else {
