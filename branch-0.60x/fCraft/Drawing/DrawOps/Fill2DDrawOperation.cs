@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace fCraft.Drawing {
     public sealed class Fill2DDrawOperation : DrawOpWithBrush {
+        const int MaxFillRadius = 32;
         const BlockChangeContext PasteContext = BlockChangeContext.Drawn | BlockChangeContext.Filled;
 
         public override string Name {
@@ -35,10 +36,10 @@ namespace fCraft.Drawing {
         public Axis Axis { get; private set; }
         public Vector3I Origin { get; private set; }
 
-        const int MaxFillRadius = 16;
-
         public Fill2DDrawOperation( Player player )
             : base( player ) {
+            SourceBlock = Block.Undefined;
+            ReplacementBlock = Block.Undefined;
         }
 
 
@@ -89,7 +90,11 @@ namespace fCraft.Drawing {
                     coordEnumerator = BlockEnumeratorZ().GetEnumerator();
                     break;
             }
-            Bounds = new BoundingBox( Origin - maxDelta, Origin + maxDelta );
+            if( SourceBlock == ReplacementBlock ) {
+                Bounds = new BoundingBox( Origin, Origin );
+            } else {
+                Bounds = new BoundingBox( Origin - maxDelta, Origin + maxDelta );
+            }
 
             // Clip bounds to the map, used to limit fill extent
             Bounds = Bounds.GetIntersection( Map.Bounds );
@@ -108,6 +113,10 @@ namespace fCraft.Drawing {
 
         IEnumerator<Vector3I> coordEnumerator;
         public override int DrawBatch( int maxBlocksToDraw ) {
+            if( SourceBlock == ReplacementBlock ) {
+                IsDone = true;
+                return 0;
+            }
             int blocksDone = 0;
             while( coordEnumerator.MoveNext() ) {
                 Coords = coordEnumerator.Current;
