@@ -1,5 +1,4 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
-using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -31,13 +30,17 @@ namespace fCraft{
         /// <summary> Block that now occupies this coordinate </summary>
         public readonly Block NewBlock;
 
+        /// <summary> Change's (X,Y,Z) coordinates as a vector. </summary>
         public Vector3I Coord {
             get { return new Vector3I( X, Y, Z ); }
         }
 
+        /// <summary> Context for this block change. </summary>
         public readonly BlockChangeContext Context;
 
-        public BlockDBEntry( int timestamp, int playerID, short x, short y, short z, Block oldBlock, Block newBlock, BlockChangeContext flags ) {
+
+        public BlockDBEntry( int timestamp, int playerID, short x, short y, short z,
+                             Block oldBlock, Block newBlock, BlockChangeContext flags ) {
             Timestamp = timestamp;
             PlayerID = playerID;
             X = x;
@@ -58,18 +61,5 @@ namespace fCraft{
             writer.Write( (byte)NewBlock );
             writer.Write( (int)Context );
         }
-    }
-
-    [Flags]
-    public enum BlockChangeContext {
-        Unknown = 0,
-        Manual = 1,
-        Drawn = 2,
-        Replaced = 4,
-        Pasted = 8,
-        Cut = 16,
-        UndoneSelf = 32,
-        UndoneOther = 64,
-        Restored = 128
     }
 }

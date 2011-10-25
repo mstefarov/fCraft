@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 
-
+// This file condenses some of the player-related enumerations
 namespace fCraft {
     /// <summary> List of possible reasons for players leaving the server. </summary>
     public enum LeaveReason {
@@ -23,7 +24,7 @@ namespace fCraft {
         InvalidMessageKick = 0x12,
 
         /// <summary> Attempted to place invalid blocktype </summary>
-        [System.Obsolete]
+        [Obsolete]
         InvalidSetTileKick = 0x13,
 
         /// <summary> Unknown opcode or packet </summary>
@@ -162,36 +163,70 @@ namespace fCraft {
 
 
     public enum WorldChangeReason {
+        /// <summary> First world that the player joins upon entering the server (main). </summary>
         FirstWorld,
+
+        /// <summary> Rejoining the same world (e.g. after /wflush or /wload). </summary>
         Rejoin,
+
+        /// <summary> Manually by typing /join. </summary>
         ManualJoin,
+
+        /// <summary> Teleporting to a player on another map. </summary>
         Tp,
+
+        /// <summary> Bring brought by a player on another map. Also used by /bringall, /wbring, and /setspawn. </summary>
         Bring,
+
+        /// <summary> Following the /spectate target to another world. </summary>
         SpectateTargetJoined,
+
+        /// <summary> Previous world was removed with /wunload. </summary>
         WorldRemoved,
+
+        /// <summary> Previous world's access permissions changed, and player was forced to main. </summary>
         PermissionChanged
     }
 
 
     public enum BanStatus {
+        /// <summary> Player is not banned. </summary>
         NotBanned,
+
+        /// <summary> Player cannot be banned or IP-banned. </summary>
         IPBanExempt,
+
+        /// <summary> Player is banned. </summary>
         Banned
     }
 
 
     public enum ClickAction : byte {
+        /// <summary> Deleting a block (left-click in Minecraft). </summary>
         Delete = 0,
+
+        /// <summary> Building a block (right-click in Minecraft). </summary>
         Build = 1
     }
 
 
     public enum SessionState {
+        /// <summary> There is no session associated with this player (e.g. Console). </summary>
         Offline,
+
+        /// <summary> Player is in the middle of the login sequence. </summary>
         Connecting,
+
+        /// <summary> Player has logged in, and is loading the first world. </summary>
         LoadingMain,
+
+        /// <summary> Player is fully connected and online. </summary>
         Online,
+
+        /// <summary> Player was kicked, and is about to be disconnected. </summary>
         PendingDisconnect,
+
+        /// <summary> Session has ended - player disconnected. </summary>
         Disconnected
     }
 }
