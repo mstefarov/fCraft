@@ -12,7 +12,7 @@ namespace fCraft.Drawing {
             }
         }
 
-        public override string DescriptionWithBrush {
+        public override string Description {
             get {
                 if( Blocks == null ) {
                     return Name;

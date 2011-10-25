@@ -32,7 +32,7 @@ namespace fCraft {
         /// May be DateTime.MinValue if player has never been online. </summary>
         public DateTime LastSeen;
 
-        /// <summary> Reason for most leaving the server last time. </summary>
+        /// <summary> Reason for leaving the server last time. </summary>
         public LeaveReason LeaveReason;
 
 

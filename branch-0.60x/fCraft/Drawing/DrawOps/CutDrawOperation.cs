@@ -7,7 +7,7 @@ namespace fCraft.Drawing {
             get { return "Cut"; }
         }
 
-        public override string DescriptionWithBrush {
+        public override string Description {
             get {
                 var normalBrush = Brush as NormalBrush;
                 if( normalBrush != null && normalBrush.Block != Block.Air ) {

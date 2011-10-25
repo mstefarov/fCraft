@@ -105,17 +105,12 @@ namespace fCraft.Drawing {
         /// <summary> General name of this type of draw operation. Should be same for all instances. </summary>
         public abstract string Name { get; }
 
-        /// <summary> Description of this specific draw operation, with any instance-specific parameters. </summary>
-        // ReSharper disable VirtualMemberNeverOverriden.Global
+        /// <summary> Compact description of this specific draw operation,
+        /// with any instance-specific parameters,
+        /// and the brush's instance description. </summary>
         public virtual string Description {
-            get { return Name; }
-        }
-        // ReSharper restore VirtualMemberNeverOverriden.Global
-
-        /// <summary> Full description of both this operation, and the brush's instance. </summary>
-        public virtual string DescriptionWithBrush {
             get {
-                return String.Format( "{0}/{1}", Description, Brush.InstanceDescription );
+                return String.Format( "{0}/{1}", Name, Brush.InstanceDescription );
             }
         }
 
@@ -231,7 +226,7 @@ namespace fCraft.Drawing {
             if( !UndoState.IsTooLargeToUndo ) {
                 if( !UndoState.Add( Coords, oldBlock ) ) {
                     Player.LastDrawOp = null;
-                    Player.Message( "{0}: Too many blocks to undo.", DescriptionWithBrush );
+                    Player.Message( "{0}: Too many blocks to undo.", Description );
                 }
             }
 

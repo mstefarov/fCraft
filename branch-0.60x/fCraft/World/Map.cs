@@ -417,18 +417,18 @@ namespace fCraft {
                 if( op.IsCancelled ) {
                     if( op.BlocksDenied > 0 ) {
                         op.Player.Message( "{0}: Cancelled after {1}. Processed {2}, updated {3}. Skipped {4} due to permission issues.",
-                                           op.DescriptionWithBrush,
+                                           op.Description,
                                            DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
                                            op.BlocksProcessed, op.BlocksUpdated, op.BlocksDenied );
                     } else {
                         op.Player.Message( "{0}: Cancelled after {1}. Processed {2} blocks, updated {3} blocks.",
-                                           op.DescriptionWithBrush,
+                                           op.Description,
                                            DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
                                            op.BlocksProcessed, op.BlocksUpdated );
                     }
                     Logger.Log( "Player {0} cancelled {1} on world {2}. Processed {3}, Updated {4}, Skipped {5}, Denied {6} blocks.",
                              LogType.UserActivity,
-                             op.Player, op.DescriptionWithBrush, World.Name,
+                             op.Player, op.Description, World.Name,
                              op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
                     op.End();
                     drawOps.RemoveAt( i );
@@ -452,31 +452,31 @@ namespace fCraft {
                         if( op.BlocksUpdated > 0 ) {
                             if( op.BlocksDenied > 0 ) {
                                 op.Player.Message( "{0}: Finished in {1}, updated {2} blocks. &WSkipped {3} blocks due to permission issues.",
-                                                   op.DescriptionWithBrush,
+                                                   op.Description,
                                                    DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
                                                    op.BlocksUpdated, op.BlocksDenied );
                             } else {
                                 op.Player.Message( "{0}: Finished in {1}, updated {2} blocks.",
-                                                   op.DescriptionWithBrush,
+                                                   op.Description,
                                                    DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
                                                    op.BlocksUpdated );
                             }
                         } else {
                             if( op.BlocksDenied > 0 ) {
                                 op.Player.Message( "{0}: Finished in {1}, no changes made. &WSkipped {2} blocks due to permission issues.",
-                                                   op.DescriptionWithBrush,
+                                                   op.Description,
                                                    DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
                                                    op.BlocksDenied );
                             } else {
                                 op.Player.Message( "{0}: Finished in {1}, no changes needed.",
-                                                   op.DescriptionWithBrush,
+                                                   op.Description,
                                                    DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString() );
                             }
                         }
                     }
                     Logger.Log( "Player {0} executed {1} on world {2} (between {3} and {4}). Processed {5}, Updated {6}, Skipped {7}, Denied {8} blocks.",
                              LogType.UserActivity,
-                             op.Player.Name, op.DescriptionWithBrush, World.Name,
+                             op.Player.Name, op.Description, World.Name,
                              op.Bounds.MinVertex, op.Bounds.MaxVertex,
                              op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
                     op.End();
