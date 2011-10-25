@@ -9,12 +9,6 @@ using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    public enum YesNoAuto {
-        Auto,
-        Yes,
-        No
-    }
-
     public unsafe sealed class BlockDB {
         internal BlockDB( [NotNull] World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );

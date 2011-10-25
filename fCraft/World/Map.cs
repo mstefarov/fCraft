@@ -47,13 +47,9 @@ namespace fCraft {
 
         /// <summary> Resets spawn to the default location (top center of the map). </summary>
         public void ResetSpawn() {
-            Spawn = new Position {
-                X = (short)(Width * 16),
-                Y = (short)(Length * 16),
-                Z = (short)Math.Min( short.MaxValue, Height * 32 ),
-                R = 0,
-                L = 0
-            };
+            Spawn = new Position( Width * 16,
+                                  Length * 16,
+                                  Math.Min( short.MaxValue, Height * 32 ) );
         }
 
 

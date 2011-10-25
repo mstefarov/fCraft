@@ -12,8 +12,8 @@ namespace fCraft {
 
         public static int MaxUndoCount = 2000000;
 
-        const string GeneralDrawingHelp = " Use &H/Cancel&S to exit draw mode. " +
-                                          "Use &H/Undo&S to stop and undo the last draw operation.";
+        const string GeneralDrawingHelp = " Use &H/Cancel&S to cancel selection mode. " +
+                                          "Use &H/Undo&S to stop and undo the last command.";
 
         internal static void Init() {
             CommandManager.RegisterCommand( CdBind );
@@ -23,56 +23,66 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdSolid );
             CommandManager.RegisterCommand( CdWater );
 
-            CdCuboid.Help += GeneralDrawingHelp;
-            CdCuboidHollow.Help += GeneralDrawingHelp;
-            CdCuboidWireframe.Help += GeneralDrawingHelp;
-            CdEllipsoid.Help += GeneralDrawingHelp;
-            CdEllipsoidHollow.Help += GeneralDrawingHelp;
-            CdSphere.Help += GeneralDrawingHelp;
-            CdSphereHollow.Help += GeneralDrawingHelp;
-            CdLine.Help += GeneralDrawingHelp;
-            CdReplace.Help += GeneralDrawingHelp;
-            CdReplaceNot.Help += GeneralDrawingHelp;
-            CdCut.Help += GeneralDrawingHelp;
-            CdPasteNotX.Help += GeneralDrawingHelp;
-            CdPasteX.Help += GeneralDrawingHelp;
-            CdRestore.Help += GeneralDrawingHelp;
-
-            CommandManager.RegisterCommand( CdReplace );
-            CommandManager.RegisterCommand( CdReplaceNot );
-            CommandManager.RegisterCommand( CdReplaceBrush );
-
             CommandManager.RegisterCommand( CdCancel );
             CommandManager.RegisterCommand( CdMark );
             CommandManager.RegisterCommand( CdUndo );
             CommandManager.RegisterCommand( CdRedo );
 
+            CommandManager.RegisterCommand( CdReplace );
+            CommandManager.RegisterCommand( CdReplaceNot );
+            CommandManager.RegisterCommand( CdReplaceBrush );
+            CdReplace.Help += GeneralDrawingHelp;
+            CdReplaceNot.Help += GeneralDrawingHelp;
+            CdReplaceBrush.Help += GeneralDrawingHelp;
+
             CommandManager.RegisterCommand( CdCopySlot );
             CommandManager.RegisterCommand( CdCopy );
             CommandManager.RegisterCommand( CdCut );
-            CommandManager.RegisterCommand( CdPasteX );
-            CommandManager.RegisterCommand( CdPasteNotX );
             CommandManager.RegisterCommand( CdPaste );
             CommandManager.RegisterCommand( CdPasteNot );
+            CommandManager.RegisterCommand( CdPasteX );
+            CommandManager.RegisterCommand( CdPasteNotX );
             CommandManager.RegisterCommand( CdMirror );
             CommandManager.RegisterCommand( CdRotate );
+            CdCut.Help += GeneralDrawingHelp;
+            CdPaste.Help += GeneralDrawingHelp;
+            CdPasteNot.Help += GeneralDrawingHelp;
+            CdPasteX.Help += GeneralDrawingHelp;
+            CdPasteNotX.Help += GeneralDrawingHelp;
 
             CommandManager.RegisterCommand( CdRestore );
+            CdRestore.Help += GeneralDrawingHelp;
 
             CommandManager.RegisterCommand( CdCuboid );
             CommandManager.RegisterCommand( CdCuboidWireframe );
             CommandManager.RegisterCommand( CdCuboidHollow );
+            CdCuboid.Help += GeneralDrawingHelp;
+            CdCuboidHollow.Help += GeneralDrawingHelp;
+            CdCuboidWireframe.Help += GeneralDrawingHelp;
+
             CommandManager.RegisterCommand( CdEllipsoid );
             CommandManager.RegisterCommand( CdEllipsoidHollow );
+            CdEllipsoid.Help += GeneralDrawingHelp;
+            CdEllipsoidHollow.Help += GeneralDrawingHelp;
+
             CommandManager.RegisterCommand( CdLine );
+            CdLine.Help += GeneralDrawingHelp;
+
             CommandManager.RegisterCommand( CdSphere );
             CommandManager.RegisterCommand( CdSphereHollow );
             CommandManager.RegisterCommand( CdTorus );
+            CdSphere.Help += GeneralDrawingHelp;
+            CdSphereHollow.Help += GeneralDrawingHelp;
+            CdTorus.Help += GeneralDrawingHelp;
 
-            //CommandManager.RegisterCommand( CdTree );
+            CommandManager.RegisterCommand( CdFill2D );
+            CdFill2D.Help += GeneralDrawingHelp;
 
             CommandManager.RegisterCommand( CdUndoArea );
             CommandManager.RegisterCommand( CdUndoPlayer );
+            CdUndoArea.Help += GeneralDrawingHelp;
+
+            //CommandManager.RegisterCommand( CdTree );
         }
 
 
@@ -217,6 +227,23 @@ namespace fCraft {
 
         static void TorusHandler( Player player, Command cmd ) {
             DrawOperationBegin( player, cmd, new TorusDrawOperation( player ) );
+        }
+
+
+
+        static readonly CommandDescriptor CdFill2D = new CommandDescriptor {
+            Name = "Fill2D",
+            Aliases = new[] { "f2" },
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Draw },
+            Help = "Fills a continuous area with blocks, in 2D. Takes just 1 marks, and replaced the clicked block. "+
+                   "Works similar to \"Paint Bucket\" tool in Photoshop. "+
+                   "Direction of effect is determined by where the player is looking.",
+            Handler = Fill2DHandler
+        };
+
+        static void Fill2DHandler( Player player, Command cmd ) {
+            DrawOperationBegin( player, cmd, new Fill2DDrawOperation( player ) );
         }
 
 
@@ -1300,20 +1327,18 @@ namespace fCraft {
         static void MarkHandler( Player player, Command command ) {
             Map map = player.WorldMap;
             int x, y, z;
-            Position pos;
+            Vector3I pos;
             if( command.NextInt( out x ) && command.NextInt( out y ) && command.NextInt( out z ) ) {
-                pos = new Position( x, y, z );
+                pos = new Vector3I( x, y, z );
             } else {
-                pos = new Position( (player.Position.X - 1) / 32,
-                                    (player.Position.Y - 1) / 32,
-                                    (player.Position.Z - 1) / 32 );
+                pos = player.Position.ToBlockCoords();
             }
-            pos.X = (short)Math.Min( map.Width - 1, Math.Max( 0, (int)pos.X ) );
-            pos.Y = (short)Math.Min( map.Length - 1, Math.Max( 0, (int)pos.Y ) );
-            pos.Z = (short)Math.Min( map.Height - 1, Math.Max( 0, (int)pos.Z ) );
+            pos.X = Math.Min( map.Width - 1, Math.Max( 0, pos.X ) );
+            pos.Y = Math.Min( map.Length - 1, Math.Max( 0, pos.Y ) );
+            pos.Z = Math.Min( map.Height - 1, Math.Max( 0, pos.Z ) );
 
             if( player.SelectionMarksExpected > 0 ) {
-                player.SelectionAddMark( pos.ToVector3I(), true );
+                player.SelectionAddMark( pos, true );
             } else {
                 player.MessageNow( "Cannot mark - no selection in progress." );
             }

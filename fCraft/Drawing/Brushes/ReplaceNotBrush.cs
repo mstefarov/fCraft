@@ -145,7 +145,7 @@ namespace fCraft.Drawing {
             }
             if( Replacement == Block.Undefined ) {
                 if( player.LastUsedBlockType == Block.Undefined ) {
-                    player.Message( "Cannot deduce desired replacement block. Click a block or type out the blocktype name." );
+                    player.Message( "Cannot deduce desired replacement block. Click a block or type out the block name." );
                     return false;
                 } else {
                     Replacement = player.GetBind( player.LastUsedBlockType );

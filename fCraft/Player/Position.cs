@@ -12,6 +12,14 @@ namespace fCraft {
         public short X, Y, Z;
         public byte R, L;
 
+        public Position( short x, short y, short z, byte r, byte l ) {
+            X = x;
+            Y = y;
+            Z = z;
+            R = r;
+            L = l;
+        }
+
         public Position( int x, int y, int z ) {
             X = (short)x;
             Y = (short)y;
@@ -88,6 +96,10 @@ namespace fCraft {
 
         public Vector3I ToVector3I() {
             return new Vector3I( X, Y, Z );
+        }
+
+        public Vector3I ToBlockCoords() {
+            return new Vector3I( (X - 16) / 32, (Y - 16) / 32, (Z - 16) / 32 );
         }
     }
 }

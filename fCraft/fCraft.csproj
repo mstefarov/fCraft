@@ -104,7 +104,7 @@
     <Compile Include="Player\SecurityController.cs" />
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
-    <Compile Include="Utils\Vector.cs" />
+    <Compile Include="Utils\Vector3F.cs" />
     <Compile Include="Commands\CommandDescriptor.cs" />
     <Compile Include="Commands\WorldCommands.cs" />
     <Compile Include="Commands\BuildingCommands.cs" />
@@ -150,7 +150,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="app.config" />
     <Compile Include="Utils\Trie.cs" />
-    <Compile Include="Utils\Position.cs" />
+    <Compile Include="Player\Position.cs" />
     <Compile Include="World\Block.cs" />
     <Compile Include="World\BlockUpdate.cs" />
     <Compile Include="World\Forester.cs" />
@@ -198,6 +198,7 @@
     <Compile Include="AutoRank\Criterion.cs" />
     <Compile Include="Commands\ChatCommands.cs" />
     <Compile Include="Drawing\Brushes\ReplaceBrushBrush.cs" />
+    <Compile Include="Drawing\DrawOps\Fill2DDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\QuickPasteDrawOperation.cs" />
     <Compile Include="Drawing\DrawOpWithBrush.cs" />
     <Compile Include="Drawing\DrawOps\UndoDrawOperation.cs" />
@@ -242,6 +243,8 @@
     <Compile Include="System\ArgKey.cs" />
     <Compile Include="System\ConfigKey.Metadata.cs" />
     <Compile Include="System\ConfigSection.cs" />
+    <Compile Include="Utils\Vector3I.cs" />
+    <Compile Include="World\BlockChangeContext.cs" />
     <Compile Include="World\BlockDB.cs" />
     <Compile Include="Utils\EventInterfaces.cs" />
     <Compile Include="System\SchedulerTask.cs" />
@@ -256,6 +259,7 @@
     <Compile Include="World\WorldManager.cs" />
     <Compile Include="World\WorldOpException.cs" />
     <Compile Include="Utils\MonoCompat.cs" />
+    <Compile Include="Utils\YesNoAuto.cs" />
     <Compile Include="World\ZoneCollection.cs" />
     <Compile Include="Player\PlayerInfo.Events.cs" />
     <Compile Include="World\World.Events.cs" />

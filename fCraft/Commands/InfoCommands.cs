@@ -101,7 +101,7 @@ namespace fCraft {
                 if( Server.IsIP( ipString ) && IPAddress.TryParse( ipString, out ip ) &&
                     Byte.TryParse( rangeString, out range ) && range <= 32 ) {
                     player.Message( "Searching {0}-{1}", ip.RangeMin( range ), ip.RangeMax( range ) );
-                    infos = PlayerDB.FindPlayersCIDR( ip, range );
+                    infos = PlayerDB.FindPlayersCidr( ip, range );
                 } else {
                     player.Message( "Info: Invalid IP range format. Use CIDR notation." );
                     return;
@@ -942,20 +942,13 @@ namespace fCraft {
                                 target.World.ClassyName );
             }
 
-
-            int offset = (int)(target.Position.R / 255f * 64f) + 32;
-
-            player.Message( "{0}({1},{2},{3}) - {4}[{5}{6}{7}{4}{8}]",
+            Vector3I targetBlockCoords = target.Position.ToBlockCoords();
+            player.Message( "{0}{1} - {2}",
                             Color.Silver,
-                            target.Position.X / 32,
-                            target.Position.Y / 32,
-                            target.Position.Z / 32,
-                            Color.White,
-                            Compass.Substring( offset - 12, 11 ),
-                            Color.Red,
-                            Compass.Substring( offset - 1, 3 ),
-                            Compass.Substring( offset + 2, 11 ) );
+                            targetBlockCoords,
+                            GetCompassString(target.Position.R) );
         }
+
 
         public static string GetCompassString( byte rotation ) {
             int offset = (int)(rotation / 255f * 64f) + 32;

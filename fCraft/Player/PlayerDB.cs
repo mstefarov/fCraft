@@ -355,14 +355,14 @@ namespace fCraft {
         }
 
 
-        public static PlayerInfo[] FindPlayersCIDR( [NotNull] IPAddress address, byte range ) {
+        public static PlayerInfo[] FindPlayersCidr( [NotNull] IPAddress address, byte range ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
-            return FindPlayersCIDR( address, range, Int32.MaxValue );
+            return FindPlayersCidr( address, range, Int32.MaxValue );
         }
 
 
-        public static PlayerInfo[] FindPlayersCIDR( [NotNull] IPAddress address, byte range, int limit ) {
+        public static PlayerInfo[] FindPlayersCidr( [NotNull] IPAddress address, byte range, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
             if( limit < 0 ) throw new ArgumentOutOfRangeException( "limit" );
