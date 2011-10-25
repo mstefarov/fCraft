@@ -243,7 +243,10 @@ namespace fCraft {
         };
 
         static void Fill2DHandler( Player player, Command cmd ) {
-            DrawOperationBegin( player, cmd, new Fill2DDrawOperation( player ) );
+            Fill2DDrawOperation op = new Fill2DDrawOperation( player );
+            op.ReadParams( cmd );
+            player.SelectionStart( 1, DrawOperationCallback, op, Permission.Draw );
+            player.Message( "{0}: Click a block to start filling.", op.Description );
         }
 
 
@@ -254,7 +257,7 @@ namespace fCraft {
             op.Brush = brush;
             player.SelectionStart( op.ExpectedMarks, DrawOperationCallback, op, Permission.Draw );
             player.Message( "{0}: Click {1} blocks or use &H/Mark&S to make a selection.",
-                            op.DescriptionWithBrush, op.ExpectedMarks );
+                            op.Description, op.ExpectedMarks );
         }
 
 
@@ -269,7 +272,7 @@ namespace fCraft {
                 return;
             }
             player.Message( "{0}: Now processing ~{1} blocks.",
-                            op.DescriptionWithBrush, op.BlocksTotalEstimate );
+                            op.Description, op.BlocksTotalEstimate );
             op.Begin();
         }
 
@@ -604,14 +607,14 @@ namespace fCraft {
             if( undoState.Op != null && !undoState.Op.IsDone ) {
                 undoState.Op.Cancel();
                 msg += String.Format( "Cancelled {0} (was {1}% done). ",
-                                     undoState.Op.DescriptionWithBrush,
+                                     undoState.Op.Description,
                                      undoState.Op.PercentDone );
             }
 
             // Check if command was too massive.
             if( undoState.IsTooLargeToUndo ) {
                 if( undoState.Op != null ) {
-                    player.MessageNow( "Cannot undo {0}: too massive.", undoState.Op.DescriptionWithBrush );
+                    player.MessageNow( "Cannot undo {0}: too massive.", undoState.Op.Description );
                 } else {
                     player.MessageNow( "Cannot undo: too massive." );
                 }
@@ -631,7 +634,7 @@ namespace fCraft {
             var op = new UndoDrawOperation( player, undoState, false );
             op.Prepare( new Vector3I[0] );
             player.Message( "{0}: Now processing ~{1} blocks.",
-                            op.DescriptionWithBrush, op.BlocksTotalEstimate );
+                            op.Description, op.BlocksTotalEstimate );
             op.Begin();
         }
 
@@ -659,7 +662,7 @@ namespace fCraft {
             if( redoState.Op != null && !redoState.Op.IsDone ) {
                 redoState.Op.Cancel();
                 msg += String.Format( "Cancelled {0} (was {1}% done). ",
-                                     redoState.Op.DescriptionWithBrush,
+                                     redoState.Op.Description,
                                      redoState.Op.PercentDone );
             }
 
@@ -676,7 +679,7 @@ namespace fCraft {
             var op = new UndoDrawOperation( player, redoState, true );
             op.Prepare( new Vector3I[0] );
             player.Message( "{0}: Now processing ~{1} blocks.",
-                            op.DescriptionWithBrush, op.BlocksTotalEstimate );
+                            op.Description, op.BlocksTotalEstimate );
             op.Begin();
         }
 

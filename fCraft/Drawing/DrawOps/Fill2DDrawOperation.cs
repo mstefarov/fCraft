@@ -14,7 +14,7 @@ namespace fCraft.Drawing {
             get { return 1; }
         }
 
-        public override string DescriptionWithBrush {
+        public override string Description {
             get {
                 if( SourceBlock == Block.Undefined ) {
                     if( ReplacementBlock == Block.Undefined ) {
@@ -25,7 +25,7 @@ namespace fCraft.Drawing {
                     }
                 } else {
                     return String.Format( "{0}({1} -> {2} @{3})",
-                                          Name, Axis, SourceBlock, ReplacementBlock );
+                                          Name, SourceBlock, ReplacementBlock, Axis );
                 }
             }
         }
@@ -73,7 +73,22 @@ namespace fCraft.Drawing {
             Vector3I lookVector = (Origin - playerCoords);
             Axis = lookVector.LongestComponent;
 
-            Vector3I maxDelta = new Vector3I( MaxFillRadius, MaxFillRadius, MaxFillRadius );
+            Vector3I maxDelta;
+
+            switch( Axis ) {
+                case Axis.X:
+                    maxDelta = new Vector3I( 0, MaxFillRadius, MaxFillRadius );
+                    coordEnumerator = BlockEnumeratorX().GetEnumerator();
+                    break;
+                case Axis.Y:
+                    maxDelta = new Vector3I( MaxFillRadius, 0, MaxFillRadius );
+                    coordEnumerator = BlockEnumeratorY().GetEnumerator();
+                    break;
+                default: // Z
+                    maxDelta = new Vector3I( MaxFillRadius, MaxFillRadius, 0 );
+                    coordEnumerator = BlockEnumeratorZ().GetEnumerator();
+                    break;
+            }
             Bounds = new BoundingBox( Origin - maxDelta, Origin + maxDelta );
 
             // Clip bounds to the map, used to limit fill extent
@@ -86,18 +101,6 @@ namespace fCraft.Drawing {
             StartTime = DateTime.UtcNow;
             Context = PasteContext;
             BlocksTotalEstimate = Bounds.Volume;
-
-            switch( Axis ) {
-                case Axis.X:
-                    coordEnumerator = BlockEnumeratorX().GetEnumerator();
-                    break;
-                case Axis.Y:
-                    coordEnumerator = BlockEnumeratorY().GetEnumerator();
-                    break;
-                case Axis.Z:
-                    coordEnumerator = BlockEnumeratorZ().GetEnumerator();
-                    break;
-            }
 
             return true;
         }
