@@ -178,11 +178,11 @@ namespace fCraft.Drawing {
 
             while( stack.Count > 0 ) {
                 coords = stack.Pop();
-                while( coords.Z >= Bounds.YMin && Map.GetBlock( coords ) == SourceBlock ) coords.Z--;
+                while( coords.Z >= Bounds.ZMin && Map.GetBlock( coords ) == SourceBlock ) coords.Z--;
                 coords.Z++;
                 bool spanLeft = false;
                 bool spanRight = false;
-                while( coords.Z < Bounds.YMax && Map.GetBlock( coords ) == SourceBlock ) {
+                while( coords.Z < Bounds.ZMax && Map.GetBlock( coords ) == SourceBlock ) {
                     yield return coords;
 
                     if( coords.X > Bounds.XMin && Map.GetBlock( coords.X - 1, coords.Y, coords.Z ) == SourceBlock ) {
@@ -206,6 +206,7 @@ namespace fCraft.Drawing {
                 }
             }
         }
+
 
         IEnumerable<Vector3I> BlockEnumeratorZ() {
             Stack<Vector3I> stack = new Stack<Vector3I>();
