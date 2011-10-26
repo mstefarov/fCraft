@@ -765,7 +765,7 @@ namespace fCraft {
                 }
 
                 // Raise PlayerInfo.FreezeChanging event
-                if( raiseEvents && RaiseFreezeChangingEvent( this, player, false,announce ) ) {
+                if( raiseEvents && RaiseFreezeChangingEvent( this, player, false, announce ) ) {
                     PlayerOpException.ThrowCancelled( player, this );
                 }
 
@@ -778,7 +778,7 @@ namespace fCraft {
 
                 // Apply side effects
                 Player target = PlayerObject;
-                if(target != null) target.IsDeaf = false;
+                if( target != null ) target.IsDeaf = false;
 
                 // Log and announce
                 Logger.Log( "{0} froze {1}", LogType.UserActivity, player.Name, Name );
@@ -942,7 +942,7 @@ namespace fCraft {
         /// <param name="raiseEvents"> Whether to raise PlayerInfo.MuteChanging and MuteChanged events. </param>
         public void Unmute( [NotNull] Player player, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            
+
             // Check if player is trying to unmute self
             if( player.Info == this ) {
                 PlayerOpException.ThrowCannotTargetSelf( player, this, "unmute" );

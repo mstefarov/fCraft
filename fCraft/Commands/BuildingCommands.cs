@@ -230,27 +230,6 @@ namespace fCraft {
         }
 
 
-
-        static readonly CommandDescriptor CdFill2D = new CommandDescriptor {
-            Name = "Fill2D",
-            Aliases = new[] { "f2" },
-            Category = CommandCategory.Building,
-            Permissions = new[] { Permission.Draw },
-            Help = "Fills a continuous area with blocks, in 2D. Takes just 1 marks, and replaced the clicked block. "+
-                   "Works similar to \"Paint Bucket\" tool in Photoshop. "+
-                   "Direction of effect is determined by where the player is looking.",
-            Handler = Fill2DHandler
-        };
-
-        static void Fill2DHandler( Player player, Command cmd ) {
-            Fill2DDrawOperation op = new Fill2DDrawOperation( player );
-            op.ReadParams( cmd );
-            player.SelectionStart( 1, DrawOperationCallback, op, Permission.Draw );
-            player.Message( "{0}: Click a block to start filling.", op.Description );
-        }
-
-
-
         static void DrawOperationBegin( Player player, Command cmd, DrawOperation op ) {
             IBrushInstance brush = player.Brush.MakeInstance( player, cmd, op );
             if( brush == null ) return;
@@ -273,6 +252,48 @@ namespace fCraft {
             }
             player.Message( "{0}: Now processing ~{1} blocks.",
                             op.Description, op.BlocksTotalEstimate );
+            op.Begin();
+        }
+
+        #endregion
+
+
+        #region Fill
+
+        static readonly CommandDescriptor CdFill2D = new CommandDescriptor {
+            Name = "Fill2D",
+            Aliases = new[] { "f2d" },
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
+            Help = "Fills a continuous area with blocks, in 2D. Takes just 1 marks, and replaced the clicked block. " +
+                   "Works similar to \"Paint Bucket\" tool in Photoshop. " +
+                   "Direction of effect is determined by where the player is looking.",
+            Handler = Fill2DHandler
+        };
+
+        static void Fill2DHandler( Player player, Command cmd ) {
+            Fill2DDrawOperation op = new Fill2DDrawOperation( player );
+            op.ReadParams( cmd );
+            player.SelectionStart( 1, DrawOperationCallback, op, Permission.Draw );
+            player.Message( "{0}: Click a block to start filling.", op.Description );
+        }
+
+
+        static void Fill2DCallback( Player player, Vector3I[] marks, object tag ) {
+            DrawOperation op = (DrawOperation)tag;
+            if( !op.Prepare( marks ) ) return;
+            if( player.WorldMap.GetBlock( marks[0] ) == Block.Air ) {
+                player.Confirm( Fill2DConfirmCallback, op, "{0}: Replace air?", op.Description );
+            } else {
+                Fill2DConfirmCallback( player, op, false );
+            }
+        }
+
+
+        static void Fill2DConfirmCallback( Player player, object tag, bool fromConsole ) {
+            Fill2DDrawOperation op = (Fill2DDrawOperation)tag;
+            player.Message( "{0}: Filling in a {1}x{1} area...",
+                            op.Description, player.Info.Rank.FillLimit );
             op.Begin();
         }
 

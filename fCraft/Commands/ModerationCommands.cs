@@ -463,6 +463,7 @@ namespace fCraft {
             }
 
             try {
+                player.LastUsedPlayerName = targetInfo.Name;
                 targetInfo.ChangeRank( player, newRank, cmd.NextAll(), true, true, false );
             } catch( PlayerOpException ex ) {
                 player.Message( ex.MessageColored );

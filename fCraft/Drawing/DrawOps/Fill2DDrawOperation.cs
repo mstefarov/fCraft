@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace fCraft.Drawing {
     public sealed class Fill2DDrawOperation : DrawOpWithBrush {
-        const int MaxFillRadius = 32;
+        int maxFillExtent;
         const BlockChangeContext PasteContext = BlockChangeContext.Drawn | BlockChangeContext.Filled;
 
         public override string Name {
@@ -76,17 +76,20 @@ namespace fCraft.Drawing {
 
             Vector3I maxDelta;
 
+            maxFillExtent = Player.Info.Rank.FillLimit;
+            if( maxFillExtent < 1 || maxFillExtent > 2048 ) maxFillExtent = 2048;
+
             switch( Axis ) {
                 case Axis.X:
-                    maxDelta = new Vector3I( 0, MaxFillRadius, MaxFillRadius );
+                    maxDelta = new Vector3I( 0, maxFillExtent, maxFillExtent );
                     coordEnumerator = BlockEnumeratorX().GetEnumerator();
                     break;
                 case Axis.Y:
-                    maxDelta = new Vector3I( MaxFillRadius, 0, MaxFillRadius );
+                    maxDelta = new Vector3I( maxFillExtent, 0, maxFillExtent );
                     coordEnumerator = BlockEnumeratorY().GetEnumerator();
                     break;
                 default: // Z
-                    maxDelta = new Vector3I( MaxFillRadius, MaxFillRadius, 0 );
+                    maxDelta = new Vector3I( maxFillExtent, maxFillExtent, 0 );
                     coordEnumerator = BlockEnumeratorZ().GetEnumerator();
                     break;
             }

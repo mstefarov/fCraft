@@ -1112,6 +1112,9 @@ namespace fCraft {
                     h( null, e );
                 }
             }
+            if( results.Count == 1 ) {
+                player.LastUsedPlayerName = results[0].Name;
+            }
             return results.ToArray();
         }
 
@@ -1153,6 +1156,7 @@ namespace fCraft {
                 return null;
 
             } else {
+                player.LastUsedPlayerName = matches[0].Name;
                 return matches[0];
             }
         }

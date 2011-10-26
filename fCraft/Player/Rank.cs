@@ -19,7 +19,8 @@ namespace fCraft {
         }
 
         public bool AllowSecurityCircumvention;
-        public int CopySlots = 2;
+        public int CopySlots = 2,
+                   FillLimit = 32;
 
         public string Prefix = "";
         public int IdleKickTimer,
@@ -198,7 +199,7 @@ namespace fCraft {
                     if( value > 0 && value < 256 ) {
                         CopySlots = value;
                     } else {
-                        Logger.Log( "Rank({0}): Value for copySlots is not within valid range (1-256). Assuming default ({1}).", LogType.Warning,
+                        Logger.Log( "Rank({0}): Value for copySlots is not within valid range (1-255). Assuming default ({1}).", LogType.Warning,
                                     Name, CopySlots );
                     }
                 } else {
@@ -207,6 +208,22 @@ namespace fCraft {
                 }
             }
 
+            // Fill limit (assuming default 32 if not given)
+            if( (attr = el.Attribute( "fillLimit" )) != null ) {
+                if( Int32.TryParse( attr.Value, out value ) ) {
+                    if( value < 1 ) {
+                        Logger.Log( "Rank({0}): Value for fillLimit may not be negative. Assuming default ({1}).", LogType.Warning,
+                                    Name, FillLimit );
+                    } else if( value > 2048 ) {
+                        FillLimit = 2048;
+                    } else {
+                        FillLimit = value;
+                    }
+                } else {
+                    Logger.Log( "Rank({0}): Could not parse the value for fillLimit. Assuming default ({1}).", LogType.Warning,
+                                Name, FillLimit );
+                }
+            }
 
             // Permissions
             XElement temp;
@@ -253,6 +270,7 @@ namespace fCraft {
             if( ReservedSlot ) rankTag.Add( new XAttribute( "reserveSlot", ReservedSlot ) );
             if( AllowSecurityCircumvention ) rankTag.Add( new XAttribute( "allowSecurityCircumvention", AllowSecurityCircumvention ) );
             rankTag.Add( new XAttribute( "copySlots", CopySlots ) );
+            rankTag.Add( new XAttribute( "fillLimit", FillLimit ) );
 
             XElement temp;
             for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
