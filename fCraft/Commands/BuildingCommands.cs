@@ -274,7 +274,7 @@ namespace fCraft {
         static void Fill2DHandler( Player player, Command cmd ) {
             Fill2DDrawOperation op = new Fill2DDrawOperation( player );
             op.ReadParams( cmd );
-            player.SelectionStart( 1, DrawOperationCallback, op, Permission.Draw );
+            player.SelectionStart( 1, Fill2DCallback, op, Permission.Draw );
             player.Message( "{0}: Click a block to start filling.", op.Description );
         }
 
