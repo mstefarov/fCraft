@@ -13,6 +13,10 @@ namespace fCraft.Drawing {
             get { return 0; }
         }
 
+        public override string Description {
+            get { return Name; }
+        }
+
         public override string Name {
             get {
                 if( Redo ) {
