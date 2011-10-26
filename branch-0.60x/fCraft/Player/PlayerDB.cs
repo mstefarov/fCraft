@@ -465,6 +465,7 @@ namespace fCraft {
                 }
                 target = targets[0];
             }
+            player.LastUsedPlayerName = target.Name;
             return target;
         }
 
