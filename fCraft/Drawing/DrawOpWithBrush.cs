@@ -5,10 +5,14 @@ namespace fCraft.Drawing {
     /// <summary> A self-contained DrawOperation that prodivides its own brush.
     /// Purpose of this class is mostly to take care of the boilerplate code. </summary>
     public abstract class DrawOpWithBrush : DrawOperation, IBrushFactory, IBrush, IBrushInstance {
+
+        public override abstract string Description {
+            get;
+        }
+
         protected DrawOpWithBrush( Player player )
             : base( player ) {
         }
-
 
         public abstract bool ReadParams( Command cmd );
 
