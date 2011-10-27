@@ -28,13 +28,12 @@ using System.Threading;
 using System.Net;
 using System.ComponentModel;
 using fCraft.Events;
-
+using System.Reflection;
 
 namespace fCraft.ServerCLI {
 
     static class Program {
         static bool useColor = true;
-
 
         static void Main( string[] args ) {
             Logger.Logged += OnLogged;
