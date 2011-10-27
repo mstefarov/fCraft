@@ -579,7 +579,7 @@ namespace fCraft {
 
         static void ZoneTestCallback( Player player, Vector3I[] marks, object tag ) {
             Zone[] allowed, denied;
-            if( player.WorldMap.Zones.CheckDetailed( marks[0].X, marks[0].Y, marks[0].Z, player, out allowed, out denied ) ) {
+            if( player.WorldMap.Zones.CheckDetailed( marks[0], player, out allowed, out denied ) ) {
                 foreach( Zone zone in allowed ) {
                     SecurityCheckResult status = zone.Controller.CheckDetailed( player.Info );
                     player.Message( "> Zone {0}&S: {1}{2}", zone.ClassyName, Color.Lime, status );

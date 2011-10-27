@@ -10,7 +10,7 @@ namespace fCraft.Drawing {
         }
 
         public override string Name {
-            get { return "Line"; }
+            get { return "TriangleW"; }
         }
 
         public TriangleWireframeDrawOperation( Player player )

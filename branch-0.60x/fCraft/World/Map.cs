@@ -205,49 +205,13 @@ namespace fCraft {
 
 
         /// <summary> Sets a block at given coordinates. Checks bounds. </summary>
-        /// <param name="x"> X coordinate (width). </param>
-        /// <param name="y"> Y coordinate (length, Notch's Z). </param>
-        /// <param name="z"> Z coordinate (height, Notch's Y). </param>
-        /// <param name="type"> Block type to set. </param>
-        public void SetBlock( int x, int y, int z, byte type ) {
-            if( z < Height && x < Width && y < Length && x >= 0 && y >= 0 && z >= 0 && type < 50 ) {
-                Blocks[Index( x, y, z )] = type;
-                HasChangedSinceSave = true;
-            }
-        }
-
-
-        /// <summary> Sets a block at given coordinates. Checks bounds. </summary>
         /// <param name="coords"> Coordinate vector (X,Y,Z). </param>
         /// <param name="type"> Block type to set. </param>
         public void SetBlock( Vector3I coords, Block type ) {
             if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 && coords.Z >= 0 && (byte)type < 50 ) {
-                Blocks[Index( coords.X, coords.Y, coords.Z )] = (byte)type;
+                Blocks[Index( coords )] = (byte)type;
                 HasChangedSinceSave = true;
             }
-        }
-
-
-        /// <summary> Sets a block at given coordinates. Checks bounds. </summary>
-        /// <param name="coords"> Coordinate vector (X,Y,Z). </param>
-        /// <param name="type"> Block type to set. </param>
-        public void SetBlock( Vector3I coords, byte type ) {
-            if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 && coords.Z >= 0 && type < 50 ) {
-                Blocks[Index( coords.X, coords.Y, coords.Z )] = type;
-                HasChangedSinceSave = true;
-            }
-        }
-
-
-        /// <summary> Gets a block at given coordinates. Checks bounds. </summary>
-        /// <param name="x"> X coordinate (width). </param>
-        /// <param name="y"> Y coordinate (length, Notch's Z). </param>
-        /// <param name="z"> Z coordinate (height, Notch's Y). </param>
-        /// <returns> Block type, as a byte. 255 if coordinates were out of bounds. </returns>
-        public byte GetBlockByte( int x, int y, int z ) {
-            if( x < Width && y < Length && z < Height && x >= 0 && y >= 0 && z >= 0 )
-                return Blocks[Index( x, y, z )];
-            return (byte)Block.Undefined;
         }
 
 
@@ -265,19 +229,10 @@ namespace fCraft {
 
         /// <summary> Gets a block at given coordinates. Checks bounds. </summary>
         /// <param name="coords"> Coordinate vector (X,Y,Z). </param>
-        /// <returns> Blocktype, as a byte. 255 if coordinates were out of bounds. </returns>
-        public byte GetBlockByte( Vector3I coords ) {
-            if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 && coords.Z >= 0 )
-                return Blocks[Index( coords.X, coords.Y, coords.Z )];
-            return (byte)Block.Undefined;
-        }
-
-        /// <summary> Gets a block at given coordinates. Checks bounds. </summary>
-        /// <param name="coords"> Coordinate vector (X,Y,Z). </param>
         /// <returns> Block type, as a Block enumeration. Undefined if coordinates were out of bounds. </returns>
         public Block GetBlock( Vector3I coords ) {
             if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 && coords.Z >= 0 )
-                return (Block)Blocks[Index( coords.X, coords.Y, coords.Z )];
+                return (Block)Blocks[Index( coords )];
             return Block.Undefined;
         }
 
@@ -353,7 +308,7 @@ namespace fCraft {
                 HasChangedSinceSave = true;
                 if( !InBounds( update.X, update.Y, update.Z ) ) continue;
                 int blockIndex = Index( update.X, update.Y, update.Z );
-                Blocks[blockIndex] = update.BlockType;
+                Blocks[blockIndex] = (byte)update.BlockType;
 
                 if( !World.IsFlushing ) {
                     Packet packet = PacketWriter.MakeSetBlock( update.X, update.Y, update.Z, update.BlockType );

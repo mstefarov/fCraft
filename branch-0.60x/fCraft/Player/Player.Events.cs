@@ -130,31 +130,31 @@ namespace fCraft {
         }
 
 
-        static void RaisePlayerClickedEvent( Player player, short x, short y, short z,
+        static void RaisePlayerClickedEvent( Player player, Vector3I coords,
                                              ClickAction action, Block block ) {
             var handler = Clicked;
             if( handler != null ) {
-                handler( null, new PlayerClickedEventArgs( player, x, y, z, action, block ) );
+                handler( null, new PlayerClickedEventArgs( player, coords, action, block ) );
             }
         }
 
 
-        static CanPlaceResult RaisePlayerPlacingBlockEvent( Player player, Map map, short x, short y, short z,
+        static CanPlaceResult RaisePlayerPlacingBlockEvent( Player player, Map map, Vector3I coords,
                                                             Block oldBlock, Block newBlock, BlockChangeContext context,
                                                             CanPlaceResult result ) {
             var handler = PlacingBlock;
             if( handler == null ) return result;
-            var e = new PlayerPlacingBlockEventArgs( player, map, x, y, z, oldBlock, newBlock, context, result );
+            var e = new PlayerPlacingBlockEventArgs( player, map, coords, oldBlock, newBlock, context, result );
             handler( null, e );
             return e.Result;
         }
 
 
-        internal static void RaisePlayerPlacedBlockEvent( Player player, Map map, short x, short y, short z,
+        internal static void RaisePlayerPlacedBlockEvent( Player player, Map map, Vector3I coords,
                                                           Block oldBlock, Block newBlock, BlockChangeContext context ) {
             var handler = PlacedBlock;
             if( handler != null ) {
-                handler( null, new PlayerPlacedBlockEventArgs( player, map, x, y, z, oldBlock, newBlock, context ) );
+                handler( null, new PlayerPlacedBlockEventArgs( player, map, coords, oldBlock, newBlock, context ) );
             }
         }
 
@@ -298,22 +298,18 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerClickingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
-        internal PlayerClickingEventArgs( [NotNull] Player player, short x, short y, short z,
+        internal PlayerClickingEventArgs( [NotNull] Player player, Vector3I coords,
                                           ClickAction action, Block block ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
-            X = x;
-            Y = y;
-            Z = z;
+            Coords = coords;
             Action = action;
             Block = block;
         }
 
         [NotNull]
         public Player Player { get; private set; }
-        public short X { get; private set; }
-        public short Y { get; private set; }
-        public short Z { get; private set; }
+        public Vector3I Coords { get; set; }
         public Block Block { get; set; }
         /// <summary> Whether the player is building a block (right-click) or deleting it (left-click). </summary>
         public ClickAction Action { get; set; }
@@ -322,30 +318,26 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerClickedEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerClickedEventArgs( [NotNull] Player player, short x, short y, short z, ClickAction action, Block block ) {
+        internal PlayerClickedEventArgs( [NotNull] Player player, Vector3I coords, ClickAction action, Block block ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
-            X = x;
-            Y = y;
-            Z = z;
+            Coords = coords;
             Block = block;
             Action = action;
         }
 
         [NotNull]
         public Player Player { get; private set; }
-        public short X { get; private set; }
-        public short Y { get; private set; }
-        public short Z { get; private set; }
+        public Vector3I Coords { get; private set; }
         public Block Block { get; private set; }
         public ClickAction Action { get; private set; }
     }
 
 
     public sealed class PlayerPlacingBlockEventArgs : PlayerPlacedBlockEventArgs {
-        internal PlayerPlacingBlockEventArgs( [NotNull] Player player, Map map, short x, short y, short z,
+        internal PlayerPlacingBlockEventArgs( [NotNull] Player player, Map map, Vector3I coords,
                                               Block oldBlock, Block newBlock, BlockChangeContext context, CanPlaceResult result )
-            : base( player, map, x, y, z, oldBlock, newBlock, context ) {
+            : base( player, map, coords, oldBlock, newBlock, context ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Result = result;
         }
@@ -355,13 +347,11 @@ namespace fCraft.Events {
 
 
     public class PlayerPlacedBlockEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerPlacedBlockEventArgs( [NotNull] Player player, Map map, short x, short y, short z,
+        internal PlayerPlacedBlockEventArgs( [NotNull] Player player, Map map, Vector3I coords,
                                              Block oldBlock, Block newBlock, BlockChangeContext context ) {
             Player = player;
             Map = map;
-            X = x;
-            Y = y;
-            Z = z;
+            Coords = coords;
             OldBlock = oldBlock;
             NewBlock = newBlock;
             Context = context;
@@ -371,9 +361,7 @@ namespace fCraft.Events {
         [NotNull]
         public Player Player { get; private set; }
         public Map Map { get; private set; }
-        public short X { get; private set; }
-        public short Y { get; private set; }
-        public short Z { get; private set; }
+        public Vector3I Coords { get; private set; }
         public Block OldBlock { get; private set; }
         public Block NewBlock { get; private set; }
         public BlockChangeContext Context { get; private set; }

@@ -195,21 +195,20 @@ namespace fCraft {
         }
 
 
-        internal static Packet MakeSetBlock( int x, int y, int z, byte type ) {
-            Packet packet = new Packet( OpCode.SetBlockServer );
-            ToNetOrder( x, packet.Data, 1 );
-            ToNetOrder( z, packet.Data, 3 );
-            ToNetOrder( y, packet.Data, 5 );
-            packet.Data[7] = type;
-            return packet;
-        }
-
-
         internal static Packet MakeSetBlock( int x, int y, int z, Block type ) {
             Packet packet = new Packet( OpCode.SetBlockServer );
             ToNetOrder( x, packet.Data, 1 );
             ToNetOrder( z, packet.Data, 3 );
             ToNetOrder( y, packet.Data, 5 );
+            packet.Data[7] = (byte)type;
+            return packet;
+        }
+
+        internal static Packet MakeSetBlock( Vector3I coords, Block type ) {
+            Packet packet = new Packet( OpCode.SetBlockServer );
+            ToNetOrder( coords.X, packet.Data, 1 );
+            ToNetOrder( coords.Z, packet.Data, 3 );
+            ToNetOrder( coords.Y, packet.Data, 5 );
             packet.Data[7] = (byte)type;
             return packet;
         }

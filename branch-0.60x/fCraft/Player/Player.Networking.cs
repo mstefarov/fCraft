@@ -392,17 +392,19 @@ namespace fCraft {
                 type = MapDat.MapBlock( type );
             }
 
+            Vector3I coords = new Vector3I( x, y, z );
+
             // If block is in bounds, count the click.
             // Sometimes MC allows clicking out of bounds,
             // like at map transitions or at the top layer of the world.
             // Those clicks should be simply ignored.
-            if( World.Map.InBounds( x, y, z ) ) {
-                var e = new PlayerClickingEventArgs( this, x, y, z, action, (Block)type );
+            if( World.Map.InBounds( coords ) ) {
+                var e = new PlayerClickingEventArgs( this, coords, action, (Block)type );
                 if( RaisePlayerClickingEvent( e ) ) {
-                    RevertBlockNow( x, y, z );
+                    RevertBlockNow( coords );
                 } else {
-                    RaisePlayerClickedEvent( this, x, y, z, e.Action, e.Block );
-                    PlaceBlock( x, y, z, e.Action, e.Block );
+                    RaisePlayerClickedEvent( this, coords, e.Action, e.Block );
+                    PlaceBlock( coords, e.Action, e.Block );
                 }
             }
         }

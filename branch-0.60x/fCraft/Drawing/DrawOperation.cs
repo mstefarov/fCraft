@@ -188,7 +188,7 @@ namespace fCraft.Drawing {
         protected bool DrawOneBlock() {
             BlocksProcessed++;
 
-            if( !Map.InBounds( Coords.X, Coords.Y, Coords.Z ) ) {
+            if( !Map.InBounds( Coords ) ) {
                 BlocksSkipped++;
                 return false;
             }
@@ -200,7 +200,7 @@ namespace fCraft.Drawing {
             Block newBlock = Brush.NextBlock( this );
             if( newBlock == Block.Undefined ) return false;
 
-            int blockIndex = Map.Index( Coords.X, Coords.Y, Coords.Z );
+            int blockIndex = Map.Index( Coords );
 
             Block oldBlock = (Block)Map.Blocks[blockIndex];
             if( oldBlock == newBlock ) {
@@ -217,10 +217,10 @@ namespace fCraft.Drawing {
 
             World world = Map.World;
             if( world != null && !world.IsFlushing ) {
-                world.Players.SendLowPriority( PacketWriter.MakeSetBlock( Coords.X, Coords.Y, Coords.Z, newBlock ) );
+                world.Players.SendLowPriority( PacketWriter.MakeSetBlock( Coords, newBlock ) );
             }
 
-            Player.RaisePlayerPlacedBlockEvent( Player, Map, (short)Coords.X, (short)Coords.Y, (short)Coords.Z,
+            Player.RaisePlayerPlacedBlockEvent( Player, Map, Coords,
                                                 oldBlock, newBlock, Context );
 
             if( !UndoState.IsTooLargeToUndo ) {

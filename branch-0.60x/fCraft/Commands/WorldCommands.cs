@@ -427,7 +427,7 @@ namespace fCraft {
                 args.Player.Message( "&WBlockDB is disabled in this world." );
                 return;
             }
-            BlockDBEntry[] results = args.World.BlockDB.Lookup( args.Coordinate.X, args.Coordinate.Y, args.Coordinate.Z );
+            BlockDBEntry[] results = args.World.BlockDB.Lookup( args.Coordinate );
             if( results.Length > 0 ) {
                 int startIndex = Math.Max( 0, results.Length - MaxBlockChangesToList );
                 for( int i = startIndex; i < results.Length; i++ ) {
