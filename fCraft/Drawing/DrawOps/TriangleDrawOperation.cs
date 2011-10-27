@@ -42,7 +42,7 @@ namespace fCraft.Drawing {
         public override int DrawBatch( int maxBlocksToDraw ) {
             int blocksDone = 0;
             while( coordEnumerator1.MoveNext() ) {
-                ((NormalBrush)Brush).Block = Block.Red;
+                ( (NormalBrush)Brush ).Block = Block.Red;
                 Coords = coordEnumerator1.Current;
                 if( DrawOneBlock() ) {
                     blocksDone++;
@@ -51,7 +51,7 @@ namespace fCraft.Drawing {
                 if( TimeToEndBatch ) return blocksDone;
             }
             while( coordEnumerator2.MoveNext() ) {
-                ((NormalBrush)Brush).Block = Block.Yellow;
+                ( (NormalBrush)Brush ).Block = Block.Yellow;
                 Coords = coordEnumerator2.Current;
                 if( DrawOneBlock() ) {
                     blocksDone++;
@@ -60,7 +60,7 @@ namespace fCraft.Drawing {
                 if( TimeToEndBatch ) return blocksDone;
             }
             while( coordEnumerator3.MoveNext() ) {
-                ((NormalBrush)Brush).Block = Block.Aqua;
+                ( (NormalBrush)Brush ).Block = Block.Aqua;
                 Coords = coordEnumerator3.Current;
                 if( DrawOneBlock() ) {
                     blocksDone++;
@@ -74,11 +74,13 @@ namespace fCraft.Drawing {
 
 
         static IEnumerable<Vector3I> TriangleEnumerator( Vector3I start, Vector3I end, Vector3I drawTo ) {
+            // ReSharper disable LoopCanBeConvertedToQuery
             foreach( Vector3I point in LineEnumerator( start, end ) ) {
                 foreach( Vector3I coord in LineEnumerator( point, drawTo ) ) {
                     yield return coord;
                 }
             }
+            // ReSharper restore LoopCanBeConvertedToQuery
         }
 
 
@@ -88,11 +90,11 @@ namespace fCraft.Drawing {
             int dx = end.X - start.X;
             int dy = end.Y - start.Y;
             int dz = end.Z - start.Z;
-            int xInc = (dx < 0) ? -1 : 1;
+            int xInc = ( dx < 0 ) ? -1 : 1;
             int l = Math.Abs( dx );
-            int yInc = (dy < 0) ? -1 : 1;
+            int yInc = ( dy < 0 ) ? -1 : 1;
             int m = Math.Abs( dy );
-            int zInc = (dz < 0) ? -1 : 1;
+            int zInc = ( dz < 0 ) ? -1 : 1;
             int n = Math.Abs( dz );
             int dx2 = l << 1;
             int dy2 = m << 1;
@@ -100,7 +102,7 @@ namespace fCraft.Drawing {
 
             yield return end;
 
-            if( (l >= m) && (l >= n) ) {
+            if( ( l >= m ) && ( l >= n ) ) {
                 err1 = dy2 - l;
                 err2 = dz2 - l;
                 for( i = 0; i < l; i++ ) {
@@ -118,7 +120,7 @@ namespace fCraft.Drawing {
                     pixel.X += xInc;
                 }
 
-            } else if( (m >= l) && (m >= n) ) {
+            } else if( ( m >= l ) && ( m >= n ) ) {
                 err1 = dx2 - m;
                 err2 = dz2 - m;
                 for( i = 0; i < m; i++ ) {

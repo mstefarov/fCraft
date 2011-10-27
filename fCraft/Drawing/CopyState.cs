@@ -9,19 +9,19 @@ namespace fCraft.Drawing {
             Orientation = new Vector3I( mark1.X <= mark2.X ? 1 : -1,
                                         mark1.Y <= mark2.Y ? 1 : -1,
                                         mark1.Z <= mark2.Z ? 1 : -1 );
-            Buffer = new byte[box.Width, box.Length, box.Height];
+            Buffer = new Block[box.Width, box.Length, box.Height];
         }
 
         public CopyState( [NotNull] CopyState original ) {
             if( original == null ) throw new ArgumentNullException();
-            Buffer = (byte[, ,])original.Buffer.Clone();
+            Buffer = (Block[, ,])original.Buffer.Clone();
             Orientation = original.Orientation;
             Slot = original.Slot;
             OriginWorld = original.OriginWorld;
             CopyTime = original.CopyTime;
         }
 
-        public CopyState( [NotNull] CopyState original, [NotNull] byte[,,] buffer ) {
+        public CopyState( [NotNull] CopyState original, [NotNull] Block[, ,] buffer ) {
             if( original == null ) throw new ArgumentNullException();
             Buffer = buffer;
             Orientation = original.Orientation;
@@ -30,7 +30,7 @@ namespace fCraft.Drawing {
             CopyTime = original.CopyTime;
         }
 
-        public byte[, ,] Buffer { get; set; }
+        public Block[, ,] Buffer { get; set; }
         public Vector3I Dimensions {
             get {
                 return new Vector3I( Buffer.GetLength( 0 ), Buffer.GetLength( 1 ), Buffer.GetLength( 2 ) );

@@ -827,9 +827,9 @@ namespace fCraft {
             coord += .5f;
             int iterations = 0;
             while( map.InBounds( new Vector3I( coord ) ) ) {
-                byte blockAtPos = map.GetBlockByte( new Vector3I( coord ) );
-                if( (blockAtPos == (byte)blockType && !invert) ||
-                    (blockAtPos != (byte)blockType && invert) ) {
+                Block blockAtPos = map.GetBlock( new Vector3I( coord ) );
+                if( (blockAtPos == blockType && !invert) ||
+                    (blockAtPos != blockType && invert) ) {
                     break;
                 } else {
                     coord += vec;

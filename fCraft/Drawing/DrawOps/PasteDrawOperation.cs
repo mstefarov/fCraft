@@ -141,21 +141,18 @@ namespace fCraft.Drawing {
 
         protected override Block NextBlock() {
             // ReSharper disable LoopCanBeConvertedToQuery
-            Block block = (Block)CopyInfo.Buffer[Coords.X - Start.X, Coords.Y - Start.Y, Coords.Z - Start.Z];
-            if( Blocks != null ) {
-                if( Not ) {
-                    for( int i = 0; i < Blocks.Length; i++ ) {
-                        if( block == Blocks[i] ) return Block.Undefined;
-                    }
-                    return block;
-                } else {
-                    for( int i = 0; i < Blocks.Length; i++ ) {
-                        if( block == Blocks[i] ) return block;
-                    }
-                    return Block.Undefined;
+            Block block = CopyInfo.Buffer[Coords.X - Start.X, Coords.Y - Start.Y, Coords.Z - Start.Z];
+            if( Blocks == null ) return block;
+            if( Not ) {
+                for( int i = 0; i < Blocks.Length; i++ ) {
+                    if( block == Blocks[i] ) return Block.Undefined;
                 }
-            } else {
                 return block;
+            } else {
+                for( int i = 0; i < Blocks.Length; i++ ) {
+                    if( block == Blocks[i] ) return block;
+                }
+                return Block.Undefined;
             }
             // ReSharper restore LoopCanBeConvertedToQuery
         }

@@ -26,19 +26,6 @@ namespace fCraft.Drawing {
             }
         }
 
-        public bool Add( int x, int y, int z, Block block ) {
-            lock( SyncRoot ) {
-                if( BuildingCommands.MaxUndoCount < 1 || Buffer.Count <= BuildingCommands.MaxUndoCount ) {
-                    Buffer.Add( new UndoBlock( x, y, z, block ) );
-                    return true;
-                } else if( !IsTooLargeToUndo ) {
-                    IsTooLargeToUndo = true;
-                    Buffer.Clear();
-                }
-                return false;
-            }
-        }
-
         public UndoBlock Get( int index ) {
             lock( SyncRoot ) {
                 return Buffer[index];
@@ -70,12 +57,7 @@ namespace fCraft.Drawing {
             Z = (short)coord.Z;
             Block = block;
         }
-        public UndoBlock( int x, int y, int z, Block block ) {
-            X = (short)x;
-            Y = (short)y;
-            Z = (short)z;
-            Block = block;
-        }
+
         public readonly short X, Y, Z;
         public readonly Block Block;
     }

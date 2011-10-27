@@ -523,8 +523,8 @@ namespace fCraft {
                 return;
             }
 
-            map.QueueUpdate( new BlockUpdate( null, coord.X, coord.Y, coord.Z, drawBlock ) );
-            Player.RaisePlayerPlacedBlockEvent( player, map, (short)coord.X, (short)coord.Y, (short)coord.Z, block, drawBlock, context );
+            map.QueueUpdate( new BlockUpdate( null, coord, drawBlock ) );
+            Player.RaisePlayerPlacedBlockEvent( player, map, coord, block, drawBlock, context );
 
             if( !undoState.IsTooLargeToUndo ) {
                 if( !undoState.Add( coord, block ) ) {
@@ -821,7 +821,7 @@ namespace fCraft {
             for( int x = sx; x <= ex; x++ ) {
                 for( int y = sy; y <= ey; y++ ) {
                     for( int z = sz; z <= ez; z++ ) {
-                        copyInfo.Buffer[x - sx, y - sy, z - sz] = map.GetBlockByte( x, y, z );
+                        copyInfo.Buffer[x - sx, y - sy, z - sz] = map.GetBlock( x, y, z );
                     }
                 }
             }
@@ -912,7 +912,7 @@ namespace fCraft {
                 return;
             }
 
-            byte block;
+            Block block;
 
             if( flipX ) {
                 int left = 0;
@@ -1037,20 +1037,20 @@ namespace fCraft {
             }
 
             // allocate the new buffer
-            byte[, ,] oldBuffer = originalInfo.Buffer;
-            byte[, ,] newBuffer;
+            Block[, ,] oldBuffer = originalInfo.Buffer;
+            Block[, ,] newBuffer;
 
             if( degrees == 180 ) {
-                newBuffer = new byte[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 2 )];
+                newBuffer = new Block[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 2 )];
 
             } else if( axis == Axis.X ) {
-                newBuffer = new byte[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 )];
+                newBuffer = new Block[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 )];
 
             } else if( axis == Axis.Y ) {
-                newBuffer = new byte[oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 )];
+                newBuffer = new Block[oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 )];
 
             } else { // axis == Axis.Z
-                newBuffer = new byte[oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 )];
+                newBuffer = new Block[oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 )];
             }
 
             // clone to avoid messing up any paste-in-progress
@@ -1381,18 +1381,18 @@ namespace fCraft {
         static void MarkHandler( Player player, Command command ) {
             Map map = player.WorldMap;
             int x, y, z;
-            Vector3I pos;
+            Vector3I coords;
             if( command.NextInt( out x ) && command.NextInt( out y ) && command.NextInt( out z ) ) {
-                pos = new Vector3I( x, y, z );
+                coords = new Vector3I( x, y, z );
             } else {
-                pos = player.Position.ToBlockCoords();
+                coords = player.Position.ToBlockCoords();
             }
-            pos.X = Math.Min( map.Width - 1, Math.Max( 0, pos.X ) );
-            pos.Y = Math.Min( map.Length - 1, Math.Max( 0, pos.Y ) );
-            pos.Z = Math.Min( map.Height - 1, Math.Max( 0, pos.Z ) );
+            coords.X = Math.Min( map.Width - 1, Math.Max( 0, coords.X ) );
+            coords.Y = Math.Min( map.Length - 1, Math.Max( 0, coords.Y ) );
+            coords.Z = Math.Min( map.Height - 1, Math.Max( 0, coords.Z ) );
 
             if( player.SelectionMarksExpected > 0 ) {
-                player.SelectionAddMark( pos, true );
+                player.SelectionAddMark( coords, true );
             } else {
                 player.MessageNow( "Cannot mark - no selection in progress." );
             }

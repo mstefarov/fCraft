@@ -490,12 +490,12 @@ namespace fCraft {
         }
 
 
-        public BlockDBEntry[] Lookup( int x, int y, int z ) {
+        public BlockDBEntry[] Lookup( Vector3I coords ) {
             if( !IsEnabled || !IsEnabledGlobally ) {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
             }
             List<BlockDBEntry> results = new List<BlockDBEntry>();
-            if( x < 0 || y < 0 || z < 0 ) {
+            if( World.LoadMap().InBounds( coords ) ) {
                 return results.ToArray();
             }
 
@@ -503,7 +503,7 @@ namespace fCraft {
                 lock( SyncRoot ) {
                     fixed( BlockDBEntry* entries = cacheStore ) {
                         for( int i = 0; i < CacheSize; i++ ) {
-                            if( entries[i].X == x && entries[i].Y == y && entries[i].Z == z ) {
+                            if( entries[i].X == coords.X && entries[i].Y == coords.Y && entries[i].Z == coords.Z ) {
                                 results.Add( entries[i] );
                             }
                         }
@@ -516,7 +516,7 @@ namespace fCraft {
                 fixed( byte* parr = bytes ) {
                     BlockDBEntry* entries = (BlockDBEntry*)parr;
                     for( int i = 0; i < entryCount; i++ ) {
-                        if( entries[i].X == x && entries[i].Y == y && entries[i].Z == z ) {
+                        if( entries[i].X == coords.X && entries[i].Y == coords.Y && entries[i].Z == coords.Z ) {
                             results.Add( entries[i] );
                         }
                     }
@@ -783,7 +783,7 @@ namespace fCraft {
             if( world != null && world.BlockDB.IsEnabled ) {
                 BlockDBEntry newEntry = new BlockDBEntry( (int)DateTime.UtcNow.ToUnixTime(),
                                                           e.Player.Info.ID,
-                                                          e.X, e.Y, e.Z,
+                                                          e.Coords,
                                                           e.OldBlock,
                                                           e.NewBlock,
                                                           e.Context );
