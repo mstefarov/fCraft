@@ -66,7 +66,11 @@ namespace fCraft {
             CdEllipsoidHollow.Help += GeneralDrawingHelp;
 
             CommandManager.RegisterCommand( CdLine );
+            CommandManager.RegisterCommand( CdTriangle );
+            CommandManager.RegisterCommand( CdTriangleWireframe );
             CdLine.Help += GeneralDrawingHelp;
+            CdTriangle.Help += GeneralDrawingHelp;
+            CdTriangleWireframe.Help += GeneralDrawingHelp;
 
             CommandManager.RegisterCommand( CdSphere );
             CommandManager.RegisterCommand( CdSphereHollow );
@@ -204,7 +208,7 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
             Help = "Draws a continuous line between two points with blocks. " +
-                   "Marks to not need to be aligned.",
+                   "Marks do not have to be aligned.",
             Handler = LineHandler
         };
 
@@ -213,6 +217,32 @@ namespace fCraft {
         }
 
 
+
+        static readonly CommandDescriptor CdTriangleWireframe = new CommandDescriptor {
+            Name = "TriangleW",
+            Aliases = new[] { "tw" },
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Draw },
+            Help = "Draws lines between three points, to form a triangle.",
+            Handler = TriangleWireframeHandler
+        };
+
+        static void TriangleWireframeHandler( Player player, Command cmd ) {
+            DrawOperationBegin( player, cmd, new TriangleWireframeDrawOperation( player ) );
+        }
+
+        static readonly CommandDescriptor CdTriangle = new CommandDescriptor {
+            Name = "Triangle",
+            Aliases = new[] { "t" },
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Draw },
+            Help = "Draws a triangle between three points.",
+            Handler = TriangleHandler
+        };
+
+        static void TriangleHandler( Player player, Command cmd ) {
+            DrawOperationBegin( player, cmd, new TriangleDrawOperation( player ) );
+        }
 
         static readonly CommandDescriptor CdTorus = new CommandDescriptor {
             Name = "Torus",

@@ -194,7 +194,7 @@ namespace fCraft.Drawing {
             }
 
 #if DEBUG
-            TestForDuplicateModification();
+            //TestForDuplicateModification();
 #endif
 
             Block newBlock = Brush.NextBlock( this );

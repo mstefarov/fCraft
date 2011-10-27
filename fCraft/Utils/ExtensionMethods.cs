@@ -576,6 +576,16 @@ namespace fCraft {
                 }
             }
         }
+
+        public static int SizeOf( object obj ) {
+            RuntimeTypeHandle th = obj.GetType().TypeHandle;
+            return *(*(int**)&th + 1);
+        }
+
+        public static int SizeOf( Type type ) {
+            RuntimeTypeHandle th = type.TypeHandle;
+            return *(*(int**)&th + 1);
+        }
     }
 
 

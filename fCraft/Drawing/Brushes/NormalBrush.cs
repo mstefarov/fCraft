@@ -64,8 +64,8 @@ namespace fCraft.Drawing {
 
 
     public sealed class NormalBrush : IBrushInstance {
-        public Block Block { get; private set; }
-        public Block AltBlock { get; private set; }
+        public Block Block { get; set; }
+        public Block AltBlock { get; set; }
 
         public bool HasAlternateBlock {
             get { return AltBlock != Block.Undefined; }
