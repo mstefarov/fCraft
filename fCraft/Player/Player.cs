@@ -1045,8 +1045,6 @@ namespace fCraft {
 
         #region Undo
 
-        const int MaxUndoStates = 5;
-
         readonly LinkedList<UndoState> undoStack = new LinkedList<UndoState>();
         readonly LinkedList<UndoState> redoStack = new LinkedList<UndoState>();
 
@@ -1088,7 +1086,7 @@ namespace fCraft {
             LastDrawOp = op;
             UndoState newState = new UndoState( op );
             undoStack.AddLast( newState );
-            if( undoStack.Count > MaxUndoStates ) {
+            if( undoStack.Count > ConfigKey.MaxUndoStates.GetInt() ) {
                 undoStack.RemoveFirst();
             }
             redoStack.Clear();

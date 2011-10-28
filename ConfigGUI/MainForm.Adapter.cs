@@ -386,8 +386,14 @@ namespace fCraft.ConfigGUI {
             xLowLatencyMode.Checked = ConfigKey.LowLatencyMode.Enabled();
             xSubmitCrashReports.Checked = ConfigKey.SubmitCrashReports.Enabled();
 
-            xMaxUndo.Checked = (ConfigKey.MaxUndo.GetInt() > 0);
-            nMaxUndo.Value = ConfigKey.MaxUndo.GetInt();
+            if( ConfigKey.MaxUndo.GetInt() > 0 ) {
+                xMaxUndo.Checked = true;
+                nMaxUndo.Value = ConfigKey.MaxUndo.GetInt();
+            } else {
+                xMaxUndo.Checked = false;
+                nMaxUndo.Value = (int)ConfigKey.MaxUndo.GetDefault();
+            }
+            nMaxUndoStates.Value = ConfigKey.MaxUndoStates.GetInt();
 
             tConsoleName.Text = ConfigKey.ConsoleName.GetString();
 
@@ -603,6 +609,7 @@ namespace fCraft.ConfigGUI {
 
             if( xMaxUndo.Checked ) ConfigKey.MaxUndo.TrySetValue( Convert.ToInt32( nMaxUndo.Value ) );
             else ConfigKey.MaxUndo.TrySetValue( 0 );
+            ConfigKey.MaxUndoStates.TrySetValue( Convert.ToInt32( nMaxUndoStates.Value ) );
 
             ConfigKey.ConsoleName.TrySetValue( tConsoleName.Text );
 

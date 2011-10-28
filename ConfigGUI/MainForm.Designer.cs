@@ -25,8 +25,8 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( MainForm ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -90,7 +90,6 @@
             this.xRankPrefixesInList = new System.Windows.Forms.CheckBox();
             this.xRankPrefixesInChat = new System.Windows.Forms.CheckBox();
             this.xRankColorsInChat = new System.Windows.Forms.CheckBox();
-            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.xWoMEnableEnvExtensions = new System.Windows.Forms.CheckBox();
             this.bMapPath = new System.Windows.Forms.Button();
@@ -118,6 +117,9 @@
             this.bLowerRank = new System.Windows.Forms.Button();
             this.bRaiseRank = new System.Windows.Forms.Button();
             this.gRankOptions = new System.Windows.Forms.GroupBox();
+            this.lFillLimitUnits = new System.Windows.Forms.Label();
+            this.nFillLimit = new System.Windows.Forms.NumericUpDown();
+            this.lFillLimit = new System.Windows.Forms.Label();
             this.nCopyPasteSlots = new System.Windows.Forms.NumericUpDown();
             this.lCopyPasteSlots = new System.Windows.Forms.Label();
             this.xAllowSecurityCircumvention = new System.Windows.Forms.CheckBox();
@@ -250,11 +252,12 @@
             this.cIRCList = new System.Windows.Forms.ComboBox();
             this.tabAdvanced = new System.Windows.Forms.TabPage();
             this.gAdvancedMisc = new System.Windows.Forms.GroupBox();
+            this.nMaxUndoStates = new System.Windows.Forms.NumericUpDown();
+            this.lMaxUndoStates = new System.Windows.Forms.Label();
             this.xHeartbeatToWoMDirect = new System.Windows.Forms.CheckBox();
             this.lIPWarning = new System.Windows.Forms.Label();
             this.tIP = new System.Windows.Forms.TextBox();
             this.xIP = new System.Windows.Forms.CheckBox();
-            this.lConsoleNameHint = new System.Windows.Forms.Label();
             this.lConsoleName = new System.Windows.Forms.Label();
             this.tConsoleName = new System.Windows.Forms.TextBox();
             this.nMaxUndo = new System.Windows.Forms.NumericUpDown();
@@ -281,9 +284,8 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.lFillLimit = new System.Windows.Forms.Label();
-            this.nFillLimit = new System.Windows.Forms.NumericUpDown();
-            this.lFillLimitUnits = new System.Windows.Forms.Label();
+            this.gPerformance = new System.Windows.Forms.GroupBox();
+            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -304,6 +306,7 @@
             this.tabRanks.SuspendLayout();
             this.gPermissionLimits.SuspendLayout();
             this.gRankOptions.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nFillLimit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nCopyPasteSlots)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefSeconds)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nDrawLimit)).BeginInit();
@@ -338,11 +341,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.nIRCBotPort)).BeginInit();
             this.tabAdvanced.SuspendLayout();
             this.gAdvancedMisc.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxUndoStates)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             this.gCrashReport.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nFillLimit)).BeginInit();
+            this.gPerformance.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabs
@@ -1099,13 +1103,6 @@
             this.xRankColorsInChat.Text = "Show rank colors.";
             this.xRankColorsInChat.UseVisualStyleBackColor = true;
             // 
-            // chatPreview
-            // 
-            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size( 637, 241 );
-            this.chatPreview.TabIndex = 2;
-            // 
             // tabWorlds
             // 
             this.tabWorlds.Controls.Add( this.xWoMEnableEnvExtensions );
@@ -1268,8 +1265,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle6.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 367 );
             this.dgvWorlds.TabIndex = 0;
@@ -1327,8 +1324,8 @@
             // dgvcBlockDB
             // 
             this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
             this.dgvcBlockDB.HeaderText = "BlockDB";
             this.dgvcBlockDB.Name = "dgvcBlockDB";
             this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
@@ -1446,6 +1443,47 @@
             this.gRankOptions.TabIndex = 6;
             this.gRankOptions.TabStop = false;
             this.gRankOptions.Text = "Rank Options";
+            // 
+            // lFillLimitUnits
+            // 
+            this.lFillLimitUnits.AutoSize = true;
+            this.lFillLimitUnits.Location = new System.Drawing.Point( 239, 245 );
+            this.lFillLimitUnits.Name = "lFillLimitUnits";
+            this.lFillLimitUnits.Size = new System.Drawing.Size( 42, 15 );
+            this.lFillLimitUnits.TabIndex = 24;
+            this.lFillLimitUnits.Text = "blocks";
+            // 
+            // nFillLimit
+            // 
+            this.nFillLimit.Location = new System.Drawing.Point( 174, 243 );
+            this.nFillLimit.Maximum = new decimal( new int[] {
+            2048,
+            0,
+            0,
+            0} );
+            this.nFillLimit.Minimum = new decimal( new int[] {
+            1,
+            0,
+            0,
+            0} );
+            this.nFillLimit.Name = "nFillLimit";
+            this.nFillLimit.Size = new System.Drawing.Size( 59, 21 );
+            this.nFillLimit.TabIndex = 23;
+            this.nFillLimit.Value = new decimal( new int[] {
+            16,
+            0,
+            0,
+            0} );
+            this.nFillLimit.ValueChanged += new System.EventHandler( this.nFillLimit_ValueChanged );
+            // 
+            // lFillLimit
+            // 
+            this.lFillLimit.AutoSize = true;
+            this.lFillLimit.Location = new System.Drawing.Point( 85, 245 );
+            this.lFillLimit.Name = "lFillLimit";
+            this.lFillLimit.Size = new System.Drawing.Size( 83, 15 );
+            this.lFillLimit.TabIndex = 22;
+            this.lFillLimit.Text = "Flood-fill limit:";
             // 
             // nCopyPasteSlots
             // 
@@ -2901,6 +2939,7 @@
             // 
             // tabAdvanced
             // 
+            this.tabAdvanced.Controls.Add( this.gPerformance );
             this.tabAdvanced.Controls.Add( this.gAdvancedMisc );
             this.tabAdvanced.Controls.Add( this.gCrashReport );
             this.tabAdvanced.Location = new System.Drawing.Point( 4, 24 );
@@ -2913,42 +2952,59 @@
             // 
             // gAdvancedMisc
             // 
-            this.gAdvancedMisc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
+            this.gAdvancedMisc.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gAdvancedMisc.Controls.Add( this.nMaxUndoStates );
+            this.gAdvancedMisc.Controls.Add( this.lMaxUndoStates );
             this.gAdvancedMisc.Controls.Add( this.xHeartbeatToWoMDirect );
             this.gAdvancedMisc.Controls.Add( this.lIPWarning );
             this.gAdvancedMisc.Controls.Add( this.tIP );
             this.gAdvancedMisc.Controls.Add( this.xIP );
-            this.gAdvancedMisc.Controls.Add( this.lConsoleNameHint );
             this.gAdvancedMisc.Controls.Add( this.lConsoleName );
             this.gAdvancedMisc.Controls.Add( this.tConsoleName );
             this.gAdvancedMisc.Controls.Add( this.nMaxUndo );
             this.gAdvancedMisc.Controls.Add( this.lMaxUndoUnits );
             this.gAdvancedMisc.Controls.Add( this.xMaxUndo );
-            this.gAdvancedMisc.Controls.Add( this.lAdvancedWarning );
-            this.gAdvancedMisc.Controls.Add( this.lTickInterval );
-            this.gAdvancedMisc.Controls.Add( this.xLowLatencyMode );
-            this.gAdvancedMisc.Controls.Add( this.nTickInterval );
-            this.gAdvancedMisc.Controls.Add( this.lTickIntervalUnits );
             this.gAdvancedMisc.Controls.Add( this.xRelayAllBlockUpdates );
-            this.gAdvancedMisc.Controls.Add( this.lThrottlingUnits );
-            this.gAdvancedMisc.Controls.Add( this.lProcessPriority );
-            this.gAdvancedMisc.Controls.Add( this.nThrottling );
-            this.gAdvancedMisc.Controls.Add( this.cProcessPriority );
-            this.gAdvancedMisc.Controls.Add( this.lThrottling );
             this.gAdvancedMisc.Controls.Add( this.xNoPartialPositionUpdates );
             this.gAdvancedMisc.Location = new System.Drawing.Point( 8, 118 );
             this.gAdvancedMisc.Name = "gAdvancedMisc";
-            this.gAdvancedMisc.Size = new System.Drawing.Size( 638, 379 );
+            this.gAdvancedMisc.Size = new System.Drawing.Size( 636, 204 );
             this.gAdvancedMisc.TabIndex = 1;
             this.gAdvancedMisc.TabStop = false;
             this.gAdvancedMisc.Text = "Miscellaneous";
             // 
+            // nMaxUndoStates
+            // 
+            this.nMaxUndoStates.Location = new System.Drawing.Point( 115, 71 );
+            this.nMaxUndoStates.Minimum = new decimal( new int[] {
+            1,
+            0,
+            0,
+            0} );
+            this.nMaxUndoStates.Name = "nMaxUndoStates";
+            this.nMaxUndoStates.Size = new System.Drawing.Size( 58, 21 );
+            this.nMaxUndoStates.TabIndex = 23;
+            this.nMaxUndoStates.Value = new decimal( new int[] {
+            1,
+            0,
+            0,
+            0} );
+            this.nMaxUndoStates.ValueChanged += new System.EventHandler( this.nMaxUndo_ValueChanged );
+            // 
+            // lMaxUndoStates
+            // 
+            this.lMaxUndoStates.AutoSize = true;
+            this.lMaxUndoStates.Location = new System.Drawing.Point( 179, 73 );
+            this.lMaxUndoStates.Name = "lMaxUndoStates";
+            this.lMaxUndoStates.Size = new System.Drawing.Size( 72, 15 );
+            this.lMaxUndoStates.TabIndex = 22;
+            this.lMaxUndoStates.Text = "states, up to";
+            // 
             // xHeartbeatToWoMDirect
             // 
             this.xHeartbeatToWoMDirect.AutoSize = true;
-            this.xHeartbeatToWoMDirect.Location = new System.Drawing.Point( 12, 336 );
+            this.xHeartbeatToWoMDirect.Location = new System.Drawing.Point( 6, 176 );
             this.xHeartbeatToWoMDirect.Name = "xHeartbeatToWoMDirect";
             this.xHeartbeatToWoMDirect.Size = new System.Drawing.Size( 354, 19 );
             this.xHeartbeatToWoMDirect.TabIndex = 21;
@@ -2959,7 +3015,7 @@
             // 
             this.lIPWarning.AutoSize = true;
             this.lIPWarning.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.lIPWarning.Location = new System.Drawing.Point( 134, 308 );
+            this.lIPWarning.Location = new System.Drawing.Point( 112, 151 );
             this.lIPWarning.Name = "lIPWarning";
             this.lIPWarning.Size = new System.Drawing.Size( 408, 13 );
             this.lIPWarning.TabIndex = 20;
@@ -2968,7 +3024,7 @@
             // 
             // tIP
             // 
-            this.tIP.Location = new System.Drawing.Point( 137, 284 );
+            this.tIP.Location = new System.Drawing.Point( 115, 127 );
             this.tIP.MaxLength = 15;
             this.tIP.Name = "tIP";
             this.tIP.Size = new System.Drawing.Size( 97, 21 );
@@ -2978,7 +3034,7 @@
             // xIP
             // 
             this.xIP.AutoSize = true;
-            this.xIP.Location = new System.Drawing.Point( 28, 286 );
+            this.xIP.Location = new System.Drawing.Point( 6, 129 );
             this.xIP.Name = "xIP";
             this.xIP.Size = new System.Drawing.Size( 103, 19 );
             this.xIP.TabIndex = 18;
@@ -2986,28 +3042,18 @@
             this.xIP.UseVisualStyleBackColor = true;
             this.xIP.CheckedChanged += new System.EventHandler( this.xIP_CheckedChanged );
             // 
-            // lConsoleNameHint
-            // 
-            this.lConsoleNameHint.AutoSize = true;
-            this.lConsoleNameHint.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.lConsoleNameHint.Location = new System.Drawing.Point( 304, 186 );
-            this.lConsoleNameHint.Name = "lConsoleNameHint";
-            this.lConsoleNameHint.Size = new System.Drawing.Size( 289, 13 );
-            this.lConsoleNameHint.TabIndex = 9;
-            this.lConsoleNameHint.Text = "Hint: You may include any characters, including color codes";
-            // 
             // lConsoleName
             // 
             this.lConsoleName.AutoSize = true;
-            this.lConsoleName.Location = new System.Drawing.Point( 89, 165 );
+            this.lConsoleName.Location = new System.Drawing.Point( 22, 103 );
             this.lConsoleName.Name = "lConsoleName";
-            this.lConsoleName.Size = new System.Drawing.Size( 214, 15 );
+            this.lConsoleName.Size = new System.Drawing.Size( 87, 15 );
             this.lConsoleName.TabIndex = 7;
-            this.lConsoleName.Text = "Name of the \"Console\" pseudo-player:";
+            this.lConsoleName.Text = "Console name";
             // 
             // tConsoleName
             // 
-            this.tConsoleName.Location = new System.Drawing.Point( 307, 162 );
+            this.tConsoleName.Location = new System.Drawing.Point( 115, 100 );
             this.tConsoleName.Name = "tConsoleName";
             this.tConsoleName.Size = new System.Drawing.Size( 167, 21 );
             this.tConsoleName.TabIndex = 8;
@@ -3019,7 +3065,7 @@
             0,
             0,
             0} );
-            this.nMaxUndo.Location = new System.Drawing.Point( 307, 135 );
+            this.nMaxUndo.Location = new System.Drawing.Point( 257, 71 );
             this.nMaxUndo.Maximum = new decimal( new int[] {
             2147483647,
             0,
@@ -3038,22 +3084,22 @@
             // lMaxUndoUnits
             // 
             this.lMaxUndoUnits.AutoSize = true;
-            this.lMaxUndoUnits.Location = new System.Drawing.Point( 399, 137 );
+            this.lMaxUndoUnits.Location = new System.Drawing.Point( 349, 73 );
             this.lMaxUndoUnits.Name = "lMaxUndoUnits";
-            this.lMaxUndoUnits.Size = new System.Drawing.Size( 191, 15 );
+            this.lMaxUndoUnits.Size = new System.Drawing.Size( 259, 15 );
             this.lMaxUndoUnits.TabIndex = 6;
-            this.lMaxUndoUnits.Text = "(up to 30.6 MB of RAM per player)";
+            this.lMaxUndoUnits.Text = "blocks each (up to 16.0 MB of RAM per player)";
             // 
             // xMaxUndo
             // 
             this.xMaxUndo.AutoSize = true;
             this.xMaxUndo.Checked = true;
             this.xMaxUndo.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.xMaxUndo.Location = new System.Drawing.Point( 12, 136 );
+            this.xMaxUndo.Location = new System.Drawing.Point( 6, 72 );
             this.xMaxUndo.Name = "xMaxUndo";
-            this.xMaxUndo.Size = new System.Drawing.Size( 291, 19 );
+            this.xMaxUndo.Size = new System.Drawing.Size( 100, 19 );
             this.xMaxUndo.TabIndex = 4;
-            this.xMaxUndo.Text = "Limit the number of blocks that can be undone to";
+            this.xMaxUndo.Text = "Limit /undo to";
             this.xMaxUndo.UseVisualStyleBackColor = true;
             this.xMaxUndo.CheckedChanged += new System.EventHandler( this.xMaxUndo_CheckedChanged );
             // 
@@ -3061,7 +3107,7 @@
             // 
             this.lAdvancedWarning.AutoSize = true;
             this.lAdvancedWarning.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.lAdvancedWarning.Location = new System.Drawing.Point( 6, 17 );
+            this.lAdvancedWarning.Location = new System.Drawing.Point( 15, 21 );
             this.lAdvancedWarning.Name = "lAdvancedWarning";
             this.lAdvancedWarning.Size = new System.Drawing.Size( 558, 30 );
             this.lAdvancedWarning.TabIndex = 0;
@@ -3072,7 +3118,7 @@
             // lTickInterval
             // 
             this.lTickInterval.AutoSize = true;
-            this.lTickInterval.Location = new System.Drawing.Point( 60, 232 );
+            this.lTickInterval.Location = new System.Drawing.Point( 352, 94 );
             this.lTickInterval.Name = "lTickInterval";
             this.lTickInterval.Size = new System.Drawing.Size( 71, 15 );
             this.lTickInterval.TabIndex = 12;
@@ -3081,7 +3127,7 @@
             // xLowLatencyMode
             // 
             this.xLowLatencyMode.AutoSize = true;
-            this.xLowLatencyMode.Location = new System.Drawing.Point( 12, 111 );
+            this.xLowLatencyMode.Location = new System.Drawing.Point( 6, 64 );
             this.xLowLatencyMode.Name = "xLowLatencyMode";
             this.xLowLatencyMode.Size = new System.Drawing.Size( 544, 19 );
             this.xLowLatencyMode.TabIndex = 3;
@@ -3096,7 +3142,7 @@
             0,
             0,
             0} );
-            this.nTickInterval.Location = new System.Drawing.Point( 137, 230 );
+            this.nTickInterval.Location = new System.Drawing.Point( 429, 92 );
             this.nTickInterval.Maximum = new decimal( new int[] {
             1000,
             0,
@@ -3119,7 +3165,7 @@
             // lTickIntervalUnits
             // 
             this.lTickIntervalUnits.AutoSize = true;
-            this.lTickIntervalUnits.Location = new System.Drawing.Point( 213, 232 );
+            this.lTickIntervalUnits.Location = new System.Drawing.Point( 505, 94 );
             this.lTickIntervalUnits.Name = "lTickIntervalUnits";
             this.lTickIntervalUnits.Size = new System.Drawing.Size( 24, 15 );
             this.lTickIntervalUnits.TabIndex = 14;
@@ -3128,7 +3174,7 @@
             // xRelayAllBlockUpdates
             // 
             this.xRelayAllBlockUpdates.AutoSize = true;
-            this.xRelayAllBlockUpdates.Location = new System.Drawing.Point( 12, 61 );
+            this.xRelayAllBlockUpdates.Location = new System.Drawing.Point( 6, 21 );
             this.xRelayAllBlockUpdates.Name = "xRelayAllBlockUpdates";
             this.xRelayAllBlockUpdates.Size = new System.Drawing.Size( 560, 19 );
             this.xRelayAllBlockUpdates.TabIndex = 1;
@@ -3139,7 +3185,7 @@
             // lThrottlingUnits
             // 
             this.lThrottlingUnits.AutoSize = true;
-            this.lThrottlingUnits.Location = new System.Drawing.Point( 213, 259 );
+            this.lThrottlingUnits.Location = new System.Drawing.Point( 191, 122 );
             this.lThrottlingUnits.Name = "lThrottlingUnits";
             this.lThrottlingUnits.Size = new System.Drawing.Size( 129, 15 );
             this.lThrottlingUnits.TabIndex = 17;
@@ -3148,7 +3194,7 @@
             // lProcessPriority
             // 
             this.lProcessPriority.AutoSize = true;
-            this.lProcessPriority.Location = new System.Drawing.Point( 41, 204 );
+            this.lProcessPriority.Location = new System.Drawing.Point( 19, 94 );
             this.lProcessPriority.Name = "lProcessPriority";
             this.lProcessPriority.Size = new System.Drawing.Size( 90, 15 );
             this.lProcessPriority.TabIndex = 10;
@@ -3161,7 +3207,7 @@
             0,
             0,
             0} );
-            this.nThrottling.Location = new System.Drawing.Point( 137, 257 );
+            this.nThrottling.Location = new System.Drawing.Point( 115, 120 );
             this.nThrottling.Maximum = new decimal( new int[] {
             10000,
             0,
@@ -3191,7 +3237,7 @@
             "Normal",
             "Below Normal",
             "Low"} );
-            this.cProcessPriority.Location = new System.Drawing.Point( 137, 201 );
+            this.cProcessPriority.Location = new System.Drawing.Point( 115, 91 );
             this.cProcessPriority.Name = "cProcessPriority";
             this.cProcessPriority.Size = new System.Drawing.Size( 109, 23 );
             this.cProcessPriority.TabIndex = 11;
@@ -3199,16 +3245,16 @@
             // lThrottling
             // 
             this.lThrottling.AutoSize = true;
-            this.lThrottling.Location = new System.Drawing.Point( 3, 259 );
+            this.lThrottling.Location = new System.Drawing.Point( 22, 122 );
             this.lThrottling.Name = "lThrottling";
-            this.lThrottling.Size = new System.Drawing.Size( 128, 15 );
+            this.lThrottling.Size = new System.Drawing.Size( 87, 15 );
             this.lThrottling.TabIndex = 15;
-            this.lThrottling.Text = "Block update throttling";
+            this.lThrottling.Text = "Block throttling";
             // 
             // xNoPartialPositionUpdates
             // 
             this.xNoPartialPositionUpdates.AutoSize = true;
-            this.xNoPartialPositionUpdates.Location = new System.Drawing.Point( 12, 86 );
+            this.xNoPartialPositionUpdates.Location = new System.Drawing.Point( 6, 46 );
             this.xNoPartialPositionUpdates.Name = "xNoPartialPositionUpdates";
             this.xNoPartialPositionUpdates.Size = new System.Drawing.Size( 326, 19 );
             this.xNoPartialPositionUpdates.TabIndex = 2;
@@ -3223,7 +3269,7 @@
             this.gCrashReport.Controls.Add( this.xSubmitCrashReports );
             this.gCrashReport.Location = new System.Drawing.Point( 8, 13 );
             this.gCrashReport.Name = "gCrashReport";
-            this.gCrashReport.Size = new System.Drawing.Size( 638, 99 );
+            this.gCrashReport.Size = new System.Drawing.Size( 636, 99 );
             this.gCrashReport.TabIndex = 0;
             this.gCrashReport.TabStop = false;
             this.gCrashReport.Text = "Crash Reporting";
@@ -3231,9 +3277,10 @@
             // lCrashReportDisclaimer
             // 
             this.lCrashReportDisclaimer.AutoSize = true;
-            this.lCrashReportDisclaimer.Location = new System.Drawing.Point( 44, 42 );
+            this.lCrashReportDisclaimer.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.lCrashReportDisclaimer.Location = new System.Drawing.Point( 42, 42 );
             this.lCrashReportDisclaimer.Name = "lCrashReportDisclaimer";
-            this.lCrashReportDisclaimer.Size = new System.Drawing.Size( 584, 45 );
+            this.lCrashReportDisclaimer.Size = new System.Drawing.Size( 521, 39 );
             this.lCrashReportDisclaimer.TabIndex = 1;
             this.lCrashReportDisclaimer.Text = resources.GetString( "lCrashReportDisclaimer.Text" );
             // 
@@ -3313,46 +3360,33 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // lFillLimit
+            // gPerformance
             // 
-            this.lFillLimit.AutoSize = true;
-            this.lFillLimit.Location = new System.Drawing.Point( 85, 245 );
-            this.lFillLimit.Name = "lFillLimit";
-            this.lFillLimit.Size = new System.Drawing.Size( 83, 15 );
-            this.lFillLimit.TabIndex = 22;
-            this.lFillLimit.Text = "Flood-fill limit:";
+            this.gPerformance.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.gPerformance.Controls.Add( this.lAdvancedWarning );
+            this.gPerformance.Controls.Add( this.xLowLatencyMode );
+            this.gPerformance.Controls.Add( this.lProcessPriority );
+            this.gPerformance.Controls.Add( this.cProcessPriority );
+            this.gPerformance.Controls.Add( this.nTickInterval );
+            this.gPerformance.Controls.Add( this.lTickIntervalUnits );
+            this.gPerformance.Controls.Add( this.lTickInterval );
+            this.gPerformance.Controls.Add( this.nThrottling );
+            this.gPerformance.Controls.Add( this.lThrottling );
+            this.gPerformance.Controls.Add( this.lThrottlingUnits );
+            this.gPerformance.Location = new System.Drawing.Point( 8, 328 );
+            this.gPerformance.Name = "gPerformance";
+            this.gPerformance.Size = new System.Drawing.Size( 636, 171 );
+            this.gPerformance.TabIndex = 2;
+            this.gPerformance.TabStop = false;
+            this.gPerformance.Text = "Performance";
             // 
-            // nFillLimit
+            // chatPreview
             // 
-            this.nFillLimit.Location = new System.Drawing.Point( 174, 243 );
-            this.nFillLimit.Maximum = new decimal( new int[] {
-            2048,
-            0,
-            0,
-            0} );
-            this.nFillLimit.Minimum = new decimal( new int[] {
-            1,
-            0,
-            0,
-            0} );
-            this.nFillLimit.Name = "nFillLimit";
-            this.nFillLimit.Size = new System.Drawing.Size( 59, 21 );
-            this.nFillLimit.TabIndex = 23;
-            this.nFillLimit.Value = new decimal( new int[] {
-            16,
-            0,
-            0,
-            0} );
-            this.nFillLimit.ValueChanged += new System.EventHandler( this.nFillLimit_ValueChanged );
-            // 
-            // lFillLimitUnits
-            // 
-            this.lFillLimitUnits.AutoSize = true;
-            this.lFillLimitUnits.Location = new System.Drawing.Point( 239, 245 );
-            this.lFillLimitUnits.Name = "lFillLimitUnits";
-            this.lFillLimitUnits.Size = new System.Drawing.Size( 42, 15 );
-            this.lFillLimitUnits.TabIndex = 24;
-            this.lFillLimitUnits.Text = "blocks";
+            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size( 637, 241 );
+            this.chatPreview.TabIndex = 2;
             // 
             // MainForm
             // 
@@ -3398,6 +3432,7 @@
             this.gPermissionLimits.ResumeLayout( false );
             this.gRankOptions.ResumeLayout( false );
             this.gRankOptions.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nFillLimit)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nCopyPasteSlots)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefSeconds)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nDrawLimit)).EndInit();
@@ -3445,12 +3480,14 @@
             this.tabAdvanced.ResumeLayout( false );
             this.gAdvancedMisc.ResumeLayout( false );
             this.gAdvancedMisc.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nMaxUndoStates)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             this.gCrashReport.ResumeLayout( false );
             this.gCrashReport.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nFillLimit)).EndInit();
+            this.gPerformance.ResumeLayout( false );
+            this.gPerformance.PerformLayout();
             this.ResumeLayout( false );
 
         }
@@ -3671,7 +3708,6 @@
         private System.Windows.Forms.CheckBox xAllowSecurityCircumvention;
         private System.Windows.Forms.Label lConsoleName;
         private System.Windows.Forms.TextBox tConsoleName;
-        private System.Windows.Forms.Label lConsoleNameHint;
         private System.Windows.Forms.CheckBox xShowConnectionMessages;
         private System.Windows.Forms.GroupBox gHelpAndSupport;
         private System.Windows.Forms.Button bViewVersionHistory;
@@ -3713,5 +3749,8 @@
         private System.Windows.Forms.Label lFillLimitUnits;
         private System.Windows.Forms.NumericUpDown nFillLimit;
         private System.Windows.Forms.Label lFillLimit;
+        private System.Windows.Forms.NumericUpDown nMaxUndoStates;
+        private System.Windows.Forms.Label lMaxUndoStates;
+        private System.Windows.Forms.GroupBox gPerformance;
     }
 }

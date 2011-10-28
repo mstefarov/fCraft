@@ -184,7 +184,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
         private void bReportABug_Click( object sender, EventArgs e ) {
-            Process.Start( "https://sourceforge.net/tracker/?limit=25&func=&group_id=296563&atid=1251681&status=1" );
+            Process.Start( "http://forum.fcraft.net/viewforum.php?f=5" );
         }
 
         private void nMaxPlayerPerWorld_Validating( object sender, CancelEventArgs e ) {
@@ -514,11 +514,11 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         #region Advanced
 
         private void nMaxUndo_ValueChanged( object sender, EventArgs e ) {
-            if( nMaxUndo.Value == 0 ) {
-                lMaxUndoUnits.Text = "(unlimited, 1 MB RAM = 65,536 blocks)";
+            if( xMaxUndo.Checked ) {
+                decimal maxMemUsage = Math.Ceiling( nMaxUndoStates.Value * (nMaxUndo.Value * 8) / (1024 * 1024) );
+                lMaxUndoUnits.Text = String.Format( "blocks each (up to {0} MB of RAM per player)", maxMemUsage );
             } else {
-                decimal maxMemUsage = Math.Ceiling( nMaxUndo.Value * 40 / 1024 / 1024 ) / 10;
-                lMaxUndoUnits.Text = String.Format( "(up to {0:0.0} MB of RAM per player)", maxMemUsage );
+                lMaxUndoUnits.Text = "blocks each";
             }
         }
 
