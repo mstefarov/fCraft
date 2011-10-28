@@ -68,8 +68,8 @@ overwhelming the Internet connection with data.",
             MinValue = 1, MaxValue = short.MaxValue )]
         UploadBandwidth,
 
-        [BoolKey(ConfigSection.General, false,
-@"Whether to load plugins from the /plugins/ folder on startup.")]
+        [BoolKey( ConfigSection.General, false,
+@"Whether to load plugins from the /plugins/ folder on startup." )]
         LoadPlugins,
 
         #endregion
@@ -245,8 +245,8 @@ but will also prevent many legitimate players from joining." )]
 @"Announce the reason/memo in chat when someone gets promoted or demoted." )]
         AnnounceRankChangeReasons,
 
-        [BoolKey(ConfigSection.Security, false,
-@"If enabled, allows edit information to be stored per-block. Enables /BlockDB, /BInfo, /UndoArea, and /UndoPlayer commands.")]
+        [BoolKey( ConfigSection.Security, false,
+@"If enabled, allows edit information to be stored per-block. Enables /BlockDB, /BInfo, /UndoArea, and /UndoPlayer commands." )]
         BlockDBEnabled,
 
         [BoolKey( ConfigSection.General, true,
@@ -479,9 +479,15 @@ Reports are confidential and are not displayed publicly." )]
 @"The number of blocks that players can undo at a time.
 Only the most-recent draw command can be undo, so the actual
 limit also depends on rank draw limits. Saving undo information
-takes up 16 bytes per block. If set to 0, there is no limit.",
+takes up 8 bytes per block. If set to 0, there is no limit.",
             MinValue = 0 )]
         MaxUndo,
+
+        [IntKey( ConfigSection.Advanced, 5,
+@"The number of /undo states that players can go back.
+Each state increases the maximum potential memory use per-player.",
+            MinValue = 1, MaxValue = 100 )]
+        MaxUndoStates,
 
         [StringKey( ConfigSection.Advanced, "(console)",
 @"Displayed name of the Console pseudoplayer. You may use any printable characters, and even colorcodes here.",
@@ -496,9 +502,9 @@ takes up 16 bytes per block. If set to 0, there is no limit.",
 @"Enable heartbeat to minecraft.net.
 If disabled, heartbeat data is written to heartbeatdata.txt." )]
         HeartbeatEnabled,
-        
-        [BoolKey(ConfigSection.Advanced, true,
-@"If enabled, sends heartbeats to WoM Direct service, http://direct.worldofminecraft.com/")]
+
+        [BoolKey( ConfigSection.Advanced, true,
+@"If enabled, sends heartbeats to WoM Direct service, http://direct.worldofminecraft.com/" )]
         HeartbeatToWoMDirect,
 
         [BoolKey( ConfigSection.Advanced, true,

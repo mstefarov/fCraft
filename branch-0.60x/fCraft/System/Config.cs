@@ -148,6 +148,9 @@ namespace fCraft {
      * 
      * 150 - r1066 - Removed WoMDirectDescription key
      * 
+     * 151 - r1169 - Added MaxUndoStates key
+     *               Added fillLimit rank attribute.
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -158,7 +161,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 150;
+        public const int CurrentVersion = 151;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY
@@ -882,6 +885,8 @@ namespace fCraft {
             owner.Add( new XAttribute( "color", "red" ) );
             owner.Add( new XAttribute( "prefix", "+" ) );
             owner.Add( new XAttribute( "drawLimit", 0 ) );
+            owner.Add( new XAttribute( "fillLimit", 2048 ) );
+            owner.Add( new XAttribute( "copySlots", 4 ) );
             owner.Add( new XAttribute( "antiGriefBlocks", 0 ) );
             owner.Add( new XAttribute( "antiGriefSeconds", 0 ) );
             owner.Add( new XAttribute( "idleKickAfter", 0 ) );
@@ -960,6 +965,8 @@ namespace fCraft {
             op.Add( new XAttribute( "color", "aqua" ) );
             op.Add( new XAttribute( "prefix", "-" ) );
             op.Add( new XAttribute( "drawLimit", 0 ) );
+            op.Add( new XAttribute( "fillLimit", 512 ) );
+            op.Add( new XAttribute( "copySlots", 3 ) );
             op.Add( new XAttribute( "antiGriefBlocks", 0 ) );
             op.Add( new XAttribute( "antiGriefSeconds", 0 ) );
             op.Add( new XAttribute( "idleKickAfter", 0 ) );
@@ -1025,7 +1032,7 @@ namespace fCraft {
             builder.Add( new XAttribute( "rank", 30 ) );
             builder.Add( new XAttribute( "color", "white" ) );
             builder.Add( new XAttribute( "prefix", "" ) );
-            builder.Add( new XAttribute( "drawLimit", 4096 ) );
+            builder.Add( new XAttribute( "drawLimit", 8000 ) );
             builder.Add( new XAttribute( "antiGriefBlocks", 47 ) );
             builder.Add( new XAttribute( "antiGriefSeconds", 6 ) );
             builder.Add( new XAttribute( "idleKickAfter", 20 ) );
