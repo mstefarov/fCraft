@@ -55,7 +55,7 @@ namespace fCraft.Drawing {
 
         public override bool Prepare( Vector3I[] marks ) {
             if( marks == null ) throw new ArgumentNullException( "marks" );
-            if( marks.Length < 1 ) throw new ArgumentException( "At least two marks needed.", "marks" );
+            if( marks.Length < 1 ) throw new ArgumentException( "At least one mark needed.", "marks" );
 
             if( ReplacementBlock == Block.Undefined ) {
                 if( Player.LastUsedBlockType == Block.Undefined ) {

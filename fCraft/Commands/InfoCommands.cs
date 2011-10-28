@@ -821,6 +821,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdMeasure = new CommandDescriptor {
             Name = "Measure",
             Category = CommandCategory.Info | CommandCategory.Building,
+            RepeatableSelection = true,
             Help = "Shows information about a selection: width/length/height and volume.",
             Handler = MeasureHandler
         };
