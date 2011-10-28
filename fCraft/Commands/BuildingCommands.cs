@@ -1763,6 +1763,7 @@ namespace fCraft {
             if( player.IsRepeatingSelection ) {
                 player.Message( "Static: Off" );
                 player.IsRepeatingSelection = false;
+                player.SelectionCancel();
             } else {
                 player.Message( "Static: On" );
                 player.IsRepeatingSelection = true;
