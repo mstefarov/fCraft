@@ -148,21 +148,23 @@ namespace fCraft.Drawing {
                 while( coords.Y <= Bounds.YMax && Map.GetBlock( coords ) == SourceBlock ) {
                     yield return coords;
 
-                    if( coords.Z > Bounds.ZMin && Map.GetBlock( coords.X, coords.Y, coords.Z - 1 ) == SourceBlock ) {
-                        if( spanLeft ) {
-                            spanLeft = false;
-                        } else {
+                    if( coords.Z > Bounds.ZMin ) {
+                        Block block = Map.GetBlock( coords.X, coords.Y, coords.Z - 1 );
+                        if( !spanLeft && block == SourceBlock ) {
                             stack.Push( new Vector3I( coords.X, coords.Y, coords.Z - 1 ) );
                             spanLeft = true;
+                        } else if( spanLeft && block != SourceBlock ) {
+                            spanLeft = false;
                         }
                     }
 
-                    if( coords.Z < Bounds.ZMax && Map.GetBlock( coords.X, coords.Y, coords.Z + 1 ) == SourceBlock ) {
-                        if( spanRight ) {
-                            spanRight = false;
-                        } else {
+                    if( coords.Z < Bounds.ZMax ) {
+                        Block block = Map.GetBlock( coords.X, coords.Y, coords.Z + 1 );
+                        if( !spanRight && block == SourceBlock ) {
                             stack.Push( new Vector3I( coords.X, coords.Y, coords.Z + 1 ) );
                             spanRight = true;
+                        } else if( spanRight && block != SourceBlock ) {
+                            spanRight = false;
                         }
                     }
                     coords.Y++;
@@ -185,21 +187,23 @@ namespace fCraft.Drawing {
                 while( coords.Z <= Bounds.ZMax && Map.GetBlock( coords ) == SourceBlock ) {
                     yield return coords;
 
-                    if( coords.X > Bounds.XMin && Map.GetBlock( coords.X - 1, coords.Y, coords.Z ) == SourceBlock ) {
-                        if( spanLeft ) {
-                            spanLeft = false;
-                        } else {
+                    if( coords.X > Bounds.XMin ) {
+                        Block block = Map.GetBlock( coords.X - 1, coords.Y, coords.Z );
+                        if( !spanLeft && block == SourceBlock ) {
                             stack.Push( new Vector3I( coords.X - 1, coords.Y, coords.Z ) );
                             spanLeft = true;
+                        } else if( spanLeft && block != SourceBlock ) {
+                            spanLeft = false;
                         }
                     }
 
-                    if( coords.X < Bounds.XMax && Map.GetBlock( coords.X + 1, coords.Y, coords.Z ) == SourceBlock ) {
-                        if( spanRight ) {
-                            spanRight = false;
-                        } else {
+                    if( coords.X < Bounds.XMax ) {
+                        Block block = Map.GetBlock( coords.X + 1, coords.Y, coords.Z );
+                        if( !spanRight && block == SourceBlock ) {
                             stack.Push( new Vector3I( coords.X + 1, coords.Y, coords.Z ) );
                             spanRight = true;
+                        } else if( spanRight && block != SourceBlock ) {
+                            spanRight = false;
                         }
                     }
                     coords.Z++;
@@ -222,21 +226,23 @@ namespace fCraft.Drawing {
                 while( coords.Y <= Bounds.YMax && Map.GetBlock( coords ) == SourceBlock ) {
                     yield return coords;
 
-                    if( coords.X > Bounds.XMin && Map.GetBlock( coords.X - 1, coords.Y, coords.Z ) == SourceBlock ) {
-                        if( spanLeft ) {
-                            spanLeft = false;
-                        } else {
+                    if( coords.X > Bounds.XMin ) {
+                        Block block = Map.GetBlock( coords.X - 1, coords.Y, coords.Z );
+                        if( !spanLeft && block == SourceBlock ) {
                             stack.Push( new Vector3I( coords.X - 1, coords.Y, coords.Z ) );
                             spanLeft = true;
+                        } else if( spanLeft && block != SourceBlock ) {
+                            spanLeft = false;
                         }
                     }
 
-                    if( coords.X < Bounds.XMax && Map.GetBlock( coords.X + 1, coords.Y, coords.Z ) == SourceBlock ) {
-                        if( spanRight ) {
-                            spanRight = false;
-                        } else {
+                    if( coords.X < Bounds.XMax ) {
+                        Block block = Map.GetBlock( coords.X + 1, coords.Y, coords.Z );
+                        if( !spanRight && block == SourceBlock ) {
                             stack.Push( new Vector3I( coords.X + 1, coords.Y, coords.Z ) );
                             spanRight = true;
+                        } else if( spanRight && block != SourceBlock ) {
+                            spanRight = false;
                         }
                     }
                     coords.Y++;
