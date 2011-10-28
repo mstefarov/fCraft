@@ -66,7 +66,7 @@ namespace fCraft.Drawing {
                 block = blockUpdate.Block;
                 if( DrawOneBlock() ) {
                     blocksDone++;
-                    if( TimeToEndBatch ) {
+                    if( blocksDone >= maxBlocksToDraw || TimeToEndBatch ) {
                         undoBufferIndex++;
                         return blocksDone;
                     }

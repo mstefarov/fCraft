@@ -78,8 +78,6 @@ namespace fCraft {
                 reader = new BinaryReader( stream );
                 writer = new PacketWriter( stream );
 
-                Logger.Log( "Incoming connection from {0}", LogType.Debug, IP );
-
                 ioThread = new Thread( IoLoop ) {
                     Name = "fCraft.Session",
                     IsBackground = true

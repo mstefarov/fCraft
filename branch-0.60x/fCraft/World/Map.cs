@@ -395,6 +395,7 @@ namespace fCraft {
                 int blocksToDraw = maxTotalUpdates / (drawOps.Count - i);
                 op.StartBatch();
                 int blocksDrawn = op.DrawBatch( blocksToDraw );
+                //Logger.Log( "{0}: {1}/{2}", LogType.Debug, op.Description, blocksDrawn, blocksToDraw );
                 blocksDrawnTotal += blocksDrawn;
                 if( blocksDrawn > 0 ) {
                     HasChangedSinceSave = true;
