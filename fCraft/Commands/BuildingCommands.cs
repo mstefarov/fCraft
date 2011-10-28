@@ -280,7 +280,7 @@ namespace fCraft {
                 op.Cancel();
                 return;
             }
-            player.Message( "{0}: Now processing ~{1} blocks.",
+            player.Message( "{0}: Processing ~{1} blocks.",
                             op.Description, op.BlocksTotalEstimate );
             op.Begin();
         }
@@ -678,14 +678,12 @@ namespace fCraft {
                         undoState.Buffer.Count,
                         playerWorld.Name );
 
-            msg += String.Format( "Restoring ~{0} blocks. Type &H/Redo&S to reverse.",
+            msg += String.Format( "Undo: Restoring {0} blocks. Type &H/Redo&S to reverse.",
                                   undoState.Buffer.Count );
             player.MessageNow( msg );
 
             var op = new UndoDrawOperation( player, undoState, false );
             op.Prepare( new Vector3I[0] );
-            player.Message( "{0}: Now processing ~{1} blocks.",
-                            op.Description, op.BlocksTotalEstimate );
             op.Begin();
         }
 
@@ -723,14 +721,12 @@ namespace fCraft {
                         redoState.Buffer.Count,
                         playerWorld.Name );
 
-            msg += String.Format( "Restoring ~{0} blocks. Type &H/Undo&S again to reverse.",
+            msg += String.Format( "Redo: Restoring {0} blocks. Type &H/Undo&S to reverse.",
                                   redoState.Buffer.Count );
             player.MessageNow( msg );
 
             var op = new UndoDrawOperation( player, redoState, true );
             op.Prepare( new Vector3I[0] );
-            player.Message( "{0}: Now processing ~{1} blocks.",
-                            op.Description, op.BlocksTotalEstimate );
             op.Begin();
         }
 

@@ -52,9 +52,11 @@ namespace fCraft {
         public DateTime RankChangeDate;
 
         /// <summary> Name of the entity that most recently promoted/demoted this player. May be empty. </summary>
+        [NotNull]
         public string RankChangedBy = "";
 
         /// <summary> Reason given for the most recent promotion/demotion. May be empty. </summary>
+        [NotNull]
         public string RankChangeReason = "";
 
         /// <summary> Type of the most recent promotion/demotion. </summary>
@@ -77,24 +79,29 @@ namespace fCraft {
         public DateTime BanDate;
 
         /// <summary> Name of the entity responsible for most recent ban. May be empty. </summary>
+        [NotNull]
         public string BannedBy = "";
 
         /// <summary> Reason given for the most recent ban. May be empty. </summary>
+        [NotNull]
         public string BanReason = "";
 
         /// <summary> Date of most recent unban, UTC. May be DateTime.MinValue if player was never unbanned. </summary>
         public DateTime UnbanDate;
 
         /// <summary> Name of the entity responsible for most recent unban. May be empty. </summary>
+        [NotNull]
         public string UnbannedBy = "";
 
         /// <summary> Reason given for the most recent unban. May be empty. </summary>
+        [NotNull]
         public string UnbanReason = "";
 
         /// <summary> Date of most recent failed attempt to log in, UTC. </summary>
         public DateTime LastFailedLoginDate;
 
         /// <summary> IP from which player most recently tried (and failed) to log in, UTC. </summary>
+        [NotNull]
         public IPAddress LastFailedLoginIP;
 
         #endregion
@@ -139,9 +146,11 @@ namespace fCraft {
         public DateTime LastKickDate;
 
         /// <summary> Name of the entity that most recently kicked this player. May be empty. </summary>
+        [NotNull]
         public string LastKickBy = "";
 
         /// <summary> Reason given for the most recent kick. May be empty. </summary>
+        [NotNull]
         public string LastKickReason = "";
 
         #endregion
@@ -157,8 +166,10 @@ namespace fCraft {
         public DateTime FrozenOn;
 
         /// <summary> Name of the entity that most recently froze this player. May be empty. </summary>
+        [NotNull]
         public string FrozenBy = "";
 
+        [NotNull]
         public string FrozenByClassy {
             get {
                 if( FrozenBy.Length == 0 ) {
@@ -180,8 +191,10 @@ namespace fCraft {
         public DateTime MutedUntil;
 
         /// <summary> Name of the entity that most recently muted this player. May be empty. </summary>
+        [NotNull]
         public string MutedBy = "";
 
+        [NotNull]
         public string MutedByClassy {
             get {
                 if( MutedBy.Length == 0 ) {
@@ -210,6 +223,7 @@ namespace fCraft {
 
         /// <summary> For offline players, last IP used to succesfully log in.
         /// For online players, current IP. </summary>
+        [NotNull]
         public IPAddress LastIP;
 
 
