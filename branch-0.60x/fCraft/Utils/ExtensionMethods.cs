@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
 
-    static class IPAddressUtil {
+    public static class IPAddressUtil {
         /// <summary> Checks whether an IP address may belong to LAN (192.168.0.0/16 or 10.0.0.0/24). </summary>
         public static bool IsLAN( [NotNull] this IPAddress addr ) {
             if( addr == null ) throw new ArgumentNullException( "addr" );
@@ -326,7 +326,7 @@ namespace fCraft {
     }
 
 
-    static class EnumerableUtil {
+    public static class EnumerableUtil {
         /// <summary> Joins all items in a collection into one comma-separated string.
         /// If the items are not strings, .ToString() is called on them. </summary>
         public static string JoinToString<T>( [NotNull] this IEnumerable<T> items ) {
@@ -487,7 +487,7 @@ namespace fCraft {
     }
 
 
-    unsafe static class BufferUtil {
+    public unsafe static class BufferUtil {
         public static void MemSet( [NotNull] this byte[] array, byte value ) {
             if( array == null ) throw new ArgumentNullException( "array" );
             byte[] rawValue = new[] { value, value, value, value, value, value, value, value };
@@ -577,14 +577,19 @@ namespace fCraft {
             }
         }
 
+
         public static int SizeOf( object obj ) {
-            RuntimeTypeHandle th = obj.GetType().TypeHandle;
-            return *(*(int**)&th + 1);
+            return SizeOf( obj.GetType() );
         }
 
+
         public static int SizeOf( Type type ) {
-            RuntimeTypeHandle th = type.TypeHandle;
-            return *(*(int**)&th + 1);
+            if( type.IsValueType ) {
+                return System.Runtime.InteropServices.Marshal.SizeOf( type );
+            } else {
+                RuntimeTypeHandle th = type.TypeHandle;
+                return *(*(int**)&th + 1);
+            }
         }
     }
 

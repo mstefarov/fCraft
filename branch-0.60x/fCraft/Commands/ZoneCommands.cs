@@ -568,6 +568,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdZoneTest = new CommandDescriptor {
             Name = "ZTest",
             Category = CommandCategory.Zone | CommandCategory.Info,
+            RepeatableSelection = true,
             Help = "Allows to test exactly which zones affect a particular block. Can be used to find and resolve zone overlaps.",
             Handler = ZoneTestHandler
         };

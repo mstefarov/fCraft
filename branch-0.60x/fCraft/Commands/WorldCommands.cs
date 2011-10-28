@@ -380,6 +380,7 @@ namespace fCraft {
             Category = CommandCategory.World,
             Aliases = new[] { "bi", "whodid" },
             Permissions = new[] { Permission.ViewOthersInfo },
+            RepeatableSelection = true,
             Help = "Checks edit history for a given block.",
             Handler = BlockInfoHandler
         };

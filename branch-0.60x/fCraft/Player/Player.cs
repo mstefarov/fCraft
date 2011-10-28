@@ -226,6 +226,9 @@ namespace fCraft {
                                 Logger.Log( "{0}: {1}", LogType.UserCommand,
                                             Name, rawMessage );
                             }
+                            if( commandDescriptor.RepeatableSelection ) {
+                                selectionRepeatCommand = cmd;
+                            }
                             CommandManager.ParseCommand( this, cmd, fromConsole );
                             if( !commandDescriptor.NotRepeatable ) {
                                 LastCommand = cmd;
@@ -520,7 +523,7 @@ namespace fCraft {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
             Rank reqRank = RankManager.GetMinRankWithAllPermissions( permissions );
             if( reqRank == null ) {
-                Message( "This command is disabled on the server." );
+                Message( "None of the ranks have permissions for this command." );
             } else {
                 Message( "This command requires {0}+&S rank.",
                          reqRank.ClassyName );
@@ -1124,6 +1127,9 @@ namespace fCraft {
         /// <summary> Number of marks expected to complete the selection. </summary>
         public int SelectionMarksExpected { get; private set; }
 
+        /// <summary> Whether player is repeating a selection (/static) </summary>
+        public bool IsRepeatingSelection { get; set; }
+        Command selectionRepeatCommand;
 
         SelectionCallback selectionCallback;
         readonly Queue<Vector3I> selectionMarks = new Queue<Vector3I>();
@@ -1153,6 +1159,10 @@ namespace fCraft {
             // check if player still has the permissions required to complete the selection.
             if( selectionPermissions == null || Can( selectionPermissions ) ) {
                 selectionCallback( this, selectionMarks.ToArray(), selectionArgs );
+                if( IsRepeatingSelection && selectionRepeatCommand != null ) {
+                    CommandManager.ParseCommand( this, selectionRepeatCommand, this == Console );
+                }
+                selectionMarks.Clear();
             } else {
                 // More complex permission checks can be done in the callback function itself.
                 Message( "&WYou are no longer allowed to complete this action." );

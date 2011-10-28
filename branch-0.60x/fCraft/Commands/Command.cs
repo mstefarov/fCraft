@@ -8,6 +8,7 @@ namespace fCraft {
     /// Aids parsing chat commands and their arguments.
     /// </summary>
     public sealed class Command : ICloneable {
+        public CommandDescriptor Descriptor { get; private set; }
         int offset;
         public readonly string Message;
         public string Name { get; private set; } // lowercase name of the command
@@ -17,6 +18,7 @@ namespace fCraft {
         public Command( [NotNull] Command other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             offset = other.offset;
+            Descriptor = other.Descriptor;
             Message = other.Message;
             Name = other.Name;
             IsConfirmed = other.IsConfirmed;
@@ -31,6 +33,7 @@ namespace fCraft {
             if( name == null ) {
                 throw new ArgumentException( "Raw message must contain the command name.", "rawMessage" );
             }
+            Descriptor = CommandManager.GetDescriptor( name, true );
             Name = name.ToLower();
         }
 

@@ -495,7 +495,7 @@ namespace fCraft {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
             }
             List<BlockDBEntry> results = new List<BlockDBEntry>();
-            if( World.LoadMap().InBounds( coords ) ) {
+            if( !World.LoadMap().InBounds( coords ) ) {
                 return results.ToArray();
             }
 
@@ -649,6 +649,7 @@ namespace fCraft {
             }
             return results.Values.ToArray();
         }
+
 
         public BlockDBEntry[] Lookup( [NotNull] PlayerInfo info, [NotNull] BoundingBox area, TimeSpan span ) {
             if( !IsEnabled || !IsEnabledGlobally ) {

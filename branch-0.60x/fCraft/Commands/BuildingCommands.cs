@@ -86,6 +86,8 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdUndoPlayer );
             CdUndoArea.Help += GeneralDrawingHelp;
 
+            CommandManager.RegisterCommand( CdStatic );
+
             //CommandManager.RegisterCommand( CdTree );
         }
 
@@ -97,6 +99,7 @@ namespace fCraft {
             Aliases = new[] { "blb", "c", "z" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
+            RepeatableSelection = true,
             Help = "Fills a rectangular area (cuboid) with blocks.",
             Handler = CuboidHandler
         };
@@ -112,6 +115,7 @@ namespace fCraft {
             Aliases = new[] { "cubw", "cw", "bfb" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
+            RepeatableSelection = true,
             Help = "Draws a wireframe box (a frame) around the selected rectangular area.",
             Handler = CuboidWireframeHandler
         };
@@ -127,6 +131,7 @@ namespace fCraft {
             Aliases = new[] { "cubh", "ch", "h", "bhb" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
+            RepeatableSelection = true,
             Help = "Surrounds the selected rectangular area with a box of blocks. " +
                    "Unless two blocks are specified, leaves the inside untouched.",
             Handler = CuboidHollowHandler
@@ -143,6 +148,7 @@ namespace fCraft {
             Aliases = new[] { "e" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
+            RepeatableSelection = true,
             Help = "Fills an ellipsoid-shaped area (elongated sphere) with blocks.",
             Handler = EllipsoidHandler
         };
@@ -158,6 +164,7 @@ namespace fCraft {
             Aliases = new[] { "eh" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
+            RepeatableSelection = true,
             Help = "Surrounds the selected an ellipsoid-shaped area (elongated sphere) with a shell of blocks.",
             Handler = EllipsoidHollowHandler
         };
@@ -173,6 +180,7 @@ namespace fCraft {
             Aliases = new[] { "sp", "spheroid" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
+            RepeatableSelection = true,
             Help = "Fills a spherical area with blocks. " +
                    "The first mark denotes the CENTER of the sphere, and " +
                    "distance to the second mark denotes the radius.",
@@ -190,6 +198,7 @@ namespace fCraft {
             Aliases = new[] { "sph", "hsphere" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
+            RepeatableSelection = true,
             Help = "Surrounds a spherical area with a shell of blocks. " +
                    "The first mark denotes the CENTER of the sphere, and " +
                    "distance to the second mark denotes the radius.",
@@ -207,6 +216,7 @@ namespace fCraft {
             Aliases = new[] { "ln" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
+            RepeatableSelection = true,
             Help = "Draws a continuous line between two points with blocks. " +
                    "Marks do not have to be aligned.",
             Handler = LineHandler
@@ -223,6 +233,7 @@ namespace fCraft {
             Aliases = new[] { "tw" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
+            RepeatableSelection = true,
             Help = "Draws lines between three points, to form a triangle.",
             Handler = TriangleWireframeHandler
         };
@@ -231,11 +242,14 @@ namespace fCraft {
             DrawOperationBegin( player, cmd, new TriangleWireframeDrawOperation( player ) );
         }
 
+
+
         static readonly CommandDescriptor CdTriangle = new CommandDescriptor {
             Name = "Triangle",
             Aliases = new[] { "t" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
+            RepeatableSelection = true,
             Help = "Draws a triangle between three points.",
             Handler = TriangleHandler
         };
@@ -244,11 +258,14 @@ namespace fCraft {
             DrawOperationBegin( player, cmd, new TriangleDrawOperation( player ) );
         }
 
+
+
         static readonly CommandDescriptor CdTorus = new CommandDescriptor {
             Name = "Torus",
             Aliases = new[] { "donut", "bagel" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
+            RepeatableSelection = true,
             Help = "Draws a horizontally-oriented torus. The first mark denotes the CENTER of the torus, horizontal " +
                    "distance to the second mark denotes the ring radius, and the vertical distance to the second mark denotes the " +
                    "tube radius",
@@ -295,6 +312,7 @@ namespace fCraft {
             Aliases = new[] { "f2d" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
+            RepeatableSelection = true,
             Help = "Fills a continuous area with blocks, in 2D. Takes just 1 marks, and replaced the clicked block. " +
                    "Works similar to \"Paint Bucket\" tool in Photoshop. " +
                    "Direction of effect is determined by where the player is looking.",
@@ -578,6 +596,7 @@ namespace fCraft {
             Aliases = new[] { "r" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
+            RepeatableSelection=true,
             Usage = "/Replace BlockToReplace [AnotherOne, ...] ReplacementBlock",
             Help = "Replaces all blocks of specified type(s) in an area.",
             Handler = ReplaceHandler
@@ -596,6 +615,7 @@ namespace fCraft {
             Aliases = new[] { "rn" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
+            RepeatableSelection = true,
             Usage = "/ReplaceNot (ExcludedBlock [AnotherOne]) ReplacementBlock",
             Help = "Replaces all blocks EXCEPT specified type(s) in an area.",
             Handler = ReplaceNotHandler
@@ -614,6 +634,7 @@ namespace fCraft {
             Aliases = new[] { "rb" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
+            RepeatableSelection = true,
             Usage = "/ReplaceBrush Block BrushName [Params]",
             Help = "Replaces all blocks of specified type(s) in an area with output of a given brush. " +
                    "See &H/Help brush&S for a list of available brushes.",
@@ -843,6 +864,7 @@ namespace fCraft {
             Name = "Cut",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
+            RepeatableSelection = true,
             Help = "Copies and removes blocks for pasting. Unless a different block type is specified, the area is filled with air. " +
                    "Used together with &H/Paste&S and &H/PasteNot&S commands. " +
                    "Note that pasting starts at the same corner that you started &H/Cut&S from.",
@@ -1125,6 +1147,7 @@ namespace fCraft {
             Aliases = new[] { "px" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
+            RepeatableSelection = true,
             Help = "Pastes previously copied blocks, aligned. Used together with &H/Copy&S command. " +
                    "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
                    "Takes 2 marks: first sets the origin of pasting, and second sets the direction where to paste.",
@@ -1147,6 +1170,7 @@ namespace fCraft {
             Aliases = new[] { "pnx", "pxn" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
+            RepeatableSelection = true,
             Help = "Pastes previously copied blocks, aligned, except the given block type(s). " +
                     "Used together with &H/Copy&S command. " +
                    "Takes 2 marks: first sets the origin of pasting, and second sets the direction where to paste.",
@@ -1168,6 +1192,7 @@ namespace fCraft {
             Name = "Paste",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
+            RepeatableSelection = true,
             Help = "Pastes previously copied blocks. Used together with &H/Copy&S command. " +
                    "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
                    "Alignment semantics are... complicated.",
@@ -1190,6 +1215,7 @@ namespace fCraft {
             Aliases = new[] { "pn" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
+            RepeatableSelection = true,
             Help = "Pastes previously copied blocks, except the given block type(s). " +
                    "Used together with &H/Copy&S command. " +
                    "Alignment semantics are... complicated.",
@@ -1222,6 +1248,7 @@ namespace fCraft {
                 Permission.CopyAndPaste,
                 Permission.ManageWorlds
             },
+            RepeatableSelection = true,
             Usage = "/Restore FileName",
             Help = "Selectively restores/pastes part of mapfile into the current world.",
             Handler = RestoreHandler
@@ -1450,6 +1477,7 @@ namespace fCraft {
             Aliases = new[] { "ua" },
             Category = CommandCategory.Moderation | CommandCategory.Building,
             Permissions = new[] { Permission.UndoOthersActions },
+            RepeatableSelection = true,
             Usage = "/UndoArea PlayerName [TimeSpan|BlockCount]",
             Help = "Reverses changes made by a given player in the current world.",
             Handler = UndoAreaHandler
@@ -1721,5 +1749,24 @@ namespace fCraft {
         }
 
         #endregion
+
+
+
+        static readonly CommandDescriptor CdStatic = new CommandDescriptor {
+            Name = "Static",
+            Category = CommandCategory.Building,
+            Help = "Toggles repetition of last selection on or off.",
+            Handler = StaticHandler
+        };
+
+        static void StaticHandler( Player player, Command cmd ) {
+            if( player.IsRepeatingSelection ) {
+                player.Message( "Static: Off" );
+                player.IsRepeatingSelection = false;
+            } else {
+                player.Message( "Static: On" );
+                player.IsRepeatingSelection = true;
+            }
+        }
     }
 }
