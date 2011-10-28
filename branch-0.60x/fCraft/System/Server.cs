@@ -260,14 +260,13 @@ namespace fCraft {
             Config.RunSelfTest();
 #else
             // delete the old updater, if exists
-            if( File.Exists( Paths.UpdaterFileName ) ) {
-                File.Delete( Paths.UpdaterFileName );
-            }
+            File.Delete( Paths.UpdaterFileName );
+            File.Delete( "fCraftUpdater.exe" ); // pre-0.600
 #endif
 
             // try to load the config
             if( !Config.Load( false, false ) ) {
-                throw new Exception( "fCraft failed to initialize" );
+                throw new Exception( "fCraft Config failed to initialize" );
             }
 
             // load player DB
@@ -453,8 +452,7 @@ namespace fCraft {
             if( shutdownParams == null ) throw new ArgumentNullException( "shutdownParams" );
             if( IsShuttingDown ) return; // to avoid starting shutdown twice
             IsShuttingDown = true;
-#if DEBUG
-#else
+#if !DEBUG
             try {
 #endif
                 RaiseShutdownBeganEvent( shutdownParams );
@@ -501,8 +499,7 @@ namespace fCraft {
                 if( IPBanList.IsLoaded ) IPBanList.Save();
 
                 RaiseShutdownEndedEvent( shutdownParams );
-#if DEBUG
-#else
+#if !DEBUG
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Error in Server.Shutdown", "fCraft", ex, true );
             }

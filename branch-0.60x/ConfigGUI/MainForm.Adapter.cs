@@ -406,9 +406,7 @@ namespace fCraft.ConfigGUI {
 
         static void ApplyEnum<TEnum>( [NotNull] ComboBox box, ConfigKey key, TEnum def ) where TEnum : struct {
             if( box == null ) throw new ArgumentNullException( "box" );
-#if DEBUG
             if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required" );
-#endif
             try {
                 if( key.IsBlank() ) {
                     box.SelectedIndex = (int)(object)def;
@@ -639,9 +637,7 @@ namespace fCraft.ConfigGUI {
 
         static void WriteEnum<TEnum>( [NotNull] ComboBox box, ConfigKey key ) where TEnum : struct {
             if( box == null ) throw new ArgumentNullException( "box" );
-#if DEBUG
             if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required" );
-#endif
             try {
                 TEnum val = (TEnum)Enum.Parse( typeof( TEnum ), box.SelectedIndex.ToString(), true );
                 key.TrySetValue( val );

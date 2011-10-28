@@ -145,7 +145,7 @@ namespace fCraft.Drawing {
                 coords.Y++;
                 bool spanLeft = false;
                 bool spanRight = false;
-                while( coords.Y < Bounds.YMax && Map.GetBlock( coords ) == SourceBlock ) {
+                while( coords.Y <= Bounds.YMax && Map.GetBlock( coords ) == SourceBlock ) {
                     yield return coords;
 
                     if( coords.Z > Bounds.ZMin && Map.GetBlock( coords.X, coords.Y, coords.Z - 1 ) == SourceBlock ) {
@@ -182,7 +182,7 @@ namespace fCraft.Drawing {
                 coords.Z++;
                 bool spanLeft = false;
                 bool spanRight = false;
-                while( coords.Z < Bounds.ZMax && Map.GetBlock( coords ) == SourceBlock ) {
+                while( coords.Z <= Bounds.ZMax && Map.GetBlock( coords ) == SourceBlock ) {
                     yield return coords;
 
                     if( coords.X > Bounds.XMin && Map.GetBlock( coords.X - 1, coords.Y, coords.Z ) == SourceBlock ) {
@@ -219,7 +219,7 @@ namespace fCraft.Drawing {
                 coords.Y++;
                 bool spanLeft = false;
                 bool spanRight = false;
-                while( coords.Y < Bounds.YMax && Map.GetBlock( coords ) == SourceBlock ) {
+                while( coords.Y <= Bounds.YMax && Map.GetBlock( coords ) == SourceBlock ) {
                     yield return coords;
 
                     if( coords.X > Bounds.XMin && Map.GetBlock( coords.X - 1, coords.Y, coords.Z ) == SourceBlock ) {
