@@ -25,8 +25,8 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( MainForm ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -90,6 +90,7 @@
             this.xRankPrefixesInList = new System.Windows.Forms.CheckBox();
             this.xRankPrefixesInChat = new System.Windows.Forms.CheckBox();
             this.xRankColorsInChat = new System.Windows.Forms.CheckBox();
+            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.xWoMEnableEnvExtensions = new System.Windows.Forms.CheckBox();
             this.bMapPath = new System.Windows.Forms.Button();
@@ -280,7 +281,9 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
+            this.lFillLimit = new System.Windows.Forms.Label();
+            this.nFillLimit = new System.Windows.Forms.NumericUpDown();
+            this.lFillLimitUnits = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -339,6 +342,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             this.gCrashReport.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nFillLimit)).BeginInit();
             this.SuspendLayout();
             // 
             // tabs
@@ -1095,6 +1099,13 @@
             this.xRankColorsInChat.Text = "Show rank colors.";
             this.xRankColorsInChat.UseVisualStyleBackColor = true;
             // 
+            // chatPreview
+            // 
+            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size( 637, 241 );
+            this.chatPreview.TabIndex = 2;
+            // 
             // tabWorlds
             // 
             this.tabWorlds.Controls.Add( this.xWoMEnableEnvExtensions );
@@ -1257,8 +1268,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle6.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle6;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 367 );
             this.dgvWorlds.TabIndex = 0;
@@ -1316,8 +1327,8 @@
             // dgvcBlockDB
             // 
             this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle5;
             this.dgvcBlockDB.HeaderText = "BlockDB";
             this.dgvcBlockDB.Name = "dgvcBlockDB";
             this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
@@ -1350,9 +1361,9 @@
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.gPermissionLimits.Controls.Add( this.permissionLimitBoxContainer );
-            this.gPermissionLimits.Location = new System.Drawing.Point( 160, 267 );
+            this.gPermissionLimits.Location = new System.Drawing.Point( 160, 292 );
             this.gPermissionLimits.Name = "gPermissionLimits";
-            this.gPermissionLimits.Size = new System.Drawing.Size( 307, 240 );
+            this.gPermissionLimits.Size = new System.Drawing.Size( 307, 215 );
             this.gPermissionLimits.TabIndex = 7;
             this.gPermissionLimits.TabStop = false;
             this.gPermissionLimits.Text = "Permission Limits";
@@ -1365,7 +1376,7 @@
             this.permissionLimitBoxContainer.Location = new System.Drawing.Point( 3, 17 );
             this.permissionLimitBoxContainer.Margin = new System.Windows.Forms.Padding( 0 );
             this.permissionLimitBoxContainer.Name = "permissionLimitBoxContainer";
-            this.permissionLimitBoxContainer.Size = new System.Drawing.Size( 301, 220 );
+            this.permissionLimitBoxContainer.Size = new System.Drawing.Size( 301, 195 );
             this.permissionLimitBoxContainer.TabIndex = 0;
             this.permissionLimitBoxContainer.WrapContents = false;
             // 
@@ -1404,6 +1415,9 @@
             // 
             this.gRankOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gRankOptions.Controls.Add( this.lFillLimitUnits );
+            this.gRankOptions.Controls.Add( this.nFillLimit );
+            this.gRankOptions.Controls.Add( this.lFillLimit );
             this.gRankOptions.Controls.Add( this.nCopyPasteSlots );
             this.gRankOptions.Controls.Add( this.lCopyPasteSlots );
             this.gRankOptions.Controls.Add( this.xAllowSecurityCircumvention );
@@ -1428,7 +1442,7 @@
             this.gRankOptions.Controls.Add( this.lRankName );
             this.gRankOptions.Location = new System.Drawing.Point( 160, 13 );
             this.gRankOptions.Name = "gRankOptions";
-            this.gRankOptions.Size = new System.Drawing.Size( 307, 248 );
+            this.gRankOptions.Size = new System.Drawing.Size( 307, 273 );
             this.gRankOptions.TabIndex = 6;
             this.gRankOptions.TabStop = false;
             this.gRankOptions.Text = "Rank Options";
@@ -3299,12 +3313,46 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // chatPreview
+            // lFillLimit
             // 
-            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size( 637, 241 );
-            this.chatPreview.TabIndex = 2;
+            this.lFillLimit.AutoSize = true;
+            this.lFillLimit.Location = new System.Drawing.Point( 85, 245 );
+            this.lFillLimit.Name = "lFillLimit";
+            this.lFillLimit.Size = new System.Drawing.Size( 83, 15 );
+            this.lFillLimit.TabIndex = 22;
+            this.lFillLimit.Text = "Flood-fill limit:";
+            // 
+            // nFillLimit
+            // 
+            this.nFillLimit.Location = new System.Drawing.Point( 174, 243 );
+            this.nFillLimit.Maximum = new decimal( new int[] {
+            2048,
+            0,
+            0,
+            0} );
+            this.nFillLimit.Minimum = new decimal( new int[] {
+            1,
+            0,
+            0,
+            0} );
+            this.nFillLimit.Name = "nFillLimit";
+            this.nFillLimit.Size = new System.Drawing.Size( 59, 21 );
+            this.nFillLimit.TabIndex = 23;
+            this.nFillLimit.Value = new decimal( new int[] {
+            16,
+            0,
+            0,
+            0} );
+            this.nFillLimit.ValueChanged += new System.EventHandler( this.nFillLimit_ValueChanged );
+            // 
+            // lFillLimitUnits
+            // 
+            this.lFillLimitUnits.AutoSize = true;
+            this.lFillLimitUnits.Location = new System.Drawing.Point( 239, 245 );
+            this.lFillLimitUnits.Name = "lFillLimitUnits";
+            this.lFillLimitUnits.Size = new System.Drawing.Size( 42, 15 );
+            this.lFillLimitUnits.TabIndex = 24;
+            this.lFillLimitUnits.Text = "blocks";
             // 
             // MainForm
             // 
@@ -3402,6 +3450,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
             this.gCrashReport.ResumeLayout( false );
             this.gCrashReport.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nFillLimit)).EndInit();
             this.ResumeLayout( false );
 
         }
@@ -3661,5 +3710,8 @@
         private System.Windows.Forms.DataGridViewComboBoxColumn dgvcBackup;
         private System.Windows.Forms.DataGridViewCheckBoxColumn dgvcHidden;
         private System.Windows.Forms.DataGridViewCheckBoxColumn dgvcBlockDB;
+        private System.Windows.Forms.Label lFillLimitUnits;
+        private System.Windows.Forms.NumericUpDown nFillLimit;
+        private System.Windows.Forms.Label lFillLimit;
     }
 }

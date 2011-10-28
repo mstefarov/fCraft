@@ -581,6 +581,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             xDrawLimit.Checked = (rank.DrawLimit > 0);
             nDrawLimit.Value = rank.DrawLimit;
             nCopyPasteSlots.Value = rank.CopySlots;
+            nFillLimit.Value = rank.FillLimit;
             xAllowSecurityCircumvention.Checked = rank.AllowSecurityCircumvention;
 
             foreach( ListViewItem item in vPermissions.Items ) {
@@ -659,6 +660,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             nDrawLimit.Value = 0;
             xAllowSecurityCircumvention.Checked = false;
             nCopyPasteSlots.Value = 0;
+            nFillLimit.Value = 32;
             foreach( ListViewItem item in vPermissions.Items ) {
                 item.Checked = false;
                 item.Font = vPermissions.Font;
@@ -974,6 +976,12 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                         vPermissions.Items[(int)Permission.CopyAndPaste].Checked = false;
                         vPermissions.Items[(int)Permission.CopyAndPaste].ForeColor = SystemColors.GrayText;
                     }
+                    break;
+
+                case Permission.DrawAdvanced:
+                    lFillLimit.Enabled = check;
+                    lFillLimitUnits.Enabled = check;
+                    nFillLimit.Enabled = check;
                     break;
 
                 case Permission.CopyAndPaste:
@@ -1481,6 +1489,11 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         private void xBlockDBAutoEnable_CheckedChanged( object sender, EventArgs e ) {
             cBlockDBAutoEnableRank.Enabled = xBlockDBEnabled.Checked && xBlockDBAutoEnable.Checked;
+        }
+
+        private void nFillLimit_ValueChanged( object sender, EventArgs e ) {
+            if( selectedRank == null ) return;
+            selectedRank.FillLimit = Convert.ToInt32(nFillLimit.Value);
         }
     }
 }
