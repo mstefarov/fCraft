@@ -461,7 +461,7 @@ namespace fCraft {
 
             void TaperedLimb( Vector3I start, Vector3I end, float startSize, float endSize ) {
                 Vector3I delta = end - start;
-                int primidx = (int)delta.LongestComponent;
+                int primidx = (int)delta.LongestAxis;
                 int maxdist = delta[primidx];
                 if( maxdist == 0 ) return;
                 int primsign = (maxdist > 0 ? 1 : -1);
