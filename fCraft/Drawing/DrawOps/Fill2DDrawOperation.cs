@@ -72,7 +72,7 @@ namespace fCraft.Drawing {
 
             Vector3I playerCoords = Player.Position.ToBlockCoords();
             Vector3I lookVector = (Origin - playerCoords);
-            Axis = lookVector.LongestComponent;
+            Axis = lookVector.LongestAxis;
 
             Vector3I maxDelta;
 

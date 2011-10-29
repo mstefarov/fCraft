@@ -192,7 +192,7 @@ namespace fCraft {
         }
 
 
-        public Axis LongestComponent {
+        public Axis LongestAxis {
             get {
                 int maxVal = Math.Max( Math.Abs( X ), Math.Max( Math.Abs( Y ), Math.Abs( Z ) ) );
                 if( maxVal == Math.Abs( X ) ) return Axis.X;
@@ -201,7 +201,7 @@ namespace fCraft {
             }
         }
 
-        public Axis ShortestComponent {
+        public Axis ShortestAxis {
             get {
                 int maxVal = Math.Min( Math.Abs( X ), Math.Min( Math.Abs( Y ), Math.Abs( Z ) ) );
                 if( maxVal == Math.Abs( X ) ) return Axis.X;
