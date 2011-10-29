@@ -132,8 +132,8 @@ not affiliated with fCraft in any way.
 fCraft was developed by Matvei Stefarov (me@matvei.org) in 2009-2011
 
 Thanks to fCraft code contributors and modders:
-    Asiekierka, Dag10, Destroyer, FontPeg, M1_Abrams, Optical-Lza, Redshift,
-    SystemX17, TkTech, Wootalyzer
+    Asiekierka, Dag10, Destroyer, FontPeg, Jontu800, M1_Abrams, Optical-Lza,
+    Redshift, SystemX17, TkTech, Wootalyzer
 
 Thanks to people who supported fCraft development through donations:
     fCraft.net community, Astelyn, D3M0N, Destoned, DreamPhreak, Pandorum,
@@ -149,8 +149,9 @@ Thanks to Minecraft servers that helped test and improve fCraft:
     D3M0Ns FreeBuild, ~The Best Freebuild 24/7~, fCraft Freebuild Official
 
 Thanks to people who submitted bug reports and feature requests:
-    Clhdrums87, Dogwatch, Epiclolwut, Fehzor, Gamma-Metroid, Hellenion,
-    Sunfall, maintrain97, Mavinstar, Unison, and all anonymous submitters.
+    Astelyn, Clhdrums87, Darklight, David00143, Dogwatch, Epiclolwut, Fehzor,
+    Gamma-Metroid, Hellenion, Sunfall, maintrain97, Mavinstar, Unison,
+    and all others.
 
 Special thanks for inspiration and suggestions:
     CO2, Descension, ElectricFuzzball, Exe, Hearty0, iKJames, LG_Legacy,
