@@ -139,7 +139,7 @@ namespace fCraft {
                                             // A record is considered "empty" if the player has never logged in.
                                             // Empty records may be created by /Import, /Ban, and /Rank commands on typos.
                                             // Deleting such records should have no negative impact on DB completeness.
-                                            if( (info.LastIP.Equals( IPAddress.None ) || info.TimesVisited == 0) &&
+                                            if( (info.LastIP.Equals( IPAddress.None ) || info.LastIP.Equals(IPAddress.Any) || info.TimesVisited == 0) &&
                                                 !info.IsBanned && info.Rank == RankManager.DefaultRank ) {
 
                                                 Logger.Log( "PlayerDB.Load: Skipping an empty record for player \"{0}\"", LogType.SystemActivity,

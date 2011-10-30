@@ -44,7 +44,7 @@ namespace fCraft {
 
         #region Info
 
-        const int MatchesToShow = 30;
+        const int InfosPerPage = 30;
 
         static readonly Regex RegexNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\.]", RegexOptions.Compiled );
 
@@ -139,7 +139,7 @@ namespace fCraft {
 
             } else if( infos.Length > 1 ) {
                 // multiple matches found
-                if( infos.Length <= MatchesToShow ) {
+                if( infos.Length <= InfosPerPage ) {
                     // all fit to one page
                     player.MessageManyMatches( "player", infos );
 
@@ -148,10 +148,9 @@ namespace fCraft {
                     int offset;
                     if( !cmd.NextInt( out offset ) ) offset = 0;
                     if( offset >= infos.Length ) {
-                        player.Message( "Info: Given offset ({0}) is greater than the number of matches ({1}).",
-                                        offset, infos.Length );
+                        offset = Math.Max( 0, infos.Length - InfosPerPage );
                     } else {
-                        PlayerInfo[] infosPart = infos.Skip( offset ).Take( MatchesToShow ).ToArray();
+                        PlayerInfo[] infosPart = infos.Skip( offset ).Take( InfosPerPage ).ToArray();
                         player.MessageManyMatches( "player", infosPart );
                         if( offset + infosPart.Length < infos.Length ) {
                             // normal page
@@ -173,6 +172,7 @@ namespace fCraft {
         }
 
 
+        const int MaxAltsToPrint = 15;
         public static void PrintPlayerInfo( [NotNull] Player player, [NotNull] PlayerInfo info ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( info == null ) throw new ArgumentNullException( "info" );
@@ -308,7 +308,7 @@ namespace fCraft {
                 // Show alts
                 List<PlayerInfo> altNames = new List<PlayerInfo>();
                 int bannedAltCount = 0;
-                foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( info.LastIP, 25 ) ) {
+                foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( info.LastIP ) ) {
                     if( playerFromSameIP == info ) continue;
                     altNames.Add( playerFromSameIP );
                     if( playerFromSameIP.IsBanned ) {
@@ -318,15 +318,32 @@ namespace fCraft {
 
                 if( altNames.Count > 0 ) {
                     altNames.Sort( new PlayerInfoComparer( player ) );
-                    if( bannedAltCount > 0 ) {
-                        player.Message( "  {0} accounts ({1} banned) on IP: {2}",
-                                        altNames.Count,
-                                        bannedAltCount,
-                                        altNames.ToArray().JoinToClassyString() );
+                    if( altNames.Count > MaxAltsToPrint ) {
+                        if( bannedAltCount > 0 ) {
+                            player.MessagePrefixed( "&S  ",
+                                                    "  Over {0} accounts ({1} banned) on IP: {2} etc",
+                                                    MaxAltsToPrint,
+                                                    bannedAltCount,
+                                                    altNames.Take( 15 ).ToArray().JoinToClassyString() );
+                        } else {
+                            player.MessagePrefixed( "&S  ",
+                                "  Over {0} accounts on IP: {1} etc",
+                                                    MaxAltsToPrint,
+                                                    altNames.Take( 15 ).ToArray().JoinToClassyString() );
+                        }
                     } else {
-                        player.Message( "  {0} accounts on IP: {1}",
-                                        altNames.Count,
-                                        altNames.ToArray().JoinToClassyString() );
+                        if( bannedAltCount > 0 ) {
+                            player.MessagePrefixed( "&S  ",
+                                                    "  {0} accounts ({1} banned) on IP: {2}",
+                                                    altNames.Count,
+                                                    bannedAltCount,
+                                                    altNames.ToArray().JoinToClassyString() );
+                        } else {
+                            player.MessagePrefixed( "&S  ",
+                                                    "  {0} accounts on IP: {1}",
+                                                    altNames.Count,
+                                                    altNames.ToArray().JoinToClassyString() );
+                        }
                     }
                 }
             }
@@ -860,23 +877,32 @@ namespace fCraft {
         };
 
         internal static void PlayersHandler( Player player, Command cmd ) {
-            string worldName = cmd.Next();
+            string param = cmd.Next();
 
             Player[] players;
+            string worldName = null;
             string qualifier;
+            int offset = 0;
 
-            if( worldName == null ) {
+            if( param == null || Int32.TryParse( param, out offset ) ) {
                 // No world name given; Start with a list of all players.
                 players = Server.Players;
                 qualifier = "online";
 
             } else {
                 // Try to find the world
-                World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
+                World world = WorldManager.FindWorldOrPrintMatches( player, param );
                 if( world == null ) return;
+
+                worldName=param;
                 // If found, grab its player list
                 players = world.Players;
                 qualifier = String.Format( "in world {0}&S", world.ClassyName );
+
+                if( cmd.HasNext && !cmd.NextInt( out offset ) ) {
+                    CdPlayers.PrintUsage( player );
+                    return;
+                }
             }
 
             if( players.Length > 0 ) {
@@ -885,15 +911,32 @@ namespace fCraft {
                                                  .OrderBy( p => p, PlayerListSorter.Instance )
                                                  .ToArray();
 
-                if( visiblePlayers.Length > 0 ) {
-                    // If there are visible players left, print list
-                    player.Message( "There are {0} players {1}: {2}",
-                                    visiblePlayers.Length,
-                                    qualifier,
-                                    visiblePlayers.JoinToClassyString() );
-                } else {
-                    // If all are hidden, pretend that world is empty
+
+                if( visiblePlayers.Length == 0 ) {
                     player.Message( "There are no players {0}", qualifier );
+
+                } else if( visiblePlayers.Length <= InfosPerPage || player.IsSuper ) {
+                    player.MessagePrefixed( "&S  ", "&SThere are {0} players {1}: {2}",
+                                            visiblePlayers.Length, qualifier, visiblePlayers.JoinToClassyString() );
+
+                } else {
+                    if( offset >= visiblePlayers.Length ) {
+                        offset = Math.Max( 0, visiblePlayers.Length - InfosPerPage );
+                    }
+                    Player[] playersPart = visiblePlayers.Skip( offset ).Take( InfosPerPage ).ToArray();
+                    player.MessagePrefixed( "&S   ", "&SPlayers {0}: {1}",
+                                            qualifier, playersPart.JoinToClassyString() );
+
+                    if( offset + playersPart.Length < visiblePlayers.Length ) {
+                        player.Message( "Showing {0}-{1} (out of {2}). Next: &H/Players {3}{1}",
+                                        offset + 1, offset + playersPart.Length,
+                                        visiblePlayers.Length,
+                                        (worldName == null ? "" : worldName + " ") );
+                    } else {
+                        player.Message( "Showing players {0}-{1} (out of {2}).",
+                                        offset + 1, offset + playersPart.Length,
+                                        visiblePlayers.Length );
+                    }
                 }
             } else {
                 player.Message( "There are no players {0}", qualifier );
