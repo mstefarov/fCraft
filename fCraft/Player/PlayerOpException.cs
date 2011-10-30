@@ -260,7 +260,7 @@ namespace fCraft {
                 msg = String.Format( "Cannot IP-ban {0}: invalid IP.", ip );
                 msgColored = String.Format( "&SCannot IP-ban {0}: invalid IP.", ip );
             } else {
-                msg = String.Format( "Cannot IP-ban {1}: invalid IP ({1}).", target.ClassyName, ip );
+                msg = String.Format( "Cannot IP-ban {0}: invalid IP ({1}).", target.ClassyName, ip );
                 msgColored = String.Format( "&SCannot IP-ban {0}&S: invalid IP ({1}).", target.ClassyName, ip );
             }
             throw new PlayerOpException( player, target, PlayerOpExceptionCode.NoActionNeeded, msg, msgColored );
