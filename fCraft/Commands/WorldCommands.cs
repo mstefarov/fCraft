@@ -1135,13 +1135,14 @@ namespace fCraft {
 
             if( worlds.Length == 0 ) {
                 player.Message( "There are no {0}", listName );
-            } else if( worlds.Length <= WorldNamesPerPage ) {
+
+            } else if( worlds.Length <= WorldNamesPerPage || player.IsSuper ) {
                 player.MessagePrefixed( "&S  ", "&SThere are {0} {1}: {2}",
                                         worlds.Length, listName, worlds.JoinToClassyString() );
+
             } else {
                 if( offset >= worlds.Length ) {
-                    player.Message( "Worlds: Given offset ({0}) is greater than the number of {1} ({2}).",
-                                    offset, listName, worlds.Length );
+                    offset = Math.Max( 0, worlds.Length - WorldNamesPerPage );
                 }
                 World[] worldsPart = worlds.Skip( offset ).Take( WorldNamesPerPage ).ToArray();
                 player.MessagePrefixed( "&S   ", "&S{0}: {1}",
