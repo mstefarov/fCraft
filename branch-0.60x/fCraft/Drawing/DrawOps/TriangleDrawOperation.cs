@@ -73,8 +73,10 @@ namespace fCraft.Drawing {
             Vector3F e1 = v2 - v1;
             Vector3F e2 = v0 - v2;
 
+            // ReSharper disable JoinDeclarationAndInitializer
             float min, max, rad,
                   p0, p1, p2;
+            // ReSharper restore JoinDeclarationAndInitializer
 
             float fex = Math.Abs( e0.X );
             float fey = Math.Abs( e0.Y );

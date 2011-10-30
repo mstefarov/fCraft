@@ -148,19 +148,18 @@ namespace fCraft {
                     if( !cmd.NextInt( out offset ) ) offset = 0;
                     if( offset >= infos.Length ) {
                         offset = Math.Max( 0, infos.Length - PlayersPerPage );
+                    }
+                    PlayerInfo[] infosPart = infos.Skip( offset ).Take( PlayersPerPage ).ToArray();
+                    player.MessageManyMatches( "player", infosPart );
+                    if( offset + infosPart.Length < infos.Length ) {
+                        // normal page
+                        player.Message( "Showing {0}-{1} (out of {2}). Next: &H/Info {3} {4}",
+                                        offset + 1, offset + infosPart.Length, infos.Length,
+                                        name, offset + infosPart.Length );
                     } else {
-                        PlayerInfo[] infosPart = infos.Skip( offset ).Take( PlayersPerPage ).ToArray();
-                        player.MessageManyMatches( "player", infosPart );
-                        if( offset + infosPart.Length < infos.Length ) {
-                            // normal page
-                            player.Message( "Showing {0}-{1} (out of {2}). Next: &H/Info {3} {4}",
-                                            offset + 1, offset + infosPart.Length, infos.Length,
-                                            name, offset + infosPart.Length );
-                        } else {
-                            // last page
-                            player.Message( "Showing matches {0}-{1} (out of {2}).",
-                                            offset + 1, offset + infosPart.Length, infos.Length );
-                        }
+                        // last page
+                        player.Message( "Showing matches {0}-{1} (out of {2}).",
+                                        offset + 1, offset + infosPart.Length, infos.Length );
                     }
                 }
 

@@ -269,6 +269,11 @@ namespace fCraft {
                 throw new Exception( "fCraft Config failed to initialize" );
             }
 
+            if( ConfigKey.VerifyNames.GetEnum<NameVerificationMode>() == NameVerificationMode.Never ) {
+                Logger.Log( "Name verification is currently OFF. Your server is at risk of being hacked. " +
+                            "Enable name verification as soon as possible.", LogType.Warning );
+            }
+
             // load player DB
             PlayerDB.Load();
             IPBanList.Load();
