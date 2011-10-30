@@ -125,7 +125,11 @@ namespace fCraft {
                 PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
                 if( target == null ) return;
                 try {
-                    target.BanIP( player, reason, true, true );
+                    if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
+                        target.Ban( player, reason, true, true );
+                    } else {
+                        target.BanIP( player, reason, true, true );
+                    }
                 } catch( PlayerOpException ex ) {
                     player.Message( ex.MessageColored );
                     if( ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired ) {
@@ -169,7 +173,11 @@ namespace fCraft {
                 PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
                 if( target == null ) return;
                 try {
-                    target.BanAll( player, reason, true, true );
+                    if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
+                        target.Ban( player, reason, true, true );
+                    } else {
+                        target.BanAll( player, reason, true, true );
+                    }
                 } catch( PlayerOpException ex ) {
                     player.Message( ex.MessageColored );
                     if( ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired ) {
@@ -237,7 +245,11 @@ namespace fCraft {
                 } else {
                     PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
                     if( target == null ) return;
-                    target.UnbanIP( player, reason, true, true );
+                    if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
+                        target.Unban( player, reason, true, true );
+                    } else {
+                        target.UnbanIP( player, reason, true, true );
+                    }
                 }
             } catch( PlayerOpException ex ) {
                 player.Message( ex.MessageColored );
@@ -273,7 +285,11 @@ namespace fCraft {
                 } else {
                     PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
                     if( target == null ) return;
-                    target.UnbanAll( player, reason, true, true );
+                    if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
+                        target.Unban( player, reason, true, true );
+                    } else {
+                        target.UnbanAll( player, reason, true, true );
+                    }
                 }
             } catch( PlayerOpException ex ) {
                 player.Message( ex.MessageColored );

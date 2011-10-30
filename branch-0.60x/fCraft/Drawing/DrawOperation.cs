@@ -1,9 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using JetBrains.Annotations;
-#if DEBUG
 using System.Collections.Generic;
-#endif
+using JetBrains.Annotations;
 
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable MemberCanBeProtected.Global

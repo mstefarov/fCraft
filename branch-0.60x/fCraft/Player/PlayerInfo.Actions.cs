@@ -159,6 +159,11 @@ namespace fCraft {
                     PlayerOpException.ThrowCannotTargetSelf( player, this, "IP-ban" );
                 }
 
+                // Check if a non-bannable address was given (0.0.0.0 or 255.255.255.255)
+                if( address.Equals( IPAddress.None ) || address.Equals( IPAddress.Any ) ) {
+                    PlayerOpException.ThrowInvalidIP( player, this, address );
+                }
+
                 // Check if any high-ranked players use this address
                 PlayerInfo unbannable = PlayerDB.FindPlayers( address )
                                                 .FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
@@ -263,6 +268,11 @@ namespace fCraft {
                 if( player.Info == this || address.Equals( player.IP ) && !player.IsSuper ) {
                     PlayerOpException.ThrowCannotTargetSelf( player, this, "IP-unban" );
                 }
+                
+                // Check if a non-bannable address was given (0.0.0.0 or 255.255.255.255)
+                if( address.Equals( IPAddress.None ) || address.Equals( IPAddress.Any ) ) {
+                    PlayerOpException.ThrowInvalidIP( player, this, address );
+                }
 
                 // Check existing unban statuses
                 bool needNameUnban = IsBanned;
@@ -326,6 +336,11 @@ namespace fCraft {
                 // Check if player is trying to ban self
                 if( player.Info == this || address.Equals( player.IP ) && !player.IsSuper ) {
                     PlayerOpException.ThrowCannotTargetSelf( player, this, "ban-all" );
+                }
+
+                // Check if a non-bannable address was given (0.0.0.0 or 255.255.255.255)
+                if( address.Equals( IPAddress.None ) || address.Equals( IPAddress.Any ) ) {
+                    PlayerOpException.ThrowInvalidIP( player, this, address );
                 }
 
                 // Check if any high-ranked players use this address
@@ -445,6 +460,11 @@ namespace fCraft {
                 // Check if player is trying to unban self
                 if( player.Info == this || address.Equals( player.IP ) && !player.IsSuper ) {
                     PlayerOpException.ThrowCannotTargetSelf( player, this, "unban-all" );
+                }
+
+                // Check if a non-bannable address was given (0.0.0.0 or 255.255.255.255)
+                if( address.Equals( IPAddress.None ) || address.Equals( IPAddress.Any ) ) {
+                    PlayerOpException.ThrowInvalidIP( player, this, address );
                 }
 
                 PlayerOpException.CheckBanReason( reason, player, this, true );

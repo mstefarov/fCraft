@@ -226,7 +226,7 @@ namespace fCraft {
 
             // Check if a non-bannable address was given (0.0.0.0 or 255.255.255.255)
             if( targetAddress.Equals( IPAddress.None ) || targetAddress.Equals( IPAddress.Any ) ) {
-                throw new ArgumentException( "Invalid IP", "targetAddress" );
+                PlayerOpException.ThrowInvalidIP( player, null, targetAddress );
             }
 
             // Check if player is trying to ban self
@@ -321,7 +321,7 @@ namespace fCraft {
 
             // Check if a non-bannable address was given (0.0.0.0 or 255.255.255.255)
             if( targetAddress.Equals( IPAddress.None ) || targetAddress.Equals( IPAddress.Any ) ) {
-                throw new ArgumentException( "Invalid IP", "targetAddress" );
+                PlayerOpException.ThrowInvalidIP( player, null, targetAddress );
             }
 
             // Check if player is trying to unban self
@@ -380,6 +380,11 @@ namespace fCraft {
             // Check if player is trying to ban self
             if( targetAddress.Equals( player.IP ) && !player.IsSuper ) {
                 PlayerOpException.ThrowCannotTargetSelf( player, null, "ban-all" );
+            }
+
+            // Check if a non-bannable address was given (0.0.0.0 or 255.255.255.255)
+            if( targetAddress.Equals( IPAddress.None ) || targetAddress.Equals( IPAddress.Any ) ) {
+                PlayerOpException.ThrowInvalidIP( player, null, targetAddress );
             }
 
             // Check if any high-ranked players use this address
@@ -487,6 +492,11 @@ namespace fCraft {
                 PlayerOpException.ThrowCannotTargetSelf( player, null, "unban-all" );
             }
 
+            // Check if a non-bannable address was given (0.0.0.0 or 255.255.255.255)
+            if( targetAddress.Equals( IPAddress.None ) || targetAddress.Equals( IPAddress.Any ) ) {
+                PlayerOpException.ThrowInvalidIP( player, null, targetAddress );
+            }
+
             PlayerOpException.CheckBanReason( reason, player, null, true );
             bool somethingGotUnbanned = false;
 
@@ -507,7 +517,6 @@ namespace fCraft {
                     somethingGotUnbanned = true;
                 }
             }
-
 
             // Unban individual players
             PlayerInfo[] allPlayersOnIP = PlayerDB.FindPlayers( targetAddress );
