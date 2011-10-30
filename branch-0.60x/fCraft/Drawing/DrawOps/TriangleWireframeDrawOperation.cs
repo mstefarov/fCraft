@@ -19,8 +19,6 @@ namespace fCraft.Drawing {
 
 
         public override bool Prepare( Vector3I[] marks ) {
-            if( !base.Prepare( marks ) ) return false;
-
             Vector3I minVector = new Vector3I( Math.Min( marks[0].X, Math.Min( marks[1].X, marks[2].X ) ),
                                                Math.Min( marks[0].Y, Math.Min( marks[1].Y, marks[2].Y ) ),
                                                Math.Min( marks[0].Z, Math.Min( marks[1].Z, marks[2].Z ) ) );
@@ -28,6 +26,8 @@ namespace fCraft.Drawing {
                                                Math.Max( marks[0].Y, Math.Max( marks[1].Y, marks[2].Y ) ),
                                                Math.Max( marks[0].Z, Math.Max( marks[1].Z, marks[2].Z ) ) );
             Bounds = new BoundingBox( minVector, maxVector );
+
+            if( !base.Prepare( marks ) ) return false;
 
             BlocksTotalEstimate = Math.Max( Bounds.Width, Math.Max( Bounds.Height, Bounds.Length ) );
 
