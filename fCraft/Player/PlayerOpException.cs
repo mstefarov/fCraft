@@ -250,6 +250,21 @@ namespace fCraft {
             const string colorMsg = "&S" + msg;
             throw new PlayerOpException( player, null, PlayerOpExceptionCode.MustBeInAWorld, msg, colorMsg );
         }
+
+
+        internal static void ThrowInvalidIP( [NotNull] Player player, [CanBeNull] PlayerInfo target, [NotNull] IPAddress ip ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( ip == null ) throw new ArgumentNullException( "ip" );
+            string msg,msgColored;
+            if( target == null ) {
+                msg = String.Format( "Cannot IP-ban {0}: invalid IP.", ip );
+                msgColored = String.Format( "&SCannot IP-ban {0}: invalid IP.", ip );
+            } else {
+                msg = String.Format( "Cannot IP-ban {1}: invalid IP ({1}).", target.ClassyName, ip );
+                msgColored = String.Format( "&SCannot IP-ban {0}&S: invalid IP ({1}).", target.ClassyName, ip );
+            }
+            throw new PlayerOpException( player, target, PlayerOpExceptionCode.NoActionNeeded, msg, msgColored );
+        }
     }
 
 
@@ -279,6 +294,9 @@ namespace fCraft {
         MustBeInAWorld,
 
         /// <summary> Operation was cancelled by an event callback (e.g. by a mod or a plugin). </summary>
-        Cancelled
+        Cancelled,
+
+        /// <summary> Cannot ban IPAddress.Any or IPAddress.All. </summary>
+        InvalidIP
     }
 }
