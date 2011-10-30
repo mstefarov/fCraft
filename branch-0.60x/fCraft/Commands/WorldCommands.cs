@@ -793,11 +793,11 @@ namespace fCraft {
                 if( !fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
                     fileName += ".fcm";
                 }
-                fullFileName = Path.Combine( Paths.MapPath, fileName );
-                if( !Paths.IsValidPath( fullFileName ) ) {
+                if( !Paths.IsValidPath( fileName ) ) {
                     player.Message( "Invalid filename." );
                     return;
                 }
+                fullFileName = Path.Combine( Paths.MapPath, fileName );
                 if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
                     player.MessageUnsafePath();
                     return;
@@ -2281,11 +2281,11 @@ namespace fCraft {
             } else if( !fileName.ToLower().EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
                 fileName += ".fcm";
             }
-            string fullFileName = Path.Combine( Paths.MapPath, fileName );
-            if( !Paths.IsValidPath( fullFileName ) ) {
+            if( !Paths.IsValidPath( fileName ) ) {
                 player.Message( "Invalid filename." );
                 return;
             }
+            string fullFileName = Path.Combine( Paths.MapPath, fileName );
             if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
                 player.MessageUnsafePath();
                 return;
