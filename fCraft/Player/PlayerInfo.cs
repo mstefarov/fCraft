@@ -978,12 +978,12 @@ namespace fCraft {
                 if( ConfigKey.RankColorsInChat.Enabled() ) {
                     sb.Append( Rank.Color );
                 }
-                if( ConfigKey.RankPrefixesInChat.Enabled() ) {
-                    sb.Append( Rank.Prefix );
-                }
                 if( DisplayedName.Length > 0 ) {
                     sb.Append( DisplayedName );
                 } else {
+                    if( ConfigKey.RankPrefixesInChat.Enabled() ) {
+                        sb.Append( Rank.Prefix );
+                    }
                     sb.Append( Name );
                 }
                 if( IsBanned ) {
