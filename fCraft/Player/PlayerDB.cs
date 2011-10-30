@@ -471,6 +471,8 @@ namespace fCraft {
 
 
         public static string FindExactClassyName( [NotNull] string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( name.Length == 0 ) return "?";
             PlayerInfo info = FindPlayerInfoExact( name );
             if( info == null ) return name;
             else return info.ClassyName;

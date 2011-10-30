@@ -381,7 +381,7 @@ namespace fCraft {
 
             string reason = cmd.NextAll();
             DateTime previousKickDate = target.Info.LastKickDate;
-            string previousKickedBy = target.Info.LastKickBy;
+            string previousKickedBy = target.Info.LastKickByClassy;
             string previousKickReason = target.Info.LastKickReason;
 
             // do the kick
@@ -403,7 +403,7 @@ namespace fCraft {
                 player.Message( "Warning: {0}&S has been kicked {1} times before.",
                                 target.ClassyName, target.Info.TimesKicked - 1 );
                 if( previousKickDate != DateTime.MinValue ) {
-                    player.Message( "Most recent kick was {0} ago, by {1}.",
+                    player.Message( "Most recent kick was {0} ago, by {1}",
                                     DateTime.UtcNow.Subtract( previousKickDate ).ToMiniString(),
                                     previousKickedBy );
                 }

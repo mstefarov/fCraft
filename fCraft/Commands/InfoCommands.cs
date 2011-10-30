@@ -13,8 +13,8 @@ namespace fCraft {
     /// <summary> Contains commands that don't do anything besides displaying some information or text.
     /// Includes several chat commands. </summary>
     static class InfoCommands {
+        const int PlayersPerPage = 30;
 
-        // Register help commands
         internal static void Init() {
             CommandManager.RegisterCommand( CdInfo );
             CommandManager.RegisterCommand( CdBanInfo );
@@ -44,8 +44,7 @@ namespace fCraft {
 
         #region Info
 
-        const int InfosPerPage = 30;
-
+        const int MaxAltsToPrint = 15;
         static readonly Regex RegexNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\.]", RegexOptions.Compiled );
 
         static readonly CommandDescriptor CdInfo = new CommandDescriptor {
@@ -139,7 +138,7 @@ namespace fCraft {
 
             } else if( infos.Length > 1 ) {
                 // multiple matches found
-                if( infos.Length <= InfosPerPage ) {
+                if( infos.Length <= PlayersPerPage ) {
                     // all fit to one page
                     player.MessageManyMatches( "player", infos );
 
@@ -148,9 +147,9 @@ namespace fCraft {
                     int offset;
                     if( !cmd.NextInt( out offset ) ) offset = 0;
                     if( offset >= infos.Length ) {
-                        offset = Math.Max( 0, infos.Length - InfosPerPage );
+                        offset = Math.Max( 0, infos.Length - PlayersPerPage );
                     } else {
-                        PlayerInfo[] infosPart = infos.Skip( offset ).Take( InfosPerPage ).ToArray();
+                        PlayerInfo[] infosPart = infos.Skip( offset ).Take( PlayersPerPage ).ToArray();
                         player.MessageManyMatches( "player", infosPart );
                         if( offset + infosPart.Length < infos.Length ) {
                             // normal page
@@ -171,8 +170,6 @@ namespace fCraft {
             }
         }
 
-
-        const int MaxAltsToPrint = 15;
         public static void PrintPlayerInfo( [NotNull] Player player, [NotNull] PlayerInfo info ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( info == null ) throw new ArgumentNullException( "info" );
@@ -321,26 +318,26 @@ namespace fCraft {
                     if( altNames.Count > MaxAltsToPrint ) {
                         if( bannedAltCount > 0 ) {
                             player.MessagePrefixed( "&S  ",
-                                                    "  Over {0} accounts ({1} banned) on IP: {2} etc",
+                                                    "&S  Over {0} accounts ({1} banned) on IP: {2} etc",
                                                     MaxAltsToPrint,
                                                     bannedAltCount,
                                                     altNames.Take( 15 ).ToArray().JoinToClassyString() );
                         } else {
                             player.MessagePrefixed( "&S  ",
-                                "  Over {0} accounts on IP: {1} etc",
+                                                    "&S  Over {0} accounts on IP: {1} etc",
                                                     MaxAltsToPrint,
                                                     altNames.Take( 15 ).ToArray().JoinToClassyString() );
                         }
                     } else {
                         if( bannedAltCount > 0 ) {
                             player.MessagePrefixed( "&S  ",
-                                                    "  {0} accounts ({1} banned) on IP: {2}",
+                                                    "&S  {0} accounts ({1} banned) on IP: {2}",
                                                     altNames.Count,
                                                     bannedAltCount,
                                                     altNames.ToArray().JoinToClassyString() );
                         } else {
                             player.MessagePrefixed( "&S  ",
-                                                    "  {0} accounts on IP: {1}",
+                                                    "&S  {0} accounts on IP: {1}",
                                                     altNames.Count,
                                                     altNames.ToArray().JoinToClassyString() );
                         }
@@ -386,7 +383,7 @@ namespace fCraft {
                     player.Message( "  Got kicked {0} times. Last kick {1} ago by {2}",
                                     info.TimesKicked,
                                     info.TimeSinceLastKick.ToMiniString(),
-                                    info.LastKickBy );
+                                    info.LastKickByClassy );
                     if( info.LastKickReason.Length > 0 ) {
                         player.Message( "  Last kick reason: {0}", info.LastKickReason );
                     }
@@ -398,32 +395,32 @@ namespace fCraft {
 
             // Promotion/demotion
             if( info.PreviousRank == null ) {
-                if( String.IsNullOrEmpty( info.RankChangedBy ) ) {
+                if( info.RankChangedBy.Length == 0 ) {
                     player.Message( "  Rank is {0}&S (default).",
                                     info.Rank.ClassyName );
                 } else {
-                    player.Message( "  Promoted to {0}&S by {1} {2} ago.",
+                    player.Message( "  Promoted to {0}&S by {1}&S {2} ago.",
                                     info.Rank.ClassyName,
-                                    info.RankChangedBy,
+                                    info.RankChangedByClassy,
                                     info.TimeSinceRankChange.ToMiniString() );
                     if( !string.IsNullOrEmpty( info.RankChangeReason ) ) {
                         player.Message( "  Promotion reason: {0}", info.RankChangeReason );
                     }
                 }
             } else if( info.PreviousRank < info.Rank ) {
-                player.Message( "  Promoted from {0}&S to {1}&S by {2} {3} ago.",
+                player.Message( "  Promoted from {0}&S to {1}&S by {2}&S {3} ago.",
                                 info.PreviousRank.ClassyName,
                                 info.Rank.ClassyName,
-                                info.RankChangedBy,
+                                info.RankChangedByClassy,
                                 info.TimeSinceRankChange.ToMiniString() );
                 if( !string.IsNullOrEmpty( info.RankChangeReason ) ) {
                     player.Message( "  Promotion reason: {0}", info.RankChangeReason );
                 }
             } else {
-                player.Message( "  Demoted from {0}&S to {1}&S by {2} {3} ago.",
+                player.Message( "  Demoted from {0}&S to {1}&S by {2}&S {3} ago.",
                                 info.PreviousRank.ClassyName,
                                 info.Rank.ClassyName,
-                                info.RankChangedBy,
+                                info.RankChangedByClassy,
                                 info.TimeSinceRankChange.ToMiniString() );
                 if( info.RankChangeReason.Length > 0 ) {
                     player.Message( "  Demotion reason: {0}", info.RankChangeReason );
@@ -460,6 +457,11 @@ namespace fCraft {
 
         internal static void BanInfoHandler( Player player, Command cmd ) {
             string name = cmd.Next();
+            if( cmd.HasNext ) {
+                CdBanInfo.PrintUsage( player );
+                return;
+            }
+
             IPAddress address;
             if( name == null ) {
                 name = player.Name;
@@ -521,18 +523,18 @@ namespace fCraft {
                         break;
                 }
 
-                if( !String.IsNullOrEmpty( info.BannedBy ) || info.BanDate != DateTime.MinValue ) {
+                if( info.BanDate != DateTime.MinValue ) {
                     player.Message( "  Last ban by {0} on {1:dd MMM yyyy} ({2} ago).",
-                                    info.BannedBy,
+                                    info.BannedByClassy,
                                     info.BanDate,
                                     info.TimeSinceBan.ToMiniString() );
                     if( info.BanReason.Length > 0 ) {
                         player.Message( "  Last ban reason: {0}", info.BanReason );
                     }
                 }
-                if( !String.IsNullOrEmpty( info.UnbannedBy ) || info.UnbanDate != DateTime.MinValue ) {
-                    player.Message( "  Unbanned by {0} on {1:dd MMM yyyy} ({2} ago).",
-                                    info.UnbannedBy,
+                if( info.UnbanDate != DateTime.MinValue && !info.IsBanned ) {
+                    player.Message( "  Unbanned by {0}&S on {1:dd MMM yyyy} ({2} ago).",
+                                    info.UnbannedByClassy,
                                     info.UnbanDate,
                                     info.TimeSinceUnban.ToMiniString() );
                     if( info.UnbanReason.Length > 0 ) {
@@ -573,6 +575,11 @@ namespace fCraft {
             Rank rank;
 
             string rankName = cmd.Next();
+            if( cmd.HasNext ) {
+                CdRankInfo.PrintUsage( player );
+                return;
+            }
+
             if( rankName == null ) {
                 rank = player.Info.Rank;
             } else {
@@ -643,6 +650,10 @@ namespace fCraft {
         };
 
         internal static void ServerInfoHandler( Player player, Command cmd ) {
+            if( cmd.HasNext ) {
+                CdServerInfo.PrintUsage( player );
+                return;
+            }
             Process.GetCurrentProcess().Refresh();
 
             player.Message( "Servers status: Up for {0:0.0} hours, using {1:0} MB",
@@ -706,6 +717,10 @@ namespace fCraft {
         };
 
         internal static void RanksHandler( Player player, Command cmd ) {
+            if( cmd.HasNext ) {
+                CdRanks.PrintUsage( player );
+                return;
+            }
             player.Message( "Below is a list of ranks. For detail see &H{0}", CdRankInfo.Usage );
             foreach( Rank rank in RankManager.Ranks ) {
                 player.Message( "&S    {0}  ({1} players)",
@@ -844,6 +859,10 @@ namespace fCraft {
         };
 
         internal static void MeasureHandler( Player player, Command cmd ) {
+            if( cmd.HasNext ) {
+                CdMeasure.PrintUsage( player );
+                return;
+            }
             player.SelectionStart( 2, MeasureCallback, null );
             player.Message( "Measure: Select the area to be measured" );
         }
@@ -878,7 +897,10 @@ namespace fCraft {
 
         internal static void PlayersHandler( Player player, Command cmd ) {
             string param = cmd.Next();
-
+            if( cmd.HasNext ) {
+                CdPlayers.PrintUsage( player );
+                return;
+            }
             Player[] players;
             string worldName = null;
             string qualifier;
@@ -915,15 +937,15 @@ namespace fCraft {
                 if( visiblePlayers.Length == 0 ) {
                     player.Message( "There are no players {0}", qualifier );
 
-                } else if( visiblePlayers.Length <= InfosPerPage || player.IsSuper ) {
+                } else if( visiblePlayers.Length <= PlayersPerPage || player.IsSuper ) {
                     player.MessagePrefixed( "&S  ", "&SThere are {0} players {1}: {2}",
                                             visiblePlayers.Length, qualifier, visiblePlayers.JoinToClassyString() );
 
                 } else {
                     if( offset >= visiblePlayers.Length ) {
-                        offset = Math.Max( 0, visiblePlayers.Length - InfosPerPage );
+                        offset = Math.Max( 0, visiblePlayers.Length - PlayersPerPage );
                     }
-                    Player[] playersPart = visiblePlayers.Skip( offset ).Take( InfosPerPage ).ToArray();
+                    Player[] playersPart = visiblePlayers.Skip( offset ).Take( PlayersPerPage ).ToArray();
                     player.MessagePrefixed( "&S   ", "&SPlayers {0}: {1}",
                                             qualifier, playersPart.JoinToClassyString() );
 
@@ -965,7 +987,10 @@ namespace fCraft {
 
         static void WhereHandler( Player player, Command cmd ) {
             string name = cmd.Next();
-
+            if( cmd.HasNext ) {
+                CdWhere.PrintUsage( player );
+                return;
+            }
             Player target = player;
 
             if( name != null ) {
@@ -1097,6 +1122,10 @@ namespace fCraft {
 
         internal static void CommandsHandler( Player player, Command cmd ) {
             string param = cmd.Next();
+            if( cmd.HasNext ) {
+                CdCommands.PrintUsage( player );
+                return;
+            }
             CommandDescriptor[] cd;
             CommandCategory category;
 
@@ -1151,6 +1180,10 @@ namespace fCraft {
         };
 
         internal static void ColorsHandler( Player player, Command cmd ) {
+            if( cmd.HasNext ) {
+                CdColors.PrintUsage( player );
+                return;
+            }
             StringBuilder sb = new StringBuilder( "List of colors: " );
 
             foreach( var color in Color.ColorNames ) {
