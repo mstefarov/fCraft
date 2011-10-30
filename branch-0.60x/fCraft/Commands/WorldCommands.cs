@@ -9,6 +9,8 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Contains commands related to world management. </summary>
     static class WorldCommands {
+        const int WorldNamesPerPage = 30;
+
         internal static void Init() {
             CommandManager.RegisterCommand( CdBlockDB );
             CommandManager.RegisterCommand( CdBlockInfo );
@@ -1090,8 +1092,6 @@ namespace fCraft {
                    "If \"populated\" is added, shows only worlds with players online.",
             Handler = WorldsHandler
         };
-
-        const int WorldNamesPerPage = 30;
 
         static void WorldsHandler( Player player, Command cmd ) {
             string param = cmd.Next();

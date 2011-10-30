@@ -55,6 +55,13 @@ namespace fCraft {
         [NotNull]
         public string RankChangedBy = "";
 
+        [NotNull]
+        public string RankChangedByClassy {
+            get {
+                return PlayerDB.FindExactClassyName( RankChangedBy );
+            }
+        }
+
         /// <summary> Reason given for the most recent promotion/demotion. May be empty. </summary>
         [NotNull]
         public string RankChangeReason = "";
@@ -82,6 +89,13 @@ namespace fCraft {
         [NotNull]
         public string BannedBy = "";
 
+        [NotNull]
+        public string BannedByClassy {
+            get {
+                return PlayerDB.FindExactClassyName( BannedBy );
+            }
+        }
+
         /// <summary> Reason given for the most recent ban. May be empty. </summary>
         [NotNull]
         public string BanReason = "";
@@ -92,6 +106,13 @@ namespace fCraft {
         /// <summary> Name of the entity responsible for most recent unban. May be empty. </summary>
         [NotNull]
         public string UnbannedBy = "";
+
+        [NotNull]
+        public string UnbannedByClassy {
+            get {
+                return PlayerDB.FindExactClassyName( UnbannedBy );
+            }
+        }
 
         /// <summary> Reason given for the most recent unban. May be empty. </summary>
         [NotNull]
@@ -149,6 +170,13 @@ namespace fCraft {
         [NotNull]
         public string LastKickBy = "";
 
+        [NotNull]
+        public string LastKickByClassy {
+            get {
+                return PlayerDB.FindExactClassyName( LastKickBy );
+            }
+        }
+
         /// <summary> Reason given for the most recent kick. May be empty. </summary>
         [NotNull]
         public string LastKickReason = "";
@@ -172,11 +200,7 @@ namespace fCraft {
         [NotNull]
         public string FrozenByClassy {
             get {
-                if( FrozenBy.Length == 0 ) {
-                    return "?";
-                } else {
-                    return PlayerDB.FindExactClassyName( FrozenBy );
-                }
+                return PlayerDB.FindExactClassyName( FrozenBy );
             }
         }
 
@@ -197,11 +221,7 @@ namespace fCraft {
         [NotNull]
         public string MutedByClassy {
             get {
-                if( MutedBy.Length == 0 ) {
-                    return "?";
-                } else {
-                    return PlayerDB.FindExactClassyName( MutedBy );
-                }
+                return PlayerDB.FindExactClassyName( MutedBy );
             }
         }
 
