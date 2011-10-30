@@ -1160,6 +1160,7 @@ namespace fCraft {
             if( selectionPermissions == null || Can( selectionPermissions ) ) {
                 selectionCallback( this, selectionMarks.ToArray(), selectionArgs );
                 if( IsRepeatingSelection && selectionRepeatCommand != null ) {
+                    selectionRepeatCommand.Rewind();
                     CommandManager.ParseCommand( this, selectionRepeatCommand, this == Console );
                 }
                 selectionMarks.Clear();
