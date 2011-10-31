@@ -89,27 +89,6 @@ namespace fCraft {
             return new Vector3F( a.X + b.X, a.Y + b.Y, a.Z + b.Z );
         }
 
-        public static Vector3F operator +( Vector3F a, float scalar ) {
-            return new Vector3F( a.X + scalar, a.Y + scalar, a.Z + scalar );
-        }
-
-        public static Vector3F operator -( Vector3F a, Vector3F b ) {
-            return new Vector3F( a.X - b.X, a.Y - b.Y, a.Z - b.Z );
-        }
-
-        public static Vector3F operator -( Vector3F a, float scalar ) {
-            return new Vector3F( a.X - scalar, a.Y - scalar, a.Z - scalar );
-        }
-
-        public static Vector3F operator *( Vector3F a, float scalar ) {
-            return new Vector3F( a.X * scalar, a.Y * scalar, a.Z * scalar );
-        }
-
-        public static Vector3F operator /( Vector3F a, double scalar ) {
-            return new Vector3F( (float)( a.X / scalar ), (float)( a.Y / scalar ), (float)( a.Z / scalar ) );
-        }
-
-
         public static Vector3F operator +( Vector3I a, Vector3F b ) {
             return new Vector3F( a.X + b.X, a.Y + b.Y, a.Z + b.Z );
         }
@@ -118,12 +97,50 @@ namespace fCraft {
             return new Vector3F( a.X + b.X, a.Y + b.Y, a.Z + b.Z );
         }
 
+        public static Vector3F operator +( Vector3F a, float scalar ) {
+            return new Vector3F( a.X + scalar, a.Y + scalar, a.Z + scalar );
+        }
+
+        public static Vector3F operator +( float scalar, Vector3F a ) {
+            return new Vector3F( a.X + scalar, a.Y + scalar, a.Z + scalar );
+        }
+
+
+        public static Vector3F operator -( Vector3F a, Vector3F b ) {
+            return new Vector3F( a.X - b.X, a.Y - b.Y, a.Z - b.Z );
+        }
+
         public static Vector3F operator -( Vector3I a, Vector3F b ) {
             return new Vector3F( a.X - b.X, a.Y - b.Y, a.Z - b.Z );
         }
 
         public static Vector3F operator -( Vector3F a, Vector3I b ) {
             return new Vector3F( a.X - b.X, a.Y - b.Y, a.Z - b.Z );
+        }
+
+        public static Vector3F operator -( Vector3F a, float scalar ) {
+            return new Vector3F( a.X - scalar, a.Y - scalar, a.Z - scalar );
+        }
+
+        public static Vector3F operator -( float scalar, Vector3F a ) {
+            return new Vector3F( a.X - scalar, a.Y - scalar, a.Z - scalar );
+        }
+
+
+        public static Vector3F operator *( Vector3F a, float scalar ) {
+            return new Vector3F( a.X * scalar, a.Y * scalar, a.Z * scalar );
+        }
+
+        public static Vector3F operator *( float scalar, Vector3F a ) {
+            return new Vector3F( a.X * scalar, a.Y * scalar, a.Z * scalar );
+        }
+
+        public static Vector3F operator /( Vector3F a, float scalar ) {
+            return new Vector3F( a.X / scalar, a.Y / scalar, a.Z / scalar );
+        }
+
+        public static Vector3F operator /( float scalar, Vector3F a ) {
+            return new Vector3F( a.X / scalar, a.Y / scalar, a.Z / scalar );
         }
 
         #endregion

@@ -91,6 +91,11 @@ namespace fCraft {
             return new Vector3I( a.X + scalar, a.Y + scalar, a.Z + scalar );
         }
 
+        public static Vector3I operator +( int scalar, Vector3I a ) {
+            return new Vector3I( a.X + scalar, a.Y + scalar, a.Z + scalar );
+        }
+
+
         public static Vector3I operator -( Vector3I a, Vector3I b ) {
             return new Vector3I( a.X - b.X, a.Y - b.Y, a.Z - b.Z );
         }
@@ -99,13 +104,46 @@ namespace fCraft {
             return new Vector3I( a.X - scalar, a.Y - scalar, a.Z - scalar );
         }
 
-        public static Vector3I operator *( Vector3I a, double scalar ) {
-            return new Vector3I( (int)(a.X * scalar), (int)(a.Y * scalar), (int)(a.Z * scalar) );
+        public static Vector3I operator -( int scalar, Vector3I a ) {
+            return new Vector3I( a.X - scalar, a.Y - scalar, a.Z - scalar );
         }
 
-        public static Vector3I operator /( Vector3I a, double scalar ) {
-            return new Vector3I( (int)(a.X / scalar), (int)(a.Y / scalar), (int)(a.Z / scalar) );
+
+        public static Vector3I operator *( Vector3I a, int scalar ) {
+            return new Vector3I( a.X * scalar, a.Y * scalar, a.Z * scalar );
         }
+
+        public static Vector3I operator *( int scalar, Vector3I a ) {
+            return new Vector3I( a.X * scalar, a.Y * scalar, a.Z * scalar );
+        }
+
+        public static Vector3F operator *( Vector3I a, float scalar ) {
+            return new Vector3F( a.X * scalar, a.Y * scalar, a.Z * scalar );
+        }
+
+        public static Vector3F operator *( float scalar, Vector3I a ) {
+            return new Vector3F( a.X * scalar, a.Y * scalar, a.Z * scalar );
+        }
+
+
+        /// <summary> Integer division! </summary>
+        public static Vector3I operator /( Vector3I a, int scalar ) {
+            return new Vector3I( a.X / scalar, a.Y / scalar, a.Z / scalar );
+        }
+
+        /// <summary> Integer division! </summary>
+        public static Vector3I operator /( int scalar, Vector3I a ) {
+            return new Vector3I( a.X / scalar, a.Y / scalar, a.Z / scalar );
+        }
+
+        public static Vector3F operator /( Vector3I a, float scalar ) {
+            return new Vector3F( a.X / scalar, a.Y / scalar, a.Z / scalar );
+        }
+
+        public static Vector3F operator /( float scalar, Vector3I a ) {
+            return new Vector3F( a.X / scalar, a.Y / scalar, a.Z / scalar );
+        }
+
 
         #endregion
 
