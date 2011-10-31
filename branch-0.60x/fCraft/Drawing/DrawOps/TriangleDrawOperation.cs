@@ -18,7 +18,7 @@ namespace fCraft.Drawing {
             : base( player ) {
         }
 
-        const float cloneSeparation = 1.25f;
+        const float cloneSeparation = 1.21f; // gigawatts
 
 
         public override bool Prepare( Vector3I[] marks ) {
