@@ -253,10 +253,6 @@ namespace fCraft {
             return String.Format( "({0},{1},{2})", X, Y, Z );
         }
 
-        public Position ToPosition() {
-            return new Position( X, Y, Z );
-        }
-
         public Vector3I Abs() {
             return new Vector3I( Math.Abs( X ), Math.Abs( Y ), Math.Abs( Z ) );
         }
@@ -266,8 +262,21 @@ namespace fCraft {
             return new Vector3F( X / len, Y / len, Z / len );
         }
 
+
+        #region Conversion
+
+        public static explicit operator Position( Vector3I a ) {
+            return new Position( a.X, a.Y, a.Z );
+        }
+
+        public static implicit operator Vector3F( Vector3I a ) {
+            return new Vector3F( a.X, a.Y, a.Z );
+        }
+
         public Position ToPlayerCoords() {
             return new Position( X * 32 + 16, Y * 32 + 16, Z * 32 + 16 );
         }
+
+        #endregion
     }
 }

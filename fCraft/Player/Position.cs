@@ -94,6 +94,10 @@ namespace fCraft {
             return String.Format( "Position({0},{1},{2} @{3},{4})", X, Y, Z, R, L );
         }
 
+        public static implicit operator Vector3I( Position a ) {
+            return new Vector3I( a.X, a.Y, a.Z );
+        }
+
         public Vector3I ToVector3I() {
             return new Vector3I( X, Y, Z );
         }

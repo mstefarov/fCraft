@@ -228,19 +228,6 @@ namespace fCraft {
         }
 
 
-        public Vector3I Round() {
-            return new Vector3I( (int)Math.Round( X ), (int)Math.Round( Y ), (int)Math.Round( Z ) );
-        }
-
-        public Vector3I RoundDown() {
-            return new Vector3I( (int)Math.Floor( X ), (int)Math.Floor( Y ), (int)Math.Floor( Z ) );
-        }
-
-        public Vector3I RoundUp() {
-            return new Vector3I( (int)Math.Ceiling( X ), (int)Math.Ceiling( Y ), (int)Math.Ceiling( Z ) );
-        }
-
-
         public Axis LongestComponent {
             get {
                 float maxVal = Math.Max( Math.Abs( X ), Math.Max( Math.Abs( Y ), Math.Abs( Z ) ) );
@@ -268,12 +255,33 @@ namespace fCraft {
             return new Vector3F( X / len, Y / len, Z / len );
         }
 
-        public Position ToPlayerCoords() {
-            return new Position( (int)( X * 32 ), (int)( Y * 32 ), (int)( Z * 32 ) );
-        }
-
         public override string ToString() {
             return String.Format( "({0},{1},{2})", X, Y, Z );
         }
+
+
+        #region Conversion
+
+        public static explicit operator Vector3I( Vector3F a ) {
+            return new Vector3I( (int)a.X, (int)a.Y, (int)a.Z );
+        }
+
+        public Vector3I Round() {
+            return new Vector3I( (int)Math.Round( X ), (int)Math.Round( Y ), (int)Math.Round( Z ) );
+        }
+
+        public Vector3I RoundDown() {
+            return new Vector3I( (int)Math.Floor( X ), (int)Math.Floor( Y ), (int)Math.Floor( Z ) );
+        }
+
+        public Vector3I RoundUp() {
+            return new Vector3I( (int)Math.Ceiling( X ), (int)Math.Ceiling( Y ), (int)Math.Ceiling( Z ) );
+        }
+
+        public Position ToPlayerCoords() {
+            return new Position( (int)(X * 32), (int)(Y * 32), (int)(Z * 32) );
+        }
+
+        #endregion
     }
 }
