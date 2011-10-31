@@ -123,10 +123,6 @@ namespace fCraft {
             return new Vector3F( a.X / scalar, a.Y / scalar, a.Z / scalar );
         }
 
-        public static Vector3F operator /( float scalar, Vector3F a ) {
-            return new Vector3F( a.X / scalar, a.Y / scalar, a.Z / scalar );
-        }
-
         #endregion
 
 
@@ -173,19 +169,19 @@ namespace fCraft {
 
 
         public static bool operator >( Vector3F a, Vector3F b ) {
-            return ( a.X * a.X + a.Y * a.Y + a.Z * a.Z ) > ( b.X * b.X + b.Y * b.Y + b.Z * b.Z );
+            return a.LengthSquared > b.LengthSquared;
         }
 
         public static bool operator <( Vector3F a, Vector3F b ) {
-            return ( a.X * a.X + a.Y * a.Y + a.Z * a.Z ) < ( b.X * b.X + b.Y * b.Y + b.Z * b.Z );
+            return a.LengthSquared < b.LengthSquared;
         }
 
         public static bool operator >=( Vector3F a, Vector3F b ) {
-            return ( a.X * a.X + a.Y * a.Y + a.Z * a.Z ) >= ( b.X * b.X + b.Y * b.Y + b.Z * b.Z );
+            return a.LengthSquared >= b.LengthSquared;
         }
 
         public static bool operator <=( Vector3F a, Vector3F b ) {
-            return ( a.X * a.X + a.Y * a.Y + a.Z * a.Z ) <= ( b.X * b.X + b.Y * b.Y + b.Z * b.Z );
+            return a.LengthSquared <= b.LengthSquared;
         }
 
         #endregion
@@ -223,9 +219,9 @@ namespace fCraft {
 
         public Axis ShortestComponent {
             get {
-                float maxVal = Math.Min( Math.Abs( X ), Math.Min( Math.Abs( Y ), Math.Abs( Z ) ) );
-                if( maxVal == Math.Abs( X ) ) return Axis.X;
-                if( maxVal == Math.Abs( Y ) ) return Axis.Y;
+                float minVal = Math.Min( Math.Abs( X ), Math.Min( Math.Abs( Y ), Math.Abs( Z ) ) );
+                if( minVal == Math.Abs( X ) ) return Axis.X;
+                if( minVal == Math.Abs( Y ) ) return Axis.Y;
                 return Axis.Z;
             }
         }
@@ -235,8 +231,8 @@ namespace fCraft {
         }
 
         public Vector3F Normalize() {
-            float len = (float)Math.Sqrt( X * X + Y * Y + Z * Z );
-            return new Vector3F( X / len, Y / len, Z / len );
+            double len = Math.Sqrt( X * X + Y * Y + Z * Z );
+            return new Vector3F( (float)(X / len), (float)(Y / len), (float)(Z / len) );
         }
 
         public override string ToString() {
