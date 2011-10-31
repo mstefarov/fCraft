@@ -71,15 +71,17 @@ namespace fCraft.MapConversion {
 
                         string oldValue;
                         if( map.Metadata.TryGetValue( key, group, out oldValue ) && oldValue != newValue ) {
-                            Logger.Log( "MapFCMv3.LoadHeader: Duplicate metadata entry found for [{0}].[{1}]. " +
-                                        "Old value (overwritten): \"{2}\". New value: \"{3}\"", LogType.Warning,
+                            Logger.Log( LogType.Warning,
+                                        "MapFCMv3.LoadHeader: Duplicate metadata entry found for [{0}].[{1}]. " +
+                                        "Old value (overwritten): \"{2}\". New value: \"{3}\"",
                                         group, key, oldValue, newValue );
                         }
                         if( group == "zones" ) {
                             try {
                                 map.Zones.Add( new Zone( newValue, map.World ) );
                             } catch( Exception ex ) {
-                                Logger.Log( "MapFCMv3.LoadHeader: Error importing zone definition: {0}", LogType.Error, ex );
+                                Logger.Log( LogType.Error,
+                                            "MapFCMv3.LoadHeader: Error importing zone definition: {0}", ex );
                             }
                         } else {
                             map.Metadata[group, key] = newValue;
@@ -118,15 +120,17 @@ namespace fCraft.MapConversion {
 
                         string oldValue;
                         if( map.Metadata.TryGetValue( key, group, out oldValue ) && oldValue != newValue ) {
-                            Logger.Log( "MapFCMv3.LoadHeader: Duplicate metadata entry found for [{0}].[{1}]. " +
-                                        "Old value (overwritten): \"{2}\". New value: \"{3}\"", LogType.Warning,
+                            Logger.Log( LogType.Warning,
+                                        "MapFCMv3.LoadHeader: Duplicate metadata entry found for [{0}].[{1}]. " +
+                                        "Old value (overwritten): \"{2}\". New value: \"{3}\"",
                                         group, key, oldValue, newValue );
                         }
                         if( group == "zones" ) {
                             try {
                                 map.Zones.Add( new Zone( newValue, map.World ) );
                             } catch( Exception ex ) {
-                                Logger.Log( "MapFCMv3.LoadHeader: Error importing zone definition: {0}", LogType.Error, ex );
+                                Logger.Log( LogType.Error,
+                                            "MapFCMv3.LoadHeader: Error importing zone definition: {0}", ex );
                             }
                         } else {
                             map.Metadata[group, key] = newValue;

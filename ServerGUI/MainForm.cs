@@ -60,7 +60,8 @@ namespace fCraft.ServerGUI {
                 try {
                     Process.GetCurrentProcess().PriorityClass = ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
                 } catch( Exception ) {
-                    Logger.Log( "MainForm.StartServer: Could not set process priority, using defaults.", LogType.Warning );
+                    Logger.Log( LogType.Warning,
+                                "MainForm.StartServer: Could not set process priority, using defaults." );
                 }
             }
             if( Server.StartServer() ) {

@@ -34,7 +34,7 @@ namespace fCraft {
         /// <summary> Gets a list of ONLY hidden or non-hidden commands, not both. </summary>
         public static CommandDescriptor[] GetCommands( bool hidden ) {
             return Commands.Values
-                           .Where( cmd => (cmd.IsHidden == hidden) )
+                           .Where( cmd => ( cmd.IsHidden == hidden ) )
                            .ToArray();
         }
 
@@ -43,7 +43,7 @@ namespace fCraft {
         public static CommandDescriptor[] GetCommands( [NotNull] Rank rank, bool includeHidden ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             return Commands.Values
-                           .Where( cmd => (!cmd.IsHidden || includeHidden) &&
+                           .Where( cmd => ( !cmd.IsHidden || includeHidden ) &&
                                           cmd.CanBeCalledBy( rank ) )
                            .ToArray();
         }
@@ -53,8 +53,8 @@ namespace fCraft {
         /// Note that commands may belong to more than one category. </summary>
         public static CommandDescriptor[] GetCommands( CommandCategory category, bool includeHidden ) {
             return Commands.Values
-                           .Where( cmd => (includeHidden || !cmd.IsHidden) &&
-                                          (cmd.Category & category) == category )
+                           .Where( cmd => ( includeHidden || !cmd.IsHidden ) &&
+                                          ( cmd.Category & category ) == category )
                            .ToArray();
         }
 
@@ -112,8 +112,9 @@ namespace fCraft {
             if( RaiseCommandRegisteringEvent( descriptor ) ) return;
 
             if( Aliases.ContainsKey( normalizedName ) ) {
-                Logger.Log( "CommandManager.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", " +
-                            "but has now been replaced by a different command of the same name.", LogType.Warning,
+                Logger.Log( LogType.Warning,
+                            "CommandManager.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", " +
+                            "but has now been replaced by a different command of the same name.",
                             descriptor.Name, Aliases[descriptor.Name] );
                 Aliases.Remove( normalizedName );
             }
@@ -122,12 +123,13 @@ namespace fCraft {
                 foreach( string alias in descriptor.Aliases ) {
                     string normalizedAlias = alias.ToLower();
                     if( ReservedCommandNames.Contains( normalizedAlias ) ) {
-                        Logger.Log( "CommandManager.RegisterCommand: Alias \"{0}\" for \"{1}\" ignored (reserved name).", LogType.Warning,
+                        Logger.Log( LogType.Warning,
+                                    "CommandManager.RegisterCommand: Alias \"{0}\" for \"{1}\" ignored (reserved name).",
                                     alias, descriptor.Name );
                     } else if( Aliases.ContainsKey( normalizedAlias ) ) {
-                        Logger.Log( "CommandManager.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", " +
+                        Logger.Log( LogType.Warning,
+                                    "CommandManager.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", " +
                                     "but has been overridden to resolve to \"{2}\" instead.",
-                                    LogType.Warning,
                                     alias, Aliases[normalizedAlias], descriptor.Name );
                     } else {
                         Aliases.Add( normalizedAlias, normalizedName );
@@ -208,8 +210,8 @@ namespace fCraft {
             // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < name.Length; i++ ) {
                 char ch = name[i];
-                if( (ch < '0' && ch != '.') || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') ||
-                    (ch > '_' && ch < 'a') || ch > 'z' ) {
+                if( ( ch < '0' && ch != '.' ) || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < '_' ) ||
+                    ( ch > '_' && ch < 'a' ) || ch > 'z' ) {
                     return false;
                 }
             }
@@ -267,7 +269,8 @@ namespace fCraft {
 
     public sealed class CommandRegistrationException : Exception {
         public CommandRegistrationException( string message ) : base( message ) { }
-        public CommandRegistrationException( string message, params string[] args ) :
+        [StringFormatMethod( "message" )]
+        public CommandRegistrationException( string message, params object[] args ) :
             base( String.Format( message, args ) ) { }
     }
 }

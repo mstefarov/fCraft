@@ -140,8 +140,9 @@ namespace fCraft {
 
             } catch( IOException ex ) {
                 HasChangedSinceSave = true;
-                Logger.Log( "Map.Save: Unable to open file \"{0}\" for writing: {1}", LogType.Error,
-                               tempFileName, ex );
+                Logger.Log( LogType.Error,
+                            "Map.Save: Unable to open file \"{0}\" for writing: {1}",
+                            tempFileName, ex );
                 if( File.Exists( tempFileName ) )
                     File.Delete( tempFileName );
                 return false;
@@ -150,13 +151,14 @@ namespace fCraft {
             // move newly-written file into its permanent destination
             try {
                 Paths.MoveOrReplace( tempFileName, fileName );
-                Logger.Log( "Saved map successfully to {0}", LogType.SystemActivity,
-                            fileName );
+                Logger.Log( LogType.SystemActivity,
+                            "Saved map to {0}", fileName );
                 HasChangedSinceBackup = true;
 
             } catch( Exception ex ) {
                 HasChangedSinceSave = true;
-                Logger.Log( "Error trying to replace file \"{0}\": {1}", LogType.Error,
+                Logger.Log( LogType.Error,
+                            "Error trying to replace file \"{0}\": {1}",
                             fileName, ex );
                 if( File.Exists( tempFileName ) )
                     File.Delete( tempFileName );
@@ -381,10 +383,10 @@ namespace fCraft {
                                            DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
                                            op.BlocksProcessed, op.BlocksUpdated );
                     }
-                    Logger.Log( "Player {0} cancelled {1} on world {2}. Processed {3}, Updated {4}, Skipped {5}, Denied {6} blocks.",
-                             LogType.UserActivity,
-                             op.Player, op.Description, World.Name,
-                             op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
+                    Logger.Log( LogType.UserActivity,
+                                "Player {0} cancelled {1} on world {2}. Processed {3}, Updated {4}, Skipped {5}, Denied {6} blocks.",
+                                op.Player, op.Description, World.Name,
+                                op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
                     op.End();
                     drawOps.RemoveAt( i );
                     i--;
@@ -394,8 +396,21 @@ namespace fCraft {
                 // draw a batch of blocks
                 int blocksToDraw = maxTotalUpdates / (drawOps.Count - i);
                 op.StartBatch();
+#if DEBUG
                 int blocksDrawn = op.DrawBatch( blocksToDraw );
-                //Logger.Log( "{0}: {1}/{2}", LogType.Debug, op.Description, blocksDrawn, blocksToDraw );
+#else
+                int blocksDrawn;
+                try{
+                    blocksDrawn = op.DrawBatch( blocksToDraw );
+                } catch( Exception ex ) {
+                    Logger.LogAndReportCrash( "DrawOp error", "fCraft", ex, false );
+                    op.Player.Message( "&WError occured in your draw command: {0}: {1}",
+                                       ex.GetType().Name, ex.Message );
+                    drawOps.RemoveAt( i );
+                    op.End();
+                    return blocksDrawnTotal;
+                }
+#endif
                 blocksDrawnTotal += blocksDrawn;
                 if( blocksDrawn > 0 ) {
                     HasChangedSinceSave = true;
@@ -430,13 +445,13 @@ namespace fCraft {
                             }
                         }
                     }
-                    Logger.Log( "Player {0} executed {1} on world {2} (between {3} and {4}). Processed {5}, Updated {6}, Skipped {7}, Denied {8} blocks.",
-                             LogType.UserActivity,
-                             op.Player.Name, op.Description, World.Name,
-                             op.Bounds.MinVertex, op.Bounds.MaxVertex,
-                             op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
-                    op.End();
+                    Logger.Log( LogType.UserActivity,
+                                "Player {0} executed {1} on world {2} (between {3} and {4}). Processed {5}, Updated {6}, Skipped {7}, Denied {8} blocks.",
+                                op.Player.Name, op.Description, World.Name,
+                                op.Bounds.MinVertex, op.Bounds.MaxVertex,
+                                op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
                     drawOps.RemoveAt( i );
+                    op.End();
                     i--;
                 }
             }
@@ -462,8 +477,8 @@ namespace fCraft {
                     try {
                         directory.Create();
                     } catch( Exception ex ) {
-                        Logger.Log( "Map.SaveBackup: Error occured while trying to create backup directory: {0}", LogType.Error,
-                                    ex );
+                        Logger.Log( LogType.Error,
+                                    "Map.SaveBackup: Error occured while trying to create backup directory: {0}", ex );
                         return;
                     }
                 }
@@ -473,7 +488,8 @@ namespace fCraft {
                     File.Copy( sourceName, targetName, true );
                 } catch( Exception ex ) {
                     HasChangedSinceBackup = true;
-                    Logger.Log( "Map.SaveBackup: Error occured while trying to save backup to \"{0}\": {1}", LogType.Error,
+                    Logger.Log( LogType.Error,
+                                "Map.SaveBackup: Error occured while trying to save backup to \"{0}\": {1}",
                                 targetName, ex );
                     return;
                 }
@@ -483,7 +499,7 @@ namespace fCraft {
                 }
             }
 
-            Logger.Log( "AutoBackup: " + targetName, LogType.SystemActivity );
+            Logger.Log( LogType.SystemActivity, "AutoBackup: {0}", targetName );
         }
 
 
@@ -500,12 +516,13 @@ namespace fCraft {
                     try {
                         File.Delete( info.FullName );
                     } catch( Exception ex ) {
-                        Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}", LogType.Error,
+                        Logger.Log( LogType.Error,
+                                    "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}",
                                     info.FullName, ex );
                         break;
                     }
-                    Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.SystemActivity,
-                                info.Name );
+                    Logger.Log( LogType.SystemActivity,
+                                "Map.SaveBackup: Deleted old backup \"{0}\"", info.Name );
                 }
             }
 
@@ -522,12 +539,13 @@ namespace fCraft {
                         try {
                             File.Delete( info.FullName );
                         } catch( Exception ex ) {
-                            Logger.Log( "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}", LogType.Error,
+                            Logger.Log( LogType.Error,
+                                        "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}",
                                         info.Name, ex );
                             break;
                         }
-                        Logger.Log( "Map.SaveBackup: Deleted old backup \"{0}\"", LogType.SystemActivity,
-                                    info.Name );
+                        Logger.Log( LogType.SystemActivity,
+                                    "Map.SaveBackup: Deleted old backup \"{0}\"", info.Name );
                     } else {
                         break;
                     }
@@ -542,23 +560,26 @@ namespace fCraft {
 
         public bool ValidateHeader() {
             if( !IsValidDimension( Width ) ) {
-                Logger.Log( "Map.ValidateHeader: Unsupported map width: {0}.", LogType.Error, Width );
+                Logger.Log( LogType.Error,
+                            "Map.ValidateHeader: Unsupported map width: {0}.", Width );
                 return false;
             }
 
             if( !IsValidDimension( Length ) ) {
-                Logger.Log( "Map.ValidateHeader: Unsupported map length: {0}.", LogType.Error, Length );
+                Logger.Log( LogType.Error,
+                            "Map.ValidateHeader: Unsupported map length: {0}.", Length );
                 return false;
             }
 
             if( !IsValidDimension( Height ) ) {
-                Logger.Log( "Map.ValidateHeader: Unsupported map height: {0}.", LogType.Error, Height );
+                Logger.Log( LogType.Error,
+                            "Map.ValidateHeader: Unsupported map height: {0}.", Height );
                 return false;
             }
 
             if( Spawn.X > Width * 32 || Spawn.Y > Length * 32 || Spawn.Z > Height * 32 || Spawn.X < 0 || Spawn.Y < 0 || Spawn.Z < 0 ) {
-                Logger.Log( "Map.ValidateHeader: Spawn coordinates are outside the valid range! Using center of the map instead.",
-                            LogType.Warning );
+                Logger.Log( LogType.Warning,
+                            "Map.ValidateHeader: Spawn coordinates are outside the valid range! Using center of the map instead." );
                 ResetSpawn();
             }
 

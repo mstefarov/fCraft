@@ -195,17 +195,17 @@ namespace fCraft {
             }
 
             if( MonoCompat.IsMono ) {
-                Logger.Log( "Running on Mono {0}", LogType.Debug, MonoCompat.MonoVersion );
+                Logger.Log( LogType.Debug, "Running on Mono {0}", MonoCompat.MonoVersion );
             }
 
 #if DEBUG_EVENTS
             Logger.PrepareEventTracing();
 #endif
 
-            Logger.Log( "Working directory: {0}", LogType.Debug, Directory.GetCurrentDirectory() );
-            Logger.Log( "Log path: {0}", LogType.Debug, Path.GetFullPath( Paths.LogPath ) );
-            Logger.Log( "Map path: {0}", LogType.Debug, Path.GetFullPath( Paths.MapPath ) );
-            Logger.Log( "Config path: {0}", LogType.Debug, Path.GetFullPath( Paths.ConfigFileName ) );
+            Logger.Log( LogType.Debug, "Working directory: {0}", Directory.GetCurrentDirectory() );
+            Logger.Log( LogType.Debug, "Log path: {0}", Path.GetFullPath( Paths.LogPath ) );
+            Logger.Log( LogType.Debug, "Map path: {0}", Path.GetFullPath( Paths.MapPath ) );
+            Logger.Log( LogType.Debug, "Config path: {0}", Path.GetFullPath( Paths.ConfigFileName ) );
 
             libraryInitialized = true;
         }
@@ -233,10 +233,10 @@ namespace fCraft {
 
             // warnings/disclaimers
             if( Updater.CurrentRelease.IsFlagged( ReleaseFlags.Dev ) ) {
-                Logger.Log( "You are using an unreleased developer version of fCraft. " +
+                Logger.Log( LogType.Warning,
+                            "You are using an unreleased developer version of fCraft. " +
                             "Do not use this version unless you are ready to deal with bugs and potential data loss. " +
-                            "Consider using the lastest stable version instead, available from www.fcraft.net",
-                            LogType.Warning );
+                            "Consider using the lastest stable version instead, available from www.fcraft.net" );
             }
 
             if( Updater.CurrentRelease.IsFlagged( ReleaseFlags.Unstable ) ) {
@@ -244,15 +244,16 @@ namespace fCraft {
                                                "Do not use except for debugging purposes. " +
                                                "Latest non-broken build is " + Updater.LatestStable;
 #if DEBUG
-                Logger.Log( unstableMessage, LogType.Warning, Updater.LatestStable );
+                Logger.Log( unstableMessage, LogType.Warning );
 #else
                 throw new Exception( unstableMessage );
 #endif
             }
 
             if( MonoCompat.IsMono && !MonoCompat.IsSGenCapable ) {
-                Logger.Log( "You are using a relatively old version of the Mono runtime ({0}). " +
-                            "It is recommended that you upgrade to at least 2.8+", LogType.Warning,
+                Logger.Log( LogType.Warning,
+                            "You are using a relatively old version of the Mono runtime ({0}). " +
+                            "It is recommended that you upgrade to at least 2.8+",
                             MonoCompat.MonoVersion );
             }
 
@@ -270,8 +271,9 @@ namespace fCraft {
             }
 
             if( ConfigKey.VerifyNames.GetEnum<NameVerificationMode>() == NameVerificationMode.Never ) {
-                Logger.Log( "Name verification is currently OFF. Your server is at risk of being hacked. " +
-                            "Enable name verification as soon as possible.", LogType.Warning );
+                Logger.Log( LogType.Warning,
+                            "Name verification is currently OFF. Your server is at risk of being hacked. " +
+                            "Enable name verification as soon as possible." );
             }
 
             // load player DB
@@ -344,7 +346,8 @@ namespace fCraft {
 
                 } catch( Exception ex ) {
                     // if the port is unavailable, try next one
-                    Logger.Log( "Could not start listening on port {0}, trying next port. ({1})", LogType.Error,
+                    Logger.Log( LogType.Error,
+                                "Could not start listening on port {0}, trying next port. ({1})",
                                 Port, ex.Message );
                     Port++;
                     attempts++;
@@ -353,11 +356,12 @@ namespace fCraft {
 
             // if the port still cannot be opened after [maxPortAttempts] attemps, die.
             if( !portFound ) {
-                Logger.Log( "Could not start listening on any IP/port. Giving up after {0} tries.", LogType.SeriousError,
+                Logger.Log( LogType.SeriousError,
+                            "Could not start listening on any IP/port. Giving up after {0} tries.",
                             MaxPortAttempts );
                 if( !ConfigKey.IP.IsBlank() ) {
-                    Logger.Log( "Do not use the \"Designated IP\" setting unless you have multiple NICs or IPs.", LogType.Warning,
-                                MaxPortAttempts );
+                    Logger.Log( LogType.Warning,
+                                "Do not use the \"Designated IP\" setting unless you have multiple NICs or IPs." );
                 }
                 return false;
             }
@@ -366,20 +370,23 @@ namespace fCraft {
             ExternalIP = CheckExternalIP();
 
             if( ExternalIP == null ) {
-                Logger.Log( "Server.Run: now accepting connections on port {0}", LogType.SystemActivity,
-                            Port );
+                Logger.Log( LogType.SystemActivity,
+                            "Server.Run: now accepting connections on port {0}", Port );
             } else {
-                Logger.Log( "Server.Run: now accepting connections at {0}:{1}", LogType.SystemActivity,
+                Logger.Log( LogType.SystemActivity,
+                            "Server.Run: now accepting connections at {0}:{1}",
                             ExternalIP, Port );
             }
 
 
             // list loaded worlds
             WorldManager.UpdateWorldList();
-            Logger.Log( "All available worlds: {0}", LogType.SystemActivity,
+            Logger.Log( LogType.SystemActivity,
+                        "All available worlds: {0}",
                         WorldManager.WorldList.JoinToString( ", ", w => w.Name ) );
 
-            Logger.Log( "Main world: {0}; default rank: {1}", LogType.SystemActivity,
+            Logger.Log( LogType.SystemActivity,
+                        "Main world: {0}; default rank: {1}",
                         WorldManager.MainWorld.Name, RankManager.DefaultRank.Name );
 
             // Check for incoming connections (every 250ms)
@@ -394,7 +401,8 @@ namespace fCraft {
                 Scheduler.NewTask( MonitorProcessorUsage ).RunForever( MonitorProcessorUsageInterval,
                                                                        MonitorProcessorUsageInterval );
             } catch( Exception ex ) {
-                Logger.Log( "Server.StartServer: Could not start monitoring CPU use: {0}", LogType.Error, ex );
+                Logger.Log( LogType.Error,
+                            "Server.StartServer: Could not start monitoring CPU use: {0}", ex );
             }
 
 
@@ -413,12 +421,14 @@ namespace fCraft {
             if( ConfigKey.HeartbeatToWoMDirect.Enabled() ) {
                 //Heartbeat.SetWoMDirectSettings();
                 if( ExternalIP == null ) {
-                    Logger.Log( "WoM Direct heartbeat is enabled. To edit your server's appearence on the server list, " +
-                                "see https://direct.worldofminecraft.com/server.php?port={0}&salt={1}", LogType.SystemActivity,
+                    Logger.Log( LogType.SystemActivity,
+                                "WoM Direct heartbeat is enabled. To edit your server's appearence on the server list, " +
+                                "see https://direct.worldofminecraft.com/server.php?port={0}&salt={1}",
                                 Port, Heartbeat.Salt );
                 } else {
-                    Logger.Log( "WoM Direct heartbeat is enabled. To edit your server's appearence on the server list, " +
-                                "see https://direct.worldofminecraft.com/server.php?ip={0}&port={1}&salt={2}", LogType.SystemActivity,
+                    Logger.Log( LogType.SystemActivity,
+                                "WoM Direct heartbeat is enabled. To edit your server's appearence on the server list, " +
+                                "see https://direct.worldofminecraft.com/server.php?ip={0}&port={1}&salt={2}",
                                 ExternalIP, Port, Heartbeat.Salt );
                 }
             }
@@ -464,7 +474,8 @@ namespace fCraft {
 
                 Scheduler.BeginShutdown();
 
-                Logger.Log( "Server shutting down ({0})", LogType.SystemActivity,
+                Logger.Log( LogType.SystemActivity,
+                            "Server shutting down ({0})",
                             shutdownParams.ReasonString );
 
                 // stop accepting new players
@@ -656,7 +667,8 @@ namespace fCraft {
                 try {
                     Player.StartSession( listenerCache.AcceptTcpClient() );
                 } catch( Exception ex ) {
-                    Logger.Log( "Server.CheckConnections: Could not accept incoming connection: " + ex, LogType.Error );
+                    Logger.Log( LogType.Error,
+                                "Server.CheckConnections: Could not accept incoming connection: {0}", ex );
                 }
             }
         }
@@ -717,7 +729,8 @@ namespace fCraft {
             proc.Refresh();
             long usageAfter = proc.PrivateMemorySize64 / (1024 * 1024);
 
-            Logger.Log( "Server.DoGC: Collected on schedule ({0}->{1} MB).", LogType.Debug,
+            Logger.Log( LogType.Debug,
+                        "Server.DoGC: Collected on schedule ({0}->{1} MB).",
                         usageBefore, usageAfter );
         }
 
@@ -831,7 +844,8 @@ namespace fCraft {
                     }
                 }
             }
-            Logger.Log( "Backed up server data to \"{0}\"", LogType.SystemActivity,
+            Logger.Log( LogType.SystemActivity,
+                        "Backed up server data to \"{0}\"",
                         backupFileName );
         }
 
@@ -902,7 +916,8 @@ namespace fCraft {
                     }
                 }
             } catch( WebException ex ) {
-                Logger.Log( "Could not check external IP: {0}", LogType.Warning, ex );
+                Logger.Log( LogType.Warning,
+                            "Could not check external IP: {0}", ex );
                 return null;
             }
         }
@@ -966,7 +981,8 @@ namespace fCraft {
                     if( s == player ) continue;
                     if( s.Name.Equals( player.Name, StringComparison.OrdinalIgnoreCase ) ) {
                         sessionsToKick.Add( s );
-                        Logger.Log( "Server.RegisterPlayer: Player {0} logged in twice. Ghost from {1} was kicked.", LogType.SuspiciousActivity,
+                        Logger.Log( LogType.SuspiciousActivity,
+                                    "Server.RegisterPlayer: Player {0} logged in twice. Ghost from {1} was kicked.",
                                     s.Name, s.IP );
                         s.Kick( "Connected from elsewhere!", LeaveReason.ClientReconnect );
                     }
@@ -1013,8 +1029,8 @@ namespace fCraft {
                 if( !player.HasRegistered ) return;
                 player.Info.ProcessLogout( player );
 
-                Logger.Log( "{0} left the server.", LogType.UserActivity,
-                            player.Name );
+                Logger.Log( LogType.UserActivity,
+                            "{0} left the server.", player.Name );
                 if( player.HasRegistered && ConfigKey.ShowConnectionMessages.Enabled() ) {
                     Players.CanSee( player ).Message( "&SPlayer {0}&S left the server.",
                                                       player.ClassyName );

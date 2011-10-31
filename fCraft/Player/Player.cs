@@ -101,6 +101,7 @@ namespace fCraft {
 
 
         /// <summary> Last command called by the player. </summary>
+        [CanBeNull]
         public Command LastCommand { get; private set; }
 
 
@@ -161,7 +162,7 @@ namespace fCraft {
         static readonly TimeSpan ConfirmationTimeout = TimeSpan.FromSeconds( 60 );
 
         int muteWarnings;
-        string partialMessage;
+        [CanBeNull] string partialMessage;
 
         // Parses message incoming from the player
         public void ParseMessage( [NotNull] string rawMessage, bool fromConsole ) {
@@ -223,8 +224,8 @@ namespace fCraft {
                             MessageNow( "&WYou cannot use this command while frozen." );
                         } else {
                             if( !commandDescriptor.DisableLogging ) {
-                                Logger.Log( "{0}: {1}", LogType.UserCommand,
-                                            Name, rawMessage );
+                                Logger.Log( LogType.UserCommand,
+                                            "{0}: {1}", Name, rawMessage );
                             }
                             if( commandDescriptor.RepeatableSelection ) {
                                 selectionRepeatCommand = cmd;
@@ -238,15 +239,16 @@ namespace fCraft {
 
 
                 case RawMessageType.RepeatCommand: {
-                        if( Info.IsFrozen ) {
-                            MessageNow( "&WYou cannot use any commands while frozen." );
-                            return;
-                        }
                         if( LastCommand == null ) {
                             Message( "No command to repeat." );
                         } else {
+                            if( Info.IsFrozen && !LastCommand.Descriptor.UsableByFrozenPlayers ) {
+                                MessageNow( "&WYou cannot use this command while frozen." );
+                                return;
+                            }
                             LastCommand.Rewind();
-                            Logger.Log( "{0} repeated: {1}", LogType.UserCommand,
+                            Logger.Log( LogType.UserCommand,
+                                        "{0} repeated: {1}",
                                         Name, LastCommand.Message );
                             Message( "Repeat: {0}", LastCommand.Message );
                             CommandManager.ParseCommand( this, LastCommand, fromConsole );
@@ -620,6 +622,7 @@ namespace fCraft {
 
 
         /// <summary> Returns a list of all currently-ignored players. </summary>
+        [NotNull]
         public PlayerInfo[] IgnoreList {
             get {
                 lock( ignoreLock ) {
@@ -876,7 +879,8 @@ namespace fCraft {
                 if( spamTimer < Info.Rank.AntiGriefSeconds ) {
                     KickNow( "You were kicked by antigrief system. Slow down.", LeaveReason.BlockSpamKick );
                     Server.Message( "{0}&W was kicked for suspected griefing.", ClassyName );
-                    Logger.Log( "{0} was kicked for block spam ({1} blocks in {2} seconds)", LogType.SuspiciousActivity,
+                    Logger.Log( LogType.SuspiciousActivity,
+                                "{0} was kicked for block spam ({1} blocks in {2} seconds)",
                                 Name, Info.Rank.AntiGriefBlocks, spamTimer );
                     return true;
                 }
@@ -1046,7 +1050,7 @@ namespace fCraft {
         #endregion
 
 
-        #region Undo
+        #region Undo / Redo
 
         readonly LinkedList<UndoState> undoStack = new LinkedList<UndoState>();
         readonly LinkedList<UndoState> redoStack = new LinkedList<UndoState>();
@@ -1099,6 +1103,7 @@ namespace fCraft {
         public void UndoClear() {
             undoStack.Clear();
         }
+
         public void RedoClear() {
             redoStack.Clear();
         }
@@ -1108,6 +1113,7 @@ namespace fCraft {
 
         #region Drawing, Selection
 
+        [NotNull]
         public IBrush Brush { get; set; }
 
         [CanBeNull]
@@ -1129,12 +1135,16 @@ namespace fCraft {
 
         /// <summary> Whether player is repeating a selection (/static) </summary>
         public bool IsRepeatingSelection { get; set; }
-        Command selectionRepeatCommand;
 
-        SelectionCallback selectionCallback;
+        [CanBeNull] Command selectionRepeatCommand;
+
+        [CanBeNull] SelectionCallback selectionCallback;
+
         readonly Queue<Vector3I> selectionMarks = new Queue<Vector3I>();
-        object selectionArgs;
-        Permission[] selectionPermissions;
+
+        [CanBeNull] object selectionArgs;
+
+        [CanBeNull] Permission[] selectionPermissions;
 
 
         public void SelectionAddMark( Vector3I pos, bool executeCallbackIfNeeded ) {
@@ -1154,7 +1164,9 @@ namespace fCraft {
 
 
         public void SelectionExecute() {
-            if( !IsMakingSelection ) throw new InvalidOperationException( "No selection in progress." );
+            if( !IsMakingSelection || selectionCallback == null ) {
+                throw new InvalidOperationException( "No selection in progress." );
+            }
             SelectionMarksExpected = 0;
             // check if player still has the permissions required to complete the selection.
             if( selectionPermissions == null || Can( selectionPermissions ) ) {
@@ -1174,10 +1186,9 @@ namespace fCraft {
 
         public void SelectionStart( int marksExpected,
                                     [NotNull] SelectionCallback callback,
-                                    object args,
-                                    params Permission[] requiredPermissions ) {
+                                    [CanBeNull] object args,
+                                    [CanBeNull] params Permission[] requiredPermissions ) {
             if( callback == null ) throw new ArgumentNullException( "callback" );
-            if( requiredPermissions == null ) throw new ArgumentNullException( "requiredPermissions" );
             selectionArgs = args;
             SelectionMarksExpected = marksExpected;
             selectionMarks.Clear();
@@ -1196,6 +1207,7 @@ namespace fCraft {
             SelectionMarksExpected = 0;
             selectionCallback = null;
             selectionArgs = null;
+            selectionPermissions = null;
         }
 
         #endregion
@@ -1304,7 +1316,8 @@ namespace fCraft {
                     }
                 }
             } catch( WebException ex ) {
-                Logger.Log( "Could not check paid status of player {0}: {1}", LogType.Warning,
+                Logger.Log( LogType.Warning,
+                            "Could not check paid status of player {0}: {1}",
                             name, ex.Message );
                 return false;
             }
@@ -1403,7 +1416,8 @@ namespace fCraft {
             Kick( kickReason, context );
 
             // log and record kick to PlayerDB
-            Logger.Log( "{0} was kicked by {1}. Reason: {2}", LogType.UserActivity,
+            Logger.Log( LogType.UserActivity,
+                        "{0} was kicked by {1}. Reason: {2}",
                         Name, player.Name, reason );
             if( recordToPlayerDB ) {
                 Info.ProcessKick( player, reason );

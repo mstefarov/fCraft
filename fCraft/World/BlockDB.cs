@@ -720,8 +720,8 @@ namespace fCraft {
                 if( EnumUtil.TryParse( temp.Value, out enabledStateTemp, true ) ) {
                     EnabledState = enabledStateTemp;
                 } else {
-                    Logger.Log( "WorldManager: Could not parse BlockDB \"enabled\" attribute of world \"{0}\", assuming AUTO.",
-                                LogType.Warning,
+                    Logger.Log( LogType.Warning,
+                                "WorldManager: Could not parse BlockDB \"enabled\" attribute of world \"{0}\", assuming \"Auto\"",
                                 World.Name );
                     EnabledState = YesNoAuto.Auto;
                 }
@@ -732,8 +732,8 @@ namespace fCraft {
                 if( Boolean.TryParse( temp.Value, out isPreloadedTemp ) ) {
                     IsPreloaded = isPreloadedTemp;
                 } else {
-                    Logger.Log( "WorldManager: Could not parse BlockDB \"preload\" attribute of world \"{0}\", assuming NOT preloaded.",
-                                LogType.Warning,
+                    Logger.Log( LogType.Warning,
+                                "WorldManager: Could not parse BlockDB \"preload\" attribute of world \"{0}\", assuming NOT preloaded.",
                                 World.Name );
                 }
             }
@@ -742,8 +742,8 @@ namespace fCraft {
                 if( Int32.TryParse( temp.Value, out limitTemp ) ) {
                     Limit = limitTemp;
                 } else {
-                    Logger.Log( "WorldManager: Could not parse BlockDB \"limit\" attribute of world \"{0}\", assuming NO limit.",
-                                LogType.Warning,
+                    Logger.Log( LogType.Warning,
+                                "WorldManager: Could not parse BlockDB \"limit\" attribute of world \"{0}\", assuming NO limit.",
                                 World.Name );
                 }
             }
@@ -752,8 +752,8 @@ namespace fCraft {
                 if( Int32.TryParse( temp.Value, out timeLimitSeconds ) ) {
                     TimeLimit = TimeSpan.FromSeconds( timeLimitSeconds );
                 } else {
-                    Logger.Log( "WorldManager: Could not parse BlockDB \"timeLimit\" attribute of world \"{0}\", assuming NO time limit.",
-                                LogType.Warning,
+                    Logger.Log( LogType.Warning,
+                                "WorldManager: Could not parse BlockDB \"timeLimit\" attribute of world \"{0}\", assuming NO time limit.",
                                 World.Name );
                 }
             }

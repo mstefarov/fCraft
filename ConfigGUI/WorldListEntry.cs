@@ -72,7 +72,8 @@ namespace fCraft.ConfigGUI {
                 if( temp.Value.ToTimeSpan( out realBackupTimer ) ) {
                     Backup = BackupNameFromValue( realBackupTimer );
                 } else {
-                    Logger.Log( "WorldListEntity: Cannot parse backup settings for world \"{0}\". Assuming default.", LogType.Error, name );
+                    Logger.Log( LogType.Error,
+                                "WorldListEntity: Cannot parse backup settings for world \"{0}\". Assuming default.", name );
                     Backup = BackupEnumNames[0];
                 }
             } else {
@@ -98,8 +99,8 @@ namespace fCraft.ConfigGUI {
                     if( EnumUtil.TryParse( temp.Value, out enabledStateTemp, true ) ) {
                         BlockDBEnabled = enabledStateTemp;
                     } else {
-                        Logger.Log( "WorldListEntity: Could not parse BlockDB \"enabled\" attribute of world \"{0}\", assuming AUTO.",
-                                    LogType.Warning,
+                        Logger.Log( LogType.Warning,
+                                    "WorldListEntity: Could not parse BlockDB \"enabled\" attribute of world \"{0}\", assuming \"Auto\".",
                                     name );
                         BlockDBEnabled = YesNoAuto.Auto;
                     }
@@ -110,8 +111,8 @@ namespace fCraft.ConfigGUI {
                     if( Boolean.TryParse( temp.Value, out isPreloaded ) ) {
                         blockDBIsPreloaded = isPreloaded;
                     } else {
-                        Logger.Log( "WorldListEntity: Could not parse BlockDB \"preload\" attribute of world \"{0}\", assuming NOT preloaded.",
-                                    LogType.Warning,
+                        Logger.Log( LogType.Warning,
+                                    "WorldListEntity: Could not parse BlockDB \"preload\" attribute of world \"{0}\", assuming NOT preloaded.",
                                     name );
                     }
                 }
@@ -120,8 +121,8 @@ namespace fCraft.ConfigGUI {
                     if( Int32.TryParse( temp.Value, out limit ) ) {
                         blockDBLimit = limit;
                     } else {
-                        Logger.Log( "WorldListEntity: Could not parse BlockDB \"limit\" attribute of world \"{0}\", assuming NO limit.",
-                                    LogType.Warning,
+                        Logger.Log( LogType.Warning,
+                                    "WorldListEntity: Could not parse BlockDB \"limit\" attribute of world \"{0}\", assuming NO limit.",
                                     name );
                     }
                 }
@@ -130,8 +131,8 @@ namespace fCraft.ConfigGUI {
                     if( Int32.TryParse( temp.Value, out timeLimitSeconds ) ) {
                         blockDBTimeLimit = TimeSpan.FromSeconds( timeLimitSeconds );
                     } else {
-                        Logger.Log( "WorldListEntity: Could not parse BlockDB \"timeLimit\" attribute of world \"{0}\", assuming NO time limit.",
-                                    LogType.Warning,
+                        Logger.Log( LogType.Warning,
+                                    "WorldListEntity: Could not parse BlockDB \"timeLimit\" attribute of world \"{0}\", assuming NO time limit.",
                                     name );
                     }
                 }

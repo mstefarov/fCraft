@@ -18,7 +18,7 @@ namespace fCraft.Drawing {
             : base( player ) {
         }
 
-        const float cloneSeparation = 1.21f; // gigawatts
+        const float CloneSeparation = 1.21f; // gigawatts
 
 
         public override bool Prepare( Vector3I[] marks ) {
@@ -38,8 +38,8 @@ namespace fCraft.Drawing {
 
             triangleNormal = (triangle[1] - triangle[0]).Cross( triangle[2] - triangle[0] ).Normalize();
 
-            planePoint1 = triangle[0] + triangleNormal * cloneSeparation;
-            planePoint2 = triangle[0] - triangleNormal * cloneSeparation;
+            planePoint1 = triangle[0] + triangleNormal * CloneSeparation;
+            planePoint2 = triangle[0] - triangleNormal * CloneSeparation;
 
             BlocksTotalEstimate = Math.Max( Bounds.Width, Math.Max( Bounds.Height, Bounds.Length ) );
             return true;
@@ -47,7 +47,7 @@ namespace fCraft.Drawing {
 
         Vector3F triangleNormal;
         Vector3F planePoint1, planePoint2;
-        Vector3F[] triangle = new Vector3F[3];
+        readonly Vector3F[] triangle = new Vector3F[3];
 
 
         public override int DrawBatch( int maxBlocksToDraw ) {
@@ -55,7 +55,7 @@ namespace fCraft.Drawing {
             for( ; Coords.X <= Bounds.XMax; Coords.X++ ) {
                 for( ; Coords.Y <= Bounds.YMax; Coords.Y++ ) {
                     for( ; Coords.Z <= Bounds.ZMax; Coords.Z++ ) {
-                        if( TriangleIntersectsBlock( Coords, triangle ) &&
+                        if( TriangleIntersectsBlock( Coords ) &&
                             !PlaneIntersect( Coords, planePoint1 ) &&
                             !PlaneIntersect( Coords, planePoint2 ) ) {
                             if( !DrawOneBlock() ) continue;
@@ -79,7 +79,7 @@ namespace fCraft.Drawing {
         }
 
 
-        bool TriangleIntersectsBlock( Vector3I coord, Vector3F[] triangle ) {
+        bool TriangleIntersectsBlock( Vector3I coord ) {
             Vector3F boxCenter = coord + HalfBlockSize;
 
             Vector3F v0 = triangle[0] - boxCenter;

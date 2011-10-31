@@ -932,7 +932,8 @@ namespace fCraft {
                     try {
                         Unfreeze( kickedBy, false, true );
                     } catch( PlayerOpException ex ) {
-                        Logger.Log( "PlayerInfo.ProcessKick: {0}", LogType.Warning, ex.Message );
+                        Logger.Log( LogType.Warning,
+                                    "PlayerInfo.ProcessKick: {0}", ex.Message );
                     }
                 }
                 LastModified = DateTime.UtcNow;

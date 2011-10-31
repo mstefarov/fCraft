@@ -47,7 +47,7 @@ namespace fCraft {
 
         internal static void MarkLogStart() {
             // Mark start of logging
-            Log( "------ Log Starts {0} ({1}) ------", LogType.SystemActivity,
+            Log( LogType.SystemActivity, "------ Log Starts {0} ({1}) ------",
                  DateTime.Now.ToLongDateString(), DateTime.Now.ToShortDateString() ); // localized
         }
 
@@ -65,21 +65,21 @@ namespace fCraft {
                 if( message[i] == '&' ) i++;
                 else processedMessage += message[i];
             }
-            Log( processedMessage, LogType.ConsoleOutput );
+            Log( LogType.ConsoleOutput, processedMessage );
         }
 
 
         [DebuggerStepThrough]
         [StringFormatMethod( "message" )]
-        public static void Log( [NotNull] string message, LogType type, [NotNull] params object[] values ) {
+        public static void Log( LogType type, [NotNull] string message, [NotNull] params object[] values ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( values == null ) throw new ArgumentNullException( "values" );
-            Log( String.Format( message, values ), type );
+            Log( type, String.Format( message, values ) );
         }
 
 
         [DebuggerStepThrough]
-        public static void Log( [NotNull] string message, LogType type ) {
+        public static void Log( LogType type, [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( !Enabled ) return;
             string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message; // localized
@@ -141,24 +141,25 @@ namespace fCraft {
         const int MinCrashReportInterval = 61; // minimum interval between submitting crash reports, in seconds
 
 
-        public static void LogAndReportCrash( [CanBeNull] string message, [CanBeNull] string assembly, [CanBeNull] Exception exception, bool shutdownImminent ) {
+        public static void LogAndReportCrash( [CanBeNull] string message, [CanBeNull] string assembly,
+                                              [CanBeNull] Exception exception, bool shutdownImminent ) {
             if( message == null ) message = "(null)";
             if( assembly == null ) assembly = "(null)";
             if( exception == null ) exception = new Exception( "(null)" );
 
-            Log( "{0}: {1}", LogType.SeriousError, message, exception );
+            Log( LogType.SeriousError, "{0}: {1}", message, exception );
 
             bool submitCrashReport = ConfigKey.SubmitCrashReports.Enabled();
             bool isCommon = CheckForCommonErrors( exception );
 
             // ReSharper disable EmptyGeneralCatchClause
             try {
-                CrashedEventArgs eventArgs = new CrashedEventArgs( message,
-                                                               assembly,
-                                                               exception,
-                                                               submitCrashReport && !isCommon,
-                                                               isCommon,
-                                                               shutdownImminent );
+                var eventArgs = new CrashedEventArgs( message,
+                                                      assembly,
+                                                      exception,
+                                                      submitCrashReport && !isCommon,
+                                                      isCommon,
+                                                      shutdownImminent );
                 RaiseCrashedEvent( eventArgs );
                 isCommon = eventArgs.IsCommonProblem;
             } catch { }
@@ -170,7 +171,7 @@ namespace fCraft {
 
             lock( CrashReportLock ) {
                 if( DateTime.UtcNow.Subtract( lastCrashReport ).TotalSeconds < MinCrashReportInterval ) {
-                    Log( "Logger.SubmitCrashReport: Could not submit crash report, reports too frequent.", LogType.Warning );
+                    Log( LogType.Warning, "Logger.SubmitCrashReport: Could not submit crash report, reports too frequent." );
                     return;
                 }
                 lastCrashReport = DateTime.UtcNow;
@@ -188,14 +189,14 @@ namespace fCraft {
                     }
                     sb.Append( "&os=" ).Append( Environment.OSVersion.Platform + " / " + Environment.OSVersion.VersionString );
 
-                        if( exception is TargetInvocationException ) {
-                            exception = (exception).InnerException;
-                        } else if( exception is TypeInitializationException ) {
-                            exception = (exception).InnerException;
-                        }
-                        sb.Append( "&exceptiontype=" ).Append( Uri.EscapeDataString( exception.GetType().ToString() ) );
-                        sb.Append( "&exceptionmessage=" ).Append( Uri.EscapeDataString( exception.Message ) );
-                        sb.Append( "&exceptionstacktrace=" ).Append( Uri.EscapeDataString( exception.StackTrace ) );
+                    if( exception is TargetInvocationException ) {
+                        exception = (exception).InnerException;
+                    } else if( exception is TypeInitializationException ) {
+                        exception = (exception).InnerException;
+                    }
+                    sb.Append( "&exceptiontype=" ).Append( Uri.EscapeDataString( exception.GetType().ToString() ) );
+                    sb.Append( "&exceptionmessage=" ).Append( Uri.EscapeDataString( exception.Message ) );
+                    sb.Append( "&exceptionstacktrace=" ).Append( Uri.EscapeDataString( exception.StackTrace ) );
 
                     if( File.Exists( Paths.ConfigFileName ) ) {
                         sb.Append( "&config=" ).Append( Uri.EscapeDataString( File.ReadAllText( Paths.ConfigFileName ) ) );
@@ -237,19 +238,19 @@ namespace fCraft {
                     request.Abort();
 
                     if( responseString != null && responseString.StartsWith( "ERROR" ) ) {
-                        Log( "Crash report could not be processed by fCraft.net.", LogType.Error );
+                        Log( LogType.Error, "Crash report could not be processed by fCraft.net." );
                     } else {
                         int referenceNumber;
                         if( responseString != null && Int32.TryParse( responseString, out referenceNumber ) ) {
-                            Log( "Crash report submitted (Reference #{0})", LogType.SystemActivity, referenceNumber );
+                            Log( LogType.SystemActivity, "Crash report submitted (Reference #{0})", referenceNumber );
                         } else {
-                            Log( "Crash report submitted.", LogType.SystemActivity );
+                            Log( LogType.SystemActivity, "Crash report submitted." );
                         }
                     }
 
 
                 } catch( Exception ex ) {
-                    Log( "Logger.SubmitCrashReport: {0}", LogType.Warning, ex.Message );
+                    Log( LogType.Warning, "Logger.SubmitCrashReport: {0}", ex.Message );
                 }
             }
         }
@@ -267,12 +268,13 @@ namespace fCraft {
                     return true;
 
                 } else if( ex is MissingMethodException ) {
-                    message = "Something is incompatible with the current revision of fCraft. "+
-                              "If you installed third-party modifications, make sure to use the correct revision (as specified by mod developers). "+
+                    message = "Something is incompatible with the current revision of fCraft. " +
+                              "If you installed third-party modifications, " +
+                              "make sure to use the correct revision (as specified by mod developers). " +
                               "If your own modifications stopped working, your may need to make some updates.";
                     return true;
 
-                } else if( ex is FileNotFoundException && ex.Message.Contains( "libMonoPosixHelper.so" ) ||
+                } else if( ex.Message.Contains( "libMonoPosixHelper" ) ||
                            ex is EntryPointNotFoundException && ex.Message.Contains( "CreateZStream" ) ) {
                     message = "fCraft could not locate Mono's compression functionality. " +
                               "Please make sure that you have zlib (sometimes called \"libz\" or just \"z\") installed. " +
@@ -315,7 +317,7 @@ namespace fCraft {
                 }
             } finally {
                 if( message != null ) {
-                    Log( message, LogType.Warning );
+                    Log( LogType.Warning, message );
                 }
             }
         }

@@ -82,9 +82,10 @@ namespace fCraft {
 
                             } else if( firstWorld != null ) {
                                 // if specified main world does not exist, use first-defined world
-                                Logger.Log( "The specified main world \"{0}\" does not exist. " +
+                                Logger.Log( LogType.Warning,
+                                            "The specified main world \"{0}\" does not exist. " +
                                             "\"{1}\" was designated main instead. You can use /WMain to change it.",
-                                            LogType.Warning, temp.Value, firstWorld.Name );
+                                            temp.Value, firstWorld.Name );
                                 newMainWorld = firstWorld;
                             }
                             // if firstWorld was also null, LoadWorldList() should try creating a new mainWorld
@@ -99,13 +100,15 @@ namespace fCraft {
                 }
 
                 if( newMainWorld == null ) {
-                    Logger.Log( "Server.Start: Could not load any of the specified worlds, or no worlds were specified. " +
-                                "Creating default \"main\" world.", LogType.Error );
+                    Logger.Log( LogType.Error,
+                                "Server.Start: Could not load any of the specified worlds, or no worlds were specified. " +
+                                "Creating default \"main\" world." );
                     newMainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
                 }
 
             } else {
-                Logger.Log( "Server.Start: No world list found. Creating default \"main\" world.", LogType.SystemActivity );
+                Logger.Log( LogType.SystemActivity,
+                            "Server.Start: No world list found. Creating default \"main\" world." );
                 newMainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
             }
 
@@ -114,8 +117,9 @@ namespace fCraft {
                 throw new Exception( "Could not create any worlds." );
 
             } else if( newMainWorld.AccessSecurity.HasRestrictions ) {
-                Logger.Log( "Server.LoadWorldList: Main world cannot have any access restrictions. " +
-                            "Access permission for \"{0}\" has been reset.", LogType.Warning,
+                Logger.Log( LogType.Warning,
+                            "Server.LoadWorldList: Main world cannot have any access restrictions. " +
+                            "Access permission for \"{0}\" has been reset.",
                              newMainWorld.Name );
                 newMainWorld.AccessSecurity.Reset();
             }
@@ -129,7 +133,7 @@ namespace fCraft {
             if( el == null ) throw new ArgumentNullException( "el" );
             XAttribute tempAttr;
             if( (tempAttr = el.Attribute( "name" )) == null ) {
-                Logger.Log( "WorldManager: World tag with no name skipped.", LogType.Error );
+                Logger.Log( LogType.Error, "WorldManager: World tag with no name skipped." );
                 return;
             }
             string worldName = tempAttr.Value;
@@ -140,8 +144,8 @@ namespace fCraft {
             try {
                 world = AddWorld( null, worldName, null, neverUnload );
             } catch( WorldOpException ex ) {
-                Logger.Log( "WorldManager: Error adding world \"{0}\": {1}",
-                            LogType.Error,
+                Logger.Log( LogType.Error,
+                            "WorldManager: Error adding world \"{0}\": {1}",
                             worldName, ex.Message );
                 return;
             }
@@ -151,8 +155,8 @@ namespace fCraft {
                 if( Boolean.TryParse( tempAttr.Value, out isHidden ) ) {
                     world.IsHidden = isHidden;
                 } else {
-                    Logger.Log( "WorldManager: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
-                                LogType.Warning,
+                    Logger.Log( LogType.Warning,
+                                "WorldManager: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
                                 worldName );
                 }
             }
@@ -161,12 +165,12 @@ namespace fCraft {
             XElement tempEl;
             if( (tempEl = el.Element( AccessSecurityXmlTagName )) != null ) {
                 world.AccessSecurity = new SecurityController( tempEl, true );
-            }else if( (tempEl=el.Element( "accessSecurity" )) != null ) {
+            } else if( (tempEl = el.Element( "accessSecurity" )) != null ) {
                 world.AccessSecurity = new SecurityController( tempEl, true );
             }
             if( (tempEl = el.Element( BuildSecurityXmlTagName )) != null ) {
                 world.BuildSecurity = new SecurityController( tempEl, true );
-            }else if( (tempEl=el.Element( "buildSecurity" )) != null ) {
+            } else if( (tempEl = el.Element( "buildSecurity" )) != null ) {
                 world.BuildSecurity = new SecurityController( tempEl, true );
             }
 
@@ -176,8 +180,8 @@ namespace fCraft {
                     world.BackupInterval = backupInterval;
                 } else {
                     world.BackupInterval = World.DefaultBackupInterval;
-                    Logger.Log( "WorldManager: Could not parse \"backup\" attribute of world \"{0}\", assuming default ({1}).",
-                                LogType.Warning,
+                    Logger.Log( LogType.Warning,
+                                "WorldManager: Could not parse \"backup\" attribute of world \"{0}\", assuming default ({1}).",
                                 worldName,
                                 world.BackupInterval.ToMiniString() );
                 }
@@ -195,32 +199,32 @@ namespace fCraft {
                 if( (tempAttr = envEl.Attribute( "cloud" )) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out world.CloudColor ) ) {
                         world.CloudColor = -1;
-                        Logger.Log( "WorldManager: Could not parse \"cloud\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
-                                    LogType.Warning,
+                        Logger.Log( LogType.Warning,
+                                    "WorldManager: Could not parse \"cloud\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
                                     worldName );
                     }
                 }
                 if( (tempAttr = envEl.Attribute( "fog" )) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out world.FogColor ) ) {
                         world.FogColor = -1;
-                        Logger.Log( "WorldManager: Could not parse \"fog\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
-                                    LogType.Warning,
+                        Logger.Log( LogType.Warning,
+                                    "WorldManager: Could not parse \"fog\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
                                     worldName );
                     }
                 }
                 if( (tempAttr = envEl.Attribute( "sky" )) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out world.SkyColor ) ) {
                         world.SkyColor = -1;
-                        Logger.Log( "WorldManager: Could not parse \"sky\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
-                                    LogType.Warning,
+                        Logger.Log( LogType.Warning,
+                                    "WorldManager: Could not parse \"sky\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
                                     worldName );
                     }
                 }
                 if( (tempAttr = envEl.Attribute( "level" )) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out world.EdgeLevel ) ) {
                         world.EdgeLevel = -1;
-                        Logger.Log( "WorldManager: Could not parse \"level\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
-                                    LogType.Warning,
+                        Logger.Log( LogType.Warning,
+                                    "WorldManager: Could not parse \"level\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
                                     worldName );
                     }
                 }
@@ -228,14 +232,14 @@ namespace fCraft {
                     Block block = Map.GetBlockByName( tempAttr.Value );
                     if( block == Block.Undefined ) {
                         world.EdgeBlock = Block.Water;
-                        Logger.Log( "WorldManager: Could not parse \"edge\" attribute of Environment settings for world \"{0}\", assuming default (Water).",
-                                    LogType.Warning,
+                        Logger.Log( LogType.Warning,
+                                    "WorldManager: Could not parse \"edge\" attribute of Environment settings for world \"{0}\", assuming default (Water).",
                                     worldName );
                     } else {
                         if( Map.GetEdgeTexture( block ) == null ) {
                             world.EdgeBlock = Block.Water;
-                            Logger.Log( "WorldManager: Unacceptable blocktype given for \"edge\" attribute of Environment settings for world \"{0}\", assuming default (Water).",
-                                        LogType.Warning,
+                            Logger.Log( LogType.Warning,
+                                        "WorldManager: Unacceptable blocktype given for \"edge\" attribute of Environment settings for world \"{0}\", assuming default (Water).",
                                         worldName );
                         } else {
                             world.EdgeBlock = block;
@@ -249,8 +253,8 @@ namespace fCraft {
                 if( rank != null ) {
                     if( rank < world.AccessSecurity.MinRank ) {
                         world.AccessSecurity.MinRank = rank;
-                        Logger.Log( "WorldManager: Lowered access MinRank of world {0} to allow it to be the main world for that rank.",
-                                    LogType.Warning,
+                        Logger.Log( LogType.Warning,
+                                    "WorldManager: Lowered access MinRank of world {0} to allow it to be the main world for that rank.",
                                     rank.Name );
                     }
                     rank.MainWorld = world;
@@ -274,22 +278,23 @@ namespace fCraft {
                     FileInfo[] matches = Paths.FindFiles( fullMapFileName );
                     if( matches.Length == 1 ) {
                         // Try to rename the map file to match world's capitalization
-// ReSharper disable AssignNullToNotNullAttribute
+                        // ReSharper disable AssignNullToNotNullAttribute
                         Paths.ForceRename( matches[0].FullName, fileName );
-// ReSharper restore AssignNullToNotNullAttribute
+                        // ReSharper restore AssignNullToNotNullAttribute
                         if( Paths.FileExists( fullMapFileName, true ) ) {
-                            Logger.Log( "WorldManager.CheckMapFile: Map file for world \"{0}\" was renamed from \"{1}\" to \"{2}\"",
-                                        LogType.Warning,
+                            Logger.Log( LogType.Warning,
+                                        "WorldManager.CheckMapFile: Map file for world \"{0}\" was renamed from \"{1}\" to \"{2}\"",
                                         world.Name, matches[0].Name, fileName );
                         } else {
-                            Logger.Log( "WorldManager.CheckMapFile: Failed to rename map file of \"{0}\" from \"{1}\" to \"{2}\"",
-                                        LogType.Error,
+                            Logger.Log( LogType.Error,
+                                        "WorldManager.CheckMapFile: Failed to rename map file of \"{0}\" from \"{1}\" to \"{2}\"",
                                         world.Name, matches[0].Name, fileName );
                             return;
                         }
                     } else {
-                        Logger.Log( "WorldManager.CheckMapFile: More than one map file exists matching the world name \"{0}\". " +
-                                    "Please check the map directory and use /WLoad to load the correct file.", LogType.Warning,
+                        Logger.Log( LogType.Warning,
+                                    "WorldManager.CheckMapFile: More than one map file exists matching the world name \"{0}\". " +
+                                    "Please check the map directory and use /WLoad to load the correct file.",
                                     world.Name );
                         return;
                     }
@@ -298,11 +303,13 @@ namespace fCraft {
                 try {
                     MapUtility.LoadHeader( world.MapFileName );
                 } catch( Exception ex ) {
-                    Logger.Log( "WorldManager.CheckMapFile: Could not load map file for world \"{0}\": {1}", LogType.Warning,
+                    Logger.Log( LogType.Warning,
+                                "WorldManager.CheckMapFile: Could not load map file for world \"{0}\": {1}",
                                 world.Name, ex );
                 }
             } else {
-                Logger.Log( "WorldManager.CheckMapFile: Map file for world \"{0}\" was not found.", LogType.Warning,
+                Logger.Log( LogType.Warning,
+                            "WorldManager.CheckMapFile: Map file for world \"{0}\" was not found.",
                             world.Name );
             }
         }
@@ -624,7 +631,8 @@ namespace fCraft {
                 try {
                     worldToDelete.BlockDB.Clear();
                 } catch( Exception ex ) {
-                    Logger.Log( "WorldManager.RemoveWorld: Could not delete BlockDB file: {0}", LogType.Error, ex );
+                    Logger.Log( LogType.Error,
+                                "WorldManager.RemoveWorld: Could not delete BlockDB file: {0}", ex );
                 }
 
                 Worlds.Remove( worldToDelete.Name.ToLower() );

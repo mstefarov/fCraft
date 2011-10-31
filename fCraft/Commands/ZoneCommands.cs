@@ -160,9 +160,9 @@ namespace fCraft {
                 zone.Create( new BoundingBox( marks[0], marks[1] ), player.Info );
 
                 player.Message( "Zone \"{0}\" created, {1} blocks total.",
-                                zone.Name,
-                                zone.Bounds.Volume );
-                Logger.Log( "Player {0} created a new zone \"{1}\" containing {2} blocks.", LogType.UserActivity,
+                                zone.Name, zone.Bounds.Volume );
+                Logger.Log( LogType.UserActivity,
+                            "Player {0} created a new zone \"{1}\" containing {2} blocks.",
                             player.Name,
                             zone.Name,
                             zone.Bounds.Volume );
@@ -556,7 +556,8 @@ namespace fCraft {
             // announce the rename
             playerWorld.Players.Message( "&SZone \"{0}\" was renamed to \"{1}&S\" by {2}",
                                          fullOldName, oldZone.ClassyName, player.ClassyName );
-            Logger.Log( "Player {0} renamed zone \"{1}\" to \"{2}\" on world {3}", LogType.UserActivity,
+            Logger.Log( LogType.UserActivity,
+                        "Player {0} renamed zone \"{1}\" to \"{2}\" on world {3}",
                         player.Name, fullOldName, newName, playerWorld.Name );
         }
 

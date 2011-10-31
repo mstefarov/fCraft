@@ -687,13 +687,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             int number = 1;
             while( RankManager.RanksByName.ContainsKey( "rank" + number ) ) number++;
 
-            Rank rank = new Rank {
-                ID = RankManager.GenerateID(),
-                Name = "rank" + number,
-                Prefix = "",
-                ReservedSlot = false,
-                Color = Color.White
-            };
+            Rank rank = new Rank( "rank" + number, RankManager.GenerateID() );
 
             RankManager.AddRank( rank );
             selectedRank = null;

@@ -67,19 +67,21 @@ namespace fCraft.AutoRank {
                         try {
                             Add( new Criterion( el ) );
                         } catch( Exception ex ) {
-                            Logger.Log( "AutoRank.Init: Could not parse an AutoRank criterion: {0}", LogType.Error, ex );
+                            Logger.Log( LogType.Error,
+                                        "AutoRank.Init: Could not parse an AutoRank criterion: {0}", ex );
                         }
                     }
                     if( Criteria.Count == 0 ) {
-                        Logger.Log( "AutoRank.Init: No criteria loaded.", LogType.Warning );
+                        Logger.Log( LogType.Warning, "AutoRank.Init: No criteria loaded." );
                     }
                     return true;
                 } catch( Exception ex ) {
-                    Logger.Log( "AutoRank.Init: Could not parse the AutoRank file: {0}", LogType.Error, ex );
+                    Logger.Log( LogType.Error,
+                                "AutoRank.Init: Could not parse the AutoRank file: {0}", ex );
                     return false;
                 }
             } else {
-                Logger.Log( "AutoRank.Init: autorank.xml not found. No criteria loaded.", LogType.Warning );
+                Logger.Log( LogType.Warning, "AutoRank.Init: autorank.xml not found. No criteria loaded." );
                 return false;
             }
         }

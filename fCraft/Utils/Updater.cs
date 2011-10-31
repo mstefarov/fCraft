@@ -49,7 +49,7 @@ namespace fCraft {
             string url = String.Format( UpdateUrl, CurrentRelease.Revision );
             if( RaiseCheckingForUpdatesEvent( ref url ) ) return UpdaterResult.NoUpdate;
 
-            Logger.Log( "Checking for fCraft updates...", LogType.SystemActivity );
+            Logger.Log( LogType.SystemActivity, "Checking for fCraft updates..." );
             try {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create( url );
 
@@ -95,7 +95,8 @@ namespace fCraft {
                     }
                 }
             } catch( Exception ex ) {
-                Logger.Log( "An error occured while trying to check for updates: {0}: {1}", LogType.Error,
+                Logger.Log( LogType.Error,
+                            "An error occured while trying to check for updates: {0}: {1}",
                             ex.GetType(), ex.Message );
                 return UpdaterResult.NoUpdate;
             }

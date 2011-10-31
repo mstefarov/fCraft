@@ -25,7 +25,8 @@ namespace fCraft.ServerWinService {
                 Heartbeat.UriChanged += OnHeartbeatUrlChanged;
                 Server.InitServer();
                 Server.StartServer();
-                Logger.Log( "ServerWinService.OnStart: Service started.", LogType.SystemActivity );
+                Logger.Log( LogType.SystemActivity,
+                            "ServerWinService.OnStart: Service started." );
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "ServerWinService failed to initialize or start", "ServerWinService", ex, true );
             }
@@ -34,7 +35,8 @@ namespace fCraft.ServerWinService {
 
 
         protected override void OnStop() {
-            Logger.Log( "ServerWinService.OnStop: Stopping.", LogType.SystemActivity );
+            Logger.Log( LogType.SystemActivity,
+                        "ServerWinService.OnStop: Stopping." );
             Server.Shutdown( new ShutdownParams( ShutdownReason.ProcessClosing, TimeSpan.Zero, false, false ), true );
             base.OnStop();
         }

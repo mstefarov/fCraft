@@ -29,6 +29,7 @@ namespace fCraft {
             }
         }
 
+        [NotNull]
         public string StartedBy { get; private set; }
 
 

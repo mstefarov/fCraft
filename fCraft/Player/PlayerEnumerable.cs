@@ -17,6 +17,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="rank"> Desired rank. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> Ranked( this IEnumerable<Player> source, Rank rank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( rank == null ) throw new ArgumentNullException( "rank" );
@@ -32,6 +33,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="rank"> Undesired rank. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> NotRanked( this IEnumerable<Player> source, Rank rank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( rank == null ) throw new ArgumentNullException( "rank" );
@@ -47,6 +49,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="minRank"> All ranks above this one will be kept. This and lower ranks will be filtered out. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> RankedAbove( this IEnumerable<Player> source, Rank minRank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( minRank == null ) throw new ArgumentNullException( "minRank" );
@@ -62,6 +65,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="minRank"> Minimum desired rank. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> RankedAtLeast( this IEnumerable<Player> source, Rank minRank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( minRank == null ) throw new ArgumentNullException( "minRank" );
@@ -77,6 +81,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="maxRank"> All ranks below this one will be kept. This and higher ranks will be filtered out. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> RankedBelow( this IEnumerable<Player> source, Rank maxRank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( maxRank == null ) throw new ArgumentNullException( "maxRank" );
@@ -92,6 +97,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="maxRank"> Maximum desired rank. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> RankedAtMost( this IEnumerable<Player> source, Rank maxRank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( maxRank == null ) throw new ArgumentNullException( "maxRank" );
@@ -111,6 +117,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="permission"> Permission that players are required to have. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> Can( [NotNull] this IEnumerable<Player> source, Permission permission ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             foreach( Player player in source ) {
@@ -127,6 +134,7 @@ namespace fCraft {
         /// <param name="permission"> Permission that players are required to have. </param>
         /// <param name="affectedRank"> Permission limit will be checked against this rank. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> Can( [NotNull] this IEnumerable<Player> source, Permission permission, [NotNull] Rank affectedRank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( affectedRank == null ) throw new ArgumentNullException( "affectedRank" );
@@ -142,6 +150,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="permission"> Permission that players are required to NOT have. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> Cant( [NotNull] this IEnumerable<Player> source, Permission permission ) {
             foreach( Player player in source ) {
                 if( !player.Can( permission ) ) {
@@ -157,6 +166,7 @@ namespace fCraft {
         /// <param name="permission"> Permission that players are required to NOT have. </param>
         /// <param name="affectedRank"> Permission limit will be checked against this rank. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> Cant( [NotNull] this IEnumerable<Player> source, Permission permission, [NotNull] Rank affectedRank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( affectedRank == null ) throw new ArgumentNullException( "affectedRank" );
@@ -173,6 +183,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="targetPlayer"> Player whose visibility is being tested. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> CanSee( [NotNull] this IEnumerable<Player> source, [NotNull] Player targetPlayer ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( targetPlayer == null ) throw new ArgumentNullException( "targetPlayer" );
@@ -189,6 +200,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="targetPlayer"> Player whose visibility is being tested. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> CantSee( [NotNull] this IEnumerable<Player> source, [NotNull] Player targetPlayer ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( targetPlayer == null ) throw new ArgumentNullException( "targetPlayer" );
@@ -204,6 +216,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="observer"> Player whose vision is being tested. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> CanBeSeen( [NotNull] this IEnumerable<Player> source, [NotNull] Player observer ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( observer == null ) throw new ArgumentNullException( "observer" );
@@ -219,6 +232,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="observer"> Player whose vision is being tested. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> CantBeSeen( [NotNull] this IEnumerable<Player> source, [NotNull] Player observer ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( observer == null ) throw new ArgumentNullException( "observer" );
@@ -238,6 +252,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="player"> Player whose ignore standing is being checked. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> Ignoring( [NotNull] this IEnumerable<Player> source, [NotNull] Player player ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -253,6 +268,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="player"> Player whose ignore standing is being checked. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> NotIgnoring( [NotNull] this IEnumerable<Player> source, [NotNull] Player player ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -268,6 +284,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="playerInfo"> Player whose ignore standing is being checked. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> Ignoring( [NotNull] this IEnumerable<Player> source, [NotNull] PlayerInfo playerInfo ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
@@ -283,6 +300,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="playerInfo"> Player whose ignore standing is being checked. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> NotIgnoring( [NotNull] this IEnumerable<Player> source, [NotNull] PlayerInfo playerInfo ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
@@ -298,6 +316,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="ignorer"> Player whose disposition is being checked. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> IgnoredBy( [NotNull] this IEnumerable<Player> source, [NotNull] Player ignorer ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( ignorer == null ) throw new ArgumentNullException( "ignorer" );
@@ -313,6 +332,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="ignorer"> Player whose disposition is being checked. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> NotIgnoredBy( [NotNull] this IEnumerable<Player> source, [NotNull] Player ignorer ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( ignorer == null ) throw new ArgumentNullException( "ignorer" );
@@ -332,6 +352,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="world"> World that players are desired to be on. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> InWorld( [NotNull] this IEnumerable<Player> source, [NotNull] World world ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( world == null ) throw new ArgumentNullException( "world" );
@@ -347,6 +368,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="world"> World that players are desired to NOT be on. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> NotInWorld( [NotNull] this IEnumerable<Player> source, [NotNull] World world ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( world == null ) throw new ArgumentNullException( "world" );
@@ -361,12 +383,14 @@ namespace fCraft {
 
 
         #region Personal Inclusion / Exclusion
+
         /// <summary> Adds players to the given set.
         /// ]If the given sequence of players already contains player, no duplicate is added.
         /// Precisely speaking, produces the set union of a given collection of players and a given player. </summary>
         /// <param name="source"> Original set of players. Will not get modified. </param>
         /// <param name="includedPlayer"> Player to add to the set. </param>
         /// <returns> A set that contains all players in the input sequence, plus the given player. </returns>
+        [NotNull]
         public static IEnumerable<Player> Union( [NotNull] this IEnumerable<Player> source, [NotNull] Player includedPlayer ) {
             bool found = false;
             foreach( Player player in source ) {
@@ -386,6 +410,7 @@ namespace fCraft {
         /// <param name="source"> Original set of players. Will not get modified. </param>
         /// <param name="excludedPlayer"> Player to remove from the set. </param>
         /// <returns> A set that contains all players in the input sequence, minus the given player. </returns>
+        [NotNull]
         public static IEnumerable<Player> Except( [NotNull] this IEnumerable<Player> source, [CanBeNull] Player excludedPlayer ) {
             foreach( Player player in source ) {
                 if( player != excludedPlayer ) {
@@ -403,6 +428,7 @@ namespace fCraft {
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="ip"> IP that we are including. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> FromIP( [NotNull] this IEnumerable<Player> source, [NotNull] IPAddress ip ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( ip == null ) throw new ArgumentNullException( "ip" );
@@ -413,10 +439,12 @@ namespace fCraft {
             }
         }
 
+
         /// <summary> Filters a collection of players, leaving only those NOT connected from a given IP. </summary>
         /// <param name="source"> Original collection of players. Will not get modified. </param>
         /// <param name="ip"> IP that we are excluding. </param>
         /// <returns> Filtered collection of players. </returns>
+        [NotNull]
         public static IEnumerable<Player> NotFromIP( [NotNull] this IEnumerable<Player> source, [NotNull] IPAddress ip ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( ip == null ) throw new ArgumentNullException( "ip" );
