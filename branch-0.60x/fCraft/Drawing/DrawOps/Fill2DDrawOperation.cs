@@ -134,6 +134,12 @@ namespace fCraft.Drawing {
         }
 
 
+        bool CanPlace( Vector3I coords ) {
+            return (Map.GetBlock( coords ) == SourceBlock) &&
+                   Player.CanPlace( Map, coords, ReplacementBlock, Context ) == CanPlaceResult.Allowed;
+        }
+
+
         IEnumerable<Vector3I> BlockEnumeratorX() {
             Stack<Vector3I> stack = new Stack<Vector3I>();
             stack.Push( Origin );
@@ -141,29 +147,29 @@ namespace fCraft.Drawing {
 
             while( stack.Count > 0 ) {
                 coords = stack.Pop();
-                while( coords.Y >= Bounds.YMin && Map.GetBlock( coords ) == SourceBlock ) coords.Y--;
+                while( coords.Y >= Bounds.YMin && CanPlace( coords ) ) coords.Y--;
                 coords.Y++;
                 bool spanLeft = false;
                 bool spanRight = false;
-                while( coords.Y <= Bounds.YMax && Map.GetBlock( coords ) == SourceBlock ) {
+                while( coords.Y <= Bounds.YMax && CanPlace( coords ) ) {
                     yield return coords;
 
                     if( coords.Z > Bounds.ZMin ) {
-                        Block block = Map.GetBlock( coords.X, coords.Y, coords.Z - 1 );
-                        if( !spanLeft && block == SourceBlock ) {
+                        bool canPlace = CanPlace( new Vector3I( coords.X, coords.Y, coords.Z - 1 ) );
+                        if( !spanLeft && canPlace ) {
                             stack.Push( new Vector3I( coords.X, coords.Y, coords.Z - 1 ) );
                             spanLeft = true;
-                        } else if( spanLeft && block != SourceBlock ) {
+                        } else if( spanLeft && !canPlace ) {
                             spanLeft = false;
                         }
                     }
 
                     if( coords.Z < Bounds.ZMax ) {
-                        Block block = Map.GetBlock( coords.X, coords.Y, coords.Z + 1 );
-                        if( !spanRight && block == SourceBlock ) {
+                        bool canPlace = CanPlace( new Vector3I( coords.X, coords.Y, coords.Z + 1 ) );
+                        if( !spanRight && canPlace ) {
                             stack.Push( new Vector3I( coords.X, coords.Y, coords.Z + 1 ) );
                             spanRight = true;
-                        } else if( spanRight && block != SourceBlock ) {
+                        } else if( spanRight && !canPlace ) {
                             spanRight = false;
                         }
                     }
@@ -180,29 +186,29 @@ namespace fCraft.Drawing {
 
             while( stack.Count > 0 ) {
                 coords = stack.Pop();
-                while( coords.Z >= Bounds.ZMin && Map.GetBlock( coords ) == SourceBlock ) coords.Z--;
+                while( coords.Z >= Bounds.ZMin && CanPlace( coords ) ) coords.Z--;
                 coords.Z++;
                 bool spanLeft = false;
                 bool spanRight = false;
-                while( coords.Z <= Bounds.ZMax && Map.GetBlock( coords ) == SourceBlock ) {
+                while( coords.Z <= Bounds.ZMax && CanPlace( coords ) ) {
                     yield return coords;
 
                     if( coords.X > Bounds.XMin ) {
-                        Block block = Map.GetBlock( coords.X - 1, coords.Y, coords.Z );
-                        if( !spanLeft && block == SourceBlock ) {
+                        bool canPlace = CanPlace( new Vector3I( coords.X -1, coords.Y, coords.Z ) );
+                        if( !spanLeft && canPlace ) {
                             stack.Push( new Vector3I( coords.X - 1, coords.Y, coords.Z ) );
                             spanLeft = true;
-                        } else if( spanLeft && block != SourceBlock ) {
+                        } else if( spanLeft && !canPlace ) {
                             spanLeft = false;
                         }
                     }
 
                     if( coords.X < Bounds.XMax ) {
-                        Block block = Map.GetBlock( coords.X + 1, coords.Y, coords.Z );
-                        if( !spanRight && block == SourceBlock ) {
+                        bool canPlace = CanPlace( new Vector3I( coords.X + 1, coords.Y, coords.Z ) );
+                        if( !spanRight && canPlace ) {
                             stack.Push( new Vector3I( coords.X + 1, coords.Y, coords.Z ) );
                             spanRight = true;
-                        } else if( spanRight && block != SourceBlock ) {
+                        } else if( spanRight && !canPlace ) {
                             spanRight = false;
                         }
                     }
@@ -219,29 +225,29 @@ namespace fCraft.Drawing {
 
             while( stack.Count > 0 ) {
                 coords = stack.Pop();
-                while( coords.Y >= Bounds.YMin && Map.GetBlock( coords ) == SourceBlock ) coords.Y--;
+                while( coords.Y >= Bounds.YMin && CanPlace( coords ) ) coords.Y--;
                 coords.Y++;
                 bool spanLeft = false;
                 bool spanRight = false;
-                while( coords.Y <= Bounds.YMax && Map.GetBlock( coords ) == SourceBlock ) {
+                while( coords.Y <= Bounds.YMax && CanPlace( coords ) ) {
                     yield return coords;
 
                     if( coords.X > Bounds.XMin ) {
-                        Block block = Map.GetBlock( coords.X - 1, coords.Y, coords.Z );
-                        if( !spanLeft && block == SourceBlock ) {
+                        bool canPlace = CanPlace( new Vector3I( coords.X - 1, coords.Y, coords.Z ) );
+                        if( !spanLeft && canPlace ) {
                             stack.Push( new Vector3I( coords.X - 1, coords.Y, coords.Z ) );
                             spanLeft = true;
-                        } else if( spanLeft && block != SourceBlock ) {
+                        } else if( spanLeft && !canPlace ) {
                             spanLeft = false;
                         }
                     }
 
                     if( coords.X < Bounds.XMax ) {
-                        Block block = Map.GetBlock( coords.X + 1, coords.Y, coords.Z );
-                        if( !spanRight && block == SourceBlock ) {
+                        bool canPlace = CanPlace( new Vector3I( coords.X + 1, coords.Y, coords.Z ) );
+                        if( !spanRight && canPlace ) {
                             stack.Push( new Vector3I( coords.X + 1, coords.Y, coords.Z ) );
                             spanRight = true;
-                        } else if( spanRight && block != SourceBlock ) {
+                        } else if( spanRight && !canPlace ) {
                             spanRight = false;
                         }
                     }
