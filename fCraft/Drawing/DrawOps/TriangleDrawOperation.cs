@@ -18,6 +18,8 @@ namespace fCraft.Drawing {
             : base( player ) {
         }
 
+        const float cloneSeparation = 1.25f;
+
 
         public override bool Prepare( Vector3I[] marks ) {
             Vector3I minVector = new Vector3I( Math.Min( marks[0].X, Math.Min( marks[1].X, marks[2].X ) ),
@@ -30,9 +32,28 @@ namespace fCraft.Drawing {
 
             if( !base.Prepare( marks ) ) return false;
 
+            triOriginal[0] = Marks[0] + HalfBlockSize;
+            triOriginal[1] = Marks[1] + HalfBlockSize;
+            triOriginal[2] = Marks[2] + HalfBlockSize;
+
+            Vector3F triangleNormal = (triOriginal[1] - triOriginal[0]).Cross( triOriginal[2] - triOriginal[0] ).Normalize();
+
+            triClone1[0] = triOriginal[0] + triangleNormal * cloneSeparation;
+            triClone1[1] = triOriginal[1] + triangleNormal * cloneSeparation;
+            triClone1[2] = triOriginal[2] + triangleNormal * cloneSeparation;
+
+            triClone2[0] = triOriginal[0] - triangleNormal * cloneSeparation;
+            triClone2[1] = triOriginal[1] - triangleNormal * cloneSeparation;
+            triClone2[2] = triOriginal[2] - triangleNormal * cloneSeparation; 
+
             BlocksTotalEstimate = Math.Max( Bounds.Width, Math.Max( Bounds.Height, Bounds.Length ) );
             return true;
         }
+
+
+        Vector3F[] triOriginal = new Vector3F[3],
+                   triClone1 = new Vector3F[3],
+                   triClone2 = new Vector3F[3];
 
 
         public override int DrawBatch( int maxBlocksToDraw ) {
@@ -40,7 +61,9 @@ namespace fCraft.Drawing {
             for( ; Coords.X <= Bounds.XMax; Coords.X++ ) {
                 for( ; Coords.Y <= Bounds.YMax; Coords.Y++ ) {
                     for( ; Coords.Z <= Bounds.ZMax; Coords.Z++ ) {
-                        if( TriangleIntersectsBlock( Coords ) ) {
+                        if( TriangleIntersectsBlock( Coords, triOriginal ) &&
+                            !TriangleIntersectsBlock( Coords, triClone1 ) &&
+                            !TriangleIntersectsBlock( Coords, triClone2 ) ) {
                             if( !DrawOneBlock() ) continue;
                             blocksDone++;
                             if( blocksDone >= maxBlocksToDraw ) {
@@ -62,12 +85,12 @@ namespace fCraft.Drawing {
         }
 
 
-        bool TriangleIntersectsBlock( Vector3I coord ) {
+        bool TriangleIntersectsBlock( Vector3I coord, Vector3F[] triangle ) {
             Vector3F boxCenter = coord + HalfBlockSize;
 
-            Vector3F v0 = Marks[0] + HalfBlockSize - boxCenter;
-            Vector3F v1 = Marks[1] + HalfBlockSize - boxCenter;
-            Vector3F v2 = Marks[2] + HalfBlockSize - boxCenter;
+            Vector3F v0 = triangle[0] - boxCenter;
+            Vector3F v1 = triangle[1] - boxCenter;
+            Vector3F v2 = triangle[2] - boxCenter;
 
             Vector3F e0 = v1 - v0;
             Vector3F e1 = v2 - v1;

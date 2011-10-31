@@ -223,6 +223,11 @@ namespace fCraft {
             return new Vector3I( Math.Abs( X ), Math.Abs( Y ), Math.Abs( Z ) );
         }
 
+        public Vector3F Normalize() {
+            float len = (float)Math.Sqrt( X * X + Y * Y + Z * Z );
+            return new Vector3F( X / len, Y / len, Z / len );
+        }
+
         public Position ToPlayerCoords() {
             return new Position( X * 32 + 16, Y * 32 + 16, Z * 32 + 16 );
         }
