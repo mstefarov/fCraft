@@ -115,16 +115,7 @@ namespace fCraft {
             return new Vector3I( a.X / scalar, a.Y / scalar, a.Z / scalar );
         }
 
-        /// <summary> Integer division! </summary>
-        public static Vector3I operator /( int scalar, Vector3I a ) {
-            return new Vector3I( a.X / scalar, a.Y / scalar, a.Z / scalar );
-        }
-
         public static Vector3F operator /( Vector3I a, float scalar ) {
-            return new Vector3F( a.X / scalar, a.Y / scalar, a.Z / scalar );
-        }
-
-        public static Vector3F operator /( float scalar, Vector3I a ) {
             return new Vector3F( a.X / scalar, a.Y / scalar, a.Z / scalar );
         }
 
@@ -242,8 +233,8 @@ namespace fCraft {
         }
 
         public Vector3F Normalize() {
-            float len = (float)Math.Sqrt( X * X + Y * Y + Z * Z );
-            return new Vector3F( X / len, Y / len, Z / len );
+            double len = Math.Sqrt( X * X + Y * Y + Z * Z );
+            return new Vector3F( (float)(X / len), (float)(Y / len), (float)(Z / len) );
         }
 
 
