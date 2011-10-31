@@ -32,22 +32,22 @@ namespace fCraft.Drawing {
 
             if( !base.Prepare( marks ) ) return false;
 
-            triOriginal[0] = Marks[0] + HalfBlockSize;
-            triOriginal[1] = Marks[1] + HalfBlockSize;
-            triOriginal[2] = Marks[2] + HalfBlockSize;
+            triangle[0] = Marks[0] + HalfBlockSize;
+            triangle[1] = Marks[1] + HalfBlockSize;
+            triangle[2] = Marks[2] + HalfBlockSize;
 
-            triangleNormal = (triOriginal[1] - triOriginal[0]).Cross( triOriginal[2] - triOriginal[0] ).Normalize();
+            triangleNormal = (triangle[1] - triangle[0]).Cross( triangle[2] - triangle[0] ).Normalize();
 
-            testPoint1 = triOriginal[0] + triangleNormal * cloneSeparation;
-            testPoint2 = triOriginal[0] - triangleNormal * cloneSeparation;
+            planePoint1 = triangle[0] + triangleNormal * cloneSeparation;
+            planePoint2 = triangle[0] - triangleNormal * cloneSeparation;
 
             BlocksTotalEstimate = Math.Max( Bounds.Width, Math.Max( Bounds.Height, Bounds.Length ) );
             return true;
         }
 
         Vector3F triangleNormal;
-        Vector3F testPoint1, testPoint2;
-        Vector3F[] triOriginal = new Vector3F[3];
+        Vector3F planePoint1, planePoint2;
+        Vector3F[] triangle = new Vector3F[3];
 
 
         public override int DrawBatch( int maxBlocksToDraw ) {
@@ -55,9 +55,9 @@ namespace fCraft.Drawing {
             for( ; Coords.X <= Bounds.XMax; Coords.X++ ) {
                 for( ; Coords.Y <= Bounds.YMax; Coords.Y++ ) {
                     for( ; Coords.Z <= Bounds.ZMax; Coords.Z++ ) {
-                        if( TriangleIntersectsBlock( Coords, triOriginal ) &&
-                            !PlaneIntersect( Coords, testPoint1 ) &&
-                            !PlaneIntersect( Coords, testPoint2 ) ) {
+                        if( TriangleIntersectsBlock( Coords, triangle ) &&
+                            !PlaneIntersect( Coords, planePoint1 ) &&
+                            !PlaneIntersect( Coords, planePoint2 ) ) {
                             if( !DrawOneBlock() ) continue;
                             blocksDone++;
                             if( blocksDone >= maxBlocksToDraw ) {
@@ -271,12 +271,12 @@ namespace fCraft.Drawing {
             return false;
         }
 
+
         bool PlaneIntersect( Vector3I p, Vector3F planeOrigin ) {
-            Vector3F d = triangleNormal * (p - planeOrigin).Dot( triangleNormal );
+            Vector3F d = triangleNormal * (p + HalfBlockSize - planeOrigin).Dot( triangleNormal );
             return (d.X >= -0.5 && d.X <= 0.5) &&
                    (d.Y >= -0.5 && d.Y <= 0.5) &&
                    (d.Z >= -0.5 && d.Z <= 0.5);
         }
-
     }
 }
