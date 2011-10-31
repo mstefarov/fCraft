@@ -444,7 +444,8 @@ namespace fCraft {
                 first = false;
             }
 
-            Log( "TraceEvent: {0}.{1}( {2} )", LogType.Trace,
+            Log( LogType.Trace,
+                 "TraceEvent: {0}.{1}( {2} )",
                  eventInfo.DeclaringType.Name, eventInfo.Name, sb.ToString() );
 
         }

@@ -244,7 +244,7 @@ namespace fCraft {
                                                "Do not use except for debugging purposes. " +
                                                "Latest non-broken build is " + Updater.LatestStable;
 #if DEBUG
-                Logger.Log( unstableMessage, LogType.Warning );
+                Logger.Log( LogType.Warning, unstableMessage );
 #else
                 throw new Exception( unstableMessage );
 #endif
