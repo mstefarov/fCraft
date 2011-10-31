@@ -1263,6 +1263,8 @@ namespace fCraft {
         [CanBeNull]
         public PlayerInfo LastSpectatedPlayer { get; private set; }
 
+        readonly object spectateLock = new object();
+
         public bool IsSpectating {
             get { return (spectatedPlayer != null); }
         }
@@ -1270,20 +1272,31 @@ namespace fCraft {
 
         public bool Spectate( [NotNull] Player target ) {
             if( target == null ) throw new ArgumentNullException( "target" );
-            if( target == this ) throw new ArgumentException( "Cannot spectate self.", "target" );
-            Message( "Now spectating {0}&S. Type &H/unspec&S to stop.", target.ClassyName );
-            LastSpectatedPlayer = target.Info;
-            return (Interlocked.Exchange( ref spectatedPlayer, target ) == null);
+            lock( spectateLock ) {
+                if( target == this ) {
+                    PlayerOpException.ThrowCannotTargetSelf( this, Info, "spectate" );
+                }
+
+                if( !Can( Permission.Spectate, target.Info.Rank ) ) {
+                    PlayerOpException.ThrowPermissionLimit( this, target.Info, "spectate", Permission.Spectate );
+                }
+
+                if( spectatedPlayer == target ) return false;
+
+                spectatedPlayer = target;
+                LastSpectatedPlayer = target.Info;
+                Message( "Now spectating {0}&S. Type &H/unspec&S to stop.", target.ClassyName );
+                return true;
+            }
         }
 
 
         public bool StopSpectating() {
-            Player wasSpectating = Interlocked.Exchange( ref spectatedPlayer, null );
-            if( wasSpectating != null ) {
-                Message( "Stopped spectating {0}", wasSpectating.ClassyName );
+            lock( spectateLock ) {
+                if( spectatedPlayer == null ) return false;
+                Message( "Stopped spectating {0}", spectatedPlayer.ClassyName );
+                spectatedPlayer = null;
                 return true;
-            } else {
-                return false;
             }
         }
 

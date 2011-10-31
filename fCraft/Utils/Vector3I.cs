@@ -87,25 +87,9 @@ namespace fCraft {
             return new Vector3I( a.X + b.X, a.Y + b.Y, a.Z + b.Z );
         }
 
-        public static Vector3I operator +( Vector3I a, int scalar ) {
-            return new Vector3I( a.X + scalar, a.Y + scalar, a.Z + scalar );
-        }
-
-        public static Vector3I operator +( int scalar, Vector3I a ) {
-            return new Vector3I( a.X + scalar, a.Y + scalar, a.Z + scalar );
-        }
-
 
         public static Vector3I operator -( Vector3I a, Vector3I b ) {
             return new Vector3I( a.X - b.X, a.Y - b.Y, a.Z - b.Z );
-        }
-
-        public static Vector3I operator -( Vector3I a, int scalar ) {
-            return new Vector3I( a.X - scalar, a.Y - scalar, a.Z - scalar );
-        }
-
-        public static Vector3I operator -( int scalar, Vector3I a ) {
-            return new Vector3I( a.X - scalar, a.Y - scalar, a.Z - scalar );
         }
 
 
