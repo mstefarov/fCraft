@@ -253,7 +253,7 @@ namespace fCraft {
             return new Position( a.X, a.Y, a.Z );
         }
 
-        public static implicit operator Vector3F( Vector3I a ) {
+        public static explicit operator Vector3F( Vector3I a ) {
             return new Vector3F( a.X, a.Y, a.Z );
         }
 
