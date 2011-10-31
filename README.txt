@@ -46,6 +46,46 @@ front-ends (GUI, CLI, or WinService).
 
 
 
+=== Troubleshooting ===========================================================
+
+Server does not show up on minecraft.net list:
+    Make sure that server is public. Open ConfigGUI, set Visibility: [Public]
+        (or set <IsPublic> to true in config.xml).
+
+"Could not connect to server: it's probably down":
+    Make sure that you added firewall exception for fCraft (if applicable),
+    and forwarded the port on your router.
+
+"Could not verify player name":
+    Verification problems are a combination of Minecraft.net problems and user
+    error. Here are some things you can do to fix verification problems:
+    1. If minecraft.net is offline or slow, wait for it to stabilize.
+    2. If minecraft.net is working but you still cant verify name, log out then
+        log back in.
+    3. Try restarting your server. Wait a couple minutes before trying to
+        connect to a newly-restarted server (to give your server time to
+        synchronize with minecraft.net).
+    4. If you (or your players) are using WoM client's "Resume" function, which
+        uses cached verification information, use the proper log-in procedure
+        in WoM. The "Resume" function only works as long as your IP does not
+        change and as long as the server does not restart.
+
+Other players cannot connect from the same LAN/network as me:
+    Minecraft client has a lot of trouble working on LAN. You probably will not
+    be able to connect via the public URL. Fortunately, there is a workaround:
+
+    1. Check "Allow connections from LAN without verification" in ConfigGUI.
+        (or set <AllowUnverifiedLAN> to true in config.xml).
+    2. Find your local IP address.
+        * In Windows XP+, go to Start -> type "cmd" to open a terminal ->
+            type "ipconfig". The address you need is labeled "IPv4 Address"
+            under "Local Area Connection".
+        * In Unix/Linux, use "ifconfig" utility. 
+   3. Connect to http://www.minecraft.net/play.jsp?ip=_____&port=_____
+        (fill in blanks with your server's IP address and port). 
+
+
+
 === List of Files =============================================================
 
        ConfigGUI.exe - Graphical interface for editing your server's settings,
