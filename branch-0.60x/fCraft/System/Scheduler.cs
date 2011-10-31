@@ -19,7 +19,7 @@ namespace fCraft {
 
         internal static void Start() {
 #if DEBUG_SCHEDULER
-            Logger.Log( "Scheduler: Starting...", LogType.Debug );
+            Logger.Log( LogType.Debug, "Scheduler: Starting..." );
 #endif
             schedulerThread = new Thread( MainLoop ) {
                 Name = "fCraft.Main"
@@ -135,9 +135,11 @@ namespace fCraft {
                 FireEvent( TaskAdded, task );
                 if( Tasks.Add( task ) ) {
                     UpdateCache();
-                    Logger.Log( "Scheduler.AddTask: Added {0}", LogType.Debug, task );
+                    Logger.Log( LogType.Debug,
+                                "Scheduler.AddTask: Added {0}", task );
                 }else{
-                    Logger.Log( "Scheduler.AddTask: Added duplicate {0}", LogType.Debug, task );
+                    Logger.Log( LogType.Debug,
+                                "Scheduler.AddTask: Added duplicate {0}", task );
                 }
 #else
                 if( Tasks.Add( task ) ) {
@@ -202,7 +204,8 @@ namespace fCraft {
                     Tasks.Remove( deletionList[i] );
 #if DEBUG_SCHEDULER
                     FireEvent( TaskRemoved, deletionList[i] );
-                    Logger.Log( "Scheduler.UpdateCache: Removed {0}", LogType.Debug, deletionList[i] );
+                    Logger.Log( LogType.Debug,
+                                "Scheduler.UpdateCache: Removed {0}", deletionList[i] );
 #endif
                 }
             }
@@ -213,7 +216,7 @@ namespace fCraft {
         // Clears the task list
         internal static void BeginShutdown() {
 #if DEBUG_SCHEDULER
-            Logger.Log( "Scheduler: BeginShutdown...", LogType.Debug );
+            Logger.Log( LogType.Debug, "Scheduler: BeginShutdown..." );
 #endif
             lock( TaskListLock ) {
                 foreach( SchedulerTask task in Tasks ) {
@@ -228,7 +231,7 @@ namespace fCraft {
         // Makes sure that both scheduler threads finish and quit.
         internal static void EndShutdown() {
 #if DEBUG_SCHEDULER
-            Logger.Log( "Scheduler: EndShutdown...", LogType.Debug );
+            Logger.Log( LogType.Debug, "Scheduler: EndShutdown..." );
 #endif
             try {
                 if( schedulerThread != null && schedulerThread.IsAlive ) {

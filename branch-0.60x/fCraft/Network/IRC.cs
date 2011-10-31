@@ -175,7 +175,8 @@ namespace fCraft {
 
                 IRCMessage msg = MessageParser( message, ActualBotNick );
 #if DEBUG_IRC
-                Logger.Log( "[{0}]: {1}", LogType.IRC,
+                Logger.Log( LogType.IRC,
+                            "[{0}]: {1}",
                             msg.Type, msg.RawMessage );
 #endif
 

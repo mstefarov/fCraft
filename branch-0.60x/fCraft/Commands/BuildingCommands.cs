@@ -67,6 +67,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdLine );
             CommandManager.RegisterCommand( CdTriangle );
+            CommandManager.RegisterCommand( CdTriangle2 );
             CommandManager.RegisterCommand( CdTriangleWireframe );
             CdLine.Help += GeneralDrawingHelp;
             CdTriangle.Help += GeneralDrawingHelp;
@@ -259,6 +260,19 @@ namespace fCraft {
         }
 
 
+        static readonly CommandDescriptor CdTriangle2 = new CommandDescriptor {
+            Name = "Triangle2",
+            Aliases = new[] { "t2" },
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Draw },
+            RepeatableSelection = true,
+            Help = "Draws a triangle between three points.",
+            Handler = TriangleHandler2
+        };
+
+        static void TriangleHandler2( Player player, Command cmd ) {
+            DrawOperationBegin( player, cmd, new TriangleDrawOperation2( player ) );
+        }
 
         static readonly CommandDescriptor CdTorus = new CommandDescriptor {
             Name = "Torus",
