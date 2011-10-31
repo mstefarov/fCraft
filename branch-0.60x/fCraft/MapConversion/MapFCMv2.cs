@@ -106,10 +106,12 @@ namespace fCraft.MapConversion {
                         try {
                             map.Zones.Add( new Zone( value, map.World ) );
                         } catch( Exception ex ) {
-                            Logger.Log( "MapFCMv2.Load: Error importing zone definition: {0}", LogType.Error, ex );
+                            Logger.Log( LogType.Error,
+                                        "MapFCMv2.Load: Error importing zone definition: {0}", ex );
                         }
                     } else {
-                        Logger.Log( "MapFCMv2.Load: Metadata discarded: \"{0}\"=\"{1}\"", LogType.Warning,
+                        Logger.Log( LogType.Warning,
+                                    "MapFCMv2.Load: Metadata discarded: \"{0}\"=\"{1}\"",
                                     key, value );
                     }
                 }

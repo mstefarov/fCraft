@@ -606,7 +606,8 @@ namespace fCraft {
                 player.TeleportTo( map.Spawn );
                 player.Send( PacketWriter.MakeAddEntity( 255, player.ListName, player.Position ) );
                 player.Message( "New spawn point saved." );
-                Logger.Log( "{0} changed the spawned point.", LogType.UserActivity,
+                Logger.Log( LogType.UserActivity,
+                            "{0} changed the spawned point.",
                             player.Name );
 
             } else if( player.Can( Permission.Bring ) ) {

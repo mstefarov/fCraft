@@ -103,17 +103,6 @@ Other players cannot connect from the same LAN/network as me:
        ServerCLI.exe - Command-line interface for the server.
        ServerGUI.exe - Graphical interface for the server.
 
-ServerWinService.exe - Windows service frontend for fCraft.
-                       After installing the service, it can be configured
-                       to start automatically, and can be controlled
-                       via "Services" Windows management console.
-                       Usage (from command line): fCraftWinService.exe <action>
-                       Where <action> can be:
-                             install    to add to list of services
-                             start      to start the server/service
-                             stop       to stop the server/service
-                             uninstall  to remove from list of services
-
 
 
 === Help & Support ============================================================

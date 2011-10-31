@@ -72,7 +72,8 @@ namespace fCraft.MapConversion {
                 map = LoadHeader( fileName );
                 return true;
             } catch( Exception ex ) {
-                Logger.Log( "MapUtility.TryLoadHeader: {0}: {1}", LogType.Error,
+                Logger.Log( LogType.Error,
+                            "MapUtility.TryLoadHeader: {0}: {1}",
                             ex.GetType().Name, ex.Message );
                 map = null;
                 return false;
@@ -133,8 +134,8 @@ namespace fCraft.MapConversion {
                 map = Load( fileName );
                 return true;
             } catch( Exception ex ) {
-                Logger.Log( "MapUtility.TryLoad: {0}: {1}", LogType.Error,
-                            ex.GetType().Name, ex.Message );
+                Logger.Log( LogType.Error,
+                            "MapUtility.TryLoad: {0}", ex );
                 map = null;
                 return false;
             }

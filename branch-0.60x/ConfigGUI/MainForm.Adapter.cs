@@ -649,7 +649,8 @@ namespace fCraft.ConfigGUI {
                 TEnum val = (TEnum)Enum.Parse( typeof( TEnum ), box.SelectedIndex.ToString(), true );
                 key.TrySetValue( val );
             } catch( ArgumentException ) {
-                Logger.Log( "ConfigUI.WriteEnum<{0}>: Could not parse value for {1}. Using default ({2}).", LogType.Error,
+                Logger.Log( LogType.Error,
+                            "ConfigUI.WriteEnum<{0}>: Could not parse value for {1}. Using default ({2}).",
                             typeof( TEnum ).Name, key, key.GetString() );
             }
         }

@@ -694,7 +694,8 @@ namespace fCraft {
             }
 
             // no need to set player.drawingInProgress here because this is done on the user thread
-            Logger.Log( "Player {0} initiated /Undo affecting {1} blocks (on world {2})", LogType.UserActivity,
+            Logger.Log( LogType.UserActivity,
+                        "Player {0} initiated /Undo affecting {1} blocks (on world {2})",
                         player.Name,
                         undoState.Buffer.Count,
                         playerWorld.Name );
@@ -737,7 +738,8 @@ namespace fCraft {
             }
 
             // no need to set player.drawingInProgress here because this is done on the user thread
-            Logger.Log( "Player {0} initiated /Redo affecting {1} blocks (on world {2})", LogType.UserActivity,
+            Logger.Log( LogType.UserActivity,
+                        "Player {0} initiated /Redo affecting {1} blocks (on world {2})",
                         player.Name,
                         redoState.Buffer.Count,
                         playerWorld.Name );
@@ -854,7 +856,8 @@ namespace fCraft {
                                (copyInfo.Orientation.Y == 1 ? "south" : "north"),
                                (copyInfo.Orientation.Z == 1 ? "east" : "west") );
 
-            Logger.Log( "{0} copied {1} blocks from {2}.", LogType.UserActivity,
+            Logger.Log( LogType.UserActivity,
+                        "{0} copied {1} blocks from {2}.",
                         player.Name, volume, playerWorld.Name );
         }
 
@@ -1314,8 +1317,8 @@ namespace fCraft {
                 }
             }
 
-            Logger.Log( "{0} restored {1} blocks on world {2} (@{3},{4},{5} - {6},{7},{8}) from file {9}.",
-                        LogType.UserActivity,
+            Logger.Log( LogType.UserActivity,
+                        "{0} restored {1} blocks on world {2} (@{3},{4},{5} - {6},{7},{8}) from file {9}.",
                         player.Name, blocksDrawn,
                         playerWorld.Name,
                         selection.XMin, selection.YMin, selection.ZMin,
@@ -1598,7 +1601,8 @@ namespace fCraft {
                               ref blocks, ref blocksDenied, undoState );
             }
 
-            Logger.Log( "{0} undid {1} blocks changed by player {2} (in a selection  on world {3})", LogType.UserActivity,
+            Logger.Log( LogType.UserActivity,
+                        "{0} undid {1} blocks changed by player {2} (in a selection on world {3})",
                         player.Name,
                         blocks,
                         args.Target.Name,
@@ -1631,7 +1635,8 @@ namespace fCraft {
                               ref blocks, ref blocksDenied, undoState );
             }
 
-            Logger.Log( "{0} undid {1} blocks changed by player {2} (in a selection on world {3})", LogType.UserActivity,
+            Logger.Log( LogType.UserActivity,
+                        "{0} undid {1} blocks changed by player {2} (in a selection on world {3})",
                         player.Name,
                         blocks,
                         args.Target.Name,
@@ -1739,7 +1744,8 @@ namespace fCraft {
                               ref blocks, ref blocksDenied, undoState );
             }
 
-            Logger.Log( "{0} undid {1} blocks changed by player {2} (on world {3})", LogType.UserActivity,
+            Logger.Log( LogType.UserActivity,
+                        "{0} undid {1} blocks changed by player {2} (on world {3})",
                         player.Name,
                         blocks,
                         target.Name,

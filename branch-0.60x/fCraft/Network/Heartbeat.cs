@@ -125,7 +125,7 @@ namespace fCraft {
                 if( state.GetServerUri ) {
                     string replyString = responseText.Trim();
                     if( replyString.StartsWith( "bad heartbeat", StringComparison.OrdinalIgnoreCase ) ) {
-                        Logger.Log( "Heartbeat: {0}", LogType.Error, replyString );
+                        Logger.Log( LogType.Error, "Heartbeat: {0}", replyString );
                     } else {
                         try {
                             Uri newUri = new Uri( replyString );
@@ -135,18 +135,20 @@ namespace fCraft {
                                 RaiseUriChangedEvent( oldUri, newUri );
                             }
                         } catch( UriFormatException ) {
-                            Logger.Log( "Heartbeat: Server replied with: {0}", LogType.Error,
+                            Logger.Log( LogType.Error,
+                                        "Heartbeat: Server replied with: {0}",
                                         replyString );
                         }
                     }
                 }
             } catch( Exception ex ) {
                 if( ex is WebException || ex is IOException ) {
-                    Logger.Log( "Heartbeat: {0} is probably down ({1})", LogType.Warning,
+                    Logger.Log( LogType.Warning,
+                                "Heartbeat: {0} is probably down ({1})",
                                 state.Request.RequestUri.Host,
                                 ex.Message );
                 } else {
-                    Logger.Log( "Heartbeat: {0}", LogType.Error, ex );
+                    Logger.Log( LogType.Error, "Heartbeat: {0}", ex );
                 }
             }
         }

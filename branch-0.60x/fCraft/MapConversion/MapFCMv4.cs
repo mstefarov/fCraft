@@ -184,8 +184,9 @@ namespace fCraft.MapConversion {
                 // check for duplicate keys
                 string oldValue;
                 if( map.Metadata.TryGetValue( groupName, keyName, out oldValue ) ) {
-                    Logger.Log( "MapFCMv4: Duplicate metadata entry \"{0}.{1}\". " +
-                                "Old value: \"{2}\", new value \"{3}\"", LogType.Warning,
+                    Logger.Log( LogType.Warning,
+                                "MapFCMv4: Duplicate metadata entry \"{0}.{1}\". " +
+                                "Old value: \"{2}\", new value \"{3}\"", 
                                 groupName, keyName, oldValue, value );
                 }
 
@@ -196,7 +197,8 @@ namespace fCraft.MapConversion {
                             Zone newZone = new Zone( XElement.Parse( value ) );
                             map.Zones.Add( newZone );
                         } catch( Exception ex ) {
-                            Logger.Log( "MapFCMv4: Error importing zone definition: {0}", LogType.Error,
+                            Logger.Log( LogType.Error,
+                                        "MapFCMv4: Error importing zone definition: {0}",
                                         ex );
                         }
                         break;
@@ -239,7 +241,8 @@ namespace fCraft.MapConversion {
                                     gs.Read( layerData, 0, layerSize );
                                 }
                             }
-                            Logger.Log( "MapFCMv4: Unsupported layer \"{0}\" discarded.", LogType.Warning, layerName );
+                            Logger.Log( LogType.Warning,
+                                        "MapFCMv4: Unsupported layer \"{0}\" discarded.", layerName );
                             break;
                     }
                 }

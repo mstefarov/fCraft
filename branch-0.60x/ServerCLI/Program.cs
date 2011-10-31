@@ -56,7 +56,7 @@ namespace fCraft.ServerCLI {
                     try {
                         Process.GetCurrentProcess().PriorityClass = ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
                     } catch( Exception ) {
-                        Logger.Log( "Program.Main: Could not set process priority, using defaults.", LogType.Warning );
+                        Logger.Log( LogType.Warning, "Program.Main: Could not set process priority, using defaults." );
                     }
                 }
 

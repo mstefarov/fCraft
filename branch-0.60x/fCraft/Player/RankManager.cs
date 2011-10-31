@@ -49,11 +49,15 @@ namespace fCraft {
             }
             // check for duplicate rank names
             if( RanksByName.ContainsKey( rank.Name.ToLower() ) ) {
-                throw new RankDefinitionException( "Duplicate definition for rank \"{0}\" (by Name) was ignored.", rank.Name );
+                throw new RankDefinitionException( rank.Name,
+                                                   "Duplicate definition for rank \"{0}\" (by Name) was ignored.",
+                                                   rank.Name );
             }
 
             if( RanksByID.ContainsKey( rank.ID ) ) {
-                throw new RankDefinitionException( "Duplicate definition for rank \"{0}\" (by ID) was ignored.", rank.Name );
+                throw new RankDefinitionException( rank.Name,
+                                                   "Duplicate definition for rank \"{0}\" (by ID) was ignored.",
+                                                   rank.Name );
             }
 
             Ranks.Add( rank );
@@ -129,7 +133,7 @@ namespace fCraft {
         }
 
 
-        internal static void RebuildIndex() {
+        static void RebuildIndex() {
             if( Ranks.Count == 0 ) {
                 LowestRank = null;
                 HighestRank = null;
@@ -208,8 +212,10 @@ namespace fCraft {
         internal static void ParsePermissionLimits() {
             foreach( Rank rank in Ranks ) {
                 if( !rank.ParsePermissionLimits() ) {
-                    Logger.Log( "Could not parse one of the rank-limits for kick, ban, promote, and/or demote permissions for {0}. " +
-                                "Any unrecognized limits were reset to defaults.", LogType.Warning, rank.Name );
+                    Logger.Log( LogType.Warning,
+                                "Could not parse one of the rank-limits for kick, ban, promote, and/or demote permissions for {0}. " +
+                                "Any unrecognized limits were reset to defaults (own rank).",
+                                rank.Name );
                 }
             }
         }

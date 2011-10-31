@@ -900,7 +900,8 @@ namespace fCraft {
             if( delayString != null ) {
                 if( delayString.Equals( "abort", StringComparison.OrdinalIgnoreCase ) ) {
                     if( Server.CancelShutdown() ) {
-                        Logger.Log( "Shutdown aborted by {0}.", LogType.UserActivity, player.Name );
+                        Logger.Log( LogType.UserActivity,
+                                    "Shutdown aborted by {0}.", player.Name );
                         Server.Message( "&WShutdown aborted by {0}", player.ClassyName );
                     } else {
                         player.MessageNow( "Cannot abort shutdown - too late." );
@@ -922,13 +923,15 @@ namespace fCraft {
             Server.Message( "&WServer shutting down in {0}", delayTime.ToMiniString() );
 
             if( String.IsNullOrEmpty( reason ) ) {
-                Logger.Log( "{0} scheduled a shutdown ({1} delay).", LogType.UserActivity,
+                Logger.Log( LogType.UserActivity,
+                            "{0} scheduled a shutdown ({1} delay).",
                             player.Name, delayTime.ToCompactString() );
                 ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delayTime, true, false );
                 Server.Shutdown( sp, false );
             } else {
                 Server.Message( "&SShutdown reason: {0}", reason );
-                Logger.Log( "{0} scheduled a shutdown ({1} delay). Reason: {2}", LogType.UserActivity,
+                Logger.Log( LogType.UserActivity,
+                            "{0} scheduled a shutdown ({1} delay). Reason: {2}",
                             player.Name, delayTime.ToCompactString(), reason );
                 ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delayTime, true, false, reason, player );
                 Server.Shutdown( sp, false );
@@ -957,7 +960,8 @@ namespace fCraft {
             if( delayString != null ) {
                 if( delayString.Equals( "abort", StringComparison.OrdinalIgnoreCase ) ) {
                     if( Server.CancelShutdown() ) {
-                        Logger.Log( "Restart aborted by {0}.", LogType.UserActivity, player.Name );
+                        Logger.Log( LogType.UserActivity,
+                                    "Restart aborted by {0}.", player.Name );
                         Server.Message( "&Restart aborted by {0}", player.ClassyName );
                     } else {
                         player.MessageNow( "Cannot abort restart - too late." );
@@ -979,13 +983,15 @@ namespace fCraft {
             Server.Message( "&WServer restarting in {0}", delayTime.ToMiniString() );
 
             if( String.IsNullOrEmpty( reason ) ) {
-                Logger.Log( "{0} scheduled a restart ({1} delay).", LogType.UserActivity,
+                Logger.Log( LogType.UserActivity,
+                            "{0} scheduled a restart ({1} delay).",
                             player.Name, delayTime.ToCompactString() );
                 ShutdownParams sp = new ShutdownParams( ShutdownReason.Restarting, delayTime, true, true );
                 Server.Shutdown( sp, false );
             } else {
                 Server.Message( "&Restart reason: {0}", reason );
-                Logger.Log( "{0} scheduled a restart ({1} delay). Reason: {2}", LogType.UserActivity,
+                Logger.Log( LogType.UserActivity,
+                            "{0} scheduled a restart ({1} delay). Reason: {2}",
                             player.Name, delayTime.ToCompactString(), reason );
                 ShutdownParams sp = new ShutdownParams( ShutdownReason.Restarting, delayTime, true, true, reason, player );
                 Server.Shutdown( sp, false );
@@ -1102,9 +1108,9 @@ namespace fCraft {
                     try {
                         names = File.ReadAllLines( file );
                     } catch( Exception ex ) {
-                        Logger.Log( "Could not open \"{0}\" to import bans: {1}", LogType.Error,
-                                    file,
-                                    ex );
+                        Logger.Log( LogType.Error,
+                                    "Could not open \"{0}\" to import bans: {1}",
+                                    file, ex );
                         return;
                     }
                     break;
@@ -1174,9 +1180,9 @@ namespace fCraft {
                     try {
                         names = File.ReadAllLines( fileName );
                     } catch( Exception ex ) {
-                        Logger.Log( "Could not open \"{0}\" to import ranks: {1}", LogType.Error,
-                                    fileName,
-                                    ex );
+                        Logger.Log( LogType.Error,
+                                    "Could not open \"{0}\" to import ranks: {1}",
+                                    fileName, ex );
                         return;
                     }
                     break;

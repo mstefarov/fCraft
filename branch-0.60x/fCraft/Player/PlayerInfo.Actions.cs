@@ -90,7 +90,8 @@ namespace fCraft {
                     string verb = (unban ? "unbanned" : "banned");
                     if( target != null ) {
                         // Log and announce ban/unban
-                        Logger.Log( "{0} was {1} by {2}. Reason: {3}", LogType.UserActivity,
+                        Logger.Log( LogType.UserActivity,
+                                    "{0} was {1} by {2}. Reason: {3}",
                                     target.Info.Name, verb, player.Name, reason );
                         if( announce ) {
                             Server.Message( target, "{0}&W was {1} by {2}",
@@ -109,7 +110,8 @@ namespace fCraft {
                             target.Kick( kickReason, LeaveReason.Ban );
                         }
                     } else {
-                        Logger.Log( "{0} (offline) was {1} by {2}. Reason: {3}", LogType.UserActivity,
+                        Logger.Log( LogType.UserActivity,
+                                    "{0} (offline) was {1} by {2}. Reason: {3}",
                                     Name, verb, player.Name, reason );
                         Server.Message( "{0}&W (offline) was {1} by {2}",
                                         ClassyName, verb, player.ClassyName );
@@ -211,7 +213,8 @@ namespace fCraft {
                 if( needIPBan ) {
                     IPBanInfo banInfo = new IPBanInfo( address, Name, player.Name, reason );
                     if( IPBanList.Add( banInfo, raiseEvents ) ) {
-                        Logger.Log( "{0} banned {1} (of player {2}). Reason: {3}", LogType.UserActivity,
+                        Logger.Log( LogType.UserActivity,
+                                    "{0} banned {1} (of player {2}). Reason: {3}",
                                     player.Name, address, Name, reason );
 
                         // Announce ban on the server
@@ -291,7 +294,8 @@ namespace fCraft {
                 // Unban the IP
                 if( needIPUnban ) {
                     if( IPBanList.Remove( address, raiseEvents ) ) {
-                        Logger.Log( "{0} unbanned {1} (of player {2}). Reason: {3}", LogType.UserActivity,
+                        Logger.Log( LogType.UserActivity,
+                                    "{0} unbanned {1} (of player {2}). Reason: {3}",
                                     player.Name, address, Name, reason );
 
                         // Announce unban on the server
@@ -357,7 +361,8 @@ namespace fCraft {
                 if( !IPBanList.Contains( address ) ) {
                     IPBanInfo banInfo = new IPBanInfo( address, Name, player.Name, reason );
                     if( IPBanList.Add( banInfo, raiseEvents ) ) {
-                        Logger.Log( "{0} banned {1} (BanAll by association with {2}). Reason: {3}", LogType.UserActivity,
+                        Logger.Log( LogType.UserActivity,
+                                    "{0} banned {1} (BanAll by association with {2}). Reason: {3}",
                                     player.Name, address, Name, reason );
 
                         // Announce ban on the server
@@ -393,14 +398,16 @@ namespace fCraft {
 
                         // Log and announce ban
                         if( targetAlt == this ) {
-                            Logger.Log( "{0} was banned by {1} (BanAll). Reason: {2}", LogType.UserActivity,
+                            Logger.Log( LogType.UserActivity,
+                                        "{0} was banned by {1} (BanAll). Reason: {2}",
                                         targetAlt.Name, player.Name, reason );
                             if( announce ) {
                                 Server.Message( "&WPlayer {0}&W was banned by {1}&W (BanAll)",
                                                 targetAlt.ClassyName, player.ClassyName );
                             }
                         } else {
-                            Logger.Log( "{0} was banned by {1} (BanAll by association with {2}). Reason: {3}", LogType.UserActivity,
+                            Logger.Log( LogType.UserActivity,
+                                        "{0} was banned by {1} (BanAll by association with {2}). Reason: {3}",
                                         targetAlt.Name, player.Name, Name, reason );
                             if( announce ) {
                                 Server.Message( "&WPlayer {0}&W was banned by {1}&W by association with {2}",
@@ -473,7 +480,8 @@ namespace fCraft {
                 // Unban the IP
                 if( IPBanList.Contains( address ) ) {
                     if( IPBanList.Remove( address, raiseEvents ) ) {
-                        Logger.Log( "{0} unbanned {1} (UnbanAll by association with {2}). Reason: {3}", LogType.UserActivity,
+                        Logger.Log( LogType.UserActivity,
+                                    "{0} unbanned {1} (UnbanAll by association with {2}). Reason: {3}",
                                     player.Name, address, Name, reason );
 
                         // Announce unban on the server
@@ -511,14 +519,16 @@ namespace fCraft {
 
                         // Log and announce ban
                         if( targetAlt == this ) {
-                            Logger.Log( "{0} was unbanned by {1} (UnbanAll). Reason: {2}", LogType.UserActivity,
+                            Logger.Log( LogType.UserActivity,
+                                        "{0} was unbanned by {1} (UnbanAll). Reason: {2}",
                                         targetAlt.Name, player.Name, reason );
                             if( announce ) {
                                 Server.Message( "&WPlayer {0}&W was unbanned by {1}&W (UnbanAll)",
                                                 targetAlt.ClassyName, player.ClassyName );
                             }
                         } else {
-                            Logger.Log( "{0} was unbanned by {1} (UnbanAll by association with {2}). Reason: {3}", LogType.UserActivity,
+                            Logger.Log( LogType.UserActivity,
+                                        "{0} was unbanned by {1} (UnbanAll by association with {2}). Reason: {3}",
                                         targetAlt.Name, player.Name, Name, reason );
                             if( announce ) {
                                 Server.Message( "&WPlayer {0}&W was unbanned by {1}&W by association with {2}",
@@ -561,7 +571,8 @@ namespace fCraft {
                     try {
                         Unfreeze( bannedBy, false, true );
                     } catch( PlayerOpException ex ) {
-                        Logger.Log( "PlayerInfo.ProcessBan: {0}", LogType.Warning, ex.Message );
+                        Logger.Log( LogType.Warning,
+                                    "PlayerInfo.ProcessBan: {0}", ex.Message );
                     }
                 }
                 IsHidden = false;
@@ -667,7 +678,8 @@ namespace fCraft {
             }
 
             // Log the rank change
-            Logger.Log( "{0} {1} {2} from {3} to {4}. Reason: {5}", LogType.UserActivity,
+            Logger.Log( LogType.UserActivity,
+                        "{0} {1} {2} from {3} to {4}. Reason: {5}",
                         player.Name, verbed, Name, Rank.Name, newRank.Name, reason );
 
             // Actually change rank
@@ -801,7 +813,9 @@ namespace fCraft {
                 if( target != null ) target.IsDeaf = false;
 
                 // Log and announce
-                Logger.Log( "{0} froze {1}", LogType.UserActivity, player.Name, Name );
+                Logger.Log( LogType.UserActivity,
+                            "{0} froze {1}",
+                            player.Name, Name );
                 if( announce ) {
                     if( target != null ) {
                         target.Message( "&WYou were frozen by {0}", player.ClassyName );
@@ -850,7 +864,9 @@ namespace fCraft {
                 Unfreeze();
 
                 // Log and announce unfreeze
-                Logger.Log( "{0} unfroze {1}", LogType.UserActivity, player.Name, Name );
+                Logger.Log( LogType.UserActivity,
+                            "{0} unfroze {1}",
+                            player.Name, Name );
                 if( announce ) {
                     Player target = PlayerObject;
                     if( target != null ) {
@@ -929,7 +945,8 @@ namespace fCraft {
                     }
 
                     // log and announce mute publicly
-                    Logger.Log( "Player {0} was muted by {1} for {2}", LogType.UserActivity,
+                    Logger.Log( LogType.UserActivity,
+                                "Player {0} was muted by {1} for {2}",
                                 Name, player.Name, duration );
                     if( announce ) {
                         Player target = PlayerObject;
@@ -996,7 +1013,8 @@ namespace fCraft {
                 }
 
                 // log and announce mute publicly
-                Logger.Log( "Player {0} was unmuted by {1} ({2} was left on the mute)", LogType.UserActivity,
+                Logger.Log( LogType.UserActivity,
+                            "Player {0} was unmuted by {1} ({2} was left on the mute)",
                             Name, player.Name, timeLeft );
                 if( announce ) {
                     Player target = PlayerObject;

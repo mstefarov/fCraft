@@ -72,7 +72,8 @@ namespace fCraft {
                     thread.Start();
                     return true;
                 } catch( Exception ex ) {
-                    Logger.Log( "IRC: Could not start the bot: {0}", LogType.Error, ex );
+                    Logger.Log( LogType.Error,
+                                "IRC: Could not start the bot: {0}", ex );
                     return false;
                 }
             }
@@ -111,7 +112,8 @@ namespace fCraft {
                 do {
                     try {
                         reconnect = false;
-                        Logger.Log( "Connecting to {0}:{1} as {2}", LogType.IRC,
+                        Logger.Log( LogType.IRC,
+                                    "Connecting to {0}:{1} as {2}",
                                     hostName, port, ActualBotNick );
                         Connect();
 
@@ -148,17 +150,17 @@ namespace fCraft {
                         }
 
                     } catch( SocketException ) {
-                        Logger.Log( "IRC: Disconnected. Will retry in {0} seconds.", LogType.Warning,
+                        Logger.Log( LogType.Warning, "IRC: Disconnected. Will retry in {0} seconds.",
                                     ReconnectDelay / 1000 );
                         reconnect = true;
 
                     } catch( IOException ) {
-                        Logger.Log( "IRC: Disconnected. Will retry in {0} seconds.", LogType.Warning,
+                        Logger.Log( LogType.Warning, "IRC: Disconnected. Will retry in {0} seconds.",
                                     ReconnectDelay / 1000 );
                         reconnect = true;
 #if !DEBUG
                     } catch( Exception ex ) {
-                        Logger.Log( "IRC: " + ex, LogType.Error );
+                        Logger.Log( LogType.Error, "IRC: {0}", ex );
                         reconnect = true;
 #endif
                     }
@@ -242,7 +244,8 @@ namespace fCraft {
                     case IRCMessageType.Kick:
                         string kicked = msg.RawMessageArray[3];
                         if( kicked == ActualBotNick ) {
-                            Logger.Log( "Bot was kicked from {0} by {1} ({2}), rejoining.", LogType.IRC,
+                            Logger.Log( LogType.IRC,
+                                        "Bot was kicked from {0} by {1} ({2}), rejoining.",
                                         msg.Channel, msg.Nick, msg.Message );
                             Thread.Sleep( ReconnectDelay );
                             Send( IRCCommands.Join( msg.Channel ) );
@@ -277,32 +280,37 @@ namespace fCraft {
                         switch( msg.ReplyCode ) {
                             case IRCReplyCode.ErrorNicknameInUse:
                             case IRCReplyCode.ErrorNicknameCollision:
-                                Logger.Log( "Error: Nickname \"{0}\" is already in use. Trying \"{0}_\"", LogType.IRC,
-                                            ActualBotNick, msg.Channel );
+                                Logger.Log( LogType.IRC,
+                                            "Error: Nickname \"{0}\" is already in use. Trying \"{0}_\"",
+                                            ActualBotNick );
                                 ActualBotNick += "_";
                                 Send( IRCCommands.Nick( ActualBotNick ) );
                                 break;
 
                             case IRCReplyCode.ErrorBannedFromChannel:
                             case IRCReplyCode.ErrorNoSuchChannel:
-                                Logger.Log( "Error: {0} ({1})", LogType.IRC, msg.ReplyCode, msg.Channel );
+                                Logger.Log( LogType.IRC,
+                                            "Error: {0} ({1})",
+                                            msg.ReplyCode, msg.Channel );
                                 die = true;
                                 break;
 
                             case IRCReplyCode.ErrorBadChannelKey:
-                                Logger.Log( "Error: Channel password required. fCraft does not currently support passworded channels.", LogType.IRC,
-                                            msg.Channel, msg.Message );
+                                Logger.Log( LogType.IRC,
+                                            "Error: Channel password required for {0}. fCraft does not currently support passworded channels.",
+                                            msg.Channel );
                                 die = true;
                                 break;
 
                             default:
-                                Logger.Log( "Error ({0}): {1}", LogType.IRC,
+                                Logger.Log( LogType.IRC,
+                                            "Error ({0}): {1}",
                                             msg.ReplyCode, msg.RawMessage );
                                 break;
                         }
 
                         if( die ) {
-                            Logger.Log( "Error: Disconnecting.", LogType.IRC );
+                            Logger.Log( LogType.IRC, "Error: Disconnecting." );
                             reconnect = false;
                             DisconnectThread();
                         }
@@ -312,12 +320,14 @@ namespace fCraft {
 
                     case IRCMessageType.QueryAction:
                         // TODO: PMs
-                        Logger.Log( "Query: {0}", LogType.IRC, msg.RawMessage );
+                        Logger.Log( LogType.IRC,
+                                    "Query: {0}", msg.RawMessage );
                         break;
 
 
                     case IRCMessageType.Kill:
-                        Logger.Log( "Bot was killed from {0} by {1} ({2}), reconnecting.", LogType.IRC,
+                        Logger.Log( LogType.IRC,
+                                    "Bot was killed from {0} by {1} ({2}), reconnecting.",
                                     hostName, msg.Nick, msg.Message );
                         reconnect = true;
                         isConnected = false;
@@ -396,12 +406,13 @@ namespace fCraft {
                 for( int i = 0; i < threads.Length; i++ ) {
                     if( threads[i].IsReady ) {
                         threads[i].ResponsibleForInputParsing = true;
-                        Logger.Log( "Bot \"{0}\" is now responsible for parsing input.", LogType.IRC,
+                        Logger.Log( LogType.IRC,
+                                    "Bot \"{0}\" is now responsible for parsing input.",
                                     threads[i].ActualBotNick );
                         return;
                     }
                 }
-                Logger.Log( "All IRC bots have disconnected.", LogType.IRC );
+                Logger.Log( LogType.IRC, "All IRC bots have disconnected." );
             }
         }
 
@@ -432,8 +443,8 @@ namespace fCraft {
                 if( thread.Start( botNick, true ) ) {
                     threads = new[] { thread };
                 }
-            } else {
 
+            } else {
                 List<IRCThread> threadTemp = new List<IRCThread>();
                 for( int i = 0; i < threadCount; i++ ) {
                     IRCThread temp = new IRCThread();
@@ -441,7 +452,6 @@ namespace fCraft {
                         threadTemp.Add( temp );
                     }
                 }
-
                 threads = threadTemp.ToArray();
             }
 
@@ -449,7 +459,7 @@ namespace fCraft {
                 HookUpHandlers();
                 return true;
             } else {
-                Logger.Log( "IRC functionality disabled.", LogType.IRC );
+                Logger.Log( LogType.IRC, "IRC functionality disabled." );
                 return false;
             }
         }

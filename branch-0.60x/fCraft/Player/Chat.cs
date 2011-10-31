@@ -30,7 +30,8 @@ namespace fCraft {
 
             if( !SendInternal( e ) ) return false;
 
-            Logger.Log( "{0}: {1}", LogType.GlobalChat, player.Name, rawMessage );
+            Logger.Log( LogType.GlobalChat,
+                        "{0}: {1}", player.Name, rawMessage );
             return true;
         }
 
@@ -57,7 +58,8 @@ namespace fCraft {
 
             if( !SendInternal( e ) ) return false;
 
-            Logger.Log( "(me){0}: {1}", LogType.GlobalChat, player.Name, rawMessage );
+            Logger.Log( LogType.GlobalChat,
+                        "(me){0}: {1}", player.Name, rawMessage );
             return true;
         }
 
@@ -84,7 +86,8 @@ namespace fCraft {
 
             if( !SendInternal( e ) ) return false;
 
-            Logger.Log( "{0} to {1}: {2}", LogType.PrivateChat,
+            Logger.Log( LogType.PrivateChat,
+                        "{0} to {1}: {2}",
                         from.Name, to.Name, rawMessage );
             return true;
         }
@@ -115,7 +118,8 @@ namespace fCraft {
 
             if( !SendInternal( e ) ) return false;
 
-            Logger.Log( "(rank {0}){1}: {2}", LogType.RankChat,
+            Logger.Log( LogType.RankChat,
+                        "(rank {0}){1}: {2}",
                         rank.Name, player.Name, rawMessage );
             return true;
         }
@@ -141,7 +145,8 @@ namespace fCraft {
 
             if( !SendInternal( e ) ) return false;
 
-            Logger.Log( "(say){0}: {1}", LogType.GlobalChat, player.Name, rawMessage );
+            Logger.Log( LogType.GlobalChat,
+                        "(say){0}: {1}", player.Name, rawMessage );
             return true;
         }
 
@@ -170,7 +175,8 @@ namespace fCraft {
 
             if( !SendInternal( e ) ) return false;
 
-            Logger.Log( "(staff){0}: {1}", LogType.GlobalChat, player.Name, rawMessage );
+            Logger.Log( LogType.GlobalChat,
+                        "(staff){0}: {1}", player.Name, rawMessage );
             return true;
         }
 

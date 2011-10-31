@@ -56,6 +56,7 @@ namespace fCraft {
         public static bool IsLoaded { get; private set; }
 
 
+        [NotNull]
         public static PlayerInfo AddFakeEntry( [NotNull] string name, RankChangeType rankChangeType ) {
             if( name == null ) throw new ArgumentNullException( "name" );
 
@@ -99,12 +100,12 @@ namespace fCraft {
                             lock( AddLocker ) {
                                 int version = IdentifyFormatVersion( header );
                                 if( version > FormatVersion ) {
-                                    Logger.Log( "PlayerDB.Load: Attempting to load unsupported PlayerDB format ({0}). Errors may occur.",
-                                                LogType.Warning,
+                                    Logger.Log( LogType.Warning,
+                                                "PlayerDB.Load: Attempting to load unsupported PlayerDB format ({0}). Errors may occur.",
                                                 version );
                                 } else if( version < FormatVersion ) {
-                                    Logger.Log( "PlayerDB.Load: Converting PlayerDB to a newer format (version {0} to {1}).",
-                                                LogType.Warning,
+                                    Logger.Log( LogType.Warning,
+                                                "PlayerDB.Load: Converting PlayerDB to a newer format (version {0} to {1}).",
                                                 version, FormatVersion );
                                 }
 
@@ -133,7 +134,7 @@ namespace fCraft {
 
                                             if( info.ID > maxID ) {
                                                 maxID = info.ID;
-                                                Logger.Log( "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1}).", LogType.Warning );
+                                                Logger.Log( LogType.Warning, "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1})." );
                                             }
 
                                             // A record is considered "empty" if the player has never logged in.
@@ -142,7 +143,8 @@ namespace fCraft {
                                             if( (info.LastIP.Equals( IPAddress.None ) || info.LastIP.Equals(IPAddress.Any) || info.TimesVisited == 0) &&
                                                 !info.IsBanned && info.Rank == RankManager.DefaultRank ) {
 
-                                                Logger.Log( "PlayerDB.Load: Skipping an empty record for player \"{0}\"", LogType.SystemActivity,
+                                                Logger.Log( LogType.SystemActivity,
+                                                            "PlayerDB.Load: Skipping an empty record for player \"{0}\"",
                                                             info.Name );
                                                 emptyRecords++;
                                                 continue;
@@ -150,7 +152,8 @@ namespace fCraft {
 
                                             // Check for duplicates. Unless PlayerDB.txt was altered externally, this does not happen.
                                             if( Trie.ContainsKey( info.Name ) ) {
-                                                Logger.Log( "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.", LogType.Error,
+                                                Logger.Log( LogType.Error,
+                                                            "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.",
                                                             info.Name );
                                             } else {
                                                 Trie.Add( info.Name, info );
@@ -165,14 +168,15 @@ namespace fCraft {
                                         }
 #endif
                                     } else {
-                                        Logger.Log( "PlayerDB.Load: Unexpected field count ({0}), expecting at least {1} fields for a PlayerDB entry.",
-                                                    LogType.Error,
+                                        Logger.Log( LogType.Error,
+                                                    "PlayerDB.Load: Unexpected field count ({0}), expecting at least {1} fields for a PlayerDB entry.",
                                                     fields.Length, PlayerInfo.MinFieldCount );
                                     }
                                 }
 
                                 if( emptyRecords > 0 ) {
-                                    Logger.Log( "PlayerDB.Load: Skipped {0} empty records.", LogType.Warning, emptyRecords );
+                                    Logger.Log( LogType.Warning,
+                                                "PlayerDB.Load: Skipped {0} empty records.", emptyRecords );
                                 }
 
                                 RunCompatibilityChecks( version );
@@ -180,10 +184,11 @@ namespace fCraft {
                         }
                     }
                     sw.Stop();
-                    Logger.Log( "PlayerDB.Load: Done loading player DB ({0} records) in {1}ms. MaxID={2}", LogType.Debug,
+                    Logger.Log( LogType.Debug,
+                                "PlayerDB.Load: Done loading player DB ({0} records) in {1}ms. MaxID={2}",
                                 Trie.Count, sw.ElapsedMilliseconds, maxID );
                 } else {
-                    Logger.Log( "PlayerDB.Load: No player DB file found.", LogType.Warning );
+                    Logger.Log( LogType.Warning, "PlayerDB.Load: No player DB file found." );
                 }
                 UpdateCache();
                 IsLoaded = true;
@@ -193,13 +198,11 @@ namespace fCraft {
 
         static void RunCompatibilityChecks( int loadedVersion ) {
             // Sorting the list allows finding players by ID using binary search.
-            // Normally this only needs to be done when 
-            Logger.Log( "Sorting PlayerDB by ID...", LogType.SystemActivity );
             list.Sort( PlayerIDComparer.Instance );
 
             if( loadedVersion < 4 ) {
                 int unhid = 0, unfroze = 0, unmuted = 0;
-                Logger.Log( "PlayerDB: Checking consistency of banned player records...", LogType.SystemActivity );
+                Logger.Log( LogType.SystemActivity, "PlayerDB: Checking consistency of banned player records..." );
                 for( int i = 0; i < list.Count; i++ ) {
                     if( list[i].IsBanned ) {
                         if( list[i].IsHidden ) {
@@ -218,7 +221,8 @@ namespace fCraft {
                         }
                     }
                 }
-                Logger.Log( "PlayerDB: Unhid {0}, unfroze {1}, and unmuted {2} banned accounts.", LogType.SystemActivity,
+                Logger.Log( LogType.SystemActivity,
+                            "PlayerDB: Unhid {0}, unfroze {1}, and unmuted {2} banned accounts.",
                             unhid, unfroze, unmuted );
             }
         }
@@ -264,13 +268,15 @@ namespace fCraft {
                     }
                 }
                 sw.Stop();
-                Logger.Log( "PlayerDB.Save: Saved player database ({0} records) in {1}ms", LogType.Debug,
+                Logger.Log( LogType.Debug,
+                            "PlayerDB.Save: Saved player database ({0} records) in {1}ms",
                             Trie.Count, sw.ElapsedMilliseconds );
 
                 try {
                     Paths.MoveOrReplace( tempFileName, Paths.PlayerDBFileName );
                 } catch( Exception ex ) {
-                    Logger.Log( "PlayerDB.Save: An error occured while trying to save PlayerDB: " + ex, LogType.Error );
+                    Logger.Log( LogType.Error,
+                                "PlayerDB.Save: An error occured while trying to save PlayerDB: {0}", ex );
                 }
             }
         }
@@ -301,6 +307,7 @@ namespace fCraft {
 
         #region Lookup
 
+        [NotNull]
         public static PlayerInfo FindOrCreateInfoForPlayer( [NotNull] string name, [NotNull] IPAddress lastIP ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( lastIP == null ) throw new ArgumentNullException( "lastIP" );
@@ -332,12 +339,14 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         public static PlayerInfo[] FindPlayers( [NotNull] IPAddress address ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             return FindPlayers( address, Int32.MaxValue );
         }
 
 
+        [NotNull]
         public static PlayerInfo[] FindPlayers( [NotNull] IPAddress address, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             if( limit < 0 ) throw new ArgumentOutOfRangeException( "limit" );
@@ -355,6 +364,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         public static PlayerInfo[] FindPlayersCidr( [NotNull] IPAddress address, byte range ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
@@ -362,6 +372,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         public static PlayerInfo[] FindPlayersCidr( [NotNull] IPAddress address, byte range, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
@@ -382,12 +393,14 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         public static PlayerInfo[] FindPlayers( [NotNull] Regex regex ) {
             if( regex == null ) throw new ArgumentNullException( "regex" );
             return FindPlayers( regex, Int32.MaxValue );
         }
 
 
+        [NotNull]
         public static PlayerInfo[] FindPlayers( [NotNull] Regex regex, int limit ) {
             if( regex == null ) throw new ArgumentNullException( "regex" );
             List<PlayerInfo> result = new List<PlayerInfo>();
@@ -404,12 +417,14 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         public static PlayerInfo[] FindPlayers( [NotNull] string namePart ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
             return FindPlayers( namePart, Int32.MaxValue );
         }
 
 
+        [NotNull]
         public static PlayerInfo[] FindPlayers( [NotNull] string namePart, int limit ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
             lock( AddLocker ) {
@@ -420,17 +435,18 @@ namespace fCraft {
 
 
         /// <summary>Searches for player names starting with namePart, returning just one or none of the matches.</summary>
-        /// <param name="name">Partial or full player name</param>
+        /// <param name="namePart">Partial or full player name</param>
         /// <param name="info">PlayerInfo to output (will be set to null if no single match was found)</param>
         /// <returns>true if one or zero matches were found, false if multiple matches were found</returns>
-        public static bool FindPlayerInfo( [NotNull] string name, out PlayerInfo info ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
+        public static bool FindPlayerInfo( [NotNull] string namePart, out PlayerInfo info ) {
+            if( namePart == null ) throw new ArgumentNullException( "namePart" );
             lock( AddLocker ) {
-                return Trie.GetOneMatch( name, out info );
+                return Trie.GetOneMatch( namePart, out info );
             }
         }
 
 
+        [CanBeNull]
         public static PlayerInfo FindPlayerInfoExact( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             lock( AddLocker ) {
@@ -470,6 +486,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         public static string FindExactClassyName( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( name.Length == 0 ) return "?";
@@ -640,7 +657,9 @@ namespace fCraft {
         }
 
 
-        internal static void SwapPlayerInfo( PlayerInfo p1, PlayerInfo p2 ) {
+        internal static void SwapPlayerInfo( [NotNull] PlayerInfo p1, [NotNull] PlayerInfo p2 ) {
+            if( p1 == null ) throw new ArgumentNullException( "p1" );
+            if( p2 == null ) throw new ArgumentNullException( "p2" );
             lock( AddLocker ) {
                 lock( SaveLoadLocker ) {
                     if( p1.IsOnline || p2.IsOnline ) {
@@ -722,7 +741,8 @@ namespace fCraft {
         }
 
 
-        public static StringBuilder AppendEscaped( this StringBuilder sb, string str ) {
+        public static StringBuilder AppendEscaped( [NotNull] this StringBuilder sb, [CanBeNull] string str ) {
+            if( sb == null ) throw new ArgumentNullException( "sb" );
             if( !String.IsNullOrEmpty( str ) ) {
                 if( str.IndexOf( ',' ) > -1 ) {
                     int startIndex = sb.Length;

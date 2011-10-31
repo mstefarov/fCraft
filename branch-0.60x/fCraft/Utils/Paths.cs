@@ -159,16 +159,20 @@ namespace fCraft {
 
             } catch( Exception ex ) {
                 if( ex is ArgumentException || ex is NotSupportedException || ex is PathTooLongException ) {
-                    Logger.Log( "Paths.TestDirectory: Specified path for {0} is invalid or incorrectly formatted ({1}: {2}).", LogType.Error,
+                    Logger.Log( LogType.Error,
+                                "Paths.TestDirectory: Specified path for {0} is invalid or incorrectly formatted ({1}: {2}).",
                                 pathLabel, ex.GetType().Name, ex.Message );
                 } else if( ex is SecurityException || ex is UnauthorizedAccessException ) {
-                    Logger.Log( "Paths.TestDirectory: Cannot create or write to file/path for {0}, please check permissions ({1}: {2}).", LogType.Error,
+                    Logger.Log( LogType.Error,
+                                "Paths.TestDirectory: Cannot create or write to file/path for {0}, please check permissions ({1}: {2}).",
                                 pathLabel, ex.GetType().Name, ex.Message );
                 } else if( ex is DirectoryNotFoundException ) {
-                    Logger.Log( "Paths.TestDirectory: Drive/volume for {0} does not exist or is not mounted ({1}: {2}).", LogType.Error,
+                    Logger.Log( LogType.Error,
+                                "Paths.TestDirectory: Drive/volume for {0} does not exist or is not mounted ({1}: {2}).",
                                 pathLabel, ex.GetType().Name, ex.Message );
                 } else if( ex is IOException ) {
-                    Logger.Log( "Paths.TestDirectory: Specified directory for {0} is not readable/writable ({1}: {2}).", LogType.Error,
+                    Logger.Log( LogType.Error,
+                                "Paths.TestDirectory: Specified directory for {0} is not readable/writable ({1}: {2}).",
                                 pathLabel, ex.GetType().Name, ex.Message );
                 } else {
                     throw;
@@ -206,16 +210,20 @@ namespace fCraft {
 
             } catch( Exception ex ) {
                 if( ex is ArgumentException || ex is NotSupportedException || ex is PathTooLongException ) {
-                    Logger.Log( "Paths.TestFile: Specified path for {0} is invalid or incorrectly formatted ({1}: {2}).", LogType.Error,
+                    Logger.Log( LogType.Error,
+                                "Paths.TestFile: Specified path for {0} is invalid or incorrectly formatted ({1}: {2}).",
                                 fileLabel, ex.GetType().Name, ex.Message );
                 } else if( ex is SecurityException || ex is UnauthorizedAccessException ) {
-                    Logger.Log( "Paths.TestFile: Cannot create or write to {0}, please check permissions ({1}: {2}).", LogType.Error,
+                    Logger.Log( LogType.Error,
+                                "Paths.TestFile: Cannot create or write to {0}, please check permissions ({1}: {2}).",
                                 fileLabel, ex.GetType().Name, ex.Message );
                 } else if( ex is DirectoryNotFoundException ) {
-                    Logger.Log( "Paths.TestFile: Drive/volume for {0} does not exist or is not mounted ({1}: {2}).", LogType.Error,
+                    Logger.Log( LogType.Error,
+                                "Paths.TestFile: Drive/volume for {0} does not exist or is not mounted ({1}: {2}).",
                                 fileLabel, ex.GetType().Name, ex.Message );
                 } else if( ex is IOException ) {
-                    Logger.Log( "Paths.TestFile: Specified file for {0} is not readable/writable ({1}: {2}).", LogType.Error,
+                    Logger.Log( LogType.Error,
+                                "Paths.TestFile: Specified file for {0} is not readable/writable ({1}: {2}).",
                                 fileLabel, ex.GetType().Name, ex.Message );
                 } else {
                     throw;

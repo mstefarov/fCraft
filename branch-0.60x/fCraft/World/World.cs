@@ -94,7 +94,8 @@ namespace fCraft {
                     try {
                         Map = MapUtility.Load( MapFileName );
                     } catch( Exception ex ) {
-                        Logger.Log( "World.LoadMap: Failed to load map ({0}): {1}", LogType.Error,
+                        Logger.Log( LogType.Error,
+                                    "World.LoadMap: Failed to load map ({0}): {1}",
                                     MapFileName, ex );
                     }
                 }
@@ -102,7 +103,8 @@ namespace fCraft {
                 // or generate a default one
                 if( Map == null ) {
                     Server.Message( "&WMapfile is missing for world {0}&W. A new map has been created.", ClassyName );
-                    Logger.Log( "World.LoadMap: Map file missing for world {0}. Generating default flatgrass map.", LogType.SystemActivity,
+                    Logger.Log( LogType.SystemActivity,
+                                "World.LoadMap: Map file missing for world {0}. Generating default flatgrass map.",
                                 Name );
                     Map = MapGenerator.GenerateFlatgrass( 128, 128, 64 );
                 }
@@ -252,8 +254,9 @@ namespace fCraft {
                 }
 
                 if( playerIndex.ContainsKey( player.Name.ToLower() ) ) {
-                    Logger.Log( "This world already contains the player by name ({0}). " +
-                                "Some sort of state corruption must have occured.", LogType.Error,
+                    Logger.Log( LogType.Error,
+                                "This world already contains the player by name ({0}). " +
+                                "Some sort of state corruption must have occured.",
                                 player.Name );
                     playerIndex.Remove( player.Name.ToLower() );
                 }
@@ -279,7 +282,8 @@ namespace fCraft {
                                             player.ClassyName, ClassyName );
                 }
 
-                Logger.Log( "Player {0} joined world {1}.", LogType.UserActivity,
+                Logger.Log( LogType.UserActivity,
+                            "Player {0} joined world {1}.",
                             player.Name, Name );
 
                 if( IsLocked ) {
@@ -412,7 +416,8 @@ namespace fCraft {
                     IsLocked = true;
                     if( Map != null ) Map.ClearUpdateQueue();
                     Players.Message( "&WMap was locked by {0}", player.ClassyName );
-                    Logger.Log( "World {0} was locked by {1}", LogType.UserActivity,
+                    Logger.Log( LogType.UserActivity,
+                                "World {0} was locked by {1}",
                                 Name, player.Name );
                     return true;
                 }
@@ -428,7 +433,8 @@ namespace fCraft {
                     UnlockedDate = DateTime.UtcNow;
                     IsLocked = false;
                     Players.Message( "&WMap was unlocked by {0}", player.ClassyName );
-                    Logger.Log( "World \"{0}\" was unlocked by {1}", LogType.UserActivity,
+                    Logger.Log( LogType.UserActivity,
+                                "World \"{0}\" was unlocked by {1}",
                                 Name, player.Name );
                     return true;
                 } else {

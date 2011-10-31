@@ -300,12 +300,14 @@ namespace fCraft {
                 try {
                     file = XDocument.Load( Paths.ConfigFileName );
                     if( file.Root == null || file.Root.Name != ConfigXmlRootName ) {
-                        Logger.Log( "Config.Load: Malformed or incompatible config file {0}. Loading defaults.", LogType.Warning,
+                        Logger.Log( LogType.Warning,
+                                    "Config.Load: Malformed or incompatible config file {0}. Loading defaults.",
                                     Paths.ConfigFileName );
                         file = new XDocument();
                         file.Add( new XElement( ConfigXmlRootName ) );
                     } else {
-                        Logger.Log( "Config.Load: Config file {0} loaded succesfully.", LogType.Debug,
+                        Logger.Log( LogType.Debug,
+                                    "Config.Load: Config file {0} loaded succesfully.",
                                     Paths.ConfigFileName );
                         fromFile = true;
                     }
@@ -327,17 +329,20 @@ namespace fCraft {
                 XAttribute attr = config.Attribute( "version" );
                 if( attr != null && Int32.TryParse( attr.Value, out version ) ) {
                     if( version < LowestSupportedVersion ) {
-                        Logger.Log( "Config.Load: Your copy of config.xml is too old to be loaded properly. " +
+                        Logger.Log( LogType.Warning,
+                                    "Config.Load: Your copy of config.xml is too old to be loaded properly. " +
                                     "Some settings will be lost of replaced with defaults. " +
-                                    "Please run ConfigGUI to make sure that everything is in order.", LogType.Warning );
+                                    "Please run ConfigGUI to make sure that everything is in order." );
                     } else if( version != CurrentVersion ) {
-                        Logger.Log( "Config.Load: Your config.xml was made for a different version of fCraft. " +
+                        Logger.Log( LogType.Warning,
+                                    "Config.Load: Your config.xml was made for a different version of fCraft. " +
                                     "Some obsolete settings might be ignored, and some recently-added settings will be set to defaults. " +
-                                    "It is recommended that you run ConfigGUI to make sure that everything is in order.", LogType.Warning );
+                                    "It is recommended that you run ConfigGUI to make sure that everything is in order." );
                     }
                 } else {
-                    Logger.Log( "Config.Load: Unknown version of config.xml found. It might be corrupted. " +
-                                "Please run ConfigGUI to make sure that everything is in order.", LogType.Warning );
+                    Logger.Log( LogType.Warning,
+                                "Config.Load: Unknown version of config.xml found. It might be corrupted. " +
+                                "Please run ConfigGUI to make sure that everything is in order." );
                 }
             }
 
@@ -345,25 +350,23 @@ namespace fCraft {
             if( !skipRankList ) {
                 LoadRankList( config, fromFile );
             }
+            
+            ResetLogOptions();
 
             // read log options for console
             XElement consoleOptions = config.Element( "ConsoleOptions" );
-            if( consoleOptions != null ) {
+            if( consoleOptions != null ){
                 LoadLogOptions( consoleOptions, Logger.ConsoleOptions );
-            } else {
-                if( fromFile ) Logger.Log( "Config.Load: using default console options.", LogType.Warning );
-                ResetLogOptions();
+            }else if(fromFile){
+                Logger.Log( LogType.Warning, "Config.Load: using default console options." );
             }
 
-            // read log options for logfile
+            // read log options for logfiles
             XElement logFileOptions = config.Element( "LogFileOptions" );
-            if( logFileOptions != null ) {
+            if( logFileOptions != null ){
                 LoadLogOptions( logFileOptions, Logger.LogFileOptions );
-            } else {
-                if( fromFile ) Logger.Log( "Config.Load: using default log file options.", LogType.Warning );
-                for( int i = 0; i < Logger.LogFileOptions.Length; i++ ) {
-                    Logger.LogFileOptions[i] = true;
-                }
+            }else if(fromFile){
+                Logger.Log( LogType.Warning, "Config.Load: using default log file options." );
             }
 
 
@@ -392,9 +395,10 @@ namespace fCraft {
                 ConfigKey.MaxPlayersPerWorld.TrySetValue( ConfigKey.MaxPlayers.GetInt() );
             }
             if( ConfigKey.MaxPlayersPerWorld.GetInt() > ConfigKey.MaxPlayers.GetInt() ) {
-                Logger.Log( "Value of MaxPlayersPerWorld ({0}) was lowered to match MaxPlayers ({1}).", LogType.Warning,
-                     ConfigKey.MaxPlayersPerWorld.GetInt(),
-                     ConfigKey.MaxPlayers.GetInt() );
+                Logger.Log( LogType.Warning,
+                            "Value of MaxPlayersPerWorld ({0}) was lowered to match MaxPlayers ({1}).",
+                            ConfigKey.MaxPlayersPerWorld.GetInt(),
+                            ConfigKey.MaxPlayers.GetInt() );
                 ConfigKey.MaxPlayersPerWorld.TrySetValue( ConfigKey.MaxPlayers.GetInt() );
             }
 
@@ -418,8 +422,9 @@ namespace fCraft {
                 TrySetValue( LegacyConfigKeys[keyName], element.Value );
 
             } else if( keyName == "limitoneconnectionperip" ) { // LEGACY
-                Logger.Log( "Config.Load: LimitOneConnectionPerIP (bool) was replaced by MaxConnectionsPerIP (int). Adjust your configuration accordingly.",
-                            LogType.Warning );
+                Logger.Log( LogType.Warning,
+                            "Config: LimitOneConnectionPerIP (bool) was replaced by MaxConnectionsPerIP (int). " +
+                            "Adjust your configuration accordingly." );
                 ConfigKey.MaxConnectionsPerIP.TrySetValue( 1 );
 
             } else if( keyName != "consoleoptions" &&
@@ -427,7 +432,9 @@ namespace fCraft {
                        keyName != "ranks" &&
                        keyName != "legacyrankmapping" ) {
                 // unknown key
-                Logger.Log( "Unrecognized entry ignored: {0} = {1}", LogType.Debug, element.Name, element.Value );
+                Logger.Log( LogType.Warning,
+                            "Config: Unrecognized entry ignored: {0} = {1}",
+                            element.Name, element.Value );
             }
         }
 
@@ -487,11 +494,11 @@ namespace fCraft {
                         foreach( World world in worldListCache ) {
                             if( world.BlockDB.AutoToggleIfNeeded() ) {
                                 if( world.BlockDB.IsEnabled ) {
-                                    Logger.Log( "BlockDB is now auto-enabled on world {0}", LogType.SystemActivity,
-                                                    world.Name );
+                                    Logger.Log( LogType.SystemActivity,
+                                                "BlockDB is now auto-enabled on world {0}", world.Name );
                                 } else {
-                                    Logger.Log( "BlockDB is now auto-disabled on world {0}", LogType.SystemActivity,
-                                                    world.Name );
+                                    Logger.Log( LogType.SystemActivity,
+                                                "BlockDB is now auto-disabled on world {0}", world.Name );
                                 }
                             }
                         }
@@ -798,7 +805,9 @@ namespace fCraft {
             try {
                 return SetValue( key, rawValue );
             } catch( FormatException ex ) {
-                Logger.Log( "{0}.TrySetValue: {1}", LogType.Error, key, ex.Message );
+                Logger.Log( LogType.Error,
+                            "{0}.TrySetValue: {1}",
+                            key, ex.Message );
                 return false;
             }
         }
@@ -830,7 +839,8 @@ namespace fCraft {
                     XAttribute toRankID = rankPair.Attribute( "to" );
                     if( fromRankID == null || String.IsNullOrEmpty( fromRankID.Value ) ||
                         toRankID == null || String.IsNullOrEmpty( toRankID.Value ) ) {
-                        Logger.Log( "Config.Load: Could not parse a LegacyRankMapping entry: {0}", LogType.Error, rankPair );
+                        Logger.Log( LogType.Error,
+                                    "Config.Load: Could not parse a LegacyRankMapping entry: {0}", rankPair );
                     } else {
                         RankManager.LegacyRankMapping.Add( fromRankID.Value, toRankID.Value );
                     }
@@ -846,18 +856,20 @@ namespace fCraft {
                     try {
                         RankManager.AddRank( new Rank( rankDefinition ) );
                     } catch( RankDefinitionException ex ) {
-                        Logger.Log( ex.Message, LogType.Error );
+                        Logger.Log( LogType.Error, ex.Message );
                     }
                 }
 
                 if( RankManager.RanksByName.Count == 0 ) {
-                    Logger.Log( "Config.Load: No ranks were defined, or none were defined correctly. Using default ranks (guest, builder, op, and owner).", LogType.Warning );
+                    Logger.Log( LogType.Warning,
+                                "Config.Load: No ranks were defined, or none were defined correctly. "+
+                                "Using default ranks (guest, builder, op, and owner)." );
                     rankList.Remove();
                     el.Add( DefineDefaultRanks() );
                 }
 
             } else {
-                if( fromFile ) Logger.Log( "Config.Load: using default player ranks.", LogType.Warning );
+                if( fromFile ) Logger.Log( LogType.Warning, "Config.Load: using default player ranks." );
                 el.Add( DefineDefaultRanks() );
             }
 
@@ -954,7 +966,7 @@ namespace fCraft {
             try {
                 RankManager.AddRank( new Rank( owner ) );
             } catch( RankDefinitionException ex ) {
-                Logger.Log( ex.Message, LogType.Error );
+                Logger.Log( LogType.Error, ex.Message );
             }
 
 
@@ -1022,7 +1034,7 @@ namespace fCraft {
             try {
                 RankManager.AddRank( new Rank( op ) );
             } catch( RankDefinitionException ex ) {
-                Logger.Log( ex.Message, LogType.Error );
+                Logger.Log( LogType.Error, ex.Message );
             }
 
 
@@ -1061,7 +1073,7 @@ namespace fCraft {
             try {
                 RankManager.AddRank( new Rank( builder ) );
             } catch( RankDefinitionException ex ) {
-                Logger.Log( ex.Message, LogType.Error );
+                Logger.Log( LogType.Error, ex.Message );
             }
 
 
@@ -1083,7 +1095,7 @@ namespace fCraft {
             try {
                 RankManager.AddRank( new Rank( guest ) );
             } catch( RankDefinitionException ex ) {
-                Logger.Log( ex.Message, LogType.Error );
+                Logger.Log( LogType.Error, ex.Message );
             }
 
             return permissions;

@@ -121,9 +121,11 @@ namespace fCraft {
                         if( !client.Connected ||
                             (client.Client.Poll( 1000, SelectMode.SelectRead ) && client.Client.Available == 0) ) {
                             if( Info != null ) {
-                                Logger.Log( "Player.IoLoop: Lost connection to player {0} ({1}).", LogType.Debug, Name, IP );
+                                Logger.Log( LogType.Debug,
+                                            "Player.IoLoop: Lost connection to player {0} ({1}).", Name, IP );
                             } else {
-                                Logger.Log( "Player.IoLoop: Lost connection to unidentified player at {0}.", LogType.Debug, IP );
+                                Logger.Log( LogType.Debug,
+                                            "Player.IoLoop: Lost connection to unidentified player at {0}.", IP );
                             }
                             LeaveReason = LeaveReason.ClientQuit;
                             return;
@@ -185,7 +187,8 @@ namespace fCraft {
                                     }
                                 }
                                 if( !JoinWorldNow( forcedWorldToJoin, useWorldSpawn, worldChangeReason ) ) {
-                                    Logger.Log( "Player.IoLoop: Player was asked to force-join a world, but it was full.", LogType.Warning );
+                                    Logger.Log( LogType.Warning,
+                                                "Player.IoLoop: Player was asked to force-join a world, but it was full." );
                                     KickNow( "World is full.", LeaveReason.ServerFull );
                                 }
                                 forcedWorldToJoin = null;
@@ -221,7 +224,8 @@ namespace fCraft {
                                 continue;
 
                             default:
-                                Logger.Log( "Player {0} was kicked after sending an invalid opcode ({1}).", LogType.SuspiciousActivity,
+                                Logger.Log( LogType.SuspiciousActivity,
+                                            "Player {0} was kicked after sending an invalid opcode ({1}).",
                                             Name, opcode );
                                 KickNow( "Unknown packet opcode " + opcode,
                                          LeaveReason.InvalidOpcodeKick );
@@ -261,36 +265,35 @@ namespace fCraft {
             reader.ReadByte();
             string message = ReadString();
 
-            if(!IsSuper && message.StartsWith( "/womid " ) ) {
+            if( !IsSuper && message.StartsWith( "/womid " ) ) {
                 IsUsingWoM = true;
                 return true;
             }
 
             if( Chat.ContainsInvalidChars( message ) ) {
-                Logger.Log( "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.",
-                            LogType.SuspiciousActivity,
+                Logger.Log( LogType.SuspiciousActivity,
+                            "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.",
                             Name );
                 Server.Message( "{0}&W was kicked for sending invalid chat.", ClassyName );
                 KickNow( "Illegal characters in chat.", LeaveReason.InvalidMessageKick );
                 return false;
-            } else {
-#if !DEBUG
-                try {
-                    ParseMessage( message, false );
-                } catch( IOException ) {
-                    throw;
-                } catch( SocketException ) {
-                    throw;
-                } catch( Exception ex ) {
-                    Logger.LogAndReportCrash( "Error while parsing player's message", "fCraft", ex, false );
-                    MessageNow( "&WError while handling your message ({0}: {1})." +
-                                "It is recommended that you reconnect to the server.",
-                                ex.GetType().Name, ex.Message );
-                }
-#else
-                ParseMessage( message, false );
-#endif
             }
+#if DEBUG
+                ParseMessage( message, false );
+#else
+            try {
+                ParseMessage( message, false );
+            } catch( IOException ) {
+                throw;
+            } catch( SocketException ) {
+                throw;
+            } catch( Exception ex ) {
+                Logger.LogAndReportCrash( "Error while parsing player's message", "fCraft", ex, false );
+                MessageNow( "&WError while handling your message ({0}: {1})." +
+                            "It is recommended that you reconnect to the server.",
+                            ex.GetType().Name, ex.Message );
+            }
+#endif
             return true;
         }
 
@@ -455,7 +458,8 @@ namespace fCraft {
                     return false;
 
                 default:
-                    Logger.Log( "Player.LoginSequence: Unexpected opcode in the first packet from {0}: {1}.", LogType.Error,
+                    Logger.Log( LogType.Error,
+                                "Player.LoginSequence: Unexpected opcode in the first packet from {0}: {1}.",
                                 IP, opcode );
                     KickNow( "Incompatible client, or a network error.", LeaveReason.ProtocolViolation );
                     return false;
@@ -464,7 +468,8 @@ namespace fCraft {
             // Check protocol version
             int clientProtocolVersion = reader.ReadByte();
             if( clientProtocolVersion != Config.ProtocolVersion ) {
-                Logger.Log( "Player.LoginSequence: Wrong protocol version: {0}.", LogType.Error,
+                Logger.Log( LogType.Error,
+                            "Player.LoginSequence: Wrong protocol version: {0}.",
                             clientProtocolVersion );
                 KickNow( "Incompatible protocol version!", LeaveReason.ProtocolViolation );
                 return false;
@@ -474,7 +479,8 @@ namespace fCraft {
 
             // Check name for nonstandard characters
             if( !IsValidName( playerName ) ) {
-                Logger.Log( "Player.LoginSequence: Unacceptible player name: {0} ({1})", LogType.SuspiciousActivity,
+                Logger.Log( LogType.SuspiciousActivity,
+                            "Player.LoginSequence: Unacceptible player name: {0} ({1})",
                             playerName, IP );
                 KickNow( "Invalid characters in player name!", LeaveReason.ProtocolViolation );
                 return false;
@@ -499,12 +505,14 @@ namespace fCraft {
                 string standardMessage = String.Format( "Player.LoginSequence: Could not verify player name for {0} ({1}).",
                                                         Name, IP );
                 if( IP.Equals( IPAddress.Loopback ) && nameVerificationMode != NameVerificationMode.Always ) {
-                    Logger.Log( "{0} Player was identified as connecting from localhost and allowed in.", LogType.SuspiciousActivity,
+                    Logger.Log( LogType.SuspiciousActivity,
+                                "{0} Player was identified as connecting from localhost and allowed in.",
                                 standardMessage );
                     IsVerified = true;
 
                 } else if( IP.IsLAN() && ConfigKey.AllowUnverifiedLAN.Enabled() ) {
-                    Logger.Log( "{0} Player was identified as connecting from LAN and allowed in.", LogType.SuspiciousActivity,
+                    Logger.Log( LogType.SuspiciousActivity,
+                                "{0} Player was identified as connecting from LAN and allowed in.",
                                 standardMessage );
                     IsVerified = true;
 
@@ -512,15 +520,17 @@ namespace fCraft {
                     switch( nameVerificationMode ) {
                         case NameVerificationMode.Always:
                             Info.ProcessFailedLogin( this );
-                            Logger.Log( "{0} IP matched previous records for that name. " +
-                                        "Player was kicked anyway because VerifyNames is set to Always.", LogType.SuspiciousActivity,
+                            Logger.Log( LogType.SuspiciousActivity,
+                                        "{0} IP matched previous records for that name. " +
+                                        "Player was kicked anyway because VerifyNames is set to Always.",
                                         standardMessage );
                             KickNow( "Could not verify player name!", LeaveReason.UnverifiedName );
                             return false;
 
                         case NameVerificationMode.Balanced:
                         case NameVerificationMode.Never:
-                            Logger.Log( "{0} IP matched previous records for that name. Player was allowed in.", LogType.SuspiciousActivity,
+                            Logger.Log( LogType.SuspiciousActivity,
+                                        "{0} IP matched previous records for that name. Player was allowed in.",
                                         standardMessage );
                             IsVerified = true;
                             break;
@@ -531,14 +541,15 @@ namespace fCraft {
                         case NameVerificationMode.Always:
                         case NameVerificationMode.Balanced:
                             Info.ProcessFailedLogin( this );
-                            Logger.Log( "{0} IP did not match. Player was kicked.", LogType.SuspiciousActivity,
+                            Logger.Log( LogType.SuspiciousActivity,
+                                        "{0} IP did not match. Player was kicked.",
                                         standardMessage );
                             KickNow( "Could not verify player name!", LeaveReason.UnverifiedName );
                             return false;
 
                         case NameVerificationMode.Never:
-                            Logger.Log( "{0} IP did not match. " +
-                                        "Player was allowed in anyway because VerifyNames is set to Never.", LogType.SuspiciousActivity,
+                            Logger.Log( LogType.SuspiciousActivity,
+                                        "{0} IP did not match. Player was allowed in anyway because VerifyNames is set to Never.",
                                         standardMessage );
                             Message( "&WYour name could not be verified." );
                             break;
@@ -550,7 +561,8 @@ namespace fCraft {
             // Check if player is banned
             if( Info.IsBanned ) {
                 Info.ProcessFailedLogin( this );
-                Logger.Log( "Banned player {0} tried to log in from {1}", LogType.SuspiciousActivity,
+                Logger.Log( LogType.SuspiciousActivity,
+                            "Banned player {0} tried to log in from {1}",
                             Name, IP );
                 string bannedMessage = String.Format( "Banned {0} ago by {1}: {2}",
                                                       Info.TimeSinceBan.ToMiniString(),
@@ -566,8 +578,8 @@ namespace fCraft {
             if( ipBanInfo != null && Info.BanStatus != BanStatus.IPBanExempt ) {
                 Info.ProcessFailedLogin( this );
                 ipBanInfo.ProcessAttempt( this );
-                Logger.Log( "{0} tried to log in from a banned IP.", LogType.SuspiciousActivity,
-                            Name );
+                Logger.Log( LogType.SuspiciousActivity,
+                            "{0} tried to log in from a banned IP.", Name );
                 string bannedMessage = String.Format( "IP-banned {0} ago by {1}: {2}",
                                                       DateTime.UtcNow.Subtract( ipBanInfo.BanDate ).ToMiniString(),
                                                       ipBanInfo.BannedBy,
@@ -580,7 +592,8 @@ namespace fCraft {
             // Check if max number of connections is reached for IP
             if( !Server.RegisterSession( this ) ) {
                 Info.ProcessFailedLogin( this );
-                Logger.Log( "Player.LoginSequence: Denied player {0}: maximum number of connections was reached for {1}", LogType.SuspiciousActivity,
+                Logger.Log( LogType.SuspiciousActivity,
+                            "Player.LoginSequence: Denied player {0}: maximum number of connections was reached for {1}",
                             playerName, IP );
                 KickNow( String.Format( "Max connections reached for {0}", IP ), LeaveReason.LoginFailed );
                 return false;
@@ -595,8 +608,8 @@ namespace fCraft {
                 writer.Flush();
 
                 if( !CheckPaidStatus( Name ) ) {
-                    Logger.Log( "Player {0} was kicked because their account is not paid, and PaidOnly setting is enabled.", LogType.SystemActivity,
-                                Name );
+                    Logger.Log( LogType.SystemActivity,
+                                "Player {0} was kicked because their account is not paid, and PaidOnly setting is enabled.", Name );
                     KickNow( "Paid players allowed only.", LeaveReason.LoginFailed );
                     return false;
                 }
@@ -611,8 +624,8 @@ namespace fCraft {
 
             // Register player for future block updates
             if( !Server.RegisterPlayer( this ) ) {
-                Logger.Log( "Player {0} was kicked because server is full.", LogType.SystemActivity,
-                            Name );
+                Logger.Log( LogType.SystemActivity,
+                            "Player {0} was kicked because server is full.", Name );
                 string kickMessage = String.Format( "Sorry, server is full ({0}/{1})",
                                         Server.Players.Length, ConfigKey.MaxPlayers.GetInt() );
                 KickNow( kickMessage, LeaveReason.ServerFull );
@@ -650,7 +663,8 @@ namespace fCraft {
                     try {
                         Info.ChangeRank( AutoRank, newRank, "~AutoRank", true, true, true );
                     } catch( PlayerOpException ex ) {
-                        Logger.Log( "AutoRank failed on player {0}: {1}", LogType.Error,
+                        Logger.Log( LogType.Error,
+                                    "AutoRank failed on player {0}: {1}",
                                     ex.Player.Name, ex.Message );
                     }
                 }
@@ -658,8 +672,9 @@ namespace fCraft {
 
             bool firstTime = (Info.TimesVisited == 1);
             if( !JoinWorldNow( startingWorld, true, WorldChangeReason.FirstWorld ) ) {
-                Logger.Log( "Could not load main world ({0}) for connecting player {1} (from {2}): " +
-                            "Either main world is full, or an error occured.", LogType.Warning,
+                Logger.Log( LogType.Warning,
+                            "Could not load main world ({0}) for connecting player {1} (from {2}): " +
+                            "Either main world is full, or an error occured.",
                             startingWorld.Name, Name, IP );
                 KickNow( "Either main world is full, or an error occured.", LeaveReason.WorldFull );
                 return false;
@@ -672,9 +687,9 @@ namespace fCraft {
 
             // Announce join
             if( ConfigKey.ShowConnectionMessages.Enabled() ) {
-// ReSharper disable AssignNullToNotNullAttribute
+                // ReSharper disable AssignNullToNotNullAttribute
                 string message = Server.MakePlayerConnectedMessage( this, firstTime, World );
-// ReSharper restore AssignNullToNotNullAttribute
+                // ReSharper restore AssignNullToNotNullAttribute
                 canSee.Message( message );
             }
 
@@ -699,7 +714,7 @@ namespace fCraft {
                                                   ClassyName,
                                                   bannedPlayerNames.JoinToClassyString() );
                 canSee.Message( logString );
-                Logger.Log( logString, LogType.SuspiciousActivity );
+                Logger.Log( LogType.SuspiciousActivity, logString );
             }
 
             // check if player is still muted
@@ -769,8 +784,9 @@ namespace fCraft {
             if( strLen >= 2 && strLen <= 16 ) {
                 string smpPlayerName = Encoding.UTF8.GetString( reader.ReadBytes( strLen ) );
 
-                Logger.Log( "Player.LoginSequence: Player \"{0}\" tried connecting with SMP/Beta client from {1}. " +
-                            "fCraft does not support SMP/Beta.", LogType.Warning,
+                Logger.Log( LogType.Warning,
+                            "Player.LoginSequence: Player \"{0}\" tried connecting with SMP/Beta client from {1}. " +
+                            "fCraft does not support SMP/Beta.", 
                             smpPlayerName, IP );
 
                 // send SMP KICK packet
@@ -783,8 +799,8 @@ namespace fCraft {
 
             } else {
                 // Not SMP client (invalid player name length)
-                Logger.Log( "Player.LoginSequence: Unexpected opcode in the first packet from {0}: 2.", LogType.Error,
-                            IP );
+                Logger.Log( LogType.Error,
+                            "Player.LoginSequence: Unexpected opcode in the first packet from {0}: 2.", IP );
                 KickNow( "Unexpected handshake message - possible protocol mismatch!", LeaveReason.ProtocolViolation );
             }
         }
@@ -879,7 +895,8 @@ namespace fCraft {
             }
 
             if( RaisePlayerJoiningWorldEvent( this, newWorld, reason, textLine1, textLine2 ) ) {
-                Logger.Log( "Player.JoinWorldNow: Player {0} was prevented from joining world {1} by an event callback.", LogType.Warning,
+                Logger.Log( LogType.Warning,
+                            "Player.JoinWorldNow: Player {0} was prevented from joining world {1} by an event callback.",
                             Name, newWorld.Name );
                 return false;
             }
@@ -889,8 +906,9 @@ namespace fCraft {
             // remove player from the old world
             if( oldWorld != null && oldWorld != newWorld ) {
                 if( !oldWorld.ReleasePlayer( this ) ) {
-                    Logger.Log( "Player.JoinWorldNow: Player asked to be released from its world, " +
-                                "but the world did not contain the player.", LogType.Error );
+                    Logger.Log( LogType.Error,
+                                "Player.JoinWorldNow: Player asked to be released from its world, " +
+                                "but the world did not contain the player." );
                 }
             }
 
@@ -939,7 +957,8 @@ namespace fCraft {
                 map.GetCompressedCopy( mapStream, true );
                 blockData = mapStream.ToArray();
             }
-            Logger.Log( "Player.JoinWorldNow: Sending compressed level copy ({0} bytes) to {1}.", LogType.Debug,
+            Logger.Log( LogType.Debug,
+                        "Player.JoinWorldNow: Sending compressed map ({0} bytes) to {1}.",
                         blockData.Length, Name );
 
             // Transfer the map copy

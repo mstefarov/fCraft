@@ -869,15 +869,15 @@ namespace fCraft {
                 }
 
             } catch( Exception ex ) {
-                Logger.Log( "MapGenerator: Generation failed: {0}", LogType.Error,
-                            ex );
-                player.MessageNow( "&WAn error occured while generating the map." );
+                Logger.Log( LogType.Error,
+                            "MapGenerator: Generation failed: {0}", ex );
+                player.Message( "&WAn error occured while generating the map." );
                 return;
             }
 
             if( fileName != null ) {
                 if( map.Save( fullFileName ) ) {
-                    player.MessageNow( "Generation done. Saved to {0}", fileName );
+                    player.Message( "Generation done. Saved to {0}", fileName );
                 } else {
                     player.Message( "&WAn error occured while saving generated map to {0}", fileName );
                 }
@@ -1256,7 +1256,8 @@ namespace fCraft {
                                                     player.ClassyName, world.ClassyName );
                                 }
                             }
-                            Logger.Log( "{0} removed {1} from the access blacklist of {2}", LogType.UserActivity,
+                            Logger.Log( LogType.UserActivity,
+                                        "{0} removed {1} from the access blacklist of {2}",
                                         player.Name, info.Name, world.Name );
                             changesWereMade = true;
                             break;
@@ -1268,7 +1269,8 @@ namespace fCraft {
                                 target.Message( "You can now access world {0}&S (whitelisted by {1}&S).",
                                                 world.ClassyName, player.ClassyName );
                             }
-                            Logger.Log( "{0} added {1} to the access whitelist on world {2}", LogType.UserActivity,
+                            Logger.Log( LogType.UserActivity,
+                                        "{0} added {1} to the access whitelist on world {2}",
                                         player.Name, info.Name, world.Name );
                             changesWereMade = true;
                             break;
@@ -1307,7 +1309,8 @@ namespace fCraft {
                                 target.Message( "&WYou were barred by {0}&W from accessing world {1}",
                                                 player.ClassyName, world.ClassyName );
                             }
-                            Logger.Log( "{0} added {1} to the access blacklist on world {2}", LogType.UserActivity,
+                            Logger.Log( LogType.UserActivity,
+                                        "{0} added {1} to the access blacklist on world {2}",
                                         player.Name, info.Name, world.Name );
                             changesWereMade = true;
                             break;
@@ -1330,7 +1333,8 @@ namespace fCraft {
                                                     world.ClassyName, player.ClassyName );
                                 }
                             }
-                            Logger.Log( "{0} removed {1} from the access whitelist on world {2}", LogType.UserActivity,
+                            Logger.Log( LogType.UserActivity,
+                                        "{0} removed {1} from the access whitelist on world {2}",
                                         player.Name, info.Name, world.Name );
                             changesWereMade = true;
                             break;
@@ -1377,7 +1381,8 @@ namespace fCraft {
                                               player.ClassyName, world.ClassyName,
                                               world.AccessSecurity.MinRank.ClassyName );
                         }
-                        Logger.Log( "{0} set access rank for world {1} to {2}+", LogType.UserActivity,
+                        Logger.Log( LogType.UserActivity,
+                                    "{0} set access rank for world {1} to {2}+",
                                     player.Name, world.Name, world.AccessSecurity.MinRank.Name );
                     }
                 }
@@ -1487,7 +1492,8 @@ namespace fCraft {
                                                     player.ClassyName, world.ClassyName );
                                 }
                             }
-                            Logger.Log( "{0} removed {1} from the build blacklist of {2}", LogType.UserActivity,
+                            Logger.Log( LogType.UserActivity,
+                                        "{0} removed {1} from the build blacklist of {2}",
                                         player.Name, info.Name, world.Name );
                             changesWereMade = true;
                             break;
@@ -1499,7 +1505,8 @@ namespace fCraft {
                                 target.Message( "You can now build in world {0}&S (whitelisted by {1}&S).",
                                                 world.ClassyName, player.ClassyName );
                             }
-                            Logger.Log( "{0} added {1} to the build whitelist on world {2}", LogType.UserActivity,
+                            Logger.Log( LogType.UserActivity,
+                                        "{0} added {1} to the build whitelist on world {2}",
                                         player.Name, info.Name, world.Name );
                             changesWereMade = true;
                             break;
@@ -1538,7 +1545,8 @@ namespace fCraft {
                                 target.Message( "&WYou were barred by {0}&W from building in world {1}",
                                                 player.ClassyName, world.ClassyName );
                             }
-                            Logger.Log( "{0} added {1} to the build blacklist on world {2}", LogType.UserActivity,
+                            Logger.Log( LogType.UserActivity,
+                                        "{0} added {1} to the build blacklist on world {2}",
                                         player.Name, info.Name, world.Name );
                             changesWereMade = true;
                             break;
@@ -1561,7 +1569,8 @@ namespace fCraft {
                                                     world.ClassyName, player.ClassyName );
                                 }
                             }
-                            Logger.Log( "{0} removed {1} from the build whitelist on world {2}", LogType.UserActivity,
+                            Logger.Log( LogType.UserActivity,
+                                        "{0} removed {1} from the build whitelist on world {2}",
                                         player.Name, info.Name, world.Name );
                             changesWereMade = true;
                             break;
@@ -1614,7 +1623,8 @@ namespace fCraft {
                             Server.Message( "{0}&S allowed only {1}+&S to build in world {2}",
                                               player.ClassyName, world.BuildSecurity.MinRank.ClassyName, world.ClassyName );
                         }
-                        Logger.Log( "{0} set build rank for world {1} to {2}+", LogType.UserActivity,
+                        Logger.Log( LogType.UserActivity,
+                                    "{0} set build rank for world {1} to {2}+", 
                                     player.Name, world.Name, world.BuildSecurity.MinRank.Name );
                     }
                 }
@@ -1892,7 +1902,8 @@ namespace fCraft {
                                               player.ClassyName );
                 player.MessageNow( "New map loaded for the world {0}", world.ClassyName );
 
-                Logger.Log( "{0} loaded new map for world \"{1}\" from {2}", LogType.UserActivity,
+                Logger.Log( LogType.UserActivity,
+                            "{0} loaded new map for world \"{1}\" from {2}",
                             player.Name, world.Name, fileName );
 
 
@@ -1945,7 +1956,8 @@ namespace fCraft {
                             world.MapChangedBy = player.Name;
                             world.ChangeMap( map );
                         } catch( WorldOpException ex ) {
-                            Logger.Log( "Could not complete WorldLoad operation: {0}", LogType.Error, ex.Message );
+                            Logger.Log( LogType.Error,
+                                        "Could not complete WorldLoad operation: {0}", ex.Message );
                             player.Message( "&WWLoad: {0}", ex.Message );
                             return;
                         }
@@ -1953,7 +1965,8 @@ namespace fCraft {
                         world.Players.Message( player, "{0}&S loaded a new map for the world {1}",
                                                player.ClassyName, world.ClassyName );
                         player.MessageNow( "New map for the world {0}&S has been loaded.", world.ClassyName );
-                        Logger.Log( "{0} loaded new map for world \"{1}\" from {2}", LogType.UserActivity,
+                        Logger.Log( LogType.UserActivity,
+                                    "{0} loaded new map for world \"{1}\" from {2}",
                                     player.Name, world.Name, fullFileName );
 
                     } else {
@@ -1999,7 +2012,8 @@ namespace fCraft {
                             newWorld.LoadedOn = DateTime.UtcNow;
                             Server.Message( "{0}&S created a new world named {1}",
                                               player.ClassyName, newWorld.ClassyName );
-                            Logger.Log( "{0} created a new world named \"{1}\" (loaded from \"{2}\")", LogType.UserActivity,
+                            Logger.Log( LogType.UserActivity,
+                                        "{0} created a new world named \"{1}\" (loaded from \"{2}\")",
                                         player.Name, worldName, fileName );
                             WorldManager.SaveWorldList();
                             player.MessageNow( "Access permission is {0}+&S, and build permission is {1}+",
@@ -2099,7 +2113,8 @@ namespace fCraft {
                     WorldManager.SaveWorldList();
                     Server.Message( "&SPlayer {0}&S has reset the main world for rank {1}&S.",
                                     player.ClassyName, rank.ClassyName );
-                    Logger.Log( "{0} reset the main world for rank {1}.", LogType.UserActivity,
+                    Logger.Log( LogType.UserActivity,
+                                "{0} reset the main world for rank {1}.",
                                 player.Name, rank.Name );
                 }
                 return;
@@ -2115,7 +2130,8 @@ namespace fCraft {
             WorldManager.SaveWorldList();
             Server.Message( "&SPlayer {0}&S designated {1}&S to be the main world for rank {2}",
                             player.ClassyName, world.ClassyName, rank.ClassyName );
-            Logger.Log( "{0} set {1} to be the main world for rank {2}.", LogType.UserActivity,
+            Logger.Log( LogType.UserActivity,
+                        "{0} set {1} to be the main world for rank {2}.",
                         player.Name, world.Name, rank.Name );
         }
 
@@ -2155,7 +2171,8 @@ namespace fCraft {
 
                 Server.Message( "{0}&S set {1}&S to be the main world.",
                                   player.ClassyName, world.ClassyName );
-                Logger.Log( "{0} set {1} to be the main world.", LogType.UserActivity,
+                Logger.Log( LogType.UserActivity,
+                            "{0} set {1} to be the main world.",
                             player.Name, world.Name );
             }
         }
@@ -2221,15 +2238,17 @@ namespace fCraft {
                                             oldName, newName, ex.InnerException );
                         return;
                     default:
-                        player.MessageNow( "WRename: Unexpected error renaming world \"{0}\": {1}", oldName, ex.Message );
-                        Logger.Log( "WorldCommands.Rename: Unexpected error while renaming world {0} to {1}: {2}",
-                                    LogType.Error, oldWorld.Name, newName, ex );
+                        player.MessageNow( "&WWRename: Unexpected error renaming world \"{0}\": {1}", oldName, ex.Message );
+                        Logger.Log( LogType.Error,
+                                    "WorldCommands.Rename: Unexpected error while renaming world {0} to {1}: {2}",
+                                    oldWorld.Name, newName, ex );
                         return;
                 }
             }
 
             WorldManager.SaveWorldList();
-            Logger.Log( "{0} renamed the world \"{1}\" to \"{2}\".", LogType.UserActivity,
+            Logger.Log( LogType.UserActivity,
+                        "{0} renamed the world \"{1}\" to \"{2}\".",
                         player.Name, oldName, newName );
             Server.Message( "{0}&S renamed the world \"{1}\" to \"{2}\"",
                               player.ClassyName, oldName, newName );
@@ -2318,17 +2337,21 @@ namespace fCraft {
                     try {
                         File.Copy( world.MapFileName, fullFileName, true );
                     } catch( Exception ex ) {
-                        Logger.Log( "StandardCommands.Save: Error occured while trying to copy an unloaded map: {0}", LogType.Error, ex );
+                        Logger.Log( LogType.Error,
+                                    "WorldCommands.WorldSave: Error occured while trying to copy an unloaded map: {0}", ex );
                         player.Message( mapSavingErrorMessage );
                     }
                 } else {
-                    Logger.Log( "StandardCommands.Save: Map for world \"{0}\" is unloaded, and file does not exist.", LogType.Error, world.Name );
+                    Logger.Log( LogType.Error,
+                                "WorldCommands.WorldSave: Map for world \"{0}\" is unloaded, and file does not exist.",
+                                world.Name );
                     player.Message( mapSavingErrorMessage );
                 }
             } else if( map.Save( fullFileName ) ) {
                 player.Message( "Map saved succesfully." );
             } else {
-                Logger.Log( "StandardCommands.Save: Saving world \"{0}\" failed.", LogType.Error, world.Name );
+                Logger.Log( LogType.Error,
+                            "WorldCommands.WorldSave: Saving world \"{0}\" failed.", world.Name );
                 player.Message( mapSavingErrorMessage );
             }
         }
@@ -2376,8 +2399,9 @@ namespace fCraft {
                     default:
                         player.MessageNow( "&WUnexpected error occured while unloading world {0}&W: {1}",
                                            world.ClassyName, ex.GetType().Name );
-                        Logger.Log( "WorldCommands.WorldUnload: Unexpected error while unloading world {0}: {1}",
-                                    LogType.Error, world.Name, ex );
+                        Logger.Log( LogType.Error,
+                                    "WorldCommands.WorldUnload: Unexpected error while unloading world {0}: {1}",
+                                    world.Name, ex );
                         return;
                 }
             }
@@ -2388,7 +2412,8 @@ namespace fCraft {
                             player.ClassyName, world.ClassyName );
             player.Message( "Removed {0}&S from the world list. You can now delete the map file ({1}.fcm) manually.",
                             world.ClassyName, world.Name );
-            Logger.Log( "{0} removed \"{1}\" from the world list.", LogType.UserActivity,
+            Logger.Log( LogType.UserActivity,
+                        "{0} removed \"{1}\" from the world list.", 
                         player.Name, worldName );
 
             Server.RequestGC();

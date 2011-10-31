@@ -25,16 +25,18 @@ namespace fCraft {
 
                     string headerText = reader.ReadLine();
                     if( headerText == null ) {
-                        Logger.Log( "IPBanList.Load: IP ban file is empty.", LogType.Warning );
+                        Logger.Log( LogType.Warning, "IPBanList.Load: IP ban file is empty." );
                         return;
                     }
 
                     int version = ParseHeader( headerText );
                     if( version > FormatVersion ) {
-                        Logger.Log( "IPBanList.Load: Attempting to load unsupported IPBanList format ({0}). Errors may occur.", LogType.Warning,
+                        Logger.Log( LogType.Warning,
+                                    "IPBanList.Load: Attempting to load unsupported IPBanList format ({0}). Errors may occur.",
                                     version );
                     } else if( version < FormatVersion ) {
-                        Logger.Log( "IPBanList.Load: Converting IPBanList to a newer format (version {0} to {1}).", LogType.Warning,
+                        Logger.Log( LogType.Warning,
+                                    "IPBanList.Load: Converting IPBanList to a newer format (version {0} to {1}).",
                                     version, FormatVersion );
                     }
 
@@ -60,27 +62,31 @@ namespace fCraft {
                                 }
 
                                 if( ban.Address.Equals( IPAddress.Any ) || ban.Address.Equals( IPAddress.None ) ) {
-                                    Logger.Log( "IPBanList.Load: Invalid IP address skipped.", LogType.Warning );
+                                    Logger.Log( LogType.Warning,
+                                                "IPBanList.Load: Invalid IP address skipped." );
                                 } else {
                                     Bans.Add( ban.Address.ToString(), ban );
                                 }
                             } catch( IOException ex ) {
-                                Logger.Log( "IPBanList.Load: Error while trying to read from file: {0}", LogType.Error,
-                                            ex.Message );
+                                Logger.Log( LogType.Error,
+                                            "IPBanList.Load: Error while trying to read from file: {0}", ex.Message );
                             } catch( Exception ex ) {
-                                Logger.Log( "IPBanList.Load: Could not parse a record: {0}", LogType.Error, ex.Message );
+                                Logger.Log( LogType.Error,
+                                            "IPBanList.Load: Could not parse a record: {0}", ex.Message );
                             }
                         } else {
-                            Logger.Log( "IPBanList.Load: Corrupt record skipped ({0} fields instead of {1}): {2}",
-                                        LogType.Error,
+                            Logger.Log( LogType.Error,
+                                        "IPBanList.Load: Corrupt record skipped ({0} fields instead of {1}): {2}",
                                         fields.Length, IPBanInfo.FieldCount, String.Join( ",", fields ) );
                         }
                     }
                 }
 
-                Logger.Log( "IPBanList.Load: Done loading IP ban list ({0} records).", LogType.Debug, Bans.Count );
+                Logger.Log( LogType.Debug,
+                            "IPBanList.Load: Done loading IP ban list ({0} records).", Bans.Count );
             } else {
-                Logger.Log( "IPBanList.Load: No IP ban file found.", LogType.Warning );
+                Logger.Log( LogType.Warning,
+                            "IPBanList.Load: No IP ban file found." );
             }
             IsLoaded = true;
         }
@@ -104,7 +110,8 @@ namespace fCraft {
 
         internal static void Save() {
             if( !IsLoaded ) return;
-            Logger.Log( "IPBanList.Save: Saving IP ban list ({0} records).", LogType.Debug, Bans.Count );
+            Logger.Log( LogType.Debug,
+                        "IPBanList.Save: Saving IP ban list ({0} records).", Bans.Count );
             const string tempFile = Paths.IPBanListFileName + ".temp";
 
             lock( BanListLock ) {
@@ -118,7 +125,8 @@ namespace fCraft {
             try {
                 Paths.MoveOrReplace( tempFile, Paths.IPBanListFileName );
             } catch( Exception ex ) {
-                Logger.Log( "IPBanList.Save: An error occured while trying to save ban list file: " + ex, LogType.Error );
+                Logger.Log( LogType.Error,
+                            "IPBanList.Save: An error occured while trying to save ban list file: {0}", ex );
             }
         }
 
@@ -261,7 +269,8 @@ namespace fCraft {
             bool result = Add( banInfo, raiseEvents );
 
             if( result ) {
-                Logger.Log( "{0} banned {1}. Reason: {2}", LogType.UserActivity,
+                Logger.Log( LogType.UserActivity,
+                            "{0} banned {1}. Reason: {2}",
                             player.Name, targetAddress, reason );
                 if( announce ) {
                     // Announce ban on the server
@@ -335,7 +344,8 @@ namespace fCraft {
             bool result = Remove( targetAddress, raiseEvents );
 
             if( result ) {
-                Logger.Log( "{0} unbanned {1}. Reason: {2}", LogType.UserActivity,
+                Logger.Log( LogType.UserActivity,
+                            "{0} unbanned {1}. Reason: {2}",
                             player.Name, targetAddress, reason );
                 if( announce ) {
                     var can = Server.Players.Can( Permission.ViewPlayerIPs );
@@ -401,7 +411,8 @@ namespace fCraft {
             if( !Contains( targetAddress ) ) {
                 IPBanInfo banInfo = new IPBanInfo( targetAddress, null, player.Name, reason );
                 if( Add( banInfo, raiseEvents ) ) {
-                    Logger.Log( "{0} banned {1} (BanAll). Reason: {2}", LogType.UserActivity,
+                    Logger.Log( LogType.UserActivity,
+                                "{0} banned {1} (BanAll). Reason: {2}",
                                 player.Name, targetAddress, reason );
 
                     // Announce ban on the server
@@ -434,7 +445,8 @@ namespace fCraft {
                     }
 
                     // Log and announce ban
-                    Logger.Log( "{0} was banned by {1} (BanAll). Reason: {2}", LogType.UserActivity,
+                    Logger.Log( LogType.UserActivity,
+                                "{0} was banned by {1} (BanAll). Reason: {2}",
                                 targetAlt.Name, player.Name, reason );
                     if( announce ) {
                         Server.Message( "&WPlayer {0}&W was banned by {1}&W (BanAll)",
@@ -503,7 +515,8 @@ namespace fCraft {
             // Unban the IP
             if( Contains( targetAddress ) ) {
                 if( Remove( targetAddress, raiseEvents ) ) {
-                    Logger.Log( "{0} unbanned {1} (UnbanAll). Reason: {2}", LogType.UserActivity,
+                    Logger.Log( LogType.UserActivity,
+                                "{0} unbanned {1} (UnbanAll). Reason: {2}",
                                 player.Name, targetAddress, reason );
 
                     // Announce unban on the server
@@ -538,7 +551,8 @@ namespace fCraft {
                     }
 
                     // Log and announce ban
-                    Logger.Log( "{0} was unbanned by {1} (UnbanAll). Reason: {2}", LogType.UserActivity,
+                    Logger.Log( LogType.UserActivity,
+                                "{0} was unbanned by {1} (UnbanAll). Reason: {2}",
                                 targetAlt.Name, player.Name, reason );
                     if( announce ) {
                         Server.Message( "&WPlayer {0}&W was unbanned by {1}&W (UnbanAll)",
@@ -578,7 +592,8 @@ namespace fCraft {
         public static event EventHandler<IPBanEventArgs> RemovedIPBan;
 
 
-        static bool RaiseAddingIPBanEvent( IPBanInfo info ) {
+        static bool RaiseAddingIPBanEvent( [NotNull] IPBanInfo info ) {
+            if( info == null ) throw new ArgumentNullException( "info" );
             var h = AddingIPBan;
             if( h == null ) return false;
             var e = new IPBanCancellableEventArgs( info );
@@ -586,12 +601,14 @@ namespace fCraft {
             return e.Cancel;
         }
 
-        static void RaiseAddedIPBanEvent( IPBanInfo info ) {
+        static void RaiseAddedIPBanEvent( [NotNull] IPBanInfo info ) {
+            if( info == null ) throw new ArgumentNullException( "info" );
             var h = AddedIPBan;
             if( h != null ) h( null, new IPBanEventArgs( info ) );
         }
 
-        static bool RaiseRemovingIPBanEvent( IPBanInfo info ) {
+        static bool RaiseRemovingIPBanEvent( [NotNull] IPBanInfo info ) {
+            if( info == null ) throw new ArgumentNullException( "info" );
             var h = RemovingIPBan;
             if( h == null ) return false;
             var e = new IPBanCancellableEventArgs( info );
@@ -599,7 +616,8 @@ namespace fCraft {
             return e.Cancel;
         }
 
-        static void RaiseRemovedIPBanEvent( IPBanInfo info ) {
+        static void RaiseRemovedIPBanEvent( [NotNull] IPBanInfo info ) {
+            if( info == null ) throw new ArgumentNullException( "info" );
             var h = RemovedIPBan;
             if( h != null ) h( null, new IPBanEventArgs( info ) );
         }
@@ -743,9 +761,12 @@ namespace fCraft {
 namespace fCraft.Events {
 
     public class IPBanEventArgs : EventArgs {
-        internal IPBanEventArgs( IPBanInfo info ) {
+        internal IPBanEventArgs( [NotNull] IPBanInfo info ) {
+            if( info == null ) throw new ArgumentNullException( "info" );
             BanInfo = info;
         }
+
+        [NotNull]
         public IPBanInfo BanInfo { get; private set; }
     }
 
@@ -754,6 +775,7 @@ namespace fCraft.Events {
         internal IPBanCancellableEventArgs( IPBanInfo info ) :
             base( info ) {
         }
+
         public bool Cancel { get; set; }
     }
 
