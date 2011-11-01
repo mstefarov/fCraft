@@ -10,7 +10,6 @@ namespace fCraft.UpdateBuilder {
             "fCraftGUI.dll",
             "ServerCLI.exe",
             "ServerGUI.exe",
-            "ServerWinService.exe",
             "../../CHANGELOG.txt",
             "../../README.txt"
         };
