@@ -1,4 +1,5 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+// With contributions by Conrad "Redshift" Morgan
 using System;
 using fCraft.Drawing;
 
@@ -35,7 +36,7 @@ namespace fCraft {
 
         public float Length {
             get {
-                return (float)Math.Sqrt( X * X + Y * Y + Z * Z );
+                return (float)Math.Sqrt( (double)X * X + (double)Y * Y + (double)Z * Z );
             }
         }
 
@@ -189,7 +190,7 @@ namespace fCraft {
         }
 
         public float Dot( Vector3F b ) {
-            return (X * b.X) + (Y * b.Y) + (Z * b.Z);
+            return ((float)X * b.X) + ((float)Y * b.Y) + ((float)Z * b.Z);
         }
 
         public Vector3I Cross( Vector3I b ) {
@@ -199,9 +200,9 @@ namespace fCraft {
         }
 
         public Vector3F Cross( Vector3F b ) {
-            return new Vector3F( (Y * b.Z) - (Z * b.Y),
-                                 (Z * b.X) - (X * b.Z),
-                                 (X * b.Y) - (Y * b.X) );
+            return new Vector3F( ((float)Y * b.Z) - ((float)Z * b.Y),
+                                 ((float)Z * b.X) - ((float)X * b.Z),
+                                 ((float)X * b.Y) - ((float)Y * b.X) );
         }
 
 
@@ -233,8 +234,9 @@ namespace fCraft {
         }
 
         public Vector3F Normalize() {
-            double len = Math.Sqrt( X * X + Y * Y + Z * Z );
-            return new Vector3F( (float)(X / len), (float)(Y / len), (float)(Z / len) );
+            if( X == 0 && Y == 0 && Z == 0 ) return Vector3F.Zero;
+            float len = Length;
+            return new Vector3F( X / len, Y / len, Z / len );
         }
 
 
