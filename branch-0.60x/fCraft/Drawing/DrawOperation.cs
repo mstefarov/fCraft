@@ -232,79 +232,45 @@ namespace fCraft.Drawing {
         }
 
 
-        protected static IEnumerable<Vector3I> LineEnumerator( Vector3I a, Vector3I b) {
-            int i, err1, err2;
+        // Contributed by Conrad "Redshift" Morgan
+        protected static IEnumerable<Vector3I> LineEnumerator( Vector3I a, Vector3I b ) {
             Vector3I pixel = a;
-            int dx = b.X - a.X;
-            int dy = b.Y - a.Y;
-            int dz = b.Z - a.Z;
-            int xInc = (dx < 0) ? -1 : 1;
-            int l = Math.Abs( dx );
-            int yInc = (dy < 0) ? -1 : 1;
-            int m = Math.Abs( dy );
-            int zInc = (dz < 0) ? -1 : 1;
-            int n = Math.Abs( dz );
-            int dx2 = l << 1;
-            int dy2 = m << 1;
-            int dz2 = n << 1;
+            Vector3I d = b - a;
+            Vector3I inc = new Vector3I( Math.Sign( d.X ),
+                                         Math.Sign( d.Y ),
+                                         Math.Sign( d.Z ) );
+            d = d.Abs();
+            Vector3I d2 = d * 2;
+
+            int x, y, z;
+            if( (d.X >= d.Y) && (d.X >= d.Z) ) {
+                x = 0; y = 1; z = 2;
+            } else if( (d.Y >= d.X) && (d.Y >= d.Z) ) {
+                x = 1; y = 2; z = 0;
+            } else {
+                x = 2; y = 0; z = 1;
+            }
+
+            int err1 = d2[y] - d[x];
+            int err2 = d2[z] - d[x];
+            for( int i = 0; i < d[x]; i++ ) {
+                yield return pixel;
+                if( err1 > 0 ) {
+                    pixel[y] += inc[y];
+                    err1 -= d2[x];
+                }
+                if( err2 > 0 ) {
+                    pixel[z] += inc[z];
+                    err2 -= d2[x];
+                }
+                err1 += d2[y];
+                err2 += d2[z];
+                pixel[x] += inc[x];
+            }
 
             yield return b;
-
-            if( (l >= m) && (l >= n) ) {
-                err1 = dy2 - l;
-                err2 = dz2 - l;
-                for( i = 0; i < l; i++ ) {
-                    yield return pixel;
-                    if( err1 > 0 ) {
-                        pixel.Y += yInc;
-                        err1 -= dx2;
-                    }
-                    if( err2 > 0 ) {
-                        pixel.Z += zInc;
-                        err2 -= dx2;
-                    }
-                    err1 += dy2;
-                    err2 += dz2;
-                    pixel.X += xInc;
-                }
-
-            } else if( (m >= l) && (m >= n) ) {
-                err1 = dx2 - m;
-                err2 = dz2 - m;
-                for( i = 0; i < m; i++ ) {
-                    yield return pixel;
-                    if( err1 > 0 ) {
-                        pixel.X += xInc;
-                        err1 -= dy2;
-                    }
-                    if( err2 > 0 ) {
-                        pixel.Z += zInc;
-                        err2 -= dy2;
-                    }
-                    err1 += dx2;
-                    err2 += dz2;
-                    pixel.Y += yInc;
-                }
-
-            } else {
-                err1 = dy2 - n;
-                err2 = dx2 - n;
-                for( i = 0; i < n; i++ ) {
-                    yield return pixel;
-                    if( err1 > 0 ) {
-                        pixel.Y += yInc;
-                        err1 -= dz2;
-                    }
-                    if( err2 > 0 ) {
-                        pixel.X += xInc;
-                        err2 -= dz2;
-                    }
-                    err1 += dy2;
-                    err2 += dx2;
-                    pixel.Z += zInc;
-                }
-            }
         }
+
 
 #if DEBUG
 
