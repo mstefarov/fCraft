@@ -1104,7 +1104,7 @@ namespace fCraft {
             if( param == null || Int32.TryParse( param, out offset ) ) {
                 listName = "available worlds";
                 extraParam = "";
-                worlds = WorldManager.WorldList.Where( w => w.IsVisible( player ) ).ToArray();
+                worlds = WorldManager.WorldList.Where( player.CanSee ).ToArray();
 
             } else {
                 switch( Char.ToLower( param[0] ) ) {
@@ -1116,7 +1116,7 @@ namespace fCraft {
                     case 'h':
                         listName = "hidden worlds";
                         extraParam = "hidden ";
-                        worlds = WorldManager.WorldList.Where( w => !w.IsVisible( player ) ).ToArray();
+                        worlds = WorldManager.WorldList.Where( w => !player.CanSee( w) ).ToArray();
                         break;
                     case 'p':
                         listName = "populated worlds";
@@ -1815,13 +1815,13 @@ namespace fCraft {
                 player.Message( "  {0}&S was created/loaded {1} ago by {2}",
                                 world.ClassyName,
                                 DateTime.UtcNow.Subtract( world.LoadedOn ).ToMiniString(),
-                                world.LoadedBy );
+                                world.LoadedByClassy );
             }
 
             if( !String.IsNullOrEmpty( world.MapChangedBy ) && world.MapChangedOn != DateTime.MinValue ) {
                 player.Message( "  Map was last changed {0} ago by {1}",
                                 DateTime.UtcNow.Subtract( world.MapChangedOn ).ToMiniString(),
-                                world.MapChangedBy );
+                                world.MapChangedByClassy );
             }
 
             if( world.BlockDB.IsEnabled ) {

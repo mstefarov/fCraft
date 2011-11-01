@@ -11,6 +11,7 @@ namespace fCraft {
     public sealed class World : IClassy {
         /// <summary> World name (no formatting).
         /// Use WorldManager.RenameWorld() method to change this. </summary>
+        [NotNull]
         public string Name { get; internal set; }
 
 
@@ -18,15 +19,11 @@ namespace fCraft {
         /// Can be assigned directly. </summary>
         public bool IsHidden { get; set; }
 
-        public bool IsVisible( [NotNull] Player observer ) {
-            if( observer == null ) throw new ArgumentNullException( "observer" );
-            return observer.CanJoin( this ) && !IsHidden;
-        }
-
 
         /// <summary> Whether this world is currently pending unload 
         /// (waiting for block updates to finish processing before unloading). </summary>
         public bool IsPendingMapUnload { get; private set; }
+
 
         [NotNull]
         public SecurityController AccessSecurity { get; internal set; }
@@ -34,14 +31,38 @@ namespace fCraft {
         [NotNull]
         public SecurityController BuildSecurity { get; internal set; }
 
+
+
         public DateTime LoadedOn { get; internal set; }
+
+        [CanBeNull]
         public string LoadedBy { get; internal set; }
-        public DateTime MapChangedOn { get; internal set; }
+
+        [NotNull]
+        public string LoadedByClassy {
+            get {
+                if( LoadedBy == null ) return "?";
+                return PlayerDB.FindExactClassyName( LoadedBy );
+            }
+        }
+
+        public DateTime MapChangedOn { get; private set; }
+
+        [CanBeNull]
         public string MapChangedBy { get; internal set; }
+
+        [NotNull]
+        public string MapChangedByClassy {
+            get {
+                if( MapChangedBy == null ) return "?";
+                return PlayerDB.FindExactClassyName( MapChangedBy );
+            }
+        }
 
 
         // used to synchronize player joining/parting with map loading/saving
-        internal readonly object WorldLock = new object();
+        internal readonly object SyncRoot = new object();
+
 
         public BlockDB BlockDB { get; private set; }
 
@@ -87,7 +108,7 @@ namespace fCraft {
             var tempMap = Map;
             if( tempMap != null ) return tempMap;
 
-            lock( WorldLock ) {
+            lock( SyncRoot ) {
                 if( Map != null ) return Map;
 
                 if( File.Exists( MapFileName ) ) {
@@ -114,8 +135,8 @@ namespace fCraft {
         }
 
 
-        public void UnloadMap( bool expectedPendingFlag ) {
-            lock( WorldLock ) {
+        internal void UnloadMap( bool expectedPendingFlag ) {
+            lock( SyncRoot ) {
                 if( expectedPendingFlag != IsPendingMapUnload ) return;
                 SaveMap();
                 Map = null;
@@ -134,7 +155,7 @@ namespace fCraft {
 
 
         public void SaveMap() {
-            lock( WorldLock ) {
+            lock( SyncRoot ) {
                 if( Map != null ) {
                     Map.Save( MapFileName );
                 }
@@ -145,7 +166,7 @@ namespace fCraft {
         public void ChangeMap( [NotNull] Map newMap ) {
             if( newMap == null ) throw new ArgumentNullException( "newMap" );
             MapChangedOn = DateTime.UtcNow;
-            lock( WorldLock ) {
+            lock( SyncRoot ) {
                 World newWorld = new World( Name ) {
                     AccessSecurity = (SecurityController)AccessSecurity.Clone(),
                     BuildSecurity = (SecurityController)BuildSecurity.Clone(),
@@ -183,7 +204,7 @@ namespace fCraft {
                 return neverUnload;
             }
             set {
-                lock( WorldLock ) {
+                lock( SyncRoot ) {
                     if( neverUnload == value ) return;
                     neverUnload = value;
                     if( neverUnload ) {
@@ -204,7 +225,7 @@ namespace fCraft {
 
 
         public void Flush() {
-            lock( WorldLock ) {
+            lock( SyncRoot ) {
                 if( Map == null ) return;
                 Players.Message( "&WMap is being flushed. Stay put, world will reload shortly." );
                 IsFlushing = true;
@@ -213,7 +234,7 @@ namespace fCraft {
 
 
         internal void EndFlushMapBuffer() {
-            lock( WorldLock ) {
+            lock( SyncRoot ) {
                 IsFlushing = false;
                 Players.Message( "&WMap flushed. Reloading..." );
                 foreach( Player player in Players ) {
@@ -234,7 +255,7 @@ namespace fCraft {
         public Map AcceptPlayer( [NotNull] Player player, bool announce ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
-            lock( WorldLock ) {
+            lock( SyncRoot ) {
                 if( IsFull ) {
                     if( player.Info.Rank.ReservedSlot ) {
                         Player idlestPlayer = Players.Where( p => p.Info.Rank.IdleKickTimer != 0 )
@@ -301,7 +322,7 @@ namespace fCraft {
 
         public bool ReleasePlayer( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            lock( WorldLock ) {
+            lock( SyncRoot ) {
                 if( !playerIndex.Remove( player.Name.ToLower() ) ) {
                     return false;
                 }
@@ -362,7 +383,7 @@ namespace fCraft {
 
         /// <summary> Caches the player list to an array (Players -> PlayerList) </summary>
         public void UpdatePlayerList() {
-            lock( WorldLock ) {
+            lock( SyncRoot ) {
                 Players = playerIndex.Values.ToArray();
             }
         }
@@ -527,7 +548,7 @@ namespace fCraft {
 
         void SaveTask( SchedulerTask task ) {
             if( Map == null ) return;
-            lock( WorldLock ) {
+            lock( SyncRoot ) {
                 // ReSharper disable ConditionIsAlwaysTrueOrFalse
                 // ReSharper disable HeuristicUnreachableCode
                 if( Map == null ) return;

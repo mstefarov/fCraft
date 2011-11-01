@@ -1,7 +1,6 @@
 ﻿// fCraft is Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 // TriangleDrawOperation contributed by Conrad "Redshift" Morgan
 using System;
-using System.Collections.Generic;
 
 namespace fCraft.Drawing {
     public sealed class TriangleDrawOperation : DrawOperation {
@@ -25,7 +24,7 @@ namespace fCraft.Drawing {
         Vector3I normal;
         Vector3F normalF;
 
-        bool isLine = false;
+        bool isLine;
 
         public override bool Prepare( Vector3I[] marks ) {
             a = marks[0];
@@ -37,15 +36,14 @@ namespace fCraft.Drawing {
                 isLine = true;
             }
 
-            Bounds = new BoundingBox( 0, 0, 0, 0, 0, 0 );
-
-            Bounds.XMin = Math.Min( Math.Min( a.X, b.X ), c.X );
-            Bounds.YMin = Math.Min( Math.Min( a.Y, b.Y ), c.Y );
-            Bounds.ZMin = Math.Min( Math.Min( a.Z, b.Z ), c.Z );
-
-            Bounds.XMax = Math.Max( Math.Max( a.X, b.X ), c.X );
-            Bounds.YMax = Math.Max( Math.Max( a.Y, b.Y ), c.Y );
-            Bounds.ZMax = Math.Max( Math.Max( a.Z, b.Z ), c.Z );
+            Bounds = new BoundingBox(
+                Math.Min( Math.Min( a.X, b.X ), c.X ),
+                Math.Min( Math.Min( a.Y, b.Y ), c.Y ),
+                Math.Min( Math.Min( a.Z, b.Z ), c.Z ),
+                Math.Max( Math.Max( a.X, b.X ), c.X ),
+                Math.Max( Math.Max( a.Y, b.Y ), c.Y ),
+                Math.Max( Math.Max( a.Z, b.Z ), c.Z )
+            );
 
             Coords = Bounds.MinVertex;
 
@@ -101,15 +99,15 @@ namespace fCraft.Drawing {
         }
 
 
+        const float Extra = 0.5f;
         bool IsTriangleBlock() {
             // Early out.
             if( Math.Abs( normalF.Dot( Coords - a ) ) > 1 ) return false;
 
             // Check if within triangle region.
-            float extra = 0.5f;
-            if( (Coords - a).Dot( s1 ) > extra ||
-                (Coords - b).Dot( s2 ) > extra ||
-                (Coords - c).Dot( s3 ) > extra ) return false;
+            if( (Coords - a).Dot( s1 ) > Extra ||
+                (Coords - b).Dot( s2 ) > Extra ||
+                (Coords - c).Dot( s3 ) > Extra ) return false;
 
             // Check if minimal plane block.
             return TestAxis( 1, 0, 0 ) ||

@@ -1129,8 +1129,10 @@ namespace fCraft {
             CommandDescriptor[] cd;
             CommandCategory category;
 
+            string prefix;
+
             if( param == null ) {
-                player.Message( "List of available commands:" );
+                prefix = "Available commands";
                 cd = CommandManager.GetCommands( false );
 
             } else if( param.StartsWith( "@" ) ) {
@@ -1140,20 +1142,20 @@ namespace fCraft {
                     player.Message( "Unknown rank: {0}", rankName );
                     return;
                 } else {
-                    player.Message( "List of commands available to {0}&S:", rank.ClassyName );
+                    prefix = String.Format( "Commands available to {0}&S", rank.ClassyName );
                     cd = CommandManager.GetCommands( rank, true );
                 }
 
             } else if( param.Equals( "all", StringComparison.OrdinalIgnoreCase ) ) {
-                player.Message( "List of ALL commands:" );
+                prefix = "All commands";
                 cd = CommandManager.GetCommands();
 
             } else if( param.Equals( "hidden", StringComparison.OrdinalIgnoreCase ) ) {
-                player.Message( "List of hidden commands:" );
+                prefix =  "Hidden commands";
                 cd = CommandManager.GetCommands( true );
 
             } else if( EnumUtil.TryParse( param, out category, true ) ) {
-                player.Message( "List of {0} commands:", category );
+                prefix = String.Format( "{0} commands", category );
                 cd = CommandManager.GetCommands( category, false );
 
             } else {
@@ -1161,7 +1163,7 @@ namespace fCraft {
                 return;
             }
 
-            player.MessagePrefixed( "&S  ", "&S  " + cd.JoinToClassyString() );
+            player.MessagePrefixed( "&S  ", "{0}: {1}", prefix, cd.JoinToClassyString() );
         }
 
         #endregion

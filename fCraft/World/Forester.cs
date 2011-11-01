@@ -577,7 +577,7 @@ namespace fCraft {
 
                     if( Args.Shape == TreeShape.Mangrove ) {
                         // offset = [int(val * 1.618 - 1.5) for val in offset]
-                        offset = offset * 1.618f - halfBlock * 3;
+                        offset = offset * 1.618f - HalfBlock * 3;
                     }
 
                     Vector3I endcoord = startcoord + offset.RoundDown();
@@ -824,9 +824,9 @@ namespace fCraft {
             return DistanceToBlock( map, coord, vec, blockType, false );
         }
 
-        static readonly Vector3F halfBlock = new Vector3F( .5f, .5f, .5f );
+        static readonly Vector3F HalfBlock = new Vector3F( .5f, .5f, .5f );
         static int DistanceToBlock( Map map, Vector3F coord, Vector3F vec, Block blockType, bool invert ) {
-            coord += halfBlock;
+            coord += HalfBlock;
             int iterations = 0;
             while( map.InBounds( new Vector3I( coord ) ) ) {
                 Block blockAtPos = map.GetBlock( new Vector3I( coord ) );

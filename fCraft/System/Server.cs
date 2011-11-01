@@ -40,7 +40,6 @@ namespace fCraft {
         public static IPAddress InternalIP { get; private set; }
         public static IPAddress ExternalIP { get; private set; }
 
-        const int MaxPortAttempts = 20;
         public static int Port { get; private set; }
 
         public static Uri Uri { get; internal set; }
@@ -333,32 +332,18 @@ namespace fCraft {
             WorldManager.SaveWorldList();
 
             // open the port
-            bool portFound = false;
-            int attempts = 0;
             Port = ConfigKey.Port.GetInt();
             InternalIP = IPAddress.Parse( ConfigKey.IP.GetString() );
 
-            do {
-                try {
-                    listener = new TcpListener( InternalIP, Port );
-                    listener.Start();
-                    portFound = true;
+            try {
+                listener = new TcpListener( InternalIP, Port );
+                listener.Start();
 
-                } catch( Exception ex ) {
-                    // if the port is unavailable, try next one
-                    Logger.Log( LogType.Error,
-                                "Could not start listening on port {0}, trying next port. ({1})",
-                                Port, ex.Message );
-                    Port++;
-                    attempts++;
-                }
-            } while( !portFound && attempts < MaxPortAttempts );
-
-            // if the port still cannot be opened after [maxPortAttempts] attemps, die.
-            if( !portFound ) {
-                Logger.Log( LogType.SeriousError,
-                            "Could not start listening on any IP/port. Giving up after {0} tries.",
-                            MaxPortAttempts );
+            } catch( Exception ex ) {
+                // if the port is unavailable, try next one
+                Logger.Log( LogType.Error,
+                            "Could not start listening on port {0}, trying next port. ({1})",
+                            Port, ex.Message );
                 if( !ConfigKey.IP.IsBlank() ) {
                     Logger.Log( LogType.Warning,
                                 "Do not use the \"Designated IP\" setting unless you have multiple NICs or IPs." );

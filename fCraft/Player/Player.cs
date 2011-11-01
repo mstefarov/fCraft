@@ -1047,6 +1047,12 @@ namespace fCraft {
             return other == this || IsSuper || !other.Info.IsHidden || Info.Rank.CanSee( other.Info.Rank );
         }
 
+
+        public bool CanSee( [NotNull] World world ) {
+            if( world == null ) throw new ArgumentNullException( "world" );
+            return CanJoin( world ) && !world.IsHidden;
+        }
+
         #endregion
 
 
