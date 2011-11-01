@@ -190,7 +190,7 @@ namespace fCraft {
         }
 
         public float Dot( Vector3F b ) {
-            return ((float)X * b.X) + ((float)Y * b.Y) + ((float)Z * b.Z);
+            return (X * b.X) + (Y * b.Y) + (Z * b.Z);
         }
 
         public Vector3I Cross( Vector3I b ) {
@@ -200,9 +200,9 @@ namespace fCraft {
         }
 
         public Vector3F Cross( Vector3F b ) {
-            return new Vector3F( ((float)Y * b.Z) - ((float)Z * b.Y),
-                                 ((float)Z * b.X) - ((float)X * b.Z),
-                                 ((float)X * b.Y) - ((float)Y * b.X) );
+            return new Vector3F( (Y * b.Z) - (Z * b.Y),
+                                 (Z * b.X) - (X * b.Z),
+                                 (X * b.Y) - (Y * b.X) );
         }
 
 

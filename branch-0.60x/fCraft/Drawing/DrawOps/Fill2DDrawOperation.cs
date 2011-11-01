@@ -5,7 +5,6 @@ using System.Collections.Generic;
 namespace fCraft.Drawing {
     public sealed class Fill2DDrawOperation : DrawOpWithBrush {
         int maxFillExtent;
-        const BlockChangeContext PasteContext = BlockChangeContext.Drawn | BlockChangeContext.Filled;
 
         public override string Name {
             get { return "Fill2D"; }
@@ -102,12 +101,12 @@ namespace fCraft.Drawing {
             // Clip bounds to the map, used to limit fill extent
             Bounds = Bounds.GetIntersection( Map.Bounds );
 
-            // Set everything up for pasting
+            // Set everything up for filling
             Brush = this;
             Coords = Origin;
 
             StartTime = DateTime.UtcNow;
-            Context = PasteContext;
+            Context = BlockChangeContext.Drawn | BlockChangeContext.Filled;
             BlocksTotalEstimate = Bounds.Volume;
 
             return true;

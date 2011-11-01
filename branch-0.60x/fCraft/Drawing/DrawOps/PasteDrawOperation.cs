@@ -4,8 +4,6 @@ using System.Collections.Generic;
 
 namespace fCraft.Drawing {
     public class PasteDrawOperation : DrawOpWithBrush {
-        const BlockChangeContext PasteContext = BlockChangeContext.Drawn | BlockChangeContext.Pasted;
-
         public override string Name {
             get {
                 return Not ? "PasteNotX" : "PasteX";
@@ -85,7 +83,7 @@ namespace fCraft.Drawing {
             Coords = Bounds.MinVertex;
 
             StartTime = DateTime.UtcNow;
-            Context = PasteContext;
+            Context = BlockChangeContext.Drawn | BlockChangeContext.Pasted;
             BlocksTotalEstimate = Bounds.Volume;
             return true;
         }

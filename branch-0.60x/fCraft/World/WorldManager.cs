@@ -523,7 +523,7 @@ namespace fCraft {
                 throw new WorldOpException( newName, WorldOpExceptionCode.InvalidWorldName );
             }
 
-            lock( world.WorldLock ) {
+            lock( world.SyncRoot ) {
                 string oldName = world.Name;
                 if( oldName == newName ) {
                     throw new WorldOpException( world.Name, WorldOpExceptionCode.NoChangeNeeded );
