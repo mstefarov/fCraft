@@ -1,4 +1,5 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+// With contributions by Conrad "Redshift" Morgan
 using System;
 using fCraft.Drawing;
 
@@ -231,7 +232,8 @@ namespace fCraft {
         }
 
         public Vector3F Normalize() {
-            double len = Math.Sqrt( X * X + Y * Y + Z * Z );
+            if( X == 0 && Y == 0 && Z == 0 ) return Zero;
+            double len = Math.Sqrt( (double)X * X + (double)Y * Y + (double)Z * Z );
             return new Vector3F( (float)(X / len), (float)(Y / len), (float)(Z / len) );
         }
 
