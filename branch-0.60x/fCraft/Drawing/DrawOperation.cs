@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using fCraft.Drawing;
+using fCraft.Events;
 
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable MemberCanBeProtected.Global
@@ -160,11 +162,14 @@ namespace fCraft.Drawing {
         }
 
 
-        public virtual void Begin() {
+        public virtual bool Begin() {
+            if( !RaiseBeginningEvent( this ) ) return false;
             UndoState = Player.DrawBegin( this );
             StartTime = DateTime.UtcNow;
             HasBegun = true;
             Map.QueueDrawOp( this );
+            RaiseBeganEvent( this );
+            return true;
         }
 
 
@@ -179,6 +184,7 @@ namespace fCraft.Drawing {
         internal void End() {
             Player.Info.ProcessDrawCommand( BlocksUpdated );
             Brush.End();
+            RaiseEndedEvent( this );
         }
 
 
@@ -284,5 +290,50 @@ namespace fCraft.Drawing {
             modifiedBlockIndices.Add( index );
         }
 #endif
+
+        #region Events
+
+        public static event EventHandler<DrawOperationBeginningEventArgs> Beginning;
+        public static event EventHandler<DrawOperationEventArgs> Began;
+        public static event EventHandler<DrawOperationEventArgs> Ended;
+
+        // Returns false if cancelled
+        protected static bool RaiseBeginningEvent( DrawOperation op ) {
+            var h = Beginning;
+            if( h == null ) return true;
+            var e = new DrawOperationBeginningEventArgs( op );
+            h( null, e );
+            return !e.Cancel;
+        }
+
+        protected static void RaiseBeganEvent( DrawOperation op ) {
+            var h = Began;
+            if( h != null ) h( null, new DrawOperationEventArgs( op ) );
+        }
+
+        protected static void RaiseEndedEvent( DrawOperation op ) {
+            var h = Ended;
+            if( h != null ) h( null, new DrawOperationEventArgs( op ) );
+        }
+
+        #endregion
+    }
+}
+
+namespace fCraft.Events {
+    public class DrawOperationEventArgs : EventArgs{
+        public DrawOperationEventArgs( DrawOperation drawOp ) {
+            DrawOp = drawOp;
+        }
+        public DrawOperation DrawOp { get; private set; }
+    }
+
+
+    public class DrawOperationBeginningEventArgs : EventArgs, ICancellableEvent {
+        public DrawOperationBeginningEventArgs( DrawOperation drawOp ) {
+            DrawOp = drawOp;
+        }
+        public DrawOperation DrawOp { get; private set; }
+        public bool Cancel { get; set; }
     }
 }

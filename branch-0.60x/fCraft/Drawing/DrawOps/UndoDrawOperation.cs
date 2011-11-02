@@ -44,7 +44,8 @@ namespace fCraft.Drawing {
             return true;
         }
 
-        public override void Begin() {
+        public override bool Begin() {
+            if( !RaiseBeginningEvent( this ) ) return false;
             if( Redo ) {
                 UndoState = Player.RedoBegin( this );
             } else {
@@ -53,6 +54,8 @@ namespace fCraft.Drawing {
             StartTime = DateTime.UtcNow;
             HasBegun = true;
             Map.QueueDrawOp( this );
+            RaiseBeganEvent( this );
+            return true;
         }
 
         int undoBufferIndex;
