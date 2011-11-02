@@ -12,6 +12,7 @@ namespace fCraft.ServerGUI {
         int logPointer;
 
         protected override bool ProcessCmdKey( ref Message msg, Keys keyData ) {
+            if( !Enabled ) return base.ProcessCmdKey( ref msg, keyData ); 
             switch( keyData ) {
                 case Keys.Up:
                     if( msg.Msg == WM_SYSKEYDOWN || msg.Msg == WM_KEYDOWN ) {

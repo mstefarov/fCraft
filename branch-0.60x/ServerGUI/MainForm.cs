@@ -69,6 +69,7 @@ namespace fCraft.ServerGUI {
                     uriDisplay.Text = "Heartbeat disabled. See externalurl.txt";
                 }
                 console.Enabled = true;
+                console.Text = "";
             } else {
                 Shutdown( ShutdownReason.FailedToStart, false );
             }
@@ -82,12 +83,10 @@ namespace fCraft.ServerGUI {
 
         void Shutdown( ShutdownReason reason, bool quit ) {
             if( shutdownPending ) return;
-
-            //Log( "Shutting down...", LogType.ConsoleOutput ); // write to console only
-
             shutdownPending = true;
             uriDisplay.Enabled = false;
             console.Enabled = false;
+            console.Text = "Shutting down...";
             Server.Shutdown( new ShutdownParams( reason, TimeSpan.Zero, quit, false ), false );
         }
 
@@ -100,17 +99,21 @@ namespace fCraft.ServerGUI {
                     Invoke( (EventHandler<LogEventArgs>)OnLogged,
                             sender, e );
                 } else {
-                    logBox.AppendText( e.Message + Environment.NewLine );
-                    if( logBox.Lines.Length > MaxLinesInLog ) {
-                        logBox.Text = "----- cut off, see fCraft.log for complete log -----" +
-                            Environment.NewLine +
-                            logBox.Text.Substring( logBox.GetFirstCharIndexFromLine( 50 ) );
-                    }
-                    logBox.SelectionStart = logBox.Text.Length;
-                    logBox.ScrollToCaret();
+                    Log( e.Message );
                 }
             } catch( ObjectDisposedException ) {
             } catch( InvalidOperationException ) { }
+        }
+
+        void Log( string message ) {
+            logBox.AppendText( message + Environment.NewLine );
+            if( logBox.Lines.Length > MaxLinesInLog ) {
+                logBox.Text = "----- cut off, see fCraft.log for complete log -----" +
+                    Environment.NewLine +
+                    logBox.Text.Substring( logBox.GetFirstCharIndexFromLine( 50 ) );
+            }
+            logBox.SelectionStart = logBox.Text.Length;
+            logBox.ScrollToCaret();
         }
 
 
