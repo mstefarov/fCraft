@@ -279,7 +279,11 @@ namespace fCraft {
 
 
         static void DrawOperationBegin( Player player, Command cmd, DrawOperation op ) {
+            // try to create instance of player's currently selected brush
+            // all command parameters are passed to the brush
             IBrushInstance brush = player.Brush.MakeInstance( player, cmd, op );
+
+            // MakeInstance returns null if there were problems with syntax, abort
             if( brush == null ) return;
             op.Brush = brush;
             player.SelectionStart( op.ExpectedMarks, DrawOperationCallback, op, Permission.Draw );

@@ -47,13 +47,13 @@
             this.logBox.Size = new System.Drawing.Size( 610, 388 );
             this.logBox.TabIndex = 3;
             // 
-            // urlDisplay
+            // uriDisplay
             // 
             this.uriDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.uriDisplay.Enabled = false;
             this.uriDisplay.Location = new System.Drawing.Point( 95, 12 );
-            this.uriDisplay.Name = "urlDisplay";
+            this.uriDisplay.Name = "uriDisplay";
             this.uriDisplay.ReadOnly = true;
             this.uriDisplay.Size = new System.Drawing.Size( 473, 20 );
             this.uriDisplay.TabIndex = 1;
@@ -108,10 +108,12 @@
             // 
             this.console.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.console.Enabled = false;
             this.console.Location = new System.Drawing.Point( 13, 433 );
             this.console.Name = "console";
             this.console.Size = new System.Drawing.Size( 759, 20 );
             this.console.TabIndex = 0;
+            this.console.Text = "Please wait, starting server...";
             // 
             // MainForm
             // 
