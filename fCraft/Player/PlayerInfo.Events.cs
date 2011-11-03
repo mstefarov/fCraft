@@ -44,10 +44,12 @@ namespace fCraft {
             if( h != null ) h( null, e );
         }
 
+
         internal static void RaiseCreatedEvent( [NotNull] PlayerInfo info, bool isUnrecognized ) {
             var h = Created;
             if( h != null ) h( null, new PlayerInfoCreatedEventArgs( info, isUnrecognized ) );
         }
+
 
         static bool RaiseRankChangingEvent( [NotNull] PlayerInfo playerInfo, [NotNull] Player rankChanger, [NotNull] Rank newRank,
                                             [CanBeNull] string reason, RankChangeType rankChangeType, bool announce ) {
@@ -58,11 +60,13 @@ namespace fCraft {
             return e.Cancel;
         }
 
+
         static void RaiseRankChangedEvent( [NotNull] PlayerInfo playerInfo, [NotNull] Player rankChanger, [NotNull] Rank oldRank,
                                            [CanBeNull] string reason, RankChangeType rankChangeType, bool announce ) {
             var h = RankChanged;
             if( h != null ) h( null, new PlayerInfoRankChangedEventArgs( playerInfo, rankChanger, oldRank, reason, rankChangeType, announce ) );
         }
+
 
         internal static void RaiseBanChangingEvent( [NotNull] PlayerInfoBanChangingEventArgs e ) {
             if( e == null ) throw new ArgumentNullException( "e" );
@@ -70,11 +74,13 @@ namespace fCraft {
             if( h != null ) h( null, e );
         }
 
+
         internal static void RaiseBanChangedEvent( [NotNull] PlayerInfoBanChangingEventArgs e ) {
             if( e == null ) throw new ArgumentNullException( "e" );
             var h = BanChanged;
             if( h != null ) h( null, new PlayerInfoBanChangedEventArgs( e.PlayerInfo, e.Banner, e.IsBeingUnbanned, e.Reason, e.Announce ) );
         }
+
 
         static bool RaiseFreezeChangingEvent( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing, bool announce ) {
             var h = FreezeChanging;
@@ -84,10 +90,12 @@ namespace fCraft {
             return e.Cancel;
         }
 
+
         static void RaiseFreezeChangedEvent( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing, bool announce ) {
             var h = FreezeChanged;
             if( h != null ) h( null, new PlayerInfoFrozenChangedEventArgs( target, freezer, unfreezing, announce ) );
         }
+
 
         static bool RaiseMuteChangingEvent( [NotNull] PlayerInfo target, [NotNull] Player muter,
                                             TimeSpan duration, bool unmuting, bool announce ) {
@@ -97,6 +105,7 @@ namespace fCraft {
             h( null, e );
             return !e.Cancel;
         }
+
 
         static void RaiseMuteChangedEvent( [NotNull] PlayerInfo target, [NotNull] Player muter,
                                            TimeSpan duration, bool unmuting, bool announce ) {

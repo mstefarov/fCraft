@@ -230,6 +230,7 @@ namespace fCraft {
                             if( commandDescriptor.RepeatableSelection ) {
                                 selectionRepeatCommand = cmd;
                             }
+                            SendToSpectators( cmd.RawMessage );
                             CommandManager.ParseCommand( this, cmd, fromConsole );
                             if( !commandDescriptor.NotRepeatable ) {
                                 LastCommand = cmd;
@@ -249,8 +250,9 @@ namespace fCraft {
                             LastCommand.Rewind();
                             Logger.Log( LogType.UserCommand,
                                         "{0} repeated: {1}",
-                                        Name, LastCommand.Message );
-                            Message( "Repeat: {0}", LastCommand.Message );
+                                        Name, LastCommand.RawMessage );
+                            Message( "Repeat: {0}", LastCommand.RawMessage );
+                            SendToSpectators( LastCommand.RawMessage );
                             CommandManager.ParseCommand( this, LastCommand, fromConsole );
                         }
                     } break;
@@ -305,6 +307,7 @@ namespace fCraft {
                                 MessageNow( "&SCannot PM {0}&S: they are currently deaf.", target.ClassyName );
                             } else {
                                 Chat.SendPM( this, target, messageText );
+                                SendToSpectators( "to {0}&F: {1}",target.ClassyName, messageText );
                                 if( !CanSee( target ) ) {
                                     // message was sent to a hidden player
                                     MessageNoPlayer( otherPlayerName );
@@ -356,6 +359,7 @@ namespace fCraft {
                             messageText = Color.ReplacePercentCodes( messageText );
                         }
 
+                        SendToSpectators( "to rank {0}&F: {1}", rank.ClassyName, messageText );
                         Chat.SendRank( this, rank, messageText );
                     } break;
 
@@ -367,6 +371,7 @@ namespace fCraft {
                         }
                         if( ConfirmCallback != null ) {
                             if( DateTime.UtcNow.Subtract( ConfirmRequestTime ) < ConfirmationTimeout ) {
+                                SendToSpectators( "/ok" );
                                 ConfirmCallback( this, ConfirmArgument, fromConsole );
                                 ConfirmCallback = null;
                                 ConfirmArgument = null;
@@ -387,6 +392,16 @@ namespace fCraft {
                 case RawMessageType.Invalid:
                     MessageNow( "Could not parse message." );
                     break;
+            }
+        }
+
+
+        public void SendToSpectators( [NotNull] string message, [NotNull] params object[] args ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( args == null ) throw new ArgumentNullException( "args" );
+            Player[] spectators = Server.Players.Where( p => p.spectatedPlayer == this ).ToArray();
+            if( spectators.Length > 0 ) {
+                spectators.Message( "[Spectate]: &F" + message, args );
             }
         }
 
@@ -413,7 +428,6 @@ namespace fCraft {
             if( args == null ) throw new ArgumentNullException( "args" );
             MessageAlt( String.Format( message, args ) );
         }
-
 
 
         public void Message( [NotNull] string message ) {
