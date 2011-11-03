@@ -117,6 +117,9 @@ namespace fCraft.Drawing {
         /// <summary> Whether completion or cancellation of this DrawOperation should be announced to Player. </summary>
         public bool AnnounceCompletion { get; set; }
 
+        /// <summary> Whether completion or cancellation of this DrawOperation should be logged. </summary>
+        public bool LogCompletion { get; set; }
+
 
         const int MaxBlocksToProcessPerBatch = 25000;
         int batchStartProcessedCount;
@@ -134,6 +137,7 @@ namespace fCraft.Drawing {
 
         protected DrawOperation( [NotNull] Player player ) {
             AnnounceCompletion = true;
+            LogCompletion = true;
             if( player == null ) throw new ArgumentNullException( "player" );
             if( player.World == null || player.World.Map == null ) {
                 throw new ArgumentException( "Player must have a world.", "player" );
