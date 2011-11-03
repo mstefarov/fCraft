@@ -162,7 +162,8 @@ namespace fCraft {
         static readonly TimeSpan ConfirmationTimeout = TimeSpan.FromSeconds( 60 );
 
         int muteWarnings;
-        [CanBeNull] string partialMessage;
+        [CanBeNull]
+        string partialMessage;
 
         // Parses message incoming from the player
         public void ParseMessage( [NotNull] string rawMessage, bool fromConsole ) {
@@ -307,7 +308,7 @@ namespace fCraft {
                                 MessageNow( "&SCannot PM {0}&S: they are currently deaf.", target.ClassyName );
                             } else {
                                 Chat.SendPM( this, target, messageText );
-                                SendToSpectators( "to {0}&F: {1}",target.ClassyName, messageText );
+                                SendToSpectators( "to {0}&F: {1}", target.ClassyName, messageText );
                                 if( !CanSee( target ) ) {
                                     // message was sent to a hidden player
                                     MessageNoPlayer( otherPlayerName );
@@ -359,7 +360,13 @@ namespace fCraft {
                             messageText = Color.ReplacePercentCodes( messageText );
                         }
 
-                        SendToSpectators( "to rank {0}&F: {1}", rank.ClassyName, messageText );
+                        Player[] spectators = Server.Players.NotRanked( Info.Rank )
+                                                            .Where( p => p.spectatedPlayer == this )
+                                                            .ToArray();
+                        if( spectators.Length > 0 ) {
+                            spectators.Message( "[Spectate]: &Fto rank {0}&F: {1}", rank.ClassyName, messageText );
+                        }
+
                         Chat.SendRank( this, rank, messageText );
                     } break;
 
@@ -1163,15 +1170,19 @@ namespace fCraft {
         /// <summary> Whether player is repeating a selection (/static) </summary>
         public bool IsRepeatingSelection { get; set; }
 
-        [CanBeNull] Command selectionRepeatCommand;
+        [CanBeNull]
+        Command selectionRepeatCommand;
 
-        [CanBeNull] SelectionCallback selectionCallback;
+        [CanBeNull]
+        SelectionCallback selectionCallback;
 
         readonly Queue<Vector3I> selectionMarks = new Queue<Vector3I>();
 
-        [CanBeNull] object selectionArgs;
+        [CanBeNull]
+        object selectionArgs;
 
-        [CanBeNull] Permission[] selectionPermissions;
+        [CanBeNull]
+        Permission[] selectionPermissions;
 
 
         public void SelectionAddMark( Vector3I pos, bool executeCallbackIfNeeded ) {

@@ -1347,7 +1347,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             ColorPicker picker = new ColorPicker( "Rank color for \"" + selectedRank.Name + "\"", Color.ParseToIndex( selectedRank.Color ) );
             picker.ShowDialog();
             ApplyColor( bColorRank, picker.ColorIndex );
-            selectedRank.Color = Color.GetName( picker.ColorIndex );
+            selectedRank.Color = Color.Parse( picker.ColorIndex );
         }
 
 
