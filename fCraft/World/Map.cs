@@ -445,11 +445,13 @@ namespace fCraft {
                             }
                         }
                     }
-                    Logger.Log( LogType.UserActivity,
-                                "Player {0} executed {1} on world {2} (between {3} and {4}). Processed {5}, Updated {6}, Skipped {7}, Denied {8} blocks.",
-                                op.Player.Name, op.Description, World.Name,
-                                op.Bounds.MinVertex, op.Bounds.MaxVertex,
-                                op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
+                    if( op.AnnounceCompletion ) {
+                        Logger.Log( LogType.UserActivity,
+                                    "Player {0} executed {1} on world {2} (between {3} and {4}). Processed {5}, Updated {6}, Skipped {7}, Denied {8} blocks.",
+                                    op.Player.Name, op.Description, World.Name,
+                                    op.Bounds.MinVertex, op.Bounds.MaxVertex,
+                                    op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
+                    }
                     drawOps.RemoveAt( i );
                     op.End();
                     i--;
