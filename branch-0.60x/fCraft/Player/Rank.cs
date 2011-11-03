@@ -65,6 +65,7 @@ namespace fCraft {
             PermissionLimits = new Rank[Permissions.Length];
             PermissionLimitStrings = new string[Permissions.Length];
             Color = fCraft.Color.White;
+            Prefix = "";
         }
 
 

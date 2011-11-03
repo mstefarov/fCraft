@@ -10,7 +10,7 @@ namespace fCraft {
     public sealed class Command : ICloneable {
         public CommandDescriptor Descriptor { get; private set; }
         int offset;
-        public readonly string Message;
+        public readonly string RawMessage;
         public string Name { get; private set; } // lowercase name of the command
         public bool IsConfirmed; // whether this command has been confirmed by the user (with /ok)
 
@@ -19,7 +19,7 @@ namespace fCraft {
             if( other == null ) throw new ArgumentNullException( "other" );
             offset = other.offset;
             Descriptor = other.Descriptor;
-            Message = other.Message;
+            RawMessage = other.RawMessage;
             Name = other.Name;
             IsConfirmed = other.IsConfirmed;
         }
@@ -28,7 +28,7 @@ namespace fCraft {
         public Command( [NotNull] string rawMessage ) {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
             offset = 1;
-            Message = rawMessage;
+            RawMessage = rawMessage;
             string name = Next();
             if( name == null ) {
                 throw new ArgumentException( "Raw message must contain the command name.", "rawMessage" );
@@ -52,20 +52,20 @@ namespace fCraft {
         [DebuggerStepThrough]
         [CanBeNull]
         public string Next() {
-            for( ; offset < Message.Length; offset++ ) {
+            for( ; offset < RawMessage.Length; offset++ ) {
                 int t, j;
-                if( Message[offset] == '"' ) {
+                if( RawMessage[offset] == '"' ) {
                     j = offset + 1;
-                    for( ; j < Message.Length && Message[j] != '"'; j++ ) {}
+                    for( ; j < RawMessage.Length && RawMessage[j] != '"'; j++ ) {}
                     t = offset;
                     offset = j;
-                    return Message.Substring( t + 1, offset - t - 1 );
-                } else if( Message[offset] != ' ' ) {
+                    return RawMessage.Substring( t + 1, offset - t - 1 );
+                } else if( RawMessage[offset] != ' ' ) {
                     j = offset;
-                    for( ; j < Message.Length && Message[j] != ' '; j++ ) {}
+                    for( ; j < RawMessage.Length && RawMessage[j] != ' '; j++ ) {}
                     t = offset;
                     offset = j;
-                    return Message.Substring( t, offset - t );
+                    return RawMessage.Substring( t, offset - t );
                 }
             }
             return null;
@@ -77,7 +77,7 @@ namespace fCraft {
         public bool HasNext {
             [DebuggerStepThrough]
             get {
-                return offset < Message.Length;
+                return offset < RawMessage.Length;
             }
         }
 
@@ -129,9 +129,9 @@ namespace fCraft {
         /// <returns> The rest of the command, or an empty string. </returns>
         [DebuggerStepThrough]
         public string NextAll() {
-            for( ; offset < Message.Length; offset++ ) {
-                if( Message[offset] != ' ' )
-                    return Message.Substring( offset );
+            for( ; offset < RawMessage.Length; offset++ ) {
+                if( RawMessage[offset] != ' ' )
+                    return RawMessage.Substring( offset );
             }
             return "";
         }
@@ -228,9 +228,9 @@ namespace fCraft {
 
         public override string ToString() {
             if( IsConfirmed ) {
-                return String.Format( "Command(\"{0}\",{1},confirmed)", Message, offset );
+                return String.Format( "Command(\"{0}\",{1},confirmed)", RawMessage, offset );
             } else {
-                return String.Format( "Command(\"{0}\",{1})", Message, offset );
+                return String.Format( "Command(\"{0}\",{1})", RawMessage, offset );
             }
         }
     }

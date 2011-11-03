@@ -426,7 +426,7 @@ namespace fCraft {
             if( fields.Length > 46 ) {
                 fields[46].ToDateTime( ref info.LastModified );
             }
-            if( fields.Length > 47 ) {
+            if( fields.Length > 47 && fields[47].Length > 0 ) {
                 info.DisplayedName = Unescape( fields[47] );
             }
 
