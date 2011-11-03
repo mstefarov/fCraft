@@ -602,7 +602,7 @@ namespace fCraft {
         }
 
 
-        static void PlayerSomethingMessage( [NotNull] IClassy player, [NotNull] string action, [NotNull] IClassy target, [NotNull] string reason ) {
+        static void PlayerSomethingMessage( [NotNull] IClassy player, [NotNull] string action, [NotNull] IClassy target, [CanBeNull] string reason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( action == null ) throw new ArgumentNullException( "action" );
             if( target == null ) throw new ArgumentNullException( "target" );

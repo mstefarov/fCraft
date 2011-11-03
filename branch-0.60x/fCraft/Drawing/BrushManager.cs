@@ -13,7 +13,7 @@ namespace fCraft.Drawing {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
             Help = "Gets or sets the current brush. Available brushes are: ",
-            HelpSections = new Dictionary<string, string>(),
+            HelpSections = new Dictionary<string, string>(), // filled by RegisterBrush
             Handler = BrushHandler
         };
 
@@ -53,7 +53,8 @@ namespace fCraft.Drawing {
 
         public static void RegisterBrush( [NotNull] IBrushFactory factory ) {
             if( factory == null ) throw new ArgumentNullException( "factory" );
-            string helpString = factory.Help;
+            string helpString = String.Format( "{0} brush: {1}",
+                                               factory.Name, factory.Help );
             string lowerName = factory.Name.ToLower();
             BrushFactories.Add( lowerName, factory );
             if( factory.Aliases != null ) {

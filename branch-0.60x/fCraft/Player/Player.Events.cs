@@ -209,7 +209,7 @@ namespace fCraft {
 namespace fCraft.Events {
 
     public sealed class PlayerEventArgs : EventArgs, IPlayerEvent {
-        public PlayerEventArgs( Player player ) {
+        internal PlayerEventArgs( Player player ) {
             Player = player;
         }
 
@@ -218,7 +218,7 @@ namespace fCraft.Events {
 
 
     public sealed class SessionConnectingEventArgs : EventArgs, ICancellableEvent {
-        public SessionConnectingEventArgs( [NotNull] IPAddress ip ) {
+        internal SessionConnectingEventArgs( [NotNull] IPAddress ip ) {
             if( ip == null ) throw new ArgumentNullException( "ip" );
             IP = ip;
         }
@@ -230,7 +230,7 @@ namespace fCraft.Events {
 
 
     public sealed class SessionDisconnectedEventArgs : EventArgs {
-        public SessionDisconnectedEventArgs( [NotNull] Player player, LeaveReason leaveReason ) {
+        internal SessionDisconnectedEventArgs( [NotNull] Player player, LeaveReason leaveReason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             LeaveReason = leaveReason;
@@ -269,6 +269,7 @@ namespace fCraft.Events {
 
     public sealed class PlayerMovingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
         internal PlayerMovingEventArgs( [NotNull] Player player, Position newPos ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             OldPosition = player.Position;
             NewPosition = newPos;
@@ -335,10 +336,9 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerPlacingBlockEventArgs : PlayerPlacedBlockEventArgs {
-        internal PlayerPlacingBlockEventArgs( [NotNull] Player player, Map map, Vector3I coords,
+        internal PlayerPlacingBlockEventArgs( [NotNull] Player player, [NotNull] Map map, Vector3I coords,
                                               Block oldBlock, Block newBlock, BlockChangeContext context, CanPlaceResult result )
             : base( player, map, coords, oldBlock, newBlock, context ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
             Result = result;
         }
 
@@ -347,8 +347,9 @@ namespace fCraft.Events {
 
 
     public class PlayerPlacedBlockEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerPlacedBlockEventArgs( [NotNull] Player player, Map map, Vector3I coords,
+        internal PlayerPlacedBlockEventArgs( [NotNull] Player player, [NotNull] Map map, Vector3I coords,
                                              Block oldBlock, Block newBlock, BlockChangeContext context ) {
+            if( map == null ) throw new ArgumentNullException( "map" );
             Player = player;
             Map = map;
             Coords = coords;
@@ -360,7 +361,10 @@ namespace fCraft.Events {
 
         [NotNull]
         public Player Player { get; private set; }
+
+        [NotNull]
         public Map Map { get; private set; }
+
         public Vector3I Coords { get; private set; }
         public Block OldBlock { get; private set; }
         public Block NewBlock { get; private set; }
@@ -369,7 +373,7 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerBeingKickedEventArgs : PlayerKickedEventArgs, ICancellableEvent {
-        internal PlayerBeingKickedEventArgs( Player player, Player kicker, string reason,
+        internal PlayerBeingKickedEventArgs( [NotNull] Player player, [NotNull] Player kicker, [CanBeNull] string reason,
                                               bool announce, bool recordToPlayerDB, LeaveReason context )
             : base( player, kicker, reason, announce, recordToPlayerDB, context ) {
         }
@@ -379,8 +383,10 @@ namespace fCraft.Events {
 
 
     public class PlayerKickedEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerKickedEventArgs( Player player, Player kicker, string reason,
+        internal PlayerKickedEventArgs( [NotNull] Player player, [NotNull] Player kicker, [CanBeNull] string reason,
                                         bool announce, bool recordToPlayerDB, LeaveReason context ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( kicker == null ) throw new ArgumentNullException( "kicker" );
             Player = player;
             Kicker = kicker;
             Reason = reason;
@@ -390,12 +396,15 @@ namespace fCraft.Events {
         }
 
         /// <summary> Player who is being kicked. </summary>
+        [NotNull]
         public Player Player { get; private set; }
 
         /// <summary> Player who kicked. </summary>
+        [NotNull]
         public Player Kicker { get; protected set; }
 
         /// <summary> Given kick reason (may be blank). </summary>
+        [CanBeNull]
         public string Reason { get; protected set; }
 
         /// <summary> Whether the kick should be announced in-game and on IRC. </summary>
@@ -425,9 +434,11 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerJoiningWorldEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
-        public PlayerJoiningWorldEventArgs( [NotNull] Player player, World oldWorld, World newWorld, WorldChangeReason reason,
-                                            string textLine1, string textLine2 ) {
+        internal PlayerJoiningWorldEventArgs( [NotNull] Player player, [CanBeNull] World oldWorld,
+                                              [NotNull] World newWorld, WorldChangeReason reason,
+                                              string textLine1, string textLine2 ) {
             if( player == null ) throw new ArgumentNullException( "player" );
+            if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             Player = player;
             OldWorld = oldWorld;
             NewWorld = newWorld;
@@ -438,8 +449,13 @@ namespace fCraft.Events {
 
         [NotNull]
         public Player Player { get; private set; }
+
+        [CanBeNull]
         public World OldWorld { get; private set; }
+
+        [NotNull]
         public World NewWorld { get; private set; }
+
         public WorldChangeReason Reason { get; private set; }
         public string TextLine1 { get; set; }
         public string TextLine2 { get; set; }

@@ -760,13 +760,13 @@ namespace fCraft {
             return e.Cancel;
         }
 
-        static void RaiseMainWorldChangedEvent( World oldWorld, [NotNull] World newWorld ) {
+        static void RaiseMainWorldChangedEvent( [CanBeNull] World oldWorld, [NotNull] World newWorld ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             var h = MainWorldChanged;
             if( h != null ) h( null, new MainWorldChangedEventArgs( oldWorld, newWorld ) );
         }
 
-        static bool RaiseWorldCreatingEvent( [CanBeNull] Player player, [NotNull] string worldName, Map map ) {
+        static bool RaiseWorldCreatingEvent( [CanBeNull] Player player, [NotNull] string worldName, [CanBeNull] Map map ) {
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
             var h = WorldCreating;
             if( h == null ) return false;

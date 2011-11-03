@@ -41,7 +41,6 @@ namespace fCraft {
         [NotNull]
         public string LoadedByClassy {
             get {
-                if( LoadedBy == null ) return "?";
                 return PlayerDB.FindExactClassyName( LoadedBy );
             }
         }
@@ -54,7 +53,6 @@ namespace fCraft {
         [NotNull]
         public string MapChangedByClassy {
             get {
-                if( MapChangedBy == null ) return "?";
                 return PlayerDB.FindExactClassyName( MapChangedBy );
             }
         }

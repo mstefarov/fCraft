@@ -383,8 +383,8 @@ namespace fCraft {
                                     info.TimesKicked,
                                     info.TimeSinceLastKick.ToMiniString(),
                                     info.LastKickByClassy );
-                    if( info.LastKickReason.Length > 0 ) {
-                        player.Message( "  Last kick reason: {0}", info.LastKickReason );
+                    if( info.LastKickReason != null ) {
+                        player.Message( "  Kick reason: {0}", info.LastKickReason );
                     }
                 } else {
                     player.Message( "  Got kicked {0} times", info.TimesKicked );
@@ -394,7 +394,7 @@ namespace fCraft {
 
             // Promotion/demotion
             if( info.PreviousRank == null ) {
-                if( info.RankChangedBy.Length == 0 ) {
+                if( info.RankChangedBy == null ) {
                     player.Message( "  Rank is {0}&S (default).",
                                     info.Rank.ClassyName );
                 } else {
@@ -402,7 +402,7 @@ namespace fCraft {
                                     info.Rank.ClassyName,
                                     info.RankChangedByClassy,
                                     info.TimeSinceRankChange.ToMiniString() );
-                    if( !string.IsNullOrEmpty( info.RankChangeReason ) ) {
+                    if( info.RankChangeReason != null ) {
                         player.Message( "  Promotion reason: {0}", info.RankChangeReason );
                     }
                 }
@@ -412,7 +412,7 @@ namespace fCraft {
                                 info.Rank.ClassyName,
                                 info.RankChangedByClassy,
                                 info.TimeSinceRankChange.ToMiniString() );
-                if( !string.IsNullOrEmpty( info.RankChangeReason ) ) {
+                if( info.RankChangeReason != null ) {
                     player.Message( "  Promotion reason: {0}", info.RankChangeReason );
                 }
             } else {
@@ -421,7 +421,7 @@ namespace fCraft {
                                 info.Rank.ClassyName,
                                 info.RankChangedByClassy,
                                 info.TimeSinceRankChange.ToMiniString() );
-                if( info.RankChangeReason.Length > 0 ) {
+                if( info.RankChangeReason != null ) {
                     player.Message( "  Demotion reason: {0}", info.RankChangeReason );
                 }
             }
@@ -486,7 +486,7 @@ namespace fCraft {
                                         info.LastAttemptDate,
                                         info.LastAttemptName );
                     }
-                    if( info.BanReason.Length > 0 ) {
+                    if( info.BanReason != null ) {
                         player.Message( "  Ban reason: {0}", info.BanReason );
                     }
                 } else {
@@ -527,7 +527,7 @@ namespace fCraft {
                                     info.BannedByClassy,
                                     info.BanDate,
                                     info.TimeSinceBan.ToMiniString() );
-                    if( info.BanReason.Length > 0 ) {
+                    if( info.BanReason != null ) {
                         player.Message( "  Last ban reason: {0}", info.BanReason );
                     }
                 }
@@ -536,7 +536,7 @@ namespace fCraft {
                                     info.UnbannedByClassy,
                                     info.UnbanDate,
                                     info.TimeSinceUnban.ToMiniString() );
-                    if( info.UnbanReason.Length > 0 ) {
+                    if( info.UnbanReason != null ) {
                         player.Message( "  Last unban reason: {0}", info.UnbanReason );
                     }
                 }
@@ -795,11 +795,19 @@ namespace fCraft {
                         // if there are multiple matches, print a list
                         player.Message( "Multiple rule sections matched \"{0}\": {1}",
                                         sectionName, matches.JoinToString() );
+                        return;
                     }
                 }
             }
 
-            if( ruleFileName == null ) {
+            if( ruleFileName != null ) {
+                string sectionFullName = Path.GetFileNameWithoutExtension( ruleFileName );
+                // ReSharper disable AssignNullToNotNullAttribute
+                player.Message( "Rule section \"{0}\":", sectionFullName );
+                // ReSharper restore AssignNullToNotNullAttribute
+                PrintRuleFile( player, new FileInfo( ruleFileName ) );
+
+            } else {
                 var sectionList = GetRuleSectionList();
                 if( sectionList == null ) {
                     player.Message( "There are no rule sections defined." );
@@ -807,10 +815,6 @@ namespace fCraft {
                     player.Message( "No rule section defined for \"{0}\". Available sections: {1}",
                                     sectionName, sectionList.JoinToString() );
                 }
-            } else {
-                player.Message( "Rule section \"{0}\":",
-                                Path.GetFileNameWithoutExtension( ruleFileName ) );
-                PrintRuleFile( player, new FileInfo( ruleFileName ) );
             }
         }
 
@@ -1063,8 +1067,7 @@ namespace fCraft {
                 if( sectionName != null ) {
                     string sectionHelp;
                     if( descriptor.HelpSections != null && descriptor.HelpSections.TryGetValue( sectionName.ToLower(), out sectionHelp ) ) {
-                        player.MessagePrefixed( HelpPrefix, "&SHelp for &H{0} {1}&S:\n{2}",
-                                                descriptor.Name, sectionName, sectionHelp );
+                        player.MessagePrefixed( HelpPrefix, sectionHelp );
                     } else {
                         player.Message( "No help found for \"{0}\"", sectionName );
                     }

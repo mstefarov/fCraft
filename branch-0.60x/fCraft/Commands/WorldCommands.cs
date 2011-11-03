@@ -55,26 +55,34 @@ namespace fCraft {
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageBlockDB },
-            Usage = "/BlockDB WorldName <Operation>",
+            Usage = "/BlockDB <WorldName> <Operation>",
             Help = "Manages BlockDB on a given world. " +
-                   "Operations are: on, off, clear, limit, timelimit, and preload. " +
+                   "Operations are: On, Off, Clear, Limit, TimeLimit, Preload. " +
                    "See &H/Help BlockDB <Operation>&S for operation-specific help. " +
-                   "If no operation is given, BlockDB status is shown.",
+                   "If no operation is given, world's BlockDB status is shown. " +
+                   "If no WorldName is given, prints status of all worlds.",
             HelpSections = new Dictionary<string, string>{
-                { "auto",       "Allows BlockDB to decide whether it should be enabled or disabled based on each world's permissions (default)." },
-                { "on",         "Enables block tracking. Information will only be available for blocks that changed while BlockDB was enabled." },
-                { "off",        "Disables block tracking. Block changes will NOT be recorded while BlockDB is disabled. " +
+                { "auto",       "/BlockDB <WorldName> Auto\n&S" +
+                                "Allows BlockDB to decide whether it should be enabled or disabled based on each world's permissions (default)." },
+                { "on",         "/BlockDB <WorldName> On\n&S" +
+                                "Enables block tracking. Information will only be available for blocks that changed while BlockDB was enabled." },
+                { "off",        "/BlockDB <WorldName> Off\n&S" +
+                                "Disables block tracking. Block changes will NOT be recorded while BlockDB is disabled. " +
                                 "Note that disabling BlockDB does not delete the existing data. Use &Hclear&S for that." },
-                { "clear",      "Clears all recorded data from the BlockDB. Erases all changes from memory and deletes the .fbdb file." },
-                { "limit",      "Sets the limit on the maximum number of changes to store for a given world. " +
+                { "clear",      "/BlockDB <WorldName> Clear\n&S" +
+                                "Clears all recorded data from the BlockDB. Erases all changes from memory and deletes the .fbdb file." },
+                { "limit",      "/BlockDB <WorldName> Limit <#>|None\n&S" +
+                                "Sets the limit on the maximum number of changes to store for a given world. " +
                                 "Oldest changes will be deleted once the limit is reached. " +
                                 "Put \"None\" to disable limiting. " +
                                 "Unless a Limit or a TimeLimit it specified, all changes will be stored indefinitely." },
-                { "timelimit",  "Sets the age limit for stored changes. " +
+                { "timelimit",  "/BlockDB <WorldName> TimeLimit <Time>/None\n&S" +
+                                "Sets the age limit for stored changes. " +
                                 "Oldest changes will be deleted once the limit is reached. " +
                                 "Use \"None\" to disable time limiting. " +
                                 "Unless a Limit or a TimeLimit it specified, all changes will be stored indefinitely." },
-                { "preload",    "Enabled or disables preloading. When BlockDB is preloaded, all changes are stored in memory as well as in a file. " +
+                { "preload",    "/BlockDB <WorldName> Preload On/Off\n&S" +
+                                "Enabled or disables preloading. When BlockDB is preloaded, all changes are stored in memory as well as in a file. " +
                                 "This reduces CPU and disk use for busy maps, but may not be suitable for large maps due to increased memory use." },
             },
             Handler = BlockDBHandler
@@ -490,16 +498,16 @@ namespace fCraft {
                    "See &H/Help env <Variable>&S for details about each variable. " +
                    "Type &H/Env <WorldName> normal&S to reset everything for a world.",
             HelpSections = new Dictionary<string, string>{
-                { "normal",     "&H/Env <WorldName> normal&S - Resets all environment settings to their defaults for the given world." },
-                { "clouds",     "&H/Env <WorldName> clouds <Color>&S - Sets color of the clouds. Use \"normal\" instead of color to reset." },
-                { "fog",        "&H/Env <WorldName> fog <Color>&S - Sets color of the fog. " +
+                { "normal",     "&H/Env <WorldName> normal\n&SResets all environment settings to their defaults for the given world." },
+                { "clouds",     "&H/Env <WorldName> clouds <Color>\n&SSets color of the clouds. Use \"normal\" instead of color to reset." },
+                { "fog",        "&H/Env <WorldName> fog <Color>\n&SSets color of the fog. " +
                                 "Sky color blends with fog color in the distance. Use \"normal\" instead of color to reset." },
-                { "sky",        "&H/Env <WorldName> sky <Color>&S - Sets color of the sky. " +
+                { "sky",        "&H/Env <WorldName> sky <Color>\n&SSets color of the sky. " +
                                 "Sky color blends with fog color in the distance. Use \"normal\" instead of color to reset." },
-                { "level",      "&H/Env <WorldName> level <#>&S - Sets height of the map edges/water level, " +
+                { "level",      "&H/Env <WorldName> level <#>\n&SSets height of the map edges/water level, " +
                                 "in terms of blocks from the bottom of the map. " +
                                 "Use \"normal\" instead of a number to reset to default (halfway up the map)." },
-                { "edge",       "&H/Env <WorldName> edge <BlockType>&S - Changes the type of block that's visible beyond the map boundaries. "+
+                { "edge",       "&H/Env <WorldName> edge <BlockType>\n&SChanges the type of block that's visible beyond the map boundaries. "+
                                 "Use \"normal\" instead of a number to reset to default (water)." }
             },
             Usage = "/Env <WorldName> <Variable>",
@@ -1851,9 +1859,9 @@ namespace fCraft {
                    "If the world with the specified name exists, its map is replaced with the specified map file. " +
                    "Otherwise, a new world is created using the given name and map file. " +
                    "NOTE: For security reasons, you may only load files from the map folder. " +
-                   "For a list of supported formats, see &H/Help WLoad formats",
+                   "For a list of supported formats, see &H/Help WLoad Formats",
             HelpSections = new Dictionary<string, string>{
-                { "formats",    "Supported formats: fCraft FCM (versions 2, 3, and 4), MCSharp/MCZall/MCLawl (.lvl), " +
+                { "formats",    "WLoad supported formats: fCraft FCM (versions 2, 3, and 4), MCSharp/MCZall/MCLawl (.lvl), " +
                                 "D3 (.map), Classic (.dat), InDev (.mclevel), MinerCPP/LuaCraft (.dat), " +
                                 "JTE (.gz), iCraft/Myne (directory-based), Opticraft (.save)." }
             },

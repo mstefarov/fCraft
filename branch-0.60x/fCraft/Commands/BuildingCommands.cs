@@ -827,8 +827,9 @@ namespace fCraft {
             int ey = Math.Max( marks[0].Y, marks[1].Y );
             int sz = Math.Min( marks[0].Z, marks[1].Z );
             int ez = Math.Max( marks[0].Z, marks[1].Z );
+            BoundingBox bounds = new BoundingBox( sx, sy, sz, ex, ey, ez );
 
-            int volume = (ex - sx + 1) * (ey - sy + 1) * (ez - sz + 1);
+            int volume = bounds.Volume;
             if( !player.CanDraw( volume ) ) {
                 player.MessageNow( String.Format( "You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                                player.Info.Rank.DrawLimit, volume ) );
@@ -862,8 +863,9 @@ namespace fCraft {
                                (copyInfo.Orientation.Z == 1 ? "east" : "west") );
 
             Logger.Log( LogType.UserActivity,
-                        "{0} copied {1} blocks from {2}.",
-                        player.Name, volume, playerWorld.Name );
+                        "{0} copied {1} blocks from {2} (between {3} and {4}).",
+                        player.Name, volume, playerWorld.Name,
+                        bounds.MinVertex, bounds.MaxVertex );
         }
 
 

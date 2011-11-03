@@ -9,51 +9,52 @@ namespace fCraft {
         const int FormatVersion = 2;
 
         public MapGenTheme Theme = MapGenTheme.Forest;
-        public int   Seed,
+        public int   Seed, // 0
                      MapWidth = 256,
                      MapLength = 256,
                      MapHeight = 96,
                      MaxHeight = 20,
                      MaxDepth = 12,
                      MaxHeightVariation = 4,
-                     MaxDepthVariation;
+                     MaxDepthVariation; // 0
 
         public bool  AddWater = true,
-                     CustomWaterLevel,
-                     MatchWaterCoverage;
+                     CustomWaterLevel,   // false
+                     MatchWaterCoverage; // false
         public int   WaterLevel = 48;
         public float WaterCoverage = .5f;
 
-        public bool  UseBias,
-                     DelayBias;
-        public float Bias;
-        public int   RaisedCorners,
-                     LoweredCorners,
-                     MidPoint;
+        public bool  UseBias,        // false
+                     DelayBias;      // false
+        public float Bias;           // 0
+        public int   RaisedCorners,  // 0
+                     LoweredCorners, // 0
+                     MidPoint;       // 0
 
         public int   DetailScale = 7,
                      FeatureScale = 1;
         public float Roughness = .5f;
-        public bool  LayeredHeightmap,
-                     MarbledHeightmap,
-                     InvertHeightmap;
+        public bool  LayeredHeightmap, // false
+                     MarbledHeightmap, // false
+                     InvertHeightmap;  // false
         public float AboveFuncExponent = 1,
                      BelowFuncExponent = 1;
 
-        public bool  AddTrees = true;
+        public bool  AddTrees = true,
+                     AddGiantTrees; // false
         public int   TreeSpacingMin = 7,
                      TreeSpacingMax = 11,
                      TreeHeightMin = 5,
                      TreeHeightMax = 7;
 
-        public bool  AddCaves,
-                     AddOre,
-                     AddCaveWater,
-                     AddCaveLava;
+        public bool  AddCaves,     // false
+                     AddOre,       // false
+                     AddCaveWater, // false
+                     AddCaveLava;  // false
         public float CaveDensity = 2,
                      CaveSize = 1;
 
-        public bool  AddSnow;
+        public bool  AddSnow; // false
         public int   SnowAltitude = 70,
                      SnowTransition = 7;
 
@@ -61,7 +62,7 @@ namespace fCraft {
                      CliffSmoothing = true;
         public float CliffThreshold = 1;
 
-        public bool  AddBeaches;
+        public bool  AddBeaches; // false
         public int   BeachExtent = 6,
                      BeachHeight = 2;
 
@@ -156,6 +157,8 @@ namespace fCraft {
 
             if( root.Element( "maxHeightVariation" ) != null ) MaxHeightVariation = Int32.Parse( root.Element( "maxHeightVariation" ).Value );
             if( root.Element( "maxDepthVariation" ) != null ) MaxDepthVariation = Int32.Parse( root.Element( "maxDepthVariation" ).Value );
+
+            if( root.Element( "addGiantTrees" ) != null ) AddGiantTrees = Boolean.Parse( root.Element( "addGiantTrees" ).Value );
             // ReSharper restore PossibleNullReferenceException
 
             Validate();
@@ -205,6 +208,7 @@ namespace fCraft {
             root.Add( new XElement( "belowFuncExponent", BelowFuncExponent ) );
 
             root.Add( new XElement( "addTrees", AddTrees ) );
+            root.Add( new XElement( "addGiantTrees", AddGiantTrees ) );
             root.Add( new XElement( "treeSpacingMin", TreeSpacingMin ) );
             root.Add( new XElement( "treeSpacingMax", TreeSpacingMax ) );
             root.Add( new XElement( "treeHeightMin", TreeHeightMin ) );
@@ -231,7 +235,6 @@ namespace fCraft {
 
             root.Add( new XElement( "maxHeightVariation", MaxHeightVariation ) );
             root.Add( new XElement( "maxDepthVariation", MaxDepthVariation ) );
-
             return root;
         }
     }

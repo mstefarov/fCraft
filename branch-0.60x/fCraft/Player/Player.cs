@@ -429,6 +429,13 @@ namespace fCraft {
 
 
         [StringFormatMethod( "message" )]
+        public void Message( [NotNull] string message, [NotNull] object arg ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( arg == null ) throw new ArgumentNullException( "arg" );
+            Message( String.Format( message, arg ) );
+        }
+
+        [StringFormatMethod( "message" )]
         public void Message( [NotNull] string message, [NotNull] params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
@@ -1386,18 +1393,18 @@ namespace fCraft {
 
         /// <summary> Advanced kick command. </summary>
         /// <param name="player"> Player who is kicking. </param>
-        /// <param name="reason"> Reason for kicking. May be blank if allowed by server configuration. </param>
+        /// <param name="reason"> Reason for kicking. May be null or blank if allowed by server configuration. </param>
         /// <param name="context"> Classification of kick context. </param>
         /// <param name="announce"> Whether the kick should be announced publicly on the server and IRC. </param>
         /// <param name="raiseEvents"> Whether Player.BeingKicked and Player.Kicked events should be raised. </param>
         /// <param name="recordToPlayerDB"> Whether the kick should be counted towards player's record.</param>
-        public void Kick( [NotNull] Player player, [NotNull] string reason, LeaveReason context,
+        public void Kick( [NotNull] Player player, [CanBeNull] string reason, LeaveReason context,
                           bool announce, bool raiseEvents, bool recordToPlayerDB ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( reason == null ) throw new ArgumentNullException( "reason" );
             if( !Enum.IsDefined( typeof( LeaveReason ), context ) ) {
                 throw new ArgumentOutOfRangeException( "context" );
             }
+            if( reason != null && reason.Trim().Length == 0 ) reason = null;
 
             // Check if player can ban/unban in general
             if( !player.Can( Permission.Kick ) ) {
@@ -1427,7 +1434,7 @@ namespace fCraft {
 
             // actually kick
             string kickReason;
-            if( reason.Length > 0 ) {
+            if( reason != null ) {
                 kickReason = String.Format( "Kicked by {0}: {1}", player.Name, reason );
             } else {
                 kickReason = String.Format( "Kicked by {0}", player.Name );
@@ -1436,15 +1443,15 @@ namespace fCraft {
 
             // log and record kick to PlayerDB
             Logger.Log( LogType.UserActivity,
-                        "{0} was kicked by {1}. Reason: {2}",
-                        Name, player.Name, reason );
+                        "{0} kicked {1}. Reason: {2}",
+                        player.Name, Name, reason ?? "" );
             if( recordToPlayerDB ) {
                 Info.ProcessKick( player, reason );
             }
 
             // announce kick
             if( announce ) {
-                if( reason.Length > 0 && ConfigKey.AnnounceKickAndBanReasons.Enabled() ) {
+                if( reason != null && ConfigKey.AnnounceKickAndBanReasons.Enabled() ) {
                     Server.Message( "{0}&W was kicked by {1}&W: {2}",
                                     ClassyName, player.ClassyName, reason );
                 } else {
@@ -1461,6 +1468,7 @@ namespace fCraft {
         }
 
         #endregion
+
 
         [CanBeNull]
         public string LastUsedPlayerName { get; set; }

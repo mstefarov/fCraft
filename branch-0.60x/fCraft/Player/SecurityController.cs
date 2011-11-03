@@ -8,7 +8,8 @@ using JetBrains.Annotations;
 
 namespace fCraft {
 
-    /// <summary> Controller for setting and checking per-rank permissions and per-player exceptions. </summary>
+    /// <summary> Controller for setting and checking per-rank permissions and per-player exceptions.
+    /// Used by World.AccessSecurity, World.BuildSecurity, and Zone. </summary>
     public sealed class SecurityController : ICloneable, INotifiesOnChange {
 
         readonly Dictionary<string, PlayerInfo> includedPlayers = new Dictionary<string, PlayerInfo>();

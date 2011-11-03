@@ -50,7 +50,7 @@ namespace fCraft {
         }
 
         static bool RaiseRankChangingEvent( [NotNull] PlayerInfo playerInfo, [NotNull] Player rankChanger, [NotNull] Rank newRank,
-                                            [NotNull] string reason, RankChangeType rankChangeType, bool announce ) {
+                                            [CanBeNull] string reason, RankChangeType rankChangeType, bool announce ) {
             var h = RankChanging;
             if( h == null ) return false;
             var e = new PlayerInfoRankChangingEventArgs( playerInfo, rankChanger, newRank, reason, rankChangeType, announce );
@@ -58,8 +58,8 @@ namespace fCraft {
             return e.Cancel;
         }
 
-        static void RaiseRankChangedEvent( [NotNull] PlayerInfo playerInfo, [NotNull] Player rankChanger, [CanBeNull] Rank oldRank,
-                                           [NotNull] string reason, RankChangeType rankChangeType, bool announce ) {
+        static void RaiseRankChangedEvent( [NotNull] PlayerInfo playerInfo, [NotNull] Player rankChanger, [NotNull] Rank oldRank,
+                                           [CanBeNull] string reason, RankChangeType rankChangeType, bool announce ) {
             var h = RankChanged;
             if( h != null ) h( null, new PlayerInfoRankChangedEventArgs( playerInfo, rankChanger, oldRank, reason, rankChangeType, announce ) );
         }
@@ -89,7 +89,8 @@ namespace fCraft {
             if( h != null ) h( null, new PlayerInfoFrozenChangedEventArgs( target, freezer, unfreezing, announce ) );
         }
 
-        static bool RaiseMuteChangingEvent( [NotNull] PlayerInfo target, [NotNull] Player muter, TimeSpan duration, bool unmuting, bool announce ) {
+        static bool RaiseMuteChangingEvent( [NotNull] PlayerInfo target, [NotNull] Player muter,
+                                            TimeSpan duration, bool unmuting, bool announce ) {
             var h = MuteChanging;
             if( h == null ) return false;
             var e = new PlayerInfoMuteChangingEventArgs( target, muter, duration, unmuting, announce );
@@ -97,7 +98,8 @@ namespace fCraft {
             return !e.Cancel;
         }
 
-        static void RaiseMuteChangedEvent( [NotNull] PlayerInfo target, [NotNull] Player muter, TimeSpan duration, bool unmuting, bool announce ) {
+        static void RaiseMuteChangedEvent( [NotNull] PlayerInfo target, [NotNull] Player muter,
+                                           TimeSpan duration, bool unmuting, bool announce ) {
             var h = MuteChanged;
             if( h != null ) h( null, new PlayerInfoMuteChangedEventArgs( target, muter, duration, unmuting, announce ) );
         }
@@ -118,8 +120,10 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerInfoCreatingEventArgs : EventArgs, ICancellableEvent {
-        internal PlayerInfoCreatingEventArgs( [NotNull] string name, IPAddress ip, Rank startingRank, bool isUnrecognized ) {
+        internal PlayerInfoCreatingEventArgs( [NotNull] string name, [CanBeNull] IPAddress ip,
+                                              [NotNull] Rank startingRank, bool isUnrecognized ) {
             if( name == null ) throw new ArgumentNullException( "name" );
+            if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
             Name = name;
             StartingRank = startingRank;
             IP = ip;
@@ -128,7 +132,11 @@ namespace fCraft.Events {
 
         [NotNull]
         public string Name { get; private set; }
+
+        [NotNull]
         public Rank StartingRank { get; set; }
+
+        [CanBeNull]
         public IPAddress IP { get; private set; }
         public bool IsUnrecognized { get; private set; }
         public bool Cancel { get; set; }
@@ -136,7 +144,7 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerInfoCreatedEventArgs : PlayerInfoEventArgs {
-        internal PlayerInfoCreatedEventArgs( PlayerInfo playerInfo, bool isUnrecognized )
+        internal PlayerInfoCreatedEventArgs( [NotNull] PlayerInfo playerInfo, bool isUnrecognized )
             : base( playerInfo ) {
             IsUnrecognized = isUnrecognized;
         }
@@ -147,9 +155,11 @@ namespace fCraft.Events {
 
     public class PlayerInfoRankChangedEventArgs : PlayerInfoEventArgs {
         internal PlayerInfoRankChangedEventArgs( [NotNull] PlayerInfo playerInfo, [NotNull] Player rankChanger,
-                                                 Rank oldRank, string reason, RankChangeType rankChangeType, bool announce )
+                                                 [NotNull] Rank oldRank, [CanBeNull] string reason,
+                                                 RankChangeType rankChangeType, bool announce )
             : base( playerInfo ) {
             if( rankChanger == null ) throw new ArgumentNullException( "rankChanger" );
+            if( oldRank == null ) throw new ArgumentNullException( "oldRank" );
             RankChanger = rankChanger;
             OldRank = oldRank;
             NewRank = playerInfo.Rank;
@@ -160,17 +170,26 @@ namespace fCraft.Events {
 
         [NotNull]
         public Player RankChanger { get; private set; }
-        public Rank OldRank { get; protected set; }
+
+        [NotNull]
+        public Rank OldRank { get; private set; }
+
+        [NotNull]
         public Rank NewRank { get; protected set; }
+
+        [CanBeNull] 
         public string Reason { get; private set; }
+
         public bool Announce { get; private set; }
+
         public RankChangeType RankChangeType { get; private set; }
     }
 
 
     public sealed class PlayerInfoRankChangingEventArgs : PlayerInfoRankChangedEventArgs, ICancellableEvent {
         internal PlayerInfoRankChangingEventArgs( [NotNull] PlayerInfo playerInfo, [NotNull] Player rankChanger,
-                                                  [NotNull] Rank newRank, string reason, RankChangeType rankChangeType, bool announce )
+                                                  [NotNull] Rank newRank, [CanBeNull] string reason,
+                                                  RankChangeType rankChangeType, bool announce )
             : base( playerInfo, rankChanger, playerInfo.Rank, reason, rankChangeType, announce ) {
             NewRank = newRank;
         }
@@ -200,7 +219,7 @@ namespace fCraft.Events {
 
     public sealed class PlayerInfoBanChangingEventArgs : PlayerInfoEventArgs, ICancellableEvent {
         internal PlayerInfoBanChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player banner,
-                                                 bool isBeingUnbanned, string reason, bool announce )
+                                                 bool isBeingUnbanned, [CanBeNull] string reason, bool announce )
             : base( target ) {
             Banner = banner;
             IsBeingUnbanned = isBeingUnbanned;
@@ -211,6 +230,7 @@ namespace fCraft.Events {
         [NotNull]
         public Player Banner { get; private set; }
         public bool IsBeingUnbanned { get; private set; }
+        [CanBeNull]
         public string Reason { get; set; }
         public bool Announce { get; private set; }
         public bool Cancel { get; set; }
@@ -243,7 +263,8 @@ namespace fCraft.Events {
 
 
     public sealed class PlayerInfoMuteChangingEventArgs : PlayerInfoMuteChangedEventArgs, ICancellableEvent {
-        internal PlayerInfoMuteChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player muter, TimeSpan duration, bool unmuting, bool announce )
+        internal PlayerInfoMuteChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player muter,
+                                                  TimeSpan duration, bool unmuting, bool announce )
             : base( target, muter, duration, unmuting, announce ) {
         }
         public bool Cancel { get; set; }
@@ -251,14 +272,18 @@ namespace fCraft.Events {
 
 
     public class PlayerInfoMuteChangedEventArgs : PlayerInfoEventArgs {
-        internal PlayerInfoMuteChangedEventArgs( [NotNull] PlayerInfo target, [NotNull] Player muter, TimeSpan duration, bool unmuting, bool announce )
+        internal PlayerInfoMuteChangedEventArgs( [NotNull] PlayerInfo target, [NotNull] Player muter,
+                                                 TimeSpan duration, bool unmuting, bool announce )
             : base( target ) {
+            if( muter == null ) throw new ArgumentNullException( "muter" );
             Muter = muter;
             Duration = duration;
             Unmuting = unmuting;
             Announce = announce;
         }
 
+
+        [NotNull]
         public Player Muter { get; private set; }
         public TimeSpan Duration { get; private set; }
         public bool Unmuting { get; private set; }
