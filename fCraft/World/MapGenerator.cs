@@ -379,19 +379,19 @@ namespace fCraft {
 
             if( args.AddTrees ) {
                 ReportProgress( 5, "Processing: Planting trees" );
-                Map outMap = new Map( null, map.Width, map.Length, map.Height, false ) { Blocks = (byte[])map.Blocks.Clone() };
-
-                var foresterArgs = new ForesterArgs {
-                    Map = map,
-                    Rand = rand,
-                    TreeCount = (int)(map.Width * map.Length * 4 / (1024f * (args.TreeSpacingMax + args.TreeSpacingMin) / 2)),
-                    Operation = Forester.ForesterOperation.Add,
-                    PlantOn = bGroundSurface
-                };
-                foresterArgs.BlockPlacing += ( sender, e ) => outMap.SetBlock( e.Coordinate, e.Block );
-                Forester.Generate( foresterArgs );
-                map = outMap;
-
+                if( args.AddGiantTrees ) {
+                    Map outMap = new Map( null, map.Width, map.Length, map.Height, false ) { Blocks = (byte[])map.Blocks.Clone() };
+                    var foresterArgs = new ForesterArgs {
+                        Map = map,
+                        Rand = rand,
+                        TreeCount = (int)(map.Width * map.Length * 4 / (1024f * (args.TreeSpacingMax + args.TreeSpacingMin) / 2)),
+                        Operation = Forester.ForesterOperation.Add,
+                        PlantOn = bGroundSurface
+                    };
+                    foresterArgs.BlockPlacing += ( sender, e ) => outMap.SetBlock( e.Coordinate, e.Block );
+                    Forester.Generate( foresterArgs );
+                    map = outMap;
+                }
                 GenerateTrees( map );
             }
 

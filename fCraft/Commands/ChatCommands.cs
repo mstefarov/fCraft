@@ -312,10 +312,11 @@ namespace fCraft {
             Category = CommandCategory.Chat,
             Usage = "/Timer <Duration> <Message>",
             Help = "Starts a timer with a given duration and message. " +
-                   "As the timer counts down, announcements are shown globally. See also: &H/Help timer abort",
+                   "As the timer counts down, announcements are shown globally. See also: &H/Help Timer Abort",
             HelpSections = new Dictionary<string, string> {
-                { "abort",  "&H/Timer abort <TimerID>&S - Aborts a timer with the given ID number. " +
-                            "To see a list of timers and their IDs, type &H/Timer&S without any parameters." }
+                { "abort",  "&H/Timer Abort <TimerID>\n&S" +
+                            "Aborts a timer with the given ID number. " +
+                            "To see a list of timers and their IDs, type &H/Timer&S (without any parameters)." }
             },
             Handler = TimerHandler
         };

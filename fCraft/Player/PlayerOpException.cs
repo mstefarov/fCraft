@@ -25,10 +25,9 @@ namespace fCraft {
 
 
         // Throws a PlayerOpException if reason is required but missing.
-        internal static void CheckBanReason( [NotNull] string reason, [NotNull] Player player, PlayerInfo targetInfo, bool unban ) {
-            if( reason == null ) throw new ArgumentNullException( "reason" );
+        internal static void CheckBanReason( [CanBeNull] string reason, [NotNull] Player player, PlayerInfo targetInfo, bool unban ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( ConfigKey.RequireBanReason.Enabled() && reason.Length == 0 ) {
+            if( ConfigKey.RequireBanReason.Enabled() && String.IsNullOrEmpty( reason ) ) {
                 string msg;
                 if( unban ) {
                     msg = "Please specify an unban reason.";
@@ -42,10 +41,9 @@ namespace fCraft {
 
 
         // Throws a PlayerOpException if reason is required but missing.
-        internal static void CheckRankChangeReason( [NotNull] string reason, [NotNull] Player player, PlayerInfo targetInfo, bool promoting ) {
-            if( reason == null ) throw new ArgumentNullException( "reason" );
+        internal static void CheckRankChangeReason( [CanBeNull] string reason, [NotNull] Player player, PlayerInfo targetInfo, bool promoting ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( ConfigKey.RequireRankChangeReason.Enabled() && reason.Length == 0 ) {
+            if( ConfigKey.RequireRankChangeReason.Enabled() && String.IsNullOrEmpty( reason ) ) {
                 string msg;
                 if( promoting ) {
                     msg = "Please specify a promotion reason.";
@@ -59,10 +57,9 @@ namespace fCraft {
 
 
         // Throws a PlayerOpException if reason is required but missing.
-        internal static void CheckKickReason( [NotNull] string reason, [NotNull] Player player, PlayerInfo targetInfo ) {
-            if( reason == null ) throw new ArgumentNullException( "reason" );
+        internal static void CheckKickReason( [CanBeNull] string reason, [NotNull] Player player, PlayerInfo targetInfo ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( ConfigKey.RequireKickReason.Enabled() && reason.Length == 0 ) {
+            if( ConfigKey.RequireKickReason.Enabled() && String.IsNullOrEmpty( reason ) ) {
                 const string msg = "Please specify a kick reason.";
                 const string colorMsg = "&S" + msg;
                 throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.ReasonRequired, msg, colorMsg );

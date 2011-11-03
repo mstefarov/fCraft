@@ -743,6 +743,8 @@ Could not load more information:
             nMapWidth.Value = generatorArgs.MapWidth;
             nMapLength.Value = generatorArgs.MapLength;
 
+            cTheme.SelectedIndex = (int)generatorArgs.Theme;
+
             sDetailScale.Value = generatorArgs.DetailScale;
             sFeatureScale.Value = generatorArgs.FeatureScale;
 
@@ -753,7 +755,6 @@ Could not load more information:
 
             nMaxDepth.Value = generatorArgs.MaxDepth;
             nMaxHeight.Value = generatorArgs.MaxHeight;
-            xAddTrees.Checked = generatorArgs.AddTrees;
             sRoughness.Value = (int)(generatorArgs.Roughness * 100);
             nSeed.Value = generatorArgs.Seed;
             xWater.Checked = generatorArgs.AddWater;
@@ -767,7 +768,8 @@ Could not load more information:
             nRaisedCorners.Value = generatorArgs.RaisedCorners;
             nLoweredCorners.Value = generatorArgs.LoweredCorners;
 
-            cTheme.SelectedIndex = (int)generatorArgs.Theme;
+            xAddTrees.Checked = generatorArgs.AddTrees;
+            xGiantTrees.Checked = generatorArgs.AddGiantTrees;
             nTreeHeight.Value = (generatorArgs.TreeHeightMax + generatorArgs.TreeHeightMin) / 2m;
             nTreeHeightVariation.Value = (generatorArgs.TreeHeightMax - generatorArgs.TreeHeightMin) / 2m;
             nTreeSpacing.Value = (generatorArgs.TreeSpacingMax + generatorArgs.TreeSpacingMin) / 2m;
@@ -817,6 +819,7 @@ Could not load more information:
                 MaxDepth = (int)nMaxDepth.Value,
                 MaxHeight = (int)nMaxHeight.Value,
                 AddTrees = xAddTrees.Checked,
+                AddGiantTrees = xGiantTrees.Checked,
                 Roughness = sRoughness.Value / 100f,
                 Seed = (int)nSeed.Value,
                 Theme = (MapGenTheme)cTheme.SelectedIndex,
@@ -953,12 +956,15 @@ Could not load more information:
             switch( xBlockDB.CheckState ) {
                 case CheckState.Indeterminate:
                     World.BlockDBEnabled = YesNoAuto.Auto;
+                    xBlockDB.Text = "BlockDB (Auto)";
                     break;
                 case CheckState.Checked:
                     World.BlockDBEnabled = YesNoAuto.Yes;
+                    xBlockDB.Text = "BlockDB (On)";
                     break;
                 case CheckState.Unchecked:
                     World.BlockDBEnabled = YesNoAuto.No;
+                    xBlockDB.Text = "BlockDB (Off)";
                     break;
             }
         }

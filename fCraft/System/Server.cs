@@ -107,9 +107,10 @@ namespace fCraft {
         /// Does not raise any events besides Logger.Logged.
         /// Throws exceptions on failure. </summary>
         /// <param name="rawArgs"> string arguments passed to the frontend (if any). </param>
+        /// <exception cref="System.InvalidOperationException"> If library is already initialized. </exception>
+        /// <exception cref="System.IO.IOException"> Working path, log path, or map path could not be set. </exception>
         public static void InitLibrary( [NotNull] IEnumerable<string> rawArgs ) {
             if( rawArgs == null ) throw new ArgumentNullException( "rawArgs" );
-
             if( libraryInitialized ) {
                 throw new InvalidOperationException( "fCraft library is already initialized" );
             }
@@ -154,7 +155,7 @@ namespace fCraft {
                 Paths.WorkingPath = Path.GetFullPath( Paths.WorkingPathDefault );
                 Directory.SetCurrentDirectory( Paths.WorkingPath );
             } else {
-                throw new Exception( "Could not set the working path." );
+                throw new IOException( "Could not set the working path." );
             }
 
             // set log path
@@ -164,7 +165,7 @@ namespace fCraft {
             } else if( Paths.TestDirectory( "LogPath", Paths.LogPathDefault, true ) ) {
                 Paths.LogPath = Path.GetFullPath( Paths.LogPathDefault );
             } else {
-                throw new Exception( "Could not set the log path." );
+                throw new IOException( "Could not set the log path." );
             }
 
             if( HasArg( ArgKey.NoLog ) ) {
@@ -181,7 +182,7 @@ namespace fCraft {
             } else if( Paths.TestDirectory( "MapPath", Paths.MapPathDefault, true ) ) {
                 Paths.MapPath = Path.GetFullPath( Paths.MapPathDefault );
             } else {
-                throw new Exception( "Could not set the map path." );
+                throw new IOException( "Could not set the map path." );
             }
 
             // set config path
@@ -214,12 +215,13 @@ namespace fCraft {
         /// Loads config, PlayerDB, IP bans, AutoRank settings, builds a list of commands, and prepares the IRC bot.
         /// Raises Server.Initializing and Server.Initialized events, and possibly Logger.Logged events.
         /// Throws exceptions on failure. </summary>
+        /// <exception cref="System.InvalidOperationException"> Library is not initialized, or server is already initialzied. </exception>
         public static void InitServer() {
             if( serverInitialized ) {
                 throw new InvalidOperationException( "Server is already initialized" );
             }
             if( !libraryInitialized ) {
-                throw new Exception( "Server.InitLibrary must be called before Server.InitServer" );
+                throw new InvalidOperationException( "Server.InitLibrary must be called before Server.InitServer" );
             }
             RaiseEvent( Initializing );
 
@@ -304,12 +306,13 @@ namespace fCraft {
         /// Raises Server.Starting and Server.Started events.
         /// May throw an exception on hard failure. </summary>
         /// <returns> True if server started normally, false on soft failure. </returns>
+        /// <exception cref="System.InvalidOperationException"> Server is already running, or server/library have not been initailized. </exception>
         public static bool StartServer() {
             if( IsRunning ) {
                 throw new InvalidOperationException( "Server is already running" );
             }
             if( !libraryInitialized || !serverInitialized ) {
-                throw new InvalidOperationException( "Server.InitServer must be called before Server.StartServer" );
+                throw new InvalidOperationException( "Server.InitLibrary and Server.InitServer must be called before Server.StartServer" );
             }
 
             StartTime = DateTime.UtcNow;

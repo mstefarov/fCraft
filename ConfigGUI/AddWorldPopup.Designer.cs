@@ -157,6 +157,7 @@
             this.sCaveDensity = new System.Windows.Forms.TrackBar();
             this.lCaveDensity = new System.Windows.Forms.Label();
             this.gTrees = new System.Windows.Forms.GroupBox();
+            this.xGiantTrees = new System.Windows.Forms.CheckBox();
             this.lTreeHeightUnits = new System.Windows.Forms.Label();
             this.nTreeHeightVariation = new System.Windows.Forms.NumericUpDown();
             this.lTreeHeightVariation = new System.Windows.Forms.Label();
@@ -1850,6 +1851,7 @@
             // 
             // gTrees
             // 
+            this.gTrees.Controls.Add( this.xGiantTrees );
             this.gTrees.Controls.Add( this.lTreeHeightUnits );
             this.gTrees.Controls.Add( this.nTreeHeightVariation );
             this.gTrees.Controls.Add( this.lTreeHeightVariation );
@@ -1862,16 +1864,26 @@
             this.gTrees.Controls.Add( this.lTreeSpacing );
             this.gTrees.Location = new System.Drawing.Point( 3, 730 );
             this.gTrees.Name = "gTrees";
-            this.gTrees.Size = new System.Drawing.Size( 362, 74 );
+            this.gTrees.Size = new System.Drawing.Size( 362, 75 );
             this.gTrees.TabIndex = 12;
             this.gTrees.TabStop = false;
             this.gTrees.Text = "Trees";
             this.gTrees.Visible = false;
             // 
+            // xGiantTrees
+            // 
+            this.xGiantTrees.AutoSize = true;
+            this.xGiantTrees.Location = new System.Drawing.Point( 260, 20 );
+            this.xGiantTrees.Name = "xGiantTrees";
+            this.xGiantTrees.Size = new System.Drawing.Size( 77, 17 );
+            this.xGiantTrees.TabIndex = 68;
+            this.xGiantTrees.Text = "Giant trees";
+            this.xGiantTrees.UseVisualStyleBackColor = true;
+            // 
             // lTreeHeightUnits
             // 
             this.lTreeHeightUnits.AutoSize = true;
-            this.lTreeHeightUnits.Location = new System.Drawing.Point( 230, 47 );
+            this.lTreeHeightUnits.Location = new System.Drawing.Point( 211, 47 );
             this.lTreeHeightUnits.Name = "lTreeHeightUnits";
             this.lTreeHeightUnits.Size = new System.Drawing.Size( 38, 13 );
             this.lTreeHeightUnits.TabIndex = 67;
@@ -1879,14 +1891,14 @@
             // 
             // nTreeHeightVariation
             // 
-            this.nTreeHeightVariation.Location = new System.Drawing.Point( 170, 45 );
+            this.nTreeHeightVariation.Location = new System.Drawing.Point( 160, 45 );
             this.nTreeHeightVariation.Maximum = new decimal( new int[] {
             32,
             0,
             0,
             0} );
             this.nTreeHeightVariation.Name = "nTreeHeightVariation";
-            this.nTreeHeightVariation.Size = new System.Drawing.Size( 54, 20 );
+            this.nTreeHeightVariation.Size = new System.Drawing.Size( 45, 20 );
             this.nTreeHeightVariation.TabIndex = 3;
             this.nTreeHeightVariation.Value = new decimal( new int[] {
             1,
@@ -1897,7 +1909,7 @@
             // lTreeHeightVariation
             // 
             this.lTreeHeightVariation.AutoSize = true;
-            this.lTreeHeightVariation.Location = new System.Drawing.Point( 143, 47 );
+            this.lTreeHeightVariation.Location = new System.Drawing.Point( 133, 47 );
             this.lTreeHeightVariation.Name = "lTreeHeightVariation";
             this.lTreeHeightVariation.Size = new System.Drawing.Size( 21, 13 );
             this.lTreeHeightVariation.TabIndex = 65;
@@ -1917,7 +1929,7 @@
             0,
             0} );
             this.nTreeHeight.Name = "nTreeHeight";
-            this.nTreeHeight.Size = new System.Drawing.Size( 54, 20 );
+            this.nTreeHeight.Size = new System.Drawing.Size( 44, 20 );
             this.nTreeHeight.TabIndex = 2;
             this.nTreeHeight.Value = new decimal( new int[] {
             6,
@@ -1937,7 +1949,7 @@
             // lTreeSpacingUnits
             // 
             this.lTreeSpacingUnits.AutoSize = true;
-            this.lTreeSpacingUnits.Location = new System.Drawing.Point( 230, 21 );
+            this.lTreeSpacingUnits.Location = new System.Drawing.Point( 211, 21 );
             this.lTreeSpacingUnits.Name = "lTreeSpacingUnits";
             this.lTreeSpacingUnits.Size = new System.Drawing.Size( 38, 13 );
             this.lTreeSpacingUnits.TabIndex = 62;
@@ -1945,14 +1957,14 @@
             // 
             // nTreeSpacingVariation
             // 
-            this.nTreeSpacingVariation.Location = new System.Drawing.Point( 170, 19 );
+            this.nTreeSpacingVariation.Location = new System.Drawing.Point( 160, 19 );
             this.nTreeSpacingVariation.Maximum = new decimal( new int[] {
             512,
             0,
             0,
             0} );
             this.nTreeSpacingVariation.Name = "nTreeSpacingVariation";
-            this.nTreeSpacingVariation.Size = new System.Drawing.Size( 54, 20 );
+            this.nTreeSpacingVariation.Size = new System.Drawing.Size( 45, 20 );
             this.nTreeSpacingVariation.TabIndex = 1;
             this.nTreeSpacingVariation.Value = new decimal( new int[] {
             3,
@@ -1963,7 +1975,7 @@
             // lTreeSpacingVariation
             // 
             this.lTreeSpacingVariation.AutoSize = true;
-            this.lTreeSpacingVariation.Location = new System.Drawing.Point( 143, 21 );
+            this.lTreeSpacingVariation.Location = new System.Drawing.Point( 133, 21 );
             this.lTreeSpacingVariation.Name = "lTreeSpacingVariation";
             this.lTreeSpacingVariation.Size = new System.Drawing.Size( 21, 13 );
             this.lTreeSpacingVariation.TabIndex = 60;
@@ -1983,7 +1995,7 @@
             0,
             0} );
             this.nTreeSpacing.Name = "nTreeSpacing";
-            this.nTreeSpacing.Size = new System.Drawing.Size( 54, 20 );
+            this.nTreeSpacing.Size = new System.Drawing.Size( 44, 20 );
             this.nTreeSpacing.TabIndex = 0;
             this.nTreeSpacing.Value = new decimal( new int[] {
             8,
@@ -2008,7 +2020,7 @@
             this.gSnow.Controls.Add( this.nSnowTransition );
             this.gSnow.Controls.Add( this.nSnowAltitude );
             this.gSnow.Controls.Add( this.lSnowAltitude );
-            this.gSnow.Location = new System.Drawing.Point( 3, 810 );
+            this.gSnow.Location = new System.Drawing.Point( 3, 811 );
             this.gSnow.Name = "gSnow";
             this.gSnow.Size = new System.Drawing.Size( 362, 45 );
             this.gSnow.TabIndex = 24;
@@ -2097,7 +2109,7 @@
             this.gCliffs.Controls.Add( this.lCliffThresholdUnits );
             this.gCliffs.Controls.Add( this.sCliffThreshold );
             this.gCliffs.Controls.Add( this.lCliffThreshold );
-            this.gCliffs.Location = new System.Drawing.Point( 3, 861 );
+            this.gCliffs.Location = new System.Drawing.Point( 3, 862 );
             this.gCliffs.Name = "gCliffs";
             this.gCliffs.Size = new System.Drawing.Size( 362, 59 );
             this.gCliffs.TabIndex = 23;
@@ -2155,7 +2167,7 @@
             this.gBeaches.Controls.Add( this.nBeachHeight );
             this.gBeaches.Controls.Add( this.nBeachExtent );
             this.gBeaches.Controls.Add( this.lBeachExtent );
-            this.gBeaches.Location = new System.Drawing.Point( 3, 926 );
+            this.gBeaches.Location = new System.Drawing.Point( 3, 927 );
             this.gBeaches.Name = "gBeaches";
             this.gBeaches.Size = new System.Drawing.Size( 362, 48 );
             this.gBeaches.TabIndex = 76;
@@ -2308,9 +2320,9 @@
             this.xBlockDB.AutoSize = true;
             this.xBlockDB.Location = new System.Drawing.Point( 246, 67 );
             this.xBlockDB.Name = "xBlockDB";
-            this.xBlockDB.Size = new System.Drawing.Size( 104, 17 );
+            this.xBlockDB.Size = new System.Drawing.Size( 68, 17 );
             this.xBlockDB.TabIndex = 9;
-            this.xBlockDB.Text = "Enable BlockDB";
+            this.xBlockDB.Text = "BlockDB";
             this.xBlockDB.ThreeState = true;
             this.xBlockDB.UseVisualStyleBackColor = true;
             this.xBlockDB.CheckStateChanged += new System.EventHandler( this.xBlockDB_CheckStateChanged );
@@ -2591,5 +2603,6 @@
         private System.Windows.Forms.Label lMaxHeightVariationUnits;
         private System.Windows.Forms.Label lMaxDepthVariationUnits;
         private System.Windows.Forms.CheckBox xBlockDB;
+        private System.Windows.Forms.CheckBox xGiantTrees;
     }
 }

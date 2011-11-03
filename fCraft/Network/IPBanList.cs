@@ -221,11 +221,11 @@ namespace fCraft {
         /// <param name="reason"> Reason for ban. May be empty, if permitted by server configuration. </param>
         /// <param name="announce"> Whether ban should be publicly announced on the server. </param>
         /// <param name="raiseEvents"> Whether AddingIPBan and AddedIPBan events should be raised. </param>
-        public static void BanIP( [NotNull] this IPAddress targetAddress, [NotNull] Player player, [NotNull] string reason,
+        public static void BanIP( [NotNull] this IPAddress targetAddress, [NotNull] Player player, [CanBeNull] string reason,
                                   bool announce, bool raiseEvents ) {
             if( targetAddress == null ) throw new ArgumentNullException( "targetAddress" );
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( reason == null ) throw new ArgumentNullException( "reason" );
+            if( reason != null && reason.Trim().Length == 0 ) reason = null;
 
             // Check if player can ban IPs in general
             if( !player.Can( Permission.Ban, Permission.BanIP ) ) {
@@ -270,22 +270,22 @@ namespace fCraft {
 
             if( result ) {
                 Logger.Log( LogType.UserActivity,
-                            "{0} banned {1}. Reason: {2}",
-                            player.Name, targetAddress, reason );
+                            "{0} banned {1} (BanIP {1}). Reason: {2}",
+                            player.Name, targetAddress, reason ?? "" );
                 if( announce ) {
                     // Announce ban on the server
                     var can = Server.Players.Can( Permission.ViewPlayerIPs );
                     can.Message( "&W{0} was banned by {1}", targetAddress, player.ClassyName );
                     var cant = Server.Players.Cant( Permission.ViewPlayerIPs );
                     cant.Message( "&WAn IP was banned by {0}", player.ClassyName );
-                    if( ConfigKey.AnnounceKickAndBanReasons.Enabled() && reason.Length > 0 ) {
+                    if( ConfigKey.AnnounceKickAndBanReasons.Enabled() && reason != null ) {
                         Server.Message( "&WBanIP reason: {0}", reason );
                     }
                 }
 
                 // Kick all players connected from address
                 string kickReason;
-                if( reason.Length > 0 ) {
+                if( reason != null ) {
                     kickReason = String.Format( "IP-Banned by {0}: {1}", player.Name, reason );
                 } else {
                     kickReason = String.Format( "IP-Banned by {0}", player.Name );
@@ -317,11 +317,11 @@ namespace fCraft {
         /// <param name="reason"> Reason for unban. May be empty, if permitted by server configuration. </param>
         /// <param name="announce"> Whether unban should be publicly announced on the server. </param>
         /// <param name="raiseEvents"> Whether RemovingIPBan and RemovedIPBan events should be raised. </param>
-        public static void UnbanIP( [NotNull] this IPAddress targetAddress, [NotNull] Player player, [NotNull] string reason,
+        public static void UnbanIP( [NotNull] this IPAddress targetAddress, [NotNull] Player player, [CanBeNull] string reason,
                                     bool announce, bool raiseEvents ) {
             if( targetAddress == null ) throw new ArgumentNullException( "targetAddress" );
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( reason == null ) throw new ArgumentNullException( "reason" );
+            if( reason != null && reason.Trim().Length == 0 ) reason = null;
 
             // Check if player can unban IPs in general
             if( !player.Can( Permission.Ban, Permission.BanIP ) ) {
@@ -345,14 +345,14 @@ namespace fCraft {
 
             if( result ) {
                 Logger.Log( LogType.UserActivity,
-                            "{0} unbanned {1}. Reason: {2}",
-                            player.Name, targetAddress, reason );
+                            "{0} unbanned {1} (UnbanIP {1}). Reason: {2}",
+                            player.Name, targetAddress, reason ?? "" );
                 if( announce ) {
                     var can = Server.Players.Can( Permission.ViewPlayerIPs );
                     can.Message( "&W{0} was unbanned by {1}", targetAddress, player.ClassyName );
                     var cant = Server.Players.Cant( Permission.ViewPlayerIPs );
                     cant.Message( "&WAn IP was unbanned by {0}", player.ClassyName );
-                    if( ConfigKey.AnnounceKickAndBanReasons.Enabled() && reason.Length > 0 ) {
+                    if( ConfigKey.AnnounceKickAndBanReasons.Enabled() && reason != null ) {
                         Server.Message( "&WUnbanIP reason: {0}", reason );
                     }
                 }
@@ -376,11 +376,11 @@ namespace fCraft {
         /// <param name="reason"> Reason for ban. May be empty, if permitted by server configuration. </param>
         /// <param name="announce"> Whether ban should be publicly announced on the server. </param>
         /// <param name="raiseEvents"> Whether AddingIPBan, AddedIPBan, BanChanging, and BanChanged events should be raised. </param>
-        public static void BanAll( [NotNull] this IPAddress targetAddress, [NotNull] Player player, [NotNull] string reason,
+        public static void BanAll( [NotNull] this IPAddress targetAddress, [NotNull] Player player, [CanBeNull] string reason,
                                    bool announce, bool raiseEvents ) {
             if( targetAddress == null ) throw new ArgumentNullException( "targetAddress" );
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( reason == null ) throw new ArgumentNullException( "reason" );
+            if( reason != null && reason.Trim().Length == 0 ) reason = null;
 
             if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
                 PlayerOpException.ThrowPermissionMissing( player, null, "ban-all",
@@ -412,8 +412,8 @@ namespace fCraft {
                 IPBanInfo banInfo = new IPBanInfo( targetAddress, null, player.Name, reason );
                 if( Add( banInfo, raiseEvents ) ) {
                     Logger.Log( LogType.UserActivity,
-                                "{0} banned {1} (BanAll). Reason: {2}",
-                                player.Name, targetAddress, reason );
+                                "{0} banned {1} (BanAll {1}). Reason: {2}",
+                                player.Name, targetAddress, reason ?? "" );
 
                     // Announce ban on the server
                     if( announce ) {
@@ -446,8 +446,8 @@ namespace fCraft {
 
                     // Log and announce ban
                     Logger.Log( LogType.UserActivity,
-                                "{0} was banned by {1} (BanAll). Reason: {2}",
-                                targetAlt.Name, player.Name, reason );
+                                "{0} banned {1} (BanAll {2}). Reason: {3}",
+                                player.Name, targetAlt.Name, targetAddress, reason ?? "" );
                     if( announce ) {
                         Server.Message( "&WPlayer {0}&W was banned by {1}&W (BanAll)",
                                         targetAlt.ClassyName, player.ClassyName );
@@ -462,7 +462,7 @@ namespace fCraft {
             }
 
             // Announce BanAll reason towards the end of all bans
-            if( announce && ConfigKey.AnnounceKickAndBanReasons.Enabled() && reason.Length > 0 ) {
+            if( announce && ConfigKey.AnnounceKickAndBanReasons.Enabled() && reason != null ) {
                 Server.Message( "&WBanAll reason: {0}", reason );
             }
 
@@ -470,7 +470,7 @@ namespace fCraft {
             Player[] targetsOnline = Server.Players.FromIP( targetAddress ).ToArray();
             if( targetsOnline.Length > 0 ) {
                 string kickReason;
-                if( reason.Length > 0 ) {
+                if( reason != null ) {
                     kickReason = String.Format( "Banned by {0}: {1}", player.Name, reason );
                 } else {
                     kickReason = String.Format( "Banned by {0}", player.Name );
@@ -485,14 +485,14 @@ namespace fCraft {
         /// <summary> Unbans given IP address and all accounts on that IP. Throws PlayerOpException on problems. </summary>
         /// <param name="targetAddress"> IP address that is being unbanned. </param>
         /// <param name="player"> Player who is unbanning. </param>
-        /// <param name="reason"> Reason for unban. May be empty, if permitted by server configuration. </param>
+        /// <param name="reason"> Reason for unban. May be null or empty, if permitted by server configuration. </param>
         /// <param name="announce"> Whether unban should be publicly announced on the server. </param>
         /// <param name="raiseEvents"> Whether RemovingIPBan, RemovedIPBan, BanChanging, and BanChanged events should be raised. </param>
-        public static void UnbanAll( [NotNull] this IPAddress targetAddress, [NotNull] Player player, [NotNull] string reason,
+        public static void UnbanAll( [NotNull] this IPAddress targetAddress, [NotNull] Player player, [CanBeNull] string reason,
                                      bool announce, bool raiseEvents ) {
             if( targetAddress == null ) throw new ArgumentNullException( "targetAddress" );
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( reason == null ) throw new ArgumentNullException( "reason" );
+            if( reason != null && reason.Trim().Length == 0 ) reason = null;
 
             if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
                 PlayerOpException.ThrowPermissionMissing( player, null, "unban-all",
@@ -516,8 +516,8 @@ namespace fCraft {
             if( Contains( targetAddress ) ) {
                 if( Remove( targetAddress, raiseEvents ) ) {
                     Logger.Log( LogType.UserActivity,
-                                "{0} unbanned {1} (UnbanAll). Reason: {2}",
-                                player.Name, targetAddress, reason );
+                                "{0} unbanned {1} (UnbanAll {1}). Reason: {2}",
+                                player.Name, targetAddress, reason ?? "" );
 
                     // Announce unban on the server
                     if( announce ) {
@@ -552,8 +552,8 @@ namespace fCraft {
 
                     // Log and announce ban
                     Logger.Log( LogType.UserActivity,
-                                "{0} was unbanned by {1} (UnbanAll). Reason: {2}",
-                                targetAlt.Name, player.Name, reason );
+                                "{0} unbanned {1} (UnbanAll {2}). Reason: {3}",
+                                player.Name, targetAlt.Name, targetAddress, reason ?? "" );
                     if( announce ) {
                         Server.Message( "&WPlayer {0}&W was unbanned by {1}&W (UnbanAll)",
                                         targetAlt.ClassyName, player.ClassyName );
@@ -568,7 +568,7 @@ namespace fCraft {
             }
 
             // Announce UnbanAll reason towards the end of all unbans
-            if( announce && ConfigKey.AnnounceKickAndBanReasons.Enabled() && reason.Length > 0 ) {
+            if( announce && ConfigKey.AnnounceKickAndBanReasons.Enabled() && reason != null ) {
                 Server.Message( "&WUnbanAll reason: {0}", reason );
             }
         }
@@ -629,11 +629,18 @@ namespace fCraft {
     public sealed class IPBanInfo {
         public const int FieldCount = 8;
 
+        [NotNull]
         public IPAddress Address;
+
+        [NotNull] 
         public string BannedBy;
         public DateTime BanDate;
+
+        [CanBeNull]
         public string BanReason;
-        public string PlayerName = "";
+
+        [CanBeNull]
+        public string PlayerName;
 
         public int Attempts;
         public string LastAttemptName;
@@ -643,10 +650,10 @@ namespace fCraft {
         IPBanInfo() { }
 
 
-        public IPBanInfo( [NotNull] IPAddress address, string playerName, [NotNull] string bannedBy, [NotNull] string banReason ) {
+        public IPBanInfo( [NotNull] IPAddress address, [CanBeNull] string playerName,
+                          [NotNull] string bannedBy, [CanBeNull] string banReason ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             if( bannedBy == null ) throw new ArgumentNullException( "bannedBy" );
-            if( banReason == null ) throw new ArgumentNullException( "banReason" );
             Address = address;
             BannedBy = bannedBy;
             BanDate = DateTime.UtcNow;

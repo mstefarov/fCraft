@@ -321,7 +321,7 @@ namespace fCraft.Drawing {
 }
 
 namespace fCraft.Events {
-    public class DrawOperationEventArgs : EventArgs{
+    public sealed class DrawOperationEventArgs : EventArgs{
         public DrawOperationEventArgs( DrawOperation drawOp ) {
             DrawOp = drawOp;
         }
@@ -329,7 +329,7 @@ namespace fCraft.Events {
     }
 
 
-    public class DrawOperationBeginningEventArgs : EventArgs, ICancellableEvent {
+    public sealed class DrawOperationBeginningEventArgs : EventArgs, ICancellableEvent {
         public DrawOperationBeginningEventArgs( DrawOperation drawOp ) {
             DrawOp = drawOp;
         }

@@ -564,10 +564,28 @@ namespace fCraft {
                 Logger.Log( LogType.SuspiciousActivity,
                             "Banned player {0} tried to log in from {1}",
                             Name, IP );
-                string bannedMessage = String.Format( "Banned {0} ago by {1}: {2}",
-                                                      Info.TimeSinceBan.ToMiniString(),
-                                                      Info.BannedBy,
-                                                      Info.BanReason );
+                string bannedMessage;
+                if( Info.BannedBy != null ) {
+                    if( Info.BanReason != null ) {
+                        bannedMessage = String.Format( "Banned {0} ago by {1}: {2}",
+                                                       Info.TimeSinceBan.ToMiniString(),
+                                                       Info.BannedBy,
+                                                       Info.BanReason );
+                    } else {
+                        bannedMessage = String.Format( "Banned {0} ago by {1}",
+                                                       Info.TimeSinceBan.ToMiniString(),
+                                                       Info.BannedBy );
+                    }
+                } else {
+                    if( Info.BanReason != null ) {
+                        bannedMessage = String.Format( "Banned {0} ago: {1}",
+                                                       Info.TimeSinceBan.ToMiniString(),
+                                                       Info.BanReason );
+                    } else {
+                        bannedMessage = String.Format( "Banned {0} ago",
+                                                       Info.TimeSinceBan.ToMiniString() );
+                    }
+                }
                 KickNow( bannedMessage, LeaveReason.LoginFailed );
                 return false;
             }
