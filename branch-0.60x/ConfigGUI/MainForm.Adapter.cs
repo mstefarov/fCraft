@@ -70,6 +70,10 @@ namespace fCraft.ConfigGUI {
             try {
                 XDocument doc = XDocument.Load( Paths.WorldListFileName );
                 XElement root = doc.Root;
+                if( root == null ) {
+                    MessageBox.Show( "Worlds.xml is empty or corrupted." );
+                    return;
+                }
 
                 string errorLog = "";
                 using( LogRecorder logRecorder = new LogRecorder() ) {
@@ -438,7 +442,7 @@ namespace fCraft.ConfigGUI {
             if( cDefaultRank.SelectedIndex == 0 ) {
                 ConfigKey.DefaultRank.TrySetValue( "" );
             } else {
-                ConfigKey.DefaultRank.TrySetValue( RankManager.FindRank( cDefaultRank.SelectedIndex - 1 ).FullName );
+                ConfigKey.DefaultRank.TrySetValue( RankManager.DefaultRank.FullName );
             }
             ConfigKey.IsPublic.TrySetValue( cPublic.SelectedIndex == 0 );
             ConfigKey.Port.TrySetValue( nPort.Value );
@@ -479,7 +483,7 @@ namespace fCraft.ConfigGUI {
             if( cDefaultBuildRank.SelectedIndex == 0 ) {
                 ConfigKey.DefaultBuildRank.TrySetValue( "" );
             } else {
-                ConfigKey.DefaultBuildRank.TrySetValue( RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 ).FullName );
+                ConfigKey.DefaultBuildRank.TrySetValue( RankManager.DefaultBuildRank.FullName );
             }
 
             if( xMapPath.Checked ) ConfigKey.MapPath.TrySetValue( tMapPath.Text );
