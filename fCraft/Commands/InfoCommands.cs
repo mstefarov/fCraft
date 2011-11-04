@@ -490,7 +490,7 @@ namespace fCraft {
                                         banInfo.LastAttemptNameClassy );
                     }
                     if( banInfo.BanReason != null ) {
-                        player.Message( "  Ban reason: {0}", info.BanReason );
+                        player.Message( "  Ban reason: {0}", banInfo.BanReason );
                     }
                 } else {
                     player.Message( "{0} is currently NOT banned.", address );
