@@ -113,7 +113,7 @@ namespace fCraft.ServerGUI {
             }
             logBox.SelectionStart = logBox.Text.Length;
             logBox.ScrollToCaret();
-            Refresh();
+            logBox.Refresh();
         }
 
 

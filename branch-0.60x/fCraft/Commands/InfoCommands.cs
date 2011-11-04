@@ -472,19 +472,20 @@ namespace fCraft {
             if( Server.IsIP( name ) && IPAddress.TryParse( name, out address ) ) {
                 IPBanInfo info = IPBanList.Get( address );
                 if( info != null ) {
-                    player.Message( "{0} was banned by {1} on {2:dd MMM yyyy}.",
+                    player.Message( "{0} was banned by {1}&S on {2:dd MMM yyyy} ({3} ago)",
                                     info.Address,
-                                    info.BannedBy,
-                                    info.BanDate );
+                                    info.BannedByClassy,
+                                    info.BanDate,
+                                    info.TimeSinceLastAttempt );
                     if( !String.IsNullOrEmpty( info.PlayerName ) ) {
-                        player.Message( "  IP ban was banned by association with {0}",
-                                        info.PlayerName );
+                        player.Message( "  Banned by association with {0}",
+                                        info.PlayerNameClassy );
                     }
                     if( info.Attempts > 0 ) {
-                        player.Message( "  There have been {0} attempts to log in, most recently", info.Attempts );
-                        player.Message( "  on {0:dd MMM yyyy} by {1}.",
-                                        info.LastAttemptDate,
-                                        info.LastAttemptName );
+                        player.Message( "  There have been {0} attempts to log in, most recently {1} ago by {2}",
+                                        info.Attempts,
+                                        info.TimeSinceLastAttempt.ToMiniString(),
+                                        info.LastAttemptNameClassy );
                     }
                     if( info.BanReason != null ) {
                         player.Message( "  Ban reason: {0}", info.BanReason );
@@ -501,7 +502,7 @@ namespace fCraft {
                 switch( info.BanStatus ) {
                     case BanStatus.Banned:
                         if( ipBan != null ) {
-                            player.Message( "Player {0}&S and their IP are &CBANNED&S.", info.ClassyName );
+                            player.Message( "Player {0}&S and their IP are &CBANNED", info.ClassyName );
                         } else {
                             player.Message( "Player {0}&S is &CBANNED&S (but their IP is not).", info.ClassyName );
                         }
@@ -530,7 +531,10 @@ namespace fCraft {
                     if( info.BanReason != null ) {
                         player.Message( "  Last ban reason: {0}", info.BanReason );
                     }
+                } else {
+                    player.Message( "No past bans on record." );
                 }
+
                 if( info.UnbanDate != DateTime.MinValue && !info.IsBanned ) {
                     player.Message( "  Unbanned by {0}&S on {1:dd MMM yyyy} ({2} ago).",
                                     info.UnbannedByClassy,
@@ -540,15 +544,18 @@ namespace fCraft {
                         player.Message( "  Last unban reason: {0}", info.UnbanReason );
                     }
                 }
+
                 if( info.BanDate != DateTime.MinValue ) {
                     TimeSpan banDuration;
                     if( info.IsBanned ) {
                         banDuration = info.TimeSinceBan;
+                        player.Message( "  Ban duration: {0} so far",
+                                        banDuration.ToMiniString() );
                     } else {
                         banDuration = info.UnbanDate.Subtract( info.BanDate );
+                        player.Message( "  Previous ban's duration: {0}",
+                                        banDuration.ToMiniString() );
                     }
-                    player.Message( "  Last ban duration: {0}",
-                                    banDuration.ToMiniString() );
                 }
             }
         }
