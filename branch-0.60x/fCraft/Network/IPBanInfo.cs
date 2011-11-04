@@ -3,34 +3,43 @@ using System.Net;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> IP ban record. </summary>
     public sealed class IPBanInfo {
         public const int FieldCount = 8;
 
+        /// <summary> Banned IP address. </summary>
         [NotNull]
-        public IPAddress Address;
+        public IPAddress Address { get; private set; }
 
-        [NotNull] 
-        public string BannedBy;
+        /// <summary> Name of the player or entity who banned this player. </summary>
+        [NotNull]
+        public string BannedBy { get; private set; }
 
+        /// <summary> Date/time (UTC) when the ban was issued. </summary>
         public DateTime BanDate;
 
+        /// <summary> Reason/memo for the ban. May be null. </summary>
         [CanBeNull]
-        public string BanReason;
+        public string BanReason { get; private set; }
 
+        /// <summary> Name of the player associted with this IP (if given at the time of banning). May be null. </summary>
         [CanBeNull]
-        public string PlayerName;
+        public string PlayerName { get; private set; }
 
+        /// <summary> Login attempts from this IP. </summary>
         public int Attempts;
 
-        public string LastAttemptName;
+        /// <summary> Name of the player who attempted to log in from this banned IP most recently. </summary>
+        public string LastAttemptName { get; private set; }
 
+        /// <summary> Date/time (UTC) of the most recent login attempt. </summary>
         public DateTime LastAttemptDate;
 
 
         IPBanInfo() { }
 
 
-        public IPBanInfo( [NotNull] IPAddress address, [CanBeNull] string playerName,
+        internal IPBanInfo( [NotNull] IPAddress address, [CanBeNull] string playerName,
                           [NotNull] string bannedBy, [CanBeNull] string banReason ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             if( bannedBy == null ) throw new ArgumentNullException( "bannedBy" );
@@ -44,7 +53,7 @@ namespace fCraft {
         }
 
 
-        public static IPBanInfo LoadFormat2( [NotNull] string[] fields ) {
+        internal static IPBanInfo LoadFormat2( [NotNull] string[] fields ) {
             if( fields == null ) throw new ArgumentNullException( "fields" );
             if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
             IPBanInfo info = new IPBanInfo {
@@ -68,7 +77,7 @@ namespace fCraft {
         }
 
 
-        public static IPBanInfo LoadFormat1( [NotNull] string[] fields ) {
+        internal static IPBanInfo LoadFormat1( [NotNull] string[] fields ) {
             if( fields == null ) throw new ArgumentNullException( "fields" );
             if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
             IPBanInfo info = new IPBanInfo {
@@ -92,7 +101,7 @@ namespace fCraft {
         }
 
 
-        public static IPBanInfo LoadFormat0( [NotNull] string[] fields, bool convertDatesToUtc ) {
+        internal static IPBanInfo LoadFormat0( [NotNull] string[] fields, bool convertDatesToUtc ) {
             if( fields == null ) throw new ArgumentNullException( "fields" );
             if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
             IPBanInfo info = new IPBanInfo {
@@ -119,7 +128,7 @@ namespace fCraft {
         }
 
 
-        public string Serialize() {
+        internal string Serialize() {
             string[] fields = new string[FieldCount];
 
             fields[0] = Address.ToString();
@@ -135,7 +144,7 @@ namespace fCraft {
         }
 
 
-        public void ProcessAttempt( [NotNull] Player player ) {
+        internal void ProcessAttempt( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Attempts++;
             LastAttemptDate = DateTime.UtcNow;
