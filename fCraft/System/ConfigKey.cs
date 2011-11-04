@@ -16,7 +16,8 @@ official server list (if server is public).",
 
         [StringKey( ConfigSection.General, "Welcome to the server!",
 @"MOTD (Message Of The Day) is a message shown to connecting players 
-right under the server name. It may be left blank.",
+right under the server name. May be left blank.
+Note: If WoM extensions are enabled, non-WoM users will not see this.",
             MinLength = 0, MaxLength = 64 )]
         MOTD,
 
@@ -55,7 +56,7 @@ changes if your computer's IP or server's port change." )]
         [IntKey( ConfigSection.General, 25565,
 @"Port number on your local machine that fCraft uses to listen for
 incoming connections. If you are behind a router, you may need
-to set up port forwarding. You may also need to add a firewall 
+to set up port forwarding. You may also need to add a firewall
 exception for ServerGUI/ServerCLI/ConfigGUI. Note that your
 server's URL will change if you change the port number.",
             MinValue = 1, MaxValue = 65535 )]
@@ -67,10 +68,6 @@ is used to pace drawing commands to prevent server from
 overwhelming the Internet connection with data.",
             MinValue = 1, MaxValue = short.MaxValue )]
         UploadBandwidth,
-
-        [BoolKey( ConfigSection.General, false,
-@"Whether to load plugins from the /plugins/ folder on startup." )]
-        LoadPlugins,
 
         #endregion
 
@@ -145,8 +142,8 @@ Announcements are shown to all players, one line at a time, in random order.",
         #region Worlds
 
         [RankKey( ConfigSection.Worlds, RankKeyAttribute.BlankValueMeaning.DefaultRank,
-@"When new maps are loaded with the /WLoad command,
-the build permission for new maps will default to this rank." )]
+@"When new worlds are created with the /WLoad command,
+the build permission for new worlds will default to this rank." )]
         DefaultBuildRank,
 
         [StringKey( ConfigSection.Worlds, "maps",
@@ -171,8 +168,7 @@ No verification is dangerous, and may allow players to impersonate others." )]
         [IntKey( ConfigSection.Security, 0,
 @"Restricts the number of connections allowed from any one IP address.
 Note that all players on the same LAN will share an IP, and may be prevented
-from joining together. Enabling this option is not recommended unless there
-is a specific need/threat.",
+from joining together.",
             MinValue = 0 )]
         MaxConnectionsPerIP,
 
@@ -183,32 +179,32 @@ Warning: Unverified players can log in with ANY name - even as you!" )]
         AllowUnverifiedLAN,
 
         [RankKey( ConfigSection.Security, RankKeyAttribute.BlankValueMeaning.DefaultRank,
-@"When players use the /Patrol command, they will be  teleported
+@"When players use /Patrol or /SpecPatrol commands, they will be teleported
 to players of this (or lower) rank. ""Patrolling"" means teleporting
 to other players to check on them, usually while hidden." )]
         PatrolledRank,
 
         [IntKey( ConfigSection.Security, 4,
-@"Number of messages that a player needs to type to trigger the antispam warning.
-Set this to 0 to disable antispam.",
+@"Number of messages that a player needs to type to trigger the AntiSpam warning.
+Set this to 0 to disable AntiSpam.",
             AlwaysAllowZero = true, MinValue = 2, MaxValue = 64 )]
         AntispamMessageCount,
 
         [IntKey( ConfigSection.Security, 5,
-@"Number of seconds over which the player needs to type messages to trigger antispam warning.
-Set this to 0 to disable antispam.",
+@"Number of seconds over which the player needs to type messages to trigger AntiSpam warning.
+Set this to 0 to disable AntiSpam.",
             AlwaysAllowZero = true, MinValue = 1, MaxValue = 64 )]
         AntispamInterval,
 
         [IntKey( ConfigSection.Security, 5,
-@"Duration of automatic mute if Antispam is triggered, in seconds.
+@"Duration of automatic mute if AntiSpam is triggered, in seconds.
 Set this to 0 to disable automatic mute (and only leave the warning).",
             MinValue = 0, MaxValue = 86400 )]
         AntispamMuteDuration,
 
         [IntKey( ConfigSection.Security, 2,
-@"Number of warnings given to a player (number of times antispam is triggered)
-before the player is muted. Set this to 0 to disable automatic kicks.",
+@"Number of warnings given to a player (number of times AntiSpam is triggered)
+before the player is kicked. Set this to 0 to disable automatic kicks.",
             AlwaysAllowZero = true, MinValue = 0, MaxValue = 64 )]
         AntispamMaxWarnings,
 
@@ -245,7 +241,7 @@ but will also prevent many legitimate players from joining." )]
 @"Announce the reason/memo in chat when someone gets promoted or demoted." )]
         AnnounceRankChangeReasons,
 
-        [BoolKey( ConfigSection.Security, false,
+        [BoolKey( ConfigSection.Security, true,
 @"If enabled, allows edit information to be stored per-block. Enables /BlockDB, /BInfo, /UndoArea, and /UndoPlayer commands." )]
         BlockDBEnabled,
 
