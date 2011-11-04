@@ -23,7 +23,7 @@ namespace fCraft {
         /// <summary> Secret string used to verify players' names.
         /// Randomly generated at startup.
         /// Known only to this server and to heartbeat servers. </summary>
-        public static string Salt { get; private set; }
+        public static string Salt { get; internal set; }
 
 
         static Heartbeat() {

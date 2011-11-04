@@ -927,9 +927,11 @@ namespace fCraft {
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.ReloadConfig },
             IsConsoleSafe = true,
-            Usage = "/Reload config&S or &H/Reload autorank",
-            Help = "Reloads a given configuration file. Note that changes to ranks " +
-                   "and IRC settings still require a full restart.",
+            Usage = "/Reload config/autorank/salt",
+            Help = "Reloads a given configuration file or setting. "+
+                   "Config note: changes to ranks and IRC settings still require a full restart. "+
+                   "Salt note: Until server synchronizes with Minecraft.net, " +
+                   "connecting players may have trouble verifying names.",
             Handler = ReloadHandler
         };
 
@@ -949,8 +951,16 @@ namespace fCraft {
                     case "config":
                         success = Config.Load( true, true );
                         break;
+
                     case "autorank":
                         success = AutoRankManager.Init();
+                        break;
+
+                    case "salt":
+                        Heartbeat.Salt = Server.GetRandomString( 32 );
+                        player.Message( "&WNote: Until server synchronizes with Minecraft.net, " +
+                                        "connecting players may have trouble verifying names." );
+                        success = true;
                         break;
 
                     default:
