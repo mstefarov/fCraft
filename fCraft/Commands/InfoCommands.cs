@@ -300,7 +300,7 @@ namespace fCraft {
             }
 
 
-            if( info.LastIP.ToString() != IPAddress.None.ToString() ) {
+            if( !info.LastIP.Equals( IPAddress.None ) ) {
                 // Show alts
                 List<PlayerInfo> altNames = new List<PlayerInfo>();
                 int bannedAltCount = 0;
@@ -317,13 +317,13 @@ namespace fCraft {
                     if( altNames.Count > MaxAltsToPrint ) {
                         if( bannedAltCount > 0 ) {
                             player.MessagePrefixed( "&S  ",
-                                                    "&S  Over {0} accounts ({1} banned) on IP: {2} etc",
+                                                    "&S  Over {0} accounts ({1} banned) on IP: {2} &Setc",
                                                     MaxAltsToPrint,
                                                     bannedAltCount,
                                                     altNames.Take( 15 ).ToArray().JoinToClassyString() );
                         } else {
                             player.MessagePrefixed( "&S  ",
-                                                    "&S  Over {0} accounts on IP: {1} etc",
+                                                    "&S  Over {0} accounts on IP: {1} &Setc",
                                                     MaxAltsToPrint,
                                                     altNames.Take( 15 ).ToArray().JoinToClassyString() );
                         }
@@ -426,7 +426,7 @@ namespace fCraft {
                 }
             }
 
-            if( info.LastIP.ToString() != IPAddress.None.ToString() ) {
+            if( !info.LastIP.Equals( IPAddress.None ) ) {
                 // Time on the server
                 TimeSpan totalTime = info.TotalTime;
                 if( target != null ) {
@@ -462,6 +462,8 @@ namespace fCraft {
             }
 
             IPAddress address;
+            PlayerInfo info = null;
+
             if( name == null ) {
                 name = player.Name;
             } else if( !player.Can( Permission.ViewOthersInfo ) ) {
@@ -470,24 +472,24 @@ namespace fCraft {
             }
 
             if( Server.IsIP( name ) && IPAddress.TryParse( name, out address ) ) {
-                IPBanInfo info = IPBanList.Get( address );
-                if( info != null ) {
+                IPBanInfo banInfo = IPBanList.Get( address );
+                if( banInfo != null ) {
                     player.Message( "{0} was banned by {1}&S on {2:dd MMM yyyy} ({3} ago)",
-                                    info.Address,
-                                    info.BannedByClassy,
-                                    info.BanDate,
-                                    info.TimeSinceLastAttempt );
-                    if( !String.IsNullOrEmpty( info.PlayerName ) ) {
+                                    banInfo.Address,
+                                    banInfo.BannedByClassy,
+                                    banInfo.BanDate,
+                                    banInfo.TimeSinceLastAttempt );
+                    if( !String.IsNullOrEmpty( banInfo.PlayerName ) ) {
                         player.Message( "  Banned by association with {0}",
-                                        info.PlayerNameClassy );
+                                        banInfo.PlayerNameClassy );
                     }
-                    if( info.Attempts > 0 ) {
+                    if( banInfo.Attempts > 0 ) {
                         player.Message( "  There have been {0} attempts to log in, most recently {1} ago by {2}",
-                                        info.Attempts,
-                                        info.TimeSinceLastAttempt.ToMiniString(),
-                                        info.LastAttemptNameClassy );
+                                        banInfo.Attempts,
+                                        banInfo.TimeSinceLastAttempt.ToMiniString(),
+                                        banInfo.LastAttemptNameClassy );
                     }
-                    if( info.BanReason != null ) {
+                    if( banInfo.BanReason != null ) {
                         player.Message( "  Ban reason: {0}", info.BanReason );
                     }
                 } else {
@@ -495,8 +497,10 @@ namespace fCraft {
                 }
 
             } else {
-                PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
+                info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
                 if( info == null ) return;
+
+                address = info.LastIP;
 
                 IPBanInfo ipBan = IPBanList.Get( info.LastIP );
                 switch( info.BanStatus ) {
@@ -555,6 +559,48 @@ namespace fCraft {
                         banDuration = info.UnbanDate.Subtract( info.BanDate );
                         player.Message( "  Previous ban's duration: {0}",
                                         banDuration.ToMiniString() );
+                    }
+                }
+            }
+
+            // Show alts
+            List<PlayerInfo> altNames = new List<PlayerInfo>();
+            int bannedAltCount = 0;
+            foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( address ) ) {
+                if( playerFromSameIP == info ) continue;
+                altNames.Add( playerFromSameIP );
+                if( playerFromSameIP.IsBanned ) {
+                    bannedAltCount++;
+                }
+            }
+
+            if( altNames.Count > 0 ) {
+                altNames.Sort( new PlayerInfoComparer( player ) );
+                if( altNames.Count > MaxAltsToPrint ) {
+                    if( bannedAltCount > 0 ) {
+                        player.MessagePrefixed( "&S  ",
+                                                "&S  Over {0} accounts ({1} banned) on IP: {2} &Setc",
+                                                MaxAltsToPrint,
+                                                bannedAltCount,
+                                                altNames.Take( 15 ).ToArray().JoinToClassyString() );
+                    } else {
+                        player.MessagePrefixed( "&S  ",
+                                                "&S  Over {0} accounts on IP: {1} &Setc",
+                                                MaxAltsToPrint,
+                                                altNames.Take( 15 ).ToArray().JoinToClassyString() );
+                    }
+                } else {
+                    if( bannedAltCount > 0 ) {
+                        player.MessagePrefixed( "&S  ",
+                                                "&S  {0} accounts ({1} banned) on IP: {2}",
+                                                altNames.Count,
+                                                bannedAltCount,
+                                                altNames.ToArray().JoinToClassyString() );
+                    } else {
+                        player.MessagePrefixed( "&S  ",
+                                                "&S  {0} accounts on IP: {1}",
+                                                altNames.Count,
+                                                altNames.ToArray().JoinToClassyString() );
                     }
                 }
             }
