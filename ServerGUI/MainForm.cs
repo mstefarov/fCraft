@@ -96,8 +96,7 @@ namespace fCraft.ServerGUI {
             try {
                 if( shutdownComplete ) return;
                 if( logBox.InvokeRequired ) {
-                    Invoke( (EventHandler<LogEventArgs>)OnLogged,
-                            sender, e );
+                    BeginInvoke( (EventHandler<LogEventArgs>)OnLogged, sender, e );
                 } else {
                     Log( e.Message );
                 }
@@ -114,6 +113,7 @@ namespace fCraft.ServerGUI {
             }
             logBox.SelectionStart = logBox.Text.Length;
             logBox.ScrollToCaret();
+            Refresh();
         }
 
 
@@ -121,7 +121,7 @@ namespace fCraft.ServerGUI {
             try {
                 if( shutdownPending ) return;
                 if( uriDisplay.InvokeRequired ) {
-                    Invoke( (EventHandler<UriChangedEventArgs>)OnHeartbeatUriChanged,
+                    BeginInvoke( (EventHandler<UriChangedEventArgs>)OnHeartbeatUriChanged,
                             sender, e );
                 } else {
                     uriDisplay.Text = e.NewUri.ToString();
@@ -137,7 +137,7 @@ namespace fCraft.ServerGUI {
             try {
                 if( shutdownPending ) return;
                 if( playerList.InvokeRequired ) {
-                    Invoke( (EventHandler)OnPlayerListChanged, null, EventArgs.Empty );
+                    BeginInvoke( (EventHandler)OnPlayerListChanged, null, EventArgs.Empty );
                 } else {
                     playerList.Items.Clear();
                     Player[] playerListCache = Server.Players.OrderBy( p => p.Info.Rank.Index ).ToArray();
@@ -152,7 +152,7 @@ namespace fCraft.ServerGUI {
 
         void OnServerShutdownEnded( object sender, ShutdownEventArgs e ) {
             try {
-                Invoke( (Action)delegate {
+                BeginInvoke( (Action)delegate {
                     shutdownComplete = true;
                     switch( e.ShutdownParams.Reason ) {
                         case ShutdownReason.FailedToInitialize:

@@ -728,11 +728,11 @@ namespace fCraft {
                                                      .Where( playerFromSameIP => playerFromSameIP.IsBanned )
                                                      .ToArray();
             if( bannedPlayerNames.Length > 0 ) {
-                string logString = String.Format( "&WPlayer {0}&W logged in from an IP shared by banned players: {1}",
-                                                  ClassyName,
-                                                  bannedPlayerNames.JoinToClassyString() );
-                canSee.Message( logString );
-                Logger.Log( LogType.SuspiciousActivity, logString );
+                canSee.Message( "&WPlayer {0}&W logged in from an IP shared by banned players: {1}",
+                                ClassyName, bannedPlayerNames.JoinToClassyString() );
+                Logger.Log( LogType.SuspiciousActivity,
+                            "Player {0} logged in from an IP shared by banned players: {1}",
+                                ClassyName, bannedPlayerNames.JoinToString( info => info.Name ) );
             }
 
             // check if player is still muted
