@@ -388,7 +388,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdBlockInfo = new CommandDescriptor {
             Name = "BInfo",
             Category = CommandCategory.World,
-            Aliases = new[] { "bi", "whodid" },
+            Aliases = new[] { "b", "bi", "whodid", "about" },
             Permissions = new[] { Permission.ViewOthersInfo },
             RepeatableSelection = true,
             Help = "Checks edit history for a given block.",
@@ -498,16 +498,21 @@ namespace fCraft {
                    "See &H/Help env <Variable>&S for details about each variable. " +
                    "Type &H/Env <WorldName> normal&S to reset everything for a world.",
             HelpSections = new Dictionary<string, string>{
-                { "normal",     "&H/Env <WorldName> normal\n&SResets all environment settings to their defaults for the given world." },
-                { "clouds",     "&H/Env <WorldName> clouds <Color>\n&SSets color of the clouds. Use \"normal\" instead of color to reset." },
-                { "fog",        "&H/Env <WorldName> fog <Color>\n&SSets color of the fog. " +
-                                "Sky color blends with fog color in the distance. Use \"normal\" instead of color to reset." },
-                { "sky",        "&H/Env <WorldName> sky <Color>\n&SSets color of the sky. " +
-                                "Sky color blends with fog color in the distance. Use \"normal\" instead of color to reset." },
-                { "level",      "&H/Env <WorldName> level <#>\n&SSets height of the map edges/water level, " +
-                                "in terms of blocks from the bottom of the map. " +
-                                "Use \"normal\" instead of a number to reset to default (halfway up the map)." },
-                { "edge",       "&H/Env <WorldName> edge <BlockType>\n&SChanges the type of block that's visible beyond the map boundaries. "+
+                { "normal",     "&H/Env <WorldName> normal\n&S" +
+                                "Resets all environment settings to their defaults for the given world." },
+                { "clouds",     "&H/Env <WorldName> clouds <Color>\n&S" +
+                                "Sets color of the clouds. Use \"normal\" instead of color to reset." },
+                { "fog",        "&H/Env <WorldName> fog <Color>\n&S" +
+                                "Sets color of the fog. Sky color blends with fog color in the distance. " +
+                                "Use \"normal\" instead of color to reset." },
+                { "sky",        "&H/Env <WorldName> sky <Color>\n&S" +
+                                "Sets color of the sky. Sky color blends with fog color in the distance. " +
+                                "Use \"normal\" instead of color to reset." },
+                { "level",      "&H/Env <WorldName> level <#>\n&S" +
+                                "Sets height of the map edges/water level, in terms of blocks from the bottom of the map. " +
+                                "Use \"normal\" instead of a number to reset to default (middle of the map)." },
+                { "edge",       "&H/Env <WorldName> edge <BlockType>\n&S" +
+                                "Changes the type of block that's visible beyond the map boundaries. "+
                                 "Use \"normal\" instead of a number to reset to default (water)." }
             },
             Usage = "/Env <WorldName> <Variable>",

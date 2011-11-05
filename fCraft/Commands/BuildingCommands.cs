@@ -465,7 +465,6 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdBind = new CommandDescriptor {
             Name = "Bind",
-            Aliases = new[] { "b" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Build },
             Help = "Assigns one blocktype to another. " +
