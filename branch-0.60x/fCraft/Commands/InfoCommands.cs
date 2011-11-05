@@ -886,10 +886,12 @@ namespace fCraft {
             return null;
         }
 
+        static object ruleLock = new object();
 
         static void PrintRuleFile( Player player, FileSystemInfo ruleFile ) {
             try {
-                foreach( string ruleLine in File.ReadAllLines( ruleFile.FullName ) ) {
+                string[] ruleLines = File.ReadAllLines( ruleFile.FullName );
+                foreach( string ruleLine in ruleLines ) {
                     if( ruleLine.Trim().Length > 0 ) {
                         player.Message( "&R{0}", Server.ReplaceTextKeywords( player, ruleLine ) );
                     }

@@ -470,7 +470,7 @@ namespace fCraft {
 
 
         FileStream OpenRead() {
-            return new FileStream( FileName, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize );
+            return new FileStream( FileName, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize, FileOptions.SequentialScan );
         }
 
 
