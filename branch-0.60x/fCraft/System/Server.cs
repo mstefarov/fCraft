@@ -1145,7 +1145,6 @@ namespace fCraft {
                     return null;
                 }
             }
-            player.LastUsedPlayerName = name;
             Player[] matches;
             if( includeHidden ) {
                 matches = FindPlayers( name, raiseEvent );

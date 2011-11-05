@@ -286,6 +286,15 @@ namespace fCraft {
                             messageText = Color.ReplacePercentCodes( messageText );
                         }
 
+                        if( otherPlayerName == "-" ) {
+                            if( LastUsedPlayerName != null ) {
+                                otherPlayerName = LastUsedPlayerName;
+                            } else {
+                                Message( "Cannot repeat player name: you haven't used any names yet." );
+                                return;
+                            }
+                        }
+
                         // first, find ALL players (visible and hidden)
                         Player[] allPlayers = Server.FindPlayers( otherPlayerName, true );
 
@@ -300,23 +309,27 @@ namespace fCraft {
                                 MessageNow( "Trying to talk to yourself?" );
                                 return;
                             }
-                            if( target.IsIgnoring( Info ) ) {
-                                if( CanSee( target ) ) {
-                                    MessageNow( "&WCannot PM {0}&W: you are ignored.", target.ClassyName );
-                                }
-                            } else if( target.IsDeaf ) {
-                                MessageNow( "&SCannot PM {0}&S: they are currently deaf.", target.ClassyName );
-                            } else {
+                            if( !target.IsIgnoring( Info ) && !target.IsDeaf ) {
                                 Chat.SendPM( this, target, messageText );
                                 SendToSpectators( "to {0}&F: {1}", target.ClassyName, messageText );
-                                if( !CanSee( target ) ) {
-                                    // message was sent to a hidden player
-                                    MessageNoPlayer( otherPlayerName );
+                            }
 
+                            if( !CanSee( target ) ) {
+                                // message was sent to a hidden player
+                                MessageNoPlayer( otherPlayerName );
+
+                            } else {
+                                // message was sent normally
+                                LastUsedPlayerName = target.Name;
+                                if( target.IsIgnoring( Info ) ) {
+                                    if( CanSee( target ) ) {
+                                        MessageNow( "&WCannot PM {0}&W: you are ignored.", target.ClassyName );
+                                    }
+                                } else if( target.IsDeaf ) {
+                                    MessageNow( "&SCannot PM {0}&S: they are currently deaf.", target.ClassyName );
                                 } else {
-                                    // message was sent normally
-                                    Message( "&Pto {0}: {1}",
-                                             target.Name, messageText );
+                                    MessageNow( "&Pto {0}: {1}",
+                                                target.Name, messageText );
                                 }
                             }
 
