@@ -70,7 +70,7 @@ namespace fCraft {
 
                 // Make sure that the name is not taken already.
                 // If a zone named after the player already exists, try adding a number after the name (e.g. "Notch2")
-                newZone.Name = givenZoneName;
+                newZone.Name = info.Name;
                 for( int i = 2; zoneCollection.Contains( newZone.Name ); i++ ) {
                     newZone.Name = givenZoneName + i;
                 }

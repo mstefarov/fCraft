@@ -61,6 +61,7 @@ namespace fCraft {
 
 
     public static class DateTimeUtil {
+        static readonly NumberFormatInfo NumberFormatter = CultureInfo.InvariantCulture.NumberFormat;
         public static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1, 0, 0, 0, DateTimeKind.Utc );
         public static readonly long TicksToUnixEpoch;
         const long TicksPerMillisecond = 10000;
@@ -89,7 +90,7 @@ namespace fCraft {
             if( date == DateTime.MinValue ) {
                 return "";
             } else {
-                return date.ToUnixTime().ToString();
+                return date.ToUnixTime().ToString( NumberFormatter );
             }
         }
 
@@ -148,8 +149,13 @@ namespace fCraft {
             if( time == TimeSpan.Zero ) {
                 return "";
             } else {
-                return (time.Ticks / TimeSpan.TicksPerSecond).ToString();
+                return (time.Ticks / TimeSpan.TicksPerSecond).ToString( NumberFormatter );
             }
+        }
+
+
+        public static long ToSeconds( this TimeSpan time ) {
+            return (time.Ticks / TimeSpan.TicksPerSecond);
         }
 
 
@@ -450,12 +456,10 @@ namespace fCraft {
             if( number >= 0 ) {
                 // 1.
                 copy = number % 10;
-                digit = copy / 1;
-                builder.Append( (char)(digit + 48) );
+                builder.Append( (char)(copy + 48) );
             }
             return builder;
         }
-
 
         // Quicker Int32.Parse(string) by Karl Seguin
         public static int Parse( [NotNull] string stringToConvert ) {
@@ -469,7 +473,6 @@ namespace fCraft {
             }
             return value;
         }
-
 
         // UppercaseFirst by Sam Allen of http://www.dotnetperls.com
         public static string UppercaseFirst( this string s ) {
