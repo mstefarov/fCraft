@@ -171,6 +171,8 @@ namespace fCraft {
 
         // Mapping of keys to their values
         static readonly string[] Settings;
+        static readonly bool[] SettingsEnabledCache; // cached .Enabled() calls
+        static readonly bool[] SettingsUseEnabledCache; // cached .Enabled() calls
 
         // Mapping of keys to their metadata containers.
         static readonly ConfigKeyAttribute[] KeyMetadata;
@@ -189,6 +191,8 @@ namespace fCraft {
         static Config() {
             int keyCount = Enum.GetValues( typeof( ConfigKey ) ).Length;
             Settings = new string[keyCount];
+            SettingsEnabledCache = new bool[keyCount];
+            SettingsUseEnabledCache = new bool[keyCount];
             KeyMetadata = new ConfigKeyAttribute[keyCount];
 
             // gather metadata for ConfigKeys
@@ -709,7 +713,11 @@ namespace fCraft {
         /// <summary> Attempts to parse given key's value as a boolean.
         /// Throws a FormatException on failure. </summary>
         public static bool Enabled( this ConfigKey key ) {
-            return Boolean.Parse( GetString( key ) );
+            if( SettingsUseEnabledCache[(int)key] ) {
+                return SettingsEnabledCache[(int)key];
+            } else {
+                return Boolean.Parse( GetString( key ) );
+            }
         }
 
 
@@ -718,7 +726,13 @@ namespace fCraft {
         /// <param name="result"> Will be set to the value on success, or to false on failure. </param>
         /// <returns> Whether parsing succeeded. </returns>
         public static bool TryGetBool( this ConfigKey key, out bool result ) {
-            return Boolean.TryParse( GetString( key ), out result );
+            if( SettingsUseEnabledCache[(int)key] ) {
+                result = SettingsEnabledCache[(int)key];
+                return true;
+            } else {
+                result = false;
+                return false;
+            }
         }
 
 
@@ -818,6 +832,16 @@ namespace fCraft {
             if( oldValue != newValue ) {
                 if( RaiseKeyChangingEvent( key, oldValue, ref newValue ) ) return false;
                 Settings[(int)key] = newValue;
+
+                bool enabledCache;
+                if( Boolean.TryParse( newValue, out enabledCache ) ) {
+                    SettingsUseEnabledCache[(int)key] = true;
+                    SettingsEnabledCache[(int)key] = enabledCache;
+                } else {
+                    SettingsUseEnabledCache[(int)key] = false;
+                    SettingsEnabledCache[(int)key] = false;
+                }
+
                 ApplyKeyChange( key );
                 RaiseKeyChangedEvent( key, oldValue, newValue );
             }
