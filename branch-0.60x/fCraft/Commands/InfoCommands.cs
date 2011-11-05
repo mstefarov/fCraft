@@ -49,7 +49,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdInfo = new CommandDescriptor {
             Name = "Info",
-            Aliases = new[] { "pinfo" },
+            Aliases = new[] { "whois", "whowas" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
@@ -886,7 +886,6 @@ namespace fCraft {
             return null;
         }
 
-        static object ruleLock = new object();
 
         static void PrintRuleFile( Player player, FileSystemInfo ruleFile ) {
             try {
