@@ -95,7 +95,7 @@ namespace fCraft {
             lock( SaveLoadLocker ) {
                 if( File.Exists( Paths.PlayerDBFileName ) ) {
                     Stopwatch sw = Stopwatch.StartNew();
-                    using( FileStream fs = new FileStream( Paths.PlayerDBFileName, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize ) ) {
+                    using( FileStream fs = OpenRead( Paths.PlayerDBFileName ) ) {
                         using( StreamReader reader = new StreamReader( fs, Encoding.UTF8, true, BufferSize ) ) {
 
                             string header = reader.ReadLine();
@@ -123,47 +123,47 @@ namespace fCraft {
 #if !DEBUG
                                         try {
 #endif
-                                            PlayerInfo info;
-                                            switch( version ) {
-                                                case 0:
-                                                    info = PlayerInfo.LoadFormat0( fields, true );
-                                                    break;
-                                                case 1:
-                                                    info = PlayerInfo.LoadFormat1( fields );
-                                                    break;
-                                                default:
-                                                    // Versions 2-5 differ in semantics only, not in actual serialization format.
-                                                    info = PlayerInfo.LoadFormat2( fields );
-                                                    break;
-                                            }
+                                        PlayerInfo info;
+                                        switch( version ) {
+                                            case 0:
+                                                info = PlayerInfo.LoadFormat0( fields, true );
+                                                break;
+                                            case 1:
+                                                info = PlayerInfo.LoadFormat1( fields );
+                                                break;
+                                            default:
+                                                // Versions 2-5 differ in semantics only, not in actual serialization format.
+                                                info = PlayerInfo.LoadFormat2( fields );
+                                                break;
+                                        }
 
-                                            if( info.ID > maxID ) {
-                                                maxID = info.ID;
-                                                Logger.Log( LogType.Warning, "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1})." );
-                                            }
+                                        if( info.ID > maxID ) {
+                                            maxID = info.ID;
+                                            Logger.Log( LogType.Warning, "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1})." );
+                                        }
 
-                                            // A record is considered "empty" if the player has never logged in.
-                                            // Empty records may be created by /Import, /Ban, and /Rank commands on typos.
-                                            // Deleting such records should have no negative impact on DB completeness.
-                                            if( (info.LastIP.Equals( IPAddress.None ) || info.LastIP.Equals( IPAddress.Any ) || info.TimesVisited == 0) &&
-                                                !info.IsBanned && info.Rank == RankManager.DefaultRank ) {
+                                        // A record is considered "empty" if the player has never logged in.
+                                        // Empty records may be created by /Import, /Ban, and /Rank commands on typos.
+                                        // Deleting such records should have no negative impact on DB completeness.
+                                        if( (info.LastIP.Equals( IPAddress.None ) || info.LastIP.Equals( IPAddress.Any ) || info.TimesVisited == 0) &&
+                                            !info.IsBanned && info.Rank == RankManager.DefaultRank ) {
 
-                                                Logger.Log( LogType.SystemActivity,
-                                                            "PlayerDB.Load: Skipping an empty record for player \"{0}\"",
-                                                            info.Name );
-                                                emptyRecords++;
-                                                continue;
-                                            }
+                                            Logger.Log( LogType.SystemActivity,
+                                                        "PlayerDB.Load: Skipping an empty record for player \"{0}\"",
+                                                        info.Name );
+                                            emptyRecords++;
+                                            continue;
+                                        }
 
-                                            // Check for duplicates. Unless PlayerDB.txt was altered externally, this does not happen.
-                                            if( Trie.ContainsKey( info.Name ) ) {
-                                                Logger.Log( LogType.Error,
-                                                            "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.",
-                                                            info.Name );
-                                            } else {
-                                                Trie.Add( info.Name, info );
-                                                list.Add( info );
-                                            }
+                                        // Check for duplicates. Unless PlayerDB.txt was altered externally, this does not happen.
+                                        if( Trie.ContainsKey( info.Name ) ) {
+                                            Logger.Log( LogType.Error,
+                                                        "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.",
+                                                        info.Name );
+                                        } else {
+                                            Trie.Add( info.Name, info );
+                                            list.Add( info );
+                                        }
 #if !DEBUG
                                         } catch( Exception ex ) {
                                             Logger.LogAndReportCrash( "Error while parsing PlayerInfo record",
@@ -261,7 +261,7 @@ namespace fCraft {
             lock( SaveLoadLocker ) {
                 PlayerInfo[] listCopy = PlayerInfoList;
                 Stopwatch sw = Stopwatch.StartNew();
-                using( FileStream fs = new FileStream( tempFileName, FileMode.Create, FileAccess.Write, FileShare.None, BufferSize ) ) {
+                using( FileStream fs = OpenWrite( tempFileName ) ) {
                     using( StreamWriter writer = new StreamWriter( fs, Encoding.UTF8, BufferSize ) ) {
                         writer.WriteLine( "{0} {1} {2}", maxID, FormatVersion, Header );
 
@@ -285,6 +285,16 @@ namespace fCraft {
                                 "PlayerDB.Save: An error occured while trying to save PlayerDB: {0}", ex );
                 }
             }
+        }
+
+
+        static FileStream OpenRead( string fileName ) {
+            return new FileStream( fileName, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize, FileOptions.SequentialScan );
+        }
+
+
+        static FileStream OpenWrite( string fileName ) {
+            return new FileStream( fileName, FileMode.Create, FileAccess.Write, FileShare.None, BufferSize );
         }
 
         #endregion

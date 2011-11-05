@@ -130,7 +130,12 @@ namespace fCraft {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( destination == null ) throw new ArgumentNullException( "destination" );
             if( File.Exists( destination ) ) {
-                File.Replace( source, destination, null, true );
+                if( Path.GetPathRoot( Path.GetFullPath( source ) ) == Path.GetPathRoot( Path.GetFullPath( destination ) ) ) {
+                    File.Replace( source, destination, null, true );
+                } else {
+                    File.Delete( destination );
+                    File.Move( source, destination );
+                }
             } else {
                 File.Move( source, destination );
             }
@@ -197,10 +202,10 @@ namespace fCraft {
             try {
                 new FileInfo( filename );
                 if( File.Exists( filename ) ) {
-                    if( neededAccess == FileAccess.Read || neededAccess == FileAccess.ReadWrite ) {
+                    if( (neededAccess & FileAccess.Read) == FileAccess.Read ) {
                         using( File.OpenRead( filename ) ) { }
                     }
-                    if( neededAccess == FileAccess.Write || neededAccess == FileAccess.ReadWrite ) {
+                    if( (neededAccess & FileAccess.Write) == FileAccess.Write ) {
                         using( File.OpenWrite( filename ) ) { }
                     }
                 } else if( createIfDoesNotExist ) {

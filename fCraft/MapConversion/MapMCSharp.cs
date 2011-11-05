@@ -163,10 +163,10 @@ namespace fCraft.MapConversion {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
-                    mapStream.Seek( 0, SeekOrigin.Begin );
-                    GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
-                    BinaryReader bs = new BinaryReader( gs );
-                    return (bs.ReadUInt16() == 0x752);
+                    using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
+                        BinaryReader bs = new BinaryReader( gs );
+                        return (bs.ReadUInt16() == 0x752);
+                    }
                 }
             } catch( Exception ) {
                 return false;

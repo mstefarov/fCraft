@@ -61,11 +61,11 @@ namespace fCraft.MapConversion {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
-                    mapStream.Seek( 0, SeekOrigin.Begin );
-                    GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress );
-                    BinaryReader bs = new BinaryReader( gs );
-                    byte version = bs.ReadByte();
-                    return (version == 1 || version == 2);
+                    using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
+                        BinaryReader bs = new BinaryReader( gs );
+                        byte version = bs.ReadByte();
+                        return (version == 1 || version == 2);
+                    }
                 }
             } catch( Exception ) {
                 return false;
