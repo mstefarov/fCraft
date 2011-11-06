@@ -451,8 +451,15 @@ namespace fCraft {
             }
 
             // Parse player name
+            if( name == "-" ) {
+                if( player.LastUsedPlayerName != null ) {
+                    name = player.LastUsedPlayerName;
+                } else {
+                    player.Message( "Cannot repeat player name: you haven't used any names yet." );
+                    return;
+                }
+            }
             PlayerInfo targetInfo = PlayerDB.FindPlayerInfoExact( name );
-            player.LastUsedPlayerName = name;
 
             if( targetInfo == null ) {
                 if( !player.Can( Permission.EditPlayerDB ) ) {
