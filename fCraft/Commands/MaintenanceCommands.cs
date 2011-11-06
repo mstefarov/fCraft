@@ -1305,7 +1305,7 @@ namespace fCraft {
                 return;
             }
 
-            string reason = "~Import from " + serverName;
+            string reason = "(Import from " + serverName + ")";
             foreach( string name in names ) {
                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
                                   PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );

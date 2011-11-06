@@ -1946,10 +1946,20 @@ namespace fCraft {
                     }
                 }
 
-                player.LastUsedWorldName = worldName;
+                // Retype world name, if needed
+                if( worldName == "-" ) {
+                    if( player.LastUsedWorldName != null ) {
+                        worldName = player.LastUsedWorldName;
+                    } else {
+                        player.Message( "Cannot repeat world name: you haven't used any names yet." );
+                        return;
+                    }
+                }
+
                 lock( WorldManager.SyncRoot ) {
                     World world = WorldManager.FindWorldExact( worldName );
                     if( world != null ) {
+                        player.LastUsedWorldName = world.Name;
                         // Replacing existing world's map
                         if( !cmd.IsConfirmed ) {
                             player.Confirm( cmd, "About to replace map for {0}&S with \"{1}\".",
@@ -1983,6 +1993,8 @@ namespace fCraft {
                                     player.Name, world.Name, fullFileName );
 
                     } else {
+                        player.LastUsedWorldName = world.Name;
+
                         // Adding a new world
                         string targetFullFileName = Path.Combine( Paths.MapPath, worldName + ".fcm" );
                         if( !cmd.IsConfirmed &&
