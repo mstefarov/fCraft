@@ -4,11 +4,13 @@ See http://www.fcraft.net/0.600/ for complete information about this release.
 If you like fCraft, support its developer by donating! http://donate.fcraft.net
 
 
+
 === Installation (Windows) ====================================================
 
 fCraft requires Microsoft .NET Framework 3.5. Your system may already have it
 installed, and you can download it from microsoft.com
 For more information, see http://www.fcraft.net/wiki/Installation_Instructions
+
 
 
 === Installation (Linux, Unix, MacOS X) =======================================
@@ -23,7 +25,7 @@ that it has read/write permissions in the fCraft directory.
 
 To run ".exe" files with Mono, use the following syntax:
 Mono 2.6.4: "mono SomeFile.exe"
-Mono 2.8+:  "mono -gc=sgen SomeFile.exe"
+Mono 2.8+:  "mono --gc=sgen SomeFile.exe"
 
 For more information, see http://www.fcraft.net/wiki/Installation_Instructions
 
