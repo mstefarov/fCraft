@@ -266,8 +266,8 @@ A higher setting (120+ seconds) is recommended for busy servers with many maps."
             AlwaysAllowZero = true, MinValue = 10 )]
         SaveInterval,
 
-        [BoolKey( ConfigSection.SavingAndBackup, true,
-@"Create a backup of every map when the server starts." )]
+        [BoolKey( ConfigSection.SavingAndBackup, false,
+@"Whether to create a backup of every map when the server starts." )]
         BackupOnStartup,
 
         [BoolKey( ConfigSection.SavingAndBackup, false,
@@ -280,19 +280,23 @@ Both a timestamp and player's name are included in the filename." )]
         BackupOnlyWhenChanged,
 
         [IntKey( ConfigSection.SavingAndBackup, 20,
-@"Create backups of loaded maps automatically once in a while.
-A world is considered ""loaded"" if there is at least one player on it.",
+@"Default interval for saving periodic map backups for loaded worlds.
+A world is considered ""loaded"" if there is at least one player on it.
+This setting can be overridden on a per-world basis.
+Set to 0 to disable periodic backups.",
             MinValue = 0 )]
         DefaultBackupInterval,
 
         [IntKey( ConfigSection.SavingAndBackup, 0,
 @"Maximum number of backup files that fCraft should keep.
-If exceeded, oldest backups will be deleted first." )]
+If exceeded, oldest backups will be deleted first.",
+            MinValue = 0 )]
         MaxBackups,
 
         [IntKey( ConfigSection.SavingAndBackup, 0,
 @"Maximum combined filesize of all backups, in MB.
-If exceeded, oldest backups will be deleted first." )]
+If exceeded, oldest backups will be deleted first.",
+            MinValue = 0 )]
         MaxBackupSize,
 
         [BoolKey( ConfigSection.SavingAndBackup, true,
@@ -310,7 +314,8 @@ If exceeded, oldest backups will be deleted first." )]
 
         [IntKey( ConfigSection.Logging, 0,
 @"Maximum number of log files to keep.
-If exceeded, oldest logs will be erased first. Set this to 0 to keep all logs." )]
+If exceeded, oldest logs will be erased first. Set this to 0 to keep all logs.",
+            MinValue = 0 )]
         MaxLogs,
 
         #endregion
@@ -355,14 +360,14 @@ Otherwise, only chat messages starting with a hash (#) will be relayed." )]
         IRCBotForwardFromIRC,
 
         [BoolKey( ConfigSection.IRC, false,
-@"Show a message on IRC when someone joins of leaves the server." )]
+@"Show a message on IRC when someone joins or leaves the Minecraft server." )]
         IRCBotAnnounceServerJoins,
 
         [BoolKey( ConfigSection.IRC, false,
-@"Show a message in-gam,e when someone joins of leaves the IRC channel." )]
+@"Show a message in-game when someone joins or leaves the IRC channel." )]
         IRCBotAnnounceIRCJoins,
 
-        [BoolKey( ConfigSection.IRC, false,
+        [BoolKey( ConfigSection.IRC, true,
 @"Announce server events (kicks, bans, promotions, demotions) on IRC." )]
         IRCBotAnnounceServerEvents,
 
