@@ -66,6 +66,9 @@ namespace fCraft.ConfigGUI {
             // Redraw chat preview when re-entering the tab.
             // This ensured that changes to rank colors/prefixes are applied.
             tabChat.Enter += ( o, e2 ) => UpdateChatPreview();
+
+            bReadme.Enabled = File.Exists( ReadmeFileName );
+            bChangelog.Enabled = File.Exists( ChangelogFileName );
         }
 
 
@@ -195,7 +198,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             CheckMaxPlayersPerWorldValue();
         }
 
-        private void bViewCredits_Click( object sender, EventArgs e ) {
+        private void bCredits_Click( object sender, EventArgs e ) {
             new AboutWindow().Show();
         }
 
@@ -1357,9 +1360,9 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         void UpdateChatPreview() {
             List<string> lines = new List<string>();
-            if( xShowJoinedWorldMessages.Checked ) {
-                lines.Add( String.Format( "{0}{1}Notch&S joined {2}{3}main",
-                                          xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "&S",
+            if( xShowConnectionMessages.Checked ) {
+                lines.Add( String.Format( "&SPlayer {0}{1}Notch&S connected, joined {2}{3}main",
+                                          xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
                                           xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "",
                                           xRankColorsInWorldNames.Checked ? RankManager.LowestRank.Color : "",
                                           xRankPrefixesInChat.Checked ? RankManager.LowestRank.Prefix : "" ) );
@@ -1370,11 +1373,29 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                                       xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
                                       xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "" ) );
             lines.Add( "&Pfrom Notch: This is a private message / whisper" );
-            lines.Add( "* &MNotch is using /Me to write this" );
-            lines.Add( "&SUnknown command \"kic\", see &H/Commands" );
-            lines.Add( String.Format( "&W{0}{1}Notch&W was kicked by {0}{1}gamer1",
-                                      xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
-                                      xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "" ) );
+            lines.Add( "&M*Notch is using /Me to write this" );
+            if( xShowJoinedWorldMessages.Checked ) {
+                Rank midRank = RankManager.LowestRank;
+                if( RankManager.LowestRank.NextRankUp != null ) {
+                    midRank = RankManager.LowestRank.NextRankUp;
+                }
+
+                lines.Add( String.Format( "&SPlayer {0}{1}Notch&S joined {2}{3}SomeOtherMap",
+                                          xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
+                                          xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "",
+                                          xRankColorsInWorldNames.Checked ? midRank.Color : "",
+                                          xRankPrefixesInChat.Checked ? midRank.Prefix : "" ) );
+            }
+            lines.Add( "&SUnknown command \"kikc\", see &H/Commands" );
+            if( xAnnounceKickAndBanReasons.Checked ) {
+                lines.Add( String.Format( "&W{0}{1}Notch&W was kicked by {0}{1}gamer1&W: Reason goes here",
+                                          xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
+                                          xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "" ) );
+            } else {
+                lines.Add( String.Format( "&W{0}{1}Notch&W was kicked by {0}{1}gamer1",
+                                          xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
+                                          xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "" ) );
+            }
 
             if( xShowConnectionMessages.Checked ) {
                 lines.Add( String.Format( "&S{0}{1}Notch&S left the server.",
@@ -1487,7 +1508,25 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         private void nFillLimit_ValueChanged( object sender, EventArgs e ) {
             if( selectedRank == null ) return;
-            selectedRank.FillLimit = Convert.ToInt32(nFillLimit.Value);
+            selectedRank.FillLimit = Convert.ToInt32( nFillLimit.Value );
+        }
+
+        const string ReadmeFileName = "README.txt";
+        private void bReadme_Click( object sender, EventArgs e ) {
+            try {
+                if( File.Exists( ReadmeFileName ) ) {
+                    Process.Start( ReadmeFileName );
+                }
+            } catch( Exception ) { }
+        }
+
+        const string ChangelogFileName = "CHANGELOG.txt";
+        private void bChangelog_Click( object sender, EventArgs e ) {
+            try {
+                if( File.Exists( ChangelogFileName ) ) {
+                    Process.Start( ChangelogFileName );
+                }
+            } catch( Exception ) { }
         }
     }
 }
