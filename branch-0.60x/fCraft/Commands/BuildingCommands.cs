@@ -501,6 +501,11 @@ namespace fCraft {
                 return;
             }
 
+            if( cmd.HasNext ) {
+                CdBind.PrintUsage( player );
+                return;
+            }
+
             Block replacementBlock = Map.GetBlockByName( replacementBlockName );
             if( replacementBlock == Block.Undefined ) {
                 player.Message( "Bind: Unrecognized block name: {0}", replacementBlockName );
@@ -664,10 +669,10 @@ namespace fCraft {
             Handler = UndoHandler
         };
 
-        static void UndoHandler( Player player, Command command ) {
+        static void UndoHandler( Player player, Command cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
-            if( command.HasNext ) {
+            if( cmd.HasNext ) {
                 player.Message( "Undo command takes no parameters. Did you mean to do &H/UndoPlayer&S or &H/UndoArea&S?" );
                 return;
             }
@@ -723,7 +728,12 @@ namespace fCraft {
             Handler = RedoHandler
         };
 
-        static void RedoHandler( Player player, Command command ) {
+        static void RedoHandler( Player player, Command cmd ) {
+            if( cmd.HasNext ) {
+                CdRedo.PrintUsage( player );
+                return;
+            }
+
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
@@ -774,6 +784,10 @@ namespace fCraft {
         static void CopySlotHandler( Player player, Command cmd ) {
             int slotNumber;
             if( cmd.NextInt( out slotNumber ) ) {
+                if( cmd.HasNext ) {
+                    CdCopySlot.PrintUsage( player );
+                    return;
+                }
                 if( slotNumber < 1 || slotNumber > player.Info.Rank.CopySlots ) {
                     player.Message( "CopySlot: Select a number between 1 and {0}", player.Info.Rank.CopySlots );
                 } else {
@@ -814,6 +828,10 @@ namespace fCraft {
         };
 
         static void CopyHandler( Player player, Command cmd ) {
+            if( cmd.HasNext ) {
+                CdCopy.PrintUsage( player );
+                return;
+            }
             player.SelectionStart( 2, CopyCallback, null, CdCopy.Permissions );
             player.MessageNow( "Copy: Place a block or type /Mark to use your location." );
         }
@@ -886,10 +904,14 @@ namespace fCraft {
             if( cmd.HasNext ) {
                 fillBlock = cmd.NextBlock( player );
                 if( fillBlock == Block.Undefined ) return;
+                if( cmd.HasNext ) {
+                    CdCut.PrintUsage( player );
+                    return;
+                }
             }
 
             CutDrawOperation op = new CutDrawOperation( player ) {
-                Brush = new NormalBrush( fillBlock, Block.Undefined )
+                Brush = new NormalBrush( fillBlock )
             };
 
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
@@ -1259,13 +1281,18 @@ namespace fCraft {
             },
             RepeatableSelection = true,
             Usage = "/Restore FileName",
-            Help = "Selectively restores/pastes part of mapfile into the current world.",
+            Help = "Selectively restores/pastes part of mapfile into the current world. "+
+                   "If the filename contains spaces, surround it with quote marks.",
             Handler = RestoreHandler
         };
 
         static void RestoreHandler( Player player, Command cmd ) {
             string fileName = cmd.Next();
             if( fileName == null ) {
+                CdRestore.PrintUsage( player );
+                return;
+            }
+            if( cmd.HasNext ) {
                 CdRestore.PrintUsage( player );
                 return;
             }
@@ -1337,67 +1364,6 @@ namespace fCraft {
         #endregion
 
 
-        #region Tree
-        /*
-        static readonly CommandDescriptor CdTree = new CommandDescriptor {
-            Name = "Tree",
-            Category = CommandCategory.Building,
-            Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
-            Usage = "/Tree Shape Height",
-            Help = "Plants a tree of given shape and height. Available shapes: Normal, Bamboo, Palm, Round, Cone, Rainforest, Mangrove.",
-            Handler = TreeHandler
-        };
-
-        static void TreeHandler( Player player, Command cmd ) {
-            string shapeName = cmd.Next();
-            int height;
-            Forester.TreeShape shape;
-
-            // that's one ugly if statement... does the job though.
-            if( shapeName == null ||
-                !cmd.NextInt( out height ) ||
-                !EnumUtil.TryParse( shapeName, out shape, true ) ||
-                shape == Forester.TreeShape.Stickly ||
-                shape == Forester.TreeShape.Procedural ) {
-
-                CdTree.PrintUsage( player );
-                return;
-            }
-
-            if( height < 2 || height > 1024 ) {
-                player.Message( "Tree height must be between 2 and 1024 blocks." );
-                return;
-            }
-
-            Map map = player.World.Map;
-
-            ForesterArgs args = new ForesterArgs {
-                Height = height,
-                Shape = shape,
-                Map = map,
-                Rand = new Random()
-            };
-
-            player.SelectionStart( 1, TreeCallback, args, CdTree.Permissions );
-        }
-
-
-        static void TreeCallback( Player player, Vector3I[] marks, object tag ) {
-            ForesterArgs args = (ForesterArgs)tag;
-            int blocksPlaced = 0, blocksDenied = 0;
-            bool cannotUndo = false;
-            args.BlockPlacing +=
-                ( sender, e ) =>
-                DrawOneBlock( player, (byte)e.Block, e.Coordinate.X, e.Coordinate.Y, e.Coordinate.Z,
-                              BlockChangeContext.Drawn,
-                              ref blocksPlaced, ref blocksDenied, ref cannotUndo );
-            Forester.Plant( args, marks[0] );
-            DrawingFinished( player, "planted", blocksPlaced, blocksDenied );
-        }
-        */
-        #endregion
-
-
         #region Mark, Cancel
 
         static readonly CommandDescriptor CdMark = new CommandDescriptor {
@@ -1410,11 +1376,15 @@ namespace fCraft {
             Handler = MarkHandler
         };
 
-        static void MarkHandler( Player player, Command command ) {
+        static void MarkHandler( Player player, Command cmd ) {
             Map map = player.WorldMap;
             int x, y, z;
             Vector3I coords;
-            if( command.NextInt( out x ) && command.NextInt( out y ) && command.NextInt( out z ) ) {
+            if( cmd.NextInt( out x ) && cmd.NextInt( out y ) && cmd.NextInt( out z ) ) {
+                if( cmd.HasNext ) {
+                    CdMark.PrintUsage( player );
+                    return;
+                }
                 coords = new Vector3I( x, y, z );
             } else {
                 coords = player.Position.ToBlockCoords();
@@ -1441,7 +1411,11 @@ namespace fCraft {
             Handler = CancelHandler
         };
 
-        static void CancelHandler( Player player, Command command ) {
+        static void CancelHandler( Player player, Command cmd ) {
+            if( cmd.HasNext ) {
+                CdCancel.PrintUsage( player );
+                return;
+            }
             if( player.IsMakingSelection ) {
                 player.SelectionCancel();
                 player.MessageNow( "Selection cancelled." );
@@ -1509,6 +1483,10 @@ namespace fCraft {
             string name = cmd.Next();
             string range = cmd.Next();
             if( name == null || range == null ) {
+                CdUndoArea.PrintUsage( player );
+                return;
+            }
+            if( cmd.HasNext ) {
                 CdUndoArea.PrintUsage( player );
                 return;
             }
@@ -1683,6 +1661,10 @@ namespace fCraft {
                 CdUndoPlayer.PrintUsage( player );
                 return;
             }
+            if( cmd.HasNext ) {
+                CdUndoPlayer.PrintUsage( player );
+                return;
+            }
 
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
             if( target == null ) return;
@@ -1772,6 +1754,10 @@ namespace fCraft {
         };
 
         static void StaticHandler( Player player, Command cmd ) {
+            if( cmd.HasNext ) {
+                CdStatic.PrintUsage( player );
+                return;
+            }
             if( player.IsRepeatingSelection ) {
                 player.Message( "Static: Off" );
                 player.IsRepeatingSelection = false;

@@ -608,6 +608,10 @@ namespace fCraft {
             Message( "World names must be 1-16 characters long, and only contain letters, numbers, and underscores." );
         }
 
+        public void MessageInvalidPlayerName( [NotNull] string playerName ) {
+            Message( "\"{0}\" is not a valid player name.", playerName );
+        }
+
 
         public void MessageMuted() {
             Message( "You are muted for {0} longer.",
@@ -1392,6 +1396,12 @@ namespace fCraft {
         public static bool IsValidName( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( name.Length < 2 || name.Length > 16 ) return false;
+            return ContainsValidCharacters(name);
+        }
+        
+        /// <summary> Ensures that a player name has the correct length and character set. </summary>
+        public static bool ContainsValidCharacters( [NotNull] string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
             // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < name.Length; i++ ) {
                 char ch = name[i];

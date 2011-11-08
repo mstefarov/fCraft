@@ -383,11 +383,11 @@ namespace fCraft {
                                     info.TimesKicked,
                                     info.TimeSinceLastKick.ToMiniString(),
                                     info.LastKickByClassy );
-                    if( info.LastKickReason != null ) {
-                        player.Message( "  Kick reason: {0}", info.LastKickReason );
-                    }
                 } else {
-                    player.Message( "  Got kicked {0} times", info.TimesKicked );
+                    player.Message( "  Got kicked {0} times.", info.TimesKicked );
+                }
+                if( info.LastKickReason != null ) {
+                    player.Message( "  Kick reason: {0}", info.LastKickReason );
                 }
             }
 
@@ -528,7 +528,7 @@ namespace fCraft {
                 }
 
                 if( info.BanDate != DateTime.MinValue ) {
-                    player.Message( "  Last ban by {0} on {1:dd MMM yyyy} ({2} ago).",
+                    player.Message( "  Last ban by {0}&S on {1:dd MMM yyyy} ({2} ago).",
                                     info.BannedByClassy,
                                     info.BanDate,
                                     info.TimeSinceBan.ToMiniString() );
