@@ -317,7 +317,7 @@ namespace fCraft {
                     if( altNames.Count > MaxAltsToPrint ) {
                         if( bannedAltCount > 0 ) {
                             player.MessagePrefixed( "&S  ",
-                                                    "&S  Over {0} accounts ({1} banned) on IP: {2} &Setc",
+                                                    "&S  Over {0} accounts ({1} banned) on IP: {2}  &Setc",
                                                     MaxAltsToPrint,
                                                     bannedAltCount,
                                                     altNames.Take( 15 ).ToArray().JoinToClassyString() );
@@ -406,7 +406,7 @@ namespace fCraft {
                         player.Message( "  Promotion reason: {0}", info.RankChangeReason );
                     }
                 }
-            } else if( info.PreviousRank < info.Rank ) {
+            } else if( info.PreviousRank <= info.Rank ) {
                 player.Message( "  Promoted from {0}&S to {1}&S by {2}&S {3} ago.",
                                 info.PreviousRank.ClassyName,
                                 info.Rank.ClassyName,
@@ -1190,7 +1190,7 @@ namespace fCraft {
 
             if( param == null ) {
                 prefix = "Available commands";
-                cd = CommandManager.GetCommands( false );
+                cd = CommandManager.GetCommands( player.Info.Rank, false );
 
             } else if( param.StartsWith( "@" ) ) {
                 string rankName = param.Substring( 1 );
