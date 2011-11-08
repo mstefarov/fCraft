@@ -116,6 +116,10 @@ namespace fCraft {
         static void IgnoreHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name != null ) {
+                if( cmd.HasNext ) {
+                    CdIgnore.PrintUsage( player );
+                    return;
+                }
                 PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
                 if( targetInfo == null ) return;
 
@@ -149,6 +153,10 @@ namespace fCraft {
         static void UnignoreHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name != null ) {
+                if( cmd.HasNext ) {
+                    CdUnignore.PrintUsage( player );
+                    return;
+                }
                 PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
                 if( targetInfo == null ) return;
 
@@ -267,6 +275,10 @@ namespace fCraft {
         };
 
         static void DeafenHandler( Player player, Command cmd ) {
+            if( cmd.HasNext ) {
+                CdDeafen.PrintUsage( player );
+                return;
+            }
             if( !player.IsDeaf ) {
                 for( int i = 0; i < LinesToClear; i++ ) {
                     player.MessageNow( "" );
@@ -295,6 +307,10 @@ namespace fCraft {
         };
 
         static void ClearHandler( Player player, Command cmd ) {
+            if( cmd.HasNext ) {
+                CdClear.PrintUsage( player );
+                return;
+            }
             for( int i = 0; i < LinesToClear; i++ ) {
                 player.Message( "" );
             }

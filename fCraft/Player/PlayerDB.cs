@@ -653,7 +653,10 @@ namespace fCraft {
                     return null;
                 }
             }
-            player.LastUsedPlayerName = name;
+            if( !Player.ContainsValidCharacters( name ) ) {
+                player.MessageInvalidPlayerName( name );
+                return null;
+            }
             PlayerInfo target = FindPlayerInfoExact( name );
             if( target == null ) {
                 PlayerInfo[] targets = FindPlayers( name );

@@ -466,21 +466,21 @@ namespace fCraft {
                     player.MessageNoPlayer( name );
                     return;
                 }
-                if( Player.IsValidName( name ) ) {
-                    if( cmd.IsConfirmed ) {
-                        if( newRank > RankManager.DefaultRank ) {
-                            targetInfo = PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
-                        } else {
-                            targetInfo = PlayerDB.AddFakeEntry( name, RankChangeType.Demoted );
-                        }
+                if( !Player.IsValidName( name ) ) {
+                    player.MessageInvalidPlayerName( name );
+                    CdRank.PrintUsage( player );
+                    return;
+                }
+                if( cmd.IsConfirmed ) {
+                    if( newRank > RankManager.DefaultRank ) {
+                        targetInfo = PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
                     } else {
-                        player.Confirm( cmd,
-                                        "Warning: Player \"{0}\" is not in the database (possible typo). Type the full name or",
-                                        name );
-                        return;
+                        targetInfo = PlayerDB.AddFakeEntry( name, RankChangeType.Demoted );
                     }
                 } else {
-                    player.Message( "Player not found. Please specify a valid name." );
+                    player.Confirm( cmd,
+                                    "Warning: Player \"{0}\" is not in the database (possible typo). Type the full name or",
+                                    name );
                     return;
                 }
             }
@@ -1206,20 +1206,19 @@ namespace fCraft {
 
         static void UnmuteHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
-            if( targetName != null && Player.IsValidName( targetName ) ) {
-
-                // find target
-                Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, true );
-                if( target == null ) return;
-
-                try {
-                    target.Info.Unmute( player, true, true );
-                } catch( PlayerOpException ex ) {
-                    player.Message( ex.MessageColored );
-                }
-
-            } else {
+            if( targetName == null || !Player.IsValidName( targetName ) ) {
                 CdUnmute.PrintUsage( player );
+                return;
+            }
+
+            // find target
+            Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, true );
+            if( target == null ) return;
+
+            try {
+                target.Info.Unmute( player, true, true );
+            } catch( PlayerOpException ex ) {
+                player.Message( ex.MessageColored );
             }
         }
 
