@@ -559,8 +559,6 @@ namespace fCraft.ConfigGUI {
                 tab = Tabs.CopyWorld;
             } else if( tabs.SelectedTab == tabFlatgrass ) {
                 tab = Tabs.Flatgrass;
-            } else if( tabs.SelectedTab == tabHeightmap ) {
-                tab = Tabs.Heightmap;
             } else {
                 tab = Tabs.Generator;
             }
@@ -586,8 +584,6 @@ namespace fCraft.ConfigGUI {
                     return;
                 case Tabs.Flatgrass:
                     return;
-                case Tabs.Heightmap:
-                    return;
                 case Tabs.Generator:
                     return;
             }
@@ -598,7 +594,6 @@ namespace fCraft.ConfigGUI {
             LoadFile,
             CopyWorld,
             Flatgrass,
-            Heightmap,
             Generator
         }
 

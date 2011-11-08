@@ -1963,7 +1963,7 @@ namespace fCraft {
                         // Replacing existing world's map
                         if( !cmd.IsConfirmed ) {
                             player.Confirm( cmd, "About to replace map for {0}&S with \"{1}\".",
-                                                       world.ClassyName, fileName );
+                                            world.ClassyName, fileName );
                             return;
                         }
 
@@ -1993,15 +1993,15 @@ namespace fCraft {
                                     player.Name, world.Name, fullFileName );
 
                     } else {
-                        player.LastUsedWorldName = world.Name;
-
                         // Adding a new world
                         string targetFullFileName = Path.Combine( Paths.MapPath, worldName + ".fcm" );
                         if( !cmd.IsConfirmed &&
                             File.Exists( targetFullFileName ) && // target file already exists
-                            !Paths.Compare( targetFullFileName, fullFileName ) ) { // and is different from sourceFile
-                            player.Confirm( cmd, "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
-                                                       Path.GetFileName( targetFullFileName ), Path.GetFileName( fullFileName ) );
+                            !Paths.Compare( targetFullFileName, fullFileName ) ) {
+                            // and is different from sourceFile
+                            player.Confirm( cmd,
+                                            "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
+                                            Path.GetFileName( targetFullFileName ), Path.GetFileName( fullFileName ) );
                             return;
                         }
 
@@ -2022,31 +2022,33 @@ namespace fCraft {
                             return;
                         }
 
-                        if( newWorld != null ) {
-                            newWorld.BuildSecurity.MinRank = buildRank;
-                            if( accessRank == null ) {
-                                newWorld.AccessSecurity.ResetMinRank();
-                            } else {
-                                newWorld.AccessSecurity.MinRank = accessRank;
-                            }
-                            newWorld.BlockDB.AutoToggleIfNeeded();
-                            if( BlockDB.IsEnabledGlobally && newWorld.BlockDB.IsEnabled ) {
-                                player.Message( "BlockDB is now auto-enabled on world {0}", newWorld.ClassyName );
-                            }
-                            newWorld.LoadedBy = player.Name;
-                            newWorld.LoadedOn = DateTime.UtcNow;
-                            Server.Message( "{0}&S created a new world named {1}",
-                                              player.ClassyName, newWorld.ClassyName );
-                            Logger.Log( LogType.UserActivity,
-                                        "{0} created a new world named \"{1}\" (loaded from \"{2}\")",
-                                        player.Name, worldName, fileName );
-                            WorldManager.SaveWorldList();
-                            player.MessageNow( "Access permission is {0}+&S, and build permission is {1}+",
-                                               newWorld.AccessSecurity.MinRank.ClassyName,
-                                               newWorld.BuildSecurity.MinRank.ClassyName );
-                        } else {
+                        if( newWorld == null ) {
                             player.MessageNow( "Failed to create a new world." );
+                            return;
                         }
+
+                        player.LastUsedWorldName = worldName;
+                        newWorld.BuildSecurity.MinRank = buildRank;
+                        if( accessRank == null ) {
+                            newWorld.AccessSecurity.ResetMinRank();
+                        } else {
+                            newWorld.AccessSecurity.MinRank = accessRank;
+                        }
+                        newWorld.BlockDB.AutoToggleIfNeeded();
+                        if( BlockDB.IsEnabledGlobally && newWorld.BlockDB.IsEnabled ) {
+                            player.Message( "BlockDB is now auto-enabled on world {0}", newWorld.ClassyName );
+                        }
+                        newWorld.LoadedBy = player.Name;
+                        newWorld.LoadedOn = DateTime.UtcNow;
+                        Server.Message( "{0}&S created a new world named {1}",
+                                        player.ClassyName, newWorld.ClassyName );
+                        Logger.Log( LogType.UserActivity,
+                                    "{0} created a new world named \"{1}\" (loaded from \"{2}\")",
+                                    player.Name, worldName, fileName );
+                        WorldManager.SaveWorldList();
+                        player.MessageNow( "Access permission is {0}+&S, and build permission is {1}+",
+                                           newWorld.AccessSecurity.MinRank.ClassyName,
+                                           newWorld.BuildSecurity.MinRank.ClassyName );
                     }
                 }
             }
