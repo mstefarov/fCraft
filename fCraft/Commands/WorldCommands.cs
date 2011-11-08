@@ -1098,11 +1098,12 @@ namespace fCraft {
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
             Aliases = new[] { "maps", "levels" },
-            Usage = "/Worlds [all/hidden/populated]",
+            Usage = "/Worlds [all/hidden/populated/@Rank]",
             Help = "Shows a list of available worlds. To join a world, type &H/Join WorldName&S. " +
                    "If the optional \"all\" is added, also shows inaccessible or hidden worlds. " +
                    "If \"hidden\" is added, shows only inaccessible and hidden worlds. " +
-                   "If \"populated\" is added, shows only worlds with players online.",
+                   "If \"populated\" is added, shows only worlds with players online. " +
+                   "If a rank name is given, shows only worlds where players of that rank can build.",
             Handler = WorldsHandler
         };
 
@@ -1136,6 +1137,21 @@ namespace fCraft {
                         extraParam = "populated ";
                         worlds = WorldManager.WorldList.Where( w => w.IsLoaded ).ToArray();
                         break;
+                    case '@':
+                        if( param.Length == 1 ) {
+                            CdWorlds.PrintUsage( player );
+                            return;
+                        }
+                        string rankName = param.Substring(1);
+                        Rank rank = Rank.Parse(rankName);
+                        if( rank == null ) {
+                            player.MessageNoRank( rankName );
+                            return;
+                        }
+                        listName = String.Format( "worlds where {0}&S+ can build", rank.ClassyName );
+                        extraParam = "@" + rank.Name;
+                        worlds = WorldManager.WorldList.Where( w => w.BuildSecurity.MinRank <= rank ).ToArray();
+                        break;
                     default:
                         CdWorlds.PrintUsage( player );
                         return;
@@ -1147,7 +1163,7 @@ namespace fCraft {
             }
 
             if( worlds.Length == 0 ) {
-                player.Message( "There are no {0}", listName );
+                player.Message( "There are no {0}.", listName );
 
             } else if( worlds.Length <= WorldNamesPerPage || player.IsSuper ) {
                 player.MessagePrefixed( "&S  ", "&SThere are {0} {1}: {2}",
