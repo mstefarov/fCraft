@@ -97,21 +97,21 @@ namespace fCraft {
             string worldName = cmd.Next();
             if( worldName == null ) {
                 int total = 0;
-                World[] autoEnabledWorlds = WorldManager.WorldList.Where( w => (w.BlockDB.EnabledState == YesNoAuto.Auto) && w.BlockDB.IsEnabled ).ToArray();
+                World[] autoEnabledWorlds = WorldManager.Worlds.Where( w => (w.BlockDB.EnabledState == YesNoAuto.Auto) && w.BlockDB.IsEnabled ).ToArray();
                 if( autoEnabledWorlds.Length > 0 ) {
                     total += autoEnabledWorlds.Length;
                     player.Message( "BlockDB is auto-enabled on: {0}",
                                     autoEnabledWorlds.JoinToClassyString() );
                 }
 
-                World[] manuallyEnabledWorlds = WorldManager.WorldList.Where( w => w.BlockDB.EnabledState == YesNoAuto.Yes ).ToArray();
+                World[] manuallyEnabledWorlds = WorldManager.Worlds.Where( w => w.BlockDB.EnabledState == YesNoAuto.Yes ).ToArray();
                 if( manuallyEnabledWorlds.Length > 0 ) {
                     total += manuallyEnabledWorlds.Length;
                     player.Message( "BlockDB is manually enabled on: {0}",
                                     manuallyEnabledWorlds.JoinToClassyString() );
                 }
 
-                World[] manuallyDisabledWorlds = WorldManager.WorldList.Where( w => w.BlockDB.EnabledState == YesNoAuto.No ).ToArray();
+                World[] manuallyDisabledWorlds = WorldManager.Worlds.Where( w => w.BlockDB.EnabledState == YesNoAuto.No ).ToArray();
                 if( manuallyDisabledWorlds.Length > 0 ) {
                     player.Message( "BlockDB is manually disabled on: {0}",
                                     manuallyDisabledWorlds.JoinToClassyString() );
@@ -993,7 +993,7 @@ namespace fCraft {
             if( worldName != null ) {
                 if( worldName == "*" ) {
                     int locked = 0;
-                    World[] worldListCache = WorldManager.WorldList;
+                    World[] worldListCache = WorldManager.Worlds;
                     for( int i = 0; i < worldListCache.Length; i++ ) {
                         if( !worldListCache[i].IsLocked ) {
                             worldListCache[i].Lock( player );
@@ -1040,7 +1040,7 @@ namespace fCraft {
             World world;
             if( worldName != null ) {
                 if( worldName == "*" ) {
-                    World[] worldListCache = WorldManager.WorldList;
+                    World[] worldListCache = WorldManager.Worlds;
                     int unlocked = 0;
                     for( int i = 0; i < worldListCache.Length; i++ ) {
                         if( worldListCache[i].IsLocked ) {
@@ -1118,24 +1118,24 @@ namespace fCraft {
             if( param == null || Int32.TryParse( param, out offset ) ) {
                 listName = "available worlds";
                 extraParam = "";
-                worlds = WorldManager.WorldList.Where( player.CanSee ).ToArray();
+                worlds = WorldManager.Worlds.Where( player.CanSee ).ToArray();
 
             } else {
                 switch( Char.ToLower( param[0] ) ) {
                     case 'a':
                         listName = "worlds";
                         extraParam = "all ";
-                        worlds = WorldManager.WorldList;
+                        worlds = WorldManager.Worlds;
                         break;
                     case 'h':
                         listName = "hidden worlds";
                         extraParam = "hidden ";
-                        worlds = WorldManager.WorldList.Where( w => !player.CanSee( w) ).ToArray();
+                        worlds = WorldManager.Worlds.Where( w => !player.CanSee( w) ).ToArray();
                         break;
                     case 'p':
                         listName = "populated worlds";
                         extraParam = "populated ";
-                        worlds = WorldManager.WorldList.Where( w => w.IsLoaded ).ToArray();
+                        worlds = WorldManager.Worlds.Where( w => w.IsLoaded ).ToArray();
                         break;
                     case '@':
                         if( param.Length == 1 ) {
@@ -1150,7 +1150,8 @@ namespace fCraft {
                         }
                         listName = String.Format( "worlds where {0}&S+ can build", rank.ClassyName );
                         extraParam = "@" + rank.Name;
-                        worlds = WorldManager.WorldList.Where( w => w.BuildSecurity.MinRank <= rank ).ToArray();
+                        worlds = WorldManager.Worlds.Where( w => (w.BuildSecurity.MinRank >= rank) && player.CanSee( w ) )
+                                                       .ToArray();
                         break;
                     default:
                         CdWorlds.PrintUsage( player );
