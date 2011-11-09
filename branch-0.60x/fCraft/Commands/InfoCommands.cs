@@ -749,9 +749,9 @@ namespace fCraft {
                             PlayerDB.PlayerInfoList.Sum( p => p.TotalTime.TotalHours ) );
 
             player.Message( "  There are {0} worlds available ({1} loaded, {2} hidden).",
-                            WorldManager.WorldList.Length,
+                            WorldManager.Worlds.Length,
                             WorldManager.CountLoadedWorlds( player ),
-                            WorldManager.WorldList.Count( w => w.IsHidden ) );
+                            WorldManager.Worlds.Count( w => w.IsHidden ) );
         }
 
         #endregion

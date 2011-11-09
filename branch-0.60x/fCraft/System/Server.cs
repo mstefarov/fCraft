@@ -371,7 +371,7 @@ namespace fCraft {
             WorldManager.UpdateWorldList();
             Logger.Log( LogType.SystemActivity,
                         "All available worlds: {0}",
-                        WorldManager.WorldList.JoinToString( ", ", w => w.Name ) );
+                        WorldManager.Worlds.JoinToString( ", ", w => w.Name ) );
 
             Logger.Log( LogType.SystemActivity,
                         "Main world: {0}; default rank: {1}",
@@ -487,10 +487,10 @@ namespace fCraft {
                 // kill IRC bot
                 IRC.Disconnect();
 
-                if( WorldManager.WorldList != null ) {
+                if( WorldManager.Worlds != null ) {
                     lock( WorldManager.SyncRoot ) {
                         // unload all worlds (includes saving)
-                        foreach( World world in WorldManager.WorldList ) {
+                        foreach( World world in WorldManager.Worlds ) {
                             if( world.BlockDB.IsEnabled ) world.BlockDB.Flush();
                             world.SaveMap();
                         }
@@ -852,7 +852,7 @@ namespace fCraft {
                 sb.Replace( "{WORLD}", player.World.ClassyName );
             }
             sb.Replace( "{PLAYERS}", CountVisiblePlayers( player ).ToString() );
-            sb.Replace( "{WORLDS}", WorldManager.WorldList.Length.ToString() );
+            sb.Replace( "{WORLDS}", WorldManager.Worlds.Length.ToString() );
             sb.Replace( "{MOTD}", ConfigKey.MOTD.GetString() );
             sb.Replace( "{VERSION}", Updater.CurrentRelease.VersionString );
             return sb.ToString();
