@@ -452,7 +452,7 @@ namespace fCraft {
 
         public void Message( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
-            if( this == Console ) {
+            if( IsSuper ) {
                 Logger.LogToConsole( message );
             } else {
                 foreach( Packet p in LineWrapper.Wrap( Color.Sys + message ) ) {
