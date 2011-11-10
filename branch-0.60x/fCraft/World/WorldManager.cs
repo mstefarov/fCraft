@@ -12,7 +12,8 @@ namespace fCraft {
     public static class WorldManager {
         public const string BuildSecurityXmlTagName = "BuildSecurity",
                             AccessSecurityXmlTagName = "AccessSecurity",
-                            EnvironmentXmlTagName = "Environment";
+                            EnvironmentXmlTagName = "Environment",
+                            RankMainXmlTagName = "RankMainWorld";
 
         public static World[] Worlds { get; private set; }
         static readonly SortedDictionary<string, World> WorldIndex = new SortedDictionary<string, World>();
@@ -248,7 +249,7 @@ namespace fCraft {
                 }
             }
 
-            foreach( XElement mainedRankEl in el.Elements( "RankMainWorld" ) ) {
+            foreach( XElement mainedRankEl in el.Elements( RankMainXmlTagName ) ) {
                 Rank rank = Rank.Parse( mainedRankEl.Value );
                 if( rank != null ) {
                     if( rank < world.AccessSecurity.MinRank ) {
@@ -348,7 +349,7 @@ namespace fCraft {
 
                     World world1 = world;
                     foreach( Rank mainedRank in RankManager.Ranks.Where( r => r.MainWorld == world1 ) ) {
-                        temp.Add( new XElement( "RankMainWorld", mainedRank.FullName ) );
+                        temp.Add( new XElement( RankMainXmlTagName, mainedRank.FullName ) );
                     }
 
                     if( !String.IsNullOrEmpty( world.LoadedBy ) ) {

@@ -69,7 +69,7 @@ namespace fCraft.Drawing {
         #region IBrush members
 
         public IBrushFactory Factory {
-            get { return ReplaceBrushFactory.Instance; }
+            get { return ReplaceNotBrushFactory.Instance; }
         }
 
 
