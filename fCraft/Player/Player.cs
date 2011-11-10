@@ -1023,8 +1023,8 @@ namespace fCraft {
             CanPlaceResult result;
 
             // check whether coordinate is in bounds
-            Block block = map.GetBlock( coords );
-            if( block == Block.Undefined ) {
+            Block oldBlock = map.GetBlock( coords );
+            if( oldBlock == Block.Undefined ) {
                 result = CanPlaceResult.OutOfBounds;
                 goto eventCheck;
             }
@@ -1042,7 +1042,7 @@ namespace fCraft {
             }
 
             // check admincrete-related permissions
-            if( block == Block.Admincrete && !Can( Permission.DeleteAdmincrete ) ) {
+            if( oldBlock == Block.Admincrete && !Can( Permission.DeleteAdmincrete ) ) {
                 result = CanPlaceResult.BlocktypeDenied;
                 goto eventCheck;
             }
@@ -1064,7 +1064,7 @@ namespace fCraft {
                 case SecurityCheckResult.Allowed:
                     // Check world's rank permissions
                     if( (Can( Permission.Build ) || newBlock == Block.Air) &&
-                        (Can( Permission.Delete ) || block == Block.Air) ) {
+                        (Can( Permission.Delete ) || oldBlock == Block.Air) ) {
                         result = CanPlaceResult.Allowed;
                     } else {
                         result = CanPlaceResult.RankDenied;
@@ -1081,7 +1081,12 @@ namespace fCraft {
             }
 
         eventCheck:
-            return RaisePlayerPlacingBlockEvent( this, map, coords, block, newBlock, context, result );
+            var handler = PlacingBlock;
+            if( handler == null ) return result;
+
+            var e = new PlayerPlacingBlockEventArgs( this, map, coords, oldBlock, newBlock, context, result );
+            handler( null, e );
+            return e.Result;
         }
 
 
