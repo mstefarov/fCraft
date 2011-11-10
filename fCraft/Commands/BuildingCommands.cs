@@ -685,7 +685,7 @@ namespace fCraft {
             }
 
             // Cancel the last DrawOp, if still in progress
-            if( undoState.Op != null && !undoState.Op.IsDone ) {
+            if( undoState.Op != null && !undoState.Op.IsDone && !undoState.Op.IsCancelled ) {
                 undoState.Op.Cancel();
                 msg += String.Format( "Cancelled {0} (was {1}% done). ",
                                      undoState.Op.Description,
