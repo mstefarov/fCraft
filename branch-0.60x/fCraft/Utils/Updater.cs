@@ -289,11 +289,11 @@ namespace fCraft {
         /// <summary> Checks for updates and notifies of availability (in console/log). </summary>
         Notify,
 
-        /// <summary>
-        /// Checks for updates and prompts to install them.
-        /// Behavior is frontend-specific: in ServerGUI, downloads the update and promots to install. In ServerCLI, acts same as Notify.
-        /// Note: Requires user interaction (if you restart the server remotely while unattended, it may get stuck on this dialog).
-        /// </summary>
+        /// <summary> Checks for updates, downloads them if available, and prompts to install.
+        /// Behavior is frontend-specific: in ServerGUI, a dialog is shown with the list of changes and
+        /// options to update immediately or next time. In ServerCLI, asks to type in 'y' to confirm updating
+        /// or press any other key to skip. '''Note: Requires user interaction
+        /// (if you restart the server remotely while unattended, it may get stuck on this dialog).''' </summary>
         Prompt,
 
         /// <summary> Checks for updates, automatically downloads and installs the updates, and restarts the server. </summary>
