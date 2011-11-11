@@ -25,8 +25,8 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( MainForm ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -35,6 +35,7 @@
             this.cUpdaterMode = new System.Windows.Forms.ComboBox();
             this.lUpdater = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.bChangelog = new System.Windows.Forms.Button();
             this.bCredits = new System.Windows.Forms.Button();
             this.bReadme = new System.Windows.Forms.Button();
             this.gHelpAndSupport = new System.Windows.Forms.GroupBox();
@@ -286,7 +287,6 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.bChangelog = new System.Windows.Forms.Button();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -368,7 +368,7 @@
             this.tabs.Location = new System.Drawing.Point( 12, 12 );
             this.tabs.Name = "tabs";
             this.tabs.SelectedIndex = 0;
-            this.tabs.Size = new System.Drawing.Size( 660, 509 );
+            this.tabs.Size = new System.Drawing.Size( 660, 510 );
             this.tabs.TabIndex = 0;
             // 
             // tabGeneral
@@ -444,6 +444,16 @@
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "About fCraft";
+            // 
+            // bChangelog
+            // 
+            this.bChangelog.Location = new System.Drawing.Point( 107, 20 );
+            this.bChangelog.Name = "bChangelog";
+            this.bChangelog.Size = new System.Drawing.Size( 95, 23 );
+            this.bChangelog.TabIndex = 2;
+            this.bChangelog.Text = "Changelog";
+            this.bChangelog.UseVisualStyleBackColor = true;
+            this.bChangelog.Click += new System.EventHandler( this.bChangelog_Click );
             // 
             // bCredits
             // 
@@ -1095,6 +1105,7 @@
             this.xRankPrefixesInChat.TabIndex = 1;
             this.xRankPrefixesInChat.Text = "Show rank prefixes.";
             this.xRankPrefixesInChat.UseVisualStyleBackColor = true;
+            this.xRankPrefixesInChat.CheckedChanged += new System.EventHandler( this.xRankPrefixesInChat_CheckedChanged );
             // 
             // xRankColorsInChat
             // 
@@ -1130,7 +1141,7 @@
             this.tabWorlds.Location = new System.Drawing.Point( 4, 24 );
             this.tabWorlds.Name = "tabWorlds";
             this.tabWorlds.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabWorlds.Size = new System.Drawing.Size( 652, 481 );
+            this.tabWorlds.Size = new System.Drawing.Size( 652, 458 );
             this.tabWorlds.TabIndex = 9;
             this.tabWorlds.Text = "Worlds";
             this.tabWorlds.UseVisualStyleBackColor = true;
@@ -1139,7 +1150,7 @@
             // 
             this.xWoMEnableEnvExtensions.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.xWoMEnableEnvExtensions.AutoSize = true;
-            this.xWoMEnableEnvExtensions.Location = new System.Drawing.Point( 8, 477 );
+            this.xWoMEnableEnvExtensions.Location = new System.Drawing.Point( 8, 436 );
             this.xWoMEnableEnvExtensions.Name = "xWoMEnableEnvExtensions";
             this.xWoMEnableEnvExtensions.Size = new System.Drawing.Size( 267, 19 );
             this.xWoMEnableEnvExtensions.TabIndex = 22;
@@ -1150,7 +1161,7 @@
             // 
             this.bMapPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bMapPath.Enabled = false;
-            this.bMapPath.Location = new System.Drawing.Point( 587, 450 );
+            this.bMapPath.Location = new System.Drawing.Point( 587, 409 );
             this.bMapPath.Name = "bMapPath";
             this.bMapPath.Size = new System.Drawing.Size( 57, 23 );
             this.bMapPath.TabIndex = 10;
@@ -1162,7 +1173,7 @@
             // 
             this.xMapPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.xMapPath.AutoSize = true;
-            this.xMapPath.Location = new System.Drawing.Point( 8, 450 );
+            this.xMapPath.Location = new System.Drawing.Point( 8, 409 );
             this.xMapPath.Name = "xMapPath";
             this.xMapPath.Size = new System.Drawing.Size( 189, 19 );
             this.xMapPath.TabIndex = 8;
@@ -1176,7 +1187,7 @@
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.tMapPath.Enabled = false;
             this.tMapPath.Font = new System.Drawing.Font( "Lucida Console", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.tMapPath.Location = new System.Drawing.Point( 203, 452 );
+            this.tMapPath.Location = new System.Drawing.Point( 203, 411 );
             this.tMapPath.Name = "tMapPath";
             this.tMapPath.Size = new System.Drawing.Size( 378, 19 );
             this.tMapPath.TabIndex = 9;
@@ -1185,7 +1196,7 @@
             // 
             this.lDefaultBuildRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lDefaultBuildRank.AutoSize = true;
-            this.lDefaultBuildRank.Location = new System.Drawing.Point( 24, 422 );
+            this.lDefaultBuildRank.Location = new System.Drawing.Point( 24, 381 );
             this.lDefaultBuildRank.Name = "lDefaultBuildRank";
             this.lDefaultBuildRank.Size = new System.Drawing.Size( 342, 15 );
             this.lDefaultBuildRank.TabIndex = 6;
@@ -1196,7 +1207,7 @@
             this.cDefaultBuildRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cDefaultBuildRank.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cDefaultBuildRank.FormattingEnabled = true;
-            this.cDefaultBuildRank.Location = new System.Drawing.Point( 372, 419 );
+            this.cDefaultBuildRank.Location = new System.Drawing.Point( 372, 378 );
             this.cDefaultBuildRank.Name = "cDefaultBuildRank";
             this.cDefaultBuildRank.Size = new System.Drawing.Size( 121, 23 );
             this.cDefaultBuildRank.TabIndex = 7;
@@ -1275,10 +1286,10 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle6.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvWorlds.Size = new System.Drawing.Size( 636, 366 );
+            this.dgvWorlds.Size = new System.Drawing.Size( 636, 325 );
             this.dgvWorlds.TabIndex = 0;
             this.dgvWorlds.SelectionChanged += new System.EventHandler( this.dgvWorlds_Click );
             this.dgvWorlds.Click += new System.EventHandler( this.dgvWorlds_Click );
@@ -1334,8 +1345,8 @@
             // dgvcBlockDB
             // 
             this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
             this.dgvcBlockDB.HeaderText = "BlockDB";
             this.dgvcBlockDB.Name = "dgvcBlockDB";
             this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
@@ -1681,6 +1692,7 @@
             // 
             // tPrefix
             // 
+            this.tPrefix.Enabled = false;
             this.tPrefix.Location = new System.Drawing.Point( 279, 20 );
             this.tPrefix.MaxLength = 1;
             this.tPrefix.Name = "tPrefix";
@@ -1691,6 +1703,7 @@
             // lPrefix
             // 
             this.lPrefix.AutoSize = true;
+            this.lPrefix.Enabled = false;
             this.lPrefix.Location = new System.Drawing.Point( 235, 23 );
             this.lPrefix.Name = "lPrefix";
             this.lPrefix.Size = new System.Drawing.Size( 38, 15 );
@@ -2955,7 +2968,7 @@
             this.tabAdvanced.Location = new System.Drawing.Point( 4, 24 );
             this.tabAdvanced.Name = "tabAdvanced";
             this.tabAdvanced.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabAdvanced.Size = new System.Drawing.Size( 652, 481 );
+            this.tabAdvanced.Size = new System.Drawing.Size( 652, 482 );
             this.tabAdvanced.TabIndex = 6;
             this.tabAdvanced.Text = "Advanced";
             this.tabAdvanced.UseVisualStyleBackColor = true;
@@ -2977,7 +2990,7 @@
             this.gPerformance.Controls.Add( this.lThrottlingUnits );
             this.gPerformance.Location = new System.Drawing.Point( 8, 328 );
             this.gPerformance.Name = "gPerformance";
-            this.gPerformance.Size = new System.Drawing.Size( 636, 150 );
+            this.gPerformance.Size = new System.Drawing.Size( 636, 151 );
             this.gPerformance.TabIndex = 2;
             this.gPerformance.TabStop = false;
             this.gPerformance.Text = "Performance";
@@ -3331,7 +3344,7 @@
             // 
             this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bOK.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bOK.Location = new System.Drawing.Point( 360, 527 );
+            this.bOK.Location = new System.Drawing.Point( 360, 528 );
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size( 100, 28 );
             this.bOK.TabIndex = 1;
@@ -3343,7 +3356,7 @@
             this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.bCancel.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bCancel.Location = new System.Drawing.Point( 466, 527 );
+            this.bCancel.Location = new System.Drawing.Point( 466, 528 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 28 );
             this.bCancel.TabIndex = 2;
@@ -3354,7 +3367,7 @@
             // 
             this.bResetTab.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bResetTab.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bResetTab.Location = new System.Drawing.Point( 132, 527 );
+            this.bResetTab.Location = new System.Drawing.Point( 132, 528 );
             this.bResetTab.Name = "bResetTab";
             this.bResetTab.Size = new System.Drawing.Size( 100, 28 );
             this.bResetTab.TabIndex = 5;
@@ -3366,7 +3379,7 @@
             // 
             this.bResetAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bResetAll.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bResetAll.Location = new System.Drawing.Point( 12, 527 );
+            this.bResetAll.Location = new System.Drawing.Point( 12, 528 );
             this.bResetAll.Name = "bResetAll";
             this.bResetAll.Size = new System.Drawing.Size( 114, 28 );
             this.bResetAll.TabIndex = 4;
@@ -3378,7 +3391,7 @@
             // 
             this.bApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bApply.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.bApply.Location = new System.Drawing.Point( 572, 527 );
+            this.bApply.Location = new System.Drawing.Point( 572, 528 );
             this.bApply.Name = "bApply";
             this.bApply.Size = new System.Drawing.Size( 100, 28 );
             this.bApply.TabIndex = 3;
@@ -3392,21 +3405,11 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // bChangelog
-            // 
-            this.bChangelog.Location = new System.Drawing.Point( 107, 20 );
-            this.bChangelog.Name = "bChangelog";
-            this.bChangelog.Size = new System.Drawing.Size( 95, 23 );
-            this.bChangelog.TabIndex = 2;
-            this.bChangelog.Text = "Changelog";
-            this.bChangelog.UseVisualStyleBackColor = true;
-            this.bChangelog.Click += new System.EventHandler( this.bChangelog_Click );
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size( 684, 567 );
+            this.ClientSize = new System.Drawing.Size( 684, 568 );
             this.Controls.Add( this.bApply );
             this.Controls.Add( this.bResetAll );
             this.Controls.Add( this.bResetTab );

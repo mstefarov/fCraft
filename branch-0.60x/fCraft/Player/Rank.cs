@@ -475,11 +475,6 @@ namespace fCraft {
         #endregion
 
 
-        public string ToComboBoxOption() {
-            return String.Format( "{0,1}{1}", Prefix, Name );
-        }
-
-
         public override string ToString() {
             return String.Format( "Rank({0})", Name );
         }

@@ -32,7 +32,6 @@ namespace fCraft.GUI {
         static readonly int MaxTileDim, TileStride;
 
         static IsoCat() {
-
             using( Bitmap tilesBmp = Resources.Tileset ) {
                 TileX = tilesBmp.Width / 50;
                 TileY = tilesBmp.Height;

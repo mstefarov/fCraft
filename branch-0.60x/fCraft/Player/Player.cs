@@ -23,7 +23,7 @@ namespace fCraft {
     public delegate void ConfirmationCallback( Player player, object tag, bool fromConsole );
 
 
-    /// <summary> Object representing volatile state of connected player.
+    /// <summary> Object representing volatile state ("session") of a connected player.
     /// For persistent state of a known player account, see PlayerInfo. </summary>
     public sealed partial class Player : IClassy {
 

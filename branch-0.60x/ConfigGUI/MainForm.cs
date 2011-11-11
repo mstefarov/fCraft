@@ -617,7 +617,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         void RebuildRankList() {
             vRanks.Items.Clear();
             foreach( Rank rank in RankManager.Ranks ) {
-                vRanks.Items.Add( rank.ToComboBoxOption() );
+                vRanks.Items.Add( MainForm.ToComboBoxOption( rank ) );
             }
 
             FillRankList( cDefaultRank, "(lowest rank)" );
@@ -679,7 +679,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             box.Items.Clear();
             box.Items.Add( firstItem );
             foreach( Rank rank in RankManager.Ranks ) {
-                box.Items.Add( rank.ToComboBoxOption() );
+                box.Items.Add( MainForm.ToComboBoxOption(rank) );
             }
         }
 
@@ -698,7 +698,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             RebuildRankList();
             SelectRank( rank );
 
-            rankNameList.Insert( rank.Index + 1, rank.ToComboBoxOption() );
+            rankNameList.Insert( rank.Index + 1, MainForm.ToComboBoxOption(rank) );
         }
 
         private void bDeleteRank_Click( object sender, EventArgs e ) {
@@ -749,12 +749,12 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 // Update world permissions
                 string worldUpdates = "";
                 foreach( WorldListEntry world in Worlds ) {
-                    if( world.AccessPermission == deletedRank.ToComboBoxOption() ) {
-                        world.AccessPermission = replacementRank.ToComboBoxOption();
+                    if( world.AccessPermission == MainForm.ToComboBoxOption(deletedRank) ) {
+                        world.AccessPermission = MainForm.ToComboBoxOption(replacementRank);
                         worldUpdates += " - " + world.Name + ": access permission changed to " + replacementRank.Name + Environment.NewLine;
                     }
-                    if( world.BuildPermission == deletedRank.ToComboBoxOption() ) {
-                        world.BuildPermission = replacementRank.ToComboBoxOption();
+                    if( world.BuildPermission == MainForm.ToComboBoxOption(deletedRank) ) {
+                        world.BuildPermission = MainForm.ToComboBoxOption(replacementRank);
                         worldUpdates += " - " + world.Name + ": build permission changed to " + replacementRank.Name + Environment.NewLine;
                     }
                 }
@@ -780,6 +780,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         private void tPrefix_Validating( object sender, CancelEventArgs e ) {
             if( selectedRank == null ) return;
+            tPrefix.Text = tPrefix.Text.Trim();
             if( tPrefix.Text.Length > 0 && !Rank.IsValidPrefix( tPrefix.Text ) ) {
                 MessageBox.Show( "Invalid prefix character!\n" +
                     "Prefixes may only contain characters that are allowed in chat (except space).", "Warning" );
@@ -790,7 +791,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
             if( selectedRank.Prefix == tPrefix.Text ) return;
 
-            string oldName = selectedRank.ToComboBoxOption();
+            string oldName = MainForm.ToComboBoxOption(selectedRank);
 
             // To avoid DataErrors in World tab's DataGridView while renaming a rank,
             // the new name is first added to the list of options (without removing the old name)
@@ -1066,6 +1067,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
         private void tRankName_Validating( object sender, CancelEventArgs e ) {
+            tRankName.ForeColor = SystemColors.ControlText;
             if( selectedRank == null ) return;
 
             string newName = tRankName.Text.Trim();
@@ -1090,9 +1092,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 e.Cancel = true;
 
             } else {
-                string oldName = selectedRank.ToComboBoxOption();
-
-                tRankName.ForeColor = SystemColors.ControlText;
+                string oldName = MainForm.ToComboBoxOption(selectedRank);
 
                 // To avoid DataErrors in World tab's DataGridView while renaming a rank,
                 // the new name is first added to the list of options (without removing the old name)
@@ -1113,7 +1113,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             if( selectedRank == null ) return;
             if( RankManager.RaiseRank( selectedRank ) ) {
                 RebuildRankList();
-                rankNameList.Insert( selectedRank.Index + 1, selectedRank.ToComboBoxOption() );
+                rankNameList.Insert( selectedRank.Index + 1, MainForm.ToComboBoxOption(selectedRank) );
                 rankNameList.RemoveAt( selectedRank.Index + 3 );
             }
         }
@@ -1122,7 +1122,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             if( selectedRank == null ) return;
             if( RankManager.LowerRank( selectedRank ) ) {
                 RebuildRankList();
-                rankNameList.Insert( selectedRank.Index + 2, selectedRank.ToComboBoxOption() );
+                rankNameList.Insert( selectedRank.Index + 2, MainForm.ToComboBoxOption(selectedRank) );
                 rankNameList.RemoveAt( selectedRank.Index );
             }
         }
@@ -1527,6 +1527,24 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                     Process.Start( ChangelogFileName );
                 }
             } catch( Exception ) { }
+        }
+
+        public static bool usePrefixes = false;
+
+
+        public static string ToComboBoxOption( Rank rank) {
+            if( usePrefixes ) {
+                return String.Format( "{0,1}{1}", rank.Prefix, rank.Name );
+            } else {
+                return rank.Name;
+            }
+        }
+
+        private void xRankPrefixesInChat_CheckedChanged( object sender, EventArgs e ) {
+            usePrefixes = xRankPrefixesInChat.Checked;
+            tPrefix.Enabled = usePrefixes;
+            lPrefix.Enabled = usePrefixes;
+            RebuildRankList();
         }
     }
 }

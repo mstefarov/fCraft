@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using System.IO;
 
 namespace fCraft {
+    /// <summary> Object representing persistent state ("record") of a player, online or offline.
+    /// There is exactly one PlayerInfo object for each known Minecraft account. All data is stored in the PlayerDB. </summary>
     public sealed partial class PlayerInfo : IClassy {
         public const int MinFieldCount = 24;
 

@@ -20,8 +20,8 @@ using JetBrains.Annotations;
 using ThreadState = System.Threading.ThreadState;
 
 namespace fCraft {
-    /// <summary> Core of an fCraft server. Manages startup/shutdown, players and sessions,
-    /// and global scheduled tasks, and events related to Player and PlayerInfo. </summary>
+    /// <summary> Core of an fCraft server. Manages startup/shutdown, online player
+    /// sessions, and global events and scheduled tasks. </summary>
     public static partial class Server {
 
         /// <summary> Time when the server started (UTC). Used to check uptime. </summary>

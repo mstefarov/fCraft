@@ -925,6 +925,8 @@ namespace fCraft {
             player.Message( "Measure: Select the area to be measured" );
         }
 
+        const int TopBlocksToList = 5;
+
         internal static void MeasureCallback( Player player, Vector3I[] marks, object tag ) {
             BoundingBox box = new BoundingBox( marks[0], marks[1] );
             player.Message( "Measure: {0} x {1} wide, {2} tall, {3} blocks.",
@@ -932,9 +934,33 @@ namespace fCraft {
                             box.Length,
                             box.Height,
                             box.Volume );
-            player.Message( "Measure: Located between {0} and {1}",
+            player.Message( "  Located between {0} and {1}",
                             box.MinVertex,
                             box.MaxVertex );
+
+            Map map = player.WorldMap;
+            Dictionary<Block, int> blockCounts = new Dictionary<Block, int>();
+            foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
+                blockCounts[block] = 0;
+            }
+            for( int x = box.XMin; x <= box.XMax; x++ ) {
+                for( int y = box.YMin; y <= box.YMax; y++ ) {
+                    for( int z = box.ZMin; z <= box.ZMax; z++ ) {
+                        Block block = map.GetBlock( x, y, z );
+                        blockCounts[block]++;
+                    }
+                }
+            }
+            var topBlocks = blockCounts.Where( p => p.Value > 0 )
+                                       .OrderByDescending( p => p.Value )
+                                       .Take( TopBlocksToList )
+                                       .ToArray();
+            var blockString = topBlocks.JoinToString( p => String.Format( "{0}: {1} ({2}%)",
+                                                                          p.Key,
+                                                                          p.Value,
+                                                                          (p.Value * 100) / box.Volume ) );
+            player.Message( "  Top {0} block types: {1}",
+                            topBlocks.Length, blockString );
         }
 
         #endregion

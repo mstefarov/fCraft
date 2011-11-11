@@ -740,25 +740,85 @@ namespace fCraft {
 
         static void GenHandler( Player player, Command cmd ) {
             World playerWorld = player.World;
+            Map oldMap = player.WorldMap;
             string themeName = cmd.Next();
-            string templateName = cmd.Next();
+            string templateName;
+            bool genOcean = false;
+            bool genEmpty = false;
+            bool noTrees = false;
 
-            if( themeName == null || templateName == null ) {
+            if( themeName == null ) {
                 CdGenerate.PrintUsage( player );
                 return;
             }
+            MapGenTheme theme = MapGenTheme.Forest;
+            MapGenTemplate template = MapGenTemplate.Flat;
 
-            MapGenTemplate template;
-            MapGenTheme theme;
+            // parse special template names (which do not need a theme)
+            if( themeName.Equals( "ocean" ) ) {
+                genOcean = true;
 
-            int wx, wy, height;
-            if( !(cmd.NextInt( out wx ) && cmd.NextInt( out wy ) && cmd.NextInt( out height )) ) {
+            } else if( themeName.Equals( "empty" ) ) {
+                genEmpty = true;
+
+            } else {
+                templateName = cmd.Next();
+                if( templateName == null ) {
+                    CdGenerate.PrintUsage( player );
+                    return;
+                }
+            
+                // parse theme
+                bool swapThemeAndTemplate = false;
+                if( themeName.Equals( "grass", StringComparison.OrdinalIgnoreCase ) ) {
+                    theme = MapGenTheme.Forest;
+                    noTrees = true;
+
+                } else if( templateName.Equals( "grass", StringComparison.OrdinalIgnoreCase ) ) {
+                    theme = MapGenTheme.Forest;
+                    noTrees = true;
+                    swapThemeAndTemplate = true;
+
+                } else if( EnumUtil.TryParse( themeName, out theme, true ) ) {
+                    noTrees = (theme != MapGenTheme.Forest);
+
+                } else if( EnumUtil.TryParse( templateName, out theme, true ) ) {
+                    noTrees = (theme != MapGenTheme.Forest);
+                    swapThemeAndTemplate = true;
+
+                } else {
+                    player.Message( "Gen: Unrecognized theme \"{0}\". Available themes are: {1}",
+                                    themeName,
+                                    Enum.GetNames( typeof( MapGenTheme ) ).JoinToString() );
+                    return;
+                }
+
+                // parse template
+                if( swapThemeAndTemplate ) {
+                    if( !EnumUtil.TryParse( themeName, out template, true ) ) {
+                        player.Message( "Unrecognized template \"{0}\". Available templates are: {1}",
+                                        themeName,
+                                        Enum.GetNames( typeof( MapGenTemplate ) ).JoinToString() );
+                        return;
+                    }
+                } else {
+                    if( !EnumUtil.TryParse( templateName, out template, true ) ) {
+                        player.Message( "Unrecognized template \"{0}\". Available templates are: {1}",
+                                        templateName,
+                                        Enum.GetNames( typeof( MapGenTemplate ) ).JoinToString() );
+                        return;
+                    }
+                }
+            }
+
+            // parse map dimensions
+            int mapWidth, mapLength, mapHeight;
+            if( !(cmd.NextInt( out mapWidth ) && cmd.NextInt( out mapLength ) && cmd.NextInt( out mapHeight )) ) {
                 if( playerWorld != null ) {
-                    // ReSharper disable PossibleNullReferenceException
-                    wx = playerWorld.Map.Width;
-                    wy = playerWorld.Map.Length;
-                    height = playerWorld.Map.Height;
-                    // ReSharper restore PossibleNullReferenceException
+                    // If map dimensions were not given, use current map's dimensions
+                    mapWidth = oldMap.Width;
+                    mapLength = oldMap.Length;
+                    mapHeight = oldMap.Height;
                 } else {
                     player.Message( "When used from console, /Gen requires map dimensions." );
                     CdGenerate.PrintUsage( player );
@@ -769,29 +829,31 @@ namespace fCraft {
                 cmd.Next();
             }
 
+            // Check map dimensions
             const string dimensionRecommendation = "Dimensions must be between 1 and 2047. " +
                                                    "Recommended values: 16, 32, 64, 128, 256, 512, and 1024.";
-            if( !Map.IsValidDimension( wx ) ) {
-                player.Message( "Cannot make map with width {0}. {1}", wx, dimensionRecommendation );
+            if( !Map.IsValidDimension( mapWidth ) ) {
+                player.Message( "Cannot make map with width {0}. {1}", mapWidth, dimensionRecommendation );
                 return;
-            } else if( !Map.IsValidDimension( wy ) ) {
-                player.Message( "Cannot make map with length {0}. {1}", wy, dimensionRecommendation );
+            } else if( !Map.IsValidDimension( mapLength ) ) {
+                player.Message( "Cannot make map with length {0}. {1}", mapLength, dimensionRecommendation );
                 return;
-            } else if( !Map.IsValidDimension( height ) ) {
-                player.Message( "Cannot make map with height {0}. {1}", height, dimensionRecommendation );
+            } else if( !Map.IsValidDimension( mapHeight ) ) {
+                player.Message( "Cannot make map with height {0}. {1}", mapHeight, dimensionRecommendation );
                 return;
             }
 
-            if( !cmd.IsConfirmed && (!Map.IsRecommendedDimension( wx ) || !Map.IsRecommendedDimension( wy )) ) {
+            if( !cmd.IsConfirmed && (!Map.IsRecommendedDimension( mapWidth ) || !Map.IsRecommendedDimension( mapLength )) ) {
                 player.Message( "&WThe map will have non-standard dimensions. " +
                                 "You may see glitched blocks or visual artifacts. " +
                                 "The only recommended map dimensions are: 16, 32, 64, 128, 256, 512, and 1024." );
             }
 
+            // check file/world name
             string fileName = cmd.Next();
             string fullFileName = null;
-
             if( fileName == null ) {
+                // replacing current world
                 if( playerWorld == null ) {
                     player.Message( "When used from console, /Gen requires FileName." );
                     CdGenerate.PrintUsage( player );
@@ -801,7 +863,9 @@ namespace fCraft {
                     player.Confirm( cmd, "Replace this world's map with a generated one?" );
                     return;
                 }
+
             } else {
+                // saving to file
                 fileName = fileName.Replace( Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar );
                 if( !fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
                     fileName += ".fcm";
@@ -824,68 +888,53 @@ namespace fCraft {
                     return;
                 }
             }
-
-            bool noTrees;
-            if( themeName.Equals( "grass", StringComparison.OrdinalIgnoreCase ) ) {
-                theme = MapGenTheme.Forest;
-                noTrees = true;
-            } else {
-                try {
-                    theme = (MapGenTheme)Enum.Parse( typeof( MapGenTheme ), themeName, true );
-                    noTrees = (theme != MapGenTheme.Forest);
-                } catch( Exception ) {
-                    player.MessageNow( "Unrecognized theme \"{0}\". Available themes are: Grass, {1}",
-                                       themeName,
-                                       String.Join( ", ", Enum.GetNames( typeof( MapGenTheme ) ) ) );
-                    return;
-                }
-            }
-
-            try {
-                template = (MapGenTemplate)Enum.Parse( typeof( MapGenTemplate ), templateName, true );
-            } catch( Exception ) {
-                player.Message( "Unrecognized template \"{0}\". Available templates are: {1}",
-                                templateName,
-                                String.Join( ", ", Enum.GetNames( typeof( MapGenTemplate ) ) ) );
-                return;
-            }
-
-            if( !Enum.IsDefined( typeof( MapGenTheme ), theme ) || !Enum.IsDefined( typeof( MapGenTemplate ), template ) ) {
-                CdGenerate.PrintUsage( player );
-                return;
-            }
-
-            MapGeneratorArgs args = MapGenerator.MakeTemplate( template );
-            if( theme == MapGenTheme.Desert ) {
-                args.AddWater = false;
-            }
-            args.MapWidth = wx;
-            args.MapLength = wy;
-            args.MapHeight = height;
-            args.MaxHeight = (int)(args.MaxHeight / 80d * height);
-            args.MaxDepth = (int)(args.MaxDepth / 80d * height);
-            args.Theme = theme;
-            args.AddTrees = !noTrees;
-
+            
+            // generating
+            bool genFlatgrass = (theme == MapGenTheme.Forest && noTrees && template == MapGenTemplate.Flat);
             Map map;
-            try {
-                if( theme == MapGenTheme.Forest && noTrees ) {
-                    player.MessageNow( "Generating Grass {0}...", template );
-                } else {
-                    player.MessageNow( "Generating {0} {1}...", theme, template );
+            if( genEmpty ) {
+                player.MessageNow( "Generating empty map...", template );
+                map = MapGenerator.GenerateEmpty( mapWidth, mapLength, mapHeight );
+
+            } else if( genOcean ) {
+                player.MessageNow( "Generating ocean map...", template );
+                map = MapGenerator.GenerateOcean( mapWidth, mapLength, mapHeight );
+
+            } else if( genFlatgrass ) {
+                player.MessageNow( "Generating flatgrass...", template );
+                map = MapGenerator.GenerateFlatgrass( mapWidth, mapLength, mapHeight );
+
+            } else {
+                // fancy generation
+                MapGeneratorArgs args = MapGenerator.MakeTemplate( template );
+                if( theme == MapGenTheme.Desert ) {
+                    args.AddWater = false;
                 }
-                if( theme == MapGenTheme.Forest && noTrees && template == MapGenTemplate.Flat ) {
-                    map = MapGenerator.GenerateFlatgrass( args.MapWidth, args.MapLength, args.MapHeight );
-                } else {
+                float ratio = mapHeight / (float)args.MapHeight;
+                args.MapWidth = mapWidth;
+                args.MapLength = mapLength;
+                args.MapHeight = mapHeight;
+                args.MaxHeight = (int)Math.Round( args.MaxHeight * ratio );
+                args.MaxDepth = (int)Math.Round( args.MaxDepth * ratio );
+                args.SnowAltitude = (int)Math.Round( args.SnowAltitude * ratio );
+                args.Theme = theme;
+                args.AddTrees = !noTrees;
+
+                try {
+                    if( theme == MapGenTheme.Forest && noTrees ) {
+                        player.MessageNow( "Generating Grass {0}...", template );
+                    } else {
+                        player.MessageNow( "Generating {0} {1}...", theme, template );
+                    }
                     MapGenerator generator = new MapGenerator( args );
                     map = generator.Generate();
-                }
 
-            } catch( Exception ex ) {
-                Logger.Log( LogType.Error,
-                            "MapGenerator: Generation failed: {0}", ex );
-                player.Message( "&WAn error occured while generating the map." );
-                return;
+                } catch( Exception ex ) {
+                    Logger.Log( LogType.Error,
+                                "MapGenerator: Generation failed: {0}", ex );
+                    player.Message( "&WAn error occured while generating the map." );
+                    return;
+                }
             }
 
             if( fileName != null ) {

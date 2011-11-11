@@ -12,8 +12,8 @@ namespace fCraft {
     public delegate void CommandHandler( Player source, Command cmd );
 
 
-    /// <summary> Describes a chat command.
-    /// Defines properties and usage information, and specifies a callback. </summary>
+    /// <summary> Describes a chat command. Defines properties, permission requirements, and usage information.
+    /// Specifies a handler method. </summary>
     public sealed class CommandDescriptor : IClassy {
 
         /// <summary> List of aliases. May be null or empty. Default: null </summary>
