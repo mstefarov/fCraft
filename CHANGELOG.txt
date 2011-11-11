@@ -1,3 +1,50 @@
+0.610
+ Feature: Added /Fill2D (/f2d), /Triangle (/t), and /TriangleW (/tw) draw commands.
+ Feature: Added ability to filter /Worlds by rank.
+ Feature: Added /Static (a way to repeat selection commands).
+ Feature: Added MaxUndoStates config key (how many steps back can /Undo go), and ConfigGUI bindings.
+ Feature: Added experimental IP-range lookup to /Info (CIDR notation). Changed /Info pattern-matching single-character symbol from '.' to '?'
+ Feature: Added pagination to /Players.
+ Feature: /Spectate and /SpecPatrol now show what commands, PMs, and rank messages the target types in.
+ Feature: Added a way to change server salt without needing a restart, using "/Reload Salt"
+ Feature: /Measure now shows statistics about block types in the selection.
+ Feature: /Gen now has two new templates: "ocean" and "empty"
+ Fix: Many fixes in name-retyping functionality.
+ Fix: Addressed stability issues in LineWrapper and Undo/Redo.
+ Fix: Fixed /WLock not canceling all draw commands (as intended).
+ Fix: Fixed some outdated descriptions, links, and tooltips in ConfigGUI.
+ Fix: Fixed being able to BanIP/BanAll/UnbanIP/UnbanAll invalid IP addresses (0.0.0.0 and 255.255.255.255).
+ Fix: Fixed /Info printing a blank page (instead of the last page) if given offset is greater than the total number of matches.
+ Fix: Fixed rank prefixes being appended to players' names if DisplayedName is set.
+ Fix: Fixed a couple rare crashes/hangs in ServerGUI when parsing console commands.
+ Fix: Fixed /Ban and /Unban announcing when they're not supposed to.
+ Fix: Fixed a potential crash in /BanInfo when looking up an IP address directly (no player name).
+ Fix: Fixed another obscure way of revealing hidden players.
+ Fix: Fixed Beta client kick message (thanks Voziv).
+ Fix: Fixed /Commands defaulting to printing ALL commands.
+ Fix: Fixed /Undo trying to re-cancel canceled commands.
+ Fix: Fixed uncaught "Illegal characters in path." exception when trying to save a /Gen'erated map to an invalid filename.
+ Fix: Fixed typos in /ReplaceNot and /UndoArea.
+ Change: Added a warning on startup if name verification is disabled.
+ Change: Tweaks and improvements to /Info, /WorldInfo, /BanInfo, /SetInfo, and /Commands.
+ Change: Removed code that tries next port if the given one could not be used. Now fCraft either starts on the port specified in config, or dies.
+ Change: Commands now complain about being given too many parameters (in addition to complaining about too few parameters). This should help catch mistyped commands.
+ Change: Added an option to disable giant-tree generation in ConfigGUI's map generator.
+ Change: Changed log format for bans/kicks to include more information, and fixed log message format for "Player ____ logged in from an IP shared by banned players..."
+ Change: Included config.xml in the automated data backup.
+ Change: ConfigGUI tweaks and improvements.
+ Change: Changes some aliases:
+   - Added /Whois and /WhoWas as aliases for /Info.
+   - Set "/B" and "/About" to be aliases for /BInfo
+ Change: Changed some ConfigKey defaults:
+   - BlockDBEnabled defaults to "true"
+   - WomEnableEnvExtensions default to "false"
+ Change: Discontinued ServerWinService (formerly fCraftWinService) subproject.
+ API: Improved Vector3I, Vector3F, and Position classes a bit.
+ API: New events: DrawOperation.Beginning / Began / Ended
+ API: Changed the way PlayerInfo stores empty string fields. Instead of a 0-length string, it now uses nulls.
+ Optimization: Sped up PlayerDB loading/saving, and boolean ConfigKey lookup.
+
 0.604
  Feature: Added support for repeating previously-entered player and world names. Just put a dash (-) in place of the player/world name when using a command, and fCraft will fill in the most-recently-used name.
  Fix: Fixed an occasional SecurityController-related crash in /gen, /wload, and ConfigGUI world editor.
@@ -20,30 +67,30 @@
 
 0.602
  Feature: One-click paste commands are now the default. Two-click aligned paste commands are now known as pastex/pastenotx (or px/pnx)
- Feature: Added /rb command (shortcut for /brush replacebrush + /c).
+ Feature: Added /RB command (shortcut for /Brush replacebrush + /Cuboid).
  Feature: Added a way to change number of copy/paste slots per rank from ConfigGUI.
  Fix: Fixed a few typos and missing help entries.
  Fix: Fixed DrawOp completion message and log entry.
- Fix: Fixed /paste and /pastenot not properly clipping against world boundaries.
+ Fix: Fixed /Paste and /PasteNot not properly clipping against world boundaries.
  Fix: Fixed ConfigGUI not preserving environment settings for worlds.
  Fix: Fixed ConfigGUI losing some worlds and showing some errors when importing from 0.5xx.
- Fix: Fixed /bring not being usable from console.
- Fix: Fixed /wrename crashing if invalid characters (from filesystem's point of view) are present in the new name.
- Fix: Fixed /specpatrol (/spat) not checking for Spectate permission.
- Fix: Fixed /undoarea'd and /undoplayer'ed blocks having "Restored" flag set in /bi
+ Fix: Fixed /Bring not being usable from console.
+ Fix: Fixed /WRename crashing if invalid characters (from filesystem's point of view) are present in the new name.
+ Fix: Fixed /SpecPatrol not checking for Spectate permission.
+ Fix: Fixed /UndoArea'd and /UndoPlayer'ed blocks having "Restored" flag set in /BInfo
  Fix: Fixed a detached checkbox on "Worlds" tab of ConfigGUI.
- Fix: Fixed /say, /staff, and /me getting logged twice.
+ Fix: Fixed /Say, /Staff, and /Me getting logged twice.
  Fix: Fixed per-world backup settings being cleared on server restart.
  Fix: Fixed a rare NullReferenceException in WorldManager.LoadWorldList that occurred if the main world was missing, and the fallback world had access restrictions.
  Fix: Fixed some issues with BlockDB settings in "Add World" and "Edit World" popups of ConfiGUI.
  Fix: Fixed a rare ConfigGUI crash when resetting the rank tab whole one of the old ranks is selected.
- Change: Sped up /eh and /sph slightly (thanks to Redshift).
- Change: Improved error handling in /env when setting level.
+ Change: Sped up /EllipsoidH and /SphereH slightly (thanks to Redshift).
+ Change: Improved error handling in /Env when setting level.
  Change: Double-buffered the preview on "Chat" tab of ConfigGUI, to get rid of flicker.
  Change: Clarified auto-freeze message when trying to kick/ban someone without a required reason string.
 
 0.601
- Fixed several issues with /undo and drawing commands.
+ Fixed several issues with /Undo and drawing commands.
 
 0.600
  Chat: Added a /Timer command for creating publicly-announced countdowns/timers.

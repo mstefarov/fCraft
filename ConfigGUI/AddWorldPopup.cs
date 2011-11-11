@@ -84,8 +84,8 @@ namespace fCraft.ConfigGUI {
             cAccess.Items.Add( "(everyone)" );
             cBuild.Items.Add( "(everyone)" );
             foreach( Rank rank in RankManager.Ranks ) {
-                cAccess.Items.Add( rank.ToComboBoxOption() );
-                cBuild.Items.Add( rank.ToComboBoxOption() );
+                cAccess.Items.Add( MainForm.ToComboBoxOption( rank ) );
+                cBuild.Items.Add( MainForm.ToComboBoxOption( rank ) );
             }
 
             tStatus1.Text = "";

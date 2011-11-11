@@ -12,6 +12,7 @@ using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> Persistent database of player information. </summary>
     public static class PlayerDB {
         static readonly Trie<PlayerInfo> Trie = new Trie<PlayerInfo>();
         static List<PlayerInfo> list = new List<PlayerInfo>();
