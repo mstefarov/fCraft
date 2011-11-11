@@ -26,7 +26,7 @@
  Fix: Fixed uncaught "Illegal characters in path." exception when trying to save a /Gen'erated map to an invalid filename.
  Fix: Fixed typos in /ReplaceNot and /UndoArea.
  Change: Added a warning on startup if name verification is disabled.
- Change: Tweaks and improvements to /Info, /WorldInfo, /BanInfo, /SetInfo, and /Commands.
+ Change: Tweaks and improvements to /Info, /WInfo, /BanInfo, /SetInfo, and /Commands.
  Change: Removed code that tries next port if the given one could not be used. Now fCraft either starts on the port specified in config, or dies.
  Change: Commands now complain about being given too many parameters (in addition to complaining about too few parameters). This should help catch mistyped commands.
  Change: Added an option to disable giant-tree generation in ConfigGUI's map generator.

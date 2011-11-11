@@ -318,7 +318,8 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
             RepeatableSelection = true,
-            Help = "Fills a continuous area with blocks, in 2D. Takes just 1 marks, and replaced the clicked block. " +
+            Help = "Fills a continuous area with blocks, in 2D. " +
+                    "Takes just 1 mark, and replaces blocks of the same type as the block you clicked. " +
                    "Works similar to \"Paint Bucket\" tool in Photoshop. " +
                    "Direction of effect is determined by where the player is looking.",
             Handler = Fill2DHandler
@@ -1458,11 +1459,11 @@ namespace fCraft {
         static readonly CommandDescriptor CdUndoArea = new CommandDescriptor {
             Name = "UndoArea",
             Aliases = new[] { "ua" },
-            Category = CommandCategory.Moderation | CommandCategory.Building,
+            Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.UndoOthersActions },
             RepeatableSelection = true,
             Usage = "/UndoArea PlayerName [TimeSpan|BlockCount]",
-            Help = "Reverses changes made by a given player in the current world.",
+            Help = "Reverses changes made by a given player in the current world, in the given area.",
             Handler = UndoAreaHandler
         };
 
@@ -1634,7 +1635,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdUndoPlayer = new CommandDescriptor {
             Name = "UndoPlayer",
             Aliases = new[] { "up", "undox" },
-            Category = CommandCategory.Moderation | CommandCategory.Building,
+            Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.UndoOthersActions },
             Usage = "/UndoPlayer PlayerName [TimeSpan|BlockCount]",
             Help = "Reverses changes made by a given player in the current world.",
