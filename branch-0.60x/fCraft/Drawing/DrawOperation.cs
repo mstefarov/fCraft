@@ -316,7 +316,7 @@ namespace fCraft.Drawing {
                     }
                 }
             }
-            if( AnnounceCompletion ) {
+            if( AnnounceCompletion && Map.World != null ) {
                 Logger.Log( LogType.UserActivity,
                             "Player {0} executed {1} on world {2} (between {3} and {4}). Processed {5}, Updated {6}, Skipped {7}, Denied {8} blocks.",
                             Player.Name, Description, Map.World.Name,
@@ -340,7 +340,7 @@ namespace fCraft.Drawing {
                                     BlocksProcessed, BlocksUpdated );
                 }
             }
-            if( LogCompletion ) {
+            if( LogCompletion && Map.World != null ) {
                 Logger.Log( LogType.UserActivity,
                             "Player {0} cancelled {1} on world {2}. Processed {3}, Updated {4}, Skipped {5}, Denied {6} blocks.",
                             Player, Description, Map.World.Name,

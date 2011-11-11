@@ -893,15 +893,15 @@ namespace fCraft {
             bool genFlatgrass = (theme == MapGenTheme.Forest && noTrees && template == MapGenTemplate.Flat);
             Map map;
             if( genEmpty ) {
-                player.MessageNow( "Generating empty map...", template );
+                player.MessageNow( "Generating empty map..." );
                 map = MapGenerator.GenerateEmpty( mapWidth, mapLength, mapHeight );
 
             } else if( genOcean ) {
-                player.MessageNow( "Generating ocean map...", template );
+                player.MessageNow( "Generating ocean map..." );
                 map = MapGenerator.GenerateOcean( mapWidth, mapLength, mapHeight );
 
             } else if( genFlatgrass ) {
-                player.MessageNow( "Generating flatgrass...", template );
+                player.MessageNow( "Generating flatgrass..." );
                 map = MapGenerator.GenerateFlatgrass( mapWidth, mapLength, mapHeight );
 
             } else {
