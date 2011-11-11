@@ -17,8 +17,8 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             610,
-            1231,
-            new DateTime( 2011, 11, 3, 12, 10, 0, DateTimeKind.Utc ),
+            1235,
+            new DateTime( 2011, 11, 11, 21, 0, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.Dev
 #if DEBUG
@@ -30,12 +30,12 @@ namespace fCraft {
             get { return "fCraft " + CurrentRelease.VersionString; }
         }
 
-        public const string LatestStable = "0.604_r1155";
+        public const string LatestStable = "0.610_r1235";
 
         public static string UpdateUrl { get; set; }
 
         static Updater() {
-            UpdateCheckTimeout = 3500;
+            UpdateCheckTimeout = 4000;
             UpdateUrl = "http://www.fcraft.net/UpdateCheck.php?r={0}";
         }
 

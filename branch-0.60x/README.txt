@@ -1,7 +1,9 @@
 Thank you for downloading fCraft, the custom Minecraft server.
 
-See http://www.fcraft.net/0.600/ for complete information about this release.
 If you like fCraft, support its developer by donating! http://donate.fcraft.net
+
+See http://www.fcraft.net/wiki/Version_history#0.610 for complete information
+about this release.
 
 
 

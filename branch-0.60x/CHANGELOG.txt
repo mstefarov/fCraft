@@ -38,7 +38,8 @@
    - Set "/B" and "/About" to be aliases for /BInfo
  Change: Changed some ConfigKey defaults:
    - BlockDBEnabled defaults to "true"
-   - WomEnableEnvExtensions default to "false"
+   - WomEnableEnvExtensions defaults to "false"
+   - IRCBotAnnounceServerEvents defaults to "true"
  Change: Discontinued ServerWinService (formerly fCraftWinService) subproject.
  API: Improved Vector3I, Vector3F, and Position classes a bit.
  API: New events: DrawOperation.Beginning / Began / Ended

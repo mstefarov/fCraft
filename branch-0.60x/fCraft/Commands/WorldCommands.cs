@@ -20,8 +20,8 @@ namespace fCraft {
             CdGenerate.Help = "Generates a new map. If no dimensions are given, uses current world's dimensions. " +
                               "If no filename is given, loads generated world into current world.\n" +
                               "Available themes: Grass, " + Enum.GetNames( typeof( MapGenTheme ) ).JoinToString() + '\n' +
-                              "Available terrain types: " + Enum.GetNames( typeof( MapGenTemplate ) ).JoinToString() + '\n' +
-                              "NOTE: Map is saved TO FILE ONLY, use /WLoad to load it.";
+                              "Available terrain types: Empty, Ocean, " + Enum.GetNames( typeof( MapGenTemplate ) ).JoinToString() + '\n' +
+                              "Note: You do not need to specify a theme with \"Empty\" and \"Ocean\" templates.";
             CommandManager.RegisterCommand( CdGenerate );
 
             CommandManager.RegisterCommand( CdJoin );
@@ -733,7 +733,7 @@ namespace fCraft {
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/Gen ThemeName TemplateName [X Y Height [FileName]]",
+            Usage = "/Gen Theme Template [Width Length Height] [FileName]",
             //Help is assigned by WorldCommands.Init
             Handler = GenHandler
         };
@@ -1199,8 +1199,8 @@ namespace fCraft {
                         }
                         listName = String.Format( "worlds where {0}&S+ can build", rank.ClassyName );
                         extraParam = "@" + rank.Name;
-                        worlds = WorldManager.Worlds.Where( w => (w.BuildSecurity.MinRank >= rank) && player.CanSee( w ) )
-                                                       .ToArray();
+                        worlds = WorldManager.Worlds.Where( w => (w.BuildSecurity.MinRank <= rank) && player.CanSee( w ) )
+                                                    .ToArray();
                         break;
                     default:
                         CdWorlds.PrintUsage( player );
