@@ -245,11 +245,11 @@ but will also prevent many legitimate players from joining." )]
 @"If enabled, allows edit information to be stored per-block. Enables /BlockDB, /BInfo, /UndoArea, and /UndoPlayer commands." )]
         BlockDBEnabled,
 
-        [BoolKey( ConfigSection.General, true,
+        [BoolKey( ConfigSection.Security, true,
 @"Automatically enabled BlockDB on all worlds editable by a certain rank or below." )]
         BlockDBAutoEnable,
 
-        [RankKey( ConfigSection.General, RankKeyAttribute.BlankValueMeaning.DefaultRank,
+        [RankKey( ConfigSection.Security, RankKeyAttribute.BlankValueMeaning.DefaultRank,
 @"Worlds editable by players of this rank (or below) will have BlockDB enabled automatically.
 Has no effect until BlockDBAutoEnable key is set." )]
         BlockDBAutoEnableRank,

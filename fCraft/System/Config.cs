@@ -57,6 +57,7 @@ namespace fCraft {
      *                  PlayerClass -> Rank
      *              Removed "rank" from PlayerClass/Rank object
      *              Made the order of Rank elements determine the relative index
+     *              Config.xml files of earlier versions than 111 can NOT be loaded by this copy of fCraft.
      *
      * 112 - r235 - Removed PingInterval config key
      *              Removed inactive ControlPhysics and AddLandmarks permissions
@@ -150,7 +151,10 @@ namespace fCraft {
      * 
      * 151 - r1169 - Added MaxUndoStates key
      *               Added fillLimit rank attribute.
-     * 
+     *               Changed defaults for some keys:
+     *                  BlockDBEnabled to "true"
+     *                  WomEnableEnvExtensions to "false"
+     *                  IRCBotAnnounceServerEvents to "true"
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -335,7 +339,7 @@ namespace fCraft {
                     if( version < LowestSupportedVersion ) {
                         Logger.Log( LogType.Warning,
                                     "Config.Load: Your copy of config.xml is too old to be loaded properly. " +
-                                    "Some settings will be lost of replaced with defaults. " +
+                                    "Some settings will be lost or replaced with defaults. " +
                                     "Please run ConfigGUI to make sure that everything is in order." );
                     } else if( version != CurrentVersion ) {
                         Logger.Log( LogType.Warning,
@@ -604,19 +608,22 @@ namespace fCraft {
             XElement config = new XElement( ConfigXmlRootName );
             config.Add( new XAttribute( "version", CurrentVersion ) );
 
+            XElement settings = new XElement( "Settings" );
+
             // save general settings
             foreach( ConfigSection section in Enum.GetValues( typeof( ConfigSection ) ) ) {
-                XElement sectionEl = new XElement( "Section" );
-                sectionEl.Add( new XAttribute( "name", section ) );
+                settings.Add( new XComment( section.ToString() ) );
                 foreach( ConfigKey key in KeySections[section] ) {
-                    if( IsDefault( key ) ) {
-                        sectionEl.Add( new XComment( new XElement( key.ToString(), Settings[(int)key] ).ToString() ) );
-                    } else {
-                        sectionEl.Add( new XElement( key.ToString(), Settings[(int)key] ) );
+                    XElement keyPairEl = new XElement( "ConfigKey" );
+                    keyPairEl.Add( new XAttribute( "key", key ) );
+                    keyPairEl.Add( new XAttribute( "value", Settings[(int)key] ) );
+                    if( !IsDefault( key ) ) {
+                        keyPairEl.Add( new XAttribute( "default", key.GetDefault() ) );
                     }
+                    settings.Add( keyPairEl );
                 }
-                config.Add( sectionEl );
             }
+            config.Add( settings );
 
             // save console options
             XElement consoleOptions = new XElement( "ConsoleOptions" );
@@ -643,14 +650,17 @@ namespace fCraft {
             }
             config.Add( ranksTag );
 
-            // save legacy rank mapping
-            XElement legacyRankMappingTag = new XElement( "LegacyRankMapping" );
-            foreach( KeyValuePair<string, string> pair in RankManager.LegacyRankMapping ) {
-                XElement rankPair = new XElement( "LegacyRankPair" );
-                rankPair.Add( new XAttribute( "from", pair.Key ), new XAttribute( "to", pair.Value ) );
-                legacyRankMappingTag.Add( rankPair );
+            if( RankManager.LegacyRankMapping.Count > 0 ) {
+                // save legacy rank mapping
+                XElement legacyRankMappingTag = new XElement( "LegacyRankMapping" );
+                legacyRankMappingTag.Add( new XComment( "Legacy rank mapping is used for compatibility if cases when ranks are renamed or deleted." ) );
+                foreach( KeyValuePair<string, string> pair in RankManager.LegacyRankMapping ) {
+                    XElement rankPair = new XElement( "LegacyRankPair" );
+                    rankPair.Add( new XAttribute( "from", pair.Key ), new XAttribute( "to", pair.Value ) );
+                    legacyRankMappingTag.Add( rankPair );
+                }
+                config.Add( legacyRankMappingTag );
             }
-            config.Add( legacyRankMappingTag );
 
 
             file.Add( config );
