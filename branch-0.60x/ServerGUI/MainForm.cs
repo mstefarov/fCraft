@@ -6,89 +6,148 @@ using System.Linq;
 using System.Windows.Forms;
 using fCraft.Events;
 using fCraft.GUI;
+using System.Threading;
 
 namespace fCraft.ServerGUI {
 
     public sealed partial class MainForm : Form {
-        bool shutdownPending, shutdownComplete;
+        volatile bool shutdownPending, startupComplete, shutdownComplete;
         const int MaxLinesInLog = 2000;
 
         public MainForm() {
             InitializeComponent();
             Shown += StartUp;
-            FormClosing += HandleShutDown;
             console.OnCommand += console_Enter;
         }
 
+
+        #region Startup
+        Thread startupThread;
 
         void StartUp( object sender, EventArgs a ) {
             Logger.Logged += OnLogged;
             Heartbeat.UriChanged += OnHeartbeatUriChanged;
             Server.PlayerListChanged += OnPlayerListChanged;
             Server.ShutdownEnded += OnServerShutdownEnded;
+            Text = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
+            startupThread = new Thread( StartupThread );
+            startupThread.Name = "fCraft ServerGUI Startup";
+            startupThread.Start();
+        }
 
 
+        void StartupThread() {
 #if !DEBUG
             try {
 #endif
-                Text = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
                 Server.InitLibrary( Environment.GetCommandLineArgs() );
-                Server.InitServer();
-                Text = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
+                if( shutdownPending ) return;
 
-                Application.DoEvents();
-                //StartServer();
+                Server.InitServer();
+                if( shutdownPending ) return;
+
+                BeginInvoke( (Action)OnInitSuccess );
 
                 UpdaterResult update = Updater.CheckForUpdates();
+                if( shutdownPending ) return;
 
                 if( update.UpdateAvailable ) {
                     new UpdateWindow( update, false ).ShowDialog();
                 }
 
-                StartServer();
+                if( !ConfigKey.ProcessPriority.IsBlank() ) {
+                    try {
+                        Process.GetCurrentProcess().PriorityClass = ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
+                    } catch( Exception ) {
+                        Logger.Log( LogType.Warning,
+                                    "MainForm.StartServer: Could not set process priority, using defaults." );
+                    }
+                }
+
+                if( shutdownPending ) return;
+                if( Server.StartServer() ) {
+                    startupComplete = true;
+                    BeginInvoke( (Action)OnStartupSuccess );
+                } else {
+                    BeginInvoke( (Action)OnStartupFailure );
+                }
 #if !DEBUG
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Unhandled exception in ServerGUI.StartUp", "ServerGUI", ex, true );
-                Shutdown( ShutdownReason.Crashed, false );
+                Shutdown( ShutdownReason.Crashed, Server.HasArg( ArgKey.ExitOnCrash ) );
             }
 #endif
         }
 
 
-        public void StartServer() {
-            if( !ConfigKey.ProcessPriority.IsBlank() ) {
-                try {
-                    Process.GetCurrentProcess().PriorityClass = ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
-                } catch( Exception ) {
-                    Logger.Log( LogType.Warning,
-                                "MainForm.StartServer: Could not set process priority, using defaults." );
-                }
+        void OnInitSuccess() {
+            Text = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
+        }
+
+
+        void OnStartupSuccess() {
+            if( !ConfigKey.HeartbeatEnabled.Enabled() ) {
+                uriDisplay.Text = "Heartbeat disabled. See externalurl.txt";
             }
-            if( Server.StartServer() ) {
-                if( !ConfigKey.HeartbeatEnabled.Enabled() ) {
-                    uriDisplay.Text = "Heartbeat disabled. See externalurl.txt";
-                }
-                console.Enabled = true;
-                console.Text = "";
+            console.Enabled = true;
+            console.Text = "";
+        }
+
+
+        void OnStartupFailure() {
+            Shutdown( ShutdownReason.FailedToStart, Server.HasArg( ArgKey.ExitOnCrash ) );
+        }
+
+        #endregion
+
+
+        #region Shutdown
+
+        protected override void OnFormClosing( FormClosingEventArgs e ) {
+            if( startupThread != null && !shutdownComplete ) {
+                Shutdown( ShutdownReason.ProcessClosing, true );
             } else {
-                Shutdown( ShutdownReason.FailedToStart, false );
+                base.OnFormClosing( e );
             }
         }
 
-        void HandleShutDown( object sender, CancelEventArgs e ) {
-            if( shutdownComplete ) return;
-            e.Cancel = true;
-            Shutdown( ShutdownReason.ProcessClosing, true );
-        }
 
         void Shutdown( ShutdownReason reason, bool quit ) {
             if( shutdownPending ) return;
             shutdownPending = true;
-            uriDisplay.Enabled = false;
             console.Enabled = false;
             console.Text = "Shutting down...";
+            Text = "fCraft " + Updater.CurrentRelease.VersionString + " - shutting down...";
+            uriDisplay.Enabled = false;
+            if( !startupComplete ) {
+                startupThread.Join();
+            }
             Server.Shutdown( new ShutdownParams( reason, TimeSpan.Zero, quit, false ), false );
         }
+
+
+        void OnServerShutdownEnded( object sender, ShutdownEventArgs e ) {
+            try {
+                BeginInvoke( (Action)delegate {
+                    shutdownComplete = true;
+                    switch( e.ShutdownParams.Reason ) {
+                        case ShutdownReason.FailedToInitialize:
+                        case ShutdownReason.FailedToStart:
+                        case ShutdownReason.Crashed:
+                            if( Server.HasArg( ArgKey.ExitOnCrash ) ) {
+                                Application.Exit();
+                            }
+                            break;
+                        default:
+                            Application.Exit();
+                            break;
+                    }
+                } );
+            } catch( ObjectDisposedException ) {
+            } catch( InvalidOperationException ) { }
+        }
+
+        #endregion
 
 
         public void OnLogged( object sender, LogEventArgs e ) {
@@ -98,22 +157,18 @@ namespace fCraft.ServerGUI {
                 if( logBox.InvokeRequired ) {
                     BeginInvoke( (EventHandler<LogEventArgs>)OnLogged, sender, e );
                 } else {
-                    Log( e.Message );
+                    logBox.AppendText( e.Message + Environment.NewLine );
+                    if( logBox.Lines.Length > MaxLinesInLog ) {
+                        logBox.Text = "----- cut off, see fCraft.log for complete log -----" +
+                            Environment.NewLine +
+                            logBox.Text.Substring( logBox.GetFirstCharIndexFromLine( 50 ) );
+                    }
+                    logBox.SelectionStart = logBox.Text.Length;
+                    logBox.ScrollToCaret();
+                    logBox.Refresh();
                 }
             } catch( ObjectDisposedException ) {
             } catch( InvalidOperationException ) { }
-        }
-
-        void Log( string message ) {
-            logBox.AppendText( message + Environment.NewLine );
-            if( logBox.Lines.Length > MaxLinesInLog ) {
-                logBox.Text = "----- cut off, see fCraft.log for complete log -----" +
-                    Environment.NewLine +
-                    logBox.Text.Substring( logBox.GetFirstCharIndexFromLine( 50 ) );
-            }
-            logBox.SelectionStart = logBox.Text.Length;
-            logBox.ScrollToCaret();
-            logBox.Refresh();
         }
 
 
@@ -150,28 +205,6 @@ namespace fCraft.ServerGUI {
         }
 
 
-        void OnServerShutdownEnded( object sender, ShutdownEventArgs e ) {
-            try {
-                BeginInvoke( (Action)delegate {
-                    shutdownComplete = true;
-                    switch( e.ShutdownParams.Reason ) {
-                        case ShutdownReason.FailedToInitialize:
-                        case ShutdownReason.FailedToStart:
-                        case ShutdownReason.Crashed:
-                            if( Server.HasArg( ArgKey.ExitOnCrash ) ) {
-                                Application.Exit();
-                            }
-                            break;
-                        default:
-                            Application.Exit();
-                            break;
-                    }
-                } );
-            } catch( ObjectDisposedException ) {
-            } catch( InvalidOperationException ) { }
-        }
-
-
         private void console_Enter() {
             string[] separator = { Environment.NewLine };
             string[] lines = console.Text.Trim().Split( separator, StringSplitOptions.RemoveEmptyEntries );
@@ -196,6 +229,7 @@ namespace fCraft.ServerGUI {
             }
             console.Text = "";
         }
+
 
         private void bPlay_Click( object sender, EventArgs e ) {
             try {

@@ -319,7 +319,7 @@ namespace fCraft {
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
             RepeatableSelection = true,
             Help = "Fills a continuous area with blocks, in 2D. " +
-                    "Takes just 1 mark, and replaces blocks of the same type as the block you clicked. " +
+                   "Takes just 1 mark, and replaces blocks of the same type as the block you clicked. " +
                    "Works similar to \"Paint Bucket\" tool in Photoshop. " +
                    "Direction of effect is determined by where the player is looking.",
             Handler = Fill2DHandler
