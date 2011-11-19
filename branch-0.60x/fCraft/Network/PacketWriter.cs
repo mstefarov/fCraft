@@ -204,6 +204,7 @@ namespace fCraft {
             return packet;
         }
 
+
         internal static Packet MakeSetBlock( Vector3I coords, Block type ) {
             Packet packet = new Packet( OpCode.SetBlockServer );
             ToNetOrder( coords.X, packet.Data, 1 );
@@ -225,13 +226,9 @@ namespace fCraft {
         #endregion
 
 
-        #region Utilities
-
         internal static void ToNetOrder( int number, byte[] arr, int offset ) {
             arr[offset] = (byte)((number & 0xff00) >> 8);
             arr[offset + 1] = (byte)(number & 0x00ff);
         }
-
-        #endregion
     }
 }
