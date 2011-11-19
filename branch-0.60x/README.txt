@@ -109,6 +109,43 @@ Other players cannot connect from the same LAN/network as me:
 
 
 
+=== Command-line Options ======================================================
+
+In addition to many settings stored in config.xml, fCraft has several special
+options that can only be set via command-line switches:
+
+    --path=<path>       Working path (directory) that fCraft should use. If the
+                        given path is relative, it's computed against the
+                        location of fCraft.dll
+
+    --logpath=<path>    Path (directory) where the log files should be placed.
+                        If the given path is relative, it's computed against the
+                        working path.
+
+    --mappath=<path>    Path (directory) where the map files should be loaded
+                        from/saved to.  If the given path is relative, it's
+                        computed against the working path.
+
+    --config=<file>     Path (file) of the configuration file, including the
+                        filename (typically "config.xml"). If the given path
+                        is relative, it's computed against the working path.
+
+    --norestart         If this flag is present, fCraft will shutdown whenever
+                        it would normally restart (e.g. automatic updates or
+                        /restart command). This may be useful if you are using
+                        an auto-restart script or a process monitor.
+
+    --exitoncrash       If ExitOnCrash flag is present, fCraft frontends will
+                        exit at once in the event of an unrecoverable crash,
+                        instead of showing a message and prompting for user
+                        input.
+
+    --nolog             Disables all logging.
+
+    --nocolor           Disables text colors in ServerCLI output.
+
+
+
 === Help & Support ============================================================
 
 When you first join the server, promote yourself by typing...
