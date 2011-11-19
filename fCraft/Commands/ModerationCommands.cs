@@ -966,7 +966,7 @@ namespace fCraft {
                         if( player.Can( Permission.Bring, rank ) ) {
                             targetRanks.Add( rank );
                         } else {
-                            player.Message( "&WYou are not allowed to &H/Bring&W players of rank {0}",
+                            player.Message( "&WYou are not allowed to bring players of rank {0}",
                                             rank.ClassyName );
                         }
                         allRanks = false;
@@ -1014,13 +1014,17 @@ namespace fCraft {
                 }
             }
 
+            Rank bringLimit = player.Info.Rank.GetLimit( Permission.Bring );
+
             // Remove the player him/herself
             targetPlayers.Remove( player );
 
             int count = 0;
 
+
             // Actually bring all the players
-            foreach( Player targetPlayer in targetPlayers.Where( player.CanSee ) ) {
+            foreach( Player targetPlayer in targetPlayers.CanBeSeen( player )
+                                                         .RankedAtMost( bringLimit ) ) {
                 if( targetPlayer.World == player.World ) {
                     // teleport within the same world
                     targetPlayer.TeleportTo( player.Position );
@@ -1031,9 +1035,7 @@ namespace fCraft {
 
                 } else {
                     // teleport to a different world
-// ReSharper disable AssignNullToNotNullAttribute
                     BringPlayerToWorld( player, targetPlayer, player.World, false, true );
-// ReSharper restore AssignNullToNotNullAttribute
                 }
                 count++;
             }
