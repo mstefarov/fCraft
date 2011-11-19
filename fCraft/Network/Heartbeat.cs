@@ -32,6 +32,16 @@ namespace fCraft {
             Delay = TimeSpan.FromSeconds( 25 );
             Timeout = TimeSpan.FromSeconds( 10 );
             Salt = Server.GetRandomString( 32 );
+            Server.ShutdownBegan += OnServerShutdown;
+        }
+
+        static void OnServerShutdown( object sender, ShutdownEventArgs e ) {
+            if( minecraftNetRequest != null ) {
+                minecraftNetRequest.Abort();
+            }
+            if( womDirectRequest != null ) {
+                womDirectRequest.Abort();
+            }
         }
 
 
@@ -67,15 +77,17 @@ namespace fCraft {
             }
         }
 
+        static HttpWebRequest minecraftNetRequest,
+                              womDirectRequest;
 
         static void SendMinecraftNetBeat() {
             HeartbeatData data = new HeartbeatData( MinecraftNetUri );
             if( !RaiseHeartbeatSendingEvent( data, MinecraftNetUri, true ) ) {
                 return;
             }
-            HttpWebRequest request = CreateRequest( data.CreateUri() );
-            var state = new HeartbeatRequestState( request, data, true );
-            request.BeginGetResponse( ResponseCallback, state );
+            minecraftNetRequest = CreateRequest( data.CreateUri() );
+            var state = new HeartbeatRequestState( minecraftNetRequest, data, true );
+            minecraftNetRequest.BeginGetResponse( ResponseCallback, state );
         }
 
 
@@ -88,9 +100,9 @@ namespace fCraft {
             if( !RaiseHeartbeatSendingEvent( data, WoMDirectUri, false ) ) {
                 return;
             }
-            HttpWebRequest request = CreateRequest( data.CreateUri() );
-            var state = new HeartbeatRequestState( request, data, false );
-            request.BeginGetResponse( ResponseCallback, state );
+            womDirectRequest = CreateRequest( data.CreateUri() );
+            var state = new HeartbeatRequestState( womDirectRequest, data, false );
+            womDirectRequest.BeginGetResponse( ResponseCallback, state );
         }
 
 

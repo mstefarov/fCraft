@@ -1280,6 +1280,7 @@ namespace fCraft {
             Aliases = new[] { "unfollow", "unspec" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Spectate },
+            NotRepeatable = true,
             Handler = UnspectateHandler
         };
 
