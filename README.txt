@@ -135,14 +135,14 @@ options that can only be set via command-line switches:
                         /restart command). This may be useful if you are using
                         an auto-restart script or a process monitor.
 
-    --exitoncrash       If ExitOnCrash flag is present, fCraft frontends will
-                        exit at once in the event of an unrecoverable crash,
-                        instead of showing a message and prompting for user
-                        input.
+    --exitoncrash       If this flag is present, fCraft frontends will exit
+                        at once in the event of an unrecoverable crash, instead
+                        of showing a message and prompting for user input.
 
-    --nolog             Disables all logging.
+    --nolog             If this flag is present, all logging is disabled.
 
-    --nocolor           Disables text colors in ServerCLI output.
+    --nocolor           If this flag is present, ServerCLI will not use any
+                        colors or formatting in its console output.
 
 
 

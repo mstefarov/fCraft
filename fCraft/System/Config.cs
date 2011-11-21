@@ -155,6 +155,10 @@ namespace fCraft {
      *                  BlockDBEnabled to "true"
      *                  WomEnableEnvExtensions to "false"
      *                  IRCBotAnnounceServerEvents to "true"
+     *                  
+     * 152 - r1243 - Changed the way fCraft stores config keys.
+     *               Before: <fCraftConfig><Section name="blah"><KeyName>Value</KeyName></Section></fCraftConfig>
+     *               After: <fCraftConfig><Settings><ConfigKey key="KeyName" value="Value" default="DefaultValue" /></Settings></fCraftConfig>
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -165,11 +169,12 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 151;
+        public const int CurrentVersion = 152;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY
-                  FirstVersionWithSectionTags = 139; // LEGACY
+                  FirstVersionWithSectionTags = 139, // LEGACY
+                  FirstVersionWithSettingsTag = 152; // LEGACY
 
         const string ConfigXmlRootName = "fCraftConfig";
 
@@ -381,13 +386,17 @@ namespace fCraft {
             // read the rest of the keys
             if( version < FirstVersionWithSectionTags ) {
                 foreach( XElement element in config.Elements() ) {
-                    ParseKeyElement( element );
+                    ParseKeyElementPreSettings( element );
                 }
-            } else {
+            } else if( version < FirstVersionWithSettingsTag ) {
                 foreach( XElement section in config.Elements( "Section" ) ) {
                     foreach( XElement keyElement in section.Elements() ) {
-                        ParseKeyElement( keyElement );
+                        ParseKeyElementPreSettings( keyElement );
                     }
+                }
+            } else {
+                XElement settings = config.Element( "Settings" );
+                foreach( XElement pair in config.Elements( "ConfigKey" ) ) {
                 }
             }
 
@@ -416,7 +425,7 @@ namespace fCraft {
         }
 
 
-        static void ParseKeyElement( [NotNull] XElement element ) {
+        static void ParseKeyElementPreSettings( [NotNull] XElement element ) {
             if( element == null ) throw new ArgumentNullException( "element" );
 
             string keyName = element.Name.ToString().ToLower();
@@ -446,6 +455,28 @@ namespace fCraft {
             }
         }
 
+
+        static void ParseKeyElement( [NotNull] XElement element ) {
+            if( element == null ) throw new ArgumentNullException( "element" );
+
+            string keyName = element.Attribute( "key" ).Value;
+            string value = element.Attribute( "value" ).Value;
+            ConfigKey key;
+            if( EnumUtil.TryParse( keyName, out key, true ) ) {
+                // known key
+                TrySetValue( key, value );
+
+            } else if( LegacyConfigKeys.ContainsKey( keyName ) ) { // LEGACY
+                // renamed/legacy key
+                TrySetValue( LegacyConfigKeys[keyName], value );
+
+            } else {
+                // unknown key
+                Logger.Log( LogType.Warning,
+                            "Config: Unrecognized entry ignored: {0} = {1}",
+                            element.Name, element.Value );
+            }
+        }
 
         static void LoadLogOptions( [NotNull] XContainer el, [NotNull] IList<bool> list ) {
             if( el == null ) throw new ArgumentNullException( "el" );
@@ -617,9 +648,7 @@ namespace fCraft {
                     XElement keyPairEl = new XElement( "ConfigKey" );
                     keyPairEl.Add( new XAttribute( "key", key ) );
                     keyPairEl.Add( new XAttribute( "value", Settings[(int)key] ) );
-                    if( !IsDefault( key ) ) {
-                        keyPairEl.Add( new XAttribute( "default", key.GetDefault() ) );
-                    }
+                    keyPairEl.Add( new XAttribute( "default", key.GetDefault() ) );
                     settings.Add( keyPairEl );
                 }
             }
