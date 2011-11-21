@@ -728,10 +728,11 @@ namespace fCraft {
                                         info.ClassyName,
                                         oldTimesKicked,
                                         info.TimesKicked );
+                        break;
                     } else {
                         player.Message( "SetInfo: TimesKicked value acceptible (Acceptible value range: 0-9999)" );
+                        return;
                     }
-                    return;
 
                 case "previousrank":
                     Rank newPreviousRank;
@@ -773,7 +774,7 @@ namespace fCraft {
                                         oldPreviousRank.ClassyName,
                                         newPreviousRank.ClassyName );
                     }
-                    return;
+                    break;
 
                 case "totaltime":
                     TimeSpan newTotalTime;
@@ -786,10 +787,11 @@ namespace fCraft {
                                         oldTotalTime.ToCompactString(),
                                         info.TotalTime.ToMiniString(),
                                         info.TotalTime.ToCompactString() );
+                        break;
                     } else {
                         player.Message( "SetInfo: Could not parse value given for TotalTime." );
+                        return;
                     }
-                    return;
 
                 case "rankchangetype":
                     RankChangeType oldType = info.RankChangeType;
@@ -804,35 +806,43 @@ namespace fCraft {
                                     info.ClassyName,
                                     oldType,
                                     info.RankChangeType );
-                    return;
+                    break;
 
                 case "banreason":
                     if( valName.Length == 0 ) valName = null;
                     if( SetPlayerInfoField( player, "BanReason", info, info.BanReason, valName ) ) {
                         info.BanReason = valName;
+                        break;
+                    } else {
+                        return;
                     }
-                    return;
 
                 case "unbanreason":
                     if( valName.Length == 0 ) valName = null;
                     if( SetPlayerInfoField( player, "UnbanReason", info, info.UnbanReason, valName ) ) {
                         info.UnbanReason = valName;
+                        break;
+                    } else {
+                        return;
                     }
-                    return;
 
                 case "rankreason":
                     if( valName.Length == 0 ) valName = null;
                     if( SetPlayerInfoField( player, "RankReason", info, info.RankChangeReason, valName ) ) {
                         info.RankChangeReason = valName;
+                        break;
+                    } else {
+                        return;
                     }
-                    return;
 
                 case "kickreason":
                     if( valName.Length == 0 ) valName = null;
                     if( SetPlayerInfoField( player, "KickReason", info, info.LastKickReason, valName ) ) {
                         info.LastKickReason = valName;
+                        break;
+                    } else {
+                        return;
                     }
-                    return;
 
                 case "displayedname":
                     string oldDisplayedName = info.DisplayedName;
@@ -867,7 +877,7 @@ namespace fCraft {
                                         oldDisplayedName,
                                         valName );
                     }
-                    return;
+                    break;
 
                 default:
                     player.Message( "Only the following properties are editable: " +
@@ -875,6 +885,7 @@ namespace fCraft {
                                     "BanReason, UnbanReason, RankReason, KickReason, DisplayedName" );
                     return;
             }
+            info.LastModified = DateTime.UtcNow;
         }
 
         static bool SetPlayerInfoField( [NotNull] Player player, [NotNull] string fieldName, [NotNull] IClassy info,

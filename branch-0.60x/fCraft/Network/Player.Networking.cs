@@ -627,7 +627,7 @@ namespace fCraft {
 
                 if( !CheckPaidStatus( Name ) ) {
                     Logger.Log( LogType.SystemActivity,
-                                "Player {0} was kicked because their account is not paid, and PaidOnly setting is enabled.", Name );
+                                "Player {0} was kicked because their account is not paid, and PaidPlayersOnly setting is enabled.", Name );
                     KickNow( "Paid players allowed only.", LeaveReason.LoginFailed );
                     return false;
                 }

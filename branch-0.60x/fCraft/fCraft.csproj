@@ -16,7 +16,7 @@
     </StartupObject>
     <ApplicationIcon>
     </ApplicationIcon>
-    <TargetFrameworkSubset>Client</TargetFrameworkSubset>
+    <TargetFrameworkSubset>Full</TargetFrameworkSubset>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -243,6 +243,7 @@
     <Compile Include="Player\Player.Events.cs" />
     <Compile Include="Player\PlayerEnumerable.cs" />
     <Compile Include="Player\PlayerOpException.cs" />
+    <Compile Include="Plugins\IPluginProvider.cs" />
     <Compile Include="System\ArgKey.cs" />
     <Compile Include="System\ConfigKey.Metadata.cs" />
     <Compile Include="System\ConfigSection.cs" />
