@@ -78,6 +78,8 @@
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Devart.Data, Version=5.0.343.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL" />
+    <Reference Include="Devart.Data.MySql, Version=6.50.244.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -239,6 +241,7 @@
     <Compile Include="MapConversion\MapFCMv4.cs" />
     <Compile Include="Network\LineWrapper.cs" />
     <Compile Include="Network\OpCode.cs" />
+    <Compile Include="Player\IPlayerDBProvider.cs" />
     <Compile Include="Player\PlayerInfo.Actions.cs" />
     <Compile Include="Player\Player.Events.cs" />
     <Compile Include="Player\PlayerEnumerable.cs" />
@@ -268,6 +271,14 @@
     <Compile Include="Player\PlayerInfo.Events.cs" />
     <Compile Include="World\World.Events.cs" />
     <Compile Include="Utils\JetBrains.Annotations.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Devart.Data.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Devart.Data.MySql.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
