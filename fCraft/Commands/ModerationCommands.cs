@@ -115,7 +115,7 @@ namespace fCraft {
             string reason = cmd.NextAll();
 
             IPAddress targetAddress;
-            if( IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
+            if( Server.IsIP( targetNameOrIP ) && IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
                 try {
                     targetAddress.BanIP( player, reason, true, true );
                 } catch( PlayerOpException ex ) {
@@ -163,7 +163,7 @@ namespace fCraft {
             string reason = cmd.NextAll();
 
             IPAddress targetAddress;
-            if( IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
+            if( Server.IsIP( targetNameOrIP ) && IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
                 try {
                     targetAddress.BanAll( player, reason, true, true );
                 } catch( PlayerOpException ex ) {
@@ -240,7 +240,7 @@ namespace fCraft {
 
             try {
                 IPAddress targetAddress;
-                if( IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
+                if( Server.IsIP( targetNameOrIP ) && IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
                     targetAddress.UnbanIP( player, reason, true, true );
                 } else {
                     PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
@@ -280,7 +280,7 @@ namespace fCraft {
 
             try {
                 IPAddress targetAddress;
-                if( IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
+                if( Server.IsIP( targetNameOrIP ) && IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
                     targetAddress.UnbanAll( player, reason, true, true );
                 } else {
                     PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
@@ -573,9 +573,9 @@ namespace fCraft {
             player.Info.IsHidden = false;
             if( !silent ) {
                 if( ConfigKey.ShowConnectionMessages.Enabled() ) {
-// ReSharper disable AssignNullToNotNullAttribute
+                    // ReSharper disable AssignNullToNotNullAttribute
                     string msg = Server.MakePlayerConnectedMessage( player, false, player.World );
-// ReSharper restore AssignNullToNotNullAttribute
+                    // ReSharper restore AssignNullToNotNullAttribute
                     Server.Players.CantSee( player ).Message( msg );
                 }
                 if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() ) {
@@ -845,7 +845,7 @@ namespace fCraft {
             }
 
             World world = toPlayer.World;
-            if(world==null) PlayerOpException.ThrowNoWorld( toPlayer );
+            if( world == null ) PlayerOpException.ThrowNoWorld( toPlayer );
 
             Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
             if( target == null ) return;
@@ -864,7 +864,7 @@ namespace fCraft {
 
             } else {
                 if( world.AccessSecurity.CheckDetailed( target.Info ) == SecurityCheckResult.RankTooLow &&
-                    player.CanJoin(world) && !cmd.IsConfirmed ) {
+                    player.CanJoin( world ) && !cmd.IsConfirmed ) {
                     player.Confirm( cmd,
                                     "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
                                     target.Name,
@@ -1301,7 +1301,7 @@ namespace fCraft {
                 try {
                     targetInfo.Freeze( player, true, true );
                     player.Message( "Player {0}&S has been frozen while you retry.", targetInfo.ClassyName );
-                } catch( PlayerOpException) { }
+                } catch( PlayerOpException ) { }
             }
         }
 
