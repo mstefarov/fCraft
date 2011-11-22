@@ -191,7 +191,7 @@
  Misc: IRC bot now announces channel kicks and nick changes.
  Misc: When a player with a reserved slot tries to join a full world, the longest-idle player will be kicked to make room.
  Misc: Frozen, demoted, and banned players are now automatically unhidden. Frozen players are undeafened. Banned players are also automatically unfrozen and unmuted.
- Misc: When a player's rank is changed, their bindings are now reset (to avoid issues with /water, /lava, and /solid), and any in-progress selection is canceled (draw commands, /zone, /ztest, /bi, /measure, etc)
+ Misc: When a player's rank is changed, their bindings are now reset (to avoid issues with /Water, /Lava, and /Solid), and any in-progress selection is canceled (draw commands, /Zone, /ZTest, /BInfo, /Measure, etc)
  Misc: Frozen players now have a little blue star appended to their names, similar to the red star for banned players.
  Misc: Moved all Heartbeat-related operations to the background thread (fixes lag spikes when minecraft.net times out).
  Misc: Added a dynamically updated compass at the top-right of the screen, visible to players who use WoM 1.8.8+
@@ -224,7 +224,7 @@
  Worlds Fix: Fixed a crash that occurred if worlds.xml existed but contained no worlds.
  Worlds Fix: Fixed an exploit that allowed players to bypass world access permissions in certain rank configurations.
  Worlds Fix: Fixed some rare crashes in /WLoad.
- Worlds Fix: Fixed /WAccess and /wbuild occasionally not saving the world list after adding players to the access/build whitelists.
+ Worlds Fix: Fixed /WAccess and /WBuild occasionally not saving the world list after adding players to the access/build whitelists.
  Worlds Fix: Fixed being unable to change just the capitalization when renaming worlds from ConfigTool, under Windows.
  Zones: Added /ZRename command to rename zones.
  Zones: Added /ZMark command to use zone boundaries for drawing or making selections.
