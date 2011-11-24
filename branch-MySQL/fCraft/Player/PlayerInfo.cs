@@ -785,7 +785,7 @@ namespace fCraft {
                 firstLoginDate = DateTime.UtcNow;
                 lastLoginDate = firstLoginDate;
                 lastSeen = firstLoginDate;
-                TimesVisited = 1;
+                timesVisited = 1;
             }
             this.rankChangeType = rankChangeType;
             LastModified = DateTime.UtcNow;
@@ -797,13 +797,13 @@ namespace fCraft {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( lastIP == null ) throw new ArgumentNullException( "lastIP" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
-            FirstLoginDate = DateTime.UtcNow;
-            LastSeen = DateTime.UtcNow;
-            LastLoginDate = DateTime.UtcNow;
-            Rank = startingRank;
-            Name = name;
+            firstLoginDate = DateTime.UtcNow;
+            lastSeen = DateTime.UtcNow;
+            lastLoginDate = DateTime.UtcNow;
+            rank = startingRank;
+            this.name = name;
             ID = PlayerDB.GetNextID();
-            LastIP = lastIP;
+            this.lastIP = lastIP;
             LastModified = DateTime.UtcNow;
         }
 
@@ -998,8 +998,8 @@ namespace fCraft {
             if( fields[20].Length > 0 ) Int32.TryParse( fields[21], out info.messagesWritten );
             // fields 22-23 are no longer in use
 
-            if( fields[24].Length > 0 ) info.PreviousRank = Rank.Parse( fields[24] );
-            if( fields[25].Length > 0 ) info.RankChangeReason = Unescape( fields[25] );
+            if( fields[24].Length > 0 ) info.previousRank = Rank.Parse( fields[24] );
+            if( fields[25].Length > 0 ) info.rankChangeReason = Unescape( fields[25] );
             Int32.TryParse( fields[26], out info.timesKicked );
             Int32.TryParse( fields[27], out info.timesKickedOthers );
             Int32.TryParse( fields[28], out info.timesBannedOthers );
@@ -1214,17 +1214,17 @@ namespace fCraft {
 
 
         void GuessRankChangeType() {
-            if( PreviousRank != null ) {
-                if( RankChangeReason == "~AutoRank" || RankChangeReason == "~AutoRankAll" || RankChangeReason == "~MassRank" ) {
-                    if( PreviousRank > Rank ) {
+            if( previousRank != null ) {
+                if( rankChangeReason == "~AutoRank" || rankChangeReason == "~AutoRankAll" || rankChangeReason == "~MassRank" ) {
+                    if( previousRank > rank ) {
                         rankChangeType = RankChangeType.AutoDemoted;
-                    } else if( PreviousRank < Rank ) {
+                    } else if( previousRank < rank ) {
                         rankChangeType = RankChangeType.AutoPromoted;
                     }
                 } else {
-                    if( PreviousRank > Rank ) {
+                    if( previousRank > rank ) {
                         rankChangeType = RankChangeType.Demoted;
-                    } else if( PreviousRank < Rank ) {
+                    } else if( previousRank < rank ) {
                         rankChangeType = RankChangeType.Promoted;
                     }
                 }
@@ -1369,7 +1369,7 @@ namespace fCraft {
             sb.Append( ',' );
 
             sb.Append( rank.FullName ).Append( ',' ); // 2
-            RankChangeDate.ToUnixTimeString( sb ).Append( ',' ); // 3
+            rankChangeDate.ToUnixTimeString( sb ).Append( ',' ); // 3
 
             sb.AppendEscaped( rankChangedBy ).Append( ',' ); // 4
 
@@ -1399,9 +1399,9 @@ namespace fCraft {
             lastLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 16
 
             if( isOnline ) {
-                (TotalTime.Add( TimeSinceLastLogin )).ToTickString( sb ).Append( ',' ); // 17
+                (totalTime.Add( TimeSinceLastLogin )).ToTickString( sb ).Append( ',' ); // 17
             } else {
-                TotalTime.ToTickString( sb ).Append( ',' ); // 17
+                totalTime.ToTickString( sb ).Append( ',' ); // 17
             }
 
             if( blocksBuilt > 0 ) sb.Digits( blocksBuilt ); // 18
