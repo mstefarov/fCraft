@@ -835,7 +835,7 @@ namespace fCraft {
                     if( type == Block.Stair && coord.Z > 0 && map.GetBlock( coordBelow ) == Block.Stair ) {
                         // handle stair stacking
                         blockUpdate = new BlockUpdate( this, coordBelow, Block.DoubleStair );
-                        Info.ProcessBlockPlaced( (byte)Block.DoubleStair );
+                        Info.ProcessBlockPlaced( Block.DoubleStair );
                         map.QueueUpdate( blockUpdate );
                         RaisePlayerPlacedBlockEvent( this, World.Map, coordBelow, Block.Stair, Block.DoubleStair, context );
                         SendNow( PacketWriter.MakeSetBlock( coordBelow, Block.DoubleStair ) );
@@ -845,7 +845,7 @@ namespace fCraft {
                     } else {
                         // handle normal blocks
                         blockUpdate = new BlockUpdate( this, coord, type );
-                        Info.ProcessBlockPlaced( (byte)type );
+                        Info.ProcessBlockPlaced( type );
                         Block old = map.GetBlock( coord );
                         map.QueueUpdate( blockUpdate );
                         RaisePlayerPlacedBlockEvent( this, World.Map, coord, old, type, context );

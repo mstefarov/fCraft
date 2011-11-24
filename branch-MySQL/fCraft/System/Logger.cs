@@ -324,7 +324,7 @@ namespace fCraft {
 #if DEBUG_EVENTS
 
         // list of events in this assembly
-        static readonly Dictionary<int, EventInfo> eventsMap = new Dictionary<int, EventInfo>();
+        static readonly Dictionary<int, EventInfo> EventsMap = new Dictionary<int, EventInfo>();
 
 
         static List<string> eventWhitelist = new List<string>();
@@ -377,7 +377,7 @@ namespace fCraft {
                         var parameterTypes = method.GetParameters().Select( info => info.ParameterType ).ToArray();
                         AddEventHook( typeBuilder, parameterTypes, method.ReturnType, eventIndex );
                         eventList.Add( eventInfo );
-                        eventsMap.Add( eventIndex, eventInfo );
+                        EventsMap.Add( eventIndex, eventInfo );
                         eventIndex++;
                     }
                 }
@@ -419,7 +419,7 @@ namespace fCraft {
         // Invoked when events fire
         public static void EventTraceNotifier( int eventIndex, EventArgs e ) {
             if( (e is LogEventArgs) && ((LogEventArgs)e).MessageType == LogType.Trace ) return;
-            var eventInfo = eventsMap[eventIndex];
+            var eventInfo = EventsMap[eventIndex];
 
             StringBuilder sb = new StringBuilder();
             bool first = true;
@@ -441,7 +441,7 @@ namespace fCraft {
 
             Log( LogType.Trace,
                  "TraceEvent: {0}.{1}( {2} )",
-                 eventInfo.DeclaringType.Name, eventInfo.Name, sb.ToString() );
+                 eventInfo.DeclaringType.Name, eventInfo.Name, sb );
 
         }
 

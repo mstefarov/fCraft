@@ -947,7 +947,8 @@ namespace fCraft {
         };
 
         static void BringAllHandler( Player player, Command cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
             List<World> targetWorlds = new List<World>();
             List<Rank> targetRanks = new List<Rank>();
@@ -1035,7 +1036,7 @@ namespace fCraft {
 
                 } else {
                     // teleport to a different world
-                    BringPlayerToWorld( player, targetPlayer, player.World, false, true );
+                    BringPlayerToWorld( player, targetPlayer, playerWorld, false, true );
                 }
                 count++;
             }

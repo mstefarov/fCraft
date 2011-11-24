@@ -885,7 +885,6 @@ namespace fCraft {
                                     "BanReason, UnbanReason, RankReason, KickReason, DisplayedName" );
                     return;
             }
-            info.LastModified = DateTime.UtcNow;
         }
 
         static bool SetPlayerInfoField( [NotNull] Player player, [NotNull] string fieldName, [NotNull] IClassy info,

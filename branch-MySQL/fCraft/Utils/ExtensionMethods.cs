@@ -117,11 +117,13 @@ namespace fCraft {
 
         /// <summary> Tries to create a DateTime from a string containing a Utc Unix Timestamp.
         /// If the string was empty, returns false and does not affect result. </summary>
-        public static bool ToDateTime( this string str, ref DateTime result ) {
+        public static bool ToDateTime( this string str, out DateTime result ) {
             long t;
             if( str.Length > 1 && Int64.TryParse( str, out t ) ) {
                 result = UnixEpoch.AddSeconds( Int64.Parse( str ) );
                 return true;
+            } else {
+                result = DateTime.MinValue;
             }
             return false;
         }
@@ -132,12 +134,15 @@ namespace fCraft {
         }
 
 
-        public static bool ToDateTimeLegacy( this string str, ref DateTime result ) {
-            if( str.Length <= 1 ) {
+        public static bool ToDateTimeLegacy( this string str, out DateTime result ) {
+            long dateTime;
+            if( str.Length > 0 && Int64.TryParse( str, out dateTime ) ) {
+                result = ToDateTimeLegacy( Int64.Parse( str ) );
+                return true;
+            } else {
+                result = DateTime.MinValue;
                 return false;
             }
-            result = ToDateTimeLegacy( Int64.Parse( str ) );
-            return true;
         }
 
         #endregion

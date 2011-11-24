@@ -345,7 +345,7 @@ namespace fCraft {
             } catch( Exception ex ) {
                 // if the port is unavailable, try next one
                 Logger.Log( LogType.Error,
-                            "Could not start listening on port {0}, trying next port. ({1})",
+                            "Could not start listening on port {0}, stopping. ({1})",
                             Port, ex.Message );
                 if( !ConfigKey.IP.IsBlank() ) {
                     Logger.Log( LogType.Warning,
@@ -882,7 +882,6 @@ namespace fCraft {
         /// <summary> Checks server's external IP, as reported by checkip.dyndns.org. </summary>
         [CanBeNull]
         static IPAddress CheckExternalIP() {
-            return null;
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( IPCheckUri );
             request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
             request.Timeout = IPCheckTimeout;
