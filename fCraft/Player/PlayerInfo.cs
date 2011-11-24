@@ -767,10 +767,17 @@ namespace fCraft {
         #endregion
 
 
+        readonly object syncRoot = new object();
+        public object SyncRoot {
+            get { return syncRoot; }
+        }
+
+
         #region Constructors and Serialization
 
         internal PlayerInfo( int id ) {
             ID = id;
+            isLoaded = true;
         }
 
 
@@ -789,6 +796,7 @@ namespace fCraft {
             }
             this.rankChangeType = rankChangeType;
             LastModified = DateTime.UtcNow;
+            isLoaded = true;
         }
 
 
@@ -805,6 +813,7 @@ namespace fCraft {
             ID = PlayerDB.GetNextID();
             this.lastIP = lastIP;
             LastModified = DateTime.UtcNow;
+            isLoaded = true;
         }
 
         #endregion
@@ -1612,7 +1621,7 @@ namespace fCraft {
         #region Update Handlers
 
         public void ProcessMessageWritten() {
-            lock( actionLock ) {
+            lock( syncRoot ) {
                 MessagesWritten++;
             }
         }
@@ -1620,7 +1629,7 @@ namespace fCraft {
 
         public void ProcessLogin( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            lock( actionLock ) {
+            lock( syncRoot ) {
                 LastIP = player.IP;
                 LastLoginDate = DateTime.UtcNow;
                 LastSeen = DateTime.UtcNow;
@@ -1633,39 +1642,45 @@ namespace fCraft {
 
         public void ProcessFailedLogin( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            LastFailedLoginDate = DateTime.UtcNow;
-            LastFailedLoginIP = player.IP;
-            LastModified = DateTime.UtcNow;
+            lock( syncRoot ) {
+                LastFailedLoginDate = DateTime.UtcNow;
+                LastFailedLoginIP = player.IP;
+                LastModified = DateTime.UtcNow;
+            }
         }
 
 
         public void ProcessLogout( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            TotalTime += player.LastActiveTime.Subtract( player.LoginTime );
-            LastSeen = DateTime.UtcNow;
-            IsOnline = false;
-            PlayerObject = null;
-            LeaveReason = player.LeaveReason;
-            LastModified = DateTime.UtcNow;
+            lock( syncRoot ) {
+                TotalTime += player.LastActiveTime.Subtract( player.LoginTime );
+                LastSeen = DateTime.UtcNow;
+                IsOnline = false;
+                PlayerObject = null;
+                LeaveReason = player.LeaveReason;
+                LastModified = DateTime.UtcNow;
+            }
         }
 
 
         public void ProcessRankChange( [NotNull] Rank newRank, [NotNull] string changer, [CanBeNull] string reason, RankChangeType type ) {
             if( newRank == null ) throw new ArgumentNullException( "newRank" );
             if( changer == null ) throw new ArgumentNullException( "changer" );
-            PreviousRank = Rank;
-            Rank = newRank;
-            RankChangeDate = DateTime.UtcNow;
+            lock( syncRoot ) {
+                PreviousRank = Rank;
+                Rank = newRank;
+                RankChangeDate = DateTime.UtcNow;
 
-            RankChangedBy = changer;
-            RankChangeReason = reason;
-            RankChangeType = type;
-            LastModified = DateTime.UtcNow;
+                RankChangedBy = changer;
+                RankChangeReason = reason;
+                RankChangeType = type;
+                LastModified = DateTime.UtcNow;
+            }
         }
 
 
         public void ProcessBlockPlaced( Block type ) {
-            lock( actionLock ) {
+            lock( syncRoot ) {
                 if( type == Block.Air ) {
                     BlocksDeleted++;
                 } else {
@@ -1676,7 +1691,7 @@ namespace fCraft {
 
 
         public void ProcessDrawCommand( int blocksToAdd ) {
-            lock( actionLock ) {
+            lock( syncRoot ) {
                 blocksDrawn += blocksToAdd;
             }
         }
@@ -1686,9 +1701,9 @@ namespace fCraft {
             if( kickedBy == null ) throw new ArgumentNullException( "kickedBy" );
             if( reason != null && reason.Trim().Length == 0 ) reason = null;
 
-            lock( actionLock ) {
+            lock( syncRoot ) {
                 TimesKicked++;
-                lock( kickedBy.Info.actionLock ) {
+                lock( kickedBy.Info.syncRoot ) {
                     kickedBy.Info.TimesKickedOthers++;
                 }
                 LastKickDate = DateTime.UtcNow;
@@ -1814,12 +1829,15 @@ namespace fCraft {
         void OnChanged( string propertyName ) {
             changed = true;
             LastModified = DateTime.UtcNow;
-            var h = PropertyChanged;
-            if( h != null ) h( this, new PropertyChangedEventArgs( propertyName ) );
+            if( isLoaded ) {
+                var h = PropertyChanged;
+                if( h != null ) h( this, new PropertyChangedEventArgs( propertyName ) );
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        bool isLoaded;
 
         public override string ToString() {
             return String.Format( "PlayerInfo({0},{1})", Name, Rank.Name );

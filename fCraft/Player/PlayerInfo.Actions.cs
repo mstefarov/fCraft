@@ -8,8 +8,6 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     public sealed partial class PlayerInfo {
-        readonly object actionLock = new object();
-
         #region Ban / Unban
 
         /// <summary> Bans given player. Kicks if online. Throws PlayerOpException on problems. </summary>
@@ -39,7 +37,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason != null && reason.Trim().Length == 0 ) reason = null;
 
-            lock( actionLock ) {
+            lock( syncRoot ) {
                 // Check if player can ban/unban in general
                 if( !player.Can( Permission.Ban ) ) {
                     PlayerOpException.ThrowPermissionMissing( player, this,
@@ -150,7 +148,7 @@ namespace fCraft {
         public void BanIP( [NotNull] Player player, [CanBeNull] string reason, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason != null && reason.Trim().Length == 0 ) reason = null;
-            lock( actionLock ) {
+            lock( syncRoot ) {
                 if( !player.Can( Permission.Ban, Permission.BanIP ) ) {
                     PlayerOpException.ThrowPermissionMissing( player, this, "IP-ban", Permission.Ban, Permission.BanIP );
                 }
@@ -261,7 +259,7 @@ namespace fCraft {
         public void UnbanIP( [NotNull] Player player, [CanBeNull] string reason, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason != null && reason.Trim().Length == 0 ) reason = null;
-            lock( actionLock ) {
+            lock( syncRoot ) {
                 if( !player.Can( Permission.Ban, Permission.BanIP ) ) {
                     PlayerOpException.ThrowPermissionMissing( player, this, "IP-unban", Permission.Ban, Permission.BanIP );
                 }
@@ -330,7 +328,7 @@ namespace fCraft {
         public void BanAll( [NotNull] Player player, [CanBeNull] string reason, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason != null && reason.Trim().Length == 0 ) reason = null;
-            lock( actionLock ) {
+            lock( syncRoot ) {
                 if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
                     PlayerOpException.ThrowPermissionMissing( player, this, "ban-all",
                                                          Permission.Ban, Permission.BanIP, Permission.BanAll );
@@ -452,7 +450,7 @@ namespace fCraft {
         public void UnbanAll( [NotNull] Player player, [CanBeNull] string reason, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( reason != null && reason.Trim().Length == 0 ) reason = null;
-            lock( actionLock ) {
+            lock( syncRoot ) {
                 if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
                     PlayerOpException.ThrowPermissionMissing( player, this, "unban-all",
                                                          Permission.Ban, Permission.BanIP, Permission.BanAll );
@@ -546,7 +544,7 @@ namespace fCraft {
         internal bool ProcessBan( [NotNull] Player newBannedBy, [NotNull] string bannedByName, [CanBeNull] string newBanReason ) {
             if( newBannedBy == null ) throw new ArgumentNullException( "newBannedBy" );
             if( bannedByName == null ) throw new ArgumentNullException( "bannedByName" );
-            lock( actionLock ) {
+            lock( syncRoot ) {
                 if( IsBanned ) {
                     return false;
                 }
@@ -554,7 +552,7 @@ namespace fCraft {
                 BannedBy = bannedByName;
                 BanDate = DateTime.UtcNow;
                 BanReason = newBanReason;
-                lock( newBannedBy.Info.actionLock ) {
+                lock( newBannedBy.Info.syncRoot ) {
                     newBannedBy.Info.TimesBannedOthers++;
                 }
                 MutedUntil = DateTime.MinValue;
@@ -575,7 +573,7 @@ namespace fCraft {
 
         internal bool ProcessUnban( [NotNull] string unbannedByName, [CanBeNull] string newUnbanReason ) {
             if( unbannedByName == null ) throw new ArgumentNullException( "unbannedByName" );
-            lock( actionLock ) {
+            lock( syncRoot ) {
                 if( IsBanned ) {
                     BanStatus = BanStatus.NotBanned;
                     UnbannedBy = unbannedByName;
@@ -774,7 +772,7 @@ namespace fCraft {
                 PlayerOpException.ThrowCannotTargetSelf( player, this, "freeze" );
             }
 
-            lock( actionLock ) {
+            lock( syncRoot ) {
                 // Check if player can freeze in general
                 if( !player.Can( Permission.Freeze ) ) {
                     PlayerOpException.ThrowPermissionMissing( player, this, "freeze", Permission.Freeze );
@@ -837,7 +835,7 @@ namespace fCraft {
                 PlayerOpException.ThrowCannotTargetSelf( player, this, "unfreeze" );
             }
 
-            lock( actionLock ) {
+            lock( syncRoot ) {
                 // Check if player can freeze in general
                 if( !player.Can( Permission.Freeze ) ) {
                     PlayerOpException.ThrowPermissionMissing( player, this, "unfreeze", Permission.Freeze );
@@ -904,7 +902,7 @@ namespace fCraft {
                 PlayerOpException.ThrowCannotTargetSelf( player, this, "mute" );
             }
 
-            lock( actionLock ) {
+            lock( syncRoot ) {
                 // Check if player can mute in general
                 if( !player.Can( Permission.Mute ) ) {
                     PlayerOpException.ThrowPermissionMissing( player, this, "mute", Permission.Mute );
@@ -976,7 +974,7 @@ namespace fCraft {
                 PlayerOpException.ThrowCannotTargetSelf( player, this, "unmute" );
             }
 
-            lock( actionLock ) {
+            lock( syncRoot ) {
                 TimeSpan timeLeft = TimeMutedLeft;
                 // Check if player can unmute in general
                 if( !player.Can( Permission.Mute ) ) {
@@ -1021,7 +1019,7 @@ namespace fCraft {
 
 
         internal void Unmute() {
-            lock( actionLock ) {
+            lock( syncRoot ) {
                 MutedUntil = DateTime.MinValue;
                 MutedBy = null;
             }
