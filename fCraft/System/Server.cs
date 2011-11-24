@@ -882,7 +882,6 @@ namespace fCraft {
         /// <summary> Checks server's external IP, as reported by checkip.dyndns.org. </summary>
         [CanBeNull]
         static IPAddress CheckExternalIP() {
-            return null;
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( IPCheckUri );
             request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
             request.Timeout = IPCheckTimeout;

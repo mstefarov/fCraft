@@ -396,7 +396,8 @@ namespace fCraft {
                 }
             } else {
                 XElement settings = config.Element( "Settings" );
-                foreach( XElement pair in config.Elements( "ConfigKey" ) ) {
+                foreach( XElement pair in settings.Elements( "ConfigKey" ) ) {
+                    ParseKeyElement( pair );
                 }
             }
 
