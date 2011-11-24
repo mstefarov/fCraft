@@ -2,7 +2,6 @@
 using System;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using fCraft.Drawing;
 using fCraft.Events;
 using JetBrains.Annotations;
@@ -544,8 +543,8 @@ namespace fCraft {
         }
 
 
-        internal bool ProcessBan( [NotNull] Player bannedBy, [NotNull] string bannedByName, [CanBeNull] string banReason ) {
-            if( bannedBy == null ) throw new ArgumentNullException( "bannedBy" );
+        internal bool ProcessBan( [NotNull] Player newBannedBy, [NotNull] string bannedByName, [CanBeNull] string newBanReason ) {
+            if( newBannedBy == null ) throw new ArgumentNullException( "newBannedBy" );
             if( bannedByName == null ) throw new ArgumentNullException( "bannedByName" );
             lock( actionLock ) {
                 if( IsBanned ) {
@@ -554,34 +553,34 @@ namespace fCraft {
                 BanStatus = BanStatus.Banned;
                 BannedBy = bannedByName;
                 BanDate = DateTime.UtcNow;
-                BanReason = banReason;
-                Interlocked.Increment( ref bannedBy.Info.TimesBannedOthers );
+                BanReason = newBanReason;
+                lock( newBannedBy.Info.actionLock ) {
+                    newBannedBy.Info.TimesBannedOthers++;
+                }
                 MutedUntil = DateTime.MinValue;
                 MutedBy = null;
                 if( IsFrozen ) {
                     try {
-                        Unfreeze( bannedBy, false, true );
+                        Unfreeze( newBannedBy, false, true );
                     } catch( PlayerOpException ex ) {
                         Logger.Log( LogType.Warning,
                                     "PlayerInfo.ProcessBan: {0}", ex.Message );
                     }
                 }
                 IsHidden = false;
-                LastModified = DateTime.UtcNow;
                 return true;
             }
         }
 
 
-        internal bool ProcessUnban( [NotNull] string unbannedByName, [CanBeNull] string unbanReason ) {
+        internal bool ProcessUnban( [NotNull] string unbannedByName, [CanBeNull] string newUnbanReason ) {
             if( unbannedByName == null ) throw new ArgumentNullException( "unbannedByName" );
             lock( actionLock ) {
                 if( IsBanned ) {
                     BanStatus = BanStatus.NotBanned;
                     UnbannedBy = unbannedByName;
                     UnbanDate = DateTime.UtcNow;
-                    UnbanReason = unbanReason;
-                    LastModified = DateTime.UtcNow;
+                    UnbanReason = newUnbanReason;
                     return true;
                 } else {
                     return false;
@@ -803,7 +802,6 @@ namespace fCraft {
                 IsHidden = false;
                 FrozenOn = DateTime.UtcNow;
                 FrozenBy = player.Name;
-                LastModified = DateTime.UtcNow;
 
                 // Apply side effects
                 Player target = PlayerObject;
@@ -880,10 +878,7 @@ namespace fCraft {
 
 
         internal void Unfreeze() {
-            lock( actionLock ) {
-                IsFrozen = false;
-                LastModified = DateTime.UtcNow;
-            }
+            IsFrozen = false;
         }
 
         #endregion
@@ -934,7 +929,6 @@ namespace fCraft {
                     // actually mute
                     MutedUntil = newMutedUntil;
                     MutedBy = player.Name;
-                    LastModified = DateTime.UtcNow;
 
                     // raise PlayerInfo.MuteChanged event
                     if( raiseEvents ) {
@@ -1030,7 +1024,6 @@ namespace fCraft {
             lock( actionLock ) {
                 MutedUntil = DateTime.MinValue;
                 MutedBy = null;
-                LastModified = DateTime.UtcNow;
             }
         }
 

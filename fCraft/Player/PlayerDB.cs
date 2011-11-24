@@ -12,10 +12,13 @@ using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
+
     /// <summary> Persistent database of player information. </summary>
     public static class PlayerDB {
         static readonly Trie<PlayerInfo> Trie = new Trie<PlayerInfo>();
         static List<PlayerInfo> list = new List<PlayerInfo>();
+
+        public static string ProviderType { get; internal set; }
 
         /// <summary> Cached list of all players in the database.
         /// May be quite long. Make sure to copy a reference to
@@ -129,7 +132,7 @@ namespace fCraft {
                                         PlayerInfo info;
                                         switch( version ) {
                                             case 0:
-                                                info = PlayerInfo.LoadFormat0( fields, true );
+                                                info = PlayerInfo.LoadFormat0( fields );
                                                 break;
                                             case 1:
                                                 info = PlayerInfo.LoadFormat1( fields );
@@ -430,7 +433,7 @@ namespace fCraft {
                     }
                     writer.Write( listCopy.Length );
                     for( int i = 0; i < listCopy.Length; i++ ) {
-                        listCopy[i].Serialize( writer );
+                        listCopy[i].SaveBinaryFormat0( writer );
                     }
                 }
                 sw.Stop();
@@ -855,69 +858,34 @@ namespace fCraft {
             lock( AddLocker ) {
                 lock( SaveLoadLocker ) {
                     if( p1.IsOnline || p2.IsOnline ) {
-                        throw new Exception( "Both players must be offline to swap info." );
+                        throw new InvalidOperationException( "Both players must be offline to swap info." );
                     }
-                    Swap( ref p1.BanDate, ref p2.BanDate );
-                    Swap( ref p1.BandwidthUseMode, ref p2.BandwidthUseMode );
-                    Swap( ref p1.BanStatus, ref p2.BanStatus );
-                    Swap( ref p1.BannedBy, ref p2.BannedBy );
-                    Swap( ref p1.BannedUntil, ref p2.BannedUntil );
-                    Swap( ref p1.BanReason, ref p2.BanReason );
-                    Swap( ref p1.BlocksBuilt, ref p2.BlocksBuilt );
-                    Swap( ref p1.BlocksDeleted, ref p2.BlocksDeleted );
-                    Swap( ref p1.BlocksDrawn, ref p2.BlocksDrawn );
-                    Swap( ref p1.DisplayedName, ref p2.DisplayedName );
-                    Swap( ref p1.FirstLoginDate, ref p2.FirstLoginDate );
-                    Swap( ref p1.FrozenBy, ref p2.FrozenBy );
-                    Swap( ref p1.FrozenOn, ref p2.FrozenOn );
-                    Swap( ref p1.ID, ref p2.ID );
-                    Swap( ref p1.IsFrozen, ref p2.IsFrozen );
-                    //Swap( ref p1.IsHidden, ref p2.IsHidden );
-                    Swap( ref p1.LastFailedLoginDate, ref p2.LastFailedLoginDate );
-                    Swap( ref p1.LastFailedLoginIP, ref p2.LastFailedLoginIP );
-                    //Swap( ref p1.LastIP, ref p2.LastIP );
-                    Swap( ref p1.LastKickBy, ref p2.LastKickBy );
-                    Swap( ref p1.LastKickDate, ref p2.LastKickDate );
-                    Swap( ref p1.LastKickReason, ref p2.LastKickReason );
-                    //Swap( ref p1.LastLoginDate, ref p2.LastLoginDate );
-                    //Swap( ref p1.LastSeen, ref p2.LastSeen );
-                    //Swap( ref p1.LeaveReason, ref p2.LeaveReason );
-                    Swap( ref p1.MessagesWritten, ref p2.MessagesWritten );
-                    Swap( ref p1.MutedBy, ref p2.MutedBy );
-                    Swap( ref p1.MutedUntil, ref p2.MutedUntil );
-                    //Swap( ref p1.Name, ref p2.Name );
-                    //Swap( ref p1.Online, ref p2.Online );
-                    Swap( ref p1.Password, ref p2.Password );
-                    //Swap( ref p1.PlayerObject, ref p2.PlayerObject );
-                    Swap( ref p1.PreviousRank, ref p2.PreviousRank );
 
-                    Rank p1Rank = p1.Rank;
-                    p1.Rank = p2.Rank;
-                    p2.Rank = p1Rank;
+                    string tempString = p1.Name;
+                    p1.Name = p2.Name;
+                    p2.Name = tempString;
 
-                    Swap( ref p1.RankChangeDate, ref p2.RankChangeDate );
-                    Swap( ref p1.RankChangedBy, ref p2.RankChangedBy );
-                    Swap( ref p1.RankChangeReason, ref p2.RankChangeReason );
-                    Swap( ref p1.RankChangeType, ref p2.RankChangeType );
-                    Swap( ref p1.TimesBannedOthers, ref p2.TimesBannedOthers );
-                    Swap( ref p1.TimesKicked, ref p2.TimesKicked );
-                    Swap( ref p1.TimesKickedOthers, ref p2.TimesKickedOthers );
-                    Swap( ref p1.TimesVisited, ref p2.TimesVisited );
-                    Swap( ref p1.TotalTime, ref p2.TotalTime );
-                    Swap( ref p1.UnbanDate, ref p2.UnbanDate );
-                    Swap( ref p1.UnbannedBy, ref p2.UnbannedBy );
-                    Swap( ref p1.UnbanReason, ref p2.UnbanReason );
+                    DateTime tempDate = p1.LastLoginDate;
+                    p1.LastLoginDate = p2.LastLoginDate;
+                    p2.LastLoginDate = tempDate;
 
-                    list.Sort( PlayerIDComparer.Instance );
+                    tempDate = p1.LastSeen;
+                    p1.LastSeen = p2.LastSeen;
+                    p2.LastSeen = tempDate;
+
+                    LeaveReason tempLeaveReason = p1.LeaveReason;
+                    p1.LeaveReason = p2.LeaveReason;
+                    p2.LeaveReason = tempLeaveReason;
+
+                    IPAddress tempIP = p1.LastIP;
+                    p1.LastIP = p2.LastIP;
+                    p2.LastIP = tempIP;
+
+                    bool tempBool = p1.IsHidden;
+                    p1.IsHidden = p2.IsHidden;
+                    p2.IsHidden = tempBool;
                 }
             }
-        }
-
-
-        static void Swap<T>( ref T t1, ref T t2 ) {
-            var temp = t2;
-            t2 = t1;
-            t1 = temp;
         }
 
         #endregion

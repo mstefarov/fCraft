@@ -159,6 +159,9 @@ namespace fCraft {
      * 152 - r1243 - Changed the way fCraft stores config keys.
      *               Before: <fCraftConfig><Section name="blah"><KeyName>Value</KeyName></Section></fCraftConfig>
      *               After: <fCraftConfig><Settings><ConfigKey key="KeyName" value="Value" default="DefaultValue" /></Settings></fCraftConfig>
+     *               
+     * 153 - r1246 - Added PlayerDBProvider data
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -396,7 +399,8 @@ namespace fCraft {
                 }
             } else {
                 XElement settings = config.Element( "Settings" );
-                foreach( XElement pair in config.Elements( "ConfigKey" ) ) {
+                foreach( XElement pair in settings.Elements( "ConfigKey" ) ) {
+                    ParseKeyElement( pair );
                 }
             }
 
@@ -419,10 +423,21 @@ namespace fCraft {
                 ConfigKey.MaxPlayersPerWorld.TrySetValue( ConfigKey.MaxPlayers.GetInt() );
             }
 
+            XElement playerDBProviderEl = config.Element( "PlayerDBProvider" );
+            if( playerDBProviderEl == null ) {
+                PlayerDB.ProviderType = "PlayerDB.txt";
+                ProviderConfig = null;
+            } else {
+                PlayerDB.ProviderType = playerDBProviderEl.Attribute( "type" ).Value;
+                ProviderConfig = playerDBProviderEl;
+            }
+
             if( raiseReloadedEvent ) RaiseReloadedEvent();
 
             return true;
         }
+
+        public static XElement ProviderConfig { get; private set; }
 
 
         static void ParseKeyElementPreSettings( [NotNull] XElement element ) {

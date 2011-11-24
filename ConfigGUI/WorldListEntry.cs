@@ -146,12 +146,12 @@ namespace fCraft.ConfigGUI {
             }
 
             if( (tempEl = el.Element( "LoadedOn" )) != null ) {
-                if( !tempEl.Value.ToDateTime( ref LoadedOn ) ) {
+                if( !tempEl.Value.ToDateTime( out LoadedOn ) ) {
                     LoadedOn = DateTime.MinValue;
                 }
             }
             if( (tempEl = el.Element( "MapChangedOn" )) != null ) {
-                if( !tempEl.Value.ToDateTime( ref MapChangedOn ) ) {
+                if( !tempEl.Value.ToDateTime( out MapChangedOn ) ) {
                     MapChangedOn = DateTime.MinValue;
                 }
             }
