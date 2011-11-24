@@ -689,7 +689,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Freeze },
             Usage = "/Unfreeze PlayerName",
-            Help = "Releases the player from a frozen state. See &H/Help freeze&S for more information.",
+            Help = "Releases the player from a frozen state. See &H/Help Freeze&S for more information.",
             Handler = UnfreezeHandler
         };
 
