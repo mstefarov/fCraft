@@ -325,8 +325,8 @@ namespace fCraft {
                 BackupData();
             }
 
-            Player.Console = new Player( ConfigKey.ConsoleName.GetString() );
-            Player.AutoRank = new Player( "(AutoRank)" );
+            Player.Console = new Player( ReservedPlayerIDs.Console, ConfigKey.ConsoleName.GetString(), RankManager.HighestRank );
+            Player.AutoRank = new Player( ReservedPlayerIDs.AutoRank, "(AutoRank)", RankManager.HighestRank );
 
             if( ConfigKey.BlockDBEnabled.Enabled() ) BlockDB.Init();
 

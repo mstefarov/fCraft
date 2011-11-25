@@ -175,7 +175,7 @@ namespace fCraft.MapConversion {
             }
 
             // TODO: investigate side effects
-            PlayerInfo conversionPlayer = new PlayerInfo( "OpticraftConversion", RankManager.HighestRank, true, RankChangeType.AutoPromoted );
+            PlayerInfo conversionPlayer = PlayerDB.AddSuper( ReservedPlayerIDs.Importer, "OpticraftConversion", RankManager.HighestRank );
             foreach( OpticraftZone optiZone in dataStore.Zones ) {
                 // Make zone
                 Zone fZone = new Zone {

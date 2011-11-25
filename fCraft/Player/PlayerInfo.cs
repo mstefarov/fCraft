@@ -5,17 +5,17 @@ using System.Net;
 using System.Text;
 using System.ComponentModel;
 using JetBrains.Annotations;
-using System.IO;
 
 namespace fCraft {
     /// <summary> Object representing persistent state ("record") of a player, online or offline.
     /// There is exactly one PlayerInfo object for each known Minecraft account. All data is stored in the PlayerDB. </summary>
     public partial class PlayerInfo : IClassy, INotifyPropertyChanged {
+        public static readonly IComparer<PlayerInfo> Comparer = new PlayerIDComparer();
         public const int MinFieldCount = 24;
 
         #region Properties
 
-        bool changed;
+        protected bool Changed;
 
         /// <summary> Player's unique numeric ID. Immutable. Issued on first join. </summary>
         public int ID { get; protected set; }
@@ -767,7 +767,7 @@ namespace fCraft {
         #endregion
 
 
-        protected readonly object syncRoot = new object();
+        readonly object syncRoot = new object();
         public object SyncRoot {
             get { return syncRoot; }
         }
@@ -777,31 +777,29 @@ namespace fCraft {
 
         internal PlayerInfo( int id ) {
             ID = id;
-            isLoaded = true;
         }
 
 
         // fabricate info for an unrecognized player
-        public PlayerInfo( [NotNull] string name, [NotNull] Rank rank,
-                           bool setLoginDate, RankChangeType rankChangeType ){
+        protected PlayerInfo( int id, string name, IPAddress lastIP, Rank startingRank, RankChangeType rankChangeType )
+            : this( id ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            if( rank == null ) throw new ArgumentNullException( "rank" );
+            if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
             this.name = name;
-            this.rank = rank;
-            if( setLoginDate ) {
-                firstLoginDate = DateTime.UtcNow;
-                lastLoginDate = firstLoginDate;
-                lastSeen = firstLoginDate;
-                timesVisited = 1;
-            }
+            rank = startingRank;
+            firstLoginDate = DateTime.UtcNow;
+            lastLoginDate = firstLoginDate;
+            lastSeen = firstLoginDate;
+            this.lastIP=lastIP;
+            timesVisited = 1;
             this.rankChangeType = rankChangeType;
             LastModified = DateTime.UtcNow;
-            isLoaded = true;
         }
 
 
         // generate blank info for a new player
-        public PlayerInfo( [NotNull] string name, [NotNull] IPAddress lastIP, [NotNull] Rank startingRank ){
+        protected PlayerInfo( int id, [NotNull] string name, [NotNull] IPAddress lastIP, [NotNull] Rank startingRank )
+            : this( id ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( lastIP == null ) throw new ArgumentNullException( "lastIP" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
@@ -810,13 +808,12 @@ namespace fCraft {
             lastLoginDate = DateTime.UtcNow;
             rank = startingRank;
             this.name = name;
-            ID = PlayerDB.GetNextID();
             this.lastIP = lastIP;
             LastModified = DateTime.UtcNow;
-            isLoaded = true;
         }
 
         #endregion
+
 
         #region Update Handlers
 
@@ -996,7 +993,7 @@ namespace fCraft {
 
 
         void OnChanged( string propertyName ) {
-            changed = true;
+            Changed = true;
             LastModified = DateTime.UtcNow;
             if( RaisePropertyChangedEvents ) {
                 var h = PropertyChanged;
@@ -1006,11 +1003,20 @@ namespace fCraft {
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public bool RaisePropertyChangedEvents { get; set; }
+        protected bool RaisePropertyChangedEvents { get; set; }
 
         public override string ToString() {
             return String.Format( "PlayerInfo({0},{1})", Name, Rank.Name );
         }
+
+
+
+        sealed class PlayerIDComparer : IComparer<PlayerInfo> {
+            public int Compare( PlayerInfo x, PlayerInfo y ) {
+                return x.ID - y.ID;
+            }
+        }
+
     }
 
 

@@ -229,4 +229,12 @@ namespace fCraft {
         /// <summary> Session has ended - player disconnected. </summary>
         Disconnected
     }
+
+    public enum ReservedPlayerIDs : byte {
+        None = 0,
+        Unknown = 1,
+        Console = 2,
+        AutoRank = 3,
+        Importer = 4
+    }
 }
