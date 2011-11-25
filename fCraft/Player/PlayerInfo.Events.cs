@@ -5,7 +5,7 @@ using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    sealed partial class PlayerInfo {
+    partial class PlayerInfo {
 
         /// <summary> Occurs when a new PlayerDB entry is being created.
         /// Allows editing the starting rank. Cancellable (kicks the player). </summary>
