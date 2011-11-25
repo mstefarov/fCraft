@@ -24,7 +24,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdShutdown );
             CommandManager.RegisterCommand( CdRestart );
 
-            CommandManager.RegisterCommand( CdPruneDB );
+            //CommandManager.RegisterCommand( CdPruneDB );
 
             CommandManager.RegisterCommand( CdImport );
 
@@ -1122,7 +1122,7 @@ namespace fCraft {
 
         #region PruneDB
 
-        static readonly CommandDescriptor CdPruneDB = new CommandDescriptor {
+        /*static readonly CommandDescriptor CdPruneDB = new CommandDescriptor {
             Name = "PruneDB",
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
@@ -1152,7 +1152,7 @@ namespace fCraft {
             int removedCount = PlayerDB.RemoveInactivePlayers();
             Player player = (Player)task.UserState;
             player.Message( "PruneDB: Removed {0} inactive players!", removedCount );
-        }
+        }*/
 
         #endregion
 
@@ -1247,7 +1247,7 @@ namespace fCraft {
             foreach( string name in names ) {
                 if( Player.IsValidName( name ) ) {
                     PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
-                                      PlayerDB.AddFakeEntry( name, RankChangeType.Default );
+                                      PlayerDB.AddUnrecognized( name, RankChangeType.Default );
                     info.Ban( player, reason, true, true );
 
                 } else {
@@ -1318,7 +1318,7 @@ namespace fCraft {
             string reason = "(Import from " + serverName + ")";
             foreach( string name in names ) {
                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
-                                  PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
+                                  PlayerDB.AddUnrecognized( name, RankChangeType.Promoted );
                 try {
                     info.ChangeRank( player, targetRank, reason, !silent, true, false );
                 } catch( PlayerOpException ex ) {

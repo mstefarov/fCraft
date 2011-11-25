@@ -473,9 +473,9 @@ namespace fCraft {
                 }
                 if( cmd.IsConfirmed ) {
                     if( newRank > RankManager.DefaultRank ) {
-                        targetInfo = PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
+                        targetInfo = PlayerDB.AddUnrecognized( name, RankChangeType.Promoted );
                     } else {
-                        targetInfo = PlayerDB.AddFakeEntry( name, RankChangeType.Demoted );
+                        targetInfo = PlayerDB.AddUnrecognized( name, RankChangeType.Demoted );
                     }
                 } else {
                     player.Confirm( cmd,

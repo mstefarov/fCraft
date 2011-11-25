@@ -146,9 +146,9 @@ namespace fCraft {
         // This constructor is used to create pseudoplayers (such as Console and /dummy).
         // Such players have unlimited permissions, but no world.
         // This should be replaced by a more generic solution, like an IEntity interface.
-        internal Player( [NotNull] string name ) {
+        internal Player( ReservedPlayerIDs id, [NotNull] string name, Rank rank ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            Info = new PlayerInfo( name, RankManager.HighestRank, true, RankChangeType.AutoPromoted );
+            Info = PlayerDB.AddSuper( id, name, rank );
             spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
             IP = IPAddress.Loopback;
             ResetAllBinds();

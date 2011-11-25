@@ -2,59 +2,27 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
-
     /// <summary> Persistent database of player information. </summary>
     public static class PlayerDB {
-        static readonly Trie<PlayerInfo> Trie = new Trie<PlayerInfo>();
-        static List<PlayerInfo> list = new List<PlayerInfo>();
+        static readonly List<PlayerInfo> List = new List<PlayerInfo>();
 
         public static string ProviderType { get; internal set; }
+
+        static readonly object AddLocker = new object();
 
         /// <summary> Cached list of all players in the database.
         /// May be quite long. Make sure to copy a reference to
         /// the list before accessing it in a loop, since this 
         /// array be frequently be replaced by an updated one. </summary>
         public static PlayerInfo[] PlayerInfoList { get; private set; }
-
-        static int maxID = 255;
-        const int BufferSize = 64 * 1024;
-
-        /* 
-         * Version 0 - before 0.530 - all dates/times are local
-         * Version 1 - 0.530-0.536 - all dates and times are stored as UTC unix timestamps (milliseconds)
-         * Version 2 - 0.600 dev - all dates and times are stored as UTC unix timestamps (seconds)
-         * Version 3 - 0.600 dev - same as v2, but sorting by ID is enforced
-         * Version 4 - 0.600 dev - added LastModified column, forced banned players to be unfrozen/unmuted/unhidden.
-         * Version 5 - 0.600+ - removed FailedLoginCount column
-         */
-        public const int FormatVersion = 5;
-
-        const string Header = "fCraft PlayerDB | Row format: " +
-                              "Name,IPAddress,Rank,RankChangeDate,RankChangedBy,Banned,BanDate,BannedBy," +
-                              "UnbanDate,UnbannedBy,BanReason,UnbanReason,LastFailedLoginDate," +
-                              "LastFailedLoginIP,UNUSED,FirstLoginDate,LastLoginDate,TotalTime," +
-                              "BlocksBuilt,BlocksDeleted,TimesVisited,MessagesWritten,UNUSED,UNUSED," +
-                              "PreviousRank,RankChangeReason,TimesKicked,TimesKickedOthers," +
-                              "TimesBannedOthers,ID,RankChangeType,LastKickDate,LastSeen,BlocksDrawn," +
-                              "LastKickBy,LastKickReason,BannedUntil,IsFrozen,FrozenBy,FrozenOn,MutedUntil,MutedBy," +
-                              "Password,IsOnline,BandwidthUseMode,IsHidden,LastModified,DisplayedName";
-
-
-        // used to ensure PlayerDB consistency when adding/removing PlayerDB entries
-        static readonly object AddLocker = new object();
-
-        // used to prevent concurrent access to the PlayerDB file
-        static readonly object SaveLoadLocker = new object();
 
 
         public static bool IsLoaded { get; private set; }
@@ -64,14 +32,22 @@ namespace fCraft {
             if( !IsLoaded ) throw new InvalidOperationException( "PlayerDB is not loaded." );
         }
 
+
         [NotNull]
-        public static PlayerInfo AddFakeEntry( [NotNull] string name, RankChangeType rankChangeType ) {
+        public static PlayerInfo AddSuper( ReservedPlayerIDs id, [NotNull] string name, Rank rank ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            CheckIfLoaded();
+            return Provider.AddSuper( id, name, rank );
+        }
+
+        [NotNull]
+        public static PlayerInfo AddUnrecognized( [NotNull] string name, RankChangeType rankChangeType ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             CheckIfLoaded();
 
             PlayerInfo info;
-            lock( AddLocker ) {
-                info = Trie.Get( name );
+            lock( Provider.SyncRoot ) {
+                info = Provider.FindExact( name );
                 if( info != null ) {
                     throw new ArgumentException( "A PlayerDB entry already exists for this name.", "name" );
                 }
@@ -82,10 +58,9 @@ namespace fCraft {
                     throw new OperationCanceledException( "Cancelled by a plugin." );
                 }
 
-                info = new PlayerInfo( name, e.StartingRank, false, rankChangeType );
+                info = Provider.AddUnrecognizedPlayer( name, e.StartingRank, rankChangeType );
 
-                list.Add( info );
-                Trie.Add( info.Name, info );
+                List.Add( info );
                 UpdateCache();
             }
             PlayerInfo.RaiseCreatedEvent( info, false );
@@ -93,12 +68,34 @@ namespace fCraft {
         }
 
 
-        public static IPlayerDBProvider Provider;
+        [NotNull]
+        static IPlayerDBProvider Provider = new FlatfilePlayerDBProvider(); // TODO
+
+
+        public static void Load() {
+            Stopwatch sw = Stopwatch.StartNew();
+            var playerList = Provider.Load();
+            if( playerList != null ) {
+                List.AddRange( playerList );
+                sw.Stop();
+                Logger.Log( LogType.Debug,
+                            "PlayerDB.Load: Done loading ({0} records added) in {1}ms",
+                            List.Count, sw.ElapsedMilliseconds);
+            } else {
+                Logger.Log( LogType.Debug,
+                            "PlayerDB.Load: No records loaded." );
+            }
+            PostLoadCheck();
+            UpdateCache();
+            IsLoaded = true;
+        }
 
 
         public static void Save() {
+            CheckIfLoaded();
             Provider.Save();
         }
+
 
         #region Scheduled Saving
 
@@ -134,55 +131,35 @@ namespace fCraft {
             CheckIfLoaded();
             PlayerInfo info;
 
-            // this flag is used to avoid executing PlayerInfoCreated event in the lock
-            bool raiseCreatedEvent = false;
-
-            lock( AddLocker ) {
-                info = Trie.Get( name );
+            lock( Provider.SyncRoot ) {
+                info = Provider.FindExact( name );
                 if( info == null ) {
                     var e = new PlayerInfoCreatingEventArgs( name, lastIP, RankManager.DefaultRank, false );
                     PlayerInfo.RaiseCreatingEvent( e );
                     if( e.Cancel ) throw new OperationCanceledException( "Cancelled by a plugin." );
 
-                    info = new PlayerInfo( name, lastIP, e.StartingRank );
-                    Trie.Add( name, info );
-                    list.Add( info );
-                    UpdateCache();
-
-                    raiseCreatedEvent = true;
+                    info = Provider.AddPlayer( name, lastIP, e.StartingRank, RankChangeType.Default );
+                    PlayerInfo.RaiseCreatedEvent( info, false );
                 }
             }
 
-            if( raiseCreatedEvent ) {
-                PlayerInfo.RaiseCreatedEvent( info, false );
-            }
             return info;
         }
 
 
         [NotNull]
-        public static PlayerInfo[] FindPlayers( [NotNull] IPAddress address ) {
+        public static IEnumerable<PlayerInfo> FindPlayers( [NotNull] IPAddress address ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             return FindPlayers( address, Int32.MaxValue );
         }
 
 
         [NotNull]
-        public static PlayerInfo[] FindPlayers( [NotNull] IPAddress address, int limit ) {
+        public static IEnumerable<PlayerInfo> FindPlayers( [NotNull] IPAddress address, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             if( limit < 0 ) throw new ArgumentOutOfRangeException( "limit" );
             CheckIfLoaded();
-            List<PlayerInfo> result = new List<PlayerInfo>();
-            int count = 0;
-            PlayerInfo[] cache = PlayerInfoList;
-            for( int i = 0; i < cache.Length; i++ ) {
-                if( cache[i].LastIP.Equals( address ) ) {
-                    result.Add( cache[i] );
-                    count++;
-                    if( count >= limit ) return result.ToArray();
-                }
-            }
-            return result.ToArray();
+            return Provider.FindByIP( address, limit );
         }
 
 
@@ -242,33 +219,28 @@ namespace fCraft {
 
 
         [NotNull]
-        public static PlayerInfo[] FindPlayers( [NotNull] string namePart ) {
+        public static IEnumerable<PlayerInfo> FindPlayers( [NotNull] string namePart ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
             return FindPlayers( namePart, Int32.MaxValue );
         }
 
 
         [NotNull]
-        public static PlayerInfo[] FindPlayers( [NotNull] string namePart, int limit ) {
+        public static IEnumerable<PlayerInfo> FindPlayers( [NotNull] string namePart, int limit ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
             CheckIfLoaded();
-            lock( AddLocker ) {
-                //return Trie.ValuesStartingWith( namePart ).Take( limit ).ToArray(); // <- works, but is slightly slower
-                return Trie.GetList( namePart, limit ).ToArray();
-            }
+            return Provider.FindByPartialName( namePart, limit );
         }
 
 
         /// <summary>Searches for player names starting with namePart, returning just one or none of the matches.</summary>
-        /// <param name="namePart">Partial or full player name</param>
-        /// <param name="info">PlayerInfo to output (will be set to null if no single match was found)</param>
+        /// <param name="partialName">Partial or full player name</param>
+        /// <param name="result">PlayerInfo to output (will be set to null if no single match was found)</param>
         /// <returns>true if one or zero matches were found, false if multiple matches were found</returns>
-        internal static bool FindPlayerInfo( [NotNull] string namePart, out PlayerInfo info ) {
-            if( namePart == null ) throw new ArgumentNullException( "namePart" );
+        internal static bool FindPlayerInfo( [NotNull] string partialName, out PlayerInfo result ) {
+            if( partialName == null ) throw new ArgumentNullException( "partialName" );
             CheckIfLoaded();
-            lock( AddLocker ) {
-                return Trie.GetOneMatch( namePart, out info );
-            }
+            return Provider.FindOneByPartialName( partialName, out result );
         }
 
 
@@ -276,10 +248,9 @@ namespace fCraft {
         public static PlayerInfo FindPlayerInfoExact( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             CheckIfLoaded();
-            lock( AddLocker ) {
-                return Trie.Get( name );
-            }
+            return Provider.FindExact( name );
         }
+
 
         [CanBeNull]
         public static PlayerInfo FindPlayerInfoOrPrintMatches( [NotNull] Player player, [NotNull] string name ) {
@@ -300,7 +271,7 @@ namespace fCraft {
             }
             PlayerInfo target = FindPlayerInfoExact( name );
             if( target == null ) {
-                PlayerInfo[] targets = FindPlayers( name );
+                PlayerInfo[] targets = FindPlayers( name ).ToArray();
                 if( targets.Length == 0 ) {
                     player.MessageNoPlayer( name );
                     return null;
@@ -350,16 +321,38 @@ namespace fCraft {
 
 
         public static int Size {
-            get {
-                return Trie.Count;
-            }
+            get { return List.Count; }
         }
 
         #endregion
 
 
-        public static int GetNextID() {
-            return Interlocked.Increment( ref maxID );
+        static void PostLoadCheck() {
+            List.Sort( PlayerInfo.Comparer );
+
+            int unhid = 0, unfroze = 0, unmuted = 0;
+            Logger.Log( LogType.SystemActivity, "PlayerDB: Checking consistency of banned player records..." );
+            for( int i = 0; i < List.Count; i++ ) {
+                if( List[i].IsBanned ) {
+                    if( List[i].IsHidden ) {
+                        unhid++;
+                        List[i].IsHidden = false;
+                    }
+
+                    if( List[i].IsFrozen ) {
+                        List[i].Unfreeze();
+                        unfroze++;
+                    }
+
+                    if( List[i].IsMuted ) {
+                        List[i].Unmute();
+                        unmuted++;
+                    }
+                }
+            }
+            Logger.Log( LogType.SystemActivity,
+                        "PlayerDB.PostLoadCheck: Unhid {0}, unfroze {1}, and unmuted {2} banned accounts.",
+                        unhid, unfroze, unmuted );
         }
 
 
@@ -369,9 +362,9 @@ namespace fCraft {
             CheckIfLoaded();
             PlayerInfo dummy = new PlayerInfo( id );
             lock( AddLocker ) {
-                int index = list.BinarySearch( dummy, PlayerIDComparer.Instance );
+                int index = List.BinarySearch( dummy, PlayerInfo.Comparer );
                 if( index >= 0 ) {
-                    return list[index];
+                    return List[index];
                 } else {
                     return null;
                 }
@@ -391,7 +384,7 @@ namespace fCraft {
                 for( int i = 0; i < PlayerInfoList.Length; i++ ) {
                     if( PlayerInfoList[i].Rank == from ) {
                         try {
-                            list[i].ChangeRank( player, to, fullReason, true, true, false );
+                            List[i].ChangeRank( player, to, fullReason, true, true, false );
                         } catch( PlayerOpException ex ) {
                             player.Message( ex.MessageColored );
                         }
@@ -405,14 +398,14 @@ namespace fCraft {
 
         static void UpdateCache() {
             lock( AddLocker ) {
-                PlayerInfoList = list.ToArray();
+                PlayerInfoList = List.ToArray();
             }
         }
 
 
         #region Experimental & Debug things
 
-        internal static int CountInactivePlayers() {
+        /*internal static int CountInactivePlayers() {
             lock( AddLocker ) {
                 Dictionary<IPAddress, List<PlayerInfo>> playersByIP = new Dictionary<IPAddress, List<PlayerInfo>>();
                 PlayerInfo[] playerInfoListCache = PlayerInfoList;
@@ -465,7 +458,7 @@ namespace fCraft {
                 UpdateCache();
             }
             return count;
-        }
+        }*/
 
 
         static bool PlayerIsInactive( [NotNull] IDictionary<IPAddress, List<PlayerInfo>> playersByIP, [NotNull] PlayerInfo player, bool checkIP ) {
@@ -493,7 +486,7 @@ namespace fCraft {
             if( p1 == null ) throw new ArgumentNullException( "p1" );
             if( p2 == null ) throw new ArgumentNullException( "p2" );
             lock( AddLocker ) {
-                lock( SaveLoadLocker ) {
+                lock( Provider.SyncRoot ) {
                     if( p1.IsOnline || p2.IsOnline ) {
                         throw new InvalidOperationException( "Both players must be offline to swap info." );
                     }
@@ -526,16 +519,6 @@ namespace fCraft {
         }
 
         #endregion
-
-
-        sealed class PlayerIDComparer : IComparer<PlayerInfo> {
-            public static readonly PlayerIDComparer Instance = new PlayerIDComparer();
-            private PlayerIDComparer() { }
-
-            public int Compare( PlayerInfo x, PlayerInfo y ) {
-                return x.ID - y.ID;
-            }
-        }
 
 
         public static StringBuilder AppendEscaped( [NotNull] this StringBuilder sb, [CanBeNull] string str ) {

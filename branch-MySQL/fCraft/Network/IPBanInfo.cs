@@ -57,20 +57,20 @@ namespace fCraft {
             if( fields == null ) throw new ArgumentNullException( "fields" );
             if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
             IPBanInfo info = new IPBanInfo {
-                                               Address = IPAddress.Parse( fields[0] ),
-                                               BannedBy = PlayerInfo.Unescape( fields[1] )
-                                           };
+                Address = IPAddress.Parse( fields[0] ),
+                BannedBy = FlatfilePlayerInfo.Unescape( fields[1] )
+            };
 
             fields[2].ToDateTime( out info.BanDate );
             if( fields[3].Length > 0 ) {
-                info.BanReason = PlayerInfo.Unescape( fields[3] );
+                info.BanReason = FlatfilePlayerInfo.Unescape( fields[3] );
             }
             if( fields[4].Length > 0 ) {
-                info.PlayerName = PlayerInfo.Unescape( fields[4] );
+                info.PlayerName = FlatfilePlayerInfo.Unescape( fields[4] );
             }
 
             Int32.TryParse( fields[5], out info.Attempts );
-            info.LastAttemptName = PlayerInfo.Unescape( fields[6] );
+            info.LastAttemptName = FlatfilePlayerInfo.Unescape( fields[6] );
             fields[7].ToDateTime( out info.LastAttemptDate );
 
             return info;
@@ -82,19 +82,19 @@ namespace fCraft {
             if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
             IPBanInfo info = new IPBanInfo {
                                                Address = IPAddress.Parse( fields[0] ),
-                                               BannedBy = PlayerInfo.Unescape( fields[1] )
+                                               BannedBy = FlatfilePlayerInfo.Unescape( fields[1] )
                                            };
 
             fields[2].ToDateTimeLegacy( out info.BanDate );
             if( fields[3].Length > 0 ) {
-                info.BanReason = PlayerInfo.Unescape( fields[3] );
+                info.BanReason = FlatfilePlayerInfo.Unescape( fields[3] );
             }
             if( fields[4].Length > 0 ) {
-                info.PlayerName = PlayerInfo.Unescape( fields[4] );
+                info.PlayerName = FlatfilePlayerInfo.Unescape( fields[4] );
             }
 
             Int32.TryParse( fields[5], out info.Attempts );
-            info.LastAttemptName = PlayerInfo.Unescape( fields[6] );
+            info.LastAttemptName = FlatfilePlayerInfo.Unescape( fields[6] );
             fields[7].ToDateTimeLegacy( out info.LastAttemptDate );
 
             return info;
@@ -106,17 +106,17 @@ namespace fCraft {
             if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
             IPBanInfo info = new IPBanInfo {
                                                Address = IPAddress.Parse( fields[0] ),
-                                               BannedBy = PlayerInfo.UnescapeOldFormat( fields[1] )
+                                               BannedBy = FlatfilePlayerInfo.UnescapeOldFormat( fields[1] )
                                            };
 
             DateTimeUtil.TryParseLocalDate( fields[2], out info.BanDate );
-            info.BanReason = PlayerInfo.UnescapeOldFormat( fields[3] );
+            info.BanReason = FlatfilePlayerInfo.UnescapeOldFormat( fields[3] );
             if( fields[4].Length > 1 ) {
-                info.PlayerName = PlayerInfo.UnescapeOldFormat( fields[4] );
+                info.PlayerName = FlatfilePlayerInfo.UnescapeOldFormat( fields[4] );
             }
 
             info.Attempts = Int32.Parse( fields[5] );
-            info.LastAttemptName = PlayerInfo.UnescapeOldFormat( fields[6] );
+            info.LastAttemptName = FlatfilePlayerInfo.UnescapeOldFormat( fields[6] );
             DateTimeUtil.TryParseLocalDate( fields[7], out info.LastAttemptDate );
 
             if( convertDatesToUtc ) {
@@ -132,12 +132,12 @@ namespace fCraft {
             string[] fields = new string[FieldCount];
 
             fields[0] = Address.ToString();
-            fields[1] = PlayerInfo.Escape( BannedBy );
+            fields[1] = FlatfilePlayerInfo.Escape( BannedBy );
             fields[2] = BanDate.ToUnixTimeString();
-            fields[3] = PlayerInfo.Escape( BanReason );
-            fields[4] = PlayerInfo.Escape( PlayerName );
+            fields[3] = FlatfilePlayerInfo.Escape( BanReason );
+            fields[4] = FlatfilePlayerInfo.Escape( PlayerName );
             fields[5] = Attempts.ToString();
-            fields[6] = PlayerInfo.Escape( LastAttemptName );
+            fields[6] = FlatfilePlayerInfo.Escape( LastAttemptName );
             fields[7] = LastAttemptDate.ToUnixTimeString();
 
             return String.Join( ",", fields );

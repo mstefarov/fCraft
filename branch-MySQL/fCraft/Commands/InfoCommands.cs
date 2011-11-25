@@ -108,7 +108,7 @@ namespace fCraft {
 
             }else if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
                 // find players by IP
-                infos = PlayerDB.FindPlayers( ip );
+                infos = PlayerDB.FindPlayers( ip ).ToArray();
 
             } else if( name.Contains( "*" ) || name.Contains( "?" ) ) {
                 // find players by regex/wildcard
@@ -120,7 +120,7 @@ namespace fCraft {
                 // find players by partial matching
                 PlayerInfo tempInfo;
                 if( !PlayerDB.FindPlayerInfo( name, out tempInfo ) ) {
-                    infos = PlayerDB.FindPlayers( name );
+                    infos = PlayerDB.FindPlayers( name ).ToArray();
                 } else if( tempInfo == null ) {
                     player.MessageNoPlayer( name );
                     return;
