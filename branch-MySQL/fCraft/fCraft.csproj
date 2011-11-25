@@ -242,6 +242,7 @@
     <Compile Include="Network\LineWrapper.cs" />
     <Compile Include="Network\OpCode.cs" />
     <Compile Include="Player\FlatfilePlayerDBProvider.cs" />
+    <Compile Include="Player\FlatfilePlayerInfo.cs" />
     <Compile Include="Player\IPlayerDBProvider.cs" />
     <Compile Include="Player\PlayerInfo.Actions.cs" />
     <Compile Include="Player\Player.Events.cs" />

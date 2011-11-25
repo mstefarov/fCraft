@@ -7,7 +7,7 @@ using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    public sealed partial class PlayerInfo {
+    partial class PlayerInfo {
         #region Ban / Unban
 
         /// <summary> Bans given player. Kicks if online. Throws PlayerOpException on problems. </summary>
