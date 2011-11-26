@@ -130,9 +130,9 @@ namespace fCraft {
 
         void ReportProgress( int relativeIncrease, [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
-            var h = ProgressChanged;
-            if( h != null ) {
-                h( this, new ProgressChangedEventArgs( (100 * progressRunningTotal / progressTotalEstimate), message ) );
+            var handler = ProgressChanged;
+            if( handler != null ) {
+                handler( this, new ProgressChangedEventArgs( (100 * progressRunningTotal / progressTotalEstimate), message ) );
             }
             progressRunningTotal += relativeIncrease;
         }

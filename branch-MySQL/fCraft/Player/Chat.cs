@@ -259,17 +259,17 @@ namespace fCraft {
         #region Events
 
         static bool RaiseSendingEvent( ChatSendingEventArgs args ) {
-            var h = Sending;
-            if( h == null ) return false;
-            h( null, args );
+            var handler = Sending;
+            if( handler == null ) return false;
+            handler( null, args );
             return args.Cancel;
         }
 
 
         static void RaiseSentEvent( ChatSendingEventArgs args, int count ) {
-            var h = Sent;
-            if( h != null ) h( null, new ChatSentEventArgs( args.Player, args.Message, args.FormattedMessage,
-                                                            args.MessageType, args.RecepientList, count ) );
+            var handler = Sent;
+            if( handler != null ) handler( null, new ChatSentEventArgs( args.Player, args.Message, args.FormattedMessage,
+                                                                        args.MessageType, args.RecepientList, count ) );
         }
 
 

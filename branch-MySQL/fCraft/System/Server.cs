@@ -325,8 +325,8 @@ namespace fCraft {
                 BackupData();
             }
 
-            Player.Console = new Player( ReservedPlayerIDs.Console, ConfigKey.ConsoleName.GetString(), RankManager.HighestRank );
-            Player.AutoRank = new Player( ReservedPlayerIDs.AutoRank, "(AutoRank)", RankManager.HighestRank );
+            Player.Console = new Player( ReservedPlayerID.Console, ConfigKey.ConsoleName.GetString(), RankManager.HighestRank );
+            Player.AutoRank = new Player( ReservedPlayerID.AutoRank, "(AutoRank)", RankManager.HighestRank );
 
             if( ConfigKey.BlockDBEnabled.Enabled() ) BlockDB.Init();
 
@@ -1071,10 +1071,10 @@ namespace fCraft {
                 }
             }
             if( raiseEvent ) {
-                var h = SearchingForPlayer;
-                if( h != null ) {
+                var handler = SearchingForPlayer;
+                if( handler != null ) {
                     var e = new SearchingForPlayerEventArgs( null, name, results );
-                    h( null, e );
+                    handler( null, e );
                 }
             }
             return results.ToArray();
@@ -1112,10 +1112,10 @@ namespace fCraft {
                 }
             }
             if( raiseEvent ) {
-                var h = SearchingForPlayer;
-                if( h != null ) {
+                var handler = SearchingForPlayer;
+                if( handler != null ) {
                     var e = new SearchingForPlayerEventArgs( player, name, results );
-                    h( null, e );
+                    handler( null, e );
                 }
             }
             if( results.Count == 1 ) {

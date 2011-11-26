@@ -339,8 +339,8 @@ namespace fCraft {
         public event EventHandler Changed;
 
         void RaiseChangedEvent() {
-            var h = Changed;
-            if( h != null ) h( null, EventArgs.Empty );
+            var handler = Changed;
+            if( handler != null ) handler( null, EventArgs.Empty );
         }
     }
 

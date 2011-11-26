@@ -72,7 +72,7 @@ namespace fCraft {
 
             try {
                 IP = ((IPEndPoint)(client.Client.RemoteEndPoint)).Address;
-                if( Server.RaiseSessionConnectingEvent( IP ) ) return;
+                if( !Server.RaiseSessionConnectingEvent( IP ) ) return;
 
                 stream = client.GetStream();
                 reader = new BinaryReader( stream );
@@ -367,7 +367,7 @@ namespace fCraft {
                 }
             }
 
-            if( RaisePlayerMovingEvent( this, newPos ) ) {
+            if( !RaisePlayerMovingEvent( this, newPos ) ) {
                 DenyMovement();
                 return;
             }
@@ -401,7 +401,7 @@ namespace fCraft {
             // Those clicks should be simply ignored.
             if( World.Map.InBounds( coords ) ) {
                 var e = new PlayerClickingEventArgs( this, coords, action, (Block)type );
-                if( RaisePlayerClickingEvent( e ) ) {
+                if( !RaisePlayerClickingEvent( e ) ) {
                     RevertBlockNow( coords );
                 } else {
                     RaisePlayerClickedEvent( this, coords, e.Action, e.Block );
@@ -635,7 +635,7 @@ namespace fCraft {
 
 
             // Any additional security checks should be done right here
-            if( RaisePlayerConnectingEvent( this ) ) return false;
+            if( !RaisePlayerConnectingEvent( this ) ) return false;
 
 
             // ----==== beyond this point, player is considered connecting (allowed to join) ====----
@@ -912,7 +912,7 @@ namespace fCraft {
                 textLine2 = "Loading world " + newWorld.ClassyName;
             }
 
-            if( RaisePlayerJoiningWorldEvent( this, newWorld, reason, textLine1, textLine2 ) ) {
+            if( !RaisePlayerJoiningWorldEvent( this, newWorld, reason, textLine1, textLine2 ) ) {
                 Logger.Log( LogType.Warning,
                             "Player.JoinWorldNow: Player {0} was prevented from joining world {1} by an event callback.",
                             Name, newWorld.Name );

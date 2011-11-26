@@ -136,13 +136,13 @@ namespace fCraft {
         /// <summary> Adds a new IP Ban. </summary>
         /// <param name="ban"> Ban information </param>
         /// <param name="raiseEvent"> Whether AddingIPBan and AddedIPBan events should be raised. </param>
-        /// <returns> True if ban was added, false if it was already on the list </returns>
+        /// <returns> True if ban was added, false if it was already on the list or if it has been cancelled by a plugin. </returns>
         public static bool Add( [NotNull] IPBanInfo ban, bool raiseEvent ) {
             if( ban == null ) throw new ArgumentNullException( "ban" );
             lock( BanListLock ) {
                 if( Bans.ContainsKey( ban.Address.ToString() ) ) return false;
                 if( raiseEvent ) {
-                    if( RaiseAddingIPBanEvent( ban ) ) return false;
+                    if( !RaiseAddingIPBanEvent( ban ) ) return false;
                     Bans.Add( ban.Address.ToString(), ban );
                     RaiseAddedIPBanEvent( ban );
                 } else {
@@ -185,7 +185,7 @@ namespace fCraft {
         /// <param name="address"> Address to unban. </param>
         /// <param name="raiseEvents"> Whether to raise RemovingIPBan and RemovedIPBan events. </param>
         /// <returns> True if IP was unbanned.
-        /// False if it was not banned in the first place, or if it was cancelled by an event. </returns>
+        /// False if it was not banned in the first place, or if it was cancelled by an event callback. </returns>
         public static bool Remove( [NotNull] IPAddress address, bool raiseEvents ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             lock( BanListLock ) {
@@ -194,7 +194,7 @@ namespace fCraft {
                 }
                 IPBanInfo info = Bans[address.ToString()];
                 if( raiseEvents ) {
-                    if( RaiseRemovingIPBanEvent( info ) ) return false;
+                    if( !RaiseRemovingIPBanEvent( info ) ) return false;
                 }
                 if( Bans.Remove( address.ToString() ) ) {
                     if( raiseEvents ) RaiseRemovedIPBanEvent( info );
@@ -594,32 +594,32 @@ namespace fCraft {
 
         static bool RaiseAddingIPBanEvent( [NotNull] IPBanInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
-            var h = AddingIPBan;
-            if( h == null ) return false;
+            var handler = AddingIPBan;
+            if( handler == null ) return false;
             var e = new IPBanCancellableEventArgs( info );
-            h( null, e );
-            return e.Cancel;
+            handler( null, e );
+            return !e.Cancel;
         }
 
         static void RaiseAddedIPBanEvent( [NotNull] IPBanInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
-            var h = AddedIPBan;
-            if( h != null ) h( null, new IPBanEventArgs( info ) );
+            var handler = AddedIPBan;
+            if( handler != null ) handler( null, new IPBanEventArgs( info ) );
         }
 
         static bool RaiseRemovingIPBanEvent( [NotNull] IPBanInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
-            var h = RemovingIPBan;
-            if( h == null ) return false;
+            var handler = RemovingIPBan;
+            if( handler == null ) return false;
             var e = new IPBanCancellableEventArgs( info );
-            h( null, e );
-            return e.Cancel;
+            handler( null, e );
+            return !e.Cancel;
         }
 
         static void RaiseRemovedIPBanEvent( [NotNull] IPBanInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
-            var h = RemovedIPBan;
-            if( h != null ) h( null, new IPBanEventArgs( info ) );
+            var handler = RemovedIPBan;
+            if( handler != null ) handler( null, new IPBanEventArgs( info ) );
         }
 
         #endregion

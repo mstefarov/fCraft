@@ -369,21 +369,21 @@ namespace fCraft.Drawing {
 
         // Returns false if cancelled
         protected static bool RaiseBeginningEvent( DrawOperation op ) {
-            var h = Beginning;
-            if( h == null ) return true;
+            var handler = Beginning;
+            if( handler == null ) return true;
             var e = new DrawOperationBeginningEventArgs( op );
-            h( null, e );
+            handler( null, e );
             return !e.Cancel;
         }
 
         protected static void RaiseBeganEvent( DrawOperation op ) {
-            var h = Began;
-            if( h != null ) h( null, new DrawOperationEventArgs( op ) );
+            var handler = Began;
+            if( handler != null ) handler( null, new DrawOperationEventArgs( op ) );
         }
 
         protected static void RaiseEndedEvent( DrawOperation op ) {
-            var h = Ended;
-            if( h != null ) h( null, new DrawOperationEventArgs( op ) );
+            var handler = Ended;
+            if( handler != null ) handler( null, new DrawOperationEventArgs( op ) );
         }
 
         #endregion

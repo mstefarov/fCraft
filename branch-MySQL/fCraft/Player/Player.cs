@@ -28,10 +28,11 @@ namespace fCraft {
     public sealed partial class Player : IClassy {
 
         /// <summary> The godly pseudo-player for commands called from the server console.
-        /// Console has all the permissions granted.
-        /// Note that Player.Console.World is always null,
+        /// Console has all the permissions granted. Note that Player.Console.World is always null,
         /// and that prevents console from calling certain commands (like /TP). </summary>
-        public static Player Console, AutoRank;
+        public static Player Console;
+
+        public static Player AutoRank;
 
 
         #region Properties
@@ -146,8 +147,9 @@ namespace fCraft {
         // This constructor is used to create pseudoplayers (such as Console and /dummy).
         // Such players have unlimited permissions, but no world.
         // This should be replaced by a more generic solution, like an IEntity interface.
-        internal Player( ReservedPlayerIDs id, [NotNull] string name, Rank rank ) {
+        internal Player( ReservedPlayerID id, [NotNull] string name, [NotNull] Rank rank ) {
             if( name == null ) throw new ArgumentNullException( "name" );
+            if( rank == null ) throw new ArgumentNullException( "rank" );
             Info = PlayerDB.AddSuper( id, name, rank );
             spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
             IP = IPAddress.Loopback;

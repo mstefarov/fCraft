@@ -270,8 +270,8 @@ namespace fCraft {
 
 
         static void FireEvent( EventHandler<SchedulerTaskEventArgs> eventToFire, SchedulerTask task ) {
-            var h = eventToFire;
-            if( h != null ) h( null, new SchedulerTaskEventArgs( task ) );
+            var handler = eventToFire;
+            if( handler != null ) handler( null, new SchedulerTaskEventArgs( task ) );
         }
 #endif
     }

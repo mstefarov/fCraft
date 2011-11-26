@@ -465,8 +465,8 @@ namespace fCraft {
         static void RaiseLoggedEvent( [NotNull] string rawMessage, [NotNull] string line, LogType logType ) {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
             if( line == null ) throw new ArgumentNullException( "line" );
-            var h = Logged;
-            if( h != null ) h( null, new LogEventArgs( rawMessage,
+            var handler = Logged;
+            if( handler != null ) handler( null, new LogEventArgs( rawMessage,
                                                        line,
                                                        logType,
                                                        LogFileOptions[(int)logType],
@@ -475,8 +475,8 @@ namespace fCraft {
 
 
         static void RaiseCrashedEvent( CrashedEventArgs e ) {
-            var h = Crashed;
-            if( h != null ) h( null, e );
+            var handler = Crashed;
+            if( handler != null ) handler( null, e );
         }
 
         #endregion

@@ -870,7 +870,7 @@ namespace fCraft {
         /// <param name="rawValue"> Value to assign to the key. If passed object is not a string, rawValue.ToString() is used. </param>
         /// <exception cref="T:System.ArgumentNullException" />
         /// <returns> True if value is valid and has been assigned.
-        /// False if value was invalid, or if assignment was cancelled by an event handler/plugin. </returns>
+        /// False if value was invalid, or if assignment was cancelled by an event callback. </returns>
         public static bool TrySetValue( this ConfigKey key, object rawValue ) {
             try {
                 return SetValue( key, rawValue );
@@ -886,7 +886,7 @@ namespace fCraft {
         static bool DoSetValue( ConfigKey key, string newValue ) {
             string oldValue = Settings[(int)key];
             if( oldValue != newValue ) {
-                if( RaiseKeyChangingEvent( key, oldValue, ref newValue ) ) return false;
+                if( !RaiseKeyChangingEvent( key, oldValue, ref newValue ) ) return false;
                 Settings[(int)key] = newValue;
 
                 bool enabledCache;
@@ -1200,25 +1200,25 @@ namespace fCraft {
 
 
         static void RaiseReloadedEvent() {
-            var h = Reloaded;
-            if( h != null ) h( null, EventArgs.Empty );
+            var handler = Reloaded;
+            if( handler != null ) handler( null, EventArgs.Empty );
         }
 
 
         static bool RaiseKeyChangingEvent( ConfigKey key, string oldValue, ref string newValue ) {
-            var h = KeyChanging;
-            if( h == null ) return false;
+            var handler = KeyChanging;
+            if( handler == null ) return false;
             var e = new ConfigKeyChangingEventArgs( key, oldValue, newValue );
-            h( null, e );
+            handler( null, e );
             newValue = e.NewValue;
-            return e.Cancel;
+            return !e.Cancel;
         }
 
 
         static void RaiseKeyChangedEvent( ConfigKey key, string oldValue, string newValue ) {
-            var h = KeyChanged;
+            var handler = KeyChanged;
             var args = new ConfigKeyChangedEventArgs( key, oldValue, newValue );
-            if( h != null ) h( null, args );
+            if( handler != null ) handler( null, args );
         }
 
         #endregion

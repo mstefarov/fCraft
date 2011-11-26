@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     public sealed class PlayerOpException : Exception {
-        public PlayerOpException( [NotNull] Player player, PlayerInfo target,
+        public PlayerOpException( [NotNull] Player player, [CanBeNull] PlayerInfo target,
                                   PlayerOpExceptionCode errorCode,
                                   [NotNull] string message, [NotNull] string messageColored )
             : base( message ) {
@@ -18,9 +18,16 @@ namespace fCraft {
             MessageColored = messageColored;
         }
 
+
+        [NotNull]
         public Player Player { get; private set; }
+
+        [CanBeNull]
         public PlayerInfo Target { get; private set; }
+
         public PlayerOpExceptionCode ErrorCode { get; private set; }
+
+        [NotNull]
         public string MessageColored { get; private set; }
 
 

@@ -230,7 +230,7 @@ namespace fCraft {
         Disconnected
     }
 
-    public enum ReservedPlayerIDs : byte {
+    public enum ReservedPlayerID : byte {
         None = 0,
         Unknown = 1,
         Console = 2,

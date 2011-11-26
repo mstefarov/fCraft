@@ -33,7 +33,7 @@ namespace fCraft {
             set {
                 if( value == null ) throw new ArgumentNullException( "value" );
                 if( value == mainWorld ) return;
-                if( RaiseMainWorldChangingEvent( mainWorld, value ) ) {
+                if( !RaiseMainWorldChangingEvent( mainWorld, value ) ) {
                     throw new WorldOpException( value.Name, WorldOpExceptionCode.Cancelled );
                 }
                 World oldWorld;
@@ -336,7 +336,7 @@ namespace fCraft {
                     }
 
                     if( world.BackupInterval != World.DefaultBackupInterval ) {
-                        temp.Add( new XAttribute( "backup", world.BackupInterval.ToTickString() ) );
+                        temp.Add( new XAttribute( "backup", world.BackupInterval.ToSecondsString() ) );
                     }
 
                     if( world.NeverUnload ) {
@@ -432,10 +432,10 @@ namespace fCraft {
         public static World[] FindWorlds( [CanBeNull] Player player, [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             World[] matches = FindWorldsNoEvent( name );
-            var h = SearchingForWorld;
-            if( h != null ) {
+            var handler = SearchingForWorld;
+            if( handler != null ) {
                 SearchingForWorldEventArgs e = new SearchingForWorldEventArgs( player, name, matches.ToList() );
-                h( null, e );
+                handler( null, e );
                 matches = e.Matches.ToArray();
             }
             return matches;
@@ -489,7 +489,7 @@ namespace fCraft {
                     throw new WorldOpException( name, WorldOpExceptionCode.DuplicateWorldName );
                 }
 
-                if( RaiseWorldCreatingEvent( player, name, map ) ) {
+                if( !RaiseWorldCreatingEvent( player, name, map ) ) {
                     throw new WorldOpException( name, WorldOpExceptionCode.Cancelled );
                 }
 
@@ -754,32 +754,32 @@ namespace fCraft {
 
         static bool RaiseMainWorldChangingEvent( World oldWorld, [NotNull] World newWorld ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
-            var h = MainWorldChanging;
-            if( h == null ) return false;
+            var handler = MainWorldChanging;
+            if( handler == null ) return false;
             var e = new MainWorldChangingEventArgs( oldWorld, newWorld );
-            h( null, e );
-            return e.Cancel;
+            handler( null, e );
+            return !e.Cancel;
         }
 
         static void RaiseMainWorldChangedEvent( [CanBeNull] World oldWorld, [NotNull] World newWorld ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
-            var h = MainWorldChanged;
-            if( h != null ) h( null, new MainWorldChangedEventArgs( oldWorld, newWorld ) );
+            var handler = MainWorldChanged;
+            if( handler != null ) handler( null, new MainWorldChangedEventArgs( oldWorld, newWorld ) );
         }
 
         static bool RaiseWorldCreatingEvent( [CanBeNull] Player player, [NotNull] string worldName, [CanBeNull] Map map ) {
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
-            var h = WorldCreating;
-            if( h == null ) return false;
+            var handler = WorldCreating;
+            if( handler == null ) return false;
             var e = new WorldCreatingEventArgs( player, worldName, map );
-            h( null, e );
-            return e.Cancel;
+            handler( null, e );
+            return !e.Cancel;
         }
 
         static void RaiseWorldCreatedEvent( [CanBeNull] Player player, [NotNull] World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );
-            var h = WorldCreated;
-            if( h != null ) h( null, new WorldCreatedEventArgs( player, world ) );
+            var handler = WorldCreated;
+            if( handler != null ) handler( null, new WorldCreatedEventArgs( player, world ) );
         }
 
         #endregion
