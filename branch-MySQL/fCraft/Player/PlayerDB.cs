@@ -37,7 +37,7 @@ namespace fCraft {
         public static PlayerInfo AddSuper( ReservedPlayerIDs id, [NotNull] string name, Rank rank ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             CheckIfLoaded();
-            return Provider.AddSuper( id, name, rank );
+            return Provider.AddSuperPlayer( id, name, rank );
         }
 
         [NotNull]
@@ -73,13 +73,16 @@ namespace fCraft {
 
 
         public static void Load() {
+            if( IsLoaded ) throw new InvalidOperationException( "PlayerDB is already loaded." );
             Stopwatch sw = Stopwatch.StartNew();
+
             var playerList = Provider.Load();
+
             if( playerList != null ) {
                 List.AddRange( playerList );
                 sw.Stop();
                 Logger.Log( LogType.Debug,
-                            "PlayerDB.Load: Done loading ({0} records added) in {1}ms",
+                            "PlayerDB.Load: Done loading ({0} records read) in {1}ms",
                             List.Count, sw.ElapsedMilliseconds);
             } else {
                 Logger.Log( LogType.Debug,
@@ -93,7 +96,14 @@ namespace fCraft {
 
         public static void Save() {
             CheckIfLoaded();
+            Stopwatch sw = Stopwatch.StartNew();
+
             Provider.Save();
+
+            sw.Stop();
+            Logger.Log( LogType.Debug,
+                        "PlayerDB.Save: Done saving ({0} records written) in {1}ms",
+                        List.Count, sw.ElapsedMilliseconds );
         }
 
 
@@ -148,14 +158,14 @@ namespace fCraft {
 
 
         [NotNull]
-        public static IEnumerable<PlayerInfo> FindPlayers( [NotNull] IPAddress address ) {
+        public static IEnumerable<PlayerInfo> FindByIP( [NotNull] IPAddress address ) {
             if( address == null ) throw new ArgumentNullException( "address" );
-            return FindPlayers( address, Int32.MaxValue );
+            return FindByIP( address, Int32.MaxValue );
         }
 
 
         [NotNull]
-        public static IEnumerable<PlayerInfo> FindPlayers( [NotNull] IPAddress address, int limit ) {
+        public static IEnumerable<PlayerInfo> FindByIP( [NotNull] IPAddress address, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             if( limit < 0 ) throw new ArgumentOutOfRangeException( "limit" );
             CheckIfLoaded();
@@ -194,39 +204,29 @@ namespace fCraft {
 
 
         [NotNull]
-        public static PlayerInfo[] FindPlayers( [NotNull] Regex regex ) {
-            if( regex == null ) throw new ArgumentNullException( "regex" );
-            return FindPlayers( regex, Int32.MaxValue );
+        public static IEnumerable<PlayerInfo> FindByPattern( [NotNull] string pattern ) {
+            if( pattern == null ) throw new ArgumentNullException( "pattern" );
+            return FindByPattern( pattern, Int32.MaxValue );
         }
 
 
         [NotNull]
-        public static PlayerInfo[] FindPlayers( [NotNull] Regex regex, int limit ) {
-            if( regex == null ) throw new ArgumentNullException( "regex" );
+        public static IEnumerable<PlayerInfo> FindByPattern( [NotNull] string pattern, int limit ) {
+            if( pattern == null ) throw new ArgumentNullException( "pattern" );
             CheckIfLoaded();
-            List<PlayerInfo> result = new List<PlayerInfo>();
-            int count = 0;
-            PlayerInfo[] cache = PlayerInfoList;
-            for( int i = 0; i < cache.Length; i++ ) {
-                if( regex.IsMatch( cache[i].Name ) ) {
-                    result.Add( cache[i] );
-                    count++;
-                    if( count >= limit ) break;
-                }
-            }
-            return result.ToArray();
+            return Provider.FindByPattern( pattern, limit );
         }
 
 
         [NotNull]
-        public static IEnumerable<PlayerInfo> FindPlayers( [NotNull] string namePart ) {
+        public static IEnumerable<PlayerInfo> FindByPartialName( [NotNull] string namePart ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
-            return FindPlayers( namePart, Int32.MaxValue );
+            return FindByPartialName( namePart, Int32.MaxValue );
         }
 
 
         [NotNull]
-        public static IEnumerable<PlayerInfo> FindPlayers( [NotNull] string namePart, int limit ) {
+        public static IEnumerable<PlayerInfo> FindByPartialName( [NotNull] string namePart, int limit ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
             CheckIfLoaded();
             return Provider.FindByPartialName( namePart, limit );
@@ -271,7 +271,7 @@ namespace fCraft {
             }
             PlayerInfo target = FindPlayerInfoExact( name );
             if( target == null ) {
-                PlayerInfo[] targets = FindPlayers( name ).ToArray();
+                PlayerInfo[] targets = FindByPartialName( name ).ToArray();
                 if( targets.Length == 0 ) {
                     player.MessageNoPlayer( name );
                     return null;
@@ -328,10 +328,10 @@ namespace fCraft {
 
 
         static void PostLoadCheck() {
+            Logger.Log( LogType.SystemActivity, "PlayerDB: Checking consistency of player records..." );
             List.Sort( PlayerInfo.Comparer );
 
             int unhid = 0, unfroze = 0, unmuted = 0;
-            Logger.Log( LogType.SystemActivity, "PlayerDB: Checking consistency of banned player records..." );
             for( int i = 0; i < List.Count; i++ ) {
                 if( List[i].IsBanned ) {
                     if( List[i].IsHidden ) {

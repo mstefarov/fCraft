@@ -9,6 +9,7 @@ namespace fCraft {
         /// <summary> Preloads the whole database. </summary>
         [CanBeNull]
         IEnumerable<PlayerInfo> Load();
+
         /// <summary> Saves the whole database. </summary>
         void Save();
 
@@ -22,13 +23,14 @@ namespace fCraft {
 
         /// <summary> Adds a new PlayerInfo entry for a non-player. </summary>
         [NotNull]
-        PlayerInfo AddSuper( ReservedPlayerIDs id, [NotNull] string name, [NotNull] Rank rank );
+        PlayerInfo AddSuperPlayer( ReservedPlayerIDs id, [NotNull] string name, [NotNull] Rank rank );
 
         /// <summary> Removes a PlayerInfo entry. </summary>
         void Remove( [NotNull] PlayerInfo playerInfo );
 
         /// <summary> Reloads all data for given records from the backend in one transaction. </summary>
         void PullChanges( [NotNull] params PlayerInfo[] playerInfo );
+
         /// <summary> Writes out all data from the given records to the backend in one transaction. </summary>
         void PushChanges( [NotNull] params PlayerInfo[] playerInfo );
 
