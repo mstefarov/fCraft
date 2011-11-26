@@ -179,19 +179,19 @@ namespace fCraft {
 
 
         static bool RaiseHeartbeatSendingEvent( HeartbeatData data, Uri uri, bool getServerUri ) {
-            var h = Sending;
-            if( h == null ) return true;
+            var handler = Sending;
+            if( handler == null ) return true;
             var e = new HeartbeatSendingEventArgs( data, uri, getServerUri );
-            h( null, e );
+            handler( null, e );
             return !e.Cancel;
         }
 
         static void RaiseHeartbeatSentEvent( HeartbeatData heartbeatData,
                                              HttpWebResponse response,
                                              string text ) {
-            var h = Sent;
-            if( h != null ) {
-                h( null, new HeartbeatSentEventArgs( heartbeatData,
+            var handler = Sent;
+            if( handler != null ) {
+                handler( null, new HeartbeatSentEventArgs( heartbeatData,
                                                      response.Headers,
                                                      response.StatusCode,
                                                      text ) );
@@ -199,8 +199,8 @@ namespace fCraft {
         }
 
         static void RaiseUriChangedEvent( Uri oldUri, Uri newUri ) {
-            var h = UriChanged;
-            if( h != null ) h( null, new UriChangedEventArgs( oldUri, newUri ) );
+            var handler = UriChanged;
+            if( handler != null ) handler( null, new UriChangedEventArgs( oldUri, newUri ) );
         }
 
         #endregion

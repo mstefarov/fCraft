@@ -171,8 +171,8 @@ namespace fCraft.MapConversion {
 
 
             // read modification/creation times
-            map.DateModified = DateTimeUtil.ToDateTimeLegacy( reader.ReadUInt32() );
-            map.DateCreated = DateTimeUtil.ToDateTimeLegacy( reader.ReadUInt32() );
+            map.DateModified = FlatfilePlayerDBProvider.ToDateTimeLegacy( reader.ReadUInt32() );
+            map.DateCreated = FlatfilePlayerDBProvider.ToDateTimeLegacy( reader.ReadUInt32() );
 
             // read UUID
             map.Guid = new Guid( reader.ReadBytes( 16 ) );
@@ -201,8 +201,8 @@ namespace fCraft.MapConversion {
                 writer.Write( mapToSave.Spawn.L );
 
                 mapToSave.DateModified = DateTime.UtcNow;
-                writer.Write( (uint)mapToSave.DateModified.ToUnixTimeLegacy() );
-                writer.Write( (uint)mapToSave.DateCreated.ToUnixTimeLegacy() );
+                writer.Write( (uint)FlatfilePlayerDBProvider.ToUnixTimeLegacy( mapToSave.DateModified ) );
+                writer.Write( (uint)FlatfilePlayerDBProvider.ToUnixTimeLegacy( mapToSave.DateCreated ) );
 
                 writer.Write( mapToSave.Guid.ToByteArray() );
 

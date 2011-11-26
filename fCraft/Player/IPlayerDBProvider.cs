@@ -23,16 +23,10 @@ namespace fCraft {
 
         /// <summary> Adds a new PlayerInfo entry for a non-player. </summary>
         [NotNull]
-        PlayerInfo AddSuperPlayer( ReservedPlayerIDs id, [NotNull] string name, [NotNull] Rank rank );
+        PlayerInfo AddSuperPlayer( ReservedPlayerID id, [NotNull] string name, [NotNull] Rank rank );
 
         /// <summary> Removes a PlayerInfo entry. </summary>
         void Remove( [NotNull] PlayerInfo playerInfo );
-
-        /// <summary> Reloads all data for given records from the backend in one transaction. </summary>
-        void PullChanges( [NotNull] params PlayerInfo[] playerInfo );
-
-        /// <summary> Writes out all data from the given records to the backend in one transaction. </summary>
-        void PushChanges( [NotNull] params PlayerInfo[] playerInfo );
 
         /// <summary> Finds player by exact name. </summary>
         [CanBeNull]
@@ -44,8 +38,10 @@ namespace fCraft {
         [NotNull]
         IEnumerable<PlayerInfo> FindByIP( [NotNull] IPAddress address, int limit );
         /// <summary> Finds players by partial name (prefix). </summary>
+        /// 
         [NotNull]
         IEnumerable<PlayerInfo> FindByPartialName( [NotNull] string partialName, int limit );
+
         /// <summary> Finds players by given wildcard pattern. </summary>
         [NotNull]
         IEnumerable<PlayerInfo> FindByPattern( [NotNull] string pattern, int limit );

@@ -918,13 +918,13 @@ namespace fCraft {
         public event EventHandler<ForesterBlockPlacingEventArgs> BlockPlacing;
 
         internal void PlaceBlock( int x, int y, int z, Block block ) {
-            var h = BlockPlacing;
-            if( h != null ) h( this, new ForesterBlockPlacingEventArgs( new Vector3I( x, y, z ), block ) );
+            var handler = BlockPlacing;
+            if( handler != null ) handler( this, new ForesterBlockPlacingEventArgs( new Vector3I( x, y, z ), block ) );
         }
 
         internal void PlaceBlock( Vector3I coord, Block block ) {
-            var h = BlockPlacing;
-            if( h != null ) h( this, new ForesterBlockPlacingEventArgs( new Vector3I(coord.X,coord.Z,coord.Y), block ) ); // todo: rewrite the whole thing to use XYZ coords
+            var handler = BlockPlacing;
+            if( handler != null ) handler( this, new ForesterBlockPlacingEventArgs( new Vector3I(coord.X,coord.Z,coord.Y), block ) ); // todo: rewrite the whole thing to use XYZ coords
         }
 
         internal void Validate() {

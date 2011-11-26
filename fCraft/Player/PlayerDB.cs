@@ -33,10 +33,12 @@ namespace fCraft {
 
 
         [NotNull]
-        public static PlayerInfo AddSuper( ReservedPlayerIDs id, [NotNull] string name, Rank rank ) {
+        public static PlayerInfo AddSuper( ReservedPlayerID id, [NotNull] string name, [NotNull] Rank rank ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             CheckIfLoaded();
-            return Provider.AddSuperPlayer( id, name, rank );
+            PlayerInfo newInfo = Provider.AddSuperPlayer( id, name, rank );
+            newInfo.RaisePropertyChangedEvents = true;
+            return newInfo;
         }
 
         [NotNull]
@@ -44,26 +46,27 @@ namespace fCraft {
             if( name == null ) throw new ArgumentNullException( "name" );
             CheckIfLoaded();
 
-            PlayerInfo info;
+            PlayerInfo newInfo;
             lock( Provider.SyncRoot ) {
-                info = Provider.FindExact( name );
-                if( info != null ) {
+                newInfo = Provider.FindExact( name );
+                if( newInfo != null ) {
                     throw new ArgumentException( "A PlayerDB entry already exists for this name.", "name" );
                 }
 
-                var e = new PlayerInfoCreatingEventArgs( name, IPAddress.None, RankManager.DefaultRank, true );
-                PlayerInfo.RaiseCreatingEvent( e );
+                var e = new PlayerInfoBeingCreatedEventArgs( name, IPAddress.None, RankManager.DefaultRank, true );
+                PlayerInfo.RaiseBeingCreatedEvent( e );
                 if( e.Cancel ) {
                     throw new OperationCanceledException( "Cancelled by a plugin." );
                 }
 
-                info = Provider.AddUnrecognizedPlayer( name, e.StartingRank, rankChangeType );
+                newInfo = Provider.AddUnrecognizedPlayer( name, e.StartingRank, rankChangeType );
+                newInfo.RaisePropertyChangedEvents = true;
 
-                List.Add( info );
+                List.Add( newInfo );
                 UpdateCache();
             }
-            PlayerInfo.RaiseCreatedEvent( info, false );
-            return info;
+            PlayerInfo.RaiseCreatedEvent( newInfo, false );
+            return newInfo;
         }
 
 
@@ -82,12 +85,39 @@ namespace fCraft {
                 sw.Stop();
                 Logger.Log( LogType.Debug,
                             "PlayerDB.Load: Done loading ({0} records read) in {1}ms",
-                            List.Count, sw.ElapsedMilliseconds);
+                            List.Count, sw.ElapsedMilliseconds );
             } else {
                 Logger.Log( LogType.Debug,
                             "PlayerDB.Load: No records loaded." );
             }
-            PostLoadCheck();
+
+            Logger.Log( LogType.SystemActivity, "PlayerDB: Checking consistency of player records..." );
+            List.Sort( PlayerInfo.ComparerByID );
+
+            int unhid = 0, unfroze = 0, unmuted = 0;
+            for( int i = 0; i < List.Count; i++ ) {
+                if( List[i].IsBanned ) {
+                    if( List[i].IsHidden ) {
+                        unhid++;
+                        List[i].IsHidden = false;
+                    }
+
+                    if( List[i].IsFrozen ) {
+                        List[i].Unfreeze();
+                        unfroze++;
+                    }
+
+                    if( List[i].IsMuted ) {
+                        List[i].Unmute();
+                        unmuted++;
+                    }
+                }
+                List[i].RaisePropertyChangedEvents = true;
+            }
+            Logger.Log( LogType.SystemActivity,
+                        "PlayerDB.PostLoadCheck: Unhid {0}, unfroze {1}, and unmuted {2} banned accounts.",
+                        unhid, unfroze, unmuted );
+
             UpdateCache();
             IsLoaded = true;
         }
@@ -143,11 +173,13 @@ namespace fCraft {
             lock( Provider.SyncRoot ) {
                 info = Provider.FindExact( name );
                 if( info == null ) {
-                    var e = new PlayerInfoCreatingEventArgs( name, lastIP, RankManager.DefaultRank, false );
-                    PlayerInfo.RaiseCreatingEvent( e );
+                    var e = new PlayerInfoBeingCreatedEventArgs( name, lastIP, RankManager.DefaultRank, false );
+                    PlayerInfo.RaiseBeingCreatedEvent( e );
                     if( e.Cancel ) throw new OperationCanceledException( "Cancelled by a plugin." );
 
                     info = Provider.AddPlayer( name, lastIP, e.StartingRank, RankChangeType.Default );
+                    info.RaisePropertyChangedEvents = true;
+
                     PlayerInfo.RaiseCreatedEvent( info, false );
                 }
             }
@@ -173,7 +205,7 @@ namespace fCraft {
 
 
         [NotNull]
-        public static PlayerInfo[] FindPlayersCidr( [NotNull] IPAddress address, byte range ) {
+        public static IEnumerable<PlayerInfo> FindPlayersCidr( [NotNull] IPAddress address, byte range ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
             return FindPlayersCidr( address, range, Int32.MaxValue );
@@ -181,7 +213,7 @@ namespace fCraft {
 
 
         [NotNull]
-        public static PlayerInfo[] FindPlayersCidr( [NotNull] IPAddress address, byte range, int limit ) {
+        public static IEnumerable<PlayerInfo> FindPlayersCidr( [NotNull] IPAddress address, byte range, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
             if( limit < 0 ) throw new ArgumentOutOfRangeException( "limit" );
@@ -198,7 +230,7 @@ namespace fCraft {
                     if( count >= limit ) return result.ToArray();
                 }
             }
-            return result.ToArray();
+            return result;
         }
 
 
@@ -236,7 +268,7 @@ namespace fCraft {
         /// <param name="partialName">Partial or full player name</param>
         /// <param name="result">PlayerInfo to output (will be set to null if no single match was found)</param>
         /// <returns>true if one or zero matches were found, false if multiple matches were found</returns>
-        internal static bool FindPlayerInfo( [NotNull] string partialName, out PlayerInfo result ) {
+        internal static bool FindPlayerInfo( [NotNull] string partialName, [CanBeNull] out PlayerInfo result ) {
             if( partialName == null ) throw new ArgumentNullException( "partialName" );
             CheckIfLoaded();
             return Provider.FindOneByPartialName( partialName, out result );
@@ -326,42 +358,13 @@ namespace fCraft {
         #endregion
 
 
-        static void PostLoadCheck() {
-            Logger.Log( LogType.SystemActivity, "PlayerDB: Checking consistency of player records..." );
-            List.Sort( PlayerInfo.Comparer );
-
-            int unhid = 0, unfroze = 0, unmuted = 0;
-            for( int i = 0; i < List.Count; i++ ) {
-                if( List[i].IsBanned ) {
-                    if( List[i].IsHidden ) {
-                        unhid++;
-                        List[i].IsHidden = false;
-                    }
-
-                    if( List[i].IsFrozen ) {
-                        List[i].Unfreeze();
-                        unfroze++;
-                    }
-
-                    if( List[i].IsMuted ) {
-                        List[i].Unmute();
-                        unmuted++;
-                    }
-                }
-            }
-            Logger.Log( LogType.SystemActivity,
-                        "PlayerDB.PostLoadCheck: Unhid {0}, unfroze {1}, and unmuted {2} banned accounts.",
-                        unhid, unfroze, unmuted );
-        }
-
-
         /// <summary> Finds PlayerInfo by ID. Returns null of not found. </summary>
         [CanBeNull]
         public static PlayerInfo FindPlayerInfoByID( int id ) {
             CheckIfLoaded();
             PlayerInfo dummy = new PlayerInfo( id );
             lock( AddLocker ) {
-                int index = List.BinarySearch( dummy, PlayerInfo.Comparer );
+                int index = List.BinarySearch( dummy, PlayerInfo.ComparerByID );
                 if( index >= 0 ) {
                     return List[index];
                 } else {

@@ -283,7 +283,7 @@ namespace fCraft.ConfigGUI {
             element.Add( new XAttribute( "name", Name ) );
             element.Add( new XAttribute( "hidden", Hidden ) );
             if( Backup != BackupEnumNames[0] ) {
-                element.Add( new XAttribute( "backup", BackupValueFromName( Backup ).ToTickString() ) );
+                element.Add( new XAttribute( "backup", BackupValueFromName( Backup ).ToSecondsString() ) );
             }
             element.Add( accessSecurity.Serialize( WorldManager.AccessSecurityXmlTagName ) );
             element.Add( buildSecurity.Serialize( WorldManager.BuildSecurityXmlTagName ) );

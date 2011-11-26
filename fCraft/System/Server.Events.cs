@@ -35,18 +35,18 @@ namespace fCraft {
         public static event EventHandler<SearchingForPlayerEventArgs> SearchingForPlayer;
 
 
-        static void RaiseEvent( EventHandler h ) {
-            if( h != null ) h( null, EventArgs.Empty );
+        static void RaiseEvent( EventHandler handler ) {
+            if( handler != null ) handler( null, EventArgs.Empty );
         }
 
         static void RaiseShutdownBeganEvent( ShutdownParams shutdownParams ) {
-            var h = ShutdownBegan;
-            if( h != null ) h( null, new ShutdownEventArgs( shutdownParams ) );
+            var handler = ShutdownBegan;
+            if( handler != null ) handler( null, new ShutdownEventArgs( shutdownParams ) );
         }
 
         static void RaiseShutdownEndedEvent( ShutdownParams shutdownParams ) {
-            var h = ShutdownEnded;
-            if( h != null ) h( null, new ShutdownEventArgs( shutdownParams ) );
+            var handler = ShutdownEnded;
+            if( handler != null ) handler( null, new ShutdownEventArgs( shutdownParams ) );
         }
 
         internal static void RaisePlayerListChangedEvent() {
@@ -71,25 +71,25 @@ namespace fCraft {
 
         internal static bool RaiseSessionConnectingEvent( [NotNull] IPAddress ip ) {
             if( ip == null ) throw new ArgumentNullException( "ip" );
-            var h = SessionConnecting;
-            if( h == null ) return false;
+            var handler = SessionConnecting;
+            if( handler == null ) return false;
             var e = new SessionConnectingEventArgs( ip );
-            h( null, e );
-            return e.Cancel;
+            handler( null, e );
+            return !e.Cancel;
         }
 
 
         internal static void RaiseSessionConnectedEvent( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            var h = SessionConnected;
-            if( h != null ) h( null, new PlayerEventArgs( player ) );
+            var handler = SessionConnected;
+            if( handler != null ) handler( null, new PlayerEventArgs( player ) );
         }
 
 
         internal static void RaiseSessionDisconnectedEvent( [NotNull] Player player, LeaveReason leaveReason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            var h = SessionDisconnected;
-            if( h != null ) h( null, new SessionDisconnectedEventArgs( player, leaveReason ) );
+            var handler = SessionDisconnected;
+            if( handler != null ) handler( null, new SessionDisconnectedEventArgs( player, leaveReason ) );
         }
 
         #endregion

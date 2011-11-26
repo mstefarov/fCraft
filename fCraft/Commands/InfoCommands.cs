@@ -98,7 +98,7 @@ namespace fCraft {
                 if( Server.IsIP( ipString ) && IPAddress.TryParse( ipString, out ip ) &&
                     Byte.TryParse( rangeString, out range ) && range <= 32 ) {
                     player.Message( "Searching {0}-{1}", ip.RangeMin( range ), ip.RangeMax( range ) );
-                    infos = PlayerDB.FindPlayersCidr( ip, range );
+                    infos = PlayerDB.FindPlayersCidr( ip, range ).ToArray();
                 } else {
                     player.Message( "Info: Invalid IP range format. Use CIDR notation." );
                     return;

@@ -79,54 +79,54 @@ namespace fCraft {
 
         static bool RaisePlayerConnectingEvent( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            var h = Connecting;
-            if( h == null ) return false;
+            var handler = Connecting;
+            if( handler == null ) return false;
             var e = new PlayerConnectingEventArgs( player );
-            h( null, e );
-            return e.Cancel;
+            handler( null, e );
+            return !e.Cancel;
         }
 
 
         static World RaisePlayerConnectedEvent( [NotNull] Player player, World world ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            var h = Connected;
-            if( h == null ) return world;
+            var handler = Connected;
+            if( handler == null ) return world;
             var e = new PlayerConnectedEventArgs( player, world );
-            h( null, e );
+            handler( null, e );
             return e.StartingWorld;
         }
 
 
         static void RaisePlayerReadyEvent( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            var h = Ready;
-            if( h != null ) h( null, new PlayerEventArgs( player ) );
+            var handler = Ready;
+            if( handler != null ) handler( null, new PlayerEventArgs( player ) );
         }
 
 
         static bool RaisePlayerMovingEvent( [NotNull] Player player, Position newPos ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            var h = Moving;
-            if( h == null ) return false;
+            var handler = Moving;
+            if( handler == null ) return false;
             var e = new PlayerMovingEventArgs( player, newPos );
-            h( null, e );
-            return e.Cancel;
+            handler( null, e );
+            return !e.Cancel;
         }
 
 
         static void RaisePlayerMovedEvent( [NotNull] Player player, Position oldPos ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            var h = Moved;
-            if( h != null ) h( null, new PlayerMovedEventArgs( player, oldPos ) );
+            var handler = Moved;
+            if( handler != null ) handler( null, new PlayerMovedEventArgs( player, oldPos ) );
         }
 
 
         static bool RaisePlayerClickingEvent( [NotNull] PlayerClickingEventArgs e ) {
             if( e == null ) throw new ArgumentNullException( "e" );
-            var h = Clicking;
-            if( h == null ) return false;
-            h( null, e );
-            return e.Cancel;
+            var handler = Clicking;
+            if( handler == null ) return false;
+            handler( null, e );
+            return !e.Cancel;
         }
 
 
@@ -150,29 +150,29 @@ namespace fCraft {
 
         static void RaisePlayerBeingKickedEvent( [NotNull] PlayerBeingKickedEventArgs e ) {
             if( e == null ) throw new ArgumentNullException( "e" );
-            var h = BeingKicked;
-            if( h != null ) h( null, e );
+            var handler = BeingKicked;
+            if( handler != null ) handler( null, e );
         }
 
 
         static void RaisePlayerKickedEvent( [NotNull] PlayerKickedEventArgs e ) {
             if( e == null ) throw new ArgumentNullException( "e" );
-            var h = Kicked;
-            if( h != null ) h( null, e );
+            var handler = Kicked;
+            if( handler != null ) handler( null, e );
         }
 
 
         internal static void RaisePlayerHideChangedEvent( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            var h = HideChanged;
-            if( h != null ) h( null, new PlayerEventArgs( player ) );
+            var handler = HideChanged;
+            if( handler != null ) handler( null, new PlayerEventArgs( player ) );
         }
 
 
         static void RaisePlayerDisconnectedEvent( [NotNull] Player player, LeaveReason leaveReason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            var h = Disconnected;
-            if( h != null ) h( null, new PlayerDisconnectedEventArgs( player, leaveReason, false ) );
+            var handler = Disconnected;
+            if( handler != null ) handler( null, new PlayerDisconnectedEventArgs( player, leaveReason, false ) );
         }
 
 
@@ -180,17 +180,17 @@ namespace fCraft {
                                                   string textLine1, string textLine2 ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
-            var h = JoiningWorld;
-            if( h == null ) return false;
+            var handler = JoiningWorld;
+            if( handler == null ) return false;
             var e = new PlayerJoiningWorldEventArgs( player, player.World, newWorld, reason, textLine1, textLine2 );
-            h( null, e );
-            return e.Cancel;
+            handler( null, e );
+            return !e.Cancel;
         }
 
 
         static void RaisePlayerJoinedWorldEvent( Player player, World oldWorld, WorldChangeReason reason ) {
-            var h = JoinedWorld;
-            if( h != null ) h( null, new PlayerJoinedWorldEventArgs( player, oldWorld, player.World, reason ) );
+            var handler = JoinedWorld;
+            if( handler != null ) handler( null, new PlayerJoinedWorldEventArgs( player, oldWorld, player.World, reason ) );
         }
     }
 }

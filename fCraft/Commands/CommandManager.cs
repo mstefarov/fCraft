@@ -114,7 +114,9 @@ namespace fCraft {
                 descriptor.Usage = "/" + descriptor.Name;
             }
 
-            if( RaiseCommandRegisteringEvent( descriptor ) ) return;
+            if( !RaiseCommandRegisteringEvent( descriptor ) ) {
+                return;
+            }
 
             if( Aliases.ContainsKey( normalizedName ) ) {
                 Logger.Log( LogType.Warning,
@@ -241,32 +243,32 @@ namespace fCraft {
 
 
         static bool RaiseCommandRegisteringEvent( CommandDescriptor descriptor ) {
-            var h = CommandRegistering;
-            if( h == null ) return false;
+            var handler = CommandRegistering;
+            if( handler == null ) return false;
             var e = new CommandRegistringEventArgs( descriptor );
-            h( null, e );
-            return e.Cancel;
+            handler( null, e );
+            return !e.Cancel;
         }
 
 
         static void RaiseCommandRegisteredEvent( CommandDescriptor descriptor ) {
-            var h = CommandRegistered;
-            if( h != null ) h( null, new CommandRegisteredEventArgs( descriptor ) );
+            var handler = CommandRegistered;
+            if( handler != null ) handler( null, new CommandRegisteredEventArgs( descriptor ) );
         }
 
 
         internal static bool RaiseCommandCallingEvent( Command cmd, CommandDescriptor descriptor, Player player ) {
-            var h = CommandCalling;
-            if( h == null ) return false;
+            var handler = CommandCalling;
+            if( handler == null ) return false;
             var e = new CommandCallingEventArgs( cmd, descriptor, player );
-            h( null, e );
-            return e.Cancel;
+            handler( null, e );
+            return !e.Cancel;
         }
 
 
         internal static void RaiseCommandCalledEvent( Command cmd, CommandDescriptor descriptor, Player player ) {
-            var h = CommandCalled;
-            if( h != null ) CommandCalled( null, new CommandCalledEventArgs( cmd, descriptor, player ) );
+            var handler = CommandCalled;
+            if( handler != null ) CommandCalled( null, new CommandCalledEventArgs( cmd, descriptor, player ) );
         }
 
         #endregion

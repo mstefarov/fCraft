@@ -9,13 +9,11 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Object representing persistent state ("record") of a player, online or offline.
     /// There is exactly one PlayerInfo object for each known Minecraft account. All data is stored in the PlayerDB. </summary>
-    public partial class PlayerInfo : IClassy, INotifyPropertyChanged {
-        public static readonly IComparer<PlayerInfo> Comparer = new PlayerIDComparer();
-        public const int MinFieldCount = 24;
+    public sealed partial class PlayerInfo : IClassy, INotifyPropertyChanged {
 
         #region Properties
 
-        protected bool Changed;
+        public bool Changed { get; set; }
 
         /// <summary> Player's unique numeric ID. Immutable. Issued on first join. </summary>
         public int ID { get; protected set; }
@@ -37,7 +35,7 @@ namespace fCraft {
             }
         }
         [NotNull]
-        protected string name;
+        string name;
 
 
         /// <summary> If set, replaces Name when printing name in chat. </summary>
@@ -52,7 +50,7 @@ namespace fCraft {
             }
         }
         [CanBeNull]
-        protected string displayedName;
+        string displayedName;
 
 
         /// <summary> First time the player ever logged in, UTC.
@@ -62,11 +60,11 @@ namespace fCraft {
             set {
                 if( value != firstLoginDate ) {
                     firstLoginDate = value;
-                    OnChanged("FirstLoginDate");
+                    OnChanged( "FirstLoginDate" );
                 }
             }
         }
-        protected DateTime firstLoginDate;
+        DateTime firstLoginDate;
 
 
         /// <summary> Most recent time the player logged in, UTC.
@@ -76,11 +74,11 @@ namespace fCraft {
             set {
                 if( value != lastLoginDate ) {
                     lastLoginDate = value;
-                    OnChanged("LastLoginDate");
+                    OnChanged( "LastLoginDate" );
                 }
             }
         }
-        protected DateTime lastLoginDate;
+        DateTime lastLoginDate;
 
 
         /// <summary> Last time the player has been seen online (last logout), UTC.
@@ -90,11 +88,11 @@ namespace fCraft {
             set {
                 if( value != lastSeen ) {
                     lastSeen = value;
-                    OnChanged("LastSeen");
+                    OnChanged( "LastSeen" );
                 }
             }
         }
-        protected DateTime lastSeen;
+        DateTime lastSeen;
 
 
         /// <summary> Reason for leaving the server last time. </summary>
@@ -103,12 +101,12 @@ namespace fCraft {
             set {
                 if( value != leaveReason ) {
                     leaveReason = value;
-                    OnChanged("LeaveReason");
+                    OnChanged( "LeaveReason" );
                 }
             }
         }
-        protected LeaveReason leaveReason;
-            
+        LeaveReason leaveReason;
+
 
         #region Rank
 
@@ -126,7 +124,7 @@ namespace fCraft {
             }
         }
         [NotNull]
-        protected Rank rank;
+        Rank rank;
 
 
         /// <summary> Player's previous rank.
@@ -142,7 +140,7 @@ namespace fCraft {
             }
         }
         [CanBeNull]
-        protected Rank previousRank;
+        Rank previousRank;
 
 
         /// <summary> Date of the most recent promotion/demotion, UTC.
@@ -156,7 +154,7 @@ namespace fCraft {
                 }
             }
         }
-        protected DateTime rankChangeDate;
+        DateTime rankChangeDate;
 
 
         /// <summary> Name of the entity that most recently promoted/demoted this player. May be null. </summary>
@@ -171,7 +169,7 @@ namespace fCraft {
             }
         }
         [CanBeNull]
-        protected string rankChangedBy;
+        string rankChangedBy;
 
 
         /// <summary> Returns decorated name of RankChangedBy player, or "?" if it was null or unknown player.
@@ -196,7 +194,7 @@ namespace fCraft {
             }
         }
         [CanBeNull]
-        protected string rankChangeReason;
+        string rankChangeReason;
 
 
         /// <summary> Type of the most recent promotion/demotion. </summary>
@@ -209,7 +207,7 @@ namespace fCraft {
                 }
             }
         }
-        protected RankChangeType rankChangeType;
+        RankChangeType rankChangeType;
 
         #endregion
 
@@ -226,7 +224,7 @@ namespace fCraft {
                 }
             }
         }
-        protected BanStatus banStatus;
+        BanStatus banStatus;
 
 
         /// <summary> Returns whether player is name-banned or not. Read-only, not serialized. </summary>
@@ -245,7 +243,7 @@ namespace fCraft {
                 }
             }
         }
-        protected DateTime banDate;
+        DateTime banDate;
 
 
         /// <summary> Name of the entity responsible for most recent ban. May be null. </summary>
@@ -260,7 +258,7 @@ namespace fCraft {
             }
         }
         [CanBeNull]
-        protected string bannedBy;
+        string bannedBy;
 
 
         /// <summary> Returns decorated name of BannedBy player, or "?" if it was null or unknown player.
@@ -285,7 +283,7 @@ namespace fCraft {
             }
         }
         [CanBeNull]
-        protected string banReason;
+        string banReason;
 
 
         /// <summary> Date of most recent unban, UTC. May be DateTime.MinValue if player was never unbanned. </summary>
@@ -298,7 +296,7 @@ namespace fCraft {
                 }
             }
         }
-        protected DateTime unbanDate;
+        DateTime unbanDate;
 
 
         /// <summary> Name of the entity responsible for most recent unban. May be null. </summary>
@@ -313,7 +311,7 @@ namespace fCraft {
             }
         }
         [CanBeNull]
-        protected string unbannedBy;
+        string unbannedBy;
 
 
         /// <summary> Returns decorated name of UnbannedBy player, or "?" if it was null or unknown player.
@@ -338,7 +336,7 @@ namespace fCraft {
             }
         }
         [CanBeNull]
-        protected string unbanReason;
+        string unbanReason;
 
 
         /// <summary> Date of most recent failed attempt to log in, UTC. </summary>
@@ -351,7 +349,7 @@ namespace fCraft {
                 }
             }
         }
-        protected DateTime lastFailedLoginDate;
+        DateTime lastFailedLoginDate;
 
 
         /// <summary> IP from which player most recently tried (and failed) to log in, UTC. </summary>
@@ -367,7 +365,7 @@ namespace fCraft {
             }
         }
         [NotNull]
-        protected IPAddress lastFailedLoginIP = IPAddress.None;
+        IPAddress lastFailedLoginIP = IPAddress.None;
 
         #endregion
 
@@ -384,7 +382,7 @@ namespace fCraft {
                 }
             }
         }
-        protected TimeSpan totalTime;
+        TimeSpan totalTime;
 
 
         /// <summary> Total number of blocks manually built or painted by the player. </summary>
@@ -397,7 +395,7 @@ namespace fCraft {
                 }
             }
         }
-        protected int blocksBuilt;
+        int blocksBuilt;
 
 
         /// <summary> Total number of blocks manually deleted by the player. </summary>
@@ -410,7 +408,7 @@ namespace fCraft {
                 }
             }
         }
-        protected int blocksDeleted;
+        int blocksDeleted;
 
 
         /// <summary> Total number of blocks modified using draw and copy/paste commands. </summary>
@@ -423,7 +421,7 @@ namespace fCraft {
                 }
             }
         }
-        protected long blocksDrawn;
+        long blocksDrawn;
 
 
         /// <summary> Number of sessions/logins. </summary>
@@ -436,7 +434,7 @@ namespace fCraft {
                 }
             }
         }
-        protected int timesVisited;
+        int timesVisited;
 
 
         /// <summary> Total number of messages written. </summary>
@@ -449,7 +447,7 @@ namespace fCraft {
                 }
             }
         }
-        protected int messagesWritten;
+        int messagesWritten;
 
 
         /// <summary> Number of kicks issues by this player. </summary>
@@ -462,7 +460,7 @@ namespace fCraft {
                 }
             }
         }
-        protected int timesKickedOthers;
+        int timesKickedOthers;
 
 
         /// <summary> Number of bans issued by this player. </summary>
@@ -475,7 +473,7 @@ namespace fCraft {
                 }
             }
         }
-        protected int timesBannedOthers;
+        int timesBannedOthers;
 
         #endregion
 
@@ -492,7 +490,7 @@ namespace fCraft {
                 }
             }
         }
-        protected int timesKicked;
+        int timesKicked;
 
 
         /// <summary> Date of the most recent kick.
@@ -506,7 +504,7 @@ namespace fCraft {
                 }
             }
         }
-        protected DateTime lastKickDate;
+        DateTime lastKickDate;
 
 
         /// <summary> Name of the entity that most recently kicked this player. May be null. </summary>
@@ -521,7 +519,7 @@ namespace fCraft {
             }
         }
         [CanBeNull]
-        protected string lastKickBy;
+        string lastKickBy;
 
 
         /// <summary> Returns decorated name of LastKickByClassy player, or "?" if it was null or unknown player.
@@ -546,7 +544,7 @@ namespace fCraft {
             }
         }
         [CanBeNull]
-        protected string lastKickReason;
+        string lastKickReason;
 
         #endregion
 
@@ -563,7 +561,7 @@ namespace fCraft {
                 }
             }
         }
-        protected bool isFrozen;
+        bool isFrozen;
 
 
         /// <summary> Date of the most recent freezing.
@@ -577,7 +575,7 @@ namespace fCraft {
                 }
             }
         }
-        protected DateTime frozenOn;
+        DateTime frozenOn;
 
 
         /// <summary> Name of the entity that most recently froze this player. May be null. </summary>
@@ -592,7 +590,7 @@ namespace fCraft {
             }
         }
         [CanBeNull]
-        protected string frozenBy;
+        string frozenBy;
 
 
         /// <summary> Returns decorated name of FrozenBy player, or "?" if it was null or unknown player.
@@ -624,7 +622,7 @@ namespace fCraft {
             }
         }
         [CanBeNull]
-        protected DateTime mutedUntil;
+        DateTime mutedUntil;
 
 
         /// <summary> Name of the entity that most recently muted this player. May be null. </summary>
@@ -639,7 +637,7 @@ namespace fCraft {
             }
         }
         [CanBeNull]
-        protected string mutedBy;
+        string mutedBy;
 
 
         /// <summary> Returns decorated name of MutedBy player, or "?" if it was null or unknown player.
@@ -667,7 +665,7 @@ namespace fCraft {
                 }
             }
         }
-        protected bool isOnline;
+        bool isOnline;
 
 
         /// <summary> If player is online, Player object associated with the session.
@@ -682,7 +680,7 @@ namespace fCraft {
                 }
             }
         }
-        protected Player playerObject;
+        Player playerObject;
 
 
         /// <summary> Whether the player is currently hidden.
@@ -696,7 +694,7 @@ namespace fCraft {
                 }
             }
         }
-        protected bool isHidden;
+        bool isHidden;
 
 
         /// <summary> For offline players, last IP used to succesfully log in.
@@ -712,9 +710,9 @@ namespace fCraft {
                 }
             }
         }
-        protected IPAddress lastIP = IPAddress.None;
+        IPAddress lastIP = IPAddress.None;
 
-#endregion
+        #endregion
 
 
         #region Unfinished / Not Implemented
@@ -730,12 +728,12 @@ namespace fCraft {
                 }
             }
         }
-        protected string password;
+        string password;
 
 
         /// <summary> Date/time of last modification to this PlayerInfo.
         /// Unlike other properties, setting LastModified does NOT raise PropertyChanged event. </summary>
-        public DateTime LastModified { get; protected set; }
+        public DateTime LastModified { get; set; }
 
 
         public BandwidthUseMode BandwidthUseMode { // TODO
@@ -747,7 +745,7 @@ namespace fCraft {
                 }
             }
         }
-        protected BandwidthUseMode bandwidthUseMode;
+        BandwidthUseMode bandwidthUseMode;
 
 
         /// <summary> Not implemented (for temp bans). </summary>
@@ -760,14 +758,17 @@ namespace fCraft {
                 }
             }
         }
-        protected DateTime bannedUntil;
+        DateTime bannedUntil;
 
         #endregion
 
         #endregion
 
 
+        [NotNull]
         readonly object syncRoot = new object();
+
+        [NotNull]
         public object SyncRoot {
             get { return syncRoot; }
         }
@@ -780,35 +781,36 @@ namespace fCraft {
         }
 
 
-        // fabricate info for an unrecognized player
-        protected PlayerInfo( int id, string name, IPAddress lastIP, Rank startingRank, RankChangeType rankChangeType )
+        // create a record for an unrecognized or a super player
+        public PlayerInfo( int id, [NotNull] string name, [NotNull] IPAddress ip, [NotNull] Rank startingRank, RankChangeType rankChangeType )
             : this( id ) {
             if( name == null ) throw new ArgumentNullException( "name" );
+            if( ip == null ) throw new ArgumentNullException( "ip" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
             this.name = name;
             rank = startingRank;
             firstLoginDate = DateTime.UtcNow;
             lastLoginDate = firstLoginDate;
             lastSeen = firstLoginDate;
-            this.lastIP=lastIP;
+            lastIP = ip;
             timesVisited = 1;
             this.rankChangeType = rankChangeType;
             LastModified = DateTime.UtcNow;
         }
 
 
-        // generate blank info for a new player
-        protected PlayerInfo( int id, [NotNull] string name, [NotNull] IPAddress lastIP, [NotNull] Rank startingRank )
+        // create a record for a newly logged-in player
+        public PlayerInfo( int id, [NotNull] string name, [NotNull] IPAddress ip, [NotNull] Rank startingRank )
             : this( id ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            if( lastIP == null ) throw new ArgumentNullException( "lastIP" );
+            if( ip == null ) throw new ArgumentNullException( "ip" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
             firstLoginDate = DateTime.UtcNow;
             lastSeen = DateTime.UtcNow;
             lastLoginDate = DateTime.UtcNow;
             rank = startingRank;
             this.name = name;
-            this.lastIP = lastIP;
+            lastIP = ip;
             LastModified = DateTime.UtcNow;
         }
 
@@ -914,6 +916,7 @@ namespace fCraft {
 
 
         // implements IClassy interface
+        [NotNull]
         public string ClassyName {
             get {
                 StringBuilder sb = new StringBuilder();
@@ -987,7 +990,7 @@ namespace fCraft {
             return Rank.Can( permission );
         }
 
-        public bool Can( Permission permission, Rank targetRank ) {
+        public bool Can( Permission permission, [NotNull] Rank targetRank ) {
             return Rank.Can( permission, targetRank );
         }
 
@@ -996,20 +999,21 @@ namespace fCraft {
             Changed = true;
             LastModified = DateTime.UtcNow;
             if( RaisePropertyChangedEvents ) {
-                var h = PropertyChanged;
-                if( h != null ) h( this, new PropertyChangedEventArgs( propertyName ) );
+                var handler = PropertyChanged;
+                if( handler != null ) handler( this, new PropertyChangedEventArgs( propertyName ) );
             }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected bool RaisePropertyChangedEvents { get; set; }
+        internal bool RaisePropertyChangedEvents { get; set; }
 
         public override string ToString() {
             return String.Format( "PlayerInfo({0},{1})", Name, Rank.Name );
         }
 
 
+        public static readonly IComparer<PlayerInfo> ComparerByID = new PlayerIDComparer();
 
         sealed class PlayerIDComparer : IComparer<PlayerInfo> {
             public int Compare( PlayerInfo x, PlayerInfo y ) {

@@ -661,7 +661,7 @@ namespace fCraft {
             }
 
             // Raise PlayerInfo.RankChanging event
-            if( raiseEvents && RaiseRankChangingEvent( this, player, newRank, reason, changeType, announce ) ) {
+            if( raiseEvents && !RaiseRankChangingEvent( this, player, newRank, reason, changeType, announce ) ) {
                 PlayerOpException.ThrowCancelled( player, this );
             }
 
@@ -791,7 +791,7 @@ namespace fCraft {
                 }
 
                 // Raise PlayerInfo.FreezeChanging event
-                if( raiseEvents && RaiseFreezeChangingEvent( this, player, false, announce ) ) {
+                if( raiseEvents && !RaiseFreezeChangingEvent( this, player, false, announce ) ) {
                     PlayerOpException.ThrowCancelled( player, this );
                 }
 
@@ -849,7 +849,7 @@ namespace fCraft {
                 }
 
                 // Raise PlayerInfo.FreezeChanging event
-                if( raiseEvents && RaiseFreezeChangingEvent( this, player, true, announce ) ) {
+                if( raiseEvents && !RaiseFreezeChangingEvent( this, player, true, announce ) ) {
                     PlayerOpException.ThrowCancelled( player, this );
                 }
 

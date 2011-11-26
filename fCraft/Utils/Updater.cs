@@ -47,7 +47,7 @@ namespace fCraft {
             if( mode == UpdaterMode.Disabled ) return UpdaterResult.NoUpdate;
 
             string url = String.Format( UpdateUrl, CurrentRelease.Revision );
-            if( RaiseCheckingForUpdatesEvent( ref url ) ) return UpdaterResult.NoUpdate;
+            if( !RaiseCheckingForUpdatesEvent( ref url ) ) return UpdaterResult.NoUpdate;
 
             Logger.Log( LogType.SystemActivity, "Checking for fCraft updates..." );
             try {
@@ -118,18 +118,18 @@ namespace fCraft {
 
 
         static bool RaiseCheckingForUpdatesEvent( ref string updateUrl ) {
-            var h = CheckingForUpdates;
-            if( h == null ) return false;
+            var handler = CheckingForUpdates;
+            if( handler == null ) return false;
             var e = new CheckingForUpdatesEventArgs( updateUrl );
-            h( null, e );
+            handler( null, e );
             updateUrl = e.Url;
-            return e.Cancel;
+            return !e.Cancel;
         }
 
 
         static void RaiseCheckedForUpdatesEvent( string url, UpdaterResult result ) {
-            var h = CheckedForUpdates;
-            if( h != null ) h( null, new CheckedForUpdatesEventArgs( url, result ) );
+            var handler = CheckedForUpdates;
+            if( handler != null ) handler( null, new CheckedForUpdatesEventArgs( url, result ) );
         }
 
         #endregion
