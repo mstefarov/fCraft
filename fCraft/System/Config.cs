@@ -399,8 +399,10 @@ namespace fCraft {
                 }
             } else {
                 XElement settings = config.Element( "Settings" );
-                foreach( XElement pair in settings.Elements( "ConfigKey" ) ) {
-                    ParseKeyElement( pair );
+                if( settings != null ) {
+                    foreach( XElement pair in settings.Elements( "ConfigKey" ) ) {
+                        ParseKeyElement( pair );
+                    }
                 }
             }
 

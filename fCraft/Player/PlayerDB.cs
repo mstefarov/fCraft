@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
 using fCraft.Events;
 using JetBrains.Annotations;
 
