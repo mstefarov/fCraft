@@ -45,7 +45,6 @@ namespace fCraft {
         #region Info
 
         const int MaxAltsToPrint = 15;
-        static readonly Regex RegexNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\?]", RegexOptions.Compiled );
 
         static readonly CommandDescriptor CdInfo = new CommandDescriptor {
             Name = "Info",
@@ -108,19 +107,17 @@ namespace fCraft {
 
             }else if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
                 // find players by IP
-                infos = PlayerDB.FindPlayers( ip ).ToArray();
+                infos = PlayerDB.FindByIP( ip ).ToArray();
 
             } else if( name.Contains( "*" ) || name.Contains( "?" ) ) {
                 // find players by regex/wildcard
-                string regexString = "^" + RegexNonNameChars.Replace( name, "" ).Replace( "*", ".*" ).Replace( "?", "." ) + "$";
-                Regex regex = new Regex( regexString, RegexOptions.IgnoreCase | RegexOptions.Compiled );
-                infos = PlayerDB.FindPlayers( regex );
+                infos = PlayerDB.FindByPattern( name ).ToArray();
 
             } else {
                 // find players by partial matching
                 PlayerInfo tempInfo;
                 if( !PlayerDB.FindPlayerInfo( name, out tempInfo ) ) {
-                    infos = PlayerDB.FindPlayers( name ).ToArray();
+                    infos = PlayerDB.FindByPartialName( name ).ToArray();
                 } else if( tempInfo == null ) {
                     player.MessageNoPlayer( name );
                     return;
@@ -304,7 +301,7 @@ namespace fCraft {
                 // Show alts
                 List<PlayerInfo> altNames = new List<PlayerInfo>();
                 int bannedAltCount = 0;
-                foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( info.LastIP ) ) {
+                foreach( PlayerInfo playerFromSameIP in PlayerDB.FindByIP( info.LastIP ) ) {
                     if( playerFromSameIP == info ) continue;
                     altNames.Add( playerFromSameIP );
                     if( playerFromSameIP.IsBanned ) {
@@ -566,7 +563,7 @@ namespace fCraft {
             // Show alts
             List<PlayerInfo> altNames = new List<PlayerInfo>();
             int bannedAltCount = 0;
-            foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( address ) ) {
+            foreach( PlayerInfo playerFromSameIP in PlayerDB.FindByIP( address ) ) {
                 if( playerFromSameIP == info ) continue;
                 altNames.Add( playerFromSameIP );
                 if( playerFromSameIP.IsBanned ) {

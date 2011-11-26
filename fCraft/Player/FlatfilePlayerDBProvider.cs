@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading;
 using JetBrains.Annotations;
 
@@ -78,13 +79,11 @@ namespace fCraft {
         public IEnumerable<PlayerInfo> FindByIP( [NotNull] IPAddress address, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             List<PlayerInfo> result = new List<PlayerInfo>();
-            int count = 0;
             PlayerInfo[] cache = PlayerDB.PlayerInfoList;
             for( int i = 0; i < cache.Length; i++ ) {
                 if( cache[i].LastIP.Equals( address ) ) {
                     result.Add( cache[i] );
-                    count++;
-                    if( count >= limit ) return result.ToArray();
+                    if( result.Count >= limit ) break;
                 }
             }
             return result.ToArray();
@@ -100,10 +99,22 @@ namespace fCraft {
         }
 
 
+        static readonly Regex RegexNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\?]", RegexOptions.Compiled );
+
         [NotNull]
         public IEnumerable<PlayerInfo> FindByPattern( [NotNull] string pattern, int limit ) {
             if( pattern == null ) throw new ArgumentNullException( "pattern" );
-            throw new NotImplementedException();
+            string regexString = "^" + RegexNonNameChars.Replace( pattern, "" ).Replace( "*", ".*" ).Replace( "?", "." ) + "$";
+            Regex regex = new Regex( regexString, RegexOptions.IgnoreCase );
+            List<PlayerInfo> result = new List<PlayerInfo>();
+            PlayerInfo[] cache = PlayerDB.PlayerInfoList;
+            for( int i = 0; i < cache.Length; i++ ) {
+                if( regex.IsMatch( cache[i].Name ) ) {
+                    result.Add( cache[i] );
+                    if( result.Count >= limit ) break;
+                }
+            }
+            return result.ToArray();
         }
 
 
@@ -429,7 +440,7 @@ namespace fCraft {
 
 
         [NotNull]
-        public PlayerInfo AddSuper( ReservedPlayerIDs id, [NotNull] string name, [NotNull] Rank rank ) {
+        public PlayerInfo AddSuperPlayer( ReservedPlayerIDs id, [NotNull] string name, [NotNull] Rank rank ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( rank == null ) throw new ArgumentNullException( "rank" );
             FlatfilePlayerInfo info = new FlatfilePlayerInfo( (int)id, name, IPAddress.None, rank );
