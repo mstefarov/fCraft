@@ -45,6 +45,40 @@ namespace fCraft {
         readonly Trie<PlayerInfo> trie = new Trie<PlayerInfo>();
 
 
+        [NotNull]
+        public PlayerInfo AddPlayer( [NotNull] string name, [NotNull] IPAddress lastIP, [NotNull] Rank startingRank, RankChangeType rankChangeType ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( lastIP == null ) throw new ArgumentNullException( "lastIP" );
+            if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
+            int id = GetNextID();
+            PlayerInfo info = new PlayerInfo( id, name, lastIP, startingRank, rankChangeType );
+            trie.Add( name, info );
+            return info;
+        }
+
+
+        [NotNull]
+        public PlayerInfo AddUnrecognizedPlayer( [NotNull] string name, [NotNull] Rank startingRank, RankChangeType rankChangeType ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
+            int id = GetNextID();
+            PlayerInfo info = new PlayerInfo( id, name, IPAddress.None, startingRank, rankChangeType );
+            trie.Add( name, info );
+            return info;
+        }
+
+
+        [NotNull]
+        public PlayerInfo AddSuperPlayer( ReservedPlayerID id, [NotNull] string name, [NotNull] Rank rank ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( rank == null ) throw new ArgumentNullException( "rank" );
+            PlayerInfo info = new PlayerInfo( (int)id, name, IPAddress.None, rank );
+            trie.Add( name, info );
+            return info;
+        }
+
+
+
         public void Remove( [NotNull] PlayerInfo playerInfo ) {
             if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
             throw new NotImplementedException();
@@ -383,7 +417,7 @@ namespace fCraft {
                 bool hasPrevRank = reader.ReadBoolean();
                 if( hasPrevRank ) {
                     int prevRankIndex = Read7BitEncodedInt( reader );
-                    info.Rank = GetRankByIndex( prevRankIndex );
+                    info.PreviousRank = GetRankByIndex( prevRankIndex );
                 }
             }
             info.RankChangeType = (RankChangeType)reader.ReadByte();
@@ -401,7 +435,7 @@ namespace fCraft {
             if( info.BanStatus == BanStatus.Banned ) {
                 info.BannedUntil = ReadDate( reader );
                 info.LastFailedLoginDate = ReadDate( reader );
-                info.LastFailedLoginIP = new IPAddress( reader.ReadBytes( 4 ) );
+                info.LastFailedLoginIP = ReadIPAddress( reader );
             } else {
                 info.UnbanDate = ReadDate( reader );
                 info.UnbannedBy = ReadString( reader );
@@ -409,9 +443,9 @@ namespace fCraft {
             }
 
             // Stats
-            info.FirstLoginDate = DateTimeUtil.ToDateTime( reader.ReadUInt32() );
-            info.LastLoginDate = DateTimeUtil.ToDateTime( reader.ReadUInt32() );
-            info.TotalTime = new TimeSpan( reader.ReadUInt32() * TimeSpan.TicksPerSecond );
+            info.FirstLoginDate = ReadDate( reader );
+            info.LastLoginDate = ReadDate( reader );
+            info.TotalTime = ReadTimeSpan( reader );
             info.BlocksBuilt = Read7BitEncodedInt( reader );
             info.BlocksDeleted = Read7BitEncodedInt( reader );
             if( reader.ReadBoolean() ) {
@@ -443,14 +477,24 @@ namespace fCraft {
 
             // Misc
             info.Password = ReadString( reader );
-            info.LastModified = DateTimeUtil.ToDateTime( reader.ReadUInt32() );
+            info.LastModified = ReadDate( reader );
             reader.ReadBoolean(); // info.IsOnline - skip
             info.IsHidden = reader.ReadBoolean();
-            info.LastIP = new IPAddress( reader.ReadBytes( 4 ) );
+            info.LastIP = ReadIPAddress(reader );
             info.LeaveReason = (LeaveReason)reader.ReadByte();
             info.BandwidthUseMode = (BandwidthUseMode)reader.ReadByte();
 
             return info;
+        }
+
+
+        static IPAddress ReadIPAddress( [NotNull] BinaryReader reader ) {
+            return new IPAddress( reader.ReadBytes( 4 ) );
+        }
+
+
+        static TimeSpan ReadTimeSpan( [NotNull] BinaryReader reader ) {
+            return new TimeSpan( reader.ReadUInt32() * TimeSpan.TicksPerSecond );
         }
 
 
@@ -657,38 +701,5 @@ namespace fCraft {
             writer.Write( (byte)num );
         }
         #endregion
-
-
-        [NotNull]
-        public PlayerInfo AddPlayer( [NotNull] string name, [NotNull] IPAddress lastIP, [NotNull] Rank startingRank, RankChangeType rankChangeType ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
-            if( lastIP == null ) throw new ArgumentNullException( "lastIP" );
-            if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
-            int id = GetNextID();
-            PlayerInfo info = new PlayerInfo( id, name, lastIP, startingRank, rankChangeType );
-            trie.Add( name, info );
-            return info;
-        }
-
-
-        [NotNull]
-        public PlayerInfo AddUnrecognizedPlayer( [NotNull] string name, [NotNull] Rank startingRank, RankChangeType rankChangeType ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
-            if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
-            int id = GetNextID();
-            PlayerInfo info = new PlayerInfo( id, name, IPAddress.None, startingRank, rankChangeType );
-            trie.Add( name, info );
-            return info;
-        }
-
-
-        [NotNull]
-        public PlayerInfo AddSuperPlayer( ReservedPlayerID id, [NotNull] string name, [NotNull] Rank rank ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
-            if( rank == null ) throw new ArgumentNullException( "rank" );
-            PlayerInfo info = new PlayerInfo( (int)id, name, IPAddress.None, rank );
-            trie.Add( name, info );
-            return info;
-        }
     }
 }

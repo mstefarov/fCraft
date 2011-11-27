@@ -533,7 +533,7 @@ namespace fCraft {
         /// <param name="name"> Full rank name, or name and ID. </param>
         /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. </returns>
         [CanBeNull]
-        public static Rank Parse( string name ) {
+        public static Rank Parse( [CanBeNull] string name ) {
             if( name == null ) return null;
 
             if( RankManager.RanksByFullName.ContainsKey( name ) ) {
