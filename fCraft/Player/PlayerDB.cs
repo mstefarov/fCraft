@@ -41,6 +41,7 @@ namespace fCraft {
             return newInfo;
         }
 
+
         [NotNull]
         public static PlayerInfo AddUnrecognized( [NotNull] string name, RankChangeType rankChangeType ) {
             if( name == null ) throw new ArgumentNullException( "name" );

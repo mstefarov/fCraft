@@ -211,6 +211,7 @@
     <Compile Include="Drawing\UndoState.cs" />
     <Compile Include="MapConversion\INIFile.cs" />
     <Compile Include="Network\IPBanInfo.cs" />
+    <Compile Include="Player\CachedMySqlPlayerDBProvider.cs" />
     <Compile Include="Player\ChatTimer.cs" />
     <Compile Include="Drawing\Brushes\AbstractPerlinNoiseBrush.cs" />
     <Compile Include="Drawing\Brushes\CheckeredBrush.cs" />
