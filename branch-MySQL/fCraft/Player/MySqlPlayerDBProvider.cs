@@ -39,80 +39,102 @@ namespace fCraft {
 
 
         const string FindExactQuery = "SELECT id FROM players WHERE name LIKE ? LIMIT 1;";
+        const string FindByIPQuery = "SELECT id FROM players WHERE lastIP=? LIMIT ?;";
+        const string FindPartialQuery = "SELECT id FROM players WHERE name LIKE ?;";
+
+        MySqlCommand findExactCommand, findByIPCommand, findPartialCommand;
+
+        void PrepareCommands() {
+            findExactCommand = new MySqlCommand( FindExactQuery, connection );
+            findExactCommand.ParameterCheck = true;
+            findExactCommand.Prepare();
+
+            findByIPCommand = new MySqlCommand( FindByIPQuery, connection );
+            findByIPCommand.ParameterCheck = true;
+            findByIPCommand.Prepare();
+
+            findPartialCommand = new MySqlCommand( FindPartialQuery, connection );
+            findPartialCommand.ParameterCheck = true;
+            findPartialCommand.Prepare();
+        }
+
+
+        MySqlCommand GetFindExactCommand( string fullName ) {
+            findExactCommand.Parameters[0].Value = fullName;
+            return findExactCommand;
+        }
+
+
+        MySqlCommand GetFindByIPCommand( IPAddress address, int limit ) {
+            findByIPCommand.Parameters[0].Value = address.AsInt();
+            findByIPCommand.Parameters[1].Value = limit;
+            return findByIPCommand;
+        }
+
+
+        MySqlCommand GetFindPartialCommand( string partialName, int limit ) {
+            findPartialCommand.Parameters[0].Value = partialName;
+            findPartialCommand.Parameters[1].Value = limit;
+            return findPartialCommand;
+        }
+
+
         public PlayerInfo FindExact( [NotNull] string fullName ) {
             if( fullName == null ) throw new ArgumentNullException( "fullName" );
             lock( syncRoot ) {
-                using( MySqlCommand cmd = new MySqlCommand( FindExactQuery, connection ) ) {
-                    cmd.Parameters.Add( "name", fullName );
-                    object playerIdOrNull = cmd.ExecuteScalar();
-                    if( playerIdOrNull == null ) {
-                        return null;
-                    } else {
-                        int id = (int)playerIdOrNull;
-                        return GetPlayerInfoFromID( id );
-                    }
+                MySqlCommand cmd = GetFindExactCommand( fullName );
+                object playerIdOrNull = cmd.ExecuteScalar();
+                if( playerIdOrNull == null ) {
+                    return null;
+                } else {
+                    int id = (int)playerIdOrNull;
+                    return GetPlayerInfoFromID( id );
                 }
             }
         }
 
 
-        const string FindByIPQuery = "SELECT id FROM players WHERE lastIP=? LIMIT ?;";
         public IEnumerable<PlayerInfo> FindByIP( [NotNull] IPAddress address, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
-
             lock( syncRoot ) {
-                using( MySqlCommand cmd = new MySqlCommand( FindByIPQuery, connection ) ) {
-                    cmd.Parameters.Add( "lastIP", address.AsInt() );
-                    cmd.Parameters.Add( "limit", limit );
-                    List<PlayerInfo> results = new List<PlayerInfo>();
-                    using( MySqlDataReader reader = cmd.ExecuteReader() ) {
-                        while( reader.Read() ) {
-                            int id = reader.GetInt32( 0 );
-                            results.Add( GetPlayerInfoFromID( id ) );
-                        }
+                MySqlCommand cmd = GetFindByIPCommand( address, limit );
+                List<PlayerInfo> results = new List<PlayerInfo>();
+                using( MySqlDataReader reader = cmd.ExecuteReader() ) {
+                    while( reader.Read() ) {
+                        int id = reader.GetInt32( 0 );
+                        results.Add( GetPlayerInfoFromID( id ) );
                     }
-                    return results;
                 }
+                return results;
             }
         }
 
 
-        const string FindPartialQuery = "SELECT id FROM players WHERE name LIKE ?;";
         public IEnumerable<PlayerInfo> FindByPartialName( [NotNull] string partialName, int limit ) {
             if( partialName == null ) throw new ArgumentNullException( "partialName" );
 
             lock( syncRoot ) {
-                using( var transaction = connection.BeginTransaction() ) {
-                    using( var cmdExact = new MySqlCommand( FindExactQuery, connection, transaction ) ) {
-                        cmdExact.ParameterCheck = true;
-                        cmdExact.Parameters.Add( "name", partialName );
-                        cmdExact.Prepare();
-                        object playerIdOrNull = cmdExact.ExecuteScalar();
+                MySqlCommand cmdExact = GetFindExactCommand( partialName );
+                object playerIdOrNull = cmdExact.ExecuteScalar();
 
-                        if( playerIdOrNull != null ) {
-                            // An exact match was found, return it
-                            int id = (int)playerIdOrNull;
-                            return new PlayerInfo[] {
-                                GetPlayerInfoFromID( id )
-                            };
-                        }
+                if( playerIdOrNull != null ) {
+                    // An exact match was found, return it
+                    int id = (int)playerIdOrNull;
+                    return new PlayerInfo[] {
+                        GetPlayerInfoFromID( id )
+                    };
+                }
 
-                        using( var cmdPartial = new MySqlCommand( FindPartialQuery, connection, transaction ) ) {
-                            cmdPartial.ParameterCheck = true;
-                            cmdPartial.Parameters.Add( "name", partialName + "%" );
-                            cmdPartial.Prepare();
-                            using( MySqlDataReader reader = cmdPartial.ExecuteReader() ) {
-                                List<PlayerInfo> results = new List<PlayerInfo>();
-                                while( reader.Read() ) {
-                                    // If multiple matches were found, they'll be added to the list
-                                    int id = reader.GetInt32( 0 );
-                                    results.Add( GetPlayerInfoFromID( id ) );
-                                }
-                                // If no matches were found, the list will be empty
-                                return results;
-                            }
-                        }
+                MySqlCommand cmdPartial = GetFindPartialCommand( partialName + "%", limit );
+                using( MySqlDataReader reader = cmdPartial.ExecuteReader() ) {
+                    List<PlayerInfo> results = new List<PlayerInfo>();
+                    while( reader.Read() ) {
+                        // If multiple matches were found, they'll be added to the list
+                        int id = reader.GetInt32( 0 );
+                        results.Add( GetPlayerInfoFromID( id ) );
                     }
+                    // If no matches were found, the list will be empty
+                    return results;
                 }
             }
         }
@@ -154,6 +176,8 @@ namespace fCraft {
             connection.UserId = UserId;
             connection.Password = Password;
             connection.Open();
+
+            PrepareCommands();
 
             using( MySqlCommand cmd = new MySqlCommand( "SELECT * FROM players ORDER BY id;", connection ) ) {
                 using( MySqlDataReader reader = cmd.ExecuteReader() ) {
