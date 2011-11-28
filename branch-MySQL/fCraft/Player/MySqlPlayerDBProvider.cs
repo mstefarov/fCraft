@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Net;
-using Devart.Data;
+using System.Data;
 using Devart.Data.MySql;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft {
-    class CachedMySqlPlayerDBProvider : IPlayerDBProvider {
+    class MySqlPlayerDBProvider : IPlayerDBProvider {
         MySqlConnection connection;
 
         readonly object syncRoot = new object();
@@ -38,25 +37,113 @@ namespace fCraft {
             throw new NotImplementedException();
         }
 
-        public PlayerInfo FindExact( string fullName ) {
-            throw new NotImplementedException();
+
+        const string FindExactQuery = "SELECT id FROM players WHERE name LIKE ? LIMIT 1;";
+        public PlayerInfo FindExact( [NotNull] string fullName ) {
+            if( fullName == null ) throw new ArgumentNullException( "fullName" );
+            lock( syncRoot ) {
+                using( MySqlCommand cmd = new MySqlCommand( FindExactQuery, connection ) ) {
+                    cmd.Parameters.Add( "name", fullName );
+                    object playerIdOrNull = cmd.ExecuteScalar();
+                    if( playerIdOrNull == null ) {
+                        return null;
+                    } else {
+                        int id = (int)playerIdOrNull;
+                        return GetPlayerInfoFromID( id );
+                    }
+                }
+            }
         }
 
-        public IEnumerable<PlayerInfo> FindByIP( IPAddress address, int limit ) {
-            throw new NotImplementedException();
+
+        const string FindByIPQuery = "SELECT id FROM players WHERE lastIP=? LIMIT ?;";
+        public IEnumerable<PlayerInfo> FindByIP( [NotNull] IPAddress address, int limit ) {
+            if( address == null ) throw new ArgumentNullException( "address" );
+
+            lock( syncRoot ) {
+                using( MySqlCommand cmd = new MySqlCommand( FindByIPQuery, connection ) ) {
+                    cmd.Parameters.Add( "lastIP", address.AsInt() );
+                    cmd.Parameters.Add( "limit", limit );
+                    List<PlayerInfo> results = new List<PlayerInfo>();
+                    using( MySqlDataReader reader = cmd.ExecuteReader() ) {
+                        while( reader.Read() ) {
+                            int id = reader.GetInt32( 0 );
+                            results.Add( GetPlayerInfoFromID( id ) );
+                        }
+                    }
+                    return results;
+                }
+            }
         }
 
-        public IEnumerable<PlayerInfo> FindByPartialName( string partialName, int limit ) {
-            throw new NotImplementedException();
+
+        const string FindPartialQuery = "SELECT id FROM players WHERE name LIKE ?;";
+        public IEnumerable<PlayerInfo> FindByPartialName( [NotNull] string partialName, int limit ) {
+            if( partialName == null ) throw new ArgumentNullException( "partialName" );
+
+            lock( syncRoot ) {
+                using( var transaction = connection.BeginTransaction() ) {
+                    using( var cmdExact = new MySqlCommand( FindExactQuery, connection, transaction ) ) {
+                        cmdExact.ParameterCheck = true;
+                        cmdExact.Parameters.Add( "name", partialName );
+                        cmdExact.Prepare();
+                        object playerIdOrNull = cmdExact.ExecuteScalar();
+
+                        if( playerIdOrNull != null ) {
+                            // An exact match was found, return it
+                            int id = (int)playerIdOrNull;
+                            return new PlayerInfo[] {
+                                GetPlayerInfoFromID( id )
+                            };
+                        }
+
+                        using( var cmdPartial = new MySqlCommand( FindPartialQuery, connection, transaction ) ) {
+                            cmdPartial.ParameterCheck = true;
+                            cmdPartial.Parameters.Add( "name", partialName + "%" );
+                            cmdPartial.Prepare();
+                            using( MySqlDataReader reader = cmdPartial.ExecuteReader() ) {
+                                List<PlayerInfo> results = new List<PlayerInfo>();
+                                while( reader.Read() ) {
+                                    // If multiple matches were found, they'll be added to the list
+                                    int id = reader.GetInt32( 0 );
+                                    results.Add( GetPlayerInfoFromID( id ) );
+                                }
+                                // If no matches were found, the list will be empty
+                                return results;
+                            }
+                        }
+                    }
+                }
+            }
         }
+
 
         public bool FindOneByPartialName( string partialName, out PlayerInfo result ) {
             throw new NotImplementedException();
         }
 
+
         public IEnumerable<PlayerInfo> FindByPattern( string pattern, int limit ) {
             throw new NotImplementedException();
         }
+
+
+        public void Save() {
+            throw new NotImplementedException();
+        }
+
+
+        public void MassRankChange( Player player, Rank from, Rank to, string reason ) {
+            throw new NotImplementedException();
+        }
+
+
+        public void SwapInfo( PlayerInfo player1, PlayerInfo player2 ) {
+            throw new NotImplementedException();
+        }
+
+
+        #region Loading
 
         public IEnumerable<PlayerInfo> Load() {
             connection = new MySqlConnection();
@@ -68,10 +155,11 @@ namespace fCraft {
             connection.Password = Password;
             connection.Open();
 
-            MySqlCommand cmd = new MySqlCommand( "SELECT * FROM players ORDER BY id;", connection );
-            using( MySqlDataReader reader = cmd.ExecuteReader() ) {
-                while( reader.Read() ) {
-                    yield return LoadInfo( reader );
+            using( MySqlCommand cmd = new MySqlCommand( "SELECT * FROM players ORDER BY id;", connection ) ) {
+                using( MySqlDataReader reader = cmd.ExecuteReader() ) {
+                    while( reader.Read() ) {
+                        yield return LoadInfo( reader );
+                    }
                 }
             }
         }
@@ -85,43 +173,19 @@ namespace fCraft {
             Password = el.Element( "Password" ).Value;
         }
 
-        public void Save() {
-            throw new NotImplementedException();
-        }
 
-        public void MassRankChange( Player player, Rank from, Rank to, string reason ) {
-            throw new NotImplementedException();
-        }
-
-        public void SwapInfo( PlayerInfo player1, PlayerInfo player2 ) {
-            throw new NotImplementedException();
-        }
-
-        static DateTime ReadDate( MySqlDataReader reader, Field field ) {
-            return DateTimeUtil.ToDateTime( reader.GetInt64( (int)field ) );
-        }
-        static Rank ReadRank( MySqlDataReader reader, Field field ) {
-            return Rank.Parse( reader.GetString( (int)field ) );
-        }
-        static IPAddress ReadIPAddress( MySqlDataReader reader, Field field ) {
-            return IPAddress.Parse( reader.GetString( (int)field ) );
-        }
-        static TimeSpan ReadTimeSpan( MySqlDataReader reader, Field field ) {
-            return new TimeSpan( reader.GetInt32( (int)field ) * TimeSpan.TicksPerSecond );
-        }
-
-
-        PlayerInfo LoadInfo( MySqlDataReader reader ) {
+        static PlayerInfo LoadInfo( MySqlDataReader reader ) {
             int id = reader.GetInt32( (int)Field.ID );
+            // ReSharper disable UseObjectOrCollectionInitializer
             PlayerInfo info = new PlayerInfo( id );
-
+            // ReSharper restore UseObjectOrCollectionInitializer
 
             info.Name = reader.GetString( (int)Field.Name );
             info.DisplayedName = reader.GetString( (int)Field.DisplayedName );
-            info.LastSeen = ReadDate(reader, Field.LastSeen );
+            info.LastSeen = ReadDate( reader, Field.LastSeen );
 
             // Rank
-            info.Rank = ReadRank(reader, Field.Rank );
+            info.Rank = ReadRank( reader, Field.Rank );
             info.PreviousRank = ReadRank( reader, Field.PreviousRank );
 
             info.RankChangeType = (RankChangeType)reader.GetByte( (int)Field.RankChangeType );
@@ -139,7 +203,7 @@ namespace fCraft {
             if( info.BanStatus == BanStatus.Banned ) {
                 info.BannedUntil = ReadDate( reader, Field.BannedUntil );
                 info.LastFailedLoginDate = ReadDate( reader, Field.LastFailedLoginDate );
-                info.LastFailedLoginIP = ReadIPAddress(reader, Field.LastFailedLoginIP );
+                info.LastFailedLoginIP = ReadIPAddress( reader, Field.LastFailedLoginIP );
             } else {
                 info.UnbanDate = ReadDate( reader, Field.UnbanDate );
                 info.UnbannedBy = reader.GetString( (int)Field.UnbannedBy );
@@ -187,6 +251,38 @@ namespace fCraft {
             info.BandwidthUseMode = (BandwidthUseMode)reader.GetByte( (int)Field.BandwidthUseMode );
             return info;
         }
+
+
+        static DateTime ReadDate( MySqlDataReader reader, Field field ) {
+            return reader.GetInt64( (int)field ).ToDateTime();
+        }
+
+
+        static Rank ReadRank( MySqlDataReader reader, Field field ) {
+            return Rank.Parse( reader.GetString( (int)field ) );
+        }
+
+
+        static IPAddress ReadIPAddress( MySqlDataReader reader, Field field ) {
+            return IPAddress.Parse( reader.GetString( (int)field ) );
+        }
+
+
+        static TimeSpan ReadTimeSpan( MySqlDataReader reader, Field field ) {
+            return new TimeSpan( reader.GetInt32( (int)field ) * TimeSpan.TicksPerSecond );
+        }
+
+        #endregion
+
+
+        PlayerInfo GetPlayerInfoFromID( int id ) {
+            PlayerInfo result = PlayerDB.FindPlayerInfoByID( id );
+            if( result == null ) {
+                throw new DataException( "Player id " + id + " was found, but no corresponding PlayerInfo exists." );
+            }
+            return result;
+        }
+
 
         enum Field {
             ID = 0,
