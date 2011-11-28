@@ -79,7 +79,7 @@ namespace fCraft {
 
 
 
-        public void Remove( [NotNull] PlayerInfo playerInfo ) {
+        public bool Remove( [NotNull] PlayerInfo playerInfo ) {
             if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
             throw new NotImplementedException();
         }
