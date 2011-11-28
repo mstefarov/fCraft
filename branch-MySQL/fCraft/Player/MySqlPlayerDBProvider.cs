@@ -59,26 +59,33 @@ namespace fCraft {
         }
 
 
-        MySqlCommand GetFindExactCommand( string fullName ) {
+        [NotNull]
+        MySqlCommand GetFindExactCommand( [NotNull] string fullName ) {
+            if( fullName == null ) throw new ArgumentNullException( "fullName" );
             findExactCommand.Parameters[0].Value = fullName;
             return findExactCommand;
         }
 
 
-        MySqlCommand GetFindByIPCommand( IPAddress address, int limit ) {
+        [NotNull]
+        MySqlCommand GetFindByIPCommand( [NotNull] IPAddress address, int limit ) {
+            if( address == null ) throw new ArgumentNullException( "address" );
             findByIPCommand.Parameters[0].Value = address.AsInt();
             findByIPCommand.Parameters[1].Value = limit;
             return findByIPCommand;
         }
 
 
-        MySqlCommand GetFindPartialCommand( string partialName, int limit ) {
+        [NotNull]
+        MySqlCommand GetFindPartialCommand( [NotNull] string partialName, int limit ) {
+            if( partialName == null ) throw new ArgumentNullException( "partialName" );
             findPartialCommand.Parameters[0].Value = partialName;
             findPartialCommand.Parameters[1].Value = limit;
             return findPartialCommand;
         }
 
 
+        [CanBeNull]
         public PlayerInfo FindExact( [NotNull] string fullName ) {
             if( fullName == null ) throw new ArgumentNullException( "fullName" );
             lock( syncRoot ) {
@@ -94,6 +101,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         public IEnumerable<PlayerInfo> FindByIP( [NotNull] IPAddress address, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             lock( syncRoot ) {
@@ -110,6 +118,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         public IEnumerable<PlayerInfo> FindByPartialName( [NotNull] string partialName, int limit ) {
             if( partialName == null ) throw new ArgumentNullException( "partialName" );
 
@@ -120,7 +129,7 @@ namespace fCraft {
                 if( playerIdOrNull != null ) {
                     // An exact match was found, return it
                     int id = (int)playerIdOrNull;
-                    return new PlayerInfo[] {
+                    return new[] {
                         GetPlayerInfoFromID( id )
                     };
                 }
@@ -140,13 +149,59 @@ namespace fCraft {
         }
 
 
-        public bool FindOneByPartialName( string partialName, out PlayerInfo result ) {
-            throw new NotImplementedException();
+        public bool FindOneByPartialName( [NotNull] string partialName, [CanBeNull] out PlayerInfo result ) {
+            if( partialName == null ) throw new ArgumentNullException( "partialName" );
+
+            lock( syncRoot ) {
+                MySqlCommand cmdExact = GetFindExactCommand( partialName );
+                object playerIdOrNull = cmdExact.ExecuteScalar();
+
+                if( playerIdOrNull != null ) {
+                    // An exact match was found, return it
+                    int id = (int)playerIdOrNull;
+                    result = GetPlayerInfoFromID( id );
+                    return true;
+                }
+
+                MySqlCommand cmdPartial = GetFindPartialCommand( partialName + "%", 2 );
+                using( MySqlDataReader reader = cmdPartial.ExecuteReader() ) {
+                    if( !reader.Read() ) {
+                        // zero matches found
+                        result = null;
+                        return true;
+                    }
+                    int id = reader.GetInt32( 0 );
+                    if( !reader.Read() ) {
+                        // one partial match found
+                        result = GetPlayerInfoFromID( id );
+                        return true;
+                    }
+                    // multiple partial matches found
+                    result = null;
+                    return false;
+                }
+            }
         }
 
 
-        public IEnumerable<PlayerInfo> FindByPattern( string pattern, int limit ) {
-            throw new NotImplementedException();
+        [NotNull]
+        public IEnumerable<PlayerInfo> FindByPattern( [NotNull] string pattern, int limit ) {
+            if( pattern == null ) throw new ArgumentNullException( "pattern" );
+            string processedPattern = pattern.Replace( "_", "\\_" ) // escape underscores
+                                             .Replace( '*', '%' ) // zero-or-more-characters wildcard
+                                             .Replace( '?', '_' ); // single-character wildcard
+
+            lock( syncRoot ) {
+                MySqlCommand cmdPartial = GetFindPartialCommand( processedPattern, limit );
+                using( MySqlDataReader reader = cmdPartial.ExecuteReader() ) {
+                    List<PlayerInfo> results = new List<PlayerInfo>();
+                    while( reader.Read() ) {
+                        int id = reader.GetInt32( 0 );
+                        results.Add( GetPlayerInfoFromID( id ) );
+                    }
+                    return results;
+                }
+            }
         }
 
 
@@ -299,7 +354,7 @@ namespace fCraft {
         #endregion
 
 
-        PlayerInfo GetPlayerInfoFromID( int id ) {
+        static PlayerInfo GetPlayerInfoFromID( int id ) {
             PlayerInfo result = PlayerDB.FindPlayerInfoByID( id );
             if( result == null ) {
                 throw new DataException( "Player id " + id + " was found, but no corresponding PlayerInfo exists." );
