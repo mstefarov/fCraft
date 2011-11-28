@@ -21,41 +21,33 @@ namespace fCraft {
         public string UserId { get; private set; }
         public string Password { get; private set; }
 
-        public PlayerInfo AddPlayer( string name, IPAddress lastIP, Rank startingRank, RankChangeType rankChangeType ) {
-            throw new NotImplementedException();
-        }
+        #region SQL
 
-        public PlayerInfo AddUnrecognizedPlayer( string name, Rank startingRank, RankChangeType rankChangeType ) {
-            throw new NotImplementedException();
-        }
-
-        public PlayerInfo AddSuperPlayer( ReservedPlayerID id, string name, Rank rank ) {
-            throw new NotImplementedException();
-        }
-
-        public void Remove( PlayerInfo playerInfo ) {
-            throw new NotImplementedException();
-        }
-
-
+        const string LoadAllQuery = "SELECT * FROM players ORDER BY id;";
         const string FindExactQuery = "SELECT id FROM players WHERE name LIKE ? LIMIT 1;";
         const string FindByIPQuery = "SELECT id FROM players WHERE lastIP=? LIMIT ?;";
         const string FindPartialQuery = "SELECT id FROM players WHERE name LIKE ?;";
+        const string DeleteCommandText = "DELETE FROM players WHERE id=? LIMIT 1;";
 
-        MySqlCommand findExactCommand, findByIPCommand, findPartialCommand;
+        MySqlCommand findExactCommand, findByIPCommand, findPartialCommand, deleteCommand;
 
         void PrepareCommands() {
             findExactCommand = new MySqlCommand( FindExactQuery, connection );
-            findExactCommand.ParameterCheck = true;
+            findExactCommand.Parameters.Add( "name", MySqlType.VarChar, 16 );
             findExactCommand.Prepare();
 
             findByIPCommand = new MySqlCommand( FindByIPQuery, connection );
-            findByIPCommand.ParameterCheck = true;
+            findByIPCommand.Parameters.Add( "lastIP", MySqlType.Int );
+            findByIPCommand.Parameters.Add( "limit", MySqlType.Int );
             findByIPCommand.Prepare();
 
             findPartialCommand = new MySqlCommand( FindPartialQuery, connection );
-            findPartialCommand.ParameterCheck = true;
+            findPartialCommand.Parameters.Add( "partialName", MySqlType.VarChar, 16 );
             findPartialCommand.Prepare();
+
+            deleteCommand = new MySqlCommand( DeleteCommandText, connection );
+            deleteCommand.Parameters.Add( "id", MySqlType.Int );
+            deleteCommand.Prepare();
         }
 
 
@@ -82,6 +74,38 @@ namespace fCraft {
             findPartialCommand.Parameters[0].Value = partialName;
             findPartialCommand.Parameters[1].Value = limit;
             return findPartialCommand;
+        }
+
+
+        [NotNull]
+        MySqlCommand GetDeleteCommand( int id ) {
+            deleteCommand.Parameters[0].Value = id;
+            return deleteCommand;
+        }
+
+        #endregion
+
+
+        public PlayerInfo AddPlayer( string name, IPAddress lastIP, Rank startingRank, RankChangeType rankChangeType ) {
+            throw new NotImplementedException();
+        }
+
+        public PlayerInfo AddUnrecognizedPlayer( string name, Rank startingRank, RankChangeType rankChangeType ) {
+            throw new NotImplementedException();
+        }
+
+        public PlayerInfo AddSuperPlayer( ReservedPlayerID id, string name, Rank rank ) {
+            throw new NotImplementedException();
+        }
+
+
+        public bool Remove( [NotNull] PlayerInfo playerInfo ) {
+            if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
+            lock( syncRoot ) {
+                MySqlCommand cmd = GetDeleteCommand( playerInfo.ID );
+                int rowsAffected = cmd.ExecuteNonQuery();
+                return (rowsAffected > 0);
+            }
         }
 
 
@@ -234,7 +258,7 @@ namespace fCraft {
 
             PrepareCommands();
 
-            using( MySqlCommand cmd = new MySqlCommand( "SELECT * FROM players ORDER BY id;", connection ) ) {
+            using( MySqlCommand cmd = new MySqlCommand( LoadAllQuery, connection ) ) {
                 using( MySqlDataReader reader = cmd.ExecuteReader() ) {
                     while( reader.Read() ) {
                         yield return LoadInfo( reader );
