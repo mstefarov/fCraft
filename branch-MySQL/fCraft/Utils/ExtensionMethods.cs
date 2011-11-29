@@ -74,7 +74,11 @@ namespace fCraft {
 
         /// <summary> Converts a DateTime to Utc Unix Timestamp. </summary>
         public static long ToUnixTime( this DateTime date ) {
-            return (long)date.Subtract( UnixEpoch ).TotalSeconds;
+            if( date == DateTime.MinValue ) {
+                return 0;
+            } else {
+                return (long)date.Subtract( UnixEpoch ).TotalSeconds;
+            }
         }
 
 
