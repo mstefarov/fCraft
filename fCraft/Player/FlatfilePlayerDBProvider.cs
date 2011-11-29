@@ -68,17 +68,6 @@ namespace fCraft {
         }
 
 
-        [NotNull]
-        public PlayerInfo AddSuperPlayer( ReservedPlayerID id, [NotNull] string name, [NotNull] Rank rank ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
-            if( rank == null ) throw new ArgumentNullException( "rank" );
-            PlayerInfo info = new PlayerInfo( (int)id, name, IPAddress.None, rank );
-            trie.Add( name, info );
-            return info;
-        }
-
-
-
         public bool Remove( [NotNull] PlayerInfo playerInfo ) {
             if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
             throw new NotImplementedException();

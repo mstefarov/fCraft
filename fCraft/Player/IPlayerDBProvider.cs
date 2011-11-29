@@ -16,11 +16,6 @@ namespace fCraft {
         PlayerInfo AddUnrecognizedPlayer( [NotNull] string name, [NotNull] Rank startingRank, RankChangeType rankChangeType );
 
 
-        /// <summary> Adds a new PlayerInfo entry for a non-player. </summary>
-        [NotNull]
-        PlayerInfo AddSuperPlayer( ReservedPlayerID id, [NotNull] string name, [NotNull] Rank rank );
-
-
         /// <summary> Removes a PlayerInfo entry. </summary>
         bool Remove( [NotNull] PlayerInfo playerInfo );
 
