@@ -427,19 +427,20 @@ namespace fCraft {
 
             XElement playerDBProviderEl = config.Element( "PlayerDBProvider" );
             if( playerDBProviderEl == null ) {
-                PlayerDB.ProviderType = "PlayerDB.txt";
-                ProviderConfig = null;
+                PlayerDB.ProviderType = "Flatfile";
+                PlayerDBProviderConfig = null;
             } else {
                 PlayerDB.ProviderType = playerDBProviderEl.Attribute( "type" ).Value;
-                ProviderConfig = playerDBProviderEl;
+                PlayerDBProviderConfig = playerDBProviderEl.Elements().FirstOrDefault();
             }
+            Logger.Log( LogType.Debug, "PlayerDBProvider={0}", PlayerDB.ProviderType );
 
             if( raiseReloadedEvent ) RaiseReloadedEvent();
 
             return true;
         }
 
-        public static XElement ProviderConfig { get; private set; }
+        public static XElement PlayerDBProviderConfig { get; private set; }
 
 
         static void ParseKeyElementPreSettings( [NotNull] XElement element ) {
@@ -494,6 +495,7 @@ namespace fCraft {
                             element.Name, element.Value );
             }
         }
+
 
         static void LoadLogOptions( [NotNull] XContainer el, [NotNull] IList<bool> list ) {
             if( el == null ) throw new ArgumentNullException( "el" );
@@ -708,6 +710,12 @@ namespace fCraft {
                 config.Add( legacyRankMappingTag );
             }
 
+            XElement playerDBProviderEl = new XElement( "PlayerDBProvider" );
+            playerDBProviderEl.Add( new XAttribute( "type", PlayerDB.ProviderType ) );
+            if( PlayerDBProviderConfig != null ) {
+                playerDBProviderEl.Add( PlayerDBProviderConfig );
+            }
+            config.Add( playerDBProviderEl );
 
             file.Add( config );
             try {
@@ -1207,7 +1215,7 @@ namespace fCraft {
 
         static bool RaiseKeyChangingEvent( ConfigKey key, string oldValue, ref string newValue ) {
             var handler = KeyChanging;
-            if( handler == null ) return false;
+            if( handler == null ) return true;
             var e = new ConfigKeyChangingEventArgs( key, oldValue, newValue );
             handler( null, e );
             newValue = e.NewValue;

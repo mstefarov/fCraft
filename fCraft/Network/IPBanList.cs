@@ -595,7 +595,7 @@ namespace fCraft {
         static bool RaiseAddingIPBanEvent( [NotNull] IPBanInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
             var handler = AddingIPBan;
-            if( handler == null ) return false;
+            if( handler == null ) return true;
             var e = new IPBanCancellableEventArgs( info );
             handler( null, e );
             return !e.Cancel;
@@ -610,7 +610,7 @@ namespace fCraft {
         static bool RaiseRemovingIPBanEvent( [NotNull] IPBanInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
             var handler = RemovingIPBan;
-            if( handler == null ) return false;
+            if( handler == null ) return true;
             var e = new IPBanCancellableEventArgs( info );
             handler( null, e );
             return !e.Cancel;

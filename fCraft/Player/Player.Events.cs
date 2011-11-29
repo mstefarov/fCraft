@@ -80,7 +80,7 @@ namespace fCraft {
         static bool RaisePlayerConnectingEvent( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             var handler = Connecting;
-            if( handler == null ) return false;
+            if( handler == null ) return true;
             var e = new PlayerConnectingEventArgs( player );
             handler( null, e );
             return !e.Cancel;
@@ -107,7 +107,7 @@ namespace fCraft {
         static bool RaisePlayerMovingEvent( [NotNull] Player player, Position newPos ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             var handler = Moving;
-            if( handler == null ) return false;
+            if( handler == null ) return true;
             var e = new PlayerMovingEventArgs( player, newPos );
             handler( null, e );
             return !e.Cancel;
@@ -124,7 +124,7 @@ namespace fCraft {
         static bool RaisePlayerClickingEvent( [NotNull] PlayerClickingEventArgs e ) {
             if( e == null ) throw new ArgumentNullException( "e" );
             var handler = Clicking;
-            if( handler == null ) return false;
+            if( handler == null ) return true;
             handler( null, e );
             return !e.Cancel;
         }
@@ -181,7 +181,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             var handler = JoiningWorld;
-            if( handler == null ) return false;
+            if( handler == null ) return true;
             var e = new PlayerJoiningWorldEventArgs( player, player.World, newWorld, reason, textLine1, textLine2 );
             handler( null, e );
             return !e.Cancel;

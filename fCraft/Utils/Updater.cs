@@ -119,7 +119,7 @@ namespace fCraft {
 
         static bool RaiseCheckingForUpdatesEvent( ref string updateUrl ) {
             var handler = CheckingForUpdates;
-            if( handler == null ) return false;
+            if( handler == null ) return true;
             var e = new CheckingForUpdatesEventArgs( updateUrl );
             handler( null, e );
             updateUrl = e.Url;

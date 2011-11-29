@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Data;
-using Devart.Data.MySql;
-using System.Xml.Linq;
-using JetBrains.Annotations;
 using System.Linq;
+using System.Net;
+using System.Xml.Linq;
+using Devart.Data.MySql;
+using JetBrains.Annotations;
 
 namespace fCraft {
-    class MySqlPlayerDBProvider : IPlayerDBProvider {
+    internal sealed partial class MySqlPlayerDBProvider : IPlayerDBProvider {
         MySqlConnection connection;
+
+        public const string Name = "MySql";
 
         readonly object syncRoot = new object();
         public object SyncRoot {
@@ -21,273 +23,6 @@ namespace fCraft {
         public string Database { get; private set; }
         public string UserId { get; private set; }
         public string Password { get; private set; }
-
-
-        #region SQL
-
-        const string PreInsertQuery = "INSERT INTO players(id) VALUES(0);";
-        const string LoadAllQuery = "SELECT * FROM players ORDER BY id;";
-        const string FindExactQuery = "SELECT id FROM players WHERE name LIKE ? LIMIT 1;";
-        const string FindByIPQuery = "SELECT id FROM players WHERE lastIP=? LIMIT ?;";
-        const string FindPartialQuery = "SELECT id FROM players WHERE name LIKE ?;";
-        const string DeleteCommandText = "DELETE FROM players WHERE id=? LIMIT 1;";
-
-        const string UpdateQuery = "UPDATE players SET " +
-                                    "name=?,displayedName=?,lastSeen=?," +
-                                   "rank=?,previousRank=?,rankChangeType=?,rankChangeDate=?,rankChangedBy=?,rankChangeReason=?," +
-                                   "banStatus=?,banDate=?,bannedBy=?,banReason=?,bannedUntil=?,lastFailedLoginDate=?,lastFailedLoginIP=?," +
-                                   "unbanDate=?,unbannedBy=?,unbanReason=?," +
-                                   "firstLoginDate=?,lastLoginDate=?,totalTime=?,blocksBuilt=?,blocksDeleted=?,blocksDrawn=?," +
-                                   "timesVisited=?,messagesWritten=?,timesKickedOthers=?,timesBannedOthers=?," +
-                                   "timesKicked=?,lastKickDate=?,lastKickBy=?,lastKickReason=?," +
-                                   "isFrozen=?,frozenOn=?,frozenBy=?,mutedUntil=?,mutedBy=?," +
-                                   "password=?,lastModified=?,isOnline=?,isHidden=?,lastIP=?,leaveReason=?,bandwidthUseMode=? " +
-                                   "WHERE id=? LIMIT 1;";
-
-
-        MySqlCommand findExactCommand,
-                     findByIPCommand,
-                     findPartialCommand,
-                     deleteCommand,
-                     preInsertCommand,
-                     updateCommand;
-
-        const int NameSize = 16,
-                  DisplayedNameSize = 64,
-                  ByFieldSize = 255,
-                  ReasonFieldSize = 1024,
-                  PasswordFieldSize = 64;
-
-        const int NoRankIndex = 1;
-
-        const MySqlType DateType = MySqlType.BigInt;
-
-
-        void PrepareCommands() {
-            findExactCommand = new MySqlCommand( FindExactQuery, connection );
-            findExactCommand.Parameters.Add( "name", MySqlType.VarChar, 16 );
-            findExactCommand.Prepare();
-
-            findByIPCommand = new MySqlCommand( FindByIPQuery, connection );
-            findByIPCommand.Parameters.Add( "lastIP", MySqlType.Int );
-            findByIPCommand.Parameters.Add( "limit", MySqlType.Int );
-            findByIPCommand.Prepare();
-
-            findPartialCommand = new MySqlCommand( FindPartialQuery, connection );
-            findPartialCommand.Parameters.Add( "partialName", MySqlType.VarChar, 16 );
-            findPartialCommand.Prepare();
-
-            deleteCommand = new MySqlCommand( DeleteCommandText, connection );
-            deleteCommand.Parameters.Add( "id", MySqlType.Int );
-            deleteCommand.Prepare();
-
-            preInsertCommand = new MySqlCommand( PreInsertQuery, connection );
-            preInsertCommand.Prepare();
-
-            updateCommand = new MySqlCommand( UpdateQuery, connection );
-            AddParamsForAllFieldsExceptID( updateCommand );
-            updateCommand.Parameters.Add( "ID", MySqlType.Int );
-            updateCommand.Prepare();
-        }
-
-
-        void AddParamsForAllFieldsExceptID( [NotNull] MySqlCommand cmd ) {
-            if( cmd == null ) throw new ArgumentNullException( "cmd" );
-            cmd.Parameters.Add( "Name", MySqlType.VarChar, NameSize );
-            cmd.Parameters.Add( "DisplayedName", MySqlType.VarChar, DisplayedNameSize );
-            cmd.Parameters.Add( "LastSeen", DateType );
-            cmd.Parameters.Add( "Rank", MySqlType.SmallInt );
-            cmd.Parameters.Add( "PreviousRank", MySqlType.SmallInt );
-            cmd.Parameters.Add( "RankChangeType", MySqlType.TinyInt );
-            cmd.Parameters.Add( "RankChangeDate", DateType );
-            cmd.Parameters.Add( "RankChangedBy", MySqlType.VarChar, ByFieldSize );
-            cmd.Parameters.Add( "RankChangeReason", MySqlType.VarChar, ReasonFieldSize );
-            cmd.Parameters.Add( "BanStatus", MySqlType.TinyInt );
-            cmd.Parameters.Add( "BanDate", DateType );
-            cmd.Parameters.Add( "BannedBy", MySqlType.VarChar, ByFieldSize );
-            cmd.Parameters.Add( "BanReason", MySqlType.VarChar, ReasonFieldSize );
-            cmd.Parameters.Add( "BannedUntil", DateType );
-            cmd.Parameters.Add( "LastFailedLoginDate", DateType );
-            cmd.Parameters.Add( "LastFailedLoginIP", MySqlType.Int );
-            cmd.Parameters.Add( "UnbanDate", DateType );
-            cmd.Parameters.Add( "UnbannedBy", MySqlType.VarChar, ByFieldSize );
-            cmd.Parameters.Add( "UnbanReason", MySqlType.VarChar, ByFieldSize );
-            cmd.Parameters.Add( "FirstLoginDate", DateType );
-            cmd.Parameters.Add( "LastLoginDate", DateType );
-            cmd.Parameters.Add( "TotalTime", MySqlType.Int );
-            cmd.Parameters.Add( "BlocksBuilt", MySqlType.Int );
-            cmd.Parameters.Add( "BlocksDeleted", MySqlType.Int );
-            cmd.Parameters.Add( "BlocksDrawn", MySqlType.BigInt );
-            cmd.Parameters.Add( "TimesVisited", MySqlType.Int );
-            cmd.Parameters.Add( "MessagesWritten", MySqlType.Int );
-            cmd.Parameters.Add( "TimesKickedOthers", MySqlType.Int );
-            cmd.Parameters.Add( "TimesBannedOthers", MySqlType.Int );
-            cmd.Parameters.Add( "TimesKicked", MySqlType.Int );
-            cmd.Parameters.Add( "LastKickDate", DateType );
-            cmd.Parameters.Add( "LastKickBy", MySqlType.VarChar, ByFieldSize );
-            cmd.Parameters.Add( "LastKickReason", MySqlType.VarChar, ReasonFieldSize );
-            cmd.Parameters.Add( "IsFrozen", MySqlType.TinyInt, 1 );
-            cmd.Parameters.Add( "FrozenOn", DateType );
-            cmd.Parameters.Add( "FrozenBy", MySqlType.VarChar, ByFieldSize );
-            cmd.Parameters.Add( "MutedUntil", DateType );
-            cmd.Parameters.Add( "MutedBy", MySqlType.VarChar, ByFieldSize );
-            cmd.Parameters.Add( "Password", MySqlType.VarChar, PasswordFieldSize );
-            cmd.Parameters.Add( "LastModified", DateType );
-            cmd.Parameters.Add( "IsOnline", MySqlType.TinyInt, 1 );
-            cmd.Parameters.Add( "IsHidden", MySqlType.TinyInt, 1 );
-            cmd.Parameters.Add( "LastIP", MySqlType.Int );
-            cmd.Parameters.Add( "LeaveReason", MySqlType.TinyInt );
-            cmd.Parameters.Add( "BandwidthUseMode", MySqlType.TinyInt );
-        }
-
-
-        [NotNull]
-        MySqlCommand GetFindExactCommand( [NotNull] string fullName ) {
-            if( fullName == null ) throw new ArgumentNullException( "fullName" );
-            findExactCommand.Parameters[0].Value = fullName;
-            return findExactCommand;
-        }
-
-
-        [NotNull]
-        MySqlCommand GetFindByIPCommand( [NotNull] IPAddress address, int limit ) {
-            if( address == null ) throw new ArgumentNullException( "address" );
-            findByIPCommand.Parameters[0].Value = address.AsInt();
-            findByIPCommand.Parameters[1].Value = limit;
-            return findByIPCommand;
-        }
-
-
-        [NotNull]
-        MySqlCommand GetFindPartialCommand( [NotNull] string partialName, int limit ) {
-            if( partialName == null ) throw new ArgumentNullException( "partialName" );
-            findPartialCommand.Parameters[0].Value = partialName;
-            findPartialCommand.Parameters[1].Value = limit;
-            return findPartialCommand;
-        }
-
-
-        [NotNull]
-        MySqlCommand GetDeleteCommand( int id ) {
-            deleteCommand.Parameters[0].Value = id;
-            return deleteCommand;
-        }
-
-
-        [NotNull]
-        MySqlCommand GetUpdateCommand( PlayerInfo info ) {
-            updateCommand.Parameters[(int)Field.Name - 1].Value = info.Name;
-            updateCommand.Parameters[(int)Field.DisplayedName - 1].Value = info.DisplayedName;
-            updateCommand.Parameters[(int)Field.LastSeen - 1].Value = info.LastSeen.ToUnixTime();
-
-            updateCommand.Parameters[(int)Field.Rank - 1].Value = info.Rank.Index;
-            if( info.PreviousRank != null ) {
-                updateCommand.Parameters[(int)Field.PreviousRank - 1].Value = info.PreviousRank.Index;
-            } else {
-                updateCommand.Parameters[(int)Field.PreviousRank - 1].Value = NoRankIndex;
-            }
-            updateCommand.Parameters[(int)Field.RankChangeType - 1].Value = (byte)info.RankChangeType;
-            updateCommand.Parameters[(int)Field.RankChangeDate - 1].Value = info.RankChangeDate.ToUnixTime();
-            updateCommand.Parameters[(int)Field.RankChangedBy - 1].Value = info.RankChangedBy;
-            updateCommand.Parameters[(int)Field.RankChangeReason - 1].Value = info.RankChangeReason;
-
-            updateCommand.Parameters[(int)Field.BanStatus - 1].Value = (byte)info.BanStatus;
-            updateCommand.Parameters[(int)Field.BanDate - 1].Value = info.BanDate.ToUnixTime();
-            updateCommand.Parameters[(int)Field.BannedBy - 1].Value = info.BannedBy;
-            updateCommand.Parameters[(int)Field.BanReason - 1].Value = info.BanReason;
-            updateCommand.Parameters[(int)Field.BannedUntil - 1].Value = info.BannedUntil;
-            updateCommand.Parameters[(int)Field.LastFailedLoginDate - 1].Value = info.LastFailedLoginDate.ToUnixTime();
-            updateCommand.Parameters[(int)Field.LastFailedLoginIP - 1].Value = info.LastFailedLoginIP.AsInt();
-            updateCommand.Parameters[(int)Field.UnbanDate - 1].Value = info.UnbanDate.ToUnixTime();
-            updateCommand.Parameters[(int)Field.UnbannedBy - 1].Value = info.UnbannedBy;
-            updateCommand.Parameters[(int)Field.UnbanReason - 1].Value = info.UnbanReason;
-
-            updateCommand.Parameters[(int)Field.FirstLoginDate - 1].Value = info.FirstLoginDate.ToUnixTime();
-            updateCommand.Parameters[(int)Field.LastLoginDate - 1].Value = info.LastLoginDate.ToUnixTime();
-            updateCommand.Parameters[(int)Field.TotalTime - 1].Value = info.TotalTime.ToSeconds();
-            updateCommand.Parameters[(int)Field.BlocksBuilt - 1].Value = info.BlocksBuilt;
-            updateCommand.Parameters[(int)Field.BlocksDeleted - 1].Value = info.BlocksDeleted;
-            updateCommand.Parameters[(int)Field.BlocksDrawn - 1].Value = info.BlocksDrawn;
-            updateCommand.Parameters[(int)Field.TimesVisited - 1].Value = info.TimesVisited;
-            updateCommand.Parameters[(int)Field.MessagesWritten - 1].Value = info.MessagesWritten;
-            updateCommand.Parameters[(int)Field.TimesKickedOthers - 1].Value = info.TimesKickedOthers;
-            updateCommand.Parameters[(int)Field.TimesBannedOthers - 1].Value = info.TimesBannedOthers;
-
-            updateCommand.Parameters[(int)Field.TimesKicked - 1].Value = info.TimesKicked;
-            updateCommand.Parameters[(int)Field.LastKickDate - 1].Value = info.LastKickDate.ToUnixTime();
-            updateCommand.Parameters[(int)Field.LastKickBy - 1].Value = info.LastKickBy;
-            updateCommand.Parameters[(int)Field.LastKickReason - 1].Value = info.LastKickReason;
-
-            updateCommand.Parameters[(int)Field.IsFrozen - 1].Value = info.IsFrozen;
-            updateCommand.Parameters[(int)Field.FrozenOn - 1 - 1].Value = info.FrozenOn.ToUnixTime();
-            updateCommand.Parameters[(int)Field.FrozenBy - 1].Value = info.FrozenBy;
-            updateCommand.Parameters[(int)Field.MutedUntil - 1].Value = info.MutedUntil.ToUnixTime();
-            updateCommand.Parameters[(int)Field.MutedBy - 1].Value = info.MutedBy;
-
-            updateCommand.Parameters[(int)Field.Password - 1].Value = info.Password;
-            updateCommand.Parameters[(int)Field.LastModified - 1].Value = info.LastModified.ToUnixTime();
-            updateCommand.Parameters[(int)Field.IsOnline - 1].Value = info.IsOnline;
-            updateCommand.Parameters[(int)Field.IsHidden - 1].Value = info.IsHidden;
-            updateCommand.Parameters[(int)Field.LastIP - 1].Value = info.LastIP.AsInt();
-            updateCommand.Parameters[(int)Field.LeaveReason - 1].Value = (byte)info.LeaveReason;
-            updateCommand.Parameters[(int)Field.BandwidthUseMode - 1].Value = (byte)info.BandwidthUseMode;
-
-            // ID last
-            updateCommand.Parameters[(int)Field.BandwidthUseMode].Value = 0;
-            return updateCommand;
-        }
-
-
-        enum Field {
-            ID = 0,
-            Name = 1,
-            DisplayedName = 2,
-            LastSeen = 3,
-            Rank = 4,
-            PreviousRank = 5,
-            RankChangeType = 6,
-            RankChangeDate = 7,
-            RankChangedBy = 8,
-            RankChangeReason = 9,
-            BanStatus = 10,
-            BanDate = 11,
-            BannedBy = 12,
-            BanReason = 13,
-            BannedUntil = 14,
-            LastFailedLoginDate = 15,
-            LastFailedLoginIP = 16,
-            UnbanDate = 17,
-            UnbannedBy = 18,
-            UnbanReason = 19,
-            FirstLoginDate = 20,
-            LastLoginDate = 21,
-            TotalTime = 22,
-            BlocksBuilt = 23,
-            BlocksDeleted = 24,
-            BlocksDrawn = 25,
-            TimesVisited = 26,
-            MessagesWritten = 27,
-            TimesKickedOthers = 28,
-            TimesBannedOthers = 29,
-            TimesKicked = 30,
-            LastKickDate = 31,
-            LastKickBy = 32,
-            LastKickReason = 33,
-            IsFrozen = 34,
-            FrozenOn = 35,
-            FrozenBy = 36,
-            MutedUntil = 37,
-            MutedBy = 38,
-            Password = 39,
-            LastModified = 40,
-            IsOnline = 41,
-            IsHidden = 42,
-            LastIP = 43,
-            LeaveReason = 44,
-            BandwidthUseMode = 45
-        }
-
-        #endregion
 
 
         [NotNull]
@@ -306,6 +41,8 @@ namespace fCraft {
                     MySqlCommand updateCmd = GetUpdateCommand( info );
                     updateCmd.Transaction = transaction;
                     updateCmd.ExecuteNonQuery();
+
+                    transaction.Commit();
 
                     preInsertCommand.Transaction = null;
                     updateCmd.Transaction = null;
@@ -330,6 +67,8 @@ namespace fCraft {
                     MySqlCommand updateCmd = GetUpdateCommand( info );
                     updateCmd.Transaction = transaction;
                     updateCmd.ExecuteNonQuery();
+
+                    transaction.Commit();
 
                     preInsertCommand.Transaction = null;
                     updateCmd.Transaction = null;
@@ -469,23 +208,6 @@ namespace fCraft {
         }
 
 
-        public void Save() {
-            lock( syncRoot ) {
-                var playersToUpdate = PlayerDB.PlayerInfoList.Where( p => p.Changed );
-                using( MySqlTransaction transaction = connection.BeginTransaction() ) {
-                    MySqlCommand cmd = null;
-                    foreach( PlayerInfo info in playersToUpdate ) {
-                        cmd = GetUpdateCommand( info );
-                        cmd.Transaction = transaction;
-                        cmd.ExecuteNonQuery();
-                    }
-                    if( cmd != null ) {
-                        cmd.Transaction = null;
-                    }
-                }
-            }
-        }
-
 
         public void MassRankChange( Player player, Rank from, Rank to, string reason ) {
             throw new NotImplementedException();
@@ -501,13 +223,15 @@ namespace fCraft {
 
         public IEnumerable<PlayerInfo> Load() {
             connection = new MySqlConnection();
-            LoadConfig( Config.ProviderConfig );
+            LoadConfig( Config.PlayerDBProviderConfig );
             connection.Host = Host;
             connection.Port = Port;
             connection.Database = Database;
             connection.UserId = UserId;
             connection.Password = Password;
             connection.Open();
+
+            LoadSchema();
 
             PrepareCommands();
 
@@ -523,12 +247,39 @@ namespace fCraft {
         }
 
 
-        void LoadConfig( XElement el ) {
-            Host = el.Element( "Host" ).Value;
-            Port = Int32.Parse( el.Element( "Port" ).Value );
-            Database = el.Element( "Database" ).Value;
-            UserId = el.Element( "UserId" ).Value;
-            Password = el.Element( "Password" ).Value;
+        void LoadConfig( XContainer el ) {
+            if( el == null ) {
+                throw new Exception( "MySqlPlayerDBProvider: No configuration specified in config.xml" );
+            }
+            XElement hostEl = el.Element( "Host" );
+            if( hostEl == null || hostEl.Value == null ) {
+                throw new Exception( "MySqlPlayerDBProvider: No host specified in config.xml" );
+            }
+            Host = hostEl.Value;
+
+            XElement portEl = el.Element( "Port" );
+            if( portEl == null || portEl.Value == null ) {
+                throw new Exception( "MySqlPlayerDBProvider: No port specified in config.xml" );
+            }
+            Port = Int32.Parse( portEl.Value );
+
+            XElement databaseEl = el.Element( "Database" );
+            if( databaseEl == null || databaseEl.Value == null ) {
+                throw new Exception( "MySqlPlayerDBProvider: No database specified in config.xml" );
+            }
+            Database = databaseEl.Value;
+
+            XElement userIdEl = el.Element( "UserId" );
+            if( userIdEl == null || userIdEl.Value == null ) {
+                throw new Exception( "MySqlPlayerDBProvider: No user id specified in config.xml" );
+            }
+            UserId = userIdEl.Value;
+
+            XElement passwordEl = el.Element( "Password" );
+            if( passwordEl == null || passwordEl.Value == null ) {
+                throw new Exception( "MySqlPlayerDBProvider: No password specified in config.xml" );
+            }
+            Password = passwordEl.Value;
         }
 
 
@@ -631,6 +382,28 @@ namespace fCraft {
         }
 
         #endregion
+
+
+        public void Save() {
+            lock( syncRoot ) {
+                var playersToUpdate = PlayerDB.PlayerInfoList.Where( p => p.Changed );
+                using( MySqlTransaction transaction = connection.BeginTransaction() ) {
+                    MySqlCommand cmd = null;
+                    foreach( PlayerInfo info in playersToUpdate ) {
+                        lock( info.SyncRoot ) {
+                            info.Changed = false;
+                            cmd = GetUpdateCommand( info );
+                        }
+                        cmd.Transaction = transaction;
+                        cmd.ExecuteNonQuery();
+                    }
+                    if( cmd != null ) {
+                        transaction.Commit();
+                        cmd.Transaction = null;
+                    }
+                }
+            }
+        }
 
 
         static PlayerInfo GetPlayerInfoFromID( int id ) {

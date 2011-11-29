@@ -54,7 +54,7 @@ namespace fCraft {
         static bool RaiseRankChangingEvent( [NotNull] PlayerInfo playerInfo, [NotNull] Player rankChanger, [NotNull] Rank newRank,
                                             [CanBeNull] string reason, RankChangeType rankChangeType, bool announce ) {
             var handler = RankChanging;
-            if( handler == null ) return false;
+            if( handler == null ) return true;
             var e = new PlayerInfoRankChangingEventArgs( playerInfo, rankChanger, newRank, reason, rankChangeType, announce );
             handler( null, e );
             return !e.Cancel;
@@ -84,7 +84,7 @@ namespace fCraft {
 
         static bool RaiseFreezeChangingEvent( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing, bool announce ) {
             var handler = FreezeChanging;
-            if( handler == null ) return false;
+            if( handler == null ) return true;
             var e = new PlayerInfoFrozenChangingEventArgs( target, freezer, unfreezing, announce );
             handler( null, e );
             return !e.Cancel;
@@ -100,7 +100,7 @@ namespace fCraft {
         static bool RaiseMuteChangingEvent( [NotNull] PlayerInfo target, [NotNull] Player muter,
                                             TimeSpan duration, bool unmuting, bool announce ) {
             var handler = MuteChanging;
-            if( handler == null ) return false;
+            if( handler == null ) return true;
             var e = new PlayerInfoMuteChangingEventArgs( target, muter, duration, unmuting, announce );
             handler( null, e );
             return !e.Cancel;

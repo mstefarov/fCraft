@@ -755,7 +755,7 @@ namespace fCraft {
         static bool RaiseMainWorldChangingEvent( World oldWorld, [NotNull] World newWorld ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             var handler = MainWorldChanging;
-            if( handler == null ) return false;
+            if( handler == null ) return true;
             var e = new MainWorldChangingEventArgs( oldWorld, newWorld );
             handler( null, e );
             return !e.Cancel;
@@ -770,7 +770,7 @@ namespace fCraft {
         static bool RaiseWorldCreatingEvent( [CanBeNull] Player player, [NotNull] string worldName, [CanBeNull] Map map ) {
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
             var handler = WorldCreating;
-            if( handler == null ) return false;
+            if( handler == null ) return true;
             var e = new WorldCreatingEventArgs( player, worldName, map );
             handler( null, e );
             return !e.Cancel;

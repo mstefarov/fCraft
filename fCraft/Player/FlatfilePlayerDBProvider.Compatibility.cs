@@ -9,7 +9,6 @@ namespace fCraft {
         public const int MinFieldCount = 24;
         const long TicksPerMillisecond = 10000;
 
-
         #region Loading
 
         int IdentifyFormatVersion( [NotNull] string header ) {
@@ -515,8 +514,8 @@ namespace fCraft {
         static void ParseBandwidthUseMode( [NotNull] PlayerInfo info, [NotNull] string field ) {
             if( info == null ) throw new ArgumentNullException( "info" );
             if( field == null ) throw new ArgumentNullException( "field" );
-            int bandwidthUseModeCode;
-            if( field.Length > 0 && Int32.TryParse( field, out bandwidthUseModeCode ) ) {
+            byte bandwidthUseModeCode;
+            if( field.Length > 0 && Byte.TryParse( field, out bandwidthUseModeCode ) ) {
                 info.BandwidthUseMode = (BandwidthUseMode)bandwidthUseModeCode;
                 if( !Enum.IsDefined( typeof( BandwidthUseMode ), bandwidthUseModeCode ) ) {
                     info.BandwidthUseMode = BandwidthUseMode.Default;

@@ -72,7 +72,7 @@ namespace fCraft {
         internal static bool RaiseSessionConnectingEvent( [NotNull] IPAddress ip ) {
             if( ip == null ) throw new ArgumentNullException( "ip" );
             var handler = SessionConnecting;
-            if( handler == null ) return false;
+            if( handler == null ) return true;
             var e = new SessionConnectingEventArgs( ip );
             handler( null, e );
             return !e.Cancel;
