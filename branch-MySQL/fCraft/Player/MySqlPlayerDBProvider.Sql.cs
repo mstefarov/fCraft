@@ -19,7 +19,7 @@ namespace fCraft {
 
         const string LoadMetadataQuery = "SELECT * FROM " + MetadataTableName + ";";
         const string LoadRankMappingQuery = "SELECT * FROM " + RankMappingTableName + ";";
-
+        
         const string UpdateQuery =
 @"UPDATE " + PlayersTableName + @" SET
 name=?,
@@ -197,7 +197,7 @@ WHERE id=? LIMIT 1;";
             updateCommand.Parameters.Add( "LastFailedLoginIP", MySqlType.Int );
             updateCommand.Parameters.Add( "UnbanDate", DateType );
             updateCommand.Parameters.Add( "UnbannedBy", MySqlType.VarChar, ByFieldSize );
-            updateCommand.Parameters.Add( "UnbanReason", MySqlType.VarChar, ByFieldSize );
+            updateCommand.Parameters.Add( "UnbanReason", MySqlType.VarChar, ReasonFieldSize );
             updateCommand.Parameters.Add( "FirstLoginDate", DateType );
             updateCommand.Parameters.Add( "LastLoginDate", DateType );
             updateCommand.Parameters.Add( "TotalTime", MySqlType.Int );
@@ -370,7 +370,7 @@ WHERE id=? LIMIT 1;";
             updateCommand.Parameters[(int)Field.BandwidthUseMode - 1].Value = (byte)info.BandwidthUseMode;
 
             // ID last
-            updateCommand.Parameters[(int)Field.BandwidthUseMode].Value = 0;
+            updateCommand.Parameters[updateCommand.Parameters.Count - 1].Value = info.ID;
             return updateCommand;
         }
 
