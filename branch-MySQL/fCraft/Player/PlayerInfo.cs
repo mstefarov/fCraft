@@ -16,7 +16,7 @@ namespace fCraft {
         public bool Changed { get; set; }
 
         /// <summary> Player's unique numeric ID. Immutable. Issued on first join. </summary>
-        public virtual int ID { get; protected set; }
+        public int ID { get; protected set; }
 
 
         /// <summary> Player's Minecraft account name. </summary>
@@ -733,7 +733,7 @@ namespace fCraft {
 
         /// <summary> Date/time of last modification to this PlayerInfo.
         /// Unlike other properties, setting LastModified does NOT raise PropertyChanged event. </summary>
-        public virtual DateTime LastModified { get; set; }
+        public DateTime LastModified { get; set; }
 
 
         public virtual BandwidthUseMode BandwidthUseMode { // TODO

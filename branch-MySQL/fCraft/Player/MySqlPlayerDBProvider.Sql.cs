@@ -152,7 +152,7 @@ WHERE id=? LIMIT 1;";
                   ReasonFieldSize = 1024,
                   PasswordFieldSize = 64;
 
-        const int NoRankIndex = 1;
+        const short NoRankIndex = -1;
 
         const MySqlType DateType = MySqlType.BigInt;
 
@@ -317,9 +317,9 @@ WHERE id=? LIMIT 1;";
             updateCommand.Parameters[(int)Field.DisplayedName - 1].Value = info.DisplayedName;
             updateCommand.Parameters[(int)Field.LastSeen - 1].Value = info.LastSeen.ToUnixTime();
 
-            updateCommand.Parameters[(int)Field.Rank - 1].Value = info.Rank.Index;
+            updateCommand.Parameters[(int)Field.Rank - 1].Value = (short)info.Rank.Index;
             if( info.PreviousRank != null ) {
-                updateCommand.Parameters[(int)Field.PreviousRank - 1].Value = info.PreviousRank.Index;
+                updateCommand.Parameters[(int)Field.PreviousRank - 1].Value = (short)info.PreviousRank.Index;
             } else {
                 updateCommand.Parameters[(int)Field.PreviousRank - 1].Value = NoRankIndex;
             }
@@ -341,7 +341,7 @@ WHERE id=? LIMIT 1;";
 
             updateCommand.Parameters[(int)Field.FirstLoginDate - 1].Value = info.FirstLoginDate.ToUnixTime();
             updateCommand.Parameters[(int)Field.LastLoginDate - 1].Value = info.LastLoginDate.ToUnixTime();
-            updateCommand.Parameters[(int)Field.TotalTime - 1].Value = info.TotalTime.ToSeconds();
+            updateCommand.Parameters[(int)Field.TotalTime - 1].Value = (int)info.TotalTime.ToSeconds();
             updateCommand.Parameters[(int)Field.BlocksBuilt - 1].Value = info.BlocksBuilt;
             updateCommand.Parameters[(int)Field.BlocksDeleted - 1].Value = info.BlocksDeleted;
             updateCommand.Parameters[(int)Field.BlocksDrawn - 1].Value = info.BlocksDrawn;
