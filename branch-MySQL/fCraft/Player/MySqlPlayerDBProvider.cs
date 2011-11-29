@@ -5,6 +5,7 @@ using System.Data;
 using Devart.Data.MySql;
 using System.Xml.Linq;
 using JetBrains.Annotations;
+using System.Linq;
 
 namespace fCraft {
     class MySqlPlayerDBProvider : IPlayerDBProvider {
@@ -25,20 +26,30 @@ namespace fCraft {
         #region SQL
 
         const string PreInsertQuery = "INSERT INTO players(id) VALUES(0);";
-        const string InsertQuery = "INSERT INTO players VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
-        const string UpdateQuery = "UPDATE players SET ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? WHERE id=?;";
         const string LoadAllQuery = "SELECT * FROM players ORDER BY id;";
         const string FindExactQuery = "SELECT id FROM players WHERE name LIKE ? LIMIT 1;";
         const string FindByIPQuery = "SELECT id FROM players WHERE lastIP=? LIMIT ?;";
         const string FindPartialQuery = "SELECT id FROM players WHERE name LIKE ?;";
         const string DeleteCommandText = "DELETE FROM players WHERE id=? LIMIT 1;";
 
+        const string UpdateQuery = "UPDATE players SET " +
+                                    "name=?,displayedName=?,lastSeen=?," +
+                                   "rank=?,previousRank=?,rankChangeType=?,rankChangeDate=?,rankChangedBy=?,rankChangeReason=?," +
+                                   "banStatus=?,banDate=?,bannedBy=?,banReason=?,bannedUntil=?,lastFailedLoginDate=?,lastFailedLoginIP=?," +
+                                   "unbanDate=?,unbannedBy=?,unbanReason=?," +
+                                   "firstLoginDate=?,lastLoginDate=?,totalTime=?,blocksBuilt=?,blocksDeleted=?,blocksDrawn=?," +
+                                   "timesVisited=?,messagesWritten=?,timesKickedOthers=?,timesBannedOthers=?," +
+                                   "timesKicked=?,lastKickDate=?,lastKickBy=?,lastKickReason=?," +
+                                   "isFrozen=?,frozenOn=?,frozenBy=?,mutedUntil=?,mutedBy=?," +
+                                   "password=?,lastModified=?,isOnline=?,isHidden=?,lastIP=?,leaveReason=?,bandwidthUseMode=? " +
+                                   "WHERE id=? LIMIT 1;";
+
+
         MySqlCommand findExactCommand,
                      findByIPCommand,
                      findPartialCommand,
                      deleteCommand,
                      preInsertCommand,
-                     insertCommand,
                      updateCommand;
 
         const int NameSize = 16,
@@ -72,11 +83,6 @@ namespace fCraft {
 
             preInsertCommand = new MySqlCommand( PreInsertQuery, connection );
             preInsertCommand.Prepare();
-
-            insertCommand = new MySqlCommand( InsertQuery, connection );
-            insertCommand.Parameters.Add( "ID", MySqlType.Int );
-            AddParamsForAllFieldsExceptID( insertCommand );
-            insertCommand.Prepare();
 
             updateCommand = new MySqlCommand( UpdateQuery, connection );
             AddParamsForAllFieldsExceptID( updateCommand );
@@ -169,64 +175,66 @@ namespace fCraft {
 
 
         [NotNull]
-        MySqlCommand GetInsertCommand( PlayerInfo info ) {
-            insertCommand.Parameters[(int)Field.ID].Value = 0;
-            insertCommand.Parameters[(int)Field.Name].Value = info.Name;
-            insertCommand.Parameters[(int)Field.DisplayedName].Value = info.DisplayedName;
-            insertCommand.Parameters[(int)Field.LastSeen].Value = info.LastSeen.ToUnixTime();
+        MySqlCommand GetUpdateCommand( PlayerInfo info ) {
+            updateCommand.Parameters[(int)Field.Name - 1].Value = info.Name;
+            updateCommand.Parameters[(int)Field.DisplayedName - 1].Value = info.DisplayedName;
+            updateCommand.Parameters[(int)Field.LastSeen - 1].Value = info.LastSeen.ToUnixTime();
 
-            insertCommand.Parameters[(int)Field.Rank].Value = info.Rank.Index;
+            updateCommand.Parameters[(int)Field.Rank - 1].Value = info.Rank.Index;
             if( info.PreviousRank != null ) {
-                insertCommand.Parameters[(int)Field.PreviousRank].Value = info.PreviousRank.Index;
+                updateCommand.Parameters[(int)Field.PreviousRank - 1].Value = info.PreviousRank.Index;
             } else {
-                insertCommand.Parameters[(int)Field.PreviousRank].Value = NoRankIndex;
+                updateCommand.Parameters[(int)Field.PreviousRank - 1].Value = NoRankIndex;
             }
-            insertCommand.Parameters[(int)Field.RankChangeType].Value = (byte)info.RankChangeType;
-            insertCommand.Parameters[(int)Field.RankChangeDate].Value = info.RankChangeDate.ToUnixTime();
-            insertCommand.Parameters[(int)Field.RankChangedBy].Value = info.RankChangedBy;
-            insertCommand.Parameters[(int)Field.RankChangeReason].Value = info.RankChangeReason;
+            updateCommand.Parameters[(int)Field.RankChangeType - 1].Value = (byte)info.RankChangeType;
+            updateCommand.Parameters[(int)Field.RankChangeDate - 1].Value = info.RankChangeDate.ToUnixTime();
+            updateCommand.Parameters[(int)Field.RankChangedBy - 1].Value = info.RankChangedBy;
+            updateCommand.Parameters[(int)Field.RankChangeReason - 1].Value = info.RankChangeReason;
 
-            insertCommand.Parameters[(int)Field.BanStatus].Value = (byte)info.BanStatus;
-            insertCommand.Parameters[(int)Field.BanDate].Value = info.BanDate.ToUnixTime();
-            insertCommand.Parameters[(int)Field.BannedBy].Value = info.BannedBy;
-            insertCommand.Parameters[(int)Field.BanReason].Value = info.BanReason;
-            insertCommand.Parameters[(int)Field.BannedUntil].Value = info.BannedUntil;
-            insertCommand.Parameters[(int)Field.LastFailedLoginDate].Value = info.LastFailedLoginDate.ToUnixTime();
-            insertCommand.Parameters[(int)Field.LastFailedLoginIP].Value = info.LastFailedLoginIP.AsInt();
-            insertCommand.Parameters[(int)Field.UnbanDate].Value = info.UnbanDate.ToUnixTime();
-            insertCommand.Parameters[(int)Field.UnbannedBy].Value = info.UnbannedBy;
-            insertCommand.Parameters[(int)Field.UnbanReason].Value = info.UnbanReason;
+            updateCommand.Parameters[(int)Field.BanStatus - 1].Value = (byte)info.BanStatus;
+            updateCommand.Parameters[(int)Field.BanDate - 1].Value = info.BanDate.ToUnixTime();
+            updateCommand.Parameters[(int)Field.BannedBy - 1].Value = info.BannedBy;
+            updateCommand.Parameters[(int)Field.BanReason - 1].Value = info.BanReason;
+            updateCommand.Parameters[(int)Field.BannedUntil - 1].Value = info.BannedUntil;
+            updateCommand.Parameters[(int)Field.LastFailedLoginDate - 1].Value = info.LastFailedLoginDate.ToUnixTime();
+            updateCommand.Parameters[(int)Field.LastFailedLoginIP - 1].Value = info.LastFailedLoginIP.AsInt();
+            updateCommand.Parameters[(int)Field.UnbanDate - 1].Value = info.UnbanDate.ToUnixTime();
+            updateCommand.Parameters[(int)Field.UnbannedBy - 1].Value = info.UnbannedBy;
+            updateCommand.Parameters[(int)Field.UnbanReason - 1].Value = info.UnbanReason;
 
-            insertCommand.Parameters[(int)Field.FirstLoginDate].Value = info.FirstLoginDate.ToUnixTime();
-            insertCommand.Parameters[(int)Field.LastLoginDate].Value = info.LastLoginDate.ToUnixTime();
-            insertCommand.Parameters[(int)Field.TotalTime].Value = info.TotalTime.ToSeconds();
-            insertCommand.Parameters[(int)Field.BlocksBuilt].Value = info.BlocksBuilt;
-            insertCommand.Parameters[(int)Field.BlocksDeleted].Value = info.BlocksDeleted;
-            insertCommand.Parameters[(int)Field.BlocksDrawn].Value = info.BlocksDrawn;
-            insertCommand.Parameters[(int)Field.TimesVisited].Value = info.TimesVisited;
-            insertCommand.Parameters[(int)Field.MessagesWritten].Value = info.MessagesWritten;
-            insertCommand.Parameters[(int)Field.TimesKickedOthers].Value = info.TimesKickedOthers;
-            insertCommand.Parameters[(int)Field.TimesBannedOthers].Value = info.TimesBannedOthers;
+            updateCommand.Parameters[(int)Field.FirstLoginDate - 1].Value = info.FirstLoginDate.ToUnixTime();
+            updateCommand.Parameters[(int)Field.LastLoginDate - 1].Value = info.LastLoginDate.ToUnixTime();
+            updateCommand.Parameters[(int)Field.TotalTime - 1].Value = info.TotalTime.ToSeconds();
+            updateCommand.Parameters[(int)Field.BlocksBuilt - 1].Value = info.BlocksBuilt;
+            updateCommand.Parameters[(int)Field.BlocksDeleted - 1].Value = info.BlocksDeleted;
+            updateCommand.Parameters[(int)Field.BlocksDrawn - 1].Value = info.BlocksDrawn;
+            updateCommand.Parameters[(int)Field.TimesVisited - 1].Value = info.TimesVisited;
+            updateCommand.Parameters[(int)Field.MessagesWritten - 1].Value = info.MessagesWritten;
+            updateCommand.Parameters[(int)Field.TimesKickedOthers - 1].Value = info.TimesKickedOthers;
+            updateCommand.Parameters[(int)Field.TimesBannedOthers - 1].Value = info.TimesBannedOthers;
 
-            insertCommand.Parameters[(int)Field.TimesKicked].Value = info.TimesKicked;
-            insertCommand.Parameters[(int)Field.LastKickDate].Value = info.LastKickDate.ToUnixTime();
-            insertCommand.Parameters[(int)Field.LastKickBy].Value = info.LastKickBy;
-            insertCommand.Parameters[(int)Field.LastKickReason].Value = info.LastKickReason;
+            updateCommand.Parameters[(int)Field.TimesKicked - 1].Value = info.TimesKicked;
+            updateCommand.Parameters[(int)Field.LastKickDate - 1].Value = info.LastKickDate.ToUnixTime();
+            updateCommand.Parameters[(int)Field.LastKickBy - 1].Value = info.LastKickBy;
+            updateCommand.Parameters[(int)Field.LastKickReason - 1].Value = info.LastKickReason;
 
-            insertCommand.Parameters[(int)Field.IsFrozen].Value = info.IsFrozen;
-            insertCommand.Parameters[(int)Field.FrozenOn].Value = info.FrozenOn.ToUnixTime();
-            insertCommand.Parameters[(int)Field.FrozenBy].Value = info.FrozenBy;
-            insertCommand.Parameters[(int)Field.MutedUntil].Value = info.MutedUntil.ToUnixTime();
-            insertCommand.Parameters[(int)Field.MutedBy].Value = info.MutedBy;
+            updateCommand.Parameters[(int)Field.IsFrozen - 1].Value = info.IsFrozen;
+            updateCommand.Parameters[(int)Field.FrozenOn - 1 - 1].Value = info.FrozenOn.ToUnixTime();
+            updateCommand.Parameters[(int)Field.FrozenBy - 1].Value = info.FrozenBy;
+            updateCommand.Parameters[(int)Field.MutedUntil - 1].Value = info.MutedUntil.ToUnixTime();
+            updateCommand.Parameters[(int)Field.MutedBy - 1].Value = info.MutedBy;
 
-            insertCommand.Parameters[(int)Field.Password].Value = info.Password;
-            insertCommand.Parameters[(int)Field.LastModified].Value = info.LastModified.ToUnixTime();
-            insertCommand.Parameters[(int)Field.IsOnline].Value = info.IsOnline;
-            insertCommand.Parameters[(int)Field.IsHidden].Value = info.IsHidden;
-            insertCommand.Parameters[(int)Field.LastIP].Value = info.LastIP.AsInt();
-            insertCommand.Parameters[(int)Field.LeaveReason].Value = (byte)info.LeaveReason;
-            insertCommand.Parameters[(int)Field.BandwidthUseMode].Value = (byte)info.BandwidthUseMode;
-            return insertCommand;
+            updateCommand.Parameters[(int)Field.Password - 1].Value = info.Password;
+            updateCommand.Parameters[(int)Field.LastModified - 1].Value = info.LastModified.ToUnixTime();
+            updateCommand.Parameters[(int)Field.IsOnline - 1].Value = info.IsOnline;
+            updateCommand.Parameters[(int)Field.IsHidden - 1].Value = info.IsHidden;
+            updateCommand.Parameters[(int)Field.LastIP - 1].Value = info.LastIP.AsInt();
+            updateCommand.Parameters[(int)Field.LeaveReason - 1].Value = (byte)info.LeaveReason;
+            updateCommand.Parameters[(int)Field.BandwidthUseMode - 1].Value = (byte)info.BandwidthUseMode;
+
+            // ID last
+            updateCommand.Parameters[(int)Field.BandwidthUseMode].Value = 0;
+            return updateCommand;
         }
 
 
@@ -282,21 +290,27 @@ namespace fCraft {
         #endregion
 
 
-
-
         [NotNull]
         public PlayerInfo AddPlayer( [NotNull] string name, [NotNull] IPAddress lastIP, [NotNull] Rank startingRank, RankChangeType rankChangeType ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( lastIP == null ) throw new ArgumentNullException( "lastIP" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
             lock( syncRoot ) {
-                preInsertCommand.ExecuteNonQuery();
-                int id = (int)preInsertCommand.InsertId;
+                using( MySqlTransaction transaction = connection.BeginTransaction() ) {
+                    preInsertCommand.Transaction = transaction;
+                    preInsertCommand.ExecuteNonQuery();
+                    int id = (int)preInsertCommand.InsertId;
 
-                PlayerInfo info = new PlayerInfo( id, name, lastIP, startingRank, rankChangeType );
+                    PlayerInfo info = new PlayerInfo( id, name, lastIP, startingRank, rankChangeType );
 
-                GetInsertCommand( info ).ExecuteNonQuery();
-                return info;
+                    MySqlCommand updateCmd = GetUpdateCommand( info );
+                    updateCmd.Transaction = transaction;
+                    updateCmd.ExecuteNonQuery();
+
+                    preInsertCommand.Transaction = null;
+                    updateCmd.Transaction = null;
+                    return info;
+                }
             }
         }
 
@@ -306,13 +320,21 @@ namespace fCraft {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
             lock( syncRoot ) {
-                preInsertCommand.ExecuteNonQuery();
-                int id = (int)preInsertCommand.InsertId;
+                using( MySqlTransaction transaction = connection.BeginTransaction() ) {
+                    preInsertCommand.Transaction = transaction;
+                    preInsertCommand.ExecuteNonQuery();
+                    int id = (int)preInsertCommand.InsertId;
 
-                PlayerInfo info = new PlayerInfo( id, name, IPAddress.None, startingRank, rankChangeType );
+                    PlayerInfo info = new PlayerInfo( id, name, IPAddress.None, startingRank, rankChangeType );
 
-                GetInsertCommand( info ).ExecuteNonQuery();
-                return info;
+                    MySqlCommand updateCmd = GetUpdateCommand( info );
+                    updateCmd.Transaction = transaction;
+                    updateCmd.ExecuteNonQuery();
+
+                    preInsertCommand.Transaction = null;
+                    updateCmd.Transaction = null;
+                    return info;
+                }
             }
         }
 
@@ -448,7 +470,20 @@ namespace fCraft {
 
 
         public void Save() {
-            throw new NotImplementedException();
+            lock( syncRoot ) {
+                var playersToUpdate = PlayerDB.PlayerInfoList.Where( p => p.Changed );
+                using( MySqlTransaction transaction = connection.BeginTransaction() ) {
+                    MySqlCommand cmd = null;
+                    foreach( PlayerInfo info in playersToUpdate ) {
+                        cmd = GetUpdateCommand( info );
+                        cmd.Transaction = transaction;
+                        cmd.ExecuteNonQuery();
+                    }
+                    if( cmd != null ) {
+                        cmd.Transaction = null;
+                    }
+                }
+            }
         }
 
 
@@ -475,6 +510,8 @@ namespace fCraft {
             connection.Open();
 
             PrepareCommands();
+
+            rankMapping = new Dictionary<int, Rank>();
 
             using( MySqlCommand cmd = new MySqlCommand( LoadAllQuery, connection ) ) {
                 using( MySqlDataReader reader = cmd.ExecuteReader() ) {
@@ -606,6 +643,7 @@ namespace fCraft {
 
         
         Dictionary<int, Rank> rankMapping;
+
 
         [NotNull]
         Rank GetRankByIndex( int index ) {
