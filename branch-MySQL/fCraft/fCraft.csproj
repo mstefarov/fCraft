@@ -245,6 +245,7 @@
     <Compile Include="Player\FlatfilePlayerDBProvider.cs" />
     <Compile Include="Player\FlatfilePlayerDBProvider.Compatibility.cs" />
     <Compile Include="Player\IPlayerDBProvider.cs" />
+    <Compile Include="Player\MySqlPlayerDBProvider.Sql.cs" />
     <Compile Include="Player\PlayerInfo.Actions.cs" />
     <Compile Include="Player\Player.Events.cs" />
     <Compile Include="Player\PlayerEnumerable.cs" />

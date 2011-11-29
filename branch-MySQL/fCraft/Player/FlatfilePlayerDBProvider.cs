@@ -12,9 +12,7 @@ namespace fCraft {
         const int BufferSize = 64 * 1024;
         int maxID = 255;
 
-        public int GetNextID() {
-            return Interlocked.Increment( ref maxID );
-        }
+        public const string Name = "Flatfile";
 
 
         [NotNull]
@@ -148,6 +146,11 @@ namespace fCraft {
             if( player1 == null ) throw new ArgumentNullException( "player1" );
             if( player2 == null ) throw new ArgumentNullException( "player2" );
             throw new NotImplementedException();
+        }
+
+
+        public int GetNextID() {
+            return Interlocked.Increment( ref maxID );
         }
 
 

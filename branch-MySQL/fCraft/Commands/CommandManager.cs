@@ -244,7 +244,7 @@ namespace fCraft {
 
         static bool RaiseCommandRegisteringEvent( CommandDescriptor descriptor ) {
             var handler = CommandRegistering;
-            if( handler == null ) return false;
+            if( handler == null ) return true;
             var e = new CommandRegistringEventArgs( descriptor );
             handler( null, e );
             return !e.Cancel;
@@ -259,7 +259,7 @@ namespace fCraft {
 
         internal static bool RaiseCommandCallingEvent( Command cmd, CommandDescriptor descriptor, Player player ) {
             var handler = CommandCalling;
-            if( handler == null ) return false;
+            if( handler == null ) return true;
             var e = new CommandCallingEventArgs( cmd, descriptor, player );
             handler( null, e );
             return !e.Cancel;

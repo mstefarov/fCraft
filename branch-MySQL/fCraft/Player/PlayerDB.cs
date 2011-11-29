@@ -48,8 +48,8 @@ namespace fCraft {
             CheckIfLoaded();
 
             PlayerInfo newInfo;
-            lock( Provider.SyncRoot ) {
-                newInfo = Provider.FindExact( name );
+            lock( provider.SyncRoot ) {
+                newInfo = provider.FindExact( name );
                 if( newInfo != null ) {
                     throw new ArgumentException( "A PlayerDB entry already exists for this name.", "name" );
                 }
@@ -60,7 +60,7 @@ namespace fCraft {
                     throw new OperationCanceledException( "Cancelled by a plugin." );
                 }
 
-                newInfo = Provider.AddUnrecognizedPlayer( name, e.StartingRank, rankChangeType );
+                newInfo = provider.AddUnrecognizedPlayer( name, e.StartingRank, rankChangeType );
                 newInfo.RaisePropertyChangedEvents = true;
 
                 List.Add( newInfo );
@@ -72,14 +72,25 @@ namespace fCraft {
 
 
         [NotNull]
-        static IPlayerDBProvider Provider = new FlatfilePlayerDBProvider(); // TODO
+        static IPlayerDBProvider provider; // TODO
 
 
         public static void Load() {
             if( IsLoaded ) throw new InvalidOperationException( "PlayerDB is already loaded." );
             Stopwatch sw = Stopwatch.StartNew();
 
-            var playerList = Provider.Load();
+            switch( ProviderType ) {
+                case FlatfilePlayerDBProvider.Name:
+                    provider = new FlatfilePlayerDBProvider();
+                    break;
+                case MySqlPlayerDBProvider.Name:
+                    provider = new MySqlPlayerDBProvider();
+                    break;
+                default:
+                    throw new Exception( "PlayerDB.Load: Unknown ProviderType: " + ProviderType );
+            }
+
+            var playerList = provider.Load();
 
             if( playerList != null ) {
                 List.AddRange( playerList );
@@ -115,9 +126,11 @@ namespace fCraft {
                 }
                 List[i].RaisePropertyChangedEvents = true;
             }
-            Logger.Log( LogType.SystemActivity,
-                        "PlayerDB.PostLoadCheck: Unhid {0}, unfroze {1}, and unmuted {2} banned accounts.",
-                        unhid, unfroze, unmuted );
+            if( unhid != 0 || unfroze != 0 || unmuted != 0 ) {
+                Logger.Log( LogType.SystemActivity,
+                            "PlayerDB: Unhid {0}, unfroze {1}, and unmuted {2} banned accounts.",
+                            unhid, unfroze, unmuted );
+            }
 
             UpdateCache();
             IsLoaded = true;
@@ -128,7 +141,7 @@ namespace fCraft {
             CheckIfLoaded();
             Stopwatch sw = Stopwatch.StartNew();
 
-            Provider.Save();
+            provider.Save();
 
             sw.Stop();
             Logger.Log( LogType.Debug,
@@ -156,7 +169,7 @@ namespace fCraft {
         }
 
         static void SaveTask( SchedulerTask task ) {
-            Provider.Save();
+            provider.Save();
         }
 
         #endregion
@@ -171,14 +184,14 @@ namespace fCraft {
             CheckIfLoaded();
             PlayerInfo info;
 
-            lock( Provider.SyncRoot ) {
-                info = Provider.FindExact( name );
+            lock( provider.SyncRoot ) {
+                info = provider.FindExact( name );
                 if( info == null ) {
                     var e = new PlayerInfoBeingCreatedEventArgs( name, lastIP, RankManager.DefaultRank, false );
                     PlayerInfo.RaiseBeingCreatedEvent( e );
                     if( e.Cancel ) throw new OperationCanceledException( "Cancelled by a plugin." );
 
-                    info = Provider.AddPlayer( name, lastIP, e.StartingRank, RankChangeType.Default );
+                    info = provider.AddPlayer( name, lastIP, e.StartingRank, RankChangeType.Default );
                     info.RaisePropertyChangedEvents = true;
 
                     PlayerInfo.RaiseCreatedEvent( info, false );
@@ -201,7 +214,7 @@ namespace fCraft {
             if( address == null ) throw new ArgumentNullException( "address" );
             if( limit < 0 ) throw new ArgumentOutOfRangeException( "limit" );
             CheckIfLoaded();
-            return Provider.FindByIP( address, limit );
+            return provider.FindByIP( address, limit );
         }
 
 
@@ -246,7 +259,7 @@ namespace fCraft {
         public static IEnumerable<PlayerInfo> FindByPattern( [NotNull] string pattern, int limit ) {
             if( pattern == null ) throw new ArgumentNullException( "pattern" );
             CheckIfLoaded();
-            return Provider.FindByPattern( pattern, limit );
+            return provider.FindByPattern( pattern, limit );
         }
 
 
@@ -261,7 +274,7 @@ namespace fCraft {
         public static IEnumerable<PlayerInfo> FindByPartialName( [NotNull] string namePart, int limit ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
             CheckIfLoaded();
-            return Provider.FindByPartialName( namePart, limit );
+            return provider.FindByPartialName( namePart, limit );
         }
 
 
@@ -272,7 +285,7 @@ namespace fCraft {
         internal static bool FindPlayerInfo( [NotNull] string partialName, [CanBeNull] out PlayerInfo result ) {
             if( partialName == null ) throw new ArgumentNullException( "partialName" );
             CheckIfLoaded();
-            return Provider.FindOneByPartialName( partialName, out result );
+            return provider.FindOneByPartialName( partialName, out result );
         }
 
 
@@ -280,7 +293,7 @@ namespace fCraft {
         public static PlayerInfo FindPlayerInfoExact( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             CheckIfLoaded();
-            return Provider.FindExact( name );
+            return provider.FindExact( name );
         }
 
 
@@ -489,7 +502,7 @@ namespace fCraft {
             if( p1 == null ) throw new ArgumentNullException( "p1" );
             if( p2 == null ) throw new ArgumentNullException( "p2" );
             lock( AddLocker ) {
-                lock( Provider.SyncRoot ) {
+                lock( provider.SyncRoot ) {
                     if( p1.IsOnline || p2.IsOnline ) {
                         throw new InvalidOperationException( "Both players must be offline to swap info." );
                     }
