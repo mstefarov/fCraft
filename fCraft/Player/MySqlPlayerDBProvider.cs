@@ -23,13 +23,20 @@ namespace fCraft {
 
         #region SQL
 
+        const string InsertQuery = "INSERT INTO players VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
         const string LoadAllQuery = "SELECT * FROM players ORDER BY id;";
         const string FindExactQuery = "SELECT id FROM players WHERE name LIKE ? LIMIT 1;";
         const string FindByIPQuery = "SELECT id FROM players WHERE lastIP=? LIMIT ?;";
         const string FindPartialQuery = "SELECT id FROM players WHERE name LIKE ?;";
         const string DeleteCommandText = "DELETE FROM players WHERE id=? LIMIT 1;";
 
-        MySqlCommand findExactCommand, findByIPCommand, findPartialCommand, deleteCommand;
+        MySqlCommand findExactCommand, findByIPCommand, findPartialCommand, deleteCommand, insertCommand;
+        const int NameSize = 16,
+                  DisplayedNameSize = 64,
+                  ByFieldSize = 255,
+                  ReasonFieldSize = 1024,
+                  PasswordFieldSize = 64;
+        const MySqlType DateType = MySqlType.BigInt;
 
         void PrepareCommands() {
             findExactCommand = new MySqlCommand( FindExactQuery, connection );
@@ -48,6 +55,54 @@ namespace fCraft {
             deleteCommand = new MySqlCommand( DeleteCommandText, connection );
             deleteCommand.Parameters.Add( "id", MySqlType.Int );
             deleteCommand.Prepare();
+
+            insertCommand = new MySqlCommand( InsertQuery, connection );
+            insertCommand.Parameters.Add( "ID", MySqlType.Int );
+            insertCommand.Parameters.Add( "Name", MySqlType.VarChar, NameSize );
+            insertCommand.Parameters.Add( "DisplayedName", MySqlType.VarChar, DisplayedNameSize );
+            insertCommand.Parameters.Add( "LastSeen", DateType );
+            insertCommand.Parameters.Add( "Rank", MySqlType.SmallInt );
+            insertCommand.Parameters.Add( "PreviousRank", MySqlType.SmallInt );
+            insertCommand.Parameters.Add( "RankChangeType", MySqlType.TinyInt );
+            insertCommand.Parameters.Add( "RankChangeDate", DateType );
+            insertCommand.Parameters.Add( "RankChangedBy", MySqlType.VarChar, ByFieldSize );
+            insertCommand.Parameters.Add( "RankChangeReason", MySqlType.VarChar, ReasonFieldSize );
+            insertCommand.Parameters.Add( "BanStatus", MySqlType.TinyInt );
+            insertCommand.Parameters.Add( "BanDate", DateType );
+            insertCommand.Parameters.Add( "BannedBy", MySqlType.VarChar, ByFieldSize );
+            insertCommand.Parameters.Add( "BanReason", MySqlType.VarChar, ReasonFieldSize );
+            insertCommand.Parameters.Add( "BannedUntil", DateType );
+            insertCommand.Parameters.Add( "LastFailedLoginDate", DateType );
+            insertCommand.Parameters.Add( "LastFailedLoginIP", MySqlType.Int );
+            insertCommand.Parameters.Add( "UnbanDate", DateType );
+            insertCommand.Parameters.Add( "UnbannedBy", MySqlType.VarChar, ByFieldSize );
+            insertCommand.Parameters.Add( "UnbanReason", MySqlType.VarChar, ByFieldSize );
+            insertCommand.Parameters.Add( "FirstLoginDate", DateType );
+            insertCommand.Parameters.Add( "LastLoginDate", DateType );
+            insertCommand.Parameters.Add( "TotalTime", MySqlType.Int );
+            insertCommand.Parameters.Add( "BlocksBuilt", MySqlType.Int );
+            insertCommand.Parameters.Add( "BlocksDeleted", MySqlType.Int );
+            insertCommand.Parameters.Add( "BlocksDrawn", MySqlType.BigInt );
+            insertCommand.Parameters.Add( "TimesVisited", MySqlType.Int );
+            insertCommand.Parameters.Add( "MessagesWritten", MySqlType.Int );
+            insertCommand.Parameters.Add( "TimesKickedOthers", MySqlType.Int );
+            insertCommand.Parameters.Add( "TimesBannedOthers", MySqlType.Int );
+            insertCommand.Parameters.Add( "TimesKicked", MySqlType.Int );
+            insertCommand.Parameters.Add( "LastKickDate", DateType );
+            insertCommand.Parameters.Add( "LastKickBy", MySqlType.VarChar, ByFieldSize );
+            insertCommand.Parameters.Add( "LastKickReason", MySqlType.VarChar, ReasonFieldSize );
+            insertCommand.Parameters.Add( "IsFrozen", MySqlType.TinyInt );
+            insertCommand.Parameters.Add( "FrozenOn", DateType );
+            insertCommand.Parameters.Add( "FrozenBy", MySqlType.VarChar, ByFieldSize );
+            insertCommand.Parameters.Add( "MutedUntil", DateType );
+            insertCommand.Parameters.Add( "MutedBy", MySqlType.VarChar, ByFieldSize );
+            insertCommand.Parameters.Add( "Password", MySqlType.VarChar, PasswordFieldSize );
+            insertCommand.Parameters.Add( "LastModified", DateType );
+            insertCommand.Parameters.Add( "IsOnline", MySqlType.TinyInt );
+            insertCommand.Parameters.Add( "IsHidden", MySqlType.TinyInt );
+            insertCommand.Parameters.Add( "LastIP", MySqlType.Int );
+            insertCommand.Parameters.Add( "LeaveReason", MySqlType.TinyInt );
+            insertCommand.Parameters.Add( "BandwidthUseMode", MySqlType.TinyInt );
         }
 
 
@@ -384,6 +439,22 @@ namespace fCraft {
                 throw new DataException( "Player id " + id + " was found, but no corresponding PlayerInfo exists." );
             }
             return result;
+        }
+
+        
+        Dictionary<int, Rank> rankMapping;
+
+        [NotNull]
+        Rank GetRankByIndex( int index ) {
+            Rank rank;
+            if( rankMapping.TryGetValue( index, out rank ) ) {
+                return rank;
+            } else {
+                Logger.Log( LogType.Error,
+                            "MySqlPlayerDBProvider.GetRankByIndex: Unknown rank index ({0}). Assigning rank {1} instead.",
+                            index, RankManager.DefaultRank );
+                return RankManager.DefaultRank;
+            }
         }
 
 

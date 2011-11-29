@@ -12,6 +12,26 @@ namespace fCraft {
 
         #region Loading
 
+        int IdentifyFormatVersion( [NotNull] string header ) {
+            if( header == null ) throw new ArgumentNullException( "header" );
+            string[] headerParts = header.Split( ' ' );
+            if( headerParts.Length < 2 ) {
+                throw new FormatException( "Invalid PlayerDB header format: " + header );
+            }
+            int maxIDField;
+            if( Int32.TryParse( headerParts[0], out maxIDField ) ) {
+                if( maxIDField >= 255 ) {// IDs start at 256
+                    maxID = maxIDField;
+                }
+            }
+            int version;
+            if( Int32.TryParse( headerParts[1], out version ) ) {
+                return version;
+            } else {
+                return 0;
+            }
+        }
+
         internal PlayerInfo LoadFormat2( [NotNull] string[] fields ) {
             if( fields == null ) throw new ArgumentNullException( "fields" );
             int id = Int32.Parse( fields[29] );

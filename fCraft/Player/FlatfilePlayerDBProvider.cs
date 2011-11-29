@@ -277,7 +277,7 @@ namespace fCraft {
                 return rank;
             } else {
                 Logger.Log( LogType.Error,
-                            "Unknown rank index ({0}). Assigning rank {1} instead.",
+                            "FlatfilePlayerDBProvider.GetRankByIndex: Unknown rank index ({0}). Assigning rank {1} instead.",
                             index, RankManager.DefaultRank );
                 return RankManager.DefaultRank;
             }
@@ -374,28 +374,6 @@ namespace fCraft {
                 }
             }
         }
-
-
-        int IdentifyFormatVersion( [NotNull] string header ) {
-            if( header == null ) throw new ArgumentNullException( "header" );
-            string[] headerParts = header.Split( ' ' );
-            if( headerParts.Length < 2 ) {
-                throw new FormatException( "Invalid PlayerDB header format: " + header );
-            }
-            int maxIDField;
-            if( Int32.TryParse( headerParts[0], out maxIDField ) ) {
-                if( maxIDField >= 255 ) {// IDs start at 256
-                    maxID = maxIDField;
-                }
-            }
-            int version;
-            if( Int32.TryParse( headerParts[1], out version ) ) {
-                return version;
-            } else {
-                return 0;
-            }
-        }
-
 
 
         internal PlayerInfo LoadBinaryFormat0( [NotNull] BinaryReader reader ) {
