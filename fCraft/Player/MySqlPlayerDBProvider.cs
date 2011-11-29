@@ -40,7 +40,7 @@ namespace fCraft {
 
                     MySqlCommand updateCmd = GetUpdateCommand( info );
                     updateCmd.Transaction = transaction;
-                    updateCmd.ExecuteNonQuery();
+                    int rowUpdated = updateCmd.ExecuteNonQuery();
 
                     transaction.Commit();
 
