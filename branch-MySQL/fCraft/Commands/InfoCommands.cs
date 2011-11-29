@@ -969,7 +969,7 @@ namespace fCraft {
             Aliases = new[] { "who" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
-            Usage = "/Players [WorldName]",
+            Usage = "/Players [WorldName] [Offset]",
             Help = "Lists all players on the server (in all worlds). " +
                    "If a WorldName is given, only lists players on that one world.",
             Handler = PlayersHandler
@@ -977,10 +977,6 @@ namespace fCraft {
 
         internal static void PlayersHandler( Player player, Command cmd ) {
             string param = cmd.Next();
-            if( cmd.HasNext ) {
-                CdPlayers.PrintUsage( player );
-                return;
-            }
             Player[] players;
             string worldName = null;
             string qualifier;
@@ -990,6 +986,10 @@ namespace fCraft {
                 // No world name given; Start with a list of all players.
                 players = Server.Players;
                 qualifier = "online";
+                if( cmd.HasNext ) {
+                    CdPlayers.PrintUsage( player );
+                    return;
+                }
 
             } else {
                 // Try to find the world
@@ -1222,7 +1222,7 @@ namespace fCraft {
                     return;
                 } else {
                     prefix = String.Format( "Commands available to {0}&S", rank.ClassyName );
-                    cd = CommandManager.GetCommands( rank, true );
+                    cd = CommandManager.GetCommands( rank, false );
                 }
 
             } else if( param.Equals( "all", StringComparison.OrdinalIgnoreCase ) ) {
