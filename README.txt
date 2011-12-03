@@ -1,5 +1,7 @@
 Each branch contains a different snapshot of fCraft's code. Branches are:
 
+    /branch-0.10x/  First ever version of fCraft. Does not work.
+
     /branch-0.33x/  Oldest version of fCraft that still works.
                     Last version without multiworld. No longer updated.
 
