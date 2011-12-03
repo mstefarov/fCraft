@@ -323,12 +323,12 @@ WHERE id=? LIMIT 1;";
             } else {
                 updateCommand.Parameters[(int)Field.PreviousRank - 1].Value = NoRankIndex;
             }
-            updateCommand.Parameters[(int)Field.RankChangeType - 1].Value = (byte)info.RankChangeType;
+            updateCommand.Parameters[(int)Field.RankChangeType - 1].Value = (sbyte)info.RankChangeType;
             updateCommand.Parameters[(int)Field.RankChangeDate - 1].Value = info.RankChangeDate.ToUnixTime();
             updateCommand.Parameters[(int)Field.RankChangedBy - 1].Value = info.RankChangedBy;
             updateCommand.Parameters[(int)Field.RankChangeReason - 1].Value = info.RankChangeReason;
 
-            updateCommand.Parameters[(int)Field.BanStatus - 1].Value = (byte)info.BanStatus;
+            updateCommand.Parameters[(int)Field.BanStatus - 1].Value = (sbyte)info.BanStatus;
             updateCommand.Parameters[(int)Field.BanDate - 1].Value = info.BanDate.ToUnixTime();
             updateCommand.Parameters[(int)Field.BannedBy - 1].Value = info.BannedBy;
             updateCommand.Parameters[(int)Field.BanReason - 1].Value = info.BanReason;
@@ -366,8 +366,8 @@ WHERE id=? LIMIT 1;";
             updateCommand.Parameters[(int)Field.IsOnline - 1].Value = info.IsOnline;
             updateCommand.Parameters[(int)Field.IsHidden - 1].Value = info.IsHidden;
             updateCommand.Parameters[(int)Field.LastIP - 1].Value = info.LastIP.AsInt();
-            updateCommand.Parameters[(int)Field.LeaveReason - 1].Value = (byte)info.LeaveReason;
-            updateCommand.Parameters[(int)Field.BandwidthUseMode - 1].Value = (byte)info.BandwidthUseMode;
+            updateCommand.Parameters[(int)Field.LeaveReason - 1].Value = (sbyte)info.LeaveReason;
+            updateCommand.Parameters[(int)Field.BandwidthUseMode - 1].Value = (sbyte)info.BandwidthUseMode;
 
             // ID last
             updateCommand.Parameters[updateCommand.Parameters.Count - 1].Value = info.ID;
