@@ -1058,26 +1058,29 @@ namespace fCraft {
             }
 
             // Check world permissions
-            // ReSharper disable PossibleNullReferenceException
-            switch( World.BuildSecurity.CheckDetailed( Info ) ) {
-                // ReSharper restore PossibleNullReferenceException
-                case SecurityCheckResult.Allowed:
-                    // Check world's rank permissions
-                    if( (Can( Permission.Build ) || newBlock == Block.Air) &&
-                        (Can( Permission.Delete ) || oldBlock == Block.Air) ) {
+            World mapWorld = map.World;
+            if( mapWorld != null ) {
+                switch( mapWorld.BuildSecurity.CheckDetailed( Info ) ) {
+                    case SecurityCheckResult.Allowed:
+                        // Check world's rank permissions
+                        if( (Can( Permission.Build ) || newBlock == Block.Air) &&
+                            (Can( Permission.Delete ) || oldBlock == Block.Air) ) {
+                            result = CanPlaceResult.Allowed;
+                        } else {
+                            result = CanPlaceResult.RankDenied;
+                        }
+                        break;
+
+                    case SecurityCheckResult.WhiteListed:
                         result = CanPlaceResult.Allowed;
-                    } else {
-                        result = CanPlaceResult.RankDenied;
-                    }
-                    break;
+                        break;
 
-                case SecurityCheckResult.WhiteListed:
-                    result = CanPlaceResult.Allowed;
-                    break;
-
-                default:
-                    result = CanPlaceResult.WorldDenied;
-                    break;
+                    default:
+                        result = CanPlaceResult.WorldDenied;
+                        break;
+                }
+            } else {
+                result = CanPlaceResult.Allowed;
             }
 
         eventCheck:

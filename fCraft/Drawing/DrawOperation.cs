@@ -137,15 +137,13 @@ namespace fCraft.Drawing {
 
 
         protected DrawOperation( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            Player = player;
+            Map = player.WorldMap;
+
+            Context |= BlockChangeContext.Drawn;
             AnnounceCompletion = true;
             LogCompletion = true;
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( player.World == null || player.World.Map == null ) {
-                throw new ArgumentException( "Player must have a world.", "player" );
-            }
-            Player = player;
-            Map = player.World.Map;
-            Context = BlockChangeContext.Drawn;
         }
 
 

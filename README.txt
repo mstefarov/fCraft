@@ -1,9 +1,7 @@
 Thank you for downloading fCraft, the custom Minecraft server.
 
-If you like fCraft, support its developer by donating! http://donate.fcraft.net
-
-See http://www.fcraft.net/wiki/Version_history#0.610 for complete information
-about this release.
+If you like fCraft, support its development by donating!
+    http://donate.fcraft.net
 
 
 
@@ -153,10 +151,18 @@ When you first join the server, promote yourself by typing...
 ...in the server's console. Replace "owner" if you renamed your highest rank.
 
 Type "/help" in-game or in server console to get started. Type "/commands" for
-a list of available commands.
+a list of available commands. For detailed information, please visit:
+    http://fcraft.net/wiki
+
+To request features, report bugs, or receive support, please visit:
+    http://forums.fcraft.net
 
 For quick help/support, join #fCraft channel on Esper.net IRC:
     irc://irc.esper.net:5555/fCraft
+
+See CHANGELOG.txt or visit http://www.fcraft.net/wiki/Version_history for
+complete information about changes in this release compared to previous
+versions of fCraft.
 
 
 
@@ -193,7 +199,8 @@ anything with them. However, if you would like to distribute whole modified
 copies of fCraft, please follow the MIT License terms.
 
 Original Minecraft was developed by Markus "Notch" Petersson of Mojang, and is 
-not affiliated with fCraft in any way.
+not affiliated with fCraft in any way. fCraft does not use any code, assets,
+or any other files from Minecraft.
 
 
 
