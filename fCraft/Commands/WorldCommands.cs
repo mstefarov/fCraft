@@ -1285,9 +1285,12 @@ namespace fCraft {
 
             bool changesWereMade = false;
             do {
-                if( name.Length < 2 ) continue;
                 // Whitelisting individuals
                 if( name.StartsWith( "+" ) ) {
+                    if( name.Length == 1 ) {
+                        CdWorldAccess.PrintUsage( player );
+                        break;
+                    }
                     PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
                     if( info == null ) return;
 
@@ -1362,6 +1365,10 @@ namespace fCraft {
 
                     // Blacklisting individuals
                 } else if( name.StartsWith( "-" ) ) {
+                    if( name.Length == 1 ) {
+                        CdWorldAccess.PrintUsage( player );
+                        break;
+                    }
                     PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
                     if( info == null ) return;
 
@@ -1521,9 +1528,12 @@ namespace fCraft {
 
             bool changesWereMade = false;
             do {
-                if( name.Length < 2 ) continue;
                 // Whitelisting individuals
                 if( name.StartsWith( "+" ) ) {
+                    if( name.Length == 1 ) {
+                        CdWorldBuild.PrintUsage( player );
+                        break;
+                    }
                     PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
                     if( info == null ) return;
 
@@ -1598,6 +1608,10 @@ namespace fCraft {
 
                     // Blacklisting individuals
                 } else if( name.StartsWith( "-" ) ) {
+                    if( name.Length == 1 ) {
+                        CdWorldBuild.PrintUsage( player );
+                        break;
+                    }
                     PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
                     if( info == null ) return;
 

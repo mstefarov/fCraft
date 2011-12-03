@@ -202,9 +202,11 @@ namespace fCraft {
 
             string name;
             while( (name = cmd.Next()) != null ) {
-                if( name.Length < 2 ) continue;
-
                 if( name.StartsWith( "+" ) ) {
+                    if( name.Length == 1 ) {
+                        CdZoneEdit.PrintUsage( player );
+                        break;
+                    }
                     PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
                     if( info == null ) return;
 
@@ -235,6 +237,10 @@ namespace fCraft {
                     }
 
                 } else if( name.StartsWith( "-" ) ) {
+                    if( name.Length == 1 ) {
+                        CdZoneEdit.PrintUsage( player );
+                        break;
+                    }
                     PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
                     if( info == null ) return;
 
