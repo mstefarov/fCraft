@@ -555,6 +555,11 @@ namespace fCraft {
                     }
                     break;
 
+                case ConfigKey.DefaultBackupInterval:
+                    // TODO: update SchedulerTasks
+                    WorldManager.DefaultBackupInterval = new TimeSpan( TimeSpan.TicksPerSecond * key.GetInt() );
+                    break;
+
                 case ConfigKey.HelpColor:
                     Color.Help = Color.Parse( key.GetString() );
                     break;
