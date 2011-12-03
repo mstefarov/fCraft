@@ -1198,7 +1198,7 @@ namespace fCraft {
                             return;
                         }
                         listName = String.Format( "worlds where {0}&S+ can build", rank.ClassyName );
-                        extraParam = "@" + rank.Name;
+                        extraParam = "@" + rank.Name + " ";
                         worlds = WorldManager.Worlds.Where( w => (w.BuildSecurity.MinRank <= rank) && player.CanSee( w ) )
                                                     .ToArray();
                         break;

@@ -231,7 +231,7 @@ namespace fCraft {
                     return RawMessageType.Invalid;
 
                 case '@':
-                    if( message.Length < 4 ) {
+                    if( message.Length < 4 || message.IndexOf( ' ' ) == -1 ) {
                         // message too short to be a PM or rank chat
                         return RawMessageType.Invalid;
                     }
@@ -246,7 +246,7 @@ namespace fCraft {
                         // alternative PM notation: "@ name blah"
                         return RawMessageType.PrivateChat;
                     }
-                    if( message[1] != ' ' && message.IndexOf( ' ' ) != -1 ) {
+                    if( message[1] != ' ' ) {
                         // primary PM notation: "@name blah"
                         return RawMessageType.PrivateChat;
                     }
