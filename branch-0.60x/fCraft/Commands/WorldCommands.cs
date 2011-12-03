@@ -1926,6 +1926,14 @@ namespace fCraft {
             } else {
                 player.Message( "  BlockDB is disabled on {0}", world.ClassyName );
             }
+
+            if( world.BackupInterval == TimeSpan.Zero ) {
+                if( WorldManager.DefaultBackupInterval != TimeSpan.Zero ) {
+                    player.Message( "  Periodic backups are disabled on {0}", world.ClassyName );
+                }
+            } else {
+                player.Message( "  Periodic backups every {0}", world.BackupInterval.ToMiniString() );
+            }
         }
 
         #endregion

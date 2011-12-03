@@ -18,6 +18,8 @@ namespace fCraft {
         public static World[] Worlds { get; private set; }
         static readonly SortedDictionary<string, World> WorldIndex = new SortedDictionary<string, World>();
 
+        public static TimeSpan DefaultBackupInterval { get; set; }
+
         internal static readonly object SyncRoot = new object();
 
 
