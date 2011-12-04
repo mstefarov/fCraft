@@ -37,9 +37,9 @@ namespace fCraft.Drawing {
                 int ratio = 1;
                 Block block = cmd.NextBlockWithParam( player, ref ratio );
                 if( block == Block.Undefined ) return null;
-                if( ratio < 0 || ratio > 1000 ) {
-                    player.Message( "{0} brush: Invalid block ratio ({1}). Must be between 1 and 1000.",
-                                    Name, ratio );
+                if( ratio < 0 || ratio > MarbledBrush.MaxRatio ) {
+                    player.Message( "{0} brush: Invalid block ratio ({1}). Must be between 1 and {2}.",
+                                    Name, ratio, MarbledBrush.MaxRatio );
                     return null;
                 }
                 blocks.Add( block );
@@ -58,6 +58,7 @@ namespace fCraft.Drawing {
 
 
     public sealed class MarbledBrush : AbstractPerlinNoiseBrush, IBrush {
+        public const int MaxRatio = 10000;
 
         public MarbledBrush() {
             Frequency = 0.1f;
@@ -122,8 +123,9 @@ namespace fCraft.Drawing {
             while( cmd.HasNext ) {
                 int ratio = 1;
                 Block block = cmd.NextBlockWithParam( player, ref ratio );
-                if( ratio < 0 || ratio > 1000 ) {
-                    player.Message( "Invalid block ratio ({0}). Must be between 1 and 1000.", ratio );
+                if( ratio < 0 || ratio > MaxRatio ) {
+                    player.Message( "Invalid block ratio ({0}). Must be between 1 and {1}.",
+                                    ratio, MaxRatio );
                     return null;
                 }
                 if( block == Block.Undefined ) return null;
