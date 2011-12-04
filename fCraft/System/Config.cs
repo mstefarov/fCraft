@@ -396,8 +396,13 @@ namespace fCraft {
                 }
             } else {
                 XElement settings = config.Element( "Settings" );
-                foreach( XElement pair in settings.Elements( "ConfigKey" ) ) {
-                    ParseKeyElement( pair );
+                if( settings != null ) {
+                    foreach( XElement pair in settings.Elements( "ConfigKey" ) ) {
+                        ParseKeyElement( pair );
+                    }
+                } else {
+                    Logger.Log( LogType.Warning,
+                                "Config.Load: No <Settings> tag present. Using default for everything." );
                 }
             }
 

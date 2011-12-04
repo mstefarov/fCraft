@@ -13,10 +13,12 @@
  Fix: Fixed "/Commands @Rank" showing hidden commands (thanks Hellenion)
  Fix: Fixed a typo in /worlds (thanks Kevinsweijen)
  Fix: Fixed BlockDBAutoEnable and BlockDBAutoEnableRank config keys being placed in the "General" section.
+ Fix: ConfigGUI no longer hides the form until the shutdown process is complete.
  Change: Improved config.xml format (now version 152). Configs created with fCraft 0.611+ will not be usable with older versions of fCraft.
  Change: Rewrote ServerGUI startup code to make it more responsive (thanks to 800craft for the idea).
  Change: Added information about command-line options to the README, and fixed some typos.
  Change: MaxConnectionsPerIP restriction no longer applies to localhost.
+ Change: Increased block-ratio limit for "random", "cloudy", and "marbled" brushes from 1000 to 10,000.
 
 0.610
  Feature: Added /Fill2D (/f2d), /Triangle (/t), and /TriangleW (/tw) draw commands.
