@@ -462,7 +462,7 @@ namespace fCraft {
                         contextString = "";
                     } else if( (entry.Context & BlockChangeContext.Drawn) == BlockChangeContext.Drawn &&
                         entry.Context != BlockChangeContext.Drawn ) {
-                        contextString = " (" + (entry.Context & ~BlockChangeContext.Drawn)+ ")";
+                        contextString = " (" + (entry.Context & ~BlockChangeContext.Drawn) + ")";
                     } else {
                         contextString = " (" + entry.Context + ")";
                     }
@@ -767,7 +767,7 @@ namespace fCraft {
                     CdGenerate.PrintUsage( player );
                     return;
                 }
-            
+
                 // parse theme
                 bool swapThemeAndTemplate = false;
                 if( themeName.Equals( "grass", StringComparison.OrdinalIgnoreCase ) ) {
@@ -888,7 +888,7 @@ namespace fCraft {
                     return;
                 }
             }
-            
+
             // generating
             bool genFlatgrass = (theme == MapGenTheme.Forest && noTrees && template == MapGenTemplate.Flat);
             Map map;
@@ -1179,20 +1179,20 @@ namespace fCraft {
                     case 'h':
                         listName = "hidden worlds";
                         extraParam = "hidden ";
-                        worlds = WorldManager.Worlds.Where( w => !player.CanSee( w) ).ToArray();
+                        worlds = WorldManager.Worlds.Where( w => !player.CanSee( w ) ).ToArray();
                         break;
                     case 'p':
                         listName = "populated worlds";
                         extraParam = "populated ";
-                        worlds = WorldManager.Worlds.Where( w => w.IsLoaded ).ToArray();
+                        worlds = WorldManager.Worlds.Where( w => w.Players.Any( player.CanSee ) ).ToArray();
                         break;
                     case '@':
                         if( param.Length == 1 ) {
                             CdWorlds.PrintUsage( player );
                             return;
                         }
-                        string rankName = param.Substring(1);
-                        Rank rank = Rank.Parse(rankName);
+                        string rankName = param.Substring( 1 );
+                        Rank rank = Rank.Parse( rankName );
                         if( rank == null ) {
                             player.MessageNoRank( rankName );
                             return;
@@ -1717,7 +1717,7 @@ namespace fCraft {
                                               player.ClassyName, world.BuildSecurity.MinRank.ClassyName, world.ClassyName );
                         }
                         Logger.Log( LogType.UserActivity,
-                                    "{0} set build rank for world {1} to {2}+", 
+                                    "{0} set build rank for world {1} to {2}+",
                                     player.Name, world.Name, world.BuildSecurity.MinRank.Name );
                     }
                 }
@@ -2170,9 +2170,9 @@ namespace fCraft {
                 if( mainedRanks.Count() > 0 ) {
                     player.Message( "Rank mains: {0}",
                                     mainedRanks.JoinToString( r => String.Format( "{0}&S for {1}&S",
-                                                                                  // ReSharper disable PossibleNullReferenceException
+                                        // ReSharper disable PossibleNullReferenceException
                                                                                   r.MainWorld.ClassyName,
-                                                                                  // ReSharper restore PossibleNullReferenceException
+                                        // ReSharper restore PossibleNullReferenceException
                                                                                   r.ClassyName ) ) );
                 }
                 return;
@@ -2528,7 +2528,7 @@ namespace fCraft {
             player.Message( "Removed {0}&S from the world list. You can now delete the map file ({1}.fcm) manually.",
                             world.ClassyName, world.Name );
             Logger.Log( LogType.UserActivity,
-                        "{0} removed \"{1}\" from the world list.", 
+                        "{0} removed \"{1}\" from the world list.",
                         player.Name, worldName );
 
             Server.RequestGC();
