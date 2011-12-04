@@ -5,7 +5,7 @@ using System.Xml.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    public class MySqlPlayerDBProviderConfig : ICloneable {
+    public class MySqlPlayerDBProviderConfig {
 
         public MySqlPlayerDBProviderConfig()
             : this( "localhost", 3306, "fcraft", "user", "" ) { }
@@ -73,7 +73,7 @@ namespace fCraft {
         string userId;
 
 
-        [PasswordPropertyText]
+        [PasswordPropertyText( true )]
         [Description( "Password for the UserId." )]
         [NotNull]
         public string Password {
@@ -141,10 +141,5 @@ namespace fCraft {
         }
 
         #endregion
-
-
-        public object Clone() {
-            return new MySqlPlayerDBProviderConfig( host, port, database, userId, password );
-        }
     }
 }

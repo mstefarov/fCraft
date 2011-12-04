@@ -12,6 +12,7 @@ namespace fCraft.ConfigGUI {
         public PropertyGridPopup( string title, object obj ) {
             InitializeComponent();
             pgProperties.SelectedObject = obj;
+            pgProperties.PropertySort = PropertySort.NoSort;
         }
 
         public object SelectedObject {
