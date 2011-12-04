@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using fCraft;
 using fCraft.AutoRank;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace AutoRankEditor {
     public sealed partial class MainForm : Form {
@@ -40,7 +41,7 @@ namespace AutoRankEditor {
 
         void Init( object sender, EventArgs args ) {
             Server.InitLibrary( Environment.GetCommandLineArgs() );
-            Config.Load( false, false );
+            Config.Load();
 
             rankList = RankManager.Ranks.Select( r => r.Prefix + r.Name ).ToArray();
             cFromRank.Items.AddRange( rankList );
@@ -70,7 +71,7 @@ namespace AutoRankEditor {
                     } else if( crit.Condition is ConditionNOR ) {
                         newNode.Op = GroupNodeType.NOR;
                     } else {
-                        throw new FormatException();
+                        throw new SerializationException();
                     }
 
                     foreach( Condition subCondition in crit.Condition.Conditions ) {

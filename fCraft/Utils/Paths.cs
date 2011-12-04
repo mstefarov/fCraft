@@ -12,8 +12,6 @@ namespace fCraft {
 
         static readonly string[] ProtectedFiles;
 
-        internal static readonly string[] DataFilesToBackup;
-
         static Paths() {
             string assemblyDir = Path.GetDirectoryName( Assembly.GetExecutingAssembly().Location );
             if( assemblyDir != null ) {
@@ -45,13 +43,6 @@ namespace fCraft {
                 HeartbeatDataFileName,
                 WorldListFileName,
                 AutoRankFileName
-            };
-
-            DataFilesToBackup = new[]{
-                PlayerDBFileName,
-                IPBanListFileName,
-                WorldListFileName,
-                ConfigFileName
             };
         }
 

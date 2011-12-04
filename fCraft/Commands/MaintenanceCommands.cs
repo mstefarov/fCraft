@@ -959,7 +959,7 @@ namespace fCraft {
 
                 switch( whatToReload ) {
                     case "config":
-                        success = Config.Load( true, true );
+                        success = Config.Reload();
                         break;
 
                     case "autorank":

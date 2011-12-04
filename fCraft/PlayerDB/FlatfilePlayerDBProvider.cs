@@ -1,8 +1,10 @@
-﻿using System;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using System.Net;
+using System.Runtime.Serialization;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using JetBrains.Annotations;
@@ -12,7 +14,9 @@ namespace fCraft {
         const int BufferSize = 64 * 1024;
         int maxID = 255;
 
-        public const string Name = "Flatfile";
+        public PlayerDBProviderType Type {
+            get { return PlayerDBProviderType.Flatfile; }
+        }
 
 
         [NotNull]
@@ -492,7 +496,7 @@ namespace fCraft {
             int num2 = 0;
             do {
                 if( num2 == 0x23 ) {
-                    throw new FormatException( "Invalid 7bit encoded integer." );
+                    throw new SerializationException( "Invalid 7bit encoded integer." );
                 }
                 num3 = reader.ReadByte();
                 num |= (num3 & 0x7f) << num2;

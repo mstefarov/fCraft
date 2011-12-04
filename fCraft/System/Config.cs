@@ -161,6 +161,7 @@ namespace fCraft {
      *               After: <fCraftConfig><Settings><ConfigKey key="KeyName" value="Value" default="DefaultValue" /></Settings></fCraftConfig>
      *               
      * 153 - r1246 - Added PlayerDBProvider data
+     *               Removed BackupDataOnStartup key.
      * 
      */
 
@@ -172,7 +173,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 152;
+        public const int CurrentVersion = 153;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY
@@ -303,11 +304,30 @@ namespace fCraft {
 
         #region Loading
 
+        public static bool IsLoaded { get; private set; }
+
         /// <summary> Loads configuration from file. </summary>
-        /// <param name="skipRankList"> If true, skips over rank definitions. </param>
-        /// <param name="raiseReloadedEvent"> Whether ConfigReloaded event should be raised. </param>
         /// <returns> True if loading succeeded. </returns>
-        public static bool Load( bool skipRankList, bool raiseReloadedEvent ) {
+        public static bool Load() {
+            if( IsLoaded ) {
+                throw new InvalidOperationException( "Config is already loaded. Use Config.Reload instead." );
+            }
+            if( Load( false ) ) {
+                IsLoaded = true;
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        /// <summary> Reloads configuration from file. Raises ConfigReloaded event. </summary>
+        /// <returns> True if loading succeeded. </returns>
+        public static bool Reload() {
+            return Load( true );
+        }
+
+
+        static bool Load( bool reloading ) {
             bool fromFile = false;
 
             // try to load config file (XML)
@@ -363,7 +383,7 @@ namespace fCraft {
             }
 
             // read rank definitions
-            if( !skipRankList ) {
+            if( !reloading ) {
                 LoadRankList( config, fromFile );
             }
             
@@ -406,7 +426,7 @@ namespace fCraft {
                 }
             }
 
-            if( !skipRankList ) {
+            if( !reloading ) {
                 RankManager.DefaultRank = Rank.Parse( ConfigKey.DefaultRank.GetString() );
                 RankManager.DefaultBuildRank = Rank.Parse( ConfigKey.DefaultBuildRank.GetString() );
                 RankManager.PatrolledRank = Rank.Parse( ConfigKey.PatrolledRank.GetString() );
@@ -425,22 +445,35 @@ namespace fCraft {
                 ConfigKey.MaxPlayersPerWorld.TrySetValue( ConfigKey.MaxPlayers.GetInt() );
             }
 
+            // parse PlayerDBProvider
             XElement playerDBProviderEl = config.Element( "PlayerDBProvider" );
+            PlayerDB.ProviderType = PlayerDBProviderType.Flatfile;
             if( playerDBProviderEl == null ) {
-                PlayerDB.ProviderType = "Flatfile";
+                Logger.Log( LogType.Warning,
+                            "Config.Load: No PlayerDBProvider information specified in config. Assuming default (flatfile)." );
                 PlayerDBProviderConfig = null;
             } else {
-                PlayerDB.ProviderType = playerDBProviderEl.Attribute( "type" ).Value;
-                PlayerDBProviderConfig = playerDBProviderEl.Elements().FirstOrDefault();
+                PlayerDBProviderType providerType;
+                XAttribute typeAttr = playerDBProviderEl.Attribute( "type" );
+                if( typeAttr == null ) {
+                    Logger.Log( LogType.Warning,
+                                "Config.Load: No PlayerDBProvider specified in config. Assuming default (flatfile)." );
+                } else if( EnumUtil.TryParse( typeAttr.Value, out providerType, true ) ) {
+                    PlayerDB.ProviderType = providerType;
+                    PlayerDBProviderConfig = playerDBProviderEl.Elements().FirstOrDefault();
+                } else {
+                    Logger.Log( LogType.Warning,
+                                "Config.Load: Unknown PlayerDBProvider type: {0}. Assuming default (flatfile).",
+                                typeAttr.Value );
+                }
             }
-            Logger.Log( LogType.Debug, "PlayerDBProvider={0}", PlayerDB.ProviderType );
 
-            if( raiseReloadedEvent ) RaiseReloadedEvent();
+            if( reloading ) RaiseReloadedEvent();
 
             return true;
         }
 
-        public static XElement PlayerDBProviderConfig { get; private set; }
+        public static XElement PlayerDBProviderConfig { get; set; }
 
 
         static void ParseKeyElementPreSettings( [NotNull] XElement element ) {
@@ -747,8 +780,8 @@ namespace fCraft {
         }
 
 
-        /// <summary> Attempts to parse given key's value as an integer.
-        /// Throws a FormatException on failure. </summary>
+        /// <summary> Attempts to parse given key's value as an integer. </summary>
+        /// <exception cref="T:System.FormatException" />
         public static int GetInt( this ConfigKey key ) {
             return Int32.Parse( GetString( key ) );
         }
@@ -774,8 +807,8 @@ namespace fCraft {
         }
 
 
-        /// <summary> Attempts to parse given key's value as a boolean.
-        /// Throws a FormatException on failure. </summary>
+        /// <summary> Attempts to parse given key's value as a boolean. </summary>
+        /// <exception cref="T:System.FormatException" />
         public static bool Enabled( this ConfigKey key ) {
             if( SettingsUseEnabledCache[(int)key] ) {
                 return SettingsEnabledCache[(int)key];
@@ -841,20 +874,16 @@ namespace fCraft {
         /// Use Config.TrySetValue() if you'd like to suppress exceptions in favor of a boolean return value. </summary>
         /// <param name="key"> Config key to set. </param>
         /// <param name="rawValue"> Value to assign to the key. If passed object is not a string, rawValue.ToString() is used. </param>
-        /// <exception cref="T:System.ArgumentNullException" />
-        /// <exception cref="T:System.FormatException" />
         /// <returns> True if value is valid and has been assigned.
         /// False if value is valid, but assignment was cancelled by an event handler/plugin. </returns>
+        /// <exception cref="T:System.ArgumentNullException" />
+        /// <exception cref="T:System.FormatException" />
         public static bool SetValue( this ConfigKey key, object rawValue ) {
             if( rawValue == null ) {
                 throw new ArgumentNullException( "rawValue", key + ": ConfigKey values cannot be null. Use an empty string to indicate unset value." );
             }
 
             string value = (rawValue as string ?? rawValue.ToString());
-
-            if( value == null ) {
-                throw new NullReferenceException( key + ": rawValue.ToString() returned null." );
-            }
 
             if( LegacyConfigValues.ContainsKey( key ) ) {
                 foreach( var pair in LegacyConfigValues.Values ) {

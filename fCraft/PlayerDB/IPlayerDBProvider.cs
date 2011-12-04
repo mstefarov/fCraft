@@ -3,8 +3,16 @@ using System.Net;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    public enum PlayerDBProviderType {
+        Flatfile,
+        MySql
+    }
+
+
     public interface IPlayerDBProvider {
         object SyncRoot { get; }
+
+        PlayerDBProviderType Type { get; }
 
         /// <summary> Adds a new PlayerInfo entry for a player. </summary>
         [NotNull]

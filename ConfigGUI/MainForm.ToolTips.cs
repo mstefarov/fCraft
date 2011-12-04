@@ -674,7 +674,7 @@ or type in address/port manually below.";
             toolTip.SetToolTip( lProcessPriority, ConfigKey.ProcessPriority.GetDescription() );
             toolTip.SetToolTip( cProcessPriority, ConfigKey.ProcessPriority.GetDescription() );
 
-            toolTip.SetToolTip( lUpdater, ConfigKey.UpdaterMode.GetDescription() );
+            toolTip.SetToolTip( lUpdaterMode, ConfigKey.UpdaterMode.GetDescription() );
             toolTip.SetToolTip( cUpdaterMode, ConfigKey.UpdaterMode.GetDescription() );
 
             toolTip.SetToolTip( lThrottling, ConfigKey.BlockUpdateThrottling.GetDescription() );

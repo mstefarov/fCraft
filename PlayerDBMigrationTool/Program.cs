@@ -12,10 +12,18 @@ namespace fCraft.PlayerDBMigrationTool {
                                "Press <Enter> when you are ready." );
             Console.WriteLine( "PlayerDBMigration: Initializing fCraft..." );
             Console.ReadLine();
-            Server.InitLibrary( args );
-            if( !Config.Load( false, false ) ) {
-                Console.WriteLine( "PlayerDBMigration: Failed to load config." );
-                return;
+            using( LogRecorder recorder = new LogRecorder() ) {
+                Server.InitLibrary( args );
+                bool success = Config.Load();
+
+                if( recorder.HasMessages ) {
+                    Console.WriteLine( recorder.MessageString );
+                }
+
+                if(!success){
+                    Console.WriteLine( "PlayerDBMigration: Failed to load config." );
+                    return;
+                }
             }
 
             Console.WriteLine( "Current provider type is: {0}", PlayerDB.ProviderType );

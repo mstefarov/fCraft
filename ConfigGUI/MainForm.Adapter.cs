@@ -32,7 +32,7 @@ namespace fCraft.ConfigGUI {
             }
 
             using( LogRecorder loadLogger = new LogRecorder() ) {
-                if( Config.Load( false, false ) ) {
+                if( Config.Load() ) {
                     if( loadLogger.HasMessages ) {
                         MessageBox.Show( loadLogger.MessageString, "Config loading warnings" );
                     }
@@ -50,16 +50,6 @@ namespace fCraft.ConfigGUI {
             ApplyTabLogging();
             ApplyTabIRC();
             ApplyTabAdvanced();
-
-            AddChangeHandler( tabs, SomethingChanged );
-            AddChangeHandler( bResetTab, SomethingChanged );
-            AddChangeHandler( bResetAll, SomethingChanged );
-            dgvWorlds.CellValueChanged += delegate {
-                SomethingChanged( null, null );
-            };
-
-            AddChangeHandler( tabChat, HandleTabChatChange );
-            bApply.Enabled = false;
         }
 
 
@@ -310,7 +300,7 @@ namespace fCraft.ConfigGUI {
             nMaxBackupSize.Value = ConfigKey.MaxBackupSize.GetInt();
             if( !xMaxBackupSize.Checked ) nMaxBackupSize.Enabled = false;
 
-            xBackupDataOnStartup.Checked = ConfigKey.BackupDataOnStartup.Enabled();
+            cPlayerDBProvider.SelectedIndex = (int)PlayerDB.ProviderType;
         }
 
 
@@ -545,8 +535,6 @@ namespace fCraft.ConfigGUI {
             else ConfigKey.MaxBackups.TrySetValue( 0 );
             if( xMaxBackupSize.Checked ) ConfigKey.MaxBackupSize.TrySetValue( nMaxBackupSize.Value );
             else ConfigKey.MaxBackupSize.TrySetValue( 0 );
-
-            ConfigKey.BackupDataOnStartup.TrySetValue( xBackupDataOnStartup.Checked );
 
 
             // Logging

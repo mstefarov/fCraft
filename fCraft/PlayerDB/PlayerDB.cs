@@ -13,8 +13,6 @@ namespace fCraft {
     public static class PlayerDB {
         static readonly List<PlayerInfo> List = new List<PlayerInfo>();
 
-        public static string ProviderType { get; internal set; }
-
         static readonly object AddLocker = new object();
 
         /// <summary> Cached list of all players in the database.
@@ -71,8 +69,16 @@ namespace fCraft {
         }
 
 
-        [NotNull]
-        static IPlayerDBProvider provider; // TODO
+        static PlayerDBProviderType providerType;
+        public static PlayerDBProviderType ProviderType {
+            get { return providerType; }
+            set {
+                if( IsLoaded ) throw new InvalidOperationException( "PlayerDB is already loaded." );
+                providerType = value;
+            }
+        }
+
+        static IPlayerDBProvider provider;
 
 
         public static void Load() {
@@ -80,10 +86,10 @@ namespace fCraft {
             Stopwatch sw = Stopwatch.StartNew();
 
             switch( ProviderType ) {
-                case FlatfilePlayerDBProvider.Name:
+                case PlayerDBProviderType.Flatfile:
                     provider = new FlatfilePlayerDBProvider();
                     break;
-                case MySqlPlayerDBProvider.Name:
+                case PlayerDBProviderType.MySql:
                     provider = new MySqlPlayerDBProvider();
                     break;
                 default:

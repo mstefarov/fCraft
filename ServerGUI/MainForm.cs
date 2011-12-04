@@ -106,6 +106,7 @@ namespace fCraft.ServerGUI {
         protected override void OnFormClosing( FormClosingEventArgs e ) {
             if( startupThread != null && !shutdownComplete ) {
                 Shutdown( ShutdownReason.ProcessClosing, true );
+                e.Cancel = true;
             } else {
                 base.OnFormClosing( e );
             }

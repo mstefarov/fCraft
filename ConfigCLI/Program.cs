@@ -19,7 +19,7 @@ namespace ConfigCLI {
                                        Paths.ConfigFileName );
                 }
 
-                Config.Load( false, false );
+                Config.Load();
 
                 sections = (ConfigSection[])Enum.GetValues( typeof( ConfigSection ) );
                 menuState = MenuState.SectionList;

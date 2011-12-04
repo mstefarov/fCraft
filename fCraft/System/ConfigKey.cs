@@ -299,10 +299,6 @@ If exceeded, oldest backups will be deleted first.",
             MinValue = 0 )]
         MaxBackupSize,
 
-        [BoolKey( ConfigSection.SavingAndBackup, true,
-@"Create backups of server data (PlayerDB and IPBanList) on startup." )]
-        BackupDataOnStartup,
-
         #endregion
 
 
