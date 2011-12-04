@@ -937,7 +937,7 @@ namespace fCraft {
             if( session == null ) throw new ArgumentNullException( "session" );
             int maxSessions = ConfigKey.MaxConnectionsPerIP.GetInt();
             lock( SessionLock ) {
-                if( !session.IP.Equals(IPAddress.Loopback) || maxSessions > 0 ) {
+                if( !session.IP.Equals( IPAddress.Loopback ) && maxSessions > 0 ) {
                     int sessionCount = 0;
                     for( int i = 0; i < Sessions.Count; i++ ) {
                         Player p = Sessions[i];
