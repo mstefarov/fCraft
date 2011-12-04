@@ -4,6 +4,7 @@
  Fix: Fixed /WAccess, /WBuild, and /ZEdit not working with one-letter rank names.
  Fix: Fixed /BanIP, /BanAll, /UnbanIP, and /UnbanAll treating fully numeric player names as IPs.
  Fix: Fixed /setinfo not resetting PlayerInfo.LastModified date.
+ Fix: Fixed "/worlds populated" revealing worlds with hidden players.
  Fix: Fixed /BringAll ignoring per-rank limits in some cases (thanks ferny530)
  Fix: Fixed appearance of black and white blocks in /env edges (thanks Jonty)
  Fix: Fixed a bug in Position.Equals<Position>(), which may have caused unnecessary position updates in Player.UpdateVisibleEntities (thanks boblol0909)
@@ -15,6 +16,7 @@
  Change: Improved config.xml format (now version 152). Configs created with fCraft 0.611+ will not be usable with older versions of fCraft.
  Change: Rewrote ServerGUI startup code to make it more responsive (thanks to 800craft for the idea).
  Change: Added information about command-line options to the README, and fixed some typos.
+ Change: MaxConnectionsPerIP restriction no longer applies to localhost.
 
 0.610
  Feature: Added /Fill2D (/f2d), /Triangle (/t), and /TriangleW (/tw) draw commands.
