@@ -1,16 +1,15 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using fCraft.MapConversion;
-using System.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft.ConfigGUI {
-    /// <summary>
-    /// A wrapper for per-World metadata, designed to be usable with SortableBindingList.
-    /// All these properties map directly to the UI controls.
-    /// </summary>
+    /// <summary> A wrapper for per-World metadata, designed to be usable with SortableBindingList.
+    /// All these properties map directly to the UI controls. </summary>
     sealed class WorldListEntry : ICloneable {
         public const string WorldInfoSignature = "(ConfigGUI)";
         public const string DefaultRankOption = "(everyone)";
@@ -49,10 +48,10 @@ namespace fCraft.ConfigGUI {
             XAttribute temp;
 
             if( (temp = el.Attribute( "name" )) == null ) {
-                throw new FormatException( "WorldListEntity: Cannot parse XML: Unnamed worlds are not allowed." );
+                throw new SerializationException( "WorldListEntity: Cannot parse XML: Unnamed worlds are not allowed." );
             }
             if( !World.IsValidName( temp.Value ) ) {
-                throw new FormatException( "WorldListEntity: Cannot parse XML: Invalid world name skipped \"" + temp.Value + "\"." );
+                throw new SerializationException( "WorldListEntity: Cannot parse XML: Invalid world name skipped \"" + temp.Value + "\"." );
             }
             name = temp.Value;
 
@@ -61,7 +60,7 @@ namespace fCraft.ConfigGUI {
                 if( Boolean.TryParse( temp.Value, out hidden ) ) {
                     Hidden = hidden;
                 } else {
-                    throw new FormatException( "WorldListEntity: Cannot parse XML: Invalid value for \"hidden\" attribute." );
+                    throw new SerializationException( "WorldListEntity: Cannot parse XML: Invalid value for \"hidden\" attribute." );
                 }
             } else {
                 Hidden = false;
@@ -174,10 +173,10 @@ namespace fCraft.ConfigGUI {
             set {
                 if( name == value ) return;
                 if( !World.IsValidName( value ) ) {
-                    throw new FormatException( "Invalid world name" );
+                    throw new SerializationException( "Invalid world name" );
 
                 } else if( !value.Equals( name, StringComparison.OrdinalIgnoreCase ) && MainForm.IsWorldNameTaken( value ) ) {
-                    throw new FormatException( "Duplicate world names are not allowed." );
+                    throw new SerializationException( "Duplicate world names are not allowed." );
 
                 } else {
                     string oldName = name;

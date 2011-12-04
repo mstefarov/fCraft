@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Object representing persistent state ("record") of a player, online or offline.
     /// There is exactly one PlayerInfo object for each known Minecraft account. All data is stored in the PlayerDB. </summary>
-    public partial class PlayerInfo : IClassy, INotifyPropertyChanged {
+    public sealed partial class PlayerInfo : IClassy, INotifyPropertyChanged {
 
         #region Properties
 
@@ -21,7 +21,7 @@ namespace fCraft {
 
         /// <summary> Player's Minecraft account name. </summary>
         [NotNull]
-        public virtual string Name {
+        public string Name {
             get { return name; }
             set {
                 if( value == null ) throw new ArgumentNullException( "value" );
@@ -40,7 +40,7 @@ namespace fCraft {
 
         /// <summary> If set, replaces Name when printing name in chat. </summary>
         [CanBeNull]
-        public virtual string DisplayedName {
+        public string DisplayedName {
             get { return displayedName; }
             set {
                 if( value != displayedName ) {
@@ -55,7 +55,7 @@ namespace fCraft {
 
         /// <summary> First time the player ever logged in, UTC.
         /// May be DateTime.MinValue if player has never been online. </summary>
-        public virtual DateTime FirstLoginDate {
+        public DateTime FirstLoginDate {
             get { return firstLoginDate; }
             set {
                 if( value != firstLoginDate ) {
@@ -69,7 +69,7 @@ namespace fCraft {
 
         /// <summary> Most recent time the player logged in, UTC.
         /// May be DateTime.MinValue if player has never been online. </summary>
-        public virtual DateTime LastLoginDate {
+        public DateTime LastLoginDate {
             get { return lastLoginDate; }
             set {
                 if( value != lastLoginDate ) {
@@ -83,7 +83,7 @@ namespace fCraft {
 
         /// <summary> Last time the player has been seen online (last logout), UTC.
         /// May be DateTime.MinValue if player has never been online. </summary>
-        public virtual DateTime LastSeen {
+        public DateTime LastSeen {
             get { return lastSeen; }
             set {
                 if( value != lastSeen ) {
@@ -96,7 +96,7 @@ namespace fCraft {
 
 
         /// <summary> Reason for leaving the server last time. </summary>
-        public virtual LeaveReason LeaveReason {
+        public LeaveReason LeaveReason {
             get { return leaveReason; }
             set {
                 if( value != leaveReason ) {
@@ -113,7 +113,7 @@ namespace fCraft {
         /// <summary> Player's current rank.
         /// Should be set by using PlayerInfo.ChangeRank method. </summary>
         [NotNull]
-        public virtual Rank Rank {
+        public Rank Rank {
             get { return rank; }
             internal set {
                 if( value == null ) throw new ArgumentNullException( "value" );
@@ -130,7 +130,7 @@ namespace fCraft {
         /// <summary> Player's previous rank.
         /// May be null if player has never been promoted/demoted before. </summary>
         [CanBeNull]
-        public virtual Rank PreviousRank {
+        public Rank PreviousRank {
             get { return previousRank; }
             set {
                 if( value != previousRank ) {
@@ -145,7 +145,7 @@ namespace fCraft {
 
         /// <summary> Date of the most recent promotion/demotion, UTC.
         /// May be DateTime.MinValue if player has never been promoted/demoted before. </summary>
-        public virtual DateTime RankChangeDate {
+        public DateTime RankChangeDate {
             get { return rankChangeDate; }
             set {
                 if( value != rankChangeDate ) {
@@ -159,7 +159,7 @@ namespace fCraft {
 
         /// <summary> Name of the entity that most recently promoted/demoted this player. May be null. </summary>
         [CanBeNull]
-        public virtual string RankChangedBy {
+        public string RankChangedBy {
             get { return rankChangedBy; }
             set {
                 if( value != rankChangedBy ) {
@@ -184,7 +184,7 @@ namespace fCraft {
 
         /// <summary> Reason given for the most recent promotion/demotion. May be null. </summary>
         [CanBeNull]
-        public virtual string RankChangeReason {
+        public string RankChangeReason {
             get { return rankChangeReason; }
             set {
                 if( value != rankChangeReason ) {
@@ -198,7 +198,7 @@ namespace fCraft {
 
 
         /// <summary> Type of the most recent promotion/demotion. </summary>
-        public virtual RankChangeType RankChangeType {
+        public RankChangeType RankChangeType {
             get { return rankChangeType; }
             set {
                 if( value != rankChangeType ) {
@@ -215,7 +215,7 @@ namespace fCraft {
         #region Bans
 
         /// <summary> Player's current BanStatus: Banned, NotBanned, or Exempt. </summary>
-        public virtual BanStatus BanStatus {
+        public BanStatus BanStatus {
             get { return banStatus; }
             set {
                 if( value != banStatus ) {
@@ -234,7 +234,7 @@ namespace fCraft {
 
 
         /// <summary> Date of most recent ban, UTC. May be DateTime.MinValue if player was never banned. </summary>
-        public virtual DateTime BanDate {
+        public DateTime BanDate {
             get { return banDate; }
             set {
                 if( value != banDate ) {
@@ -248,7 +248,7 @@ namespace fCraft {
 
         /// <summary> Name of the entity responsible for most recent ban. May be null. </summary>
         [CanBeNull]
-        public virtual string BannedBy {
+        public string BannedBy {
             get { return bannedBy; }
             set {
                 if( value != bannedBy ) {
@@ -273,7 +273,7 @@ namespace fCraft {
 
         /// <summary> Reason given for the most recent ban. May be null. </summary>
         [CanBeNull]
-        public virtual string BanReason {
+        public string BanReason {
             get { return banReason; }
             set {
                 if( value != banReason ) {
@@ -287,7 +287,7 @@ namespace fCraft {
 
 
         /// <summary> Date of most recent unban, UTC. May be DateTime.MinValue if player was never unbanned. </summary>
-        public virtual DateTime UnbanDate {
+        public DateTime UnbanDate {
             get { return unbanDate; }
             set {
                 if( value != unbanDate ) {
@@ -301,7 +301,7 @@ namespace fCraft {
 
         /// <summary> Name of the entity responsible for most recent unban. May be null. </summary>
         [CanBeNull]
-        public virtual string UnbannedBy {
+        public string UnbannedBy {
             get { return unbannedBy; }
             set {
                 if( value != unbannedBy ) {
@@ -326,7 +326,7 @@ namespace fCraft {
 
         /// <summary> Reason given for the most recent unban. May be null. </summary>
         [CanBeNull]
-        public virtual string UnbanReason {
+        public string UnbanReason {
             get { return unbanReason; }
             set {
                 if( value != unbanReason ) {
@@ -340,7 +340,7 @@ namespace fCraft {
 
 
         /// <summary> Date of most recent failed attempt to log in, UTC. </summary>
-        public virtual DateTime LastFailedLoginDate {
+        public DateTime LastFailedLoginDate {
             get { return lastFailedLoginDate; }
             set {
                 if( value != lastFailedLoginDate ) {
@@ -354,7 +354,7 @@ namespace fCraft {
 
         /// <summary> IP from which player most recently tried (and failed) to log in, UTC. </summary>
         [NotNull]
-        public virtual IPAddress LastFailedLoginIP {
+        public IPAddress LastFailedLoginIP {
             get { return lastFailedLoginIP; }
             set {
                 if( value == null ) throw new ArgumentNullException( "value" );
@@ -373,7 +373,7 @@ namespace fCraft {
         #region Stats
 
         /// <summary> Total amount of time the player spent on this server. </summary>
-        public virtual TimeSpan TotalTime {
+        public TimeSpan TotalTime {
             get { return totalTime; }
             set {
                 if( value != totalTime ) {
@@ -386,7 +386,7 @@ namespace fCraft {
 
 
         /// <summary> Total number of blocks manually built or painted by the player. </summary>
-        public virtual int BlocksBuilt {
+        public int BlocksBuilt {
             get { return blocksBuilt; }
             set {
                 if( value != blocksBuilt ) {
@@ -399,7 +399,7 @@ namespace fCraft {
 
 
         /// <summary> Total number of blocks manually deleted by the player. </summary>
-        public virtual int BlocksDeleted {
+        public int BlocksDeleted {
             get { return blocksDeleted; }
             set {
                 if( value != blocksDeleted ) {
@@ -412,7 +412,7 @@ namespace fCraft {
 
 
         /// <summary> Total number of blocks modified using draw and copy/paste commands. </summary>
-        public virtual long BlocksDrawn {
+        public long BlocksDrawn {
             get { return blocksDrawn; }
             set {
                 if( value != blocksDrawn ) {
@@ -425,7 +425,7 @@ namespace fCraft {
 
 
         /// <summary> Number of sessions/logins. </summary>
-        public virtual int TimesVisited {
+        public int TimesVisited {
             get { return timesVisited; }
             set {
                 if( value != timesVisited ) {
@@ -438,7 +438,7 @@ namespace fCraft {
 
 
         /// <summary> Total number of messages written. </summary>
-        public virtual int MessagesWritten {
+        public int MessagesWritten {
             get { return messagesWritten; }
             set {
                 if( value != messagesWritten ) {
@@ -451,7 +451,7 @@ namespace fCraft {
 
 
         /// <summary> Number of kicks issues by this player. </summary>
-        public virtual int TimesKickedOthers {
+        public int TimesKickedOthers {
             get { return timesKickedOthers; }
             set {
                 if( value != timesKickedOthers ) {
@@ -464,7 +464,7 @@ namespace fCraft {
 
 
         /// <summary> Number of bans issued by this player. </summary>
-        public virtual int TimesBannedOthers {
+        public int TimesBannedOthers {
             get { return timesBannedOthers; }
             set {
                 if( value != timesBannedOthers ) {
@@ -481,7 +481,7 @@ namespace fCraft {
         #region Kicks
 
         /// <summary> Number of times that this player has been manually kicked. </summary>
-        public virtual int TimesKicked {
+        public int TimesKicked {
             get { return timesKicked; }
             set {
                 if( value != timesKicked ) {
@@ -495,7 +495,7 @@ namespace fCraft {
 
         /// <summary> Date of the most recent kick.
         /// May be DateTime.MinValue if the player has never been kicked. </summary>
-        public virtual DateTime LastKickDate {
+        public DateTime LastKickDate {
             get { return lastKickDate; }
             set {
                 if( value != lastKickDate ) {
@@ -509,7 +509,7 @@ namespace fCraft {
 
         /// <summary> Name of the entity that most recently kicked this player. May be null. </summary>
         [CanBeNull]
-        public virtual string LastKickBy {
+        public string LastKickBy {
             get { return lastKickBy; }
             set {
                 if( value != lastKickBy ) {
@@ -534,7 +534,7 @@ namespace fCraft {
 
         /// <summary> Reason given for the most recent kick. May be null. </summary>
         [CanBeNull]
-        public virtual string LastKickReason {
+        public string LastKickReason {
             get { return lastKickReason; }
             set {
                 if( value != lastKickReason ) {
@@ -552,7 +552,7 @@ namespace fCraft {
         #region Freeze And Mute
 
         /// <summary> Whether this player is currently frozen. </summary>
-        public virtual bool IsFrozen {
+        public bool IsFrozen {
             get { return isFrozen; }
             set {
                 if( value != isFrozen ) {
@@ -566,7 +566,7 @@ namespace fCraft {
 
         /// <summary> Date of the most recent freezing.
         /// May be DateTime.MinValue of the player has never been frozen. </summary>
-        public virtual DateTime FrozenOn {
+        public DateTime FrozenOn {
             get { return frozenOn; }
             set {
                 if( value != frozenOn ) {
@@ -580,7 +580,7 @@ namespace fCraft {
 
         /// <summary> Name of the entity that most recently froze this player. May be null. </summary>
         [CanBeNull]
-        public virtual string FrozenBy {
+        public string FrozenBy {
             get { return frozenBy; }
             set {
                 if( value != frozenBy ) {
@@ -604,7 +604,7 @@ namespace fCraft {
 
 
         /// <summary> Whether this player is currently muted. Read-only, not serialized. </summary>
-        public virtual bool IsMuted {
+        public bool IsMuted {
             get {
                 return DateTime.UtcNow < MutedUntil;
             }
@@ -612,7 +612,7 @@ namespace fCraft {
 
 
         /// <summary> Date until which the player is muted. If the date is in the past, player is NOT muted. </summary>
-        public virtual DateTime MutedUntil {
+        public DateTime MutedUntil {
             get { return mutedUntil; }
             set {
                 if( value != mutedUntil ) {
@@ -627,7 +627,7 @@ namespace fCraft {
 
         /// <summary> Name of the entity that most recently muted this player. May be null. </summary>
         [CanBeNull]
-        public virtual string MutedBy {
+        public string MutedBy {
             get { return mutedBy; }
             set {
                 if( value != mutedBy ) {
@@ -656,7 +656,7 @@ namespace fCraft {
 
         /// <summary> Whether the player is currently online.
         /// Another way to check online status is to check if PlayerObject is null. </summary>
-        public virtual bool IsOnline {
+        public bool IsOnline {
             get { return isOnline; }
             private set {
                 if( value != isOnline ) {
@@ -685,7 +685,7 @@ namespace fCraft {
 
         /// <summary> Whether the player is currently hidden.
         /// Use Player.CanSee() method to check visibility to specific observers. </summary>
-        public virtual bool IsHidden {
+        public bool IsHidden {
             get { return isHidden; }
             set {
                 if( value != isHidden ) {
@@ -700,7 +700,7 @@ namespace fCraft {
         /// <summary> For offline players, last IP used to succesfully log in.
         /// For online players, current IP. </summary>
         [NotNull]
-        public virtual IPAddress LastIP {
+        public IPAddress LastIP {
             get { return lastIP; }
             set {
                 if( value == null ) throw new ArgumentNullException( "value" );
@@ -719,7 +719,7 @@ namespace fCraft {
 
         /// <summary> Not implemented (IRC/server password hash). </summary>
         [CanBeNull]
-        public virtual string Password { // TODO
+        public string Password { // TODO
             get { return password; }
             set {
                 if( value != password ) {
@@ -736,7 +736,7 @@ namespace fCraft {
         public DateTime LastModified { get; set; }
 
 
-        public virtual BandwidthUseMode BandwidthUseMode { // TODO
+        public BandwidthUseMode BandwidthUseMode { // TODO
             get { return bandwidthUseMode; }
             set {
                 if( value != bandwidthUseMode ) {
@@ -749,7 +749,7 @@ namespace fCraft {
 
 
         /// <summary> Not implemented (for temp bans). </summary>
-        public virtual DateTime BannedUntil { // TODO
+        public DateTime BannedUntil { // TODO
             get { return bannedUntil; }
             set {
                 if( value != bannedUntil ) {

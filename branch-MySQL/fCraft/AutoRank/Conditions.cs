@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 
@@ -28,7 +29,7 @@ namespace fCraft.AutoRank {
                 case "ConditionPreviousRank":
                     return new ConditionPreviousRank( el );
                 default:
-                    throw new FormatException();
+                    throw new SerializationException();
             }
         }
 

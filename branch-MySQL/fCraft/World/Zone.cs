@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Runtime.Serialization;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 
@@ -150,11 +151,11 @@ namespace fCraft {
             }
 
             XElement temp = root.Element( BoundingBox.XmlRootElementName );
-            if( temp == null ) throw new FormatException( "No BoundingBox specified for zone." );
+            if( temp == null ) throw new SerializationException( "No BoundingBox specified for zone." );
             Bounds = new BoundingBox( temp );
 
             temp = root.Element( SecurityController.XmlRootElementName );
-            if( temp == null ) throw new FormatException( "No SecurityController specified for zone." );
+            if( temp == null ) throw new SerializationException( "No SecurityController specified for zone." );
             Controller = new SecurityController( temp, true );
             // ReSharper restore PossibleNullReferenceException
         }

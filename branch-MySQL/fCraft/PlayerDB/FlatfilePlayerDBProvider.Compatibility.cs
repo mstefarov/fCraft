@@ -1,7 +1,9 @@
-﻿using System;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Text;
 using System.Net;
 using System.Globalization;
+using System.Runtime.Serialization;
 using JetBrains.Annotations;
 
 namespace fCraft {
@@ -15,7 +17,7 @@ namespace fCraft {
             if( header == null ) throw new ArgumentNullException( "header" );
             string[] headerParts = header.Split( ' ' );
             if( headerParts.Length < 2 ) {
-                throw new FormatException( "Invalid PlayerDB header format: " + header );
+                throw new SerializationException( "Invalid PlayerDB header format: " + header );
             }
             int maxIDField;
             if( Int32.TryParse( headerParts[0], out maxIDField ) ) {

@@ -54,21 +54,37 @@ namespace fCraft.ConfigGUI {
             FillToolTipsIRC();
             FillToolTipsAdvanced();
 
+            // fill in list of popular IRC network
             FillIRCNetworkList( false );
 
             // Initialize fCraft's args, paths, and logging backend.
             Server.InitLibrary( Environment.GetCommandLineArgs() );
 
+            // Intercept data errors in the world list (just in case)
             dgvWorlds.DataError += WorldListErrorHandler;
-
-            LoadConfig();
 
             // Redraw chat preview when re-entering the tab.
             // This ensured that changes to rank colors/prefixes are applied.
             tabChat.Enter += ( o, e2 ) => UpdateChatPreview();
 
+            // check whether readme and changelog files exist
             bReadme.Enabled = File.Exists( ReadmeFileName );
             bChangelog.Enabled = File.Exists( ChangelogFileName );
+
+            // load config
+            LoadConfig();
+
+            // add hooks to detect whether player has edited anything
+            AddChangeHandler( tabs, SomethingChanged );
+            AddChangeHandler( bResetTab, SomethingChanged );
+            AddChangeHandler( bResetAll, SomethingChanged );
+            dgvWorlds.CellValueChanged += delegate {
+                SomethingChanged( null, null );
+            };
+            AddChangeHandler( tabChat, HandleTabChatChange );
+
+            // disable the "Apply" button, since nothing could possibly have changed at this point
+            bApply.Enabled = false;
         }
 
 
@@ -94,12 +110,49 @@ namespace fCraft.ConfigGUI {
             }
         }
 
+
+        void FillIRCNetworkList( bool showNonEnglishNetworks ) {
+            cIRCList.Items.Clear();
+            foreach( IRCNetwork network in IRCNetworks ) {
+                if( showNonEnglishNetworks || !network.IsNonEnglish ) {
+                    cIRCList.Items.Add( network.Name );
+                }
+            }
+        }
+
+
+        void SomethingChanged( object sender, EventArgs args ) {
+            bApply.Enabled = true;
+        }
+
+
+        void AddChangeHandler( Control c, EventHandler handler ) {
+            if( c is CheckBox ) {
+                ((CheckBox)c).CheckedChanged += handler;
+            } else if( c is ComboBox ) {
+                ((ComboBox)c).SelectedIndexChanged += handler;
+            } else if( c is ListView ) {
+                ((ListView)c).ItemChecked += (( o, e ) => handler( o, e ));
+            } else if( c is NumericUpDown ) {
+                ((NumericUpDown)c).ValueChanged += handler;
+            } else if( c is ListBox ) {
+                ((ListBox)c).SelectedIndexChanged += handler;
+            } else if( c is TextBoxBase ) {
+                c.TextChanged += handler;
+            } else if( c is ButtonBase ) {
+                if( c != bPortCheck && c != bMeasure ) {
+                    c.Click += handler;
+                }
+            }
+            foreach( Control child in c.Controls ) {
+                AddChangeHandler( child, handler );
+            }
+        }
+
         #endregion
 
 
-        #region Input Handlers
-
-        #region General
+        #region General Tab
 
         private void bMeasure_Click( object sender, EventArgs e ) {
             Process.Start( "http://www.speedtest.net/" );
@@ -202,19 +255,65 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             new AboutWindow().Show();
         }
 
+        private void bRules_Click( object sender, EventArgs e ) {
+            TextEditorPopup popup = new TextEditorPopup( Paths.RulesFileName, "Use common sense!" );
+            popup.ShowDialog();
+        }
+
+        private void cDefaultRank_SelectedIndexChanged( object sender, EventArgs e ) {
+            RankManager.DefaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
+        }
+
+
+        const string ReadmeFileName = "README.txt";
+        private void bReadme_Click( object sender, EventArgs e ) {
+            try {
+                if( File.Exists( ReadmeFileName ) ) {
+                    Process.Start( ReadmeFileName );
+                }
+            } catch( Exception ) { }
+        }
+
+
+        const string ChangelogFileName = "CHANGELOG.txt";
+        private void bChangelog_Click( object sender, EventArgs e ) {
+            try {
+                if( File.Exists( ChangelogFileName ) ) {
+                    Process.Start( ChangelogFileName );
+                }
+            } catch( Exception ) { }
+        }
+
+
+        void CheckMaxPlayersPerWorldValue() {
+            if( nMaxPlayersPerWorld.Value > nMaxPlayers.Value ) {
+                nMaxPlayersPerWorld.Value = nMaxPlayers.Value;
+            }
+            nMaxPlayersPerWorld.Maximum = Math.Min( 128, nMaxPlayers.Value );
+        }
+
         #endregion
 
 
-        #region Worlds
+        #region Chat Tab
 
-        void WorldListErrorHandler( object sender, DataGridViewDataErrorEventArgs e ) {
-            if( e.Exception is FormatException ) {
-                string columnName = dgvWorlds.Columns[e.ColumnIndex].HeaderText;
-                MessageBox.Show( e.Exception.Message, "Error editing " + columnName );
-            } else {
-                MessageBox.Show( e.Exception.ToString(), "An error occured in the world list" );
-            }
+        public static bool showRankPrefixes = false;
+
+        private void xAnnounceRankChanges_CheckedChanged( object sender, EventArgs e ) {
+            xAnnounceRankChangeReasons.Enabled = xAnnounceRankChanges.Checked;
         }
+
+        private void xRankPrefixesInChat_CheckedChanged( object sender, EventArgs e ) {
+            showRankPrefixes = xRankPrefixesInChat.Checked;
+            tPrefix.Enabled = showRankPrefixes;
+            lPrefix.Enabled = showRankPrefixes;
+            RebuildRankList();
+        }
+
+        #endregion
+
+
+        #region Worlds Tab
 
         private void bAddWorld_Click( object sender, EventArgs e ) {
             AddWorldPopup popup = new AddWorldPopup( null );
@@ -309,10 +408,44 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
         }
 
+        private void cDefaultBuildRank_SelectedIndexChanged( object sender, EventArgs e ) {
+            RankManager.DefaultBuildRank = RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
+        }
+
+
+        void WorldListErrorHandler( object sender, DataGridViewDataErrorEventArgs e ) {
+            if( e.Exception is FormatException ) {
+                string columnName = dgvWorlds.Columns[e.ColumnIndex].HeaderText;
+                MessageBox.Show( e.Exception.Message, "Error editing " + columnName );
+            } else {
+                MessageBox.Show( e.Exception.ToString(), "An error occured in the world list" );
+            }
+        }
+
+
+        internal static void HandleWorldRename( string from, string to ) {
+            if( instance.cMainWorld.SelectedItem == null ) {
+                instance.cMainWorld.SelectedIndex = 0;
+            } else {
+                string mainWorldName = instance.cMainWorld.SelectedItem.ToString();
+                instance.FillWorldList();
+                if( mainWorldName == from ) {
+                    instance.cMainWorld.SelectedItem = to;
+                } else {
+                    instance.cMainWorld.SelectedItem = mainWorldName;
+                }
+            }
+        }
+
+
+        internal static bool IsWorldNameTaken( string name ) {
+            return Worlds.Any( world => world.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
+        }
+
         #endregion
 
 
-        #region Security
+        #region Security Tab
 
         private void cVerifyNames_SelectedIndexChanged( object sender, EventArgs e ) {
             xAllowUnverifiedLAN.Enabled = (cVerifyNames.SelectedIndex != 0);
@@ -323,10 +456,27 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             nMaxConnectionsPerIP.Enabled = xMaxConnectionsPerIP.Checked;
         }
 
+        private void cPatrolledRank_SelectedIndexChanged( object sender, EventArgs e ) {
+            RankManager.PatrolledRank = RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 );
+        }
+
+        private void cBlockDBAutoEnableRank_SelectedIndexChanged( object sender, EventArgs e ) {
+            RankManager.BlockDBAutoEnableRank = RankManager.FindRank( cBlockDBAutoEnableRank.SelectedIndex - 1 );
+        }
+
+        private void xBlockDBEnabled_CheckedChanged( object sender, EventArgs e ) {
+            xBlockDBAutoEnable.Enabled = xBlockDBEnabled.Checked;
+            cBlockDBAutoEnableRank.Enabled = xBlockDBEnabled.Checked && xBlockDBAutoEnable.Checked;
+        }
+
+        private void xBlockDBAutoEnable_CheckedChanged( object sender, EventArgs e ) {
+            cBlockDBAutoEnableRank.Enabled = xBlockDBEnabled.Checked && xBlockDBAutoEnable.Checked;
+        }
+
         #endregion
 
 
-        #region Logging
+        #region Logging Tab
 
         private void vConsoleOptions_ItemChecked( object sender, ItemCheckedEventArgs e ) {
             if( e.Item.Checked ) {
@@ -351,7 +501,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         #endregion
 
 
-        #region Saving & Backup
+        #region Saving & Backup Tab
 
         private void xSaveAtInterval_CheckedChanged( object sender, EventArgs e ) {
             nSaveInterval.Enabled = xSaveInterval.Checked;
@@ -372,7 +522,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         #endregion
 
 
-        #region IRC
+        #region IRC Tab
 
         private void xIRC_CheckedChanged( object sender, EventArgs e ) {
             gIRCNetwork.Enabled = xIRCBotEnabled.Checked;
@@ -382,8 +532,25 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             xIRCListShowNonEnglish.Enabled = xIRCBotEnabled.Checked;
         }
 
+        private void cIRCList_SelectedIndexChanged( object sender, EventArgs e ) {
+            if( cIRCList.SelectedIndex < 0 ) return;
+            string selectedNetwork = (string)cIRCList.Items[cIRCList.SelectedIndex];
+            IRCNetwork network = IRCNetworks.First( n => (n.Name == selectedNetwork) );
+            tIRCBotNetwork.Text = network.Host;
+            nIRCBotPort.Value = network.Port;
+        }
 
-        struct IRCNetwork {
+        private void xIRCListShowNonEnglish_CheckedChanged( object sender, EventArgs e ) {
+            FillIRCNetworkList( xIRCListShowNonEnglish.Checked );
+        }
+
+        private void xIRCRegisteredNick_CheckedChanged( object sender, EventArgs e ) {
+            tIRCNickServ.Enabled = xIRCRegisteredNick.Checked;
+            tIRCNickServMessage.Enabled = xIRCRegisteredNick.Checked;
+        }
+
+
+        class IRCNetwork {
             const int DefaultIRCPort = 6667;
 
             public readonly string Name, Host;
@@ -402,6 +569,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
         }
 
+
         static readonly IRCNetwork[] IRCNetworks = new[]{
             new IRCNetwork("FreeNode", "chat.freenode.net"),
             new IRCNetwork("QuakeNet", "irc.quakenet.org"),
@@ -416,7 +584,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             new IRCNetwork("FCirc", "irc.friend.td.nu"),
             new IRCNetwork("GameSurge", "irc.gamesurge.net"),
             new IRCNetwork("LinkNet", "irc.link-net.org"),
-            new IRCNetwork("OltreIrc [IT]", "irc.oltreirc.net", 6667,true),
+            new IRCNetwork("OltreIrc [IT]", "irc.oltreirc.net", 6667, true),
             new IRCNetwork("AllNetwork", "irc.allnetwork.org"),
             new IRCNetwork("SwiftIRC", "irc.swiftirc.net"),
             new IRCNetwork("OpenJoke", "irc.openjoke.org"),
@@ -425,49 +593,49 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             new IRCNetwork("ChatZona [ES]", "irc.chatzona.org", 6667, true ),
             new IRCNetwork("synIRC", "irc.synirc.net"),
             new IRCNetwork("OnlineGamesNet", "irc.OnlineGamesNet.net"),
-            new IRCNetwork("DarkSin [IT]", "irc.darksin.it", 6667,true),
-            new IRCNetwork("RusNet", "irc.run.net", 6667,true),
+            new IRCNetwork("DarkSin [IT]", "irc.darksin.it", 6667, true),
+            new IRCNetwork("RusNet", "irc.run.net", 6667, true),
             new IRCNetwork("ExplosionIRC", "irc.explosionirc.net"),
             new IRCNetwork("IrCQ-Net", "irc.icq.com"),
             new IRCNetwork("IRCHighWay", "irc.irchighway.net"),
-            new IRCNetwork("EsperNet", "irc.esper.net"),
+            new IRCNetwork("EsperNet", "irc.esper.net", 5555, false ),
             new IRCNetwork("euIRC", "irc.euirc.net"),
             new IRCNetwork("P2P-NET", "irc.p2p-irc.net"),
             new IRCNetwork("Mibbit", "irc.mibbit.com"),
             new IRCNetwork("kiss0fdeath", "irc.kiss0fdeath.net"),
             new IRCNetwork("P2P-NET.EU", "titan.ca.p2p-net.eu"),
-            new IRCNetwork("2ch [JP]", "irc.2ch.net", 6667,true),
-            new IRCNetwork("SorceryNet", "irc.sorcery.net", 9000,false),
+            new IRCNetwork("2ch [JP]", "irc.2ch.net", 6667, true),
+            new IRCNetwork("SorceryNet", "irc.sorcery.net", 9000, false),
             new IRCNetwork("FurNet", "irc.furnet.org"),
             new IRCNetwork("GIMPnet", "irc.gimp.org"),
             new IRCNetwork("Coldfront", "irc.coldfront.net"),
             new IRCNetwork("MindForge", "irc.mindforge.org"),
-            new IRCNetwork("Zurna.Net [TR]","irc.zurna.net",6667,true),
-            new IRCNetwork("7-indonesia [ID]", "irc.7-indonesia.org", 6667,true),
+            new IRCNetwork("Zurna.Net [TR]", "irc.zurna.net", 6667, true),
+            new IRCNetwork("7-indonesia [ID]", "irc.7-indonesia.org", 6667, true),
             new IRCNetwork("EpiKnet", "irc.epiknet.org"),
             new IRCNetwork("EnterTheGame", "irc.enterthegame.com"),
-            new IRCNetwork("DalNet(ru) [RU]", "irc.chatnet.ru", 6667,true),
+            new IRCNetwork("DalNet(ru) [RU]", "irc.chatnet.ru", 6667, true),
             new IRCNetwork("GalaxyNet", "irc.galaxynet.org"),
             new IRCNetwork("Omerta", "irc.barafranca.com"),
             new IRCNetwork("SlashNET", "irc.slashnet.org"),
             new IRCNetwork("DarkMyst", "irc2.darkmyst.org"),
             new IRCNetwork("iZ-smart.net", "irc.iZ-smart.net"),
-            new IRCNetwork("ItaLiaN-AmiCi [IT]", "irc.italian-amici.com", 6667,true),
-            new IRCNetwork("Aitvaras [LT]", "irc.data.lt", 6667,true),
-            new IRCNetwork("V-IRC [RU]", "irc.v-irc.ru", 6667,true),
-            new IRCNetwork("ByroeNet [ID]", "irc.byroe.net", 6667,true),
-            new IRCNetwork("Azzurra [IT]", "irc.azzurra.org", 6667,true),
-            new IRCNetwork("Europa-IRC.DE [DE]", "irc.europa-irc.de", 6667,true),
-            new IRCNetwork("ByNets [BY]", "irc.bynets.org", 6667,true),
-            new IRCNetwork("GRNet [GR]", "global.irc.gr", 6667,true),
+            new IRCNetwork("ItaLiaN-AmiCi [IT]", "irc.italian-amici.com", 6667, true),
+            new IRCNetwork("Aitvaras [LT]", "irc.data.lt", 6667, true),
+            new IRCNetwork("V-IRC [RU]", "irc.v-irc.ru", 6667, true),
+            new IRCNetwork("ByroeNet [ID]", "irc.byroe.net", 6667, true),
+            new IRCNetwork("Azzurra [IT]", "irc.azzurra.org", 6667, true),
+            new IRCNetwork("Europa-IRC.DE [DE]", "irc.europa-irc.de", 6667, true),
+            new IRCNetwork("ByNets [BY]", "irc.bynets.org", 6667, true),
+            new IRCNetwork("GRNet [GR]", "global.irc.gr", 6667, true),
             new IRCNetwork("OceanIRC", "irc.oceanirc.net"),
-            new IRCNetwork("UniBG [BG]", "irc.ITDNet.net", 6667,true),
-            new IRCNetwork("KampungChat.Org [MY]", "irc.kampungchat.org", 6667,true),
-            new IRCNetwork("WeNet [RU]", "ircworld.ru", 6667,true),
+            new IRCNetwork("UniBG [BG]", "irc.ITDNet.net", 6667, true),
+            new IRCNetwork("KampungChat.Org [MY]", "irc.kampungchat.org", 6667, true),
+            new IRCNetwork("WeNet [RU]", "ircworld.ru", 6667, true),
             new IRCNetwork("Stratics", "irc.stratics.com"),
             new IRCNetwork("Mozilla", "irc.mozilla.org"),
             new IRCNetwork("bondage.com", "irc.bondage.com"),
-            new IRCNetwork("ShakeIT [BG]", "irc.index.bg", 6667,true),
+            new IRCNetwork("ShakeIT [BG]", "irc.index.bg", 6667, true),
             new IRCNetwork("NetGamers.Org", "firefly.no.eu.netgamers.org"),
             new IRCNetwork("FroZyn", "irc.Frozyn.us"),
             new IRCNetwork("PTnet", "irc.ptnet.org"),
@@ -476,45 +644,19 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             new IRCNetwork("AlphaIRC", "irc.alphairc.com"),
             new IRCNetwork("KreyNet", "chat.be.krey.net"),
             new IRCNetwork("GeekShed", "irc.geekshed.net"),
-            new IRCNetwork("VirtuaLife.com.br [BR]", "irc.virtualife.com.br", 6667,true),
-            new IRCNetwork("IRCGate.it [IT]", "marte.ircgate.it", 6667,true),
+            new IRCNetwork("VirtuaLife.com.br [BR]", "irc.virtualife.com.br", 6667, true),
+            new IRCNetwork("IRCGate.it [IT]", "marte.ircgate.it", 6667, true),
             new IRCNetwork("Worldnet", "irc.worldnet.net"),
-            new IRCNetwork("PIK [BA]", "irc.krstarica.com", 6667,true),
-            new IRCNetwork("Friend4ever [IT]", "irc.friend4ever.it", 6667,true),
+            new IRCNetwork("PIK [BA]", "irc.krstarica.com", 6667, true),
+            new IRCNetwork("Friend4ever [IT]", "irc.friend4ever.it", 6667, true),
             new IRCNetwork("AustNet", "irc.austnet.org"),
             new IRCNetwork("GamesNET","irc.GamesNET.net")
         }.OrderBy( network => network.Name ).ToArray();
 
-        private void cIRCList_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( cIRCList.SelectedIndex < 0 ) return;
-            string selectedNetwork = (string)cIRCList.Items[cIRCList.SelectedIndex];
-            IRCNetwork network = IRCNetworks.First( n => (n.Name == selectedNetwork) );
-            tIRCBotNetwork.Text = network.Host;
-            nIRCBotPort.Value = network.Port;
-        }
-
-        private void xIRCListShowNonEnglish_CheckedChanged( object sender, EventArgs e ) {
-            FillIRCNetworkList( xIRCListShowNonEnglish.Checked );
-        }
-
-        void FillIRCNetworkList( bool showNonEnglishNetworks ) {
-            cIRCList.Items.Clear();
-            foreach( IRCNetwork network in IRCNetworks ) {
-                if( showNonEnglishNetworks || !network.IsNonEnglish ) {
-                    cIRCList.Items.Add( network.Name );
-                }
-            }
-        }
-
-        private void xIRCRegisteredNick_CheckedChanged( object sender, EventArgs e ) {
-            tIRCNickServ.Enabled = xIRCRegisteredNick.Checked;
-            tIRCNickServMessage.Enabled = xIRCRegisteredNick.Checked;
-        }
-
         #endregion
 
 
-        #region Advanced
+        #region Advanced Tab
 
         private void nMaxUndo_ValueChanged( object sender, EventArgs e ) {
             if( xMaxUndo.Checked ) {
@@ -537,16 +679,325 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         #endregion
 
-        private void xAnnounceRankChanges_CheckedChanged( object sender, EventArgs e ) {
-            xAnnounceRankChangeReasons.Enabled = xAnnounceRankChanges.Checked;
+
+        #region Ranks Tab
+
+        private void bAddRank_Click( object sender, EventArgs e ) {
+            int number = 1;
+            while( RankManager.RanksByName.ContainsKey( "rank" + number ) ) number++;
+
+            Rank rank = new Rank( "rank" + number, RankManager.GenerateID() );
+
+            RankManager.AddRank( rank );
+            selectedRank = null;
+
+            RebuildRankList();
+            SelectRank( rank );
+
+            rankNameList.Insert( rank.Index + 1, MainForm.ToComboBoxOption( rank ) );
+        }
+
+        private void bDeleteRank_Click( object sender, EventArgs e ) {
+            if( vRanks.SelectedItem != null ) {
+                selectedRank = null;
+                int index = vRanks.SelectedIndex;
+                Rank deletedRank = RankManager.FindRank( index );
+                if( deletedRank == null ) return;
+
+                string messages = "";
+
+                // Ask for substitute rank
+                DeleteRankPopup popup = new DeleteRankPopup( deletedRank );
+                if( popup.ShowDialog() != DialogResult.OK ) return;
+
+                Rank replacementRank = popup.SubstituteRank;
+
+                // Update default rank
+                if( RankManager.DefaultRank == deletedRank ) {
+                    RankManager.DefaultRank = replacementRank;
+                    messages += "DefaultRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
+                }
+
+                // Update defaultbuild rank
+                if( RankManager.DefaultBuildRank == deletedRank ) {
+                    RankManager.DefaultBuildRank = replacementRank;
+                    messages += "DefaultBuildRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
+                }
+
+                // Update patrolled rank
+                if( RankManager.PatrolledRank == deletedRank ) {
+                    RankManager.PatrolledRank = replacementRank;
+                    messages += "PatrolledRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
+                }
+
+                // Update patrolled rank
+                if( RankManager.BlockDBAutoEnableRank == deletedRank ) {
+                    RankManager.BlockDBAutoEnableRank = replacementRank;
+                    messages += "BlockDBAutoEnableRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
+                }
+
+                // Delete rank
+                if( RankManager.DeleteRank( deletedRank, replacementRank ) ) {
+                    messages += "Some of the rank limits for kick, ban, promote, and/or demote have been reset." + Environment.NewLine;
+                }
+                vRanks.Items.RemoveAt( index );
+
+                // Update world permissions
+                string worldUpdates = "";
+                foreach( WorldListEntry world in Worlds ) {
+                    if( world.AccessPermission == MainForm.ToComboBoxOption( deletedRank ) ) {
+                        world.AccessPermission = MainForm.ToComboBoxOption( replacementRank );
+                        worldUpdates += " - " + world.Name + ": access permission changed to " + replacementRank.Name + Environment.NewLine;
+                    }
+                    if( world.BuildPermission == MainForm.ToComboBoxOption( deletedRank ) ) {
+                        world.BuildPermission = MainForm.ToComboBoxOption( replacementRank );
+                        worldUpdates += " - " + world.Name + ": build permission changed to " + replacementRank.Name + Environment.NewLine;
+                    }
+                }
+
+                rankNameList.RemoveAt( index + 1 );
+
+                if( worldUpdates.Length > 0 ) {
+                    messages += "The following worlds were affected:" + Environment.NewLine + worldUpdates;
+                }
+
+                if( messages.Length > 0 ) {
+                    MessageBox.Show( messages, "Warning" );
+                }
+
+                RebuildRankList();
+
+                if( index < vRanks.Items.Count ) {
+                    vRanks.SelectedIndex = index;
+                }
+            }
+        }
+
+        private void bRaiseRank_Click( object sender, EventArgs e ) {
+            if( selectedRank == null ) return;
+            if( RankManager.RaiseRank( selectedRank ) ) {
+                RebuildRankList();
+                rankNameList.Insert( selectedRank.Index + 1, MainForm.ToComboBoxOption( selectedRank ) );
+                rankNameList.RemoveAt( selectedRank.Index + 3 );
+            }
+        }
+
+        private void bLowerRank_Click( object sender, EventArgs e ) {
+            if( selectedRank == null ) return;
+            if( RankManager.LowerRank( selectedRank ) ) {
+                RebuildRankList();
+                rankNameList.Insert( selectedRank.Index + 2, MainForm.ToComboBoxOption( selectedRank ) );
+                rankNameList.RemoveAt( selectedRank.Index );
+            }
+        }
+
+
+        private void tRankName_Validating( object sender, CancelEventArgs e ) {
+            tRankName.ForeColor = SystemColors.ControlText;
+            if( selectedRank == null ) return;
+
+            string newName = tRankName.Text.Trim();
+
+            if( newName == selectedRank.Name ) {
+                return;
+
+            } else if( newName.Length == 0 ) {
+                MessageBox.Show( "Rank name cannot be blank." );
+                tRankName.ForeColor = System.Drawing.Color.Red;
+                e.Cancel = true;
+
+            } else if( !Rank.IsValidRankName( newName ) ) {
+                MessageBox.Show( "Rank name can only contain letters, digits, and underscores." );
+                tRankName.ForeColor = System.Drawing.Color.Red;
+                e.Cancel = true;
+
+            } else if( !RankManager.CanRenameRank( selectedRank, newName ) ) {
+                MessageBox.Show( "There is already another rank named \"" + newName + "\".\n" +
+                                 "Duplicate rank names are not allowed." );
+                tRankName.ForeColor = System.Drawing.Color.Red;
+                e.Cancel = true;
+
+            } else {
+                string oldName = ToComboBoxOption( selectedRank );
+
+                // To avoid DataErrors in World tab's DataGridView while renaming a rank,
+                // the new name is first added to the list of options (without removing the old name)
+                rankNameList.Insert( selectedRank.Index + 1, String.Format( "{0,1}{1}", selectedRank.Prefix, newName ) );
+
+                RankManager.RenameRank( selectedRank, newName );
+
+                // Remove the old name from the list of options
+                rankNameList.Remove( oldName );
+
+                Worlds.ResetBindings();
+                RebuildRankList();
+            }
+        }
+
+        private void tPrefix_Validating( object sender, CancelEventArgs e ) {
+            tPrefix.ForeColor = SystemColors.ControlText;
+            if( selectedRank == null ) return;
+
+            tPrefix.Text = tPrefix.Text.Trim();
+            if( tPrefix.Text.Length > 0 && !Rank.IsValidPrefix( tPrefix.Text ) ) {
+                MessageBox.Show( "Invalid prefix character!\n" +
+                                 "Prefixes may only contain characters that are allowed in chat (except space).",
+                                 "Warning" );
+                tPrefix.ForeColor = System.Drawing.Color.Red;
+                e.Cancel = true;
+            }
+            if( selectedRank.Prefix == tPrefix.Text ) return;
+
+            string oldName = MainForm.ToComboBoxOption( selectedRank );
+
+            // To avoid DataErrors in World tab's DataGridView while renaming a rank,
+            // the new name is first added to the list of options (without removing the old name)
+            rankNameList.Insert( selectedRank.Index + 1, String.Format( "{0,1}{1}", tPrefix.Text, selectedRank.Name ) );
+
+            selectedRank.Prefix = tPrefix.Text;
+
+            // Remove the old name from the list of options
+            rankNameList.Remove( oldName );
+
+            Worlds.ResetBindings();
+            RebuildRankList();
+        }
+
+        private void xReserveSlot_CheckedChanged( object sender, EventArgs e ) {
+            if( selectedRank == null ) return;
+            selectedRank.ReservedSlot = xReserveSlot.Checked;
+        }
+
+        private void nKickIdle_ValueChanged( object sender, EventArgs e ) {
+            if( selectedRank == null || !xKickIdle.Checked ) return;
+            selectedRank.IdleKickTimer = Convert.ToInt32( nKickIdle.Value );
+        }
+
+        private void nAntiGriefBlocks_ValueChanged( object sender, EventArgs e ) {
+            if( selectedRank == null || !xAntiGrief.Checked ) return;
+            selectedRank.AntiGriefBlocks = Convert.ToInt32( nAntiGriefBlocks.Value );
+        }
+
+        private void nAntiGriefSeconds_ValueChanged( object sender, EventArgs e ) {
+            if( selectedRank == null || !xAntiGrief.Checked ) return;
+            selectedRank.AntiGriefSeconds = Convert.ToInt32( nAntiGriefSeconds.Value );
+        }
+
+        private void nDrawLimit_ValueChanged( object sender, EventArgs e ) {
+            if( selectedRank == null || !xDrawLimit.Checked ) return;
+            selectedRank.DrawLimit = Convert.ToInt32( nDrawLimit.Value );
+            double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1 / 3d );
+            lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed );
+        }
+
+        private void nCopyPasteSlots_ValueChanged( object sender, EventArgs e ) {
+            if( selectedRank == null ) return;
+            selectedRank.CopySlots = Convert.ToInt32( nCopyPasteSlots.Value );
+        }
+
+        private void xAllowSecurityCircumvention_CheckedChanged( object sender, EventArgs e ) {
+            if( selectedRank == null ) return;
+            selectedRank.AllowSecurityCircumvention = xAllowSecurityCircumvention.Checked;
+        }
+
+        private void nFillLimit_ValueChanged( object sender, EventArgs e ) {
+            if( selectedRank == null ) return;
+            selectedRank.FillLimit = Convert.ToInt32( nFillLimit.Value );
+        }
+
+        private void xSpamChatKick_CheckedChanged( object sender, EventArgs e ) {
+            nAntispamMaxWarnings.Enabled = xAntispamKicks.Checked;
+        }
+
+        private void vRanks_SelectedIndexChanged( object sender, EventArgs e ) {
+            if( vRanks.SelectedIndex != -1 ) {
+                SelectRank( RankManager.FindRank( vRanks.SelectedIndex ) );
+            } else {
+                DisableRankOptions();
+            }
+        }
+
+        private void xKickIdle_CheckedChanged( object sender, EventArgs e ) {
+            if( selectedRank == null ) return;
+            if( xKickIdle.Checked ) {
+                nKickIdle.Value = selectedRank.IdleKickTimer;
+            } else {
+                nKickIdle.Value = 0;
+                selectedRank.IdleKickTimer = 0;
+            }
+            nKickIdle.Enabled = xKickIdle.Checked;
+        }
+
+        private void xAntiGrief_CheckedChanged( object sender, EventArgs e ) {
+            if( selectedRank == null ) return;
+            if( xAntiGrief.Checked ) {
+                nAntiGriefBlocks.Value = selectedRank.AntiGriefBlocks;
+                nAntiGriefSeconds.Value = selectedRank.AntiGriefSeconds;
+            } else {
+                nAntiGriefBlocks.Value = 0;
+                selectedRank.AntiGriefBlocks = 0;
+                nAntiGriefSeconds.Value = 0;
+                selectedRank.AntiGriefSeconds = 0;
+            }
+            nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
+            nAntiGriefSeconds.Enabled = xAntiGrief.Checked;
+        }
+
+        private void xDrawLimit_CheckedChanged( object sender, EventArgs e ) {
+            if( selectedRank == null ) return;
+            if( xDrawLimit.Checked ) {
+                nDrawLimit.Value = selectedRank.DrawLimit;
+                double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1 / 3d );
+                lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed );
+            } else {
+                nDrawLimit.Value = 0;
+                selectedRank.DrawLimit = 0;
+                lDrawLimitUnits.Text = "blocks";
+            }
+            nDrawLimit.Enabled = xDrawLimit.Checked;
+        }
+
+        private void vPermissions_ItemChecked( object sender, ItemCheckedEventArgs e ) {
+            bool check = e.Item.Checked;
+            if( check ) {
+                e.Item.Font = bold;
+            } else {
+                e.Item.Font = vPermissions.Font;
+            }
+            if( selectedRank == null ) return;
+
+            Permission permission = (Permission)e.Item.Tag;
+            CheckPermissionConsistency( permission, check );
+
+            selectedRank.Permissions[(int)e.Item.Tag] = e.Item.Checked;
         }
 
         #endregion
 
 
-        #region Ranks
+        #region Ranks Logic
 
+        const string DefaultPermissionLimitString = "(own rank)";
+        readonly Dictionary<Permission, PermissionLimitBox> permissionLimitBoxes = new Dictionary<Permission, PermissionLimitBox>();
         BindingList<string> rankNameList;
+
+        void FillPermissionLimitBoxes() {
+            permissionLimitBoxes[Permission.Kick] = new PermissionLimitBox( "Kick limit", Permission.Kick, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.Ban] = new PermissionLimitBox( "Ban limit", Permission.Ban, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.Promote] = new PermissionLimitBox( "Promote limit", Permission.Promote, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.Demote] = new PermissionLimitBox( "Demote limit", Permission.Demote, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.Hide] = new PermissionLimitBox( "Can hide from", Permission.Hide, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.Freeze] = new PermissionLimitBox( "Freeze limit", Permission.Freeze, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.Mute] = new PermissionLimitBox( "Mute limit", Permission.Mute, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.Bring] = new PermissionLimitBox( "Bring limit", Permission.Bring, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.Spectate] = new PermissionLimitBox( "Spectate limit", Permission.Spectate, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.UndoOthersActions] = new PermissionLimitBox( "Undo limit", Permission.UndoOthersActions, DefaultPermissionLimitString );
+
+            foreach( var box in permissionLimitBoxes.Values ) {
+                permissionLimitBoxContainer.Controls.Add( box );
+            }
+        }
+
 
         void SelectRank( Rank rank ) {
             if( rank == null ) {
@@ -673,6 +1124,13 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             vPermissions.Enabled = false;
         }
 
+        public static string ToComboBoxOption( Rank rank ) {
+            if( showRankPrefixes ) {
+                return String.Format( "{0,1}{1}", rank.Prefix, rank.Name );
+            } else {
+                return rank.Name;
+            }
+        }
 
         static void FillRankList( [NotNull] ComboBox box, string firstItem ) {
             if( box == null ) throw new ArgumentNullException( "box" );
@@ -683,233 +1141,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
         }
 
-
-        #region Ranks Input Handlers
-
-        private void bAddRank_Click( object sender, EventArgs e ) {
-            int number = 1;
-            while( RankManager.RanksByName.ContainsKey( "rank" + number ) ) number++;
-
-            Rank rank = new Rank( "rank" + number, RankManager.GenerateID() );
-
-            RankManager.AddRank( rank );
-            selectedRank = null;
-
-            RebuildRankList();
-            SelectRank( rank );
-
-            rankNameList.Insert( rank.Index + 1, MainForm.ToComboBoxOption(rank) );
-        }
-
-        private void bDeleteRank_Click( object sender, EventArgs e ) {
-            if( vRanks.SelectedItem != null ) {
-                selectedRank = null;
-                int index = vRanks.SelectedIndex;
-                Rank deletedRank = RankManager.FindRank( index );
-                if( deletedRank == null ) return;
-
-                string messages = "";
-
-                // Ask for substitute rank
-                DeleteRankPopup popup = new DeleteRankPopup( deletedRank );
-                if( popup.ShowDialog() != DialogResult.OK ) return;
-
-                Rank replacementRank = popup.SubstituteRank;
-
-                // Update default rank
-                if( RankManager.DefaultRank == deletedRank ) {
-                    RankManager.DefaultRank = replacementRank;
-                    messages += "DefaultRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
-                }
-
-                // Update defaultbuild rank
-                if( RankManager.DefaultBuildRank == deletedRank ) {
-                    RankManager.DefaultBuildRank = replacementRank;
-                    messages += "DefaultBuildRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
-                }
-
-                // Update patrolled rank
-                if( RankManager.PatrolledRank == deletedRank ) {
-                    RankManager.PatrolledRank = replacementRank;
-                    messages += "PatrolledRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
-                }
-
-                // Update patrolled rank
-                if( RankManager.BlockDBAutoEnableRank == deletedRank ) {
-                    RankManager.BlockDBAutoEnableRank = replacementRank;
-                    messages += "BlockDBAutoEnableRank has been changed to \"" + replacementRank.Name + "\"" + Environment.NewLine;
-                }
-
-                // Delete rank
-                if( RankManager.DeleteRank( deletedRank, replacementRank ) ) {
-                    messages += "Some of the rank limits for kick, ban, promote, and/or demote have been reset." + Environment.NewLine;
-                }
-                vRanks.Items.RemoveAt( index );
-
-                // Update world permissions
-                string worldUpdates = "";
-                foreach( WorldListEntry world in Worlds ) {
-                    if( world.AccessPermission == MainForm.ToComboBoxOption(deletedRank) ) {
-                        world.AccessPermission = MainForm.ToComboBoxOption(replacementRank);
-                        worldUpdates += " - " + world.Name + ": access permission changed to " + replacementRank.Name + Environment.NewLine;
-                    }
-                    if( world.BuildPermission == MainForm.ToComboBoxOption(deletedRank) ) {
-                        world.BuildPermission = MainForm.ToComboBoxOption(replacementRank);
-                        worldUpdates += " - " + world.Name + ": build permission changed to " + replacementRank.Name + Environment.NewLine;
-                    }
-                }
-
-                rankNameList.RemoveAt( index + 1 );
-
-                if( worldUpdates.Length > 0 ) {
-                    messages += "The following worlds were affected:" + Environment.NewLine + worldUpdates;
-                }
-
-                if( messages.Length > 0 ) {
-                    MessageBox.Show( messages, "Warning" );
-                }
-
-                RebuildRankList();
-
-                if( index < vRanks.Items.Count ) {
-                    vRanks.SelectedIndex = index;
-                }
-            }
-        }
-
-
-        private void tPrefix_Validating( object sender, CancelEventArgs e ) {
-            if( selectedRank == null ) return;
-            tPrefix.Text = tPrefix.Text.Trim();
-            if( tPrefix.Text.Length > 0 && !Rank.IsValidPrefix( tPrefix.Text ) ) {
-                MessageBox.Show( "Invalid prefix character!\n" +
-                    "Prefixes may only contain characters that are allowed in chat (except space).", "Warning" );
-                tPrefix.ForeColor = System.Drawing.Color.Red;
-                e.Cancel = true;
-            } else {
-                tPrefix.ForeColor = SystemColors.ControlText;
-            }
-            if( selectedRank.Prefix == tPrefix.Text ) return;
-
-            string oldName = MainForm.ToComboBoxOption(selectedRank);
-
-            // To avoid DataErrors in World tab's DataGridView while renaming a rank,
-            // the new name is first added to the list of options (without removing the old name)
-            rankNameList.Insert( selectedRank.Index + 1, String.Format( "{0,1}{1}", tPrefix.Text, selectedRank.Name ) );
-
-            selectedRank.Prefix = tPrefix.Text;
-
-            // Remove the old name from the list of options
-            rankNameList.Remove( oldName );
-
-            Worlds.ResetBindings();
-            RebuildRankList();
-        }
-
-        private void xReserveSlot_CheckedChanged( object sender, EventArgs e ) {
-            if( selectedRank == null ) return;
-            selectedRank.ReservedSlot = xReserveSlot.Checked;
-        }
-
-        private void nKickIdle_ValueChanged( object sender, EventArgs e ) {
-            if( selectedRank == null || !xKickIdle.Checked ) return;
-            selectedRank.IdleKickTimer = Convert.ToInt32( nKickIdle.Value );
-        }
-
-        private void nAntiGriefBlocks_ValueChanged( object sender, EventArgs e ) {
-            if( selectedRank == null || !xAntiGrief.Checked ) return;
-            selectedRank.AntiGriefBlocks = Convert.ToInt32( nAntiGriefBlocks.Value );
-        }
-
-        private void nAntiGriefSeconds_ValueChanged( object sender, EventArgs e ) {
-            if( selectedRank == null || !xAntiGrief.Checked ) return;
-            selectedRank.AntiGriefSeconds = Convert.ToInt32( nAntiGriefSeconds.Value );
-        }
-
-        private void nDrawLimit_ValueChanged( object sender, EventArgs e ) {
-            if( selectedRank == null || !xDrawLimit.Checked ) return;
-            selectedRank.DrawLimit = Convert.ToInt32( nDrawLimit.Value );
-            double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1 / 3d );
-            lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed );
-        }
-
-        private void nCopyPasteSlots_ValueChanged( object sender, EventArgs e ) {
-            if( selectedRank == null ) return;
-            selectedRank.CopySlots = Convert.ToInt32( nCopyPasteSlots.Value );
-        }
-
-        private void xAllowSecurityCircumvention_CheckedChanged( object sender, EventArgs e ) {
-            if( selectedRank == null ) return;
-            selectedRank.AllowSecurityCircumvention = xAllowSecurityCircumvention.Checked;
-        }
-
-
-        private void xSpamChatKick_CheckedChanged( object sender, EventArgs e ) {
-            nAntispamMaxWarnings.Enabled = xAntispamKicks.Checked;
-        }
-
-        private void vRanks_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( vRanks.SelectedIndex != -1 ) {
-                SelectRank( RankManager.FindRank( vRanks.SelectedIndex ) );
-            } else {
-                DisableRankOptions();
-            }
-        }
-
-        private void xKickIdle_CheckedChanged( object sender, EventArgs e ) {
-            if( selectedRank == null ) return;
-            if( xKickIdle.Checked ) {
-                nKickIdle.Value = selectedRank.IdleKickTimer;
-            } else {
-                nKickIdle.Value = 0;
-                selectedRank.IdleKickTimer = 0;
-            }
-            nKickIdle.Enabled = xKickIdle.Checked;
-        }
-
-        private void xAntiGrief_CheckedChanged( object sender, EventArgs e ) {
-            if( selectedRank == null ) return;
-            if( xAntiGrief.Checked ) {
-                nAntiGriefBlocks.Value = selectedRank.AntiGriefBlocks;
-                nAntiGriefSeconds.Value = selectedRank.AntiGriefSeconds;
-            } else {
-                nAntiGriefBlocks.Value = 0;
-                selectedRank.AntiGriefBlocks = 0;
-                nAntiGriefSeconds.Value = 0;
-                selectedRank.AntiGriefSeconds = 0;
-            }
-            nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
-            nAntiGriefSeconds.Enabled = xAntiGrief.Checked;
-        }
-
-        private void xDrawLimit_CheckedChanged( object sender, EventArgs e ) {
-            if( selectedRank == null ) return;
-            if( xDrawLimit.Checked ) {
-                nDrawLimit.Value = selectedRank.DrawLimit;
-                double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1 / 3d );
-                lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed );
-            } else {
-                nDrawLimit.Value = 0;
-                selectedRank.DrawLimit = 0;
-                lDrawLimitUnits.Text = "blocks";
-            }
-            nDrawLimit.Enabled = xDrawLimit.Checked;
-        }
-
-        private void vPermissions_ItemChecked( object sender, ItemCheckedEventArgs e ) {
-            bool check = e.Item.Checked;
-            if( check ) {
-                e.Item.Font = bold;
-            } else {
-                e.Item.Font = vPermissions.Font;
-            }
-            if( selectedRank == null ) return;
-
-            Permission permission = (Permission)e.Item.Tag;
-            CheckPermissionConsistency( permission, check );
-
-            selectedRank.Permissions[(int)e.Item.Tag] = e.Item.Checked;
-        }
 
         void CheckPermissionConsistency( Permission permission, bool check ) {
             switch( permission ) {
@@ -1066,82 +1297,21 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
         }
 
-        private void tRankName_Validating( object sender, CancelEventArgs e ) {
-            tRankName.ForeColor = SystemColors.ControlText;
-            if( selectedRank == null ) return;
-
-            string newName = tRankName.Text.Trim();
-
-            if( newName == selectedRank.Name ) {
-                return;
-
-            } else if( newName.Length == 0 ) {
-                MessageBox.Show( "Rank name cannot be blank." );
-                tRankName.ForeColor = System.Drawing.Color.Red;
-                e.Cancel = true;
-
-            } else if( !Rank.IsValidRankName( newName ) ) {
-                MessageBox.Show( "Rank name can only contain letters, digits, and underscores." );
-                tRankName.ForeColor = System.Drawing.Color.Red;
-                e.Cancel = true;
-
-            } else if( !RankManager.CanRenameRank( selectedRank, newName ) ) {
-                MessageBox.Show( "There is already another rank named \"" + newName + "\".\n" +
-                                 "Duplicate rank names are not allowed." );
-                tRankName.ForeColor = System.Drawing.Color.Red;
-                e.Cancel = true;
-
-            } else {
-                string oldName = MainForm.ToComboBoxOption(selectedRank);
-
-                // To avoid DataErrors in World tab's DataGridView while renaming a rank,
-                // the new name is first added to the list of options (without removing the old name)
-                rankNameList.Insert( selectedRank.Index + 1, String.Format( "{0,1}{1}", selectedRank.Prefix, newName ) );
-
-                RankManager.RenameRank( selectedRank, newName );
-
-                // Remove the old name from the list of options
-                rankNameList.Remove( oldName );
-
-                Worlds.ResetBindings();
-                RebuildRankList();
-            }
-        }
-
-
-        private void bRaiseRank_Click( object sender, EventArgs e ) {
-            if( selectedRank == null ) return;
-            if( RankManager.RaiseRank( selectedRank ) ) {
-                RebuildRankList();
-                rankNameList.Insert( selectedRank.Index + 1, MainForm.ToComboBoxOption(selectedRank) );
-                rankNameList.RemoveAt( selectedRank.Index + 3 );
-            }
-        }
-
-        private void bLowerRank_Click( object sender, EventArgs e ) {
-            if( selectedRank == null ) return;
-            if( RankManager.LowerRank( selectedRank ) ) {
-                RebuildRankList();
-                rankNameList.Insert( selectedRank.Index + 2, MainForm.ToComboBoxOption(selectedRank) );
-                rankNameList.RemoveAt( selectedRank.Index );
-            }
-        }
-
-        #endregion
-
         #endregion
 
 
-        #region Apply / Save / Cancel Buttons
+        #region Apply / Save / Cancel / Reset Buttons
 
         private void bApply_Click( object sender, EventArgs e ) {
             SaveEverything();
         }
 
+
         private void bSave_Click( object sender, EventArgs e ) {
             SaveEverything();
             Application.Exit();
         }
+
 
         void SaveEverything() {
             using( LogRecorder applyLogger = new LogRecorder() ) {
@@ -1161,14 +1331,11 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
         }
 
+
         private void bCancel_Click( object sender, EventArgs e ) {
             Application.Exit();
         }
 
-        #endregion
-
-
-        #region Reset
 
         private void bResetAll_Click( object sender, EventArgs e ) {
             if( MessageBox.Show( "Are you sure you want to reset everything to defaults?", "Warning",
@@ -1187,6 +1354,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             ApplyTabIRC();
             ApplyTabAdvanced();
         }
+
 
         private void bResetTab_Click( object sender, EventArgs e ) {
             if( MessageBox.Show( "Are you sure you want to reset this tab to defaults?", "Warning",
@@ -1237,43 +1405,17 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         #endregion
 
 
-        #region Utils
-
-        #region Change Detection
-
-        void SomethingChanged( object sender, EventArgs args ) {
-            bApply.Enabled = true;
-        }
-
-
-        void AddChangeHandler( Control c, EventHandler handler ) {
-            if( c is CheckBox ) {
-                ((CheckBox)c).CheckedChanged += handler;
-            } else if( c is ComboBox ) {
-                ((ComboBox)c).SelectedIndexChanged += handler;
-            } else if( c is ListView ) {
-                ((ListView)c).ItemChecked += (( o, e ) => handler( o, e ));
-            } else if( c is NumericUpDown ) {
-                ((NumericUpDown)c).ValueChanged += handler;
-            } else if( c is ListBox ) {
-                ((ListBox)c).SelectedIndexChanged += handler;
-            } else if( c is TextBoxBase ) {
-                c.TextChanged += handler;
-            } else if( c is ButtonBase ) {
-                if( c != bPortCheck && c != bMeasure ) {
-                    c.Click += handler;
-                }
-            }
-            foreach( Control child in c.Controls ) {
-                AddChangeHandler( child, handler );
-            }
-        }
-
-        #endregion
-
-
         #region Colors
-        int colorSys, colorSay, colorHelp, colorAnnouncement, colorPM, colorIRC, colorMe, colorWarning;
+
+        int colorSys,
+            colorSay,
+            colorHelp,
+            colorAnnouncement,
+            colorPM,
+            colorIRC,
+            colorMe,
+            colorWarning;
+
 
         void ApplyColor( Button button, int color ) {
             button.Text = Color.GetName( color );
@@ -1281,6 +1423,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             button.ForeColor = ColorPicker.ColorPairs[color].Foreground;
             bApply.Enabled = true;
         }
+
 
         private void bColorSys_Click( object sender, EventArgs e ) {
             ColorPicker picker = new ColorPicker( "System message color", colorSys );
@@ -1409,42 +1552,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         #endregion
 
 
-        private void bRules_Click( object sender, EventArgs e ) {
-            TextEditorPopup popup = new TextEditorPopup( Paths.RulesFileName, "Use common sense!" );
-            popup.ShowDialog();
-        }
-
-
-        internal static bool IsWorldNameTaken( string name ) {
-            return Worlds.Any( world => world.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
-        }
-
-
-        void CheckMaxPlayersPerWorldValue() {
-            if( nMaxPlayersPerWorld.Value > nMaxPlayers.Value ) {
-                nMaxPlayersPerWorld.Value = nMaxPlayers.Value;
-            }
-            nMaxPlayersPerWorld.Maximum = Math.Min( 128, nMaxPlayers.Value );
-        }
-
-
-        internal static void HandleWorldRename( string from, string to ) {
-            if( instance.cMainWorld.SelectedItem == null ) {
-                instance.cMainWorld.SelectedIndex = 0;
-            } else {
-                string mainWorldName = instance.cMainWorld.SelectedItem.ToString();
-                instance.FillWorldList();
-                if( mainWorldName == from ) {
-                    instance.cMainWorld.SelectedItem = to;
-                } else {
-                    instance.cMainWorld.SelectedItem = mainWorldName;
-                }
-            }
-        }
-
-        #endregion
-
-
         private void ConfigUI_FormClosing( object sender, FormClosingEventArgs e ) {
             if( !bApply.Enabled ) return;
             switch( MessageBox.Show( "Would you like to save the changes before exiting?", "Warning", MessageBoxButtons.YesNoCancel ) ) {
@@ -1458,93 +1565,17 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
         }
 
+        private void cPlayerDBProvider_SelectedIndexChanged( object sender, EventArgs e ) {
+            PlayerDB.ProviderType = (PlayerDBProviderType)cPlayerDBProvider.SelectedIndex;
+            bPlayerDBProviderConfig.Enabled = (PlayerDB.ProviderType == PlayerDBProviderType.MySql);
+        }
 
-        readonly Dictionary<Permission, PermissionLimitBox> permissionLimitBoxes = new Dictionary<Permission, PermissionLimitBox>();
-
-        const string DefaultPermissionLimitString = "(own rank)";
-        void FillPermissionLimitBoxes() {
-
-            permissionLimitBoxes[Permission.Kick] = new PermissionLimitBox( "Kick limit", Permission.Kick, DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Ban] = new PermissionLimitBox( "Ban limit", Permission.Ban, DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Promote] = new PermissionLimitBox( "Promote limit", Permission.Promote, DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Demote] = new PermissionLimitBox( "Demote limit", Permission.Demote, DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Hide] = new PermissionLimitBox( "Can hide from", Permission.Hide, DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Freeze] = new PermissionLimitBox( "Freeze limit", Permission.Freeze, DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Mute] = new PermissionLimitBox( "Mute limit", Permission.Mute, DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Bring] = new PermissionLimitBox( "Bring limit", Permission.Bring, DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Spectate] = new PermissionLimitBox( "Spectate limit", Permission.Spectate, DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.UndoOthersActions] = new PermissionLimitBox( "Undo limit", Permission.UndoOthersActions, DefaultPermissionLimitString );
-
-            foreach( var box in permissionLimitBoxes.Values ) {
-                permissionLimitBoxContainer.Controls.Add( box );
+        private void bPlayerDBProviderConfig_Click( object sender, EventArgs e ) {
+            MySqlPlayerDBProviderConfig config = new MySqlPlayerDBProviderConfig(Config.PlayerDBProviderConfig);
+            PropertyGridPopup popup = new PropertyGridPopup( "MySql PlayerDB provider settings", config );
+            if( popup.ShowDialog() == DialogResult.OK ) {
+                Config.PlayerDBProviderConfig = config.Serialize();
             }
-        }
-
-
-        private void cDefaultRank_SelectedIndexChanged( object sender, EventArgs e ) {
-            RankManager.DefaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
-        }
-
-        private void cDefaultBuildRank_SelectedIndexChanged( object sender, EventArgs e ) {
-            RankManager.DefaultBuildRank = RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
-        }
-
-        private void cPatrolledRank_SelectedIndexChanged( object sender, EventArgs e ) {
-            RankManager.PatrolledRank = RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 );
-        }
-
-        private void cBlockDBAutoEnableRank_SelectedIndexChanged( object sender, EventArgs e ) {
-            RankManager.BlockDBAutoEnableRank = RankManager.FindRank( cBlockDBAutoEnableRank.SelectedIndex - 1 );
-        }
-
-        private void xBlockDBEnabled_CheckedChanged( object sender, EventArgs e ) {
-            xBlockDBAutoEnable.Enabled = xBlockDBEnabled.Checked;
-            cBlockDBAutoEnableRank.Enabled = xBlockDBEnabled.Checked && xBlockDBAutoEnable.Checked;
-        }
-
-        private void xBlockDBAutoEnable_CheckedChanged( object sender, EventArgs e ) {
-            cBlockDBAutoEnableRank.Enabled = xBlockDBEnabled.Checked && xBlockDBAutoEnable.Checked;
-        }
-
-        private void nFillLimit_ValueChanged( object sender, EventArgs e ) {
-            if( selectedRank == null ) return;
-            selectedRank.FillLimit = Convert.ToInt32( nFillLimit.Value );
-        }
-
-        const string ReadmeFileName = "README.txt";
-        private void bReadme_Click( object sender, EventArgs e ) {
-            try {
-                if( File.Exists( ReadmeFileName ) ) {
-                    Process.Start( ReadmeFileName );
-                }
-            } catch( Exception ) { }
-        }
-
-        const string ChangelogFileName = "CHANGELOG.txt";
-        private void bChangelog_Click( object sender, EventArgs e ) {
-            try {
-                if( File.Exists( ChangelogFileName ) ) {
-                    Process.Start( ChangelogFileName );
-                }
-            } catch( Exception ) { }
-        }
-
-        public static bool usePrefixes = false;
-
-
-        public static string ToComboBoxOption( Rank rank) {
-            if( usePrefixes ) {
-                return String.Format( "{0,1}{1}", rank.Prefix, rank.Name );
-            } else {
-                return rank.Name;
-            }
-        }
-
-        private void xRankPrefixesInChat_CheckedChanged( object sender, EventArgs e ) {
-            usePrefixes = xRankPrefixesInChat.Checked;
-            tPrefix.Enabled = usePrefixes;
-            lPrefix.Enabled = usePrefixes;
-            RebuildRankList();
         }
     }
 }

@@ -95,6 +95,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="PropertyGridPopup.resx">
+      <DependentUpon>PropertyGridPopup.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="TextEditorPopup.resx">
       <DependentUpon>TextEditorPopup.cs</DependentUpon>
     </EmbeddedResource>
@@ -162,6 +165,12 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="PropertyGridPopup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PropertyGridPopup.Designer.cs">
+      <DependentUpon>PropertyGridPopup.cs</DependentUpon>
     </Compile>
     <Compile Include="SortableBindingList.cs" />
     <Compile Include="UpdaterSettingsPopup.cs">

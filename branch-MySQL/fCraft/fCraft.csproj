@@ -147,7 +147,7 @@
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Player\Rank.cs" />
     <Compile Include="Player\Player.cs" />
-    <Compile Include="Player\PlayerDB.cs" />
+    <Compile Include="PlayerDB\PlayerDB.cs" />
     <Compile Include="Player\PlayerInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="app.config" />
@@ -211,7 +211,8 @@
     <Compile Include="Drawing\UndoState.cs" />
     <Compile Include="MapConversion\INIFile.cs" />
     <Compile Include="Network\IPBanInfo.cs" />
-    <Compile Include="Player\MySqlPlayerDBProvider.cs" />
+    <Compile Include="PlayerDB\MySqlPlayerDBProvider.cs" />
+    <Compile Include="PlayerDB\MySqlPlayerDBProviderConfig.cs" />
     <Compile Include="Player\ChatTimer.cs" />
     <Compile Include="Drawing\Brushes\AbstractPerlinNoiseBrush.cs" />
     <Compile Include="Drawing\Brushes\CheckeredBrush.cs" />
@@ -242,10 +243,10 @@
     <Compile Include="MapConversion\MapFCMv4.cs" />
     <Compile Include="Network\LineWrapper.cs" />
     <Compile Include="Network\OpCode.cs" />
-    <Compile Include="Player\FlatfilePlayerDBProvider.cs" />
-    <Compile Include="Player\FlatfilePlayerDBProvider.Compatibility.cs" />
-    <Compile Include="Player\IPlayerDBProvider.cs" />
-    <Compile Include="Player\MySqlPlayerDBProvider.Sql.cs" />
+    <Compile Include="PlayerDB\FlatfilePlayerDBProvider.cs" />
+    <Compile Include="PlayerDB\FlatfilePlayerDBProvider.Compatibility.cs" />
+    <Compile Include="PlayerDB\IPlayerDBProvider.cs" />
+    <Compile Include="PlayerDB\MySqlPlayerDBProvider.Sql.cs" />
     <Compile Include="Player\PlayerInfo.Actions.cs" />
     <Compile Include="Player\Player.Events.cs" />
     <Compile Include="Player\PlayerEnumerable.cs" />

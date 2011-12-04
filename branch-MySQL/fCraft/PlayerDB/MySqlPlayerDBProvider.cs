@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -11,19 +12,16 @@ namespace fCraft {
     internal sealed partial class MySqlPlayerDBProvider : IPlayerDBProvider {
         MySqlConnection connection;
 
-        public const string Name = "MySql";
+        public PlayerDBProviderType Type {
+            get { return PlayerDBProviderType.MySql; }
+        }
 
         readonly object syncRoot = new object();
         public object SyncRoot {
             get { return syncRoot; }
         }
 
-        public string Host { get; private set; }
-        public int Port { get; private set; }
-        public string Database { get; private set; }
-        public string UserId { get; private set; }
-        public string Password { get; private set; }
-
+        MySqlPlayerDBProviderConfig config;
 
         [NotNull]
         public PlayerInfo AddPlayer( [NotNull] string name, [NotNull] IPAddress lastIP, [NotNull] Rank startingRank, RankChangeType rankChangeType ) {
@@ -223,12 +221,18 @@ namespace fCraft {
 
         public IEnumerable<PlayerInfo> Load() {
             connection = new MySqlConnection();
-            LoadConfig( Config.PlayerDBProviderConfig );
-            connection.Host = Host;
-            connection.Port = Port;
-            connection.Database = Database;
-            connection.UserId = UserId;
-            connection.Password = Password;
+
+            XElement configEl = Config.PlayerDBProviderConfig;
+            if( configEl == null ) {
+                throw new Exception( "MySqlPlayerDBProvider: No configuration specified in config.xml" );
+            }
+            config = new MySqlPlayerDBProviderConfig( configEl );
+
+            connection.Host = config.Host;
+            connection.Port = config.Port;
+            connection.Database = config.Database;
+            connection.UserId = config.UserId;
+            connection.Password = config.Password;
             connection.Open();
 
             LoadSchema();
@@ -244,42 +248,6 @@ namespace fCraft {
                     }
                 }
             }
-        }
-
-
-        void LoadConfig( XContainer el ) {
-            if( el == null ) {
-                throw new Exception( "MySqlPlayerDBProvider: No configuration specified in config.xml" );
-            }
-            XElement hostEl = el.Element( "Host" );
-            if( hostEl == null || hostEl.Value == null ) {
-                throw new Exception( "MySqlPlayerDBProvider: No host specified in config.xml" );
-            }
-            Host = hostEl.Value;
-
-            XElement portEl = el.Element( "Port" );
-            if( portEl == null || portEl.Value == null ) {
-                throw new Exception( "MySqlPlayerDBProvider: No port specified in config.xml" );
-            }
-            Port = Int32.Parse( portEl.Value );
-
-            XElement databaseEl = el.Element( "Database" );
-            if( databaseEl == null || databaseEl.Value == null ) {
-                throw new Exception( "MySqlPlayerDBProvider: No database specified in config.xml" );
-            }
-            Database = databaseEl.Value;
-
-            XElement userIdEl = el.Element( "UserId" );
-            if( userIdEl == null || userIdEl.Value == null ) {
-                throw new Exception( "MySqlPlayerDBProvider: No user id specified in config.xml" );
-            }
-            UserId = userIdEl.Value;
-
-            XElement passwordEl = el.Element( "Password" );
-            if( passwordEl == null || passwordEl.Value == null ) {
-                throw new Exception( "MySqlPlayerDBProvider: No password specified in config.xml" );
-            }
-            Password = passwordEl.Value;
         }
 
 

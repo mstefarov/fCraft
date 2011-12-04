@@ -267,7 +267,7 @@ namespace fCraft {
 #endif
 
             // try to load the config
-            if( !Config.Load( false, false ) ) {
+            if( !Config.Load() ) {
                 throw new Exception( "fCraft Config failed to initialize" );
             }
 
@@ -320,10 +320,6 @@ namespace fCraft {
             Players = new Player[0];
 
             RaiseEvent( Starting );
-
-            if( ConfigKey.BackupDataOnStartup.Enabled() ) {
-                BackupData();
-            }
 
             Player.Console = new Player( ReservedPlayerID.Console, ConfigKey.ConsoleName.GetString(), RankManager.HighestRank );
             Player.AutoRank = new Player( ReservedPlayerID.AutoRank, "(AutoRank)", RankManager.HighestRank );
@@ -813,31 +809,6 @@ namespace fCraft {
         }
 
 
-        const string DataBackupFileNameFormat = "fCraftData_{0:yyyyMMdd'_'HH'-'mm'-'ss}.zip";
-
-        public static void BackupData() {
-            string backupFileName = String.Format( DataBackupFileNameFormat, DateTime.Now ); // localized
-            using( FileStream fs = File.Create( backupFileName ) ) {
-                string fileComment = String.Format( "Backup of fCraft data for server \"{0}\", saved on {1}",
-                                                    ConfigKey.ServerName.GetString(),
-                                                    DateTime.Now );
-                using( ZipStorer backupZip = ZipStorer.Create( fs, fileComment ) ) {
-                    foreach( string dataFileName in Paths.DataFilesToBackup ) {
-                        if( File.Exists( dataFileName ) ) {
-                            backupZip.AddFile( ZipStorer.Compression.Deflate,
-                                               dataFileName,
-                                               dataFileName,
-                                               "" );
-                        }
-                    }
-                }
-            }
-            Logger.Log( LogType.SystemActivity,
-                        "Backed up server data to \"{0}\"",
-                        backupFileName );
-        }
-
-
         public static string ReplaceTextKeywords( [NotNull] Player player, [NotNull] string input ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( input == null ) throw new ArgumentNullException( "input" );
@@ -937,7 +908,7 @@ namespace fCraft {
             if( session == null ) throw new ArgumentNullException( "session" );
             int maxSessions = ConfigKey.MaxConnectionsPerIP.GetInt();
             lock( SessionLock ) {
-                if( maxSessions > 0 ) {
+                if( !session.IP.Equals( IPAddress.Loopback ) && maxSessions > 0 ) {
                     int sessionCount = 0;
                     for( int i = 0; i < Sessions.Count; i++ ) {
                         Player p = Sessions[i];
