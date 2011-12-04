@@ -606,7 +606,6 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( action == null ) throw new ArgumentNullException( "action" );
             if( target == null ) throw new ArgumentNullException( "target" );
-            if( reason == null ) throw new ArgumentNullException( "reason" );
             string message = String.Format( "{0}&W* {1}&W was {2} by {3}&W",
                     Color.IRCBold,
                     target.ClassyName,
