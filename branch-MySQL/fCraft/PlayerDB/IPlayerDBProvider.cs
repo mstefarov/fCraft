@@ -1,14 +1,9 @@
-﻿using System.Collections.Generic;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System.Collections.Generic;
 using System.Net;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    public enum PlayerDBProviderType {
-        Flatfile,
-        MySql
-    }
-
-
     public interface IPlayerDBProvider {
         object SyncRoot { get; }
 
@@ -76,5 +71,11 @@ namespace fCraft {
 
         /// <summary> Swaps records of two players in one transaction. </summary>
         void SwapInfo( [NotNull] PlayerInfo player1, [NotNull] PlayerInfo player2 );
+    }
+
+
+    public enum PlayerDBProviderType {
+        Flatfile,
+        MySql
     }
 }

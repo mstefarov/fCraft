@@ -46,15 +46,15 @@ namespace fCraft {
                         MonoVersion = new Version( major, minor, revision );
                         IsSGenCapable = (major == 2 && minor >= 8);
                     } catch( Exception ex ) {
-                        throw new Exception( UnsupportedMessage, ex );
+                        throw new MisconfigurationException( UnsupportedMessage, ex );
                     }
 
                     if( MonoVersion.Major < 2 && MonoVersion.Major < 6 ) {
-                        throw new Exception( UnsupportedMessage );
+                        throw new MisconfigurationException( UnsupportedMessage );
                     }
 
                 } else {
-                    throw new Exception( UnsupportedMessage );
+                    throw new MisconfigurationException( UnsupportedMessage );
                 }
             }
 

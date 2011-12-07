@@ -332,15 +332,17 @@ namespace fCraft {
 
             // try to load config file (XML)
             XDocument file;
+            XElement config;
             if( File.Exists( Paths.ConfigFileName ) ) {
                 try {
                     file = XDocument.Load( Paths.ConfigFileName );
-                    if( file.Root == null || file.Root.Name != ConfigXmlRootName ) {
+                    config = file.Root;
+                    if( config == null || config.Name != ConfigXmlRootName ) {
                         Logger.Log( LogType.Warning,
                                     "Config.Load: Malformed or incompatible config file {0}. Loading defaults.",
                                     Paths.ConfigFileName );
-                        file = new XDocument();
-                        file.Add( new XElement( ConfigXmlRootName ) );
+                        config = new XElement( ConfigXmlRootName );
+                        file = new XDocument( config );
                     } else {
                         Logger.Log( LogType.Debug,
                                     "Config.Load: Config file {0} loaded succesfully.",
@@ -353,12 +355,9 @@ namespace fCraft {
                 }
             } else {
                 // create a new one (with defaults) if no file exists
-                file = new XDocument();
-                file.Add( new XElement( ConfigXmlRootName ) );
+                config = new XElement( ConfigXmlRootName );
+                file = new XDocument( config );
             }
-
-            XElement config = file.Root;
-            if( config == null ) throw new Exception( "Config.xml has no root. Never happens." );
 
             int version = 0;
             if( fromFile ) {

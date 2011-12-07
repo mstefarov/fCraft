@@ -267,6 +267,10 @@ namespace fCraft {
                               "Please update to Microsoft .NET Framework 3.5 (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).";
                     return true;
 
+                }else if ( ex is MisconfigurationException){
+                    message = "fCraft could not start due to a configuration error: " + ex.Message;
+                    return true;
+
                 } else if( ex.Message.Contains( "libMonoPosixHelper" ) ||
                            ex is EntryPointNotFoundException && ex.Message.Contains( "CreateZStream" ) ) {
                     message = "fCraft could not locate Mono's compression functionality. " +
