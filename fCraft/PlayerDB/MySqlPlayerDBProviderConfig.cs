@@ -11,11 +11,11 @@ namespace fCraft {
             : this( "localhost", 3306, "fcraft", "user", "" ) { }
 
         public MySqlPlayerDBProviderConfig( string host, int port, string database, string userId, string password ) {
-            this.Host = host;
-            this.Port = port;
-            this.Database = database;
-            this.UserId = userId;
-            this.Password = password;
+            Host = host;
+            Port = port;
+            Database = database;
+            UserId = userId;
+            Password = password;
         }
 
         [Description( "Hostname or IP address of MySQL server." )]
@@ -52,7 +52,7 @@ namespace fCraft {
         public string Database {
             get { return database; }
             set {
-                if( value == null ) throw new ArgumentNullException( "database" );
+                if( value == null ) throw new ArgumentNullException( "value" );
                 if( value.Length == 0 ) throw new ArgumentException( "Database may not be left blank." );
                 database = value;
             }
@@ -65,7 +65,7 @@ namespace fCraft {
         public string UserId {
             get { return userId; }
             set {
-                if( value == null ) throw new ArgumentNullException( "userId" );
+                if( value == null ) throw new ArgumentNullException( "value" );
                 if( value.Length == 0 ) throw new ArgumentException( "UserId may not be left blank." );
                 userId = value;
             }
@@ -74,12 +74,12 @@ namespace fCraft {
 
 
         [PasswordPropertyText( true )]
-        [Description( "Password for the UserId." )]
+        [Description( "Password for the UserId. Note: stored in plaintext in config.xml" )]
         [NotNull]
         public string Password {
             get { return password; }
             set {
-                if( value == null ) throw new ArgumentNullException( "password" );
+                if( value == null ) throw new ArgumentNullException( "value" );
                 password = value;
             }
         }

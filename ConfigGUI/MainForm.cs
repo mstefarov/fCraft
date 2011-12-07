@@ -519,6 +519,30 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             nMaxBackupSize.Enabled = xMaxBackupSize.Checked;
         }
 
+
+        private void cPlayerDBProvider_SelectedIndexChanged( object sender, EventArgs e ) {
+            PlayerDB.ProviderType = (PlayerDBProviderType)cPlayerDBProvider.SelectedIndex;
+            bPlayerDBProviderConfig.Enabled = (PlayerDB.ProviderType == PlayerDBProviderType.MySql);
+        }
+
+        private void bPlayerDBProviderConfig_Click( object sender, EventArgs e ) {
+            MySqlPlayerDBProviderConfig config;
+            if( Config.PlayerDBProviderConfig != null && Config.PlayerDBProviderConfig.Name == MySqlPlayerDBProviderConfig.XmlRootNameDefault ) {
+                try {
+                    config = new MySqlPlayerDBProviderConfig( Config.PlayerDBProviderConfig );
+                } catch( Exception ex ) {
+                    MessageBox.Show( ex.ToString(), "Error parsing MySql PlayerDB provider settings." );
+                    config = new MySqlPlayerDBProviderConfig();
+                }
+            } else {
+                config = new MySqlPlayerDBProviderConfig();
+            }
+            PropertyGridPopup popup = new PropertyGridPopup( "MySql PlayerDB provider settings", config );
+            if( popup.ShowDialog() == DialogResult.OK ) {
+                Config.PlayerDBProviderConfig = config.Serialize();
+            }
+        }
+
         #endregion
 
 
@@ -1562,19 +1586,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 case DialogResult.Cancel:
                     e.Cancel = true;
                     return;
-            }
-        }
-
-        private void cPlayerDBProvider_SelectedIndexChanged( object sender, EventArgs e ) {
-            PlayerDB.ProviderType = (PlayerDBProviderType)cPlayerDBProvider.SelectedIndex;
-            bPlayerDBProviderConfig.Enabled = (PlayerDB.ProviderType == PlayerDBProviderType.MySql);
-        }
-
-        private void bPlayerDBProviderConfig_Click( object sender, EventArgs e ) {
-            MySqlPlayerDBProviderConfig config = new MySqlPlayerDBProviderConfig(Config.PlayerDBProviderConfig);
-            PropertyGridPopup popup = new PropertyGridPopup( "MySql PlayerDB provider settings", config );
-            if( popup.ShowDialog() == DialogResult.OK ) {
-                Config.PlayerDBProviderConfig = config.Serialize();
             }
         }
     }

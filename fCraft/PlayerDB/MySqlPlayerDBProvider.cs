@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 namespace fCraft {
     internal sealed partial class MySqlPlayerDBProvider : IPlayerDBProvider {
         MySqlConnection connection;
+        MySqlPlayerDBProviderConfig config;
 
         public PlayerDBProviderType Type {
             get { return PlayerDBProviderType.MySql; }
@@ -21,7 +22,6 @@ namespace fCraft {
             get { return syncRoot; }
         }
 
-        MySqlPlayerDBProviderConfig config;
 
         [NotNull]
         public PlayerInfo AddPlayer( [NotNull] string name, [NotNull] IPAddress lastIP, [NotNull] Rank startingRank, RankChangeType rankChangeType ) {
@@ -224,9 +224,15 @@ namespace fCraft {
 
             XElement configEl = Config.PlayerDBProviderConfig;
             if( configEl == null ) {
-                throw new Exception( "MySqlPlayerDBProvider: No configuration specified in config.xml" );
+                throw new MisconfigurationException( "MySqlPlayerDBProvider: No configuration specified in config.xml." );
+            } else if( configEl.Name != MySqlPlayerDBProviderConfig.XmlRootNameDefault ) {
+                throw new MisconfigurationException( "MySqlPlayerDBProvider: No configuration specific to this provider given in config.xml" );
             }
-            config = new MySqlPlayerDBProviderConfig( configEl );
+            try {
+                config = new MySqlPlayerDBProviderConfig( configEl );
+            } catch( ArgumentException ex ) {
+                throw new MisconfigurationException( "MySqlPlayerDBProvider: Error parsing configuration: " + ex.Message, ex );
+            }
 
             connection.Host = config.Host;
             connection.Port = config.Port;

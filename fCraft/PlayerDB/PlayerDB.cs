@@ -93,7 +93,7 @@ namespace fCraft {
                     provider = new MySqlPlayerDBProvider();
                     break;
                 default:
-                    throw new Exception( "PlayerDB.Load: Unknown ProviderType: " + ProviderType );
+                    throw new MisconfigurationException( "PlayerDB.Load: Unknown ProviderType: " + ProviderType );
             }
 
             var playerList = provider.Load();

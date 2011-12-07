@@ -13,6 +13,7 @@ namespace fCraft.ConfigGUI {
             InitializeComponent();
             pgProperties.SelectedObject = obj;
             pgProperties.PropertySort = PropertySort.NoSort;
+            Text = title;
         }
 
         public object SelectedObject {
