@@ -180,7 +180,7 @@ namespace fCraft {
                   FirstVersionWithSectionTags = 139, // LEGACY
                   FirstVersionWithSettingsTag = 152; // LEGACY
 
-        const string ConfigXmlRootName = "fCraftConfig";
+        const string XmlRootName = "fCraftConfig";
 
         // Mapping of keys to their values
         static readonly string[] Settings;
@@ -337,11 +337,11 @@ namespace fCraft {
                 try {
                     file = XDocument.Load( Paths.ConfigFileName );
                     config = file.Root;
-                    if( config == null || config.Name != ConfigXmlRootName ) {
+                    if( config == null || config.Name != XmlRootName ) {
                         Logger.Log( LogType.Warning,
                                     "Config.Load: Malformed or incompatible config file {0}. Loading defaults.",
                                     Paths.ConfigFileName );
-                        config = new XElement( ConfigXmlRootName );
+                        config = new XElement( XmlRootName );
                         file = new XDocument( config );
                     } else {
                         Logger.Log( LogType.Debug,
@@ -355,7 +355,7 @@ namespace fCraft {
                 }
             } else {
                 // create a new one (with defaults) if no file exists
-                config = new XElement( ConfigXmlRootName );
+                config = new XElement( XmlRootName );
                 file = new XDocument( config );
             }
 
@@ -687,7 +687,7 @@ namespace fCraft {
         public static bool Save() {
             XDocument file = new XDocument();
 
-            XElement config = new XElement( ConfigXmlRootName );
+            XElement config = new XElement( XmlRootName );
             config.Add( new XAttribute( "version", CurrentVersion ) );
 
             XElement settings = new XElement( "Settings" );

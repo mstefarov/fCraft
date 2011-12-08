@@ -105,15 +105,13 @@ namespace fCraft {
 
 
         public int Volume {
-            get { return (XMax - XMin + 1) * (YMax - YMin + 1) * (ZMax - ZMin + 1); }
+            get { return Width * Length * Height; }
         }
 
 
         public Vector3I Dimensions {
             get {
-                return new Vector3I( XMax - XMin + 1,
-                                     YMax - YMin + 1,
-                                     ZMax - ZMin + 1 );
+                return new Vector3I( Width, Length, Height );
             }
         }
 
@@ -145,7 +143,7 @@ namespace fCraft {
 
         #region Serialization
 
-        public const string XmlRootElementName = "BoundingBox";
+        public const string XmlRootName = "BoundingBox";
 
         public BoundingBox( [NotNull] XElement root ) {
             if( root == null ) throw new ArgumentNullException( "root" );
@@ -172,7 +170,7 @@ namespace fCraft {
         }
 
         public XElement Serialize() {
-            return Serialize( XmlRootElementName );
+            return Serialize( XmlRootName );
         }
 
         #endregion

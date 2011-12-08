@@ -131,7 +131,7 @@ namespace fCraft {
 
         #region Xml Serialization
 
-        const string XmlRootElementName = "Zone";
+        const string XmlRootName = "Zone";
 
         public Zone( [NotNull] XContainer root ) {
             if( root == null ) throw new ArgumentNullException( "root" );
@@ -150,11 +150,11 @@ namespace fCraft {
                 EditedDate = DateTime.Parse( edited.Attribute( "on" ).Value );
             }
 
-            XElement temp = root.Element( BoundingBox.XmlRootElementName );
+            XElement temp = root.Element( BoundingBox.XmlRootName );
             if( temp == null ) throw new SerializationException( "No BoundingBox specified for zone." );
             Bounds = new BoundingBox( temp );
 
-            temp = root.Element( SecurityController.XmlRootElementName );
+            temp = root.Element( SecurityController.XmlRootName );
             if( temp == null ) throw new SerializationException( "No SecurityController specified for zone." );
             Controller = new SecurityController( temp, true );
             // ReSharper restore PossibleNullReferenceException
@@ -162,7 +162,7 @@ namespace fCraft {
 
 
         public XElement Serialize() {
-            XElement root = new XElement( XmlRootElementName );
+            XElement root = new XElement( XmlRootName );
             root.Add( new XElement( "name", Name ) );
 
             if( CreatedBy != null ) {

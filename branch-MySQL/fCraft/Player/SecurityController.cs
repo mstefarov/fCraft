@@ -217,7 +217,7 @@ namespace fCraft {
 
         #region XML Serialization
 
-        public const string XmlRootElementName = "PermissionController";
+        public const string XmlRootName = "PermissionController";
 
         readonly XElement[] rawExceptions;
 
@@ -252,7 +252,7 @@ namespace fCraft {
 
 
         public XElement Serialize() {
-            return Serialize( XmlRootElementName );
+            return Serialize( XmlRootName );
         }
 
 

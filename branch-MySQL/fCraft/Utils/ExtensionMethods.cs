@@ -1,39 +1,57 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Net;
 using System.Globalization;
+using System.Net;
+using System.Text;
 using JetBrains.Annotations;
 
 namespace fCraft {
-
     public static class IPAddressUtil {
-        /// <summary> Checks whether an IP address may belong to LAN (192.168.0.0/16 or 10.0.0.0/24). </summary>
-        public static bool IsLAN( [NotNull] this IPAddress addr ) {
+        /// <summary> Checks whether an IP address may belong to LAN or localhost (192.168.0.0/16, 10.0.0.0/24, or 127.0.0.0/24). </summary>
+        public static bool IsLocal( [NotNull] this IPAddress addr ) {
             if( addr == null ) throw new ArgumentNullException( "addr" );
             byte[] bytes = addr.GetAddressBytes();
             return (bytes[0] == 192 && bytes[1] == 168) ||
-                   (bytes[0] == 10);
+                   (bytes[0] == 10) ||
+                   (bytes[0] == 127);
         }
 
-        public static uint AsUInt( [NotNull] this IPAddress thisAddr ) {
-            if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
-            return (uint)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( thisAddr.GetAddressBytes(), 0 ) );
-        }
 
+        /// <summary> Represents an IPv4 address as an integer. </summary>
         public static int AsInt( [NotNull] this IPAddress thisAddr ) {
             if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
             return IPAddress.HostToNetworkOrder( BitConverter.ToInt32( thisAddr.GetAddressBytes(), 0 ) );
         }
 
-        public static bool Match( [NotNull] this IPAddress thisAddr, uint otherAddr, uint mask ) {
+        /// <summary> Represents an IPv4 address as an unsigned integer. </summary>
+        public static uint AsUInt( [NotNull] this IPAddress thisAddr ) {
+            if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
+            return (uint)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( thisAddr.GetAddressBytes(), 0 ) );
+        }
+
+
+        /// <summary> Checks whether two IP addresses are in the same mask-defined range. </summary>
+        public static bool Match( [NotNull] this IPAddress thisAddr, [NotNull] IPAddress otherAddr, uint mask ) {
+            if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
+            if( otherAddr == null ) throw new ArgumentNullException( "otherAddr" );
+            uint thisAsUInt = thisAddr.AsUInt();
+            uint otherAsUInt = otherAddr.AsUInt();
+            return (thisAsUInt & mask) == (otherAsUInt & mask);
+        }
+
+        /// <summary> Checks whether two IP addresses are in the same mask-defined range. </summary>
+        internal static bool Match( [NotNull] this IPAddress thisAddr, uint otherAddr, uint mask ) {
             if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
             uint thisAsUInt = thisAddr.AsUInt();
             return (thisAsUInt & mask) == (otherAddr & mask);
         }
 
-        public static IPAddress RangeMin( [NotNull] this IPAddress thisAddr, byte range ) {
+
+        /// <summary> Finds the first IP address in the given range. </summary>
+        /// <param name="thisAddr"> Base address for the range. </param>
+        /// <param name="range"> CIDR range byte (0-32). </param>
+        public static IPAddress FirstIAddressInRange( [NotNull] this IPAddress thisAddr, byte range ) {
             if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
             if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
             int thisAsInt = thisAddr.AsInt();
@@ -41,7 +59,11 @@ namespace fCraft {
             return new IPAddress( IPAddress.HostToNetworkOrder( thisAsInt & mask ) );
         }
 
-        public static IPAddress RangeMax( [NotNull] this IPAddress thisAddr, byte range ) {
+
+        /// <summary> Finds the last IP address in the given range. </summary>
+        /// <param name="thisAddr"> Base address for the range. </param>
+        /// <param name="range"> CIDR range byte (0-32). </param>
+        public static IPAddress LastAddressInRange( [NotNull] this IPAddress thisAddr, byte range ) {
             if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
             if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
             int thisAsInt = thisAddr.AsInt();
@@ -49,6 +71,9 @@ namespace fCraft {
             return new IPAddress( (uint)IPAddress.HostToNetworkOrder( thisAsInt | mask ) );
         }
 
+
+        /// <summary> Creates a mask for given range. </summary>
+        /// <param name="range"> CIDR range byte (0-32). </param>
         public static uint NetMask( byte range ) {
             if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
             if( range == 0 ) {
@@ -518,7 +543,7 @@ namespace fCraft {
             }
         }
 
-
+#if DEBUG
         public static int SizeOf( object obj ) {
             return SizeOf( obj.GetType() );
         }
@@ -532,6 +557,7 @@ namespace fCraft {
                 return *(*(int**)&th + 1);
             }
         }
+#endif
     }
 
 

@@ -88,11 +88,11 @@ namespace fCraft {
 
         #region Serialization
 
-        public static string XmlRootNameDefault = "MySqlPlayerDBProviderConfig";
+        public static string XmlRootName = "MySqlPlayerDBProviderConfig";
 
         [NotNull]
         public XElement Serialize() {
-            return Serialize( XmlRootNameDefault );
+            return Serialize( XmlRootName );
         }
 
         [NotNull]

@@ -183,14 +183,9 @@ namespace fCraft.ConfigGUI {
                     string oldFileName = Path.Combine( Paths.MapPath, oldName + ".fcm" );
                     string newFileName = Path.Combine( Paths.MapPath, value + ".fcm" );
                     if( File.Exists( oldFileName ) ) {
-                        bool isSameFile;
-                        if( MonoCompat.IsCaseSensitive ) {
-                            isSameFile = newFileName.Equals( oldFileName, StringComparison.Ordinal );
-                        } else {
-                            isSameFile = newFileName.Equals( oldFileName, StringComparison.OrdinalIgnoreCase );
-                        }
+                        bool isSameFile = Paths.Compare( oldFileName, newFileName );
                         if( File.Exists( newFileName ) && !isSameFile ) {
-                            string messageText = String.Format( "Map file \"{0}\" already exists. Overwrite?", value + ".fcm" );
+                            string messageText = String.Format( "Map file \"{0}.fcm\" already exists. Overwrite?", value );
                             var result = MessageBox.Show( messageText, "", MessageBoxButtons.OKCancel );
                             if( result == DialogResult.Cancel ) return;
                         }

@@ -527,7 +527,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         private void bPlayerDBProviderConfig_Click( object sender, EventArgs e ) {
             MySqlPlayerDBProviderConfig config;
-            if( Config.PlayerDBProviderConfig != null && Config.PlayerDBProviderConfig.Name == MySqlPlayerDBProviderConfig.XmlRootNameDefault ) {
+            if( Config.PlayerDBProviderConfig != null && Config.PlayerDBProviderConfig.Name == MySqlPlayerDBProviderConfig.XmlRootName ) {
                 try {
                     config = new MySqlPlayerDBProviderConfig( Config.PlayerDBProviderConfig );
                 } catch( Exception ex ) {

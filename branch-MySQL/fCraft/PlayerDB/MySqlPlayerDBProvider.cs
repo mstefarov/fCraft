@@ -225,7 +225,7 @@ namespace fCraft {
             XElement configEl = Config.PlayerDBProviderConfig;
             if( configEl == null ) {
                 throw new MisconfigurationException( "MySqlPlayerDBProvider: No configuration specified in config.xml." );
-            } else if( configEl.Name != MySqlPlayerDBProviderConfig.XmlRootNameDefault ) {
+            } else if( configEl.Name != MySqlPlayerDBProviderConfig.XmlRootName ) {
                 throw new MisconfigurationException( "MySqlPlayerDBProvider: No configuration specific to this provider given in config.xml" );
             }
             try {
