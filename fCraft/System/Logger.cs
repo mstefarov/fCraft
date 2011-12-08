@@ -17,23 +17,25 @@ using System.Reflection.Emit;
 namespace fCraft {
     /// <summary> Central logging class. Logs to file, relays messages to the frontend, submits crash reports. </summary>
     public static class Logger {
-        static readonly object LogLock = new object();
         public static bool Enabled { get; set; }
+
+        public static LogSplittingType SplittingType { get; set; }
+
+        static readonly object LogLock = new object();
+
         public static readonly bool[] ConsoleOptions;
         public static readonly bool[] LogFileOptions;
 
         const string DefaultLogFileName = "fCraft.log",
                      LongDateFormat = "yyyy'-'MM'-'dd'_'HH'-'mm'-'ss",
                      ShortDateFormat = "yyyy'-'MM'-'dd";
-        static readonly Uri CrashReportUri = new Uri( "http://www.fcraft.net/crashreport.php" );
-        public static LogSplittingType SplittingType = LogSplittingType.OneFile;
 
-        static readonly string SessionStart = DateTime.Now.ToString( LongDateFormat ); // localized
-        static readonly Queue<string> RecentMessages = new Queue<string>();
-        const int MaxRecentMessages = 25;
+        static readonly string SessionFileName = DateTime.Now.ToString( LongDateFormat ) + ".log"; // localized
 
 
         static Logger() {
+            // initialize defaults
+            SplittingType = LogSplittingType.OneFile;
             Enabled = true;
             int typeCount = Enum.GetNames( typeof( LogType ) ).Length;
             ConsoleOptions = new bool[typeCount];
@@ -46,12 +48,14 @@ namespace fCraft {
 
 
         internal static void MarkLogStart() {
-            // Mark start of logging
             Log( LogType.SystemActivity, "------ Log Starts {0} ({1}) ------",
-                 DateTime.Now.ToLongDateString(), DateTime.Now.ToShortDateString() ); // localized
+                 DateTime.Now.ToLongDateString(),
+                 DateTime.Now.ToShortDateString() ); // localized
         }
 
 
+        /// <summary> Logs a message of type ConsoleOutput, strips colors, and splits into multiple messages at newlines.
+        /// Use this method for all messages of LogType.ConsoleOutput </summary>
         public static void LogToConsole( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( message.Contains( '\n' ) ) {
@@ -60,12 +64,7 @@ namespace fCraft {
                 }
                 return;
             }
-            string processedMessage = "# ";
-            for( int i = 0; i < message.Length; i++ ) {
-                if( message[i] == '&' ) i++;
-                else processedMessage += message[i];
-            }
-            Log( LogType.ConsoleOutput, processedMessage );
+            Log( LogType.ConsoleOutput, Color.StripColors( message ) );
         }
 
 
@@ -82,6 +81,7 @@ namespace fCraft {
         public static void Log( LogType type, [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( !Enabled ) return;
+
             string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message; // localized
 
             lock( LogLock ) {
@@ -96,7 +96,7 @@ namespace fCraft {
                     string actualLogFileName;
                     switch( SplittingType ) {
                         case LogSplittingType.SplitBySession:
-                            actualLogFileName = Path.Combine( Paths.LogPath, SessionStart + ".log" );
+                            actualLogFileName = Path.Combine( Paths.LogPath, SessionFileName );
                             break;
                         case LogSplittingType.SplitByDay:
                             actualLogFileName = Path.Combine( Paths.LogPath, DateTime.Now.ToString( ShortDateFormat ) + ".log" ); // localized
@@ -119,7 +119,7 @@ namespace fCraft {
 
 
         [DebuggerStepThrough]
-        public static string GetPrefix( LogType level ) {
+        static string GetPrefix( LogType level ) {
             switch( level ) {
                 case LogType.SeriousError:
                 case LogType.Error:
@@ -128,6 +128,8 @@ namespace fCraft {
                     return "Warning: ";
                 case LogType.IRC:
                     return "IRC: ";
+                case LogType.ConsoleOutput:
+                    return "# ";
                 default:
                     return String.Empty;
             }
@@ -139,6 +141,10 @@ namespace fCraft {
         static readonly object CrashReportLock = new object(); // mutex to prevent simultaneous reports (messes up the timers/requests)
         static DateTime lastCrashReport = DateTime.MinValue;
         const int MinCrashReportInterval = 61; // minimum interval between submitting crash reports, in seconds
+
+        static readonly Uri CrashReportUri = new Uri( "http://www.fcraft.net/crashreport.php" );
+        static readonly Queue<string> RecentMessages = new Queue<string>();
+        const int MaxRecentMessages = 25;
 
 
         public static void LogAndReportCrash( [CanBeNull] string message, [CanBeNull] string assembly,

@@ -510,7 +510,7 @@ namespace fCraft {
                                 standardMessage );
                     IsVerified = true;
 
-                } else if( IP.IsLAN() && ConfigKey.AllowUnverifiedLAN.Enabled() ) {
+                } else if( IP.IsLocal() && ConfigKey.AllowUnverifiedLAN.Enabled() ) {
                     Logger.Log( LogType.SuspiciousActivity,
                                 "{0} Player was identified as connecting from LAN and allowed in.",
                                 standardMessage );

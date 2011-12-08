@@ -39,7 +39,7 @@ namespace fCraft {
                             MeDefault = Purple,
                             WarningDefault = Red;
 
-        public static readonly SortedList<char, string> ColorNames = new SortedList<char, string>{
+        internal static readonly SortedList<char, string> ColorNames = new SortedList<char, string>{
             { '0', "black" },
             { '1', "navy" },
             { '2', "green" },
@@ -95,7 +95,7 @@ namespace fCraft {
         /// If input is an empty string, returns empty string.
         /// If input is null or cannot be parsed, returns null. </returns>
         [CanBeNull]
-        public static string GetName( string color ) {
+        public static string GetName( [CanBeNull] string color ) {
             if( color == null ) {
                 return null;
             } else if( color.Length == 0 ) {
@@ -160,7 +160,7 @@ namespace fCraft {
         /// If input is an empty string, returns empty string.
         /// If input is null or cannot be parsed, returns null. </returns>
         [CanBeNull]
-        public static string Parse( string color ) {
+        public static string Parse( [CanBeNull] string color ) {
             if( color == null ) {
                 return null;
             }
@@ -214,16 +214,16 @@ namespace fCraft {
 
 
 
-        /// <summary>
-        /// Checks whether a color code is valid (checks if it's hexadecimal char).
-        /// </summary>
-        /// <returns>True is char is valid, otherwise false</returns>
+        /// <summary> Checks whether a color code is valid (checks if it's hexadecimal char). </summary>
         public static bool IsValidColorCode( char code ) {
             return (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f') || (code >= 'A' && code <= 'F');
         }
 
+
+        /// <summary> Substitutes percent color codes with equivalent ampersand color codes. </summary>
         public static void ReplacePercentCodes( [NotNull] StringBuilder sb ) {
             if( sb == null ) throw new ArgumentNullException( "sb" );
+            sb.Replace( "%%", "%" );
             sb.Replace( "%0", "&0" );
             sb.Replace( "%1", "&1" );
             sb.Replace( "%2", "&2" );
@@ -248,17 +248,23 @@ namespace fCraft {
             sb.Replace( "%F", "&f" );
         }
 
-        public static string ReplacePercentCodes( [NotNull] string message ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            StringBuilder sb = new StringBuilder( message );
-            ReplacePercentCodes( sb );
-            return sb.ToString();
+        /// <summary> Substitutes percent color codes with equivalent ampersand color codes. </summary>
+        [NotNull]
+        public static string ReplacePercentCodes( [NotNull] string input ) {
+            if( input == null ) throw new ArgumentNullException( "input" );
+            if( input.IndexOf( '%' ) == -1 ) {
+                return input;
+            } else {
+                StringBuilder sb = new StringBuilder( input );
+                ReplacePercentCodes( sb );
+                return sb.ToString();
+            }
         }
 
 
-        public static string SubstituteSpecialColors( [NotNull] string input ) {
-            if( input == null ) throw new ArgumentNullException( "input" );
-            StringBuilder sb = new StringBuilder( input );
+        /// <summary> Substitutes all special ampersand color codes (like &S) with the assigned Minecraft colors (&0-&F). </summary>
+        public static void SubstituteSpecialColors( [NotNull] StringBuilder sb ) {
+            if( sb == null ) throw new ArgumentNullException( "sb" );
             for( int i = sb.Length - 1; i > 0; i-- ) {
                 if( sb[i - 1] == '&' ) {
                     switch( Char.ToLower( sb[i] ) ) {
@@ -280,8 +286,60 @@ namespace fCraft {
                     }
                 }
             }
+        }
+
+        /// <summary> Substitutes all special ampersand color codes (like &S) with the assigned Minecraft colors (&0-&F). </summary>
+        [NotNull]
+        public static string SubstituteSpecialColors( [NotNull] string input ) {
+            if( input == null ) throw new ArgumentNullException( "input" );
+            StringBuilder sb = new StringBuilder( input );
+            SubstituteSpecialColors( sb );
             return sb.ToString();
         }
+
+
+        /// <summary> Escapes (doubles up) all ampersands in a string. </summary>
+        public static void EscapeAmpersands( [NotNull] StringBuilder sb ) {
+            if( sb == null ) throw new ArgumentNullException( "sb" );
+            sb.Replace( "&", "&&" );
+        }
+
+
+        /// <summary> Escapes (doubles up) all ampersands in a string. </summary>
+        [NotNull]
+        public static string EscapeAmpersands( [NotNull] string input ) {
+            if( input == null ) throw new ArgumentNullException( "input" );
+            if( input.IndexOf( '&' ) == -1 ) {
+                return input;
+            } else {
+                return input.Replace( "&", "&&" );
+            }
+        }
+
+
+        /// <summary> Strips all ampersand color codes, and unescapes doubled-up ampersands. </summary>
+        public static string StripColors( [NotNull] string input ) {
+            if( input == null ) throw new ArgumentNullException( "input" );
+            if( input.IndexOf( '&' ) == -1 ) {
+                return input;
+            } else {
+                StringBuilder output = new StringBuilder( input.Length );
+                for( int i = 0; i < input.Length; i++ ) {
+                    if( input[i] == '&' ) {
+                        if( i == input.Length - 1 ) {
+                            break;
+                        } else if( input[i + 1] == '&' ) {
+                            output.Append( '&' );
+                        }
+                        i++;
+                    } else {
+                        output.Append( input[i] );
+                    }
+                }
+                return output.ToString();
+            }
+        }
+
 
         #region IRC Colors
 
@@ -308,19 +366,19 @@ namespace fCraft {
         };
 
 
-        public static string EscapeAmpersands( [NotNull] string input ) {
-            if( input == null ) throw new ArgumentNullException( "input" );
-            return input.Replace( "&", "&&" );
+        public static void ToIRCColorCodes( [NotNull] StringBuilder sb ) {
+            if( sb == null ) throw new ArgumentNullException( "sb" );
+            SubstituteSpecialColors( sb );
+            foreach( KeyValuePair<string, IRCColor> code in MinecraftToIRCColors ) {
+                sb.Replace( code.Key, '\u0003' + ((int)code.Value).ToString().PadLeft( 2, '0' ) );
+            }
         }
 
 
         public static string ToIRCColorCodes( [NotNull] string input ) {
             if( input == null ) throw new ArgumentNullException( "input" );
-            StringBuilder sb = new StringBuilder( SubstituteSpecialColors( input ) );
-
-            foreach( KeyValuePair<string, IRCColor> code in MinecraftToIRCColors ) {
-                sb.Replace( code.Key, '\u0003' + ((int)code.Value).ToString().PadLeft( 2, '0' ) );
-            }
+            StringBuilder sb = new StringBuilder( input );
+            ToIRCColorCodes( sb );
             return sb.ToString();
         }
 
