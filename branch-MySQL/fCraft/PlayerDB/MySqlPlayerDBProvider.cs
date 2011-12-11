@@ -96,7 +96,7 @@ namespace fCraft {
                     return null;
                 } else {
                     int id = (int)playerIdOrNull;
-                    return GetPlayerInfoFromID( id );
+                    return FindPlayerInfoByID( id );
                 }
             }
         }
@@ -111,7 +111,7 @@ namespace fCraft {
                 using( MySqlDataReader reader = cmd.ExecuteReader() ) {
                     while( reader.Read() ) {
                         int id = reader.GetInt32( 0 );
-                        results.Add( GetPlayerInfoFromID( id ) );
+                        results.Add( FindPlayerInfoByID( id ) );
                     }
                 }
                 return results;
@@ -131,7 +131,7 @@ namespace fCraft {
                     // An exact match was found, return it
                     int id = (int)playerIdOrNull;
                     return new[] {
-                        GetPlayerInfoFromID( id )
+                        FindPlayerInfoByID( id )
                     };
                 }
 
@@ -141,7 +141,7 @@ namespace fCraft {
                     while( reader.Read() ) {
                         // If multiple matches were found, they'll be added to the list
                         int id = reader.GetInt32( 0 );
-                        results.Add( GetPlayerInfoFromID( id ) );
+                        results.Add( FindPlayerInfoByID( id ) );
                     }
                     // If no matches were found, the list will be empty
                     return results;
@@ -160,7 +160,7 @@ namespace fCraft {
                 if( playerIdOrNull != null ) {
                     // An exact match was found, return it
                     int id = (int)playerIdOrNull;
-                    result = GetPlayerInfoFromID( id );
+                    result = FindPlayerInfoByID( id );
                     return true;
                 }
 
@@ -174,7 +174,7 @@ namespace fCraft {
                     int id = reader.GetInt32( 0 );
                     if( !reader.Read() ) {
                         // one partial match found
-                        result = GetPlayerInfoFromID( id );
+                        result = FindPlayerInfoByID( id );
                         return true;
                     }
                     // multiple partial matches found
@@ -198,13 +198,12 @@ namespace fCraft {
                     List<PlayerInfo> results = new List<PlayerInfo>();
                     while( reader.Read() ) {
                         int id = reader.GetInt32( 0 );
-                        results.Add( GetPlayerInfoFromID( id ) );
+                        results.Add( FindPlayerInfoByID( id ) );
                     }
                     return results;
                 }
             }
         }
-
 
 
         public void MassRankChange( Player player, Rank from, Rank to, string reason ) {
@@ -241,7 +240,7 @@ namespace fCraft {
             connection.Password = config.Password;
             connection.Open();
 
-            LoadSchema();
+            CheckSchema();
 
             PrepareCommands();
 
@@ -380,29 +379,12 @@ namespace fCraft {
         }
 
 
-        static PlayerInfo GetPlayerInfoFromID( int id ) {
+        static PlayerInfo FindPlayerInfoByID( int id ) {
             PlayerInfo result = PlayerDB.FindPlayerInfoByID( id );
             if( result == null ) {
-                throw new DataException( "Player id " + id + " was found, but no corresponding PlayerInfo exists." );
+                throw new DataException( "Player id " + id + " was found, but no corresponding PlayerInfo exists. Database must be out of sync." );
             }
             return result;
-        }
-
-        
-        Dictionary<int, Rank> rankMapping;
-
-
-        [NotNull]
-        Rank GetRankByIndex( int index ) {
-            Rank rank;
-            if( rankMapping.TryGetValue( index, out rank ) ) {
-                return rank;
-            } else {
-                Logger.Log( LogType.Error,
-                            "MySqlPlayerDBProvider.GetRankByIndex: Unknown rank index ({0}). Assigning rank {1} instead.",
-                            index, RankManager.DefaultRank );
-                return RankManager.DefaultRank;
-            }
         }
     }
 }

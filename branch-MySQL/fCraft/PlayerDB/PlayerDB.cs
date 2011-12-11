@@ -34,8 +34,9 @@ namespace fCraft {
         public static PlayerInfo AddSuper( ReservedPlayerID id, [NotNull] string name, [NotNull] Rank rank ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             CheckIfLoaded();
-            PlayerInfo newInfo = new PlayerInfo( (int)id, name, IPAddress.None, rank );
-            newInfo.RaisePropertyChangedEvents = true;
+            PlayerInfo newInfo = new PlayerInfo( (int)id, name, IPAddress.None, rank ) {
+                RaisePropertyChangedEvents = true
+            };
             return newInfo;
         }
 
