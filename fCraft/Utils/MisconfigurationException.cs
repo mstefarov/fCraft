@@ -2,9 +2,8 @@
 using System;
 
 namespace fCraft {
-    public class MisconfigurationException : Exception {
-        public MisconfigurationException()
-            : base() { }
+    public sealed class MisconfigurationException : Exception {
+        public MisconfigurationException() { }
 
         public MisconfigurationException( string message )
             : base( message ) { }

@@ -36,7 +36,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdColors );
 
 #if DEBUG_SCHEDULER
-            CommandManager.RegisterCommand( cdTaskDebug );
+            CommandManager.RegisterCommand( CdTaskDebug );
 #endif
         }
 
@@ -1278,7 +1278,7 @@ namespace fCraft {
 
 
 #if DEBUG_SCHEDULER
-        static CommandDescriptor cdTaskDebug = new CommandDescriptor {
+        static readonly CommandDescriptor CdTaskDebug = new CommandDescriptor {
             Name = "TaskDebug",
             Category = CommandCategory.Info | CommandCategory.Debug,
             IsConsoleSafe = true,

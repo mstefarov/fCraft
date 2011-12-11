@@ -1,28 +1,39 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Generic;
 using System.Net;
 using Devart.Data.MySql;
+using System.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    // MySql-specific implementation details
     partial class MySqlPlayerDBProvider {
 
-        const string MetadataTableName = "metadata";
-        const string PlayersTableName = "players";
-        const string RankMappingTableName = "rank_mapping";
+        #region Queries
 
-        const string PreInsertQuery = "INSERT INTO " + PlayersTableName + "(id) VALUES(0);";
-        const string LoadAllQuery = "SELECT * FROM " + PlayersTableName + " ORDER BY id;";
-        const string FindExactQuery = "SELECT id FROM " + PlayersTableName + " WHERE name LIKE ? LIMIT 1;";
-        const string FindByIPQuery = "SELECT id FROM " + PlayersTableName + " WHERE last_ip=? LIMIT ?;";
-        const string FindPartialQuery = "SELECT id FROM " + PlayersTableName + " WHERE name LIKE ?;";
-        const string DeleteCommandText = "DELETE FROM " + PlayersTableName + " WHERE id=? LIMIT 1;";
+        const string PreInsertQuery = "INSERT INTO `players`(`id`) VALUES(0);";
+        const string LoadAllQuery = "SELECT * FROM `players` ORDER BY `id`;";
+        const string FindExactQuery = "SELECT `id` FROM `players` WHERE `name` LIKE ? LIMIT 1;";
+        const string FindByIPQuery = "SELECT `id` FROM `players` WHERE `last_ip`=? LIMIT ?;";
+        const string FindPartialQuery = "SELECT `id` FROM `players` WHERE `name` LIKE ?;";
+        const string DeleteCommandText = "DELETE FROM `players` WHERE `id`=? LIMIT 1;";
 
-        const string LoadMetadataQuery = "SELECT * FROM " + MetadataTableName + ";";
-        const string LoadRankMappingQuery = "SELECT * FROM " + RankMappingTableName + ";";
+        const string LoadMetadataQuery = "SELECT * FROM `metadata`;";
+        const string InsertMetadataCommandText = "INSERT INTO `metadata` VALUES(?,?,?);";
+
+        const string LoadRankMappingQuery = "SELECT * FROM `rank_mapping`;";
+        const string ListRanksQuery = "SELECT DISTINCT `rank` FROM `players`;";
+        const string ListPreviousRanksQuery = "SELECT DISTINCT `previous_rank` FROM `players` WHERE `previous_rank`!=-1;";
+        const string UpdateRankIndexCommandText = "UPDATE `players` SET `rank`=? WHERE `rank`=?;";
+        const string UpdatePreviousRankIndexCommandText = "UPDATE `players` SET `previous_rank`=? WHERE `previous_rank`=?;";
+        const string PermRankIncidesCommandText = "UPDATE `players` SET `rank`=-(`rank`+2);";
+        const string PermPreviousRankIndicesCommandText = "UPDATE `players` SET `previous_rank`=-(`previous_rank`+2) WHERE `previous_rank`!=-1;";
+        const string TruncateRankMappingCommandText = "TRUNCATE TABLE `rank_mapping`;";
+        const string AddRankMappingCommandText = "INSERT INTO `rank_mapping`(`index`,`name`) VALUES(?,?);";
         
-        const string UpdateQuery =
-@"UPDATE " + PlayersTableName + @" SET
+        const string UpdateCommandText =
+@"UPDATE `players` SET
 name=?,
 displayed_name=?,
 last_seen=?,
@@ -71,91 +82,278 @@ bandwidth_use_mode=?
 WHERE id=? LIMIT 1;";
 
         const string MetadataTableSchema =
-@"CREATE TABLE IF NOT EXISTS " + MetadataTableName + @" (
-  format_version int(11) NOT NULL,
-  server_version_string varchar(64) NOT NULL,
-  last_modified int(11) NOT NULL
+@"CREATE TABLE IF NOT EXISTS `metadata` (
+  `format_version` int(11) NOT NULL,
+  `server_version_string` varchar(64) NOT NULL,
+  `last_modified` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=ascii COMMENT='Info about the origin and storage format.';";
 
         const string PlayersTableSchema =
-@"CREATE TABLE IF NOT EXISTS " + PlayersTableName + @" (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  name varchar(16) NOT NULL,
-  displayed_name varchar(64) DEFAULT NULL,
-  last_seen bigint(20) NOT NULL,
-  rank smallint(6) NOT NULL,
-  previous_rank smallint(6) NOT NULL,
-  rank_change_type tinyint(4) NOT NULL,
-  rank_change_date bigint(20) NOT NULL,
-  rank_changed_by varchar(255) DEFAULT NULL,
-  rank_change_reason varchar(1024) DEFAULT NULL,
-  ban_status tinyint(4) NOT NULL,
-  ban_date bigint(20) NOT NULL,
-  banned_by varchar(255) DEFAULT NULL,
-  ban_reason varchar(1024) DEFAULT NULL,
-  banned_until bigint(20) NOT NULL,
-  last_failed_login_date bigint(20) NOT NULL,
-  last_failed_login_ip int(11) NOT NULL,
-  unban_date bigint(20) NOT NULL,
-  unbanned_by varchar(255) DEFAULT NULL,
-  unban_reason varchar(1024) DEFAULT NULL,
-  first_login_date bigint(20) NOT NULL,
-  last_login_date bigint(20) NOT NULL,
-  total_time int(11) NOT NULL,
-  blocks_built int(11) NOT NULL,
-  blocks_deleted int(11) NOT NULL,
-  blocks_drawn bigint(20) NOT NULL,
-  times_visited int(11) NOT NULL,
-  messages_written int(11) NOT NULL,
-  times_kicked_others int(11) NOT NULL,
-  times_banned_others int(11) NOT NULL,
-  times_kicked int(11) NOT NULL,
-  last_kick_date int(11) NOT NULL,
-  last_kick_by varchar(255) DEFAULT NULL,
-  last_kick_reason varchar(1024) DEFAULT NULL,
-  is_frozen tinyint(1) NOT NULL,
-  frozen_on int(11) NOT NULL,
-  frozen_by varchar(255) DEFAULT NULL,
-  muted_until int(11) NOT NULL,
-  muted_by varchar(255) DEFAULT NULL,
-  password varchar(64) DEFAULT NULL,
-  last_modified int(11) NOT NULL,
-  is_online tinyint(1) NOT NULL,
-  is_hidden tinyint(1) NOT NULL,
-  last_ip int(11) NOT NULL,
-  leave_reason tinyint(4) NOT NULL,
-  bandwidth_use_mode tinyint(4) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY name (name),
-  KEY last_ip (last_ip)
-) ENGINE=InnoDB  DEFAULT CHARSET=ascii COMMENT='PlayerInfo records.' AUTO_INCREMENT=256;";
+@"CREATE TABLE IF NOT EXISTS `players` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(16) NOT NULL,
+  `displayed_name` varchar(64) DEFAULT NULL,
+  `last_seen` bigint(20) NOT NULL,
+  `rank` smallint(6) NOT NULL,
+  `previous_rank` smallint(6) NOT NULL,
+  `rank_change_type` tinyint(4) NOT NULL,
+  `rank_change_date` bigint(20) NOT NULL,
+  `rank_changed_by` varchar(255) DEFAULT NULL,
+  `rank_change_reason` varchar(1024) DEFAULT NULL,
+  `ban_status` tinyint(4) NOT NULL,
+  `ban_date` bigint(20) NOT NULL,
+  `banned_by` varchar(255) DEFAULT NULL,
+  `ban_reason` varchar(1024) DEFAULT NULL,
+  `banned_until` bigint(20) NOT NULL,
+  `last_failed_login_date` bigint(20) NOT NULL,
+  `last_failed_login_ip` int(11) NOT NULL,
+  `unban_date` bigint(20) NOT NULL,
+  `unbanned_by` varchar(255) DEFAULT NULL,
+  `unban_reason` varchar(1024) DEFAULT NULL,
+  `first_login_date` bigint(20) NOT NULL,
+  `last_login_date` bigint(20) NOT NULL,
+  `total_time` int(11) NOT NULL,
+  `blocks_built` int(11) NOT NULL,
+  `blocks_deleted` int(11) NOT NULL,
+  `blocks_drawn` bigint(20) NOT NULL,
+  `times_visited` int(11) NOT NULL,
+  `messages_written` int(11) NOT NULL,
+  `times_kicked_others` int(11) NOT NULL,
+  `times_banned_others` int(11) NOT NULL,
+  `times_kicked` int(11) NOT NULL,
+  `last_kick_date` int(11) NOT NULL,
+  `last_kick_by` varchar(255) DEFAULT NULL,
+  `last_kick_reason` varchar(1024) DEFAULT NULL,
+  `is_frozen` tinyint(1) NOT NULL,
+  `frozen_on` int(11) NOT NULL,
+  `frozen_by` varchar(255) DEFAULT NULL,
+  `muted_until` int(11) NOT NULL,
+  `muted_by` varchar(255) DEFAULT NULL,
+  `password` varchar(64) DEFAULT NULL,
+  `last_modified` int(11) NOT NULL,
+  `is_online` tinyint(1) NOT NULL,
+  `is_hidden` tinyint(1) NOT NULL,
+  `last_ip` int(11) NOT NULL,
+  `leave_reason` tinyint(4) NOT NULL,
+  `bandwidth_use_mode` tinyint(4) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  KEY `last_ip` (`last_ip`)
+) ENGINE=InnoDB DEFAULT CHARSET=ascii COMMENT='PlayerInfo records.' AUTO_INCREMENT=256;";
 
         const string RankMappingTableSchema =
-@"CREATE TABLE IF NOT EXISTS `" + RankMappingTableName + @"` (
+@"CREATE TABLE IF NOT EXISTS `rank_mapping` (
   `index` smallint(6) NOT NULL,
   `name` varchar(64) NOT NULL,
   PRIMARY KEY (`index`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=ascii COMMENT='Mapping of numeric rank indices to qualified rank names.';";
 
-        const string InsertMetadataCommandText = "INSERT INTO " + MetadataTableName + " VALUES(?,?,?);";
+        #endregion
 
-        MySqlCommand findExactCommand,
-                     findByIPCommand,
-                     findPartialCommand,
-                     deleteCommand,
-                     preInsertCommand,
-                     updateCommand;
 
         const int NameSize = 16,
                   DisplayedNameSize = 64,
                   ByFieldSize = 255,
                   ReasonFieldSize = 1024,
                   PasswordFieldSize = 64;
+        const MySqlType DateType = MySqlType.BigInt;
+        const int FormatVersion = 0;
+
+
+        void CheckSchema() {
+            using( MySqlTransaction transaction = connection.BeginTransaction() ) {
+                // Create metadata table. Does noting if table already exists.
+                transaction.ExecuteNonQuery( MetadataTableSchema );
+
+                // load metadata
+                using( MySqlCommand loadMetadataCmd = new MySqlCommand( LoadMetadataQuery, connection, transaction ) ) {
+                    using( MySqlDataReader reader = loadMetadataCmd.ExecuteReader() ) {
+                        if( reader.Read() ) {
+                            // read existing metadata
+                            int workingFormatVersion = reader.GetInt32( 0 );
+                            string workingServerVersionString = reader.GetString( 1 );
+                            DateTime workingLastModified = reader.GetInt64( 2 ).ToDateTime();
+                            Logger.Log( LogType.SystemActivity,
+                                        "Loading PlayerDB (format {0}, generated by {1}, last modified {2})",
+                                        workingFormatVersion,
+                                        workingServerVersionString,
+                                        workingLastModified.ToCompactString() );
+                        } else {
+                            // no metadata found - insert a row
+                            Logger.Log( LogType.Warning,
+                                        "No existing metadata record found in the specified database." );
+                            GenerateSchema( transaction );
+                        }
+                    }
+                }
+
+                // load the rank mapping
+                var databaseRankMapping = new Dictionary<int, Rank>();
+                using( MySqlCommand loadRankMappingCmd = new MySqlCommand( LoadRankMappingQuery, connection, transaction ) ) {
+                    using( MySqlDataReader reader = loadRankMappingCmd.ExecuteReader() ) {
+                        int index = reader.GetInt32( 0 );
+                        string rankName = reader.GetString( 1 );
+                        Rank rank = Rank.Parse( rankName );
+                        if( rank == null ) {
+                            rank = RankManager.DefaultRank;
+                            Logger.Log( LogType.Warning,
+                                        "MySqlPlayerDBProvider: Unrecognized rank \"{0}\". Any reference to this rank will be replaced with \"{1}\".",
+                                        rankName, rank.Name );
+                        }
+                        databaseRankMapping.Add( index, rank );
+                    }
+                }
+
+                // check if multiple indices refer to the same rank
+                var indicesGroupedByRank = databaseRankMapping.GroupBy( pair => pair.Value );
+                foreach( var indexGroup in indicesGroupedByRank.Where( group => group.Count() > 1 ) ) {
+                    Logger.Log( LogType.Warning,
+                                "MySqlPlayerDBProvider: Multiple incides ({0}) refer to the same rank ({1}) and will be merged.",
+                                indexGroup.Select( pair => pair.Key ).JoinToString(),
+                                indexGroup.Key.Name );
+                }
+
+                // enumerate all rank IDs in the database
+                var allRankIDs = new HashSet<int>();
+                using( MySqlCommand listRanksCmd = new MySqlCommand( ListRanksQuery, connection, transaction ) ) {
+                    using( MySqlDataReader reader = listRanksCmd.ExecuteReader() ) {
+                        while( reader.Read() ) {
+                            allRankIDs.Add( reader.GetInt32( 0 ) );
+                        }
+                    }
+                }
+                using( MySqlCommand listPreviousRanksCmd = new MySqlCommand( ListPreviousRanksQuery, connection, transaction ) ) {
+                    using( MySqlDataReader reader = listPreviousRanksCmd.ExecuteReader() ) {
+                        while( reader.Read() ) {
+                            allRankIDs.Add( reader.GetInt32( 0 ) );
+                        }
+                    }
+                }
+
+                // Replace any unknown rank indices with the default rank.
+                var unknownRanks = allRankIDs.Except( databaseRankMapping.Keys );
+                if( unknownRanks.Count() > 0 ) {
+                    Logger.Log( LogType.Warning,
+                                "MySqlPlayerDBProvider: Following unrecognized rank indices will be replaced with the default rank ({0}): {1}",
+                                RankManager.DefaultRank.Name,
+                                unknownRanks.JoinToString() );
+                    foreach( int unknownIndex in unknownRanks ) {
+                        databaseRankMapping.Add( unknownIndex, RankManager.DefaultRank );
+                    }
+                }
+
+                // check if rank mappings are in sync
+                rankMapping = RankManager.Ranks
+                                         .OrderBy( rank => rank.Index )
+                                         .ToDictionary( rank => rank.Index );
+
+                if( !rankMapping.SequenceEqual( databaseRankMapping.OrderBy( pair => pair.Key ) ) ) {
+                    Logger.Log( LogType.Warning,
+                                "MySqlPlayerDBProvider: Updating database rank mapping..." );
+                    RebuildRankMapping( databaseRankMapping, transaction );
+                }
+
+                // done loading (phew)
+                transaction.Commit();
+            }
+        }
+
+
+        void GenerateSchema( MySqlTransaction transaction ) {
+            using( MySqlCommand insertMetadataCmd = new MySqlCommand( InsertMetadataCommandText, connection, transaction ) ) {
+                insertMetadataCmd.Parameters.Add( "format_version", MySqlType.Int );
+                insertMetadataCmd.Parameters.Add( "server_version_string", MySqlType.VarChar, 255 );
+                insertMetadataCmd.Parameters.Add( "last_modified", DateType );
+                insertMetadataCmd.Parameters[0].Value = FormatVersion;
+                insertMetadataCmd.Parameters[1].Value = Updater.CurrentRelease.VersionString;
+                insertMetadataCmd.Parameters[2].Value = DateTime.UtcNow.ToUnixTime();
+                insertMetadataCmd.ExecuteNonQuery();
+            }
+            transaction.ExecuteNonQuery( PlayersTableSchema );
+            transaction.ExecuteNonQuery( RankMappingTableSchema );
+        }
+
+
+        #region Rank Mapping
 
         const short NoRankIndex = -1;
+        Dictionary<int, Rank> rankMapping;
 
-        const MySqlType DateType = MySqlType.BigInt;
+
+        [NotNull]
+        Rank GetRankByIndex( int index ) {
+            Rank rank;
+            if( rankMapping.TryGetValue( index, out rank ) ) {
+                return rank;
+            } else {
+                Logger.Log( LogType.Error,
+                            "MySqlPlayerDBProvider.GetRankByIndex: Unknown rank index ({0}). Assigning rank {1} instead.",
+                            index, RankManager.DefaultRank );
+                return RankManager.DefaultRank;
+            }
+        }
+
+
+        static int GetRankTempIndex( Rank rank ) {
+            return -(rank.Index + 2);
+        }
+
+
+        void RebuildRankMapping( Dictionary<int, Rank> databaseRankMapping, MySqlTransaction transaction ) {
+            // change all rank indices to temporary values
+            using( MySqlCommand updateRankIndexCmd = new MySqlCommand( UpdateRankIndexCommandText, connection, transaction ) ) {
+                updateRankIndexCmd.Parameters.Add( "newRank", MySqlType.SmallInt );
+                updateRankIndexCmd.Parameters.Add( "oldRank", MySqlType.SmallInt );
+                foreach( var pair in databaseRankMapping ) {
+                    updateRankIndexCmd.Parameters[0].Value = GetRankTempIndex( pair.Value );
+                    updateRankIndexCmd.Parameters[1].Value = pair.Key;
+                    updateRankIndexCmd.ExecuteNonQuery();
+                }
+            }
+
+            // change all rank indices to new permanent values
+            transaction.ExecuteNonQuery( PermRankIncidesCommandText );
+
+            // change all previous_rank indices to temporary values
+            using( MySqlCommand updatePreviousRankIndexCmd = new MySqlCommand( UpdatePreviousRankIndexCommandText, connection, transaction ) ) {
+                updatePreviousRankIndexCmd.Parameters.Add( "newRank", MySqlType.SmallInt );
+                updatePreviousRankIndexCmd.Parameters.Add( "oldRank", MySqlType.SmallInt );
+                foreach( var pair in databaseRankMapping ) {
+                    updatePreviousRankIndexCmd.Parameters[0].Value = GetRankTempIndex( pair.Value );
+                    updatePreviousRankIndexCmd.Parameters[1].Value = pair.Key;
+                    updatePreviousRankIndexCmd.ExecuteNonQuery();
+                }
+            }
+
+            // change all previous_rank indices to new permanent values
+            transaction.ExecuteNonQuery( PermPreviousRankIndicesCommandText );
+
+            // recreate the rank_mapping table
+            transaction.ExecuteNonQuery( TruncateRankMappingCommandText );
+
+            using( MySqlCommand addRankMappingCmd = new MySqlCommand( AddRankMappingCommandText, connection, transaction ) ) {
+                addRankMappingCmd.Parameters.Add( "index", MySqlType.SmallInt );
+                addRankMappingCmd.Parameters.Add( "name", MySqlType.SmallInt );
+                foreach( var pair in rankMapping ) {
+                    addRankMappingCmd.Parameters[0].Value = pair.Key;
+                    addRankMappingCmd.Parameters[1].Value = pair.Value;
+                    addRankMappingCmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        #endregion
+
+
+        #region Prepared Commands
+
+        MySqlCommand findExactCommand,
+             findByIPCommand,
+             findPartialCommand,
+             deleteCommand,
+             preInsertCommand,
+             updateCommand;
 
 
         void PrepareCommands() {
@@ -179,7 +377,7 @@ WHERE id=? LIMIT 1;";
             preInsertCommand = new MySqlCommand( PreInsertQuery, connection );
             preInsertCommand.Prepare();
 
-            updateCommand = new MySqlCommand( UpdateQuery, connection );
+            updateCommand = new MySqlCommand( UpdateCommandText, connection );
             updateCommand.Parameters.Add( "Name", MySqlType.VarChar, NameSize );
             updateCommand.Parameters.Add( "DisplayedName", MySqlType.VarChar, DisplayedNameSize );
             updateCommand.Parameters.Add( "LastSeen", DateType );
@@ -227,55 +425,6 @@ WHERE id=? LIMIT 1;";
             updateCommand.Parameters.Add( "BandwidthUseMode", MySqlType.TinyInt );
             updateCommand.Parameters.Add( "ID", MySqlType.Int );
             updateCommand.Prepare();
-        }
-
-        const int FormatVersion = 0;
-
-        void LoadSchema() {
-            using( MySqlTransaction transaction = connection.BeginTransaction() ) {
-                using( MySqlCommand createMetadataCmd = new MySqlCommand( MetadataTableSchema, connection, transaction ) ) {
-                    createMetadataCmd.ExecuteNonQuery();
-                }
-                using( MySqlCommand loadMetadataCmd = new MySqlCommand( LoadMetadataQuery, connection, transaction ) ) {
-                    using( MySqlDataReader reader = loadMetadataCmd.ExecuteReader() ) {
-                        if( reader.Read() ) {
-                            // read existing metadata
-                            int workingFormatVersion = reader.GetInt32( 0 );
-                            string workingServerVersionString = reader.GetString( 1 );
-                            DateTime workingLastModified = reader.GetInt64( 2 ).ToDateTime();
-                            Logger.Log( LogType.SystemActivity,
-                                        "Loading PlayerDB (format {0}, generated by {1}, last modified {2})",
-                                        workingFormatVersion,
-                                        workingServerVersionString,
-                                        workingLastModified.ToCompactString() );
-                        } else {
-                            // no metadata found - insert a row
-                            Logger.Log( LogType.Warning,
-                                        "No existing metadata record found in the specified database." );
-                            GenerateSchema( transaction );
-                        }
-                    }
-                }
-                transaction.Commit();
-            }
-        }
-
-        void GenerateSchema( MySqlTransaction transaction ) {
-            using( MySqlCommand insertMetadataCmd = new MySqlCommand( InsertMetadataCommandText, connection, transaction ) ) {
-                insertMetadataCmd.Parameters.Add( "format_version", MySqlType.Int );
-                insertMetadataCmd.Parameters.Add( "server_version_string", MySqlType.VarChar, 255 );
-                insertMetadataCmd.Parameters.Add( "last_modified", DateType );
-                insertMetadataCmd.Parameters[0].Value = FormatVersion;
-                insertMetadataCmd.Parameters[1].Value = Updater.CurrentRelease.VersionString;
-                insertMetadataCmd.Parameters[2].Value = DateTime.UtcNow.ToUnixTime();
-                insertMetadataCmd.ExecuteNonQuery();
-            }
-            using( MySqlCommand createPlayersCmd = new MySqlCommand( PlayersTableSchema, connection, transaction ) ) {
-                createPlayersCmd.ExecuteNonQuery();
-            }
-            using( MySqlCommand createRankMappingCmd = new MySqlCommand( RankMappingTableSchema, connection, transaction ) ) {
-                createRankMappingCmd.ExecuteNonQuery();
-            }
         }
 
 
@@ -375,6 +524,8 @@ WHERE id=? LIMIT 1;";
             return updateCommand;
         }
 
+        #endregion
+
 
         enum Field {
             ID = 0,
@@ -423,6 +574,14 @@ WHERE id=? LIMIT 1;";
             LastIP = 43,
             LeaveReason = 44,
             BandwidthUseMode = 45
+        }
+    }
+
+    static class MySqlUtils {
+        public static void ExecuteNonQuery( this MySqlTransaction transaction, string commandText ) {
+            using( MySqlCommand cmd = new MySqlCommand( commandText, transaction.Connection, transaction ) ) {
+                cmd.ExecuteNonQuery();
+            }
         }
     }
 }

@@ -331,18 +331,16 @@ namespace fCraft {
             bool fromFile = false;
 
             // try to load config file (XML)
-            XDocument file;
             XElement config;
             if( File.Exists( Paths.ConfigFileName ) ) {
                 try {
-                    file = XDocument.Load( Paths.ConfigFileName );
+                    XDocument file = XDocument.Load( Paths.ConfigFileName );
                     config = file.Root;
                     if( config == null || config.Name != XmlRootName ) {
                         Logger.Log( LogType.Warning,
                                     "Config.Load: Malformed or incompatible config file {0}. Loading defaults.",
                                     Paths.ConfigFileName );
                         config = new XElement( XmlRootName );
-                        file = new XDocument( config );
                     } else {
                         Logger.Log( LogType.Debug,
                                     "Config.Load: Config file {0} loaded succesfully.",
@@ -356,7 +354,6 @@ namespace fCraft {
             } else {
                 // create a new one (with defaults) if no file exists
                 config = new XElement( XmlRootName );
-                file = new XDocument( config );
             }
 
             int version = 0;
@@ -509,8 +506,16 @@ namespace fCraft {
         static void ParseKeyElement( [NotNull] XElement element ) {
             if( element == null ) throw new ArgumentNullException( "element" );
 
-            string keyName = element.Attribute( "key" ).Value;
-            string value = element.Attribute( "value" ).Value;
+            XAttribute keyAttr = element.Attribute( "key" );
+            XAttribute valueAttr = element.Attribute( "value" );
+            if( keyAttr == null || valueAttr == null ) {
+                Logger.Log( LogType.Error,
+                            "Malformed ConfigKey element: {0}",
+                            element );
+                return;
+            }
+            string keyName = keyAttr.Value;
+            string value = valueAttr.Value;
             ConfigKey key;
             if( EnumUtil.TryParse( keyName, out key, true ) ) {
                 // known key

@@ -265,7 +265,7 @@ namespace fCraft {
 
 
 #if DEBUG_SCHEDULER
-    public class SchedulerTaskEventArgs : EventArgs {
+    public sealed class SchedulerTaskEventArgs : EventArgs {
         public SchedulerTaskEventArgs( SchedulerTask task ) {
             Task = task;
         }

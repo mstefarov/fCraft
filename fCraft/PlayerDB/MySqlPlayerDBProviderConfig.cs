@@ -5,7 +5,7 @@ using System.Xml.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    public class MySqlPlayerDBProviderConfig {
+    public sealed class MySqlPlayerDBProviderConfig {
 
         public MySqlPlayerDBProviderConfig()
             : this( "localhost", 3306, "fcraft", "user", "" ) { }
@@ -88,7 +88,7 @@ namespace fCraft {
 
         #region Serialization
 
-        public static string XmlRootName = "MySqlPlayerDBProviderConfig";
+        public const string XmlRootName = "MySqlPlayerDBProviderConfig";
 
         [NotNull]
         public XElement Serialize() {
