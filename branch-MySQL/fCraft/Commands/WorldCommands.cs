@@ -1881,12 +1881,12 @@ namespace fCraft {
             if( world.IsLocked ) {
                 player.Message( "  {0}&S was locked {1} ago by {2}",
                                 world.ClassyName,
-                                DateTime.UtcNow.Subtract( world.LockedDate ).ToMiniString(),
+                                DateTime.UtcNow.Subtract( world.LockDate ).ToMiniString(),
                                 world.LockedBy );
             } else if( world.UnlockedBy != null ) {
                 player.Message( "  {0}&S was unlocked {1} ago by {2}",
                                 world.ClassyName,
-                                DateTime.UtcNow.Subtract( world.UnlockedDate ).ToMiniString(),
+                                DateTime.UtcNow.Subtract( world.UnlockDate ).ToMiniString(),
                                 world.UnlockedBy );
             }
 
@@ -2085,11 +2085,6 @@ namespace fCraft {
                             newWorld = WorldManager.AddWorld( player, worldName, map, false );
                         } catch( WorldOpException ex ) {
                             player.Message( "WLoad: {0}", ex.Message );
-                            return;
-                        }
-
-                        if( newWorld == null ) {
-                            player.MessageNow( "Failed to create a new world." );
                             return;
                         }
 

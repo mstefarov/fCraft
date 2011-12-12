@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
 
@@ -15,8 +16,7 @@ namespace fCraft {
         public string Name { get; internal set; }
 
 
-        /// <summary> Whether the world shows up on the /Worlds list.
-        /// Can be assigned directly. </summary>
+        /// <summary> Whether the world shows up on the /Worlds list. </summary>
         public bool IsHidden { get; set; }
 
 
@@ -45,6 +45,7 @@ namespace fCraft {
             }
         }
 
+
         public DateTime MapChangedOn { get; private set; }
 
         [CanBeNull]
@@ -63,6 +64,7 @@ namespace fCraft {
 
 
         public BlockDB BlockDB { get; private set; }
+
 
         internal World( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -170,6 +172,7 @@ namespace fCraft {
                     BuildSecurity = (SecurityController)BuildSecurity.Clone(),
                     IsHidden = IsHidden,
                     BlockDB = BlockDB,
+                    BackupInterval = BackupInterval,
                     lastBackup = lastBackup,
                     LoadedBy = LoadedBy,
                     LoadedOn = LoadedOn,
@@ -179,11 +182,16 @@ namespace fCraft {
                     CloudColor = CloudColor,
                     SkyColor = SkyColor,
                     EdgeLevel = EdgeLevel,
-                    EdgeBlock = EdgeBlock
+                    EdgeBlock = EdgeBlock,
+                    IsLocked = IsLocked,
+                    LockedBy = LockedBy,
+                    UnlockedBy = UnlockedBy,
+                    LockDate = LockDate,
+                    UnlockDate = UnlockDate
                 };
                 newMap.World = newWorld;
                 newWorld.Map = newMap;
-                newWorld.NeverUnload = neverUnload;
+                newWorld.Preload = preload;
                 WorldManager.ReplaceWorld( this, newWorld );
                 lock( BlockDB.SyncRoot ) {
                     BlockDB.Clear();
@@ -196,16 +204,16 @@ namespace fCraft {
         }
 
 
-        bool neverUnload;
-        public bool NeverUnload {
+        bool preload;
+        public bool Preload {
             get {
-                return neverUnload;
+                return preload;
             }
             set {
                 lock( SyncRoot ) {
-                    if( neverUnload == value ) return;
-                    neverUnload = value;
-                    if( neverUnload ) {
+                    if( preload == value ) return;
+                    preload = value;
+                    if( preload ) {
                         if( Map == null ) LoadMap();
                     } else {
                         if( Map != null && playerIndex.Count == 0 ) UnloadMap( false );
@@ -335,7 +343,7 @@ namespace fCraft {
                 UpdatePlayerList();
 
                 // unload map (if needed)
-                if( playerIndex.Count == 0 && !neverUnload ) {
+                if( playerIndex.Count == 0 && !preload ) {
                     IsPendingMapUnload = true;
                 }
                 return true;
@@ -419,7 +427,7 @@ namespace fCraft {
         public bool IsLocked { get; private set; }
 
         public string LockedBy, UnlockedBy;
-        public DateTime LockedDate, UnlockedDate;
+        public DateTime LockDate, UnlockDate;
 
         readonly object lockLock = new object();
 
@@ -431,7 +439,7 @@ namespace fCraft {
                     return false;
                 } else {
                     LockedBy = player.Name;
-                    LockedDate = DateTime.UtcNow;
+                    LockDate = DateTime.UtcNow;
                     IsLocked = true;
                     Map mapCache = Map;
                     if( mapCache != null ) {
@@ -453,7 +461,7 @@ namespace fCraft {
             lock( lockLock ) {
                 if( IsLocked ) {
                     UnlockedBy = player.Name;
-                    UnlockedDate = DateTime.UtcNow;
+                    UnlockDate = DateTime.UtcNow;
                     IsLocked = false;
                     Players.Message( "&WMap was unlocked by {0}", player.ClassyName );
                     Logger.Log( LogType.UserActivity,
@@ -657,5 +665,188 @@ namespace fCraft {
         public override string ToString() {
             return String.Format( "World({0})", Name );
         }
+
+
+        #region Serialization
+        public const string BuildSecurityXmlTagName = "BuildSecurity",
+                            AccessSecurityXmlTagName = "AccessSecurity",
+                            EnvironmentXmlTagName = "Environment";
+
+        public const string XmlRootName = "World";
+
+        public World( [NotNull] string name, [NotNull] XElement el ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( el == null ) throw new ArgumentNullException( "el" );
+            if( !IsValidName( name ) ) {
+                throw new ArgumentException( "Unacceptible world name." );
+            }
+            Name = name;
+            UpdatePlayerList();
+
+            XAttribute tempAttr;
+
+            // load hidden status
+            if( (tempAttr = el.Attribute( "hidden" )) != null ) {
+                bool isHidden;
+                if( Boolean.TryParse( tempAttr.Value, out isHidden ) ) {
+                    IsHidden = isHidden;
+                } else {
+                    Logger.Log( LogType.Warning,
+                                "World: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
+                                Name );
+                }
+            }
+
+            // load access and build security
+            XElement tempEl;
+            if( (tempEl = el.Element( AccessSecurityXmlTagName )) != null ) {
+                AccessSecurity = new SecurityController( tempEl, true );
+            } else if( (tempEl = el.Element( "accessSecurity" )) != null ) {
+                AccessSecurity = new SecurityController( tempEl, true );
+            }
+            if( (tempEl = el.Element( BuildSecurityXmlTagName )) != null ) {
+                BuildSecurity = new SecurityController( tempEl, true );
+            } else if( (tempEl = el.Element( "buildSecurity" )) != null ) {
+                BuildSecurity = new SecurityController( tempEl, true );
+            }
+
+            // load backup interval
+            if( (tempAttr = el.Attribute( "backup" )) != null ) {
+                TimeSpan backupInterval;
+                if( tempAttr.Value.ToTimeSpan( out backupInterval ) ) {
+                    BackupInterval = backupInterval;
+                } else {
+                    BackupInterval = DefaultBackupInterval;
+                    Logger.Log( LogType.Warning,
+                                "WorldManager: Could not parse \"backup\" attribute of world \"{0}\", assuming default ({1}).",
+                                Name,
+                                BackupInterval.ToMiniString() );
+                }
+            } else {
+                BackupInterval = DefaultBackupInterval;
+            }
+
+            // load BlockDB settings
+            XElement blockEl = el.Element( BlockDB.XmlRootName );
+            if( blockEl != null ) {
+                BlockDB.LoadSettings( blockEl );
+            }
+
+            // load map (if needed)
+            Preload = (el.Attribute( "noUnload" ) != null);
+
+            // load environment settings
+            XElement envEl = el.Element( EnvironmentXmlTagName );
+            if( envEl != null ) {
+                if( (tempAttr = envEl.Attribute( "cloud" )) != null ) {
+                    if( !Int32.TryParse( tempAttr.Value, out CloudColor ) ) {
+                        CloudColor = -1;
+                        Logger.Log( LogType.Warning,
+                                    "WorldManager: Could not parse \"cloud\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
+                                    Name );
+                    }
+                }
+                if( (tempAttr = envEl.Attribute( "fog" )) != null ) {
+                    if( !Int32.TryParse( tempAttr.Value, out FogColor ) ) {
+                        FogColor = -1;
+                        Logger.Log( LogType.Warning,
+                                    "WorldManager: Could not parse \"fog\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
+                                    Name );
+                    }
+                }
+                if( (tempAttr = envEl.Attribute( "sky" )) != null ) {
+                    if( !Int32.TryParse( tempAttr.Value, out SkyColor ) ) {
+                        SkyColor = -1;
+                        Logger.Log( LogType.Warning,
+                                    "WorldManager: Could not parse \"sky\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
+                                    Name );
+                    }
+                }
+                if( (tempAttr = envEl.Attribute( "level" )) != null ) {
+                    if( !Int32.TryParse( tempAttr.Value, out EdgeLevel ) ) {
+                        EdgeLevel = -1;
+                        Logger.Log( LogType.Warning,
+                                    "WorldManager: Could not parse \"level\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
+                                    Name );
+                    }
+                }
+                if( (tempAttr = envEl.Attribute( "edge" )) != null ) {
+                    Block block = Map.GetBlockByName( tempAttr.Value );
+                    if( block == Block.Undefined ) {
+                        EdgeBlock = Block.Water;
+                        Logger.Log( LogType.Warning,
+                                    "WorldManager: Could not parse \"edge\" attribute of Environment settings for world \"{0}\", assuming default (Water).",
+                                    Name );
+                    } else {
+                        if( Map.GetEdgeTexture( block ) == null ) {
+                            EdgeBlock = Block.Water;
+                            Logger.Log( LogType.Warning,
+                                        "WorldManager: Unacceptable blocktype given for \"edge\" attribute of Environment settings for world \"{0}\", assuming default (Water).",
+                                        Name );
+                        } else {
+                            EdgeBlock = block;
+                        }
+                    }
+                }
+            }
+        }
+
+
+        [NotNull]
+        public XElement Serialize() {
+            return Serialize( XmlRootName );
+        }
+
+
+        [NotNull]
+        public XElement Serialize( [NotNull] string elementName ) {
+            if( elementName == null ) throw new ArgumentNullException( "elementName" );
+
+            XElement root = new XElement( elementName );
+            if( AccessSecurity.HasRestrictions ) {
+                root.Add( AccessSecurity.Serialize( AccessSecurityXmlTagName ) );
+            }
+            if( BuildSecurity.HasRestrictions ) {
+                root.Add( BuildSecurity.Serialize( BuildSecurityXmlTagName ) );
+            }
+
+            if( BackupInterval != DefaultBackupInterval ) {
+                root.Add( new XAttribute( "backup", BackupInterval.ToSecondsString() ) );
+            }
+
+            if( Preload ) {
+                root.Add( new XAttribute( "noUnload", true ) );
+            }
+            if( IsHidden ) {
+                root.Add( new XAttribute( "hidden", true ) );
+            }
+            root.Add( BlockDB.SaveSettings() );
+
+            if( !String.IsNullOrEmpty( LoadedBy ) ) {
+                root.Add( new XElement( "LoadedBy", LoadedBy ) );
+            }
+            if( LoadedOn != DateTime.MinValue ) {
+                root.Add( new XElement( "LoadedOn", LoadedOn.ToUnixTime() ) );
+            }
+            if( !String.IsNullOrEmpty( MapChangedBy ) ) {
+                root.Add( new XElement( "MapChangedBy", MapChangedBy ) );
+            }
+            if( MapChangedOn != DateTime.MinValue ) {
+                root.Add( new XElement( "MapChangedOn", MapChangedOn.ToUnixTime() ) );
+            }
+
+            XElement elEnv = new XElement( EnvironmentXmlTagName );
+            if( CloudColor > -1 ) elEnv.Add( new XAttribute( "cloud", CloudColor ) );
+            if( FogColor > -1 ) elEnv.Add( new XAttribute( "fog", FogColor ) );
+            if( SkyColor > -1 ) elEnv.Add( new XAttribute( "sky", SkyColor ) );
+            if( EdgeLevel > -1 ) elEnv.Add( new XAttribute( "level", EdgeLevel ) );
+            if( EdgeBlock != Block.Water ) elEnv.Add( new XAttribute( "edge", EdgeBlock ) );
+            if( elEnv.HasAttributes ) {
+                root.Add( elEnv );
+            }
+            return root;
+        }
+
+        #endregion
     }
 }

@@ -7,14 +7,10 @@ using System.Xml.Linq;
 using fCraft.Events;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
+using System.Runtime.Serialization;
 
 namespace fCraft {
     public static class WorldManager {
-        public const string BuildSecurityXmlTagName = "BuildSecurity",
-                            AccessSecurityXmlTagName = "AccessSecurity",
-                            EnvironmentXmlTagName = "Environment",
-                            RankMainXmlTagName = "RankMainWorld";
-
         public static World[] Worlds { get; private set; }
         static readonly SortedDictionary<string, World> WorldIndex = new SortedDictionary<string, World>();
 
@@ -38,10 +34,10 @@ namespace fCraft {
                 }
                 World oldWorld;
                 lock( SyncRoot ) {
-                    value.NeverUnload = true;
+                    value.Preload = true;
                     oldWorld = mainWorld;
                     if( oldWorld != null ) {
-                        oldWorld.NeverUnload = false;
+                        oldWorld.Preload = false;
                     }
                     mainWorld = value;
                 }
@@ -52,8 +48,10 @@ namespace fCraft {
 
         #region World List Saving/Loading
 
-        static World firstWorld;
+        const string RankMainXmlTagName = "RankMain";
+
         internal static bool LoadWorldList() {
+            World firstWorld = null;
             World newMainWorld = null;
             Worlds = new World[0];
             if( File.Exists( Paths.WorldListFileName ) ) {
@@ -62,16 +60,20 @@ namespace fCraft {
                     XElement root = doc.Root;
                     if( root != null ) {
                         foreach( XElement el in root.Elements( "World" ) ) {
-#if !DEBUG
+                            World newWorld;
+#if DEBUG
+                            newWorld = AddWorld( el );
+#else
                             try {
-#endif
-                                LoadWorldListEntry( el );
-#if !DEBUG
+                                newWorld = AddWorld( el );
                             } catch( Exception ex ) {
                                 Logger.LogAndReportCrash( "An error occured while trying to parse one of the entries on the world list",
                                                           "fCraft", ex, false );
                             }
 #endif
+                            if( firstWorld == null ) {
+                                firstWorld = newWorld;
+                            }
                         }
 
                         XAttribute temp;
@@ -93,6 +95,48 @@ namespace fCraft {
 
                         } else if( firstWorld != null ) {
                             newMainWorld = firstWorld;
+                        }
+
+                        foreach( XElement mainedRankEl in root.Elements( RankMainXmlTagName ) ) {
+                            temp = mainedRankEl.Attribute( "rank" );
+                            if( temp == null ) {
+                                Logger.Log( LogType.Warning,
+                                            "WorldManager.Load: Malformed RankMain element: \"rank\" attribute missing." );
+                                continue;
+                            }
+
+                            string rankName = temp.Value;
+                            Rank rank = Rank.Parse( rankName );
+                            if( rank == null ) {
+                                Logger.Log( LogType.Warning,
+                                            "Rank main defined for an unrecognized rank \"{0}\"",
+                                            rankName );
+                                continue;
+                            }
+
+                            temp = mainedRankEl.Attribute( "world" );
+                            if( temp == null ) {
+                                Logger.Log( LogType.Warning,
+                                            "WorldManager.Load: Malformed RankMain element: \"world\" attribute missing." );
+                                continue;
+                            }
+
+                            string worldName = temp.Value;
+                            World world = FindWorldExact( mainedRankEl.Value );
+                            if( world == null ) {
+                                Logger.Log( LogType.Warning,
+                                            "Rank main for \"{0}\" set to an unrecognized world \"{1}\"",
+                                            rank.Name, worldName );
+                                continue;
+                            }
+
+                            if( rank < world.AccessSecurity.MinRank ) {
+                                world.AccessSecurity.MinRank = rank;
+                                Logger.Log( LogType.Warning,
+                                            "WorldManager: Lowered access MinRank of world {0} to {1}+ to allow it to be the main world for that rank.",
+                                            world.Name, rank.Name );
+                            }
+                            rank.MainWorld = world;
                         }
                     }
                 } catch( Exception ex ) {
@@ -130,147 +174,13 @@ namespace fCraft {
             return true;
         }
 
-        static void LoadWorldListEntry( [NotNull] XElement el ) {
-            if( el == null ) throw new ArgumentNullException( "el" );
-            XAttribute tempAttr;
-            if( (tempAttr = el.Attribute( "name" )) == null ) {
-                Logger.Log( LogType.Error, "WorldManager: World tag with no name skipped." );
-                return;
-            }
-            string worldName = tempAttr.Value;
-
-            bool neverUnload = (el.Attribute( "noUnload" ) != null);
-
-            World world;
-            try {
-                world = AddWorld( null, worldName, null, neverUnload );
-            } catch( WorldOpException ex ) {
-                Logger.Log( LogType.Error,
-                            "WorldManager: Error adding world \"{0}\": {1}",
-                            worldName, ex.Message );
-                return;
-            }
-
-            if( (tempAttr = el.Attribute( "hidden" )) != null ) {
-                bool isHidden;
-                if( Boolean.TryParse( tempAttr.Value, out isHidden ) ) {
-                    world.IsHidden = isHidden;
-                } else {
-                    Logger.Log( LogType.Warning,
-                                "WorldManager: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
-                                worldName );
-                }
-            }
-            if( firstWorld == null ) firstWorld = world;
-
-            XElement tempEl;
-            if( (tempEl = el.Element( AccessSecurityXmlTagName )) != null ) {
-                world.AccessSecurity = new SecurityController( tempEl, true );
-            } else if( (tempEl = el.Element( "accessSecurity" )) != null ) {
-                world.AccessSecurity = new SecurityController( tempEl, true );
-            }
-            if( (tempEl = el.Element( BuildSecurityXmlTagName )) != null ) {
-                world.BuildSecurity = new SecurityController( tempEl, true );
-            } else if( (tempEl = el.Element( "buildSecurity" )) != null ) {
-                world.BuildSecurity = new SecurityController( tempEl, true );
-            }
-
-            if( (tempAttr = el.Attribute( "backup" )) != null ) {
-                TimeSpan backupInterval;
-                if( tempAttr.Value.ToTimeSpan( out backupInterval ) ) {
-                    world.BackupInterval = backupInterval;
-                } else {
-                    world.BackupInterval = World.DefaultBackupInterval;
-                    Logger.Log( LogType.Warning,
-                                "WorldManager: Could not parse \"backup\" attribute of world \"{0}\", assuming default ({1}).",
-                                worldName,
-                                world.BackupInterval.ToMiniString() );
-                }
-            } else {
-                world.BackupInterval = World.DefaultBackupInterval;
-            }
-
-            XElement blockEl = el.Element( BlockDB.XmlRootName );
-            if( blockEl != null ) {
-                world.BlockDB.LoadSettings( blockEl );
-            }
-
-            XElement envEl = el.Element( EnvironmentXmlTagName );
-            if( envEl != null ) {
-                if( (tempAttr = envEl.Attribute( "cloud" )) != null ) {
-                    if( !Int32.TryParse( tempAttr.Value, out world.CloudColor ) ) {
-                        world.CloudColor = -1;
-                        Logger.Log( LogType.Warning,
-                                    "WorldManager: Could not parse \"cloud\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
-                                    worldName );
-                    }
-                }
-                if( (tempAttr = envEl.Attribute( "fog" )) != null ) {
-                    if( !Int32.TryParse( tempAttr.Value, out world.FogColor ) ) {
-                        world.FogColor = -1;
-                        Logger.Log( LogType.Warning,
-                                    "WorldManager: Could not parse \"fog\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
-                                    worldName );
-                    }
-                }
-                if( (tempAttr = envEl.Attribute( "sky" )) != null ) {
-                    if( !Int32.TryParse( tempAttr.Value, out world.SkyColor ) ) {
-                        world.SkyColor = -1;
-                        Logger.Log( LogType.Warning,
-                                    "WorldManager: Could not parse \"sky\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
-                                    worldName );
-                    }
-                }
-                if( (tempAttr = envEl.Attribute( "level" )) != null ) {
-                    if( !Int32.TryParse( tempAttr.Value, out world.EdgeLevel ) ) {
-                        world.EdgeLevel = -1;
-                        Logger.Log( LogType.Warning,
-                                    "WorldManager: Could not parse \"level\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
-                                    worldName );
-                    }
-                }
-                if( (tempAttr = envEl.Attribute( "edge" )) != null ) {
-                    Block block = Map.GetBlockByName( tempAttr.Value );
-                    if( block == Block.Undefined ) {
-                        world.EdgeBlock = Block.Water;
-                        Logger.Log( LogType.Warning,
-                                    "WorldManager: Could not parse \"edge\" attribute of Environment settings for world \"{0}\", assuming default (Water).",
-                                    worldName );
-                    } else {
-                        if( Map.GetEdgeTexture( block ) == null ) {
-                            world.EdgeBlock = Block.Water;
-                            Logger.Log( LogType.Warning,
-                                        "WorldManager: Unacceptable blocktype given for \"edge\" attribute of Environment settings for world \"{0}\", assuming default (Water).",
-                                        worldName );
-                        } else {
-                            world.EdgeBlock = block;
-                        }
-                    }
-                }
-            }
-
-            foreach( XElement mainedRankEl in el.Elements( RankMainXmlTagName ) ) {
-                Rank rank = Rank.Parse( mainedRankEl.Value );
-                if( rank != null ) {
-                    if( rank < world.AccessSecurity.MinRank ) {
-                        world.AccessSecurity.MinRank = rank;
-                        Logger.Log( LogType.Warning,
-                                    "WorldManager: Lowered access MinRank of world {0} to allow it to be the main world for that rank.",
-                                    rank.Name );
-                    }
-                    rank.MainWorld = world;
-                }
-            }
-
-            CheckMapFile( world );
-        }
-
 
         // Makes sure that the map file exists, is properly named, and is loadable.
-        static void CheckMapFile( [NotNull] World world ) {
-            if( world == null ) throw new ArgumentNullException( "world" );
+        static void CheckMapFile( [NotNull] string worldName ) {
+            if( worldName == null ) throw new ArgumentNullException( "worldName" );
+
             // Check the world's map file
-            string fullMapFileName = world.MapFileName;
+            string fullMapFileName = Path.Combine( Paths.MapPath, worldName + ".fcm" );
             string fileName = Path.GetFileName( fullMapFileName );
 
             if( Paths.FileExists( fullMapFileName, false ) ) {
@@ -285,103 +195,63 @@ namespace fCraft {
                         if( Paths.FileExists( fullMapFileName, true ) ) {
                             Logger.Log( LogType.Warning,
                                         "WorldManager.CheckMapFile: Map file for world \"{0}\" was renamed from \"{1}\" to \"{2}\"",
-                                        world.Name, matches[0].Name, fileName );
+                                        worldName, matches[0].Name, fileName );
                         } else {
                             Logger.Log( LogType.Error,
                                         "WorldManager.CheckMapFile: Failed to rename map file of \"{0}\" from \"{1}\" to \"{2}\"",
-                                        world.Name, matches[0].Name, fileName );
+                                        worldName, matches[0].Name, fileName );
                             return;
                         }
                     } else {
                         Logger.Log( LogType.Warning,
                                     "WorldManager.CheckMapFile: More than one map file exists matching the world name \"{0}\". " +
                                     "Please check the map directory and use /WLoad to load the correct file.",
-                                    world.Name );
+                                    worldName );
                         return;
                     }
                 }
                 // Try loading the map header
                 try {
-                    MapUtility.LoadHeader( world.MapFileName );
+                    MapUtility.LoadHeader( fullMapFileName );
                 } catch( Exception ex ) {
                     Logger.Log( LogType.Warning,
                                 "WorldManager.CheckMapFile: Could not load map file for world \"{0}\": {1}",
-                                world.Name, ex );
+                                worldName, ex );
                 }
             } else {
                 Logger.Log( LogType.Warning,
                             "WorldManager.CheckMapFile: Map file for world \"{0}\" was not found.",
-                            world.Name );
+                            worldName );
             }
         }
 
 
+        const string WorldListTempFileName = Paths.WorldListFileName + ".tmp";
+
         /// <summary> Saves the current world list to worlds.xml. Thread-safe. </summary>
         public static void SaveWorldList() {
-            const string worldListTempFileName = Paths.WorldListFileName + ".tmp";
             // Save world list
+            XDocument doc = new XDocument();
+            XElement root = new XElement( "fCraftWorldList" );
+
             lock( SyncRoot ) {
-                XDocument doc = new XDocument();
-                XElement root = new XElement( "fCraftWorldList" );
-
                 foreach( World world in Worlds ) {
-                    XElement temp = new XElement( "World" );
-                    temp.Add( new XAttribute( "name", world.Name ) );
-
-                    if( world.AccessSecurity.HasRestrictions ) {
-                        temp.Add( world.AccessSecurity.Serialize( AccessSecurityXmlTagName ) );
-                    }
-                    if( world.BuildSecurity.HasRestrictions ) {
-                        temp.Add( world.BuildSecurity.Serialize( BuildSecurityXmlTagName ) );
-                    }
-
-                    if( world.BackupInterval != World.DefaultBackupInterval ) {
-                        temp.Add( new XAttribute( "backup", world.BackupInterval.ToSecondsString() ) );
-                    }
-
-                    if( world.NeverUnload ) {
-                        temp.Add( new XAttribute( "noUnload", true ) );
-                    }
-                    if( world.IsHidden ) {
-                        temp.Add( new XAttribute( "hidden", true ) );
-                    }
-                    temp.Add( world.BlockDB.SaveSettings() );
-
-                    World world1 = world;
-                    foreach( Rank mainedRank in RankManager.Ranks.Where( r => r.MainWorld == world1 ) ) {
-                        temp.Add( new XElement( RankMainXmlTagName, mainedRank.FullName ) );
-                    }
-
-                    if( !String.IsNullOrEmpty( world.LoadedBy ) ) {
-                        temp.Add( new XElement( "LoadedBy", world.LoadedBy ) );
-                    }
-                    if( world.LoadedOn != DateTime.MinValue ) {
-                        temp.Add( new XElement( "LoadedOn", world.LoadedOn.ToUnixTime() ) );
-                    }
-                    if( !String.IsNullOrEmpty( world.MapChangedBy ) ) {
-                        temp.Add( new XElement( "MapChangedBy", world.MapChangedBy ) );
-                    }
-                    if( world.MapChangedOn != DateTime.MinValue ) {
-                        temp.Add( new XElement( "MapChangedOn", world.MapChangedOn.ToUnixTime() ) );
-                    }
-
-                    XElement elEnv = new XElement( EnvironmentXmlTagName );
-                    if( world.CloudColor > -1 ) elEnv.Add( new XAttribute( "cloud", world.CloudColor ) );
-                    if( world.FogColor > -1 ) elEnv.Add( new XAttribute( "fog", world.FogColor ) );
-                    if( world.SkyColor > -1 ) elEnv.Add( new XAttribute( "sky", world.SkyColor ) );
-                    if( world.EdgeLevel > -1 ) elEnv.Add( new XAttribute( "level", world.EdgeLevel ) );
-                    if( world.EdgeBlock != Block.Water ) elEnv.Add( new XAttribute( "edge", world.EdgeBlock ) );
-                    if( elEnv.HasAttributes ) {
-                        temp.Add( elEnv );
-                    }
-
-                    root.Add( temp );
+                    root.Add( world.Serialize() );
                 }
+
+                foreach( Rank mainedRank in RankManager.Ranks ) {
+                    if( mainedRank.MainWorld == null || mainedRank.MainWorld == MainWorld ) continue;
+                    XElement mainedRankEl = new XElement( RankMainXmlTagName );
+                    mainedRankEl.Add( new XAttribute( "rank", mainedRank.FullName ) );
+                    mainedRankEl.Add( new XAttribute( "world", mainedRank.MainWorld.Name ) );
+                    root.Add( mainedRankEl );
+                }
+
                 root.Add( new XAttribute( "main", MainWorld.Name ) );
 
                 doc.Add( root );
-                doc.Save( worldListTempFileName );
-                Paths.MoveOrReplace( worldListTempFileName, Paths.WorldListFileName );
+                doc.Save( WorldListTempFileName );
+                Paths.MoveOrReplace( WorldListTempFileName, Paths.WorldListFileName );
             }
         }
 
@@ -477,7 +347,43 @@ namespace fCraft {
         #endregion
 
 
-        public static World AddWorld( [CanBeNull] Player player, [NotNull] string name, [CanBeNull] Map map, bool neverUnload ) {
+        [NotNull]
+        static World AddWorld( [NotNull] XElement el ) {
+            if( el == null ) throw new ArgumentNullException( "el" );
+            XAttribute tempAttr;
+            if( (tempAttr = el.Attribute( "name" )) == null ) {
+                throw new SerializationException( "World tags must contain a name" );
+            }
+            string name = tempAttr.Value;
+
+            if( !World.IsValidName( name ) ) {
+                throw new WorldOpException( name, WorldOpExceptionCode.InvalidWorldName );
+            }
+
+            lock( SyncRoot ) {
+                if( WorldIndex.ContainsKey( name.ToLower() ) ) {
+                    throw new WorldOpException( name, WorldOpExceptionCode.DuplicateWorldName );
+                }
+
+                CheckMapFile( name );
+
+                if( !RaiseWorldCreatingEvent( null, name, null, true ) ) {
+                    throw new WorldOpException( name, WorldOpExceptionCode.Cancelled );
+                }
+
+                World newWorld = new World( name, el );
+
+                WorldIndex.Add( name.ToLower(), newWorld );
+                UpdateWorldList();
+                RaiseWorldCreatedEvent( null, newWorld, true );
+
+                return newWorld;
+            }
+        }
+
+
+        [NotNull]
+        public static World AddWorld( [CanBeNull] Player player, [NotNull] string name, [CanBeNull] Map map, bool preload ) {
             if( name == null ) throw new ArgumentNullException( "name" );
 
             if( !World.IsValidName( name ) ) {
@@ -489,7 +395,7 @@ namespace fCraft {
                     throw new WorldOpException( name, WorldOpExceptionCode.DuplicateWorldName );
                 }
 
-                if( !RaiseWorldCreatingEvent( player, name, map ) ) {
+                if( !RaiseWorldCreatingEvent( player, name, map, false ) ) {
                     throw new WorldOpException( name, WorldOpExceptionCode.Cancelled );
                 }
 
@@ -497,8 +403,8 @@ namespace fCraft {
                     Map = map
                 };
 
-                if( neverUnload ) {
-                    newWorld.NeverUnload = true;
+                if( preload ) {
+                    newWorld.Preload = true;
                 }
 
                 if( map != null ) {
@@ -508,7 +414,7 @@ namespace fCraft {
                 WorldIndex.Add( name.ToLower(), newWorld );
                 UpdateWorldList();
 
-                RaiseWorldCreatedEvent( player, newWorld );
+                RaiseWorldCreatedEvent( player, newWorld, false );
 
                 return newWorld;
             }
@@ -596,7 +502,7 @@ namespace fCraft {
 
                 // cycle load/unload on the new world to save it under the new name
                 newWorld.Name = oldWorld.Name;
-                if( newWorld.NeverUnload ) {
+                if( newWorld.Preload ) {
                     newWorld.SaveMap();
                 } else {
                     newWorld.UnloadMap( false );
@@ -767,19 +673,19 @@ namespace fCraft {
             if( handler != null ) handler( null, new MainWorldChangedEventArgs( oldWorld, newWorld ) );
         }
 
-        static bool RaiseWorldCreatingEvent( [CanBeNull] Player player, [NotNull] string worldName, [CanBeNull] Map map ) {
+        static bool RaiseWorldCreatingEvent( [CanBeNull] Player player, [NotNull] string worldName, [CanBeNull] Map map, bool fromXml ) {
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
             var handler = WorldCreating;
             if( handler == null ) return true;
-            var e = new WorldCreatingEventArgs( player, worldName, map );
+            var e = new WorldCreatingEventArgs( player, worldName, map, fromXml );
             handler( null, e );
             return !e.Cancel;
         }
 
-        static void RaiseWorldCreatedEvent( [CanBeNull] Player player, [NotNull] World world ) {
+        static void RaiseWorldCreatedEvent( [CanBeNull] Player player, [NotNull] World world, bool fromXml ) {
             if( world == null ) throw new ArgumentNullException( "world" );
             var handler = WorldCreated;
-            if( handler != null ) handler( null, new WorldCreatedEventArgs( player, world ) );
+            if( handler != null ) handler( null, new WorldCreatedEventArgs( player, world, fromXml ) );
         }
 
         #endregion
