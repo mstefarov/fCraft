@@ -48,11 +48,12 @@ namespace fCraft.Events {
 
 
     public sealed class WorldCreatingEventArgs : EventArgs, ICancellableEvent {
-        internal WorldCreatingEventArgs( [CanBeNull] Player player, [NotNull] string worldName, [CanBeNull] Map map ) {
+        internal WorldCreatingEventArgs( [CanBeNull] Player player, [NotNull] string worldName, [CanBeNull] Map map, bool fromXml ) {
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
             Player = player;
             WorldName = worldName;
             Map = map;
+            FromXml = fromXml;
         }
 
         [CanBeNull]
@@ -64,15 +65,18 @@ namespace fCraft.Events {
         [CanBeNull]
         public Map Map { get; private set; }
 
+        public bool FromXml { get; private set; }
+
         public bool Cancel { get; set; }
     }
 
 
     public sealed class WorldCreatedEventArgs : EventArgs, IPlayerEvent, IWorldEvent {
-        internal WorldCreatedEventArgs( [CanBeNull] Player player, [NotNull] World world ) {
+        internal WorldCreatedEventArgs( [CanBeNull] Player player, [NotNull] World world, bool fromXml ) {
             if( world == null ) throw new ArgumentNullException( "world" );
             Player = player;
             World = world;
+            FromXml = fromXml;
         }
 
         [CanBeNull]
@@ -80,5 +84,8 @@ namespace fCraft.Events {
 
         [NotNull]
         public World World { get; private set; }
+
+
+        public bool FromXml { get; private set; }
     }
 }

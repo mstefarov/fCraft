@@ -80,11 +80,11 @@ namespace fCraft.ConfigGUI {
             }
 
             XElement tempEl;
-            if( (tempEl = el.Element( WorldManager.AccessSecurityXmlTagName )) != null ||
+            if( (tempEl = el.Element( World.AccessSecurityXmlTagName )) != null ||
                 (tempEl = el.Element( "accessSecurity" )) != null ) {
                 accessSecurity = new SecurityController( tempEl, false );
             }
-            if( (tempEl = el.Element( WorldManager.BuildSecurityXmlTagName )) != null ||
+            if( (tempEl = el.Element( World.BuildSecurityXmlTagName )) != null ||
                 (tempEl = el.Element( "buildSecurity" )) != null ) {
                 buildSecurity = new SecurityController( tempEl, false );
             }
@@ -154,7 +154,7 @@ namespace fCraft.ConfigGUI {
                     MapChangedOn = DateTime.MinValue;
                 }
             }
-            environmentEl = el.Element( WorldManager.EnvironmentXmlTagName );
+            environmentEl = el.Element( World.EnvironmentXmlTagName );
         }
 
         public string LoadedBy, MapChangedBy;
@@ -279,8 +279,8 @@ namespace fCraft.ConfigGUI {
             if( Backup != BackupEnumNames[0] ) {
                 element.Add( new XAttribute( "backup", BackupValueFromName( Backup ).ToSecondsString() ) );
             }
-            element.Add( accessSecurity.Serialize( WorldManager.AccessSecurityXmlTagName ) );
-            element.Add( buildSecurity.Serialize( WorldManager.BuildSecurityXmlTagName ) );
+            element.Add( accessSecurity.Serialize( World.AccessSecurityXmlTagName ) );
+            element.Add( buildSecurity.Serialize( World.BuildSecurityXmlTagName ) );
             XElement blockDB = new XElement( BlockDB.XmlRootName );
             blockDB.Add( new XAttribute( "enabled", BlockDBEnabled ) );
             blockDB.Add( new XAttribute( "preload", blockDBIsPreloaded ) );
