@@ -286,8 +286,8 @@ namespace fCraft {
             info.TimesBannedOthers = tempInt;
             // fields[29] is ID, read above
 
-            int rankChangeTypeCode;
-            if( Int32.TryParse( fields[30], out rankChangeTypeCode ) ) {
+            byte rankChangeTypeCode;
+            if( Byte.TryParse( fields[30], out rankChangeTypeCode ) ) {
                 info.RankChangeType = (RankChangeType)rankChangeTypeCode;
                 if( !Enum.IsDefined( typeof( RankChangeType ), rankChangeTypeCode ) ) {
                     GuessRankChangeType( info );
@@ -456,8 +456,8 @@ namespace fCraft {
                 info.TimesBannedOthers = tempInt;
                 // fields[29] (id) already read/assigned by this point
                 if( fields.Length > 29 ) {
-                    int rankChangeTypeCode;
-                    if( Int32.TryParse( fields[30], out rankChangeTypeCode ) ) {
+                    byte rankChangeTypeCode;
+                    if( Byte.TryParse( fields[30], out rankChangeTypeCode ) ) {
                         info.RankChangeType = (RankChangeType)rankChangeTypeCode;
                         if( !Enum.IsDefined( typeof( RankChangeType ), rankChangeTypeCode ) ) {
                             GuessRankChangeType( info );
