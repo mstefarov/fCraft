@@ -226,13 +226,11 @@ namespace fCraft {
         }
 
 
+        public static readonly TimeSpan MaxTimeSpan = TimeSpan.FromDays( 9999 );
+
+
         public static TimeSpan ParseMiniTimespan( [NotNull] this string text ) {
             if( text == null ) throw new ArgumentNullException( "text" );
-
-            int secondCount;
-            if( Int32.TryParse( text, out secondCount ) ) {
-                return TimeSpan.FromSeconds( secondCount );
-            }
 
             text = text.Trim();
             bool expectingDigit = true;

@@ -286,6 +286,10 @@ namespace fCraft {
                                 CdBlockDB.PrintUsage( player );
                                 return;
                             }
+                            if( limit > DateTimeUtil.MaxTimeSpan ) {
+                                player.MessageMaxTimeSpan();
+                                return;
+                            }
 
                             if( !cmd.IsConfirmed && limit != TimeSpan.Zero ) {
                                 player.Confirm( cmd, "BlockDB: Change time limit? Some old data for world {0}&S may be discarded.", world.ClassyName );
@@ -1176,23 +1180,26 @@ namespace fCraft {
                         extraParam = "all ";
                         worlds = WorldManager.Worlds;
                         break;
+
                     case 'h':
                         listName = "hidden worlds";
                         extraParam = "hidden ";
                         worlds = WorldManager.Worlds.Where( w => !player.CanSee( w ) ).ToArray();
                         break;
+
                     case 'p':
                         listName = "populated worlds";
                         extraParam = "populated ";
                         worlds = WorldManager.Worlds.Where( w => w.IsLoaded ).ToArray();
                         break;
+
                     case '@':
                         if( param.Length == 1 ) {
                             CdWorlds.PrintUsage( player );
                             return;
                         }
                         string rankName = param.Substring( 1 );
-                        Rank rank = Rank.Parse( rankName );
+                        Rank rank = RankManager.FindRank( rankName );
                         if( rank == null ) {
                             player.MessageNoRank( rankName );
                             return;
@@ -1202,6 +1209,7 @@ namespace fCraft {
                         worlds = WorldManager.Worlds.Where( w => (w.BuildSecurity.MinRank <= rank) && player.CanSee( w ) )
                                                     .ToArray();
                         break;
+
                     default:
                         CdWorlds.PrintUsage( player );
                         return;

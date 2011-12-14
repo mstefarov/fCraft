@@ -780,6 +780,10 @@ namespace fCraft {
                     TimeSpan newTotalTime;
                     TimeSpan oldTotalTime = info.TotalTime;
                     if( valName.TryParseMiniTimespan( out newTotalTime ) ) {
+                        if( newTotalTime > DateTimeUtil.MaxTimeSpan ) {
+                            player.MessageMaxTimeSpan();
+                            return;
+                        }
                         info.TotalTime = newTotalTime;
                         player.Message( "SetInfo: TotalTime for {0}&S changed from {1} ({2}) to {3} ({4})",
                                         info.ClassyName,
@@ -1030,6 +1034,10 @@ namespace fCraft {
                     CdShutdown.PrintUsage( player );
                     return;
                 }
+                if( delayTime > DateTimeUtil.MaxTimeSpan ) {
+                    player.MessageMaxTimeSpan();
+                    return;
+                }
                 reason = cmd.NextAll();
             }
 
@@ -1088,6 +1096,10 @@ namespace fCraft {
                     return;
                 } else if( !delayString.TryParseMiniTimespan( out delayTime ) ) {
                     CdShutdown.PrintUsage( player );
+                    return;
+                }
+                if( delayTime > DateTimeUtil.MaxTimeSpan ) {
+                    player.MessageMaxTimeSpan();
                     return;
                 }
                 reason = cmd.NextAll();
