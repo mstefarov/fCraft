@@ -15,6 +15,7 @@ namespace fCraft {
 
         int IdentifyFormatVersion( [NotNull] string header ) {
             if( header == null ) throw new ArgumentNullException( "header" );
+            if( header.StartsWith( "playerName" ) ) return 0;
             string[] headerParts = header.Split( ' ' );
             if( headerParts.Length < 2 ) {
                 throw new SerializationException( "Invalid PlayerDB header format: " + header );
@@ -32,6 +33,7 @@ namespace fCraft {
                 return 0;
             }
         }
+
 
         internal PlayerInfo LoadFormat2( [NotNull] string[] fields ) {
             if( fields == null ) throw new ArgumentNullException( "fields" );

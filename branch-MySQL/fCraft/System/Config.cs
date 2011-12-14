@@ -344,9 +344,6 @@ namespace fCraft {
                                     Paths.ConfigFileName );
                         config = new XElement( XmlRootName );
                     } else {
-                        Logger.Log( LogType.Debug,
-                                    "Config.Load: Config file {0} loaded succesfully.",
-                                    Paths.ConfigFileName );
                         fromFile = true;
                     }
                 } catch( XmlException ex ) {

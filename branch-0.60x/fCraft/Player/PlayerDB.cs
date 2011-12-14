@@ -358,6 +358,7 @@ namespace fCraft {
 
         static int IdentifyFormatVersion( [NotNull] string header ) {
             if( header == null ) throw new ArgumentNullException( "header" );
+            if( header.StartsWith( "playerName" ) ) return 0;
             string[] headerParts = header.Split( ' ' );
             if( headerParts.Length < 2 ) {
                 throw new FormatException( "Invalid PlayerDB header format: " + header );
