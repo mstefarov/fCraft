@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml;
 using System.Xml.Linq;
 using fCraft.Events;
 using fCraft.MapConversion;
@@ -61,7 +62,9 @@ namespace fCraft {
                     XElement root = doc.Root;
                     if( root != null ) {
                         foreach( XElement el in root.Elements( "World" ) ) {
+// ReSharper disable JoinDeclarationAndInitializer
                             World newWorld;
+// ReSharper restore JoinDeclarationAndInitializer
 #if DEBUG
                             newWorld = AddWorld( el );
 #else
@@ -140,8 +143,11 @@ namespace fCraft {
                             rank.MainWorld = world;
                         }
                     }
+                } catch( XmlException ex ) {
+                    string errorMsg = "WorldManager.LoadWorldList: worlds.xml is not properly formatted: " + ex.Message;
+                    Logger.LogAndReportCrash( "World list failed to load.", "fCraft", new MisconfigurationException( errorMsg, ex ), true );
                 } catch( Exception ex ) {
-                    Logger.LogAndReportCrash( "Error occured while trying to load the world list.", "fCraft", ex, true );
+                    Logger.LogAndReportCrash( "World list failed to load.", "fCraft", ex, true );
                     return false;
                 }
 

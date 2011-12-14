@@ -716,7 +716,7 @@ namespace fCraft {
                 return;
             }
 
-            PlayerInfo info = PlayerDB.FindFindByPartialNameOrPrintMatches( player, targetName );
+            PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, targetName );
             if( info == null ) return;
 
             switch( propertyName.ToLower() ) {
@@ -1351,9 +1351,9 @@ namespace fCraft {
                 return;
             }
 
-            PlayerInfo p1 = PlayerDB.FindFindByPartialNameOrPrintMatches( player, p1Name );
+            PlayerInfo p1 = PlayerDB.FindByPartialNameOrPrintMatches( player, p1Name );
             if( p1 == null ) return;
-            PlayerInfo p2 = PlayerDB.FindFindByPartialNameOrPrintMatches( player, p2Name );
+            PlayerInfo p2 = PlayerDB.FindByPartialNameOrPrintMatches( player, p2Name );
             if( p2 == null ) return;
 
             if( p1 == p2 ) {

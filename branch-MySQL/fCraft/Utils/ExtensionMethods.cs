@@ -549,6 +549,7 @@ namespace fCraft {
         }
 
 
+        // If you are using .NET 4.0, you can comment this out
         public static int SizeOf( Type type ) {
             if( type.IsValueType ) {
                 return System.Runtime.InteropServices.Marshal.SizeOf( type );
@@ -566,7 +567,7 @@ namespace fCraft {
             if( value == null ) throw new ArgumentNullException( "value" );
             try {
                 output = (TEnum)Enum.Parse( typeof( TEnum ), value, ignoreCase );
-                return true;
+                return Enum.IsDefined( typeof( TEnum ), output );
             } catch( ArgumentException ) {
                 output = default( TEnum );
                 return false;

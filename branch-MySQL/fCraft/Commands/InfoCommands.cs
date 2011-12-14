@@ -493,7 +493,7 @@ namespace fCraft {
                 }
 
             } else {
-                info = PlayerDB.FindFindByPartialNameOrPrintMatches( player, name );
+                info = PlayerDB.FindByPartialNameOrPrintMatches( player, name );
                 if( info == null ) return;
 
                 address = info.LastIP;

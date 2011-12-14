@@ -65,7 +65,7 @@ namespace fCraft {
                 givenZoneName = givenZoneName.Substring( 1 );
 
                 // Find the target player
-                PlayerInfo info = PlayerDB.FindFindByPartialNameOrPrintMatches( player, givenZoneName );
+                PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, givenZoneName );
                 if( info == null ) return;
 
                 // Make sure that the name is not taken already.
@@ -108,7 +108,7 @@ namespace fCraft {
 
                         if( name.Length == 0 ) continue;
 
-                        PlayerInfo info = PlayerDB.FindFindByPartialNameOrPrintMatches( player, name.Substring( 1 ) );
+                        PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, name.Substring( 1 ) );
                         if( info == null ) return;
 
                         if( name.StartsWith( "+" ) ) {
@@ -205,7 +205,7 @@ namespace fCraft {
                 if( name.Length < 2 ) continue;
 
                 if( name.StartsWith( "+" ) ) {
-                    PlayerInfo info = PlayerDB.FindFindByPartialNameOrPrintMatches( player, name.Substring( 1 ) );
+                    PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, name.Substring( 1 ) );
                     if( info == null ) return;
 
                     // prevent players from whitelisting themselves to bypass protection
@@ -235,7 +235,7 @@ namespace fCraft {
                     }
 
                 } else if( name.StartsWith( "-" ) ) {
-                    PlayerInfo info = PlayerDB.FindFindByPartialNameOrPrintMatches( player, name.Substring( 1 ) );
+                    PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, name.Substring( 1 ) );
                     if( info == null ) return;
 
                     switch( zone.Controller.Exclude( info ) ) {

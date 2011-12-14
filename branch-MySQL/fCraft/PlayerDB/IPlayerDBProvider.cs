@@ -13,7 +13,7 @@ namespace fCraft {
         /// <summary> Adds a new PlayerInfo entry for an actual, logged-in player. </summary>
         /// <returns> A newly-created PlayerInfo entry. </returns>
         [NotNull]
-        PlayerInfo AddPlayer( [NotNull] string name, [NotNull] IPAddress lastIP, [NotNull] Rank startingRank, RankChangeType rankChangeType );
+        PlayerInfo AddPlayer( [NotNull] string name, [NotNull] Rank startingRank, RankChangeType rankChangeType, [NotNull] IPAddress address );
 
 
         /// <summary> Adds a new PlayerInfo entry for a player who has never been online, by name. </summary>
@@ -58,7 +58,8 @@ namespace fCraft {
 
 
         /// <summary> Finds player by name pattern. </summary>
-        /// <param name="pattern"> Pattern to search for. Asterisk (*) matches zero or more characters.
+        /// <param name="pattern"> Pattern to search for.
+        /// Asterisk (*) matches zero or more characters.
         /// Question mark (?) matches exactly one character. </param>
         /// <param name="limit"> Maximum number of results to return. </param>
         /// <returns> A sequence of zero or more PlayerInfos whose names match the pattern. </returns>

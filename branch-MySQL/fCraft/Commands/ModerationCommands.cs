@@ -77,7 +77,7 @@ namespace fCraft {
                 CdBan.PrintUsage( player );
                 return;
             }
-            PlayerInfo target = PlayerDB.FindFindByPartialNameOrPrintMatches( player, targetName );
+            PlayerInfo target = PlayerDB.FindByPartialNameOrPrintMatches( player, targetName );
             if( target == null ) return;
             string reason = cmd.NextAll();
             try {
@@ -122,7 +122,7 @@ namespace fCraft {
                     player.Message( ex.MessageColored );
                 }
             } else {
-                PlayerInfo target = PlayerDB.FindFindByPartialNameOrPrintMatches( player, targetNameOrIP );
+                PlayerInfo target = PlayerDB.FindByPartialNameOrPrintMatches( player, targetNameOrIP );
                 if( target == null ) return;
                 try {
                     if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
@@ -170,7 +170,7 @@ namespace fCraft {
                     player.Message( ex.MessageColored );
                 }
             } else {
-                PlayerInfo target = PlayerDB.FindFindByPartialNameOrPrintMatches( player, targetNameOrIP );
+                PlayerInfo target = PlayerDB.FindByPartialNameOrPrintMatches( player, targetNameOrIP );
                 if( target == null ) return;
                 try {
                     if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
@@ -206,7 +206,7 @@ namespace fCraft {
                 CdUnban.PrintUsage( player );
                 return;
             }
-            PlayerInfo target = PlayerDB.FindFindByPartialNameOrPrintMatches( player, targetName );
+            PlayerInfo target = PlayerDB.FindByPartialNameOrPrintMatches( player, targetName );
             if( target == null ) return;
             string reason = cmd.NextAll();
             try {
@@ -243,7 +243,7 @@ namespace fCraft {
                 if( IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
                     targetAddress.UnbanIP( player, reason, true, true );
                 } else {
-                    PlayerInfo target = PlayerDB.FindFindByPartialNameOrPrintMatches( player, targetNameOrIP );
+                    PlayerInfo target = PlayerDB.FindByPartialNameOrPrintMatches( player, targetNameOrIP );
                     if( target == null ) return;
                     if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
                         target.Unban( player, reason, true, true );
@@ -283,7 +283,7 @@ namespace fCraft {
                 if( IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
                     targetAddress.UnbanAll( player, reason, true, true );
                 } else {
-                    PlayerInfo target = PlayerDB.FindFindByPartialNameOrPrintMatches( player, targetNameOrIP );
+                    PlayerInfo target = PlayerDB.FindByPartialNameOrPrintMatches( player, targetNameOrIP );
                     if( target == null ) return;
                     if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
                         target.Unban( player, reason, true, true );
@@ -316,7 +316,7 @@ namespace fCraft {
             }
             bool addExemption = (playerName[0] == '+');
             string targetName = playerName.Substring( 1 );
-            PlayerInfo target = PlayerDB.FindFindByPartialNameOrPrintMatches( player, targetName );
+            PlayerInfo target = PlayerDB.FindByPartialNameOrPrintMatches( player, targetName );
             if( target == null ) return;
 
             switch( target.BanStatus ) {

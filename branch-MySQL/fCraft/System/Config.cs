@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Xml;
 using System.Xml.Linq;
 using fCraft.Events;
 using JetBrains.Annotations;
@@ -320,6 +321,7 @@ namespace fCraft {
             }
         }
 
+
         /// <summary> Reloads configuration from file. Raises ConfigReloaded event. </summary>
         /// <returns> True if loading succeeded. </returns>
         public static bool Reload() {
@@ -347,6 +349,10 @@ namespace fCraft {
                                     Paths.ConfigFileName );
                         fromFile = true;
                     }
+                } catch( XmlException ex ) {
+                    string errorMsg = "Config.Load: config.xml is not properly formatted: " + ex.Message;
+                    Logger.LogAndReportCrash( "Config failed to load", "fCraft", new MisconfigurationException( errorMsg, ex ), true );
+                    return false;
                 } catch( Exception ex ) {
                     Logger.LogAndReportCrash( "Config failed to load", "fCraft", ex, true );
                     return false;
