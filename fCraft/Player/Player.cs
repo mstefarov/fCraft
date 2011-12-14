@@ -618,6 +618,10 @@ namespace fCraft {
                      Info.TimeMutedLeft.ToMiniString() );
         }
 
+        public void MessageMaxTimeSpan() {
+            Message( "Specify a time range up to {0}", DateTimeUtil.MaxTimeSpan.ToMiniString() );
+        }
+
         #endregion
 
 
