@@ -48,12 +48,11 @@ namespace fCraft {
 
 
         [NotNull]
-        public PlayerInfo AddPlayer( [NotNull] string name, [NotNull] IPAddress lastIP, [NotNull] Rank startingRank, RankChangeType rankChangeType ) {
+        public PlayerInfo AddPlayer( [NotNull] string name, [NotNull] Rank startingRank, RankChangeType rankChangeType, [NotNull] IPAddress address ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            if( lastIP == null ) throw new ArgumentNullException( "lastIP" );
-            if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
+            if( address == null ) throw new ArgumentNullException( "address" );
             int id = GetNextID();
-            PlayerInfo info = new PlayerInfo( id, name, lastIP, startingRank, rankChangeType );
+            PlayerInfo info = new PlayerInfo( id, name, startingRank, rankChangeType, address );
             trie.Add( name, info );
             return info;
         }
@@ -64,7 +63,7 @@ namespace fCraft {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
             int id = GetNextID();
-            PlayerInfo info = new PlayerInfo( id, name, IPAddress.None, startingRank, rankChangeType );
+            PlayerInfo info = new PlayerInfo( id, name, startingRank, rankChangeType, false );
             trie.Add( name, info );
             return info;
         }

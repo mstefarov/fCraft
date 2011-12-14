@@ -551,7 +551,7 @@ namespace fCraft {
 
 
         /// <summary> Prints "No worlds found matching ___" message. </summary>
-        /// <param name="playerName"> Given name, for which no worlds were found. </param>
+        /// <param name="worldName"> Given name, for which no worlds were found. </param>
         public void MessageNoWorld( [NotNull] string worldName ) {
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
             Message( "No worlds found matching \"{0}\". See &H/Worlds", worldName );
@@ -565,12 +565,12 @@ namespace fCraft {
         /// <param name="items"> List of items. ClassyName properties are used in the list. </param>
         public void MessageManyMatches( [NotNull] string itemType, [NotNull] IEnumerable<IClassy> items ) {
             if( itemType == null ) throw new ArgumentNullException( "itemType" );
-            if( items == null ) throw new ArgumentNullException( "names" );
+            if( items == null ) throw new ArgumentNullException( "items" );
 
             string nameList = items.Take( MatchesToPrint ).JoinToString( ", ", p => p.ClassyName );
             int count = items.Count();
             if( count > MatchesToPrint ) {
-                Message( "More than {0} {1} matched: {1}",
+                Message( "More than {0} {1} matched: {2}",
                          count, itemType, nameList );
             } else {
                 Message( "More than one {0} matched: {1}",
@@ -636,7 +636,7 @@ namespace fCraft {
         }
 
         /// <summary> Prints "___ is not a valid player name" message. </summary>
-        /// <param name="worldName"> Given player name, deemed to be invalid. </param>
+        /// <param name="playerName"> Given player name, deemed to be invalid. </param>
         public void MessageInvalidPlayerName( [NotNull] string playerName ) {
             Message( "\"{0}\" is not a valid player name.", playerName );
         }

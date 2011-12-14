@@ -95,6 +95,7 @@ namespace fCraft {
             return Serialize( XmlRootName );
         }
 
+
         [NotNull]
         public XElement Serialize( [NotNull] string rootName ) {
             if( rootName == null ) throw new ArgumentNullException( "rootName" );
@@ -107,7 +108,8 @@ namespace fCraft {
             return root;
         }
 
-        public MySqlPlayerDBProviderConfig( [NotNull] XElement el ) {
+
+        public MySqlPlayerDBProviderConfig( [NotNull] XContainer el ) {
             if( el == null ) throw new ArgumentNullException( "el" );
             XElement hostEl = el.Element( "Host" );
             if( hostEl == null || String.IsNullOrEmpty( hostEl.Value ) ) {

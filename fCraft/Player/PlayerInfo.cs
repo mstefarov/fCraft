@@ -712,6 +712,9 @@ namespace fCraft {
         }
         IPAddress lastIP = IPAddress.None;
 
+
+        public bool IsSuper { get; private set; }
+
         #endregion
 
 
@@ -782,35 +785,30 @@ namespace fCraft {
 
 
         // create a record for an unrecognized or a super player
-        public PlayerInfo( int id, [NotNull] string name, [NotNull] IPAddress ip, [NotNull] Rank startingRank, RankChangeType rankChangeType )
+        public PlayerInfo( int id, [NotNull] string name, [NotNull] Rank startingRank, RankChangeType rankChangeType, bool isSuper )
             : this( id ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            if( ip == null ) throw new ArgumentNullException( "ip" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
             this.name = name;
             rank = startingRank;
-            firstLoginDate = DateTime.UtcNow;
-            lastLoginDate = firstLoginDate;
-            lastSeen = firstLoginDate;
-            lastIP = ip;
-            timesVisited = 1;
             this.rankChangeType = rankChangeType;
             LastModified = DateTime.UtcNow;
+            IsSuper = isSuper;
         }
 
 
         // create a record for a newly logged-in player
-        public PlayerInfo( int id, [NotNull] string name, [NotNull] IPAddress ip, [NotNull] Rank startingRank )
+        public PlayerInfo( int id, [NotNull] string name, [NotNull] Rank startingRank, RankChangeType rankChangeType, IPAddress address )
             : this( id ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            if( ip == null ) throw new ArgumentNullException( "ip" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
+            this.name = name;
+            rank = startingRank;
+            this.rankChangeType = rankChangeType;
+            lastIP = address;
             firstLoginDate = DateTime.UtcNow;
             lastSeen = DateTime.UtcNow;
             lastLoginDate = DateTime.UtcNow;
-            rank = startingRank;
-            this.name = name;
-            lastIP = ip;
             LastModified = DateTime.UtcNow;
         }
 

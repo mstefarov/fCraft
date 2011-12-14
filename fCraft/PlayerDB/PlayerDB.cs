@@ -12,7 +12,7 @@ namespace fCraft {
     /// <summary> Persistent database of player information. </summary>
     public static class PlayerDB {
         static readonly List<PlayerInfo> List = new List<PlayerInfo>();
-
+        static IPlayerDBProvider provider;
         static readonly object AddLocker = new object();
 
         /// <summary> Cached list of all players in the database.
@@ -22,6 +22,7 @@ namespace fCraft {
         public static PlayerInfo[] PlayerInfoList { get; private set; }
 
 
+        /// <summary> True if PlayerDB is loaded and ready; otherwise false. </summary>
         public static bool IsLoaded { get; private set; }
 
 
@@ -30,18 +31,33 @@ namespace fCraft {
         }
 
 
+        /// <summary> Current PlayerDBProvider type. May only be changed BEFORE PlayerDB is loaded. </summary>
+        static PlayerDBProviderType providerType;
+        public static PlayerDBProviderType ProviderType {
+            get { return providerType; }
+            set {
+                if( IsLoaded ) throw new InvalidOperationException( "PlayerDB is already loaded." );
+                providerType = value;
+            }
+        }
+
+
+        /// <summary> Adds a new PlayerInfo entry for an all-powerful pseudo-player entity.
+        /// Used for Player.Console and Player.AutoRank. </summary>
+        /// <returns> A newly-created PlayerInfo entry. </returns>
         [NotNull]
         public static PlayerInfo AddSuperPlayer( ReservedPlayerID id, [NotNull] string name, [NotNull] Rank rank ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             CheckIfLoaded();
-            PlayerInfo newInfo = new PlayerInfo( (int)id, name, IPAddress.None, rank ) {
+            PlayerInfo newInfo = new PlayerInfo( (int)id, name, rank, RankChangeType.AutoPromoted, true ) {
                 RaisePropertyChangedEvents = true
             };
             return newInfo;
         }
 
 
-        /// <summary> Adds a new PlayerInfo entry for a player. </summary>
+        /// <summary> Adds a new PlayerInfo entry for a player who has never been online, by name. </summary>
+        /// <returns> A newly-created PlayerInfo entry. </returns>
         [NotNull]
         public static PlayerInfo AddUnrecognizedPlayer( [NotNull] string name, RankChangeType rankChangeType ) {
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -69,18 +85,6 @@ namespace fCraft {
             PlayerInfo.RaiseCreatedEvent( newInfo, false );
             return newInfo;
         }
-
-
-        static PlayerDBProviderType providerType;
-        public static PlayerDBProviderType ProviderType {
-            get { return providerType; }
-            set {
-                if( IsLoaded ) throw new InvalidOperationException( "PlayerDB is already loaded." );
-                providerType = value;
-            }
-        }
-
-        static IPlayerDBProvider provider;
 
 
         public static void Load() {
@@ -145,6 +149,8 @@ namespace fCraft {
         }
 
 
+        #region Saving
+
         public static void Save() {
             CheckIfLoaded();
             Stopwatch sw = Stopwatch.StartNew();
@@ -158,14 +164,13 @@ namespace fCraft {
         }
 
 
-        #region Scheduled Saving
-
         static SchedulerTask saveTask;
+
         static TimeSpan saveInterval = TimeSpan.FromSeconds( 90 );
         public static TimeSpan SaveInterval {
             get { return saveInterval; }
             set {
-                if( value.Ticks < 0 ) throw new ArgumentException( "Save interval may not be negative" );
+                if( value.Ticks < 1 ) throw new ArgumentException( "Save interval may not be zero or negative" );
                 saveInterval = value;
                 if( saveTask != null ) saveTask.Interval = value;
             }
@@ -177,7 +182,7 @@ namespace fCraft {
         }
 
         static void SaveTask( SchedulerTask task ) {
-            provider.Save();
+            Save();
         }
 
         #endregion
@@ -185,6 +190,10 @@ namespace fCraft {
 
         #region Lookup
 
+        /// <summary> Looks for player with the exact given name. Creates a new PlayerInfo if no records exists. </summary>
+        /// <param name="name"> Exact player name, case-insensitive. </param>
+        /// <param name="lastIP"> IP address currently used by the player. </param>
+        /// <returns> Either an existing or a new PlayerInfo object for the player. </returns>
         [NotNull]
         public static PlayerInfo FindOrCreateInfoForPlayer( [NotNull] string name, [NotNull] IPAddress lastIP ) {
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -199,7 +208,7 @@ namespace fCraft {
                     PlayerInfo.RaiseBeingCreatedEvent( e );
                     if( e.Cancel ) throw new OperationCanceledException( "Cancelled by a plugin." );
 
-                    info = provider.AddPlayer( name, lastIP, e.StartingRank, RankChangeType.Default );
+                    info = provider.AddPlayer( name, e.StartingRank, RankChangeType.Default, lastIP );
                     info.RaisePropertyChangedEvents = true;
 
                     PlayerInfo.RaiseCreatedEvent( info, false );
@@ -209,9 +218,9 @@ namespace fCraft {
             return info;
         }
 
+
         /// <summary> Finds players by IP address. </summary>
         /// <param name="address"> Player's IP address. </param>
-        /// <param name="limit"> Maximum number of results to return. </param>
         /// <returns> A sequence of zero or more PlayerInfos who have logged in from given IP. </returns>
         [NotNull]
         public static IEnumerable<PlayerInfo> FindByIP( [NotNull] IPAddress address ) {
@@ -219,8 +228,10 @@ namespace fCraft {
             return FindByIP( address, Int32.MaxValue );
         }
 
+
         /// <summary> Finds players by IP address. </summary>
         /// <param name="address"> Player's IP address. </param>
+        /// <param name="limit"> Maximum number of results to return. </param>
         /// <returns> A sequence of zero or more PlayerInfos who have logged in from given IP. </returns>
         [NotNull]
         public static IEnumerable<PlayerInfo> FindByIP( [NotNull] IPAddress address, int limit ) {
@@ -231,6 +242,10 @@ namespace fCraft {
         }
 
 
+        /// <summary> Finds players in the given IPv4 address range. </summary>
+        /// <param name="address"> Player's IP address. </param>
+        /// <param name="range"> CIDR range byte (0-32). </param>
+        /// <returns> A sequence of zero or more PlayerInfos who have logged in from given IP. </returns>
         [NotNull]
         public static IEnumerable<PlayerInfo> FindPlayersCidr( [NotNull] IPAddress address, byte range ) {
             if( address == null ) throw new ArgumentNullException( "address" );
@@ -239,6 +254,11 @@ namespace fCraft {
         }
 
 
+        /// <summary> Finds players in the given IPv4 address range. </summary>
+        /// <param name="address"> Player's IP address. </param>
+        /// <param name="range"> CIDR range byte (0-32). </param>
+        /// <param name="limit"> Maximum number of results to return. </param>
+        /// <returns> A sequence of zero or more PlayerInfos who have logged in from given IP. </returns>
         [NotNull]
         public static IEnumerable<PlayerInfo> FindPlayersCidr( [NotNull] IPAddress address, byte range, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
@@ -261,6 +281,11 @@ namespace fCraft {
         }
 
 
+        /// <summary> Finds player by name pattern. </summary>
+        /// <param name="pattern"> Pattern to search for.
+        /// Asterisk (*) matches zero or more characters.
+        /// Question mark (?) matches exactly one character. </param>
+        /// <returns> A sequence of zero or more PlayerInfos whose names match the pattern. </returns>
         [NotNull]
         public static IEnumerable<PlayerInfo> FindByPattern( [NotNull] string pattern ) {
             if( pattern == null ) throw new ArgumentNullException( "pattern" );
@@ -268,6 +293,12 @@ namespace fCraft {
         }
 
 
+        /// <summary> Finds player by name pattern. </summary>
+        /// <param name="pattern"> Pattern to search for.
+        /// Asterisk (*) matches zero or more characters.
+        /// Question mark (?) matches exactly one character. </param>
+        /// <param name="limit"> Maximum number of results to return. </param>
+        /// <returns> A sequence of zero or more PlayerInfos whose names match the pattern. </returns>
         [NotNull]
         public static IEnumerable<PlayerInfo> FindByPattern( [NotNull] string pattern, int limit ) {
             if( pattern == null ) throw new ArgumentNullException( "pattern" );
@@ -275,14 +306,16 @@ namespace fCraft {
             return provider.FindByPattern( pattern, limit );
         }
 
+
         /// <summary> Finds players by partial name (prefix). </summary>
         /// <param name="partialName"> Full or partial name of the player. </param>
         /// <returns> A sequence of zero or more PlayerInfos whose names start with partialName. </returns>
         [NotNull]
         public static IEnumerable<PlayerInfo> FindByPartialName( [NotNull] string partialName ) {
-            if( partialName == null ) throw new ArgumentNullException( "namePart" );
+            if( partialName == null ) throw new ArgumentNullException( "partialName" );
             return FindByPartialName( partialName, Int32.MaxValue );
         }
+
 
         /// <summary> Finds players by partial name (prefix). </summary>
         /// <param name="partialName"> Full or partial name of the player. </param>
@@ -290,7 +323,7 @@ namespace fCraft {
         /// <returns> A sequence of zero or more PlayerInfos whose names start with partialName. </returns>
         [NotNull]
         public static IEnumerable<PlayerInfo> FindByPartialName( [NotNull] string partialName, int limit ) {
-            if( partialName == null ) throw new ArgumentNullException( "namePart" );
+            if( partialName == null ) throw new ArgumentNullException( "partialName" );
             CheckIfLoaded();
             return provider.FindByPartialName( partialName, limit );
         }
@@ -311,10 +344,10 @@ namespace fCraft {
         /// <param name="fullName"> Full, case-insensitive name of the player. </param>
         /// <returns> PlayerInfo object if the player was found. Null if not found. </returns>
         [CanBeNull]
-        public static PlayerInfo FindExact( [NotNull] string name ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
+        public static PlayerInfo FindExact( [NotNull] string fullName ) {
+            if( fullName == null ) throw new ArgumentNullException( "fullName" );
             CheckIfLoaded();
-            return provider.FindExact( name );
+            return provider.FindExact( fullName );
         }
 
 
@@ -326,9 +359,9 @@ namespace fCraft {
         /// <param name="partialName"> Partial or full player name. </param>
         /// <returns> PlayerInfo object if one player was found. Null if no or multiple matches were found. </returns>
         [CanBeNull]
-        public static PlayerInfo FindFindByPartialNameOrPrintMatches( [NotNull] Player player, [NotNull] string partialName ) {
+        public static PlayerInfo FindByPartialNameOrPrintMatches( [NotNull] Player player, [NotNull] string partialName ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( partialName == null ) throw new ArgumentNullException( "name" );
+            if( partialName == null ) throw new ArgumentNullException( "partialName" );
             CheckIfLoaded();
             if( partialName == "-" ) {
                 if( player.LastUsedPlayerName != null ) {
@@ -361,12 +394,33 @@ namespace fCraft {
         }
 
 
+        /// <summary> Finds player by exact name, and returns formatted name (ClassyName) if found. </summary>
+        /// <param name="fullName"> Full, case-insensitive name of the player. </param>
+        /// <returns> Player's formatted name, if found. "?" if fullName is null or empty. "fullName(?)" if player was not found. </returns>
         [NotNull]
-        public static string FindExactClassyName( [CanBeNull] string name ) {
-            if( string.IsNullOrEmpty( name ) ) return "?";
-            PlayerInfo info = FindExact( name );
-            if( info == null ) return name;
+        public static string FindExactClassyName( [CanBeNull] string fullName ) {
+            if( string.IsNullOrEmpty( fullName ) ) return "?";
+            PlayerInfo info = FindExact( fullName );
+            if( info == null ) return fullName + "(?)";
             else return info.ClassyName;
+        }
+
+
+        /// <summary> Finds PlayerInfo by ID. </summary>
+        /// <returns> PlayerInfo object if found; null if not found. </returns>
+        [CanBeNull]
+        public static PlayerInfo FindByID( int id ) {
+            if( id < 256 ) throw new ArgumentException( "Valid player IDs start at 256." );
+            CheckIfLoaded();
+            PlayerInfo dummy = new PlayerInfo( id );
+            lock( AddLocker ) {
+                int index = List.BinarySearch( dummy, PlayerInfo.ComparerByID );
+                if( index >= 0 ) {
+                    return List[index];
+                } else {
+                    return null;
+                }
+            }
         }
 
         #endregion
@@ -374,6 +428,7 @@ namespace fCraft {
 
         #region Stats
 
+        /// <summary> Number of banned PlayerInfo records. Does not include IP-banned records. </summary>
         public static int BannedCount {
             get {
                 return PlayerInfoList.Count( t => t.IsBanned );
@@ -381,6 +436,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Percentage of players who are banned. </summary>
         public static float BannedPercentage {
             get {
                 var listCache = PlayerInfoList;
@@ -393,27 +449,12 @@ namespace fCraft {
         }
 
 
+        /// <summary> Number of PlayerInfo records in the database. </summary>
         public static int Size {
             get { return List.Count; }
         }
 
         #endregion
-
-
-        /// <summary> Finds PlayerInfo by ID. Returns null of not found. </summary>
-        [CanBeNull]
-        public static PlayerInfo FindPlayerInfoByID( int id ) {
-            CheckIfLoaded();
-            PlayerInfo dummy = new PlayerInfo( id );
-            lock( AddLocker ) {
-                int index = List.BinarySearch( dummy, PlayerInfo.ComparerByID );
-                if( index >= 0 ) {
-                    return List[index];
-                } else {
-                    return null;
-                }
-            }
-        }
 
 
         public static int MassRankChange( [NotNull] Player player, [NotNull] Rank from, [NotNull] Rank to, [NotNull] string reason ) {
@@ -565,7 +606,7 @@ namespace fCraft {
         #endregion
 
 
-        public static StringBuilder AppendEscaped( [NotNull] this StringBuilder sb, [CanBeNull] string str ) {
+        internal static StringBuilder AppendEscaped( [NotNull] this StringBuilder sb, [CanBeNull] string str ) {
             if( sb == null ) throw new ArgumentNullException( "sb" );
             if( !String.IsNullOrEmpty( str ) ) {
                 if( str.IndexOf( ',' ) > -1 ) {

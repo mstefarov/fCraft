@@ -9,11 +9,10 @@ namespace fCraft {
         Version MinFCraftVersion { get; }
         Version MaxFCraftVersion { get; }
 
-        IPlugin CreateInstance();
+        IPlugin CreateInstance( string dataPath );
     }
 
     public interface IPlugin {
         IPluginProvider Provider { get; }
-        void Initialize( string dataPath );
     }
 }

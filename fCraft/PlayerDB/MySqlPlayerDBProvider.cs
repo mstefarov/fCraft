@@ -24,9 +24,9 @@ namespace fCraft {
 
 
         [NotNull]
-        public PlayerInfo AddPlayer( [NotNull] string name, [NotNull] IPAddress lastIP, [NotNull] Rank startingRank, RankChangeType rankChangeType ) {
+        public PlayerInfo AddPlayer( [NotNull] string name,  [NotNull] Rank startingRank, RankChangeType rankChangeType, [NotNull] IPAddress address ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            if( lastIP == null ) throw new ArgumentNullException( "lastIP" );
+            if( address == null ) throw new ArgumentNullException( "address" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
             lock( syncRoot ) {
                 using( MySqlTransaction transaction = connection.BeginTransaction() ) {
@@ -34,7 +34,7 @@ namespace fCraft {
                     preInsertCommand.ExecuteNonQuery();
                     int id = (int)preInsertCommand.InsertId;
 
-                    PlayerInfo info = new PlayerInfo( id, name, lastIP, startingRank, rankChangeType );
+                    PlayerInfo info = new PlayerInfo( id, name, startingRank, rankChangeType, address );
 
                     MySqlCommand updateCmd = GetUpdateCommand( info );
                     updateCmd.Transaction = transaction;
@@ -60,7 +60,7 @@ namespace fCraft {
                     preInsertCommand.ExecuteNonQuery();
                     int id = (int)preInsertCommand.InsertId;
 
-                    PlayerInfo info = new PlayerInfo( id, name, IPAddress.None, startingRank, rankChangeType );
+                    PlayerInfo info = new PlayerInfo( id, name, startingRank, rankChangeType, false );
 
                     MySqlCommand updateCmd = GetUpdateCommand( info );
                     updateCmd.Transaction = transaction;
@@ -256,7 +256,7 @@ namespace fCraft {
         }
 
 
-        static PlayerInfo LoadInfo( MySqlDataReader reader ) {
+        static PlayerInfo LoadInfo( IDataRecord reader ) {
             int id = reader.GetInt32( (int)Field.ID );
             // ReSharper disable UseObjectOrCollectionInitializer
             PlayerInfo info = new PlayerInfo( id );
@@ -335,22 +335,22 @@ namespace fCraft {
         }
 
 
-        static DateTime ReadDate( MySqlDataReader reader, Field field ) {
+        static DateTime ReadDate( IDataRecord reader, Field field ) {
             return reader.GetInt64( (int)field ).ToDateTime();
         }
 
 
-        static Rank ReadRank( MySqlDataReader reader, Field field ) {
+        static Rank ReadRank( IDataRecord reader, Field field ) {
             return Rank.Parse( reader.GetString( (int)field ) );
         }
 
 
-        static IPAddress ReadIPAddress( MySqlDataReader reader, Field field ) {
+        static IPAddress ReadIPAddress( IDataRecord reader, Field field ) {
             return IPAddress.Parse( reader.GetString( (int)field ) );
         }
 
 
-        static TimeSpan ReadTimeSpan( MySqlDataReader reader, Field field ) {
+        static TimeSpan ReadTimeSpan( IDataRecord reader, Field field ) {
             return new TimeSpan( reader.GetInt32( (int)field ) * TimeSpan.TicksPerSecond );
         }
 
@@ -380,7 +380,7 @@ namespace fCraft {
 
 
         static PlayerInfo FindPlayerInfoByID( int id ) {
-            PlayerInfo result = PlayerDB.FindPlayerInfoByID( id );
+            PlayerInfo result = PlayerDB.FindByID( id );
             if( result == null ) {
                 throw new DataException( "Player id " + id + " was found, but no corresponding PlayerInfo exists. Database must be out of sync." );
             }
