@@ -598,7 +598,7 @@ namespace fCraft {
             if( value == null ) throw new ArgumentNullException( "value" );
             try {
                 output = (TEnum)Enum.Parse( typeof( TEnum ), value, ignoreCase );
-                return true;
+                return Enum.IsDefined( typeof( TEnum ), output );
             } catch( ArgumentException ) {
                 output = default( TEnum );
                 return false;
