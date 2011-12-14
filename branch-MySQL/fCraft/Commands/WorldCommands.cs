@@ -1288,7 +1288,7 @@ namespace fCraft {
                 if( name.Length < 2 ) continue;
                 // Whitelisting individuals
                 if( name.StartsWith( "+" ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
+                    PlayerInfo info = PlayerDB.FindFindByPartialNameOrPrintMatches( player, name.Substring( 1 ) );
                     if( info == null ) return;
 
                     // prevent players from whitelisting themselves to bypass protection
@@ -1362,7 +1362,7 @@ namespace fCraft {
 
                     // Blacklisting individuals
                 } else if( name.StartsWith( "-" ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
+                    PlayerInfo info = PlayerDB.FindFindByPartialNameOrPrintMatches( player, name.Substring( 1 ) );
                     if( info == null ) return;
 
                     if( world.AccessSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooHigh ||
@@ -1524,7 +1524,7 @@ namespace fCraft {
                 if( name.Length < 2 ) continue;
                 // Whitelisting individuals
                 if( name.StartsWith( "+" ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
+                    PlayerInfo info = PlayerDB.FindFindByPartialNameOrPrintMatches( player, name.Substring( 1 ) );
                     if( info == null ) return;
 
                     // prevent players from whitelisting themselves to bypass protection
@@ -1598,7 +1598,7 @@ namespace fCraft {
 
                     // Blacklisting individuals
                 } else if( name.StartsWith( "-" ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
+                    PlayerInfo info = PlayerDB.FindFindByPartialNameOrPrintMatches( player, name.Substring( 1 ) );
                     if( info == null ) return;
 
                     if( world.BuildSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooHigh ||

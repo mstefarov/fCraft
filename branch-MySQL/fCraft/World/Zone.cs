@@ -98,7 +98,7 @@ namespace fCraft {
             // Part 2:
             foreach( string player in parts[1].Split( ' ' ) ) {
                 if( !Player.IsValidName( player ) ) continue;
-                PlayerInfo info = PlayerDB.FindPlayerInfoExact( player );
+                PlayerInfo info = PlayerDB.FindExact( player );
                 if( info == null ) continue; // player name not found in the DB (discarded)
                 Controller.Include( info );
             }
@@ -106,7 +106,7 @@ namespace fCraft {
             // Part 3: excluded list
             foreach( string player in parts[2].Split( ' ' ) ) {
                 if( !Player.IsValidName( player ) ) continue;
-                PlayerInfo info = PlayerDB.FindPlayerInfoExact( player );
+                PlayerInfo info = PlayerDB.FindExact( player );
                 if( info == null ) continue; // player name not found in the DB (discarded)
                 Controller.Exclude( info );
             }
@@ -114,9 +114,9 @@ namespace fCraft {
             // Part 4: extended header
             if( parts.Length > 3 ) {
                 string[] xheader = parts[3].Split( ' ' );
-                CreatedBy = PlayerDB.FindPlayerInfoExact( xheader[0] );
+                CreatedBy = PlayerDB.FindExact( xheader[0] );
                 if( CreatedBy != null ) CreatedDate = DateTime.Parse( xheader[1] );
-                EditedBy = PlayerDB.FindPlayerInfoExact( xheader[2] );
+                EditedBy = PlayerDB.FindExact( xheader[2] );
                 if( EditedBy != null ) EditedDate = DateTime.Parse( xheader[3] );
             }
         }
@@ -140,13 +140,13 @@ namespace fCraft {
 
             if( root.Element( "created" ) != null ) {
                 XElement created = root.Element( "created" );
-                CreatedBy = PlayerDB.FindPlayerInfoExact( created.Attribute( "by" ).Value );
+                CreatedBy = PlayerDB.FindExact( created.Attribute( "by" ).Value );
                 CreatedDate = DateTime.Parse( created.Attribute( "on" ).Value );
             }
 
             if( root.Element( "edited" ) != null ) {
                 XElement edited = root.Element( "edited" );
-                EditedBy = PlayerDB.FindPlayerInfoExact( edited.Attribute( "by" ).Value );
+                EditedBy = PlayerDB.FindExact( edited.Attribute( "by" ).Value );
                 EditedDate = DateTime.Parse( edited.Attribute( "on" ).Value );
             }
 

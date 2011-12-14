@@ -716,7 +716,7 @@ namespace fCraft {
                 return;
             }
 
-            PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
+            PlayerInfo info = PlayerDB.FindFindByPartialNameOrPrintMatches( player, targetName );
             if( info == null ) return;
 
             switch( propertyName.ToLower() ) {
@@ -1246,8 +1246,8 @@ namespace fCraft {
             string reason = "(import from " + serverName + ")";
             foreach( string name in names ) {
                 if( Player.IsValidName( name ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
-                                      PlayerDB.AddUnrecognized( name, RankChangeType.Default );
+                    PlayerInfo info = PlayerDB.FindExact( name ) ??
+                                      PlayerDB.AddUnrecognizedPlayer( name, RankChangeType.Default );
                     info.Ban( player, reason, true, true );
 
                 } else {
@@ -1317,8 +1317,8 @@ namespace fCraft {
 
             string reason = "(Import from " + serverName + ")";
             foreach( string name in names ) {
-                PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
-                                  PlayerDB.AddUnrecognized( name, RankChangeType.Promoted );
+                PlayerInfo info = PlayerDB.FindExact( name ) ??
+                                  PlayerDB.AddUnrecognizedPlayer( name, RankChangeType.Promoted );
                 try {
                     info.ChangeRank( player, targetRank, reason, !silent, true, false );
                 } catch( PlayerOpException ex ) {
@@ -1351,9 +1351,9 @@ namespace fCraft {
                 return;
             }
 
-            PlayerInfo p1 = PlayerDB.FindPlayerInfoOrPrintMatches( player, p1Name );
+            PlayerInfo p1 = PlayerDB.FindFindByPartialNameOrPrintMatches( player, p1Name );
             if( p1 == null ) return;
-            PlayerInfo p2 = PlayerDB.FindPlayerInfoOrPrintMatches( player, p2Name );
+            PlayerInfo p2 = PlayerDB.FindFindByPartialNameOrPrintMatches( player, p2Name );
             if( p2 == null ) return;
 
             if( p1 == p2 ) {

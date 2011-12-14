@@ -9,26 +9,35 @@ namespace fCraft {
 
         PlayerDBProviderType Type { get; }
 
-        /// <summary> Adds a new PlayerInfo entry for a player. </summary>
+
+        /// <summary> Adds a new PlayerInfo entry for an actual, logged-in player. </summary>
+        /// <returns> A newly-created PlayerInfo entry. </returns>
         [NotNull]
         PlayerInfo AddPlayer( [NotNull] string name, [NotNull] IPAddress lastIP, [NotNull] Rank startingRank, RankChangeType rankChangeType );
 
 
-        /// <summary> Adds a new PlayerInfo entry for a player. </summary>
+        /// <summary> Adds a new PlayerInfo entry for a player who has never been online, by name. </summary>
+        /// <returns> A newly-created PlayerInfo entry. </returns>
         [NotNull]
         PlayerInfo AddUnrecognizedPlayer( [NotNull] string name, [NotNull] Rank startingRank, RankChangeType rankChangeType );
 
 
-        /// <summary> Removes a PlayerInfo entry. </summary>
+        /// <summary> Removes a PlayerInfo entry from the database. </summary>
+        /// <returns> True if the entry is successfully found and removed; otherwise false. </returns>
         bool Remove( [NotNull] PlayerInfo playerInfo );
 
 
         /// <summary> Finds player by exact name. </summary>
+        /// <param name="fullName"> Full, case-insensitive name of the player. </param>
+        /// <returns> PlayerInfo if player was found, or null if not found. </returns>
         [CanBeNull]
         PlayerInfo FindExact( [NotNull] string fullName );
 
 
         /// <summary> Finds players by IP address. </summary>
+        /// <param name="address"> Player's IP address. </param>
+        /// <param name="limit"> Maximum number of results to return. </param>
+        /// <returns> A sequence of zero or more PlayerInfos who have logged in from given IP. </returns>
         [NotNull]
         IEnumerable<PlayerInfo> FindByIP( [NotNull] IPAddress address, int limit );
 
@@ -57,7 +66,7 @@ namespace fCraft {
         IEnumerable<PlayerInfo> FindByPattern( [NotNull] string pattern, int limit );
 
 
-        /// <summary> Preloads the whole database. </summary>
+        /// <summary> Initializes the provider, and allocates PlayerInfo objects for all players. </summary>
         [CanBeNull]
         IEnumerable<PlayerInfo> Load();
 
@@ -68,6 +77,7 @@ namespace fCraft {
 
         /// <summary> Changes ranks of all players in one transaction. </summary>
         void MassRankChange( [NotNull] Player player, [NotNull] Rank from, [NotNull] Rank to, [NotNull] string reason );
+
 
         /// <summary> Swaps records of two players in one transaction. </summary>
         void SwapInfo( [NotNull] PlayerInfo player1, [NotNull] PlayerInfo player2 );

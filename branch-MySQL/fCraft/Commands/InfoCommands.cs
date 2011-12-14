@@ -115,7 +115,7 @@ namespace fCraft {
             } else {
                 // find players by partial matching
                 PlayerInfo tempInfo;
-                if( !PlayerDB.FindPlayerInfo( name, out tempInfo ) ) {
+                if( !PlayerDB.FindOneByPartialName( name, out tempInfo ) ) {
                     infos = PlayerDB.FindByPartialName( name ).ToArray();
                 } else if( tempInfo == null ) {
                     player.MessageNoPlayer( name );
@@ -493,7 +493,7 @@ namespace fCraft {
                 }
 
             } else {
-                info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
+                info = PlayerDB.FindFindByPartialNameOrPrintMatches( player, name );
                 if( info == null ) return;
 
                 address = info.LastIP;
