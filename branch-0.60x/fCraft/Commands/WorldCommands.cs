@@ -740,7 +740,6 @@ namespace fCraft {
 
         static void GenHandler( Player player, Command cmd ) {
             World playerWorld = player.World;
-            Map oldMap = player.WorldMap;
             string themeName = cmd.Next();
             string templateName;
             bool genOcean = false;
@@ -815,6 +814,7 @@ namespace fCraft {
             int mapWidth, mapLength, mapHeight;
             if( !(cmd.NextInt( out mapWidth ) && cmd.NextInt( out mapLength ) && cmd.NextInt( out mapHeight )) ) {
                 if( playerWorld != null ) {
+                    Map oldMap = player.WorldMap;
                     // If map dimensions were not given, use current map's dimensions
                     mapWidth = oldMap.Width;
                     mapLength = oldMap.Length;

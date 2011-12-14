@@ -252,7 +252,7 @@ namespace fCraft {
         internal static void ThrowInvalidIP( [NotNull] Player player, [CanBeNull] PlayerInfo target, [NotNull] IPAddress ip ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( ip == null ) throw new ArgumentNullException( "ip" );
-            string msg,msgColored;
+            string msg, msgColored;
             if( target == null ) {
                 msg = String.Format( "Cannot IP-ban {0}: invalid IP.", ip );
                 msgColored = String.Format( "&SCannot IP-ban {0}: invalid IP.", ip );
