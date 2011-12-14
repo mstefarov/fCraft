@@ -385,6 +385,10 @@ namespace fCraft {
                 CdTimer.PrintUsage( player );
                 return;
             }
+            if( duration > DateTimeUtil.MaxTimeSpan ) {
+                player.MessageMaxTimeSpan();
+                return;
+            }
             if( duration < ChatTimer.MinDuration ) {
                 player.Message( "Timer: Must be at least 1 second." );
                 return;

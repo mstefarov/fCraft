@@ -286,6 +286,10 @@ namespace fCraft {
                                 CdBlockDB.PrintUsage( player );
                                 return;
                             }
+                            if( limit > DateTimeUtil.MaxTimeSpan ) {
+                                player.MessageMaxTimeSpan();
+                                return;
+                            }
 
                             if( !cmd.IsConfirmed && limit != TimeSpan.Zero ) {
                                 player.Confirm( cmd, "BlockDB: Change time limit? Some old data for world {0}&S may be discarded.", world.ClassyName );
@@ -1192,7 +1196,7 @@ namespace fCraft {
                             return;
                         }
                         string rankName = param.Substring( 1 );
-                        Rank rank = Rank.Parse( rankName );
+                        Rank rank = RankManager.FindRank( rankName );
                         if( rank == null ) {
                             player.MessageNoRank( rankName );
                             return;
