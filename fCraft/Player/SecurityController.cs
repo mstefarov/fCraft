@@ -235,13 +235,13 @@ namespace fCraft {
                 //maxRank = Rank.Parse( root.Element( "maxRank" ).Value );
                 foreach( XElement player in el.Elements( "included" ) ) {
                     if( !Player.IsValidName( player.Value ) ) continue;
-                    PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
+                    PlayerInfo info = PlayerDB.FindExact( player.Value );
                     if( info != null ) Include( info );
                 }
 
                 foreach( XElement player in el.Elements( "excluded" ) ) {
                     if( !Player.IsValidName( player.Value ) ) continue;
-                    PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
+                    PlayerInfo info = PlayerDB.FindExact( player.Value );
                     if( info != null ) Exclude( info );
                 }
             } else {

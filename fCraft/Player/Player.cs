@@ -150,7 +150,7 @@ namespace fCraft {
         internal Player( ReservedPlayerID id, [NotNull] string name, [NotNull] Rank rank ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( rank == null ) throw new ArgumentNullException( "rank" );
-            Info = PlayerDB.AddSuper( id, name, rank );
+            Info = PlayerDB.AddSuperPlayer( id, name, rank );
             spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
             IP = IPAddress.Loopback;
             ResetAllBinds();
@@ -542,28 +542,45 @@ namespace fCraft {
 
         #region Macros
 
+        /// <summary> Prints "No players found matching ___" message. </summary>
+        /// <param name="playerName"> Given name, for which no players were found. </param>
         public void MessageNoPlayer( [NotNull] string playerName ) {
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
             Message( "No players found matching \"{0}\"", playerName );
         }
 
 
+        /// <summary> Prints "No worlds found matching ___" message. </summary>
+        /// <param name="playerName"> Given name, for which no worlds were found. </param>
         public void MessageNoWorld( [NotNull] string worldName ) {
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
             Message( "No worlds found matching \"{0}\". See &H/Worlds", worldName );
         }
 
 
-        public void MessageManyMatches( [NotNull] string itemType, [NotNull] IEnumerable<IClassy> names ) {
-            if( itemType == null ) throw new ArgumentNullException( "itemType" );
-            if( names == null ) throw new ArgumentNullException( "names" );
+        const int MatchesToPrint = 30;
 
-            string nameList = names.JoinToString( ", ", p => p.ClassyName );
-            Message( "More than one {0} matched: {1}",
-                     itemType, nameList );
+        /// <summary> Prints a comma-separated list of matches (up to 30): "More than one ___ matched: ___, ___, ..." </summary>
+        /// <param name="itemType"> Type of item in the list. Should be singular (e.g. "player" or "world"). </param>
+        /// <param name="items"> List of items. ClassyName properties are used in the list. </param>
+        public void MessageManyMatches( [NotNull] string itemType, [NotNull] IEnumerable<IClassy> items ) {
+            if( itemType == null ) throw new ArgumentNullException( "itemType" );
+            if( items == null ) throw new ArgumentNullException( "names" );
+
+            string nameList = items.Take( MatchesToPrint ).JoinToString( ", ", p => p.ClassyName );
+            int count = items.Count();
+            if( count > MatchesToPrint ) {
+                Message( "More than {0} {1} matched: {1}",
+                         count, itemType, nameList );
+            } else {
+                Message( "More than one {0} matched: {1}",
+                         itemType, nameList );
+            }
         }
 
 
+        /// <summary> Prints "This command requires ___+ rank" message. </summary>
+        /// <param name="permissions"> List of permissions required for the command. </param>
         public void MessageNoAccess( [NotNull] params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
             Rank reqRank = RankManager.GetMinRankWithAllPermissions( permissions );
@@ -576,6 +593,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Prints "This command requires ___+ rank" message. </summary>
         public void MessageNoAccess( [NotNull] CommandDescriptor cmd ) {
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             Rank reqRank = cmd.MinRank;
@@ -588,33 +606,43 @@ namespace fCraft {
         }
 
 
+        /// <summary> Prints "Unrecognized rank ___" message. </summary>
+        /// <param name="rankName"> Given name, for which no rank was found. </param>
         public void MessageNoRank( [NotNull] string rankName ) {
             if( rankName == null ) throw new ArgumentNullException( "rankName" );
             Message( "Unrecognized rank \"{0}\". See &H/Ranks", rankName );
         }
 
 
+        /// <summary> Prints "You cannot access files outside the map folder." message. </summary>
         public void MessageUnsafePath() {
             Message( "&WYou cannot access files outside the map folder." );
         }
 
 
+        /// <summary> Prints "No zones found matching ___" message. </summary>
+        /// <param name="zoneName"> Given name, for which no zones was found. </param>
         public void MessageNoZone( [NotNull] string zoneName ) {
             if( zoneName == null ) throw new ArgumentNullException( "zoneName" );
             Message( "No zones found matching \"{0}\". See &H/Zones", zoneName );
         }
 
 
+        /// <summary> Prints "Unacceptible world name" message, and requirements for world names. </summary>
+        /// <param name="worldName"> Given world name, deemed to be invalid. </param>
         public void MessageInvalidWorldName( [NotNull] string worldName ) {
             Message( "Unacceptible world name: \"{0}\"", worldName );
             Message( "World names must be 1-16 characters long, and only contain letters, numbers, and underscores." );
         }
 
+        /// <summary> Prints "___ is not a valid player name" message. </summary>
+        /// <param name="worldName"> Given player name, deemed to be invalid. </param>
         public void MessageInvalidPlayerName( [NotNull] string playerName ) {
             Message( "\"{0}\" is not a valid player name.", playerName );
         }
 
 
+        /// <summary> Prints "You are muted for ___ longer" message. </summary>
         public void MessageMuted() {
             Message( "You are muted for {0} longer.",
                      Info.TimeMutedLeft.ToMiniString() );

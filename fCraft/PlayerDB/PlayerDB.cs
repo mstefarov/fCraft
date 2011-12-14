@@ -31,7 +31,7 @@ namespace fCraft {
 
 
         [NotNull]
-        public static PlayerInfo AddSuper( ReservedPlayerID id, [NotNull] string name, [NotNull] Rank rank ) {
+        public static PlayerInfo AddSuperPlayer( ReservedPlayerID id, [NotNull] string name, [NotNull] Rank rank ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             CheckIfLoaded();
             PlayerInfo newInfo = new PlayerInfo( (int)id, name, IPAddress.None, rank ) {
@@ -41,8 +41,9 @@ namespace fCraft {
         }
 
 
+        /// <summary> Adds a new PlayerInfo entry for a player. </summary>
         [NotNull]
-        public static PlayerInfo AddUnrecognized( [NotNull] string name, RankChangeType rankChangeType ) {
+        public static PlayerInfo AddUnrecognizedPlayer( [NotNull] string name, RankChangeType rankChangeType ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             CheckIfLoaded();
 
@@ -208,14 +209,19 @@ namespace fCraft {
             return info;
         }
 
-
+        /// <summary> Finds players by IP address. </summary>
+        /// <param name="address"> Player's IP address. </param>
+        /// <param name="limit"> Maximum number of results to return. </param>
+        /// <returns> A sequence of zero or more PlayerInfos who have logged in from given IP. </returns>
         [NotNull]
         public static IEnumerable<PlayerInfo> FindByIP( [NotNull] IPAddress address ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             return FindByIP( address, Int32.MaxValue );
         }
 
-
+        /// <summary> Finds players by IP address. </summary>
+        /// <param name="address"> Player's IP address. </param>
+        /// <returns> A sequence of zero or more PlayerInfos who have logged in from given IP. </returns>
         [NotNull]
         public static IEnumerable<PlayerInfo> FindByIP( [NotNull] IPAddress address, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
@@ -269,68 +275,83 @@ namespace fCraft {
             return provider.FindByPattern( pattern, limit );
         }
 
-
+        /// <summary> Finds players by partial name (prefix). </summary>
+        /// <param name="partialName"> Full or partial name of the player. </param>
+        /// <returns> A sequence of zero or more PlayerInfos whose names start with partialName. </returns>
         [NotNull]
-        public static IEnumerable<PlayerInfo> FindByPartialName( [NotNull] string namePart ) {
-            if( namePart == null ) throw new ArgumentNullException( "namePart" );
-            return FindByPartialName( namePart, Int32.MaxValue );
+        public static IEnumerable<PlayerInfo> FindByPartialName( [NotNull] string partialName ) {
+            if( partialName == null ) throw new ArgumentNullException( "namePart" );
+            return FindByPartialName( partialName, Int32.MaxValue );
         }
 
-
+        /// <summary> Finds players by partial name (prefix). </summary>
+        /// <param name="partialName"> Full or partial name of the player. </param>
+        /// <param name="limit"> Maximum number of results to return. </param>
+        /// <returns> A sequence of zero or more PlayerInfos whose names start with partialName. </returns>
         [NotNull]
-        public static IEnumerable<PlayerInfo> FindByPartialName( [NotNull] string namePart, int limit ) {
-            if( namePart == null ) throw new ArgumentNullException( "namePart" );
+        public static IEnumerable<PlayerInfo> FindByPartialName( [NotNull] string partialName, int limit ) {
+            if( partialName == null ) throw new ArgumentNullException( "namePart" );
             CheckIfLoaded();
-            return provider.FindByPartialName( namePart, limit );
+            return provider.FindByPartialName( partialName, limit );
         }
 
 
-        /// <summary>Searches for player names starting with namePart, returning just one or none of the matches.</summary>
-        /// <param name="partialName">Partial or full player name</param>
-        /// <param name="result">PlayerInfo to output (will be set to null if no single match was found)</param>
-        /// <returns>true if one or zero matches were found, false if multiple matches were found</returns>
-        internal static bool FindPlayerInfo( [NotNull] string partialName, [CanBeNull] out PlayerInfo result ) {
+        /// <summary> Searches for player names starting with namePart, returning just one or none of the matches. </summary>
+        /// <param name="partialName"> Partial or full player name. </param>
+        /// <param name="result"> PlayerInfo to output (will be set to null if no single match was found). </param>
+        /// <returns> true if one or zero matches were found, false if multiple matches were found. </returns>
+        internal static bool FindOneByPartialName( [NotNull] string partialName, [CanBeNull] out PlayerInfo result ) {
             if( partialName == null ) throw new ArgumentNullException( "partialName" );
             CheckIfLoaded();
             return provider.FindOneByPartialName( partialName, out result );
         }
 
 
+        /// <summary> Finds player by exact name. </summary>
+        /// <param name="fullName"> Full, case-insensitive name of the player. </param>
+        /// <returns> PlayerInfo object if the player was found. Null if not found. </returns>
         [CanBeNull]
-        public static PlayerInfo FindPlayerInfoExact( [NotNull] string name ) {
+        public static PlayerInfo FindExact( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             CheckIfLoaded();
             return provider.FindExact( name );
         }
 
 
+        /// <summary> Searches for player names starting with namePart.
+        /// If exactly one player matched, returns the corresponding PlayerInfo object.
+        /// If name format is incorrect, or if no matches were found, an appropriate message is printed to the player.
+        /// If multiple players were found matching the partialName, first 25 matches are printed. </summary>
+        /// <param name="player"> Player to print feedback to. </param>
+        /// <param name="partialName"> Partial or full player name. </param>
+        /// <returns> PlayerInfo object if one player was found. Null if no or multiple matches were found. </returns>
         [CanBeNull]
-        public static PlayerInfo FindPlayerInfoOrPrintMatches( [NotNull] Player player, [NotNull] string name ) {
+        public static PlayerInfo FindFindByPartialNameOrPrintMatches( [NotNull] Player player, [NotNull] string partialName ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( name == null ) throw new ArgumentNullException( "name" );
+            if( partialName == null ) throw new ArgumentNullException( "name" );
             CheckIfLoaded();
-            if( name == "-" ) {
+            if( partialName == "-" ) {
                 if( player.LastUsedPlayerName != null ) {
-                    name = player.LastUsedPlayerName;
+                    partialName = player.LastUsedPlayerName;
                 } else {
                     player.Message( "Cannot repeat player name: you haven't used any names yet." );
                     return null;
                 }
             }
-            if( !Player.ContainsValidCharacters( name ) ) {
-                player.MessageInvalidPlayerName( name );
+            if( !Player.ContainsValidCharacters( partialName ) ) {
+                player.MessageInvalidPlayerName( partialName );
                 return null;
             }
-            PlayerInfo target = FindPlayerInfoExact( name );
+            PlayerInfo target = FindExact( partialName );
             if( target == null ) {
-                PlayerInfo[] targets = FindByPartialName( name ).ToArray();
+                PlayerInfo[] targets = FindByPartialName( partialName ).ToArray();
                 if( targets.Length == 0 ) {
-                    player.MessageNoPlayer( name );
+                    player.MessageNoPlayer( partialName );
                     return null;
 
                 } else if( targets.Length > 1 ) {
                     Array.Sort( targets, new PlayerInfoComparer( player ) );
-                    player.MessageManyMatches( "player", targets.Take( 25 ).ToArray() );
+                    player.MessageManyMatches( "player", targets );
                     return null;
                 }
                 target = targets[0];
@@ -343,7 +364,7 @@ namespace fCraft {
         [NotNull]
         public static string FindExactClassyName( [CanBeNull] string name ) {
             if( string.IsNullOrEmpty( name ) ) return "?";
-            PlayerInfo info = FindPlayerInfoExact( name );
+            PlayerInfo info = FindExact( name );
             if( info == null ) return name;
             else return info.ClassyName;
         }

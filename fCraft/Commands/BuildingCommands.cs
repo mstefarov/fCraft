@@ -1492,7 +1492,7 @@ namespace fCraft {
                 return;
             }
 
-            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
+            PlayerInfo target = PlayerDB.FindFindByPartialNameOrPrintMatches( player, name );
             if( target == null ) return;
 
             if( player.Info != target && !player.Can( Permission.UndoOthersActions, target.Rank ) ) {
@@ -1667,7 +1667,7 @@ namespace fCraft {
                 return;
             }
 
-            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
+            PlayerInfo target = PlayerDB.FindFindByPartialNameOrPrintMatches( player, name );
             if( target == null ) return;
 
             if( player.Info != target && !player.Can( Permission.UndoOthersActions, target.Rank ) ) {

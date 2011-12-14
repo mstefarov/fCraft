@@ -175,7 +175,7 @@ namespace fCraft.MapConversion {
             }
 
             // TODO: investigate side effects
-            PlayerInfo conversionPlayer = PlayerDB.AddSuper( ReservedPlayerID.Importer, "OpticraftConversion", RankManager.HighestRank );
+            PlayerInfo conversionPlayer = PlayerDB.AddSuperPlayer( ReservedPlayerID.Importer, "OpticraftConversion", RankManager.HighestRank );
             foreach( OpticraftZone optiZone in dataStore.Zones ) {
                 // Make zone
                 Zone fZone = new Zone {
@@ -195,7 +195,7 @@ namespace fCraft.MapConversion {
                     if( !Player.IsValidName( playerName ) ) {
                         continue;
                     }
-                    PlayerInfo pInfo = PlayerDB.FindPlayerInfoExact( playerName );
+                    PlayerInfo pInfo = PlayerDB.FindExact( playerName );
                     if( pInfo != null ) {
                         fZone.Controller.Include( pInfo );
                     }
@@ -208,7 +208,7 @@ namespace fCraft.MapConversion {
                         if( !Player.IsValidName( playerName ) ) {
                             continue;
                         }
-                        PlayerInfo pInfo = PlayerDB.FindPlayerInfoExact( playerName );
+                        PlayerInfo pInfo = PlayerDB.FindExact( playerName );
                         if( pInfo != null ) {
                             fZone.Controller.Exclude( pInfo );
                         }
