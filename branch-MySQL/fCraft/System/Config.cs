@@ -419,6 +419,9 @@ namespace fCraft {
                     foreach( XElement pair in settings.Elements( "ConfigKey" ) ) {
                         ParseKeyElement( pair );
                     }
+                } else {
+                    Logger.Log( LogType.Warning,
+                                "Config.Load: No <Settings> tag present. Using default for everything." );
                 }
             }
 
