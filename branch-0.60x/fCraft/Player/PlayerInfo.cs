@@ -509,8 +509,8 @@ namespace fCraft {
             if( info.ID < 256 )
                 info.ID = PlayerDB.GetNextID();
 
-            int rankChangeTypeCode;
-            if( Int32.TryParse( fields[30], out rankChangeTypeCode ) ) {
+            byte rankChangeTypeCode;
+            if( Byte.TryParse( fields[30], out rankChangeTypeCode ) ) {
                 info.RankChangeType = (RankChangeType)rankChangeTypeCode;
                 if( !Enum.IsDefined( typeof( RankChangeType ), rankChangeTypeCode ) ) {
                     info.GuessRankChangeType();
@@ -537,8 +537,8 @@ namespace fCraft {
             info.Password = Unescape( fields[42] );
             // fields[43] is "online", and is ignored
 
-            int bandwidthUseModeCode;
-            if( Int32.TryParse( fields[44], out bandwidthUseModeCode ) ) {
+            byte bandwidthUseModeCode;
+            if( Byte.TryParse( fields[44], out bandwidthUseModeCode ) ) {
                 info.BandwidthUseMode = (BandwidthUseMode)bandwidthUseModeCode;
                 if( !Enum.IsDefined( typeof( BandwidthUseMode ), bandwidthUseModeCode ) ) {
                     info.BandwidthUseMode = BandwidthUseMode.Default;
@@ -641,8 +641,8 @@ namespace fCraft {
                     info.ID = Int32.Parse( fields[29] );
                     if( info.ID < 256 )
                         info.ID = PlayerDB.GetNextID();
-                    int rankChangeTypeCode;
-                    if( Int32.TryParse( fields[30], out rankChangeTypeCode ) ) {
+                    byte rankChangeTypeCode;
+                    if( Byte.TryParse( fields[30], out rankChangeTypeCode ) ) {
                         info.RankChangeType = (RankChangeType)rankChangeTypeCode;
                         if( !Enum.IsDefined( typeof( RankChangeType ), rankChangeTypeCode ) ) {
                             info.GuessRankChangeType();
