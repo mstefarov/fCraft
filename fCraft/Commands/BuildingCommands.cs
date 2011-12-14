@@ -1513,6 +1513,10 @@ namespace fCraft {
                 player.SelectionStart( 2, UndoAreaCountSelectionCallback, args, Permission.UndoOthersActions );
 
             } else if( range.TryParseMiniTimespan( out span ) ) {
+                if( span > DateTimeUtil.MaxTimeSpan ) {
+                    player.MessageMaxTimeSpan();
+                    return;
+                }
                 UndoAreaTimeArgs args = new UndoAreaTimeArgs {
                     Target = target,
                     Time = span,
@@ -1693,6 +1697,10 @@ namespace fCraft {
                 }
 
             } else if( range.TryParseMiniTimespan( out span ) ) {
+                if( span > DateTimeUtil.MaxTimeSpan ) {
+                    player.MessageMaxTimeSpan();
+                    return;
+                }
                 if( !cmd.IsConfirmed ) {
                     player.Message( "Searching for changes made by {0}&s in the last {1}...",
                                     target.ClassyName, span.ToMiniString() );
