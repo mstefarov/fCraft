@@ -8,7 +8,7 @@ namespace fCraft {
     /// Breaks up a message into tokens at spaces. Treats quoted strings as whole tokens. </summary>
     public sealed class Command : ICloneable {
         public CommandDescriptor Descriptor { get; private set; }
-        int offset;
+        public int Offset { get; set; }
         public readonly string RawMessage;
         public string Name { get; private set; } // lowercase name of the command
         public bool IsConfirmed; // whether this command has been confirmed by the user (with /ok)
@@ -16,7 +16,7 @@ namespace fCraft {
         /// <summary> Creates a copy of an existing command. </summary>
         public Command( [NotNull] Command other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            offset = other.offset;
+            Offset = other.Offset;
             Descriptor = other.Descriptor;
             RawMessage = other.RawMessage;
             Name = other.Name;
@@ -26,7 +26,7 @@ namespace fCraft {
         /// <summary> Creates a command from a raw message. </summary>
         public Command( [NotNull] string rawMessage ) {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-            offset = 1;
+            Offset = 1;
             RawMessage = rawMessage;
             string name = Next();
             if( name == null ) {
@@ -51,20 +51,20 @@ namespace fCraft {
         [DebuggerStepThrough]
         [CanBeNull]
         public string Next() {
-            for( ; offset < RawMessage.Length; offset++ ) {
+            for( ; Offset < RawMessage.Length; Offset++ ) {
                 int t, j;
-                if( RawMessage[offset] == '"' ) {
-                    j = offset + 1;
+                if( RawMessage[Offset] == '"' ) {
+                    j = Offset + 1;
                     for( ; j < RawMessage.Length && RawMessage[j] != '"'; j++ ) {}
-                    t = offset;
-                    offset = j;
-                    return RawMessage.Substring( t + 1, offset - t - 1 );
-                } else if( RawMessage[offset] != ' ' ) {
-                    j = offset;
+                    t = Offset;
+                    Offset = j;
+                    return RawMessage.Substring( t + 1, Offset - t - 1 );
+                } else if( RawMessage[Offset] != ' ' ) {
+                    j = Offset;
                     for( ; j < RawMessage.Length && RawMessage[j] != ' '; j++ ) {}
-                    t = offset;
-                    offset = j;
-                    return RawMessage.Substring( t, offset - t );
+                    t = Offset;
+                    Offset = j;
+                    return RawMessage.Substring( t, Offset - t );
                 }
             }
             return null;
@@ -76,7 +76,7 @@ namespace fCraft {
         public bool HasNext {
             [DebuggerStepThrough]
             get {
-                return offset < RawMessage.Length;
+                return Offset < RawMessage.Length;
             }
         }
 
@@ -104,16 +104,16 @@ namespace fCraft {
             [DebuggerStepThrough]
             get {
                 if( HasNext ) {
-                    int startOffset = offset;
+                    int startOffset = Offset;
                     string nextVal = Next();
                     if( nextVal != null ) {
                         int number;
                         if( Int32.TryParse( nextVal, out number ) ) {
-                            offset = startOffset;
+                            Offset = startOffset;
                             return true;
                         }
                     }
-                    offset = startOffset;
+                    Offset = startOffset;
                     return false;
                 } else {
                     return false;
@@ -128,9 +128,9 @@ namespace fCraft {
         /// <returns> The rest of the command, or an empty string. </returns>
         [DebuggerStepThrough]
         public string NextAll() {
-            for( ; offset < RawMessage.Length; offset++ ) {
-                if( RawMessage[offset] != ' ' )
-                    return RawMessage.Substring( offset );
+            for( ; Offset < RawMessage.Length; Offset++ ) {
+                if( RawMessage[Offset] != ' ' )
+                    return RawMessage.Substring( Offset );
             }
             return "";
         }
@@ -141,10 +141,10 @@ namespace fCraft {
         public int CountRemaining {
             get {
                 if( HasNext ) {
-                    int startOffset = offset;
+                    int startOffset = Offset;
                     int i = 1;
                     while( Next() != null ) i++;
-                    offset = startOffset;
+                    Offset = startOffset;
                     return i;
                 } else {
                     return 0;
@@ -157,11 +157,11 @@ namespace fCraft {
         /// Does not modify the offset. </summary>
         public int Count {
             get {
-                int startOffset = offset;
+                int startOffset = Offset;
                 Rewind();
                 int i = 1;
                 while( Next() != null ) i++;
-                offset = startOffset;
+                Offset = startOffset;
                 return i;
             }
         }
@@ -170,7 +170,7 @@ namespace fCraft {
         /// <summary> Resets the argument offset.
         /// After calling Rewind, arguments can be read from the beginning again. </summary>
         public void Rewind() {
-            offset = 1;
+            Offset = 1;
             Next();
         }
 
@@ -227,9 +227,9 @@ namespace fCraft {
 
         public override string ToString() {
             if( IsConfirmed ) {
-                return String.Format( "Command(\"{0}\",{1},confirmed)", RawMessage, offset );
+                return String.Format( "Command(\"{0}\",{1},confirmed)", RawMessage, Offset );
             } else {
-                return String.Format( "Command(\"{0}\",{1})", RawMessage, offset );
+                return String.Format( "Command(\"{0}\",{1})", RawMessage, Offset );
             }
         }
     }

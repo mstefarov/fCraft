@@ -816,21 +816,32 @@ namespace fCraft {
 
             // parse map dimensions
             int mapWidth, mapLength, mapHeight;
-            if( !(cmd.NextInt( out mapWidth ) && cmd.NextInt( out mapLength ) && cmd.NextInt( out mapHeight )) ) {
-                if( playerWorld != null ) {
-                    Map oldMap = player.WorldMap;
-                    // If map dimensions were not given, use current map's dimensions
-                    mapWidth = oldMap.Width;
-                    mapLength = oldMap.Length;
-                    mapHeight = oldMap.Height;
-                } else {
-                    player.Message( "When used from console, /Gen requires map dimensions." );
-                    CdGenerate.PrintUsage( player );
-                    return;
+            if( cmd.HasNext ) {
+                int offset = cmd.Offset;
+                if( !(cmd.NextInt( out mapWidth ) && cmd.NextInt( out mapLength ) && cmd.NextInt( out mapHeight )) ) {
+                    if( playerWorld != null ) {
+                        Map oldMap = player.WorldMap;
+                        // If map dimensions were not given, use current map's dimensions
+                        mapWidth = oldMap.Width;
+                        mapLength = oldMap.Length;
+                        mapHeight = oldMap.Height;
+                    } else {
+                        player.Message( "When used from console, /Gen requires map dimensions." );
+                        CdGenerate.PrintUsage( player );
+                        return;
+                    }
+                    cmd.Offset = offset;
                 }
-                cmd.Rewind();
-                cmd.Next();
-                cmd.Next();
+            } else if( playerWorld != null ) {
+                Map oldMap = player.WorldMap;
+                // If map dimensions were not given, use current map's dimensions
+                mapWidth = oldMap.Width;
+                mapLength = oldMap.Length;
+                mapHeight = oldMap.Height;
+            } else {
+                player.Message( "When used from console, /Gen requires map dimensions." );
+                CdGenerate.PrintUsage( player );
+                return;
             }
 
             // Check map dimensions
@@ -887,6 +898,10 @@ namespace fCraft {
                 }
 
             } else {
+                if( cmd.HasNext ) {
+                    CdGenerate.PrintUsage( player );
+                    return;
+                }
                 // saving to file
                 fileName = fileName.Replace( Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar );
                 if( !fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {

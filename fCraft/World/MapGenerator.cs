@@ -72,11 +72,12 @@ namespace fCraft {
         }
 
 
+        const int FlatgrassDirtLevel = 5;
         [NotNull]
         public static Map GenerateFlatgrass( int width, int length, int height ) {
             Map map = new Map( null, width, length, height, true );
-            map.Blocks.MemSet( (byte)Block.Stone, 0, width * length * (height / 2 - 5) );
-            map.Blocks.MemSet( (byte)Block.Dirt, width * length * (height / 2 - 5), width * length * 4 );
+            map.Blocks.MemSet( (byte)Block.Stone, 0, width * length * (height / 2 - FlatgrassDirtLevel) );
+            map.Blocks.MemSet( (byte)Block.Dirt, width * length * (height / 2 - FlatgrassDirtLevel), width * length * (FlatgrassDirtLevel - 1) );
             map.Blocks.MemSet( (byte)Block.Grass, width * length * (height / 2 - 1), width * length );
             return map;
         }
