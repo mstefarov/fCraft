@@ -648,7 +648,7 @@ namespace fCraft {
             string verb = (fromRank > toRank ? "demot" : "promot");
 
             if( !cmd.IsConfirmed ) {
-                player.Confirm( cmd, "About to {0}e {1} players.", verb, playerCount );
+                player.Confirm( cmd, "{0}e {1} players?", verb.UppercaseFirst(), playerCount );
                 return;
             }
 
@@ -1180,7 +1180,7 @@ namespace fCraft {
             Permissions = new[] { Permission.Import },
             Usage = "/Import bans Software File&S or &H/Import ranks Software File Rank",
             Help = "Imports data from formats used by other servers. " +
-                   "Currently only MCSharp/MCZall files are supported.",
+                   "Currently only MCSharp/MCZall/MCLawl/MCForge files are supported.",
             Handler = ImportHandler
         };
 
@@ -1237,6 +1237,7 @@ namespace fCraft {
                 case "mcsharp":
                 case "mczall":
                 case "mclawl":
+                case "mcforge":
                     try {
                         names = File.ReadAllLines( file );
                     } catch( Exception ex ) {
@@ -1252,7 +1253,7 @@ namespace fCraft {
             }
 
             if( !cmd.IsConfirmed ) {
-                player.Confirm( cmd, "You are about to import {0} bans.", names.Length );
+                player.Confirm( cmd, "Import {0} bans.", names.Length );
                 return;
             }
 
@@ -1309,6 +1310,7 @@ namespace fCraft {
                 case "mcsharp":
                 case "mczall":
                 case "mclawl":
+                case "mcforge":
                     try {
                         names = File.ReadAllLines( fileName );
                     } catch( Exception ex ) {
@@ -1324,7 +1326,7 @@ namespace fCraft {
             }
 
             if( !cmd.IsConfirmed ) {
-                player.Confirm( cmd, "You are about to import {0} player ranks.", names.Length );
+                player.Confirm( cmd, "Import {0} player ranks?", names.Length );
                 return;
             }
 

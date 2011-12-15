@@ -853,6 +853,24 @@ namespace fCraft {
                                 "The only recommended map dimensions are: 16, 32, 64, 128, 256, 512, and 1024." );
             }
 
+
+            bool genFlatgrass = (theme == MapGenTheme.Forest && noTrees && template == MapGenTemplate.Flat);
+            string templateFullName;
+            if( genEmpty ) {
+                templateFullName = "Empty map";
+            } else if( genOcean ) {
+                templateFullName = "Ocean map";
+            } else if( genFlatgrass ) {
+                templateFullName = "Flatgrass";
+            } else {
+                if( theme == MapGenTheme.Forest && noTrees ) {
+                    templateFullName = "Grass " + template;
+                } else {
+                    templateFullName = theme + " " + template;
+                }
+            }
+
+
             // check file/world name
             string fileName = cmd.Next();
             string fullFileName = null;
@@ -864,7 +882,7 @@ namespace fCraft {
                     return;
                 }
                 if( !cmd.IsConfirmed ) {
-                    player.Confirm( cmd, "Replace this world's map with a generated one?" );
+                    player.Confirm( cmd, "Replace THIS MAP with a generated one ({0})?", templateFullName );
                     return;
                 }
 
@@ -894,18 +912,16 @@ namespace fCraft {
             }
 
             // generating
-            bool genFlatgrass = (theme == MapGenTheme.Forest && noTrees && template == MapGenTemplate.Flat);
             Map map;
+            player.MessageNow( "Generating {0}...", templateFullName );
+
             if( genEmpty ) {
-                player.MessageNow( "Generating empty map..." );
                 map = MapGenerator.GenerateEmpty( mapWidth, mapLength, mapHeight );
 
             } else if( genOcean ) {
-                player.MessageNow( "Generating ocean map..." );
                 map = MapGenerator.GenerateOcean( mapWidth, mapLength, mapHeight );
 
             } else if( genFlatgrass ) {
-                player.MessageNow( "Generating flatgrass..." );
                 map = MapGenerator.GenerateFlatgrass( mapWidth, mapLength, mapHeight );
 
             } else {
@@ -924,21 +940,8 @@ namespace fCraft {
                 args.Theme = theme;
                 args.AddTrees = !noTrees;
 
-                try {
-                    if( theme == MapGenTheme.Forest && noTrees ) {
-                        player.MessageNow( "Generating Grass {0}...", template );
-                    } else {
-                        player.MessageNow( "Generating {0} {1}...", theme, template );
-                    }
-                    MapGenerator generator = new MapGenerator( args );
-                    map = generator.Generate();
-
-                } catch( Exception ex ) {
-                    Logger.Log( LogType.Error,
-                                "MapGenerator: Generation failed: {0}", ex );
-                    player.Message( "&WAn error occured while generating the map." );
-                    return;
-                }
+                MapGenerator generator = new MapGenerator( args );
+                map = generator.Generate();
             }
 
             if( fileName != null ) {
@@ -1987,7 +1990,7 @@ namespace fCraft {
             // Loading map into current world
             if( worldName == null ) {
                 if( !cmd.IsConfirmed ) {
-                    player.Confirm( cmd, "About to replace THIS MAP with \"{0}\".", fileName );
+                    player.Confirm( cmd, "Replace THIS MAP with \"{0}\"?", fileName );
                     return;
                 }
                 Map map;
@@ -2054,7 +2057,7 @@ namespace fCraft {
                         player.LastUsedWorldName = world.Name;
                         // Replacing existing world's map
                         if( !cmd.IsConfirmed ) {
-                            player.Confirm( cmd, "About to replace map for {0}&S with \"{1}\".",
+                            player.Confirm( cmd, "Replace map for {0}&S with \"{1}\"?",
                                             world.ClassyName, fileName );
                             return;
                         }

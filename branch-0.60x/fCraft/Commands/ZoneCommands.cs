@@ -489,7 +489,7 @@ namespace fCraft {
                     }
                 }
                 if( !cmd.IsConfirmed ) {
-                    player.Confirm( cmd, "You are about to remove zone {0}&S.", zone.ClassyName );
+                    player.Confirm( cmd, "Remove zone {0}&S?", zone.ClassyName );
                     return;
                 }
 
