@@ -1,10 +1,11 @@
 0.612
  Fix: Fixed "/Worlds @Rank" not autocompleting rank names.
  Fix: Fixed compatibility with legacy PlayerDB format versions. PlayerDB files created by fCraft 0.400+ will work again.
- Fix: Fixed a couple crashes in /Gen.
+ Fix: Fixed several potential crashes in /Gen.
  Fix: Fixed a bug that reset a world's BackupInterval to default and IsLocked flag to false after changing the map (backport from 0.700).
  Fix: Fixed a bug that prevented kicks/bans/promotions/demotions from being announced on IRC if no reason was given.
  Change: Capped all user-entered time spans at 9999 days.
+ Change: Shortened and clarified some confirmation prompts (/Gen, /WLoad, /ZRemove, /Import, /MassRank).
 
 0.611
  Feature: Added information about periodic backups to /WInfo.
