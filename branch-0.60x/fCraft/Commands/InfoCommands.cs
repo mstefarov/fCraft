@@ -106,7 +106,7 @@ namespace fCraft {
                     return;
                 }
 
-            }else if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
+            } else if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
                 // find players by IP
                 infos = PlayerDB.FindPlayers( ip );
 
@@ -1000,7 +1000,7 @@ namespace fCraft {
                 World world = WorldManager.FindWorldOrPrintMatches( player, param );
                 if( world == null ) return;
 
-                worldName=param;
+                worldName = param;
                 // If found, grab its player list
                 players = world.Players;
                 qualifier = String.Format( "in world {0}&S", world.ClassyName );
@@ -1099,7 +1099,7 @@ namespace fCraft {
             player.Message( "{0}{1} - {2}",
                             Color.Silver,
                             targetBlockCoords,
-                            GetCompassString(target.Position.R) );
+                            GetCompassString( target.Position.R ) );
         }
 
 
@@ -1234,7 +1234,7 @@ namespace fCraft {
                 cd = CommandManager.GetCommands();
 
             } else if( param.Equals( "hidden", StringComparison.OrdinalIgnoreCase ) ) {
-                prefix =  "Hidden commands";
+                prefix = "Hidden commands";
                 cd = CommandManager.GetCommands( true );
 
             } else if( EnumUtil.TryParse( param, out category, true ) ) {

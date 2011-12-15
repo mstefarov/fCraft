@@ -608,6 +608,7 @@ namespace fCraft {
             Message( "World names must be 1-16 characters long, and only contain letters, numbers, and underscores." );
         }
 
+
         public void MessageInvalidPlayerName( [NotNull] string playerName ) {
             Message( "\"{0}\" is not a valid player name.", playerName );
         }
@@ -618,8 +619,9 @@ namespace fCraft {
                      Info.TimeMutedLeft.ToMiniString() );
         }
 
+
         public void MessageMaxTimeSpan() {
-            Message( "Specify a time range up to {0}", DateTimeUtil.MaxTimeSpan.ToMiniString() );
+            Message( "Specify a time range up to {0:0}d.", DateTimeUtil.MaxTimeSpan.TotalDays );
         }
 
         #endregion
