@@ -103,7 +103,7 @@ namespace fCraft {
 
         /// <summary> Last command called by the player. </summary>
         [CanBeNull]
-        public Command LastCommand { get; private set; }
+        public CommandReader LastCommand { get; private set; }
 
 
         /// <summary> Plain version of the name (no formatting). </summary>
@@ -218,7 +218,7 @@ namespace fCraft {
                         if( rawMessage.EndsWith( "//" ) ) {
                             rawMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
                         }
-                        Command cmd = new Command( rawMessage );
+                        CommandReader cmd = new CommandReader( rawMessage );
                         CommandDescriptor commandDescriptor = CommandManager.GetDescriptor( cmd.Name, true );
 
                         if( commandDescriptor == null ) {
@@ -724,7 +724,7 @@ namespace fCraft {
 
         static void ConfirmCommandCallback( [NotNull] Player player, object tag, bool fromConsole ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            Command cmd = (Command)tag;
+            CommandReader cmd = (CommandReader)tag;
             cmd.Rewind();
             cmd.IsConfirmed = true;
             CommandManager.ParseCommand( player, cmd, fromConsole );
@@ -740,7 +740,7 @@ namespace fCraft {
         /// <param name="message"> Message to print before "Type /ok to continue". </param>
         /// <param name="args"> Optional String.Format() arguments, for the message. </param>
         [StringFormatMethod( "message" )]
-        public void Confirm( [NotNull] Command cmd, [NotNull] string message, [NotNull] params object[] args ) {
+        public void Confirm( [NotNull] CommandReader cmd, [NotNull] string message, [NotNull] params object[] args ) {
             Confirm( ConfirmCommandCallback, cmd, message, args );
         }
 
@@ -1231,7 +1231,7 @@ namespace fCraft {
         public bool IsRepeatingSelection { get; set; }
 
         [CanBeNull]
-        Command selectionRepeatCommand;
+        CommandReader selectionRepeatCommand;
 
         [CanBeNull]
         SelectionCallback selectionCallback;

@@ -256,6 +256,7 @@ namespace fCraft {
         }
 
 
+        [TerminatesProgram]
         internal static void ThrowInvalidIP( [NotNull] Player player, [CanBeNull] PlayerInfo target, [NotNull] IPAddress ip ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( ip == null ) throw new ArgumentNullException( "ip" );

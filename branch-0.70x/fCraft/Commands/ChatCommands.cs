@@ -40,7 +40,7 @@ namespace fCraft {
             Handler = SayHandler
         };
 
-        static void SayHandler( Player player, Command cmd ) {
+        static void SayHandler( Player player, CommandReader cmd ) {
             if( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
@@ -81,7 +81,7 @@ namespace fCraft {
             Handler = StaffHandler
         };
 
-        static void StaffHandler( Player player, Command cmd ) {
+        static void StaffHandler( Player player, CommandReader cmd ) {
             if( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
@@ -113,7 +113,7 @@ namespace fCraft {
             Handler = IgnoreHandler
         };
 
-        static void IgnoreHandler( Player player, Command cmd ) {
+        static void IgnoreHandler( Player player, CommandReader cmd ) {
             string name = cmd.Next();
             if( name != null ) {
                 if( cmd.HasNext ) {
@@ -150,7 +150,7 @@ namespace fCraft {
             Handler = UnignoreHandler
         };
 
-        static void UnignoreHandler( Player player, Command cmd ) {
+        static void UnignoreHandler( Player player, CommandReader cmd ) {
             string name = cmd.Next();
             if( name != null ) {
                 if( cmd.HasNext ) {
@@ -193,7 +193,7 @@ namespace fCraft {
             Handler = MeHandler
         };
 
-        static void MeHandler( Player player, Command cmd ) {
+        static void MeHandler( Player player, CommandReader cmd ) {
             if( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
@@ -229,7 +229,7 @@ namespace fCraft {
             Handler = RollHandler
         };
 
-        static void RollHandler( Player player, Command cmd ) {
+        static void RollHandler( Player player, CommandReader cmd ) {
             if( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
@@ -274,7 +274,7 @@ namespace fCraft {
             Handler = DeafenHandler
         };
 
-        static void DeafenHandler( Player player, Command cmd ) {
+        static void DeafenHandler( Player player, CommandReader cmd ) {
             if( cmd.HasNext ) {
                 CdDeafen.PrintUsage( player );
                 return;
@@ -306,7 +306,7 @@ namespace fCraft {
             Handler = ClearHandler
         };
 
-        static void ClearHandler( Player player, Command cmd ) {
+        static void ClearHandler( Player player, CommandReader cmd ) {
             if( cmd.HasNext ) {
                 CdClear.PrintUsage( player );
                 return;
@@ -337,7 +337,7 @@ namespace fCraft {
             Handler = TimerHandler
         };
 
-        static void TimerHandler( Player player, Command cmd ) {
+        static void TimerHandler( Player player, CommandReader cmd ) {
             string param = cmd.Next();
 
             // List timers

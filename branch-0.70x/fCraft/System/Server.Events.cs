@@ -1,7 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Net;
 using System.Collections.Generic;
+using System.Net;
 using fCraft.Events;
 using JetBrains.Annotations;
 

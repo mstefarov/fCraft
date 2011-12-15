@@ -115,7 +115,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public override bool ReadParams( Command cmd ) {
+        public override bool ReadParams( CommandReader cmd ) {
             if( Player.GetCopyInformation() == null ) {
                 Player.Message( "Nothing to paste! Copy something first." );
                 return false;

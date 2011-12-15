@@ -1,9 +1,9 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Devart.Data.MySql;
-using System.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {

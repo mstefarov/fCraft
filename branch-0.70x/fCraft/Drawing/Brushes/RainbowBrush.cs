@@ -36,12 +36,12 @@ namespace fCraft.Drawing {
         }
 
 
-        public IBrush MakeBrush( Player player, Command cmd ) {
+        public IBrush MakeBrush( Player player, CommandReader cmd ) {
             return this;
         }
 
 
-        public IBrushInstance MakeInstance( Player player, Command cmd, DrawOperation state ) {
+        public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation state ) {
             return this;
         }
 

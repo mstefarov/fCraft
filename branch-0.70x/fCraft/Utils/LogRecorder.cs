@@ -1,8 +1,8 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
-using fCraft.Events;
 using System.Threading;
+using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
