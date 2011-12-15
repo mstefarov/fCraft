@@ -2,9 +2,9 @@
 //#define DEBUG_CHECK_DUPLICATE_COORDS
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using fCraft.Drawing;
 using fCraft.Events;
+using JetBrains.Annotations;
 
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable MemberCanBeProtected.Global

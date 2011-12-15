@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace fCraft.Drawing {

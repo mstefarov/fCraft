@@ -1,9 +1,9 @@
 ﻿// Contributed by Jared Klopper. Opticraft is copyright (c) 2011, Jared Klopper
 using System;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
 using System.IO;
 using System.IO.Compression;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {

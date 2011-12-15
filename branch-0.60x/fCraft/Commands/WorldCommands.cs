@@ -864,13 +864,13 @@ namespace fCraft {
                                 "The only recommended map dimensions are: 16, 32, 64, 128, 256, 512, and 1024." );
             }
 
-
+            // figure out full template name
             bool genFlatgrass = (theme == MapGenTheme.Forest && noTrees && template == MapGenTemplate.Flat);
             string templateFullName;
             if( genEmpty ) {
-                templateFullName = "Empty map";
+                templateFullName = "Empty";
             } else if( genOcean ) {
-                templateFullName = "Ocean map";
+                templateFullName = "Ocean";
             } else if( genFlatgrass ) {
                 templateFullName = "Flatgrass";
             } else {
@@ -880,7 +880,6 @@ namespace fCraft {
                     templateFullName = theme + " " + template;
                 }
             }
-
 
             // check file/world name
             string fileName = cmd.Next();
@@ -926,7 +925,7 @@ namespace fCraft {
                 }
             }
 
-            // generating
+            // generate the map
             Map map;
             player.MessageNow( "Generating {0}...", templateFullName );
 
@@ -940,7 +939,6 @@ namespace fCraft {
                 map = MapGenerator.GenerateFlatgrass( mapWidth, mapLength, mapHeight );
 
             } else {
-                // fancy generation
                 MapGeneratorArgs args = MapGenerator.MakeTemplate( template );
                 if( theme == MapGenTheme.Desert ) {
                     args.AddWater = false;
@@ -959,6 +957,7 @@ namespace fCraft {
                 map = generator.Generate();
             }
 
+            // save map to file, or load it into a world
             if( fileName != null ) {
                 if( map.Save( fullFileName ) ) {
                     player.Message( "Generation done. Saved to {0}", fileName );
