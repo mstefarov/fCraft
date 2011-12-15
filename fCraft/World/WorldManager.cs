@@ -3,12 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Xml;
 using System.Xml.Linq;
 using fCraft.Events;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
-using System.Runtime.Serialization;
 
 namespace fCraft {
     public static class WorldManager {
@@ -62,9 +62,9 @@ namespace fCraft {
                     XElement root = doc.Root;
                     if( root != null ) {
                         foreach( XElement el in root.Elements( "World" ) ) {
-// ReSharper disable JoinDeclarationAndInitializer
+                            // ReSharper disable JoinDeclarationAndInitializer
                             World newWorld;
-// ReSharper restore JoinDeclarationAndInitializer
+                            // ReSharper restore JoinDeclarationAndInitializer
 #if DEBUG
                             newWorld = AddWorld( el );
 #else

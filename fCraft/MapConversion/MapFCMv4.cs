@@ -1,8 +1,8 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Text;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 

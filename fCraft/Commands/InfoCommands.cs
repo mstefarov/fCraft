@@ -58,7 +58,7 @@ namespace fCraft {
             Handler = InfoHandler
         };
 
-        internal static void InfoHandler( Player player, Command cmd ) {
+        internal static void InfoHandler( Player player, CommandReader cmd ) {
             string name = cmd.Next();
             if( name == null ) {
                 // no name given, print own info
@@ -450,7 +450,7 @@ namespace fCraft {
             Handler = BanInfoHandler
         };
 
-        internal static void BanInfoHandler( Player player, Command cmd ) {
+        internal static void BanInfoHandler( Player player, CommandReader cmd ) {
             string name = cmd.Next();
             if( cmd.HasNext ) {
                 CdBanInfo.PrintUsage( player );
@@ -619,7 +619,7 @@ namespace fCraft {
         };
 
         // Shows general information about a particular rank.
-        static void RankInfoHandler( Player player, Command cmd ) {
+        static void RankInfoHandler( Player player, CommandReader cmd ) {
             Rank rank;
 
             string rankName = cmd.Next();
@@ -697,7 +697,7 @@ namespace fCraft {
             Handler = ServerInfoHandler
         };
 
-        internal static void ServerInfoHandler( Player player, Command cmd ) {
+        internal static void ServerInfoHandler( Player player, CommandReader cmd ) {
             if( cmd.HasNext ) {
                 CdServerInfo.PrintUsage( player );
                 return;
@@ -764,7 +764,7 @@ namespace fCraft {
             Handler = RanksHandler
         };
 
-        internal static void RanksHandler( Player player, Command cmd ) {
+        internal static void RanksHandler( Player player, CommandReader cmd ) {
             if( cmd.HasNext ) {
                 CdRanks.PrintUsage( player );
                 return;
@@ -793,7 +793,7 @@ namespace fCraft {
             Handler = RulesHandler
         };
 
-        internal static void RulesHandler( Player player, Command cmd ) {
+        internal static void RulesHandler( Player player, CommandReader cmd ) {
             string sectionName = cmd.Next();
 
             // if no section name is given
@@ -912,7 +912,7 @@ namespace fCraft {
             Handler = MeasureHandler
         };
 
-        internal static void MeasureHandler( Player player, Command cmd ) {
+        internal static void MeasureHandler( Player player, CommandReader cmd ) {
             if( cmd.HasNext ) {
                 CdMeasure.PrintUsage( player );
                 return;
@@ -975,7 +975,7 @@ namespace fCraft {
             Handler = PlayersHandler
         };
 
-        internal static void PlayersHandler( Player player, Command cmd ) {
+        internal static void PlayersHandler( Player player, CommandReader cmd ) {
             string param = cmd.Next();
             Player[] players;
             string worldName = null;
@@ -1065,7 +1065,7 @@ namespace fCraft {
             Handler = WhereHandler
         };
 
-        static void WhereHandler( Player player, Command cmd ) {
+        static void WhereHandler( Player player, CommandReader cmd ) {
             string name = cmd.Next();
             if( cmd.HasNext ) {
                 CdWhere.PrintUsage( player );
@@ -1126,7 +1126,7 @@ namespace fCraft {
             Handler = HelpHandler
         };
 
-        internal static void HelpHandler( Player player, Command cmd ) {
+        internal static void HelpHandler( Player player, CommandReader cmd ) {
             string commandName = cmd.Next();
 
             if( commandName == "commands" ) {
@@ -1199,7 +1199,7 @@ namespace fCraft {
             Handler = CommandsHandler
         };
 
-        internal static void CommandsHandler( Player player, Command cmd ) {
+        internal static void CommandsHandler( Player player, CommandReader cmd ) {
             string param = cmd.Next();
             if( cmd.HasNext ) {
                 CdCommands.PrintUsage( player );
@@ -1260,7 +1260,7 @@ namespace fCraft {
             Handler = ColorsHandler
         };
 
-        internal static void ColorsHandler( Player player, Command cmd ) {
+        internal static void ColorsHandler( Player player, CommandReader cmd ) {
             if( cmd.HasNext ) {
                 CdColors.PrintUsage( player );
                 return;

@@ -1,9 +1,9 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Net;
 using System.Text;
-using System.ComponentModel;
 using JetBrains.Annotations;
 
 namespace fCraft {

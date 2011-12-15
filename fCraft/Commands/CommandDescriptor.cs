@@ -9,7 +9,7 @@ namespace fCraft {
     /// <summary> Delegate for command handlers/callbacks. </summary>
     /// <param name="source"> Player who called the command. </param>
     /// <param name="cmd"> Command arguments. </param>
-    public delegate void CommandHandler( Player source, Command cmd );
+    public delegate void CommandHandler( Player source, CommandReader cmd );
 
 
     /// <summary> Describes a chat command. Defines properties, permission requirements, and usage information.
@@ -112,7 +112,7 @@ namespace fCraft {
         /// <param name="raiseEvent"> Whether CommandCalling and CommandCalled events should be raised. </param>
         /// <returns> True if the command was called succesfully.
         /// False if the call was cancelled by the CommandCalling event. </returns>
-        public bool Call( [NotNull] Player player, [NotNull] Command cmd, bool raiseEvent ) {
+        public bool Call( [NotNull] Player player, [NotNull] CommandReader cmd, bool raiseEvent ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( raiseEvent && !CommandManager.RaiseCommandCallingEvent( cmd, this, player ) ) return false;

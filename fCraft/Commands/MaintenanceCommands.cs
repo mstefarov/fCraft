@@ -36,7 +36,7 @@ namespace fCraft {
                 IsHidden = true,
                 Category = CommandCategory.Maintenance | CommandCategory.Debug,
                 Help = "Bandwidth Use Mode statistics.",
-                Handler = delegate( Player player, Command cmd ) {
+                Handler = delegate( Player player, CommandReader cmd ) {
                     string newModeName = cmd.Next();
                     if( newModeName == null ) {
                         player.Message( "{0}: S: {1}  R: {2}  S/s: {3:0.0}  R/s: {4:0.0}",
@@ -58,7 +58,7 @@ namespace fCraft {
                 IsHidden = true,
                 Category = CommandCategory.Maintenance | CommandCategory.Debug,
                 Help = "BlockDB Debug",
-                Handler = delegate( Player player, Command cmd ) {
+                Handler = delegate( Player player, CommandReader cmd ) {
                     if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
                     BlockDB db = player.World.BlockDB;
                     lock( db.SyncRoot ) {
@@ -87,7 +87,7 @@ namespace fCraft {
 
         const int TopPlayersToList = 5;
 
-        static void DumpStatsHandler( Player player, Command cmd ) {
+        static void DumpStatsHandler( Player player, CommandReader cmd ) {
             string fileName = cmd.Next();
             if( fileName == null ) {
                 CdDumpStats.PrintUsage( player );
@@ -550,7 +550,7 @@ namespace fCraft {
             Handler = AutoRankAllHandler
         };
 
-        static void AutoRankAllHandler( Player player, Command cmd ) {
+        static void AutoRankAllHandler( Player player, CommandReader cmd ) {
             string rankName = cmd.Next();
             Rank rank = null;
             if( rankName != null ) {
@@ -618,7 +618,7 @@ namespace fCraft {
             Handler = MassRankHandler
         };
 
-        static void MassRankHandler( Player player, Command cmd ) {
+        static void MassRankHandler( Player player, CommandReader cmd ) {
             string fromRankName = cmd.Next();
             string toRankName = cmd.Next();
             string reason = cmd.NextAll();
@@ -648,7 +648,7 @@ namespace fCraft {
             string verb = (fromRank > toRank ? "demot" : "promot");
 
             if( !cmd.IsConfirmed ) {
-                player.Confirm( cmd, "About to {0}e {1} players.", verb, playerCount );
+                player.Confirm( cmd, "MassRank: {0}e {1} players?", verb.UppercaseFirst(), playerCount );
                 return;
             }
 
@@ -706,7 +706,7 @@ namespace fCraft {
             Handler = SetInfoHandler
         };
 
-        static void SetInfoHandler( Player player, Command cmd ) {
+        static void SetInfoHandler( Player player, CommandReader cmd ) {
             string targetName = cmd.Next();
             string propertyName = cmd.Next();
             string valName = cmd.NextAll();
@@ -949,7 +949,7 @@ namespace fCraft {
             Handler = ReloadHandler
         };
 
-        static void ReloadHandler( Player player, Command cmd ) {
+        static void ReloadHandler( Player player, CommandReader cmd ) {
             string whatToReload = cmd.Next();
             if( whatToReload == null ) {
                 CdReload.PrintUsage( player );
@@ -1015,7 +1015,7 @@ namespace fCraft {
 
         static readonly TimeSpan DefaultShutdownTime = TimeSpan.FromSeconds( 5 );
 
-        static void ShutdownHandler( Player player, Command cmd ) {
+        static void ShutdownHandler( Player player, CommandReader cmd ) {
             string delayString = cmd.Next();
             TimeSpan delayTime = DefaultShutdownTime;
             string reason = "";
@@ -1079,7 +1079,7 @@ namespace fCraft {
             Handler = RestartHandler
         };
 
-        static void RestartHandler( Player player, Command cmd ) {
+        static void RestartHandler( Player player, CommandReader cmd ) {
             string delayString = cmd.Next();
             TimeSpan delayTime = DefaultShutdownTime;
             string reason = "";
@@ -1183,7 +1183,7 @@ namespace fCraft {
             Handler = ImportHandler
         };
 
-        static void ImportHandler( Player player, Command cmd ) {
+        static void ImportHandler( Player player, CommandReader cmd ) {
             string action = cmd.Next();
             if( action == null ) {
                 CdImport.PrintUsage( player );
@@ -1214,19 +1214,19 @@ namespace fCraft {
         }
 
 
-        static void ImportBans( Player player, Command cmd ) {
+        static void ImportBans( Player player, CommandReader cmd ) {
             string serverName = cmd.Next();
-            string file = cmd.Next();
+            string fileName = cmd.Next();
 
             // Make sure all parameters are specified
-            if( serverName == null || file == null ) {
+            if( serverName == null || fileName == null ) {
                 CdImport.PrintUsage( player );
                 return;
             }
 
             // Check if file exists
-            if( !File.Exists( file ) ) {
-                player.Message( "File not found: {0}", file );
+            if( !File.Exists( fileName ) ) {
+                player.Message( "File not found: {0}", fileName );
                 return;
             }
 
@@ -1237,11 +1237,11 @@ namespace fCraft {
                 case "mczall":
                 case "mclawl":
                     try {
-                        names = File.ReadAllLines( file );
+                        names = File.ReadAllLines( fileName );
                     } catch( Exception ex ) {
                         Logger.Log( LogType.Error,
                                     "Could not open \"{0}\" to import bans: {1}",
-                                    file, ex );
+                                    fileName, ex );
                         return;
                     }
                     break;
@@ -1251,7 +1251,8 @@ namespace fCraft {
             }
 
             if( !cmd.IsConfirmed ) {
-                player.Confirm( cmd, "You are about to import {0} bans.", names.Length );
+                player.Confirm( cmd, "Import {0} bans from \"{1}\"?",
+                                     names.Length, Path.GetFileName( fileName ) );
                 return;
             }
 
@@ -1277,7 +1278,7 @@ namespace fCraft {
         }
 
 
-        static void ImportRanks( Player player, Command cmd ) {
+        static void ImportRanks( Player player, CommandReader cmd ) {
             string serverName = cmd.Next();
             string fileName = cmd.Next();
             string rankName = cmd.Next();
@@ -1323,7 +1324,8 @@ namespace fCraft {
             }
 
             if( !cmd.IsConfirmed ) {
-                player.Confirm( cmd, "You are about to import {0} player ranks.", names.Length );
+                player.Confirm( cmd, "Import {0} player ranks from \"{1}\"?",
+                                     names.Length, Path.GetFileName( fileName ) );
                 return;
             }
 
@@ -1355,7 +1357,7 @@ namespace fCraft {
             Handler = DoPlayerDB
         };
 
-        static void DoPlayerDB( Player player, Command cmd ) {
+        static void DoPlayerDB( Player player, CommandReader cmd ) {
             string p1Name = cmd.Next();
             string p2Name = cmd.Next();
             if( p1Name == null || p2Name == null ) {

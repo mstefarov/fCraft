@@ -42,7 +42,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public override bool ReadParams( Command cmd ) {
+        public override bool ReadParams( CommandReader cmd ) {
             if( cmd.HasNext ) {
                 ReplacementBlock = cmd.NextBlock( Player );
                 if( ReplacementBlock == Block.Undefined ) return false;

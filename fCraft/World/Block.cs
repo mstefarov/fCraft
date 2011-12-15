@@ -1,7 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 
-
 namespace fCraft {
+
     /// <summary> Enumeration of all standard Minecraft Classic block types. </summary>
     public enum Block : byte {
         Undefined = 255, // for error checking

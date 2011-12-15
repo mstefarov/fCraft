@@ -88,7 +88,7 @@ namespace fCraft {
             Handler = BlockDBHandler
         };
 
-        static void BlockDBHandler( Player player, Command cmd ) {
+        static void BlockDBHandler( Player player, CommandReader cmd ) {
             if( !BlockDB.IsEnabledGlobally ) {
                 player.Message( "&WBlockDB is disabled on this server." );
                 return;
@@ -399,7 +399,7 @@ namespace fCraft {
             Handler = BlockInfoHandler
         };
 
-        static void BlockInfoHandler( Player player, Command cmd ) {
+        static void BlockInfoHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
@@ -524,7 +524,7 @@ namespace fCraft {
             Handler = EnvHandler
         };
 
-        static void EnvHandler( Player player, Command cmd ) {
+        static void EnvHandler( Player player, CommandReader cmd ) {
             if( !ConfigKey.WoMEnableEnvExtensions.Enabled() ) {
                 player.Message( "Env command is disabled on this server." );
                 return;
@@ -742,9 +742,8 @@ namespace fCraft {
             Handler = GenHandler
         };
 
-        static void GenHandler( Player player, Command cmd ) {
+        static void GenHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
-            Map oldMap = player.WorldMap;
             string themeName = cmd.Next();
             string templateName;
             bool genOcean = false;
@@ -817,20 +816,32 @@ namespace fCraft {
 
             // parse map dimensions
             int mapWidth, mapLength, mapHeight;
-            if( !(cmd.NextInt( out mapWidth ) && cmd.NextInt( out mapLength ) && cmd.NextInt( out mapHeight )) ) {
-                if( playerWorld != null ) {
-                    // If map dimensions were not given, use current map's dimensions
-                    mapWidth = oldMap.Width;
-                    mapLength = oldMap.Length;
-                    mapHeight = oldMap.Height;
-                } else {
-                    player.Message( "When used from console, /Gen requires map dimensions." );
-                    CdGenerate.PrintUsage( player );
-                    return;
+            if( cmd.HasNext ) {
+                int offset = cmd.Offset;
+                if( !(cmd.NextInt( out mapWidth ) && cmd.NextInt( out mapLength ) && cmd.NextInt( out mapHeight )) ) {
+                    if( playerWorld != null ) {
+                        Map oldMap = player.WorldMap;
+                        // If map dimensions were not given, use current map's dimensions
+                        mapWidth = oldMap.Width;
+                        mapLength = oldMap.Length;
+                        mapHeight = oldMap.Height;
+                    } else {
+                        player.Message( "When used from console, /Gen requires map dimensions." );
+                        CdGenerate.PrintUsage( player );
+                        return;
+                    }
+                    cmd.Offset = offset;
                 }
-                cmd.Rewind();
-                cmd.Next();
-                cmd.Next();
+            } else if( playerWorld != null ) {
+                Map oldMap = player.WorldMap;
+                // If map dimensions were not given, use current map's dimensions
+                mapWidth = oldMap.Width;
+                mapLength = oldMap.Length;
+                mapHeight = oldMap.Height;
+            } else {
+                player.Message( "When used from console, /Gen requires map dimensions." );
+                CdGenerate.PrintUsage( player );
+                return;
             }
 
             // Check map dimensions
@@ -853,6 +864,23 @@ namespace fCraft {
                                 "The only recommended map dimensions are: 16, 32, 64, 128, 256, 512, and 1024." );
             }
 
+            // figure out full template name
+            bool genFlatgrass = (theme == MapGenTheme.Forest && noTrees && template == MapGenTemplate.Flat);
+            string templateFullName;
+            if( genEmpty ) {
+                templateFullName = "Empty";
+            } else if( genOcean ) {
+                templateFullName = "Ocean";
+            } else if( genFlatgrass ) {
+                templateFullName = "Flatgrass";
+            } else {
+                if( theme == MapGenTheme.Forest && noTrees ) {
+                    templateFullName = "Grass " + template;
+                } else {
+                    templateFullName = theme + " " + template;
+                }
+            }
+
             // check file/world name
             string fileName = cmd.Next();
             string fullFileName = null;
@@ -864,11 +892,15 @@ namespace fCraft {
                     return;
                 }
                 if( !cmd.IsConfirmed ) {
-                    player.Confirm( cmd, "Replace this world's map with a generated one?" );
+                    player.Confirm( cmd, "Replace THIS MAP with a generated one ({0})?", templateFullName );
                     return;
                 }
 
             } else {
+                if( cmd.HasNext ) {
+                    CdGenerate.PrintUsage( player );
+                    return;
+                }
                 // saving to file
                 fileName = fileName.Replace( Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar );
                 if( !fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
@@ -893,23 +925,20 @@ namespace fCraft {
                 }
             }
 
-            // generating
-            bool genFlatgrass = (theme == MapGenTheme.Forest && noTrees && template == MapGenTemplate.Flat);
+            // generate the map
             Map map;
+            player.MessageNow( "Generating {0}...", templateFullName );
+
             if( genEmpty ) {
-                player.MessageNow( "Generating empty map..." );
                 map = MapGenerator.GenerateEmpty( mapWidth, mapLength, mapHeight );
 
             } else if( genOcean ) {
-                player.MessageNow( "Generating ocean map..." );
                 map = MapGenerator.GenerateOcean( mapWidth, mapLength, mapHeight );
 
             } else if( genFlatgrass ) {
-                player.MessageNow( "Generating flatgrass..." );
                 map = MapGenerator.GenerateFlatgrass( mapWidth, mapLength, mapHeight );
 
             } else {
-                // fancy generation
                 MapGeneratorArgs args = MapGenerator.MakeTemplate( template );
                 if( theme == MapGenTheme.Desert ) {
                     args.AddWater = false;
@@ -924,23 +953,11 @@ namespace fCraft {
                 args.Theme = theme;
                 args.AddTrees = !noTrees;
 
-                try {
-                    if( theme == MapGenTheme.Forest && noTrees ) {
-                        player.MessageNow( "Generating Grass {0}...", template );
-                    } else {
-                        player.MessageNow( "Generating {0} {1}...", theme, template );
-                    }
-                    MapGenerator generator = new MapGenerator( args );
-                    map = generator.Generate();
-
-                } catch( Exception ex ) {
-                    Logger.Log( LogType.Error,
-                                "MapGenerator: Generation failed: {0}", ex );
-                    player.Message( "&WAn error occured while generating the map." );
-                    return;
-                }
+                MapGenerator generator = new MapGenerator( args );
+                map = generator.Generate();
             }
 
+            // save map to file, or load it into a world
             if( fileName != null ) {
                 if( map.Save( fullFileName ) ) {
                     player.Message( "Generation done. Saved to {0}", fileName );
@@ -969,7 +986,7 @@ namespace fCraft {
             Handler = JoinHandler
         };
 
-        static void JoinHandler( Player player, Command cmd ) {
+        static void JoinHandler( Player player, CommandReader cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
                 CdJoin.PrintUsage( player );
@@ -1039,7 +1056,7 @@ namespace fCraft {
             Handler = WorldLockHandler
         };
 
-        static void WorldLockHandler( Player player, Command cmd ) {
+        static void WorldLockHandler( Player player, CommandReader cmd ) {
             string worldName = cmd.Next();
 
             World world;
@@ -1087,7 +1104,7 @@ namespace fCraft {
             Handler = WorldUnlockHandler
         };
 
-        static void WorldUnlockHandler( Player player, Command cmd ) {
+        static void WorldUnlockHandler( Player player, CommandReader cmd ) {
             string worldName = cmd.Next();
 
             World world;
@@ -1135,7 +1152,7 @@ namespace fCraft {
             Handler = SpawnHandler
         };
 
-        static void SpawnHandler( Player player, Command cmd ) {
+        static void SpawnHandler( Player player, CommandReader cmd ) {
             if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
             player.TeleportTo( player.World.LoadMap().Spawn );
         }
@@ -1160,7 +1177,7 @@ namespace fCraft {
             Handler = WorldsHandler
         };
 
-        static void WorldsHandler( Player player, Command cmd ) {
+        static void WorldsHandler( Player player, CommandReader cmd ) {
             string param = cmd.Next();
             World[] worlds;
 
@@ -1262,7 +1279,7 @@ namespace fCraft {
             Handler = WorldAccessHandler
         };
 
-        static void WorldAccessHandler( [NotNull] Player player, Command cmd ) {
+        static void WorldAccessHandler( [NotNull] Player player, CommandReader cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             string worldName = cmd.Next();
 
@@ -1502,7 +1519,7 @@ namespace fCraft {
             Handler = WorldBuildHandler
         };
 
-        static void WorldBuildHandler( [NotNull] Player player, Command cmd ) {
+        static void WorldBuildHandler( [NotNull] Player player, CommandReader cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             string worldName = cmd.Next();
 
@@ -1738,7 +1755,7 @@ namespace fCraft {
             Handler = WorldFlushHandler
         };
 
-        static void WorldFlushHandler( Player player, Command cmd ) {
+        static void WorldFlushHandler( Player player, CommandReader cmd ) {
             string worldName = cmd.Next();
             World world = player.World;
 
@@ -1779,7 +1796,7 @@ namespace fCraft {
             Handler = WorldHideHandler
         };
 
-        static void WorldHideHandler( Player player, Command cmd ) {
+        static void WorldHideHandler( Player player, CommandReader cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
                 CdWorldAccess.PrintUsage( player );
@@ -1810,7 +1827,7 @@ namespace fCraft {
             Handler = WorldUnhideHandler
         };
 
-        static void WorldUnhideHandler( Player player, Command cmd ) {
+        static void WorldUnhideHandler( Player player, CommandReader cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
                 CdWorldAccess.PrintUsage( player );
@@ -1846,7 +1863,7 @@ namespace fCraft {
             Handler = WorldInfoHandler
         };
 
-        static void WorldInfoHandler( Player player, Command cmd ) {
+        static void WorldInfoHandler( Player player, CommandReader cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
                 if( player.World == null ) {
@@ -1948,7 +1965,7 @@ namespace fCraft {
         };
 
 
-        static void WorldLoadHandler( Player player, Command cmd ) {
+        static void WorldLoadHandler( Player player, CommandReader cmd ) {
             string fileName = cmd.Next();
             string worldName = cmd.Next();
 
@@ -1969,7 +1986,7 @@ namespace fCraft {
             // Loading map into current world
             if( worldName == null ) {
                 if( !cmd.IsConfirmed ) {
-                    player.Confirm( cmd, "About to replace THIS MAP with \"{0}\".", fileName );
+                    player.Confirm( cmd, "Replace THIS MAP with \"{0}\"?", fileName );
                     return;
                 }
                 Map map;
@@ -2036,8 +2053,8 @@ namespace fCraft {
                         player.LastUsedWorldName = world.Name;
                         // Replacing existing world's map
                         if( !cmd.IsConfirmed ) {
-                            player.Confirm( cmd, "About to replace map for {0}&S with \"{1}\".",
-                                            world.ClassyName, fileName );
+                            player.Confirm( cmd, "Replace existing map of world {0}&S with \"{1}\"?",
+                                                 world.ClassyName, fileName );
                             return;
                         }
 
@@ -2045,7 +2062,8 @@ namespace fCraft {
                         try {
                             map = MapUtility.Load( fullFileName );
                         } catch( Exception ex ) {
-                            player.MessageNow( "Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message );
+                            player.MessageNow( "Could not load specified file: {0}: {1}",
+                                               ex.GetType().Name, ex.Message );
                             return;
                         }
 
@@ -2142,7 +2160,7 @@ namespace fCraft {
             Handler = WorldMainHandler
         };
 
-        static void WorldMainHandler( Player player, Command cmd ) {
+        static void WorldMainHandler( Player player, CommandReader cmd ) {
             string param = cmd.Next();
             if( param == null ) {
                 player.Message( "Main world is {0}", WorldManager.MainWorld.ClassyName );
@@ -2288,7 +2306,7 @@ namespace fCraft {
             Handler = WorldRenameHandler
         };
 
-        static void WorldRenameHandler( Player player, Command cmd ) {
+        static void WorldRenameHandler( Player player, CommandReader cmd ) {
             string oldName = cmd.Next();
             string newName = cmd.Next();
             if( oldName == null || newName == null ) {
@@ -2368,7 +2386,7 @@ namespace fCraft {
             Handler = WorldSaveHandler
         };
 
-        static void WorldSaveHandler( Player player, Command cmd ) {
+        static void WorldSaveHandler( Player player, CommandReader cmd ) {
             string p1 = cmd.Next(), p2 = cmd.Next();
             if( p1 == null ) {
                 CdWorldSave.PrintUsage( player );
@@ -2412,7 +2430,7 @@ namespace fCraft {
                 FileInfo sourceFile = new FileInfo( world.MapFileName );
                 if( !targetFile.FullName.Equals( sourceFile.FullName, StringComparison.OrdinalIgnoreCase ) ) {
                     if( !cmd.IsConfirmed ) {
-                        player.Confirm( cmd, "Target file \"{0}\" already exists, and will be overwritten.", targetFile.Name );
+                        player.Confirm( cmd, "Target file \"{0}\" already exists. Overwrite?", targetFile.Name );
                         return;
                     }
                 }
@@ -2469,7 +2487,7 @@ namespace fCraft {
             Handler = WorldUnloadHandler
         };
 
-        static void WorldUnloadHandler( Player player, Command cmd ) {
+        static void WorldUnloadHandler( Player player, CommandReader cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
                 CdWorldUnload.PrintUsage( player );
