@@ -40,8 +40,7 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -51,7 +50,8 @@
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug_Events|AnyCPU' ">
     <OutputPath>..\bin\Debug\</OutputPath>
@@ -60,6 +60,7 @@
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug_IRC|AnyCPU' ">
     <OutputPath>..\bin\Debug\</OutputPath>
@@ -68,6 +69,7 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug_Scheduler|AnyCPU' ">
     <OutputPath>..\bin\Debug\</OutputPath>
@@ -76,6 +78,7 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Devart.Data, Version=5.0.343.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL" />
