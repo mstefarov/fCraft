@@ -73,6 +73,7 @@ namespace fCraft {
                             } catch( Exception ex ) {
                                 Logger.LogAndReportCrash( "An error occured while trying to parse one of the entries on the world list",
                                                           "fCraft", ex, false );
+                                continue;
                             }
 #endif
                             if( firstWorld == null ) {

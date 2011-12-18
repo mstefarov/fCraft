@@ -74,6 +74,12 @@ overwhelming the Internet connection with data.",
 
         #region Chat
 
+        [BoolKey(ConfigSection.Chat, true,
+@"If enabled, normal chat is only broadcast to player's own world.
+To send server-wide global messages, players can prefix their messages
+with an exclaimation mark (!).")]
+        SeparateWorldAndGlobalChat,
+
         [BoolKey( ConfigSection.Chat, true,
 @"Color player names in chat and in-game based on their rank." )]
         RankColorsInChat,
