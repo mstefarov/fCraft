@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Helper class for handling player-generated chat. </summary>
     public static class Chat {
-        /// <summary> Sends a global (white) chat. </summary>
+        /// <summary> Sends a global (white) chat message. </summary>
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
@@ -32,6 +32,39 @@ namespace fCraft {
 
             Logger.Log( LogType.GlobalChat,
                         "{0}: {1}", player.Name, rawMessage );
+            return true;
+        }
+
+
+        /// <summary> Sends world/local chat message. </summary>
+        /// <param name="player"> Player writing the message. </param>
+        /// <param name="rawMessage"> Message text. </param>
+        /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        public static bool SendWorld( [NotNull] Player player, [NotNull] string rawMessage ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
+
+            var recepientList = playerWorld.Players.NotIgnoring( player )
+                                                   .Union( player );
+
+            string formattedMessage = String.Format( "({0}&F){1}: {2}",
+                                                     playerWorld.ClassyName,
+                                                     player.ClassyName,
+                                                     rawMessage );
+
+            var e = new ChatSendingEventArgs( player,
+                                              rawMessage,
+                                              formattedMessage,
+                                              ChatMessageType.World,
+                                              recepientList );
+
+            if( !SendInternal( e ) ) return false;
+
+            Logger.Log( LogType.GlobalChat,
+                        "(world {0}){1}: {2}",
+                        playerWorld.Name, player.Name, rawMessage );
             return true;
         }
 
@@ -181,6 +214,8 @@ namespace fCraft {
         }
 
 
+
+
         static bool SendInternal( [NotNull] ChatSendingEventArgs e ) {
             if( e == null ) throw new ArgumentNullException( "e" );
             if( RaiseSendingEvent( e ) ) return false;
@@ -215,6 +250,13 @@ namespace fCraft {
             if( message.EndsWith( " //" ) ) message = message.Substring( 0, message.Length - 1 );
 
             switch( message[0] ) {
+                case '!':
+                    if( ConfigKey.SeparateWorldAndGlobalChat.Enabled() ) {
+                        return RawMessageType.WorldChat;
+                    } else {
+                        return RawMessageType.Chat;
+                    }
+
                 case '/':
                     if( message.Length < 2 ) {
                         // message too short to be a command
@@ -253,6 +295,24 @@ namespace fCraft {
                     return RawMessageType.Invalid;
             }
             return RawMessageType.Chat;
+        }
+
+
+        /// <summary> Replaces leading "//" with "/". </summary>
+        public static string UnescapeLeadingSlashes( string rawMessage ) {
+            if( rawMessage.StartsWith( "//" ) ) {
+                rawMessage = rawMessage.Substring( 1 );
+            }
+            return rawMessage;
+        }
+
+
+        /// <summary> Replaces trailing "//" with "/". </summary>
+        public static string UnescapeTrailingSlashes( string rawMessage ) {
+            if( rawMessage.EndsWith( "//" ) ) {
+                rawMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
+            }
+            return rawMessage;
         }
 
 
@@ -303,8 +363,11 @@ namespace fCraft {
         /// <summary> Unparseable chat syntax (rare). </summary>
         Invalid,
 
-        /// <summary> Normal (white) chat. </summary>
+        /// <summary> Normal/global (white) chat. </summary>
         Chat,
+
+        /// <summary> World/local chat. </summary>
+        WorldChat,
 
         /// <summary> Command. </summary>
         Command,

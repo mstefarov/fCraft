@@ -197,14 +197,12 @@ namespace fCraft {
 
                         if( DetectChatSpam() ) return;
 
-                        // Escaped slash removed AFTER logging, to avoid confusion with real commands
-                        if( rawMessage.StartsWith( "//" ) ) {
+                        if( rawMessage[0] == '!' ) {
                             rawMessage = rawMessage.Substring( 1 );
+                        } else {
+                            rawMessage = Chat.UnescapeLeadingSlashes( rawMessage );
                         }
-
-                        if( rawMessage.EndsWith( "//" ) ) {
-                            rawMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
-                        }
+                        rawMessage = Chat.UnescapeTrailingSlashes( rawMessage );
 
                         if( Can( Permission.UseColorCodes ) && rawMessage.Contains( "%" ) ) {
                             rawMessage = Color.ReplacePercentCodes( rawMessage );
@@ -213,6 +211,20 @@ namespace fCraft {
                         Chat.SendGlobal( this, rawMessage );
                     } break;
 
+                case RawMessageType.WorldChat: {
+                        if( !Can( Permission.Chat ) ) return;
+                        if( Info.IsMuted ) {
+                            MessageMuted();
+                            return;
+                        }
+                        if( DetectChatSpam() ) return;
+                        rawMessage = Chat.UnescapeLeadingSlashes( rawMessage );
+                        rawMessage = Chat.UnescapeTrailingSlashes( rawMessage );
+                        if( Can( Permission.UseColorCodes ) && rawMessage.Contains( "%" ) ) {
+                            rawMessage = Color.ReplacePercentCodes( rawMessage );
+                        }
+                        Chat.SendWorld( this, rawMessage );
+                    } break;
 
                 case RawMessageType.Command: {
                         if( rawMessage.EndsWith( "//" ) ) {
@@ -1439,9 +1451,9 @@ namespace fCraft {
         public static bool IsValidName( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( name.Length < 2 || name.Length > 16 ) return false;
-            return ContainsValidCharacters(name);
+            return ContainsValidCharacters( name );
         }
-        
+
         /// <summary> Ensures that a player name has the correct length and character set. </summary>
         public static bool ContainsValidCharacters( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -1561,9 +1573,12 @@ namespace fCraft {
         #endregion
 
 
+        /// <summary> Last player name typed in by this player. Always a full/exact name. May be null. </summary>
         [CanBeNull]
         public string LastUsedPlayerName { get; set; }
 
+
+        /// <summary> Last world name typed in by this player. Always a full/exact name. May be null. </summary>
         [CanBeNull]
         public string LastUsedWorldName { get; set; }
 

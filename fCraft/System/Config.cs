@@ -163,6 +163,8 @@ namespace fCraft {
      *               
      * 153 - r1246 - Added PlayerDBProvider data
      *               Removed BackupDataOnStartup key.
+     *               
+     * 154 - r1312 - Added SeparateWorldAndGlobalChat key (default: true).
      * 
      */
 
@@ -174,7 +176,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 153;
+        public const int CurrentVersion = 154;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY
