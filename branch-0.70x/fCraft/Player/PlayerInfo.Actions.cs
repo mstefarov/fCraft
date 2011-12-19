@@ -708,6 +708,21 @@ namespace fCraft {
                     player.Message( "You are no longer hidden." );
                 }
 
+                // Check players who are spectating THIS player
+                foreach( Player spectator in Server.Players.Where( p => p.SpectatedPlayer == target ) ) {
+                    if( !spectator.Can( Permission.Spectate, newRank ) ) {
+                        spectator.Message( "You are no longer allowed to spectate {0}", target.ClassyName );
+                        spectator.StopSpectating();
+                    }
+                }
+
+                // Check if THIS player is spectating someone else
+                Player spectatee = target.SpectatedPlayer;
+                if( spectatee != null && !target.Can( Permission.Spectate, spectatee.Info.Rank ) ) {
+                    target.Message( "You are no longer allowed to spectate {0}", spectatee.ClassyName );
+                    target.StopSpectating();
+                }
+
                 // ensure copy slot consistency
                 target.InitCopySlots();
 

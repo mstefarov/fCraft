@@ -57,7 +57,9 @@ namespace fCraft {
             World newMainWorld = null;
             Worlds = new World[0];
             if( File.Exists( Paths.WorldListFileName ) ) {
+#if !DEBUG
                 try {
+#endif
                     XDocument doc = XDocument.Load( Paths.WorldListFileName );
                     XElement root = doc.Root;
                     if( root != null ) {
@@ -144,13 +146,15 @@ namespace fCraft {
                             rank.MainWorld = world;
                         }
                     }
+#if !DEBUG
                 } catch( XmlException ex ) {
                     string errorMsg = "WorldManager.LoadWorldList: worlds.xml is not properly formatted: " + ex.Message;
-                    Logger.LogAndReportCrash( "World list failed to load.", "fCraft", new MisconfigurationException( errorMsg, ex ), true );
+                    Logger.LogAndReportCrash( "World list failed to load", "fCraft", new MisconfigurationException( errorMsg, ex ), true );
                 } catch( Exception ex ) {
-                    Logger.LogAndReportCrash( "World list failed to load.", "fCraft", ex, true );
+                    Logger.LogAndReportCrash( "World list failed to load", "fCraft", ex, true );
                     return false;
                 }
+#endif
 
                 if( newMainWorld == null ) {
                     Logger.Log( LogType.Error,
