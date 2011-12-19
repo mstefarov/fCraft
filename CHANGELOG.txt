@@ -1078,7 +1078,7 @@
  Fix: If you need to start message with a slash, you can now escape the slash (type "//")
  Fix: Fixed endless update loop (if automatic updates were enabled)
  Fix: Private messages with a space between '@' and the player name now work.
- Fix: Hacking-related kicks are not announced globally.
+ Fix: Hacking-related kicks are now announced globally.
  Fix: Fixed "/help" giving wrong message if help entry was not found.
  Change: Minor changes in MapGenerator/Noise
 
