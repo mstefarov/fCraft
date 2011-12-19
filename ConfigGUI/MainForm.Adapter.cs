@@ -137,6 +137,7 @@ namespace fCraft.ConfigGUI {
 
 
         void ApplyTabChat() {
+            xSeparateWorldAndGlobalChat.Checked = ConfigKey.SeparateWorldAndGlobalChat.Enabled();
             xRankColorsInChat.Checked = ConfigKey.RankColorsInChat.Enabled();
             xRankPrefixesInChat.Checked = ConfigKey.RankPrefixesInChat.Enabled();
             xRankPrefixesInList.Checked = ConfigKey.RankPrefixesInList.Enabled();
@@ -462,11 +463,14 @@ namespace fCraft.ConfigGUI {
             ConfigKey.PrivateMessageColor.TrySetValue( Color.GetName( colorPM ) );
             ConfigKey.WarningColor.TrySetValue( Color.GetName( colorWarning ) );
             ConfigKey.MeColor.TrySetValue( Color.GetName( colorMe ) );
-            ConfigKey.ShowJoinedWorldMessages.TrySetValue( xShowJoinedWorldMessages.Checked );
-            ConfigKey.RankColorsInWorldNames.TrySetValue( xRankColorsInWorldNames.Checked );
+
+            ConfigKey.SeparateWorldAndGlobalChat.TrySetValue( xSeparateWorldAndGlobalChat.Checked );
             ConfigKey.RankColorsInChat.TrySetValue( xRankColorsInChat.Checked );
+            ConfigKey.RankColorsInWorldNames.TrySetValue( xRankColorsInWorldNames.Checked );
             ConfigKey.RankPrefixesInChat.TrySetValue( xRankPrefixesInChat.Checked );
             ConfigKey.RankPrefixesInList.TrySetValue( xRankPrefixesInList.Checked );
+            ConfigKey.ShowConnectionMessages.TrySetValue( xShowConnectionMessages.Checked );
+            ConfigKey.ShowJoinedWorldMessages.TrySetValue( xShowJoinedWorldMessages.Checked );
 
 
             // Worlds

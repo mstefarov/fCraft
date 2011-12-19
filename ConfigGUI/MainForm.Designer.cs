@@ -40,8 +40,8 @@
             System.Windows.Forms.Label lCrashReportDisclaimer;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( MainForm ) );
             System.Windows.Forms.Label lPlayerDBMigrationWarning;
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
             this.gUpdaterSettings = new System.Windows.Forms.GroupBox();
@@ -105,6 +105,7 @@
             this.xRankPrefixesInList = new System.Windows.Forms.CheckBox();
             this.xRankPrefixesInChat = new System.Windows.Forms.CheckBox();
             this.xRankColorsInChat = new System.Windows.Forms.CheckBox();
+            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.xWoMEnableEnvExtensions = new System.Windows.Forms.CheckBox();
             this.bMapPath = new System.Windows.Forms.Button();
@@ -289,7 +290,7 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
+            this.xSeparateWorldAndGlobalChat = new System.Windows.Forms.CheckBox();
             lRankList = new System.Windows.Forms.Label();
             lSpamMuteSeconds = new System.Windows.Forms.Label();
             lSpamMute = new System.Windows.Forms.Label();
@@ -1064,7 +1065,7 @@
             // lColorMe
             // 
             this.lColorMe.AutoSize = true;
-            this.lColorMe.Location = new System.Drawing.Point( 402, 82 );
+            this.lColorMe.Location = new System.Drawing.Point( 407, 82 );
             this.lColorMe.Name = "lColorMe";
             this.lColorMe.Size = new System.Drawing.Size( 117, 15 );
             this.lColorMe.TabIndex = 12;
@@ -1073,7 +1074,7 @@
             // bColorMe
             // 
             this.bColorMe.BackColor = System.Drawing.Color.White;
-            this.bColorMe.Location = new System.Drawing.Point( 525, 78 );
+            this.bColorMe.Location = new System.Drawing.Point( 530, 78 );
             this.bColorMe.Name = "bColorMe";
             this.bColorMe.Size = new System.Drawing.Size( 100, 23 );
             this.bColorMe.TabIndex = 13;
@@ -1149,7 +1150,7 @@
             // lColorSay
             // 
             this.lColorSay.AutoSize = true;
-            this.lColorSay.Location = new System.Drawing.Point( 407, 53 );
+            this.lColorSay.Location = new System.Drawing.Point( 412, 53 );
             this.lColorSay.Name = "lColorSay";
             this.lColorSay.Size = new System.Drawing.Size( 114, 15 );
             this.lColorSay.TabIndex = 10;
@@ -1158,7 +1159,7 @@
             // bColorAnnouncement
             // 
             this.bColorAnnouncement.BackColor = System.Drawing.Color.White;
-            this.bColorAnnouncement.Location = new System.Drawing.Point( 525, 20 );
+            this.bColorAnnouncement.Location = new System.Drawing.Point( 530, 20 );
             this.bColorAnnouncement.Name = "bColorAnnouncement";
             this.bColorAnnouncement.Size = new System.Drawing.Size( 100, 23 );
             this.bColorAnnouncement.TabIndex = 9;
@@ -1168,7 +1169,7 @@
             // lColorAnnouncement
             // 
             this.lColorAnnouncement.AutoSize = true;
-            this.lColorAnnouncement.Location = new System.Drawing.Point( 342, 24 );
+            this.lColorAnnouncement.Location = new System.Drawing.Point( 347, 24 );
             this.lColorAnnouncement.Name = "lColorAnnouncement";
             this.lColorAnnouncement.Size = new System.Drawing.Size( 182, 15 );
             this.lColorAnnouncement.TabIndex = 8;
@@ -1187,7 +1188,7 @@
             // bColorSay
             // 
             this.bColorSay.BackColor = System.Drawing.Color.White;
-            this.bColorSay.Location = new System.Drawing.Point( 525, 49 );
+            this.bColorSay.Location = new System.Drawing.Point( 530, 49 );
             this.bColorSay.Name = "bColorSay";
             this.bColorSay.Size = new System.Drawing.Size( 100, 23 );
             this.bColorSay.TabIndex = 11;
@@ -1196,6 +1197,7 @@
             // 
             // gAppearence
             // 
+            this.gAppearence.Controls.Add( this.xSeparateWorldAndGlobalChat );
             this.gAppearence.Controls.Add( this.xShowConnectionMessages );
             this.gAppearence.Controls.Add( this.xShowJoinedWorldMessages );
             this.gAppearence.Controls.Add( this.xRankColorsInWorldNames );
@@ -1204,7 +1206,7 @@
             this.gAppearence.Controls.Add( this.xRankColorsInChat );
             this.gAppearence.Location = new System.Drawing.Point( 7, 153 );
             this.gAppearence.Name = "gAppearence";
-            this.gAppearence.Size = new System.Drawing.Size( 637, 97 );
+            this.gAppearence.Size = new System.Drawing.Size( 637, 120 );
             this.gAppearence.TabIndex = 1;
             this.gAppearence.TabStop = false;
             this.gAppearence.Text = "Appearence Tweaks";
@@ -1212,7 +1214,7 @@
             // xShowConnectionMessages
             // 
             this.xShowConnectionMessages.AutoSize = true;
-            this.xShowConnectionMessages.Location = new System.Drawing.Point( 325, 45 );
+            this.xShowConnectionMessages.Location = new System.Drawing.Point( 325, 70 );
             this.xShowConnectionMessages.Name = "xShowConnectionMessages";
             this.xShowConnectionMessages.Size = new System.Drawing.Size( 306, 19 );
             this.xShowConnectionMessages.TabIndex = 4;
@@ -1222,7 +1224,7 @@
             // xShowJoinedWorldMessages
             // 
             this.xShowJoinedWorldMessages.AutoSize = true;
-            this.xShowJoinedWorldMessages.Location = new System.Drawing.Point( 325, 20 );
+            this.xShowJoinedWorldMessages.Location = new System.Drawing.Point( 325, 45 );
             this.xShowJoinedWorldMessages.Name = "xShowJoinedWorldMessages";
             this.xShowJoinedWorldMessages.Size = new System.Drawing.Size( 261, 19 );
             this.xShowJoinedWorldMessages.TabIndex = 3;
@@ -1232,7 +1234,7 @@
             // xRankColorsInWorldNames
             // 
             this.xRankColorsInWorldNames.AutoSize = true;
-            this.xRankColorsInWorldNames.Location = new System.Drawing.Point( 325, 70 );
+            this.xRankColorsInWorldNames.Location = new System.Drawing.Point( 325, 95 );
             this.xRankColorsInWorldNames.Name = "xRankColorsInWorldNames";
             this.xRankColorsInWorldNames.Size = new System.Drawing.Size( 243, 19 );
             this.xRankColorsInWorldNames.TabIndex = 5;
@@ -1242,7 +1244,7 @@
             // xRankPrefixesInList
             // 
             this.xRankPrefixesInList.AutoSize = true;
-            this.xRankPrefixesInList.Location = new System.Drawing.Point( 44, 70 );
+            this.xRankPrefixesInList.Location = new System.Drawing.Point( 41, 95 );
             this.xRankPrefixesInList.Name = "xRankPrefixesInList";
             this.xRankPrefixesInList.Size = new System.Drawing.Size( 219, 19 );
             this.xRankPrefixesInList.TabIndex = 2;
@@ -1252,7 +1254,7 @@
             // xRankPrefixesInChat
             // 
             this.xRankPrefixesInChat.AutoSize = true;
-            this.xRankPrefixesInChat.Location = new System.Drawing.Point( 25, 45 );
+            this.xRankPrefixesInChat.Location = new System.Drawing.Point( 22, 70 );
             this.xRankPrefixesInChat.Name = "xRankPrefixesInChat";
             this.xRankPrefixesInChat.Size = new System.Drawing.Size( 133, 19 );
             this.xRankPrefixesInChat.TabIndex = 1;
@@ -1263,12 +1265,22 @@
             // xRankColorsInChat
             // 
             this.xRankColorsInChat.AutoSize = true;
-            this.xRankColorsInChat.Location = new System.Drawing.Point( 25, 20 );
+            this.xRankColorsInChat.Location = new System.Drawing.Point( 22, 45 );
             this.xRankColorsInChat.Name = "xRankColorsInChat";
             this.xRankColorsInChat.Size = new System.Drawing.Size( 123, 19 );
             this.xRankColorsInChat.TabIndex = 0;
             this.xRankColorsInChat.Text = "Show rank colors.";
             this.xRankColorsInChat.UseVisualStyleBackColor = true;
+            // 
+            // chatPreview
+            // 
+            this.chatPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.chatPreview.Location = new System.Drawing.Point( 7, 279 );
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size( 637, 200 );
+            this.chatPreview.TabIndex = 2;
             // 
             // tabWorlds
             // 
@@ -1432,8 +1444,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle4.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle6.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle6;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 339 );
             this.dgvWorlds.TabIndex = 0;
@@ -1491,8 +1503,8 @@
             // dgvcBlockDB
             // 
             this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle5;
             this.dgvcBlockDB.HeaderText = "BlockDB";
             this.dgvcBlockDB.Name = "dgvcBlockDB";
             this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
@@ -3451,12 +3463,16 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // chatPreview
+            // xSeparateWorldAndGlobalChat
             // 
-            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size( 637, 241 );
-            this.chatPreview.TabIndex = 2;
+            this.xSeparateWorldAndGlobalChat.AutoSize = true;
+            this.xSeparateWorldAndGlobalChat.Location = new System.Drawing.Point( 22, 20 );
+            this.xSeparateWorldAndGlobalChat.Name = "xSeparateWorldAndGlobalChat";
+            this.xSeparateWorldAndGlobalChat.Size = new System.Drawing.Size( 470, 19 );
+            this.xSeparateWorldAndGlobalChat.TabIndex = 6;
+            this.xSeparateWorldAndGlobalChat.Text = "Separate world and global chat (global messages will need to be prefixed with \'!\'" +
+                ").";
+            this.xSeparateWorldAndGlobalChat.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
@@ -3812,5 +3828,6 @@
         private System.Windows.Forms.Label lFillLimitUnits;
         private System.Windows.Forms.Label lFillLimit;
         private System.Windows.Forms.Label lCopyPasteSlots;
+        private System.Windows.Forms.CheckBox xSeparateWorldAndGlobalChat;
     }
 }

@@ -380,6 +380,7 @@ namespace fCraft {
                     Logger.Log( LogType.Warning,
                                 "Config.Load: Unknown version of config.xml found. It might be corrupted. " +
                                 "Please run ConfigGUI to make sure that everything is in order." );
+                    return false;
                 }
             }
 

@@ -76,7 +76,7 @@ namespace ConfigCLI {
             Console.WriteLine( "Config sections:" );
             Console.ResetColor();
             for( int i = 0; i < sections.Length; i++ ) {
-                Console.WriteLine( "  {0}. {1}", i+1, sections[i] );
+                Console.WriteLine( "  {0}. {1}", i + 1, sections[i] );
             }
             //Console.WriteLine( "  Q. Quit" );
             //Console.WriteLine( "  R. Reset All" );
@@ -156,7 +156,7 @@ namespace ConfigCLI {
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine( "Key {0} in section {1}", currentKey, currentSection );
 
-            Console.Write( "  Description: ");
+            Console.Write( "  Description: " );
             Console.ResetColor();
             string[] newlineSeparator = new[] { "\r\n" };
             string[] descriptionLines = meta.Description.Split( newlineSeparator, StringSplitOptions.RemoveEmptyEntries );
@@ -176,7 +176,7 @@ namespace ConfigCLI {
             Console.WriteLine( meta.DefaultValue );
 
             Console.ForegroundColor = ConsoleColor.White;
-            Console.Write( "  Current value: ");
+            Console.Write( "  Current value: " );
             Console.ResetColor();
             Console.WriteLine( currentKey.GetString() );
 
@@ -192,7 +192,7 @@ namespace ConfigCLI {
                     Console.WriteLine( ex.Message );
                 }
             }
-            
+
             return MenuState.KeyList;
         }
 

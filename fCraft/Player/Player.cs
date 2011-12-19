@@ -171,12 +171,17 @@ namespace fCraft {
         public void ParseMessage( [NotNull] string rawMessage, bool fromConsole ) {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
-            if( rawMessage.Equals( "/nvm", StringComparison.OrdinalIgnoreCase ) ) {
+            // handle canceling selections and partial messages
+            if( rawMessage.StartsWith( "/nvm", StringComparison.OrdinalIgnoreCase ) ||
+                rawMessage.StartsWith( "/cancel", StringComparison.OrdinalIgnoreCase ) ) {
                 if( partialMessage != null ) {
                     MessageNow( "Partial message cancelled." );
                     partialMessage = null;
+                } else if( IsMakingSelection ) {
+                    SelectionCancel();
+                    MessageNow( "Selection cancelled." );
                 } else {
-                    MessageNow( "No partial message to cancel." );
+                    MessageNow( "There is currently nothing to cancel." );
                 }
                 return;
             }
@@ -834,8 +839,8 @@ namespace fCraft {
             }
 
             if( IsSpectating ) {
-                Message( "You cannot build or delete while spectating." );
                 RevertBlockNow( coord );
+                Message( "You cannot build or delete while spectating." );
                 return false;
             }
 
@@ -849,7 +854,7 @@ namespace fCraft {
 
             BlockChangeContext context = BlockChangeContext.Manual;
             if( IsPainting && action == ClickAction.Delete ) {
-                context = BlockChangeContext.Replaced;
+                context |= BlockChangeContext.Replaced;
             }
 
             // bindings
@@ -881,13 +886,12 @@ namespace fCraft {
                     BlockUpdate blockUpdate;
                     if( type == Block.Stair && coord.Z > 0 && map.GetBlock( coordBelow ) == Block.Stair ) {
                         // handle stair stacking
+                        RevertBlockNow( coord );
                         blockUpdate = new BlockUpdate( this, coordBelow, Block.DoubleStair );
                         Info.ProcessBlockPlaced( Block.DoubleStair );
                         map.QueueUpdate( blockUpdate );
                         RaisePlayerPlacedBlockEvent( this, World.Map, coordBelow, Block.Stair, Block.DoubleStair, context );
                         SendNow( PacketWriter.MakeSetBlock( coordBelow, Block.DoubleStair ) );
-                        RevertBlockNow( coord );
-                        break;
 
                     } else {
                         // handle normal blocks
@@ -903,16 +907,17 @@ namespace fCraft {
                     break;
 
                 case CanPlaceResult.BlocktypeDenied:
-                    Message( "&WYou are not permitted to affect this block type." );
                     RevertBlockNow( coord );
+                    Message( "&WYou are not permitted to affect this block type." );
                     break;
 
                 case CanPlaceResult.RankDenied:
-                    Message( "&WYour rank is not allowed to build." );
                     RevertBlockNow( coord );
+                    Message( "&WYour rank is not allowed to build." );
                     break;
 
                 case CanPlaceResult.WorldDenied:
+                    RevertBlockNow( coord );
                     switch( World.BuildSecurity.CheckDetailed( Info ) ) {
                         case SecurityCheckResult.RankTooLow:
                         case SecurityCheckResult.RankTooHigh:
@@ -922,17 +927,16 @@ namespace fCraft {
                             Message( "&WYou are not allowed to build in this world." );
                             break;
                     }
-                    RevertBlockNow( coord );
                     break;
 
                 case CanPlaceResult.ZoneDenied:
+                    RevertBlockNow( coord );
                     Zone deniedZone = WorldMap.Zones.FindDenied( coord, this );
                     if( deniedZone != null ) {
                         Message( "&WYou are not allowed to build in zone \"{0}\".", deniedZone.Name );
                     } else {
                         Message( "&WYou are not allowed to build here." );
                     }
-                    RevertBlockNow( coord );
                     break;
 
                 case CanPlaceResult.PluginDenied:

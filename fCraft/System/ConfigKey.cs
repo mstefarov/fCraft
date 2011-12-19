@@ -74,10 +74,10 @@ overwhelming the Internet connection with data.",
 
         #region Chat
 
-        [BoolKey(ConfigSection.Chat, true,
-@"If enabled, normal chat is only broadcast to player's own world.
-To send server-wide global messages, players can prefix their messages
-with an exclaimation mark (!).")]
+        [BoolKey(ConfigSection.Chat, false,
+@"If disabled, all chat messages are global (visible to everyone on the server).
+If enabled, normal chat is only broadcast to player's own world, and players will
+need to prefix messages with an exclamation mark (!) to send global messages." )]
         SeparateWorldAndGlobalChat,
 
         [BoolKey( ConfigSection.Chat, true,
