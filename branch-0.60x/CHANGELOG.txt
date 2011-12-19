@@ -78,27 +78,27 @@
 
 0.604
  Feature: Added support for repeating previously-entered player and world names. Just put a dash (-) in place of the player/world name when using a command, and fCraft will fill in the most-recently-used name.
- Fix: Fixed an occasional SecurityController-related crash in /gen, /wload, and ConfigGUI world editor.
- Fix: Fixed an very rare problem in shutdown/restart commands.
+ Fix: Fixed an occasional SecurityController-related crash in /Gen, /WLoad, and ConfigGUI world editor.
+ Fix: Fixed an very rare problem in /Shutdown and /Restart commands.
  Fix: Fixed a rare crash that only happened happened if: MaxPlayers>128, MaxPlayersPerWorld=128, main is full, AND connecting player has a reserved slot.
  Fix: Fixed naming of paste/pastenot and pastex/pastenotx
- Fix: Fixed a permission exploit in /wbring (thanks to panda100123)
- Fix: Fixed /rules section finder accidentally being case-sensitive.
+ Fix: Fixed a permission exploit in /WBring (thanks to panda100123)
+ Fix: Fixed /Rules section finder accidentally being case-sensitive.
  Fix: Fixed an issue with MCSharp/MCZall/MCLawl/MCQuai/MCStorm/MCForge/MCWhatever importer.
  Change: Decreased shading strength in IsoCat renderer.
- Change: Added /who as an alias for /players, by request.
+ Change: Added /Who as an alias for /Players, by request.
  Change: Clarified ConfigGUI description of name verification settings.
  Change: Normalized command name capitalization. Command names must now start with an uppercase letter, for consistency.
  API: Fixed inconsistencies in PlayerDB.txt header row format declaration.
 
 0.603
- Fix: /cancel can no longer be repeated with "/" (no longer replaces previously-called command).
- Fix: Fixed /rotate and /mirror messing up if a paste command is in progress.
+ Fix: /Cancel can no longer be repeated with "/" (no longer replaces previously-called command).
+ Fix: Fixed /Rotate and /Mirror messing up if a paste command is in progress.
  Fix: Re-enabled crash interception and reporting.
 
 0.602
  Feature: One-click paste commands are now the default. Two-click aligned paste commands are now known as pastex/pastenotx (or px/pnx)
- Feature: Added /RB command (shortcut for /Brush replacebrush + /Cuboid).
+ Feature: Added /ReplaceBrush (/RB) command: shortcut for /Brush replacebrush + /Cuboid
  Feature: Added a way to change number of copy/paste slots per rank from ConfigGUI.
  Fix: Fixed a few typos and missing help entries.
  Fix: Fixed DrawOp completion message and log entry.

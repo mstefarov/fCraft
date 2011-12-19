@@ -477,6 +477,7 @@ namespace fCraft.ConfigGUI {
             ConfigKey.RankColorsInChat.TrySetValue( xRankColorsInChat.Checked );
             ConfigKey.RankPrefixesInChat.TrySetValue( xRankPrefixesInChat.Checked );
             ConfigKey.RankPrefixesInList.TrySetValue( xRankPrefixesInList.Checked );
+            ConfigKey.ShowConnectionMessages.TrySetValue( xShowConnectionMessages.Checked );
 
 
             // Worlds

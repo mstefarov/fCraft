@@ -56,11 +56,15 @@ Server does not show up on minecraft.net list:
 
 "Could not connect to server: it's probably down":
     Make sure that you added firewall exception for fCraft (if applicable),
-    and forwarded the port on your router.
+    and forwarded the port on your router. If you are connecting from same
+    computer that the server is working on, try connecting to:
+    http://www.minecraft.net/play.jsp?ip=127.0.0.1&port=____
+        (fill in the blank with your server's port number)
 
 "Could not verify player name":
-    Verification problems are a combination of Minecraft.net problems and user
-    error. Here are some things you can do to fix verification problems:
+    Verification problems occur when your fCraft server cannot verify identity
+    of connecting players. Here are some things that may cause or fix
+    verification problems:
     1. If minecraft.net is offline or slow, wait for it to stabilize.
     2. If minecraft.net is working but you still cant verify name, log out then
         log back in.
@@ -71,10 +75,14 @@ Server does not show up on minecraft.net list:
         uses cached verification information, use the proper log-in procedure
         in WoM. The "Resume" function only works as long as your IP does not
         change and as long as the server does not restart.
+    5. If you are using WoM and connecting with a bookmark, make sure that the
+        bookmarked address starts with "http://www.minecraft.net/..." and not
+        "mc://...". Addresses in the form "mc://" are temporary, and will stop
+        working whenever the server is restarted.
 
 Other players cannot connect from the same LAN/network as me:
     Minecraft client has a lot of trouble working on LAN. You probably will not
-    be able to connect via the public URL. Fortunately, there is a workaround:
+    be able to connect via the public URL. There is a workaround:
 
     1. Check "Allow connections from LAN without verification" in ConfigGUI.
         (or set <AllowUnverifiedLAN> to true in config.xml).
@@ -83,8 +91,8 @@ Other players cannot connect from the same LAN/network as me:
             type "ipconfig". The address you need is labeled "IPv4 Address"
             under "Local Area Connection".
         * In Unix/Linux, use "ifconfig" utility. 
-   3. Connect to http://www.minecraft.net/play.jsp?ip=_____&port=_____
-        (fill in blanks with your server's IP address and port). 
+   3. Connect to http://www.minecraft.net/play.jsp?ip=____&port=____
+        (fill in the blanks with your server's IP address and port number)
 
 
 
@@ -197,6 +205,10 @@ If you create fCraft plugins that do not include any substantial portions of
 fCraft's original code, they belong to you and you are free to do absolutely
 anything with them. However, if you would like to distribute whole modified
 copies of fCraft, please follow the MIT License terms.
+
+fCraft uses and bundles Devart dotConnect for MySQL, under free license.
+Full text of the Devart dotConnect for MySQL license should be included with
+your copy of fCraft in LICENSE.dotConnect.txt
 
 Original Minecraft was developed by Markus "Notch" Petersson of Mojang, and is 
 not affiliated with fCraft in any way. fCraft does not use any code, assets,
