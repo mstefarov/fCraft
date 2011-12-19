@@ -343,7 +343,7 @@ namespace fCraft {
                 Logger.Log( LogType.Error,
                             "Could not start listening on port {0}, stopping. ({1})",
                             Port, ex.Message );
-                if( !ConfigKey.IP.IsBlank() ) {
+                if( !ConfigKey.IP.IsDefault() ) {
                     Logger.Log( LogType.Warning,
                                 "Do not use the \"Designated IP\" setting unless you have multiple NICs or IPs." );
                 }
@@ -430,6 +430,9 @@ namespace fCraft {
             // start the main loop - server is now connectible
             Scheduler.Start();
             IsRunning = true;
+
+            ConfigKey.IP.IsDefault();
+            ConfigKey.IP.IsBlank();
 
             RaiseEvent( Started );
             return true;

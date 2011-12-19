@@ -681,6 +681,7 @@ namespace fCraft {
                 throw new ArgumentException( "Unacceptible world name." );
             }
             Name = name;
+            BlockDB = new BlockDB( this );
             UpdatePlayerList();
 
             XAttribute tempAttr;
