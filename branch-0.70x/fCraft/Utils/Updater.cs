@@ -30,7 +30,7 @@ namespace fCraft {
             get { return "fCraft " + CurrentRelease.VersionString; }
         }
 
-        public const string LatestStable = "0.610_r1235";
+        public const string LatestStable = "0.612_r1306";
 
         public static string UpdateUrl { get; set; }
 
