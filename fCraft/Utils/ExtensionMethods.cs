@@ -540,23 +540,6 @@ namespace fCraft {
                 }
             }
         }
-
-#if DEBUG
-        public static int SizeOf( object obj ) {
-            return SizeOf( obj.GetType() );
-        }
-
-
-        // If you are using .NET 4.0, you can comment this out
-        public static int SizeOf( Type type ) {
-            if( type.IsValueType ) {
-                return System.Runtime.InteropServices.Marshal.SizeOf( type );
-            } else {
-                RuntimeTypeHandle th = type.TypeHandle;
-                return *(*(int**)&th + 1);
-            }
-        }
-#endif
     }
 
 
