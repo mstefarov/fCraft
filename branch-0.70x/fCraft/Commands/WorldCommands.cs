@@ -36,8 +36,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdWorldBuild );
             CommandManager.RegisterCommand( CdWorldFlush );
 
-            CommandManager.RegisterCommand( CdWorldHide );
-            CommandManager.RegisterCommand( CdWorldUnhide );
+            CommandManager.RegisterCommand( CdWorldSet );
 
             CommandManager.RegisterCommand( CdWorldInfo );
             CommandManager.RegisterCommand( CdWorldLoad );
@@ -1783,66 +1782,83 @@ namespace fCraft {
         #endregion
 
 
-        #region WorldHide / WorldUnhide
+        #region WSet
 
-        static readonly CommandDescriptor CdWorldHide = new CommandDescriptor {
-            Name = "WHide",
+        static readonly CommandDescriptor CdWorldSet = new CommandDescriptor {
+            Name = "WSet",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/WHide WorldName",
-            Help = "Hides the specified world from the &H/Worlds&S list. " +
-                   "Hidden worlds can be seen by typing &H/Worlds all",
-            Handler = WorldHideHandler
+            Usage = "/WSet <World> <Variable> <Value>",
+            Help = "Sets a world variable. Variables are: hide, backups, greeting",
+            HelpSections = new Dictionary<string, string>{
+                { "hide",       "&H/WSet <WorldName> Hide On/Off\n&S" +
+                                "When a world is hidden, it does not show up on the &H/Worlds&S list. It can still be joined normally." },
+                { "backups",    "&H/WSet <WorldName> Backups Off\n&S or &H/WSet <WorldName> Backups <Time>\n&S" +
+                                "Enabled or disables periodic backups. Time is given in the compact format." },
+                { "greeting",   "&H/WSet <WorldName> Greeting <Text>\n&S" +
+                                "Sets a greeting message. Message is shown whenver someone joins the map, and can also be viewed in &H/WInfo" }
+            },
+            Handler = WorldSetHandler
         };
 
-        static void WorldHideHandler( Player player, CommandReader cmd ) {
+        static void WorldSetHandler( Player player, CommandReader cmd ) {
             string worldName = cmd.Next();
-            if( worldName == null ) {
-                CdWorldAccess.PrintUsage( player );
+            string varName = cmd.Next();
+            string value = cmd.Next();
+            if( worldName == null || varName == null ) {
+                CdWorldSet.PrintUsage( player );
                 return;
             }
 
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
             if( world == null ) return;
 
-            if( world.IsHidden ) {
-                player.Message( "World \"{0}&S\" is already hidden.", world.ClassyName );
-            } else {
-                player.Message( "World \"{0}&S\" is now hidden.", world.ClassyName );
-                world.IsHidden = true;
-                WorldManager.SaveWorldList();
-            }
-        }
+            switch( varName.ToLower() ) {
+                case "hide":
+                case "hidden":
+                    if( value == null ) {
+                        player.Message( "World {0}&S is current {1}hidden.",
+                                        world.ClassyName,
+                                        world.IsHidden ? "" : "NOT " );
+                    } else if( value.Equals( "on", StringComparison.OrdinalIgnoreCase ) ||
+                               value.Equals( "true", StringComparison.OrdinalIgnoreCase ) ||
+                               value == "1" ) {
+                        if( world.IsHidden ) {
+                            player.Message( "World {0}&S is already hidden.", world.ClassyName );
+                        } else {
+                            player.Message( "World {0}&S is now hidden.", world.ClassyName );
+                            world.IsHidden = true;
+                            WorldManager.SaveWorldList();
+                        }
+                    } else if( value.Equals( "off", StringComparison.OrdinalIgnoreCase ) ||
+                               value.Equals( "false", StringComparison.OrdinalIgnoreCase ) ||
+                               value == "0" ) {
+                        if( world.IsHidden ) {
+                            player.Message( "World {0}&S is no longer hidden.", world.ClassyName );
+                            world.IsHidden = false;
+                            WorldManager.SaveWorldList();
+                        } else {
+                            player.Message( "World {0}&S is not hidden.", world.ClassyName );
+                        }
+                    } else {
+                        CdWorldSet.PrintUsage( player );
+                    }
+                    break;
 
+                case "backup":
+                case "backups":
+                    player.Message( "Not implemented yet." ); // TODO
+                    break;
 
-        static readonly CommandDescriptor CdWorldUnhide = new CommandDescriptor {
-            Name = "WUnhide",
-            Category = CommandCategory.World,
-            IsConsoleSafe = true,
-            Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/WUnhide WorldName",
-            Help = "Unhides the specified world from the &H/Worlds&S list. " +
-                   "Hidden worlds can be listed by typing &H/Worlds all",
-            Handler = WorldUnhideHandler
-        };
+                case "description":
+                case "greeting":
+                    player.Message( "Not implemented yet." ); // TODO
+                    break;
 
-        static void WorldUnhideHandler( Player player, CommandReader cmd ) {
-            string worldName = cmd.Next();
-            if( worldName == null ) {
-                CdWorldAccess.PrintUsage( player );
-                return;
-            }
-
-            World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-            if( world == null ) return;
-
-            if( world.IsHidden ) {
-                player.Message( "World \"{0}&S\" is no longer hidden.", world.ClassyName );
-                world.IsHidden = false;
-                WorldManager.SaveWorldList();
-            } else {
-                player.Message( "World \"{0}&S\" is not hidden.", world.ClassyName );
+                default:
+                    CdWorldSet.PrintUsage( player );
+                    break;
             }
         }
 

@@ -424,10 +424,7 @@ namespace fCraft {
 
             if( !info.LastIP.Equals( IPAddress.None ) ) {
                 // Time on the server
-                TimeSpan totalTime = info.TotalTime;
-                if( target != null ) {
-                    totalTime = totalTime.Add( info.TimeSinceLastLogin );
-                }
+                TimeSpan totalTime = info.TotalTimeIncludingSession;
                 player.Message( "  Spent a total of {0:F1} hours ({1:F1} minutes) here.",
                                 totalTime.TotalHours,
                                 totalTime.TotalMinutes );

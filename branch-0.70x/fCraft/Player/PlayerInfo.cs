@@ -372,7 +372,7 @@ namespace fCraft {
 
         #region Stats
 
-        /// <summary> Total amount of time the player spent on this server. </summary>
+        /// <summary> Total amount of time the player spent on this server, excluding current session (if online). </summary>
         public TimeSpan TotalTime {
             get { return totalTime; }
             set {
@@ -383,6 +383,19 @@ namespace fCraft {
             }
         }
         TimeSpan totalTime;
+
+
+        /// <summary> Total amount of time player spent on this server, including current session (if online). </summary>
+        public TimeSpan TotalTimeIncludingSession {
+            get {
+                Player playerObj = playerObject;
+                TimeSpan time = totalTime;
+                if( playerObj != null ) {
+                    time += playerObj.LastActiveTime.Subtract( playerObj.LoginTime );
+                }
+                return time;
+            }
+        }
 
 
         /// <summary> Total number of blocks manually built or painted by the player. </summary>

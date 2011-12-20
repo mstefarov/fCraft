@@ -101,7 +101,7 @@ namespace fCraft.AutoRank {
                     givenValue = info.TimesKicked;
                     break;
                 case ConditionField.TotalTime:
-                    givenValue = (int)info.TotalTime.TotalSeconds;
+                    givenValue = (int)info.TotalTimeIncludingSession.TotalSeconds;
                     break;
                 case ConditionField.TimeSinceRankChange:
                     givenValue = (int)info.TimeSinceRankChange.TotalSeconds;

@@ -7,7 +7,7 @@ If you like fCraft, support its development by donating!
 
 === Installation (Windows) ====================================================
 
-fCraft requires Microsoft .NET Framework 3.5. Your system may already have it
+fCraft requires Microsoft .NET Framework 4.0. Your system may already have it
 installed, and you can download it from microsoft.com
 For more information, see http://www.fcraft.net/wiki/Installation_Instructions
 
@@ -15,7 +15,7 @@ For more information, see http://www.fcraft.net/wiki/Installation_Instructions
 
 === Installation (Linux, Unix, MacOS X) =======================================
 
-fCraft requires Mono 2.6.4 (minumum) or Mono 2.10 (recommended). You can
+fCraft requires Mono 2.8 (minumum) or Mono 2.10 (recommended). You can
 download it from www.mono-project.org, or (on some Linux distributions) install
 it through your package manager.
 

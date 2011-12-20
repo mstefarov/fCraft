@@ -992,13 +992,16 @@ namespace fCraft {
 
         readonly Block[] bindings = new Block[50];
 
+
         public void Bind( Block type, Block replacement ) {
             bindings[(byte)type] = replacement;
         }
 
+
         public void ResetBind( Block type ) {
             bindings[(byte)type] = type;
         }
+
 
         public void ResetBind( [NotNull] params Block[] types ) {
             if( types == null ) throw new ArgumentNullException( "types" );
@@ -1007,9 +1010,11 @@ namespace fCraft {
             }
         }
 
+
         public Block GetBind( Block type ) {
             return bindings[(byte)type];
         }
+
 
         public void ResetAllBinds() {
             foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
@@ -1365,6 +1370,9 @@ namespace fCraft {
 
         #region Spectating
 
+        [NotNull]
+        readonly object spectateLock = new object();
+
         [CanBeNull]
         Player spectatedPlayer;
 
@@ -1377,7 +1385,6 @@ namespace fCraft {
         [CanBeNull]
         public PlayerInfo LastSpectatedPlayer { get; private set; }
 
-        readonly object spectateLock = new object();
 
         public bool IsSpectating {
             get { return (spectatedPlayer != null); }
@@ -1457,6 +1464,7 @@ namespace fCraft {
             if( name.Length < 2 || name.Length > 16 ) return false;
             return ContainsValidCharacters( name );
         }
+
 
         /// <summary> Ensures that a player name has the correct length and character set. </summary>
         public static bool ContainsValidCharacters( [NotNull] string name ) {
