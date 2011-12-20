@@ -49,7 +49,7 @@ namespace fCraft {
 
         internal static void MarkLogStart() {
             Log( LogType.SystemActivity, "------ Log Starts {0} ({1}) ------",
-                 DateTime.Now.ToLongDateString(),
+                 DateTime.Now.ToLongDateString(), // localized
                  DateTime.Now.ToShortDateString() ); // localized
         }
 

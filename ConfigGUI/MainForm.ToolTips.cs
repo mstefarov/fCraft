@@ -386,6 +386,7 @@ Affected commands:
     /WUnload
     /WRename
     /WMain
+    /WSet
     /WAccess and /WBuild
     /WFlush
     /Gen";

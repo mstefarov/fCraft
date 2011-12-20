@@ -214,8 +214,6 @@ namespace fCraft {
         }
 
 
-
-
         static bool SendInternal( [NotNull] ChatSendingEventArgs e ) {
             if( e == null ) throw new ArgumentNullException( "e" );
             if( RaiseSendingEvent( e ) ) return false;
