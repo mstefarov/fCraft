@@ -380,6 +380,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdPaint = new CommandDescriptor {
             Name = "Paint",
             Aliases = new[] { "p" },
+            Permissions = new[] { Permission.Build, Permission.Delete },
             Category = CommandCategory.Building,
             Help = "When paint mode is on, any block you delete will be replaced with the block you are holding. " +
                    "Paint command toggles this behavior on and off.",
