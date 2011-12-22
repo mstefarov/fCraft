@@ -424,6 +424,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
 
         internal static void HandleWorldRename( string from, string to ) {
+            if( instance.cMainWorld.Items.Count == 0 ) return;
             if( instance.cMainWorld.SelectedItem == null ) {
                 instance.cMainWorld.SelectedIndex = 0;
             } else {

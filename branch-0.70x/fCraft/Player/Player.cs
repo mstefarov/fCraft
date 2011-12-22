@@ -1149,14 +1149,33 @@ namespace fCraft {
         }
 
 
-        /// <summary> Checks whether this player can currently see another.
-        /// Visibility is determined by whether the other player is hiding or spectating. </summary>
+        /// <summary> Whether this player can currently see another player as being online.
+        /// Visibility is determined by whether the other player is hiding or spectating.
+        /// Players can always see themselves. Super players (e.g. Console) can see all.
+        /// Hidden players can only be seen by those of sufficient rank. </summary>
         public bool CanSee( [NotNull] Player other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            return other == this || IsSuper || !other.Info.IsHidden || Info.Rank.CanSee( other.Info.Rank );
+            return other == this ||
+                   IsSuper ||
+                   !other.Info.IsHidden ||
+                   Info.Rank.CanSee( other.Info.Rank );
         }
 
 
+        /// <summary> Whether this player can currently see another player moving.
+        /// Behaves very similarly to CanSee method, except when spectating:
+        /// Players can never see someone who's spectating them. If other player is spectating
+        /// someone else, they are treated as hidden and can only be seen by those of sufficient rank. </summary>
+        public bool CanSeeMoving( [NotNull] Player other ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
+            return other == this ||
+                   IsSuper ||
+                   other.spectatedPlayer == null && !other.Info.IsHidden ||
+                   ( other.spectatedPlayer != this && Info.Rank.CanSee( other.Info.Rank ) );
+        }
+
+
+        /// <summary> Whether this player should see a given world on the /Worlds list by default. </summary>
         public bool CanSee( [NotNull] World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );
             return CanJoin( world ) && !world.IsHidden;
