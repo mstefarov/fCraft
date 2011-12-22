@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>fCraftGUI</RootNamespace>
-    <AssemblyName>fCraftGUI</AssemblyName>
+    <AssemblyName>fCraft.GUI</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
@@ -82,9 +82,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\fCraft\fCraft.csproj">
+    <ProjectReference Include="..\fCraft.Core\fCraft.Core.csproj">
       <Project>{7FBE7809-6F77-415C-ABEB-A3F627E817B0}</Project>
-      <Name>fCraft</Name>
+      <Name>fCraft.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

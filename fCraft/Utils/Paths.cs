@@ -28,8 +28,8 @@ namespace fCraft {
             ProtectedFiles = new[]{
                 "ConfigGUI.exe",
                 "ConfigCLI.exe",
-                "fCraft.dll",
-                "fCraftGUI.dll",
+                "fCraft.Core.dll",
+                "fCraft.GUI.dll",
                 "ServerCLI.exe",
                 "ServerGUI.exe",
                 "ServerWinService.exe",

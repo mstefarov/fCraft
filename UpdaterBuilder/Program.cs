@@ -6,8 +6,8 @@ namespace fCraft.UpdateBuilder {
 
         static readonly string[] FileList = {
             "ConfigGUI.exe",
-            "fCraft.dll",
-            "fCraftGUI.dll",
+            "fCraft.Core.dll",
+            "fCraft.GUI.dll",
             "ServerCLI.exe",
             "ServerGUI.exe",
             "../../CHANGELOG.txt",
