@@ -12,10 +12,10 @@ namespace fCraft.MapConversion {
         /// <summary> Current map format used by fCraft. </summary>
         FCMv2,
 
-        /// <summary> Map format used by MCSharp and its forks (MCZall/MCLawl). Initial support added by Tyler/TkTech. </summary>
+        /// <summary> Map format used by MCSharp and its forks (MCZall/MCLawl). Initial support added by Tyler (TkTech). </summary>
         MCSharp,
 
-        /// <summary> Map format used by MinerCPP and LuaCraft. Initial support added by Tyler/TkTech. </summary>
+        /// <summary> Map format used by MinerCPP and LuaCraft. Initial support added by Tyler (TkTech). </summary>
         MinerCPP,
 
         /// <summary> Map format used by Myne and its derivatives (MyneCraft/iCraft). </summary>
@@ -33,7 +33,7 @@ namespace fCraft.MapConversion {
         /// <summary> Map foramt used by D3 server. </summary>
         D3,
 
-        /// <summary> Format used by Opticraft v0.2+. Support contributed by Jared/LgZ-optical. </summary>
+        /// <summary> Format used by Opticraft v0.2+. Support contributed by Jared Klopper (LgZ-optical). </summary>
         Opticraft,
 
         /// <summary> Universal map format, planned for future use by fCraft. Currently unsupported. </summary>
