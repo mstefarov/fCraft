@@ -1782,7 +1782,7 @@ namespace fCraft {
         #endregion
 
 
-        #region WSet
+        #region WorldSet
 
         static readonly CommandDescriptor CdWorldSet = new CommandDescriptor {
             Name = "WSet",
@@ -1848,7 +1848,51 @@ namespace fCraft {
 
                 case "backup":
                 case "backups":
-                    player.Message( "Not implemented yet." ); // TODO
+                    TimeSpan backupInterval;
+                    string oldDescription = world.BackupSettingDescription;
+                    if( value == null ) {
+                        PrintBackupInfo( player, world, false );
+
+                    } else if( value.Equals( "off", StringComparison.OrdinalIgnoreCase ) ) {
+                        if( world.BackupEnabledState == YesNoAuto.No ) {
+                            MessageSameBackupSettings( player, world );
+                            return;
+                        } else {
+                            world.BackupEnabledState = YesNoAuto.No;
+                        }
+
+                    } else if( value.Equals( "default", StringComparison.OrdinalIgnoreCase ) ) {
+                        if( world.BackupEnabledState == YesNoAuto.Auto ) {
+                            MessageSameBackupSettings( player, world );
+                            return;
+                        } else {
+                            world.BackupEnabledState = YesNoAuto.Auto;
+                            return;
+                        }
+
+                    } else if( value.TryParseMiniTimespan( out backupInterval ) ) {
+                        if( backupInterval == TimeSpan.Zero ) {
+                            if( world.BackupEnabledState == YesNoAuto.No ) {
+                                MessageSameBackupSettings( player, world );
+                                return;
+                            } else {
+                                world.BackupEnabledState = YesNoAuto.No;
+                            }
+                        } else {
+                            if( world.BackupEnabledState != YesNoAuto.Yes || world.BackupInterval != backupInterval ) {
+                                world.BackupInterval = backupInterval;
+                                world.BackupEnabledState = YesNoAuto.Yes;
+                            } else {
+                                return;
+                            }
+                        }
+
+                    } else {
+                        CdWorldSet.PrintUsage( player );
+                        return;
+                    }
+                    player.Message( "Backup setting for world {0}&S changed from \"{1}\" to \"{2}\"",
+                                    world.ClassyName, oldDescription, world.BackupSettingDescription );
                     break;
 
                 case "description":
@@ -1858,6 +1902,41 @@ namespace fCraft {
 
                 default:
                     CdWorldSet.PrintUsage( player );
+                    break;
+            }
+        }
+
+        static void MessageSameBackupSettings( Player player, World world ) {
+            player.Message( "Backup settings for {0}&S are already \"{1}\"",
+                            world.ClassyName, world.BackupSettingDescription );
+        }
+
+
+        static void PrintBackupInfo( Player player, World world, bool usePrefix ) {
+            string prefix = ( usePrefix ? "  " : "" );
+            switch( world.BackupEnabledState ) {
+                case YesNoAuto.Yes:
+                    player.Message( "{0}World {1} is backed up every {2}",
+                                    prefix,
+                                    world.ClassyName,
+                                    world.BackupInterval.ToMiniString() );
+                    break;
+                case YesNoAuto.No:
+                    player.Message( "{0}Backups are manually disabled on {0}",
+                                    prefix,
+                                    world.ClassyName );
+                    break;
+                case YesNoAuto.Auto:
+                    if( World.DefaultBackupsEnabled ) {
+                        player.Message( "{0}Backups are disabled on {1} (default)",
+                                        prefix,
+                                        world.ClassyName );
+                    } else {
+                        player.Message( "{0}World {1} is backed up every {2} (default)",
+                                        prefix,
+                                        world.ClassyName,
+                                        World.DefaultBackupInterval.ToMiniString() );
+                    }
                     break;
             }
         }
@@ -1918,7 +1997,7 @@ namespace fCraft {
             player.Message( "  " + world.AccessSecurity.GetDescription( world, "world", "accessed" ) );
             player.Message( "  " + world.BuildSecurity.GetDescription( world, "world", "modified" ) );
 
-            // Print lock/unlock information
+            // Print lock/unlock info
             if( world.IsLocked ) {
                 player.Message( "  {0}&S was locked {1} ago by {2}",
                                 world.ClassyName,
@@ -1931,6 +2010,7 @@ namespace fCraft {
                                 world.UnlockedBy );
             }
 
+            // Print created/loaded info
             if( !String.IsNullOrEmpty( world.LoadedBy ) && world.LoadedOn != DateTime.MinValue ) {
                 player.Message( "  {0}&S was created/loaded {1} ago by {2}",
                                 world.ClassyName,
@@ -1938,12 +2018,14 @@ namespace fCraft {
                                 world.LoadedByClassy );
             }
 
+            // Print map change info
             if( !String.IsNullOrEmpty( world.MapChangedBy ) && world.MapChangedOn != DateTime.MinValue ) {
                 player.Message( "  Map was last changed {0} ago by {1}",
                                 DateTime.UtcNow.Subtract( world.MapChangedOn ).ToMiniString(),
                                 world.MapChangedByClassy );
             }
 
+            // Print BlockDB info
             if( world.BlockDB.IsEnabled ) {
                 if( world.BlockDB.EnabledState == YesNoAuto.Auto ) {
                     player.Message( "  BlockDB is enabled (auto) on {0}", world.ClassyName );
@@ -1953,6 +2035,8 @@ namespace fCraft {
             } else {
                 player.Message( "  BlockDB is disabled on {0}", world.ClassyName );
             }
+
+            PrintBackupInfo( player, world, true );
         }
 
         #endregion
