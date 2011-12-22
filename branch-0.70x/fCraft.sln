@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fCraft", "fCraft\fCraft.csproj", "{7FBE7809-6F77-415C-ABEB-A3F627E817B0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fCraft.Core", "fCraft.Core\fCraft.Core.csproj", "{7FBE7809-6F77-415C-ABEB-A3F627E817B0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerGUI", "ServerGUI\ServerGUI.csproj", "{4D4EEAA2-190C-496D-B014-0EB68CA4E535}"
 EndProject
@@ -22,7 +22,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateBuilder", "UpdaterBui
 		{4D4EEAA2-190C-496D-B014-0EB68CA4E535} = {4D4EEAA2-190C-496D-B014-0EB68CA4E535}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fCraftGUI", "fCraftGUI\fCraftGUI.csproj", "{AFAEE6CC-8B4F-40CD-9623-7FFDC8E52222}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fCraft.GUI", "fCraft.GUI\fCraft.GUI.csproj", "{AFAEE6CC-8B4F-40CD-9623-7FFDC8E52222}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigCLI", "ConfigCLI\ConfigCLI.csproj", "{A2963FAD-0DF5-4EC7-9367-3DD9C9E41AEB}"
 EndProject

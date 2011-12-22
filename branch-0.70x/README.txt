@@ -176,8 +176,9 @@ versions of fCraft.
 
 === Licensing =================================================================
 
-fCraft is open-source and free for all uses. fCraft code and binaries are
-licensed and distributed under the permissive MIT License, reproduced here:
+fCraft is open-source and available free of change for all uses. fCraft code
+and binaries are licensed and distributed under the permissive MIT License,
+reproduced here:
 
 ----
 Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
