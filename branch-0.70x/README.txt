@@ -210,9 +210,15 @@ fCraft uses and bundles Devart dotConnect for MySQL, under free license.
 Full text of the Devart dotConnect for MySQL license should be included with
 your copy of fCraft in LICENSE.dotConnect.txt
 
-Original Minecraft was developed by Markus "Notch" Petersson of Mojang, and is 
-not affiliated with fCraft in any way. fCraft does not use any code, assets,
-or any other files from Minecraft.
+fCraft.Plugins.Python uses and bundles Microsoft Dynamic Language Runtime,
+licensed under Microsoft Public License. See LICENSE.MicrosoftDLR.txt
+
+fCraft.Plugins.Python uses and bundles IronPython, licensed under Apache
+License, v2.0. See LICENSE.IronPython.txt
+
+Original Minecraft was developed by Markus "Notch" Petersson of Mojang AB, and
+is not affiliated with fCraft in any way. fCraft does not make use of any code,
+assets, or any other files from Minecraft. 
 
 
 
