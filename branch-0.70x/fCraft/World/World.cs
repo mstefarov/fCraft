@@ -550,33 +550,118 @@ namespace fCraft {
         const string TimedBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}.fcm",
                      JoinBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm";
 
-        public static readonly TimeSpan DefaultBackupInterval = TimeSpan.FromSeconds( -1 );
-
-        public TimeSpan BackupInterval { get; set; }
-
-        DateTime lastBackup = DateTime.UtcNow;
-
         void SaveTask( SchedulerTask task ) {
-            if( Map == null ) return;
+            if( !IsLoaded ) return;
             lock( SyncRoot ) {
-                // ReSharper disable ConditionIsAlwaysTrueOrFalse
-                // ReSharper disable HeuristicUnreachableCode
                 if( Map == null ) return;
-                // ReSharper restore HeuristicUnreachableCode
-                // ReSharper restore ConditionIsAlwaysTrueOrFalse
 
-                if( BackupInterval != TimeSpan.Zero &&
-                    DateTime.UtcNow.Subtract( lastBackup ) > BackupInterval &&
-                    (Map.HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled()) ) {
+                lock( backupLock ) {
+                    if( BackupsEnabled &&
+                        DateTime.UtcNow.Subtract( lastBackup ) > BackupInterval &&
+                        ( Map.HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled() ) ) {
 
-                    string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
-                    Map.SaveBackup( MapFileName,
-                                    Path.Combine( Paths.BackupPath, backupFileName ) );
-                    lastBackup = DateTime.UtcNow;
+                        string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
+                        Map.SaveBackup( MapFileName,
+                                        Path.Combine( Paths.BackupPath, backupFileName ) );
+                        lastBackup = DateTime.UtcNow;
+                    }
                 }
 
                 if( Map.HasChangedSinceSave ) {
                     SaveMap();
+                }
+            }
+        }
+
+        #endregion
+
+
+        #region Backups
+
+        DateTime lastBackup = DateTime.UtcNow;
+        static readonly object backupLock = new object();
+
+        /// <summary> Whether timed backups are enabled (either manually or by default) on this world. </summary>
+        public bool BackupsEnabled {
+            get {
+                switch( BackupEnabledState ) {
+                    case YesNoAuto.Yes:
+                        return BackupInterval > TimeSpan.Zero;
+                    case YesNoAuto.No:
+                        return false;
+                    default: //case YesNoAuto.Auto:
+                        return DefaultBackupsEnabled;
+                }
+            }
+        }
+
+
+        /// <summary> Backup state. Use "Yes" to enable, "No" to disable, and "Auto" to use default settings.
+        /// If setting to "Yes", make sure to set BackupInterval property value first. </summary>
+        public YesNoAuto BackupEnabledState {
+            get { return backupEnabledState; }
+            set {
+                lock( backupLock ) {
+                    if( value == backupEnabledState ) return;
+                    if( value == YesNoAuto.Yes && BackupInterval <= TimeSpan.Zero ) {
+                        throw new InvalidOperationException( "Set BackupInterval before setting BackupEnabledState to Yes." );
+                    }
+                    backupEnabledState = value;
+                }
+            }
+        }
+        YesNoAuto backupEnabledState = YesNoAuto.Auto;
+
+
+        /// <summary> Timed backup interval.
+        /// If BackupEnabledState is set to "Yes", value must be positive.
+        /// If BackupEnabledState is set to "No" or "Auto", this property has no effect. </summary>
+        public TimeSpan BackupInterval {
+            get {
+                switch( backupEnabledState ) {
+                    case YesNoAuto.Yes:
+                        return backupInterval;
+                    case YesNoAuto.No:
+                        return TimeSpan.Zero;
+                    default: //case YesNoAuto.Auto:
+                        return DefaultBackupInterval;
+                }
+            }
+            set {
+                lock( backupLock ) {
+                    if( BackupEnabledState == YesNoAuto.Yes && value >= TimeSpan.Zero ) {
+                        throw new InvalidOperationException( "BackupInterval must be positive if BackupEnabledState is set to Yes." );
+                    }
+                    backupInterval = value;
+                }
+            }
+        }
+        TimeSpan backupInterval;
+
+
+        /// <summary> Default backup interval, for worlds that have BackupEnabledState set to "Auto". </summary>
+        public static TimeSpan DefaultBackupInterval { get; set; }
+
+
+        /// <summary> Whether timed backups are enabled by default for worlds that have BackupEnabledState set to "Auto". </summary>
+        public static bool DefaultBackupsEnabled {
+            get { return DefaultBackupInterval > TimeSpan.Zero; }
+        }
+
+
+        internal string BackupSettingDescription {
+            get {
+                switch( backupEnabledState ) {
+                    case YesNoAuto.No:
+                        return "disabled (manual)";
+                    case YesNoAuto.Yes:
+                        return String.Format( "enabled ({0})", backupInterval.ToMiniString() );
+                    default: //case YesNoAuto.Auto:
+                        if( DefaultBackupsEnabled ) {
+                            return String.Format( "default ({0})", DefaultBackupInterval.ToMiniString() );
+                        } else {
+                            return "default (disabled)";
+                        }
                 }
             }
         }
