@@ -93,7 +93,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\fCraftGUI\fCraft.GUI.csproj">
+    <ProjectReference Include="..\fCraft.GUI\fCraft.GUI.csproj">
       <Project>{AFAEE6CC-8B4F-40CD-9623-7FFDC8E52222}</Project>
       <Name>fCraft.GUI</Name>
     </ProjectReference>
