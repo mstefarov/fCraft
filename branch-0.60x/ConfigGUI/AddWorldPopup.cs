@@ -496,6 +496,7 @@ namespace fCraft.ConfigGUI {
             }
         }
 
+
         void sDetailSize_ValueChanged( object sender, EventArgs e ) {
             int resolution = 1 << (sDetailScale.Maximum - sDetailScale.Value);
             lDetailSizeDisplay.Text = resolution + "×" + resolution;
