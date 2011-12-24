@@ -8,7 +8,7 @@ using System.Xml.Linq;
 using Devart.Data.MySql;
 using JetBrains.Annotations;
 
-namespace fCraft {
+namespace fCraft.MySql {
     internal sealed partial class MySqlPlayerDBProvider : IPlayerDBProvider {
         MySqlConnection connection;
         MySqlPlayerDBProviderConfig config;

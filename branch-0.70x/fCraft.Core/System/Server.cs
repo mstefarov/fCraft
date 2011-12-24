@@ -431,9 +431,6 @@ namespace fCraft {
             Scheduler.Start();
             IsRunning = true;
 
-            ConfigKey.IP.IsDefault();
-            ConfigKey.IP.IsBlank();
-
             RaiseEvent( Started );
             return true;
         }

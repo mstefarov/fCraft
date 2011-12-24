@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using fCraft.Events;
 using JetBrains.Annotations;
@@ -86,6 +87,7 @@ namespace fCraft {
             return newInfo;
         }
 
+        const string MySqlPlayerDBProviderType = "MySqlPlayerDBProvider";
 
         public static void Load() {
             if( IsLoaded ) throw new InvalidOperationException( "PlayerDB is already loaded." );
@@ -96,7 +98,8 @@ namespace fCraft {
                     provider = new FlatfilePlayerDBProvider();
                     break;
                 case PlayerDBProviderType.MySql:
-                    provider = new MySqlPlayerDBProvider();
+                    Assembly mySqlAsm = Assembly.LoadFile( Paths.MySqlPlayerDBProviderModule );
+                    provider = (IPlayerDBProvider)mySqlAsm.CreateInstance( MySqlPlayerDBProviderType );
                     break;
                 default:
                     throw new MisconfigurationException( "PlayerDB.Load: Unknown ProviderType: " + ProviderType );

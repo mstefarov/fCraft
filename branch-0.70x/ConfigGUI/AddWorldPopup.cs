@@ -642,6 +642,10 @@ Dimensions: {5}×{6}×{7}
                                               loadedMap.Length,
                                               loadedMap.Height,
                                               loadedMap.Volume );
+                if( loadedMap.Zones.Count > 0 ) {
+                    textBox.Text += Environment.NewLine + "     Zones: " + loadedMap.Zones.Count + Environment.NewLine;
+                    textBox.Text += loadedMap.Zones.JoinToString( Environment.NewLine, zone => "             " + zone.ToString() );
+                }
 
             } catch( Exception ex ) {
                 const string msgFormat =

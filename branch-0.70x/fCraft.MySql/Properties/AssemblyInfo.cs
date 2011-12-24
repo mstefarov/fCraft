@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle( "fCraft.Plugins.IronPython" )]
+[assembly: AssemblyTitle( "fCraft.MySql" )]
 [assembly: AssemblyDescription( "" )]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany( "matvei.org" )]
-[assembly: AssemblyProduct( "fCraft Python plugin loader" )]
-[assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2011 (matvei.org)" )]
+[assembly: AssemblyCompany( "" )]
+[assembly: AssemblyProduct( "fCraft.MySql" )]
+[assembly: AssemblyCopyright( "Copyright ©  2011" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible( false )]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid( "db15f010-f291-4449-a36d-8bcc4c012510" )]
+[assembly: Guid( "c5bf98fe-a9e6-4416-93f8-2eea0c1126a1" )]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion( "0.7.0.0" )]
-[assembly: AssemblyFileVersion( "0.7.0.0" )]
+[assembly: AssemblyVersion( "1.0.0.0" )]
+[assembly: AssemblyFileVersion( "1.0.0.0" )]
