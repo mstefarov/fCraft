@@ -93,21 +93,38 @@ namespace fCraft {
                 Controller.MinRank = buildRank;
             }
 
+            if( PlayerDB.IsLoaded ) {
+                // Part 2:
+                foreach( string playerName in parts[1].Split( ' ' ) ) {
+                    if( !Player.IsValidName( playerName ) ) {
+                        Logger.Log( LogType.Warning,
+                                    "Invalid entry in zone \"{0}\" whitelist: {1}", Name, playerName );
+                        continue;
+                    }
+                    PlayerInfo info = PlayerDB.FindPlayerInfoExact( playerName );
+                    if( info == null ) {
+                        Logger.Log( LogType.Warning,
+                                    "Unrecognized player in zone \"{0}\" whitelist: {1}", Name, playerName );
+                        continue; // player name not found in the DB (discarded)
+                    }
+                    Controller.Include( info );
+                }
 
-            // Part 2:
-            foreach( string player in parts[1].Split( ' ' ) ) {
-                if( !Player.IsValidName( player ) ) continue;
-                PlayerInfo info = PlayerDB.FindPlayerInfoExact( player );
-                if( info == null ) continue; // player name not found in the DB (discarded)
-                Controller.Include( info );
-            }
-
-            // Part 3: excluded list
-            foreach( string player in parts[2].Split( ' ' ) ) {
-                if( !Player.IsValidName( player ) ) continue;
-                PlayerInfo info = PlayerDB.FindPlayerInfoExact( player );
-                if( info == null ) continue; // player name not found in the DB (discarded)
-                Controller.Exclude( info );
+                // Part 3: excluded list
+                foreach( string playerName in parts[2].Split( ' ' ) ) {
+                    if( !Player.IsValidName( playerName ) ) {
+                        Logger.Log( LogType.Warning,
+                                    "Invalid entry in zone \"{0}\" blacklist: {1}", Name, playerName );
+                        continue;
+                    }
+                    PlayerInfo info = PlayerDB.FindPlayerInfoExact( playerName );
+                    if( info == null ) {
+                        Logger.Log( LogType.Warning,
+                                    "Unrecognized player in zone \"{0}\" whitelist: {1}", Name, playerName );
+                        continue; // player name not found in the DB (discarded)
+                    }
+                    Controller.Exclude( info );
+                }
             }
 
             // Part 4: extended header
