@@ -257,7 +257,7 @@ data to external sites.
 fCraft was developed by Matvei Stefarov (me@matvei.org) in 2009-2012
 
 Thanks to fCraft code contributors and modders:
-    Asiekierka, Dag10, Destroyer, FontPeg, Jontu800, M1_Abrams, Optical-Lza,
+    Asiekierka, Dag10, Destroyer, FontPeg, Jonty800, M1_Abrams, Optical-Lza,
     Redshift, SystemX17, TkTech, Wootalyzer
 
 Thanks to people who supported fCraft development through donations:

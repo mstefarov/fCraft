@@ -403,6 +403,7 @@ namespace fCraft {
         [NotNull]
         public static string FindExactClassyName( [CanBeNull] string fullName ) {
             if( string.IsNullOrEmpty( fullName ) ) return "?";
+            if( !IsLoaded ) return fullName + "(?)";
             PlayerInfo info = FindExact( fullName );
             if( info == null ) return fullName + "(?)";
             else return info.ClassyName;

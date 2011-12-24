@@ -327,17 +327,17 @@ namespace fCraft {
 
             if( zone.CreatedBy != null ) {
                 player.Message( "  Zone created by {0}&S on {1:MMM d} at {1:h:mm} ({2} ago).",
-                                zone.CreatedBy.ClassyName,
+                                zone.CreatedByClassy,
                                 zone.CreatedDate,
                                 DateTime.UtcNow.Subtract( zone.CreatedDate ).ToMiniString() );
             }
 
             if( zone.EditedBy != null ) {
                 player.Message( "  Zone last edited by {0}&S on {1:MMM d} at {1:h:mm} ({2}d {3}h ago).",
-                zone.EditedBy.ClassyName,
-                zone.EditedDate,
-                DateTime.UtcNow.Subtract( zone.EditedDate ).Days,
-                DateTime.UtcNow.Subtract( zone.EditedDate ).Hours );
+                                zone.EditedByClassy,
+                                zone.EditedDate,
+                                DateTime.UtcNow.Subtract( zone.EditedDate ).Days,
+                                DateTime.UtcNow.Subtract( zone.EditedDate ).Hours );
             }
 
             PlayerExceptions zoneExceptions = zone.ExceptionList;

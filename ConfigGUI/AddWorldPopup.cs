@@ -11,6 +11,7 @@ using System.Threading;
 using System.Windows.Forms;
 using fCraft.GUI;
 using fCraft.MapConversion;
+using System.Text;
 
 
 namespace fCraft.ConfigGUI {
@@ -623,7 +624,13 @@ namespace fCraft.ConfigGUI {
 
             MapFormat format = MapUtility.Identify( fileName, true );
             try {
-                Map loadedMap = MapUtility.LoadHeader( fileName );
+                Map loadedMap;
+                using( LogRecorder logRec = new LogRecorder() ) {
+                    loadedMap = MapUtility.LoadHeader( fileName );
+                    if( logRec.HasMessages ) {
+                        MessageBox.Show( logRec.MessageString );
+                    }
+                }
                 const string msgFormat =
 @"  Location: {0}
     Format: {1}
@@ -643,8 +650,15 @@ Dimensions: {5}×{6}×{7}
                                               loadedMap.Height,
                                               loadedMap.Volume );
                 if( loadedMap.Zones.Count > 0 ) {
-                    textBox.Text += Environment.NewLine + "     Zones: " + loadedMap.Zones.Count + Environment.NewLine;
-                    textBox.Text += loadedMap.Zones.JoinToString( Environment.NewLine, zone => "             " + zone.ToString() );
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendLine();
+                    sb.Append( "     Zones: " );
+                    bool first = true;
+                    foreach( Zone zone in loadedMap.Zones ) {
+                        if( !first ) sb.Append( "             " );
+                        sb.AppendFormat( "{0} {1}", zone.Name, zone.Bounds.Dimensions );
+                    }
+                    textBox.AppendText( sb.ToString() );
                 }
 
             } catch( Exception ex ) {

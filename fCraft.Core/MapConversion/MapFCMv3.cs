@@ -288,13 +288,13 @@ namespace fCraft.MapConversion {
             if( zone == null ) throw new ArgumentNullException( "zone" );
             string xheader;
             if( zone.CreatedBy != null ) {
-                xheader = zone.CreatedBy.Name + " " + zone.CreatedDate.ToCompactString() + " ";
+                xheader = zone.CreatedBy + " " + zone.CreatedDate.ToCompactString() + " ";
             } else {
                 xheader = "- - ";
             }
 
             if( zone.EditedBy != null ) {
-                xheader += zone.EditedBy.Name + " " + zone.EditedDate.ToCompactString();
+                xheader += zone.EditedBy + " " + zone.EditedDate.ToCompactString();
             } else {
                 xheader += "- -";
             }
