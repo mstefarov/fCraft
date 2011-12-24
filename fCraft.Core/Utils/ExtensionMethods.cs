@@ -280,7 +280,7 @@ namespace fCraft {
         #region CompactString
 
         public static string ToCompactString( this DateTime date ) {
-            return date.ToString( "yyyy'-'MM'-'dd'T'HH':'mm':'ssK" );
+            return date.ToUniversalTime().ToString( "yyyy'-'MM'-'dd'T'HH':'mm':'ssK" );
         }
 
 

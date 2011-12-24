@@ -94,21 +94,38 @@ namespace fCraft {
                 Controller.MinRank = buildRank;
             }
 
+            if( PlayerDB.IsLoaded ) {
+                // Part 2:
+                foreach( string playerName in parts[1].Split( ' ' ) ) {
+                    if( !Player.IsValidName( playerName ) ) {
+                        Logger.Log( LogType.Warning,
+                                    "Invalid entry in zone \"{0}\" whitelist: {1}", Name, playerName );
+                        continue;
+                    }
+                    PlayerInfo info = PlayerDB.FindExact( playerName );
+                    if( info == null ) {
+                        Logger.Log( LogType.Warning,
+                                    "Unrecognized player in zone \"{0}\" whitelist: {1}", Name, playerName );
+                        continue; // player name not found in the DB (discarded)
+                    }
+                    Controller.Include( info );
+                }
 
-            // Part 2:
-            foreach( string player in parts[1].Split( ' ' ) ) {
-                if( !Player.IsValidName( player ) ) continue;
-                PlayerInfo info = PlayerDB.FindExact( player );
-                if( info == null ) continue; // player name not found in the DB (discarded)
-                Controller.Include( info );
-            }
-
-            // Part 3: excluded list
-            foreach( string player in parts[2].Split( ' ' ) ) {
-                if( !Player.IsValidName( player ) ) continue;
-                PlayerInfo info = PlayerDB.FindExact( player );
-                if( info == null ) continue; // player name not found in the DB (discarded)
-                Controller.Exclude( info );
+                // Part 3: excluded list
+                foreach( string playerName in parts[2].Split( ' ' ) ) {
+                    if( !Player.IsValidName( playerName ) ) {
+                        Logger.Log( LogType.Warning,
+                                    "Invalid entry in zone \"{0}\" blacklist: {1}", Name, playerName );
+                        continue;
+                    }
+                    PlayerInfo info = PlayerDB.FindExact( playerName );
+                    if( info == null ) {
+                        Logger.Log( LogType.Warning,
+                                    "Unrecognized player in zone \"{0}\" whitelist: {1}", Name, playerName );
+                        continue; // player name not found in the DB (discarded)
+                    }
+                    Controller.Exclude( info );
+                }
             }
 
             // Part 4: extended header
@@ -141,13 +158,17 @@ namespace fCraft {
             if( root.Element( "created" ) != null ) {
                 XElement created = root.Element( "created" );
                 CreatedBy = PlayerDB.FindExact( created.Attribute( "by" ).Value );
-                CreatedDate = DateTime.Parse( created.Attribute( "on" ).Value );
+                DateTime createdDate;
+                created.Attribute( "on" ).Value.ToDateTime( out createdDate );
+                CreatedDate = createdDate;
             }
 
             if( root.Element( "edited" ) != null ) {
                 XElement edited = root.Element( "edited" );
                 EditedBy = PlayerDB.FindExact( edited.Attribute( "by" ).Value );
-                EditedDate = DateTime.Parse( edited.Attribute( "on" ).Value );
+                DateTime editedDate;
+                edited.Attribute( "on" ).Value.ToDateTime( out editedDate );
+                EditedDate = editedDate;
             }
 
             XElement temp = root.Element( BoundingBox.XmlRootName );
@@ -168,14 +189,14 @@ namespace fCraft {
             if( CreatedBy != null ) {
                 XElement created = new XElement( "created" );
                 created.Add( new XAttribute( "by", CreatedBy.Name ) );
-                created.Add( new XAttribute( "on", CreatedDate.ToCompactString() ) );
+                created.Add( new XAttribute( "on", CreatedDate.ToUnixTimeString() ) );
                 root.Add( created );
             }
 
             if( EditedBy != null ) {
                 XElement edited = new XElement( "edited" );
                 edited.Add( new XAttribute( "by", EditedBy.Name ) );
-                edited.Add( new XAttribute( "on", EditedDate.ToCompactString() ) );
+                edited.Add( new XAttribute( "on", EditedDate.ToUnixTimeString() ) );
                 root.Add( edited );
             }
 

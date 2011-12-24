@@ -57,6 +57,8 @@ namespace fCraft {
 
         public static readonly string WorkingPathDefault;
 
+        public const string MySqlPlayerDBProviderModule = "fCraft.MySql.dll";
+
         /// <summary> Path to save maps to (default: .\maps)
         /// Can be overridden at startup via command-line argument "--mappath=",
         /// or via "MapPath" ConfigKey </summary>

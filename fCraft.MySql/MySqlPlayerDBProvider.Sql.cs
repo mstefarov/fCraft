@@ -6,7 +6,7 @@ using System.Net;
 using Devart.Data.MySql;
 using JetBrains.Annotations;
 
-namespace fCraft {
+namespace fCraft.MySql {
     // MySql-specific implementation details
     partial class MySqlPlayerDBProvider {
 

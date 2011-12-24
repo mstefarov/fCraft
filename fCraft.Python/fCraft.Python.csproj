@@ -8,8 +8,8 @@
     <ProjectGuid>{F1EA6B51-1325-4937-8A52-1571A877C6F3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>fCraft.Plugins.Python</RootNamespace>
-    <AssemblyName>fCraft.Plugins.Python</AssemblyName>
+    <RootNamespace>fCraft.Python</RootNamespace>
+    <AssemblyName>fCraft.Python</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -68,6 +68,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="IronPython.Modules.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="LICENSE.IronPython.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="LICENSE.MicrosoftDLR.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Microsoft.Dynamic.dll">

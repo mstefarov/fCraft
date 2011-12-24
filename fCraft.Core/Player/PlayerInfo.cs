@@ -115,7 +115,7 @@ namespace fCraft {
         [NotNull]
         public Rank Rank {
             get { return rank; }
-            internal set {
+            set {
                 if( value == null ) throw new ArgumentNullException( "value" );
                 if( value != rank ) {
                     rank = value;
@@ -792,7 +792,7 @@ namespace fCraft {
 
         #region Constructors and Serialization
 
-        internal PlayerInfo( int id ) {
+        public PlayerInfo( int id ) {
             ID = id;
         }
 

@@ -169,7 +169,7 @@ For quick help/support, join #fCraft channel on Esper.net IRC:
     irc://irc.esper.net:5555/fCraft
 
 See CHANGELOG.txt or visit http://www.fcraft.net/wiki/Version_history for
-complete information about changes in this release compared to previous
+complete information about changes in this release co   mpared to previous
 versions of fCraft.
 
 
@@ -211,11 +211,11 @@ fCraft uses and bundles Devart dotConnect for MySQL, under free license.
 Full text of the Devart dotConnect for MySQL license should be included with
 your copy of fCraft in LICENSE.dotConnect.txt
 
-fCraft.Plugins.Python uses and bundles Microsoft Dynamic Language Runtime,
-licensed under Microsoft Public License. See LICENSE.MicrosoftDLR.txt
+fCraft.Python uses and bundles Microsoft Dynamic Language Runtime, licensed
+under Microsoft Public License. See LICENSE.MicrosoftDLR.txt
 
-fCraft.Plugins.Python uses and bundles IronPython, licensed under Apache
-License, v2.0. See LICENSE.IronPython.txt
+fCraft.Python uses and bundles IronPython, licensed under Apache License, v2.0.
+See LICENSE.IronPython.txt
 
 Original Minecraft was developed by Markus "Notch" Petersson of Mojang AB, and
 is not affiliated with fCraft in any way. fCraft does not make use of any code,
@@ -223,9 +223,38 @@ assets, or any other files from Minecraft.
 
 
 
+=== Privacy Notice ============================================================
+
+By default, fCraft is configured to automatically submit crash reports to
+fcraft.net. Crash reports are created when serious unexpected errors occur.
+Being able to receive crash reports helps identify bugs and improve fCraft. The
+reports consist of error information, OS and runtime versions, a copy of
+config.xml, and last 25 lines of the log file. Report details are never
+displayed publicly, and are only retained long enough to fix the bugs. If you
+would still like to opt out, see "Advanced" tab in ConfigGUI, or set
+"SubmitCrashReports" key to "False" in config.xml.
+
+If automatic updates are enabled, fCraft will transmit your fCraft version to
+fCraft.net, but that information is not retained. To disable updates, see
+"General" tab in ConfigGUI, or set "UpdaterMode" key to "Disabled" in
+config.xml.
+
+Unless "HeartbeatEnabled" config key is disabled, fCraft will periodically send
+basic server information (IP Address, port number, server name, number of
+players, and server salt) to minecraft.net
+
+If "Send heartbeats to WoM Direct" is enabled, and the server is marked as
+publicly visible, fCraft will also send basic server information to
+direct.worldofminecraft.net.
+
+Aside from aforementioned instances, fCraft will never communicate or transmit
+data to external sites.
+
+
+
 === Credits ===================================================================
 
-fCraft was developed by Matvei Stefarov (me@matvei.org) in 2009-2011
+fCraft was developed by Matvei Stefarov (me@matvei.org) in 2009-2012
 
 Thanks to fCraft code contributors and modders:
     Asiekierka, Dag10, Destroyer, FontPeg, Jontu800, M1_Abrams, Optical-Lza,

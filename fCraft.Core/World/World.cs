@@ -787,13 +787,18 @@ namespace fCraft {
             XElement tempEl;
             if( (tempEl = el.Element( AccessSecurityXmlTagName )) != null ) {
                 AccessSecurity = new SecurityController( tempEl, true );
-            } else if( (tempEl = el.Element( "accessSecurity" )) != null ) {
+            } else if( ( tempEl = el.Element( "accessSecurity" ) ) != null ) {
                 AccessSecurity = new SecurityController( tempEl, true );
+            } else {
+                AccessSecurity = new SecurityController();
             }
+
             if( (tempEl = el.Element( BuildSecurityXmlTagName )) != null ) {
                 BuildSecurity = new SecurityController( tempEl, true );
-            } else if( (tempEl = el.Element( "buildSecurity" )) != null ) {
+            } else if( ( tempEl = el.Element( "buildSecurity" ) ) != null ) {
                 BuildSecurity = new SecurityController( tempEl, true );
+            } else {
+                BuildSecurity = new SecurityController();
             }
 
             // load backup interval
@@ -889,6 +894,8 @@ namespace fCraft {
             if( elementName == null ) throw new ArgumentNullException( "elementName" );
 
             XElement root = new XElement( elementName );
+            root.Add( new XAttribute( "name", Name ) );
+
             if( AccessSecurity.HasRestrictions ) {
                 root.Add( AccessSecurity.Serialize( AccessSecurityXmlTagName ) );
             }
