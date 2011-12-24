@@ -11,7 +11,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     public unsafe sealed class Map {
-        public const MapFormat SaveFormat = MapFormat.FCMv3;
+        public const MapFormat SaveFormat = MapFormat.FCMv4;
 
         /// <summary> The world associated with this map, if any. May be null. </summary>
         [CanBeNull]
