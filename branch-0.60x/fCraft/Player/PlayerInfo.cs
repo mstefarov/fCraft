@@ -1238,6 +1238,7 @@ namespace fCraft {
                     }
                     sb.Append( Name );
                 }
+                if( Server.RainbowMode ) sb = new StringBuilder( Color.Rainbowfy( sb.ToString() ) );
                 if( IsBanned ) {
                     sb.Append( Color.Red ).Append( '*' );
                 } else if( IsFrozen ) {

@@ -22,6 +22,15 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdClear );
 
             CommandManager.RegisterCommand( CdTimer );
+
+            CommandManager.RegisterCommand( new CommandDescriptor {
+                Name = "rainbowfy",
+                Category = CommandCategory.Chat,
+                IsConsoleSafe = true,
+                IsHidden = true,
+                Permissions = new[] { Permission.ShutdownServer },
+                Handler = ( p, c ) => p.Message( "RainbowMode: {0}", Server.RainbowMode = !Server.RainbowMode )
+            } );
         }
 
 

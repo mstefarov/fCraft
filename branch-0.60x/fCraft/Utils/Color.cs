@@ -283,6 +283,54 @@ namespace fCraft {
             return sb.ToString();
         }
 
+
+        /// <summary> Strips all ampersand color codes, and unescapes doubled-up ampersands. </summary>
+        public static string StripColors( [NotNull] string input ) {
+            if( input == null ) throw new ArgumentNullException( "input" );
+            if( input.IndexOf( '&' ) == -1 ) {
+                return input;
+            } else {
+                StringBuilder output = new StringBuilder( input.Length );
+                for( int i = 0; i < input.Length; i++ ) {
+                    if( input[i] == '&' ) {
+                        if( i == input.Length - 1 ) {
+                            break;
+                        } else if( input[i + 1] == '&' ) {
+                            output.Append( '&' );
+                        }
+                        i++;
+                    } else {
+                        output.Append( input[i] );
+                    }
+                }
+                return output.ToString();
+            }
+        }
+
+
+        static Random rainbowRand = new Random();
+        static readonly string[] rainbow = new string[]{
+            Color.Red,
+            Color.Olive,
+            Color.Yellow,
+            Color.Lime,
+            Color.Aqua,
+            Color.Blue,
+            Color.Purple
+        };
+
+        public static string Rainbowfy( string name ) {
+            StringBuilder output = new StringBuilder();
+            name = Color.StripColors( name );
+            int colorIndex = rainbowRand.Next( rainbow.Length );
+            for( int letterIndex = 0; letterIndex < name.Length; letterIndex++ ) {
+                output.Append( rainbow[colorIndex] ).Append( name[letterIndex] );
+                colorIndex = (colorIndex + 1) % rainbow.Length;
+            }
+            return output.ToString();
+        }
+
+
         #region IRC Colors
 
         public const string IRCReset = "\u0003\u000f";

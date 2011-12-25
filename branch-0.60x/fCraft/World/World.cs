@@ -641,6 +641,7 @@ namespace fCraft {
         /// <summary> Returns a nicely formatted name, with optional color codes. </summary>
         public string ClassyName {
             get {
+                if( Server.RainbowMode ) return Color.Rainbowfy( Name );
                 if( ConfigKey.RankColorsInWorldNames.Enabled() ) {
                     Rank maxRank;
                     if( BuildSecurity.MinRank >= AccessSecurity.MinRank ) {

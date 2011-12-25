@@ -128,6 +128,7 @@ namespace fCraft {
 
         public string ClassyName {
             get {
+                if( Server.RainbowMode ) return Color.Rainbowfy( Name );
                 if( ConfigKey.RankColorsInChat.Enabled() ) {
                     Rank minRank;
                     if( Permissions != null && Permissions.Length > 0 ) {
