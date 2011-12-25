@@ -18,6 +18,7 @@ namespace fCraft.MySql {
         const string FindByIPQuery = "SELECT `id` FROM `players` WHERE `last_ip`=? LIMIT ?;";
         const string FindPartialQuery = "SELECT `id` FROM `players` WHERE `name` LIKE ?;";
         const string DeleteCommandText = "DELETE FROM `players` WHERE `id`=? LIMIT 1;";
+        const string ImportCommandText = "INSERT INTO `players` VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 
         const string LoadMetadataQuery = "SELECT * FROM `metadata`;";
         const string InsertMetadataCommandText = "INSERT INTO `metadata` VALUES(?,?,?);";
@@ -192,16 +193,18 @@ WHERE id=? LIMIT 1;";
                 var databaseRankMapping = new Dictionary<int, Rank>();
                 using( MySqlCommand loadRankMappingCmd = new MySqlCommand( LoadRankMappingQuery, connection, transaction ) ) {
                     using( MySqlDataReader reader = loadRankMappingCmd.ExecuteReader() ) {
-                        int index = reader.GetInt32( 0 );
-                        string rankName = reader.GetString( 1 );
-                        Rank rank = Rank.Parse( rankName );
-                        if( rank == null ) {
-                            rank = RankManager.DefaultRank;
-                            Logger.Log( LogType.Warning,
-                                        "MySqlPlayerDBProvider: Unrecognized rank \"{0}\". Any reference to this rank will be replaced with \"{1}\".",
-                                        rankName, rank.Name );
+                        while( reader.Read() ) {
+                            int index = reader.GetInt32( 0 );
+                            string rankName = reader.GetString( 1 );
+                            Rank rank = Rank.Parse( rankName );
+                            if( rank == null ) {
+                                rank = RankManager.DefaultRank;
+                                Logger.Log( LogType.Warning,
+                                            "MySqlPlayerDBProvider: Unrecognized rank \"{0}\". Any reference to this rank will be replaced with \"{1}\".",
+                                            rankName, rank.Name );
+                            }
+                            databaseRankMapping.Add( index, rank );
                         }
-                        databaseRankMapping.Add( index, rank );
                     }
                 }
 
@@ -334,10 +337,10 @@ WHERE id=? LIMIT 1;";
 
             using( MySqlCommand addRankMappingCmd = new MySqlCommand( AddRankMappingCommandText, connection, transaction ) ) {
                 addRankMappingCmd.Parameters.Add( "index", MySqlType.SmallInt );
-                addRankMappingCmd.Parameters.Add( "name", MySqlType.SmallInt );
+                addRankMappingCmd.Parameters.Add( "name", MySqlType.VarChar, 64 );
                 foreach( var pair in rankMapping ) {
                     addRankMappingCmd.Parameters[0].Value = pair.Key;
-                    addRankMappingCmd.Parameters[1].Value = pair.Value;
+                    addRankMappingCmd.Parameters[1].Value = pair.Value.FullName;
                     addRankMappingCmd.ExecuteNonQuery();
                 }
             }
@@ -349,11 +352,12 @@ WHERE id=? LIMIT 1;";
         #region Prepared Commands
 
         MySqlCommand findExactCommand,
-             findByIPCommand,
-             findPartialCommand,
-             deleteCommand,
-             preInsertCommand,
-             updateCommand;
+                     findByIPCommand,
+                     findPartialCommand,
+                     deleteCommand,
+                     preInsertCommand,
+                     updateCommand,
+                     importCommand;
 
 
         void PrepareCommands() {
@@ -378,53 +382,63 @@ WHERE id=? LIMIT 1;";
             preInsertCommand.Prepare();
 
             updateCommand = new MySqlCommand( UpdateCommandText, connection );
-            updateCommand.Parameters.Add( "Name", MySqlType.VarChar, NameSize );
-            updateCommand.Parameters.Add( "DisplayedName", MySqlType.VarChar, DisplayedNameSize );
-            updateCommand.Parameters.Add( "LastSeen", DateType );
-            updateCommand.Parameters.Add( "Rank", MySqlType.SmallInt );
-            updateCommand.Parameters.Add( "PreviousRank", MySqlType.SmallInt );
-            updateCommand.Parameters.Add( "RankChangeType", MySqlType.TinyInt );
-            updateCommand.Parameters.Add( "RankChangeDate", DateType );
-            updateCommand.Parameters.Add( "RankChangedBy", MySqlType.VarChar, ByFieldSize );
-            updateCommand.Parameters.Add( "RankChangeReason", MySqlType.VarChar, ReasonFieldSize );
-            updateCommand.Parameters.Add( "BanStatus", MySqlType.TinyInt );
-            updateCommand.Parameters.Add( "BanDate", DateType );
-            updateCommand.Parameters.Add( "BannedBy", MySqlType.VarChar, ByFieldSize );
-            updateCommand.Parameters.Add( "BanReason", MySqlType.VarChar, ReasonFieldSize );
-            updateCommand.Parameters.Add( "BannedUntil", DateType );
-            updateCommand.Parameters.Add( "LastFailedLoginDate", DateType );
-            updateCommand.Parameters.Add( "LastFailedLoginIP", MySqlType.Int );
-            updateCommand.Parameters.Add( "UnbanDate", DateType );
-            updateCommand.Parameters.Add( "UnbannedBy", MySqlType.VarChar, ByFieldSize );
-            updateCommand.Parameters.Add( "UnbanReason", MySqlType.VarChar, ReasonFieldSize );
-            updateCommand.Parameters.Add( "FirstLoginDate", DateType );
-            updateCommand.Parameters.Add( "LastLoginDate", DateType );
-            updateCommand.Parameters.Add( "TotalTime", MySqlType.Int );
-            updateCommand.Parameters.Add( "BlocksBuilt", MySqlType.Int );
-            updateCommand.Parameters.Add( "BlocksDeleted", MySqlType.Int );
-            updateCommand.Parameters.Add( "BlocksDrawn", MySqlType.BigInt );
-            updateCommand.Parameters.Add( "TimesVisited", MySqlType.Int );
-            updateCommand.Parameters.Add( "MessagesWritten", MySqlType.Int );
-            updateCommand.Parameters.Add( "TimesKickedOthers", MySqlType.Int );
-            updateCommand.Parameters.Add( "TimesBannedOthers", MySqlType.Int );
-            updateCommand.Parameters.Add( "TimesKicked", MySqlType.Int );
-            updateCommand.Parameters.Add( "LastKickDate", DateType );
-            updateCommand.Parameters.Add( "LastKickBy", MySqlType.VarChar, ByFieldSize );
-            updateCommand.Parameters.Add( "LastKickReason", MySqlType.VarChar, ReasonFieldSize );
-            updateCommand.Parameters.Add( "IsFrozen", MySqlType.TinyInt, 1 );
-            updateCommand.Parameters.Add( "FrozenOn", DateType );
-            updateCommand.Parameters.Add( "FrozenBy", MySqlType.VarChar, ByFieldSize );
-            updateCommand.Parameters.Add( "MutedUntil", DateType );
-            updateCommand.Parameters.Add( "MutedBy", MySqlType.VarChar, ByFieldSize );
-            updateCommand.Parameters.Add( "Password", MySqlType.VarChar, PasswordFieldSize );
-            updateCommand.Parameters.Add( "LastModified", DateType );
-            updateCommand.Parameters.Add( "IsOnline", MySqlType.TinyInt, 1 );
-            updateCommand.Parameters.Add( "IsHidden", MySqlType.TinyInt, 1 );
-            updateCommand.Parameters.Add( "LastIP", MySqlType.Int );
-            updateCommand.Parameters.Add( "LeaveReason", MySqlType.TinyInt );
-            updateCommand.Parameters.Add( "BandwidthUseMode", MySqlType.TinyInt );
+            AddInsertOrUpdateParams( updateCommand.Parameters );
             updateCommand.Parameters.Add( "ID", MySqlType.Int );
             updateCommand.Prepare();
+
+            importCommand = new MySqlCommand( ImportCommandText, connection );
+            importCommand.Parameters.Add( "ID", MySqlType.Int );
+            AddInsertOrUpdateParams( importCommand.Parameters );
+            importCommand.Prepare();
+        }
+
+
+        void AddInsertOrUpdateParams( MySqlParameterCollection paramCollection ) {
+            paramCollection.Add( "Name", MySqlType.VarChar, NameSize );
+            paramCollection.Add( "DisplayedName", MySqlType.VarChar, DisplayedNameSize );
+            paramCollection.Add( "LastSeen", DateType );
+            paramCollection.Add( "Rank", MySqlType.SmallInt );
+            paramCollection.Add( "PreviousRank", MySqlType.SmallInt );
+            paramCollection.Add( "RankChangeType", MySqlType.TinyInt );
+            paramCollection.Add( "RankChangeDate", DateType );
+            paramCollection.Add( "RankChangedBy", MySqlType.VarChar, ByFieldSize );
+            paramCollection.Add( "RankChangeReason", MySqlType.VarChar, ReasonFieldSize );
+            paramCollection.Add( "BanStatus", MySqlType.TinyInt );
+            paramCollection.Add( "BanDate", DateType );
+            paramCollection.Add( "BannedBy", MySqlType.VarChar, ByFieldSize );
+            paramCollection.Add( "BanReason", MySqlType.VarChar, ReasonFieldSize );
+            paramCollection.Add( "BannedUntil", DateType );
+            paramCollection.Add( "LastFailedLoginDate", DateType );
+            paramCollection.Add( "LastFailedLoginIP", MySqlType.Int );
+            paramCollection.Add( "UnbanDate", DateType );
+            paramCollection.Add( "UnbannedBy", MySqlType.VarChar, ByFieldSize );
+            paramCollection.Add( "UnbanReason", MySqlType.VarChar, ReasonFieldSize );
+            paramCollection.Add( "FirstLoginDate", DateType );
+            paramCollection.Add( "LastLoginDate", DateType );
+            paramCollection.Add( "TotalTime", MySqlType.Int );
+            paramCollection.Add( "BlocksBuilt", MySqlType.Int );
+            paramCollection.Add( "BlocksDeleted", MySqlType.Int );
+            paramCollection.Add( "BlocksDrawn", MySqlType.BigInt );
+            paramCollection.Add( "TimesVisited", MySqlType.Int );
+            paramCollection.Add( "MessagesWritten", MySqlType.Int );
+            paramCollection.Add( "TimesKickedOthers", MySqlType.Int );
+            paramCollection.Add( "TimesBannedOthers", MySqlType.Int );
+            paramCollection.Add( "TimesKicked", MySqlType.Int );
+            paramCollection.Add( "LastKickDate", DateType );
+            paramCollection.Add( "LastKickBy", MySqlType.VarChar, ByFieldSize );
+            paramCollection.Add( "LastKickReason", MySqlType.VarChar, ReasonFieldSize );
+            paramCollection.Add( "IsFrozen", MySqlType.TinyInt, 1 );
+            paramCollection.Add( "FrozenOn", DateType );
+            paramCollection.Add( "FrozenBy", MySqlType.VarChar, ByFieldSize );
+            paramCollection.Add( "MutedUntil", DateType );
+            paramCollection.Add( "MutedBy", MySqlType.VarChar, ByFieldSize );
+            paramCollection.Add( "Password", MySqlType.VarChar, PasswordFieldSize );
+            paramCollection.Add( "LastModified", DateType );
+            paramCollection.Add( "IsOnline", MySqlType.TinyInt, 1 );
+            paramCollection.Add( "IsHidden", MySqlType.TinyInt, 1 );
+            paramCollection.Add( "LastIP", MySqlType.Int );
+            paramCollection.Add( "LeaveReason", MySqlType.TinyInt );
+            paramCollection.Add( "BandwidthUseMode", MySqlType.TinyInt );
         }
 
 
@@ -462,66 +476,79 @@ WHERE id=? LIMIT 1;";
 
 
         [NotNull]
-        MySqlCommand GetUpdateCommand( PlayerInfo info ) {
-            updateCommand.Parameters[(int)Field.Name - 1].Value = info.Name;
-            updateCommand.Parameters[(int)Field.DisplayedName - 1].Value = info.DisplayedName;
-            updateCommand.Parameters[(int)Field.LastSeen - 1].Value = info.LastSeen.ToUnixTime();
-
-            updateCommand.Parameters[(int)Field.Rank - 1].Value = (short)info.Rank.Index;
-            if( info.PreviousRank != null ) {
-                updateCommand.Parameters[(int)Field.PreviousRank - 1].Value = (short)info.PreviousRank.Index;
-            } else {
-                updateCommand.Parameters[(int)Field.PreviousRank - 1].Value = NoRankIndex;
-            }
-            updateCommand.Parameters[(int)Field.RankChangeType - 1].Value = (sbyte)info.RankChangeType;
-            updateCommand.Parameters[(int)Field.RankChangeDate - 1].Value = info.RankChangeDate.ToUnixTime();
-            updateCommand.Parameters[(int)Field.RankChangedBy - 1].Value = info.RankChangedBy;
-            updateCommand.Parameters[(int)Field.RankChangeReason - 1].Value = info.RankChangeReason;
-
-            updateCommand.Parameters[(int)Field.BanStatus - 1].Value = (sbyte)info.BanStatus;
-            updateCommand.Parameters[(int)Field.BanDate - 1].Value = info.BanDate.ToUnixTime();
-            updateCommand.Parameters[(int)Field.BannedBy - 1].Value = info.BannedBy;
-            updateCommand.Parameters[(int)Field.BanReason - 1].Value = info.BanReason;
-            updateCommand.Parameters[(int)Field.BannedUntil - 1].Value = info.BannedUntil.ToUnixTime();
-            updateCommand.Parameters[(int)Field.LastFailedLoginDate - 1].Value = info.LastFailedLoginDate.ToUnixTime();
-            updateCommand.Parameters[(int)Field.LastFailedLoginIP - 1].Value = info.LastFailedLoginIP.AsInt();
-            updateCommand.Parameters[(int)Field.UnbanDate - 1].Value = info.UnbanDate.ToUnixTime();
-            updateCommand.Parameters[(int)Field.UnbannedBy - 1].Value = info.UnbannedBy;
-            updateCommand.Parameters[(int)Field.UnbanReason - 1].Value = info.UnbanReason;
-
-            updateCommand.Parameters[(int)Field.FirstLoginDate - 1].Value = info.FirstLoginDate.ToUnixTime();
-            updateCommand.Parameters[(int)Field.LastLoginDate - 1].Value = info.LastLoginDate.ToUnixTime();
-            updateCommand.Parameters[(int)Field.TotalTime - 1].Value = (int)info.TotalTime.ToSeconds();
-            updateCommand.Parameters[(int)Field.BlocksBuilt - 1].Value = info.BlocksBuilt;
-            updateCommand.Parameters[(int)Field.BlocksDeleted - 1].Value = info.BlocksDeleted;
-            updateCommand.Parameters[(int)Field.BlocksDrawn - 1].Value = info.BlocksDrawn;
-            updateCommand.Parameters[(int)Field.TimesVisited - 1].Value = info.TimesVisited;
-            updateCommand.Parameters[(int)Field.MessagesWritten - 1].Value = info.MessagesWritten;
-            updateCommand.Parameters[(int)Field.TimesKickedOthers - 1].Value = info.TimesKickedOthers;
-            updateCommand.Parameters[(int)Field.TimesBannedOthers - 1].Value = info.TimesBannedOthers;
-
-            updateCommand.Parameters[(int)Field.TimesKicked - 1].Value = info.TimesKicked;
-            updateCommand.Parameters[(int)Field.LastKickDate - 1].Value = info.LastKickDate.ToUnixTime();
-            updateCommand.Parameters[(int)Field.LastKickBy - 1].Value = info.LastKickBy;
-            updateCommand.Parameters[(int)Field.LastKickReason - 1].Value = info.LastKickReason;
-
-            updateCommand.Parameters[(int)Field.IsFrozen - 1].Value = info.IsFrozen;
-            updateCommand.Parameters[(int)Field.FrozenOn - 1 - 1].Value = info.FrozenOn.ToUnixTime();
-            updateCommand.Parameters[(int)Field.FrozenBy - 1].Value = info.FrozenBy;
-            updateCommand.Parameters[(int)Field.MutedUntil - 1].Value = info.MutedUntil.ToUnixTime();
-            updateCommand.Parameters[(int)Field.MutedBy - 1].Value = info.MutedBy;
-
-            updateCommand.Parameters[(int)Field.Password - 1].Value = info.Password;
-            updateCommand.Parameters[(int)Field.LastModified - 1].Value = info.LastModified.ToUnixTime();
-            updateCommand.Parameters[(int)Field.IsOnline - 1].Value = info.IsOnline;
-            updateCommand.Parameters[(int)Field.IsHidden - 1].Value = info.IsHidden;
-            updateCommand.Parameters[(int)Field.LastIP - 1].Value = info.LastIP.AsInt();
-            updateCommand.Parameters[(int)Field.LeaveReason - 1].Value = (sbyte)info.LeaveReason;
-            updateCommand.Parameters[(int)Field.BandwidthUseMode - 1].Value = (sbyte)info.BandwidthUseMode;
-
+        MySqlCommand GetUpdateCommand( [NotNull] PlayerInfo info ) {
+            FillInsertOrUpdateParams( updateCommand.Parameters, info, -1 );
             // ID last
             updateCommand.Parameters[updateCommand.Parameters.Count - 1].Value = info.ID;
             return updateCommand;
+        }
+
+
+        [NotNull]
+        MySqlCommand GetImportCommand( [NotNull] PlayerInfo info ) {
+            // ID first
+            importCommand.Parameters[(int)Field.ID].Value = info.ID;
+            FillInsertOrUpdateParams( importCommand.Parameters, info, 0 );
+            return importCommand;
+        }
+
+
+        void FillInsertOrUpdateParams( [NotNull] MySqlParameterCollection paramCollection, [NotNull] PlayerInfo info, int offset ) {
+            paramCollection[(int)Field.Name + offset].Value = info.Name;
+            paramCollection[(int)Field.DisplayedName + offset].Value = info.DisplayedName;
+            paramCollection[(int)Field.LastSeen + offset].Value = info.LastSeen.ToUnixTime();
+
+            paramCollection[(int)Field.Rank + offset].Value = (short)info.Rank.Index;
+            if( info.PreviousRank != null ) {
+                paramCollection[(int)Field.PreviousRank + offset].Value = (short)info.PreviousRank.Index;
+            } else {
+                paramCollection[(int)Field.PreviousRank + offset].Value = NoRankIndex;
+            }
+            paramCollection[(int)Field.RankChangeType + offset].Value = (sbyte)info.RankChangeType;
+            paramCollection[(int)Field.RankChangeDate + offset].Value = info.RankChangeDate.ToUnixTime();
+            paramCollection[(int)Field.RankChangedBy + offset].Value = info.RankChangedBy;
+            paramCollection[(int)Field.RankChangeReason + offset].Value = info.RankChangeReason;
+
+            paramCollection[(int)Field.BanStatus + offset].Value = (sbyte)info.BanStatus;
+            paramCollection[(int)Field.BanDate + offset].Value = info.BanDate.ToUnixTime();
+            paramCollection[(int)Field.BannedBy + offset].Value = info.BannedBy;
+            paramCollection[(int)Field.BanReason + offset].Value = info.BanReason;
+            paramCollection[(int)Field.BannedUntil + offset].Value = info.BannedUntil.ToUnixTime();
+            paramCollection[(int)Field.LastFailedLoginDate + offset].Value = info.LastFailedLoginDate.ToUnixTime();
+            paramCollection[(int)Field.LastFailedLoginIP + offset].Value = info.LastFailedLoginIP.AsInt();
+            paramCollection[(int)Field.UnbanDate + offset].Value = info.UnbanDate.ToUnixTime();
+            paramCollection[(int)Field.UnbannedBy + offset].Value = info.UnbannedBy;
+            paramCollection[(int)Field.UnbanReason + offset].Value = info.UnbanReason;
+
+            paramCollection[(int)Field.FirstLoginDate + offset].Value = info.FirstLoginDate.ToUnixTime();
+            paramCollection[(int)Field.LastLoginDate + offset].Value = info.LastLoginDate.ToUnixTime();
+            paramCollection[(int)Field.TotalTime + offset].Value = (int)info.TotalTime.ToSeconds();
+            paramCollection[(int)Field.BlocksBuilt + offset].Value = info.BlocksBuilt;
+            paramCollection[(int)Field.BlocksDeleted + offset].Value = info.BlocksDeleted;
+            paramCollection[(int)Field.BlocksDrawn + offset].Value = info.BlocksDrawn;
+            paramCollection[(int)Field.TimesVisited + offset].Value = info.TimesVisited;
+            paramCollection[(int)Field.MessagesWritten + offset].Value = info.MessagesWritten;
+            paramCollection[(int)Field.TimesKickedOthers + offset].Value = info.TimesKickedOthers;
+            paramCollection[(int)Field.TimesBannedOthers + offset].Value = info.TimesBannedOthers;
+
+            paramCollection[(int)Field.TimesKicked + offset].Value = info.TimesKicked;
+            paramCollection[(int)Field.LastKickDate + offset].Value = info.LastKickDate.ToUnixTime();
+            paramCollection[(int)Field.LastKickBy + offset].Value = info.LastKickBy;
+            paramCollection[(int)Field.LastKickReason + offset].Value = info.LastKickReason;
+
+            paramCollection[(int)Field.IsFrozen + offset].Value = info.IsFrozen;
+            paramCollection[(int)Field.FrozenOn + offset + offset].Value = info.FrozenOn.ToUnixTime();
+            paramCollection[(int)Field.FrozenBy + offset].Value = info.FrozenBy;
+            paramCollection[(int)Field.MutedUntil + offset].Value = info.MutedUntil.ToUnixTime();
+            paramCollection[(int)Field.MutedBy + offset].Value = info.MutedBy;
+
+            paramCollection[(int)Field.Password + offset].Value = info.Password;
+            paramCollection[(int)Field.LastModified + offset].Value = info.LastModified.ToUnixTime();
+            paramCollection[(int)Field.IsOnline + offset].Value = info.IsOnline;
+            paramCollection[(int)Field.IsHidden + offset].Value = info.IsHidden;
+            paramCollection[(int)Field.LastIP + offset].Value = info.LastIP.AsInt();
+            paramCollection[(int)Field.LeaveReason + offset].Value = (sbyte)info.LeaveReason;
+            paramCollection[(int)Field.BandwidthUseMode + offset].Value = (sbyte)info.BandwidthUseMode;
         }
 
         #endregion

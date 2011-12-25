@@ -22,6 +22,16 @@ namespace fCraft {
         PlayerInfo AddUnrecognizedPlayer( [NotNull] string name, [NotNull] Rank startingRank, RankChangeType rankChangeType );
 
 
+        /// <summary> Inserts all data from given playerInfo directly into the database. </summary>
+        /// <param name="playerInfo"> Player record to import. </param>
+        void Import( [NotNull] PlayerInfo playerInfo );
+
+
+        /// <summary> Inserts all data from given PlayerInfo list directly into the database. </summary>
+        /// <param name="playerInfo"> List of player record to import. </param>
+        void Import( [NotNull] IEnumerable<PlayerInfo> playerInfos );
+
+
         /// <summary> Removes a PlayerInfo entry from the database. </summary>
         /// <returns> True if the entry is successfully found and removed; otherwise false. </returns>
         bool Remove( [NotNull] PlayerInfo playerInfo );

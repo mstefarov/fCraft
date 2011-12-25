@@ -76,6 +76,32 @@ namespace fCraft.MySql {
         }
 
 
+
+        public void Import( [NotNull] PlayerInfo playerInfo ) {
+            if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
+            lock( syncRoot ) {
+                GetImportCommand( playerInfo ).ExecuteNonQuery();
+            }
+        }
+
+
+
+        public void Import( [NotNull] IEnumerable<PlayerInfo> playerInfos ) {
+            if( playerInfos == null ) throw new ArgumentNullException( "playerInfos" );
+            lock( syncRoot ) {
+                using( MySqlTransaction transaction = connection.BeginTransaction() ) {
+                    importCommand.Transaction = transaction;
+                    foreach( PlayerInfo info in playerInfos ) {
+                        GetImportCommand( info ).ExecuteNonQuery();
+                    }
+                    transaction.Commit();
+                    importCommand.Transaction = null;
+                }
+            }
+        }
+
+
+
         public bool Remove( [NotNull] PlayerInfo playerInfo ) {
             if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
             lock( syncRoot ) {
@@ -244,8 +270,6 @@ namespace fCraft.MySql {
 
             PrepareCommands();
 
-            rankMapping = new Dictionary<int, Rank>();
-
             using( MySqlCommand cmd = new MySqlCommand( LoadAllQuery, connection ) ) {
                 using( MySqlDataReader reader = cmd.ExecuteReader() ) {
                     while( reader.Read() ) {
@@ -256,7 +280,7 @@ namespace fCraft.MySql {
         }
 
 
-        static PlayerInfo LoadInfo( IDataRecord reader ) {
+        PlayerInfo LoadInfo( IDataRecord reader ) {
             int id = reader.GetInt32( (int)Field.ID );
             // ReSharper disable UseObjectOrCollectionInitializer
             PlayerInfo info = new PlayerInfo( id );
@@ -340,13 +364,19 @@ namespace fCraft.MySql {
         }
 
 
-        static Rank ReadRank( IDataRecord reader, Field field ) {
-            return Rank.Parse( reader.GetString( (int)field ) );
+        Rank ReadRank( IDataRecord reader, Field field ) {
+            int rankId = reader.GetInt16( (int)field );
+            Rank result;
+            if( rankMapping.TryGetValue( rankId, out result ) ) {
+                return result;
+            } else {
+                return null;
+            }
         }
 
 
         static IPAddress ReadIPAddress( IDataRecord reader, Field field ) {
-            return IPAddress.Parse( reader.GetString( (int)field ) );
+            return new IPAddress( (uint)reader.GetInt32( (int)field ) );
         }
 
 
