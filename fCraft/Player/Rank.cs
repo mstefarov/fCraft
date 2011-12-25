@@ -489,6 +489,7 @@ namespace fCraft {
         /// (if enabled by the configuration). </summary>
         public string ClassyName {
             get {
+                if( Server.RainbowMode ) return fCraft.Color.Rainbowfy( Name );
                 string displayedName = Name;
                 if( ConfigKey.RankPrefixesInChat.Enabled() ) {
                     displayedName = Prefix + displayedName;

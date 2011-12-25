@@ -915,6 +915,9 @@ namespace fCraft {
             return new IPEndPoint( InternalIP, 0 );
         }
 
+
+        public static bool RainbowMode { get; set; }
+
         #endregion
 
 

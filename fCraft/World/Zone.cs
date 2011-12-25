@@ -140,6 +140,7 @@ namespace fCraft {
 
         public string ClassyName {
             get {
+                if( Server.RainbowMode ) return Color.Rainbowfy( Name );
                 return Controller.MinRank.Color + Name;
             }
         }
