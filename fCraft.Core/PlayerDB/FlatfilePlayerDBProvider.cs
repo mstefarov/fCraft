@@ -69,6 +69,10 @@ namespace fCraft {
         }
 
 
+        public void Import( [NotNull] PlayerInfo playerInfo ) { }
+        public void Import( [NotNull] IEnumerable<PlayerInfo> playerInfo ) { }
+
+
         public bool Remove( [NotNull] PlayerInfo playerInfo ) {
             if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
             return trie.Remove( playerInfo.Name );

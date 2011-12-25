@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -87,7 +88,7 @@ namespace fCraft {
             return newInfo;
         }
 
-        const string MySqlPlayerDBProviderType = "MySqlPlayerDBProvider";
+        const string MySqlPlayerDBProviderType = "fCraft.MySql.MySqlPlayerDBProvider";
 
         public static void Load() {
             if( IsLoaded ) throw new InvalidOperationException( "PlayerDB is already loaded." );
@@ -98,7 +99,7 @@ namespace fCraft {
                     provider = new FlatfilePlayerDBProvider();
                     break;
                 case PlayerDBProviderType.MySql:
-                    Assembly mySqlAsm = Assembly.LoadFile( Paths.MySqlPlayerDBProviderModule );
+                    Assembly mySqlAsm = Assembly.LoadFile( Path.Combine( Paths.WorkingPath, Paths.MySqlPlayerDBProviderModule ) );
                     provider = (IPlayerDBProvider)mySqlAsm.CreateInstance( MySqlPlayerDBProviderType );
                     break;
                 default:
@@ -149,6 +150,9 @@ namespace fCraft {
 
             UpdateCache();
             IsLoaded = true;
+
+            // Import everything from flatfile
+            //provider.Import( new FlatfilePlayerDBProvider().Load() );
         }
 
 
@@ -213,6 +217,7 @@ namespace fCraft {
 
                     info = provider.AddPlayer( name, e.StartingRank, RankChangeType.Default, lastIP );
                     info.RaisePropertyChangedEvents = true;
+                    List.Add( info );
 
                     PlayerInfo.RaiseCreatedEvent( info, false );
                 }
