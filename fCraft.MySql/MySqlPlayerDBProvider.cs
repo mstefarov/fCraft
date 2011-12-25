@@ -23,6 +23,8 @@ namespace fCraft.MySql {
         }
 
 
+        /// <summary> Adds a new PlayerInfo entry for an actual, logged-in player. </summary>
+        /// <returns> A newly-created PlayerInfo entry. </returns>
         [NotNull]
         public PlayerInfo AddPlayer( [NotNull] string name,  [NotNull] Rank startingRank, RankChangeType rankChangeType, [NotNull] IPAddress address ) {
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -50,6 +52,8 @@ namespace fCraft.MySql {
         }
 
 
+        /// <summary> Adds a new PlayerInfo entry for a player who has never been online, by name. </summary>
+        /// <returns> A newly-created PlayerInfo entry. </returns>
         [NotNull]
         public PlayerInfo AddUnrecognizedPlayer( [NotNull] string name, [NotNull] Rank startingRank, RankChangeType rankChangeType ) {
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -76,7 +80,8 @@ namespace fCraft.MySql {
         }
 
 
-
+        /// <summary> Inserts all data from given playerInfo directly into the database. </summary>
+        /// <param name="playerInfo"> Player record to import. </param>
         public void Import( [NotNull] PlayerInfo playerInfo ) {
             if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
             lock( syncRoot ) {
@@ -85,7 +90,8 @@ namespace fCraft.MySql {
         }
 
 
-
+        /// <summary> Inserts all data from given PlayerInfo list directly into the database. </summary>
+        /// <param name="playerInfo"> List of player record to import. </param>
         public void Import( [NotNull] IEnumerable<PlayerInfo> playerInfos ) {
             if( playerInfos == null ) throw new ArgumentNullException( "playerInfos" );
             lock( syncRoot ) {
@@ -101,7 +107,8 @@ namespace fCraft.MySql {
         }
 
 
-
+        /// <summary> Removes a PlayerInfo entry from the database. </summary>
+        /// <returns> True if the entry is successfully found and removed; otherwise false. </returns>
         public bool Remove( [NotNull] PlayerInfo playerInfo ) {
             if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
             lock( syncRoot ) {
@@ -112,6 +119,9 @@ namespace fCraft.MySql {
         }
 
 
+        /// <summary> Finds player by exact name. </summary>
+        /// <param name="fullName"> Full, case-insensitive name of the player. </param>
+        /// <returns> PlayerInfo if player was found, or null if not found. </returns>
         [CanBeNull]
         public PlayerInfo FindExact( [NotNull] string fullName ) {
             if( fullName == null ) throw new ArgumentNullException( "fullName" );
@@ -128,6 +138,10 @@ namespace fCraft.MySql {
         }
 
 
+        /// <summary> Finds players by IP address. </summary>
+        /// <param name="address"> Player's IP address. </param>
+        /// <param name="limit"> Maximum number of results to return. </param>
+        /// <returns> A sequence of zero or more PlayerInfos who have logged in from given IP. </returns>
         [NotNull]
         public IEnumerable<PlayerInfo> FindByIP( [NotNull] IPAddress address, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
@@ -145,6 +159,10 @@ namespace fCraft.MySql {
         }
 
 
+        /// <summary> Finds players by partial name (prefix). </summary>
+        /// <param name="partialName"> Full or partial name of the player. </param>
+        /// <param name="limit"> Maximum number of results to return. </param>
+        /// <returns> A sequence of zero or more PlayerInfos whose names start with partialName. </returns>
         [NotNull]
         public IEnumerable<PlayerInfo> FindByPartialName( [NotNull] string partialName, int limit ) {
             if( partialName == null ) throw new ArgumentNullException( "partialName" );
@@ -176,6 +194,10 @@ namespace fCraft.MySql {
         }
 
 
+        /// <summary> Searches for player names starting with namePart, returning just one or none of the matches. </summary>
+        /// <param name="partialName"> Partial or full player name. </param>
+        /// <param name="result"> PlayerInfo to output (will be set to null if no single match was found). </param>
+        /// <returns> true if one or zero matches were found, false if multiple matches were found. </returns>
         public bool FindOneByPartialName( [NotNull] string partialName, [CanBeNull] out PlayerInfo result ) {
             if( partialName == null ) throw new ArgumentNullException( "partialName" );
 
@@ -211,6 +233,12 @@ namespace fCraft.MySql {
         }
 
 
+        /// <summary> Finds player by name pattern. </summary>
+        /// <param name="pattern"> Pattern to search for.
+        /// Asterisk (*) matches zero or more characters.
+        /// Question mark (?) matches exactly one character. </param>
+        /// <param name="limit"> Maximum number of results to return. </param>
+        /// <returns> A sequence of zero or more PlayerInfos whose names match the pattern. </returns>
         [NotNull]
         public IEnumerable<PlayerInfo> FindByPattern( [NotNull] string pattern, int limit ) {
             if( pattern == null ) throw new ArgumentNullException( "pattern" );
@@ -232,11 +260,13 @@ namespace fCraft.MySql {
         }
 
 
+        /// <summary> Changes ranks of all players in one transaction. </summary>
         public void MassRankChange( Player player, Rank from, Rank to, string reason ) {
             throw new NotImplementedException();
         }
 
 
+        /// <summary> Swaps records of two players in one transaction. </summary>
         public void SwapInfo( PlayerInfo player1, PlayerInfo player2 ) {
             throw new NotImplementedException();
         }
@@ -244,6 +274,7 @@ namespace fCraft.MySql {
 
         #region Loading
 
+        /// <summary> Initializes the provider, and allocates PlayerInfo objects for all players. </summary>
         public IEnumerable<PlayerInfo> Load() {
             connection = new MySqlConnection();
 
@@ -387,6 +418,7 @@ namespace fCraft.MySql {
         #endregion
 
 
+        /// <summary> Saves the whole database. </summary>
         public void Save() {
             lock( syncRoot ) {
                 var playersToUpdate = PlayerDB.PlayerInfoList.Where( p => p.Changed );
