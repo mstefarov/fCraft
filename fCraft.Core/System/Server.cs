@@ -267,9 +267,7 @@ namespace fCraft {
 #endif
 
             // try to load the config
-            if( !Config.Load() ) {
-                throw new MisconfigurationException( "fCraft Config failed to initialize" );
-            }
+            Config.Load();
 
             if( ConfigKey.VerifyNames.GetEnum<NameVerificationMode>() == NameVerificationMode.Never ) {
                 Logger.Log( LogType.Warning,

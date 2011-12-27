@@ -41,25 +41,26 @@ namespace fCraft {
             if( creatingThread != null && creatingThread != Thread.CurrentThread ) return;
             for( int i = 0; i < thingsToLog.Length; i++ ) {
                 if( thingsToLog[i] != e.MessageType ) continue;
-                switch( e.MessageType ) {
-                    case LogType.SeriousError:
-                    case LogType.Error:
-                        HasErrors = true;
-                        break;
-                    case LogType.Warning:
-                        HasWarnings = true;
-                        break;
-                }
-                HasMessages = true;
                 lock( locker ) {
                     messages.Add( e.MessageType + ": " + e.RawMessage );
+                    switch( e.MessageType ) {
+                        case LogType.SeriousError:
+                        case LogType.Error:
+                            HasErrors = true;
+                            break;
+                        case LogType.Warning:
+                            HasWarnings = true;
+                            break;
+                    }
                 }
             }
         }
 
 
         /// <summary> Whether any messages have been recorded. </summary>
-        public bool HasMessages { get; private set; }
+        public bool HasMessages {
+            get { return messages.Count > 0; }
+        }
 
         /// <summary> Whether any errors have been recorded. </summary>
         public bool HasErrors { get; private set; }
@@ -97,6 +98,16 @@ namespace fCraft {
                     Logger.Logged -= HandleLog;
                     disposed = true;
                 }
+            }
+        }
+
+
+        /// <summary> Clears all messages recorded at this point. </summary>
+        public void ClearMessages() {
+            lock( locker ) {
+                messages.Clear();
+                HasErrors = false;
+                HasWarnings = false;
             }
         }
     }
