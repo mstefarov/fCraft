@@ -5,14 +5,18 @@ using System.Linq;
 using fCraft;
 using fCraft.Events;
 
-namespace ConfigCLI {
+namespace fCraft.ConfigCLI {
     static class Program {
+        public static bool UseColor { get; private set; }
+
+
         static void Main( string[] args ) {
             Console.Title = "fCraft Configuration (" + Updater.CurrentRelease.VersionString + ")";
             try {
                 Logger.Logged += OnLogged;
                 Console.WriteLine( "Initializing fCraft..." );
                 Server.InitLibrary( args );
+                UseColor = !Server.HasArg( ArgKey.NoConsoleColor );
 
                 if( !File.Exists( Paths.ConfigFileName ) ) {
                     Console.WriteLine( "Configuration ({0}) was not found. Using defaults.",
@@ -21,9 +25,9 @@ namespace ConfigCLI {
 
                 Config.Load();
 
-                sections = (ConfigSection[])Enum.GetValues( typeof( ConfigSection ) );
-                menuState = MenuState.SectionList;
+                MakeSectionMenu();
 
+                menuState = MenuState.SectionList;
                 StateLoop();
 
 
@@ -34,10 +38,9 @@ namespace ConfigCLI {
         }
 
 
-        static ConfigSection[] sections;
         static MenuState menuState;
-
-
+        static ConfigSection currentSection;
+        static ConfigKey currentKey;
 
         static void StateLoop() {
             while( menuState != MenuState.Done ) {
@@ -57,45 +60,70 @@ namespace ConfigCLI {
             }
         }
 
-        static ConfigSection currentSection;
-        static ConfigKey currentKey;
 
         const string Separator = "===============================================================================";
 
-
         static void ShowSeparator() {
-            Console.ForegroundColor = ConsoleColor.DarkGray;
+            if( UseColor) Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.WriteLine();
             Console.WriteLine( Separator );
-            Console.ResetColor();
+            if( UseColor ) Console.ResetColor();
         }
+
+
+        static TextMenu sectionMenu;
+        static TextOption optionSaveAndExit, optionQuit, optionResetEverything, optionReloadConfig;
+
+        static TextMenu MakeSectionMenu() {
+            sectionMenu = new TextMenu();
+            ConfigSection[] sections = (ConfigSection[])Enum.GetValues( typeof( ConfigSection ) );
+            for( int i = 0; i < sections.Length; i++ ) {
+                sectionMenu.AddOption( (i+1).ToString(), sections[i].ToString(), sections[i] );
+            }
+            optionSaveAndExit = sectionMenu.AddOption( "S", "Save and exit" );
+            optionQuit = sectionMenu.AddOption( "Q", "Quit without saving" );
+            optionResetEverything = sectionMenu.AddOption( "D", "Reset everything to defaults" );
+            optionReloadConfig = sectionMenu.AddOption( "R", "Reload config" );
+            return sectionMenu;
+        }
+
+
+        static void WriteHeader( string text ) {
+            if( UseColor ) Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine( text );
+            if( UseColor ) Console.ResetColor();
+        }
+
 
         static MenuState ShowSectionList() {
             ShowSeparator();
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine( "Config sections:" );
-            Console.ResetColor();
-            for( int i = 0; i < sections.Length; i++ ) {
-                Console.WriteLine( "  {0}. {1}", i + 1, sections[i] );
-            }
-            //Console.WriteLine( "  Q. Quit" );
-            //Console.WriteLine( "  R. Reset All" );
-            //Console.WriteLine( "  S. Save" );
+            WriteHeader( "Config sections:" );
+            var choice = sectionMenu.Show( "Enter your selection: " );
 
-            string replyString;
-            int reply;
-            do {
-                Console.Write( "Enter your selection: " ); // TODO
-                replyString = Console.ReadLine();
-                //!replyString.Equals("Q", StringComparison.OrdinalIgnoreCase) &&
-                //     !replyString.Equals( "R", StringComparison.OrdinalIgnoreCase ) &&
-                //     !replyString.Equals( "S", StringComparison.OrdinalIgnoreCase ) &&
-            } while( !Int32.TryParse( replyString, out reply ) &&
-                     !Enum.IsDefined( typeof( ConfigSection ), reply - 1 ) );
+                if( choice == optionSaveAndExit ) {
+                    if( Config.Save() ) {
+                        return MenuState.Done;
+                    }
 
-            currentSection = (ConfigSection)(reply - 1);
+                } else if( choice == optionQuit ) {
+                    if( TextMenu.ShowYesNo( "Exit without saving?" ) ) {
+                        return MenuState.Done;
+                    }
 
-            return MenuState.KeyList;
+                } else if( choice == optionResetEverything ) {
+                    if( TextMenu.ShowYesNo( "Reset everything?" ) ) {
+                        Config.LoadDefaults();
+                    }
+
+                } else if( choice == optionReloadConfig ) {
+                    Config.Reload();
+
+                } else {
+                    currentSection = (ConfigSection)choice.Tag;
+                    return MenuState.KeyList;
+                }
+
+            return MenuState.SectionList;
         }
 
 
@@ -198,10 +226,11 @@ namespace ConfigCLI {
 
 
         static void ReportFailure( ShutdownReason reason ) {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Error.WriteLine( "** {0} **", reason );
             Console.Title = String.Format( "fCraft {0} {1}", Updater.CurrentRelease.VersionString, reason );
-            Console.ResetColor();
+            if( UseColor ) Console.ForegroundColor = ConsoleColor.Red;
+            Console.Error.WriteLine( "** {0} **", reason );
+            if( UseColor ) Console.ResetColor();
+            Server.Shutdown( new ShutdownParams( reason, TimeSpan.Zero, false, false ), true );
             if( !Server.HasArg( ArgKey.ExitOnCrash ) ) {
                 Console.ReadLine();
             }

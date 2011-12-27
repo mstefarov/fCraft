@@ -135,11 +135,7 @@ namespace fCraft {
 
                     List<PlayerInfo> rankPlayers = new List<PlayerInfo>();
                     foreach( Rank rank in RankManager.Ranks ) {
-                        // ReSharper disable LoopCanBeConvertedToQuery
-                        for( int i = 0; i < infos.Length; i++ ) {
-                            // ReSharper restore LoopCanBeConvertedToQuery
-                            if( infos[i].Rank == rank ) rankPlayers.Add( infos[i] );
-                        }
+                        rankPlayers.AddRange( infos.Where( info => info.Rank == rank ) );
                         if( rankPlayers.Count == 0 ) {
                             writer.WriteLine( "{0}: 0 players, 0 banned, 0 inactive", rank.Name );
                             writer.WriteLine();
@@ -963,7 +959,14 @@ namespace fCraft {
 
                 switch( whatToReload ) {
                     case "config":
-                        success = Config.Reload();
+                        try {
+                            Config.Reload();
+                            success = true;
+                        } catch( Exception ex ) {
+                            Logger.Log( LogType.Error, "Error reloading config: {0}", ex );
+                            player.Message( "An error occured while trying to reload config: {0}: {1}", ex.GetType().Name, ex.Message );
+                            success = false;
+                        }
                         break;
 
                     case "autorank":

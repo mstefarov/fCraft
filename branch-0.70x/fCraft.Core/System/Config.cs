@@ -310,28 +310,22 @@ namespace fCraft {
         public static bool IsLoaded { get; private set; }
 
         /// <summary> Loads configuration from file. </summary>
-        /// <returns> True if loading succeeded. </returns>
-        public static bool Load() {
+        public static void Load() {
             if( IsLoaded ) {
                 throw new InvalidOperationException( "Config is already loaded. Use Config.Reload instead." );
             }
-            if( Load( false ) ) {
-                IsLoaded = true;
-                return true;
-            } else {
-                return false;
-            }
+            Load( false );
+            IsLoaded = true;
         }
 
 
         /// <summary> Reloads configuration from file. Raises ConfigReloaded event. </summary>
-        /// <returns> True if loading succeeded. </returns>
-        public static bool Reload() {
-            return Load( true );
+        public static void Reload() {
+            Load( true );
         }
 
 
-        static bool Load( bool reloading ) {
+        static void Load( bool reloading ) {
             bool fromFile = false;
 
             // try to load config file (XML)
@@ -350,11 +344,7 @@ namespace fCraft {
                     }
                 } catch( XmlException ex ) {
                     string errorMsg = "Config.Load: config.xml is not properly formatted: " + ex.Message;
-                    Logger.LogAndReportCrash( "Config failed to load", "fCraft", new MisconfigurationException( errorMsg, ex ), true );
-                    return false;
-                } catch( Exception ex ) {
-                    Logger.LogAndReportCrash( "Config failed to load", "fCraft", ex, true );
-                    return false;
+                    throw new MisconfigurationException( errorMsg, ex );
                 }
             } else {
                 // create a new one (with defaults) if no file exists
@@ -380,7 +370,6 @@ namespace fCraft {
                     Logger.Log( LogType.Warning,
                                 "Config.Load: Unknown version of config.xml found. It might be corrupted. " +
                                 "Please run ConfigGUI to make sure that everything is in order." );
-                    return false;
                 }
             }
 
@@ -474,8 +463,6 @@ namespace fCraft {
             }
 
             if( reloading ) RaiseReloadedEvent();
-
-            return true;
         }
 
         public static XElement PlayerDBProviderConfig { get; set; }
