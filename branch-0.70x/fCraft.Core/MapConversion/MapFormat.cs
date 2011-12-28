@@ -43,7 +43,10 @@ namespace fCraft.MapConversion {
 
     /// <summary> Type of map storage (file or folder-based). </summary>
     public enum MapStorageType {
+        /// <summary> Map consists of a single file. </summary>
         SingleFile,
+
+        /// <summary> Map consists of a directory with multiple files (e.g. Myne maps). </summary>
         Directory
     }
 }

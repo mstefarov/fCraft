@@ -85,9 +85,14 @@ namespace fCraft {
     }
 
 
+    /// <summary> Provides utility functions for working with DateTime and TimeSpan. </summary>
     public static class DateTimeUtil {
         static readonly NumberFormatInfo NumberFormatter = CultureInfo.InvariantCulture.NumberFormat;
+
+        /// <summary> UTC Unix epoch (1970-01-01, 00:00:00). </summary>
         public static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1, 0, 0, 0, DateTimeKind.Utc );
+
+        /// <summary> UTC Unix Epoch, in terms of DateTime ticks. </summary>
         public static readonly long TicksToUnixEpoch;
 
         static DateTimeUtil() {
@@ -97,7 +102,7 @@ namespace fCraft {
 
         #region To Unix Time
 
-        /// <summary> Converts a DateTime to Utc Unix Timestamp. </summary>
+        /// <summary> Converts a DateTime to UTC Unix Timestamp. </summary>
         public static long ToUnixTime( this DateTime date ) {
             if( date == DateTime.MinValue ) {
                 return 0;
@@ -107,7 +112,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Converts a DateTime to a string containing the Utc Unix Timestamp.
+        /// <summary> Converts a DateTime to a string containing the UTC Unix Timestamp.
         /// If the date equals DateTime.MinValue, returns an empty string. </summary>
         public static string ToUnixTimeString( this DateTime date ) {
             if( date == DateTime.MinValue ) {

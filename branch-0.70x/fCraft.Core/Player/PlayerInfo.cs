@@ -16,7 +16,7 @@ namespace fCraft {
         public bool Changed { get; set; }
 
         /// <summary> Player's unique numeric ID. Immutable. Issued on first join. </summary>
-        public int ID { get; protected set; }
+        public int ID { get; private set; }
 
 
         /// <summary> Player's Minecraft account name. </summary>

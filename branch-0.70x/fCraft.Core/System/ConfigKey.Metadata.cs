@@ -11,7 +11,7 @@ namespace fCraft {
 
     /// <summary> Describes attributes and metadata of a configuration key. </summary>
     [AttributeUsage( AttributeTargets.Field )]
-    public class ConfigKeyAttribute : DescriptionAttribute {
+    class ConfigKeyAttribute : DescriptionAttribute {
         protected ConfigKeyAttribute( ConfigSection section, [NotNull] Type valueType, object defaultValue, [NotNull] string description )
             : base( description ) {
             if( valueType == null ) throw new ArgumentNullException( "valueType" );
@@ -21,16 +21,20 @@ namespace fCraft {
             Section = section;
             NotBlank = false;
         }
+
         public Type ValueType { get; protected set; }
+
         public object DefaultValue { get; protected set; }
+
         public ConfigSection Section { get; private set; }
-        // ReSharper disable MemberCanBeProtected.Global
+
         public bool NotBlank { get; set; }
-        // ReSharper restore MemberCanBeProtected.Global
+
         public ConfigKey Key { get; internal set; }
 
+        public bool IsColor { get; protected set; }
 
-        public bool TryValidate( string value ) {
+        public bool TryValidate( [NotNull] string value ) {
             try {
                 Validate( value );
                 return true;
@@ -39,6 +43,20 @@ namespace fCraft {
             }
         }
 
+        public virtual string GetPresentationString( [NotNull] string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
+            return value;
+        }
+
+        public virtual string GetUsableString( [NotNull] string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
+            return value;
+        }
+
+        public virtual bool IsDefault( [NotNull] string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
+            return ( value == DefaultValue.ToString() );
+        }
 
         public virtual void Validate( [NotNull] string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
@@ -46,16 +64,10 @@ namespace fCraft {
                 throw new FormatException( "Value cannot be blank or null." );
             }
         }
-
-
-        [DebuggerStepThrough]
-        public virtual string Process( string value ) {
-            return value;
-        }
     }
 
 
-    internal sealed class StringKeyAttribute : ConfigKeyAttribute {
+    sealed class StringKeyAttribute : ConfigKeyAttribute {
         public const int NoLengthRestriction = -1;
         public StringKeyAttribute( ConfigSection section, object defaultValue, string description )
             : base( section, typeof( string ), defaultValue, description ) {
@@ -68,6 +80,9 @@ namespace fCraft {
         public Regex Regex { get; set; }
         public bool RestrictedChars { get; set; }
 
+        public override string GetPresentationString( [NotNull] string value ) {
+            return '"' + value + '"';
+        }
 
         public override void Validate( string value ) {
             base.Validate( value );
@@ -90,7 +105,7 @@ namespace fCraft {
     }
 
 
-    internal sealed class IntKeyAttribute : ConfigKeyAttribute {
+    sealed class IntKeyAttribute : ConfigKeyAttribute {
         public IntKeyAttribute( ConfigSection section, int defaultValue, string description )
             : base( section, typeof( int ), defaultValue, description ) {
             MinValue = int.MinValue;
@@ -108,6 +123,14 @@ namespace fCraft {
         public int[] InvalidValues { get; set; }
         public bool AlwaysAllowZero { get; set; }
 
+        public override bool IsDefault( [NotNull] string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
+            return (Int32.Parse( value ) == (int)DefaultValue );
+        }
+
+        public override string GetPresentationString( [NotNull] string value ) {
+            return Int32.Parse( value ).ToString();
+        }
 
         public override void Validate( string value ) {
             base.Validate( value );
@@ -128,13 +151,13 @@ namespace fCraft {
                 throw new FormatException( String.Format( "Value is too high ({0}); expected at most {1}.", parsedValue, MaxValue ) );
             }
 
-            if( MultipleOf != 0 && (parsedValue % MultipleOf != 0) ) {
+            if( MultipleOf != 0 && ( parsedValue % MultipleOf != 0 ) ) {
                 throw new FormatException( String.Format( "Value ({0}) is not a multiple of {1}.", parsedValue, MultipleOf ) );
             }
             if( PowerOfTwo ) {
                 bool found = false;
                 for( int i = 0; i < 31; i++ ) {
-                    if( parsedValue == (1 << i) ) {
+                    if( parsedValue == ( 1 << i ) ) {
                         found = true;
                         break;
                     }
@@ -157,7 +180,7 @@ namespace fCraft {
     }
 
 
-    internal sealed class RankKeyAttribute : ConfigKeyAttribute {
+    sealed class RankKeyAttribute : ConfigKeyAttribute {
         public RankKeyAttribute( ConfigSection section, BlankValueMeaning blankMeaning, string description )
             : base( section, typeof( Rank ), "", description ) {
             CanBeLowest = true;
@@ -169,6 +192,11 @@ namespace fCraft {
         public bool CanBeHighest { get; set; }
         public BlankValueMeaning BlankMeaning { get; set; }
 
+
+        public override bool IsDefault( [NotNull] string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
+            return (value.Length==0);
+        }
 
         public override void Validate( string value ) {
             base.Validate( value );
@@ -192,7 +220,7 @@ namespace fCraft {
         }
 
 
-        public override string Process( string value ) {
+        public override string GetUsableString( string value ) {
             if( value.Length == 0 ) {
                 Rank defaultRank = GetBlankValueSubstitute();
                 if( defaultRank == null ) {
@@ -202,6 +230,15 @@ namespace fCraft {
                 }
             } else {
                 return value;
+            }
+        }
+
+
+        public override string GetPresentationString( string value ) {
+            if( String.IsNullOrEmpty( value ) ) {
+                return BlankMeaning + " (blank)";
+            } else {
+                return Rank.Parse( value ).Name;
             }
         }
 
@@ -231,9 +268,28 @@ namespace fCraft {
     }
 
 
-    internal sealed class BoolKeyAttribute : ConfigKeyAttribute {
+    sealed class BoolKeyAttribute : ConfigKeyAttribute {
         public BoolKeyAttribute( ConfigSection section, bool defaultValue, string description )
             : base( section, typeof( bool ), defaultValue, description ) {
+        }
+
+        public override bool IsDefault( [NotNull] string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
+            return ( Boolean.Parse( value ) == (bool)DefaultValue );
+        }
+
+
+        public override string GetUsableString( string value ) {
+            if( value.Length == 0 ) {
+                return DefaultValue.ToString();
+            } else {
+                return value;
+            }
+        }
+
+
+        public override string GetPresentationString( [NotNull] string value ) {
+            return Boolean.Parse( value ).ToString();
         }
 
 
@@ -244,18 +300,10 @@ namespace fCraft {
                 throw new FormatException( "Value cannot be parsed as a boolean." );
             }
         }
-
-        public override string Process( string value ) {
-            if( value.Length == 0 ) {
-                return DefaultValue.ToString();
-            } else {
-                return value;
-            }
-        }
     }
 
 
-    internal sealed class IPKeyAttribute : ConfigKeyAttribute {
+    sealed class IPKeyAttribute : ConfigKeyAttribute {
         public IPKeyAttribute( ConfigSection section, BlankValueMeaning defaultMeaning, string description )
             : base( section, typeof( IPAddress ), "", description ) {
             BlankMeaning = defaultMeaning;
@@ -277,6 +325,16 @@ namespace fCraft {
         public bool NotLAN { get; set; }
         public bool NotLoopback { get; set; }
         public BlankValueMeaning BlankMeaning { get; set; }
+
+
+        public override bool IsDefault( [NotNull] string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
+            if( value.Length == 0 ) {
+                return true;
+            } else {
+                return GetBlankValueSubstitute().Equals( IPAddress.Parse( value ) );
+            }
+        }
 
 
         public override void Validate( string value ) {
@@ -303,6 +361,15 @@ namespace fCraft {
         }
 
 
+        public override string GetPresentationString( string value ) {
+            if( value.Length == 0 ) {
+                return BlankMeaning + " (blank)";
+            } else {
+                return IPAddress.Parse( value ).ToString();
+            }
+        }
+
+
         IPAddress GetBlankValueSubstitute() {
             switch( BlankMeaning ) {
                 case BlankValueMeaning.Any:
@@ -317,7 +384,7 @@ namespace fCraft {
         }
 
 
-        public override string Process( string value ) {
+        public override string GetUsableString( string value ) {
             if( value.Length == 0 ) {
                 return GetBlankValueSubstitute().ToString();
             } else {
@@ -334,9 +401,10 @@ namespace fCraft {
     }
 
 
-    internal sealed class ColorKeyAttribute : ConfigKeyAttribute {
+    sealed class ColorKeyAttribute : ConfigKeyAttribute {
         public ColorKeyAttribute( ConfigSection section, string defaultColor, string description )
             : base( section, typeof( string ), Color.GetName( defaultColor ), description ) {
+            IsColor = true;
         }
 
 
@@ -352,7 +420,7 @@ namespace fCraft {
     }
 
 
-    internal sealed class EnumKeyAttribute : ConfigKeyAttribute {
+    sealed class EnumKeyAttribute : ConfigKeyAttribute {
         public EnumKeyAttribute( ConfigSection section, object defaultValue, string description )
             : base( section, defaultValue.GetType(), defaultValue, description ) {
             ValueType = defaultValue.GetType();
@@ -367,12 +435,12 @@ namespace fCraft {
             } catch( ArgumentException ) {
                 string message = String.Format( "Could not parse value as {0}. Valid values are: {1}",
                                                 ValueType.Name,
-                                                Enum.GetNames(ValueType).JoinToString() );
+                                                Enum.GetNames( ValueType ).JoinToString() );
                 throw new FormatException( message );
             }
         }
 
-        public override string Process( string value ) {
+        public override string GetUsableString( string value ) {
             if( value.Length == 0 ) {
                 return DefaultValue.ToString();
             } else {

@@ -14,7 +14,7 @@ using Microsoft.Scripting.Hosting;
 using IronPython.Runtime.Operations;
 
 
-namespace fCraft.Plugins.Python {
+namespace fCraft.Python {
     /// <summary> Loads IronPython plugin files. </summary>
     public class PythonPluginLoader : IPluginLoader {
         private ScriptRuntime _ironPythonRuntime;

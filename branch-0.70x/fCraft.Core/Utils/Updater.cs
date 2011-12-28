@@ -17,8 +17,8 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             700,
-            1334,
-            new DateTime( 2011, 12, 14, 13, 0, 0, DateTimeKind.Utc ),
+            1340,
+            new DateTime( 2011, 12, 28, 11, 15, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.Dev | ReleaseFlags.Unstable 
 #if DEBUG
@@ -302,7 +302,7 @@ namespace fCraft {
 
 
     /// <summary> A list of release flags/attributes.
-    /// Use binary flag logic (value & flag == flag) or Release.IsFlagged() to test for flags. </summary>
+    /// Use binary flag logic or Release.IsFlagged() to test for flags. </summary>
     [Flags]
     public enum ReleaseFlags {
         None = 0,

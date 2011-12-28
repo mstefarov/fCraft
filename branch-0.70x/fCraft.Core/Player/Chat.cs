@@ -341,16 +341,33 @@ namespace fCraft {
     }
 
 
+    /// <summary> Type of a broadcast chat message. </summary>
     public enum ChatMessageType {
+        /// <summary> Unknown or custom chat message type. </summary>
         Other,
 
+        /// <summary> Global (white) chat message. </summary>
         Global,
+
+        /// <summary> Message directed to or from IRC. </summary>
         IRC,
+
+        /// <summary> Message produced by /Me command (action). </summary>
         Me,
+
+        /// <summary> Private message (@Player message). </summary>
         PM,
+
+        /// <summary> Rank-wide message (@@Rank message). </summary>
         Rank,
+
+        /// <summary> Message produced by /Say command (global announcement). </summary>
         Say,
+
+        /// <summary> Message produced by /Staff command. </summary>
         Staff,
+
+        /// <summary> Local (world) chat message. </summary>
         World
     }
 
@@ -361,13 +378,13 @@ namespace fCraft {
         /// <summary> Unparseable chat syntax (rare). </summary>
         Invalid,
 
-        /// <summary> Normal/global (white) chat. </summary>
+        /// <summary> Normal/global (white) chat. Corresponds to ChatMessageType.Global </summary>
         Chat,
 
-        /// <summary> World/local chat. </summary>
+        /// <summary> Local (world) chat message. Corresponds to ChatMessageType.World </summary>
         WorldChat,
 
-        /// <summary> Command. </summary>
+        /// <summary> Command call. </summary>
         Command,
 
         /// <summary> Confirmation (/ok) for a previous command. </summary>
@@ -376,10 +393,10 @@ namespace fCraft {
         /// <summary> Partial message (ends with " /"). </summary>
         PartialMessage,
 
-        /// <summary> Private message. </summary>
+        /// <summary> Private message. Corresponds to ChatMessageType.PM </summary>
         PrivateChat,
 
-        /// <summary> Rank chat. </summary>
+        /// <summary> Rank chat. Corresponds to ChatMessageType.Rank </summary>
         RankChat,
 
         /// <summary> Repeat of the last command ("/"). </summary>
@@ -389,6 +406,9 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
+
+    /// <summary> Provides data for Chat.Sending event. Cancellable.
+    /// FormattedMessage and RecepientList properties may be changed. </summary>
     public sealed class ChatSendingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
         internal ChatSendingEventArgs( Player player, string message, string formattedMessage,
                                        ChatMessageType messageType, IEnumerable<Player> recepientList ) {
@@ -403,11 +423,12 @@ namespace fCraft.Events {
         public string Message { get; private set; }
         public string FormattedMessage { get; set; }
         public ChatMessageType MessageType { get; private set; }
-        public readonly IEnumerable<Player> RecepientList;
+        public IEnumerable<Player> RecepientList { get; set; }
         public bool Cancel { get; set; }
     }
 
 
+    /// <summary> Provides data for Chat.Sent event. Immutable. </summary>
     public sealed class ChatSentEventArgs : EventArgs, IPlayerEvent {
         internal ChatSentEventArgs( Player player, string message, string formattedMessage,
                                     ChatMessageType messageType, IEnumerable<Player> recepientList, int recepientCount ) {

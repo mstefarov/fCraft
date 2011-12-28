@@ -83,12 +83,6 @@ namespace fCraft {
             return (float)(1.0 - ((n * (n * n * 15731 + 789221) + 1376312589) & 0x7FFFFFFF) / 1073741824d);
         }
 
-        public float StaticNoise( int x, int y, int z ) {
-            int n = Seed + x + y * 1625 + z * 2642245;
-            n = (n << 13) ^ n;
-            return (float)(1.0 - ((n * (n * n * 15731 + 789221) + 1376312589) & 0x7FFFFFFF) / 1073741824d);
-        }
-
 
         readonly float[,] points = new float[4, 4];
         public float InterpolatedNoise( float x, float y ) {
@@ -144,78 +138,6 @@ namespace fCraft {
             }
         }
 
-        //readonly float[, ,] points3D = new float[4, 4, 4];
-        public float InterpolatedNoise( float x, float y, float z ) {
-            int xInt = (int)Math.Floor( x );
-            float xFloat = x - xInt;
-
-            int yInt = (int)Math.Floor( y );
-            float yFloat = y - yInt;
-
-            int zInt = (int)Math.Floor( z );
-            float zFloat = z - zInt;
-
-            float p000, p001, p010, p011,
-                  p100, p101, p110, p111;
-
-            switch( InterpolationMode ) {
-                case NoiseInterpolationMode.Linear:
-                    p000 = StaticNoise( xInt, yInt, zInt );
-                    p001 = StaticNoise( xInt, yInt, zInt + 1 );
-                    p010 = StaticNoise( xInt, yInt + 1, zInt );
-                    p011 = StaticNoise( xInt, yInt + 1, zInt + 1 );
-                    p100 = StaticNoise( xInt+1, yInt, zInt );
-                    p101 = StaticNoise( xInt + 1, yInt, zInt + 1 );
-                    p110 = StaticNoise( xInt + 1, yInt + 1, zInt );
-                    p111 = StaticNoise( xInt + 1, yInt + 1, zInt + 1 );
-                    return InterpolateLinear(
-                        InterpolateLinear( InterpolateLinear( p000, p100, xFloat ), InterpolateLinear( p010, p110, xFloat ), yFloat ),
-                        InterpolateLinear( InterpolateLinear( p001, p101, xFloat ), InterpolateLinear( p011, p111, xFloat ), yFloat ),
-                        zFloat );
-
-                case NoiseInterpolationMode.Cosine:
-                    p000 = StaticNoise( xInt, yInt, zInt );
-                    p001 = StaticNoise( xInt, yInt, zInt + 1 );
-                    p010 = StaticNoise( xInt, yInt + 1, zInt );
-                    p011 = StaticNoise( xInt, yInt + 1, zInt + 1 );
-                    p100 = StaticNoise( xInt + 1, yInt, zInt );
-                    p101 = StaticNoise( xInt + 1, yInt, zInt + 1 );
-                    p110 = StaticNoise( xInt + 1, yInt + 1, zInt );
-                    p111 = StaticNoise( xInt + 1, yInt + 1, zInt + 1 );
-                    return InterpolateCosine(
-                        InterpolateCosine( InterpolateCosine( p000, p100, xFloat ), InterpolateCosine( p010, p110, xFloat ), yFloat ),
-                        InterpolateCosine( InterpolateCosine( p001, p101, xFloat ), InterpolateCosine( p011, p111, xFloat ), yFloat ),
-                        zFloat );
-                    /*
-                case NoiseInterpolationMode.Bicubic: TODO
-                    for( int xOffset = -1; xOffset < 3; xOffset++ ) {
-                        for( int yOffset = -1; yOffset < 3; yOffset++ ) {
-                            points[xOffset + 1, yOffset + 1] = StaticNoise( xInt + xOffset, yInt + yOffset );
-                        }
-                    }
-                    p00 = InterpolateCubic( points[0, 0], points[1, 0], points[2, 0], points[3, 0], xFloat );
-                    p01 = InterpolateCubic( points[0, 1], points[1, 1], points[2, 1], points[3, 1], xFloat );
-                    p10 = InterpolateCubic( points[0, 2], points[1, 2], points[2, 2], points[3, 2], xFloat );
-                    p11 = InterpolateCubic( points[0, 3], points[1, 3], points[2, 3], points[3, 3], xFloat );
-                    return InterpolateCubic( p00, p01, p10, p11, yFloat );
-
-                case NoiseInterpolationMode.Spline:
-                    for( int xOffset = -1; xOffset < 3; xOffset++ ) {
-                        for( int yOffset = -1; yOffset < 3; yOffset++ ) {
-                            points[xOffset + 1, yOffset + 1] = StaticNoise( xInt + xOffset, yInt + yOffset );
-                        }
-                    }
-                    p00 = InterpolateSpline( points[0, 0], points[1, 0], points[2, 0], points[3, 0], xFloat );
-                    p01 = InterpolateSpline( points[0, 1], points[1, 1], points[2, 1], points[3, 1], xFloat );
-                    p10 = InterpolateSpline( points[0, 2], points[1, 2], points[2, 2], points[3, 2], xFloat );
-                    p11 = InterpolateSpline( points[0, 3], points[1, 3], points[2, 3], points[3, 3], xFloat );
-                    return InterpolateSpline( p00, p01, p10, p11, yFloat );
-                    */
-                default:
-                    throw new ArgumentException();
-            }
-        }
-
 
         public float PerlinNoise( float x, float y, int startOctave, int endOctave, float decay ) {
             float total = 0;
@@ -231,22 +153,6 @@ namespace fCraft {
             return total;
         }
 
-        public float PerlinNoise( float x, float y, float z, int startOctave, int endOctave, float decay ) {
-            float total = 0;
-
-            float frequency = (float)Math.Pow( 2, startOctave );
-            float amplitude = (float)Math.Pow( decay, startOctave );
-
-            for( int n = startOctave; n <= endOctave; n++ ) {
-                total +=
-                    InterpolatedNoise( x * frequency + frequency, y * frequency + frequency, z * frequency + frequency ) *
-                    amplitude;
-                frequency *= 2;
-                amplitude *= decay;
-            }
-            return total;
-        }
-
 
         public void PerlinNoise( [NotNull] float[,] map, int startOctave, int endOctave, float decay, int offsetX, int offsetY ) {
             if( map == null ) throw new ArgumentNullException( "map" );
@@ -254,20 +160,6 @@ namespace fCraft {
             for( int x = map.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = map.GetLength( 1 ) - 1; y >= 0; y-- ) {
                     map[x, y] += PerlinNoise( x * maxDim + offsetX, y * maxDim + offsetY, startOctave, endOctave, decay );
-                }
-            }
-        }
-
-
-        public void PerlinNoise( [NotNull] float[, ,] map, int startOctave, int endOctave, float decay, int offsetX, int offsetY, int offsetZ ) {
-            if( map == null ) throw new ArgumentNullException( "map" );
-            float maxDim = 1f / Math.Max( map.GetLength( 0 ), Math.Max( map.GetLength( 2 ), map.GetLength( 1 ) ) );
-            for( int x = map.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                for( int y = map.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    for( int z = map.GetLength( 2 ) - 1; z >= 0; z-- ) {
-                        map[x, y, z] += PerlinNoise( x * maxDim + offsetX, y * maxDim + offsetY, z * maxDim + offsetZ,
-                                                     startOctave, endOctave, decay );
-                    }
                 }
             }
         }

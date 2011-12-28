@@ -10,6 +10,9 @@ using fCraft.MapConversion;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> Represents a map file (associated with a world or not).
+    /// Maps can be created blank (using Map constructor), generated terrain (using MapGenerator),
+    /// or loaded from file (using fCraft.MapConversion.MapUtility). </summary>
     public unsafe sealed class Map {
         public const MapFormat SaveFormat = MapFormat.FCMv4;
 

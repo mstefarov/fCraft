@@ -196,7 +196,6 @@ namespace fCraft {
 }
 
 namespace fCraft.Events {
-
     public sealed class PlayerEventArgs : EventArgs, IPlayerEvent {
         internal PlayerEventArgs( Player player ) {
             Player = player;
@@ -206,6 +205,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for Server.SessionConnecting event. Cancellable. </summary>
     public sealed class SessionConnectingEventArgs : EventArgs, ICancellableEvent {
         internal SessionConnectingEventArgs( [NotNull] IPAddress ip ) {
             if( ip == null ) throw new ArgumentNullException( "ip" );
@@ -218,6 +218,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for Server.SessionDisconnected event. Immutable. </summary>
     public sealed class SessionDisconnectedEventArgs : EventArgs {
         internal SessionDisconnectedEventArgs( [NotNull] Player player, LeaveReason leaveReason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -231,6 +232,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for Player.Connecting event. Cancellable. </summary>
     public sealed class PlayerConnectingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
         internal PlayerConnectingEventArgs( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -243,6 +245,8 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for Player.Connected event.
+    /// StartingWorld property may be changed. </summary>
     public sealed class PlayerConnectedEventArgs : EventArgs, IPlayerEvent {
         internal PlayerConnectedEventArgs( [NotNull] Player player, World startingWorld ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -256,6 +260,8 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for Player.Moving event. Cancellable.
+    /// NewPosition property may be modified. </summary>
     public sealed class PlayerMovingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
         internal PlayerMovingEventArgs( [NotNull] Player player, Position newPos ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -272,6 +278,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for Player.Moved event. Immutable. </summary>
     public sealed class PlayerMovedEventArgs : EventArgs, IPlayerEvent {
         internal PlayerMovedEventArgs( [NotNull] Player player, Position oldPos ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -287,6 +294,8 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for Player.Clicking event. Cancellable.
+    /// Coords, Block, and Action properties may be modified. </summary>
     public sealed class PlayerClickingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
         internal PlayerClickingEventArgs( [NotNull] Player player, Vector3I coords,
                                           ClickAction action, Block block ) {
@@ -307,6 +316,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for Player.Clicked event. Immutable. </summary>
     public sealed class PlayerClickedEventArgs : EventArgs, IPlayerEvent {
         internal PlayerClickedEventArgs( [NotNull] Player player, Vector3I coords, ClickAction action, Block block ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -324,6 +334,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for Player.PlacingBlock event. Result may be overridden. </summary>
     public sealed class PlayerPlacingBlockEventArgs : PlayerPlacedBlockEventArgs {
         internal PlayerPlacingBlockEventArgs( [NotNull] Player player, [NotNull] Map map, Vector3I coords,
                                               Block oldBlock, Block newBlock, BlockChangeContext context, CanPlaceResult result )
@@ -335,6 +346,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for Player.PlacedBlock event. Immutable. </summary>
     public class PlayerPlacedBlockEventArgs : EventArgs, IPlayerEvent {
         internal PlayerPlacedBlockEventArgs( [NotNull] Player player, [NotNull] Map map, Vector3I coords,
                                              Block oldBlock, Block newBlock, BlockChangeContext context ) {
@@ -361,6 +373,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for Player.BeingKicked event. Cancellable. </summary>
     public sealed class PlayerBeingKickedEventArgs : PlayerKickedEventArgs, ICancellableEvent {
         internal PlayerBeingKickedEventArgs( [NotNull] Player player, [NotNull] Player kicker, [CanBeNull] string reason,
                                               bool announce, bool recordToPlayerDB, LeaveReason context )
@@ -371,6 +384,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for Player.Kicked event. Immutable. </summary>
     public class PlayerKickedEventArgs : EventArgs, IPlayerEvent {
         internal PlayerKickedEventArgs( [NotNull] Player player, [NotNull] Player kicker, [CanBeNull] string reason,
                                         bool announce, bool recordToPlayerDB, LeaveReason context ) {
@@ -407,6 +421,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for Player.Disconnected event. Immutable. </summary>
     public sealed class PlayerDisconnectedEventArgs : EventArgs, IPlayerEvent {
         internal PlayerDisconnectedEventArgs( [NotNull] Player player, LeaveReason leaveReason, bool isFake ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -422,6 +437,8 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for Player.JoiningWorld event. Cancellable.
+    /// Allows overriding the text that is shown on connection screen. </summary>
     public sealed class PlayerJoiningWorldEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
         internal PlayerJoiningWorldEventArgs( [NotNull] Player player, [CanBeNull] World oldWorld,
                                               [NotNull] World newWorld, WorldChangeReason reason,
@@ -452,8 +469,9 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for Player.JoinedWorld event. Immutable. </summary>
     public sealed class PlayerJoinedWorldEventArgs : EventArgs, IPlayerEvent {
-        public PlayerJoinedWorldEventArgs( [NotNull] Player player, World oldWorld, World newWorld, WorldChangeReason reason ) {
+        public PlayerJoinedWorldEventArgs( [NotNull] Player player, [CanBeNull] World oldWorld, [NotNull] World newWorld, WorldChangeReason reason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             OldWorld = oldWorld;
@@ -463,8 +481,13 @@ namespace fCraft.Events {
 
         [NotNull]
         public Player Player { get; private set; }
+
+        [CanBeNull]
         public World OldWorld { get; private set; }
+
+        [NotNull]
         public World NewWorld { get; private set; }
+
         public WorldChangeReason Reason { get; private set; }
     }
 }

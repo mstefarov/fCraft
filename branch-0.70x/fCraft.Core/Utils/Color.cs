@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using JetBrains.Annotations;
+using System.Linq;
 
 namespace fCraft {
 
@@ -39,7 +40,7 @@ namespace fCraft {
                             MeDefault = Purple,
                             WarningDefault = Red;
 
-        internal static readonly SortedList<char, string> ColorNames = new SortedList<char, string>{
+        public static readonly SortedList<char, string> ColorNames = new SortedList<char, string>{
             { '0', "black" },
             { '1', "navy" },
             { '2', "green" },
@@ -213,7 +214,6 @@ namespace fCraft {
         }
 
 
-
         /// <summary> Checks whether a color code is valid (checks if it's hexadecimal char). </summary>
         public static bool IsValidColorCode( char code ) {
             return (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f') || (code >= 'A' && code <= 'F');
@@ -262,7 +262,8 @@ namespace fCraft {
         }
 
 
-        /// <summary> Substitutes all special ampersand color codes (like &S) with the assigned Minecraft colors (&0-&F). </summary>
+        /// <summary> Substitutes all special ampersand color codes (like Color.Sys)
+        /// with the assigned Minecraft colors (like Color.Yellow). </summary>
         public static void SubstituteSpecialColors( [NotNull] StringBuilder sb ) {
             if( sb == null ) throw new ArgumentNullException( "sb" );
             for( int i = sb.Length - 1; i > 0; i-- ) {
@@ -288,7 +289,8 @@ namespace fCraft {
             }
         }
 
-        /// <summary> Substitutes all special ampersand color codes (like &S) with the assigned Minecraft colors (&0-&F). </summary>
+        /// <summary> Substitutes all special ampersand color codes (like Color.Sys)
+        /// with the assigned Minecraft colors (like Color.Yellow). </summary>
         [NotNull]
         public static string SubstituteSpecialColors( [NotNull] string input ) {
             if( input == null ) throw new ArgumentNullException( "input" );
@@ -380,6 +382,54 @@ namespace fCraft {
             StringBuilder sb = new StringBuilder( input );
             ToIRCColorCodes( sb );
             return sb.ToString();
+        }
+
+        static IRCColor ToIRCColor( string colorCode ) {
+            string parsedColor = Parse( colorCode );
+            if( String.IsNullOrEmpty( parsedColor ) ) {
+                throw new FormatException( "Could not parse color." );
+            }
+            return MinecraftToIRCColors[parsedColor];
+        }
+
+        static string Parse( IRCColor ircColor ) {
+            return MinecraftToIRCColors.First( pair => pair.Value == ircColor ).Key;
+        }
+
+        #endregion
+
+
+        #region Console Colors
+
+        static readonly Dictionary<string, ConsoleColor> MinecraftToConsoleColors = new Dictionary<string, ConsoleColor> {
+            { White, ConsoleColor.White },
+            { Black, ConsoleColor.Black },
+            { Navy, ConsoleColor.DarkBlue },
+            { Green, ConsoleColor.DarkGreen },
+            { Red, ConsoleColor.Red },
+            { Maroon, ConsoleColor.DarkRed },
+            { Purple, ConsoleColor.DarkMagenta },
+            { Olive, ConsoleColor.DarkYellow },
+            { Yellow, ConsoleColor.Yellow },
+            { Lime, ConsoleColor.Green },
+            { Teal, ConsoleColor.DarkCyan },
+            { Aqua, ConsoleColor.Cyan },
+            { Blue, ConsoleColor.Blue },
+            { Magenta, ConsoleColor.Magenta },
+            { Gray, ConsoleColor.DarkGray },
+            { Silver, ConsoleColor.Gray },
+        };
+
+        public static ConsoleColor ToConsoleColor( string colorCode ) {
+            string parsedColor = Parse( colorCode );
+            if( String.IsNullOrEmpty( parsedColor ) ) {
+                throw new FormatException( "Could not parse color." );
+            }
+            return MinecraftToConsoleColors[parsedColor];
+        }
+
+        public static string Parse( ConsoleColor consoleColor ) {
+            return MinecraftToConsoleColors.First( pair => pair.Value == consoleColor ).Key;
         }
 
         #endregion

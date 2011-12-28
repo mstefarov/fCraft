@@ -4,6 +4,7 @@ using System.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
+    /// <summary> Base class for perlin noise based brushes (CloudyBrush and MarbledBrush). </summary>
     public abstract class AbstractPerlinNoiseBrush : IBrushInstance {
         public int Seed { get; set; }
         public float Coverage { get; set; }

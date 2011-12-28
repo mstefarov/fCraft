@@ -283,7 +283,12 @@ namespace fCraft {
 
         /// <summary> Checks whether given ConfigKey still has its default value. </summary>
         public static bool IsDefault( this ConfigKey key ) {
-            return (KeyMetadata[(int)key].DefaultValue.ToString() == Settings[(int)key]);
+            return KeyMetadata[(int)key].IsDefault( Settings[(int)key] );
+        }
+
+        /// <summary> Checks whether given ConfigKey still has its default value. </summary>
+        public static bool IsDefault( this ConfigKey key, string value ) {
+            return KeyMetadata[(int)key].IsDefault( value );
         }
 
 
@@ -307,7 +312,9 @@ namespace fCraft {
 
         #region Loading
 
+        /// <summary> Whether Config has been loaded. If true, calling Config.Load() again will fail. </summary>
         public static bool IsLoaded { get; private set; }
+
 
         /// <summary> Loads configuration from file. </summary>
         public static void Load() {
@@ -464,6 +471,7 @@ namespace fCraft {
 
             if( reloading ) RaiseReloadedEvent();
         }
+
 
         public static XElement PlayerDBProviderConfig { get; set; }
 
@@ -685,7 +693,15 @@ namespace fCraft {
 
         #region Saving
 
+        /// <summary> Saves current configuration to default location (Paths.ConfigFileName). </summary>
+        /// <returns> True is saving succeeded; otherwise false. </returns>
         public static bool Save() {
+            return Save( Paths.ConfigFileName );
+        }
+
+        /// <summary> Saves current configuration to a custom location. </summary>
+        /// <returns> True is saving succeeded; otherwise false. </returns>
+        public static bool Save( string path ) {
             XDocument file = new XDocument();
 
             XElement config = new XElement( XmlRootName );
@@ -753,9 +769,9 @@ namespace fCraft {
             file.Add( config );
             try {
                 // write out the changes
-                string tempFileName = Paths.ConfigFileName + ".temp";
+                string tempFileName = path + ".temp";
                 file.Save( tempFileName );
-                Paths.MoveOrReplace( tempFileName, Paths.ConfigFileName );
+                Paths.MoveOrReplace( tempFileName, path );
                 return true;
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Config failed to save", "fCraft", ex, true );
@@ -774,9 +790,27 @@ namespace fCraft {
         }
 
 
-        /// <summary> Returns raw value for the given key. </summary>
+        /// <summary> Returns string value for the given key. </summary>
         public static string GetString( this ConfigKey key ) {
-            return KeyMetadata[(int)key].Process( Settings[(int)key] );
+            return KeyMetadata[(int)key].GetUsableString( Settings[(int)key] );
+        }
+
+
+        /// <summary> Returns nicely formatted string (but not necessarily parsable) value for the given key. </summary>
+        public static string GetPresentationString( this ConfigKey key ) {
+            return KeyMetadata[(int)key].GetPresentationString( Settings[(int)key] );
+        }
+
+
+        /// <summary> Returns nicely formatted string (but not necessarily parsable) value for the given key. </summary>
+        public static string GetPresentationString( this ConfigKey key, string value ) {
+            return KeyMetadata[(int)key].GetPresentationString( value );
+        }
+
+
+        /// <summary> Returns raw value for the given key. </summary>
+        public static string GetRawString( this ConfigKey key ) {
+            return Settings[(int)key];
         }
 
 
@@ -839,12 +873,6 @@ namespace fCraft {
         }
 
 
-        /// <summary> Returns the metadata container (ConfigKeyAttribute object) for a given key. </summary>
-        public static ConfigKeyAttribute GetMetadata( this ConfigKey key ) {
-            return KeyMetadata[(int)key];
-        }
-
-
         /// <summary> Returns the ConfigSection that a given key is associated with. </summary>
         public static ConfigSection GetSection( this ConfigKey key ) {
             return KeyMetadata[(int)key].Section;
@@ -854,6 +882,11 @@ namespace fCraft {
         /// <summary> Returns the description text for a given config key. </summary>
         public static string GetDescription( this ConfigKey key ) {
             return KeyMetadata[(int)key].Description;
+        }
+
+        /// <summary> Returns whether given ConfigKey contains a Minecraft color. </summary>
+        public static bool IsColor( this ConfigKey key ) {
+            return KeyMetadata[(int)key].IsColor;
         }
 
         #endregion
