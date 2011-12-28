@@ -19,7 +19,8 @@ namespace fCraft.Events {
 }
 
 namespace fCraft {
-    /// <summary> Vegetation generator for MapGenerator. </summary>
+    // todo: rewrite
+    /// <summary> Vegetation generator for MapGenerator. Based on Forester script by dudecon. </summary>
     public static class Forester {
         const int MaxTries = 1000;
 

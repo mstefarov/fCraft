@@ -393,6 +393,7 @@ namespace fCraft.Drawing {
 }
 
 namespace fCraft.Events {
+    /// <summary> Provides data for DrawOperation.Began and DrawOperation.Ended events. Immutable. </summary>
     public sealed class DrawOperationEventArgs : EventArgs{
         public DrawOperationEventArgs( DrawOperation drawOp ) {
             DrawOp = drawOp;
@@ -401,6 +402,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for DrawOperation.Beginning event. Cancellable. </summary>
     public sealed class DrawOperationBeginningEventArgs : EventArgs, ICancellableEvent {
         public DrawOperationBeginningEventArgs( DrawOperation drawOp ) {
             DrawOp = drawOp;

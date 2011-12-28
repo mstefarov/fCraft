@@ -6,15 +6,19 @@ namespace fCraft {
 
     /// <summary> Packet struct, just a wrapper for a byte array. </summary>
     public struct Packet {
+        /// <summary> Raw bytes of this packet. </summary>
         public readonly byte[] Data;
 
+
+        /// <summary> Opcode (first byte) of this packet. </summary>
         public OpCode OpCode {
             get { return (OpCode)Data[0]; }
         }
 
-        public Packet( [NotNull] byte[] data ) {
-            if( data == null ) throw new ArgumentNullException( "data" );
-            Data = data;
+        /// <summary> Creates a new packet from given raw bytes. Data not be null. </summary>
+        public Packet( [NotNull] byte[] rawData ) {
+            if( rawData == null ) throw new ArgumentNullException( "data" );
+            Data = rawData;
         }
 
 

@@ -88,7 +88,7 @@ namespace fCraft {
 
 
         /// <summary> Removes a zone from the collection. </summary>
-        /// <returns> True if the given zone was found & removed.
+        /// <returns> True if the given zone was found and removed.
         /// False if this collection did not contain the given zone. </returns>
         public bool Remove( [NotNull] Zone item ) {
             if( item == null ) throw new ArgumentNullException( "item" );
@@ -107,7 +107,7 @@ namespace fCraft {
 
 
         /// <summary> Removes a zone from the collection, by name. </summary>
-        /// <returns> True if the given zone was found & removed.
+        /// <returns> True if the given zone was found and removed.
         /// False if this collection did not contain the given zone. </returns>
         public bool Remove( [NotNull] string zoneName ) {
             if( zoneName == null ) throw new ArgumentNullException( "zoneName" );

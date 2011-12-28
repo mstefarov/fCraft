@@ -8,24 +8,27 @@ namespace fCraft {
         #region General
 
         [StringKey( ConfigSection.General, "Custom Minecraft Server (fCraft)",
-@"The name of the server, as shown on the welcome screen and the
-official server list (if server is public).",
+@"The name of the server, as shown on the welcome screen and the official
+server list (if server is public).
+Should between 1 and 64 characters long.",
             MinLength = 1, MaxLength = 64 )]
         ServerName,
 
 
         [StringKey( ConfigSection.General, "Welcome to the server!",
-@"MOTD (Message Of The Day) is a message shown to connecting players 
-right under the server name. May be left blank.
+@"MOTD (Message Of The Day) is a message shown to connecting players right
+under the server name.
+May be blank, or between 1 and 64 characters long.
 Note: If WoM extensions are enabled, non-WoM users will not see this.",
             MinLength = 0, MaxLength = 64 )]
         MOTD,
 
 
         [IntKey( ConfigSection.General, 20,
-@"Maximum number of players on the server. Having more players
-uses more RAM and more bandwidth. If a player's rank is given a
-""reserved slot"" on the server, they can join even if server is full.",
+@"Maximum number of players on the server. Having more players uses more RAM
+and more bandwidth. If a player's rank is given a ""reserved slot"" on the
+server, they can join even if server is full.
+Should be between 1 and 1000 players.",
             MinValue = 1, MaxValue = 1000 )]
         MaxPlayers,
 
@@ -39,33 +42,34 @@ Note that having more people on a world increases everyone's bandwidth use.",
 
 
         [RankKey( ConfigSection.General, RankKeyAttribute.BlankValueMeaning.LowestRank,
-@"New players will be assigned this rank by default.
-It's generally a good idea not to give new players
-many powers until they prove themselves trustworthy." )]
+@"New players will be assigned this rank by default. It's generally a good
+idea not to give new players many powers until they prove themselves
+trustworthy. Leave blank to use lowest rank as default." )]
         DefaultRank,
 
 
         [BoolKey( ConfigSection.General, false,
-            @"Public servers are listed on minecraft.net server list, so expect
-random players to join. Private servers can only be joined by players
-who already know the server port/address or URL. Note that the URL
-changes if your computer's IP or server's port change." )]
+@"Public servers are listed on minecraft.net server list, so expect random
+players to join. Private servers can only be joined by players who already
+know the server port/address or URL.
+Note that the URL changes if your computer's IP or server's port change." )]
         IsPublic,
 
 
         [IntKey( ConfigSection.General, 25565,
-@"Port number on your local machine that fCraft uses to listen for
-incoming connections. If you are behind a router, you may need
-to set up port forwarding. You may also need to add a firewall
-exception for ServerGUI/ServerCLI/ConfigGUI. Note that your
-server's URL will change if you change the port number.",
+@"Port number on your local machine that fCraft uses to listen for incoming
+connections. If you are behind a router, you may need to set up port
+forwarding. You may also need to add a firewall exception for ServerGUI and
+ServerCLI. Should be between 1 and 65535.
+Note that your server's URL will change if you change the port number.",
             MinValue = 1, MaxValue = 65535 )]
         Port,
 
         [IntKey( ConfigSection.General, 100,
-@"Total available upload bandwidth, in kilobytes. This number
-is used to pace drawing commands to prevent server from
-overwhelming the Internet connection with data.",
+@"Total available upload bandwidth, in KB/s (Kilobytes per second).
+This number is used to pace drawing commands to prevent server from
+overwhelming the server's Internet connection with data.
+Should be between 1 and 32767 KB/s.",
             MinValue = 1, MaxValue = short.MaxValue )]
         UploadBandwidth,
 
@@ -75,35 +79,37 @@ overwhelming the Internet connection with data.",
         #region Chat
 
         [BoolKey(ConfigSection.Chat, false,
-@"If disabled, all chat messages are global (visible to everyone on the server).
-If enabled, normal chat is only broadcast to player's own world, and players will
-need to prefix messages with an exclamation mark (!) to send global messages." )]
+@"If disabled, all normal chat messages are global (visible to everyone on
+the server). If enabled, normal chat is only broadcast to player's own
+world, and players will have to prefix messages with an exclamation mark
+(!) to send global messages. " )]
         SeparateWorldAndGlobalChat,
 
         [BoolKey( ConfigSection.Chat, true,
-@"Color player names in chat and in-game based on their rank." )]
+@"Whether player names in chat should be colored based on their rank." )]
         RankColorsInChat,
 
         [BoolKey( ConfigSection.Chat, true,
-@"Color world names in chat based on their build and access permissions." )]
+@"Whether world names in chat should be colored based on their build and
+access permissions." )]
         RankColorsInWorldNames,
 
         [BoolKey( ConfigSection.Chat, false,
-@"Show 1-character prefixes in chat before player names. This can be
-used to set up IRC-style ""+"" and ""@"" prefixes for ops." )]
+@"Whether rank prefixes should be shown in front of player names. This can,
+for example, be used to set up IRC-style ""@"" prefixes for ops." )]
         RankPrefixesInChat,
 
         [BoolKey( ConfigSection.Chat, false,
-@"Show prefixes in the player list. As a side-effect, Minecraft client
+@"Whether rank prefixes in the player list. As a side-effect, Minecraft
 will not show custom skins for players with prefixed names." )]
         RankPrefixesInList,
 
         [BoolKey( ConfigSection.Chat, true,
-@"Announce players joining or leaving the server in chat." )]
+@"Whether to announce players joining or leaving the server in chat." )]
         ShowConnectionMessages,
 
         [BoolKey( ConfigSection.Chat, true,
-@"Show messages when players change worlds." )]
+@"Whether to show messages when players change worlds." )]
         ShowJoinedWorldMessages,
 
         [ColorKey( ConfigSection.Chat, Color.SysDefault,
@@ -111,34 +117,34 @@ will not show custom skins for players with prefixed names." )]
         SystemMessageColor,
 
         [ColorKey( ConfigSection.Chat, Color.HelpDefault,
-@"Color of command usage examples in help." )]
+@"Color of command usage and syntax examples in /Help." )]
         HelpColor,
 
         [ColorKey( ConfigSection.Chat, Color.SayDefault,
-@"Color of messages produced by ""/Say"" command." )]
+@"Color of messages produced by the /Say command." )]
         SayColor,
 
         [ColorKey( ConfigSection.Chat, Color.AnnouncementDefault,
-@"Color of announcements and rules. Default is dark-green.
-Note that this default color can be overridden by
-colorcodes in announcement and rule files." )]
+@"Default color of messages produced by announcements and /Rules command.
+Note that this default color can be overridden by color codes in the
+announcement and rule files." )]
         AnnouncementColor,
 
         [ColorKey( ConfigSection.Chat, Color.PMDefault,
-@"Color of private and rank-wide messages." )]
+@"Color of private, rank-wide, and /Staff messages." )]
         PrivateMessageColor,
 
         [ColorKey( ConfigSection.Chat, Color.MeDefault,
-@"Color of ""/Me"" command messages." )]
+@"Color of messages produced by the /Me command." )]
         MeColor,
 
         [ColorKey( ConfigSection.Chat, Color.WarningDefault,
-@"Color of error and warning messages." )]
+@"Color of warnings and error messages." )]
         WarningColor,
 
         [IntKey( ConfigSection.Chat, 0,
 @"Announcement interval, in minutes. Set to 0 to disable announcements.
-Announcements are shown to all players, one line at a time, in random order.",
+Announcements are shown to everyone, one line at a time, in random order.",
             MinValue = 0 )]
         AnnouncementInterval,
 
@@ -149,7 +155,8 @@ Announcements are shown to all players, one line at a time, in random order.",
 
         [RankKey( ConfigSection.Worlds, RankKeyAttribute.BlankValueMeaning.DefaultRank,
 @"When new worlds are created with the /WLoad command,
-the build permission for new worlds will default to this rank." )]
+the build permission for new worlds will default to this rank.
+Leave blank to use DefaultRank." )]
         DefaultBuildRank,
 
         [StringKey( ConfigSection.Worlds, "maps",

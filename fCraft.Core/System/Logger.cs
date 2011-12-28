@@ -17,6 +17,8 @@ using System.Reflection.Emit;
 namespace fCraft {
     /// <summary> Central logging class. Logs to file, relays messages to the frontend, submits crash reports. </summary>
     public static class Logger {
+        /// <summary> Whether logging is globally enabled/disabled.
+        /// If "--nolog" command-line argument is given, logging is disabled. </summary>
         public static bool Enabled { get; set; }
 
         public static LogSplittingType SplittingType { get; set; }

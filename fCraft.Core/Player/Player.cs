@@ -950,7 +950,7 @@ namespace fCraft {
         }
 
 
-        /// <summary>  Gets the block from given location in player's world,
+        /// <summary> Gets the block from given location in player's world,
         /// and sends it (async) to the player.
         /// Used to undo player's attempted block placement/deletion. </summary>
         public void RevertBlock( Vector3I coords ) {
@@ -958,9 +958,18 @@ namespace fCraft {
         }
 
 
-        /// <summary>  Gets the block from given location in player's world, and sends it (sync) to the player.
-        /// Used to undo player's attempted block placement/deletion.
-        /// To avoid threading issues, only use this from this player's IoThread. </summary>
+        /// <summary> Sends a block change to THIS PLAYER ONLY. Does not affect the map. </summary>
+        /// <param name="coords"> Coordinates of the block. </param>
+        /// <param name="block"> Block type to send. </param>
+        public void SendBlock( Vector3I coords, Block block ) {
+            if( !WorldMap.InBounds( coords ) ) throw new ArgumentOutOfRangeException( "coords" );
+            SendLowPriority( PacketWriter.MakeSetBlock( coords, block ) );
+        }
+
+
+        // Gets the block from given location in player's world, and sends it (sync) to the player.
+        // Used to undo player's attempted block placement/deletion.
+        // To avoid threading issues, only use this from this player's IoThread.
         void RevertBlockNow( Vector3I coords ) {
             SendNow( PacketWriter.MakeSetBlock( coords, WorldMap.GetBlock( coords ) ) );
         }

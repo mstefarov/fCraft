@@ -81,7 +81,7 @@ namespace fCraft {
 
 
         /// <summary> Inserts all data from given PlayerInfo list directly into the database. </summary>
-        /// <param name="playerInfo"> List of player record to import. </param>
+        /// <param name="playerInfos"> List of player record to import. </param>
         public void Import( [NotNull] IEnumerable<PlayerInfo> playerInfos ) {
             foreach( PlayerInfo info in playerInfos ) {
                 trie.Add( info.Name, info );

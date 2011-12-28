@@ -569,7 +569,7 @@ namespace fCraft {
                 return false;
             } else {
                 if( !DateTime.TryParse( dateString, cultureInfo, DateTimeStyles.None, out date ) ) {
-                    CultureInfo[] cultureList = CultureInfo.GetCultures( CultureTypes.FrameworkCultures );
+                    CultureInfo[] cultureList = CultureInfo.GetCultures( CultureTypes.AllCultures );
                     foreach( CultureInfo otherCultureInfo in cultureList ) {
                         cultureInfo = otherCultureInfo;
                         try {
