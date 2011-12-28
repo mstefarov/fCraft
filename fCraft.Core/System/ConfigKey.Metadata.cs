@@ -408,6 +408,16 @@ namespace fCraft {
         }
 
 
+        public override string GetPresentationString( string value ) {
+            return String.Format( "{0} ({1})", Color.GetName( value ), Color.Parse( value ) );
+        }
+
+
+        public override string GetUsableString( string value ) {
+            return Color.Parse( value );
+        }
+
+
         public override void Validate( string value ) {
             base.Validate( value );
             string parsedValue = Color.Parse( value );
