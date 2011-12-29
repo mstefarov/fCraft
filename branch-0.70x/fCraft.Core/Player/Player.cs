@@ -32,11 +32,15 @@ namespace fCraft {
         /// and that prevents console from calling certain commands (like /TP). </summary>
         public static Player Console;
 
+        /// <summary> The pseudo-player for commands issued by the Autorank system.
+        /// Autorank has all the permissions granted. Note that Player.Autorank.World is always null,
+        /// and that prevents Autorank from calling certain commands (like /TP). </summary>
         public static Player AutoRank;
 
 
         #region Properties
 
+        /// <summary> Determines if this player is granted all permissions </summary>
         public readonly bool IsSuper;
 
 
@@ -433,7 +437,9 @@ namespace fCraft {
             }
         }
 
-
+        /// <summary> Sends a message to all players who are spectating this player, e.g. to forward typed-in commands and PMs. </summary>
+        /// <param name="message"> Message to be displayed </param>
+        /// <param name="args"> Additional arguments </param>
         public void SendToSpectators( [NotNull] string message, [NotNull] params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
@@ -664,7 +670,7 @@ namespace fCraft {
                      Info.TimeMutedLeft.ToMiniString() );
         }
 
-
+        /// <summary> Prints "Specify a time range up to ___" message </summary>
         public void MessageMaxTimeSpan() {
             Message( "Specify a time range up to {0}", DateTimeUtil.MaxTimeSpan.ToMiniString() );
         }
@@ -775,8 +781,11 @@ namespace fCraft {
 
 
         #region AntiSpam
-
+        
+        /// <summary> Number of messages in a AntiSpamInterval seconds required to trigger the anti-spam filter </summary>
         public static int AntispamMessageCount = 3;
+
+        /// <summary> Interval in seconds to record number of message for anti-spam filter </summary>
         public static int AntispamInterval = 4;
         readonly Queue<DateTime> spamChatLog = new Queue<DateTime>( AntispamMessageCount );
 
@@ -808,7 +817,7 @@ namespace fCraft {
 
         #region Placing Blocks
 
-        // for grief/spam detection
+        // For grief/spam detection
         readonly Queue<DateTime> spamBlockLog = new Queue<DateTime>();
 
         /// <summary> Last blocktype used by the player.
@@ -1256,6 +1265,7 @@ namespace fCraft {
         [NotNull]
         public IBrush Brush { get; set; }
 
+        /// <summary> The last draw operation completed by the player </summary>
         [CanBeNull]
         public DrawOperation LastDrawOp { get; set; }
 
@@ -1290,7 +1300,9 @@ namespace fCraft {
         [CanBeNull]
         Permission[] selectionPermissions;
 
-
+        /// <summary> Adds a mark to the player's current selection </summary>
+        /// <param name="pos"> Position of the mark to be added </param>
+        /// <param name="executeCallbackIfNeeded"> Determines if callback will be executed </param>
         public void SelectionAddMark( Vector3I pos, bool executeCallbackIfNeeded ) {
             if( !IsMakingSelection ) throw new InvalidOperationException( "No selection in progress." );
             selectionMarks.Enqueue( pos );
@@ -1305,7 +1317,6 @@ namespace fCraft {
                          SelectionMarkCount, pos, SelectionMarkCount + 1 );
             }
         }
-
 
         public void SelectionExecute() {
             if( !IsMakingSelection || selectionCallback == null ) {
@@ -1327,7 +1338,11 @@ namespace fCraft {
             }
         }
 
-
+        /// <summary> Initates the selection </summary>
+        /// <param name="marksExpected"> Number of marks that are needed to create the selection </param>
+        /// <param name="callback"> Selection callback </param>
+        /// <param name="args"> Arguments for selection </param>
+        /// <param name="requiredPermissions"> Permissions required in order to complete the command </param>
         public void SelectionStart( int marksExpected,
                                     [NotNull] SelectionCallback callback,
                                     [CanBeNull] object args,
@@ -1341,11 +1356,12 @@ namespace fCraft {
         }
 
 
+        /// <summary> Resets the player's marks used to create the selection </summary>
         public void SelectionResetMarks() {
             selectionMarks.Clear();
         }
 
-
+        /// <summary> Cancels the player's current selection </summary>
         public void SelectionCancel() {
             selectionMarks.Clear();
             SelectionMarksExpected = 0;

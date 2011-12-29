@@ -24,20 +24,24 @@ namespace fCraft {
         /// (waiting for block updates to finish processing before unloading). </summary>
         public bool IsPendingMapUnload { get; private set; }
 
-
+        /// <summary> Controls which players may access this world </summary>
         [NotNull]
         public SecurityController AccessSecurity { get; internal set; }
 
+        /// <summary> Controls which players may build in this world </summary>
         [NotNull]
         public SecurityController BuildSecurity { get; internal set; }
 
 
-
+        /// <remarks> Zaneo thinks this should be renamed to CreatedOn as it better reflects what is going on</remarks>
+        /// <summary> The date that this world was created on </summary>
         public DateTime LoadedOn { get; internal set; }
 
+        /// <summary> The name of the player who created this world, null if the player is unknown </summary>
         [CanBeNull]
         public string LoadedBy { get; internal set; }
 
+        /// <summary> The (ClassyName) of the player who created this world, null if the player is unknown </summary>
         [NotNull]
         public string LoadedByClassy {
             get {
@@ -45,12 +49,14 @@ namespace fCraft {
             }
         }
 
-
+        /// <summary> The date that this world was last loaded </summary>
         public DateTime MapChangedOn { get; private set; }
 
+        /// <summary> The name of the player who last loaded this map, null if the palyer is unknown </summary>
         [CanBeNull]
         public string MapChangedBy { get; internal set; }
 
+        /// <summary> The (ClassyName) of the player who last laoaded this map, null if the palyer is unknown </summary>
         [NotNull]
         public string MapChangedByClassy {
             get {
@@ -62,7 +68,7 @@ namespace fCraft {
         // used to synchronize player joining/parting with map loading/saving
         internal readonly object SyncRoot = new object();
 
-
+        /// <summary> Particular BlockDB that this world is using to backup block changes </summary>
         public BlockDB BlockDB { get; private set; }
 
 
@@ -92,6 +98,7 @@ namespace fCraft {
                 map = value;
             }
         }
+
         Map map;
 
         /// <summary> Whether the map is currently loaded. </summary>
@@ -153,7 +160,7 @@ namespace fCraft {
             }
         }
 
-
+        /// <summary> Forces the map to be saved to file </summary>
         public void SaveMap() {
             lock( SyncRoot ) {
                 if( Map != null ) {
@@ -162,7 +169,8 @@ namespace fCraft {
             }
         }
 
-
+        /// <summary> Sets all the settings of the current map, to that of a new map, including physical map </summary>
+        /// <param name="newMap"> New map to change to </param>
         public void ChangeMap( [NotNull] Map newMap ) {
             if( newMap == null ) throw new ArgumentNullException( "newMap" );
             MapChangedOn = DateTime.UtcNow;
@@ -203,8 +211,9 @@ namespace fCraft {
             }
         }
 
-
         bool preload;
+
+        /// <summary> Controls if the map should be loaded before players enter </summary>
         public bool Preload {
             get {
                 return preload;
@@ -227,9 +236,10 @@ namespace fCraft {
 
         #region Flush
 
+        /// <summary> World is currently being flushed </summary>
         public bool IsFlushing { get; private set; }
 
-
+        /// <summary> Intiates a map flush, in which all block drawings are completed. All users are held in limbo until completion and then resent the map.  </summary>
         public void Flush() {
             lock( SyncRoot ) {
                 if( Map == null ) return;
@@ -238,7 +248,7 @@ namespace fCraft {
             }
         }
 
-
+        /// <summary> Signals the end of a map flush </summary>
         internal void EndFlushMapBuffer() {
             lock( SyncRoot ) {
                 IsFlushing = false;
@@ -409,7 +419,7 @@ namespace fCraft {
             return Players.Count( observer.CanSee );
         }
 
-
+        /// <summary> Whether the current world is full, determined by ConfigKey.MaxPlayersPerWorld </summary>
         public bool IsFull {
             get {
                 return (Players.Length >= ConfigKey.MaxPlayersPerWorld.GetInt());
@@ -424,12 +434,17 @@ namespace fCraft {
         /// <summary> Whether the world is currently locked (in read-only mode). </summary>
         public bool IsLocked { get; private set; }
 
+        /// <summary> The name of player who last locked and unlocked this world </summary>
         public string LockedBy, UnlockedBy;
+
+        /// <summary> The time that this world was last locked and unlocked </summary>
         public DateTime LockDate, UnlockDate;
 
         readonly object lockLock = new object();
 
-
+        /// <summary> Locks the current world, which prevents blocks in the world from being updated </summary>
+        /// <param name="player"> Player who is issueing the lock</param>
+        /// <returns> True if the world was locked, or false if the world was already locked</returns>
         public bool Lock( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             lock( lockLock ) {
@@ -453,7 +468,9 @@ namespace fCraft {
             }
         }
 
-
+        /// <summary> Unlocks the current world, which allows blocks in the world to be updated </summary>
+        /// <param name="player"> Player who is issueing the unlock</param>
+        /// <returns> True if the world was unlocked, or false if the world was already unlocked</returns>
         public bool Unlock( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             lock( lockLock ) {
@@ -480,6 +497,9 @@ namespace fCraft {
         readonly object patrolLock = new object();
         static readonly TimeSpan MinPatrolInterval = TimeSpan.FromSeconds( 20 );
 
+        /// <summary> Selects the next player to move to while patroling </summary>
+        /// <param name="observer"> Player who is patrolling </param>
+        /// <returns> Player who has been selected to be patrolled </returns>
         public Player GetNextPatrolTarget( [NotNull] Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
             lock( patrolLock ) {
@@ -669,13 +689,18 @@ namespace fCraft {
 
         #region WoM Extensions
 
+        /// <summary> Enviromental variables for the client </summary>
         public int CloudColor = -1,
                    FogColor = -1,
                    SkyColor = -1,
                    EdgeLevel = -1;
 
+        /// <summary> The block which will be displayed in the background for the client </summary>
         public Block EdgeBlock = Block.Water;
 
+        /// <summary> Creates a WOM configuration string </summary>
+        /// <param name="sendMotd"> Determines if the motd is sent with the configuration string </param>
+        /// <returns> Configuration settings string to send to client </returns>
         public string GenerateWoMConfig( bool sendMotd ) {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine( "server.name = " + ConfigKey.ServerName.GetString() );
