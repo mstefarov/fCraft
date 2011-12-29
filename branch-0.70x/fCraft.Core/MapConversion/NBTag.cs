@@ -11,12 +11,19 @@ using JetBrains.Annotations;
 namespace fCraft.MapConversion {
     /// <summary> Standard NBT data types. </summary>
     public enum NBTType : byte {
+        /// <summary> End of tag </summary>
         End,
+        /// <summary> 8 bit integer </summary>
         Byte,
+        /// <summary> 16 bit integer </summary>
         Short,
+        /// <summary> 32 bit integer </summary>
         Int,
+        /// <summary> 64 bit integer </summary>
         Long,
+        /// <summary> 32 bit floating point number (IEEE 754) </summary>
         Float,
+        /// <summary> 64 bit floating point number (IEEE 754) </summary>
         Double,
         Bytes,
         String,
