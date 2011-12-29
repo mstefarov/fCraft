@@ -1,8 +1,9 @@
-﻿using System;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using JetBrains.Annotations;
 
 namespace fCraft.ConfigCLI {
-    class TextOption : ICloneable {
+    sealed class TextOption : ICloneable {
 
         [CanBeNull]
         public object Tag { get; set; }
@@ -21,7 +22,8 @@ namespace fCraft.ConfigCLI {
         public ConsoleColor BackColor { get; set; }
 
 
-        public TextOption( string label, [NotNull] string text, Column column ) {
+        public TextOption( [CanBeNull] string label, [NotNull] string text, Column column ) {
+            if( text == null ) throw new ArgumentNullException( "text" );
             Label = label;
             Text = text;
             ForeColor = ForeColorDefault;

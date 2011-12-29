@@ -3,7 +3,7 @@ using System;
 using System.Windows.Forms;
 
 namespace fCraft.ConfigGUI {
-    public sealed partial class DeleteRankPopup : Form {
+    sealed partial class DeleteRankPopup : Form {
         internal Rank SubstituteRank { get; private set; }
 
         public DeleteRankPopup( Rank deletedRank ) {

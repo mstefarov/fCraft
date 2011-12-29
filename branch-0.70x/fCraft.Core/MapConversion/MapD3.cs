@@ -3,7 +3,6 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
-using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     public sealed class MapD3 : IMapConverter {

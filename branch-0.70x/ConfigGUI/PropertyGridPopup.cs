@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System.Windows.Forms;
 
 namespace fCraft.ConfigGUI {
-    public partial class PropertyGridPopup : Form {
+    partial class PropertyGridPopup : Form {
         public PropertyGridPopup( string title, object obj ) {
             InitializeComponent();
             pgProperties.SelectedObject = obj;

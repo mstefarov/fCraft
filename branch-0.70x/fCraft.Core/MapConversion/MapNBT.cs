@@ -2,7 +2,6 @@
 using System;
 using System.IO;
 using System.IO.Compression;
-using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     public sealed class MapNBT : IMapConverter {

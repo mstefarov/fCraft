@@ -14,7 +14,7 @@ using JetBrains.Annotations;
 
 
 namespace fCraft.ConfigGUI {
-    public sealed partial class MainForm : Form {
+    sealed partial class MainForm : Form {
         static MainForm instance;
         readonly Font bold;
         Rank selectedRank;

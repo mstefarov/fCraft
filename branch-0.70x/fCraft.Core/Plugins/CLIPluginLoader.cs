@@ -9,7 +9,7 @@ namespace fCraft {
     /// <summary> Loads CLI assemblies and instantiates IPlugin objects. </summary>
     public sealed class CLIPluginLoader : IPluginLoader {
         public string[] PluginExtensions {
-            get { return new string[] { ".dll" }; }
+            get { return new[] { ".dll" }; }
         }
 
         public PluginLoadResult LoadPlugins( string pluginName ) {

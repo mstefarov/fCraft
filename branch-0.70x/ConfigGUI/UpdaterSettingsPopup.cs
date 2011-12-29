@@ -3,7 +3,7 @@ using System;
 using System.Windows.Forms;
 
 namespace fCraft.ConfigGUI {
-    public sealed partial class UpdaterSettingsPopup : Form {
+    sealed partial class UpdaterSettingsPopup : Form {
 
         public string RunBeforeUpdate {
             get {

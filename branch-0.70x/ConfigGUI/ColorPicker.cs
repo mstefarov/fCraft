@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace fCraft.ConfigGUI {
-    internal sealed partial class ColorPicker : Form {
+    sealed partial class ColorPicker : Form {
         public static readonly Dictionary<int, ColorPair> ColorPairs = new Dictionary<int, ColorPair>();
         public int ColorIndex;
 

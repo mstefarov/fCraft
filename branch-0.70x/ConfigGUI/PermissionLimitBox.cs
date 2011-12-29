@@ -3,7 +3,7 @@ using System;
 using System.Windows.Forms;
 
 namespace fCraft.ConfigGUI {
-    public sealed partial class PermissionLimitBox : UserControl {
+    sealed partial class PermissionLimitBox : UserControl {
 
         public Permission Permission { get; private set; }
 

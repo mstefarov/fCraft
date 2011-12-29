@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -23,6 +24,7 @@ namespace fCraft {
 
         public Type ValueType { get; protected set; }
 
+        [NotNull]
         public object DefaultValue { get; protected set; }
 
         public ConfigSection Section { get; private set; }
@@ -32,15 +34,6 @@ namespace fCraft {
         public ConfigKey Key { get; internal set; }
 
         public bool IsColor { get; protected set; }
-
-        public bool TryValidate( [NotNull] string value ) {
-            try {
-                Validate( value );
-                return true;
-            } catch( ArgumentException ) {
-                return false;
-            }
-        }
 
         public virtual string GetPresentationString( [NotNull] string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
@@ -128,10 +121,13 @@ namespace fCraft {
         }
 
         public override string GetPresentationString( string value ) {
-            return Int32.Parse( value ).ToString();
+            if( value == null ) throw new ArgumentNullException( "value" );
+            return Int32.Parse( value ).ToString( CultureInfo.InvariantCulture );
         }
 
+
         public override void Validate( string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
             base.Validate( value );
             int parsedValue;
             if( !Int32.TryParse( value, out parsedValue ) ) {
@@ -198,6 +194,7 @@ namespace fCraft {
         }
 
         public override void Validate( string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
             base.Validate( value );
 
             Rank rank;
@@ -220,6 +217,7 @@ namespace fCraft {
 
 
         public override string GetUsableString( string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
             if( value.Length == 0 ) {
                 Rank defaultRank = GetBlankValueSubstitute();
                 if( defaultRank == null ) {
@@ -234,7 +232,8 @@ namespace fCraft {
 
 
         public override string GetPresentationString( string value ) {
-            if( String.IsNullOrEmpty( value ) ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
+            if( value.Length == 0 ) {
                 return BlankMeaning + " (blank)";
             } else {
                 return Rank.Parse( value ).Name;
@@ -279,6 +278,7 @@ namespace fCraft {
 
 
         public override string GetUsableString( string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
             if( value.Length == 0 ) {
                 return DefaultValue.ToString();
             } else {
@@ -288,7 +288,8 @@ namespace fCraft {
 
 
         public override string GetPresentationString( string value ) {
-            return Boolean.Parse( value ).ToString();
+            if( value == null ) throw new ArgumentNullException( "value" );
+            return Boolean.Parse( value ).ToString( CultureInfo.InvariantCulture );
         }
 
 
@@ -337,6 +338,7 @@ namespace fCraft {
 
 
         public override void Validate( string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
             base.Validate( value );
 
             IPAddress test;
@@ -361,6 +363,7 @@ namespace fCraft {
 
 
         public override string GetPresentationString( string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
             if( value.Length == 0 ) {
                 return BlankMeaning + " (blank)";
             } else {
@@ -369,6 +372,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         IPAddress GetBlankValueSubstitute() {
             switch( BlankMeaning ) {
                 case BlankValueMeaning.Any:
@@ -384,6 +388,7 @@ namespace fCraft {
 
 
         public override string GetUsableString( string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
             if( value.Length == 0 ) {
                 return GetBlankValueSubstitute().ToString();
             } else {
@@ -408,17 +413,22 @@ namespace fCraft {
 
 
         public override string GetPresentationString( string value ) {
-            return String.Format( "{0} ({1})", Color.GetName( value ), Color.Parse( value ) );
+            if( value == null ) throw new ArgumentNullException( "value" );
+            return String.Format( "{0} ({1})",
+                                  Color.GetName( value ), Color.Parse( value ) );
         }
 
 
         public override string GetUsableString( string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
             return Color.Parse( value );
         }
 
 
         public override void Validate( string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
             base.Validate( value );
+
             string parsedValue = Color.Parse( value );
             if( parsedValue == null ) {
                 throw new FormatException( "Value cannot be parsed as a color." );
@@ -437,8 +447,10 @@ namespace fCraft {
 
 
         public override void Validate( string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
             base.Validate( value );
-            if( !NotBlank && String.IsNullOrEmpty( value ) ) return;
+
+            if( !NotBlank && value.Length == 0 ) return;
             try {
                 Enum.Parse( ValueType, value, true );
             } catch( ArgumentException ) {
@@ -450,6 +462,7 @@ namespace fCraft {
         }
 
         public override string GetUsableString( string value ) {
+            if( value == null ) throw new ArgumentNullException( "value" );
             if( value.Length == 0 ) {
                 return DefaultValue.ToString();
             } else {

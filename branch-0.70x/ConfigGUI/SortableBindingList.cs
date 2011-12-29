@@ -1,13 +1,14 @@
-﻿using System;
+﻿// fCraft is Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 
 namespace fCraft.ConfigGUI {
 
-    [Serializable]
     // SortableBindingList by Tim Van Wassenhove, http://www.timvw.be/presenting-the-sortablebindinglistt/
-    public sealed class SortableBindingList<T> : BindingList<T> {
+    [Serializable]
+    sealed class SortableBindingList<T> : BindingList<T> {
         private bool isSorted;
         private ListSortDirection dir = ListSortDirection.Ascending;
 
@@ -174,7 +175,7 @@ namespace fCraft.ConfigGUI {
 
 
     [AttributeUsage( AttributeTargets.Property )]
-    public sealed class SortablePropertyAttribute : Attribute {
+    sealed class SortablePropertyAttribute : Attribute {
         public SortablePropertyAttribute( Type type, string comparerMethodName ) {
             if( type == null ) throw new ArgumentNullException( "type" );
             if( comparerMethodName == null ) throw new ArgumentNullException( "comparerMethodName" );
