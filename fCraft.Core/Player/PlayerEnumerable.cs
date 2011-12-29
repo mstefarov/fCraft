@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Net;
 using JetBrains.Annotations;
 
-// ReSharper disable LoopCanBeConvertedToQuery
 namespace fCraft {
     /// <summary> Contains a set of utilities that simplify working with sets of players.
     /// All the utilities are implemented as extension methods,

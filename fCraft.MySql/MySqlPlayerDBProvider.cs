@@ -307,9 +307,7 @@ namespace fCraft.MySql {
 
         PlayerInfo LoadInfo( IDataRecord reader ) {
             int id = reader.GetInt32( (int)Field.ID );
-            // ReSharper disable UseObjectOrCollectionInitializer
             PlayerInfo info = new PlayerInfo( id );
-            // ReSharper restore UseObjectOrCollectionInitializer
 
             info.Name = reader.GetString( (int)Field.Name );
             info.DisplayedName = reader.GetString( (int)Field.DisplayedName );

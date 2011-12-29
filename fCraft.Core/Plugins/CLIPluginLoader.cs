@@ -19,12 +19,12 @@ namespace fCraft {
                 foreach( Type pluginType in assembly.GetTypes().Where( type => type.GetInterfaces().Contains( typeof( IPlugin ) ) && type.IsClass ) ) {
                     plugins.Add( (IPlugin)Activator.CreateInstance( pluginType ) );
                 }
-                return new PluginLoadResult() {
+                return new PluginLoadResult {
                     LoadSuccessful = true,
                     LoadedPlugins = plugins
                 };
             } catch( Exception exception ) {
-                return new PluginLoadResult() {
+                return new PluginLoadResult {
                     Exception = exception,
                     LoadSuccessful = false
                 };

@@ -413,9 +413,7 @@ namespace fCraft {
         internal PlayerInfo LoadBinaryFormat0( [NotNull] BinaryReader reader ) {
             if( reader == null ) throw new ArgumentNullException( "reader" );
             int id = Read7BitEncodedInt( reader );
-            // ReSharper disable UseObjectOrCollectionInitializer
             PlayerInfo info = new PlayerInfo( id );
-            // ReSharper restore UseObjectOrCollectionInitializer
 
             // General
             info.Name = reader.ReadString();

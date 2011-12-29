@@ -99,9 +99,7 @@ namespace fCraft {
                 return;
             }
 
-            // ReSharper disable AssignNullToNotNullAttribute
             if( Paths.IsProtectedFileName( Path.GetFileName( fileName ) ) ) {
-                // ReSharper restore AssignNullToNotNullAttribute
                 player.Message( "You may not use this file." );
                 return;
             }

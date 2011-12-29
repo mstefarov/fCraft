@@ -376,13 +376,11 @@ namespace fCraft {
         public Player FindPlayerExact( [NotNull] string playerName ) {
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
             Player[] tempList = Players;
-            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] != null && tempList[i].Name.Equals( playerName, StringComparison.OrdinalIgnoreCase ) ) {
                     return tempList[i];
                 }
             }
-            // ReSharper restore LoopCanBeConvertedToQuery
             return null;
         }
 
@@ -709,7 +707,6 @@ namespace fCraft {
         public static bool IsValidName( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( name.Length < 2 || name.Length > 16 ) return false;
-            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < name.Length; i++ ) {
                 char ch = name[i];
                 if( ch < '0' ||
@@ -720,7 +717,6 @@ namespace fCraft {
                     return false;
                 }
             }
-            // ReSharper restore LoopCanBeConvertedToQuery
             return true;
         }
 

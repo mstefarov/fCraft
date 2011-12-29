@@ -1,5 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Globalization;
 using System.Net;
 using JetBrains.Annotations;
 
@@ -137,7 +138,7 @@ namespace fCraft {
             fields[2] = BanDate.ToUnixTimeString();
             fields[3] = FlatfilePlayerDBProvider.Escape( BanReason );
             fields[4] = FlatfilePlayerDBProvider.Escape( PlayerName );
-            fields[5] = Attempts.ToString();
+            fields[5] = Attempts.ToString( CultureInfo.InvariantCulture );
             fields[6] = FlatfilePlayerDBProvider.Escape( LastAttemptName );
             fields[7] = LastAttemptDate.ToUnixTimeString();
 

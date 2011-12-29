@@ -1468,9 +1468,7 @@ namespace fCraft {
 
             try {
                 using( WebResponse response = request.GetResponse() ) {
-                    // ReSharper disable AssignNullToNotNullAttribute
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
-                        // ReSharper restore AssignNullToNotNullAttribute
                         string paidStatusString = responseReader.ReadToEnd();
                         bool isPaid;
                         return Boolean.TryParse( paidStatusString, out isPaid ) && isPaid;
@@ -1496,14 +1494,12 @@ namespace fCraft {
         /// <summary> Ensures that a player name has the correct length and character set. </summary>
         public static bool ContainsValidCharacters( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < name.Length; i++ ) {
                 char ch = name[i];
                 if( (ch < '0' && ch != '.') || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') || ch > 'z' ) {
                     return false;
                 }
             }
-            // ReSharper restore LoopCanBeConvertedToQuery
             return true;
         }
 
