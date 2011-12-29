@@ -27,7 +27,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool ClaimsName( [NotNull] string path ) {
+        public bool ClaimsName( string path ) {
             if( path == null ) throw new ArgumentNullException( "path" );
             return Directory.Exists( path ) &&
                    File.Exists( Path.Combine( path, BlockStoreFileName ) ) &&
@@ -35,13 +35,13 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool Claims( [NotNull] string path ) {
+        public bool Claims( string path ) {
             if( path == null ) throw new ArgumentNullException( "path" );
             return ClaimsName( path );
         }
 
 
-        public Map LoadHeader( [NotNull] string path ) {
+        public Map LoadHeader( string path ) {
             if( path == null ) throw new ArgumentNullException( "path" );
             string fullMetaDataFileName = Path.Combine( path, MetaDataFileName );
             Map map;
@@ -52,7 +52,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map Load( [NotNull] string path ) {
+        public Map Load( string path ) {
             if( path == null ) throw new ArgumentNullException( "path" );
             string fullBlockStoreFileName = Path.Combine( path, BlockStoreFileName );
             string fullMetaDataFileName = Path.Combine( path, MetaDataFileName );
@@ -124,7 +124,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool Save( [NotNull] Map mapToSave, [NotNull] string fileName ) {
+        public bool Save( Map mapToSave, string fileName ) {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             throw new NotImplementedException();

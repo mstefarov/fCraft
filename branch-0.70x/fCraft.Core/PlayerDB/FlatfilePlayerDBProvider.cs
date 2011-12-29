@@ -49,11 +49,10 @@ namespace fCraft {
 
         /// <summary> Adds a new PlayerInfo entry for an actual, logged-in player. </summary>
         /// <returns> A newly-created PlayerInfo entry. </returns>
-        [NotNull]
-        public PlayerInfo AddPlayer( [NotNull] string name, [NotNull] Rank startingRank, RankChangeType rankChangeType, [NotNull] IPAddress address ) {
+        public PlayerInfo AddPlayer( string name, Rank startingRank, RankChangeType rankChangeType, IPAddress address ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( address == null ) throw new ArgumentNullException( "address" );
-            int id = GetNextID();
+            int id = GetNextId();
             PlayerInfo info = new PlayerInfo( id, name, startingRank, rankChangeType, address );
             trie.Add( name, info );
             return info;
@@ -62,11 +61,10 @@ namespace fCraft {
 
         /// <summary> Adds a new PlayerInfo entry for a player who has never been online, by name. </summary>
         /// <returns> A newly-created PlayerInfo entry. </returns>
-        [NotNull]
-        public PlayerInfo AddUnrecognizedPlayer( [NotNull] string name, [NotNull] Rank startingRank, RankChangeType rankChangeType ) {
+        public PlayerInfo AddUnrecognizedPlayer( string name, Rank startingRank, RankChangeType rankChangeType ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
-            int id = GetNextID();
+            int id = GetNextId();
             PlayerInfo info = new PlayerInfo( id, name, startingRank, rankChangeType, false );
             trie.Add( name, info );
             return info;
@@ -75,14 +73,14 @@ namespace fCraft {
 
         /// <summary> Inserts all data from given playerInfo directly into the database. </summary>
         /// <param name="playerInfo"> Player record to import. </param>
-        public void Import( [NotNull] PlayerInfo playerInfo ) {
+        public void Import( PlayerInfo playerInfo ) {
             trie.Add( playerInfo.Name, playerInfo );
         }
 
 
         /// <summary> Inserts all data from given PlayerInfo list directly into the database. </summary>
         /// <param name="playerInfos"> List of player record to import. </param>
-        public void Import( [NotNull] IEnumerable<PlayerInfo> playerInfos ) {
+        public void Import( IEnumerable<PlayerInfo> playerInfos ) {
             foreach( PlayerInfo info in playerInfos ) {
                 trie.Add( info.Name, info );
             }
@@ -91,7 +89,7 @@ namespace fCraft {
 
         /// <summary> Removes a PlayerInfo entry from the database. </summary>
         /// <returns> True if the entry is successfully found and removed; otherwise false. </returns>
-        public bool Remove( [NotNull] PlayerInfo playerInfo ) {
+        public bool Remove( PlayerInfo playerInfo ) {
             if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
             return trie.Remove( playerInfo.Name );
         }
@@ -100,8 +98,7 @@ namespace fCraft {
         /// <summary> Finds player by exact name. </summary>
         /// <param name="fullName"> Full, case-insensitive name of the player. </param>
         /// <returns> PlayerInfo if player was found, or null if not found. </returns>
-        [CanBeNull]
-        public PlayerInfo FindExact( [NotNull] string fullName ) {
+        public PlayerInfo FindExact( string fullName ) {
             if( fullName == null ) throw new ArgumentNullException( "fullName" );
             lock( trie.SyncRoot ) {
                 return trie.Get( fullName );
@@ -113,8 +110,7 @@ namespace fCraft {
         /// <param name="address"> Player's IP address. </param>
         /// <param name="limit"> Maximum number of results to return. </param>
         /// <returns> A sequence of zero or more PlayerInfos who have logged in from given IP. </returns>
-        [NotNull]
-        public IEnumerable<PlayerInfo> FindByIP( [NotNull] IPAddress address, int limit ) {
+        public IEnumerable<PlayerInfo> FindByIP( IPAddress address, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             List<PlayerInfo> result = new List<PlayerInfo>();
             PlayerInfo[] cache = PlayerDB.PlayerInfoList;
@@ -132,8 +128,7 @@ namespace fCraft {
         /// <param name="partialName"> Full or partial name of the player. </param>
         /// <param name="limit"> Maximum number of results to return. </param>
         /// <returns> A sequence of zero or more PlayerInfos whose names start with partialName. </returns>
-        [NotNull]
-        public IEnumerable<PlayerInfo> FindByPartialName( [NotNull] string partialName, int limit ) {
+        public IEnumerable<PlayerInfo> FindByPartialName( string partialName, int limit ) {
             if( partialName == null ) throw new ArgumentNullException( "partialName" );
             lock( syncRoot ) {
                 return trie.GetList( partialName, limit );
@@ -145,7 +140,7 @@ namespace fCraft {
         /// <param name="partialName"> Partial or full player name. </param>
         /// <param name="result"> PlayerInfo to output (will be set to null if no single match was found). </param>
         /// <returns> true if one or zero matches were found, false if multiple matches were found. </returns>
-        public bool FindOneByPartialName( [NotNull] string partialName, [CanBeNull] out PlayerInfo result ) {
+        public bool FindOneByPartialName( string partialName, out PlayerInfo result ) {
             if( partialName == null ) throw new ArgumentNullException( "partialName" );
             lock( trie.SyncRoot ) {
                 return trie.GetOneMatch( partialName, out result );
@@ -162,8 +157,7 @@ namespace fCraft {
         /// Question mark (?) matches exactly one character. </param>
         /// <param name="limit"> Maximum number of results to return. </param>
         /// <returns> A sequence of zero or more PlayerInfos whose names match the pattern. </returns>
-        [NotNull]
-        public IEnumerable<PlayerInfo> FindByPattern( [NotNull] string pattern, int limit ) {
+        public IEnumerable<PlayerInfo> FindByPattern( string pattern, int limit ) {
             if( pattern == null ) throw new ArgumentNullException( "pattern" );
             string regexString = "^" + RegexNonNameChars.Replace( pattern, "" ).Replace( "*", ".*" ).Replace( "?", "." ) + "$";
             Regex regex = new Regex( regexString, RegexOptions.IgnoreCase );
@@ -180,7 +174,7 @@ namespace fCraft {
 
 
         /// <summary> Changes ranks of all players in one transaction. </summary>
-        public void MassRankChange( [NotNull] Player player, [NotNull] Rank from, [NotNull] Rank to, [NotNull] string reason ) {
+        public void MassRankChange( Player player, Rank from, Rank to, string reason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( from == null ) throw new ArgumentNullException( "from" );
             if( to == null ) throw new ArgumentNullException( "to" );
@@ -190,14 +184,14 @@ namespace fCraft {
 
 
         /// <summary> Swaps records of two players in one transaction. </summary>
-        public void SwapInfo( [NotNull] PlayerInfo player1, [NotNull] PlayerInfo player2 ) {
+        public void SwapInfo( PlayerInfo player1, PlayerInfo player2 ) {
             if( player1 == null ) throw new ArgumentNullException( "player1" );
             if( player2 == null ) throw new ArgumentNullException( "player2" );
             throw new NotImplementedException();
         }
 
 
-        public int GetNextID() {
+        int GetNextId() {
             return Interlocked.Increment( ref maxID );
         }
 
@@ -207,7 +201,6 @@ namespace fCraft {
         Dictionary<int, Rank> rankMapping;
 
         /// <summary> Initializes the provider, and allocates PlayerInfo objects for all players. </summary>
-        [CanBeNull]
         public IEnumerable<PlayerInfo> Load() {
             //LoadBinary();
             //return;

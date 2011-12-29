@@ -3,7 +3,7 @@
 using System;
 
 namespace fCraft {
-    public class PluginLoadFailedEventArgs : EventArgs {
+    public sealed class PluginLoadFailedEventArgs : EventArgs {
         public PluginLoadFailedEventArgs( string pluginFile, Exception exception ) {
             Exception = exception;
             PluginFile = pluginFile;

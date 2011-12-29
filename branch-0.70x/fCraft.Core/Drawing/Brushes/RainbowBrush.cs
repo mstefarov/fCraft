@@ -1,6 +1,5 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     public sealed class RainbowBrush : IBrushFactory, IBrush, IBrushInstance {
@@ -16,7 +15,6 @@ namespace fCraft.Drawing {
             get { return "Rainbow"; }
         }
 
-        [CanBeNull]
         public string[] Aliases {
             get { return null; }
         }
@@ -63,14 +61,14 @@ namespace fCraft.Drawing {
             get { return Instance; }
         }
 
-        public bool Begin( [NotNull] Player player, [NotNull] DrawOperation state ) {
+        public bool Begin( Player player, DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( state == null ) throw new ArgumentNullException( "state" );
             return true;
         }
 
 
-        public Block NextBlock( [NotNull] DrawOperation state ) {
+        public Block NextBlock( DrawOperation state ) {
             if( state == null ) throw new ArgumentNullException( "state" );
             return Rainbow[(state.Coords.X + state.Coords.Y + state.Coords.Z) % 7];
         }

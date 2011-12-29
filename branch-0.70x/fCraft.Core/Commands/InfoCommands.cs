@@ -300,10 +300,10 @@ namespace fCraft {
                 // Show alts
                 List<PlayerInfo> altNames = new List<PlayerInfo>();
                 int bannedAltCount = 0;
-                foreach( PlayerInfo playerFromSameIP in PlayerDB.FindByIP( info.LastIP ) ) {
-                    if( playerFromSameIP == info ) continue;
-                    altNames.Add( playerFromSameIP );
-                    if( playerFromSameIP.IsBanned ) {
+                foreach( PlayerInfo playerFromSameAddress in PlayerDB.FindByIP( info.LastIP ) ) {
+                    if( playerFromSameAddress == info ) continue;
+                    altNames.Add( playerFromSameAddress );
+                    if( playerFromSameAddress.IsBanned ) {
                         bannedAltCount++;
                     }
                 }

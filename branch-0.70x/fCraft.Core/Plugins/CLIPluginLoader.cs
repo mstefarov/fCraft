@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace fCraft {
     /// <summary> Loads CLI assemblies and instantiates IPlugin objects. </summary>
-    public class CLIPluginLoader : IPluginLoader {
+    public sealed class CLIPluginLoader : IPluginLoader {
         public string[] PluginExtensions {
             get { return new string[] { ".dll" }; }
         }

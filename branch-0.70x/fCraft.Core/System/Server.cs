@@ -852,7 +852,7 @@ namespace fCraft {
         [CanBeNull]
         static IPAddress CheckExternalIP() {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( IPCheckUri );
-            request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( BindIPEndPointCallback );
+            request.ServicePoint.BindIPEndPointDelegate = BindIPEndPointCallback;
             request.Timeout = IPCheckTimeout;
             request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
 

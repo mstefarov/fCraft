@@ -43,8 +43,8 @@ namespace fCraft.MapConversion {
                     section = new Dictionary<string, string>();
                     contents.Add( sectionName, section );
                 } else if( line.Contains( Separator ) && section != null ) {
-                    string keyName = line.Substring( 0, line.IndexOf( Separator ) ).TrimEnd().ToLower();
-                    string valueName = line.Substring( line.IndexOf( Separator ) + 1 ).TrimStart();
+                    string keyName = line.Substring( 0, line.IndexOf(Separator, StringComparison.Ordinal) ).TrimEnd().ToLower();
+                    string valueName = line.Substring( line.IndexOf(Separator, StringComparison.Ordinal) + 1 ).TrimStart();
                     section.Add( keyName, valueName );
                 }
             }

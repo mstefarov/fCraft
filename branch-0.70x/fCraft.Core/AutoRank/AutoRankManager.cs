@@ -35,7 +35,6 @@ namespace fCraft.AutoRank {
         [CanBeNull]
         public static Rank Check( [NotNull] PlayerInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
-            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < Criteria.Count; i++ ) {
                 if( Criteria[i].FromRank == info.Rank &&
                     !info.IsBanned &&
@@ -44,7 +43,6 @@ namespace fCraft.AutoRank {
                     return Criteria[i].ToRank;
                 }
             }
-            // ReSharper restore LoopCanBeConvertedToQuery
             return null;
         }
 

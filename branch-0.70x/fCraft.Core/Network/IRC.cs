@@ -830,10 +830,10 @@ namespace fCraft {
 
             // conform to RFC 2812
             string from = linear[0];
-            string messagecode = linear[1];
-            int exclamationpos = from.IndexOf( "!" );
-            int atpos = from.IndexOf( "@" );
-            int colonpos = line.IndexOf( " :" );
+            string messageCode = linear[1];
+            int exclamationpos = from.IndexOf( "!", StringComparison.Ordinal );
+            int atpos = from.IndexOf( "@", StringComparison.Ordinal );
+            int colonpos = line.IndexOf( " :", StringComparison.Ordinal );
             if( colonpos != -1 ) {
                 // we want the exact position of ":" not beginning from the space
                 colonpos += 1;
@@ -850,7 +850,7 @@ namespace fCraft {
             }
 
             try {
-                replycode = (IRCReplyCode)int.Parse( messagecode );
+                replycode = (IRCReplyCode)int.Parse( messageCode );
             } catch( FormatException ) {
                 replycode = IRCReplyCode.Null;
             }

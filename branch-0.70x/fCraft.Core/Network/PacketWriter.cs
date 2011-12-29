@@ -30,7 +30,7 @@ namespace fCraft {
 
         /// <summary> Writes a string in Minecraft protocol format.
         /// Maximum length: 64 characters. </summary>
-        public override void Write( [NotNull] string str ) {
+        public override void Write( string str ) {
             if( str == null ) throw new ArgumentNullException( "str" );
             if( str.Length > 64 ) throw new ArgumentException( "String is too long (>64).", "str" );
             Write( Encoding.ASCII.GetBytes( str.PadRight( 64 ) ) );

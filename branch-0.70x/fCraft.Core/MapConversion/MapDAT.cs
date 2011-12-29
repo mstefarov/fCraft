@@ -1,10 +1,8 @@
 // Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
-using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     public sealed class MapDat : IMapConverter {
@@ -73,14 +71,14 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool ClaimsName( [NotNull] string fileName ) {
+        public bool ClaimsName( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".dat", StringComparison.OrdinalIgnoreCase ) ||
                    fileName.EndsWith( ".mine", StringComparison.OrdinalIgnoreCase );
         }
 
 
-        public bool Claims( [NotNull] string fileName ) {
+        public bool Claims( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
@@ -107,7 +105,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map LoadHeader( [NotNull] string fileName ) {
+        public Map LoadHeader( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             Map map = Load( fileName );
             map.Blocks = null;
@@ -123,7 +121,7 @@ namespace fCraft.MapConversion {
             return (Block)Mapping[(byte)block];
         }
 
-        public Map Load( [NotNull] string fileName ) {
+        public Map Load( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 byte[] temp = new byte[8];
@@ -181,17 +179,17 @@ namespace fCraft.MapConversion {
 
                         // look for relevant variables
                         Array.Copy( data, headerEnd + offset - 4, temp, 0, 4 );
-                        if( MemCmp( data, pointer, "width" ) ) {
+                        if( BufferUtil.MemCmp( data, pointer, "width" ) ) {
                             width = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
-                        } else if( MemCmp( data, pointer, "depth" ) ) {
+                        } else if( BufferUtil.MemCmp( data, pointer, "depth" ) ) {
                             height = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
-                        } else if( MemCmp( data, pointer, "height" ) ) {
+                        } else if( BufferUtil.MemCmp( data, pointer, "height" ) ) {
                             length = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
-                        } else if( MemCmp( data, pointer, "xSpawn" ) ) {
+                        } else if( BufferUtil.MemCmp( data, pointer, "xSpawn" ) ) {
                             spawn.X = (short)( IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16 );
-                        } else if( MemCmp( data, pointer, "ySpawn" ) ) {
+                        } else if( BufferUtil.MemCmp( data, pointer, "ySpawn" ) ) {
                             spawn.Z = (short)( IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16 );
-                        } else if( MemCmp( data, pointer, "zSpawn" ) ) {
+                        } else if( BufferUtil.MemCmp( data, pointer, "zSpawn" ) ) {
                             spawn.Y = (short)( IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16 );
                         }
 
@@ -230,22 +228,10 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool Save( [NotNull] Map mapToSave, [NotNull] string fileName ) {
+        public bool Save( Map mapToSave, string fileName ) {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             throw new NotImplementedException();
-        }
-
-
-        static bool MemCmp( [NotNull] IList<byte> data, int offset, [NotNull] string value ) {
-            if( data == null ) throw new ArgumentNullException( "data" );
-            if( value == null ) throw new ArgumentNullException( "value" );
-            // ReSharper disable LoopCanBeConvertedToQuery
-            for( int i = 0; i < value.Length; i++ ) {
-                if( offset + i >= data.Count || data[offset + i] != value[i] ) return false;
-            }
-            // ReSharper restore LoopCanBeConvertedToQuery
-            return true;
         }
     }
 }

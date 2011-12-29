@@ -335,10 +335,9 @@ namespace fCraft {
             rankTag.Add( new XAttribute( "copySlots", CopySlots ) );
             rankTag.Add( new XAttribute( "fillLimit", FillLimit ) );
 
-            XElement temp;
             for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
                 if( Permissions[i] ) {
-                    temp = new XElement( ( (Permission)i ).ToString() );
+                    XElement temp = new XElement( ( (Permission)i ).ToString() );
 
                     if( PermissionLimits[i] != null ) {
                         temp.Add( new XAttribute( "max", GetLimit( (Permission)i ).FullName ) );
@@ -542,7 +541,7 @@ namespace fCraft {
 
             if( name.Contains( "#" ) ) {
                 // new format
-                string id = name.Substring( name.IndexOf( "#" ) + 1 );
+                string id = name.Substring( name.IndexOf("#", StringComparison.Ordinal) + 1 );
 
                 if( RankManager.RanksByID.ContainsKey( id ) ) {
                     // current class

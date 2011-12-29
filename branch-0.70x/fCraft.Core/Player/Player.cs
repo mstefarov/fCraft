@@ -128,7 +128,6 @@ namespace fCraft {
         }
 
         /// <summary> Name formatted for display in chat. </summary>
-        [NotNull]
         public string ClassyName {
             get { return Info.ClassyName; }
         }
@@ -1463,7 +1462,7 @@ namespace fCraft {
         public static bool CheckPaidStatus( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( PaidCheckUri + Uri.EscapeDataString( name ) );
-            request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( Server.BindIPEndPointCallback );
+            request.ServicePoint.BindIPEndPointDelegate = Server.BindIPEndPointCallback;
             request.Timeout = PaidCheckTimeout;
             request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
 
