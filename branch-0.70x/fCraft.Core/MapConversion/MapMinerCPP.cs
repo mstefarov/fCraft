@@ -66,15 +66,13 @@ namespace fCraft.MapConversion {
             }
 
             // Read in the map dimesions
-            // Saved in big endian for who-know-what reason.
+            // Saved in big endian for who-knows-what reason.
             // XYZ(?)
             int width = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
             int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
             int length = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
 
-            // ReSharper disable UseObjectOrCollectionInitializer
             Map map = new Map( null, width, length, height, false );
-            // ReSharper restore UseObjectOrCollectionInitializer
 
             // Read in the spawn location
             // XYZ(?)

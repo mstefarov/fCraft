@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -168,7 +169,6 @@ namespace fCraft {
                 return false;
             }
             return true;
-            // ReSharper restore EmptyGeneralCatchClause
         }
 
         #endregion
@@ -606,7 +606,7 @@ namespace fCraft {
             foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
                 if( block != Block.Undefined ) {
                     BlockNames.Add( block.ToString().ToLower(), block );
-                    BlockNames.Add( ((int)block).ToString(), block );
+                    BlockNames.Add( ((int)block).ToString( CultureInfo.InvariantCulture ), block );
                 }
             }
 

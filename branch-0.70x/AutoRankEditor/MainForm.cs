@@ -227,13 +227,11 @@ namespace AutoRankEditor {
 
 
         static bool CheckIfNodeExists( TreeNode node, string text ) {
-            // ReSharper disable LoopCanBeConvertedToQuery
             foreach( TreeNode subNode in node.Nodes ) {
                 if( (subNode is ConditionNode) && (subNode as ConditionNode).Field.GetLongString() == text ) {
                     return true;
                 }
             }
-            // ReSharper restore LoopCanBeConvertedToQuery
             return false;
         }
 

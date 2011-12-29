@@ -187,11 +187,9 @@ namespace fCraft.AutoRank {
         }
 
         public ConditionPreviousRank( [NotNull] XElement el ) {
-            // ReSharper disable PossibleNullReferenceException
             if( el == null ) throw new ArgumentNullException( "el" );
             Rank = Rank.Parse( el.Attribute( "val" ).Value );
             Comparison = (ComparisonOp)Enum.Parse( typeof( ComparisonOp ), el.Attribute( "op" ).Value, true );
-            // ReSharper restore PossibleNullReferenceException
         }
 
         public override bool Eval( [NotNull] PlayerInfo info ) {

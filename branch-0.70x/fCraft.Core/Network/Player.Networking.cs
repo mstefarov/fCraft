@@ -490,9 +490,7 @@ namespace fCraft {
             reader.ReadByte(); // unused
             BytesReceived += 131;
 
-            // ReSharper disable PossibleNullReferenceException
             Position = WorldManager.MainWorld.Map.Spawn;
-            // ReSharper restore PossibleNullReferenceException
             Info = PlayerDB.FindOrCreateInfoForPlayer( playerName, IP );
             ResetAllBinds();
 
@@ -705,9 +703,7 @@ namespace fCraft {
 
             // Announce join
             if( ConfigKey.ShowConnectionMessages.Enabled() ) {
-                // ReSharper disable AssignNullToNotNullAttribute
                 string message = Server.MakePlayerConnectedMessage( this, firstTime, World );
-                // ReSharper restore AssignNullToNotNullAttribute
                 canSee.Message( message );
             }
 

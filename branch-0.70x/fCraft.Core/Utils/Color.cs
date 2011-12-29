@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
 using System.Linq;
@@ -372,7 +373,8 @@ namespace fCraft {
             if( sb == null ) throw new ArgumentNullException( "sb" );
             SubstituteSpecialColors( sb );
             foreach( KeyValuePair<string, IRCColor> code in MinecraftToIRCColors ) {
-                sb.Replace( code.Key, '\u0003' + ((int)code.Value).ToString().PadLeft( 2, '0' ) );
+                string replacement = '\u0003' + ((int)code.Value).ToString( CultureInfo.InvariantCulture ).PadLeft( 2, '0' );
+                sb.Replace( code.Key, replacement );
             }
         }
 

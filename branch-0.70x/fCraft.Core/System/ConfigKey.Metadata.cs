@@ -107,6 +107,8 @@ namespace fCraft {
             ValidValues = null;
             InvalidValues = null;
         }
+
+
         public int MinValue { get; set; }
         public int MaxValue { get; set; }
         public bool PowerOfTwo { get; set; }
@@ -115,10 +117,12 @@ namespace fCraft {
         public int[] InvalidValues { get; set; }
         public bool AlwaysAllowZero { get; set; }
 
+
         public override bool IsDefault( string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
-            return (Int32.Parse( value ) == (int)DefaultValue );
+            return ( Int32.Parse( value ) == (int)DefaultValue );
         }
+
 
         public override string GetPresentationString( string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
@@ -139,15 +143,18 @@ namespace fCraft {
             }
 
             if( MinValue != int.MinValue && parsedValue < MinValue ) {
-                throw new FormatException( String.Format( "Value is too low ({0}); expected at least {1}.", parsedValue, MinValue ) );
+                throw new FormatException( String.Format( "Value is too low ({0}); expected at least {1}.", parsedValue,
+                                                          MinValue ) );
             }
 
             if( MaxValue != int.MaxValue && parsedValue > MaxValue ) {
-                throw new FormatException( String.Format( "Value is too high ({0}); expected at most {1}.", parsedValue, MaxValue ) );
+                throw new FormatException( String.Format( "Value is too high ({0}); expected at most {1}.", parsedValue,
+                                                          MaxValue ) );
             }
 
             if( MultipleOf != 0 && ( parsedValue % MultipleOf != 0 ) ) {
-                throw new FormatException( String.Format( "Value ({0}) is not a multiple of {1}.", parsedValue, MultipleOf ) );
+                throw new FormatException( String.Format( "Value ({0}) is not a multiple of {1}.", parsedValue,
+                                                          MultipleOf ) );
             }
             if( PowerOfTwo ) {
                 bool found = false;
@@ -162,13 +169,15 @@ namespace fCraft {
                 }
             }
             if( ValidValues != null ) {
-                if( !ValidValues.Any( t => parsedValue == t ) ) {
-                    throw new FormatException( String.Format( "Value ({0}) is not on the list of valid values.", parsedValue ) );
+                if( ValidValues.All( t => parsedValue != t ) ) {
+                    throw new FormatException( String.Format( "Value ({0}) is not on the list of valid values.",
+                                                              parsedValue ) );
                 }
             }
             if( InvalidValues != null ) {
-                if( InvalidValues.Any(t => parsedValue == t) ) {
-                    throw new FormatException( String.Format( "Value ({0}) is on the list of invalid values.", parsedValue ) );
+                if( InvalidValues.Any( t => parsedValue == t ) ) {
+                    throw new FormatException( String.Format( "Value ({0}) is on the list of invalid values.",
+                                                              parsedValue ) );
                 }
             }
         }

@@ -709,9 +709,7 @@ namespace System.IO.Compression {
                     zipFileStream.Seek( centralDirOffset, SeekOrigin.Begin );
                     return true;
                 } while( zipFileStream.Position > 0 );
-                // ReSharper disable EmptyGeneralCatchClause
             } catch { }
-            // ReSharper restore EmptyGeneralCatchClause
 
             return false;
         }

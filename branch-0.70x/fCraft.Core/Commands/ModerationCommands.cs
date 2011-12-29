@@ -573,9 +573,7 @@ namespace fCraft {
             player.Info.IsHidden = false;
             if( !silent ) {
                 if( ConfigKey.ShowConnectionMessages.Enabled() ) {
-// ReSharper disable AssignNullToNotNullAttribute
                     string msg = Server.MakePlayerConnectedMessage( player, false, player.World );
-// ReSharper restore AssignNullToNotNullAttribute
                     Server.Players.CantSee( player ).Message( msg );
                 }
                 if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() ) {

@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using fCraft.MapConversion;
@@ -150,7 +151,7 @@ namespace fCraft {
                             }
                         }
                         player.Message( "    Change limit: {0}    Time limit: {1}",
-                                        db.Limit == 0 ? "none" : db.Limit.ToString(),
+                                        db.Limit == 0 ? "none" : db.Limit.ToString( CultureInfo.InvariantCulture ),
                                         db.TimeLimit == TimeSpan.Zero ? "none" : db.TimeLimit.ToMiniString() );
                     }
                     return;
@@ -223,7 +224,7 @@ namespace fCraft {
                             if( limitString == null ) {
                                 player.Message( "BlockDB: Limit for world {0}&S is {1}",
                                                 world.ClassyName,
-                                                (db.Limit == 0 ? "none" : db.Limit.ToString()) );
+                                                (db.Limit == 0 ? "none" : db.Limit.ToString( CultureInfo.InvariantCulture )) );
                                 return;
                             }
 
@@ -243,7 +244,7 @@ namespace fCraft {
                                 player.Confirm( cmd, "BlockDB: Change limit? Some old data for world {0}&S may be discarded.", world.ClassyName );
 
                             } else {
-                                string limitDisplayString = (limitNumber == 0 ? "none" : limitNumber.ToString());
+                                string limitDisplayString = (limitNumber == 0 ? "none" : limitNumber.ToString( CultureInfo.InvariantCulture ));
                                 if( db.Limit == limitNumber ) {
                                     player.Message( "BlockDB: Limit for world {0}&S is already set to {1}",
                                                    world.ClassyName, limitDisplayString );
@@ -2267,9 +2268,7 @@ namespace fCraft {
                 if( mainedRanks.Any() ) {
                     player.Message( "Rank mains: {0}",
                                     mainedRanks.JoinToString( r => String.Format( "{0}&S for {1}&S",
-                                        // ReSharper disable PossibleNullReferenceException
                                                                                   r.MainWorld.ClassyName,
-                                        // ReSharper restore PossibleNullReferenceException
                                                                                   r.ClassyName ) ) );
                 }
                 return;

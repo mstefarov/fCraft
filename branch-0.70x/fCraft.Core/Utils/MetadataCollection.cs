@@ -227,7 +227,6 @@ namespace fCraft {
 
         public bool ContainsValue( [NotNull] TValue value ) {
             lock( syncRoot ) {
-                // ReSharper disable LoopCanBeConvertedToQuery
                 foreach( var group in store ) {
                     foreach( var key in group.Value ) {
                         if( value.Equals( key.Value ) ) {
@@ -235,7 +234,6 @@ namespace fCraft {
                         }
                     }
                 }
-                // ReSharper restore LoopCanBeConvertedToQuery
             }
             return false;
         }
@@ -243,7 +241,6 @@ namespace fCraft {
 
         public bool ContainsValue( [NotNull] TValue value, IEqualityComparer<TValue> comparer ) {
             lock( syncRoot ) {
-                // ReSharper disable LoopCanBeConvertedToQuery
                 foreach( var group in store ) {
                     foreach( var key in group.Value ) {
                         if( comparer.Equals( key.Value, value ) ) {
@@ -251,7 +248,6 @@ namespace fCraft {
                         }
                     }
                 }
-                // ReSharper restore LoopCanBeConvertedToQuery
             }
             return false;
         }
@@ -359,7 +355,6 @@ namespace fCraft {
         /// <summary> Enumerates all keys in this collection. </summary>
         /// <remarks> Lock SyncRoot if this is used in a loop. </remarks>
         public IEnumerator<MetadataEntry<TValue>> GetEnumerator() {
-            // ReSharper disable LoopCanBeConvertedToQuery
             foreach( var group in store ) {
                 foreach( var key in group.Value ) {
                     yield return new MetadataEntry<TValue> {
@@ -369,7 +364,6 @@ namespace fCraft {
                     };
                 }
             }
-            // ReSharper restore LoopCanBeConvertedToQuery
         }
 
         #endregion

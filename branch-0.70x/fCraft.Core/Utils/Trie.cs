@@ -80,7 +80,6 @@ namespace fCraft {
         /// <param name="value"> Value to search for. </param>
         /// <returns> True if the trie contains at least one copy of the value. </returns>
         public bool ContainsValue( [NotNull] T value ) {
-            // ReSharper restore UnusedMember.Global
             if( value == null ) throw new ArgumentNullException( "value" );
             return Values.Contains( value );
         }
@@ -1316,12 +1315,10 @@ namespace fCraft {
 
                 switch( Tag ) {
                     case MultiNode:
-                        // ReSharper disable LoopCanBeConvertedToQuery
                         for( int i = 0; i < Children.Length; i++ ) {
                             if( Children[i] == null ) continue;
                             if( !Children[i].GetAllChildren( list, limit ) ) return false;
                         }
-                        // ReSharper restore LoopCanBeConvertedToQuery
                         return true;
 
                     case LeafNode:

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -820,8 +821,8 @@ namespace fCraft {
             } else {
                 sb.Replace( "{WORLD}", player.World.ClassyName );
             }
-            sb.Replace( "{PLAYERS}", CountVisiblePlayers( player ).ToString() );
-            sb.Replace( "{WORLDS}", WorldManager.Worlds.Length.ToString() );
+            sb.Replace( "{PLAYERS}", CountVisiblePlayers( player ).ToString( CultureInfo.InvariantCulture ) );
+            sb.Replace( "{WORLDS}", WorldManager.Worlds.Length.ToString( CultureInfo.InvariantCulture ) );
             sb.Replace( "{MOTD}", ConfigKey.MOTD.GetString() );
             sb.Replace( "{VERSION}", Updater.CurrentRelease.VersionString );
             return sb.ToString();

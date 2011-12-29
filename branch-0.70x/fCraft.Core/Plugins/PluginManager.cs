@@ -16,7 +16,7 @@ namespace fCraft {
         public EventHandler<PluginLoadFailedEventArgs> PluginLoadFail;
 
         public PluginManager() {
-            PluginLoaders = new List<IPluginLoader>() {
+            PluginLoaders = new List<IPluginLoader> {
                 new CLIPluginLoader()
             };
             Plugins = new List<IPlugin>();
@@ -53,7 +53,7 @@ namespace fCraft {
             }
         }
 
-        private bool LoaderClaims( IPluginLoader pluginLoader, string fileName ) {
+        private static bool LoaderClaims( IPluginLoader pluginLoader, string fileName ) {
             foreach( string extension in pluginLoader.PluginExtensions ) {
                 if( fileName.EndsWith( extension ) ) {
                     return true;

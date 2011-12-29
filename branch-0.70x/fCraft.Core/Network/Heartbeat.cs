@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
@@ -65,8 +66,8 @@ namespace fCraft {
                 string[] data = new[]{
                     Salt,
                     Server.InternalIP.ToString(),
-                    Server.Port.ToString(),
-                    Server.CountPlayers( false ).ToString(),
+                    Server.Port.ToString( CultureInfo.InvariantCulture ),
+                    Server.CountPlayers( false ).ToString( CultureInfo.InvariantCulture ),
                     ConfigKey.MaxPlayers.GetString(),
                     ConfigKey.ServerName.GetString(),
                     ConfigKey.IsPublic.GetString()
@@ -125,9 +126,7 @@ namespace fCraft {
             try {
                 string responseText;
                 using( HttpWebResponse response = (HttpWebResponse)state.Request.EndGetResponse( result ) ) {
-                    // ReSharper disable AssignNullToNotNullAttribute
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
-                        // ReSharper restore AssignNullToNotNullAttribute
                         responseText = responseReader.ReadToEnd();
                     }
                     RaiseHeartbeatSentEvent( state.Data, response, responseText );

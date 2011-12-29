@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Xml;
 using System.Xml.Linq;
 using fCraft.Events;
 using fCraft.MapConversion;
@@ -64,9 +63,7 @@ namespace fCraft {
                     XElement root = doc.Root;
                     if( root != null ) {
                         foreach( XElement el in root.Elements( "World" ) ) {
-                            // ReSharper disable JoinDeclarationAndInitializer
                             World newWorld;
-                            // ReSharper restore JoinDeclarationAndInitializer
 #if DEBUG
                             newWorld = AddWorld( el );
 #else
@@ -201,9 +198,7 @@ namespace fCraft {
                     FileInfo[] matches = Paths.FindFiles( fullMapFileName );
                     if( matches.Length == 1 ) {
                         // Try to rename the map file to match world's capitalization
-                        // ReSharper disable AssignNullToNotNullAttribute
                         Paths.ForceRename( matches[0].FullName, fileName );
-                        // ReSharper restore AssignNullToNotNullAttribute
                         if( Paths.FileExists( fullMapFileName, true ) ) {
                             Logger.Log( LogType.Warning,
                                         "WorldManager.CheckMapFile: Map file for world \"{0}\" was renamed from \"{1}\" to \"{2}\"",

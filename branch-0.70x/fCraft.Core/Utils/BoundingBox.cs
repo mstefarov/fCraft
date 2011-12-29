@@ -5,15 +5,12 @@ using JetBrains.Annotations;
 
 namespace fCraft {
 
-    /// <summary>
-    /// Defines a 3D bounding box, in integer cartesian coordinates
-    /// </summary>
+    /// <summary> Defines a 3D bounding box, in integer cartesian coordinates. </summary>
     public sealed class BoundingBox : IEquatable<BoundingBox> {
+        /// <summary> Empty BoundingBox (0x0x0). </summary>
         public static readonly BoundingBox Empty = new BoundingBox( 0, 0, 0, 0, 0, 0 );
 
-        // ReSharper disable FieldCanBeMadeReadOnly.Global
-        public int XMin, YMin, ZMin, XMax, YMax, ZMax;
-        // ReSharper restore FieldCanBeMadeReadOnly.Global
+        public readonly int XMin, YMin, ZMin, XMax, YMax, ZMax;
 
         /// <summary> Constructs a bounding box using two vectors as opposite corners. </summary>
         public BoundingBox( Vector3I p1, Vector3I p2 ) :
