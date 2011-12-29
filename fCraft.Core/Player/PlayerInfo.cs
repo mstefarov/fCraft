@@ -722,8 +722,6 @@ namespace fCraft {
                 }
             }
         }
-
-        /// <summary> Last IpAddress that this player connected with </summary>
         IPAddress lastIP = IPAddress.None;
 
         /// <summary> Determines if the player has been granted all permissions </summary>
