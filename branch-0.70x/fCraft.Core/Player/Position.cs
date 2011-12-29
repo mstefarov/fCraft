@@ -37,6 +37,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Whether all components of this Position are zero. </summary>
         public bool IsZero {
             get {
                 return X == 0 && Y == 0 && Z == 0 && R == 0 && L == 0;
@@ -44,11 +45,11 @@ namespace fCraft {
         }
 
 
-        // adjust for bugs in position-reporting in Minecraft client
+        /// <summary> Adjust for bugs in position-reporting in Minecraft client by offsetting Z by -22 units. </summary>
         public Position GetFixed() {
             return new Position {
-                X = (X),
-                Y = (Y),
+                X = X,
+                Y = Y,
                 Z = (short)(Z - 22),
                 R = R,
                 L = L
