@@ -22,8 +22,8 @@ namespace fCraft.Drawing {
             get { return HelpString; }
         }
 
-        [CanBeNull]
-        public IBrush MakeBrush( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+
+        public IBrush MakeBrush( Player player, CommandReader cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
 
@@ -92,8 +92,7 @@ namespace fCraft.Drawing {
         }
 
 
-        [CanBeNull]
-        public IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] CommandReader cmd, [NotNull] DrawOperation op ) {
+        public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation op ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( op == null ) throw new ArgumentNullException( "op" );
@@ -148,7 +147,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public bool Begin( [NotNull] Player player, [NotNull] DrawOperation op ) {
+        public bool Begin( Player player, DrawOperation op ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( op == null ) throw new ArgumentNullException( "op" );
             op.Context |= BlockChangeContext.Replaced;
@@ -156,7 +155,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public Block NextBlock( [NotNull] DrawOperation op ) {
+        public Block NextBlock( DrawOperation op ) {
             if( op == null ) throw new ArgumentNullException( "op" );
             Block block = op.Map.GetBlock( op.Coords );
             if( block == Block ) {

@@ -744,7 +744,6 @@ namespace fCraft {
         static void GenHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
             string themeName = cmd.Next();
-            string templateName;
             bool genOcean = false;
             bool genEmpty = false;
             bool noTrees = false;
@@ -764,7 +763,7 @@ namespace fCraft {
                 genEmpty = true;
 
             } else {
-                templateName = cmd.Next();
+                string templateName = cmd.Next();
                 if( templateName == null ) {
                     CdGenerate.PrintUsage( player );
                     return;
@@ -964,7 +963,6 @@ namespace fCraft {
                     player.Message( "&WAn error occured while saving generated map to {0}", fileName );
                 }
             } else {
-                if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
                 player.MessageNow( "Generation done. Changing map..." );
                 playerWorld.MapChangedBy = player.Name;
                 playerWorld.ChangeMap( map );
@@ -1922,7 +1920,7 @@ namespace fCraft {
                                     world.BackupInterval.ToMiniString() );
                     break;
                 case YesNoAuto.No:
-                    player.Message( "{0}Backups are manually disabled on {0}",
+                    player.Message( "{0}Backups are manually disabled on {1}",
                                     prefix,
                                     world.ClassyName );
                     break;
@@ -2266,7 +2264,7 @@ namespace fCraft {
                 player.Message( "Main world is {0}", WorldManager.MainWorld.ClassyName );
                 var mainedRanks = RankManager.Ranks
                                              .Where( r => r.MainWorld != null && r.MainWorld != WorldManager.MainWorld );
-                if( mainedRanks.Count() > 0 ) {
+                if( mainedRanks.Any() ) {
                     player.Message( "Rank mains: {0}",
                                     mainedRanks.JoinToString( r => String.Format( "{0}&S for {1}&S",
                                         // ReSharper disable PossibleNullReferenceException

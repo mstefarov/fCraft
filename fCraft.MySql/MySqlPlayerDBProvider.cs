@@ -25,8 +25,7 @@ namespace fCraft.MySql {
 
         /// <summary> Adds a new PlayerInfo entry for an actual, logged-in player. </summary>
         /// <returns> A newly-created PlayerInfo entry. </returns>
-        [NotNull]
-        public PlayerInfo AddPlayer( [NotNull] string name,  [NotNull] Rank startingRank, RankChangeType rankChangeType, [NotNull] IPAddress address ) {
+        public PlayerInfo AddPlayer( string name, Rank startingRank, RankChangeType rankChangeType, IPAddress address ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( address == null ) throw new ArgumentNullException( "address" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
@@ -54,8 +53,7 @@ namespace fCraft.MySql {
 
         /// <summary> Adds a new PlayerInfo entry for a player who has never been online, by name. </summary>
         /// <returns> A newly-created PlayerInfo entry. </returns>
-        [NotNull]
-        public PlayerInfo AddUnrecognizedPlayer( [NotNull] string name, [NotNull] Rank startingRank, RankChangeType rankChangeType ) {
+        public PlayerInfo AddUnrecognizedPlayer( string name, Rank startingRank, RankChangeType rankChangeType ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
             lock( syncRoot ) {
@@ -82,7 +80,7 @@ namespace fCraft.MySql {
 
         /// <summary> Inserts all data from given playerInfo directly into the database. </summary>
         /// <param name="playerInfo"> Player record to import. </param>
-        public void Import( [NotNull] PlayerInfo playerInfo ) {
+        public void Import( PlayerInfo playerInfo ) {
             if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
             lock( syncRoot ) {
                 GetImportCommand( playerInfo ).ExecuteNonQuery();
@@ -91,8 +89,8 @@ namespace fCraft.MySql {
 
 
         /// <summary> Inserts all data from given PlayerInfo list directly into the database. </summary>
-        /// <param name="playerInfo"> List of player record to import. </param>
-        public void Import( [NotNull] IEnumerable<PlayerInfo> playerInfos ) {
+        /// <param name="playerInfos"> List of player record to import. </param>
+        public void Import( IEnumerable<PlayerInfo> playerInfos ) {
             if( playerInfos == null ) throw new ArgumentNullException( "playerInfos" );
             lock( syncRoot ) {
                 using( MySqlTransaction transaction = connection.BeginTransaction() ) {
@@ -109,7 +107,7 @@ namespace fCraft.MySql {
 
         /// <summary> Removes a PlayerInfo entry from the database. </summary>
         /// <returns> True if the entry is successfully found and removed; otherwise false. </returns>
-        public bool Remove( [NotNull] PlayerInfo playerInfo ) {
+        public bool Remove( PlayerInfo playerInfo ) {
             if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
             lock( syncRoot ) {
                 MySqlCommand cmd = GetDeleteCommand( playerInfo.ID );
@@ -122,8 +120,7 @@ namespace fCraft.MySql {
         /// <summary> Finds player by exact name. </summary>
         /// <param name="fullName"> Full, case-insensitive name of the player. </param>
         /// <returns> PlayerInfo if player was found, or null if not found. </returns>
-        [CanBeNull]
-        public PlayerInfo FindExact( [NotNull] string fullName ) {
+        public PlayerInfo FindExact( string fullName ) {
             if( fullName == null ) throw new ArgumentNullException( "fullName" );
             lock( syncRoot ) {
                 MySqlCommand cmd = GetFindExactCommand( fullName );
@@ -142,8 +139,7 @@ namespace fCraft.MySql {
         /// <param name="address"> Player's IP address. </param>
         /// <param name="limit"> Maximum number of results to return. </param>
         /// <returns> A sequence of zero or more PlayerInfos who have logged in from given IP. </returns>
-        [NotNull]
-        public IEnumerable<PlayerInfo> FindByIP( [NotNull] IPAddress address, int limit ) {
+        public IEnumerable<PlayerInfo> FindByIP( IPAddress address, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             lock( syncRoot ) {
                 MySqlCommand cmd = GetFindByIPCommand( address, limit );
@@ -163,8 +159,7 @@ namespace fCraft.MySql {
         /// <param name="partialName"> Full or partial name of the player. </param>
         /// <param name="limit"> Maximum number of results to return. </param>
         /// <returns> A sequence of zero or more PlayerInfos whose names start with partialName. </returns>
-        [NotNull]
-        public IEnumerable<PlayerInfo> FindByPartialName( [NotNull] string partialName, int limit ) {
+        public IEnumerable<PlayerInfo> FindByPartialName( string partialName, int limit ) {
             if( partialName == null ) throw new ArgumentNullException( "partialName" );
 
             lock( syncRoot ) {
@@ -198,7 +193,7 @@ namespace fCraft.MySql {
         /// <param name="partialName"> Partial or full player name. </param>
         /// <param name="result"> PlayerInfo to output (will be set to null if no single match was found). </param>
         /// <returns> true if one or zero matches were found, false if multiple matches were found. </returns>
-        public bool FindOneByPartialName( [NotNull] string partialName, [CanBeNull] out PlayerInfo result ) {
+        public bool FindOneByPartialName( string partialName, out PlayerInfo result ) {
             if( partialName == null ) throw new ArgumentNullException( "partialName" );
 
             lock( syncRoot ) {
@@ -239,8 +234,7 @@ namespace fCraft.MySql {
         /// Question mark (?) matches exactly one character. </param>
         /// <param name="limit"> Maximum number of results to return. </param>
         /// <returns> A sequence of zero or more PlayerInfos whose names match the pattern. </returns>
-        [NotNull]
-        public IEnumerable<PlayerInfo> FindByPattern( [NotNull] string pattern, int limit ) {
+        public IEnumerable<PlayerInfo> FindByPattern( string pattern, int limit ) {
             if( pattern == null ) throw new ArgumentNullException( "pattern" );
             string processedPattern = pattern.Replace( "_", "\\_" ) // escape underscores
                                              .Replace( '*', '%' ) // zero-or-more-characters wildcard

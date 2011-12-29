@@ -634,7 +634,6 @@ namespace fCraft {
                 }
             }
         }
-        [CanBeNull]
         DateTime mutedUntil;
 
 
@@ -927,7 +926,6 @@ namespace fCraft {
 
 
         // implements IClassy interface
-        [NotNull]
         public string ClassyName {
             get {
                 StringBuilder sb = new StringBuilder();

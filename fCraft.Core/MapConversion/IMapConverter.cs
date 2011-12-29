@@ -27,11 +27,13 @@ namespace fCraft.MapConversion {
 
         /// <summary> Attempts to load map dimensions from specified location. </summary>
         /// <returns> Map object on success, or null on failure. </returns>
+        [CanBeNull]
         Map LoadHeader( [NotNull] string path );
 
 
         /// <summary> Fully loads map from specified location. </summary>
         /// <returns> Map object on success, or null on failure. </returns>
+        [CanBeNull]
         Map Load( [NotNull] string path );
 
 

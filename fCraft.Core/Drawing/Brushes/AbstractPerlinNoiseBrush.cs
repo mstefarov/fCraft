@@ -61,7 +61,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public virtual bool Begin( [NotNull] Player player, [NotNull] DrawOperation op ) {
+        public virtual bool Begin( Player player, DrawOperation op ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( op == null ) throw new ArgumentNullException( "op" );
 
@@ -104,7 +104,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public virtual Block NextBlock( [NotNull] DrawOperation op ) {
+        public virtual Block NextBlock( DrawOperation op ) {
             if( op == null ) throw new ArgumentNullException( "op" );
             Vector3I relativeCoords = op.Coords - op.Bounds.MinVertex;
             float value = noise3D.Compute( relativeCoords.X, relativeCoords.Y, relativeCoords.Z );

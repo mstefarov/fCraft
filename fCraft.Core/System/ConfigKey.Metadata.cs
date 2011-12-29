@@ -1,7 +1,6 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -80,7 +79,7 @@ namespace fCraft {
         public Regex Regex { get; set; }
         public bool RestrictedChars { get; set; }
 
-        public override string GetPresentationString( [NotNull] string value ) {
+        public override string GetPresentationString( string value ) {
             return '"' + value + '"';
         }
 
@@ -123,12 +122,12 @@ namespace fCraft {
         public int[] InvalidValues { get; set; }
         public bool AlwaysAllowZero { get; set; }
 
-        public override bool IsDefault( [NotNull] string value ) {
+        public override bool IsDefault( string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             return (Int32.Parse( value ) == (int)DefaultValue );
         }
 
-        public override string GetPresentationString( [NotNull] string value ) {
+        public override string GetPresentationString( string value ) {
             return Int32.Parse( value ).ToString();
         }
 
@@ -172,7 +171,7 @@ namespace fCraft {
                 }
             }
             if( InvalidValues != null ) {
-                if( !InvalidValues.All( t => parsedValue != t ) ) {
+                if( InvalidValues.Any(t => parsedValue == t) ) {
                     throw new FormatException( String.Format( "Value ({0}) is on the list of invalid values.", parsedValue ) );
                 }
             }
@@ -193,7 +192,7 @@ namespace fCraft {
         public BlankValueMeaning BlankMeaning { get; set; }
 
 
-        public override bool IsDefault( [NotNull] string value ) {
+        public override bool IsDefault( string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             return (value.Length==0);
         }
@@ -273,7 +272,7 @@ namespace fCraft {
             : base( section, typeof( bool ), defaultValue, description ) {
         }
 
-        public override bool IsDefault( [NotNull] string value ) {
+        public override bool IsDefault( string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             return ( Boolean.Parse( value ) == (bool)DefaultValue );
         }
@@ -288,7 +287,7 @@ namespace fCraft {
         }
 
 
-        public override string GetPresentationString( [NotNull] string value ) {
+        public override string GetPresentationString( string value ) {
             return Boolean.Parse( value ).ToString();
         }
 
@@ -327,7 +326,7 @@ namespace fCraft {
         public BlankValueMeaning BlankMeaning { get; set; }
 
 
-        public override bool IsDefault( [NotNull] string value ) {
+        public override bool IsDefault( string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             if( value.Length == 0 ) {
                 return true;

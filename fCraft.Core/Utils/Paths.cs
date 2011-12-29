@@ -13,11 +13,12 @@ namespace fCraft {
         static readonly string[] ProtectedFiles;
 
         static Paths() {
-            string assemblyDir = Path.GetDirectoryName( Assembly.GetExecutingAssembly().Location );
+            string assemblyLocation = Assembly.GetExecutingAssembly().Location;
+            string assemblyDir = Path.GetDirectoryName( assemblyLocation );
             if( assemblyDir != null ) {
                 WorkingPathDefault = Path.GetFullPath( assemblyDir );
             } else {
-                WorkingPathDefault = Path.GetPathRoot( assemblyDir );
+                WorkingPathDefault = Path.GetPathRoot( assemblyLocation );
             }
 
             WorkingPath = WorkingPathDefault;

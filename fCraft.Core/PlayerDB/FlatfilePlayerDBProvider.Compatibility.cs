@@ -38,7 +38,7 @@ namespace fCraft {
         internal PlayerInfo LoadFormat2( [NotNull] string[] fields ) {
             if( fields == null ) throw new ArgumentNullException( "fields" );
             int id = Int32.Parse( fields[29] );
-            if( id < 256 ) id = GetNextID();
+            if( id < 256 ) id = GetNextId();
 
             PlayerInfo info = new PlayerInfo( id ) {
                 Name = fields[0]
@@ -198,7 +198,7 @@ namespace fCraft {
         internal PlayerInfo LoadFormat1( [NotNull] string[] fields ) {
             if( fields == null ) throw new ArgumentNullException( "fields" );
             int id = Int32.Parse( fields[29] );
-            if( id < 256 ) id = GetNextID();
+            if( id < 256 ) id = GetNextId();
 
             PlayerInfo info = new PlayerInfo( id ) { Name = fields[0] };
 
@@ -352,10 +352,10 @@ namespace fCraft {
             int id;
             if( fields.Length > 29 ) {
                 if( !Int32.TryParse( fields[29], out id ) || id < 256 ) {
-                    id = GetNextID();
+                    id = GetNextId();
                 }
             } else {
-                id = GetNextID();
+                id = GetNextId();
             }
 
             PlayerInfo info = new PlayerInfo( id ) {

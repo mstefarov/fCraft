@@ -3,9 +3,8 @@
 using System;
 
 namespace fCraft {
-    public class PluginLoadedEventArgs : EventArgs {
-        public PluginLoadedEventArgs( IPlugin plugin )
-            : base() {
+    public sealed class PluginLoadedEventArgs : EventArgs {
+        public PluginLoadedEventArgs( IPlugin plugin ) {
             Plugin = plugin;
         }
         public IPlugin Plugin { get; private set; }

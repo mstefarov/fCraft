@@ -27,12 +27,10 @@ namespace fCraft.MapConversion {
 
 
     public class NBTag : IEnumerable<NBTag> {
-        // ReSharper disable MemberCanBeProtected.Global
         public NBTType Type { get; protected set; }
         public string Name { get; set; }
         public object Payload { get; set; }
         public NBTag Parent { get; set; }
-        // ReSharper restore MemberCanBeProtected.Global
 
 
         #region Constructors
@@ -212,14 +210,13 @@ namespace fCraft.MapConversion {
                     return list;
 
                 case NBTType.Compound:
-                    NBTag childTag;
                     NBTCompound compound = new NBTCompound {
                         Type = NBTType.Compound,
                         Name = name,
                         Parent = parent
                     };
                     while( true ) {
-                        childTag = ReadTag( reader, (NBTType)reader.ReadByte(), null, compound );
+                        NBTag childTag = ReadTag( reader, (NBTType)reader.ReadByte(), null, compound );
                         if( childTag.Type == NBTType.End ) break;
                         if( childTag.Name == null )
                             continue;

@@ -1,6 +1,5 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System;
-using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     public sealed class NormalBrushFactory : IBrushFactory, IBrush {
@@ -33,15 +32,14 @@ namespace fCraft.Drawing {
         }
 
 
-        public IBrush MakeBrush( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+        public IBrush MakeBrush( Player player, CommandReader cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             return this;
         }
 
 
-        [CanBeNull]
-        public IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] CommandReader cmd, [NotNull] DrawOperation state ) {
+        public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( state == null ) throw new ArgumentNullException( "state" );
@@ -101,7 +99,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public bool Begin( [NotNull] Player player, [NotNull] DrawOperation state ) {
+        public bool Begin( Player player, DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( state == null ) throw new ArgumentNullException( "state" );
             if( Block == Block.Undefined ) {
@@ -116,7 +114,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public Block NextBlock( [NotNull] DrawOperation state ) {
+        public Block NextBlock( DrawOperation state ) {
             if( state == null ) throw new ArgumentNullException( "state" );
             if( state.UseAlternateBlock ) {
                 return AltBlock;

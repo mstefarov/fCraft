@@ -122,10 +122,9 @@ namespace fCraft {
                 return;
             }
 
-            PlayerInfo[] infos;
             using( FileStream fs = File.Create( fileName ) ) {
                 using( StreamWriter writer = new StreamWriter( fs ) ) {
-                    infos = PlayerDB.PlayerInfoList;
+                    PlayerInfo[] infos = PlayerDB.PlayerInfoList;
                     if( infos.Length == 0 ) {
                         writer.WriteLine( "(TOTAL) (0 players)" );
                         writer.WriteLine();
@@ -1357,10 +1356,10 @@ namespace fCraft {
             Permissions = new[] { Permission.EditPlayerDB },
             Usage = "/InfoSwap Player1 Player2",
             Help = "Swaps records between two players. EXPERIMENTAL, use at your own risk.",
-            Handler = DoPlayerDB
+            Handler = InfoSwapHandler
         };
 
-        static void DoPlayerDB( Player player, CommandReader cmd ) {
+        static void InfoSwapHandler( Player player, CommandReader cmd ) {
             string p1Name = cmd.Next();
             string p2Name = cmd.Next();
             if( p1Name == null || p2Name == null ) {
@@ -1385,7 +1384,6 @@ namespace fCraft {
 
             if( !cmd.IsConfirmed ) {
                 player.Confirm( cmd, "InfoSwap: Swap stats of players {0}&S and {1}&S?", p1.ClassyName, p2.ClassyName );
-                return;
             } else {
                 PlayerDB.SwapPlayerInfo( p1, p2 );
                 player.Message( "InfoSwap: Stats of {0}&S and {1}&S have been swapped.",

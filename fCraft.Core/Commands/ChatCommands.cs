@@ -138,7 +138,6 @@ namespace fCraft {
                 } else {
                     player.MessageNow( "You are not currently ignoring anyone." );
                 }
-                return;
             }
         }
 
@@ -174,7 +173,6 @@ namespace fCraft {
                 } else {
                     player.MessageNow( "You are not currently ignoring anyone." );
                 }
-                return;
             }
         }
 

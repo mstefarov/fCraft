@@ -490,7 +490,6 @@ namespace fCraft {
 
                     CrossSection( coord, radius, primidx, Args.TrunkBlock );
                 }
-                return;
             }
 
             public override void MakeFoliage() {

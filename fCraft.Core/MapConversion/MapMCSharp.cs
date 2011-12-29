@@ -153,13 +153,13 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool ClaimsName( [NotNull] string fileName ) {
+        public bool ClaimsName( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".lvl", StringComparison.OrdinalIgnoreCase );
         }
 
 
-        public bool Claims( [NotNull] string fileName ) {
+        public bool Claims( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
@@ -174,7 +174,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map LoadHeader( [NotNull] string fileName ) {
+        public Map LoadHeader( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
@@ -217,7 +217,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map Load( [NotNull] string fileName ) {
+        public Map Load( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
@@ -240,7 +240,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool Save( [NotNull] Map mapToSave, [NotNull] string fileName ) {
+        public bool Save( Map mapToSave, string fileName ) {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.Create( fileName ) ) {

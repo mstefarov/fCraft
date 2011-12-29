@@ -38,13 +38,11 @@ namespace fCraft {
 
 
         public bool Dequeue( ref T t ) {
-            Pointer tempHead;
-
             // Keep trying until deque is done
             bool bDequeNotDone = true;
             while( bDequeNotDone ) {
                 // read head
-                tempHead = head;
+                Pointer tempHead = head;
 
                 // read tail
                 Pointer tempTail = tail;
