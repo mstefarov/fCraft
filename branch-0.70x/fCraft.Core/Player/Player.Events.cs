@@ -541,9 +541,14 @@ namespace fCraft.Events {
             IsFake = isFake;
         }
 
+        /// <summary> Player who has just disconnected. </summary>
         [NotNull]
         public Player Player { get; private set; }
+
+        /// <summary> Reason for leaving the server. </summary>
         public LeaveReason LeaveReason { get; private set; }
+
+        /// <summary> Whether the player has *actually* disconnected, or if this disconnect is faked by /Hide. </summary>
         public bool IsFake { get; private set; }
     }
 
@@ -564,25 +569,36 @@ namespace fCraft.Events {
             TextLine2 = textLine2;
         }
 
+        /// <summary> Player who intends to join a world. </summary>
         [NotNull]
         public Player Player { get; private set; }
 
+        /// <summary> Player's current world. May be null if player just connected, and is joining main. </summary>
         [CanBeNull]
         public World OldWorld { get; private set; }
 
+        /// <summary> The world that player intends to join. May be same as OldWorld, if rejoining. </summary>
         [NotNull]
         public World NewWorld { get; private set; }
 
+        /// <summary> Context of the world change. </summary>
         public WorldChangeReason Reason { get; private set; }
+
+        /// <summary> First line of text that is shown to the player on the loading screen.
+        /// Defaults to server name. May be changed. </summary>
         public string TextLine1 { get; set; }
+
+        /// <summary> First line of text that is shown to the player on the loading screen.
+        /// Defaults to world name or WoM cfg string. May be changed. </summary>
         public string TextLine2 { get; set; }
+
         public bool Cancel { get; set; }
     }
 
 
     /// <summary> Provides data for Player.JoinedWorld event. Immutable. </summary>
     public sealed class PlayerJoinedWorldEventArgs : EventArgs, IPlayerEvent {
-        public PlayerJoinedWorldEventArgs( [NotNull] Player player, [CanBeNull] World oldWorld, [NotNull] World newWorld, WorldChangeReason reason ) {
+        internal PlayerJoinedWorldEventArgs( [NotNull] Player player, [CanBeNull] World oldWorld, [NotNull] World newWorld, WorldChangeReason reason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             OldWorld = oldWorld;
@@ -590,15 +606,19 @@ namespace fCraft.Events {
             Reason = reason;
         }
 
+        /// <summary> Player who has just joined a world. </summary>
         [NotNull]
         public Player Player { get; private set; }
 
+        /// <summary> Players' previous world. May be null if player just connected, and is joining main. </summary>
         [CanBeNull]
         public World OldWorld { get; private set; }
 
+        /// <summary> Player's current (newly-joined) world. May be same as OldWorld, if rejoining. </summary>
         [NotNull]
         public World NewWorld { get; private set; }
 
+        /// <summary> Context of the world change. </summary>
         public WorldChangeReason Reason { get; private set; }
     }
 }

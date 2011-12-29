@@ -10,38 +10,33 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     public sealed class World : IClassy {
-        /// <summary> World name (no formatting).
-        /// Use WorldManager.RenameWorld() method to change this. </summary>
+        /// <summary> World name (no formatting). Use WorldManager.RenameWorld() method to change this. </summary>
         [NotNull]
         public string Name { get; internal set; }
 
-
         /// <summary> Whether the world shows up on the /Worlds list. </summary>
         public bool IsHidden { get; set; }
-
 
         /// <summary> Whether this world is currently pending unload 
         /// (waiting for block updates to finish processing before unloading). </summary>
         public bool IsPendingMapUnload { get; private set; }
 
-        /// <summary> Controls which players may access this world </summary>
+        /// <summary> Controls which players may access this world. </summary>
         [NotNull]
-        public SecurityController AccessSecurity { get; internal set; }
+        public SecurityController AccessSecurity { get; private set; }
 
-        /// <summary> Controls which players may build in this world </summary>
+        /// <summary> Controls which players may build in this world. </summary>
         [NotNull]
-        public SecurityController BuildSecurity { get; internal set; }
+        public SecurityController BuildSecurity { get; private set; }
 
-
-        /// <remarks> Zaneo thinks this should be renamed to CreatedOn as it better reflects what is going on</remarks>
-        /// <summary> The date that this world was created on </summary>
+        /// <summary> Date that this world was created on. </summary>
         public DateTime LoadedOn { get; internal set; }
 
-        /// <summary> The name of the player who created this world, null if the player is unknown </summary>
+        /// <summary> Name of the player who created this world, null if the player is unknown. </summary>
         [CanBeNull]
         public string LoadedBy { get; internal set; }
 
-        /// <summary> The (ClassyName) of the player who created this world, null if the player is unknown </summary>
+        /// <summary> The (ClassyName) of the player who created this world, null if player is unknown. </summary>
         [NotNull]
         public string LoadedByClassy {
             get {
@@ -49,14 +44,15 @@ namespace fCraft {
             }
         }
 
-        /// <summary> The date that this world was last loaded </summary>
+        /// <summary> Date that this world was last loaded. </summary>
         public DateTime MapChangedOn { get; private set; }
 
-        /// <summary> The name of the player who last loaded this map, null if the palyer is unknown </summary>
+        /// <summary> Name of the player who last loaded this map,
+        /// null if the player is unknown or if map has never been changed. </summary>
         [CanBeNull]
         public string MapChangedBy { get; internal set; }
 
-        /// <summary> The (ClassyName) of the player who last laoaded this map, null if the palyer is unknown </summary>
+        /// <summary> The (ClassyName) of the player who last laoaded this map, or "?" if player is unknown. </summary>
         [NotNull]
         public string MapChangedByClassy {
             get {
@@ -65,10 +61,11 @@ namespace fCraft {
         }
 
 
-        // used to synchronize player joining/parting with map loading/saving
+        // used to synchronize player joining/parting with map loading/saving.
         internal readonly object SyncRoot = new object();
 
-        /// <summary> Particular BlockDB that this world is using to backup block changes </summary>
+        /// <summary> BlockDB instance that this world is using to backup block changes. </summary>
+        [NotNull]
         public BlockDB BlockDB { get; private set; }
 
 
@@ -169,9 +166,10 @@ namespace fCraft {
             }
         }
 
-        /// <summary> Sets all the settings of the current map, to that of a new map, including physical map </summary>
-        /// <param name="newMap"> New map to change to </param>
-        public void ChangeMap( [NotNull] Map newMap ) {
+
+        /// <summary> Creates a new World for the given Map, with same properties as this world. </summary>
+        /// <returns> Newly-created World object, with the new map. </returns>
+        public World ChangeMap( [NotNull] Map newMap ) {
             if( newMap == null ) throw new ArgumentNullException( "newMap" );
             MapChangedOn = DateTime.UtcNow;
             lock( SyncRoot ) {
@@ -208,10 +206,10 @@ namespace fCraft {
                 foreach( Player player in Players ) {
                     player.JoinWorld( newWorld, WorldChangeReason.Rejoin );
                 }
+                return newWorld;
             }
         }
 
-        bool preload;
 
         /// <summary> Controls if the map should be loaded before players enter </summary>
         public bool Preload {
@@ -230,13 +228,14 @@ namespace fCraft {
                 }
             }
         }
+        bool preload;
 
         #endregion
 
 
         #region Flush
 
-        /// <summary> World is currently being flushed </summary>
+        /// <summary> Whether this world is currently being flushed. </summary>
         public bool IsFlushing { get; private set; }
 
         /// <summary> Intiates a map flush, in which all block drawings are completed. All users are held in limbo until completion and then resent the map.  </summary>
@@ -248,7 +247,6 @@ namespace fCraft {
             }
         }
 
-        /// <summary> Signals the end of a map flush </summary>
         internal void EndFlushMapBuffer() {
             lock( SyncRoot ) {
                 IsFlushing = false;
@@ -381,7 +379,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Gets player by name (without autocompletion) </summary>
+        /// <summary> Gets player by name (without autocompletion). </summary>
         [CanBeNull]
         public Player FindPlayerExact( [NotNull] string playerName ) {
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
@@ -395,20 +393,9 @@ namespace fCraft {
         }
 
 
-        /// <summary> Caches the player list to an array (Players -> PlayerList) </summary>
-        public void UpdatePlayerList() {
+        void UpdatePlayerList() {
             lock( SyncRoot ) {
                 Players = playerIndex.Values.ToArray();
-            }
-        }
-
-
-        /// <summary> Counts all players (optionally includes all hidden players). </summary>
-        public int CountPlayers( bool includeHiddenPlayers ) {
-            if( includeHiddenPlayers ) {
-                return Players.Length;
-            } else {
-                return Players.Count( player => !player.Info.IsHidden );
             }
         }
 
@@ -418,6 +405,7 @@ namespace fCraft {
             if( observer == null ) throw new ArgumentNullException( "observer" );
             return Players.Count( observer.CanSee );
         }
+
 
         /// <summary> Whether the current world is full, determined by ConfigKey.MaxPlayersPerWorld </summary>
         public bool IsFull {
