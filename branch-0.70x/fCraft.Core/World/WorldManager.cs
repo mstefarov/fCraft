@@ -610,15 +610,17 @@ namespace fCraft {
                             candidates = Paths.FindFiles( sourceFullFileName );
                         }
 
-                        if( candidates.Length == 0 ) {
-                            player.Message( "File/directory not found: {0}", fileName );
-
-                        } else if( candidates.Length == 1 ) {
-                            player.Message( "Filenames are case-sensitive! Did you mean to load \"{0}\"?", candidates[0].Name );
-
-                        } else {
-                            player.Message( "Filenames are case-sensitive! Did you mean to load one of these: {0}",
-                                            String.Join( ", ", candidates.Select( c => c.Name ).ToArray() ) );
+                        switch( candidates.Length ) {
+                            case 0:
+                                player.Message( "File/directory not found: {0}", fileName );
+                                break;
+                            case 1:
+                                player.Message( "Filenames are case-sensitive! Did you mean to load \"{0}\"?", candidates[0].Name );
+                                break;
+                            default:
+                                player.Message( "Filenames are case-sensitive! Did you mean to load one of these: {0}",
+                                                String.Join( ", ", candidates.Select( c => c.Name ).ToArray() ) );
+                                break;
                         }
                     } catch( DirectoryNotFoundException ex ) {
                         player.Message( ex.Message );

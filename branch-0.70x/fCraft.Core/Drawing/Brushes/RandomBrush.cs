@@ -45,12 +45,13 @@ namespace fCraft.Drawing {
                 blockRatios.Add( ratio );
             }
 
-            if( blocks.Count == 0 ) {
-                return new RandomBrush();
-            } else if( blocks.Count == 1 ) {
-                return new RandomBrush( blocks[0], blockRatios[0] );
-            } else {
-                return new RandomBrush( blocks.ToArray(), blockRatios.ToArray() );
+            switch( blocks.Count ) {
+                case 0:
+                    return new RandomBrush();
+                case 1:
+                    return new RandomBrush( blocks[0], blockRatios[0] );
+                default:
+                    return new RandomBrush( blocks.ToArray(), blockRatios.ToArray() );
             }
         }
     }
@@ -146,17 +147,18 @@ namespace fCraft.Drawing {
                 blockRatios.Add( ratio );
             }
 
-            if( blocks.Count == 0 ) {
-                if( Blocks.Length == 0 ) {
-                    player.Message( "{0} brush: Please specify at least one block.", Factory.Name );
-                    return null;
-                } else {
-                    return new RandomBrush( this );
-                }
-            } else if( blocks.Count == 1 ) {
-                return new RandomBrush( blocks[0], blockRatios[0] );
-            } else {
-                return new RandomBrush( blocks.ToArray(), blockRatios.ToArray() );
+            switch( blocks.Count ) {
+                case 0:
+                    if( Blocks.Length == 0 ) {
+                        player.Message( "{0} brush: Please specify at least one block.", Factory.Name );
+                        return null;
+                    } else {
+                        return new RandomBrush( this );
+                    }
+                case 1:
+                    return new RandomBrush( blocks[0], blockRatios[0] );
+                default:
+                    return new RandomBrush( blocks.ToArray(), blockRatios.ToArray() );
             }
         }
 

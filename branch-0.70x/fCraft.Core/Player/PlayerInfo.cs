@@ -58,10 +58,9 @@ namespace fCraft {
         public DateTime FirstLoginDate {
             get { return firstLoginDate; }
             set {
-                if( value != firstLoginDate ) {
-                    firstLoginDate = value;
-                    OnChanged( "FirstLoginDate" );
-                }
+                if( value == firstLoginDate ) return;
+                firstLoginDate = value;
+                OnChanged( "FirstLoginDate" );
             }
         }
         DateTime firstLoginDate;
