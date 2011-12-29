@@ -1,7 +1,8 @@
-﻿using System.Windows.Forms;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System.Windows.Forms;
 
 namespace fCraft.ConfigGUI {
-    public sealed partial class KeywordPicker : Form {
+    sealed partial class KeywordPicker : Form {
         public string Result;
 
         readonly ToolTip tips;

@@ -43,7 +43,7 @@ namespace System.IO.Compression {
             /// <summary>User comment for file</summary>
             public string Comment;
             /// <summary>True if UTF8 encoding for filename and comments, false if default (CP 437)</summary>
-            public bool EncodeUtf8;
+            public bool EncodeUTF8;
 
             /// <summary>Overridden method</summary>
             /// <returns>Filename in Zip</returns>
@@ -53,10 +53,13 @@ namespace System.IO.Compression {
         }
 
         #region Public fields
+
         /// <summary>True if UTF8 encoding for filename and comments, false if default (CP 437)</summary>
         public bool EncodeUTF8 { get; set; }
+
         /// <summary>Force deflate algotithm even if it inflates the stored file. Off by default.</summary>
         public bool ForceDeflating { get; set; }
+
         #endregion
 
         #region Private fields
@@ -207,7 +210,7 @@ namespace System.IO.Compression {
             // Prepare the fileinfo
             ZipFileEntry zfe = new ZipFileEntry {
                 Method = method,
-                EncodeUtf8 = EncodeUTF8,
+                EncodeUTF8 = EncodeUTF8,
                 FilenameInZip = NormalizedFilename( filenameInZip ),
                 Comment = (fileComment ?? ""),
                 Crc32 = 0,
@@ -473,11 +476,11 @@ namespace System.IO.Compression {
         */
         private void WriteLocalHeader( ref ZipFileEntry zfe ) {
             long pos = zipFileStream.Position;
-            Encoding encoder = zfe.EncodeUtf8 ? Encoding.UTF8 : DefaultEncoding;
+            Encoding encoder = zfe.EncodeUTF8 ? Encoding.UTF8 : DefaultEncoding;
             byte[] encodedFilename = encoder.GetBytes( zfe.FilenameInZip );
 
             zipFileStream.Write( new byte[] { 80, 75, 3, 4, 20, 0 }, 0, 6 ); // No extra header
-            zipFileStream.Write( BitConverter.GetBytes( (ushort)(zfe.EncodeUtf8 ? 0x0800 : 0) ), 0, 2 ); // filename and comment encoding 
+            zipFileStream.Write( BitConverter.GetBytes( (ushort)(zfe.EncodeUTF8 ? 0x0800 : 0) ), 0, 2 ); // filename and comment encoding 
             zipFileStream.Write( BitConverter.GetBytes( (ushort)zfe.Method ), 0, 2 );  // zipping method
             zipFileStream.Write( BitConverter.GetBytes( DateTimeToDosTime( zfe.ModifyTime ) ), 0, 4 ); // zipping date and time
             zipFileStream.Write( new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 12 ); // unused CRC, un/compressed size, updated later
@@ -512,12 +515,12 @@ namespace System.IO.Compression {
             file comment (variable size)
         */
         private void WriteCentralDirRecord( ZipFileEntry zfe ) {
-            Encoding encoder = zfe.EncodeUtf8 ? Encoding.UTF8 : DefaultEncoding;
+            Encoding encoder = zfe.EncodeUTF8 ? Encoding.UTF8 : DefaultEncoding;
             byte[] encodedFilename = encoder.GetBytes( zfe.FilenameInZip );
             byte[] encodedComment = encoder.GetBytes( zfe.Comment );
 
             zipFileStream.Write( new byte[] { 80, 75, 1, 2, 23, 0xB, 20, 0 }, 0, 8 );
-            zipFileStream.Write( BitConverter.GetBytes( (ushort)(zfe.EncodeUtf8 ? 0x0800 : 0) ), 0, 2 ); // filename and comment encoding 
+            zipFileStream.Write( BitConverter.GetBytes( (ushort)(zfe.EncodeUTF8 ? 0x0800 : 0) ), 0, 2 ); // filename and comment encoding 
             zipFileStream.Write( BitConverter.GetBytes( (ushort)zfe.Method ), 0, 2 );  // zipping method
             zipFileStream.Write( BitConverter.GetBytes( DateTimeToDosTime( zfe.ModifyTime ) ), 0, 4 );  // zipping date and time
             zipFileStream.Write( BitConverter.GetBytes( zfe.Crc32 ), 0, 4 ); // file CRC

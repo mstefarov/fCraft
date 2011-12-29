@@ -5,7 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 
 namespace fCraft.ConfigGUI {
-    public sealed partial class TextEditorPopup : Form {
+    sealed partial class TextEditorPopup : Form {
         public string OriginalText { get; private set; }
         public string FileName { get; private set; }
 

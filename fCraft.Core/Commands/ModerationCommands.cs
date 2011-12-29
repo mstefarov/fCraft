@@ -15,14 +15,14 @@ namespace fCraft {
 
         internal static void Init() {
             CdBan.Help += BanCommonHelp;
-            CdBanIp.Help += BanCommonHelp;
+            CdBanIP.Help += BanCommonHelp;
             CdBanAll.Help += BanCommonHelp;
             CdUnban.Help += BanCommonHelp;
             CdUnbanIP.Help += BanCommonHelp;
             CdUnbanAll.Help += BanCommonHelp;
 
             CommandManager.RegisterCommand( CdBan );
-            CommandManager.RegisterCommand( CdBanIp );
+            CommandManager.RegisterCommand( CdBanIP );
             CommandManager.RegisterCommand( CdBanAll );
             CommandManager.RegisterCommand( CdUnban );
             CommandManager.RegisterCommand( CdUnbanIP );
@@ -94,7 +94,7 @@ namespace fCraft {
 
 
 
-        static readonly CommandDescriptor CdBanIp = new CommandDescriptor {
+        static readonly CommandDescriptor CdBanIP = new CommandDescriptor {
             Name = "BanIP",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -109,7 +109,7 @@ namespace fCraft {
         static void BanIPHandler( Player player, CommandReader cmd ) {
             string targetNameOrIP = cmd.Next();
             if( targetNameOrIP == null ) {
-                CdBanIp.PrintUsage( player );
+                CdBanIP.PrintUsage( player );
                 return;
             }
             string reason = cmd.NextAll();

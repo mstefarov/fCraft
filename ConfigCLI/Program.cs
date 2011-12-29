@@ -1,5 +1,7 @@
-﻿using System;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using fCraft.Events;
@@ -84,18 +86,19 @@ namespace fCraft.ConfigCLI {
             Refresh();
 
             TextMenu sectionMenu = new TextMenu();
-            TextOption optionSaveAndExit, optionQuit, optionResetEverything, optionReloadConfig;
 
             ConfigSection[] sections = (ConfigSection[])Enum.GetValues( typeof( ConfigSection ) );
             for( int i = 0; i < sections.Length; i++ ) {
-                sectionMenu.AddOption( ( i + 1 ).ToString(), sections[i].ToString(), sections[i] );
+                sectionMenu.AddOption( ( i + 1 ).ToString( CultureInfo.InvariantCulture ),
+                                       sections[i].ToString(),
+                                       sections[i] );
             }
 
             sectionMenu.Column = Column.Right;
-            optionSaveAndExit = sectionMenu.AddOption( "S", "Save and exit" );
-            optionQuit = sectionMenu.AddOption( "Q", "Quit without saving" );
-            optionResetEverything = sectionMenu.AddOption( "D", "Use defaults" );
-            optionReloadConfig = sectionMenu.AddOption( "R", "Reload config" );
+            TextOption optionSaveAndExit = sectionMenu.AddOption( "S", "Save and exit" );
+            TextOption optionQuit = sectionMenu.AddOption( "Q", "Quit without saving" );
+            TextOption optionResetEverything = sectionMenu.AddOption( "D", "Use defaults" );
+            TextOption optionReloadConfig = sectionMenu.AddOption( "R", "Reload config" );
 
             var choice = sectionMenu.Show( "Enter your selection: " );
 
@@ -148,7 +151,9 @@ namespace fCraft.ConfigCLI {
                 string str = String.Format( "{0} = {1}",
                                             keys[i].ToString().PadLeft( maxLen ),
                                             keys[i].GetPresentationString() );
-                TextOption option = new TextOption( ( i + 1 ).ToString(), str, Column.Left );
+                TextOption option = new TextOption( ( i + 1 ).ToString( CultureInfo.InvariantCulture ),
+                                                    str,
+                                                    Column.Left );
                 if( !keys[i].IsDefault() ) {
                     option.ForeColor = ConsoleColor.White;
                 }

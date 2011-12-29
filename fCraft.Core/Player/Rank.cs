@@ -277,9 +277,9 @@ namespace fCraft {
             }
 
             // Permissions
-            XElement temp;
             for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
                 string permission = ( (Permission)i ).ToString();
+                XElement temp;
                 if( ( temp = el.Element( permission ) ) != null ) {
                     Permissions[i] = true;
                     if( ( attr = temp.Attribute( "max" ) ) != null ) {

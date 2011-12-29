@@ -17,7 +17,7 @@ namespace fCraft {
 
         /// <summary> Creates a new packet from given raw bytes. Data not be null. </summary>
         public Packet( [NotNull] byte[] rawData ) {
-            if( rawData == null ) throw new ArgumentNullException( "data" );
+            if( rawData == null ) throw new ArgumentNullException( "rawData" );
             Data = rawData;
         }
 

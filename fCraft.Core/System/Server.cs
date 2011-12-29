@@ -858,11 +858,9 @@ namespace fCraft {
 
             try {
                 using( WebResponse response = request.GetResponse() ) {
-                    // ReSharper disable AssignNullToNotNullAttribute
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
-                        // ReSharper restore AssignNullToNotNullAttribute
                         string responseString = responseReader.ReadToEnd();
-                        int startIndex = responseString.IndexOf( ":" ) + 2;
+                        int startIndex = responseString.IndexOf( ':' ) + 2;
                         int endIndex = responseString.IndexOf( '<', startIndex ) - startIndex;
                         IPAddress result;
                         if( IPAddress.TryParse( responseString.Substring( startIndex, endIndex ), out result ) ) {
@@ -878,6 +876,7 @@ namespace fCraft {
                 return null;
             }
         }
+
 
         // Callback for setting the local IP binding. Implements System.Net.BindIPEndPoint delegate.
         public static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {

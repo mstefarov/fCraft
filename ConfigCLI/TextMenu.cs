@@ -1,6 +1,9 @@
-﻿using System;
+﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft.ConfigCLI {
     enum Column {
@@ -8,29 +11,35 @@ namespace fCraft.ConfigCLI {
         Right
     }
 
-    class TextMenu {
-        public readonly Dictionary<string, TextOption> Options = new Dictionary<string, TextOption>();
-        List<TextOption> LinesLeft = new List<TextOption>();
+
+    sealed class TextMenu {
+        readonly Dictionary<string, TextOption> options = new Dictionary<string, TextOption>();
+        readonly List<TextOption> lines = new List<TextOption>();
         public Column Column { get; set; }
 
-        public TextOption AddOption( TextOption newOption ) {
-            Options.Add( newOption.Label.ToLower(), newOption );
-            LinesLeft.Add( newOption );
+        public TextOption AddOption( [NotNull] TextOption newOption ) {
+            if( newOption == null ) throw new ArgumentNullException( "newOption" );
+            if( newOption.Label != null ) {
+                options.Add( newOption.Label.ToLower(), newOption );
+            }
+            lines.Add( newOption );
             return newOption;
         }
 
 
-        public TextOption AddOption( int label, string text ) {
-            return AddOption( new TextOption( label.ToString(), text, Column ) );
+        public TextOption AddOption( int label, [NotNull] string text ) {
+            if( text == null ) throw new ArgumentNullException( "text" );
+            return AddOption( new TextOption( label.ToString( CultureInfo.InvariantCulture ), text, Column ) );
         }
 
 
-        public TextOption AddOption( string label, string text ) {
+        public TextOption AddOption( [CanBeNull] string label, [NotNull] string text ) {
+            if( text == null ) throw new ArgumentNullException( "text" );
             return AddOption( new TextOption( label, text, Column ) );
         }
 
 
-        public TextOption AddOption( string label, string text, object tag ) {
+        public TextOption AddOption( [CanBeNull] string label, [NotNull] string text, object tag ) {
             TextOption newOption = new TextOption( label, text, Column ) {
                 Tag = tag
             };
@@ -38,30 +47,21 @@ namespace fCraft.ConfigCLI {
         }
 
 
-        public TextOption AddOption( string label, string description, ConsoleColor foreColor, ConsoleColor backColor ) {
-            TextOption newOption = new TextOption( label, description, Column ) {
-                ForeColor = foreColor,
-                BackColor = backColor
-            };
-            return AddOption( newOption );
-        }
-
-
         public void AddSpacer( Column column ) {
             if( column == Column.Left ) {
-                LinesLeft.Add( TextOption.SpacerLeft );
+                lines.Add( TextOption.SpacerLeft );
             } else {
-                LinesLeft.Add( TextOption.SpacerRight );
+                lines.Add( TextOption.SpacerRight );
             }
         }
 
 
-        public void PrintOptions() {
-            bool hasRightSide = LinesLeft.Any( line => line.Column == Column.Right );
+        void PrintOptions() {
+            bool hasRightSide = lines.Any( line => line.Column == Column.Right );
 
             if( hasRightSide ) {
-                var listLeft = LinesLeft.Where( line => line.Column == Column.Left ).ToArray();
-                var listRight = LinesLeft.Where( line => line.Column == Column.Right ).ToArray();
+                var listLeft = lines.Where( line => line.Column == Column.Left ).ToArray();
+                var listRight = lines.Where( line => line.Column == Column.Right ).ToArray();
                 int maxLeftOptionLength = listLeft.Where( line => line.Label != null ).Max( line => line.Label.Length );
                 int maxRightOptionLength = listRight.Where( line => line.Label != null ).Max( line => line.Label.Length );
                 int maxSize = Math.Max( listLeft.Length, listRight.Length );
@@ -117,8 +117,8 @@ namespace fCraft.ConfigCLI {
                 }
 
             } else {
-                int maxOptionLength = LinesLeft.Where( line => line.Label != null ).Max( line => line.Label.Length );
-                foreach( TextOption option in LinesLeft ) {
+                int maxOptionLength = lines.Where( line => line.Label != null ).Max( line => line.Label.Length );
+                foreach( TextOption option in lines ) {
                     if( Program.UseColor ) {
                         Console.BackgroundColor = option.BackColor;
                         Console.ForegroundColor = option.ForeColor;
@@ -140,6 +140,7 @@ namespace fCraft.ConfigCLI {
         }
 
 
+        [NotNull]
         public TextOption Show( string prompt ) {
             PrintOptions();
             Console.WriteLine();
@@ -148,7 +149,7 @@ namespace fCraft.ConfigCLI {
                 string input = Console.ReadLine().ToLower();
                 if( String.IsNullOrWhiteSpace( input ) ) continue;
                 TextOption result;
-                if( Options.TryGetValue( input, out result ) ) {
+                if( options.TryGetValue( input, out result ) ) {
                     return result;
                 } else {
                     Console.WriteLine( "\"{0}\" is not a recognized option. Try again.", input );
