@@ -33,6 +33,9 @@ namespace fCraft {
 
         public LeaveReason LeaveReason { get; private set; }
 
+        /// <summary> IP Address from which this player is currently connected.
+        /// Pseudoplayers (like Console) have IPAddress.None </summary>
+        [NotNull]
         public IPAddress IP { get; private set; }
 
 

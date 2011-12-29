@@ -151,7 +151,7 @@ namespace fCraft {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             Info = PlayerDB.AddSuperPlayer( id, name, rank );
             spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
-            IP = IPAddress.Loopback;
+            IP = IPAddress.None;
             ResetAllBinds();
             State = SessionState.Offline;
             IsSuper = true;
@@ -1359,12 +1359,16 @@ namespace fCraft {
 
         #region Copy/Paste
 
-        CopyState[] copyInformation;
+        /// <summary> Gets raw copy/paste slot array.
+        /// Use GetCopyInformation/SetCopyInformation to work with current slot instead. </summary>
         public CopyState[] CopyInformation {
             get { return copyInformation; }
         }
+        CopyState[] copyInformation;
 
-        int copySlot;
+
+        /// <summary> Gets or sets current copy slot (zero-based index).
+        /// Maximum CopySlot numeber is limited by rank (see Info.Rank.CopySlots). </summary>
         public int CopySlot {
             get { return copySlot; }
             set {
@@ -1374,17 +1378,24 @@ namespace fCraft {
                 copySlot = value;
             }
         }
+        int copySlot;
+
 
         internal void InitCopySlots() {
             Array.Resize( ref copyInformation, Info.Rank.CopySlots );
             CopySlot = Math.Min( CopySlot, Info.Rank.CopySlots - 1 );
         }
 
+
+        /// <summary> Gets copy information from the currently selected slot.</summary>
+        /// <returns> CopyState from the current slot, or null if nothing is copied. </returns>
         [CanBeNull]
         public CopyState GetCopyInformation() {
             return CopyInformation[copySlot];
         }
 
+
+        /// <summary> Stores given CopyState into the selected copy slot. </summary>
         public void SetCopyInformation( [CanBeNull] CopyState info ) {
             if( info != null ) info.Slot = copySlot;
             CopyInformation[copySlot] = info;
@@ -1401,21 +1412,29 @@ namespace fCraft {
         [CanBeNull]
         Player spectatedPlayer;
 
-        /// <summary> Player currently being spectated. Use Spectate/StopSpectate methods to set. </summary>
+        /// <summary> Player currently being spectated. Use Spectate/StopSpectate methods to set.
+        /// May be null if player is not spectating anyone. </summary>
         [CanBeNull]
         public Player SpectatedPlayer {
             get { return spectatedPlayer; }
         }
 
+        /// <summary> Last person to be spectated by this player. If player is currently spectating,
+        /// this is same as SpectatedPlayer property. May be null if player has not spectated anyone. </summary>
         [CanBeNull]
         public PlayerInfo LastSpectatedPlayer { get; private set; }
 
 
+        /// <summary> True if this player is currently spectating someone. </summary>
         public bool IsSpectating {
             get { return (spectatedPlayer != null); }
         }
 
 
+        /// <summary> Starts spectating the target.
+        /// May cause a world change (async) if target is on another world. 
+        /// Throws PlayerOpException in case of insufficient permissions, or when trying to spectate self. </summary>
+        /// <returns> True if spectating worked. False if target is already being spectated. </returns>
         public bool Spectate( [NotNull] Player target ) {
             if( target == null ) throw new ArgumentNullException( "target" );
             lock( spectateLock ) {
@@ -1436,7 +1455,10 @@ namespace fCraft {
             }
         }
 
-
+        
+        /// <summary> Stops spectating. </summary>
+        /// <returns> True if this player was spectating someone and has now stopped.
+        /// False if this player was not spectating anyone. </returns>
         public bool StopSpectating() {
             lock( spectateLock ) {
                 if( spectatedPlayer == null ) return false;
@@ -1504,7 +1526,9 @@ namespace fCraft {
         #endregion
 
 
+        /// <summary> Teleports this player to a location within the current world. </summary>
         public void TeleportTo( Position pos ) {
+            if( World == null ) PlayerOpException.ThrowNoWorld( this );
             StopSpectating();
             Send( PacketWriter.MakeSelfTeleport( pos ) );
             Position = pos;
@@ -1616,7 +1640,7 @@ namespace fCraft {
         public string LastUsedWorldName { get; set; }
 
 
-        /// <summary> Name formatted for the debugger. </summary>
+        /// <summary> Object description in the form Player(Name) or Player(IP) </summary>
         public override string ToString() {
             if( Info != null ) {
                 return String.Format( "Player({0})", Info.Name );
