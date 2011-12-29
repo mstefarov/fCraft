@@ -915,15 +915,10 @@ namespace fCraft {
 
     /// <summary> IRC protocol reply codes. </summary>
     public enum IRCReplyCode {
-        /// <summary> Null code
-        /// </summary>
         Null = 000,
-        /// <summary> Welcome message sent by server to client  </summary>
         Welcome = 001,
-        /// <summary> Client host information  </summary>
         YourHost = 002,
         Created = 003,
-        /// <summary> Client information </summary>
         MyInfo = 004,
         Bounce = 005,
         TraceLink = 200,
@@ -941,9 +936,7 @@ namespace fCraft {
         StatsCommands = 212,
         EndOfStats = 219,
         UserModeIs = 221,
-        /// <summary> List of supported services </summary>
         ServiceList = 234,
-        /// <summary> Marks the end of supported services list </summary>
         ServiceListEnd = 235,
         StatsUptime = 242,
         StatsOLine = 243,
@@ -959,11 +952,9 @@ namespace fCraft {
         TraceLog = 261,
         TraceEnd = 262,
         TryAgain = 263,
-        /// <summary> Marks the client as away </summary>
         Away = 301,
         UserHost = 302,
         IsOn = 303,
-        /// <summary> Marks the client as no longer away </summary>
         UnAway = 305,
         NowAway = 306,
         WhoIsUser = 311,
@@ -1068,9 +1059,6 @@ namespace fCraft {
 
     /// <summary> IRC message types. </summary>
     public enum IRCMessageType {
-        /// <summary>
-        /// A short burst of data, to determine latency
-        /// </summary>
         Ping,
         Info,
         Login,

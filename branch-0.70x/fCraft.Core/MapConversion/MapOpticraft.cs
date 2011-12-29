@@ -174,13 +174,16 @@ namespace fCraft.MapConversion {
             }
 
             // TODO: investigate side effects
-            PlayerInfo conversionPlayer = PlayerDB.AddSuperPlayer( ReservedPlayerID.Importer, "OpticraftConversion", RankManager.HighestRank );
+            PlayerInfo conversionPlayer = PlayerDB.AddSuperPlayer( ReservedPlayerID.Importer,
+                                                                   "OpticraftConversion",
+                                                                   RankManager.HighestRank );
             foreach( OpticraftZone optiZone in dataStore.Zones ) {
                 // Make zone
                 Zone fZone = new Zone {
                     Name = optiZone.Name,
                 };
-                BoundingBox bBox = new BoundingBox( optiZone.X1, optiZone.Y1, optiZone.Z1, optiZone.X2, optiZone.X2, optiZone.Z2 );
+                BoundingBox bBox = new BoundingBox( optiZone.X1, optiZone.Y1, optiZone.Z1,
+                                                    optiZone.X2, optiZone.X2, optiZone.Z2 );
                 fZone.Create( bBox, conversionPlayer );
 
                 // Min rank

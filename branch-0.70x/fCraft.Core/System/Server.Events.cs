@@ -64,7 +64,8 @@ namespace fCraft {
         public static event EventHandler<PlayerEventArgs> SessionConnected;
 
 
-        /// <summary> Occurs when a connection is closed or lost. </summary>
+        /// <summary> Occurs when a connection is closed or lost.
+        /// Player's state at this point has just changed to SessionState.Disconnected. </summary>
         public static event EventHandler<SessionDisconnectedEventArgs> SessionDisconnected;
 
 

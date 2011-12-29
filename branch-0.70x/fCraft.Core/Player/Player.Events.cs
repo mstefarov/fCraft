@@ -7,16 +7,20 @@ using JetBrains.Annotations;
 namespace fCraft {
     partial class Player {
         /// <summary> Occurs when a player is connecting (cancellable).
-        /// Player name is verified and bans are checked before this event is raised. </summary>
+        /// Player name is verified and bans are checked before this event is raised,
+        /// but before the player is registered with the server.
+        /// Player's state at this point is SessionState.Connecting. </summary>
         public static event EventHandler<PlayerConnectingEventArgs> Connecting;
 
 
         /// <summary> Occurs when a player has connected, but before the player has joined any world.
-        /// Allows changing the player's starting world. </summary>
+        /// Allows changing the player's starting world.
+        /// Player's state at this point is SessionState.Connecting, and about to change to SessionState.LoadingMain </summary>
         public static event EventHandler<PlayerConnectedEventArgs> Connected;
 
 
-        /// <summary> Occurs after a player has connected and joined the starting world. </summary>
+        /// <summary> Occurs after a player has connected and joined the starting world. 
+        /// Player's state at this point has just changed from SessionState.LoadingMain to SessionState.Online </summary>
         public static event EventHandler<PlayerEventArgs> Ready;
 
 
@@ -196,11 +200,14 @@ namespace fCraft {
 }
 
 namespace fCraft.Events {
+    /// <summary> Provides basic data for player-related events. </summary>
     public sealed class PlayerEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerEventArgs( Player player ) {
+        internal PlayerEventArgs( [NotNull] Player player ) {
             Player = player;
         }
 
+        /// <summary> Name of the player who has initiated or is affected by the event. </summary>
+        [NotNull]
         public Player Player { get; private set; }
     }
 
@@ -212,22 +219,27 @@ namespace fCraft.Events {
             IP = ip;
         }
 
+        /// <summary> IP Address of the connecting player. </summary>
         [NotNull]
         public IPAddress IP { get; private set; }
+
         public bool Cancel { get; set; }
     }
 
 
     /// <summary> Provides data for Server.SessionDisconnected event. Immutable. </summary>
-    public sealed class SessionDisconnectedEventArgs : EventArgs {
+    public sealed class SessionDisconnectedEventArgs : EventArgs, IPlayerEvent {
         internal SessionDisconnectedEventArgs( [NotNull] Player player, LeaveReason leaveReason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             LeaveReason = leaveReason;
         }
 
+        /// <summary> Player who disconnected. </summary>
         [NotNull]
         public Player Player { get; private set; }
+
+        /// <summary> Reason for leaving the server. </summary>
         public LeaveReason LeaveReason { get; private set; }
     }
 
@@ -239,6 +251,7 @@ namespace fCraft.Events {
             Player = player;
         }
 
+        /// <summary> Player who is connecting. </summary>
         [NotNull]
         public Player Player { get; private set; }
         public bool Cancel { get; set; }
@@ -254,8 +267,12 @@ namespace fCraft.Events {
             StartingWorld = startingWorld;
         }
 
+        /// <summary> Player who just connected, and is about to join main. </summary>
         [NotNull]
         public Player Player { get; private set; }
+
+        /// <summary> Player's main world.
+        /// May be WorldManager.MainWorld or rank-specific main. Can be changed. </summary>
         public World StartingWorld { get; set; }
     }
 
@@ -270,10 +287,16 @@ namespace fCraft.Events {
             NewPosition = newPos;
         }
 
+        /// <summary> Player intends to move. </summary>
         [NotNull]
         public Player Player { get; private set; }
+
+        /// <summary> Player's current position. </summary>
         public Position OldPosition { get; private set; }
+
+        /// <summary> Desired new position. Can be changed. </summary>
         public Position NewPosition { get; set; }
+
         public bool Cancel { get; set; }
     }
 
@@ -287,9 +310,14 @@ namespace fCraft.Events {
             NewPosition = player.Position;
         }
 
+        /// <summary> Player who has just moved. </summary>
         [NotNull]
         public Player Player { get; private set; }
+
+        /// <summary> Player's previous position. </summary>
         public Position OldPosition { get; private set; }
+
+        /// <summary> Player's new position. </summary>
         public Position NewPosition { get; private set; }
     }
 
@@ -306,12 +334,22 @@ namespace fCraft.Events {
             Block = block;
         }
 
+        /// <summary> Player who is attempting to click. </summary>
         [NotNull]
         public Player Player { get; private set; }
+
+        /// <summary> Click coordinates, in terms of blocks. Must be within map bounds.
+        /// Can be changed. </summary>
         public Vector3I Coords { get; set; }
+
+        /// <summary> Block type that the player is currently holding.
+        /// Can be changed. </summary>
         public Block Block { get; set; }
-        /// <summary> Whether the player is building a block (right-click) or deleting it (left-click). </summary>
+
+        /// <summary> Whether the player is building a block (right-click) or deleting it (left-click).
+        /// Can be changed. </summary>
         public ClickAction Action { get; set; }
+
         public bool Cancel { get; set; }
     }
 
@@ -326,28 +364,23 @@ namespace fCraft.Events {
             Action = action;
         }
 
+        /// <summary> Player who has just clicked. </summary>
         [NotNull]
         public Player Player { get; private set; }
+
+        /// <summary> Click coordinates, in terms of blocks. </summary>
         public Vector3I Coords { get; private set; }
+
+        /// <summary> Block type that the player is currently holding. </summary>
         public Block Block { get; private set; }
+
+        /// <summary> Whether the player is building a block (right-click) or deleting it (left-click). </summary>
         public ClickAction Action { get; private set; }
     }
 
 
-    /// <summary> Provides data for Player.PlacingBlock event. Result may be overridden. </summary>
-    public sealed class PlayerPlacingBlockEventArgs : PlayerPlacedBlockEventArgs {
-        internal PlayerPlacingBlockEventArgs( [NotNull] Player player, [NotNull] Map map, Vector3I coords,
-                                              Block oldBlock, Block newBlock, BlockChangeContext context, CanPlaceResult result )
-            : base( player, map, coords, oldBlock, newBlock, context ) {
-            Result = result;
-        }
-
-        public CanPlaceResult Result { get; set; }
-    }
-
-
     /// <summary> Provides data for Player.PlacedBlock event. Immutable. </summary>
-    public class PlayerPlacedBlockEventArgs : EventArgs, IPlayerEvent {
+    public sealed class PlayerPlacedBlockEventArgs : EventArgs, IPlayerEvent {
         internal PlayerPlacedBlockEventArgs( [NotNull] Player player, [NotNull] Map map, Vector3I coords,
                                              Block oldBlock, Block newBlock, BlockChangeContext context ) {
             if( map == null ) throw new ArgumentNullException( "map" );
@@ -360,32 +393,110 @@ namespace fCraft.Events {
         }
 
 
+        /// <summary> Player who has just placed a block. </summary>
         [NotNull]
         public Player Player { get; private set; }
 
+        /// <summary> Map on which the block was placed. </summary>
         [NotNull]
         public Map Map { get; private set; }
 
+        /// <summary> Coordinates at which the block was placed. </summary>
         public Vector3I Coords { get; private set; }
+
+        /// <summary> Previous blocktype at this coordinate. </summary>
         public Block OldBlock { get; private set; }
+
+        /// <summary> Current (placed) blocktype at this location. </summary>
         public Block NewBlock { get; private set; }
+
+        /// <summary> Context in which the block was placed. </summary>
         public BlockChangeContext Context { get; private set; }
     }
 
 
-    /// <summary> Provides data for Player.BeingKicked event. Cancellable. </summary>
-    public sealed class PlayerBeingKickedEventArgs : PlayerKickedEventArgs, ICancellableEvent {
-        internal PlayerBeingKickedEventArgs( [NotNull] Player player, [NotNull] Player kicker, [CanBeNull] string reason,
-                                              bool announce, bool recordToPlayerDB, LeaveReason context )
-            : base( player, kicker, reason, announce, recordToPlayerDB, context ) {
+    /// <summary> Provides data for Player.PlacingBlock event. Result may be overridden. </summary>
+    public sealed class PlayerPlacingBlockEventArgs : EventArgs, IPlayerEvent {
+        internal PlayerPlacingBlockEventArgs( [NotNull] Player player, [NotNull] Map map, Vector3I coords,
+                                              Block oldBlock, Block newBlock, BlockChangeContext context, CanPlaceResult result ) {
+            if( map == null ) throw new ArgumentNullException( "map" );
+            Player = player;
+            Map = map;
+            Coords = coords;
+            OldBlock = oldBlock;
+            NewBlock = newBlock;
+            Context = context;
+            Result = result;
         }
+
+        /// <summary> Player who intends to place a block. </summary>
+        [NotNull]
+        public Player Player { get; private set; }
+
+        /// <summary> Map on which the block would be placed. </summary>
+        [NotNull]
+        public Map Map { get; private set; }
+
+        /// <summary> Coordinates at which the block would be placed. Can be changed.
+        /// MAKE SURE TO REPEAT PERMISSION CHECKS if you are changing the coordinate. </summary>
+        public Vector3I Coords { get; set; }
+
+        /// <summary> Current blocktype at this coordinate. </summary>
+        public Block OldBlock { get; private set; }
+
+        /// <summary> Blocktype that the player intends to place. Can be changed.
+        /// MAKE SURE TO REPEAT PERMISSION CHECKS if you are changing the coordinate. </summary>
+        public Block NewBlock { get; set; }
+
+        /// <summary> Context in which the block was placed. </summary>
+        public BlockChangeContext Context { get; private set; }
+
+        /// <summary> Result of Player.CanPlace permission check. Can be changed. </summary>
+        public CanPlaceResult Result { get; set; }
+    }
+
+
+    /// <summary> Provides data for Player.BeingKicked event. Cancellable. </summary>
+    public sealed class PlayerBeingKickedEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
+        internal PlayerBeingKickedEventArgs( [NotNull] Player player, [NotNull] Player kicker, [CanBeNull] string reason,
+                                              bool announce, bool recordToPlayerDB, LeaveReason context ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( kicker == null ) throw new ArgumentNullException( "kicker" );
+            Player = player;
+            Kicker = kicker;
+            Reason = reason;
+            Announce = announce;
+            RecordToPlayerDB = recordToPlayerDB;
+            Context = context;
+        }
+
+        /// <summary> Player who is being kicked (target). </summary>
+        [NotNull]
+        public Player Player { get; private set; }
+
+        /// <summary> Player who is kicking. </summary>
+        [NotNull]
+        public Player Kicker { get; protected set; }
+
+        /// <summary> Given kick reason (may be blank). Can be changed. </summary>
+        [CanBeNull]
+        public string Reason { get; set; }
+
+        /// <summary> Whether the kick should be announced in-game and on IRC. Can be changed. </summary>
+        public bool Announce { get; set; }
+
+        /// <summary> Whether kick should be added to the target's record. Can be changed. </summary>
+        public bool RecordToPlayerDB { get; set; }
+
+        /// <summary> Circumstances that resulted in a kick (e.g. Kick, Ban, BanIP, IdleKick, etc). </summary>
+        public LeaveReason Context { get; protected set; }
 
         public bool Cancel { get; set; }
     }
 
 
     /// <summary> Provides data for Player.Kicked event. Immutable. </summary>
-    public class PlayerKickedEventArgs : EventArgs, IPlayerEvent {
+    public sealed class PlayerKickedEventArgs : EventArgs, IPlayerEvent {
         internal PlayerKickedEventArgs( [NotNull] Player player, [NotNull] Player kicker, [CanBeNull] string reason,
                                         bool announce, bool recordToPlayerDB, LeaveReason context ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -398,26 +509,26 @@ namespace fCraft.Events {
             Context = context;
         }
 
-        /// <summary> Player who is being kicked. </summary>
+        /// <summary> Player who has just been kicked (target). </summary>
         [NotNull]
         public Player Player { get; private set; }
 
         /// <summary> Player who kicked. </summary>
         [NotNull]
-        public Player Kicker { get; protected set; }
+        public Player Kicker { get; private set; }
 
-        /// <summary> Given kick reason (may be blank). </summary>
+        /// <summary> Given kick reason (may have been blank). </summary>
         [CanBeNull]
-        public string Reason { get; protected set; }
+        public string Reason { get; private set; }
 
-        /// <summary> Whether the kick should be announced in-game and on IRC. </summary>
+        /// <summary> Whether the kick was announced in-game and on IRC. </summary>
         public bool Announce { get; private set; }
 
-        /// <summary> Whether kick should be added to the target's record. </summary>
-        public bool RecordToPlayerDB { get; protected set; }
+        /// <summary> Whether kick was added to the target's record. </summary>
+        public bool RecordToPlayerDB { get; private set; }
 
         /// <summary> Circumstances that resulted in a kick (e.g. Kick, Ban, BanIP, IdleKick, etc). </summary>
-        public LeaveReason Context { get; protected set; }
+        public LeaveReason Context { get; private set; }
     }
 
 
