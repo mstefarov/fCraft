@@ -231,10 +231,15 @@ namespace fCraft {
     }
 
     public enum ReservedPlayerID : byte {
+        /// <summary> Marks the absence of a player/entity record </summary>
         None = 0,
+        /// <summary> Record is unknown, or indeterminable </summary>
         Unknown = 1,
+        /// <summary> Only used by Player.Console </summary>
         Console = 2,
+        /// <summary> Only used by Player.Autorank </summary>
         AutoRank = 3,
+        /// <summary> Reserved for use with IMapConverter implementations and /Import command </summary>
         Importer = 4
     }
 }
