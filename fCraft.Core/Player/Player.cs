@@ -1001,34 +1001,31 @@ namespace fCraft {
         readonly Block[] bindings = new Block[50];
 
 
-        public void Bind( Block type, Block replacement ) {
-            bindings[(byte)type] = replacement;
+        /// <summary> Binds one block type to another, for use with draw commands. </summary>
+        public void Bind( Block originalType, Block replacementType ) {
+            bindings[(byte)originalType] = replacementType;
         }
 
-
-        public void ResetBind( Block type ) {
-            bindings[(byte)type] = type;
-        }
-
-
-        public void ResetBind( [NotNull] params Block[] types ) {
-            if( types == null ) throw new ArgumentNullException( "types" );
-            foreach( Block type in types ) {
+        /// <summary> Resets binding for given type(s). </summary>
+        public void ResetBind( [NotNull] params Block[] originalTypes ) {
+            if( originalTypes == null ) throw new ArgumentNullException( "originalTypes" );
+            foreach( Block type in originalTypes ) {
                 ResetBind( type );
             }
         }
 
 
-        public Block GetBind( Block type ) {
-            return bindings[(byte)type];
+        /// <summary> Gets a binding for given block type.
+        /// If no replacement is specified, returns the original type. </summary>
+        public Block GetBind( Block originalType ) {
+            return bindings[(byte)originalType];
         }
 
 
+        /// <summary> Resets all bindings to default. </summary>
         public void ResetAllBinds() {
-            foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
-                if( block != Block.Undefined ) {
-                    ResetBind( block );
-                }
+            for( int i = 0; i < bindings.Length; i++ ) {
+                ResetBind( (Block)i );
             }
         }
 
@@ -1113,12 +1110,13 @@ namespace fCraft {
 
             // check zones & world permissions
             PermissionOverride zoneCheckResult = map.Zones.Check( coords, this );
-            if( zoneCheckResult == PermissionOverride.Allow ) {
-                result = CanPlaceResult.Allowed;
-                goto eventCheck;
-            } else if( zoneCheckResult == PermissionOverride.Deny ) {
-                result = CanPlaceResult.ZoneDenied;
-                goto eventCheck;
+            switch( zoneCheckResult ) {
+                case PermissionOverride.Allow:
+                    result = CanPlaceResult.Allowed;
+                    goto eventCheck;
+                case PermissionOverride.Deny:
+                    result = CanPlaceResult.ZoneDenied;
+                    goto eventCheck;
             }
 
             World mapWorld = map.World;

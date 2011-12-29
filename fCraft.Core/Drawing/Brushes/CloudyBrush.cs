@@ -43,12 +43,13 @@ namespace fCraft.Drawing {
                 blockRatios.Add( ratio );
             }
 
-            if( blocks.Count == 0 ) {
-                return new CloudyBrush();
-            } else if( blocks.Count == 1 ) {
-                return new CloudyBrush( blocks[0], blockRatios[0] );
-            } else {
-                return new CloudyBrush( blocks.ToArray(), blockRatios.ToArray() );
+            switch( blocks.Count ) {
+                case 0:
+                    return new CloudyBrush();
+                case 1:
+                    return new CloudyBrush( blocks[0], blockRatios[0] );
+                default:
+                    return new CloudyBrush( blocks.ToArray(), blockRatios.ToArray() );
             }
         }
     }
@@ -123,17 +124,18 @@ namespace fCraft.Drawing {
                 blockRatios.Add( ratio );
             }
 
-            if( blocks.Count == 0 ) {
-                if( Blocks.Length == 0 ) {
-                    player.Message( "{0} brush: Please specify at least one block.", Factory.Name );
-                    return null;
-                } else {
-                    return new CloudyBrush( this );
-                }
-            } else if( blocks.Count == 1 ) {
-                return new CloudyBrush( blocks[0], blockRatios[0] );
-            } else {
-                return new CloudyBrush( blocks.ToArray(), blockRatios.ToArray() );
+            switch( blocks.Count ) {
+                case 0:
+                    if( Blocks.Length == 0 ) {
+                        player.Message( "{0} brush: Please specify at least one block.", Factory.Name );
+                        return null;
+                    } else {
+                        return new CloudyBrush( this );
+                    }
+                case 1:
+                    return new CloudyBrush( blocks[0], blockRatios[0] );
+                default:
+                    return new CloudyBrush( blocks.ToArray(), blockRatios.ToArray() );
             }
         }
 

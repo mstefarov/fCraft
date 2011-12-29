@@ -43,12 +43,13 @@ namespace fCraft.Drawing {
                 blockRatios.Add( ratio );
             }
 
-            if( blocks.Count == 0 ) {
-                return new MarbledBrush();
-            } else if( blocks.Count == 1 ) {
-                return new MarbledBrush( blocks[0], blockRatios[0] );
-            } else {
-                return new MarbledBrush( blocks.ToArray(), blockRatios.ToArray() );
+            switch( blocks.Count ) {
+                case 0:
+                    return new MarbledBrush();
+                case 1:
+                    return new MarbledBrush( blocks[0], blockRatios[0] );
+                default:
+                    return new MarbledBrush( blocks.ToArray(), blockRatios.ToArray() );
             }
         }
     }
@@ -127,17 +128,18 @@ namespace fCraft.Drawing {
                 blockRatios.Add( ratio );
             }
 
-            if( blocks.Count == 0 ) {
-                if( Blocks.Length == 0 ) {
-                    player.Message( "{0} brush: Please specify at least one block.", Factory.Name );
-                    return null;
-                } else {
-                    return new MarbledBrush( this );
-                }
-            } else if( blocks.Count == 1 ) {
-                return new MarbledBrush( blocks[0], blockRatios[0] );
-            } else {
-                return new MarbledBrush( blocks.ToArray(), blockRatios.ToArray() );
+            switch( blocks.Count ) {
+                case 0:
+                    if( Blocks.Length == 0 ) {
+                        player.Message( "{0} brush: Please specify at least one block.", Factory.Name );
+                        return null;
+                    } else {
+                        return new MarbledBrush( this );
+                    }
+                case 1:
+                    return new MarbledBrush( blocks[0], blockRatios[0] );
+                default:
+                    return new MarbledBrush( blocks.ToArray(), blockRatios.ToArray() );
             }
         }
 

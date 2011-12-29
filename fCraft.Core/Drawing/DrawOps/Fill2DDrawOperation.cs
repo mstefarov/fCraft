@@ -16,16 +16,16 @@ namespace fCraft.Drawing {
 
         public override string Description {
             get {
-                if( SourceBlock == Block.Undefined ) {
-                    if( ReplacementBlock == Block.Undefined ) {
-                        return Name;
-                    } else {
-                        return String.Format( "{0}({1})",
-                                              Name, ReplacementBlock );
-                    }
-                } else {
+                if( SourceBlock != Block.Undefined ) {
                     return String.Format( "{0}({1} -> {2} @{3})",
                                           Name, SourceBlock, ReplacementBlock, Axis );
+
+                } else if( ReplacementBlock != Block.Undefined ) {
+                    return String.Format( "{0}({1})",
+                                          Name, ReplacementBlock );
+
+                } else {
+                    return Name;
                 }
             }
         }

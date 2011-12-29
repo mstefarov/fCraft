@@ -34,13 +34,15 @@ namespace fCraft.Drawing {
                 if( block == Block.Undefined ) return null;
                 blocks.Push( block );
             }
-            if( blocks.Count == 0 ) {
-                return new ReplaceBrush();
-            } else if( blocks.Count == 1 ) {
-                return new ReplaceBrush( blocks.ToArray(), Block.Undefined );
-            } else {
-                Block replacement = blocks.Pop();
-                return new ReplaceBrush( blocks.ToArray(), replacement );
+            switch( blocks.Count ) {
+                case 0:
+                    return new ReplaceBrush();
+                case 1:
+                    return new ReplaceBrush( blocks.ToArray(), Block.Undefined );
+                default: {
+                    Block replacement = blocks.Pop();
+                    return new ReplaceBrush( blocks.ToArray(), replacement );
+                }
             }
         }
     }

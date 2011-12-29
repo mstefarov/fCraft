@@ -1094,14 +1094,16 @@ namespace fCraft {
             if( degrees == 180 ) {
                 newBuffer = new Block[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 2 )];
 
-            } else if( axis == Axis.X ) {
-                newBuffer = new Block[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 )];
-
-            } else if( axis == Axis.Y ) {
-                newBuffer = new Block[oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 )];
-
-            } else { // axis == Axis.Z
-                newBuffer = new Block[oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 )];
+            } else switch( axis ) {
+                case Axis.X:
+                    newBuffer = new Block[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 )];
+                    break;
+                case Axis.Y:
+                    newBuffer = new Block[oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 )];
+                    break;
+                default: // Axis.Z
+                    newBuffer = new Block[oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 )];
+                    break;
             }
 
             // clone to avoid messing up any paste-in-progress
