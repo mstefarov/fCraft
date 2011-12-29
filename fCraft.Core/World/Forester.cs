@@ -857,17 +857,9 @@ namespace fCraft {
         #region Enumerations
 
         public enum ForesterOperation {
-            /// <summary>
-            /// Removes all existing trees on the map
-            /// </summary>
+            ClearCut,
             Conserve,
-            /// <summary>
-            /// Removes all existing trees and replants them
-            /// </summary>
             Replant,
-            /// <summary>
-            /// Adds trees to the current map
-            /// </summary>
             Add
         }
 

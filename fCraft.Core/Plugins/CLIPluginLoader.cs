@@ -16,8 +16,10 @@ namespace fCraft {
             try {
                 List<IPlugin> plugins = new List<IPlugin>();
                 Assembly assembly = Assembly.LoadFrom( pluginName );
-                foreach( Type pluginType in assembly.GetTypes().Where( type => type.GetInterfaces().Contains( typeof( IPlugin ) ) && type.IsClass ) ) {
-                    plugins.Add( (IPlugin)Activator.CreateInstance( pluginType ) );
+                foreach( Type pluginType in assembly.GetTypes() ) {
+                    if( pluginType.GetInterfaces().Contains( typeof( IPlugin ) ) && pluginType.IsClass ) {
+                        plugins.Add( (IPlugin)Activator.CreateInstance( pluginType ) );
+                    }
                 }
                 return new PluginLoadResult {
                     LoadSuccessful = true,
