@@ -100,11 +100,12 @@ namespace fCraft {
 
         public const string BlockDBDirectory = "blockdb";
 
-
+        /// <summary> Path where block database is stored </summary>
         public static string BlockDBPath {
             get { return Path.Combine( WorkingPath, BlockDBDirectory ); }
         }
-
+        
+        /// <summary> Path where server rules are stored </summary>
         public static string RulesPath {
             get { return Path.Combine( WorkingPath, RulesDirectory ); }
         }

@@ -230,6 +230,7 @@ namespace fCraft {
         Disconnected
     }
 
+    /// <summary> Reserved player IDs 0-255 is reserved for system use </summary>
     public enum ReservedPlayerID : byte {
         /// <summary> Marks the absence of a player/entity record </summary>
         None = 0,
