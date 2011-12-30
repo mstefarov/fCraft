@@ -1,4 +1,4 @@
-﻿namespace AutoRankEditor {
+﻿namespace fCraft.AutoRank.Editor {
     public enum ConditionScopeType {
         Total,
         SinceRankChange,

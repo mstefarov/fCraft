@@ -4,10 +4,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using fCraft;
-using fCraft.AutoRank;
 
-namespace AutoRankEditor {
+namespace fCraft.AutoRank.Editor {
     public sealed partial class MainForm : Form {
 
         string[] rankList;
@@ -240,13 +238,14 @@ namespace AutoRankEditor {
             ToolStripMenuItem item = (ToolStripMenuItem)e.ClickedItem;
             if( item.DropDownItems.Count > 0 ) return;
             TreeNode parent = treeData.SelectedNode;
-            if( parent is GroupNode ) {
-                GroupNode newNode = new GroupNode( (GroupNodeType)Enum.Parse( typeof( GroupNodeType ), item.Text ) );
-                parent.Nodes.Add( newNode );
-                ((GroupNode)parent).UpdateLabel();
-                newNode.EnsureVisible();
-                treeData.SelectedNode = newNode;
-            }
+            GroupNode groupNode = parent as GroupNode;
+            if( groupNode == null ) return;
+
+            GroupNode newNode = new GroupNode( (GroupNodeType)Enum.Parse( typeof( GroupNodeType ), item.Text ) );
+            groupNode.Nodes.Add( newNode );
+            groupNode.UpdateLabel();
+            newNode.EnsureVisible();
+            treeData.SelectedNode = newNode;
         }
 
 
@@ -254,17 +253,17 @@ namespace AutoRankEditor {
             ToolStripMenuItem item = (ToolStripMenuItem)e.ClickedItem;
             if( item.DropDownItems.Count > 0 ) return;
             GroupNode node = treeData.SelectedNode as GroupNode;
-            if( node != null ) {
-                string text = item.Text;
-                if( item.OwnerItem != null ) {
-                    text = item.OwnerItem.Text + ' ' + text;
-                }
-                ConditionNode newNode = new ConditionNode( text );
-                node.Nodes.Add( newNode );
-                node.UpdateLabel();
-                newNode.EnsureVisible();
-                treeData.SelectedNode = newNode;
+            if( node == null ) return;
+
+            string text = item.Text;
+            if( item.OwnerItem != null ) {
+                text = item.OwnerItem.Text + ' ' + text;
             }
+            ConditionNode newNode = new ConditionNode( text );
+            node.Nodes.Add( newNode );
+            node.UpdateLabel();
+            newNode.EnsureVisible();
+            treeData.SelectedNode = newNode;
         }
 
 

@@ -1,4 +1,4 @@
-﻿namespace AutoRankEditor {
+﻿namespace fCraft.AutoRank.Editor {
     partial class MainForm {
         /// <summary>
         /// Required designer variable.
