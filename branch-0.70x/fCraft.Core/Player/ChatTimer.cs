@@ -12,30 +12,36 @@ namespace fCraft {
 
         public readonly int Id;
 
+        /// <summary> Whether or not the timer is currently running. </summary>
         public bool IsRunning { get; private set; }
 
+        /// <summary> Message to be displayed once the timer reaches zero. </summary>
         [CanBeNull]
         public string Message { get; private set; }
 
+        /// <summary> Date/Time at which this timer was started. </summary>
         public DateTime StartTime { get; private set; }
 
+        /// <summary> Date/Time at which this timer will end. </summary>
         public DateTime EndTime { get; private set; }
 
+        /// <summary> The amount of time between when this timer was started and when it will end. </summary>
         public TimeSpan Duration { get; private set; }
 
+        /// <summary> The amount of time remaining in this timer. </summary>
         public TimeSpan TimeLeft {
             get {
                 return EndTime.Subtract( DateTime.UtcNow );
             }
         }
 
+        /// <summary> Name of the player who started this timer </summary>
         [NotNull]
         public string StartedBy { get; private set; }
 
-
         readonly SchedulerTask task;
-        int announceIntervalIndex, lastHourAnnounced;
 
+        int announceIntervalIndex, lastHourAnnounced;
 
         ChatTimer( TimeSpan duration, [CanBeNull] string message, [NotNull] string startedBy ) {
             if( startedBy == null ) throw new ArgumentNullException( "startedBy" );
@@ -99,6 +105,7 @@ namespace fCraft {
             }
         }
 
+        /// <summary> Stops this timer, and removes it from the list of timers. </summary>
         public void Stop() {
             IsRunning = false;
             task.Stop();
@@ -107,7 +114,11 @@ namespace fCraft {
 
 
         #region Static
-
+        /// <summary> Starts this timer with the specified duration, and end message. </summary>
+        /// <param name="duration"> Amount of time the timer should run before completion. </param>
+        /// <param name="message"> Message to display when timer reaches zero. </param>
+        /// <param name="startedBy"> Name of player who started timer</param>
+        /// <returns> Created timer</returns>
         public static ChatTimer Start( TimeSpan duration, [CanBeNull] string message, [NotNull] string startedBy ) {
             if( startedBy == null ) throw new ArgumentNullException( "startedBy" );
             if( duration < MinDuration ) {

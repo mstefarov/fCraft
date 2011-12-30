@@ -15,6 +15,8 @@ namespace fCraft {
     /// Maps can be created blank (using Map constructor), generated terrain (using MapGenerator),
     /// or loaded from file (using fCraft.MapConversion.MapUtility). </summary>
     public unsafe sealed class Map {
+
+        /// <summary> Current map format being used to save maps. </summary>
         public const MapFormat SaveFormat = MapFormat.FCMv4;
 
         /// <summary> The world associated with this map, if any. May be null. </summary>
@@ -30,7 +32,7 @@ namespace fCraft {
         /// <summary> Map height, in blocks. Equivalent to Notch's Y (vertical). </summary>
         public readonly int Height;
 
-        /// <summary> Map boundaries. Can be useful for calculating volume or interesections. </summary>
+        /// <summary> Map boundaries. Can be useful for calculating volume or intersections. </summary>
         public readonly BoundingBox Bounds;
 
         /// <summary> Map volume, in terms of blocks. </summary>
@@ -39,6 +41,8 @@ namespace fCraft {
 
         /// <summary> Default spawning point on the map. </summary>
         Position spawn;
+
+        /// <summary> The current position of the spawn location. </summary>
         public Position Spawn {
             get {
                 return spawn;
@@ -63,7 +67,7 @@ namespace fCraft {
         /// <summary> Whether the map was saved since last time it was backed up. </summary>
         public bool HasChangedSinceBackup { get; private set; }
 
-        // used by IsoCat and MapGenerator
+        /// <summary> Used by IsoCat and MapGenerator. </summary>
         public short[,] Shadows;
 
 
@@ -129,7 +133,7 @@ namespace fCraft {
 
         #region Saving
 
-        /// <summary> Saves this map to a file in the default format (FCMv3). </summary>
+        /// <summary> Saves this map to a file in the default format (FCMv4). </summary>
         /// <returns> Whether the saving succeeded. </returns>
         public bool Save( [NotNull] string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
