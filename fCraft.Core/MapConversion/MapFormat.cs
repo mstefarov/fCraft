@@ -36,7 +36,7 @@ namespace fCraft.MapConversion {
         /// <summary> Format used by Opticraft v0.2+. Support contributed by Jared Klopper (LgZ-optical). </summary>
         Opticraft,
 
-        /// <summary> Universal map format, planned for future use by fCraft. Currently unsupported. </summary>
+        /// <summary> Current map format used by fCraft branch 0.7xx , unsupported until branch 0.7xx is released. </summary>
         FCMv4
     }
 
