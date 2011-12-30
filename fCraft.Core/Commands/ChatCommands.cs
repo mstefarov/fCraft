@@ -350,7 +350,7 @@ namespace fCraft {
                     player.Message( "There are {0} timers running:", list.Length );
                     foreach( ChatTimer timer in list ) {
                         player.Message( "  #{0} \"{1}&S\" (started by {2}, {3} left)",
-                                        timer.Id, timer.Message, timer.StartedBy, timer.TimeLeft.ToMiniString() );
+                                        timer.ID, timer.Message, timer.StartedBy, timer.TimeLeft.ToMiniString() );
                     }
                 }
                 return;
@@ -358,11 +358,11 @@ namespace fCraft {
 
             // Abort a timer
             if( param.Equals( "abort", StringComparison.OrdinalIgnoreCase ) ) {
-                int timerId;
-                if( cmd.NextInt( out timerId ) ) {
-                    ChatTimer timer = ChatTimer.FindTimerById( timerId );
+                int timerID;
+                if( cmd.NextInt( out timerID ) ) {
+                    ChatTimer timer = ChatTimer.FindTimerByID( timerID );
                     if( timer == null || !timer.IsRunning ) {
-                        player.Message( "Given timer (#{0}) does not exist.", timerId );
+                        player.Message( "Given timer (#{0}) does not exist.", timerID );
                     } else {
                         timer.Stop();
                         string abortMsg = String.Format( "&Y(Timer) {0}&Y aborted a timer with {1} left: {2}",

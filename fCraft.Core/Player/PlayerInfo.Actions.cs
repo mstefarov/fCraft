@@ -192,7 +192,7 @@ namespace fCraft {
                 }
 
                 // Check if target is IPBan-exempt
-                bool targetIsExempt = (BanStatus == BanStatus.IPBanExempt);
+                bool targetIsExempt = (BanStatus == BanStatus.BanExempt);
                 if( !needIPBan && targetIsExempt ) {
                     string msg = String.Format( "Given player ({0}) is exempt from IP bans. Remove the exemption and retry.",
                                                 Name );

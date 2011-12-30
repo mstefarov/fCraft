@@ -329,7 +329,7 @@ namespace fCraft {
                                         target.ClassyName );
                     }
                     break;
-                case BanStatus.IPBanExempt:
+                case BanStatus.BanExempt:
                     if( addExemption ) {
                         player.Message( "IP-Ban exemption already exists for player {0}", target.ClassyName );
                     } else {
@@ -342,7 +342,7 @@ namespace fCraft {
                     if( addExemption ) {
                         player.Message( "IP-Ban exemption added for player {0}",
                                         target.ClassyName );
-                        target.BanStatus = BanStatus.IPBanExempt;
+                        target.BanStatus = BanStatus.BanExempt;
                     } else {
                         player.Message( "No IP-Ban exemption exists for player {0}",
                                         target.ClassyName );

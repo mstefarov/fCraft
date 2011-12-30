@@ -52,7 +52,7 @@ namespace fCraft {
         public PlayerInfo AddPlayer( string name, Rank startingRank, RankChangeType rankChangeType, IPAddress address ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( address == null ) throw new ArgumentNullException( "address" );
-            int id = GetNextId();
+            int id = GetNextID();
             PlayerInfo info = new PlayerInfo( id, name, startingRank, rankChangeType, address );
             trie.Add( name, info );
             return info;
@@ -64,7 +64,7 @@ namespace fCraft {
         public PlayerInfo AddUnrecognizedPlayer( string name, Rank startingRank, RankChangeType rankChangeType ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
-            int id = GetNextId();
+            int id = GetNextID();
             PlayerInfo info = new PlayerInfo( id, name, startingRank, rankChangeType, false );
             trie.Add( name, info );
             return info;
@@ -191,7 +191,7 @@ namespace fCraft {
         }
 
 
-        int GetNextId() {
+        int GetNextID() {
             return Interlocked.Increment( ref maxID );
         }
 
