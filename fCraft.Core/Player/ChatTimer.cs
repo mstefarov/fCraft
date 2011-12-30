@@ -6,10 +6,12 @@ using System.Threading;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> Provides a way to create and manage publicly-announced countdowns.
+    /// Long timers announce once an hour (e.g. "7h left").
+    /// During the last hour, timer announces more often: every 10 minutes, then every minute,
+    /// then every 10 seconds, and finally every second - until the timer is up. </summary>
     public sealed class ChatTimer {
-        public static readonly TimeSpan MinDuration = TimeSpan.FromSeconds( 1 );
-        static readonly TimeSpan Hour = TimeSpan.FromHours( 1 );
-
+        /// <summary> Timer's unique numeric ID. </summary>
         public readonly int Id;
 
         /// <summary> Whether or not the timer is currently running. </summary>
@@ -19,10 +21,10 @@ namespace fCraft {
         [CanBeNull]
         public string Message { get; private set; }
 
-        /// <summary> Date/Time at which this timer was started. </summary>
+        /// <summary> Date/Time (UTC) at which this timer was started. </summary>
         public DateTime StartTime { get; private set; }
 
-        /// <summary> Date/Time at which this timer will end. </summary>
+        /// <summary> Date/Time (UTC) at which this timer will end. </summary>
         public DateTime EndTime { get; private set; }
 
         /// <summary> The amount of time between when this timer was started and when it will end. </summary>
@@ -39,8 +41,8 @@ namespace fCraft {
         [NotNull]
         public string StartedBy { get; private set; }
 
-        readonly SchedulerTask task;
 
+        readonly SchedulerTask task;
         int announceIntervalIndex, lastHourAnnounced;
 
         ChatTimer( TimeSpan duration, [CanBeNull] string message, [NotNull] string startedBy ) {
@@ -71,6 +73,7 @@ namespace fCraft {
                                oneSecondRepeats );
         }
 
+
         static void TimerCallback( [NotNull] SchedulerTask task ) {
             if( task == null ) throw new ArgumentNullException( "task" );
             ChatTimer timer = (ChatTimer)task.UserState;
@@ -94,6 +97,7 @@ namespace fCraft {
             }
         }
 
+
         void Announce( TimeSpan timeLeft ) {
             if( String.IsNullOrEmpty( Message ) ) {
                 Chat.SendSay( Player.Console, "(Timer) " + timeLeft.ToMiniString() );
@@ -114,6 +118,16 @@ namespace fCraft {
 
 
         #region Static
+
+        static int timerCounter;
+        static readonly object TimerListLock = new object();
+        static readonly Dictionary<int, ChatTimer> Timers = new Dictionary<int, ChatTimer>();
+        static readonly TimeSpan Hour = TimeSpan.FromHours( 1 );
+
+        /// <summary> Minimum allowed timer duration (one second). </summary>
+        public static readonly TimeSpan MinDuration = TimeSpan.FromSeconds( 1 );
+
+
         /// <summary> Starts this timer with the specified duration, and end message. </summary>
         /// <param name="duration"> Amount of time the timer should run before completion. </param>
         /// <param name="message"> Message to display when timer reaches zero. </param>
@@ -126,6 +140,49 @@ namespace fCraft {
             }
             return new ChatTimer( duration, message, startedBy );
         }
+        
+        
+        /// <summary> Returns a list of all active timers. </summary>
+        public static ChatTimer[] TimerList {
+            get {
+                lock( TimerListLock ) {
+                    return Timers.Values.ToArray();
+                }
+            }
+        }
+
+
+        /// <summary> Searches for a timer by its numeric ID. </summary>
+        /// <param name="id"> ID to search for. </param>
+        /// <returns> ChatTimer object if found; null if not found. </returns>
+        [CanBeNull]
+        public static ChatTimer FindTimerById( int id ) {
+            lock( TimerListLock ) {
+                ChatTimer result;
+                if( Timers.TryGetValue( id, out result ) ) {
+                    return result;
+                } else {
+                    return null;
+                }
+            }
+        }
+
+
+        static void AddTimerToList( [NotNull] ChatTimer timer ) {
+            if( timer == null ) throw new ArgumentNullException( "timer" );
+            lock( TimerListLock ) {
+                Timers.Add( timer.Id, timer );
+            }
+        }
+
+
+        static void RemoveTimerFromList( [NotNull] ChatTimer timer ) {
+            if( timer == null ) throw new ArgumentNullException( "timer" );
+            lock( TimerListLock ) {
+                Timers.Remove( timer.Id );
+            }
+        }
+
 
         static readonly TimeSpan[] AnnounceIntervals = new[] {
             TimeSpan.FromSeconds(1),
@@ -149,46 +206,6 @@ namespace fCraft {
             TimeSpan.FromMinutes(40),
             TimeSpan.FromMinutes(50)
         };
-
-        static int timerCounter;
-        static readonly object TimerListLock = new object();
-        static readonly Dictionary<int, ChatTimer> Timers = new Dictionary<int, ChatTimer>();
-
-        static void AddTimerToList( [NotNull] ChatTimer timer ) {
-            if( timer == null ) throw new ArgumentNullException( "timer" );
-            lock( TimerListLock ) {
-                Timers.Add( timer.Id, timer );
-            }
-        }
-
-
-        static void RemoveTimerFromList( [NotNull] ChatTimer timer ) {
-            if( timer == null ) throw new ArgumentNullException( "timer" );
-            lock( TimerListLock ) {
-                Timers.Remove( timer.Id );
-            }
-        }
-
-
-        public static ChatTimer[] TimerList {
-            get {
-                lock( TimerListLock ) {
-                    return Timers.Values.ToArray();
-                }
-            }
-        }
-
-        [CanBeNull]
-        public static ChatTimer FindTimerById( int id ) {
-            lock( TimerListLock ) {
-                ChatTimer result;
-                if( Timers.TryGetValue( id, out result ) ) {
-                    return result;
-                } else {
-                    return null;
-                }
-            }
-        }
 
         #endregion
     }

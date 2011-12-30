@@ -125,7 +125,9 @@ namespace fCraft.MapConversion {
 
             OpticraftMetaData metaData = (OpticraftMetaData)serializer.ReadObject( memStream );
 
+            // ReSharper disable UseObjectOrCollectionInitializer
             Map mapFile = new Map( null, metaData.X, metaData.Y, metaData.Z, false );
+            // ReSharper restore UseObjectOrCollectionInitializer
             mapFile.Spawn = new Position {
                 X = (short)(metaData.SpawnX),
                 Y = (short)(metaData.SpawnY),

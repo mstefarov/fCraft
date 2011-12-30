@@ -63,10 +63,11 @@ namespace fCraft {
                     XElement root = doc.Root;
                     if( root != null ) {
                         foreach( XElement el in root.Elements( "World" ) ) {
-                            World newWorld;
+                            
 #if DEBUG
-                            newWorld = AddWorld( el );
+                            World newWorld = AddWorld( el );
 #else
+                            World newWorld;
                             try {
                                 newWorld = AddWorld( el );
                             } catch( Exception ex ) {

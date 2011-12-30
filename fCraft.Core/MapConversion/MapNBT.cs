@@ -55,13 +55,14 @@ namespace fCraft.MapConversion {
                 GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
                 NBTag tag = NBTag.ReadStream( gs );
 
-
                 NBTag mapTag = tag["Map"];
+                // ReSharper disable UseObjectOrCollectionInitializer
                 Map map = new Map( null,
                                    mapTag["Width"].GetShort(),
                                    mapTag["Length"].GetShort(),
                                    mapTag["Height"].GetShort(),
                                    false );
+                // ReSharper restore UseObjectOrCollectionInitializer
                 map.Spawn = new Position {
                     X = mapTag["Spawn"][0].GetShort(),
                     Z = mapTag["Spawn"][1].GetShort(),

@@ -248,6 +248,7 @@ namespace fCraft {
         [CanBeNull]
         public static Rank GetMinRankWithAnyPermission( [NotNull] params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
+            if( permissions.Length == 0 ) return LowestRank;
             for( int r = Ranks.Count - 1; r >= 0; r-- ) {
                 int r1 = r;
                 if( permissions.Any( t => Ranks[r1].Can( t ) ) ) {

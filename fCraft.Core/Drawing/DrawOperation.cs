@@ -363,9 +363,15 @@ namespace fCraft.Drawing {
 
         #region Events
 
+        /// <summary> Occurs when a DrawOperation is about to begin. </summary>
         public static event EventHandler<DrawOperationBeginningEventArgs> Beginning;
+
+        /// <summary> Occurs after a DrawOperation has began. </summary>
         public static event EventHandler<DrawOperationEventArgs> Began;
+
+        /// <summary> Occurs when a DrawOperation has ended (finished or was cancelled). </summary>
         public static event EventHandler<DrawOperationEventArgs> Ended;
+
 
         // Returns false if cancelled
         protected static bool RaiseBeginningEvent( DrawOperation op ) {
