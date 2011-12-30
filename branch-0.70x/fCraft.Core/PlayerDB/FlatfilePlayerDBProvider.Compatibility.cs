@@ -38,7 +38,7 @@ namespace fCraft {
         internal PlayerInfo LoadFormat2( [NotNull] string[] fields ) {
             if( fields == null ) throw new ArgumentNullException( "fields" );
             int id = Int32.Parse( fields[29] );
-            if( id < 256 ) id = GetNextId();
+            if( id < 256 ) id = GetNextID();
 
             PlayerInfo info = new PlayerInfo( id ) {
                 Name = fields[0]
@@ -61,7 +61,7 @@ namespace fCraft {
                     info.BanStatus = BanStatus.Banned;
                     break;
                 case "x":
-                    info.BanStatus = BanStatus.IPBanExempt;
+                    info.BanStatus = BanStatus.BanExempt;
                     break;
                 default:
                     info.BanStatus = BanStatus.NotBanned;
@@ -198,7 +198,7 @@ namespace fCraft {
         internal PlayerInfo LoadFormat1( [NotNull] string[] fields ) {
             if( fields == null ) throw new ArgumentNullException( "fields" );
             int id = Int32.Parse( fields[29] );
-            if( id < 256 ) id = GetNextId();
+            if( id < 256 ) id = GetNextID();
 
             PlayerInfo info = new PlayerInfo( id ) { Name = fields[0] };
 
@@ -219,7 +219,7 @@ namespace fCraft {
                     info.BanStatus = BanStatus.Banned;
                     break;
                 case "x":
-                    info.BanStatus = BanStatus.IPBanExempt;
+                    info.BanStatus = BanStatus.BanExempt;
                     break;
                 default:
                     info.BanStatus = BanStatus.NotBanned;
@@ -352,10 +352,10 @@ namespace fCraft {
             int id;
             if( fields.Length > 29 ) {
                 if( !Int32.TryParse( fields[29], out id ) || id < 256 ) {
-                    id = GetNextId();
+                    id = GetNextID();
                 }
             } else {
-                id = GetNextId();
+                id = GetNextID();
             }
 
             PlayerInfo info = new PlayerInfo( id ) {
@@ -381,7 +381,7 @@ namespace fCraft {
                     info.BanStatus = BanStatus.Banned;
                     break;
                 case "x":
-                    info.BanStatus = BanStatus.IPBanExempt;
+                    info.BanStatus = BanStatus.BanExempt;
                     break;
                 default:
                     info.BanStatus = BanStatus.NotBanned;
@@ -651,7 +651,7 @@ namespace fCraft {
                 case BanStatus.Banned:
                     sb.Append( 'b' );
                     break;
-                case BanStatus.IPBanExempt:
+                case BanStatus.BanExempt:
                     sb.Append( 'x' );
                     break;
             }

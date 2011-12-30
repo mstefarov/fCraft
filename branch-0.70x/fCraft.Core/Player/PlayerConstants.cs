@@ -162,6 +162,7 @@ namespace fCraft {
     }
 
 
+    /// <summary> List possible reasons for players joining/changing worlds. </summary>
     public enum WorldChangeReason {
         /// <summary> First world that the player joins upon entering the server (main). </summary>
         FirstWorld,
@@ -189,18 +190,20 @@ namespace fCraft {
     }
 
 
+    /// <summary> Lists possible ban states of players (banned, not banned, and exempt). </summary>
     public enum BanStatus : byte {
         /// <summary> Player is not banned. </summary>
         NotBanned,
 
         /// <summary> Player cannot be banned or IP-banned. </summary>
-        IPBanExempt,
+        BanExempt,
 
         /// <summary> Player is banned. </summary>
         Banned
     }
 
 
+    /// <summary> Describes the action that player performed to click a block (left or right click). </summary>
     public enum ClickAction : byte {
         /// <summary> Deleting a block (left-click in Minecraft). </summary>
         Delete = 0,
@@ -210,6 +213,7 @@ namespace fCraft {
     }
 
 
+    /// <summary> Describes the state of a connected Player's session. </summary>
     public enum SessionState {
         /// <summary> There is no session associated with this player (e.g. Console). </summary>
         Offline,

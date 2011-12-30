@@ -281,7 +281,7 @@ namespace fCraft {
                         player.Message( "  Account is &CBANNED&S. See &H/BanInfo" );
                     }
                     break;
-                case BanStatus.IPBanExempt:
+                case BanStatus.BanExempt:
                     if( ipBan != null ) {
                         player.Message( "  IP is &CBANNED&S, but account is exempt. See &H/BanInfo" );
                     } else {
@@ -504,7 +504,7 @@ namespace fCraft {
                             player.Message( "Player {0}&S is &CBANNED&S (but their IP is not).", info.ClassyName );
                         }
                         break;
-                    case BanStatus.IPBanExempt:
+                    case BanStatus.BanExempt:
                         if( ipBan != null ) {
                             player.Message( "Player {0}&S is exempt from an existing IP ban.", info.ClassyName );
                         } else {

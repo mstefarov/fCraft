@@ -287,7 +287,7 @@ namespace fCraft.MySql {
             connection.Host = config.Host;
             connection.Port = config.Port;
             connection.Database = config.Database;
-            connection.UserId = config.UserId;
+            connection.UserId = config.UserID;
             connection.Password = config.Password;
             connection.Open();
 

@@ -11,11 +11,11 @@ namespace fCraft {
         public MySqlPlayerDBProviderConfig()
             : this( "localhost", 3306, "fcraft", "user", "" ) { }
 
-        public MySqlPlayerDBProviderConfig( string host, int port, string database, string userId, string password ) {
+        public MySqlPlayerDBProviderConfig( string host, int port, string database, string userID, string password ) {
             Host = host;
             Port = port;
             Database = database;
-            UserId = userId;
+            UserID = userID;
             Password = password;
         }
 
@@ -63,19 +63,19 @@ namespace fCraft {
 
         [Description( "User id. Should have CREATE, SELECT, UPDATE, INSERT, and DELETE permissions." )]
         [NotNull]
-        public string UserId {
-            get { return userId; }
+        public string UserID {
+            get { return userID; }
             set {
                 if( value == null ) throw new ArgumentNullException( "value" );
-                if( value.Length == 0 ) throw new ArgumentException( "UserId may not be left blank." );
-                userId = value;
+                if( value.Length == 0 ) throw new ArgumentException( "UserID may not be left blank." );
+                userID = value;
             }
         }
-        string userId;
+        string userID;
 
 
         [PasswordPropertyText( true )]
-        [Description( "Password for the UserId. Note: stored in plaintext in config.xml" )]
+        [Description( "Password for the UserID. Note: stored in plaintext in config.xml" )]
         [NotNull]
         public string Password {
             get { return password; }
@@ -104,7 +104,7 @@ namespace fCraft {
             root.Add( new XElement( "Host", Host ) );
             root.Add( new XElement( "Port", Port ) );
             root.Add( new XElement( "Database", Database ) );
-            root.Add( new XElement( "UserId", UserId ) );
+            root.Add( new XElement( "UserID", UserID ) );
             root.Add( new XElement( "Password", Password ) );
             return root;
         }
@@ -130,11 +130,11 @@ namespace fCraft {
             }
             Database = databaseEl.Value;
 
-            XElement userIdEl = el.Element( "UserId" );
-            if( userIdEl == null || String.IsNullOrEmpty( userIdEl.Value ) ) {
+            XElement userIDEl = el.Element( "UserID" );
+            if( userIDEl == null || String.IsNullOrEmpty( userIDEl.Value ) ) {
                 throw new SerializationException( "MySqlPlayerDBProvider: No user id specified in config." );
             }
-            UserId = userIdEl.Value;
+            UserID = userIDEl.Value;
 
             XElement passwordEl = el.Element( "Password" );
             if( passwordEl == null || passwordEl.Value == null ) {

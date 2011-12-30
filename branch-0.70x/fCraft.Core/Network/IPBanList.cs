@@ -291,7 +291,7 @@ namespace fCraft {
                     kickReason = String.Format( "IP-Banned by {0}", player.Name );
                 }
                 foreach( Player other in Server.Players.FromIP( targetAddress ) ) {
-                    if( other.Info.BanStatus != BanStatus.IPBanExempt ) {
+                    if( other.Info.BanStatus != BanStatus.BanExempt ) {
                         other.Kick( kickReason, LeaveReason.BanIP ); // TODO: check side effects of not using DoKick
                     }
                 }

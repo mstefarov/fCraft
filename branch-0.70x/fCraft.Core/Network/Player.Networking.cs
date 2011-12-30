@@ -594,7 +594,7 @@ namespace fCraft {
 
             // Check if player's IP is banned
             IPBanInfo ipBanInfo = IPBanList.Get( IP );
-            if( ipBanInfo != null && Info.BanStatus != BanStatus.IPBanExempt ) {
+            if( ipBanInfo != null && Info.BanStatus != BanStatus.BanExempt ) {
                 Info.ProcessFailedLogin( this );
                 ipBanInfo.ProcessAttempt( this );
                 Logger.Log( LogType.SuspiciousActivity,
@@ -1166,7 +1166,7 @@ namespace fCraft {
 
         void ResetVisibleEntities() {
             foreach( var pos in entities.Values ) {
-                SendNow( PacketWriter.MakeRemoveEntity( pos.Id ) );
+                SendNow( PacketWriter.MakeRemoveEntity( pos.ID ) );
             }
             freePlayerIDs.Clear();
             for( int i = 1; i <= sbyte.MaxValue; i++ ) {
@@ -1274,7 +1274,7 @@ namespace fCraft {
             if( freePlayerIDs.Count > 0 ) {
                 var pos = new VisibleEntity( newPos, freePlayerIDs.Pop(), player.Info.Rank );
                 entities.Add( player, pos );
-                SendNow( PacketWriter.MakeAddEntity( pos.Id, player.ListName, newPos ) );
+                SendNow( PacketWriter.MakeAddEntity( pos.ID, player.ListName, newPos ) );
             }
         }
 
@@ -1283,7 +1283,7 @@ namespace fCraft {
             if( entity == null ) throw new ArgumentNullException( "entity" );
             entity.Hidden = true;
             entity.LastKnownPosition = VisibleEntity.HiddenPosition;
-            SendNow( PacketWriter.MakeTeleport( entity.Id, VisibleEntity.HiddenPosition ) );
+            SendNow( PacketWriter.MakeTeleport( entity.ID, VisibleEntity.HiddenPosition ) );
         }
 
 
@@ -1291,23 +1291,23 @@ namespace fCraft {
             if( entity == null ) throw new ArgumentNullException( "entity" );
             entity.Hidden = false;
             entity.LastKnownPosition = newPos;
-            SendNow( PacketWriter.MakeTeleport( entity.Id, newPos ) );
+            SendNow( PacketWriter.MakeTeleport( entity.ID, newPos ) );
         }
 
 
         void ReAddEntity( [NotNull] VisibleEntity entity, [NotNull] Player player, Position newPos ) {
             if( entity == null ) throw new ArgumentNullException( "entity" );
             if( player == null ) throw new ArgumentNullException( "player" );
-            SendNow( PacketWriter.MakeRemoveEntity( entity.Id ) );
-            SendNow( PacketWriter.MakeAddEntity( entity.Id, player.ListName, newPos ) );
+            SendNow( PacketWriter.MakeRemoveEntity( entity.ID ) );
+            SendNow( PacketWriter.MakeAddEntity( entity.ID, player.ListName, newPos ) );
             entity.LastKnownPosition = newPos;
         }
 
 
         void RemoveEntity( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            SendNow( PacketWriter.MakeRemoveEntity( entities[player].Id ) );
-            freePlayerIDs.Push( entities[player].Id );
+            SendNow( PacketWriter.MakeRemoveEntity( entities[player].ID ) );
+            freePlayerIDs.Push( entities[player].ID );
             entities.Remove( player );
         }
 
@@ -1346,7 +1346,7 @@ namespace fCraft {
             if( partialUpdates && delta.FitsIntoMoveRotatePacket && fullUpdateCounter < FullPositionUpdateInterval ) {
                 if( posChanged && rotChanged ) {
                     // incremental position + rotation update
-                    packet = PacketWriter.MakeMoveRotate( entity.Id, new Position {
+                    packet = PacketWriter.MakeMoveRotate( entity.ID, new Position {
                         X = delta.X,
                         Y = delta.Y,
                         Z = delta.Z,
@@ -1356,18 +1356,18 @@ namespace fCraft {
 
                 } else if( posChanged ) {
                     // incremental position update
-                    packet = PacketWriter.MakeMove( entity.Id, delta );
+                    packet = PacketWriter.MakeMove( entity.ID, delta );
 
                 } else if( rotChanged ) {
                     // absolute rotation update
-                    packet = PacketWriter.MakeRotate( entity.Id, newPos );
+                    packet = PacketWriter.MakeRotate( entity.ID, newPos );
                 } else {
                     return;
                 }
 
             } else {
                 // full (absolute position + rotation) update
-                packet = PacketWriter.MakeTeleport( entity.Id, newPos );
+                packet = PacketWriter.MakeTeleport( entity.ID, newPos );
             }
 
             entity.LastKnownPosition = newPos;
@@ -1378,15 +1378,15 @@ namespace fCraft {
         sealed class VisibleEntity {
             public static readonly Position HiddenPosition = new Position( 0, 0, short.MinValue );
 
-            public VisibleEntity( Position newPos, sbyte newId, Rank newRank ) {
-                Id = newId;
+            public VisibleEntity( Position newPos, sbyte newID, Rank newRank ) {
+                ID = newID;
                 LastKnownPosition = newPos;
                 MarkedForRetention = true;
                 Hidden = true;
                 LastKnownRank = newRank;
             }
 
-            public readonly sbyte Id;
+            public readonly sbyte ID;
             public Position LastKnownPosition;
             public Rank LastKnownRank;
             public bool Hidden;

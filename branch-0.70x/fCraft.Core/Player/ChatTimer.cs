@@ -12,7 +12,7 @@ namespace fCraft {
     /// then every 10 seconds, and finally every second - until the timer is up. </summary>
     public sealed class ChatTimer {
         /// <summary> Timer's unique numeric ID. </summary>
-        public readonly int Id;
+        public readonly int ID;
 
         /// <summary> Whether or not the timer is currently running. </summary>
         public bool IsRunning { get; private set; }
@@ -65,7 +65,7 @@ namespace fCraft {
                 }
             }
             task = Scheduler.NewTask( TimerCallback, this );
-            Id = Interlocked.Increment( ref timerCounter );
+            ID = Interlocked.Increment( ref timerCounter );
             AddTimerToList( this );
             IsRunning = true;
             task.RunRepeating( TimeSpan.Zero,
@@ -156,7 +156,7 @@ namespace fCraft {
         /// <param name="id"> ID to search for. </param>
         /// <returns> ChatTimer object if found; null if not found. </returns>
         [CanBeNull]
-        public static ChatTimer FindTimerById( int id ) {
+        public static ChatTimer FindTimerByID( int id ) {
             lock( TimerListLock ) {
                 ChatTimer result;
                 if( Timers.TryGetValue( id, out result ) ) {
@@ -171,7 +171,7 @@ namespace fCraft {
         static void AddTimerToList( [NotNull] ChatTimer timer ) {
             if( timer == null ) throw new ArgumentNullException( "timer" );
             lock( TimerListLock ) {
-                Timers.Add( timer.Id, timer );
+                Timers.Add( timer.ID, timer );
             }
         }
 
@@ -179,7 +179,7 @@ namespace fCraft {
         static void RemoveTimerFromList( [NotNull] ChatTimer timer ) {
             if( timer == null ) throw new ArgumentNullException( "timer" );
             lock( TimerListLock ) {
-                Timers.Remove( timer.Id );
+                Timers.Remove( timer.ID );
             }
         }
 
