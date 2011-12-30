@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace AutoRankEditor {
+namespace fCraft.AutoRank.Editor {
     class GroupNode : TreeNode {
         public GroupNodeType Op { get; set; }
 

@@ -476,7 +476,7 @@ namespace fCraft.Events {
 
         /// <summary> Player who is kicking. </summary>
         [NotNull]
-        public Player Kicker { get; protected set; }
+        public Player Kicker { get; private set; }
 
         /// <summary> Given kick reason (may be blank). Can be changed. </summary>
         [CanBeNull]
@@ -489,7 +489,7 @@ namespace fCraft.Events {
         public bool RecordToPlayerDB { get; set; }
 
         /// <summary> Circumstances that resulted in a kick (e.g. Kick, Ban, BanIP, IdleKick, etc). </summary>
-        public LeaveReason Context { get; protected set; }
+        public LeaveReason Context { get; private set; }
 
         public bool Cancel { get; set; }
     }

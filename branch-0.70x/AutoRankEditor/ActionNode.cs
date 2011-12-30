@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
-using fCraft;
 
-namespace AutoRankEditor {
+namespace fCraft.AutoRank.Editor {
     sealed class ActionNode : GroupNode {
         public Rank FromRank { get; set; }
         public Rank ToRank { get; set; }

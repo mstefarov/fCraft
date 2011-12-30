@@ -1,7 +1,6 @@
 ﻿using System.Windows.Forms;
-using fCraft.AutoRank;
 
-namespace AutoRankEditor {
+namespace fCraft.AutoRank.Editor {
     sealed class ConditionNode : TreeNode {
         public ConditionField Field { get; set; }
         public ComparisonOp Op { get; set; }
