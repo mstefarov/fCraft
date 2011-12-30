@@ -30,21 +30,27 @@ namespace fCraft.Drawing {
             CopyTime = original.CopyTime;
         }
 
+        [NotNull]
         public Block[, ,] Buffer { get; set; }
+
         public Vector3I Dimensions {
             get {
                 return new Vector3I( Buffer.GetLength( 0 ), Buffer.GetLength( 1 ), Buffer.GetLength( 2 ) );
             }
         }
+
         public Vector3I Orientation { get; set; }
+
         public int Slot { get; set; }
 
         // using "string" instead of "World" here
         // to avoid keeping World on the GC after it has been removed.
         public string OriginWorld { get; set; }
+
         public DateTime CopyTime { get; set; }
 
 
+        [Pure]
         public object Clone() {
             return new CopyState( this );
         }

@@ -17,29 +17,22 @@
 using System;
 
 namespace JetBrains.Annotations {
-    /// <summary>
-    /// Indicates that marked element should be localized or not.
-    /// </summary>
+    /// <summary> Indicates that marked element should be localized or not. </summary>
     [AttributeUsage( AttributeTargets.All, AllowMultiple = false, Inherited = true )]
     public sealed class LocalizationRequiredAttribute : Attribute {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LocalizationRequiredAttribute"/> class.
-        /// </summary>
+        /// <summary> Initializes a new instance of the <see cref="LocalizationRequiredAttribute"/> class. </summary>
         /// <param name="required"><c>true</c> if a element should be localized; otherwise, <c>false</c>.</param>
         public LocalizationRequiredAttribute( bool required ) {
             Required = required;
         }
 
-        /// <summary>
-        /// Gets a value indicating whether a element should be localized.
+        /// <summary> Gets a value indicating whether a element should be localized.
         /// <value><c>true</c> if a element should be localized; otherwise, <c>false</c>.</value>
         /// </summary>
         [UsedImplicitly]
         public bool Required { get; set; }
 
-        /// <summary>
-        /// Returns whether the value of the given object is equal to the current <see cref="LocalizationRequiredAttribute"/>.
-        /// </summary>
+        /// <summary> Returns whether the value of the given object is equal to the current <see cref="LocalizationRequiredAttribute"/>. </summary>
         /// <param name="obj">The object to test the value equality of. </param>
         /// <returns>
         /// <c>true</c> if the value of the given object is equal to that of the current; otherwise, <c>false</c>.
@@ -49,9 +42,7 @@ namespace JetBrains.Annotations {
             return attribute != null && attribute.Required == Required;
         }
 
-        /// <summary>
-        /// Returns the hash code for this instance.
-        /// </summary>
+        /// <summary> Returns the hash code for this instance. </summary>
         /// <returns>A hash code for the current <see cref="LocalizationRequiredAttribute"/>.</returns>
         public override int GetHashCode() {
             return base.GetHashCode();
@@ -81,67 +72,11 @@ namespace JetBrains.Annotations {
     }
 
     /// <summary>
-    /// Indicates that the function argument should be string literal and match one  of the parameters of the caller function.
+    /// Indicates that the function argument should be string literal and match one of the parameters of the caller function.
     /// For example, <see cref="ArgumentNullException"/> has such parameter.
     /// </summary>
     [AttributeUsage( AttributeTargets.Parameter, AllowMultiple = false, Inherited = true )]
     public sealed class InvokerParameterNameAttribute : Attribute { }
-
-    /// <summary>
-    /// Indicates that the marked method is assertion method, i.e. it halts control flow if one of the conditions is satisfied. 
-    /// To set the condition, mark one of the parameters with <see cref="AssertionConditionAttribute"/> attribute
-    /// </summary>
-    /// <seealso cref="AssertionConditionAttribute"/>
-    [AttributeUsage( AttributeTargets.Method, AllowMultiple = false, Inherited = true )]
-    public sealed class AssertionMethodAttribute : Attribute { }
-
-    /// <summary>
-    /// Indicates the condition parameter of the assertion method. 
-    /// The method itself should be marked by <see cref="AssertionMethodAttribute"/> attribute.
-    /// The mandatory argument of the attribute is the assertion type.
-    /// </summary>
-    /// <seealso cref="AssertionConditionType"/>
-    [AttributeUsage( AttributeTargets.Parameter, AllowMultiple = false, Inherited = true )]
-    public sealed class AssertionConditionAttribute : Attribute {
-        /// <summary>
-        /// Initializes new instance of AssertionConditionAttribute
-        /// </summary>
-        /// <param name="conditionType">Specifies condition type</param>
-        public AssertionConditionAttribute( AssertionConditionType conditionType ) {
-            ConditionType = conditionType;
-        }
-
-        /// <summary>
-        /// Gets condition type
-        /// </summary>
-        public AssertionConditionType ConditionType { get; private set; }
-    }
-
-    /// <summary>
-    /// Specifies assertion type. If the assertion method argument satisifes the condition, then the execution continues. 
-    /// Otherwise, execution is assumed to be halted
-    /// </summary>
-    public enum AssertionConditionType {
-        /// <summary>
-        /// Indicates that the marked parameter should be evaluated to true
-        /// </summary>
-        IS_TRUE = 0,
-
-        /// <summary>
-        /// Indicates that the marked parameter should be evaluated to false
-        /// </summary>
-        IS_FALSE = 1,
-
-        /// <summary>
-        /// Indicates that the marked parameter should be evaluated to null value
-        /// </summary>
-        IS_NULL = 2,
-
-        /// <summary>
-        /// Indicates that the marked parameter should be evaluated to not null value
-        /// </summary>
-        IS_NOT_NULL = 3,
-    }
 
     /// <summary>
     /// Indicates that the marked method unconditionally terminates control flow execution.

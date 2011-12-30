@@ -11,7 +11,7 @@ namespace fCraft {
         static readonly SortedList<string, string> Aliases = new SortedList<string, string>();
         static readonly SortedList<string, CommandDescriptor> Commands = new SortedList<string, CommandDescriptor>();
 
-        public static readonly string[] ReservedCommandNames = new[] { "ok", "nvm" };
+        static readonly string[] ReservedCommandNames = new[] { "ok", "nvm" };
 
         // Sets up all the command hooks
         internal static void Init() {
@@ -31,12 +31,14 @@ namespace fCraft {
 
 
         /// <summary> Gets a list of all commands (includding hidden ones). </summary>
+        [Pure]
         public static CommandDescriptor[] GetCommands() {
             return Commands.Values.ToArray();
         }
 
 
         /// <summary> Gets a list of ONLY hidden or non-hidden commands, not both. </summary>
+        [Pure]
         public static CommandDescriptor[] GetCommands( bool hidden ) {
             return Commands.Values
                            .Where( cmd => ( cmd.IsHidden == hidden ) )
@@ -45,6 +47,7 @@ namespace fCraft {
 
 
         /// <summary> Gets a list of commands available to a specified rank. </summary>
+        [Pure]
         public static CommandDescriptor[] GetCommands( [NotNull] Rank rank, bool includeHidden ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             return Commands.Values
@@ -56,6 +59,7 @@ namespace fCraft {
 
         /// <summary> Gets a list of commands in a specified category.
         /// Note that commands may belong to more than one category. </summary>
+        [Pure]
         public static CommandDescriptor[] GetCommands( CommandCategory category, bool includeHidden ) {
             return Commands.Values
                            .Where( cmd => ( includeHidden || !cmd.IsHidden ) &&
@@ -156,6 +160,7 @@ namespace fCraft {
         /// <param name="alsoCheckAliases"> Whether to check command aliases. </param>
         /// <returns> CommandDesriptor object if found, null if not found. </returns>
         [CanBeNull]
+        [Pure]
         public static CommandDescriptor GetDescriptor( [NotNull] string commandName, bool alsoCheckAliases ) {
             if( commandName == null ) throw new ArgumentNullException( "commandName" );
             commandName = commandName.ToLower();
@@ -211,6 +216,7 @@ namespace fCraft {
         /// Constraints are similar to Player.IsValidName, except for minimum length. </summary>
         /// <param name="name"> Command name to check. </param>
         /// <returns> True if the name is valid. </returns>
+        [Pure]
         public static bool IsValidCommandName( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( name.Length == 0 || name.Length > 16 ) return false;
@@ -274,6 +280,7 @@ namespace fCraft {
 
     public sealed class CommandRegistrationException : Exception {
         public CommandRegistrationException( string message ) : base( message ) { }
+
         [StringFormatMethod( "message" )]
         public CommandRegistrationException( string message, params object[] args ) :
             base( String.Format( message, args ) ) { }
@@ -282,6 +289,7 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
+    /// <summary> Provides data for CommandManager.CommandRegistered event. Immutable. </summary>
     public class CommandRegisteredEventArgs : EventArgs {
         internal CommandRegisteredEventArgs( CommandDescriptor commandDescriptor ) {
             CommandDescriptor = commandDescriptor;
@@ -291,6 +299,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for CommandManager.CommandRegistering event. Cancellable. </summary>
     public sealed class CommandRegistringEventArgs : CommandRegisteredEventArgs, ICancellableEvent {
         internal CommandRegistringEventArgs( CommandDescriptor commandDescriptor )
             : base( commandDescriptor ) {
@@ -300,6 +309,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for CommandManager.CommandCalled event. Immutable. </summary>
     public class CommandCalledEventArgs : EventArgs {
         internal CommandCalledEventArgs( CommandReader command, CommandDescriptor commandDescriptor, Player player ) {
             Command = command;
@@ -313,6 +323,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for CommandManager.CommandCalling event. Cancellable. </summary>
     public sealed class CommandCallingEventArgs : CommandCalledEventArgs, ICancellableEvent {
         internal CommandCallingEventArgs( CommandReader command, CommandDescriptor commandDescriptor, Player player ) :
             base( command, commandDescriptor, player ) {

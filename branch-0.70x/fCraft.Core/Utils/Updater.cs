@@ -66,7 +66,7 @@ namespace fCraft {
                         XElement root = doc.Root;
                         if( root.Attribute( "result" ).Value == "update" ) {
                             string downloadUrl = root.Attribute( "url" ).Value;
-                            var releases = new List<ReleaseInfo>();
+                            List<ReleaseInfo> releases = new List<ReleaseInfo>();
                             foreach( XElement el in root.Elements( "Release" ) ) {
                                 releases.Add(
                                     new ReleaseInfo(
@@ -79,7 +79,8 @@ namespace fCraft {
                                     )
                                 );
                             }
-                            UpdaterResult result = new UpdaterResult( (releases.Count > 0), new Uri( downloadUrl ),
+                            UpdaterResult result = new UpdaterResult( (releases.Count > 0),
+                                                                      new Uri( downloadUrl ),
                                                                       releases.ToArray() );
                             RaiseCheckedForUpdatesEvent( UpdateUrl, result );
                             return result;

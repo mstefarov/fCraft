@@ -25,20 +25,20 @@ namespace fCraft.MapConversion {
         bool Claims( [NotNull] string path );
 
 
-        /// <summary> Attempts to load map dimensions from specified location. </summary>
-        /// <returns> Map object on success, or null on failure. </returns>
-        [CanBeNull]
+        /// <summary> Attempts to load map dimensions from specified location.
+        /// Throws MapFormatException on failure. </summary>
+        [NotNull]
         Map LoadHeader( [NotNull] string path );
 
 
-        /// <summary> Fully loads map from specified location. </summary>
-        /// <returns> Map object on success, or null on failure. </returns>
-        [CanBeNull]
+        /// <summary> Fully loads map from specified location.
+        /// Throws MapFormatException on failure. </summary>
+        [NotNull]
         Map Load( [NotNull] string path );
 
 
         /// <summary> Saves given map at the given location. </summary>
-        /// <returns> true if saving succeeded. </returns>
+        /// <returns> True if saving succeeded; otherwise false. </returns>
         bool Save( [NotNull] Map mapToSave, [NotNull] string path );
     }
 }

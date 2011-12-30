@@ -68,6 +68,7 @@ namespace fCraft {
 
 
         /// <summary> Checks whether this command may be called by players of a given rank. </summary>
+        [Pure]
         public bool CanBeCalledBy( [NotNull] Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             return Permissions == null ||
@@ -76,6 +77,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Gets the lowest rank that has any/all permissions to call this command. </summary>
         public Rank MinRank {
             get {
                 if( AnyPermission ) {
@@ -89,6 +91,7 @@ namespace fCraft {
 
         /// <summary> Checks whether players of the given rank should see this command in /cmds list.
         /// Takes permissions and the hidden flag into account. </summary>
+        [Pure]
         public bool IsVisibleTo( [NotNull] Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             return !IsHidden && CanBeCalledBy( rank );
@@ -122,19 +125,17 @@ namespace fCraft {
         }
 
 
+        [Pure]
         public override string ToString() {
             return String.Format( "CommandDescriptor({0})", Name );
         }
 
+        /// <summary> Returns a formatted name of the command,
+        /// colored and possibly prefixed according to MinRank requried to call this command. </summary>
         public string ClassyName {
             get {
                 if( ConfigKey.RankColorsInChat.Enabled() ) {
-                    Rank minRank;
-                    if( Permissions != null && Permissions.Length > 0 ) {
-                        minRank = MinRank;
-                    } else {
-                        minRank = RankManager.LowestRank;
-                    }
+                    Rank minRank = MinRank;
                     if( minRank == null ) {
                         return Name;
                     } else if( ConfigKey.RankPrefixesInChat.Enabled() ) {

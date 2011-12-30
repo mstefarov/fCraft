@@ -1,6 +1,7 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     public sealed class UndoState {
@@ -27,14 +28,21 @@ namespace fCraft.Drawing {
             }
         }
 
+        [Pure]
         public UndoBlock Get( int index ) {
             lock( SyncRoot ) {
                 return Buffer[index];
             }
         }
 
+        /// <summary> Calculates bounds of the affected area.
+        /// Can be very resource-intensive because it requires iteration over he whole buffer. </summary>
+        /// <returns> A BoundingBox that bounds the affected area, or BoundingBox.Empty is buffer is empty. </returns>
+        [Pure]
+        [NotNull]
         public BoundingBox GetBounds() {
             lock( SyncRoot ) {
+                if( Buffer.Count == 0 ) return BoundingBox.Empty;
                 Vector3I min = new Vector3I( int.MaxValue, int.MaxValue, int.MaxValue );
                 Vector3I max = new Vector3I( int.MinValue, int.MinValue, int.MinValue );
                 for( int i = 0; i < Buffer.Count; i++ ) {
@@ -50,6 +58,7 @@ namespace fCraft.Drawing {
         }
     }
 
+    /// <summary> A struct representing a single block (coordinate + blocktype) in an UndoState buffer. </summary>
     [StructLayout( LayoutKind.Sequential, Pack = 2 )]
     public struct UndoBlock {
         public UndoBlock( Vector3I coord, Block block ) {

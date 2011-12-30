@@ -153,7 +153,9 @@ namespace fCraft.MapConversion {
             int height = bs.ReadInt32();
             int length = bs.ReadInt32();
 
+            // ReSharper disable UseObjectOrCollectionInitializer
             Map map = new Map( null, width, length, height, false );
+            // ReSharper restore UseObjectOrCollectionInitializer
 
             // spawn
             map.Spawn = new Position {

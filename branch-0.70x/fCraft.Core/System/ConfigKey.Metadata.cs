@@ -461,7 +461,9 @@ namespace fCraft {
 
             if( !NotBlank && value.Length == 0 ) return;
             try {
+                // ReSharper disable ReturnValueOfPureMethodIsNotUsed
                 Enum.Parse( ValueType, value, true );
+                // ReSharper restore ReturnValueOfPureMethodIsNotUsed
             } catch( ArgumentException ) {
                 string message = String.Format( "Could not parse value as {0}. Valid values are: {1}",
                                                 ValueType.Name,

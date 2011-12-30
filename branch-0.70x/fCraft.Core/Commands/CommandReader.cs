@@ -44,6 +44,7 @@ namespace fCraft {
 
         /// <summary> Creates a copy of this command.
         /// Use the copy constructor instead of this, if possible. </summary>
+        [Pure]
         public object Clone() {
             return new CommandReader( this );
         }
@@ -230,6 +231,7 @@ namespace fCraft {
         }
 
 
+        [Pure]
         public override string ToString() {
             if( IsConfirmed ) {
                 return String.Format( "Command(\"{0}\",{1},confirmed)", RawMessage, Offset );

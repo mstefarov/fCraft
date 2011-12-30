@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
 
+    // ReSharper disable EmptyGeneralCatchClause
     public static class MapUtility {
 
         static readonly Dictionary<MapFormat, IMapConverter> AvailableConverters = new Dictionary<MapFormat, IMapConverter>();
@@ -212,4 +213,5 @@ namespace fCraft.MapConversion {
             }
         }
     }
+    // ReSharper restore EmptyGeneralCatchClause
 }

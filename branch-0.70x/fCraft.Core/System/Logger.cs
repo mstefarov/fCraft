@@ -160,6 +160,7 @@ namespace fCraft {
             bool submitCrashReport = ConfigKey.SubmitCrashReports.Enabled();
             bool isCommon = CheckForCommonErrors( exception );
 
+            // ReSharper disable EmptyGeneralCatchClause
             try {
                 var eventArgs = new CrashedEventArgs( message,
                                                       assembly,
@@ -170,6 +171,7 @@ namespace fCraft {
                 RaiseCrashedEvent( eventArgs );
                 isCommon = eventArgs.IsCommonProblem;
             } catch { }
+            // ReSharper restore EmptyGeneralCatchClause
 
             if( !submitCrashReport || isCommon ) {
                 return;
