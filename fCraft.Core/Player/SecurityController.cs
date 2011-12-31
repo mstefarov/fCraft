@@ -257,11 +257,13 @@ namespace fCraft {
             }
 
             if( list.Included.Length > 0 ) {
-                message.AppendFormat( " and {0}&S", list.Included.JoinToClassyString( ExceptionListSeparator ) );
+                message.AppendFormat( " and {0}&S",
+                                      list.Included.JoinToClassyString( ExceptionListSeparator ) );
             }
 
             if( list.Excluded.Length > 0 ) {
-                message.AppendFormat( ", except {0}&S", list.Excluded.JoinToClassyString( ExceptionListSeparator ) );
+                message.AppendFormat( ", except {0}&S",
+                                      list.Excluded.JoinToClassyString( ExceptionListSeparator ) );
             }
 
             message.Append( '.' );
@@ -271,13 +273,17 @@ namespace fCraft {
 
         #region XML Serialization
 
-        public const string XmlRootName = "PermissionController";
-
+        // used to store included/excluded player lists without parsing
         readonly XElement[] rawExceptions;
+
+        /// <summary> Default element name for XML serialization. </summary>
+        public const string XmlRootName = "SecurityController";
+
 
         /// <summary> Creates a SecurityController based on a XML serialised object. </summary>
         /// <param name="el"> XML element that contains the serialized settings. </param>
-        /// <param name="parseExceptions"> Whether or not the the player exception list should be parsed. </param>
+        /// <param name="parseExceptions"> Whether or not the the player exception list should be parsed.
+        /// If PlayerDB is not loaded, exceptions should NOT be parsed - otherwise they will not be preserved. </param>
         public SecurityController( [NotNull] XContainer el, bool parseExceptions ) {
             if( el == null ) throw new ArgumentNullException( "el" );
 
@@ -285,18 +291,13 @@ namespace fCraft {
 
             if( (tempEl = el.Element( "minRank" )) != null ) {
                 minRank = Rank.Parse( tempEl.Value );
-            } else {
-                minRank = null;
             }
 
-            // TODO: Uncomment this
-            //if (el.Element( "maxRank" ) ! = null) {
-            //    maxRank = Rank.Parse ( el.Element ( "maxRank" ).Value );
-            //else {
-            //    maxRank = null;
-            //}
+            if( ( tempEl = el.Element( "maxRank" ) ) != null ) {
+                maxRank = Rank.Parse( tempEl.Value );
+            }
+
             if( parseExceptions ) {
-                //maxRank = Rank.Parse( root.Element( "maxRank" ).Value );
                 foreach( XElement player in el.Elements( "included" ) ) {
                     if( !Player.IsValidName( player.Value ) ) continue;
                     PlayerInfo info = PlayerDB.FindExact( player.Value );
@@ -315,16 +316,14 @@ namespace fCraft {
         }
 
 
-        /// <summary> XML Serialises the rootname of SecurityController. </summary>
-        /// <returns> The rootname of Security controller serialised. </returns>
+        /// <summary> Saves this SecurityController object as an XML element with the default name. </summary>
         public XElement Serialize() {
             return Serialize( XmlRootName );
         }
 
 
-        /// <summary> XML Serialises this SecurityController under the provided tagName. </summary>
-        /// <param name="tagName"> Name of the root element. </param>
-        /// <returns> This SecurityController as a XML serialised object</returns>
+        /// <summary> Saves this SecurityController object as an XML element. </summary>
+        /// <param name="tagName"> Name to assign to the root element. </param>
         public XElement Serialize( [NotNull] string tagName ) {
             if( tagName == null ) throw new ArgumentNullException( "tagName" );
 
@@ -384,13 +383,16 @@ namespace fCraft {
         }
 
 
-        /// <summary> Resets all permissions: minimum rank,
+        /// <summary> Resets all permissions: minimum/maximum ranks,
         /// excluded player list, and included player list. </summary>
         public void Reset() {
-            ResetMinRank();
-            // ResetMaxRank(); // TODO: Uncomment this
-            ResetIncludedList();
-            ResetExcludedList();
+            lock( locker ) {
+                includedPlayers.Clear();
+                excludedPlayers.Clear();
+                minRank = null;
+                maxRank = null;
+                UpdatePlayerListCache();
+            }
         }
 
         #endregion
@@ -402,6 +404,7 @@ namespace fCraft {
         public SecurityController( [NotNull] SecurityController other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             minRank = other.minRank;
+            maxRank = other.maxRank;
             lock( other.locker ) {
                 includedPlayers = new Dictionary<string, PlayerInfo>( other.includedPlayers );
                 excludedPlayers = new Dictionary<string, PlayerInfo>( other.excludedPlayers );
@@ -417,7 +420,8 @@ namespace fCraft {
 
         #endregion
 
-        /// <summary> Whether or not this SecurityController has had a setting change. </summary>
+
+        /// <summary> Occurs when any of this SecurityController's settings are changed. </summary>
         public event EventHandler Changed;
 
         void RaiseChangedEvent() {
