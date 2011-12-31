@@ -785,6 +785,12 @@ namespace fCraft {
                                                 targetWorld.ClassyName,
                                                 targetWorld.AccessSecurity.MinRank.ClassyName );
                                 break;
+                            // TODO: Uncomment
+                            //case SecurityCheckResult.RankTooHigh:
+                            //    player.Message("Cannot teleport to {0}&S because world {1}&S requires {2}-&S to join.",
+                            //        target.ClassyName,
+                            //        targetWorld.ClassyName,
+                            //        targetWorld.AccessSecurity.MaxRank.ClassyName); 
                             // TODO: case PermissionType.RankTooHigh:
                         }
                     }

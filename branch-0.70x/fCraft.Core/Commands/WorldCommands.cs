@@ -1019,6 +1019,11 @@ namespace fCraft {
                         player.Message( "Cannot join world {0}&S: must be {1}+",
                                         world.ClassyName, world.AccessSecurity.MinRank.ClassyName );
                         break;
+                    // TODO: Uncomment
+                    //case SecurityCheckResult.RankTooHigh:
+                    //    player.Message("Cannot join world {0}&S: must be {1}-",
+                    //                    world.ClassyName, world.AccessSecurity.MaxRank.ClassyName);
+                    //    break;
                 }
 
             } else {
@@ -1322,6 +1327,13 @@ namespace fCraft {
                                                 world.AccessSecurity.MinRank.ClassyName,
                                                 world.ClassyName );
                                 continue;
+                            // TODO: Uncomment
+                            //case SecurityCheckResult.RankTooHigh:
+                            //    player.Message("&WYou must be {0}&W- to add yourself to the access whitelist of {1}",
+                            //                    world.AccessSecurity.MaxRank.ClassyName,
+                            //                    world.ClassyName);
+                            //    continue;
+
                             // TODO: RankTooHigh
                             case SecurityCheckResult.BlackListed:
                                 player.Message( "&WYou cannot remove yourself from the access blacklist of {0}",
@@ -1558,6 +1570,13 @@ namespace fCraft {
                                                 world.BuildSecurity.MinRank.ClassyName,
                                                 world.ClassyName );
                                 continue;
+                            // TODO: Uncomment
+                            // ""&WYou must be {0}&W- >> or Operator status << to add yourself to the access whitelist of {1}"
+                            //case SecurityCheckResult.RankTooHigh:
+                            //    player.Message("&WYou must be {0}&W- to add yourself to the access whitelist of {1}",
+                            //                    world.AccessSecurity.MaxRank.ClassyName,
+                            //                    world.ClassyName);
+                            //    continue;
                             // TODO: RankTooHigh
                             case SecurityCheckResult.BlackListed:
                                 player.Message( "&WYou cannot remove yourself from the build blacklist of {0}",
