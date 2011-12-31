@@ -360,10 +360,17 @@ namespace fCraft {
         }
 
 
-        /// <summary> Joins formatted names of all IClassy objects in a collection into one comma-separated string. </summary>
+        /// <summary> Joins formatted names of all IClassy objects in a collection into one string separated by spaces. </summary>
         public static string JoinToClassyString( [NotNull] this IEnumerable<IClassy> items ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             return items.JoinToString( "  ", p => p.ClassyName );
+        }
+
+        /// <summary> Joins formatted names of all IClassy objects in a collection into one string with a custom separator. </summary>
+        public static string JoinToClassyString( [NotNull] this IEnumerable<IClassy> items, [NotNull] string separator ) {
+            if( items == null ) throw new ArgumentNullException( "items" );
+            if( separator == null ) throw new ArgumentNullException( "separator" );
+            return items.JoinToString( separator, p => p.ClassyName );
         }
     }
 

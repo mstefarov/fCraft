@@ -12,59 +12,11 @@ namespace fCraft {
     /// Used by World.AccessSecurity, World.BuildSecurity, and Zone. </summary>
     public sealed class SecurityController : ICloneable, INotifiesOnChange {
 
-        readonly Dictionary<string, PlayerInfo> includedPlayers = new Dictionary<string, PlayerInfo>();
-        readonly Dictionary<string, PlayerInfo> excludedPlayers = new Dictionary<string, PlayerInfo>();
-
-        /// <summary> List of players who are exceptions to the default security rules. </summary>
-        public PlayerExceptions ExceptionList { get; private set; }
         readonly object locker = new object();
+        const string ExceptionListSeparator = ", ";
 
-        [CanBeNull] Rank minRank;
 
-
-        // TODO: Uncomment this and test
-        //[CanBeNull] Rank maxRank;
-
-        ///// <summary> Highest allowed player rank. </summary>
-        //[NotNull]
-        //public Rank MaxRank { 
-        //    get { return maxRank ?? RankManager.HighestRank; }
-        //    set {
-        //        if( value == null ) throw new ArgumentNullException( "value" );
-        //        if( maxRank != value ) {
-        //            maxRank = value;
-        //            RaiseChangedEvent();
-        //        }
-        //    }
-        //}
-
-        ///// <summary> Resets the current maximum rank to null. </summary>
-        //public void ResetMaxRank() {
-        //    if (maxRank != null) {
-        //        maxRank = null;
-        //        RaiseChangedEvent();
-        //    }
-        //}
-
-        ///// <summary> True if a rank restriction is in effect.
-        ///// This property is used to distinguish cases of no MaxnRank set
-        ///// vs. cases of MaxRank set to HighestRank. </summary>
-        //public bool HasUpperRankRestriction {
-        //    get { return ( maxRank != null ); }
-        //}
-
-        ///// <summary> True if a rank restriction is in effect.
-        ///// This property is used to distinguish cases of no MinRank set
-        ///// vs. cases of MinRank set to LowestRank. </summary>
-        //public bool HasLowerRankRestriction {
-        //    get { return ( minRank != null ); }
-        //}
-
-        ///// <summary> True if a rank restriction is in effect. </summary>
-        //public bool HasRankRestriction{
-        //    get { return (minRank != null) || (maxRank != null); }
-        //}
-
+        #region Rank restrictions
 
         /// <summary> Lowest allowed player rank. </summary>
         [NotNull]
@@ -81,6 +33,9 @@ namespace fCraft {
             }
         }
 
+        [CanBeNull]
+        Rank minRank;
+
         /// <summary> Resets the current minimum rank to null. </summary>
         public void ResetMinRank() {
             if( minRank != null ) {
@@ -90,27 +45,57 @@ namespace fCraft {
         }
 
 
-        /// <summary> True if a rank restriction is in effect.
-        /// This property is used to distinguish cases of no MinRank set
-        /// vs. cases of MinRank set to LowestRank. </summary>
-        public bool HasRankRestriction {
-            get { return (minRank != null); }
+        /// <summary> Highest allowed player rank. </summary>
+        [NotNull]
+        public Rank MaxRank {
+            get { return maxRank ?? RankManager.HighestRank; }
+            set {
+                if( value == null ) throw new ArgumentNullException( "value" );
+                if( maxRank != value ) {
+                    maxRank = value;
+                    RaiseChangedEvent();
+                }
+            }
         }
 
+        [CanBeNull]
+        Rank maxRank;
 
-        /// <summary> True if this controller has any restrictions
-        /// (per-rank or per-player). </summary>
-        public bool HasRestrictions {
-            get {
-                return MinRank > RankManager.LowestRank ||
-                       ExceptionList.Excluded.Length > 0;
+        /// <summary> Resets the current maximum rank to null. </summary>
+        public void ResetMaxRank() {
+            if( maxRank != null ) {
+                maxRank = null;
+                RaiseChangedEvent();
             }
         }
 
 
-        /// <summary> Creates a new controller with no restrictions. </summary>
-        public SecurityController() {
-            UpdatePlayerListCache();
+        /// <summary> True if a rank restriction is in effect.
+        /// This property is used to distinguish cases of no MinRank set
+        /// vs. cases of MinRank set to LowestRank. </summary>
+        public bool HasRankRestriction {
+            get { return ( minRank != null ) || ( maxRank != null ); }
+        }
+
+        #endregion
+
+
+        #region Individual restrictions
+
+        readonly Dictionary<string, PlayerInfo> includedPlayers = new Dictionary<string, PlayerInfo>();
+        readonly Dictionary<string, PlayerInfo> excludedPlayers = new Dictionary<string, PlayerInfo>();
+
+        /// <summary> List of players who are exceptions to the default security rules. </summary>
+        public PlayerExceptions ExceptionList { get; private set; }
+
+
+        /// <summary> True if this controller has any restrictions (per-rank or per-player). </summary>
+        public bool HasRestrictions {
+            get {
+                return MinRank > RankManager.LowestRank ||
+                       MaxRank < RankManager.HighestRank ||
+                       ExceptionList.Excluded.Length > 0;
+            }
         }
 
 
@@ -119,6 +104,14 @@ namespace fCraft {
                 ExceptionList = new PlayerExceptions( includedPlayers.Values.ToArray(),
                                                       excludedPlayers.Values.ToArray() );
             }
+        }
+
+        #endregion
+
+
+        /// <summary> Creates a new controller with no restrictions. </summary>
+        public SecurityController() {
+            UpdatePlayerListCache();
         }
 
 
@@ -182,7 +175,7 @@ namespace fCraft {
                 }
             }
 
-            if( info.Rank >= MinRank /*&& info.Rank <= MaxRank*/ ) return true; // TODO: implement maxrank
+            if( info.Rank >= MinRank && info.Rank <= MaxRank ) return true;
 
             for( int i = 0; i < listCache.Included.Length; i++ ) {
                 if( listCache.Included[i] == info ) {
@@ -206,7 +199,7 @@ namespace fCraft {
                 }
             }
 
-            if( info.Rank >= MinRank /*&& player.info.rank <= maxRank*/ ) // TODO: implement maxrank
+            if( info.Rank >= MinRank && info.Rank <= MaxRank )
                 return SecurityCheckResult.Allowed;
 
             for( int i = 0; i < listCache.Included.Length; i++ ) {
@@ -215,7 +208,11 @@ namespace fCraft {
                 }
             }
 
-            return SecurityCheckResult.RankTooLow;
+            if( info.Rank > MaxRank) {
+                return SecurityCheckResult.RankTooHigh;
+            } else { // info.Rank < MinRank
+                return SecurityCheckResult.RankTooLow;
+            }
         }
 
 
@@ -230,8 +227,7 @@ namespace fCraft {
             if( verb == null ) throw new ArgumentNullException( "verb" );
             PlayerExceptions list = ExceptionList;
 
-            StringBuilder message = new StringBuilder( noun );
-            message[0] = Char.ToUpper( message[0] ); // capitalize first letter.
+            StringBuilder message = new StringBuilder( noun.UppercaseFirst() );
 
             // TODO: Uncomment this
             //if (HasRankRestriction) {
@@ -261,11 +257,11 @@ namespace fCraft {
             }
 
             if( list.Included.Length > 0 ) {
-                message.AppendFormat( " and {0}&S", list.Included.JoinToClassyString() );
+                message.AppendFormat( " and {0}&S", list.Included.JoinToClassyString( ExceptionListSeparator ) );
             }
 
             if( list.Excluded.Length > 0 ) {
-                message.AppendFormat( ", except {0}&S", list.Excluded.JoinToClassyString() );
+                message.AppendFormat( ", except {0}&S", list.Excluded.JoinToClassyString( ExceptionListSeparator ) );
             }
 
             message.Append( '.' );
@@ -275,19 +271,20 @@ namespace fCraft {
 
         #region XML Serialization
 
-        /// <remark> This needs a better explanation. </remark>
-        /// <summary> Name of the XMLRoot. </summary>
         public const string XmlRootName = "PermissionController";
 
         readonly XElement[] rawExceptions;
 
         /// <summary> Creates a SecurityController based on a XML serialised object. </summary>
-        /// <param name="el"> XContainer </param>
+        /// <param name="el"> XML element that contains the serialized settings. </param>
         /// <param name="parseExceptions"> Whether or not the the player exception list should be parsed. </param>
         public SecurityController( [NotNull] XContainer el, bool parseExceptions ) {
             if( el == null ) throw new ArgumentNullException( "el" );
-            if( el.Element( "minRank" ) != null ) {
-                minRank = Rank.Parse( el.Element( "minRank" ).Value );
+
+            XElement tempEl;
+
+            if( (tempEl = el.Element( "minRank" )) != null ) {
+                minRank = Rank.Parse( tempEl.Value );
             } else {
                 minRank = null;
             }
@@ -317,11 +314,13 @@ namespace fCraft {
             UpdatePlayerListCache();
         }
 
+
         /// <summary> XML Serialises the rootname of SecurityController. </summary>
         /// <returns> The rootname of Security controller serialised. </returns>
         public XElement Serialize() {
             return Serialize( XmlRootName );
         }
+
 
         /// <summary> XML Serialises this SecurityController under the provided tagName. </summary>
         /// <param name="tagName"> Name of the root element. </param>
