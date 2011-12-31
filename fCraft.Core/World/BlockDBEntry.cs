@@ -39,18 +39,6 @@ namespace fCraft{
         public readonly BlockChangeContext Context;
 
 
-        public BlockDBEntry( int timestamp, int playerID, short x, short y, short z,
-                             Block oldBlock, Block newBlock, BlockChangeContext flags ) {
-            Timestamp = timestamp;
-            PlayerID = playerID;
-            X = x;
-            Y = y;
-            Z = z;
-            OldBlock = oldBlock;
-            NewBlock = newBlock;
-            Context = flags;
-        }
-
         public BlockDBEntry( int timestamp, int playerID, Vector3I coords,
                              Block oldBlock, Block newBlock, BlockChangeContext flags ) {
             Timestamp = timestamp;
@@ -62,6 +50,7 @@ namespace fCraft{
             NewBlock = newBlock;
             Context = flags;
         }
+
 
         public void Serialize( BinaryWriter writer ) {
             writer.Write( Timestamp );

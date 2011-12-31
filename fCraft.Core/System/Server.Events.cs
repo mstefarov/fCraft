@@ -9,29 +9,37 @@ namespace fCraft {
     partial class Server {
 
         /// <summary> Occurs when the server is about to be initialized. </summary>
+        [PublicAPI]
         public static event EventHandler Initializing;
 
         /// <summary> Occurs when the server has been initialized. </summary>
+        [PublicAPI]
         public static event EventHandler Initialized;
 
         /// <summary> Occurs when the server is about to start. </summary>
+        [PublicAPI]
         public static event EventHandler Starting;
 
         /// <summary> Occurs when the server has just started. </summary>
+        [PublicAPI]
         public static event EventHandler Started;
 
         /// <summary> Occurs when the server is about to start shutting down. </summary>
+        [PublicAPI]
         public static event EventHandler<ShutdownEventArgs> ShutdownBegan;
 
         /// <summary> Occurs when the server finished shutting down. </summary>
+        [PublicAPI]
         public static event EventHandler<ShutdownEventArgs> ShutdownEnded;
 
         /// <summary> Occurs when the player list has just changed (any time players connected or disconnected). </summary>
+        [PublicAPI]
         public static event EventHandler PlayerListChanged;
 
 
         /// <summary> Occurs when a player is searching for players (with autocompletion).
         /// The list of players in the search results may be replaced. </summary>
+        [PublicAPI]
         public static event EventHandler<SearchingForPlayerEventArgs> SearchingForPlayer;
 
 
@@ -57,15 +65,18 @@ namespace fCraft {
         #region Session-related
 
         /// <summary> Occurs any time the server receives an incoming connection (cancellable). </summary>
+        [PublicAPI]
         public static event EventHandler<SessionConnectingEventArgs> SessionConnecting;
 
 
         /// <summary> Occurs any time a new session has connected, but before any communication is done. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerEventArgs> SessionConnected;
 
 
         /// <summary> Occurs when a connection is closed or lost.
         /// Player's state at this point has just changed to SessionState.Disconnected. </summary>
+        [PublicAPI]
         public static event EventHandler<SessionDisconnectedEventArgs> SessionDisconnected;
 
 

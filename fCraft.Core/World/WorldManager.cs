@@ -648,23 +648,28 @@ namespace fCraft {
         #region Events
 
         /// <summary> Occurs when the main world is being changed (cancellable). </summary>
+        [PublicAPI]
         public static event EventHandler<MainWorldChangingEventArgs> MainWorldChanging;
 
 
         /// <summary> Occurs after the main world has been changed. </summary>
+        [PublicAPI]
         public static event EventHandler<MainWorldChangedEventArgs> MainWorldChanged;
 
 
         /// <summary> Occurs when a player is searching for worlds (with autocompletion).
         /// The list of worlds in the search results may be replaced. </summary>
+        [PublicAPI]
         public static event EventHandler<SearchingForWorldEventArgs> SearchingForWorld;
 
 
         /// <summary> Occurs before a new world is created/added (cancellable). </summary>
+        [PublicAPI]
         public static event EventHandler<WorldCreatingEventArgs> WorldCreating;
 
 
         /// <summary> Occurs after a new world is created/added. </summary>
+        [PublicAPI]
         public static event EventHandler<WorldCreatedEventArgs> WorldCreated;
 
 

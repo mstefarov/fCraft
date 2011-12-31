@@ -12,6 +12,7 @@ namespace fCraft {
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        [PublicAPI]
         public static bool SendGlobal( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
@@ -40,6 +41,7 @@ namespace fCraft {
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        [PublicAPI]
         public static bool SendWorld( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
@@ -73,6 +75,7 @@ namespace fCraft {
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        [PublicAPI]
         public static bool SendMe( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
@@ -102,6 +105,7 @@ namespace fCraft {
         /// <param name="to"> Recepient player. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        [PublicAPI]
         public static bool SendPM( [NotNull] Player from, [NotNull] Player to, [NotNull] string rawMessage ) {
             if( from == null ) throw new ArgumentNullException( "from" );
             if( to == null ) throw new ArgumentNullException( "to" );
@@ -131,6 +135,7 @@ namespace fCraft {
         /// <param name="rank"> Target rank. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        [PublicAPI]
         public static bool SendRank( [NotNull] Player player, [NotNull] Rank rank, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rank == null ) throw new ArgumentNullException( "rank" );
@@ -162,6 +167,7 @@ namespace fCraft {
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        [PublicAPI]
         public static bool SendSay( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
@@ -188,6 +194,7 @@ namespace fCraft {
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        [PublicAPI]
         public static bool SendStaff( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
@@ -332,9 +339,11 @@ namespace fCraft {
 
 
         /// <summary> Occurs when a chat message is about to be sent. Cancellable. </summary>
+        [PublicAPI]
         public static event EventHandler<ChatSendingEventArgs> Sending;
 
         /// <summary> Occurs after a chat message has been sent. </summary>
+        [PublicAPI]
         public static event EventHandler<ChatSentEventArgs> Sent;
 
         #endregion

@@ -138,7 +138,9 @@ namespace fCraft {
         }
 
         public bool Equals( Vector3F other ) {
+            // ReSharper disable CompareOfFloatsByEqualityOperator
             return ( X == other.X ) && ( Y == other.Y ) && ( Z == other.Z );
+            // ReSharper restore CompareOfFloatsByEqualityOperator
         }
 
 

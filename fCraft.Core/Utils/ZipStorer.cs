@@ -52,7 +52,6 @@ namespace System.IO.Compression {
             /// <summary>True if UTF8 encoding for filename and comments, false if default (CP 437)</summary>
             public bool EncodeUTF8;
 
-
             /// <summary>Overridden method</summary>
             /// <returns>Filename in Zip</returns>
             public override string ToString() {

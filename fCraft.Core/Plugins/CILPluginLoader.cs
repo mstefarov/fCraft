@@ -6,8 +6,8 @@ using System.Linq;
 using System.Reflection;
 
 namespace fCraft {
-    /// <summary> Loads CLI assemblies and instantiates IPlugin objects. </summary>
-    public sealed class CLIPluginLoader : IPluginLoader {
+    /// <summary> Loads CIL assemblies and instantiates IPlugin objects. </summary>
+    public sealed class CILPluginLoader : IPluginLoader {
         public string[] PluginExtensions {
             get { return new[] { ".dll" }; }
         }

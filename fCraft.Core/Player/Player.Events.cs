@@ -10,51 +10,61 @@ namespace fCraft {
         /// Player name is verified and bans are checked before this event is raised,
         /// but before the player is registered with the server.
         /// Player's state at this point is SessionState.Connecting. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerConnectingEventArgs> Connecting;
 
 
         /// <summary> Occurs when a player has connected, but before the player has joined any world.
         /// Allows changing the player's starting world.
         /// Player's state at this point is SessionState.Connecting, and about to change to SessionState.LoadingMain </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerConnectedEventArgs> Connected;
 
 
         /// <summary> Occurs after a player has connected and joined the starting world. 
         /// Player's state at this point has just changed from SessionState.LoadingMain to SessionState.Online </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerEventArgs> Ready;
 
 
         /// <summary> Occurs when player is about to move (cancellable). </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerMovingEventArgs> Moving;
 
 
         /// <summary> Occurs when player has moved. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerMovedEventArgs> Moved;
 
 
         /// <summary> Occurs when player clicked a block (cancellable).
         /// Note that a click will not necessarily result in a block being placed or deleted. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerClickingEventArgs> Clicking;
 
 
         /// <summary> Occurs after a player has clicked a block.
         /// Note that a click will not necessarily result in a block being placed or deleted. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerClickedEventArgs> Clicked;
 
 
         /// <summary> Occurs when a player is about to place a block.
         /// Permission checks are done before calling this event, and their result may be overridden. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerPlacingBlockEventArgs> PlacingBlock;
 
 
         /// <summary>  Occurs when a player has placed a block.
         /// This event does not occur if the block placement was disallowed. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerPlacedBlockEventArgs> PlacedBlock;
 
 
         /// <summary> Occurs before a player is kicked (cancellable). 
         /// Kick may be caused by /Kick, /Ban, /BanIP, or /BanAll commands, or by idling.
         /// Callbacks may override whether the kick will be announced or recorded in PlayerDB. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerBeingKickedEventArgs> BeingKicked;
 
 
@@ -62,22 +72,27 @@ namespace fCraft {
         /// kick has been announced and recorded to PlayerDB (if applicable), just before the
         /// target player disconnects.
         /// Kick may be caused by /Kick, /Ban, /BanIP, or /BanAll commands, or by idling. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerKickedEventArgs> Kicked;
 
 
         /// <summary> Happens after a player has hidden or unhidden. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerEventArgs> HideChanged;
 
 
         /// <summary> Occurs when a player disconnects. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerDisconnectedEventArgs> Disconnected;
 
 
         /// <summary> Occurs when a player intends to join a world (cancellable). </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerJoiningWorldEventArgs> JoiningWorld;
 
 
         /// <summary> Occurs after a player has joined a world. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerJoinedWorldEventArgs> JoinedWorld;
 
 

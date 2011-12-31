@@ -71,12 +71,14 @@ namespace fCraft {
 
 
         [DebuggerStepThrough]
-        [StringFormatMethod( "message" )]
+        [StringFormatMethod( "message" )]   
+        // ReSharper disable MethodOverloadWithOptionalParameter
         public static void Log( LogType type, [NotNull] string message, [NotNull] params object[] values ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( values == null ) throw new ArgumentNullException( "values" );
             Log( type, String.Format( message, values ) );
         }
+        // ReSharper restore MethodOverloadWithOptionalParameter
 
 
         [DebuggerStepThrough]
@@ -462,12 +464,14 @@ namespace fCraft {
         #region Events
 
         /// <summary> Occurs after a message has been logged. </summary>
+        [PublicAPI]
         public static event EventHandler<LogEventArgs> Logged;
 
 
         /// <summary> Occurs when the server "crashes" (has an unhandled exception).
         /// Note that such occurences will not always cause shutdowns - check ShutdownImminent property.
         /// Reporting of the crash may be suppressed. </summary>
+        [PublicAPI]
         public static event EventHandler<CrashedEventArgs> Crashed;
 
 

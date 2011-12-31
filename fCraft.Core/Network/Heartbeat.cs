@@ -168,12 +168,15 @@ namespace fCraft {
         #region Events
 
         /// <summary> Occurs when a heartbeat is about to be sent (cancellable). </summary>
+        [PublicAPI]
         public static event EventHandler<HeartbeatSendingEventArgs> Sending;
 
         /// <summary> Occurs when a heartbeat has been sent. </summary>
+        [PublicAPI]
         public static event EventHandler<HeartbeatSentEventArgs> Sent;
 
         /// <summary> Occurs when the server Uri has been set or changed. </summary>
+        [PublicAPI]
         public static event EventHandler<UriChangedEventArgs> UriChanged;
 
 
