@@ -791,7 +791,7 @@ namespace fCraft {
                     return;
                 }
                 if( slotNumber < 1 || slotNumber > player.Info.Rank.CopySlots ) {
-                    player.Message( "CopySlot: Select a number between 1 and {0}", player.Info.Rank.CopySlots );
+                    player.Message( "CopySlots: Select a number between 1 and {0}", player.Info.Rank.CopySlots );
                 } else {
                     player.CopySlot = slotNumber - 1;
                     CopyState info = player.GetCopyInformation();

@@ -10,8 +10,12 @@ using fCraft.MapConversion;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> Manages all the worlds on a server.
+    /// This includes loading/unloading, saving
+    /// and world deletion. </summary>
     public static class WorldManager {
 
+        /// <summary> List of worlds currently being managed by WorldManager. </summary>
         public static World[] Worlds { get; private set; }
         static readonly SortedDictionary<string, World> WorldIndex = new SortedDictionary<string, World>();
 
@@ -389,7 +393,12 @@ namespace fCraft {
             }
         }
 
-
+        /// <summary> Creates a new world and adds it to the current list of worlds being managed by WorldManager. </summary>
+        /// <param name="player"> Player who is adding the world. </param>
+        /// <param name="name"> Name of the world being added. </param>
+        /// <param name="map"> Map to assign to the newly created world. </param>
+        /// <param name="preload"> Whether or not the map should be preloaded. </param>
+        /// <returns> Newly created world</returns>
         [NotNull]
         public static World AddWorld( [CanBeNull] Player player, [NotNull] string name, [CanBeNull] Map map, bool preload ) {
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -528,7 +537,8 @@ namespace fCraft {
             }
         }
 
-
+        /// <summary> Removes the specified world from the list of worlds being managed by WorldManager. </summary>
+        /// <param name="worldToDelete"> World to be deleted. </param>
         public static void RemoveWorld( [NotNull] World worldToDelete ) {
             if( worldToDelete == null ) throw new ArgumentNullException( "worldToDelete" );
 
@@ -555,36 +565,45 @@ namespace fCraft {
             }
         }
 
-
+        /// <summary> Number of all worlds that are currently loaded. </summary>
+        /// <returns> Number of all loaded worlds. </returns>
         public static int CountLoadedWorlds() {
             return Worlds.Count( world => world.IsLoaded );
         }
 
-
+        /// <summary> Number of worlds that are currently loaded and can be seen by the specified observer. </summary>
+        /// <param name="observer"> Player to observe as. </param>
+        /// <returns> Number of worlds the specified player has permission to observe. </returns>
         public static int CountLoadedWorlds( [NotNull] Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
             return ListLoadedWorlds( observer ).Count();
         }
 
-
+        /// <summary> List of all the worlds that are currently loaded. </summary>
+        /// <returns> List of all loaded worlds. </returns>
         public static IEnumerable<World> ListLoadedWorlds() {
             return Worlds.Where( world => world.IsLoaded );
         }
 
-
+        /// <summary> List of worlds that are currently loaded and can be seen by the specified observer. </summary>
+        /// <param name="observer"> Player to observe as. </param>
+        /// <returns> List of worlds the specified player has permission to observe. </returns>
         public static IEnumerable<World> ListLoadedWorlds( [NotNull] Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
             return Worlds.Where( w => w.Players.Any( observer.CanSee ) );
         }
 
-
+        /// <summary> Copies all the worlds in WorldIndex list into the World array. </summary>
         public static void UpdateWorldList() {
             lock( SyncRoot ) {
                 Worlds = WorldIndex.Values.ToArray();
             }
         }
 
-
+        /// <summary> Searches for a map using the specified fileName. </summary>
+        /// <param name="player"> Player who is doing the search. </param>
+        /// <param name="fileName"> FileName of the map to be searched for. </param>
+        /// <returns> Full source filename. </returns>
         [CanBeNull]
         public static string FindMapFile( [NotNull] Player player, [NotNull] string fileName ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -606,6 +625,7 @@ namespace fCraft {
                 } else if( MonoCompat.IsCaseSensitive ) {
                     try {
                         // If we're on a case-sensitive OS, try case-insensitive search
+                        // Incase the user was off only in captialisation.
                         FileInfo[] candidates = Paths.FindFiles( sourceFullFileName + ".fcm" );
                         if( candidates.Length == 0 ) {
                             candidates = Paths.FindFiles( sourceFullFileName );

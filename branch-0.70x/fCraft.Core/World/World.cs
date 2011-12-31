@@ -9,6 +9,8 @@ using fCraft.MapConversion;
 using JetBrains.Annotations;
 
 namespace fCraft {
+
+    /// <summary> Creates a new world with no map, and blank security permissions. </summary>
     public sealed class World : IClassy {
         /// <summary> World name (no formatting). Use WorldManager.RenameWorld() method to change this. </summary>
         [NotNull]
