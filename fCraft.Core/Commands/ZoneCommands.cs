@@ -53,6 +53,8 @@ namespace fCraft {
                         player.Message( "Cannot add zones to world {0}&S: You are not allowed to build here.",
                                         playerWorld.ClassyName );
                         return;
+
+                    // TODO: Must be below rank or Operator
                     //case SecurityCheckResult.RankTooHigh:
                 }
             }
@@ -139,10 +141,12 @@ namespace fCraft {
                         player.Message( "Cannot add zones to world {0}&S: You are barred from building here.",
                                         playerWorld.ClassyName );
                         return;
+                    
                     case SecurityCheckResult.RankTooLow:
                         player.Message( "Cannot add zones to world {0}&S: You are not allowed to build here.",
                                         playerWorld.ClassyName );
                         return;
+                    //TODO: Must be below rank, or an operator
                     //case SecurityCheckResult.RankTooHigh:
                 }
             }
@@ -487,6 +491,9 @@ namespace fCraft {
                         case SecurityCheckResult.RankTooLow:
                             player.Message( "You are not allowed to remove zone {0}.", zone.ClassyName );
                             return;
+
+                        // TODO: Must be below rank or Operator
+                        // case SecurityCheckResult.RankTooLow:
                     }
                 }
                 if( !cmd.IsConfirmed ) {

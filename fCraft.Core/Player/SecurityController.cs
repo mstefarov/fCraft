@@ -15,11 +15,56 @@ namespace fCraft {
         readonly Dictionary<string, PlayerInfo> includedPlayers = new Dictionary<string, PlayerInfo>();
         readonly Dictionary<string, PlayerInfo> excludedPlayers = new Dictionary<string, PlayerInfo>();
 
+        /// <summary> List of players who are exceptions to the default security rules. </summary>
         public PlayerExceptions ExceptionList { get; private set; }
         readonly object locker = new object();
-        
-        [CanBeNull]
-        Rank minRank;
+
+        [CanBeNull] Rank minRank;
+
+
+        // TODO: Uncomment this and test
+        //[CanBeNull] Rank maxRank;
+
+        ///// <summary> Highest allowed player rank. </summary>
+        //[NotNull]
+        //public Rank MaxRank { 
+        //    get { return maxRank ?? RankManager.HighestRank; }
+        //    set {
+        //        if( value == null ) throw new ArgumentNullException( "value" );
+        //        if( maxRank != value ) {
+        //            maxRank = value;
+        //            RaiseChangedEvent();
+        //        }
+        //    }
+        //}
+
+        ///// <summary> Resets the current maximum rank to null. </summary>
+        //public void ResetMaxRank() {
+        //    if (maxRank != null) {
+        //        maxRank = null;
+        //        RaiseChangedEvent();
+        //    }
+        //}
+
+        ///// <summary> True if a rank restriction is in effect.
+        ///// This property is used to distinguish cases of no MaxnRank set
+        ///// vs. cases of MaxRank set to HighestRank. </summary>
+        //public bool HasUpperRankRestriction {
+        //    get { return ( maxRank != null ); }
+        //}
+
+        ///// <summary> True if a rank restriction is in effect.
+        ///// This property is used to distinguish cases of no MinRank set
+        ///// vs. cases of MinRank set to LowestRank. </summary>
+        //public bool HasLowerRankRestriction {
+        //    get { return ( minRank != null ); }
+        //}
+
+        ///// <summary> True if a rank restriction is in effect. </summary>
+        //public bool HasRankRestriction{
+        //    get { return (minRank != null) || (maxRank != null); }
+        //}
+
 
         /// <summary> Lowest allowed player rank. </summary>
         [NotNull]
@@ -36,6 +81,7 @@ namespace fCraft {
             }
         }
 
+        /// <summary> Resets the current minimum rank to null. </summary>
         public void ResetMinRank() {
             if( minRank != null ) {
                 minRank = null;
@@ -136,7 +182,7 @@ namespace fCraft {
                 }
             }
 
-            if( info.Rank >= MinRank /*&& player.info.rank <= maxRank*/ ) return true; // TODO: implement maxrank
+            if( info.Rank >= MinRank /*&& info.Rank <= MaxRank*/ ) return true; // TODO: implement maxrank
 
             for( int i = 0; i < listCache.Included.Length; i++ ) {
                 if( listCache.Included[i] == info ) {
@@ -187,6 +233,22 @@ namespace fCraft {
             StringBuilder message = new StringBuilder( noun );
             message[0] = Char.ToUpper( message[0] ); // capitalize first letter.
 
+            // TODO: Uncomment this
+            //if (HasRankRestriction) {
+            //    if (HasLowerRankRestriction) {
+            //        message.AppendFormat( " {0}&S can only be {1} by {2}+&S",
+            //                        target.ClassyName,
+            //                        verb,
+            //                        MinRank.ClassyName );
+            //    }
+            //    if (HasUpperRankRestriction) {
+            //        message.AppendFormat( " {0}&S can only be {1} by {2}-&S",
+            //                        target.ClassyName,
+            //                        verb,
+            //                        MaxRank.ClassyName );
+            //    }
+            //}
+
             if( HasRankRestriction ) {
                 message.AppendFormat( " {0}&S can only be {1} by {2}+&S",
                                       target.ClassyName,
@@ -213,10 +275,15 @@ namespace fCraft {
 
         #region XML Serialization
 
+        /// <remark> This needs a better explanation. </remark>
+        /// <summary> Name of the XMLRoot. </summary>
         public const string XmlRootName = "PermissionController";
 
         readonly XElement[] rawExceptions;
 
+        /// <summary> Creates a SecurityController based on a XML serialised object. </summary>
+        /// <param name="el"> XContainer </param>
+        /// <param name="parseExceptions"> Whether or not the the player exception list should be parsed. </param>
         public SecurityController( [NotNull] XContainer el, bool parseExceptions ) {
             if( el == null ) throw new ArgumentNullException( "el" );
             if( el.Element( "minRank" ) != null ) {
@@ -225,6 +292,12 @@ namespace fCraft {
                 minRank = null;
             }
 
+            // TODO: Uncomment this
+            //if (el.Element( "maxRank" ) ! = null) {
+            //    maxRank = Rank.Parse ( el.Element ( "maxRank" ).Value );
+            //else {
+            //    maxRank = null;
+            //}
             if( parseExceptions ) {
                 //maxRank = Rank.Parse( root.Element( "maxRank" ).Value );
                 foreach( XElement player in el.Elements( "included" ) ) {
@@ -244,12 +317,15 @@ namespace fCraft {
             UpdatePlayerListCache();
         }
 
-
+        /// <summary> XML Serialises the rootname of SecurityController. </summary>
+        /// <returns> The rootname of Security controller serialised. </returns>
         public XElement Serialize() {
             return Serialize( XmlRootName );
         }
 
-
+        /// <summary> XML Serialises this SecurityController under the provided tagName. </summary>
+        /// <param name="tagName"> Name of the root element. </param>
+        /// <returns> This SecurityController as a XML serialised object</returns>
         public XElement Serialize( [NotNull] string tagName ) {
             if( tagName == null ) throw new ArgumentNullException( "tagName" );
 
@@ -257,7 +333,18 @@ namespace fCraft {
             if( HasRankRestriction ) {
                 root.Add( new XElement( "minRank", MinRank.FullName ) );
             }
-            //root.Add( new XElement( "maxRank", maxRank ) );
+
+            // TODO: Uncomment this
+            //if (HasRankRestriction) {
+            //    if (HasLowerRankRestriction) {
+            //        root.Add( new XElement( "minRank", MinRank.FullName ) );
+            //    }
+            //    if (HasUpperRankRestriction) {
+            //        root.Add( new XElement( "maxRank", MaxRank.FullName ) );
+            //    }
+            //}
+
+            //root.Add( new XElement( "maxRank", MaxRank.FullName ) ); 
 
             lock( locker ) {
                 foreach( string playerName in includedPlayers.Keys ) {
@@ -302,6 +389,7 @@ namespace fCraft {
         /// excluded player list, and included player list. </summary>
         public void Reset() {
             ResetMinRank();
+            // ResetMaxRank(); // TODO: Uncomment this
             ResetIncludedList();
             ResetExcludedList();
         }
@@ -330,6 +418,7 @@ namespace fCraft {
 
         #endregion
 
+        /// <summary> Whether or not this SecurityController has had a setting change. </summary>
         public event EventHandler Changed;
 
         void RaiseChangedEvent() {
@@ -341,6 +430,9 @@ namespace fCraft {
 
     /// <summary> List of included and excluded players. </summary>
     public struct PlayerExceptions {
+        /// <summary> Sets the Included and Excluded player list for this SecurityController. </summary>
+        /// <param name="included"> List of players who should be whitelisted. </param>
+        /// <param name="excluded"> List of players who should be blacklisted. </param>
         public PlayerExceptions( [NotNull] PlayerInfo[] included, [NotNull] PlayerInfo[] excluded ) {
             if( included == null ) throw new ArgumentNullException( "included" );
             if( excluded == null ) throw new ArgumentNullException( "excluded" );
@@ -349,8 +441,10 @@ namespace fCraft {
         }
 
         // keeping both lists on one object allows lock-free synchronization
+        /// <summary> List of players who are whitelisted and will be accepted regardless rank checks </summary>
         public readonly PlayerInfo[] Included;
 
+        /// <summary> List of players who are blacklisted and will be rejected regardless of rank checks </summary>
         public readonly PlayerInfo[] Excluded;
     }
 
