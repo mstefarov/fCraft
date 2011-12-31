@@ -953,7 +953,7 @@ namespace fCraft {
 
             // Add player to the list
             lock( PlayerListLock ) {
-                if( PlayerIndex.Count >= ConfigKey.MaxPlayers.GetInt() && !player.Info.Rank.ReservedSlot ) {
+                if( PlayerIndex.Count >= ConfigKey.MaxPlayers.GetInt() && !player.Info.Rank.HasReservedSlot ) {
                     return false;
                 }
                 PlayerIndex.Add( player.Name, player );

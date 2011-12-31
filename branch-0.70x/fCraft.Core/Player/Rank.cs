@@ -42,7 +42,8 @@ namespace fCraft {
                    AntiGriefBlocks,
                    AntiGriefSeconds;
 
-        public bool ReservedSlot;
+        /// <summary> Whether this rank has a reserved slot (is allowed to join the server even if it's full). </summary>
+        public bool HasReservedSlot { get; set; }
 
         /// <summary> Rank's relative index on the hierarchy. Index of the top rank is always 0.
         /// Subordinate ranks start at 1. Higher index = lower rank. </summary>
@@ -218,13 +219,16 @@ namespace fCraft {
 
             // Reserved slot. (assuming 'no' if not given)
             if( ( attr = el.Attribute( "reserveSlot" ) ) != null ) {
-                if( !Boolean.TryParse( attr.Value, out ReservedSlot ) ) {
+                bool reservedSlot;
+                if( Boolean.TryParse( attr.Value, out reservedSlot ) ) {
+                    HasReservedSlot = reservedSlot;
+                } else {
                     Logger.Log( LogType.Warning,
-                                "Rank({0}): Could not parse value for reserveSlot. Assuming \"false\".", Name );
-                    ReservedSlot = false;
+                                    "Rank({0}): Could not parse value for reserveSlot. Assuming \"false\".", Name );
+                    HasReservedSlot = false;
                 }
             } else {
-                ReservedSlot = false;
+                HasReservedSlot = false;
             }
 
 
@@ -331,7 +335,7 @@ namespace fCraft {
             rankTag.Add( new XAttribute( "antiGriefSeconds", AntiGriefSeconds ) );
             if( DrawLimit > 0 ) rankTag.Add( new XAttribute( "drawLimit", DrawLimit ) );
             if( IdleKickTimer > 0 ) rankTag.Add( new XAttribute( "idleKickAfter", IdleKickTimer ) );
-            if( ReservedSlot ) rankTag.Add( new XAttribute( "reserveSlot", ReservedSlot ) );
+            if( HasReservedSlot ) rankTag.Add( new XAttribute( "reserveSlot", HasReservedSlot ) );
             if( AllowSecurityCircumvention ) rankTag.Add( new XAttribute( "allowSecurityCircumvention", AllowSecurityCircumvention ) );
             rankTag.Add( new XAttribute( "copySlots", CopySlots ) );
             rankTag.Add( new XAttribute( "fillLimit", FillLimit ) );
