@@ -886,6 +886,8 @@ namespace fCraft {
     }
 
     // TODO: Add a UI to ConfigGUI.AddWorldPopup to set these
+    // ReSharper disable ConvertToConstant.Global
+    // ReSharper disable FieldCanBeMadeReadOnly.Global
     public sealed class ForesterArgs {
         public Forester.ForesterOperation Operation = Forester.ForesterOperation.Replant;
         public int TreeCount = 15; // 0 = no limit if op=conserve/replant
@@ -909,6 +911,8 @@ namespace fCraft {
         public Block FoliageBlock = Block.Leaves;
 
         public event EventHandler<ForesterBlockPlacingEventArgs> BlockPlacing;
+        // ReSharper restore FieldCanBeMadeReadOnly.Global
+        // ReSharper restore ConvertToConstant.Global
 
         internal void PlaceBlock( int x, int y, int z, Block block ) {
             var handler = BlockPlacing;

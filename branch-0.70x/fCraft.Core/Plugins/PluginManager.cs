@@ -4,10 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Manages all Plugin loaders and Plugin objects. </summary>
-    public class PluginManager {
+    [PublicAPI]
+    public sealed class PluginManager {
 
         public List<IPluginLoader> PluginLoaders { get; private set; }
         public List<IPlugin> Plugins { get; private set; }
@@ -17,7 +19,7 @@ namespace fCraft {
 
         public PluginManager() {
             PluginLoaders = new List<IPluginLoader> {
-                new CLIPluginLoader()
+                new CILPluginLoader()
             };
             Plugins = new List<IPlugin>();
         }

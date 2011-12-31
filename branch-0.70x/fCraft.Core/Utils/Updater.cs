@@ -105,10 +105,12 @@ namespace fCraft {
 
         /// <summary> Occurs when fCraft is about to check for updates (cancellable).
         /// The update Url may be overridden. </summary>
+        [PublicAPI]
         public static event EventHandler<CheckingForUpdatesEventArgs> CheckingForUpdates;
 
 
         /// <summary> Occurs when fCraft has just checked for updates. </summary>
+        [PublicAPI]
         public static event EventHandler<CheckedForUpdatesEventArgs> CheckedForUpdates;
 
 

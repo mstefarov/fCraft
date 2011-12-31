@@ -466,12 +466,14 @@ namespace fCraft {
             }
         }
 
+        // ReSharper disable MethodOverloadWithOptionalParameter
         [StringFormatMethod( "message" )]
         public void MessageAlt( [NotNull] string message, [NotNull] params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
             MessageAlt( String.Format( message, args ) );
         }
+        // ReSharper restore MethodOverloadWithOptionalParameter
 
 
         public void Message( [NotNull] string message ) {
@@ -493,12 +495,14 @@ namespace fCraft {
             Message( String.Format( message, arg ) );
         }
 
+        // ReSharper disable MethodOverloadWithOptionalParameter
         [StringFormatMethod( "message" )]
         public void Message( [NotNull] string message, [NotNull] params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
             Message( String.Format( message, args ) );
         }
+        // ReSharper restore MethodOverloadWithOptionalParameter
 
 
         [StringFormatMethod( "message" )]
@@ -1019,7 +1023,7 @@ namespace fCraft {
         public void ResetBind( [NotNull] params Block[] originalTypes ) {
             if( originalTypes == null ) throw new ArgumentNullException( "originalTypes" );
             foreach( Block type in originalTypes ) {
-                ResetBind( type );
+                bindings[(byte)type] = type;
             }
         }
 
@@ -1034,7 +1038,7 @@ namespace fCraft {
         /// <summary> Resets all bindings to default. </summary>
         public void ResetAllBinds() {
             for( int i = 0; i < bindings.Length; i++ ) {
-                ResetBind( (Block)i );
+                bindings[i] = (Block)i;
             }
         }
 

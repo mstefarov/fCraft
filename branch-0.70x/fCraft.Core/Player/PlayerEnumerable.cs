@@ -498,6 +498,8 @@ namespace fCraft {
             return i;
         }
 
+
+        // ReSharper disable MethodOverloadWithOptionalParameter
         /// <summary> Formats and broadcasts a message. </summary>
         /// <param name="source"> List of players who will receive the message. </param>
         /// <param name="except"> Player to exclude from the recepient list. </param>
@@ -522,8 +524,10 @@ namespace fCraft {
             }
             return i;
         }
+        // ReSharper restore MethodOverloadWithOptionalParameter
 
 
+        // ReSharper disable MethodOverloadWithOptionalParameter
         /// <summary> Formats and broadcasts a message. </summary>
         /// <param name="source"> List of players who will receive the message. </param>
         /// <param name="message"> String/message to send. </param>
@@ -545,6 +549,7 @@ namespace fCraft {
             }
             return i;
         }
+        // ReSharper restore MethodOverloadWithOptionalParameter
 
 
         /// <summary> Broadcasts a message, prefixing wrapped lines. </summary>
@@ -568,6 +573,7 @@ namespace fCraft {
         }
 
 
+        // ReSharper disable MethodOverloadWithOptionalParameter
         /// <summary> Formats and broadcasts a message, prefixing wrapped lines. </summary>
         /// <param name="source"> List of players who will receive the message. </param>
         /// <param name="prefix"> Prefix to prepend to prepend to each line after the 1st,
@@ -590,8 +596,7 @@ namespace fCraft {
             }
             return i;
         }
-
-
+        // ReSharper restore MethodOverloadWithOptionalParameter
 
 
         /// <summary> Formats and broadcasts a message, showing on top-left for those who use WoM. </summary>

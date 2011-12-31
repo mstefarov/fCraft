@@ -9,33 +9,43 @@ namespace fCraft {
 
         /// <summary> Occurs when a new PlayerDB entry is being created.
         /// Allows editing the starting rank. Cancellable (kicks the player). </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerInfoBeingCreatedEventArgs> BeingCreated;
 
         /// <summary> Occurs after a new PlayerDB entry has been created. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerInfoCreatedEventArgs> Created;
 
         /// <summary> Occurs when a player's rank is about to be changed (automatically or manually). </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerInfoRankChangingEventArgs> RankChanging;
 
         /// <summary> Occurs after a player's rank was changed (automatically or manually). </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerInfoRankChangedEventArgs> RankChanged;
 
         /// <summary> Occurs when a player is about to be banned or unbanned. Cancellable. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerInfoBanChangingEventArgs> BanChanging;
 
         /// <summary> Occurs after a player has been banned or unbanned. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerInfoBanChangedEventArgs> BanChanged;
 
         /// <summary> Occurs when a player is about to be frozen or unfrozen. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerInfoFrozenChangingEventArgs> FreezeChanging;
 
         /// <summary> Occurs after a player has been frozen or unfrozen. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerInfoFrozenChangedEventArgs> FreezeChanged;
 
         /// <summary> Occurs when a player is about to be muted or unmuted. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerInfoMuteChangingEventArgs> MuteChanging;
 
         /// <summary> Occurs after a player has been muted or unmuted. </summary>
+        [PublicAPI]
         public static event EventHandler<PlayerInfoMuteChangedEventArgs> MuteChanged;
 
 

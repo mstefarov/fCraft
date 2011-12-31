@@ -600,6 +600,7 @@ namespace fCraft {
         }
 
 
+        // ReSharper disable MethodOverloadWithOptionalParameter
         /// <summary> Broadcasts a message to all online players.
         /// Shorthand for Server.Players.Message </summary>
         [StringFormatMethod( "message" )]
@@ -608,6 +609,7 @@ namespace fCraft {
             if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
             Players.Message( message, formatArgs );
         }
+        // ReSharper restore MethodOverloadWithOptionalParameter
 
 
         /// <summary> Broadcasts a message to all online players except one.
@@ -618,6 +620,7 @@ namespace fCraft {
         }
 
 
+        // ReSharper disable MethodOverloadWithOptionalParameter
         /// <summary> Broadcasts a message to all online players except one.
         /// Shorthand for Server.Players.Except(except).Message </summary>
         [StringFormatMethod( "message" )]
@@ -626,6 +629,7 @@ namespace fCraft {
             if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
             Players.Except( except ).Message( message, formatArgs );
         }
+        // ReSharper restore MethodOverloadWithOptionalParameter
 
         #endregion
 
