@@ -7,8 +7,13 @@ using JetBrains.Annotations;
 
 namespace fCraft.AutoRank {
     public sealed class Criterion : ICloneable {
+
+        /// <summary> Rank that the player is currently </summary>
         public Rank FromRank { get; set; }
+        /// <summary> Rank that the player will be changed to </summary>
         public Rank ToRank { get; set; }
+
+        /// <summary> The conditions that must be met in order for this to take affect. </summary>
         public ConditionSet Condition { get; set; }
 
         public Criterion() { }
