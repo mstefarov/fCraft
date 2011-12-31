@@ -6,7 +6,7 @@ namespace fCraft.Drawing {
     /// <summary> Describes a copied chunk of a map. </summary>
     public sealed class CopyState : ICloneable {
 
-        /// <summary> Array of blocks. </summary>
+        /// <summary> Array of copied blocks. </summary>
         [NotNull]
         public Block[, ,] Buffer { get; set; }
 

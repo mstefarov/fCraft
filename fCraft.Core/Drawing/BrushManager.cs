@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
+    /// <summary> Class that manages available brushes, and provides a way to look them up by name or alias. </summary>
     public static class BrushManager {
         static readonly Dictionary<string, IBrushFactory> BrushFactories = new Dictionary<string, IBrushFactory>();
         static readonly Dictionary<string, IBrushFactory> BrushAliases = new Dictionary<string, IBrushFactory>();
