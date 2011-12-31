@@ -4,23 +4,45 @@ using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
+    /// <summary> An undo state, including a list of all blocks affected by an operation. </summary>
     public sealed class UndoState {
-        public UndoState( DrawOperation op ) {
+
+        /// <summary> DrawOperation associated with this UndoState. May be null. </summary>
+        [CanBeNull]
+        public readonly DrawOperation Op;
+
+
+        /// <summary> List of UndoBlocks in this state. </summary>
+        [NotNull]
+        public readonly List<UndoBlock> Buffer;
+
+
+        /// <summary> Whether this UndoState has become too large to undo.
+        /// If the limit is reached, Buffer is cleared. </summary>
+        public bool IsTooLargeToUndo { get; set; }
+
+
+        [NotNull]
+        readonly object syncRoot = new object();
+
+
+        internal UndoState( [CanBeNull]DrawOperation op ) {
             Op = op;
             Buffer = new List<UndoBlock>();
         }
 
-        public readonly DrawOperation Op;
-        public readonly List<UndoBlock> Buffer;
-        public bool IsTooLargeToUndo;
-        public readonly object SyncRoot = new object();
 
+        /// <summary> Adds a new UndoBlock to the list. </summary>
+        /// <param name="coord"> Coordinate at which block was changed. </param>
+        /// <param name="block"> Original blocktype at the affected coordinate (before change). </param>
+        /// <returns> True if block was added to the list; false if this UndoState has filled up. </returns>
         public bool Add( Vector3I coord, Block block ) {
-            lock( SyncRoot ) {
+            lock( syncRoot ) {
+                if( IsTooLargeToUndo ) return false;
                 if( BuildingCommands.MaxUndoCount < 1 || Buffer.Count <= BuildingCommands.MaxUndoCount ) {
                     Buffer.Add( new UndoBlock( coord, block ) );
                     return true;
-                } else if( !IsTooLargeToUndo ) {
+                } else {
                     IsTooLargeToUndo = true;
                     Buffer.Clear();
                 }
@@ -28,12 +50,16 @@ namespace fCraft.Drawing {
             }
         }
 
+
+        /// <summary> Gets an UndoBlock at the given index.
+        /// Use UndoState.Buffer.Count to determine the upper bound on the index. </summary>
         [Pure]
         public UndoBlock Get( int index ) {
-            lock( SyncRoot ) {
+            lock( syncRoot ) {
                 return Buffer[index];
             }
         }
+
 
         /// <summary> Calculates bounds of the affected area.
         /// Can be very resource-intensive because it requires iteration over he whole buffer. </summary>
@@ -41,7 +67,7 @@ namespace fCraft.Drawing {
         [Pure]
         [NotNull]
         public BoundingBox GetBounds() {
-            lock( SyncRoot ) {
+            lock( syncRoot ) {
                 if( Buffer.Count == 0 ) return BoundingBox.Empty;
                 Vector3I min = new Vector3I( int.MaxValue, int.MaxValue, int.MaxValue );
                 Vector3I max = new Vector3I( int.MinValue, int.MinValue, int.MinValue );
@@ -57,6 +83,7 @@ namespace fCraft.Drawing {
             }
         }
     }
+
 
     /// <summary> A struct representing a single block (coordinate + blocktype) in an UndoState buffer. </summary>
     [StructLayout( LayoutKind.Sequential, Pack = 2 )]

@@ -1208,7 +1208,17 @@ namespace fCraft {
         readonly LinkedList<UndoState> undoStack = new LinkedList<UndoState>();
         readonly LinkedList<UndoState> redoStack = new LinkedList<UndoState>();
 
-        internal UndoState RedoPop() {
+        [NotNull]
+        public UndoState RedoBegin( [CanBeNull] DrawOperation op ) {
+            LastDrawOp = op;
+            UndoState newState = new UndoState( op );
+            undoStack.AddLast( newState );
+            return newState;
+        }
+
+
+        [CanBeNull]
+        public UndoState RedoPop() {
             if( redoStack.Count > 0 ) {
                 var lastNode = redoStack.Last;
                 redoStack.RemoveLast();
@@ -1218,20 +1228,22 @@ namespace fCraft {
             }
         }
 
-        internal UndoState RedoBegin( DrawOperation op ) {
-            LastDrawOp = op;
-            UndoState newState = new UndoState( op );
-            undoStack.AddLast( newState );
-            return newState;
+
+        public void RedoClear() {
+            redoStack.Clear();
         }
 
-        internal UndoState UndoBegin( DrawOperation op ) {
+
+        [NotNull]
+        public UndoState UndoBegin( [CanBeNull] DrawOperation op ) {
             LastDrawOp = op;
             UndoState newState = new UndoState( op );
             redoStack.AddLast( newState );
             return newState;
         }
 
+
+        [CanBeNull]
         public UndoState UndoPop() {
             if( undoStack.Count > 0 ) {
                 var lastNode = undoStack.Last;
@@ -1242,7 +1254,14 @@ namespace fCraft {
             }
         }
 
-        public UndoState DrawBegin( DrawOperation op ) {
+
+        public void UndoClear() {
+            undoStack.Clear();
+        }
+
+
+        [NotNull]
+        public UndoState DrawBegin( [CanBeNull] DrawOperation op ) {
             LastDrawOp = op;
             UndoState newState = new UndoState( op );
             undoStack.AddLast( newState );
@@ -1251,14 +1270,6 @@ namespace fCraft {
             }
             redoStack.Clear();
             return newState;
-        }
-
-        public void UndoClear() {
-            undoStack.Clear();
-        }
-
-        public void RedoClear() {
-            redoStack.Clear();
         }
 
         #endregion
