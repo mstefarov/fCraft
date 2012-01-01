@@ -20,7 +20,11 @@ namespace fCraft {
     /// the value of player.selectionArgs </param>
     public delegate void SelectionCallback( Player player, Vector3I[] marks, object tag );
 
-    public delegate void ConfirmationCallback( Player player, object tag, bool fromConsole );
+
+    /// <summary> Represents the method that responds to a confirmation command. </summary>
+    /// <param name="player"> Player who confirmed the action. </param>
+    /// <param name="tag"> Parameter that was passed to Player.Confirm() </param>
+    public delegate void ConfirmationCallback( Player player, object tag );
 
 
     /// <summary> Object representing volatile state ("session") of a connected player.
@@ -75,7 +79,7 @@ namespace fCraft {
 
 
         /// <summary> The world that the player is currently on. May be null.
-        /// Use .JoinWorld() to make players teleport to another world. </summary>
+        /// Use Player.JoinWorld() to make players join another world. </summary>
         [CanBeNull]
         public World World { get; private set; }
 
@@ -414,7 +418,7 @@ namespace fCraft {
                         if( ConfirmCallback != null ) {
                             if( DateTime.UtcNow.Subtract( ConfirmRequestTime ) < ConfirmationTimeout ) {
                                 SendToSpectators( "/ok" );
-                                ConfirmCallback( this, ConfirmArgument, fromConsole );
+                                ConfirmCallback( this, ConfirmArgument );
                                 ConfirmCallback = null;
                                 ConfirmArgument = null;
                             } else {
@@ -748,11 +752,12 @@ namespace fCraft {
         [CanBeNull]
         public object ConfirmArgument { get; private set; }
 
-        static void ConfirmCommandCallback( [NotNull] Player player, object tag, bool fromConsole ) {
+        static void ConfirmCommandCallback( [NotNull] Player player, object tag ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             CommandReader cmd = (CommandReader)tag;
             cmd.Rewind();
             cmd.IsConfirmed = true;
+            bool fromConsole = ( player == Console );
             CommandManager.ParseCommand( player, cmd, fromConsole );
         }
 

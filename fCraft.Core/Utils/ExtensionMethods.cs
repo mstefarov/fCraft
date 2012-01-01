@@ -7,8 +7,13 @@ using System.Text;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> Provides utility methods for working with IP addresses and ranges. </summary>
     public static class IPAddressUtil {
+
         /// <summary> Checks whether an IP address may belong to LAN or localhost (192.168.0.0/16, 10.0.0.0/24, or 127.0.0.0/24). </summary>
+        /// <param name="addr"> IPv4 address to check. </param>
+        /// <returns> True if given IP is local; otherwise false. </returns>
+        /// <exception cref="ArgumentNullException"> If addr is null. </exception>
         public static bool IsLocal( [NotNull] this IPAddress addr ) {
             if( addr == null ) throw new ArgumentNullException( "addr" );
             byte[] bytes = addr.GetAddressBytes();
@@ -19,12 +24,15 @@ namespace fCraft {
 
 
         /// <summary> Represents an IPv4 address as an integer. </summary>
+        /// <exception cref="ArgumentNullException"> If thisAddr is null. </exception>
         public static int AsInt( [NotNull] this IPAddress thisAddr ) {
             if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
             return IPAddress.HostToNetworkOrder( BitConverter.ToInt32( thisAddr.GetAddressBytes(), 0 ) );
         }
 
+
         /// <summary> Represents an IPv4 address as an unsigned integer. </summary>
+        /// <exception cref="ArgumentNullException"> If thisAddr is null. </exception>
         public static uint AsUInt( [NotNull] this IPAddress thisAddr ) {
             if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
             return (uint)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( thisAddr.GetAddressBytes(), 0 ) );
@@ -32,6 +40,7 @@ namespace fCraft {
 
 
         /// <summary> Checks whether two IP addresses are in the same mask-defined range. </summary>
+        /// <exception cref="ArgumentNullException"> If thisAddr or otherAddr is null. </exception>
         public static bool Match( [NotNull] this IPAddress thisAddr, [NotNull] IPAddress otherAddr, uint mask ) {
             if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
             if( otherAddr == null ) throw new ArgumentNullException( "otherAddr" );
@@ -41,6 +50,7 @@ namespace fCraft {
         }
 
         /// <summary> Checks whether two IP addresses are in the same mask-defined range. </summary>
+        /// <exception cref="ArgumentNullException"> If thisAddr is null. </exception>
         internal static bool Match( [NotNull] this IPAddress thisAddr, uint otherAddr, uint mask ) {
             if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
             uint thisAsUInt = thisAddr.AsUInt();
@@ -48,9 +58,12 @@ namespace fCraft {
         }
 
 
-        /// <summary> Finds the first IP address in the given range. </summary>
+
+        /// <summary> Finds the first IPv4 address in the given range. </summary>
         /// <param name="thisAddr"> Base address for the range. </param>
         /// <param name="range"> CIDR range byte (0-32). </param>
+        /// <exception cref="ArgumentNullException"> If thisAddr is null. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> If range byte is not in valid range. </exception>
         public static IPAddress FirstIAddressInRange( [NotNull] this IPAddress thisAddr, byte range ) {
             if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
             if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
@@ -63,6 +76,8 @@ namespace fCraft {
         /// <summary> Finds the last IP address in the given range. </summary>
         /// <param name="thisAddr"> Base address for the range. </param>
         /// <param name="range"> CIDR range byte (0-32). </param>
+        /// <exception cref="ArgumentNullException"> If thisAddr is null. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> If range byte is not in valid range. </exception>
         public static IPAddress LastAddressInRange( [NotNull] this IPAddress thisAddr, byte range ) {
             if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
             if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
@@ -74,6 +89,7 @@ namespace fCraft {
 
         /// <summary> Creates a mask for given range. </summary>
         /// <param name="range"> CIDR range byte (0-32). </param>
+        /// <exception cref="ArgumentOutOfRangeException"> If range byte is not in valid range. </exception>
         public static uint NetMask( byte range ) {
             if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
             if( range == 0 ) {
@@ -460,7 +476,14 @@ namespace fCraft {
     }
 
 
+    /// <summary> Provides utility methods for working with byte arrays and pointers. </summary>
     public unsafe static class BufferUtil {
+
+        /// <summary> Efficiently sets all bytes in the given array to a specified value. </summary>
+        /// <param name="array"> Byte array to fill. </param>
+        /// <param name="value"> Value to assign to every byte in the array. </param>
+        /// <exception cref="ArgumentNullException"> If array is null. </exception>
+        [PublicAPI]
         public static void MemSet( [NotNull] this byte[] array, byte value ) {
             if( array == null ) throw new ArgumentNullException( "array" );
             byte[] rawValue = new[] { value, value, value, value, value, value, value, value };
@@ -483,6 +506,14 @@ namespace fCraft {
         }
 
 
+
+        /// <summary> Efficiently sets all bytes in a segment of the given byte array to a specified value. </summary>
+        /// <param name="array"> Byte array to fill. </param>
+        /// <param name="value"> Value to assign to bytes in the array segment. </param>
+        /// <param name="startIndex"> Index at which to start filling the array. </param>
+        /// <param name="length"> Number of bytes to set, starting with startIndex. </param>
+        /// <exception cref="ArgumentNullException"> If array is null. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> If length/startIndex are less than 0 or greater than array capacity. </exception>
         public static void MemSet( [NotNull] this byte[] array, byte value, int startIndex, int length ) {
             if( array == null ) throw new ArgumentNullException( "array" );
             if( length < 0 || length > array.Length ) {
@@ -511,57 +542,85 @@ namespace fCraft {
         }
 
 
-        public static void MemCpy( [NotNull] byte* src, [NotNull] byte* dest, int len ) {
-            if( src == null ) throw new ArgumentNullException( "src" );
-            if( dest == null ) throw new ArgumentNullException( "dest" );
-            if( len >= 0x10 ) {
+
+
+        /// <summary> Efficiently copies raw memory contents from source byte pointer to destination byte pointer. </summary>
+        /// <param name="source"> Source array pointer. </param>
+        /// <param name="destination"> Destination array pointer. </param>
+        /// <param name="bytesToCopy"> Number of bytes to copy. </param>
+        /// <exception cref="ArgumentNullException"> If source or destination is null. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> If bytesToCopy is less than 0. </exception>
+        public static void MemCpy( [NotNull] byte* source, [NotNull] byte* destination, int bytesToCopy ) {
+            if( source == null ) throw new ArgumentNullException( "source" );
+            if( destination == null ) throw new ArgumentNullException( "destination" );
+            if( bytesToCopy < 0 ) throw new ArgumentOutOfRangeException( "bytesToCopy" );
+            if( bytesToCopy >= 0x10 ) {
                 do {
-                    *((int*)dest) = *((int*)src);
-                    *((int*)(dest + 4)) = *((int*)(src + 4));
-                    *((int*)(dest + 8)) = *((int*)(src + 8));
-                    *((int*)(dest + 12)) = *((int*)(src + 12));
-                    dest += 0x10;
-                    src += 0x10;
+                    *((int*)destination) = *((int*)source);
+                    *((int*)(destination + 4)) = *((int*)(source + 4));
+                    *((int*)(destination + 8)) = *((int*)(source + 8));
+                    *((int*)(destination + 12)) = *((int*)(source + 12));
+                    destination += 0x10;
+                    source += 0x10;
                 }
-                while( (len -= 0x10) >= 0x10 );
+                while( (bytesToCopy -= 0x10) >= 0x10 );
             }
-            if( len > 0 ) {
-                if( (len & 8) != 0 ) {
-                    *((int*)dest) = *((int*)src);
-                    *((int*)(dest + 4)) = *((int*)(src + 4));
-                    dest += 8;
-                    src += 8;
+            if( bytesToCopy > 0 ) {
+                if( (bytesToCopy & 8) != 0 ) {
+                    *((int*)destination) = *((int*)source);
+                    *((int*)(destination + 4)) = *((int*)(source + 4));
+                    destination += 8;
+                    source += 8;
                 }
-                if( (len & 4) != 0 ) {
-                    *((int*)dest) = *((int*)src);
-                    dest += 4;
-                    src += 4;
+                if( (bytesToCopy & 4) != 0 ) {
+                    *((int*)destination) = *((int*)source);
+                    destination += 4;
+                    source += 4;
                 }
-                if( (len & 2) != 0 ) {
-                    *((short*)dest) = *((short*)src);
-                    dest += 2;
-                    src += 2;
+                if( (bytesToCopy & 2) != 0 ) {
+                    *((short*)destination) = *((short*)source);
+                    destination += 2;
+                    source += 2;
                 }
-                if( (len & 1) != 0 ) {
-                    dest++;
-                    src++;
-                    dest[0] = src[0];
+                if( (bytesToCopy & 1) != 0 ) {
+                    destination++;
+                    source++;
+                    destination[0] = source[0];
                 }
             }
         }
 
-        public static bool MemCmp( [NotNull] IList<byte> data, int offset, [NotNull] string value ) {
+
+
+        /// <summary> Checks whether the sequence of bytes in data at the given offset matches the sequence of ASCII characters in value.
+        /// Basically, checks whether the byte array contains the string at this offset. </summary>
+        /// <param name="data"> Byte array to search. </param>
+        /// <param name="offset"> Offset, in bytes, from the start of data. </param>
+        /// <param name="value"> Value to search for. Must contain only ASCII characters. </param>
+        /// <returns> Whether the pattern was found. </returns>
+        /// <exception cref="ArgumentNullException">If data or value is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"> If offset is less than 0 or greater than data.Length. </exception>
+        [Pure]
+        public static bool MemCmp( [NotNull] byte[] data, int offset, [NotNull] string value ) {
             if( data == null ) throw new ArgumentNullException( "data" );
             if( value == null ) throw new ArgumentNullException( "value" );
+            if( offset < 0 || offset > data.Length ) throw new ArgumentOutOfRangeException( "offset" );
             for( int i = 0; i < value.Length; i++ ) {
-                if( offset + i >= data.Count || data[offset + i] != value[i] ) return false;
+                if( offset + i >= data.Length || data[offset + i] != value[i] ) return false;
             }
             return true;
         }
     }
 
 
+    /// <summary> Provides utility methods for working with enumerations. </summary>
     public static class EnumUtil {
+        /// <summary> Attempts to parse an enumeration </summary>
+        /// <typeparam name="TEnum"></typeparam>
+        /// <param name="value"></param>
+        /// <param name="output"></param>
+        /// <param name="ignoreCase"></param>
+        /// <returns></returns>
         public static bool TryParse<TEnum>( [NotNull] string value, out TEnum output, bool ignoreCase ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             try {
