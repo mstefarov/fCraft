@@ -6,6 +6,7 @@ using System.Net;
 using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
+    /// <summary> JTE map conversion implementation, for converting JTE map format into fCraft's default map format. </summary>
     public sealed class MapJTE : IMapConverter {
 
         static readonly byte[] Mapping = new byte[256];

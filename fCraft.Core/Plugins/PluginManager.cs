@@ -11,12 +11,17 @@ namespace fCraft {
     [PublicAPI]
     public sealed class PluginManager {
 
+        /// <summary> List of all PluginLoaders currently being managed by this PluginManager. </summary>
         public List<IPluginLoader> PluginLoaders { get; private set; }
+        /// <summary> List of all Plugins currently being managed by this PluginManager. </summary>
         public List<IPlugin> Plugins { get; private set; }
 
+        /// <summary> Is triggered when a plugin is successfully loaded. </summary>
         public EventHandler<PluginLoadedEventArgs> PluginLoaded;
+        /// <summary> Is triggered when a plugin fails to load. </summary>
         public EventHandler<PluginLoadFailedEventArgs> PluginLoadFail;
 
+        /// <summary> Creates a new instance of PluginManager, and initialises the Plugin and PluginLoader lists. </summary>
         public PluginManager() {
             PluginLoaders = new List<IPluginLoader> {
                 new CILPluginLoader()
@@ -24,10 +29,13 @@ namespace fCraft {
             Plugins = new List<IPlugin>();
         }
 
+        /// <summary> Adds the specified IPluginLoader to the list of PluginLoaders. </summary>
+        /// <param name="loader"> PluginLoader to add to list. </param>
         public void AddLoader( IPluginLoader loader ) {
             PluginLoaders.Add( loader );
         }
 
+        /// <summary> Loads all plugins in the plugin directory. </summary>
         public void LoadPlugins() {
             DirectoryInfo directoryInfo = new DirectoryInfo( "plugins" );
             if( directoryInfo.Exists ) {
@@ -35,6 +43,8 @@ namespace fCraft {
             }
         }
 
+        /// <summary> Loads a list of plugins by their filenames. </summary>
+        /// <param name="fileNames"> List of plugin filenames to laod. </param>
         public void LoadPlugins( IEnumerable<string> fileNames ) {
             foreach( string fileName in fileNames ) {
                 string filePath = Path.Combine( "plugins", fileName );

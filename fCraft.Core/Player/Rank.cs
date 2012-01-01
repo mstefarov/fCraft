@@ -34,13 +34,26 @@ namespace fCraft {
         /// Affects /WMain, /WAccess, /WBuild, /ZAdd, /ZEdit, and /ZRemove. </summary>
         public bool AllowSecurityCircumvention;
 
-        public int CopySlots = 2,
-                   FillLimit = 32,
-                   DrawLimit;
+        /// <summary>
+        /// Maximum number of buffered copies this rank is allowed to have.
+        /// </summary>
+        public int CopySlots = 2;
 
-        public int IdleKickTimer,
-                   AntiGriefBlocks,
-                   AntiGriefSeconds;
+        /// <summary> Maximum number of blocks away the origin that a fill is allowed to travel. </summary>
+        /// <example> A limit of 32, means that the maximum fill dimensions are (32 * 2 + 1),
+        /// which is 65 x 65 x 65. </example>
+        public int FillLimit = 32;
+
+        public int DrawLimit;
+
+        /// <summary> Time until the idle kicker will kick this Rank from the server. </summary>
+        public int IdleKickTimer;
+
+        /// <summary> Number of blocks that need to be modified in AntiGriefSeconds for the AntiGrief to kick in for this Rank. </summary>
+        public int AntiGriefBlocks;
+
+        /// <summary> The interval in seconds for which to count number of blocks broken for use in AntiGrief for this Rank. </summary>
+        public int AntiGriefSeconds;
 
         /// <summary> Whether this rank has a reserved slot (is allowed to join the server even if it's full). </summary>
         public bool HasReservedSlot { get; set; }
@@ -49,13 +62,15 @@ namespace fCraft {
         /// Subordinate ranks start at 1. Higher index = lower rank. </summary>
         public int Index;
 
-
+        /// <summary> The Rank immediately above this Rank. </summary>
         [CanBeNull]
         public Rank NextRankUp { get; internal set; }
 
+        /// <summary> The Rank immediately below this Rank. </summary>
         [CanBeNull]
         public Rank NextRankDown { get; internal set; }
 
+        /// <summary> The main world for this Rank. </summary>
         [CanBeNull]
         public World MainWorld { get; set; }
 
@@ -70,7 +85,9 @@ namespace fCraft {
             Prefix = "";
         }
 
-
+        /// <summary> Sets the name and ID of this Rank. </summary>
+        /// <param name="name"> Name to assign to this Rank. </param>
+        /// <param name="id"> ID to assing to this Rank. </param>
         public Rank( [NotNull] string name, [NotNull] string id )
             : this() {
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -80,7 +97,8 @@ namespace fCraft {
             FullName = Name + "#" + ID;
         }
 
-
+        /// <summary> Sets the name and ID of this Rank from a XML serialised object. </summary>
+        /// <param name="el"> Serialised Rank. </param>
         public Rank( [NotNull] XElement el )
             : this() {
             if( el == null ) throw new ArgumentNullException( "el" );
@@ -353,7 +371,7 @@ namespace fCraft {
             return rankTag;
         }
 
-
+        /// <remark> Somewhat counterintuitive, but lower index number = higher up on the list = higher rank. </remark>
         #region Rank Comparison Operators
 
         // Somewhat counterintuitive, but lower index number = higher up on the list = higher rank
