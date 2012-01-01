@@ -901,7 +901,7 @@ namespace fCraft {
 
 
         /// <summary> Sets value of a given config key.
-        /// Note that this method may throw exceptions if the given value is not acceptible.
+        /// Note that this method may throw exceptions if the given value is not acceptable.
         /// Use Config.TrySetValue() if you'd like to suppress exceptions in favor of a boolean return value. </summary>
         /// <param name="key"> Config key to set. </param>
         /// <param name="rawValue"> Value to assign to the key. If passed object is not a string, rawValue.ToString() is used. </param>
@@ -933,7 +933,7 @@ namespace fCraft {
 
 
         /// <summary> Attempts to set the value of a given config key.
-        /// Check the return value to make sure that the given value was acceptible. </summary>
+        /// Check the return value to make sure that the given value was acceptable. </summary>
         /// <param name="key"> Config key to set. </param>
         /// <param name="rawValue"> Value to assign to the key. If passed object is not a string, rawValue.ToString() is used. </param>
         /// <exception cref="T:System.ArgumentNullException" />

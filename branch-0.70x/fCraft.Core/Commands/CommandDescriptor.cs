@@ -77,7 +77,9 @@ namespace fCraft {
         }
 
 
-        /// <summary> Gets the lowest rank that has any/all permissions to call this command. </summary>
+        /// <summary> Gets the lowest rank that has any/all permissions to call this command.
+        /// Returns null if none of the ranks have necessary permissions. </summary>
+        [CanBeNull]
         public Rank MinRank {
             get {
                 if( AnyPermission ) {

@@ -115,7 +115,7 @@ namespace fCraft.ConfigGUI {
                 cDefaultRank.SelectedIndex = 0;
             } else {
                 RankManager.DefaultRank = Rank.Parse( ConfigKey.DefaultRank.GetString() );
-                cDefaultRank.SelectedIndex = RankManager.GetIndex( RankManager.DefaultRank );
+                cDefaultRank.SelectedIndex = GetRankIndex( RankManager.DefaultRank );
             }
 
             cPublic.SelectedIndex = ConfigKey.IsPublic.Enabled() ? 0 : 1;
@@ -212,7 +212,7 @@ namespace fCraft.ConfigGUI {
                 cDefaultBuildRank.SelectedIndex = 0;
             } else {
                 RankManager.DefaultBuildRank = Rank.Parse( ConfigKey.DefaultBuildRank.GetString() );
-                cDefaultBuildRank.SelectedIndex = RankManager.GetIndex( RankManager.DefaultBuildRank );
+                cDefaultBuildRank.SelectedIndex = GetRankIndex( RankManager.DefaultBuildRank );
             }
 
             if( Paths.IsDefaultMapPath( ConfigKey.MapPath.GetString() ) ) {
@@ -262,7 +262,7 @@ namespace fCraft.ConfigGUI {
                 cPatrolledRank.SelectedIndex = 0;
             } else {
                 RankManager.PatrolledRank = Rank.Parse( ConfigKey.PatrolledRank.GetString() );
-                cPatrolledRank.SelectedIndex = RankManager.GetIndex( RankManager.PatrolledRank );
+                cPatrolledRank.SelectedIndex = GetRankIndex( RankManager.PatrolledRank );
             }
 
             xPaidPlayersOnly.Checked = ConfigKey.PaidPlayersOnly.Enabled();
@@ -276,7 +276,7 @@ namespace fCraft.ConfigGUI {
                 cBlockDBAutoEnableRank.SelectedIndex = 0;
             } else {
                 RankManager.BlockDBAutoEnableRank = Rank.Parse( ConfigKey.BlockDBAutoEnableRank.GetString() );
-                cBlockDBAutoEnableRank.SelectedIndex = RankManager.GetIndex( RankManager.BlockDBAutoEnableRank );
+                cBlockDBAutoEnableRank.SelectedIndex = GetRankIndex( RankManager.BlockDBAutoEnableRank );
             }
         }
 

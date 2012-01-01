@@ -261,7 +261,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
         private void cDefaultRank_SelectedIndexChanged( object sender, EventArgs e ) {
-            RankManager.DefaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
+            RankManager.DefaultRank = FindRankByIndex( cDefaultRank.SelectedIndex );
         }
 
 
@@ -409,7 +409,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
         private void cDefaultBuildRank_SelectedIndexChanged( object sender, EventArgs e ) {
-            RankManager.DefaultBuildRank = RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
+            RankManager.DefaultBuildRank = FindRankByIndex( cDefaultBuildRank.SelectedIndex );
         }
 
 
@@ -458,11 +458,11 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
         private void cPatrolledRank_SelectedIndexChanged( object sender, EventArgs e ) {
-            RankManager.PatrolledRank = RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 );
+            RankManager.PatrolledRank = FindRankByIndex( cPatrolledRank.SelectedIndex );
         }
 
         private void cBlockDBAutoEnableRank_SelectedIndexChanged( object sender, EventArgs e ) {
-            RankManager.BlockDBAutoEnableRank = RankManager.FindRank( cBlockDBAutoEnableRank.SelectedIndex - 1 );
+            RankManager.BlockDBAutoEnableRank = FindRankByIndex( cBlockDBAutoEnableRank.SelectedIndex );
         }
 
         private void xBlockDBEnabled_CheckedChanged( object sender, EventArgs e ) {
@@ -726,7 +726,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             if( vRanks.SelectedItem != null ) {
                 selectedRank = null;
                 int index = vRanks.SelectedIndex;
-                Rank deletedRank = RankManager.FindRank( index );
+                Rank deletedRank = FindRankByIndex( index + 1 );
                 if( deletedRank == null ) return;
 
                 string messages = "";
@@ -936,7 +936,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         private void vRanks_SelectedIndexChanged( object sender, EventArgs e ) {
             if( vRanks.SelectedIndex != -1 ) {
-                SelectRank( RankManager.FindRank( vRanks.SelectedIndex ) );
+                SelectRank( FindRankByIndex( vRanks.SelectedIndex + 1 ) );
             } else {
                 DisableRankOptions();
             }
@@ -1097,13 +1097,13 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
 
             FillRankList( cDefaultRank, "(lowest rank)" );
-            cDefaultRank.SelectedIndex = RankManager.GetIndex( RankManager.DefaultRank );
+            cDefaultRank.SelectedIndex = GetRankIndex( RankManager.DefaultRank );
             FillRankList( cDefaultBuildRank, "(default rank)" );
-            cDefaultBuildRank.SelectedIndex = RankManager.GetIndex( RankManager.DefaultBuildRank );
+            cDefaultBuildRank.SelectedIndex = GetRankIndex( RankManager.DefaultBuildRank );
             FillRankList( cPatrolledRank, "(default rank)" );
-            cPatrolledRank.SelectedIndex = RankManager.GetIndex( RankManager.PatrolledRank );
+            cPatrolledRank.SelectedIndex = GetRankIndex( RankManager.PatrolledRank );
             FillRankList( cBlockDBAutoEnableRank, "(default rank)" );
-            cBlockDBAutoEnableRank.SelectedIndex = RankManager.GetIndex( RankManager.BlockDBAutoEnableRank );
+            cBlockDBAutoEnableRank.SelectedIndex = GetRankIndex( RankManager.BlockDBAutoEnableRank );
 
             if( selectedRank != null ) {
                 vRanks.SelectedIndex = selectedRank.Index;
@@ -1114,6 +1114,17 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 box.RebuildList();
                 box.SelectRank( selectedRank );
             }
+        }
+
+        public static int GetRankIndex( Rank rank ) {
+            return ( rank == null ) ? 0 : ( rank.Index + 1 );
+        }
+
+        public static Rank FindRankByIndex( int index ) {
+            if( index < 1 || index > RankManager.Ranks.Count ) {
+                return null;
+            }
+            return RankManager.Ranks[index - 1];
         }
 
 

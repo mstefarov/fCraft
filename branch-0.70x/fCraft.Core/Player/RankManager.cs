@@ -49,7 +49,6 @@ namespace fCraft {
         }
 
 
-        /// <summary> Clears the list of ranks. </summary>
         internal static void Reset() {
             CheckIfPlayerDBLoaded();
             RanksByName = new Dictionary<string, Rank>();
@@ -65,14 +64,16 @@ namespace fCraft {
         }
 
 
+
         /// <summary> Adds a new rank to the list. Checks for duplicates. </summary>
+        /// <param name="rank"> Rank to add to the list. </param>
+        /// <exception cref="ArgumentNullException"> If rank is null. </exception>
+        /// <exception cref="InvalidOperationException"> If PlayerDB is already loaded. </exception>
+        /// <exception cref="RankDefinitionException"> If a rank with this name or ID is already defined. </exception>
         public static void AddRank( [NotNull] Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             CheckIfPlayerDBLoaded();
 
-            if( PlayerDB.IsLoaded ) {
-                throw new InvalidOperationException( "You may not add ranks after PlayerDB has already been loaded." );
-            }
             // check for duplicate rank names
             if( RanksByName.ContainsKey( rank.Name.ToLower() ) ) {
                 throw new RankDefinitionException( rank.Name,
@@ -95,8 +96,9 @@ namespace fCraft {
 
 
         /// <summary> Parses rank name (without the ID) using autocompletion. </summary>
-        /// <param name="name"> Full or partial rank name. </param>
-        /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. </returns>
+        /// <param name="name"> Full or partial rank name. May be null. </param>
+        /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. 
+        /// If null was given instead of rank name, returns null. </returns>
         [CanBeNull]
         public static Rank FindRank( string name ) {
             if( name == null ) return null;
@@ -118,27 +120,12 @@ namespace fCraft {
         }
 
 
-        /// <summary> Finds rank by index. Rank at index 0 is the highest. </summary>
-        /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. </returns>
-        [CanBeNull]
-        public static Rank FindRank( int index ) {
-            if( index < 0 || index >= Ranks.Count ) {
-                return null;
-            }
-            return Ranks[index];
-        }
-
-        /// <summary> Gets the numeric index of the specified rank. </summary>
-        /// <param name="rank"> Rank to get index of. </param>
-        /// <returns> Index of the specified rank. </returns>
-        public static int GetIndex( Rank rank ) {
-            return (rank == null) ? 0 : (rank.Index + 1);
-        }
-
         /// <summary> Removes the specified rank from the list of available ranks </summary>
         /// <param name="deletedRank"> Rank to be deleted. </param>
         /// <param name="replacementRank"> Rank that will replace the deleted rank. </param>
         /// <returns> Whether or not the rank was succesfully deleted/replaced. </returns>
+        /// <exception cref="ArgumentNullException"> If deletedRank or replacementRank is null. </exception>
+        /// <exception cref="InvalidOperationException"> If PlayerDB is already loaded. </exception>
         public static bool DeleteRank( [NotNull] Rank deletedRank, [NotNull] Rank replacementRank ) {
             if( deletedRank == null ) throw new ArgumentNullException( "deletedRank" );
             if( replacementRank == null ) throw new ArgumentNullException( "replacementRank" );
@@ -181,16 +168,17 @@ namespace fCraft {
             }
 
             // assign nextRankUp/nextRankDown
+            Ranks[0].NextRankUp = null;
+            Ranks[Ranks.Count - 1].NextRankDown = null;
+
             if( Ranks.Count > 1 ) {
                 for( int i = 0; i < Ranks.Count - 1; i++ ) {
                     Ranks[i + 1].NextRankUp = Ranks[i];
                     Ranks[i].NextRankDown = Ranks[i + 1];
                 }
-            } else {
-                Ranks[0].NextRankUp = null;
-                Ranks[0].NextRankDown = null;
             }
         }
+
 
         public static bool CanRenameRank( [NotNull] Rank rank, [NotNull] string newName ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
@@ -207,7 +195,10 @@ namespace fCraft {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             if( newName == null ) throw new ArgumentNullException( "newName" );
             CheckIfPlayerDBLoaded();
-            RanksByName.Remove( rank.Name.ToLower() );
+            if( !RanksByName.Remove( rank.Name.ToLower() ) ) {
+                throw new ArgumentException( "Cannot rename rank \"" + rank.Name + "\": rank not on the list yet.",
+                                             "rank" );
+            }
             rank.Name = newName;
             rank.FullName = rank.Name + "#" + rank.ID;
             RanksByName.Add( rank.Name.ToLower(), rank );
@@ -216,7 +207,9 @@ namespace fCraft {
 
         /// <summary> Raises the index value of the specified Rank, and then lowers the rank that was previously in that position. </summary>
         /// <param name="rank"> Rank to raise. </param>
-        /// <returns> Whether or not the Rank index was raised. </returns>
+        /// <returns> True if the Rank index was raised; false if it is already the highest rank. </returns>
+        /// <exception cref="ArgumentNullException"> If rank is null. </exception>
+        /// <exception cref="InvalidOperationException"> If PlayerDB is already loaded. </exception>
         public static bool RaiseRank( [NotNull] Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             CheckIfPlayerDBLoaded();
@@ -234,6 +227,8 @@ namespace fCraft {
         /// <summary> Lowers the index value of the specified Rank, and then raises the rank that was previously in that position. </summary>
         /// <param name="rank"> Rank to lower. </param>
         /// <returns> True if the Rank index was lowered; false if it is already the lowest rank. </returns>
+        /// <exception cref="ArgumentNullException"> If rank is null. </exception>
+        /// <exception cref="InvalidOperationException"> If PlayerDB is already loaded. </exception>
         public static bool LowerRank( [NotNull] Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             CheckIfPlayerDBLoaded();
@@ -257,17 +252,13 @@ namespace fCraft {
 
         internal static void ParsePermissionLimits() {
             foreach( Rank rank in Ranks ) {
-                if( !rank.ParsePermissionLimits() ) {
-                    Logger.Log( LogType.Warning,
-                                "Could not parse one of the rank-limits for kick, ban, promote, and/or demote permissions for {0}. " +
-                                "Any unrecognized limits were reset to defaults (own rank).",
-                                rank.Name );
-                }
+                rank.ParsePermissionLimits();
             }
         }
 
-        /// <summary> Creates a 16 character Unique ID, via Server.GetRandomString();. </summary>
-        /// <returns> 16 character Unique ID. </returns>
+        /// <summary> Creates a 16 character unique rank ID, via Server.GetRandomString(). </summary>
+        /// <returns> 16 character unique rank ID. </returns>
+        [NotNull]
         public static string GenerateID() {
             return Server.GetRandomString( 16 );
         }
@@ -276,6 +267,7 @@ namespace fCraft {
         /// <summary> Finds the lowest rank that has all the required permissions. </summary>
         /// <param name="permissions"> One or more permissions to check for. </param>
         /// <returns> A relevant Rank object, or null of none were found. </returns>
+        /// <exception cref="ArgumentNullException"> If permissions is null. </exception>
         [CanBeNull]
         public static Rank GetMinRankWithAllPermissions( [NotNull] params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
@@ -291,6 +283,7 @@ namespace fCraft {
         /// <summary> Finds the lowest rank that has all the required permissions. </summary>
         /// <param name="permissions"> One or more permissions to check for. </param>
         /// <returns> A relevant Rank object, or null of none were found. </returns>
+        /// <exception cref="ArgumentNullException"> If permissions is null. </exception>
         [CanBeNull]
         public static Rank GetMinRankWithAnyPermission( [NotNull] params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );

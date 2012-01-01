@@ -44,6 +44,7 @@ namespace fCraft {
         /// which is 65 x 65 x 65. </example>
         public int FillLimit = 32;
 
+        /// <summary> Maximum number of blocks that player is allowed to draw at a time using draw commands. </summary>
         public int DrawLimit;
 
         /// <summary> Time until the idle kicker will kick this Rank from the server. </summary>
@@ -80,14 +81,16 @@ namespace fCraft {
         private Rank() {
             Permissions = new bool[Enum.GetValues( typeof( Permission ) ).Length];
             PermissionLimits = new Rank[Permissions.Length];
-            PermissionLimitStrings = new string[Permissions.Length];
+            permissionLimitStrings = new string[Permissions.Length];
             Color = fCraft.Color.White;
             Prefix = "";
         }
 
+
         /// <summary> Sets the name and ID of this Rank. </summary>
         /// <param name="name"> Name to assign to this Rank. </param>
         /// <param name="id"> ID to assing to this Rank. </param>
+        /// <exception cref="ArgumentNullException"> If name or id is null. </exception>
         public Rank( [NotNull] string name, [NotNull] string id )
             : this() {
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -97,8 +100,10 @@ namespace fCraft {
             FullName = Name + "#" + ID;
         }
 
+
         /// <summary> Sets the name and ID of this Rank from a XML serialised object. </summary>
-        /// <param name="el"> Serialised Rank. </param>
+        /// <param name="el"> Rank definition, as an XML element. </param>
+        /// <exception cref="ArgumentNullException"> If el is null. </exception>
         public Rank( [NotNull] XElement el )
             : this() {
             if( el == null ) throw new ArgumentNullException( "el" );
@@ -118,7 +123,6 @@ namespace fCraft {
                 // duplicate Name check is done in RankManager.AddRank()
                 Name = attr.Value.Trim();
             }
-
 
             // ID
             attr = el.Attribute( "id" );
@@ -141,7 +145,6 @@ namespace fCraft {
 
             FullName = Name + "#" + ID;
 
-
             // Color (optional)
             if( ( attr = el.Attribute( "color" ) ) != null ) {
                 string color = fCraft.Color.Parse( attr.Value );
@@ -156,7 +159,6 @@ namespace fCraft {
                 Color = fCraft.Color.White;
             }
 
-
             // Prefix (optional)
             if( ( attr = el.Attribute( "prefix" ) ) != null ) {
                 if( IsValidPrefix( attr.Value ) ) {
@@ -166,7 +168,6 @@ namespace fCraft {
                                 "Rank({0}): Invalid prefix format. Expecting 1 character.",Name );
                 }
             }
-
 
             // AntiGrief block limit (assuming unlimited if not given)
             int value;
@@ -203,7 +204,6 @@ namespace fCraft {
                 }
             }
 
-
             // Draw command limit, in number-of-blocks (assuming unlimited if not given)
             if( ( attr = el.Attribute( "drawLimit" ) ) != null ) {
                 if( Int32.TryParse( attr.Value, out value ) ) {
@@ -221,7 +221,6 @@ namespace fCraft {
                 }
             }
 
-
             // Idle kick timer, in minutes. (assuming 'never' if not given)
             if( ( attr = el.Attribute( "idleKickAfter" ) ) != null ) {
                 if( !Int32.TryParse( attr.Value, out IdleKickTimer ) ) {
@@ -233,7 +232,6 @@ namespace fCraft {
             } else {
                 IdleKickTimer = 0;
             }
-
 
             // Reserved slot. (assuming 'no' if not given)
             if( ( attr = el.Attribute( "reserveSlot" ) ) != null ) {
@@ -249,7 +247,6 @@ namespace fCraft {
                 HasReservedSlot = false;
             }
 
-
             // Security circumvention. (assuming 'no' if not given)
             if( ( attr = el.Attribute( "allowSecurityCircumvention" ) ) != null ) {
                 if( !Boolean.TryParse( attr.Value, out AllowSecurityCircumvention ) ) {
@@ -261,7 +258,6 @@ namespace fCraft {
             } else {
                 AllowSecurityCircumvention = false;
             }
-
 
             // Copy slots (assuming default 2 if not given)
             if( ( attr = el.Attribute( "copySlots" ) ) != null ) {
@@ -306,7 +302,7 @@ namespace fCraft {
                 if( ( temp = el.Element( permission ) ) != null ) {
                     Permissions[i] = true;
                     if( ( attr = temp.Attribute( "max" ) ) != null ) {
-                        PermissionLimitStrings[i] = attr.Value;
+                        permissionLimitStrings[i] = attr.Value;
                     }
                 }
             }
@@ -371,7 +367,7 @@ namespace fCraft {
             return rankTag;
         }
 
-        /// <remark> Somewhat counterintuitive, but lower index number = higher up on the list = higher rank. </remark>
+
         #region Rank Comparison Operators
 
         // Somewhat counterintuitive, but lower index number = higher up on the list = higher rank
@@ -402,17 +398,36 @@ namespace fCraft {
 
         #region Permissions
 
+        /// <summary> Checks whether this rank is granted the given permission. </summary>
+        [PublicAPI]
+        [Pure]
         public bool Can( Permission permission ) {
             return Permissions[(int)permission];
         }
 
+
+        /// <summary> Checks whether this rank is granted all the permission on the given list. </summary>
+        [PublicAPI]
+        [Pure]
+        public bool Can( [NotNull] params Permission[] permissions ) {
+            if( permissions == null ) throw new ArgumentNullException( "permissions" );
+            return permissions.All( perm => Permissions[(int)perm] );
+        }
+
+
+        /// <summary> Checks whether this rank is granted the given permission, and whether the limit is high </summary>
+        [PublicAPI]
+        [Pure]
         public bool Can( Permission permission, [NotNull] Rank other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             return Permissions[(int)permission] && GetLimit( permission ) >= other;
         }
 
 
-        public bool CanSee( [NotNull] Rank other ) {
+        /// <summary> Whether players of this rank are allowed to see hidden players of the given rank. </summary>
+        [PublicAPI]
+        [Pure]
+        public bool CanSeeHidden( [NotNull] Rank other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             return this > other.GetLimit( Permission.Hide );
         }
@@ -422,32 +437,47 @@ namespace fCraft {
 
         #region Permission Limits
 
-        public Rank[] PermissionLimits {
-            get;
-            private set;
-        }
-        public readonly string[] PermissionLimitStrings;
+        public Rank[] PermissionLimits { get; private set; }
 
+        readonly string[] permissionLimitStrings;
+
+
+        /// <summary> Returns the highest rank that is allowed to be affected by this rank,
+        /// in the conext of the given permission. If no limit was explicitly specified, returns this/own rank. </summary>
+        [NotNull]
         public Rank GetLimit( Permission permission ) {
             return PermissionLimits[(int)permission] ?? this;
         }
 
 
+        /// <summary> Checks whether this rank has a rank limit explicitly set for the given permission. </summary>
+        public bool HasLimitSet( Permission permission ) {
+            return ( PermissionLimits[(int)permission] != null );
+        }
+
+
+        /// <summary> Sets the rank limit for the given permission. </summary>
         public void SetLimit( Permission permission, [CanBeNull] Rank limit ) {
             PermissionLimits[(int)permission] = limit;
         }
 
 
+        /// <summary> Resets the rank limit for the given permission to default ("own rank"). </summary>
         public void ResetLimit( Permission permission ) {
             SetLimit( permission, null );
         }
 
 
-        public int GetLimitIndex( Permission permission ) {
-            if( PermissionLimits[(int)permission] == null ) {
-                return 0;
-            } else {
-                return PermissionLimits[(int)permission].Index + 1;
+        internal void ParsePermissionLimits() {
+            for( int i = 0; i < PermissionLimits.Length; i++ ) {
+                if( permissionLimitStrings[i] == null ) continue;
+                Rank limit = Parse( permissionLimitStrings[i] );
+                if( limit == null ) {
+                    Logger.Log( LogType.Warning,
+                                "Could not parse \"{0}\" as a {1} permission limit for rank \"{2}\". Reset to default (same rank).",
+                                permissionLimitStrings[i], (Permission)i, Name );
+                }
+                SetLimit( (Permission)i, limit );
             }
         }
 
@@ -456,12 +486,18 @@ namespace fCraft {
 
         #region Validation
 
+        /// <summary> Checks whether given value is an acceptable rank name. 
+        /// Rank names must be between 1 and 16 characters long, and must contain only letters, digits, and underscores. </summary>
+        /// <exception cref="ArgumentNullException"> If rankName is null. </exception>
         public static bool IsValidRankName( [NotNull] string rankName ) {
             if( rankName == null ) throw new ArgumentNullException( "rankName" );
             if( rankName.Length < 1 || rankName.Length > 16 ) return false;
             for( int i = 0; i < rankName.Length; i++ ) {
                 char ch = rankName[i];
-                if( ch < '0' || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < '_' ) || ( ch > '_' && ch < 'a' ) ||
+                if( ch < '0' ||
+                    ( ch > '9' && ch < 'A' ) ||
+                    ( ch > 'Z' && ch < '_' ) ||
+                    ( ch > '_' && ch < 'a' ) ||
                     ch > 'z' ) {
                     return false;
                 }
@@ -470,12 +506,18 @@ namespace fCraft {
         }
 
 
+        /// <summary> Checks whether given value is an acceptable rank ID.
+        /// Rank IDs must be exactly 16 characters long, and must contain only letters and digits. </summary>
+        /// <exception cref="ArgumentNullException"> If id is null. </exception>
         public static bool IsValidID( [NotNull] string id ) {
             if( id == null ) throw new ArgumentNullException( "id" );
             if( id.Length != 16 ) return false;
             for( int i = 0; i < id.Length; i++ ) {
                 char ch = id[i];
-                if( ch < '0' || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < 'a' ) || ch > 'z' ) {
+                if( ch < '0' ||
+                    ( ch > '9' && ch < 'A' ) ||
+                    ( ch > 'Z' && ch < 'a' ) ||
+                    ch > 'z' ) {
                     return false;
                 }
             }
@@ -483,11 +525,19 @@ namespace fCraft {
         }
 
 
+        /// <summary> Checks whether given value is an acceptable rank prefix.
+        /// Rank prefixes must be 0 or 1 character long, and contain only characters printable in Minecraft. </summary>
+        /// <exception cref="ArgumentNullException"> If prefix is null. </exception>
         public static bool IsValidPrefix( [NotNull] string prefix ) {
             if( prefix == null ) throw new ArgumentNullException( "prefix" );
-            if( prefix.Length == 0 ) return true;
-            if( prefix.Length > 1 ) return false;
-            return !Chat.ContainsInvalidChars( prefix );
+            switch( prefix.Length ) {
+                case 0:
+                    return true;
+                case 1:
+                    return !Chat.ContainsInvalidChars( prefix );
+                default:
+                    return false;
+            }
         }
 
         #endregion
@@ -519,16 +569,6 @@ namespace fCraft {
         }
 
 
-        internal bool ParsePermissionLimits() {
-            bool ok = true;
-            for( int i = 0; i < PermissionLimits.Length; i++ ) {
-                if( PermissionLimitStrings[i] == null ) continue;
-                SetLimit( (Permission)i, Parse( PermissionLimitStrings[i] ) );
-                ok &= ( GetLimit( (Permission)i ) != null );
-            }
-            return ok;
-        }
-
         /// <summary> Shortcut to the list of all online players of this rank. </summary>
         [NotNull]
         public IEnumerable<Player> Players {
@@ -536,6 +576,7 @@ namespace fCraft {
                 return Server.Players.Ranked( this );
             }
         }
+
 
         /// <summary> Total number of players of this rank (online and offline). </summary>
         public int PlayerCount {
@@ -545,11 +586,12 @@ namespace fCraft {
         }
 
 
-        /// <summary> Parses serialized rank. Accepts either the "name" or "name#ID" format.
+        /// <summary> Parses serialized rank. Accepts either the "name" or "name#ID" (FullName) format.
         /// Uses legacy rank mapping table for unrecognized ranks. Does not autocomplete.
         /// Name part is case-insensitive. ID part is case-sensitive. </summary>
         /// <param name="name"> Full rank name, or name and ID. </param>
         /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. </returns>
+        /// <exception cref="RankDefinitionException"> If a recursive legacy rank definition is found. </exception>
         [CanBeNull]
         public static Rank Parse( [CanBeNull] string name ) {
             if( name == null ) return null;
