@@ -5,21 +5,23 @@ using System.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary> Manages all the rank on a server.
-    /// Controlls what ranks are avaliable and in
-    /// what order they exist in. </summary>
+    /// <summary> Manages all the ranks on a server. Controlls what ranks are avaliable and in what order they exist in. </summary>
     public static class RankManager {
+
+        internal static Dictionary<string, string> LegacyRankMapping { get; private set; }
 
         /// <summary> List of Ranks, indexed by their name. </summary>
         public static Dictionary<string, Rank> RanksByName { get; private set; }
-        /// <summary> List of Ranks, indexed by their full name. </summary>
+
+        /// <summary> List of Ranks, indexed by their fully qualified name. </summary>
         public static Dictionary<string, Rank> RanksByFullName { get; private set; }
+
         /// <summary> List of Ranks, indexed by their ID. </summary>
         public static Dictionary<string, Rank> RanksByID { get; private set; }
-        /// <summary> List of Ranks, using legacy format in order for backward compatibility. </summary>
-        public static Dictionary<string, string> LegacyRankMapping { get; private set; }
-        /// <summary> List of all Ranks </summary>
+
+        /// <summary> List of all Ranks, in no particular order. </summary>
         public static List<Rank> Ranks { get; private set; }
+
 
         /// <summary> Default Rank of a new user. </summary>
         public static Rank DefaultRank { get; set; }
@@ -36,7 +38,8 @@ namespace fCraft {
         /// <summary> The default minimum Rank required to build in newly created worlds. </summary>
         public static Rank DefaultBuildRank { get; set; }
 
-        /// TODO: Explain 
+        /// <summary> Rank used by BlockDB to determine whether it should be auto-enabled on a world or not.
+        /// Worlds where BuildSecurity.MinRank is equal or lower than this rank WILL have BlockDB auto-enabled. </summary>
         public static Rank BlockDBAutoEnableRank { get; set; }
 
 
@@ -48,14 +51,14 @@ namespace fCraft {
 
         /// <summary> Clears the list of ranks. </summary>
         internal static void Reset() {
-            if( PlayerDB.IsLoaded ) {
-                throw new InvalidOperationException( "You may not reset ranks after PlayerDB has already been loaded." );
-            }
+            CheckIfPlayerDBLoaded();
             RanksByName = new Dictionary<string, Rank>();
             RanksByFullName = new Dictionary<string, Rank>();
             RanksByID = new Dictionary<string, Rank>();
             Ranks = new List<Rank>();
             DefaultRank = null;
+            LowestRank = null;
+            HighestRank = null;
             PatrolledRank = null;
             DefaultBuildRank = null;
             BlockDBAutoEnableRank = null;
@@ -65,6 +68,8 @@ namespace fCraft {
         /// <summary> Adds a new rank to the list. Checks for duplicates. </summary>
         public static void AddRank( [NotNull] Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
+            CheckIfPlayerDBLoaded();
+
             if( PlayerDB.IsLoaded ) {
                 throw new InvalidOperationException( "You may not add ranks after PlayerDB has already been loaded." );
             }
@@ -137,9 +142,8 @@ namespace fCraft {
         public static bool DeleteRank( [NotNull] Rank deletedRank, [NotNull] Rank replacementRank ) {
             if( deletedRank == null ) throw new ArgumentNullException( "deletedRank" );
             if( replacementRank == null ) throw new ArgumentNullException( "replacementRank" );
-            if( PlayerDB.IsLoaded ) {
-                throw new InvalidOperationException( "You may not modify ranks after PlayerDB has been loaded." );
-            }
+            CheckIfPlayerDBLoaded();
+
             bool rankLimitsChanged = false;
             Ranks.Remove( deletedRank );
             RanksByName.Remove( deletedRank.Name.ToLower() );
@@ -202,17 +206,20 @@ namespace fCraft {
         public static void RenameRank( [NotNull] Rank rank, [NotNull] string newName ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             if( newName == null ) throw new ArgumentNullException( "newName" );
+            CheckIfPlayerDBLoaded();
             RanksByName.Remove( rank.Name.ToLower() );
             rank.Name = newName;
             rank.FullName = rank.Name + "#" + rank.ID;
             RanksByName.Add( rank.Name.ToLower(), rank );
         }
 
+
         /// <summary> Raises the index value of the specified Rank, and then lowers the rank that was previously in that position. </summary>
         /// <param name="rank"> Rank to raise. </param>
         /// <returns> Whether or not the Rank index was raised. </returns>
         public static bool RaiseRank( [NotNull] Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
+            CheckIfPlayerDBLoaded();
             if( rank == Ranks.First() ) {
                 return false;
             }
@@ -223,11 +230,13 @@ namespace fCraft {
             return true;
         }
 
+
         /// <summary> Lowers the index value of the specified Rank, and then raises the rank that was previously in that position. </summary>
         /// <param name="rank"> Rank to lower. </param>
-        /// <returns> Whether of not the Rank index was lowered. </returns>
+        /// <returns> True if the Rank index was lowered; false if it is already the lowest rank. </returns>
         public static bool LowerRank( [NotNull] Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
+            CheckIfPlayerDBLoaded();
             if( rank == Ranks.Last() ) {
                 return false;
             }
@@ -236,6 +245,13 @@ namespace fCraft {
             Ranks[rank.Index] = nextRankDown;
             RebuildIndex();
             return true;
+        }
+
+
+        static void CheckIfPlayerDBLoaded() {
+            if( PlayerDB.IsLoaded ) {
+                throw new InvalidOperationException( "You may not modify ranks after PlayerDB has been loaded." );
+            }
         }
 
 
