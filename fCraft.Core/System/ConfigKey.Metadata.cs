@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 namespace fCraft {
 
     /// <summary> Describes attributes and metadata of a configuration key. </summary>
-    /// TODO: Seal this possibly?
     [AttributeUsage( AttributeTargets.Field )]
     class ConfigKeyAttribute : DescriptionAttribute {
         protected ConfigKeyAttribute( ConfigSection section, [NotNull] Type valueType, object defaultValue, [NotNull] string description )
