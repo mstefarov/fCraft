@@ -1,4 +1,4 @@
-﻿// fCraft is Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+﻿// fCraft is Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 // Based on ZipStorer 2.35 (March 14, 2010), by Jaime Olivares: zipstorer.codeplex.com
 using System.Collections.Generic;
 using System.Text;
