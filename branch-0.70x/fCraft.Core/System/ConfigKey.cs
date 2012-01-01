@@ -186,9 +186,9 @@ from joining together.",
         MaxConnectionsPerIP,
 
         [BoolKey( ConfigSection.Security, false,
-@"Allow players from your local network (LAN) to connect without name verification.
-May be useful if minecraft.net is blocked on your LAN for some reason.
-Warning: Unverified players can log in with ANY name - even as you!" )]
+@"Allow players from your local network (LAN) to connect without name
+verification. May be useful if minecraft.net is blocked on your LAN for some
+reason. Warning: Unverified players can log in with ANY name - even as you!" )]
         AllowUnverifiedLAN,
 
         [RankKey( ConfigSection.Security, RankKeyAttribute.BlankValueMeaning.DefaultRank,
@@ -198,14 +198,14 @@ to other players to check on them, usually while hidden." )]
         PatrolledRank,
 
         [IntKey( ConfigSection.Security, 4,
-@"Number of messages that a player needs to type to trigger the AntiSpam warning.
-Set this to 0 to disable AntiSpam.",
+@"Number of messages that a player needs to type to trigger the AntiSpam
+warning. Set this to 0 to disable AntiSpam.",
             AlwaysAllowZero = true, MinValue = 2, MaxValue = 64 )]
         AntispamMessageCount,
 
         [IntKey( ConfigSection.Security, 5,
-@"Number of seconds over which the player needs to type messages to trigger AntiSpam warning.
-Set this to 0 to disable AntiSpam.",
+@"Number of seconds over which the player needs to type messages to trigger
+AntiSpam warning. Set this to 0 to disable AntiSpam.",
             AlwaysAllowZero = true, MinValue = 1, MaxValue = 64 )]
         AntispamInterval,
 
@@ -216,16 +216,18 @@ Set this to 0 to disable automatic mute (and only leave the warning).",
         AntispamMuteDuration,
 
         [IntKey( ConfigSection.Security, 2,
-@"Number of warnings given to a player (number of times AntiSpam is triggered)
-before the player is kicked. Set this to 0 to disable automatic kicks.",
-            AlwaysAllowZero = true, MinValue = 0, MaxValue = 64 )]
+@"Number of warnings given to a player (number of times that AntiSpam needs
+to be triggered) before the player is kicked. Set this to 0 to disable
+automatic spam kicks.",
+            MinValue = 0, MaxValue = 64 )]
         AntispamMaxWarnings,
 
 
         [BoolKey( ConfigSection.Security, false,
 @"Only allow players who have a paid Minecraft account (not recommended).
-This will help filter out griefers with throwaway accounts,
-but will also prevent many legitimate players from joining." )]
+This will help filter out griefers with throwaway accounts, but will also
+prevent many legitimate players from joining. No one will be able to join
+if Minecraft.net is down." )]
         PaidPlayersOnly,
 
 
@@ -255,16 +257,18 @@ but will also prevent many legitimate players from joining." )]
         AnnounceRankChangeReasons,
 
         [BoolKey( ConfigSection.Security, true,
-@"If enabled, allows edit information to be stored per-block. Enables /BlockDB, /BInfo, /UndoArea, and /UndoPlayer commands." )]
+@"If enabled, allows edit information to be stored per-block. Enables /BlockDB,
+/BInfo, /UndoArea, and /UndoPlayer commands." )]
         BlockDBEnabled,
 
         [BoolKey( ConfigSection.Security, true,
-@"Automatically enabled BlockDB on all worlds editable by a certain rank or below." )]
+@"Whether to automatically enable BlockDB on all worlds editable by a certain
+rank or below. Set BlockDBAutoEnableRank to configure that rank." )]
         BlockDBAutoEnable,
 
         [RankKey( ConfigSection.Security, RankKeyAttribute.BlankValueMeaning.DefaultRank,
-@"Worlds editable by players of this rank (or below) will have BlockDB enabled automatically.
-Has no effect until BlockDBAutoEnable key is set." )]
+@"Worlds editable by players of this rank (or below) will have BlockDB enabled
+automatically. Has no effect until BlockDBAutoEnable key is set." )]
         BlockDBAutoEnableRank,
 
         #endregion
@@ -273,19 +277,21 @@ Has no effect until BlockDBAutoEnable key is set." )]
         #region Saving and Backup
 
         [IntKey( ConfigSection.SavingAndBackup, 90,
-@"Whether to save maps (if modified) automatically once in a while.
-If disabled, maps are only saved when a world is unloaded or server is shut down.
-A higher setting (120+ seconds) is recommended for busy servers with many maps.",
+@"Whether to save maps (if modified) automatically once in a while. If disabled,
+maps are only saved when a world is unloaded or server is shut down. A higher
+setting (120+ seconds) is recommended for busy servers with many maps.
+Set to 0 to disable periodic saving (not recommended).",
             AlwaysAllowZero = true, MinValue = 10 )]
         SaveInterval,
 
         [BoolKey( ConfigSection.SavingAndBackup, false,
-@"Whether to create a backup of every map when the server starts." )]
+@"Whether to create a backup of every map when the server starts.
+This setting is currently not implemented." )] // TODO
         BackupOnStartup,
 
         [BoolKey( ConfigSection.SavingAndBackup, false,
-@"Create backups any time a player joins a map.
-Both a timestamp and player's name are included in the filename." )]
+@"Create backups any time a player joins a map. Both a timestamp and player's
+name will be included in the filename." )]
         BackupOnJoin,
 
         [BoolKey( ConfigSection.SavingAndBackup, true,
@@ -293,10 +299,10 @@ Both a timestamp and player's name are included in the filename." )]
         BackupOnlyWhenChanged,
 
         [IntKey( ConfigSection.SavingAndBackup, 20,
-@"Default interval for saving periodic map backups for loaded worlds.
-A world is considered ""loaded"" if there is at least one player on it.
-This setting can be overridden on a per-world basis.
-Set to 0 to disable periodic backups.",
+@"Default interval for saving periodic map backups for loaded worlds. A world is
+considered ""loaded"" if there is at least one player on it. This setting can
+be overridden on a per-world basis.
+Set to 0 to disable periodic backups by default.",
             MinValue = 0 )]
         DefaultBackupInterval,
 
@@ -333,9 +339,8 @@ If exceeded, oldest logs will be erased first. Set this to 0 to keep all logs.",
         #region IRC
 
         [BoolKey( ConfigSection.IRC, false,
-@"fCraft includes an IRC (Internet Relay Chat) client for
-relaying messages to and from any IRC network.
-Note that encrypted IRC (via SSL) is not supported." )]
+@"fCraft includes an IRC (Internet Relay Chat) client for relaying messages to
+and from any IRC network. Note that encrypted IRC (via SSL) is not supported." )]
         IRCBotEnabled,
 
         [StringKey( ConfigSection.IRC, "MinecraftBot",
@@ -354,8 +359,8 @@ an underscore (_) to the name and retry.",
         IRCBotPort,
 
         [StringKey( ConfigSection.IRC, "#changeme",
-@"Comma-separated list of channels to join. Channel names should include the hash (#).
-One some IRC networks, channel names are case-sensitive." )]
+@"Comma-separated list of channels to join. Channel names should include
+the hash (#). One some IRC networks, channel names are case-sensitive." )]
         IRCBotChannels,
 
         [BoolKey( ConfigSection.IRC, false,
@@ -456,8 +461,8 @@ relays the action back. This is not needed, and only wastes bandwidth." )]
 
         [BoolKey( ConfigSection.Advanced, false,
 @"Minecraft protocol specifies 4 different movement packet types.
-One of them sends absolute position, and other 3 send incremental relative positions.
-You may use this option to disable the relative updates." )]
+One of them sends absolute position, and other 3 send incremental relative
+positions. You may use this option to disable the relative updates." )]
         NoPartialPositionUpdates,
 
         [EnumKey( ConfigSection.Advanced, ProcessPriorityClass.Normal,
@@ -475,40 +480,41 @@ drawing commands (like cuboid).",
         BlockUpdateThrottling,
 
         [IntKey( ConfigSection.Advanced, 100,
-@"The rate at which fCraft applies block updates, in milliseconds. Lowering this will slightly
-reduce bandwidth and CPU use, but will add latency to block placement.",
+@"The rate at which fCraft applies block updates, in milliseconds.
+Lowering this will slightly reduce bandwidth and CPU use,
+but will add latency to block placement.",
             MinValue = 10, MaxValue = 10000 )]
         TickInterval,
 
         [BoolKey( ConfigSection.Advanced, false,
 @"This mode reduces movement and block-placement lag by up to 200ms,
 at the cost of vastly increased bandwidth use. It's only practical if
-you have a very fast connection with few players, or if your server is LAN-only.
-Note that this may make the lag **worse** for players with low-speed,
-low-bandwidth connections." )]
+you have a very fast connection with few players, or if your server
+is LAN-only. Note that this may make the lag **worse** for players with
+low-speed, low-bandwidth connections." )]
         LowLatencyMode,
 
         [IntKey( ConfigSection.Advanced, 2000000,
-@"The number of blocks that players can undo at a time.
-Only the most-recent draw command can be undo, so the actual
-limit also depends on rank draw limits. Saving undo information
-takes up 8 bytes per block. If set to 0, there is no limit.",
+@"The number of blocks (per /Undo state) that players can undo at a time.
+Saving undo information takes up 8 bytes per block. Set to 0 do remove
+the limit (Warning: May cause server to run out of memory).",
             MinValue = 0 )]
         MaxUndo,
 
         [IntKey( ConfigSection.Advanced, 5,
-@"The number of /undo states that players can go back.
+@"The number of /Undo states that players can go back.
 Each state increases the maximum potential memory use per-player.",
             MinValue = 1, MaxValue = 100 )]
         MaxUndoStates,
 
         [StringKey( ConfigSection.Advanced, "(console)",
-@"Displayed name of the Console pseudoplayer. You may use any printable characters, and even colorcodes here.",
+@"Displayed name of the Console pseudoplayer. You may use any printable
+characters, and even colorcodes here.",
             MinLength = 1, MaxLength = 64 )]
         ConsoleName,
 
         [BoolKey( ConfigSection.Advanced, false,
-@"Enable autorank (experimental, unsupported, use at your own risk)" )]
+@"Enable autorank (experimental, unsupported, use at your own risk)." )]
         AutoRankEnabled,
 
         [BoolKey( ConfigSection.Advanced, true,
@@ -517,11 +523,13 @@ If disabled, heartbeat data is written to heartbeatdata.txt." )]
         HeartbeatEnabled,
 
         [BoolKey( ConfigSection.Advanced, true,
-@"If enabled, sends heartbeats to WoM Direct service, http://direct.worldofminecraft.com/" )]
+@"If enabled, sends heartbeats to WoM Direct service.
+For more information, see http://direct.worldofminecraft.com/" )]
         HeartbeatToWoMDirect,
 
         [BoolKey( ConfigSection.Advanced, false,
-@"If enabled, allows changing worlds' environment settings for WoM clients via /Env" )]
+@"If enabled, allows changing worlds' environment settings with /Env command.
+Only works for players who are using World of Minecraft (WoM) clients." )]
         WoMEnableEnvExtensions,
 
         [IPKey( ConfigSection.Advanced, IPKeyAttribute.BlankValueMeaning.Any,
@@ -531,10 +539,10 @@ fCraft bind to the same IP every time." )]
         IP,
 
         [EnumKey( ConfigSection.Advanced, fCraft.BandwidthUseMode.Normal,
-@"Determines the bandwidth use mode.
-High/Highest settings will reduce jitter of player movement, but increase bandwidth use.
-Low/Lowest settings will introduce some popping in/out of players and increase jitter,
-but will reduce bandwidth use." )]
+@"Determines the bandwidth use mode. High/Highest settings will reduce jitter
+of player movement, but increase bandwidth use. Low/Lowest settings will
+introduce some popping in/out of players and increase jitter, but will reduce
+bandwidth use." )]
         BandwidthUseMode,
 
         [IntKey( ConfigSection.Advanced, 0,
