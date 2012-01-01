@@ -38,11 +38,20 @@ namespace fCraft {
 
         // networking
         static TcpListener listener;
+
+        /// <summary> IP that fCraft binds to to listen. It corresponds to ConfigKey.IP, and by default it's "0.0.0.0",
+        /// IP of the computer inside the internal network; private facing. </summary>
         public static IPAddress InternalIP { get; private set; }
+
+        /// <summary> resolved on startup by using checkip.dyndns.org,
+        /// IP of the network outside of the internal network; public facing. </summary>
         public static IPAddress ExternalIP { get; private set; }
 
+        /// <summary> Port that the server is listening on, always matches ConfigKey.Port. </summary>
         public static int Port { get; private set; }
 
+        /// <summary> The link used to connect, as reported by minecraft.net. </summary>
+        [CanBeNull]
         public static Uri Uri { get; internal set; }
 
 
@@ -100,6 +109,8 @@ namespace fCraft {
         // flags used to ensure proper initialization order
         static bool libraryInitialized,
                     serverInitialized;
+
+        /// <summary> Whether or not the server is currently running. </summary>
         public static bool IsRunning { get; private set; }
 
         /// <summary> Reads command-line switches and sets up paths and logging.
@@ -440,6 +451,8 @@ namespace fCraft {
         #region Shutdown
 
         static readonly object ShutdownLock = new object();
+
+        /// <summary> Whether or not the server is currently shutting down. </summary>
         public static bool IsShuttingDown;
         static readonly AutoResetEvent ShutdownWaiter = new AutoResetEvent( false );
         static Thread shutdownThread;
@@ -639,6 +652,8 @@ namespace fCraft {
         // checks for incoming connections
         static SchedulerTask checkConnectionsTask;
         static TimeSpan checkConnectionsInterval = TimeSpan.FromMilliseconds( 250 );
+
+        /// <summary> (UTC) Timespan that controls how long the server should wait between connection checks. </summary>
         public static TimeSpan CheckConnectionsInterval {
             get { return checkConnectionsInterval; }
             set {
@@ -664,6 +679,7 @@ namespace fCraft {
         // checks for idle players
         static SchedulerTask checkIdlesTask;
         static TimeSpan checkIdlesInterval = TimeSpan.FromSeconds( 30 );
+        /// <summary> (UTC) Timespan that contols how long the server should wait between idle player checks. </summary>
         public static TimeSpan CheckIdlesInterval {
             get { return checkIdlesInterval; }
             set {
@@ -694,6 +710,7 @@ namespace fCraft {
         // collects garbage (forced collection is necessary under Mono)
         static SchedulerTask gcTask;
         static TimeSpan gcInterval = TimeSpan.FromSeconds( 60 );
+        /// <summary> (UTC) Timespan that controls how long the server should wait between GarbageCollection calls. </summary>
         public static TimeSpan GCInterval {
             get { return gcInterval; }
             set {
@@ -736,9 +753,13 @@ namespace fCraft {
 
 
         // measures CPU usage
+        /// <summary> Whether or not the server is currently monitoring CPU usage. </summary>
         public static bool IsMonitoringCPUUsage { get; private set; }
         static TimeSpan cpuUsageStartingOffset;
+
+        /// <summary> Total CPU usage, as a fraction between 0 and 1. </summary>
         public static double CPUUsageTotal { get; private set; }
+        /// <summary> CPU usage in the last minute, as a fraction between 0 and 1. </summary>
         public static double CPUUsageLastMinute { get; private set; }
 
         static TimeSpan oldCPUTime = new TimeSpan( 0 );
@@ -763,11 +784,16 @@ namespace fCraft {
 
         static bool gcRequested;
 
+        /// <summary> Requests that the server initiate GarbageCollection. </summary>
         public static void RequestGC() {
             gcRequested = true;
         }
 
-
+        /// <summary> Verifies a players name, using playername, hash, and salt. </summary>
+        /// <param name="name"> Name of the player being verified. </param>
+        /// <param name="hash"> Hash associated with the player. </param>
+        /// <param name="salt"> Salt to use in hashing. </param>
+        /// <returns> Whether or not the player was verified. </returns>
         public static bool VerifyName( [NotNull] string name, [NotNull] string hash, [NotNull] string salt ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( hash == null ) throw new ArgumentNullException( "hash" );
@@ -783,7 +809,10 @@ namespace fCraft {
             return sb.ToString().Equals( hash, StringComparison.OrdinalIgnoreCase );
         }
 
-
+        /// <summary> Calculates the maximum number of packets that should be sent out per update, 
+        /// based on bandwith, and update throttling. </summary>
+        /// <param name="world"> World to calculate limit for. </param>
+        /// <returns> Maximum number of packets per update. </returns>
         public static int CalculateMaxPacketsPerUpdate( [NotNull] World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );
             int packetsPerTick = (int)(BlockUpdateThrottling / TicksPerSecond);
@@ -805,13 +834,18 @@ namespace fCraft {
 
         static readonly Regex RegexIP = new Regex( @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b",
                                                    RegexOptions.Compiled );
-
+        /// <summary> Checks to see if the specified IP, is a valid IPv4 address. </summary>
+        /// <param name="ipString"> IPv4 address to verify. </param>
+        /// <returns> Whether or not the IP is a valid IPv4 address. </returns>
         public static bool IsIP( [NotNull] string ipString ) {
             if( ipString == null ) throw new ArgumentNullException( "ipString" );
             return RegexIP.IsMatch( ipString );
         }
 
-
+        /// <summary> Replaces keywords in a message with their corresponding values. </summary>
+        /// <param name="player"> Player who is receiving this message. </param>
+        /// <param name="input"> String to replace keywords in. </param>
+        /// <returns></returns>
         public static string ReplaceTextKeywords( [NotNull] Player player, [NotNull] string input ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( input == null ) throw new ArgumentNullException( "input" );
@@ -833,7 +867,9 @@ namespace fCraft {
         }
 
 
-
+        /// <summary> Creates a random string with the specified number of characters. </summary>
+        /// <param name="chars"> Number of characters to generate. </param>
+        /// <returns> Randomly generated string with specified lenth. </returns>
         public static string GetRandomString( int chars ) {
             RandomNumberGenerator prng = RandomNumberGenerator.Create();
             StringBuilder sb = new StringBuilder();
@@ -881,10 +917,8 @@ namespace fCraft {
                 return null;
             }
         }
-
-
-        // Callback for setting the local IP binding. Implements System.Net.BindIPEndPoint delegate.
-        public static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
+ 
+        internal static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
             return new IPEndPoint( InternalIP, 0 );
         }
 
@@ -895,6 +929,7 @@ namespace fCraft {
 
         // list of registered players
         static readonly SortedDictionary<string, Player> PlayerIndex = new SortedDictionary<string, Player>();
+        /// <summary> List of currently registered players. </summary>
         public static Player[] Players { get; private set; }
         static readonly object PlayerListLock = new object();
 
@@ -967,6 +1002,11 @@ namespace fCraft {
         }
 
 
+        /// <summary> Creates a player has connected message. </summary>
+        /// <param name="player"> Connecting player. </param>
+        /// <param name="firstTime"> Whether or not this is the players first time connecting. </param>
+        /// <param name="world"> World the player is joining. </param>
+        /// <returns> Message to display to players in the server. </returns>
         public static string MakePlayerConnectedMessage( [NotNull] Player player, bool firstTime, [NotNull] World world ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( world == null ) throw new ArgumentNullException( "world" );
@@ -982,7 +1022,8 @@ namespace fCraft {
         }
 
 
-        // Removes player from the list, and announced them leaving
+        /// <summary> Removes player from the list or registered players, and announced them leaving </summary>
+        /// <param name="player"> Player who is leaving the server. </param>
         public static void UnregisterPlayer( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
@@ -1162,6 +1203,12 @@ namespace fCraft {
 
     /// <summary> Describes the circumstances of server shutdown. </summary>
     public sealed class ShutdownParams {
+
+        /// <summary> Sets the parameters of a server shutdown. </summary>
+        /// <param name="reason"> Reason for server shutdown. </param>
+        /// <param name="delay"> (UTC) Timespan on how long to wait before shutting down. </param>
+        /// <param name="killProcess"> whether fCraft should attempt to kill its own process after shutdown is complete. </param>
+        /// <param name="restart"> Whether or not to restart the server after this shutdown. </param>
         public ShutdownParams( ShutdownReason reason, TimeSpan delay, bool killProcess, bool restart ) {
             Reason = reason;
             Delay = delay;
@@ -1169,6 +1216,13 @@ namespace fCraft {
             Restart = restart;
         }
 
+        /// <summary> Sets the parameters of a server shutdown. </summary>
+        /// <param name="reason"> Reason for server shutdown. </param>
+        /// <param name="delay"> (UTC) Timespan on how long to wait before shutting down. </param>
+        /// <param name="killProcess"> whether fCraft should attempt to kill its own process after shutdown is complete. </param>
+        /// <param name="restart"> Whether or not to restart the server after this shutdown. </param>
+        /// <param name="customReason"> "Overriding reason why server is being shutdown. </param>
+        /// <param name="initiatedBy"> Player or entity who initiated the shutdown. </param>
         public ShutdownParams( ShutdownReason reason, TimeSpan delay, bool killProcess,
                                bool restart, [CanBeNull] string customReason, [CanBeNull] Player initiatedBy ) :
             this( reason, delay, killProcess, restart ) {
@@ -1176,9 +1230,12 @@ namespace fCraft {
             InitiatedBy = initiatedBy;
         }
 
+        /// <summary> Reason why the server is shutting down. </summary>
         public ShutdownReason Reason { get; private set; }
 
         readonly string customReasonString;
+
+        /// <summary> Reason why the server is shutting down, if customReasonString is not null it overrides. </summary>
         [NotNull]
         public string ReasonString {
             get {
@@ -1203,6 +1260,7 @@ namespace fCraft {
 
     /// <summary> Categorizes conditions that lead to server shutdowns. </summary>
     public enum ShutdownReason {
+        /// <summary> Cause of server shutdown is unknown. </summary>
         Unknown,
 
         /// <summary> Use for mod- or plugin-triggered shutdowns. </summary>
