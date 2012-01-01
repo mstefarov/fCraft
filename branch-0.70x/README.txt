@@ -181,7 +181,7 @@ and binaries are licensed and distributed under the permissive MIT License,
 reproduced here:
 
 ----
-Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

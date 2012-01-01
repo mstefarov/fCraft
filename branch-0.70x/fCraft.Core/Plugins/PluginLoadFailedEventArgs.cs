@@ -1,4 +1,4 @@
-﻿// fCraft is Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+﻿// fCraft is Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 // Plugin subsystem contributed by Jared Klopper (LgZ-optical).
 using System;
 

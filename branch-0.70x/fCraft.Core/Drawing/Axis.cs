@@ -1,4 +1,4 @@
-﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 
 namespace fCraft.Drawing {
     /// <summary> Axis used for drawing. X/Y are horizontal axes, and Z is vertical. </summary>
