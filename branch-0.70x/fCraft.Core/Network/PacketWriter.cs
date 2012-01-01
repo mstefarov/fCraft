@@ -6,14 +6,18 @@ using System.Text;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    // Protocol encoder for outgoing packets
+    /// <summary> Protocol encoder for outgoing packets. </summary>
     public sealed class PacketWriter : BinaryWriter {
 
+        /// <summary> Underlying stream used to write packets to. </summary>
+        /// <param name="stream"> Base stream to attach to. </param>
         public PacketWriter( Stream stream ) : base( stream ) { }
 
 
         #region Direct Writing
 
+        /// <summary> Writes the OpCode as a byte to the current stream. </summary>
+        /// <param name="opcode"> OpCode to write to stream. </param>
         public void Write( OpCode opcode ) {
             Write( (byte)opcode );
         }
@@ -41,14 +45,20 @@ namespace fCraft {
 
         #region Direct Writing Whole Packets
 
+        /// <summary> Writes a ping packet to the stream. </summary>
         public void WritePing() {
             Write( OpCode.Ping );
         }
 
+        /// <summary> Writes a MapBegin packet to the stream. </summary>
         public void WriteMapBegin() {
             Write( OpCode.MapBegin );
         }
 
+        /// <summary> Writes a MapChunk to the stream. </summary>
+        /// <param name="chunk"> GZipped map chunk. </param>
+        /// <param name="chunkSize"> Size of map chunk. </param>
+        /// <param name="progress"> Percent completion of download of map. </param>
         public void WriteMapChunk( [NotNull] byte[] chunk, int chunkSize, byte progress ) {
             if( chunk == null ) throw new ArgumentNullException( "chunk" );
             Write( OpCode.MapChunk );
@@ -65,6 +75,10 @@ namespace fCraft {
             Write( (short)map.Length );
         }
 
+        /// <summary> Writes an AddEntity packet to the stream. </summary>
+        /// <param name="id"> Entity ID. </param>
+        /// <param name="player"> Name of player. </param>
+        /// <param name="pos"> Position of entity. </param>
         public void WriteAddEntity( byte id, [NotNull] Player player, Position pos ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Write( OpCode.AddEntity );
@@ -77,6 +91,9 @@ namespace fCraft {
             Write( pos.L );
         }
 
+        /// <summary> Write a Teleport packet to the stream. </summary>
+        /// <param name="id"> ID of the entity to teleport. </param>
+        /// <param name="pos"> Position to teleport the entity to. </param>
         public void WriteTeleport( byte id, Position pos ) {
             Write( OpCode.Teleport );
             Write( id );

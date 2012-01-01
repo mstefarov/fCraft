@@ -912,7 +912,7 @@ namespace fCraft {
         #endregion
     }
 
-
+    #pragma warning disable 1591
     /// <summary> IRC protocol reply codes. </summary>
     public enum IRCReplyCode {
         Null = 000,
@@ -1055,8 +1055,8 @@ namespace fCraft {
         ErrorUserModeUnknownFlag = 501,
         ErrorUsersDoNotMatch = 502
     }
-
-
+    #pragma warning restore 1591
+    #pragma warning disable 1591
     /// <summary> IRC message types. </summary>
     public enum IRCMessageType {
         Ping,
@@ -1094,4 +1094,5 @@ namespace fCraft {
         ErrorMessage,
         Unknown
     }
+    #pragma warning restore 1591
 }
