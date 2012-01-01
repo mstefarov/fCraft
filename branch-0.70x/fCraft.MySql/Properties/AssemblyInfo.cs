@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle( "fCraft.MySql" )]
-[assembly: AssemblyDescription( "" )]
+[assembly: AssemblyDescription( "MySql components for fCraft" )]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany( "" )]
+[assembly: AssemblyCompany( "matvei.org" )]
 [assembly: AssemblyProduct( "fCraft.MySql" )]
-[assembly: AssemblyCopyright( "Copyright ©  2011" )]
+[assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2012 (matvei.org)" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 

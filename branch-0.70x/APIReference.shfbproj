@@ -31,11 +31,14 @@
     <CopyrightHref>http://www.fcraft.net</CopyrightHref>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="fCraft" isDocumented="True" xmlns="">fCraft's core functionality.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="fCraft.AutoRank" isDocumented="True" xmlns="">Experimental AutoRank functionality.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="fCraft.Drawing" isDocumented="True" xmlns="">Functionality related to draw commands, brushes, undo/redo, and copy/paste.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="fCraft.Events" isDocumented="True" xmlns="">Event delegates and data.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="fCraft.MapConversion" isDocumented="True" xmlns="">Functionality for importing and exporting map files, and working with NBT and INI files.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="JetBrains.Annotations" isDocumented="True" xmlns="">ReSharper annotations.</NamespaceSummaryItem></NamespaceSummaries>
+      <NamespaceSummaryItem name="fCraft.AutoRank" isDocumented="True" xmlns="">Experimental AutoRank functionality.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="fCraft.Drawing" isDocumented="True" xmlns="">Functionality related to draw commands, brushes, undo/redo, and copy/paste.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="fCraft.Events" isDocumented="True" xmlns="">Event delegates and data.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="fCraft.MapConversion" isDocumented="True" xmlns="">Functionality for importing and exporting map files, and working with NBT and INI files.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="JetBrains.Annotations" isDocumented="True" xmlns="">ReSharper annotations.</NamespaceSummaryItem>
+    </NamespaceSummaries>
+    <MissingTags>Summary, Parameter, AutoDocumentCtors, Namespace, TypeParameter, AutoDocumentDispose</MissingTags>
+    <KeepLogFile>False</KeepLogFile>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in
        order for Visual Studio to perform the build.  The others are optional

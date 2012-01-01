@@ -339,12 +339,12 @@ namespace fCraft {
             if( player.WorldMap.GetBlock( marks[0] ) == Block.Air ) {
                 player.Confirm( Fill2DConfirmCallback, op, "{0}: Replace air?", op.Description );
             } else {
-                Fill2DConfirmCallback( player, op, false );
+                Fill2DConfirmCallback( player, op );
             }
         }
 
 
-        static void Fill2DConfirmCallback( Player player, object tag, bool fromConsole ) {
+        static void Fill2DConfirmCallback( Player player, object tag ) {
             Fill2DDrawOperation op = (Fill2DDrawOperation)tag;
             player.Message( "{0}: Filling in a {1}x{1} area...",
                             op.Description, player.Info.Rank.FillLimit );
@@ -1562,7 +1562,7 @@ namespace fCraft {
         }
 
 
-        static void UndoAreaCountConfirmCallback( Player player, object tag, bool fromConsole ) {
+        static void UndoAreaCountConfirmCallback( Player player, object tag ) {
             UndoAreaCountArgs args = (UndoAreaCountArgs)tag;
             BlockDBEntry[] changes = args.World.BlockDB.Lookup( args.Target, args.Area, args.MaxBlocks );
 
@@ -1596,7 +1596,7 @@ namespace fCraft {
         }
 
 
-        static void UndoAreaTimeConfirmCallback( Player player, object tag, bool fromConsole ) {
+        static void UndoAreaTimeConfirmCallback( Player player, object tag ) {
             UndoAreaTimeArgs args = (UndoAreaTimeArgs)tag;
             BlockDBEntry[] changes = args.World.BlockDB.Lookup( args.Target, args.Area, args.Time );
 
