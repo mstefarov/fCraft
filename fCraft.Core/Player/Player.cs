@@ -44,6 +44,10 @@ namespace fCraft {
 
         #region Properties
 
+        /// <summary> Persistent information record associated with this player. </summary>
+        public PlayerInfo Info { get; private set; }
+
+
         /// <summary> Determines if this player is granted all permissions </summary>
         public readonly bool IsSuper;
 
@@ -67,8 +71,6 @@ namespace fCraft {
         /// <summary> Whether the player name was verified at login. </summary>
         public bool IsVerified { get; private set; }
 
-        /// <summary> Persistent information record associated with this player. </summary>
-        public PlayerInfo Info { get; private set; }
 
         /// <summary> Whether the player is in paint mode (deleting blocks replaces them). Used by /Paint. </summary>
         public bool IsPainting { get; set; }
@@ -171,6 +173,7 @@ namespace fCraft {
         static readonly TimeSpan ConfirmationTimeout = TimeSpan.FromSeconds( 60 );
 
         int muteWarnings;
+
         [CanBeNull]
         string partialMessage;
 
@@ -441,9 +444,11 @@ namespace fCraft {
             }
         }
 
+
         /// <summary> Sends a message to all players who are spectating this player, e.g. to forward typed-in commands and PMs. </summary>
         /// <param name="message"> Message to be displayed </param>
         /// <param name="args"> Additional arguments </param>
+        /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         public void SendToSpectators( [NotNull] string message, [NotNull] params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
@@ -455,7 +460,8 @@ namespace fCraft {
 
 
         const string WoMAlertPrefix = "^detail.user.alert=";
-        public void MessageAlt( [NotNull] string message ) {
+
+        public void MessageWoMAlert( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( this == Console ) {
                 Logger.LogToConsole( message );
@@ -470,16 +476,21 @@ namespace fCraft {
             }
         }
 
+
         // ReSharper disable MethodOverloadWithOptionalParameter
         [StringFormatMethod( "message" )]
-        public void MessageAlt( [NotNull] string message, [NotNull] params object[] args ) {
+        public void MessageWoMAlert( [NotNull] string message, [NotNull] params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
-            MessageAlt( String.Format( message, args ) );
+            MessageWoMAlert( String.Format( message, args ) );
         }
         // ReSharper restore MethodOverloadWithOptionalParameter
 
 
+        /// <summary> Sends a text message to this player.
+        /// If the message does not fit on one line, prefix ">" is prepended to wrapped line. </summary>
+        /// <param name="message"> Message to send. "System color" code ("&S") will be prepended. </param>
+        /// <exception cref="ArgumentNullException"> If message is null. </exception>
         public void Message( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( IsSuper ) {
@@ -492,14 +503,13 @@ namespace fCraft {
         }
 
 
-        [StringFormatMethod( "message" )]
-        public void Message( [NotNull] string message, [NotNull] object arg ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( arg == null ) throw new ArgumentNullException( "arg" );
-            Message( String.Format( message, arg ) );
-        }
-
         // ReSharper disable MethodOverloadWithOptionalParameter
+        /// <summary> Sends a text message to this player.
+        /// If the message does not fit on one line, prefix ">" is prepended to wrapped line. </summary>
+        /// <param name="message"> A composite format string for the message. "System color" code ("&S") will be prepended. </param>
+        /// <param name="args"> An object array that contains zero or more objects to format. </param>
+        /// <exception cref="ArgumentNullException"> If any of the method parameters are null. </exception>
+        /// <exception cref="FormatException"> If message format is invalid. </exception>
         [StringFormatMethod( "message" )]
         public void Message( [NotNull] string message, [NotNull] params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
@@ -509,6 +519,12 @@ namespace fCraft {
         // ReSharper restore MethodOverloadWithOptionalParameter
 
 
+        /// <summary> Sends a text message to this player, prefixing each line. </summary>
+        /// <param name="prefix"> Prefix to prepend to each wrapped line. Not prepended to the first line. </param>
+        /// <param name="message"> A composite format string for the message. "System color" code ("&S") will be prepended. </param>
+        /// <param name="args"> An object array that contains zero or more objects to format. </param>
+        /// <exception cref="ArgumentNullException"> If any of the method parameters are null. </exception>
+        /// <exception cref="FormatException"> If message format is invalid. </exception>
         [StringFormatMethod( "message" )]
         public void MessagePrefixed( [NotNull] string prefix, [NotNull] string message, [NotNull] params object[] args ) {
             if( prefix == null ) throw new ArgumentNullException( "prefix" );
@@ -539,7 +555,7 @@ namespace fCraft {
                 Logger.LogToConsole( message );
             } else {
                 if( Thread.CurrentThread != ioThread ) {
-                    throw new InvalidOperationException( "SendNow may only be called from player's own thread." );
+                    throw new InvalidOperationException( "MessageNow may only be called from player's own thread." );
                 }
                 foreach( Packet p in LineWrapper.Wrap( Color.Sys + message ) ) {
                     SendNow( p );
@@ -561,7 +577,7 @@ namespace fCraft {
                 Logger.LogToConsole( message );
             } else {
                 if( Thread.CurrentThread != ioThread ) {
-                    throw new InvalidOperationException( "SendNow may only be called from player's own thread." );
+                    throw new InvalidOperationException( "MessageNow may only be called from player's own thread." );
                 }
                 foreach( Packet p in LineWrapper.WrapPrefixed( prefix, message ) ) {
                     Send( p );
@@ -574,6 +590,7 @@ namespace fCraft {
 
         /// <summary> Prints "No players found matching ___" message. </summary>
         /// <param name="playerName"> Given name, for which no players were found. </param>
+        /// <exception cref="ArgumentNullException"> If playerName is null. </exception>
         public void MessageNoPlayer( [NotNull] string playerName ) {
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
             Message( "No players found matching \"{0}\"", playerName );
@@ -582,6 +599,7 @@ namespace fCraft {
 
         /// <summary> Prints "No worlds found matching ___" message. </summary>
         /// <param name="worldName"> Given name, for which no worlds were found. </param>
+        /// <exception cref="ArgumentNullException"> If worldName is null. </exception>
         public void MessageNoWorld( [NotNull] string worldName ) {
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
             Message( "No worlds found matching \"{0}\". See &H/Worlds", worldName );
@@ -592,7 +610,8 @@ namespace fCraft {
 
         /// <summary> Prints a comma-separated list of matches (up to 30): "More than one ___ matched: ___, ___, ..." </summary>
         /// <param name="itemType"> Type of item in the list. Should be singular (e.g. "player" or "world"). </param>
-        /// <param name="items"> List of items. ClassyName properties are used in the list. </param>
+        /// <param name="items"> List of zero or more matches. ClassyName properties are used in the list. </param>
+        /// <exception cref="ArgumentNullException"> If itemType or items is null. </exception>
         public void MessageManyMatches( [NotNull] string itemType, [NotNull] IEnumerable<IClassy> items ) {
             if( itemType == null ) throw new ArgumentNullException( "itemType" );
             if( items == null ) throw new ArgumentNullException( "items" );
@@ -611,6 +630,7 @@ namespace fCraft {
 
         /// <summary> Prints "This command requires ___+ rank" message. </summary>
         /// <param name="permissions"> List of permissions required for the command. </param>
+        /// <exception cref="ArgumentNullException"> If permissions is null. </exception>
         public void MessageNoAccess( [NotNull] params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
             Rank reqRank = RankManager.GetMinRankWithAllPermissions( permissions );
@@ -624,14 +644,22 @@ namespace fCraft {
 
 
         /// <summary> Prints "This command requires ___+ rank" message. </summary>
+        /// <param name="cmd"> Command to check. </param>
+        /// <exception cref="ArgumentNullException"> If cmd is null. </exception>
         public void MessageNoAccess( [NotNull] CommandDescriptor cmd ) {
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             Rank reqRank = cmd.MinRank;
             if( reqRank == null ) {
-                Message( "This command is disabled on the server." );
+                if( cmd.IsConsoleSafe ) {
+                    Message( "\"{0}\" command is only allowed to be called from console on the server.",
+                             cmd.Name );
+                } else {
+                    Message( "\"{0}\" command is disabled on the server.",
+                             cmd.Name );
+                }
             } else {
-                Message( "This command requires {0}+&S rank.",
-                         reqRank.ClassyName );
+                Message( "\"{0}\" command requires {1}+&S rank.",
+                         cmd.Name, reqRank.ClassyName );
             }
         }
 
@@ -658,10 +686,10 @@ namespace fCraft {
         }
 
 
-        /// <summary> Prints "Unacceptible world name" message, and requirements for world names. </summary>
+        /// <summary> Prints "Unacceptable world name" message, and requirements for world names. </summary>
         /// <param name="worldName"> Given world name, deemed to be invalid. </param>
         public void MessageInvalidWorldName( [NotNull] string worldName ) {
-            Message( "Unacceptible world name: \"{0}\"", worldName );
+            Message( "Unacceptable world name: \"{0}\"", worldName );
             Message( "World names must be 1-16 characters long, and only contain letters, numbers, and underscores." );
         }
 
@@ -1182,7 +1210,7 @@ namespace fCraft {
             return other == this ||
                    IsSuper ||
                    !other.Info.IsHidden ||
-                   Info.Rank.CanSee( other.Info.Rank );
+                   Info.Rank.CanSeeHidden( other.Info.Rank );
         }
 
 
@@ -1195,7 +1223,7 @@ namespace fCraft {
             return other == this ||
                    IsSuper ||
                    other.spectatedPlayer == null && !other.Info.IsHidden ||
-                   ( other.spectatedPlayer != this && Info.Rank.CanSee( other.Info.Rank ) );
+                   ( other.spectatedPlayer != this && Info.Rank.CanSeeHidden( other.Info.Rank ) );
         }
 
 

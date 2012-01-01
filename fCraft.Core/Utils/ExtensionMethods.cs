@@ -312,8 +312,13 @@ namespace fCraft {
 
 
     public static class EnumerableUtil {
-        /// <summary> Joins all items in a collection into one comma-separated string.
-        /// If the items are not strings, .ToString() is called on them. </summary>
+
+        /// <summary> Joins all items in a collection into one string separated with commas and spaces (", "). </summary>
+        /// <param name="items"> Sequence of items to join. ToString() is called on each item. </param>
+        /// <typeparam name="T"> Type of items. </typeparam>
+        /// <returns> A string containing all the items, or an empty string if items was empty. </returns>
+        /// <exception cref="ArgumentNullException"> If items is null. </exception>
+        [NotNull]
         public static string JoinToString<T>( [NotNull] this IEnumerable<T> items ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             StringBuilder sb = new StringBuilder();
@@ -327,8 +332,13 @@ namespace fCraft {
         }
 
 
-        /// <summary> Joins all items in a collection into one string separated with the given separator.
-        /// If the items are not strings, .ToString() is called on them. </summary>
+        /// <summary> Joins all items in a collection into one string separated with the given separator. </summary>
+        /// <param name="items"> Sequence of items to join. ToString() is called on each item. </param>
+        /// <param name="separator"> Separator/delimeter (string to insert between items). </param>
+        /// <typeparam name="T"> Type of items. </typeparam>
+        /// <returns> A string containing all the items, or an empty string if items was empty. </returns>
+        /// <exception cref="ArgumentNullException"> If items or separator is null. </exception>
+        [NotNull]
         public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] string separator ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             if( separator == null ) throw new ArgumentNullException( "separator" );
@@ -343,8 +353,14 @@ namespace fCraft {
         }
 
 
-        /// <summary> Joins all items in a collection into one string separated with the given separator.
+        /// <summary> Joins all items in a collection into one string separated with commas and spaces (", ").
         /// A specified string conversion function is called on each item before contactenation. </summary>
+        /// <param name="items"> Sequence of items to join. </param>
+        /// <param name="stringConversionFunction"> Function that converts each item to a string representation. </param>
+        /// <typeparam name="T"> Type of items. </typeparam>
+        /// <returns> A string containing all the items, or an empty string if items was empty. </returns>
+        /// <exception cref="ArgumentNullException"> If items or stringConversionFunction is null. </exception>
+        [NotNull]
         public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] Func<T, string> stringConversionFunction ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             if( stringConversionFunction == null ) throw new ArgumentNullException( "stringConversionFunction" );
@@ -361,6 +377,13 @@ namespace fCraft {
 
         /// <summary> Joins all items in a collection into one string separated with the given separator.
         /// A specified string conversion function is called on each item before contactenation. </summary>
+        /// <param name="items"> Sequence of items to join. </param>
+        /// <param name="separator"> Separator/delimeter (string to insert between items). </param>
+        /// <param name="stringConversionFunction"> Function that converts each item to a string representation. </param>
+        /// <typeparam name="T"> Type of items. </typeparam>
+        /// <returns> A string containing all the items, or an empty string if items was empty. </returns>
+        /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
+        [NotNull]
         public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] string separator, [NotNull] Func<T, string> stringConversionFunction ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             if( separator == null ) throw new ArgumentNullException( "separator" );
@@ -375,14 +398,25 @@ namespace fCraft {
             return sb.ToString();
         }
 
-
-        /// <summary> Joins formatted names of all IClassy objects in a collection into one string separated by spaces. </summary>
+        
+        /// <summary> Joins formatted names of all IClassy objects in a collection into one string,
+        /// with items separated by two spaces. </summary>
+        /// <param name="items"> Sequence of items to join. ClassyName property of each object is used. </param>
+        /// <returns> A string containing all the items, or an empty string if items was empty. </returns>
+        /// <exception cref="ArgumentNullException"> If items is null. </exception>
+        [NotNull]
         public static string JoinToClassyString( [NotNull] this IEnumerable<IClassy> items ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             return items.JoinToString( "  ", p => p.ClassyName );
         }
 
+
         /// <summary> Joins formatted names of all IClassy objects in a collection into one string with a custom separator. </summary>
+        /// <param name="items"> Sequence of items to join. ClassyName property of each object is used. </param>
+        /// <param name="separator"> Separator/delimeter (string to insert between items). </param>
+        /// <returns> A string containing all the items, or an empty string if items was empty. </returns>
+        /// <exception cref="ArgumentNullException"> If items or separator is null. </exception>
+        [NotNull]
         public static string JoinToClassyString( [NotNull] this IEnumerable<IClassy> items, [NotNull] string separator ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             if( separator == null ) throw new ArgumentNullException( "separator" );
@@ -451,6 +485,7 @@ namespace fCraft {
             return builder;
         }
 
+
         // Quicker Int32.Parse(string) by Karl Seguin
         public static int Parse( [NotNull] string stringToConvert ) {
             if( stringToConvert == null ) throw new ArgumentNullException( "stringToConvert" );
@@ -463,6 +498,7 @@ namespace fCraft {
             }
             return value;
         }
+
 
         // UppercaseFirst by Sam Allen of http://www.dotnetperls.com
         public static string UppercaseFirst( this string s ) {
@@ -478,7 +514,6 @@ namespace fCraft {
 
     /// <summary> Provides utility methods for working with byte arrays and pointers. </summary>
     public unsafe static class BufferUtil {
-
         /// <summary> Efficiently sets all bytes in the given array to a specified value. </summary>
         /// <param name="array"> Byte array to fill. </param>
         /// <param name="value"> Value to assign to every byte in the array. </param>
@@ -504,7 +539,6 @@ namespace fCraft {
                 }
             }
         }
-
 
 
         /// <summary> Efficiently sets all bytes in a segment of the given byte array to a specified value. </summary>
@@ -540,8 +574,6 @@ namespace fCraft {
                 }
             }
         }
-
-
 
 
         /// <summary> Efficiently copies raw memory contents from source byte pointer to destination byte pointer. </summary>
@@ -589,7 +621,6 @@ namespace fCraft {
                 }
             }
         }
-
 
 
         /// <summary> Checks whether the sequence of bytes in data at the given offset matches the sequence of ASCII characters in value.

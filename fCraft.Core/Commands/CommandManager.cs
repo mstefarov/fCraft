@@ -212,7 +212,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Checks whether a command name is acceptible.
+        /// <summary> Checks whether a command name is acceptable.
         /// Constraints are similar to Player.IsValidName, except for minimum length. </summary>
         /// <param name="name"> Command name to check. </param>
         /// <returns> True if the name is valid. </returns>

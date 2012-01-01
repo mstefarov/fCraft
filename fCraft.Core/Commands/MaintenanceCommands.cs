@@ -687,7 +687,7 @@ namespace fCraft {
                                     "Original promotion/demotion reason is preserved in the logs." },
                 { "timeskicked",    "&H/SetInfo <PlayerName> TimesKicked <#>\n&S" +
                                     "Changes the number of times that a player has been kicked. "+
-                                    "Acceptible value range: 0-9999" },
+                                    "Acceptable value range: 0-9999" },
                 { "totaltime",      "&H/SetInfo <PlayerName> TotalTime <Time>\n&S" +
                                     "Changes the amount of game time that the player has on record. " +
                                     "Accepts values in the common compact time-span format." },
@@ -723,7 +723,7 @@ namespace fCraft {
                                         info.TimesKicked );
                         break;
                     } else {
-                        player.Message( "SetInfo: TimesKicked value acceptible (Acceptible value range: 0-9999)" );
+                        player.Message( "SetInfo: TimesKicked value out of range (Acceptable value range: 0-9999)" );
                         return;
                     }
 

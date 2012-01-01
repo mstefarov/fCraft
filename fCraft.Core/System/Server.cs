@@ -365,10 +365,10 @@ namespace fCraft {
 
             if( ExternalIP == null ) {
                 Logger.Log( LogType.SystemActivity,
-                            "Server.Run: now accepting connections on port {0}", Port );
+                            "Server.Run: Now accepting connections on port {0}", Port );
             } else {
                 Logger.Log( LogType.SystemActivity,
-                            "Server.Run: now accepting connections at {0}:{1}",
+                            "Server.Run: Now accepting connections at {0}:{1}",
                             ExternalIP, Port );
             }
 
