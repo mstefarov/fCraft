@@ -12,6 +12,7 @@ namespace fCraft {
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        /// <exception cref="ArgumentNullException"> If player or rawMessage is null. </exception>
         [PublicAPI]
         public static bool SendGlobal( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -41,6 +42,7 @@ namespace fCraft {
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        /// <exception cref="ArgumentNullException"> If player or rawMessage is null. </exception>
         [PublicAPI]
         public static bool SendWorld( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -75,6 +77,7 @@ namespace fCraft {
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        /// <exception cref="ArgumentNullException"> If player or rawMessage is null. </exception>
         [PublicAPI]
         public static bool SendMe( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -105,6 +108,7 @@ namespace fCraft {
         /// <param name="to"> Recepient player. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        /// <exception cref="ArgumentNullException"> If from-player, to-player, or rawMessage is null. </exception>
         [PublicAPI]
         public static bool SendPM( [NotNull] Player from, [NotNull] Player to, [NotNull] string rawMessage ) {
             if( from == null ) throw new ArgumentNullException( "from" );
@@ -135,6 +139,7 @@ namespace fCraft {
         /// <param name="rank"> Target rank. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        /// <exception cref="ArgumentNullException"> If player, rank, or rawMessage is null. </exception>
         [PublicAPI]
         public static bool SendRank( [NotNull] Player player, [NotNull] Rank rank, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -167,6 +172,7 @@ namespace fCraft {
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        /// <exception cref="ArgumentNullException"> If player or rawMessage is null. </exception>
         [PublicAPI]
         public static bool SendSay( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -194,6 +200,7 @@ namespace fCraft {
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        /// <exception cref="ArgumentNullException"> If player or rawMessage is null. </exception>
         [PublicAPI]
         public static bool SendStaff( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -239,15 +246,17 @@ namespace fCraft {
 
 
         /// <summary> Checks for unprintable or illegal characters in a message. </summary>
-        /// <param name="message"> Message to check. </param>
+        /// <param name="message"> Message to check. May not be null. </param>
         /// <returns> True if message contains invalid chars. False if message is clean. </returns>
-        public static bool ContainsInvalidChars( IEnumerable<char> message ) {
+        /// <exception cref="ArgumentNullException"> If message is null. </exception>
+        public static bool ContainsInvalidChars( [NotNull] IEnumerable<char> message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
             return message.Any( t => t < ' ' || t == '&' || t > '~' );
         }
 
 
         /// <summary> Determines the type of player-supplies message based on its syntax. </summary>
-        internal static RawMessageType GetRawMessageType( string message ) {
+        internal static RawMessageType GetRawMessageType( [CanBeNull] string message ) {
             if( string.IsNullOrEmpty( message ) ) return RawMessageType.Invalid;
             if( message == "/" ) return RawMessageType.RepeatCommand;
             if( message.Equals( "/ok", StringComparison.OrdinalIgnoreCase ) ) return RawMessageType.Confirmation;
@@ -303,8 +312,13 @@ namespace fCraft {
         }
 
 
+
         /// <summary> Replaces leading "//" with "/". </summary>
-        public static string UnescapeLeadingSlashes( string rawMessage ) {
+        /// <param name="rawMessage"> Message to unescape. </param>
+        /// <returns> Unescaped message. </returns>
+        /// <exception cref="ArgumentNullException"> If rawMessage is null. </exception>
+        public static string UnescapeLeadingSlashes( [NotNull] string rawMessage ) {
+            if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
             if( rawMessage.StartsWith( "//" ) ) {
                 rawMessage = rawMessage.Substring( 1 );
             }
@@ -312,8 +326,13 @@ namespace fCraft {
         }
 
 
+
         /// <summary> Replaces trailing "//" with "/". </summary>
-        public static string UnescapeTrailingSlashes( string rawMessage ) {
+        /// <param name="rawMessage"> Message to escape. </param>
+        /// <returns> Escaped message. </returns>
+        /// <exception cref="ArgumentNullException"> If rawMessage is null. </exception>
+        public static string UnescapeTrailingSlashes( [NotNull] string rawMessage ) {
+            if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
             if( rawMessage.EndsWith( "//" ) ) {
                 rawMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
             }

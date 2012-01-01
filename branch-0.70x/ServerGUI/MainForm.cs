@@ -218,7 +218,7 @@ namespace fCraft.ServerGUI {
                     } else if( line.Equals( "/credits", StringComparison.OrdinalIgnoreCase ) ) {
                         new AboutWindow().Show();
                     } else {
-                        Player.Console.ParseMessage( line, true );
+                        Player.Console.ParseMessage( line );
                     }
 #if !DEBUG
                 } catch( Exception ex ) {

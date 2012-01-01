@@ -153,12 +153,18 @@ namespace fCraft {
         #endregion
 
 
-        // This constructor is used to create pseudoplayers (such as Console and /dummy).
-        // Such players have unlimited permissions, but no world.
-        // This should be replaced by a more generic solution, like an IEntity interface.
-        internal Player( ReservedPlayerID id, [NotNull] string name, [NotNull] Rank rank ) {
+        // TODO: This should be replaced by a more generic solution, like an IEntity interface.
+        /// <summary> This constructor is used to create pseudoplayers (such as Console and /dummy).
+        /// Such players have unlimited permissions, but no world. </summary>
+        /// <param name="id"> Assigned ID. Must be between 0 and 255. </param>
+        /// <param name="name"> Player name. May not be empty null. </param>
+        /// <param name="rank"> Rank to assign. May not be null. </param>
+        /// <exception cref="ArgumentNullException"> If name or rank is null. </exception>
+        /// <exception cref="ArgumentException"> If name is an empty string. </exception>
+        public Player( ReservedPlayerID id, [NotNull] string name, [NotNull] Rank rank ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( rank == null ) throw new ArgumentNullException( "rank" );
+            if( name.Length == 0 ) throw new ArgumentException( "Name must be at least 1 character long", "name" );
             Info = PlayerDB.AddSuperPlayer( id, name, rank );
             spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
             IP = IPAddress.None;
@@ -177,9 +183,13 @@ namespace fCraft {
         [CanBeNull]
         string partialMessage;
 
-        // Parses message incoming from the player
-        public void ParseMessage( [NotNull] string rawMessage, bool fromConsole ) {
+
+        /// <summary> Parses a message on behalf of this player. </summary>
+        /// <param name="rawMessage"> Message to parse. </param>
+        /// <exception cref="ArgumentNullException"> If rawMessage is null. </exception>
+        public void ParseMessage( [NotNull] string rawMessage ) {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
+            bool fromConsole = ( this == Console );
 
             // handle canceling selections and partial messages
             if( rawMessage.StartsWith( "/nvm", StringComparison.OrdinalIgnoreCase ) ||
@@ -461,6 +471,11 @@ namespace fCraft {
 
         const string WoMAlertPrefix = "^detail.user.alert=";
 
+        /// <summary> Sends a message as a WoM alert.
+        /// Players who use World of Minecraft client will see this message on the left side of the screen.
+        /// Other players will receive it as a normal message. </summary>
+        /// <param name="message"> Message to send. "System color" code ("&S") will be prepended. </param>
+        /// <exception cref="ArgumentNullException"> If message is null. </exception>
         public void MessageWoMAlert( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( this == Console ) {
@@ -478,6 +493,13 @@ namespace fCraft {
 
 
         // ReSharper disable MethodOverloadWithOptionalParameter
+        /// <summary> Sends a message as a WoM alert.
+        /// Players who use World of Minecraft client will see this message on the left side of the screen.
+        /// Other players will receive it as a normal message. </summary>
+        /// <param name="message"> A composite format string for the message. "System color" code ("&S") will be prepended. </param>
+        /// <param name="args"> An object array that contains zero or more objects to format. </param>
+        /// <exception cref="ArgumentNullException"> If message is null. </exception>
+        /// <exception cref="FormatException"> If message format is invalid. </exception>
         [StringFormatMethod( "message" )]
         public void MessageWoMAlert( [NotNull] string message, [NotNull] params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );

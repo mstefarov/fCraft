@@ -805,7 +805,7 @@ namespace fCraft {
                     if( worlds.Length == 1 ) {
                         player.LastUsedWorldName = worlds[0].Name;
                         player.StopSpectating();
-                        player.ParseMessage( "/Join " + worlds[0].Name, false );
+                        player.ParseMessage( "/Join " + worlds[0].Name );
                     } else {
                         player.MessageNoPlayer( name );
                     }
