@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> IP ban record. </summary>
     public sealed class IPBanInfo {
+        /// <summary> Number of fiels in IPBanInfo, used for saving to database. </summary>
         public const int FieldCount = 8;
 
         /// <summary> Banned IP address. </summary>
@@ -156,25 +157,30 @@ namespace fCraft {
 
         #region Shortcuts
 
+        /// <summary> Name of the player or entity who banned this player. </summary>
         [NotNull]
         public string BannedByClassy {
             get { return PlayerDB.FindExactClassyName( BannedBy ); }
         }
 
+        /// <summary> Name of the player associted with this IP (if given at the time of banning). May be null. </summary>
         [NotNull]
         public string PlayerNameClassy {
             get { return PlayerDB.FindExactClassyName( PlayerName ); }
         }
 
+        /// <summary> Gets the Classy name of the player who last attempted to login with this banned IP. </summary>
         [NotNull]
         public string LastAttemptNameClassy {
             get { return PlayerDB.FindExactClassyName( LastAttemptName ); }
         }
 
+        /// <summary> Gets the Date/Time (UTC) since the ban was issued. </summary>
         public TimeSpan TimeSinceBan {
             get { return DateTime.UtcNow.Subtract( BanDate ); }
         }
 
+        /// <summary> Gets the Date/Time (UTC) since the last login attempt. </summary>
         public TimeSpan TimeSinceLastAttempt {
             get { return DateTime.UtcNow.Subtract( LastAttemptDate ); }
         }

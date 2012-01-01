@@ -11,6 +11,7 @@ namespace fCraft {
     /// <summary> Static class with definitions of Minecraft color codes,
     /// parsers, converters, and utilities. </summary>
     public static class Color {
+        #pragma warning disable 1591
         public const string Black = "&0",
                             Navy = "&1",
                             Green = "&2",
@@ -27,6 +28,7 @@ namespace fCraft {
                             Magenta = "&d",
                             Yellow = "&e",
                             White = "&f";
+        #pragma warning restore 1591
 
         // User-defined color assignments. Set by Config.ApplyConfig.
         public static string Sys, Help, Say, Announcement, PM, IRC, Me, Warning;

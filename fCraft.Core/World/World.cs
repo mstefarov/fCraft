@@ -9,7 +9,7 @@ using fCraft.MapConversion;
 using JetBrains.Annotations;
 
 namespace fCraft {
-
+    /// <summary> World instance </summary>
     public sealed class World : IClassy {
         /// <summary> World name (no formatting). Use WorldManager.RenameWorld() method to change this. </summary>
         [NotNull]
