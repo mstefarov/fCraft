@@ -130,13 +130,15 @@ namespace fCraft {
 
         /// <summary> Starts this timer with the specified duration, and end message. </summary>
         /// <param name="duration"> Amount of time the timer should run before completion. </param>
-        /// <param name="message"> Message to display when timer reaches zero. </param>
-        /// <param name="startedBy"> Name of player who started timer</param>
-        /// <returns> Created timer</returns>
+        /// <param name="message"> Message to display when timer reaches zero. May be null. </param>
+        /// <param name="startedBy"> Name of player who started timer. May not be null. </param>
+        /// <returns> Newly-created, and already-started timer. </returns>
+        /// <exception cref="ArgumentNullException"> If startedBy is null. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> If duration is less than one second. </exception>
         public static ChatTimer Start( TimeSpan duration, [CanBeNull] string message, [NotNull] string startedBy ) {
             if( startedBy == null ) throw new ArgumentNullException( "startedBy" );
             if( duration < MinDuration ) {
-                throw new ArgumentException( "Timer duration should be at least 1s", "duration" );
+                throw new ArgumentOutOfRangeException( "duration", "Timer duration should be at least 1s" );
             }
             return new ChatTimer( duration, message, startedBy );
         }

@@ -44,11 +44,8 @@ namespace fCraft {
         }
 
 
-        /// <summary> Adds a new PlayerInfo entry for an all-powerful pseudo-player entity.
-        /// Used for Player.Console and Player.AutoRank. </summary>
-        /// <returns> A newly-created PlayerInfo entry. </returns>
         [NotNull]
-        public static PlayerInfo AddSuperPlayer( ReservedPlayerID id, [NotNull] string name, [NotNull] Rank rank ) {
+        internal static PlayerInfo AddSuperPlayer( ReservedPlayerID id, [NotNull] string name, [NotNull] Rank rank ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             CheckIfLoaded();
             PlayerInfo newInfo = new PlayerInfo( (int)id, name, rank, RankChangeType.AutoPromoted, true ) {

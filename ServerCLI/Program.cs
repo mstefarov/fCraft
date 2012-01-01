@@ -70,7 +70,7 @@ namespace fCraft.ServerCLI {
                             Console.Clear();
                         } else {
                             try {
-                                Player.Console.ParseMessage( cmd, true );
+                                Player.Console.ParseMessage( cmd );
                             } catch( Exception ex ) {
                                 Logger.LogAndReportCrash( "Error while executing a command from console", "ServerCLI", ex, false );
                             }

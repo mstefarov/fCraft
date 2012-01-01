@@ -1032,7 +1032,7 @@ namespace fCraft {
                 if( players.Length == 1 ) {
                     player.LastUsedPlayerName = players[0].Name;
                     player.StopSpectating();
-                    player.ParseMessage( "/TP " + players[0].Name, false );
+                    player.ParseMessage( "/TP " + players[0].Name );
                 } else {
                     player.MessageNoWorld( worldName );
                 }
