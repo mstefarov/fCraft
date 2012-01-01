@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Compression;
 
 namespace fCraft.MapConversion {
+    /// <summary> NBT map conversion implementation, for converting NBT map format into fCraft's default map format. </summary>
     public sealed class MapNBT : IMapConverter {
 
         public string ServerName {

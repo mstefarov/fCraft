@@ -6,6 +6,7 @@ using System.Net;
 using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
+    /// <summary> Myne map conversion implementation, for converting Myne map format into fCraft's default map format. </summary>
     public sealed class MapMyne : IMapConverter {
 
         const string BlockStoreFileName = "blocks.gz";

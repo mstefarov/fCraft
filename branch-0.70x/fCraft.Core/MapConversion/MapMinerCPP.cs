@@ -7,6 +7,7 @@ using System.Net;
 using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
+    /// <summary> MinerCPP/LuaCraft map conversion implementation, for converting MinerCPP/LuaCraft map format into fCraft's default map format. </summary>
     public sealed class MapMinerCPP : IMapConverter {
 
         public string ServerName {
