@@ -17,7 +17,10 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Represents a connection to a Minecraft client. Handles low-level interactions (e.g. networking). </summary>
     public sealed partial class Player {
+
+        /// <summary> Amount of time in seconds before a connection is considered dead (TimedOut). </summary>
         public static int SocketTimeout { get; set; }
+        /// <summary> Whether or not all block update packets should be sent regardless of if they require updating. </summary>
         public static bool RelayAllUpdates { get; set; }
         const int SleepDelay = 5; // milliseconds
         const int SocketPollInterval = 200; // multiples of SleepDelay, approx. 1 second
@@ -30,7 +33,7 @@ namespace fCraft {
             SocketTimeout = 10000;
         }
 
-
+        /// <summary> Reason why the player has left the server. </summary>
         public LeaveReason LeaveReason { get; private set; }
 
         /// <summary> IP Address from which this player is currently connected.
@@ -863,6 +866,9 @@ namespace fCraft {
         Position postJoinPosition;
         bool useWorldSpawn;
 
+        /// <summary> Causes a player to join the specified world, with the specified reason, at Position.Zero. </summary>
+        /// <param name="newWorld"> World for this player to join. </param>
+        /// <param name="reason"> Reason why the player is joining this world. </param>
         public void JoinWorld( [NotNull] World newWorld, WorldChangeReason reason ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             lock( joinWorldLock ) {
@@ -873,7 +879,10 @@ namespace fCraft {
             }
         }
 
-
+        /// <summary> Causes a player to join the specified world, with the specified reason, at the specified location. </summary>
+        /// <param name="newWorld"> World for this player to join. </param>
+        /// <param name="reason"> Reason why this player is joining this world. </param>
+        /// <param name="position"> Position in the world that the player is joining. </param>
         public void JoinWorld( [NotNull] World newWorld, WorldChangeReason reason, Position position ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             if( !Enum.IsDefined( typeof( WorldChangeReason ), reason ) ) {
@@ -1066,12 +1075,12 @@ namespace fCraft {
             return Encoding.ASCII.GetString( reader.ReadBytes( 64 ) ).TrimEnd();
         }
 
-
+        /// <summary> Clears the low priority player queue. </summary>
         public void ClearLowPriotityOutputQueue() {
             outputQueue.Clear();
         }
 
-
+        /// <summary> Clears the priority player queue. </summary>
         public void ClearPriorityOutputQueue() {
             priorityOutputQueue.Clear();
         }
@@ -1147,7 +1156,9 @@ namespace fCraft {
 
         // movement optimization
         int fullUpdateCounter;
+        /// <summary> Default amount of PartialPositionUpdates between a full position update. </summary>
         public const int FullPositionUpdateIntervalDefault = 20;
+        /// <summary> Default amount of PartialPositionUpdates between a full position update. </summary>
         public static int FullPositionUpdateInterval = FullPositionUpdateIntervalDefault;
         const int SkipMovementThresholdSquared = 64,
                   SkipRotationThresholdSquared = 1500;
@@ -1431,7 +1442,7 @@ namespace fCraft {
         DateTime lastMovementUpdate;
         TimeSpan movementUpdateInterval;
 
-
+        /// <summary> The current bandwith settings, used for packet/update throttling. </summary>
         public BandwidthUseMode BandwidthUseMode {
             get {
                 return bandwidthUseMode;
