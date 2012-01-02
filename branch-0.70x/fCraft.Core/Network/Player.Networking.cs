@@ -18,10 +18,13 @@ namespace fCraft {
     /// <summary> Represents a connection to a Minecraft client. Handles low-level interactions (e.g. networking). </summary>
     public sealed partial class Player {
 
-        /// <summary> Amount of time in seconds before a connection is considered dead (TimedOut). </summary>
+        /// <summary> Amount of time in milliseconds before a connection is considered dead (read/write timeout). </summary>
         public static int SocketTimeout { get; set; }
-        /// <summary> Whether or not all block update packets should be sent regardless of if they require updating. </summary>
-        public static bool RelayAllUpdates { get; set; }
+
+        /// <summary> Whether or not all block update packets should be sent regardless of if they require updating.
+        /// Tied to ConfigKey.RelayAllUpdates </summary>
+        internal static bool RelayAllUpdates { get; set; }
+
         const int SleepDelay = 5; // milliseconds
         const int SocketPollInterval = 200; // multiples of SleepDelay, approx. 1 second
         const int PingInterval = 3; // multiples of SocketPollInterval, approx. 3 seconds

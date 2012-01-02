@@ -58,7 +58,7 @@ namespace fCraft {
             Handler = InfoHandler
         };
 
-        internal static void InfoHandler( Player player, CommandReader cmd ) {
+        static void InfoHandler( Player player, CommandReader cmd ) {
             string name = cmd.Next();
             if( name == null ) {
                 // no name given, print own info
@@ -175,8 +175,15 @@ namespace fCraft {
                 target = null;
             }
 
+            string fullName;
+            if( info.DisplayedName != null ) {
+                fullName = String.Format( "{0}&S {1}", info.ClassyName, info.Name );
+            } else {
+                fullName = info.ClassyName;
+            }
+
             if( info.LastIP.Equals( IPAddress.None ) ) {
-                player.Message( "About {0}&S: Never seen before.", info.ClassyName );
+                player.Message( "About {0}&S: Never seen before.", fullName );
 
             } else {
                 if( target != null ) {
@@ -185,44 +192,44 @@ namespace fCraft {
                         if( idle.TotalMinutes > 2 ) {
                             if( player.Can( Permission.ViewPlayerIPs ) ) {
                                 player.Message( "About {0}&S: HIDDEN from {1} (idle {2})",
-                                                info.ClassyName,
+                                                fullName,
                                                 info.LastIP,
                                                 idle.ToMiniString() );
                             } else {
                                 player.Message( "About {0}&S: HIDDEN (idle {1})",
-                                                info.ClassyName,
+                                                fullName,
                                                 idle.ToMiniString() );
                             }
                         } else {
                             if( player.Can( Permission.ViewPlayerIPs ) ) {
                                 player.Message( "About {0}&S: HIDDEN. Online from {1}",
-                                                info.ClassyName,
+                                                fullName,
                                                 info.LastIP );
                             } else {
                                 player.Message( "About {0}&S: HIDDEN.",
-                                                info.ClassyName );
+                                                fullName );
                             }
                         }
                     } else {
                         if( idle.TotalMinutes > 1 ) {
                             if( player.Can( Permission.ViewPlayerIPs ) ) {
                                 player.Message( "About {0}&S: Online now from {1} (idle {2})",
-                                                info.ClassyName,
+                                                fullName,
                                                 info.LastIP,
                                                 idle.ToMiniString() );
                             } else {
                                 player.Message( "About {0}&S: Online now (idle {1})",
-                                                info.ClassyName,
+                                                fullName,
                                                 idle.ToMiniString() );
                             }
                         } else {
                             if( player.Can( Permission.ViewPlayerIPs ) ) {
                                 player.Message( "About {0}&S: Online now from {1}",
-                                                info.ClassyName,
+                                                fullName,
                                                 info.LastIP );
                             } else {
                                 player.Message( "About {0}&S: Online now.",
-                                                info.ClassyName );
+                                                fullName );
                             }
                         }
                     }
@@ -230,25 +237,25 @@ namespace fCraft {
                     if( player.Can( Permission.ViewPlayerIPs ) ) {
                         if( info.LeaveReason != LeaveReason.Unknown ) {
                             player.Message( "About {0}&S: Last seen {1} ago from {2} ({3}).",
-                                            info.ClassyName,
+                                            fullName,
                                             info.TimeSinceLastSeen.ToMiniString(),
                                             info.LastIP,
                                             info.LeaveReason );
                         } else {
                             player.Message( "About {0}&S: Last seen {1} ago from {2}.",
-                                            info.ClassyName,
+                                            fullName,
                                             info.TimeSinceLastSeen.ToMiniString(),
                                             info.LastIP );
                         }
                     } else {
                         if( info.LeaveReason != LeaveReason.Unknown ) {
                             player.Message( "About {0}&S: Last seen {1} ago ({2}).",
-                                            info.ClassyName,
+                                            fullName,
                                             info.TimeSinceLastSeen.ToMiniString(),
                                             info.LeaveReason );
                         } else {
                             player.Message( "About {0}&S: Last seen {1} ago.",
-                                            info.ClassyName,
+                                            fullName,
                                             info.TimeSinceLastSeen.ToMiniString() );
                         }
                     }

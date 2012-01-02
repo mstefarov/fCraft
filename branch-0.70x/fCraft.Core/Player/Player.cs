@@ -938,8 +938,11 @@ namespace fCraft {
                 return false;
             }
 
+            bool stackStairs = (type == Block.Stair &&
+                                coord.Z > 0 &&
+                                map.GetBlock( coordBelow ) == Block.Stair);
             CanPlaceResult canPlaceResult;
-            if( type == Block.Stair && coord.Z > 0 && map.GetBlock( coordBelow ) == Block.Stair ) {
+            if( stackStairs ) {
                 // stair stacking
                 canPlaceResult = CanPlace( map, coordBelow, Block.DoubleStair, context );
             } else {
@@ -951,7 +954,7 @@ namespace fCraft {
             switch( canPlaceResult ) {
                 case CanPlaceResult.Allowed:
                     BlockUpdate blockUpdate;
-                    if( type == Block.Stair && coord.Z > 0 && map.GetBlock( coordBelow ) == Block.Stair ) {
+                    if( stackStairs ) {
                         // handle stair stacking
                         RevertBlockNow( coord );
                         blockUpdate = new BlockUpdate( this, coordBelow, Block.DoubleStair );
