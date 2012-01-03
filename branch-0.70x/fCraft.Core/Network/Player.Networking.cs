@@ -1049,6 +1049,8 @@ namespace fCraft {
         /// <summary> Send packet to player (not thread safe, sync, immediate).
         /// Should NEVER be used from any thread other than this session's ioThread.
         /// Not thread-safe (for performance reason). </summary>
+        /// <param name="packet"> Packet to send. </param>
+        /// <exception cref="InvalidOperationException"> If not called from this player's own i/o thread. </exception>
         public void SendNow( Packet packet ) {
             if( Thread.CurrentThread != ioThread ) {
                 throw new InvalidOperationException( "SendNow may only be called from player's own thread." );
@@ -1079,12 +1081,12 @@ namespace fCraft {
         }
 
         /// <summary> Clears the low priority player queue. </summary>
-        public void ClearLowPriotityOutputQueue() {
+        void ClearLowPriotityOutputQueue() {
             outputQueue.Clear();
         }
 
         /// <summary> Clears the priority player queue. </summary>
-        public void ClearPriorityOutputQueue() {
+        void ClearPriorityOutputQueue() {
             priorityOutputQueue.Clear();
         }
 
@@ -1092,12 +1094,14 @@ namespace fCraft {
         #region Kicking
 
         /// <summary> Kick (asynchronous). Immediately blocks all client input, but waits
-        /// until client thread has sent the kick packet. </summary>
+        /// until client thread has sent the kick packet. Will not raise events or record anything to PlayerDB.
+        /// Use the other Kick overload for fully featured player-to-player kicking.
+        /// State will be set to PendingDisconnect. </summary>
+        /// <param name="message"> Reason to print to the player. Anything over 64 characters will be cut off. May not be null. </param>
+        /// <param name="leaveReason"> Reason for leaving the server. Will be saved to PlayerDB. </param>
+        /// <exception cref="ArgumentNullException"> If message is null. </exception>
         public void Kick( [NotNull] string message, LeaveReason leaveReason ) {
             if( message == null ) throw new ArgumentNullException( "message" );
-            if( !Enum.IsDefined( typeof( LeaveReason ), leaveReason ) ) {
-                throw new ArgumentOutOfRangeException( "leaveReason" );
-            }
             State = SessionState.PendingDisconnect;
             LeaveReason = leaveReason;
 
@@ -1113,8 +1117,8 @@ namespace fCraft {
         }
 
 
-        /// <summary> Kick (synchronous). Immediately sends the kick packet.
-        /// Can only be used from IoThread (this is not thread-safe). </summary>
+        // Kick (synchronous). Immediately sends the kick packet.
+        // Can only be used from IoThread (this is not thread-safe).
         void KickNow( [NotNull] string message, LeaveReason leaveReason ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( !Enum.IsDefined( typeof( LeaveReason ), leaveReason ) ) {
@@ -1134,16 +1138,19 @@ namespace fCraft {
         }
 
 
-        /// <summary> Blocks the calling thread until this session disconnects. </summary>
+        /// <summary> Blocks the calling thread until this session disconnects.
+        /// May not be called from player's own thread. </summary>
+        /// <exception cref="InvalidOperationException"> If called from player's own thread. </exception>
+        /// <exception cref="ThreadInterruptedException"> If the thread is interrupted while waiting. </exception>
         public void WaitForDisconnect() {
             if( Thread.CurrentThread == ioThread ) {
-                throw new InvalidOperationException( "Cannot call WaitForDisconnect from IoThread." );
+                throw new InvalidOperationException( "Cannot call WaitForDisconnect from player's own thread." );
             }
             if( ioThread != null && ioThread.IsAlive ) {
                 try {
                     ioThread.Join();
                 } catch( NullReferenceException ) {
-                } catch( ThreadStateException ) { }
+                } catch( ThreadStateException ) {}
             }
         }
 
