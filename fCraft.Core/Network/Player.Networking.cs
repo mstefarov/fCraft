@@ -291,7 +291,7 @@ namespace fCraft {
                 ParseMessage( message );
 #else
             try {
-                ParseMessage( message, false );
+                ParseMessage( message );
             } catch( IOException ) {
                 throw;
             } catch( SocketException ) {
@@ -1050,7 +1050,7 @@ namespace fCraft {
         /// Should NEVER be used from any thread other than this session's ioThread.
         /// Not thread-safe (for performance reason). </summary>
         /// <param name="packet"> Packet to send. </param>
-        /// <exception cref="InvalidOperationException"> If not called from this player's own i/o thread. </exception>
+        /// <exception cref="InvalidOperationException"> If not called from this player's own thread. </exception>
         public void SendNow( Packet packet ) {
             if( Thread.CurrentThread != ioThread ) {
                 throw new InvalidOperationException( "SendNow may only be called from player's own thread." );

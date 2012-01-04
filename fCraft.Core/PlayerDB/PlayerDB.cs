@@ -34,6 +34,7 @@ namespace fCraft {
 
 
         /// <summary> Current PlayerDBProvider type. May only be changed BEFORE PlayerDB is loaded. </summary>
+        /// <exception cref="InvalidOperationException"> If PlayerDB is already loaded. </exception>
         static PlayerDBProviderType providerType;
         public static PlayerDBProviderType ProviderType {
             get { return providerType; }
@@ -57,6 +58,7 @@ namespace fCraft {
 
         /// <summary> Adds a new PlayerInfo entry for a player who has never been online, by name. </summary>
         /// <returns> A newly-created PlayerInfo entry. </returns>
+        /// <exception cref="InvalidOperationException"> If PlayerDB is not loaded. </exception>
         [NotNull]
         public static PlayerInfo AddUnrecognizedPlayer( [NotNull] string name, RankChangeType rankChangeType ) {
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -85,8 +87,13 @@ namespace fCraft {
             return newInfo;
         }
 
-        const string MySqlPlayerDBProviderType = "fCraft.MySql.MySqlPlayerDBProvider";
 
+        const string MySqlPlayerDBProviderType = "fCraft.MySql.MySqlPlayerDBProvider";
+        
+        /// <summary> Loads contents of PlayerDB. </summary>
+        /// <exception cref="InvalidOperationException"> If PlayerDB is akready loaded. </exception>
+        /// <exception cref="MisconfigurationException"> If an unknown PlayerDBProviderType is specified. </exception>
+        /// <exception cref="TypeLoadException"> If MySqlPlayerDBProvider could not be found. </exception>
         public static void Load() {
             if( IsLoaded ) throw new InvalidOperationException( "PlayerDB is already loaded." );
             Stopwatch sw = Stopwatch.StartNew();
@@ -96,8 +103,12 @@ namespace fCraft {
                     provider = new FlatfilePlayerDBProvider();
                     break;
                 case PlayerDBProviderType.MySql:
-                    Assembly mySqlAsm = Assembly.LoadFile( Path.Combine( Paths.WorkingPath, Paths.MySqlPlayerDBProviderModule ) );
+                    Assembly mySqlAsm =
+                        Assembly.LoadFile( Path.Combine( Paths.WorkingPath, Paths.MySqlPlayerDBProviderModule ) );
                     provider = (IPlayerDBProvider)mySqlAsm.CreateInstance( MySqlPlayerDBProviderType );
+                    if( provider == null ) {
+                        throw new TypeLoadException( "PlayerDB.Load: Could not find MySqlPlayerDBProvider." );
+                    }
                     break;
                 default:
                     throw new MisconfigurationException( "PlayerDB.Load: Unknown ProviderType: " + ProviderType );
@@ -155,6 +166,7 @@ namespace fCraft {
 
         #region Saving
 
+        /// <summary> Saves contents of PlayerDB. </summary>
         public static void Save() {
             CheckIfLoaded();
             Stopwatch sw = Stopwatch.StartNew();

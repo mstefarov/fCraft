@@ -35,21 +35,28 @@ namespace fCraft {
 
         public bool IsColor { get; protected set; }
 
+        public bool RequiresRestartToChange { get; set; }
+
+
+        // Gets value in a readable format, e.g. for ConfigCLI
         public virtual string GetPresentationString( [NotNull] string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             return value;
         }
 
+        // Gets value in a format that is suited for parsing. Interprets blank or replaceable values.
         public virtual string GetUsableString( [NotNull] string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             return value;
         }
 
+        // Checks whether given value matches defaults.
         public virtual bool IsDefault( [NotNull] string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             return ( value == DefaultValue.ToString() );
         }
 
+        // Checks if value is acceptible. Throws FormatException any failure.
         public virtual void Validate( [NotNull] string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             if( NotBlank && value.Length == 0 ) {
@@ -245,7 +252,12 @@ namespace fCraft {
             if( value.Length == 0 ) {
                 return BlankMeaning + " (blank)";
             } else {
-                return Rank.Parse( value ).Name;
+                Rank parsedRank = Rank.Parse( value );
+                if( parsedRank != null ) {
+                    return parsedRank.Name;
+                } else {
+                    return String.Format( "\"{0}\"", value );
+                }
             }
         }
 

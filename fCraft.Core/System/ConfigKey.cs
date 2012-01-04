@@ -62,7 +62,8 @@ connections. If you are behind a router, you may need to set up port
 forwarding. You may also need to add a firewall exception for ServerGUI and
 ServerCLI. Should be between 1 and 65535.
 Note that your server's URL will change if you change the port number.",
-            MinValue = 1, MaxValue = 65535 )]
+            MinValue = 1, MaxValue = 65535,
+            RequiresRestartToChange = true )]
         Port,
 
         [IntKey( ConfigSection.General, 100,
@@ -78,7 +79,7 @@ Should be between 1 and 32767 KB/s.",
 
         #region Chat
 
-        [BoolKey(ConfigSection.Chat, false,
+        [BoolKey( ConfigSection.Chat, false,
 @"If disabled, all normal chat messages are global (visible to everyone on
 the server). If enabled, normal chat is only broadcast to player's own
 world, and players will have to prefix messages with an exclamation mark
@@ -161,7 +162,8 @@ Leave blank to use DefaultRank." )]
 
         [StringKey( ConfigSection.Worlds, "maps",
 @"Custom path for storing map files. If you change this value,
-make sure to move the map files before starting the server again." )]
+make sure to move the map files before starting the server again.",
+            RequiresRestartToChange = true )]
         MapPath,
 
         #endregion
@@ -258,7 +260,8 @@ if Minecraft.net is down." )]
 
         [BoolKey( ConfigSection.Security, true,
 @"If enabled, allows edit information to be stored per-block. Enables /BlockDB,
-/BInfo, /UndoArea, and /UndoPlayer commands." )]
+/BInfo, /UndoArea, and /UndoPlayer commands.",
+            RequiresRestartToChange = true )]
         BlockDBEnabled,
 
         [BoolKey( ConfigSection.Security, true,
@@ -340,7 +343,8 @@ If exceeded, oldest logs will be erased first. Set this to 0 to keep all logs.",
 
         [BoolKey( ConfigSection.IRC, false,
 @"fCraft includes an IRC (Internet Relay Chat) client for relaying messages to
-and from any IRC network. Note that encrypted IRC (via SSL) is not supported." )]
+and from any IRC network. Note that encrypted IRC (via SSL) is not supported.",
+            RequiresRestartToChange = true )]
         IRCBotEnabled,
 
         [StringKey( ConfigSection.IRC, "MinecraftBot",
@@ -350,17 +354,20 @@ an underscore (_) to the name and retry.",
         IRCBotNick,
 
         [StringKey( ConfigSection.IRC, "irc.esper.net",
-@"Host or address of the IRC network." )]
+@"Host or address of the IRC network.",
+            RequiresRestartToChange = true )]
         IRCBotNetwork,
 
         [IntKey( ConfigSection.IRC, 6667,
 @"Port number of the IRC network. Most networks use port 6667.",
-            MinValue = 1, MaxValue = 65535 )]
+            MinValue = 1, MaxValue = 65535,
+            RequiresRestartToChange = true )]
         IRCBotPort,
 
         [StringKey( ConfigSection.IRC, "#changeme",
 @"Comma-separated list of channels to join. Channel names should include
-the hash (#). One some IRC networks, channel names are case-sensitive." )]
+the hash (#). One some IRC networks, channel names are case-sensitive.",
+            RequiresRestartToChange = true )]
         IRCBotChannels,
 
         [BoolKey( ConfigSection.IRC, false,
@@ -387,17 +394,20 @@ Otherwise, only chat messages starting with a hash (#) will be relayed." )]
 
         [BoolKey( ConfigSection.IRC, false,
 @"Check this if bot's nickname is registered
-or requires identification/authentication." )]
+or requires identification/authentication.",
+            RequiresRestartToChange = true )]
         IRCRegisteredNick,
 
         [StringKey( ConfigSection.IRC, "NickServ",
 @"Name of the nickname registration service bot
 (""Q"" on QuakeNet, ""NickServ"" on most others).",
-            MinLength = 1, MaxLength = 32 )]
+            MinLength = 1, MaxLength = 32,
+            RequiresRestartToChange = true )]
         IRCNickServ,
 
         [StringKey( ConfigSection.IRC, "IDENTIFY passwordGoesHere",
-@"Message to send to nickname registration service bot." )]
+@"Message to send to nickname registration service bot.",
+            RequiresRestartToChange = true )]
         IRCNickServMessage,
 
         [ColorKey( ConfigSection.IRC, Color.IRCDefault,
@@ -420,7 +430,8 @@ Using multiple bots helps bypass message rate limits on some servers.
 Note that some networks frown upon having multiple connections from one IP.
 It is recommended to leave this at 1 unless you are having specific issues
 with IRC bots falling behind on messages.",
-            MinValue = 1, MaxValue=3 )]
+            MinValue = 1, MaxValue = 3,
+            RequiresRestartToChange = true )]
         IRCThreads,
 
         #endregion
@@ -514,11 +525,12 @@ characters, and even colorcodes here.",
         ConsoleName,
 
         [BoolKey( ConfigSection.Advanced, false,
-@"Enable autorank (experimental, unsupported, use at your own risk)." )]
+@"Activate autorank (experimental, unsupported, use at your own risk).",
+            RequiresRestartToChange = true )]
         AutoRankEnabled,
 
         [BoolKey( ConfigSection.Advanced, true,
-@"Enable heartbeat to minecraft.net.
+@"Activate heartbeat to minecraft.net.
 If disabled, heartbeat data is written to heartbeatdata.txt." )]
         HeartbeatEnabled,
 
@@ -535,7 +547,8 @@ Only works for players who are using World of Minecraft (WoM) clients." )]
         [IPKey( ConfigSection.Advanced, IPKeyAttribute.BlankValueMeaning.Any,
 @"If the machine has more than one available IP address (for example
 if you have more than one NIC) you can use this setting to make
-fCraft bind to the same IP every time." )]
+fCraft bind to the same IP every time.",
+            RequiresRestartToChange = true )]
         IP,
 
         [EnumKey( ConfigSection.Advanced, fCraft.BandwidthUseMode.Normal,
@@ -546,7 +559,8 @@ bandwidth use." )]
         BandwidthUseMode,
 
         [IntKey( ConfigSection.Advanced, 0,
-@"Automatically restarts the server after a given number of seconds." )]
+@"Automatically restarts the server after a given number of seconds.",
+            RequiresRestartToChange = true )]
         RestartInterval
 
         #endregion

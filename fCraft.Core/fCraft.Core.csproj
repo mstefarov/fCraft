@@ -56,7 +56,7 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-    <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
+    <DocumentationFile>..\bin\Debug\fCraft.Core.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug_Events|AnyCPU' ">
@@ -116,8 +116,6 @@
     <Compile Include="Player\SecurityController.cs" />
     <Compile Include="Plugins\IPluginLoader.cs" />
     <Compile Include="Plugins\CILPluginLoader.cs" />
-    <Compile Include="Plugins\PluginLoadedEventArgs.cs" />
-    <Compile Include="Plugins\PluginLoadFailedEventArgs.cs" />
     <Compile Include="Plugins\PluginLoadResult.cs" />
     <Compile Include="Plugins\PluginManager.cs" />
     <Compile Include="Utils\Paths.cs" />

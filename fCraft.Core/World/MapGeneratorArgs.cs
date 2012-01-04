@@ -82,6 +82,7 @@ namespace fCraft {
         }
 
         public MapGeneratorArgs( [NotNull] string fileName ) {
+            // ReSharper disable PossibleNullReferenceException
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             XDocument doc = XDocument.Load( fileName );
             XElement root = doc.Root;
@@ -160,6 +161,7 @@ namespace fCraft {
             if( root.Element( "addGiantTrees" ) != null ) AddGiantTrees = Boolean.Parse( root.Element( "addGiantTrees" ).Value );
 
             Validate();
+            // ReSharper restore PossibleNullReferenceException
         }
 
 
