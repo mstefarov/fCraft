@@ -332,7 +332,7 @@ namespace fCraft {
 
         /// <summary> Allows making changes to fileName capitalization on case-insensitive filesystems. </summary>
         /// <param name="originalFullFileName"> Full path to the original fileName </param>
-        /// <param name="newFileName"> New file name (do not include the full path) </param>
+        /// <param name="newFileName"> New filename (do not include the full path) </param>
         public static void ForceRename( [NotNull] string originalFullFileName, [NotNull] string newFileName ) {
             if( originalFullFileName == null ) throw new ArgumentNullException( "originalFullFileName" );
             if( newFileName == null ) throw new ArgumentNullException( "newFileName" );
