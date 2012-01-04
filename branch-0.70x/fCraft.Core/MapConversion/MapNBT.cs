@@ -93,9 +93,9 @@ namespace fCraft.MapConversion {
             }
         }
 
-        /// <summary> Saves the specified map, with the specified file name. </summary>
+        /// <summary> Saves the specified map, with the specified filename. </summary>
         /// <param name="mapToSave"> Map to save. </param>
-        /// <param name="fileName"> File name to save the map under. </param>
+        /// <param name="fileName"> Filename to save the map under. </param>
         /// <returns> Whether the operation completed successfully. </returns>
         public bool Save( Map mapToSave, string fileName ) {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );

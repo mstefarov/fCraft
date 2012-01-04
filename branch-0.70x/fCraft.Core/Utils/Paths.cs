@@ -188,27 +188,27 @@ namespace fCraft {
 
         /// <summary> Makes sure that the path format is valid, and optionally whether it is readable/writeable. </summary>
         /// <param name="fileLabel"> Name of the path that's being tested (e.g. "map path"). Used for logging. </param>
-        /// <param name="filename"> Full or partial path of the file. </param>
+        /// <param name="fileName"> Full or partial path of the file. </param>
         /// <param name="createIfDoesNotExist"> If target file is missing and this option is OFF, TestFile returns true.
         /// If target file is missing and this option is ON, TestFile tries to create
         /// a file and returns whether it succeeded. </param>
         /// <param name="neededAccess"> If file is present, type of access to test. </param>
         /// <returns> Whether target file passed all tests. </returns>
-        public static bool TestFile( [NotNull] string fileLabel, [NotNull] string filename,
+        public static bool TestFile( [NotNull] string fileLabel, [NotNull] string fileName,
                                      bool createIfDoesNotExist, FileAccess neededAccess ) {
             if( fileLabel == null ) throw new ArgumentNullException( "fileLabel" );
-            if( filename == null ) throw new ArgumentNullException( "filename" );
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
-                new FileInfo( filename );
-                if( File.Exists( filename ) ) {
+                new FileInfo( fileName );
+                if( File.Exists( fileName ) ) {
                     if( (neededAccess & FileAccess.Read) == FileAccess.Read ) {
-                        using( File.OpenRead( filename ) ) { }
+                        using( File.OpenRead( fileName ) ) { }
                     }
                     if( (neededAccess & FileAccess.Write) == FileAccess.Write ) {
-                        using( File.OpenWrite( filename ) ) { }
+                        using( File.OpenWrite( fileName ) ) { }
                     }
                 } else if( createIfDoesNotExist ) {
-                    using( File.Create( filename ) ) { }
+                    using( File.Create( fileName ) ) { }
                 }
                 return true;
 
@@ -242,7 +242,7 @@ namespace fCraft {
         }
 
 
-        /// <summary>Returns true if paths or filenames reference the same location (accounts for all the filesystem quirks).</summary>
+        /// <summary>Returns true if paths or fileNames reference the same location (accounts for all the filesystem quirks).</summary>
         public static bool Compare( [NotNull] string p1, [NotNull] string p2 ) {
             if( p1 == null ) throw new ArgumentNullException( "p1" );
             if( p2 == null ) throw new ArgumentNullException( "p2" );
@@ -250,7 +250,7 @@ namespace fCraft {
         }
 
 
-        /// <summary>Returns true if paths or filenames reference the same location (accounts for all the filesystem quirks).</summary>
+        /// <summary>Returns true if paths or fileNames reference the same location (accounts for all the filesystem quirks).</summary>
         public static bool Compare( [NotNull] string p1, [NotNull] string p2, bool caseSensitive ) {
             if( p1 == null ) throw new ArgumentNullException( "p1" );
             if( p2 == null ) throw new ArgumentNullException( "p2" );
@@ -300,7 +300,7 @@ namespace fCraft {
 
 
         /// <summary> Checks whether the file exists in a specified way (case-sensitive or case-insensitive) </summary>
-        /// <param name="fileName"> filename in question </param>
+        /// <param name="fileName"> fileName in question </param>
         /// <param name="caseSensitive"> Whether check should be case-sensitive or case-insensitive. </param>
         /// <returns> true if file exists, otherwise false </returns>
         public static bool FileExists( [NotNull] string fileName, bool caseSensitive ) {
@@ -330,8 +330,8 @@ namespace fCraft {
         }
 
 
-        /// <summary> Allows making changes to filename capitalization on case-insensitive filesystems. </summary>
-        /// <param name="originalFullFileName"> Full path to the original filename </param>
+        /// <summary> Allows making changes to fileName capitalization on case-insensitive filesystems. </summary>
+        /// <param name="originalFullFileName"> Full path to the original fileName </param>
         /// <param name="newFileName"> New file name (do not include the full path) </param>
         public static void ForceRename( [NotNull] string originalFullFileName, [NotNull] string newFileName ) {
             if( originalFullFileName == null ) throw new ArgumentNullException( "originalFullFileName" );
@@ -346,7 +346,7 @@ namespace fCraft {
 
 
         /// <summary> Find files that match the name in a case-insensitive way. </summary>
-        /// <param name="fullFileName"> Case-insensitive filename to look for. </param>
+        /// <param name="fullFileName"> Case-insensitive fileName to look for. </param>
         /// <returns> Array of matches. Empty array if no files matches. </returns>
         public static FileInfo[] FindFiles( [NotNull] string fullFileName ) {
             if( fullFileName == null ) throw new ArgumentNullException( "fullFileName" );
@@ -358,7 +358,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Checks whether given filename is a protected fCraft file. </summary>
+        /// <summary> Checks whether given fileName is a protected fCraft file. </summary>
         /// <exception cref="ArgumentNullException"> If fileName is null. </exception>
         public static bool IsProtectedFileName( [NotNull] string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );

@@ -68,19 +68,19 @@ namespace fCraft {
 
         /// <summary> Attempts to load all plugins from the given file.
         /// Does not activate any plugins. </summary>
-        /// <param name="filename"> Relative or absolute path to the file. </param>
-        /// <exception cref="ArgumentNullException"> If filename is null. </exception>
+        /// <param name="fileName"> Relative or absolute path to the file. </param>
+        /// <exception cref="ArgumentNullException"> If fileName is null. </exception>
         [PublicAPI]
-        public static void AddPlugin( [NotNull] string filename ) {
-            if( filename == null ) throw new ArgumentNullException( "filename" );
+        public static void AddPlugin( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
 
             // build number is stripped
             Version fVersion = new Version( Updater.CurrentRelease.Version.Major,
                                             Updater.CurrentRelease.Version.Minor );
 
             foreach( IPluginLoader pluginLoader in PluginLoaders ) {
-                if( LoaderClaims( pluginLoader, filename ) ) {
-                    PluginLoadResult result = pluginLoader.LoadPlugins( filename );
+                if( LoaderClaims( pluginLoader, fileName ) ) {
+                    PluginLoadResult result = pluginLoader.LoadPlugins( fileName );
                     if( result.LoadSuccessful ) {
                         foreach( IPlugin newPlugin in result.LoadedPlugins ) {
 
@@ -102,7 +102,7 @@ namespace fCraft {
                             Logger.Log( LogType.SystemActivity,
                                         "PluginLoader: Added {0} {1}",
                                         newPlugin.Name, newPlugin.Version );
-                            RaisePluginAddedEvent( pluginLoader, filename, newPlugin );
+                            RaisePluginAddedEvent( pluginLoader, fileName, newPlugin );
                         }
                     }
                 }
@@ -150,10 +150,10 @@ namespace fCraft {
         public static event EventHandler<PluginActivatedEventArgs> PluginActivated;
 
 
-        static void RaisePluginAddedEvent( [NotNull] IPluginLoader loader, [NotNull] string filename, [NotNull] IPlugin plugin ) {
+        static void RaisePluginAddedEvent( [NotNull] IPluginLoader loader, [NotNull] string fileName, [NotNull] IPlugin plugin ) {
             var handler = PluginAdded;
             if( handler != null ) {
-                handler( null, new PluginAddedEventArgs( loader, filename, plugin ) );
+                handler( null, new PluginAddedEventArgs( loader, fileName, plugin ) );
             }
         }
 
@@ -171,11 +171,11 @@ namespace fCraft {
 namespace fCraft.Events {
     /// <summary> Provides data for PluginManager.PluginAdded event. Immutable. </summary>
     public sealed class PluginAddedEventArgs : EventArgs {
-        internal PluginAddedEventArgs( [NotNull] IPluginLoader loader, [NotNull] string filename, [NotNull] IPlugin plugin ) {
+        internal PluginAddedEventArgs( [NotNull] IPluginLoader loader, [NotNull] string fileName, [NotNull] IPlugin plugin ) {
             if( loader == null ) throw new ArgumentNullException( "loader" );
-            if( filename == null ) throw new ArgumentNullException( "filename" );
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             if( plugin == null ) throw new ArgumentNullException( "plugin" );
-            Filename = filename;
+            FileName = fileName;
             Plugin = plugin;
             Loader=loader;
         }
@@ -187,7 +187,7 @@ namespace fCraft.Events {
 
         /// <summary> Full name of the file that this plugin was loaded from. </summary>
         [NotNull]
-        public string Filename { get; set; }
+        public string FileName { get; set; }
 
         /// <summary> Newly-added plugin. </summary>
         [NotNull]
