@@ -2,15 +2,21 @@
 using System;
 
 namespace fCraft {
+    /// <summary> WorldOperationException, thrown when an invalid operation is attempted on a world. </summary>
+    /// <example> WorldOpExceptionCode.DuplicateWorldName:</example>
     public sealed class WorldOpException : Exception {
-
         public WorldOpExceptionCode ErrorCode { get; private set; }
 
+        /// <summary> Initialised a new instance of fCraft.WorldOpException, with the specified world and error code. </summary>
+        /// <param name="worldName"> World where exception took place. </param>
+        /// <param name="errorCode"> Error that took place. </param>
         public WorldOpException( string worldName, WorldOpExceptionCode errorCode )
             : base( GetMessage( worldName, errorCode ) ) {
             ErrorCode = errorCode;
         }
-
+        /// <summary> Initialised a new instance of fCraft.WorldOpException, with the specified error code and message. </summary>
+        /// <param name="errorCode"> Error that took place. </param>
+        /// <param name="message"> Message to display. </param>
         public WorldOpException( WorldOpExceptionCode errorCode, string message )
             : base( message ) {
             ErrorCode = errorCode;
@@ -26,6 +32,10 @@ namespace fCraft {
             ErrorCode = errorCode;
         }
 
+        /// <summary> Gets the error message for the specified world and error. </summary>
+        /// <param name="worldName"> World where the exception occurred. </param>
+        /// <param name="code"> Error that took place. </param>
+        /// <returns> Error message, using specified world and error code. </returns>
         public static string GetMessage( string worldName, WorldOpExceptionCode code ) {
             if( worldName != null ) {
                 switch( code ) {
@@ -126,6 +136,7 @@ namespace fCraft {
 
     /// <summary> List of common world operation issues. Used by WorldOpException. </summary>
     public enum WorldOpExceptionCode {
+        /// <summary> Something new, exciting and dangerous happened! We don't know what it was though. </summary>
         Unexpected,
 
         /// <summary> No changes were needed or made (e.g. renaming a world to the same name). </summary>
