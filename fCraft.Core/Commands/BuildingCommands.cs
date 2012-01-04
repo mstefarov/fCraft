@@ -1286,7 +1286,7 @@ namespace fCraft {
             RepeatableSelection = true,
             Usage = "/Restore FileName",
             Help = "Selectively restores/pastes part of mapfile into the current world. "+
-                   "If the filename contains spaces, surround it with quote marks.",
+                   "If the file name contains spaces, surround it with quote marks.",
             Handler = RestoreHandler
         };
 

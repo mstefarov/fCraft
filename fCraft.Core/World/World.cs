@@ -151,7 +151,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Returns the map filename, including MapPath. </summary>
+        /// <summary> Returns the map fileName, including MapPath. </summary>
         public string MapFileName {
             get {
                 return Path.Combine( Paths.MapPath, Name + ".fcm" );
