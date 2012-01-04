@@ -1,18 +1,20 @@
 ﻿// fCraft is Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
-// Plugin subsystem contributed by Jared Klopper (LgZ-optical).
+// CILPluginLoader contributed by Jared Klopper (LgZ-optical).
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary> Loads CIL assemblies and instantiates IPlugin objects. </summary>
-    public sealed class CILPluginLoader : IPluginLoader {
+    // Loads CIL assemblies and instantiates IPlugin objects.
+    sealed class CILPluginLoader : IPluginLoader {
         public string[] PluginExtensions {
             get { return new[] { ".dll" }; }
         }
 
-        public PluginLoadResult LoadPlugins( string pluginName ) {
+        public PluginLoadResult LoadPlugins( [NotNull] string pluginName ) {
+            if( pluginName == null ) throw new ArgumentNullException( "pluginName" );
             try {
                 List<IPlugin> plugins = new List<IPlugin>();
                 Assembly assembly = Assembly.LoadFrom( pluginName );

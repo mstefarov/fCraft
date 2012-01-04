@@ -479,15 +479,17 @@ namespace fCraft {
 
             string keyName = element.Name.ToString().ToLower();
             ConfigKey key;
-            if(EnumUtil.TryParse(keyName,out key,true)){
+            if( EnumUtil.TryParse( keyName, out key, true ) ) {
                 // known key
                 TrySetValue( key, element.Value );
 
-            } else if( LegacyConfigKeys.ContainsKey( keyName ) ) { // LEGACY
+            } else if( LegacyConfigKeys.ContainsKey( keyName ) ) {
+                // LEGACY
                 // renamed/legacy key
                 TrySetValue( LegacyConfigKeys[keyName], element.Value );
 
-            } else if( keyName == "limitoneconnectionperip" ) { // LEGACY
+            } else if( keyName == "limitoneconnectionperip" ) {
+                // LEGACY
                 Logger.Log( LogType.Warning,
                             "Config: LimitOneConnectionPerIP (bool) was replaced by MaxConnectionsPerIP (int). " +
                             "Adjust your configuration accordingly." );

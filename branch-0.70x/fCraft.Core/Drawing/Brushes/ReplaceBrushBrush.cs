@@ -160,8 +160,9 @@ namespace fCraft.Drawing {
             Block block = op.Map.GetBlock( op.Coords );
             if( block == Block ) {
                 return ReplacementInstance.NextBlock( op );
+            } else {
+                return Block.Undefined;
             }
-            return Block.Undefined;
         }
 
 

@@ -106,6 +106,10 @@ namespace fCraft {
 
         #region Initialization and Startup
 
+        static Server() {
+            Players = new Player[0];
+        }
+
         // flags used to ensure proper initialization order
         static bool libraryInitialized,
                     serverInitialized;
@@ -219,24 +223,6 @@ namespace fCraft {
             Logger.Log( LogType.Debug, "Map path: {0}", Path.GetFullPath( Paths.MapPath ) );
             Logger.Log( LogType.Debug, "Config path: {0}", Path.GetFullPath( Paths.ConfigFileName ) );
 
-            libraryInitialized = true;
-        }
-
-
-        /// <summary> Initialized various server subsystems. This should be called after InitLibrary and before StartServer.
-        /// Loads config, PlayerDB, IP bans, AutoRank settings, builds a list of commands, and prepares the IRC bot.
-        /// Raises Server.Initializing and Server.Initialized events, and possibly Logger.Logged events.
-        /// Throws exceptions on failure. </summary>
-        /// <exception cref="System.InvalidOperationException"> Library is not initialized, or server is already initialzied. </exception>
-        public static void InitServer() {
-            if( serverInitialized ) {
-                throw new InvalidOperationException( "Server is already initialized" );
-            }
-            if( !libraryInitialized ) {
-                throw new InvalidOperationException( "Server.InitLibrary must be called before Server.InitServer" );
-            }
-            RaiseEvent( Initializing );
-
             // Instantiate DeflateStream to make sure that libMonoPosix is present.
             // This allows catching misconfigured Mono installs early, and stopping the server.
             using( var testMemStream = new MemoryStream() ) {
@@ -269,6 +255,30 @@ namespace fCraft {
                             "It is recommended that you upgrade to at least 2.8+",
                             MonoCompat.MonoVersion );
             }
+
+            libraryInitialized = true;
+        }
+
+
+        /// <summary> Initialized various server subsystems. This should be called after InitLibrary and before StartServer.
+        /// Loads config, PlayerDB, IP bans, AutoRank settings, builds a list of commands, and prepares the IRC bot.
+        /// Raises Server.Initializing and Server.Initialized events, and possibly Logger.Logged events.
+        /// Throws exceptions on failure. </summary>
+        /// <exception cref="System.InvalidOperationException"> Library is not initialized, or server is already initialzied. </exception>
+        public static void InitServer() {
+            if( serverInitialized ) {
+                throw new InvalidOperationException( "Server is already initialized" );
+            }
+            if( !libraryInitialized ) {
+                throw new InvalidOperationException( "Server.InitLibrary must be called before Server.InitServer" );
+            }
+
+            // prepare and activate plugins
+            PluginManager.Init();
+            PluginManager.ActivatePlugins();
+
+            // initialized
+            RaiseEvent( Initializing );
 
 #if DEBUG
             Config.RunSelfTest();
@@ -327,7 +337,6 @@ namespace fCraft {
 
             StartTime = DateTime.UtcNow;
             cpuUsageStartingOffset = Process.GetCurrentProcess().TotalProcessorTime;
-            Players = new Player[0];
 
             RaiseEvent( Starting );
 

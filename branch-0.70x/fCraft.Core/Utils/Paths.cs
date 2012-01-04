@@ -59,6 +59,7 @@ namespace fCraft {
         public static readonly string WorkingPathDefault;
 
         public const string MySqlPlayerDBProviderModule = "fCraft.MySql.dll";
+        public const string PythonPluginLoaderModule = "fCraft.Python.dll";
 
         /// <summary> Path to save maps to (default: .\maps)
         /// Can be overridden at startup via command-line argument "--mappath=",
@@ -99,6 +100,8 @@ namespace fCraft {
         public const string AutoRankFileName = "autorank.xml";
 
         public const string BlockDBDirectory = "blockdb";
+
+        public const string PluginDirectory = "plugins";
 
         /// <summary> Path where block database is stored </summary>
         public static string BlockDBPath {
@@ -355,6 +358,8 @@ namespace fCraft {
         }
 
 
+        /// <summary> Checks whether given filename is a protected fCraft file. </summary>
+        /// <exception cref="ArgumentNullException"> If fileName is null. </exception>
         public static bool IsProtectedFileName( [NotNull] string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             return ProtectedFiles.Any( t => Compare( t, fileName ) );

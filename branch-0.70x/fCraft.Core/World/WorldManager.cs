@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Xml;
 using System.Xml.Linq;
 using fCraft.Events;
 using fCraft.MapConversion;
@@ -151,7 +152,9 @@ namespace fCraft {
 #if !DEBUG
                 } catch( XmlException ex ) {
                     string errorMsg = "WorldManager.LoadWorldList: worlds.xml is not properly formatted: " + ex.Message;
-                    Logger.LogAndReportCrash( "World list failed to load", "fCraft", new MisconfigurationException( errorMsg, ex ), true );
+                    Logger.LogAndReportCrash( "World list failed to load", "fCraft",
+                                              new MisconfigurationException( errorMsg, ex ), true );
+
                 } catch( Exception ex ) {
                     Logger.LogAndReportCrash( "World list failed to load", "fCraft", ex, true );
                     return false;
@@ -593,8 +596,8 @@ namespace fCraft {
             return Worlds.Where( w => w.Players.Any( observer.CanSee ) );
         }
 
-        /// <summary> Copies all the worlds in WorldIndex list into the World array. </summary>
-        public static void UpdateWorldList() {
+
+        internal static void UpdateWorldList() {
             lock( SyncRoot ) {
                 Worlds = WorldIndex.Values.ToArray();
             }

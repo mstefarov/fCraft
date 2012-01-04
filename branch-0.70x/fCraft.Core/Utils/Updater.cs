@@ -1,7 +1,6 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Cache;
@@ -20,7 +19,7 @@ namespace fCraft {
             1362,
             new DateTime( 2011, 12, 28, 11, 15, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Dev | ReleaseFlags.Unstable 
+            ReleaseFlags.Dev
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
@@ -46,7 +45,7 @@ namespace fCraft {
             UpdaterMode mode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
             if( mode == UpdaterMode.Disabled ) return UpdaterResult.NoUpdate;
 
-            string url = String.Format( UpdateUrl, CurrentRelease.Revision );
+            string url = String.Format( UpdateUrl, CurrentRelease.Version.Build );
             if( !RaiseCheckingForUpdatesEvent( ref url ) ) return UpdaterResult.NoUpdate;
 
             Logger.Log( LogType.SystemActivity, "Checking for fCraft updates..." );
@@ -142,7 +141,7 @@ namespace fCraft {
         internal UpdaterResult( bool updateAvailable, Uri downloadUri, IEnumerable<ReleaseInfo> releases ) {
             UpdateAvailable = updateAvailable;
             DownloadUri = downloadUri;
-            History = releases.OrderByDescending( r => r.Revision ).ToArray();
+            History = releases.OrderByDescending( r => r.Version.Build ).ToArray();
             LatestRelease = releases.FirstOrDefault();
         }
         public bool UpdateAvailable { get; private set; }
@@ -155,8 +154,7 @@ namespace fCraft {
     public sealed class ReleaseInfo {
         internal ReleaseInfo( int version, int revision, DateTime releaseDate,
                               string summary, string changeLog, ReleaseFlags releaseType ) {
-            Version = version;
-            Revision = revision;
+            Version = new Version( version / 1000, version%1000, revision );
             Date = releaseDate;
             Summary = summary;
             ChangeLog = changeLog.Split( new[] { '\n' } );
@@ -169,9 +167,7 @@ namespace fCraft {
 
         public string[] FlagsList { get { return ReleaseFlagsToStringArray( Flags ); } }
 
-        public int Version { get; private set; }
-
-        public int Revision { get; private set; }
+        public Version Version { get; private set; }
 
         public DateTime Date { get; private set; }
 
@@ -183,16 +179,13 @@ namespace fCraft {
 
         public string VersionString {
             get {
-                string formatString = "{0:0.000}_r{1}";
-                if( IsFlagged( ReleaseFlags.Dev ) ) {
-                    formatString += "_dev";
-                }
                 if( IsFlagged( ReleaseFlags.Unstable ) ) {
-                    formatString += "_u";
+                    return Version + "_unstable";
+                } else if( IsFlagged( ReleaseFlags.Dev ) ) {
+                    return Version + "_dev";
+                } else {
+                    return Version.ToString();
                 }
-                return String.Format( CultureInfo.InvariantCulture, formatString,
-                                      Decimal.Divide( Version, 1000 ),
-                                      Revision );
             }
         }
 
