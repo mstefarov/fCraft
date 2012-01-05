@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
+    /// <summary> Wireframe triangle implementation of the DrawOperation class. </summary>
     public sealed class TriangleWireframeDrawOperation : DrawOperation {
 
         public override int ExpectedMarks {
@@ -13,6 +14,8 @@ namespace fCraft.Drawing {
             get { return "TriangleW"; }
         }
 
+        /// <summary> Initialises a new intance of TriangleWireframeDrawOperation, using the specified player. </summary>
+        /// <param name="player"> Player who is executing the draw operation. </param>
         public TriangleWireframeDrawOperation( Player player )
             : base( player ) {
         }

@@ -3,12 +3,15 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
+    /// <summary> Hollow cuboid implementation of the DrawOperation class. </summary>
     public sealed class LineDrawOperation : DrawOperation {
 
         public override string Name {
             get { return "Line"; }
         }
 
+        /// <summary> Initialises a new intance of LineDrawOperation, using the specified player. </summary>
+        /// <param name="player"> Player who is executing the draw operation. </param>
         public LineDrawOperation( Player player )
             : base( player ) {
         }

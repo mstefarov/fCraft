@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
+    /// <summary> Ellipsoid implementation of the DrawOperation class. </summary>
     public class EllipsoidDrawOperation : DrawOperation {
         Vector3F radius, center;
 
@@ -10,11 +11,12 @@ namespace fCraft.Drawing {
             get { return "Ellipsoid"; }
         }
 
+        /// <summary> Initialises a new intance of EllisoidDrawOperation, using the specified player. </summary>
+        /// <param name="player"> Player who is executing the draw operation. </param>
         public EllipsoidDrawOperation( Player player )
             : base( player ) {
         }
-
-
+        
         public override bool Prepare( Vector3I[] marks ) {
             if( !base.Prepare( marks ) ) return false;
 

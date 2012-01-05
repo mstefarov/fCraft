@@ -8,6 +8,7 @@ using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> Handles the addition, and removal of bans (IP and Name) both past and present. </summary>
     public static class IPBanList {
         static readonly SortedDictionary<string, IPBanInfo> Bans = new SortedDictionary<string, IPBanInfo>();
         static readonly object BanListLock = new object();

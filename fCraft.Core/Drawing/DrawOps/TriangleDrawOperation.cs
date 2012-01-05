@@ -3,6 +3,7 @@
 using System;
 
 namespace fCraft.Drawing {
+    /// <summary> Triangle wire frame implementation of the DrawOperation class. </summary>
     public sealed class TriangleDrawOperation : DrawOperation {
         public override string Name {
             get { return "Triangle"; }
@@ -12,6 +13,8 @@ namespace fCraft.Drawing {
             get { return 3; }
         }
 
+        /// <summary> Initialises a new intance of TriangleDrawOperation, using the specified player. </summary>
+        /// <param name="player"> Player who is executing the draw operation. </param>
         public TriangleDrawOperation( Player player )
             : base( player ) {
         }

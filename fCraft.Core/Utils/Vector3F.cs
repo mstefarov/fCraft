@@ -6,8 +6,12 @@ using fCraft.Drawing;
 namespace fCraft {
     /// <summary> Floating-point (single precision) 3D vector. </summary>
     public struct Vector3F : IEquatable<Vector3F>, IComparable<Vector3I>, IComparable<Vector3F> {
+
+        /// <summary> Cartesian unit vector representing the Origin (0, 0, 0). </summary>
         public static readonly Vector3F Zero = new Vector3F( 0, 0, 0 );
+        /// <summary> Cartesian unit vector represnting up. </summary>
         public static readonly Vector3F Up = new Vector3F( 0, 0, 1 );
+        /// <summary> Cartesian unit vectore representing down. </summary>
         public static readonly Vector3F Down = new Vector3F( 0, 0, -1 );
 
         public float X, Y, Z;
@@ -15,32 +19,40 @@ namespace fCraft {
         public float Y2 { get { return Y * Y; } }
         public float Z2 { get { return Z * Z; } }
 
-
+        /// <summary> Initialised a new instance of Vector3F using X/Y/Z. </summary>
+        /// <param name="x"> X position. </param>
+        /// <param name="y"> Y position. </param>
+        /// <param name="z"> Z position. </param>
         public Vector3F( float x, float y, float z ) {
             X = x;
             Y = y;
             Z = z;
         }
 
+        /// <summary> Initialised a new instance of Vector3F using a another Vector3F. </summary>
+        /// <param name="other"> Other Vector3F</param>
         public Vector3F( Vector3F other ) {
             X = other.X;
             Y = other.Y;
             Z = other.Z;
         }
 
+        /// <summary> Initialised a new instance of Vector3I using a another Vector3I. </summary>
+        /// <param name="other"> Other Vector3I </param>
         public Vector3F( Vector3I other ) {
             X = other.X;
             Y = other.Y;
             Z = other.Z;
         }
 
-
+        /// <summary> Length of this vector (magnitude) from the origin. </summary>
         public float Length {
             get {
-                return (float)Math.Sqrt( X * X + Y * Y + Z * Z );
+                return (float)Math.Sqrt((double)X * X + (double)Y * Y + (double)Z * Z);
             }
         }
-
+        
+        /// <summary> Squared-length of this vector (non-squarerooted) from the origin. </summary>
         public float LengthSquared {
             get {
                 return X * X + Y * Y + Z * Z;
@@ -189,7 +201,9 @@ namespace fCraft {
 
         #endregion
 
-
+        /// <summary> Calculates the dot product (scalar product) of this vector and the specified vector. </summary>
+        /// <param name="b"> Other Vector3I. </param>
+        /// <returns></returns>
         public float Dot( Vector3I b ) {
             return ( X * b.X ) + ( Y * b.Y ) + ( Z * b.Z );
         }
@@ -198,19 +212,25 @@ namespace fCraft {
             return ( X * b.X ) + ( Y * b.Y ) + ( Z * b.Z );
         }
 
+        /// <summary> Calculates the cross product (cofactor expansion) of this vector and the specified vector. </summary>
+        /// <param name="b"> Other Vector3I. </param>
+        /// <returns> Cross product of this and the specified vector. </returns>
         public Vector3F Cross( Vector3I b ) {
             return new Vector3F( ( Y * b.Z ) - ( Z * b.Y ),
                                  ( Z * b.X ) - ( X * b.Z ),
                                  ( X * b.Y ) - ( Y * b.X ) );
         }
 
+        /// <summary> Calculates the cross product (cofactor expansion) of this vector and the specified vector. </summary>
+        /// <param name="b"> Other Vector3F. </param>
+        /// <returns> Cross product of this and the specified vector. </returns>
         public Vector3F Cross( Vector3F b ) {
             return new Vector3F( ( Y * b.Z ) - ( Z * b.Y ),
                                  ( Z * b.X ) - ( X * b.Z ),
                                  ( X * b.Y ) - ( Y * b.X ) );
         }
 
-
+        /// <summary> The the major axis (longest). </summary>
         public Axis LongestComponent {
             get {
                 float maxVal = Math.Max( Math.Abs( X ), Math.Max( Math.Abs( Y ), Math.Abs( Z ) ) );
@@ -220,6 +240,7 @@ namespace fCraft {
             }
         }
 
+        /// <summary> The minor axis (shortest). </summary>
         public Axis ShortestComponent {
             get {
                 float minVal = Math.Min( Math.Abs( X ), Math.Min( Math.Abs( Y ), Math.Abs( Z ) ) );
@@ -229,10 +250,14 @@ namespace fCraft {
             }
         }
 
+        /// <summary> This vector but with the absolute values of the coordinates. </summary>
+        /// <returns> This vector with all positive coordinates. </returns>
         public Vector3F Abs() {
             return new Vector3F( Math.Abs( X ), Math.Abs( Y ), Math.Abs( Z ) );
         }
 
+        /// <summary> Calculates the unit vector of this vector. </summary>
+        /// <returns></returns>
         public Vector3F Normalize() {
             if( X == 0 && Y == 0 && Z == 0 ) return Zero;
             double len = Math.Sqrt( (double)X * X + (double)Y * Y + (double)Z * Z );
@@ -254,14 +279,20 @@ namespace fCraft {
             return new Vector3I( (int)Math.Round( X ), (int)Math.Round( Y ), (int)Math.Round( Z ) );
         }
 
+        /// <summary> This vector but with the coordinates floored (rounded down to the nearest whole unit). </summary>
+        /// <returns> This vector with all the coordinates floored. </returns>
         public Vector3I RoundDown() {
             return new Vector3I( (int)Math.Floor( X ), (int)Math.Floor( Y ), (int)Math.Floor( Z ) );
         }
 
+        /// <summary> This vector but with the coordinates ceiled (rounded up to the nearest whole unit). </summary>
+        /// <returns> This vector with all the coordinates ceiled. </returns>
         public Vector3I RoundUp() {
             return new Vector3I( (int)Math.Ceiling( X ), (int)Math.Ceiling( Y ), (int)Math.Ceiling( Z ) );
         }
 
+        /// <summary> Converts the vector into player position coordinates. </summary>
+        /// <returns> Player position coordinates. </returns>
         public Position ToPlayerCoords() {
             return new Position( (int)(X * 32), (int)(Y * 32), (int)(Z * 32) );
         }

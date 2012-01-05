@@ -3,11 +3,14 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
+    /// <summary> Wireframe cuboid implementation of the DrawOperation class. </summary>
     public sealed class CuboidWireframeDrawOperation : DrawOperation {
         public override string Name {
             get { return "CuboidW"; }
         }
 
+        /// <summary> Initialises a new intance of CuboidWireframeOperation, using the specified player. </summary>
+        /// <param name="player"> Player who is executing the draw operation. </param>
         public CuboidWireframeDrawOperation( Player player )
             : base( player ) {
         }

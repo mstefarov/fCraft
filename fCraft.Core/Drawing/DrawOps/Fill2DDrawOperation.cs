@@ -3,9 +3,11 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
+    /// <summary> Two dimensional fill implementation of the DrawOperation class. </summary>
     public sealed class Fill2DDrawOperation : DrawOpWithBrush {
         int maxFillExtent;
 
+        /// <summary> General name of this type of draw operation. Should be same for all instances. </summary>
         public override string Name {
             get { return "Fill2D"; }
         }

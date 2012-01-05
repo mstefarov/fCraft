@@ -148,7 +148,9 @@ namespace fCraft.Drawing {
             LogCompletion = true;
         }
 
-
+        /// <summary> Prepares the draw operation, calculates the coordinates, and if possible the volume of the draw operation. </summary>
+        /// <param name="marks"> Marks (points) used to create the bounding box. </param>
+        /// <returns> Whether or not the draw operation can procede; tests intial data's validity. </returns>
         public virtual bool Prepare( [NotNull] Vector3I[] marks ) {
             if( marks == null ) throw new ArgumentNullException( "marks" );
             if( marks.Length != ExpectedMarks ) {
@@ -166,7 +168,8 @@ namespace fCraft.Drawing {
             return Brush.Begin( Player, this );
         }
 
-
+        /// <summary> Begins the draw operation. </summary>
+        /// <returns> Whether or not the operation can begin, false if event is cancelled. </returns>
         public virtual bool Begin() {
             if( !RaiseBeginningEvent( this ) ) return false;
             UndoState = Player.DrawBegin( this );
@@ -180,7 +183,7 @@ namespace fCraft.Drawing {
 
         public abstract int DrawBatch( int maxBlocksToDraw );
 
-
+        /// <summary> Cancels this draw operation. </summary>
         public void Cancel() {
             IsCancelled = true;
         }

@@ -2,11 +2,14 @@
 using System;
 
 namespace fCraft.Drawing {
+    /// <summary> Sphere implementation of the DrawOperation class. </summary>
     public sealed class SphereDrawOperation : EllipsoidDrawOperation {
         public override string Name {
             get { return "Sphere"; }
         }
 
+        /// <summary> Initialises a new intance of SphereDrawOperation, using the specified player. </summary>
+        /// <param name="player"> Player who is executing the draw operation. </param>
         public SphereDrawOperation( Player player )
             : base( player ) {
         }

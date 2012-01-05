@@ -2,6 +2,7 @@
 using System;
 
 namespace fCraft.Drawing {
+    /// <summary> Cut implementation of the DrawOperation class. </summary>
     public sealed class CutDrawOperation : DrawOperation {
         public override string Name {
             get { return "Cut"; }
@@ -18,6 +19,8 @@ namespace fCraft.Drawing {
             }
         }
 
+        /// <summary> Initialises a new intance of CutDrawOperation, using the specified player. </summary>
+        /// <param name="player"> Player who is executing the draw operation. </param>
         public CutDrawOperation( Player player )
             : base( player ) {
         }

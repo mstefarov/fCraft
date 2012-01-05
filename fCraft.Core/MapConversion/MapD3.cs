@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Net;
 
 namespace fCraft.MapConversion {
+    /// <summary> D3 map conversion implementation, for converting D3 map format into fCraft's default map format. </summary>
     public sealed class MapD3 : IMapConverter {
 
         static readonly byte[] Mapping = new byte[256];
