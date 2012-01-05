@@ -106,11 +106,11 @@ namespace fCraft {
         }
 
 
-        static World RaisePlayerConnectedEvent( [NotNull] Player player, World world ) {
+        internal static World RaisePlayerConnectedEvent( [NotNull] Player player, World world, bool isFake ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             var handler = Connected;
             if( handler == null ) return world;
-            var e = new PlayerConnectedEventArgs( player, world );
+            var e = new PlayerConnectedEventArgs( player, world, isFake );
             handler( null, e );
             return e.StartingWorld;
         }
@@ -149,11 +149,10 @@ namespace fCraft {
         }
 
 
-        static void RaisePlayerClickedEvent( Player player, Vector3I coords,
-                                             ClickAction action, Block block ) {
+        static void RaisePlayerClickedEvent( [NotNull] PlayerClickingEventArgs e ) {
             var handler = Clicked;
             if( handler != null ) {
-                handler( null, new PlayerClickedEventArgs( player, coords, action, block ) );
+                handler( null, new PlayerClickedEventArgs( e.Player, e.Coords, e.Action, e.Block ) );
             }
         }
 
@@ -195,26 +194,32 @@ namespace fCraft {
         }
 
 
-        static bool RaisePlayerJoiningWorldEvent( [NotNull] Player player, [NotNull] World newWorld, WorldChangeReason reason,
+        static bool RaisePlayerJoiningWorldEvent( [NotNull] Player player, [NotNull] World newWorld, WorldChangeContext context,
                                                   string textLine1, string textLine2 ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             var handler = JoiningWorld;
             if( handler == null ) return true;
-            var e = new PlayerJoiningWorldEventArgs( player, player.World, newWorld, reason, textLine1, textLine2 );
+            var e = new PlayerJoiningWorldEventArgs( player, player.World, newWorld, context, textLine1, textLine2 );
             handler( null, e );
             return !e.Cancel;
         }
 
 
-        static void RaisePlayerJoinedWorldEvent( Player player, World oldWorld, WorldChangeReason reason ) {
+        static void RaisePlayerJoinedWorldEvent( Player player, World oldWorld, WorldChangeContext context ) {
             var handler = JoinedWorld;
-            if( handler != null ) handler( null, new PlayerJoinedWorldEventArgs( player, oldWorld, player.World, reason ) );
+            if( handler != null ) handler( null, new PlayerJoinedWorldEventArgs( player, oldWorld, player.World, context ) );
         }
     }
 }
 
 namespace fCraft.Events {
+    /// <summary> An EventArgs for an event that directly relates to a particular player. </summary>
+    public interface IPlayerEvent {
+        Player Player { get; }
+    }
+
+
     /// <summary> Provides basic data for player-related events. </summary>
     public sealed class PlayerEventArgs : EventArgs, IPlayerEvent {
         internal PlayerEventArgs( [NotNull] Player player ) {
@@ -269,17 +274,19 @@ namespace fCraft.Events {
         /// <summary> Player who is connecting. </summary>
         [NotNull]
         public Player Player { get; private set; }
+
         public bool Cancel { get; set; }
     }
 
 
-    /// <summary> Provides data for Player.Connected event.
-    /// StartingWorld property may be changed. </summary>
+    /// <summary> Provides data for Player.Connected event. StartingWorld property may be changed.
+    /// Make sure to check IsFake property. </summary>
     public sealed class PlayerConnectedEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerConnectedEventArgs( [NotNull] Player player, World startingWorld ) {
+        internal PlayerConnectedEventArgs( [NotNull] Player player, World startingWorld, bool isFake ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             StartingWorld = startingWorld;
+            IsFake = isFake;
         }
 
         /// <summary> Player who just connected, and is about to join main. </summary>
@@ -289,11 +296,13 @@ namespace fCraft.Events {
         /// <summary> Player's main world.
         /// May be WorldManager.MainWorld or rank-specific main. Can be changed. </summary>
         public World StartingWorld { get; set; }
+
+        /// <summary> Whether the player has *actually* connected, or if this connect is faked by /Hide. </summary>
+        public bool IsFake { get; private set; }
     }
 
 
-    /// <summary> Provides data for Player.Moving event. Cancellable.
-    /// NewPosition property may be modified. </summary>
+    /// <summary> Provides data for Player.Moving event. Cancellable. </summary>
     public sealed class PlayerMovingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
         internal PlayerMovingEventArgs( [NotNull] Player player, Position newPos ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -309,8 +318,8 @@ namespace fCraft.Events {
         /// <summary> Player's current position. </summary>
         public Position OldPosition { get; private set; }
 
-        /// <summary> Desired new position. Can be changed. </summary>
-        public Position NewPosition { get; set; }
+        /// <summary> Desired new position. </summary>
+        public Position NewPosition { get; private set; }
 
         public bool Cancel { get; set; }
     }
@@ -338,7 +347,7 @@ namespace fCraft.Events {
 
 
     /// <summary> Provides data for Player.Clicking event. Cancellable.
-    /// Coords, Block, and Action properties may be modified. </summary>
+    /// Coords, Block, and Action properties may be changed. </summary>
     public sealed class PlayerClickingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
         internal PlayerClickingEventArgs( [NotNull] Player player, Vector3I coords,
                                           ClickAction action, Block block ) {
@@ -433,7 +442,8 @@ namespace fCraft.Events {
     /// <summary> Provides data for Player.PlacingBlock event. Result may be overridden. </summary>
     public sealed class PlayerPlacingBlockEventArgs : EventArgs, IPlayerEvent {
         internal PlayerPlacingBlockEventArgs( [NotNull] Player player, [NotNull] Map map, Vector3I coords,
-                                              Block oldBlock, Block newBlock, BlockChangeContext context, CanPlaceResult result ) {
+                                              Block oldBlock, Block newBlock, BlockChangeContext context,
+                                              CanPlaceResult result ) {
             if( map == null ) throw new ArgumentNullException( "map" );
             Player = player;
             Map = map;
@@ -452,16 +462,14 @@ namespace fCraft.Events {
         [NotNull]
         public Map Map { get; private set; }
 
-        /// <summary> Coordinates at which the block would be placed. Can be changed.
-        /// MAKE SURE TO REPEAT PERMISSION CHECKS if you are changing the coordinate. </summary>
-        public Vector3I Coords { get; set; }
+        /// <summary> Coordinates at which the block would be placed. </summary>
+        public Vector3I Coords { get; private set; }
 
         /// <summary> Current blocktype at this coordinate. </summary>
         public Block OldBlock { get; private set; }
 
-        /// <summary> Blocktype that the player intends to place. Can be changed.
-        /// MAKE SURE TO REPEAT PERMISSION CHECKS if you are changing the coordinate. </summary>
-        public Block NewBlock { get; set; }
+        /// <summary> Blocktype that the player intends to place. </summary>
+        public Block NewBlock { get; private set; }
 
         /// <summary> Context in which the block was placed. </summary>
         public BlockChangeContext Context { get; private set; }
@@ -493,7 +501,7 @@ namespace fCraft.Events {
         [NotNull]
         public Player Kicker { get; private set; }
 
-        /// <summary> Given kick reason (may be blank). Can be changed. </summary>
+        /// <summary> Given kick reason. May be null. Can be changed. </summary>
         [CanBeNull]
         public string Reason { get; set; }
 
@@ -547,7 +555,8 @@ namespace fCraft.Events {
     }
 
 
-    /// <summary> Provides data for Player.Disconnected event. Immutable. </summary>
+    /// <summary> Provides data for Player.Disconnected event. Immutable.
+    /// Make sure to check IsFake property. </summary>
     public sealed class PlayerDisconnectedEventArgs : EventArgs, IPlayerEvent {
         internal PlayerDisconnectedEventArgs( [NotNull] Player player, LeaveReason leaveReason, bool isFake ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -572,14 +581,14 @@ namespace fCraft.Events {
     /// Allows overriding the text that is shown on connection screen. </summary>
     public sealed class PlayerJoiningWorldEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
         internal PlayerJoiningWorldEventArgs( [NotNull] Player player, [CanBeNull] World oldWorld,
-                                              [NotNull] World newWorld, WorldChangeReason reason,
+                                              [NotNull] World newWorld, WorldChangeContext context,
                                               string textLine1, string textLine2 ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             Player = player;
             OldWorld = oldWorld;
             NewWorld = newWorld;
-            Reason = reason;
+            Context = context;
             TextLine1 = textLine1;
             TextLine2 = textLine2;
         }
@@ -597,15 +606,15 @@ namespace fCraft.Events {
         public World NewWorld { get; private set; }
 
         /// <summary> Context of the world change. </summary>
-        public WorldChangeReason Reason { get; private set; }
+        public WorldChangeContext Context { get; private set; }
 
         /// <summary> First line of text that is shown to the player on the loading screen.
         /// Defaults to server name. May be changed. </summary>
-        public string TextLine1 { get; set; }
+        public string TextLine1 { get; set; } // TODO
 
         /// <summary> First line of text that is shown to the player on the loading screen.
         /// Defaults to world name or WoM cfg string. May be changed. </summary>
-        public string TextLine2 { get; set; }
+        public string TextLine2 { get; set; } // TODO
 
         public bool Cancel { get; set; }
     }
@@ -613,12 +622,12 @@ namespace fCraft.Events {
 
     /// <summary> Provides data for Player.JoinedWorld event. Immutable. </summary>
     public sealed class PlayerJoinedWorldEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerJoinedWorldEventArgs( [NotNull] Player player, [CanBeNull] World oldWorld, [NotNull] World newWorld, WorldChangeReason reason ) {
+        internal PlayerJoinedWorldEventArgs( [NotNull] Player player, [CanBeNull] World oldWorld, [NotNull] World newWorld, WorldChangeContext context ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             OldWorld = oldWorld;
             NewWorld = newWorld;
-            Reason = reason;
+            Context = context;
         }
 
         /// <summary> Player who has just joined a world. </summary>
@@ -634,6 +643,6 @@ namespace fCraft.Events {
         public World NewWorld { get; private set; }
 
         /// <summary> Context of the world change. </summary>
-        public WorldChangeReason Reason { get; private set; }
+        public WorldChangeContext Context { get; private set; }
     }
 }

@@ -36,7 +36,7 @@ namespace fCraft {
             SocketTimeout = 10000;
         }
 
-        /// <summary> Reason why the player has left the server. </summary>
+        /// <summary> context why the player has left the server. </summary>
         public LeaveReason LeaveReason { get; private set; }
 
         /// <summary> IP Address from which this player is currently connected.
@@ -62,6 +62,7 @@ namespace fCraft {
             if( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
             new Player( tcpClient );
         }
+
 
         Player( [NotNull] TcpClient tcpClient ) {
             if( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
@@ -195,7 +196,7 @@ namespace fCraft {
                                         return;
                                     }
                                 }
-                                if( !JoinWorldNow( forcedWorldToJoin, useWorldSpawn, worldChangeReason ) ) {
+                                if( !JoinWorldNow( forcedWorldToJoin, useWorldSpawn, worldChangeContext ) ) {
                                     Logger.Log( LogType.Warning,
                                                 "Player.IoLoop: Player was asked to force-join a world, but it was full." );
                                     KickNow( "World is full.", LeaveReason.ServerFull );
@@ -410,11 +411,11 @@ namespace fCraft {
             // Those clicks should be simply ignored.
             if( World.Map.InBounds( coords ) ) {
                 var e = new PlayerClickingEventArgs( this, coords, action, (Block)type );
-                if( !RaisePlayerClickingEvent( e ) ) {
-                    RevertBlockNow( coords );
+                if( RaisePlayerClickingEvent( e ) ) {
+                    RaisePlayerClickedEvent( e );
+                    PlaceBlock( e.Coords, e.Action, e.Block );
                 } else {
-                    RaisePlayerClickedEvent( this, coords, e.Action, e.Block );
-                    PlaceBlock( coords, e.Action, e.Block );
+                    RevertBlockNow( coords );
                 }
             }
         }
@@ -665,7 +666,7 @@ namespace fCraft {
 
             // Figure out what the starting world should be
             World startingWorld = Info.Rank.MainWorld ?? WorldManager.MainWorld;
-            startingWorld = RaisePlayerConnectedEvent( this, startingWorld );
+            startingWorld = RaisePlayerConnectedEvent( this, startingWorld, false );
 
             // Send server information
             string serverName = ConfigKey.ServerName.GetString();
@@ -696,7 +697,7 @@ namespace fCraft {
             }
 
             bool firstTime = (Info.TimesVisited == 1);
-            if( !JoinWorldNow( startingWorld, true, WorldChangeReason.FirstWorld ) ) {
+            if( !JoinWorldNow( startingWorld, true, WorldChangeContext.FirstWorld ) ) {
                 Logger.Log( LogType.Warning,
                             "Could not load main world ({0}) for connecting player {1} (from {2}): " +
                             "Either main world is full, or an error occured.",
@@ -708,7 +709,7 @@ namespace fCraft {
 
             // ==== Beyond this point, player is considered ready (has a world) ====
 
-            var canSee = Server.Players.CanSee( this );
+            var canSee = Server.Players.CanSee( this ).ToArray();
 
             // Announce join
             if( ConfigKey.ShowConnectionMessages.Enabled() ) {
@@ -865,45 +866,45 @@ namespace fCraft {
 
         [CanBeNull]
         World forcedWorldToJoin;
-        WorldChangeReason worldChangeReason;
+        WorldChangeContext worldChangeContext;
         Position postJoinPosition;
         bool useWorldSpawn;
 
-        /// <summary> Causes a player to join the specified world, with the specified reason, at Position.Zero. </summary>
+        /// <summary> Causes a player to join the specified world, with the specified context, at Position.Zero. </summary>
         /// <param name="newWorld"> World for this player to join. </param>
-        /// <param name="reason"> Reason why the player is joining this world. </param>
-        public void JoinWorld( [NotNull] World newWorld, WorldChangeReason reason ) {
+        /// <param name="context"> context why the player is joining this world. </param>
+        public void JoinWorld( [NotNull] World newWorld, WorldChangeContext context ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             lock( joinWorldLock ) {
                 useWorldSpawn = true;
                 postJoinPosition = Position.Zero;
                 forcedWorldToJoin = newWorld;
-                worldChangeReason = reason;
+                worldChangeContext = context;
             }
         }
 
-        /// <summary> Causes a player to join the specified world, with the specified reason, at the specified location. </summary>
+        /// <summary> Causes a player to join the specified world, with the specified context, at the specified location. </summary>
         /// <param name="newWorld"> World for this player to join. </param>
-        /// <param name="reason"> Reason why this player is joining this world. </param>
+        /// <param name="context"> context why this player is joining this world. </param>
         /// <param name="position"> Position in the world that the player is joining. </param>
-        public void JoinWorld( [NotNull] World newWorld, WorldChangeReason reason, Position position ) {
+        public void JoinWorld( [NotNull] World newWorld, WorldChangeContext context, Position position ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
-            if( !Enum.IsDefined( typeof( WorldChangeReason ), reason ) ) {
-                throw new ArgumentOutOfRangeException( "reason" );
+            if( !Enum.IsDefined( typeof( WorldChangeContext ), context ) ) {
+                throw new ArgumentOutOfRangeException( "context" );
             }
             lock( joinWorldLock ) {
                 useWorldSpawn = false;
                 postJoinPosition = position;
                 forcedWorldToJoin = newWorld;
-                worldChangeReason = reason;
+                worldChangeContext = context;
             }
         }
 
 
-        internal bool JoinWorldNow( [NotNull] World newWorld, bool doUseWorldSpawn, WorldChangeReason reason ) {
+        internal bool JoinWorldNow( [NotNull] World newWorld, bool doUseWorldSpawn, WorldChangeContext context ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
-            if( !Enum.IsDefined( typeof( WorldChangeReason ), reason ) ) {
-                throw new ArgumentOutOfRangeException( "reason" );
+            if( !Enum.IsDefined( typeof( WorldChangeContext ), context ) ) {
+                throw new ArgumentOutOfRangeException( "context" );
             }
             if( Thread.CurrentThread != ioThread ) {
                 throw new InvalidOperationException( "Player.JoinWorldNow may only be called from player's own thread. " +
@@ -923,7 +924,7 @@ namespace fCraft {
                 textLine2 = "Loading world " + newWorld.ClassyName;
             }
 
-            if( !RaisePlayerJoiningWorldEvent( this, newWorld, reason, textLine1, textLine2 ) ) {
+            if( !RaisePlayerJoiningWorldEvent( this, newWorld, context, textLine1, textLine2 ) ) {
                 Logger.Log( LogType.Warning,
                             "Player.JoinWorldNow: Player {0} was prevented from joining world {1} by an event callback.",
                             Name, newWorld.Name );
@@ -1033,7 +1034,7 @@ namespace fCraft {
                 Message( "Joined world {0}", newWorld.ClassyName );
             }
 
-            RaisePlayerJoinedWorldEvent( this, oldWorld, reason );
+            RaisePlayerJoinedWorldEvent( this, oldWorld, context );
 
             // Done.
             Server.RequestGC();
@@ -1216,7 +1217,7 @@ namespace fCraft {
                             Message( "Joined {0}&S to continue spectating {1}",
                                      spectateWorld.ClassyName,
                                      spectatedPlayer.ClassyName );
-                            JoinWorldNow( spectateWorld, false, WorldChangeReason.SpectateTargetJoined );
+                            JoinWorldNow( spectateWorld, false, WorldChangeContext.SpectateTargetJoined );
                         } else {
                             Message( "Stopped spectating {0}&S (cannot join {1}&S)",
                                      spectatedPlayer.ClassyName,

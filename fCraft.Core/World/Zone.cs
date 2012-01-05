@@ -2,6 +2,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
+using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {

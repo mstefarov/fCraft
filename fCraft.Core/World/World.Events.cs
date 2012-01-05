@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace fCraft.Events {
+    /// <summary> An EventArgs for an event that directly relates to a particular world. </summary>
+    public interface IWorldEvent {
+        World World { get; }
+    }
+
+
     public class MainWorldChangedEventArgs : EventArgs {
         internal MainWorldChangedEventArgs( [CanBeNull] World oldWorld, [NotNull] World newWorld ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
