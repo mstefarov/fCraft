@@ -14,12 +14,21 @@ namespace fCraft {
         /// <summary> Cartesian unit vectore representing down. </summary>
         public static readonly Vector3F Down = new Vector3F( 0, 0, -1 );
 
-        public float X, Y, Z;
+        /// <summary> The X component of this vector. </summary>
+        public float X;
+        /// <summary> The Y component of this vector. </summary>
+        public float Y;
+        /// <summary> The Z component of this vector. </summary>
+        public float Z;
+
+        /// <summary> The X component of this vector squared. </summary>
         public float X2 { get { return X * X; } }
+        /// <summary> The Y component of this vector squared. </summary>
         public float Y2 { get { return Y * Y; } }
+        /// <summary> The Z component of this vector squared. </summary>
         public float Z2 { get { return Z * Z; } }
 
-        /// <summary> Initialised a new instance of Vector3F using X/Y/Z. </summary>
+        /// <summary> Initialises a new instance of Vector3F using X/Y/Z. </summary>
         /// <param name="x"> X position. </param>
         /// <param name="y"> Y position. </param>
         /// <param name="z"> Z position. </param>
@@ -29,7 +38,7 @@ namespace fCraft {
             Z = z;
         }
 
-        /// <summary> Initialised a new instance of Vector3F using a another Vector3F. </summary>
+        /// <summary> Initialises a new instance of Vector3F using a another Vector3F. </summary>
         /// <param name="other"> Other Vector3F</param>
         public Vector3F( Vector3F other ) {
             X = other.X;
@@ -37,8 +46,8 @@ namespace fCraft {
             Z = other.Z;
         }
 
-        /// <summary> Initialised a new instance of Vector3I using a another Vector3I. </summary>
-        /// <param name="other"> Other Vector3I </param>
+        /// <summary> Initialises a new instance of Vector3F using a another Vector3I. </summary>
+        /// <param name="other"> Other Vector3I. </param>
         public Vector3F( Vector3I other ) {
             X = other.X;
             Y = other.Y;
@@ -203,11 +212,14 @@ namespace fCraft {
 
         /// <summary> Calculates the dot product (scalar product) of this vector and the specified vector. </summary>
         /// <param name="b"> Other Vector3I. </param>
-        /// <returns></returns>
+        /// <returns> Dot product of this and the specified vector. </returns>
         public float Dot( Vector3I b ) {
             return ( X * b.X ) + ( Y * b.Y ) + ( Z * b.Z );
         }
 
+        // <summary> Calculates the dot product (scalar product) of this vector and the specified vector. </summary>
+        /// <param name="b"> Other Vector3F. </param>
+        /// <returns> Dot product of this and the specified vector. </returns>
         public float Dot( Vector3F b ) {
             return ( X * b.X ) + ( Y * b.Y ) + ( Z * b.Z );
         }
@@ -257,7 +269,7 @@ namespace fCraft {
         }
 
         /// <summary> Calculates the unit vector of this vector. </summary>
-        /// <returns></returns>
+        /// <returns> The unit vector of this vector. </returns>
         public Vector3F Normalize() {
             if( X == 0 && Y == 0 && Z == 0 ) return Zero;
             double len = Math.Sqrt( (double)X * X + (double)Y * Y + (double)Z * Z );
@@ -275,17 +287,19 @@ namespace fCraft {
             return new Vector3I( (int)a.X, (int)a.Y, (int)a.Z );
         }
 
+        /// <summary> This vector but with the coordinates rounded to the nearest integer. </summary>
+        /// <returns> This vector with all the coordinates rounded. </returns>
         public Vector3I Round() {
             return new Vector3I( (int)Math.Round( X ), (int)Math.Round( Y ), (int)Math.Round( Z ) );
         }
 
-        /// <summary> This vector but with the coordinates floored (rounded down to the nearest whole unit). </summary>
+        /// <summary> This vector but with the coordinates floored (rounded down to the nearest integer). </summary>
         /// <returns> This vector with all the coordinates floored. </returns>
         public Vector3I RoundDown() {
             return new Vector3I( (int)Math.Floor( X ), (int)Math.Floor( Y ), (int)Math.Floor( Z ) );
         }
 
-        /// <summary> This vector but with the coordinates ceiled (rounded up to the nearest whole unit). </summary>
+        /// <summary> This vector but with the coordinates ceiled (rounded up to the nearest integer). </summary>
         /// <returns> This vector with all the coordinates ceiled. </returns>
         public Vector3I RoundUp() {
             return new Vector3I( (int)Math.Ceiling( X ), (int)Math.Ceiling( Y ), (int)Math.Ceiling( Z ) );

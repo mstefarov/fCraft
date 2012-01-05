@@ -2,6 +2,7 @@
 using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
+    /// <summary> Interface describing the proccess of converting non-native map formats into the default fCraft format. </summary>
     public interface IMapConverter {
         /// <summary> Returns name(s) of the server(s) that uses this format. </summary>
         [NotNull]

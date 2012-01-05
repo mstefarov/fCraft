@@ -6,40 +6,61 @@ using fCraft.Drawing;
 namespace fCraft {
     /// <summary> Integer 3D vector. </summary>
     public struct Vector3I : IEquatable<Vector3I>, IComparable<Vector3I>, IComparable<Vector3F> {
-        public static readonly Vector3I Zero = new Vector3I( 0, 0, 0 );
-        public static readonly Vector3I Up = new Vector3I( 0, 0, 1 );
-        public static readonly Vector3I Down = new Vector3I( 0, 0, -1 );
+        /// <summary> Cartesian unit vector representing the Origin (0, 0, 0). </summary>
+        public static readonly Vector3I Zero = new Vector3I(0, 0, 0);
+        /// <summary> Cartesian unit vector represnting up. </summary>
+        public static readonly Vector3I Up = new Vector3I(0, 0, 1);
+        /// <summary> Cartesian unit vectore representing down. </summary>
+        public static readonly Vector3I Down = new Vector3I(0, 0, -1);
 
-        public int X, Y, Z;
+        /// <summary> The X component of this vector. </summary>
+        public int X;
+        /// <summary> The Y component of this vector. </summary>
+        public int Y;
+        /// <summary> The Z component of this vector. </summary>
+        public int Z;
+
+        /// <summary> The X component of this vector squared. </summary>
         public int X2 { get { return X * X; } }
+        /// <summary> The Y component of this vector squared. </summary>
         public int Y2 { get { return Y * Y; } }
+        /// <summary> The Z component of this vector squared. </summary>
         public int Z2 { get { return Z * Z; } }
 
+        /// <summary> Initialised a new instance of Vector3I using X/Y/Z. </summary>
+        /// <param name="x"> X position. </param>
+        /// <param name="y"> Y position. </param>
+        /// <param name="z"> Z position. </param>
         public Vector3I( int x, int y, int z ) {
             X = x;
             Y = y;
             Z = z;
         }
 
+        /// <summary> Initialises a new instance of Vector3I using a another Vector3I. </summary>
+        /// <param name="other"> Other Vector3I. </param>
         public Vector3I( Vector3I other ) {
             X = other.X;
             Y = other.Y;
             Z = other.Z;
         }
 
+        /// <summary> Initialises a new instance of Vector3I using a another Vector3F. </summary>
+        /// <param name="other"> Other Vector3F. </param>
         public Vector3I( Vector3F other ) {
             X = (int)other.X;
             Y = (int)other.Y;
             Z = (int)other.Z;
         }
 
-
+        /// <summary> Length of this vector (magnitude) from the origin. </summary>
         public float Length {
             get {
                 return (float)Math.Sqrt( (double)X * X + (double)Y * Y + (double)Z * Z );
             }
         }
 
+        /// <summary> Squared-length of this vector (non-squarerooted) from the origin. </summary>
         public int LengthSquared {
             get {
                 return X * X + Y * Y + Z * Z;
@@ -184,28 +205,36 @@ namespace fCraft {
 
         #endregion
 
-
+        // <summary> Calculates the dot product (scalar product) of this vector and the specified vector. </summary>
+        /// <param name="b"> Other Vector3I. </param>
+        /// <returns> Dot product of this and the specified vector. </returns>
         public int Dot( Vector3I b ) {
             return (X * b.X) + (Y * b.Y) + (Z * b.Z);
         }
-
+        // <summary> Calculates the dot product (scalar product) of this vector and the specified vector. </summary>
+        /// <param name="b"> Other Vector3F. </param>
+        /// <returns> Dot product of this and the specified vector. </returns>
         public float Dot( Vector3F b ) {
             return (X * b.X) + (Y * b.Y) + (Z * b.Z);
         }
-
+        /// <summary> Calculates the cross product (cofactor expansion) of this vector and the specified vector. </summary>
+        /// <param name="b"> Other Vector3I. </param>
+        /// <returns> Cross product of this and the specified vector. </returns>
         public Vector3I Cross( Vector3I b ) {
             return new Vector3I( (Y * b.Z) - (Z * b.Y),
                                  (Z * b.X) - (X * b.Z),
                                  (X * b.Y) - (Y * b.X) );
         }
-
+        /// <summary> Calculates the cross product (cofactor expansion) of this vector and the specified vector. </summary>
+        /// <param name="b"> Other Vector3F. </param>
+        /// <returns> Cross product of this and the specified vector. </returns>
         public Vector3F Cross( Vector3F b ) {
             return new Vector3F( (Y * b.Z) - (Z * b.Y),
                                  (Z * b.X) - (X * b.Z),
                                  (X * b.Y) - (Y * b.X) );
         }
 
-
+        /// <summary> The the major axis (longest). </summary>
         public Axis LongestAxis {
             get {
                 int maxVal = Math.Max( Math.Abs( X ), Math.Max( Math.Abs( Y ), Math.Abs( Z ) ) );
@@ -214,7 +243,7 @@ namespace fCraft {
                 return Axis.Z;
             }
         }
-
+        /// <summary> The minor axis (shortest). </summary>
         public Axis ShortestAxis {
             get {
                 int maxVal = Math.Min( Math.Abs( X ), Math.Min( Math.Abs( Y ), Math.Abs( Z ) ) );
@@ -229,10 +258,14 @@ namespace fCraft {
             return String.Format( "({0},{1},{2})", X, Y, Z );
         }
 
+        /// <summary> This vector but with the absolute values of the coordinates. </summary>
+        /// <returns> This vector with all positive coordinates. </returns>
         public Vector3I Abs() {
             return new Vector3I( Math.Abs( X ), Math.Abs( Y ), Math.Abs( Z ) );
         }
 
+        /// <summary> Calculates the unit vector of this vector. </summary>
+        /// <returns> The unit vector of this vector. </returns>
         public Vector3F Normalize() {
             if( X == 0 && Y == 0 && Z == 0 ) return Vector3F.Zero;
             float len = Length;
@@ -250,6 +283,8 @@ namespace fCraft {
             return new Vector3F( a.X, a.Y, a.Z );
         }
 
+        /// <summary> Converts the vector into player position coordinates. </summary>
+        /// <returns> Player position coordinates. </returns>
         public Position ToPlayerCoords() {
             return new Position( X * 32 + 16, Y * 32 + 16, Z * 32 + 16 );
         }
