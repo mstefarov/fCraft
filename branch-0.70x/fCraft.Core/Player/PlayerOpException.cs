@@ -31,7 +31,7 @@ namespace fCraft {
         public string MessageColored { get; private set; }
 
 
-        // Throws a PlayerOpException if reason is required but missing.
+        // Throws a PlayerOpException if ban/unban reason is required but missing.
         internal static void CheckBanReason( [CanBeNull] string reason, [NotNull] Player player, PlayerInfo targetInfo, bool unban ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( ConfigKey.RequireBanReason.Enabled() && String.IsNullOrEmpty( reason ) ) {
@@ -47,7 +47,7 @@ namespace fCraft {
         }
 
 
-        // Throws a PlayerOpException if reason is required but missing.
+        // Throws a PlayerOpException if promote/demote reason is required but missing.
         internal static void CheckRankChangeReason( [CanBeNull] string reason, [NotNull] Player player, PlayerInfo targetInfo, bool promoting ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( ConfigKey.RequireRankChangeReason.Enabled() && String.IsNullOrEmpty( reason ) ) {
@@ -63,7 +63,7 @@ namespace fCraft {
         }
 
 
-        // Throws a PlayerOpException if reason is required but missing.
+        // Throws a PlayerOpException if kick reason is required but missing.
         internal static void CheckKickReason( [CanBeNull] string reason, [NotNull] Player player, PlayerInfo targetInfo ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( ConfigKey.RequireKickReason.Enabled() && String.IsNullOrEmpty( reason ) ) {

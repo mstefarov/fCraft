@@ -399,7 +399,7 @@ namespace fCraft {
             }
 
             // Check if any high-ranked players use this address
-            var allPlayersOnIP = PlayerDB.FindByIP( targetAddress );
+            var allPlayersOnIP = PlayerDB.FindByIP( targetAddress ).ToArray();
             PlayerInfo infoWhomPlayerCantBan = allPlayersOnIP.FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
             if( infoWhomPlayerCantBan != null ) {
                 PlayerOpException.ThrowPermissionLimitIP( player, infoWhomPlayerCantBan, targetAddress );
@@ -430,13 +430,15 @@ namespace fCraft {
             // Ban individual players
             foreach( PlayerInfo targetAlt in allPlayersOnIP ) {
                 if( targetAlt.BanStatus != BanStatus.NotBanned ) continue;
+                bool announceThisOne = announce;
 
                 // Raise PlayerInfo.BanChanging event
-                PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetAlt, player, false, reason, announce );
+                var e = new PlayerInfoBanChangingEventArgs( targetAlt, player, false, reason, announce );
                 if( raiseEvents ) {
                     PlayerInfo.RaiseBanChangingEvent( e );
                     if( e.Cancel ) continue;
                     reason = e.Reason;
+                    announceThisOne = e.Announce;
                 }
 
                 // Do the ban
@@ -449,7 +451,7 @@ namespace fCraft {
                     Logger.Log( LogType.UserActivity,
                                 "{0} banned {1} (BanAll {2}). Reason: {3}",
                                 player.Name, targetAlt.Name, targetAddress, reason ?? "" );
-                    if( announce ) {
+                    if( announceThisOne ) {
                         Server.Message( "&WPlayer {0}&W was banned by {1}&W (BanAll)",
                                         targetAlt.ClassyName, player.ClassyName );
                     }
@@ -536,13 +538,15 @@ namespace fCraft {
             var allPlayersOnIP = PlayerDB.FindByIP( targetAddress );
             foreach( PlayerInfo targetAlt in allPlayersOnIP ) {
                 if( targetAlt.BanStatus != BanStatus.Banned ) continue;
+                bool announceThisOne = announce;
 
                 // Raise PlayerInfo.BanChanging event
-                PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetAlt, player, true, reason, announce );
+                var e = new PlayerInfoBanChangingEventArgs( targetAlt, player, true, reason, announce );
                 if( raiseEvents ) {
                     PlayerInfo.RaiseBanChangingEvent( e );
                     if( e.Cancel ) continue;
                     reason = e.Reason;
+                    announceThisOne = e.Announce;
                 }
 
                 // Do the ban
@@ -555,7 +559,7 @@ namespace fCraft {
                     Logger.Log( LogType.UserActivity,
                                 "{0} unbanned {1} (UnbanAll {2}). Reason: {3}",
                                 player.Name, targetAlt.Name, targetAddress, reason ?? "" );
-                    if( announce ) {
+                    if( announceThisOne ) {
                         Server.Message( "&WPlayer {0}&W was unbanned by {1}&W (UnbanAll)",
                                         targetAlt.ClassyName, player.ClassyName );
                     }

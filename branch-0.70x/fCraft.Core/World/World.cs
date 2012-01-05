@@ -205,7 +205,7 @@ namespace fCraft {
                     BlockDB.World = newWorld;
                 }
                 foreach( Player player in Players ) {
-                    player.JoinWorld( newWorld, WorldChangeReason.Rejoin );
+                    player.JoinWorld( newWorld, WorldChangeContext.Rejoin );
                 }
                 return newWorld;
             }
@@ -253,7 +253,7 @@ namespace fCraft {
                 IsFlushing = false;
                 Players.Message( "&WMap flushed. Reloading..." );
                 foreach( Player player in Players ) {
-                    player.JoinWorld( this, WorldChangeReason.Rejoin, player.Position );
+                    player.JoinWorld( this, WorldChangeContext.Rejoin, player.Position );
                 }
             }
         }

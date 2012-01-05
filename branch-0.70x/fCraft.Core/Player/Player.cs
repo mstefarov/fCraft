@@ -1679,6 +1679,8 @@ namespace fCraft {
                 RaisePlayerBeingKickedEvent( e );
                 if( e.Cancel ) PlayerOpException.ThrowCancelled( player, Info );
                 recordToPlayerDB = e.RecordToPlayerDB;
+                announce = e.Announce;
+                reason = e.Reason;
             }
 
             // actually kick

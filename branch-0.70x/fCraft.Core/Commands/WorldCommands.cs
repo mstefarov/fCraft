@@ -1007,7 +1007,7 @@ namespace fCraft {
                             return;
                         }
                         player.StopSpectating();
-                        if( !player.JoinWorldNow( world, true, WorldChangeReason.ManualJoin ) ) {
+                        if( !player.JoinWorldNow( world, true, WorldChangeContext.ManualJoin ) ) {
                             player.Message( "ERROR: Failed to join world. See log for details." );
                         }
                         break;
@@ -1506,7 +1506,7 @@ namespace fCraft {
                 var playersWhoCantStay = world.Players.Where( p => !p.CanJoin( world ) );
                 foreach( Player p in playersWhoCantStay ) {
                     p.Message( "&WYou are no longer allowed to join world {0}", world.ClassyName );
-                    p.JoinWorld( WorldManager.MainWorld, WorldChangeReason.PermissionChanged );
+                    p.JoinWorld( WorldManager.MainWorld, WorldChangeContext.PermissionChanged );
                 }
                 WorldManager.SaveWorldList();
             }

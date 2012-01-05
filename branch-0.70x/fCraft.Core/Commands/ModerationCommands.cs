@@ -576,9 +576,7 @@ namespace fCraft {
                     string msg = Server.MakePlayerConnectedMessage( player, false, player.World );
                     Server.Players.CantSee( player ).Message( msg );
                 }
-                if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() ) {
-                    IRC.PlayerReadyHandler( null, new PlayerConnectedEventArgs( player, player.World ) );
-                }
+                Player.RaisePlayerConnectedEvent( player, player.World, true );
             }
 
             Player.RaisePlayerHideChangedEvent( player );
@@ -772,7 +770,7 @@ namespace fCraft {
                                     return;
                                 }
                                 player.StopSpectating();
-                                player.JoinWorld( targetWorld, WorldChangeReason.Tp, target.Position );
+                                player.JoinWorld( targetWorld, WorldChangeContext.Tp, target.Position );
                                 break;
                             case SecurityCheckResult.BlackListed:
                                 player.Message( "Cannot teleport to {0}&S because you are blacklisted on world {1}",
@@ -1071,9 +1069,9 @@ namespace fCraft {
                     }
                     target.StopSpectating();
                     if( usePlayerPosition ) {
-                        target.JoinWorld( world, WorldChangeReason.Bring, player.Position );
+                        target.JoinWorld( world, WorldChangeContext.Bring, player.Position );
                     } else {
-                        target.JoinWorld( world, WorldChangeReason.Bring );
+                        target.JoinWorld( world, WorldChangeContext.Bring );
                     }
                     break;
 
@@ -1087,9 +1085,9 @@ namespace fCraft {
                     if( overridePermissions ) {
                         target.StopSpectating();
                         if( usePlayerPosition ) {
-                            target.JoinWorld( world, WorldChangeReason.Bring, player.Position );
+                            target.JoinWorld( world, WorldChangeContext.Bring, player.Position );
                         } else {
-                            target.JoinWorld( world, WorldChangeReason.Bring );
+                            target.JoinWorld( world, WorldChangeContext.Bring );
                         }
                     } else {
                         player.Message( "Cannot bring {0}&S because world {1}&S requires {2}+&S to join.",

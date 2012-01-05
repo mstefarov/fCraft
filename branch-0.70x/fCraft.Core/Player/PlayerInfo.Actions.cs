@@ -64,7 +64,7 @@ namespace fCraft {
                 PlayerOpException.CheckBanReason( reason, player, this, unban );
 
                 // Raise PlayerInfo.BanChanging event
-                PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( this, player, unban, reason, announce );
+                var e = new PlayerInfoBanChangingEventArgs( this, player, unban, reason, announce );
                 if( raiseEvents ) {
                     RaiseBanChangingEvent( e );
                     if( e.Cancel ) PlayerOpException.ThrowCancelled( player, this );
@@ -347,7 +347,7 @@ namespace fCraft {
                 }
 
                 // Check if any high-ranked players use this address
-                var allPlayersOnIP = PlayerDB.FindByIP( address );
+                var allPlayersOnIP = PlayerDB.FindByIP( address ).ToArray();
                 PlayerInfo infoWhomPlayerCantBan = allPlayersOnIP.FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
                 if( infoWhomPlayerCantBan != null ) {
                     PlayerOpException.ThrowPermissionLimitIP( player, infoWhomPlayerCantBan, address );
@@ -380,13 +380,15 @@ namespace fCraft {
                 // Ban individual players
                 foreach( PlayerInfo targetAlt in allPlayersOnIP ) {
                     if( targetAlt.BanStatus != BanStatus.NotBanned ) continue;
+                    bool announceThisOne = announce;
 
                     // Raise PlayerInfo.BanChanging event
-                    PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetAlt, player, false, reason, announce );
+                    var e = new PlayerInfoBanChangingEventArgs( targetAlt, player, false, reason, announce );
                     if( raiseEvents ) {
                         RaiseBanChangingEvent( e );
                         if( e.Cancel ) continue;
                         reason = e.Reason;
+                        announceThisOne = e.Announce;
                     }
 
                     // Do the ban
@@ -399,7 +401,7 @@ namespace fCraft {
                         Logger.Log( LogType.UserActivity,
                                     "{0} banned {1} (BanAll {2}). Reason: {3}",
                                     player.Name, targetAlt.Name, Name, reason ?? "" );
-                        if( announce ) {
+                        if( announceThisOne ) {
                             if( targetAlt == this ) {
                                 Server.Message( "&WPlayer {0}&W was banned by {1}&W (BanAll)",
                                                 targetAlt.ClassyName, player.ClassyName );
@@ -496,13 +498,15 @@ namespace fCraft {
                 var allPlayersOnIP = PlayerDB.FindByIP( address );
                 foreach( PlayerInfo targetAlt in allPlayersOnIP ) {
                     if( targetAlt.BanStatus != BanStatus.Banned ) continue;
+                    bool announceThisOne = announce;
 
                     // Raise PlayerInfo.BanChanging event
-                    PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetAlt, player, true, reason, announce );
+                    var e = new PlayerInfoBanChangingEventArgs( targetAlt, player, true, reason, announce );
                     if( raiseEvents ) {
                         RaiseBanChangingEvent( e );
                         if( e.Cancel ) continue;
                         reason = e.Reason;
+                        announceThisOne = e.Announce;
                     }
 
                     // Do the ban
@@ -515,7 +519,7 @@ namespace fCraft {
                         Logger.Log( LogType.UserActivity,
                                     "{0} unbanned {1} (UnbanAll {2}). Reason: {3}",
                                     player.Name, targetAlt.Name, Name, reason ?? "" );
-                        if( announce ) {
+                        if( announceThisOne ) {
                             if( targetAlt == this ) {
                                 Server.Message( "&WPlayer {0}&W was unbanned by {1}&W (UnbanAll)",
                                                 targetAlt.ClassyName, player.ClassyName );
@@ -661,8 +665,12 @@ namespace fCraft {
             }
 
             // Raise PlayerInfo.RankChanging event
-            if( raiseEvents && !RaiseRankChangingEvent( this, player, newRank, reason, changeType, announce ) ) {
-                PlayerOpException.ThrowCancelled( player, this );
+            if( raiseEvents ) {
+                var e = new PlayerInfoRankChangingEventArgs( this, player, newRank, reason, rankChangeType, announce );
+                RaiseRankChangingEvent( e );
+                if( e.Cancel ) PlayerOpException.ThrowCancelled( player, this );
+                announce = e.Announce;
+                reason = e.Reason;
             }
 
             // Log the rank change
@@ -806,8 +814,11 @@ namespace fCraft {
                 }
 
                 // Raise PlayerInfo.FreezeChanging event
-                if( raiseEvents && !RaiseFreezeChangingEvent( this, player, false, announce ) ) {
-                    PlayerOpException.ThrowCancelled( player, this );
+                if( raiseEvents ) {
+                    var e = new PlayerInfoFrozenChangingEventArgs( this, player, false, announce );
+                    RaiseFreezeChangingEvent( e );
+                    if( e.Cancel ) PlayerOpException.ThrowCancelled( player, this );
+                    announce = e.Announce;
                 }
 
                 // Actually freeze
@@ -864,8 +875,11 @@ namespace fCraft {
                 }
 
                 // Raise PlayerInfo.FreezeChanging event
-                if( raiseEvents && !RaiseFreezeChangingEvent( this, player, true, announce ) ) {
-                    PlayerOpException.ThrowCancelled( player, this );
+                if( raiseEvents ){
+                    var e = new PlayerInfoFrozenChangingEventArgs( this, player, true, announce );
+                    RaiseFreezeChangingEvent( e );
+                    if( e.Cancel ) PlayerOpException.ThrowCancelled( player, this );
+                    announce = e.Announce;
                 }
 
                 // Actually unfreeze
@@ -934,9 +948,11 @@ namespace fCraft {
 
                     // raise PlayerInfo.MuteChanging event
                     if( raiseEvents ) {
-                        if( RaiseMuteChangingEvent( this, player, duration, false, announce ) ) {
-                            PlayerOpException.ThrowCancelled( player, this );
-                        }
+                        var e = new PlayerInfoMuteChangingEventArgs( this, player, duration, false, announce );
+                        RaiseMuteChangingEvent( e );
+                        if( e.Cancel ) PlayerOpException.ThrowCancelled( player, this );
+                        announce = e.Announce;
+                        duration = e.Duration;
                     }
 
                     // actually mute
@@ -1004,9 +1020,10 @@ namespace fCraft {
 
                 // raise PlayerInfo.MuteChanging event
                 if( raiseEvents ) {
-                    if( RaiseMuteChangingEvent( this, player, timeLeft, true, announce ) ) {
-                        PlayerOpException.ThrowCancelled( player, this );
-                    }
+                    var e = new PlayerInfoMuteChangingEventArgs( this, player, timeLeft, true, announce );
+                    RaiseMuteChangingEvent( e );
+                    if( e.Cancel ) PlayerOpException.ThrowCancelled( player, this );
+                    announce = e.Announce;
                 }
 
                 Unmute();

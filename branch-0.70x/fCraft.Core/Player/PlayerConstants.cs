@@ -163,7 +163,7 @@ namespace fCraft {
 
 
     /// <summary> List possible reasons for players joining/changing worlds. </summary>
-    public enum WorldChangeReason {
+    public enum WorldChangeContext {
         /// <summary> First world that the player joins upon entering the server (main). </summary>
         FirstWorld,
 

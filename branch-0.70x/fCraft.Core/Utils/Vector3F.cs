@@ -48,7 +48,7 @@ namespace fCraft {
         /// <summary> Length of this vector (magnitude) from the origin. </summary>
         public float Length {
             get {
-                return (float)Math.Sqrt((double)X * X + (double)Y * Y + (double)Z * Z);
+                return (float)Math.Sqrt( (double)X * X + (double)Y * Y + (double)Z * Z );
             }
         }
         
