@@ -2,12 +2,14 @@
 using System;
 
 namespace fCraft.Drawing {
+    /// <summary> Hollow ellipsoid implementation of the DrawOperation class. </summary>
     public class EllipsoidHollowDrawOperation : DrawOperation {
 
         public override string Name {
             get { return "EllipsoidH"; }
         }
-
+        /// <summary> Initialises a new intance of EllipsoidHollowDrawOperation, using the specified player. </summary>
+        /// <param name="player"> Player who is executing the draw operation. </param>
         public EllipsoidHollowDrawOperation( Player player )
             : base( player ) {
         }

@@ -5,6 +5,7 @@ namespace fCraft {
     public enum OpCode {
         /// <summary> Exchanges initial information between client and server </summary>
         Handshake = 0,
+        /// <summary> Sends a small packet of data (opcode) in order to confirm client/server connection. </summary>     
         Ping = 1,
         /// <summary> Signals the beginning of a map transfer </summary>
         MapBegin = 2,

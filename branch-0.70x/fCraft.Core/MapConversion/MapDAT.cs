@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Net;
 
 namespace fCraft.MapConversion {
+    /// <summary> .Dat map conversion implementation, for converting .Dat map format into fCraft's default map format. </summary>
     public sealed class MapDat : IMapConverter {
 
         static readonly byte[] Mapping = new byte[256];

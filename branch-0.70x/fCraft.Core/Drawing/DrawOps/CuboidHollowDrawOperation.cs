@@ -3,13 +3,17 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
+    /// <summary> Hollow cuboid implementation of the DrawOperation class. </summary>
     public sealed class CuboidHollowDrawOperation : DrawOperation {
         bool fillInner;
 
+        /// <summary> General name of this type of draw operation. Should be same for all instances. </summary>
         public override string Name {
             get { return "CuboidH"; }
         }
 
+        /// <summary> Initialises a new intance of CuboidHollowDrawOperation, using the specified player. </summary>
+        /// <param name="player"> Player who is executing the draw operation. </param>
         public CuboidHollowDrawOperation( Player player )
             : base( player ) {
         }

@@ -1,11 +1,13 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 
 namespace fCraft.Drawing {
+    /// <summary> Cuboid implementation of the DrawOperation interface. </summary>
     public sealed class CuboidDrawOperation : DrawOperation {
         public override string Name {
             get { return "Cuboid"; }
         }
-
+        /// <summary> Initialises a new intance of CuboidDrawOperation, using the specified player. </summary>
+        /// <param name="player"> Player who is executing the draw operation. </param>
         public CuboidDrawOperation( Player player )
             : base( player ) {
         }

@@ -2,11 +2,13 @@
 using System;
 
 namespace fCraft.Drawing {
+    /// <summary> Hollow sphere implementation of the DrawOperation class. </summary>
     public sealed class SphereHollowDrawOperation : EllipsoidHollowDrawOperation {
         public override string Name {
             get { return "SphereH"; }
         }
-
+        /// <summary> Initialises a new intance of SphereHollowDrawOperation, using the specified player. </summary>
+        /// <param name="player"> Player who is executing the draw operation. </param>
         public SphereHollowDrawOperation( Player player )
             : base( player ) {
         }
