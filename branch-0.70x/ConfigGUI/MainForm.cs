@@ -1377,7 +1377,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             if( MessageBox.Show( "Are you sure you want to reset everything to defaults?", "Warning",
                                  MessageBoxButtons.OKCancel ) != DialogResult.OK ) return;
             Config.LoadDefaults();
-            Config.ResetRanks();
+            RankManager.ResetToDefaults();
             Config.ResetLogOptions();
 
             ApplyTabGeneral();
@@ -1409,7 +1409,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                     ApplyTabWorlds(); // also reloads world list
                     break;
                 case 3:// Ranks
-                    Config.ResetRanks();
+                    RankManager.ResetToDefaults();
                     ApplyTabWorlds();
                     ApplyTabRanks();
                     RebuildRankList();

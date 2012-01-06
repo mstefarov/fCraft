@@ -136,7 +136,7 @@ namespace fCraft.ConfigCLI {
 
 
         public TextOption Show() {
-            return Show( "Select an option: " );
+            return Show( "Enter your selection: " );
         }
 
 
@@ -160,12 +160,28 @@ namespace fCraft.ConfigCLI {
 
         public static bool ShowYesNo( string prompt ) {
             while( true ) {
-                Console.Write( prompt + " (Y/N): " );
+                Console.Write( "{0} (Y/N): ", prompt );
                 string input = Console.ReadLine().ToLower();
                 if( input.Equals( "yes", StringComparison.OrdinalIgnoreCase ) || input.Equals( "y", StringComparison.OrdinalIgnoreCase ) ) {
                     return true;
                 } else if( input.Equals( "no", StringComparison.OrdinalIgnoreCase ) || input.Equals( "n", StringComparison.OrdinalIgnoreCase ) ) {
                     return false;
+                }
+            }
+        }
+
+
+        public static int ShowNumber( string prompt, int min, int max ) {
+            while( true ) {
+                Console.Write( "{0} ({1}-{2}, or press enter to cancel): ", prompt, min, max );
+                string input = Console.ReadLine();
+                int choice;
+                if( input.Length == 0 ) {
+                    return -1;
+                }else if( Int32.TryParse( input, out choice ) ) {
+                    if( choice >= min && choice <= max ) {
+                        return choice;
+                    }
                 }
             }
         }
