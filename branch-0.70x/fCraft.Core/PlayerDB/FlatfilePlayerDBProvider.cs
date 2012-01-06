@@ -499,9 +499,6 @@ namespace fCraft {
             return info;
         }
 
-        static void TestPlayerDB() {}
-
-
         static IPAddress ReadIPAddress( [NotNull] BinaryReader reader ) {
             return new IPAddress( reader.ReadBytes( 4 ) );
         }
