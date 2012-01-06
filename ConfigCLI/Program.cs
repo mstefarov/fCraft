@@ -12,6 +12,8 @@ namespace fCraft.ConfigCLI {
 
 
         static void Main( string[] args ) {
+            var derp = Enum.GetNames( typeof( Permission ) );
+
             Console.Title = "fCraft Configuration (" + Updater.CurrentRelease.VersionString + ")";
 #if !DEBUG
             try {
@@ -44,6 +46,7 @@ namespace fCraft.ConfigCLI {
         static ConfigSection currentSection;
         static ConfigKey currentKey;
 
+
         static void StateLoop() {
             while( menuState != MenuState.Done ) {
                 switch( menuState ) {
@@ -57,6 +60,22 @@ namespace fCraft.ConfigCLI {
 
                     case MenuState.Key:
                         menuState = ShowKey();
+                        break;
+
+                    case MenuState.Ranks:
+                        menuState = ShowRanks();
+                        break;
+
+                    case MenuState.RankDetails:
+                        menuState = ShowRankDetails();
+                        break;
+
+                    case MenuState.Permissions:
+                        menuState = ShowPermissions();
+                        break;
+
+                    case MenuState.PermissionLimits:
+                        menuState = ShowPermissionLimits();
                         break;
                 }
             }
@@ -76,8 +95,27 @@ namespace fCraft.ConfigCLI {
                 case MenuState.Key:
                     WriteHeader( "Section {0} > Key {1}", currentSection, currentKey );
                     break;
+                case MenuState.Ranks:
+                    WriteHeader( "Rank List" );
+                    break;
+                case MenuState.RankDetails:
+                    WriteHeader( "Rank List > Rank {0} ({1} of {2})",
+                                 currentRank.Name, currentRank.Index + 1, RankManager.Ranks.Count );
+                    break;
+
+                case MenuState.Permissions:
+                    WriteHeader( "Rank List > Rank {0} ({1} of {2}) > Permissions",
+                                 currentRank.Name, currentRank.Index + 1, RankManager.Ranks.Count );
+                    break;
             }
             Console.WriteLine( Separator );
+            if( UseColor ) Console.ResetColor();
+        }
+
+
+        static void WriteHeader( string text, params object[] args ) {
+            if( UseColor ) Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine( text, args );
             if( UseColor ) Console.ResetColor();
         }
 
@@ -85,22 +123,23 @@ namespace fCraft.ConfigCLI {
         static MenuState ShowSectionList() {
             Refresh();
 
-            TextMenu sectionMenu = new TextMenu();
+            TextMenu menu = new TextMenu();
 
             ConfigSection[] sections = (ConfigSection[])Enum.GetValues( typeof( ConfigSection ) );
             for( int i = 0; i < sections.Length; i++ ) {
-                sectionMenu.AddOption( ( i + 1 ).ToString( CultureInfo.InvariantCulture ),
-                                       sections[i].ToString(),
-                                       sections[i] );
+                menu.AddOption( ( i + 1 ).ToString( CultureInfo.InvariantCulture ),
+                                sections[i].ToString(),
+                                sections[i] );
             }
+            TextOption optionRanks = menu.AddOption( sections.Length + 1, "Ranks" );
 
-            sectionMenu.Column = Column.Right;
-            TextOption optionSaveAndExit = sectionMenu.AddOption( "S", "Save and exit" );
-            TextOption optionQuit = sectionMenu.AddOption( "Q", "Quit without saving" );
-            TextOption optionResetEverything = sectionMenu.AddOption( "D", "Use defaults" );
-            TextOption optionReloadConfig = sectionMenu.AddOption( "R", "Reload config" );
+            menu.Column = Column.Right;
+            TextOption optionSaveAndExit = menu.AddOption( "S", "Save and exit" );
+            TextOption optionQuit = menu.AddOption( "Q", "Quit without saving" );
+            TextOption optionResetEverything = menu.AddOption( "D", "Use defaults" );
+            TextOption optionReloadConfig = menu.AddOption( "R", "Reload config" );
 
-            var choice = sectionMenu.Show( "Enter your selection: " );
+            var choice = menu.Show();
 
             if( choice == optionSaveAndExit ) {
                 if( TextMenu.ShowYesNo( "Save and exit?" ) && Config.Save() ) {
@@ -115,17 +154,22 @@ namespace fCraft.ConfigCLI {
             } else if( choice == optionResetEverything ) {
                 if( TextMenu.ShowYesNo( "Reset everything to defaults?" ) ) {
                     Config.LoadDefaults();
+                    RankManager.ResetToDefaults();
+                    Config.ResetLogOptions();
                 }
 
             } else if( choice == optionReloadConfig ) {
                 if( File.Exists( Paths.ConfigFileName ) ) {
                     if( TextMenu.ShowYesNo( "Reload configuration from \"" + Paths.ConfigFileName + "\"?" ) ) {
-                        Config.Reload();
+                        Config.Reload( true );
                         Console.WriteLine( "Configuration file \"{0}\" reloaded.", Paths.ConfigFileName );
                     }
                 } else {
                     Console.WriteLine( "Configuration file \"{0}\" does not exist.", Paths.ConfigFileName );
                 }
+
+            } else if( choice == optionRanks ) {
+                return MenuState.Ranks;
 
             } else {
                 currentSection = (ConfigSection)choice.Tag;
@@ -140,7 +184,7 @@ namespace fCraft.ConfigCLI {
             Refresh();
 
             TextMenu menu = new TextMenu();
-            TextOption optionBack = menu.AddOption( "0", "Back to sections" );
+            TextOption optionBack = menu.AddOption( "B", "Back to sections" );
             TextOption optionDefaults = menu.AddOption( "D", "Use defaults" );
             menu.AddSpacer( Column.Left );
 
@@ -161,7 +205,7 @@ namespace fCraft.ConfigCLI {
                 menu.AddOption( option );
             }
 
-            TextOption choice = menu.Show( "Enter key number: " );
+            TextOption choice = menu.Show();
 
             if( choice == optionBack ) {
                 return MenuState.SectionList;
@@ -179,6 +223,8 @@ namespace fCraft.ConfigCLI {
             return MenuState.KeyList;
         }
 
+
+        #region Key
 
         static MenuState ShowKey() {
             Refresh();
@@ -201,7 +247,8 @@ namespace fCraft.ConfigCLI {
             Console.WriteLine( "   Description:" );
             if( UseColor ) Console.ResetColor();
             string[] newlineSeparator = new[] { "\r\n" };
-            string[] descriptionLines = currentKey.GetDescription().Split( newlineSeparator, StringSplitOptions.RemoveEmptyEntries );
+            string[] descriptionLines = currentKey.GetDescription().Split( newlineSeparator,
+                                                                           StringSplitOptions.RemoveEmptyEntries );
             foreach( string line in descriptionLines ) {
                 Console.WriteLine( "    " + line );
             }
@@ -225,9 +272,9 @@ namespace fCraft.ConfigCLI {
 
             Console.WriteLine();
             TextMenu menu = new TextMenu();
-            TextOption optionBack = menu.AddOption( 0, "Back to " + currentSection );
-            TextOption optionChange = menu.AddOption( 1, "Change value" );
-            TextOption optionDefaults = menu.AddOption( 2, "Use default" );
+            TextOption optionBack = menu.AddOption( "B", "Back to " + currentSection );
+            TextOption optionChange = menu.AddOption( "C", "Change value" );
+            TextOption optionDefaults = menu.AddOption( "D", "Use default" );
 
             TextOption choice = menu.Show();
             if( choice == optionBack ) {
@@ -247,6 +294,7 @@ namespace fCraft.ConfigCLI {
             }
             return MenuState.Key;
         }
+
 
         static void PrintColorList() {
             if( UseColor ) {
@@ -282,12 +330,13 @@ namespace fCraft.ConfigCLI {
 
             } else {
                 Console.WriteLine(
-@"       Choices: Black (&0), Navy (&1), Green (&2), Teal (&3), Maroon (&4),
+                    @"       Choices: Black (&0), Navy (&1), Green (&2), Teal (&3), Maroon (&4),
                 Purple (&5), Olive (&6), Silver (&7), Gray (&8), Blue (&9),
                 Lime (&a), Aqua (&b), Red (&c), Magenta (&d), Yellow (&e),
                 White (&f)" );
             }
         }
+
 
         static void PrintColor( string color ) {
             ConsoleColor parsedColor = Color.ToConsoleColor( color );
@@ -300,6 +349,7 @@ namespace fCraft.ConfigCLI {
             Console.ResetColor();
             Console.Write( ", " );
         }
+
 
         static void PrintKeyValue( string value ) {
             if( UseColor ) {
@@ -329,6 +379,202 @@ namespace fCraft.ConfigCLI {
             if( !Server.HasArg( ArgKey.ExitOnCrash ) ) {
                 Console.ReadLine();
             }
+        }
+
+        #endregion
+
+
+        static MenuState ShowRanks() {
+            Refresh();
+
+            TextMenu menu = new TextMenu();
+
+            for( int i = 0; i < RankManager.Ranks.Count; i++ ) {
+                Rank rank = RankManager.Ranks[i];
+                TextOption derp = menu.AddOption( ( i + 1 ).ToString( CultureInfo.InvariantCulture ),
+                                                  rank.Name,
+                                                  rank );
+                derp.ForeColor = Color.ToConsoleColor( rank.Color );
+                if( derp.ForeColor == ConsoleColor.Black ) {
+                    derp.BackColor = ConsoleColor.Gray;
+                }
+            }
+
+            TextOption optionErase = null, optionRaise = null, optionLower = null;
+
+            menu.Column = Column.Right;
+            TextOption optionBack = menu.AddOption( "B", "Back to sections" );
+
+            menu.AddSpacer( Column.Right );
+            TextOption optionAdd = menu.AddOption( "A", "Add rank" );
+            if( RankManager.Ranks.Count > 0 ) {
+                optionErase = menu.AddOption( "E", "Erase rank" );
+            }
+
+            if( RankManager.Ranks.Count > 1 ) {
+                menu.AddSpacer( Column.Right );
+                optionRaise = menu.AddOption( "R", "Raise rank in hierarchy" );
+                optionLower = menu.AddOption( "L", "Lower rank in hierarchy" );
+            }
+
+            menu.AddSpacer( Column.Right );
+            TextOption optionDefaults = menu.AddOption( "D", "Use defaults" );
+
+            TextOption choice = menu.Show();
+
+            if( choice == optionBack ) {
+                return MenuState.SectionList;
+
+            } else if( choice == optionAdd ) {
+                return MenuState.RankAdd;
+
+            } else if( choice == optionErase ) {
+                return MenuState.RankErase;
+
+            } else if( choice == optionRaise ) {
+                int rankToRaise = TextMenu.ShowNumber( "Which rank to raise?",
+                                                       2, RankManager.Ranks.Count );
+                if( rankToRaise != 0 ) {
+                    RankManager.RaiseRank( RankManager.Ranks[rankToRaise - 1] );
+                }
+
+            } else if( choice == optionLower ) {
+                int rankToLower = TextMenu.ShowNumber( "Which rank to lower?",
+                                                       1, RankManager.Ranks.Count - 1 );
+                if( rankToLower != 0 ) {
+                    RankManager.LowerRank( RankManager.Ranks[rankToLower - 1] );
+                }
+
+            } else if( choice == optionDefaults ) {
+                if( TextMenu.ShowYesNo( "Reset all ranks to defaults?" ) ) {
+                    RankManager.ResetToDefaults();
+                }
+
+            } else {
+                currentRank = (Rank)choice.Tag;
+                return MenuState.RankDetails;
+            }
+
+            return MenuState.Ranks;
+        }
+
+
+        static Rank currentRank;
+
+
+        static MenuState ShowRankDetails() {
+            Refresh();
+
+            TextMenu menu = new TextMenu();
+
+            TextOption optionName = menu.AddOption( 1, "Name: \"" + currentRank.Name + "\"" );
+
+            TextOption optionColor = menu.AddOption( 2, "Color: " + Color.GetName( currentRank.Color ) );
+            optionColor.BackColor = Color.ToConsoleColor( currentRank.Color );
+
+            TextOption optionPrefix = menu.AddOption( 3, "Prefix: \"" + currentRank.Prefix + "\"" );
+
+            TextOption optionHasReservedSlot = menu.AddOption( 4, "HasReservedSlot: " + currentRank.HasReservedSlot );
+
+            TextOption optionAllowSecurityCircumvention = menu.AddOption( 5,
+                                                                          "AllowSecurityCircumvention: " +
+                                                                          currentRank.AllowSecurityCircumvention );
+
+            TextOption optionIdleKickTimer = menu.AddOption( 6, "IdleKickTimer: " + currentRank.IdleKickTimer );
+
+            TextOption optionDrawLimit = menu.AddOption( 7, "DrawLimit: " + currentRank.DrawLimit );
+            TextOption optionFillLimit = menu.AddOption( 8, "FillLimit: " + currentRank.FillLimit );
+            TextOption optionCopySlots = menu.AddOption( 9, "CopySlots: " + currentRank.CopySlots );
+            TextOption optionAntiGriefBlocks = menu.AddOption( 10, "AntiGriefBlocks: " + currentRank.AntiGriefBlocks );
+            TextOption optionAntiGriefSeconds = menu.AddOption( 11, "AntiGriefSeconds: " + currentRank.AntiGriefSeconds );
+
+            menu.Column = Column.Right;
+
+            TextOption optionBack = menu.AddOption( "B", "Back to rank list" );
+
+            menu.AddSpacer( Column.Right );
+            TextOption optionPermissions = menu.AddOption( "P", "Permissions" );
+            TextOption optionPermissionLimits = menu.AddOption( "L", "Permission limits" );
+
+            menu.AddSpacer( Column.Right );
+            TextOption optionNextUp = null, optionNextDown = null;
+            if( currentRank.NextRankUp != null ) {
+                optionNextUp = menu.AddOption( "U", "Go to next rank up", currentRank.NextRankUp );
+            }
+            if( currentRank.NextRankDown != null ) {
+                optionNextDown = menu.AddOption( "D", "Go to next rank down", currentRank.NextRankDown );
+            }
+
+            TextOption choice = menu.Show();
+            if( choice == optionBack ) {
+                return MenuState.Ranks;
+
+            } else if( choice == optionPermissions ) {
+                return MenuState.Permissions;
+
+            } else if( choice == optionPermissionLimits ) {
+                return MenuState.PermissionLimits;
+
+            } else if( choice == optionNextDown || choice == optionNextUp ) {
+                currentRank = (Rank)choice.Tag;
+            }
+
+            return MenuState.RankDetails;
+        }
+
+
+        static MenuState ShowPermissions() {
+            Refresh();
+
+            TextMenu menu = new TextMenu();
+            Permission[] permissions = (Permission[])Enum.GetValues( typeof( Permission ) );
+
+            TextOption optionBack = menu.AddOption( "B", "Back to rank " + currentRank.Name );
+            TextOption optionClear = menu.AddOption( "C", "Clear" );
+            menu.Column = Column.Right;
+            TextOption optionAll = menu.AddOption( "A", "All" );
+            TextOption optionInvert = menu.AddOption( "I", "Invert" );
+            menu.AddSpacer( Column.Left );
+            menu.AddSpacer( Column.Right );
+
+            for( int i = 0; i < permissions.Length; i++ ) {
+                menu.Column = (i > permissions.Length/2 ? Column.Right : Column.Left);
+                if(currentRank.Permissions[i]) {
+                    menu.AddOption( ( i + 1 ).ToString(), "[X] " + permissions[i], permissions[i] );
+                }else {
+                    menu.AddOption( ( i + 1 ).ToString(), "[ ] " + permissions[i], permissions[i] );
+                }
+            }
+
+            TextOption choice = menu.Show();
+            if( choice == optionBack ) {
+                return MenuState.RankDetails;
+
+            }else if(choice ==optionAll){
+                for( int i = 0; i < permissions.Length; i++ ) {
+                    currentRank.Permissions[i] = true;
+                }
+
+            } else if( choice == optionClear ) {
+                for( int i = 0; i < permissions.Length; i++ ) {
+                    currentRank.Permissions[i] = false;
+                }
+
+            } else if( choice == optionInvert) {
+                for( int i = 0; i < permissions.Length; i++ ) {
+                    currentRank.Permissions[i] = !currentRank.Permissions[i];
+                }
+
+            } else {
+                int permissionIndex = (int)choice.Tag;
+                currentRank.Permissions[permissionIndex] = !currentRank.Permissions[permissionIndex];
+            }
+
+            return MenuState.Permissions;
+        }
+
+        static MenuState ShowPermissionLimits() {
+            return MenuState.PermissionLimits;
         }
 
 
@@ -366,19 +612,19 @@ namespace fCraft.ConfigCLI {
                     return;
             }
         }
-
-
-        static void WriteHeader( string text, params object[] args ) {
-            if( UseColor ) Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine( text, args );
-            if( UseColor ) Console.ResetColor();
-        }
     }
+
 
     enum MenuState {
         SectionList,
         KeyList,
         Key,
+        Ranks,
+        RankAdd,
+        RankErase,
+        RankDetails,
+        Permissions,
+        PermissionLimits,
         Done
     }
 }

@@ -957,7 +957,7 @@ namespace fCraft {
                 switch( whatToReload ) {
                     case "config":
                         try {
-                            Config.Reload();
+                            Config.Reload( false );
                             success = true;
                         } catch( Exception ex ) {
                             Logger.Log( LogType.Error, "Error reloading config: {0}", ex );
