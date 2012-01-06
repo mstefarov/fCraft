@@ -961,7 +961,7 @@ namespace fCraft {
                             success = true;
                         } catch( Exception ex ) {
                             Logger.Log( LogType.Error, "Error reloading config: {0}", ex );
-                            player.Message( "An error occured while trying to reload config: {0}: {1}", ex.GetType().Name, ex.Message );
+                            player.Message( "An error occurred while trying to reload config: {0}: {1}", ex.GetType().Name, ex.Message );
                             success = false;
                         }
                         break;
@@ -991,7 +991,7 @@ namespace fCraft {
                 if( success ) {
                     player.Message( "Reload: reloaded {0}.", whatToReload );
                 } else {
-                    player.Message( "&WReload: Error(s) occured while reloading {0}.", whatToReload );
+                    player.Message( "&WReload: Error(s) occurred while reloading {0}.", whatToReload );
                 }
             }
         }

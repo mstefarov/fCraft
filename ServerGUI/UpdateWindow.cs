@@ -50,7 +50,7 @@ namespace fCraft.ServerGUI {
             } else {
                 progress.Value = 100;
                 if( e.Cancelled || e.Error != null ) {
-                    MessageBox.Show( e.Error.ToString(), "Error occured while trying to download " + Paths.UpdaterFileName );
+                    MessageBox.Show( e.Error.ToString(), "Error occurred while trying to download " + Paths.UpdaterFileName );
                 } else if( autoUpdate ) {
                     bUpdateNow_Click( null, null );
                 } else {

@@ -222,7 +222,7 @@ namespace fCraft.ServerGUI {
                     }
 #if !DEBUG
                 } catch( Exception ex ) {
-                    Logger.LogToConsole( "Error occured while trying to execute last console command: " );
+                    Logger.LogToConsole( "Error occurred while trying to execute last console command: " );
                     Logger.LogToConsole( ex.GetType().Name + ": " + ex.Message );
                     Logger.LogAndReportCrash( "Exception executing command from console", "ServerGUI", ex, false );
                 }

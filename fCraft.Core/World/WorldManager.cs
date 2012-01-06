@@ -76,7 +76,7 @@ namespace fCraft {
                             try {
                                 newWorld = AddWorld( el );
                             } catch( Exception ex ) {
-                                Logger.LogAndReportCrash( "An error occured while trying to parse one of the entries on the world list",
+                                Logger.LogAndReportCrash( "An error occurred while trying to parse one of the entries on the world list",
                                                           "fCraft", ex, false );
                                 continue;
                             }

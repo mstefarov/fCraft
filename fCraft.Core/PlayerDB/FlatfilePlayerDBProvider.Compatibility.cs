@@ -89,8 +89,9 @@ namespace fCraft {
 
             if( fields[13].Length > 1 ) {
                 IPAddress lastFailedLoginIP;
-                IPAddress.TryParse( fields[13], out lastFailedLoginIP );
-                info.LastFailedLoginIP = lastFailedLoginIP;
+                if (IPAddress.TryParse(fields[13], out lastFailedLoginIP)) {
+                    info.LastFailedLoginIP = lastFailedLoginIP;
+                }
             }
             // skip 14
 
