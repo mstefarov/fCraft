@@ -292,7 +292,7 @@ namespace fCraft {
                 if( playerIndex.ContainsKey( player.Name.ToLower() ) ) {
                     Logger.Log( LogType.Error,
                                 "This world already contains the player by name ({0}). " +
-                                "Some sort of state corruption must have occured.",
+                                "Some sort of state corruption must have occurred.",
                                 player.Name );
                     playerIndex.Remove( player.Name.ToLower() );
                 }

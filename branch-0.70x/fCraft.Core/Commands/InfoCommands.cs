@@ -895,7 +895,7 @@ namespace fCraft {
                 }
             } catch( Exception ex ) {
                 Logger.Log( LogType.Error,
-                            "InfoCommands.PrintRuleFile: An error occured while trying to read {0}: {1}",
+                            "InfoCommands.PrintRuleFile: An error occurred while trying to read {0}: {1}",
                             ruleFile.FullName, ex );
                 player.Message( "&WError reading the rule file." );
             }

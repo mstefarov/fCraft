@@ -499,6 +499,8 @@ namespace fCraft {
             return info;
         }
 
+        static void TestPlayerDB() {}
+
 
         static IPAddress ReadIPAddress( [NotNull] BinaryReader reader ) {
             return new IPAddress( reader.ReadBytes( 4 ) );
@@ -580,7 +582,7 @@ namespace fCraft {
                     Paths.MoveOrReplace( tempFileName, Paths.PlayerDBFileName + ".bin" );
                 } catch( Exception ex ) {
                     Logger.Log( LogType.Error,
-                                "PlayerDB.SaveBinary: An error occured while trying to save PlayerDB: {0}", ex );
+                                "PlayerDB.SaveBinary: An error occurred while trying to save PlayerDB: {0}", ex);
                 }
             }
         }

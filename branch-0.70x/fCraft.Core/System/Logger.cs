@@ -312,7 +312,7 @@ namespace fCraft {
                     return true;
 
                 } else if( ex.StackTrace.Contains( "__Error.WinIOError" ) ) {
-                    message = "A filesystem-related error has occured. Make sure that only one instance of fCraft is running, " +
+                    message = "A filesystem-related error has occurred. Make sure that only one instance of fCraft is running, " +
                               "and that no other processes are using server's files or directories.";
                     return true;
 
