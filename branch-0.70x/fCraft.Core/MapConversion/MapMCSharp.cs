@@ -6,6 +6,7 @@ using System.IO.Compression;
 using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
+    /// <summary> MCSharp map conversion implementation, for converting MCSharp map format into fCraft's default map format. </summary>
     public sealed class MapMCSharp : IMapConverter {
 
         static readonly byte[] Mapping = new byte[256];

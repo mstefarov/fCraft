@@ -31,18 +31,42 @@ namespace fCraft {
         #pragma warning restore 1591
 
         // User-defined color assignments. Set by Config.ApplyConfig.
-        public static string Sys, Help, Say, Announcement, PM, IRC, Me, Warning;
+        /// <summary> Color of system messages, nickserv, chanserv. </summary>
+        public static string Sys;
+        /// <summary> Color of help messages, /help. </summary>
+        public static string Help;
+        /// <summary> Color of say messages, /say. </summary>
+        public static string Say;
+        /// <summary> Color of announcements, server announcements. </summary>
+        public static string Announcement;
+        /// <summary> Color of personal messages. </summary>
+        public static string PM;
+        /// <summary> Color of IRC chat. </summary>
+        public static string IRC;
+        /// <summary> Color of /me command. </summary>
+        public static string Me;
+        /// <summary> Color of warning messages. </summary>
+        public static string Warning;
 
         // Defaults for user-defined colors.
-        public const string SysDefault = Yellow,
-                            HelpDefault = Lime,
-                            SayDefault = Green,
-                            AnnouncementDefault = Green,
-                            PMDefault = Aqua,
-                            IRCDefault = Purple,
-                            MeDefault = Purple,
-                            WarningDefault = Red;
-
+        /// <summary> Default color of system messages, nickserv, chanserv. </summary>
+        public const string SysDefault = Yellow;
+        /// <summary> Default color of help messages, /help.</summary>
+        public const string HelpDefault = Lime;
+        /// <summary> Default color of say messages, /say. </summary>
+        public const string SayDefault = Green;
+        /// <summary> Default color of announcements, server announcements.</summary>
+        public const string AnnouncementDefault = Green;
+        /// <summary> Default color of personal messages.</summary>
+        public const string PMDefault = Aqua;
+        /// <summary> Default color of IRC chat. </summary>
+        public const string IRCDefault = Purple;
+        /// <summary> Default color of /me command.</summary>
+        public const string MeDefault = Purple;
+        /// <summary> Default color of warning messages.</summary>
+        public const string WarningDefault = Red;
+        
+        /// <summary> List of color names indexed by their id. </summary>
         public static readonly SortedList<char, string> ColorNames = new SortedList<char, string>{
             { '0', "black" },
             { '1', "navy" },
@@ -189,7 +213,9 @@ namespace fCraft {
             }
         }
 
-
+        /// <summary> Gets the index of the specified colour. </summary>
+        /// <param name="color"> Color to parse. </param>
+        /// <returns> Index of the specified color. </returns>
         public static int ParseToIndex( [NotNull] string color ) {
             if( color == null ) throw new ArgumentNullException( "color" );
             color = color.ToLower();
@@ -347,8 +373,9 @@ namespace fCraft {
 
 
         #region IRC Colors
-
+        /// <summary> String that indicates formatting should be reset./// </summary>
         public const string IRCReset = "\u0003\u000f";
+        /// <summary> String that indicates the following text will be bold. </summary>
         public const string IRCBold = "\u0002";
 
         static readonly Dictionary<string, IRCColor> MinecraftToIRCColors = new Dictionary<string, IRCColor> {

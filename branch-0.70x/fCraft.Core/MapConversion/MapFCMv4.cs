@@ -10,7 +10,7 @@ namespace fCraft.MapConversion {
     /// <summary> Next file format that fCraft shall use. </summary>
     public sealed class MapFCMv4 : IMapConverter {
         /// <summary> ID used to differentiate this format from past and future formats </summary>
-        public const int FormatID = 0x00FC0004;
+        private const int FormatID = 0x00FC0004;
         const string ZoneMetaGroupName = "fCraft.Zones",
                      BlockLayerName = "Blocks";
 
