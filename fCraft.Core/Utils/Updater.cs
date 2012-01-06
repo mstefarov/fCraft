@@ -147,13 +147,17 @@ namespace fCraft {
             History = releases.OrderByDescending( r => r.Version.Build ).ToArray();
             LatestRelease = releases.FirstOrDefault();
         }
+        /// <summary> Whether or not an update for fCraft is available for download. </summary>
         public bool UpdateAvailable { get; private set; }
+        /// <summary> Url to download the update from. </summary>
         public Uri DownloadUri { get; private set; }
+        /// <summary> Array of previous release information. / </summary>
         public ReleaseInfo[] History { get; private set; }
+        /// <summary> Release information of the lastest release. </summary>
         public ReleaseInfo LatestRelease { get; private set; }
     }
 
-
+    /// <summary> Used to describe a particular release version of fCraft. Includes date released, version </summary>
     public sealed class ReleaseInfo {
         internal ReleaseInfo( int version, int revision, DateTime releaseDate,
                               string summary, string changeLog, ReleaseFlags releaseType ) {

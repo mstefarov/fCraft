@@ -235,7 +235,7 @@ namespace fCraft {
                 Logger.Log( LogType.Warning,
                             "You are using an unreleased developer version of fCraft. " +
                             "Do not use this version unless you are ready to deal with bugs and potential data loss. " +
-                            "Consider using the lastest stable version instead, available from www.fcraft.net" );
+                            "Consider using the latest stable version instead, available from www.fcraft.net" );
             }
 
             if( Updater.CurrentRelease.IsFlagged( ReleaseFlags.Unstable ) ) {
