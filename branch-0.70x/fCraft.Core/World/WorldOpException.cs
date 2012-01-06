@@ -1,42 +1,44 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> WorldOperationException, thrown when an invalid operation is attempted on a world. </summary>
-    /// <example> WorldOpExceptionCode.DuplicateWorldName:</example>
     public sealed class WorldOpException : Exception {
         public WorldOpExceptionCode ErrorCode { get; private set; }
 
-        /// <summary> Initialised a new instance of fCraft.WorldOpException, with the specified world and error code. </summary>
-        /// <param name="worldName"> World where exception took place. </param>
+
+        /// <summary> Creates a new instance of fCraft.WorldOpException, with the specified world and error code. </summary>
+        /// <param name="worldName"> World where exception took place. May be null if no relevant world exists. </param>
         /// <param name="errorCode"> Error that took place. </param>
-        public WorldOpException( string worldName, WorldOpExceptionCode errorCode )
+        public WorldOpException( [CanBeNull] string worldName, WorldOpExceptionCode errorCode )
             : base( GetMessage( worldName, errorCode ) ) {
             ErrorCode = errorCode;
         }
-        /// <summary> Initialised a new instance of fCraft.WorldOpException, with the specified error code and message. </summary>
+
+
+        /// <summary> Creates a new instance of fCraft.WorldOpException, with the specified error code and message. </summary>
         /// <param name="errorCode"> Error that took place. </param>
         /// <param name="message"> Message to display. </param>
-        public WorldOpException( WorldOpExceptionCode errorCode, string message )
+        public WorldOpException( WorldOpExceptionCode errorCode, [NotNull] string message )
             : base( message ) {
             ErrorCode = errorCode;
         }
+
 
         public WorldOpException( string worldName, WorldOpExceptionCode errorCode, Exception innerException )
             : base( GetMessage( worldName, errorCode ), innerException ) {
             ErrorCode = errorCode;
         }
 
+
         public WorldOpException( WorldOpExceptionCode errorCode, string message, Exception innerException )
             : base( message, innerException ) {
             ErrorCode = errorCode;
         }
 
-        /// <summary> Gets the error message for the specified world and error. </summary>
-        /// <param name="worldName"> World where the exception occurred. </param>
-        /// <param name="code"> Error that took place. </param>
-        /// <returns> Error message, using specified world and error code. </returns>
-        public static string GetMessage( string worldName, WorldOpExceptionCode code ) {
+
+        static string GetMessage( [CanBeNull] string worldName, WorldOpExceptionCode code ) {
             if( worldName != null ) {
                 switch( code ) {
                     case WorldOpExceptionCode.CannotDoThatToMainWorld:
