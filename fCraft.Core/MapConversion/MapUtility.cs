@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 namespace fCraft.MapConversion {
 
     // ReSharper disable EmptyGeneralCatchClause
+    /// <summary> Utilities used to handle different map formats, including loading, parsing, and saving. </summary>
     public static class MapUtility {
 
         static readonly Dictionary<MapFormat, IMapConverter> AvailableConverters = new Dictionary<MapFormat, IMapConverter>();
@@ -26,7 +27,10 @@ namespace fCraft.MapConversion {
             AvailableConverters.Add( MapFormat.Opticraft, new MapOpticraft() );
         }
 
-
+        /// <summary> Identifies the map format from the specified filename. </summary>
+        /// <param name="fileName"> The name of the file. </param>
+        /// <param name="tryFallbackConverters"> Whether or not to attempt to try other converters if this fails. </param>
+        /// <returns> Map format of the specified file. </returns>
         public static MapFormat Identify( [NotNull] string fileName, bool tryFallbackConverters ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             MapStorageType targetType = MapStorageType.SingleFile;
@@ -64,7 +68,10 @@ namespace fCraft.MapConversion {
             return MapFormat.Unknown;
         }
 
-
+        /// <summary> Attempts to load the map excluding the block data from it's header using the specified filename. </summary>
+        /// <param name="fileName"> The name of the file.</param>
+        /// <param name="map"> Where the loaded map should be stored. </param>
+        /// <returns> Whether or not the map excluding block data was loaded successfully. </returns>
         public static bool TryLoadHeader( [NotNull] string fileName, out Map map ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
@@ -79,7 +86,9 @@ namespace fCraft.MapConversion {
             }
         }
 
-
+        /// <summary> Loads the map excluding block data from it's header using the specified filename. </summary>
+        /// <param name="fileName"> The name of the file. </param>
+        /// <returns> The loaded map excluding block data. </returns>
         public static Map LoadHeader( [NotNull] string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
 
@@ -124,7 +133,10 @@ namespace fCraft.MapConversion {
             throw new MapFormatException( "Unknown map format." );
         }
 
-
+        /// <summary> Attempts to load the map including the block data from it's header using the specified filename. </summary>
+        /// <param name="fileName"> The name of the file.</param>
+        /// <param name="map"> Where the loaded map should be stored. </param>
+        /// <returns> Whether or not the map was loaded successfully. </returns>
         public static bool TryLoad( [NotNull] string fileName, out Map map ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
@@ -138,7 +150,9 @@ namespace fCraft.MapConversion {
             }
         }
 
-
+        /// <summary> Loads the map from it's header using the specified filename. </summary>
+        /// <param name="fileName"> The name of the file. </param>
+        /// <returns> The loaded map excluding block data. </returns>
         public static Map Load( [NotNull] string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             MapStorageType targetType = MapStorageType.SingleFile;
@@ -180,7 +194,11 @@ namespace fCraft.MapConversion {
             throw new MapFormatException( "Unknown map format." );
         }
 
-
+        /// <summary> Attempts to save the map, under the specified filename using the specified format. </summary>
+        /// <param name="mapToSave"> Map file to be saved.</param>
+        /// <param name="fileName">The name of the file to save to. </param>
+        /// <param name="format"> The format to use when saving the map. </param>
+        /// <returns> Whether or not the map save completed successfully. </returns>
         public static bool TrySave( [NotNull] Map mapToSave, [NotNull] string fileName, MapFormat format ) {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );

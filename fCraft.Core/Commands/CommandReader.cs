@@ -13,9 +13,11 @@ namespace fCraft {
 
         public readonly string RawMessage;
 
-        public string Name { get; private set; } // lowercase name of the command
+        /// <summary> Lowercase name of the command. </summary>
+        public string Name { get; private set; } 
 
-        public bool IsConfirmed; // whether this command has been confirmed by the user (with /ok)
+        /// <summary> Whether this command has been confirmed by the user (with /ok). </summary>
+        public bool IsConfirmed; 
 
 
         /// <summary> Creates a copy of an existing command. </summary>

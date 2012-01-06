@@ -9,30 +9,36 @@ namespace fCraft.MapConversion {
     /// <summary> fCraft map format converter, for format version #3 (2011).
     /// Soon to be obsoleted by FCMv4. </summary>
     public sealed class MapFCMv3 : IMapConverter {
-        public const int Identifier = 0x0FC2AF40;
-        public const byte Revision = 13;
+        private const int Identifier = 0x0FC2AF40;
+        private const byte Revision = 13;
 
+        /// <summary> Returns name(s) of the server(s) that uses this format. </summary>
         public string ServerName {
             get { return "fCraft"; }
         }
 
 
+        /// <summary> Returns the map storage type (file-based or directory-based). </summary>
         public MapStorageType StorageType {
             get { return MapStorageType.SingleFile; }
         }
 
 
+        /// <summary> Returns the format name. </summary>
         public MapFormat Format {
             get { return MapFormat.FCMv3; }
         }
 
 
+        /// <summary> Returns true if the filename (or directory name) matches this format's expectations. </summary>
         public bool ClaimsName( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase );
         }
 
 
+        /// <summary> Allows validating the map format while using minimal resources. </summary>
+        /// <returns> Returns true if specified file/directory is valid for this format. </returns>
         public bool Claims( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
@@ -48,6 +54,8 @@ namespace fCraft.MapConversion {
         }
 
 
+        /// <summary> Attempts to load map dimensions from specified location.
+        /// Throws MapFormatException on failure. </summary>
         public Map LoadHeader( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
@@ -94,6 +102,8 @@ namespace fCraft.MapConversion {
         }
 
 
+        /// <summary> Fully loads map from specified location.
+        /// Throws MapFormatException on failure. </summary>
         public Map Load( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
@@ -180,6 +190,8 @@ namespace fCraft.MapConversion {
         }
 
 
+        /// <summary> Saves given map at the given location. </summary>
+        /// <returns> True if saving succeeded; otherwise false. </returns>
         public bool Save( Map mapToSave, string fileName ) {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );

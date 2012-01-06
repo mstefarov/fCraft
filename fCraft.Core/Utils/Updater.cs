@@ -24,11 +24,12 @@ namespace fCraft {
             | ReleaseFlags.Dev
 #endif
  );
-
+        /// <summary> The current fCraft user agent. </summary>
         public static string UserAgent {
             get { return "fCraft " + CurrentRelease.VersionString; }
         }
 
+        /// <summary> The latest stable branch/version of fCraft. </summary>
         public const string LatestStable = "0.612_r1306";
 
         public static string UpdateUrl { get; set; }
@@ -38,9 +39,11 @@ namespace fCraft {
             UpdateUrl = "http://www.fcraft.net/UpdateCheck.php?r={0}";
         }
 
-
+        /// <summary> Amount of time in milliseconds before the updater will consider the connection dead. </summary>
         public static int UpdateCheckTimeout { get; set; }
 
+        /// <summary> Checks fCraft.net for updated versions of fCraft. </summary>
+        /// <returns></returns>
         public static UpdaterResult CheckForUpdates() {
             UpdaterMode mode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
             if( mode == UpdaterMode.Disabled ) return UpdaterResult.NoUpdate;
@@ -96,7 +99,7 @@ namespace fCraft {
             }
         }
 
-
+        /// <summary> Whether or not the updater should run at shutdown. </summary>
         public static bool RunAtShutdown { get; set; }
 
 
@@ -131,7 +134,7 @@ namespace fCraft {
         #endregion
     }
 
-
+    /// <summary> Result of an update attempt. </summary>
     public sealed class UpdaterResult {
         public static UpdaterResult NoUpdate {
             get {

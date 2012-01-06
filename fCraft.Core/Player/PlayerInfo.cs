@@ -12,7 +12,7 @@ namespace fCraft {
     public sealed partial class PlayerInfo : IClassy, INotifyPropertyChanged {
 
         #region Properties
-
+        /// <summary> Whether or not the data has changed since it was saved to database. </summary>
         public bool Changed { get; set; }
 
         /// <summary> Player's unique numeric ID. Immutable. Issued on first join. </summary>
@@ -750,7 +750,7 @@ namespace fCraft {
         /// Unlike other properties, setting LastModified does NOT raise PropertyChanged event. </summary>
         public DateTime LastModified { get; set; }
 
-
+        /// <summary> The current bandwith usage mode of the player. </summary>
         public BandwidthUseMode BandwidthUseMode { // TODO
             get { return bandwidthUseMode; }
             set {
@@ -951,54 +951,60 @@ namespace fCraft {
 
 
         #region TimeSince_____ shortcuts
-
+        /// <summary> Time (Utc) since the player's rank was last changed. </summary>
         public TimeSpan TimeSinceRankChange {
             get { return DateTime.UtcNow.Subtract( RankChangeDate ); }
         }
-
+        /// <summary> Time (Utc) since the player was banned. </summary>
         public TimeSpan TimeSinceBan {
             get { return DateTime.UtcNow.Subtract( BanDate ); }
         }
-
+        /// <summary> Time (Utc) since the player was unbanned. </summary>
         public TimeSpan TimeSinceUnban {
             get { return DateTime.UtcNow.Subtract( UnbanDate ); }
         }
-
+        /// <summary> Time (Utc) since the player first logged on. </summary>
         public TimeSpan TimeSinceFirstLogin {
             get { return DateTime.UtcNow.Subtract( FirstLoginDate ); }
         }
-
+        /// <summary> Time (Utc) since the player last logged on. </summary>
         public TimeSpan TimeSinceLastLogin {
             get { return DateTime.UtcNow.Subtract( LastLoginDate ); }
         }
-
+        /// <summary> Time (Utc) since the player was last kicked.. </summary>
         public TimeSpan TimeSinceLastKick {
             get { return DateTime.UtcNow.Subtract( LastKickDate ); }
         }
-
+        /// <summary> Time (Utc) since the player was last seen. </summary>
         public TimeSpan TimeSinceLastSeen {
             get { return DateTime.UtcNow.Subtract( LastSeen ); }
         }
-
+        /// <summary> Time (Utc) since the player was last frozen. </summary>
         public TimeSpan TimeSinceFrozen {
             get { return DateTime.UtcNow.Subtract( FrozenOn ); }
         }
-
+        /// <summary> Time (Utc) until the player will be unmuted. </summary>
         public TimeSpan TimeMutedLeft {
             get { return MutedUntil.Subtract( DateTime.UtcNow ); }
         }
-
+        /// <summary> Time (Utc) since the player's record was last modified. </summary>
         public TimeSpan TimeSinceLastModified {
             get { return DateTime.UtcNow.Subtract( LastModified ); }
         }
 
         #endregion
 
-
+        /// <summary> Whether or not this player has the specified permission. </summary>
+        /// <param name="permission"> Permission to check if the player has. </param>
+        /// <returns> True if the player has permission, otherwise false. </returns>
         public bool Can( Permission permission ) {
             return Rank.Can( permission );
         }
 
+        /// <summary> Whether or not this player has the ability to affect the target rank, using the specified permission. </summary>
+        /// <param name="permission"> Permission to check if the player had. </param>
+        /// <param name="targetRank"> Player to check if this player has permission to affect. </param>
+        /// <returns> True if the player has permission, otherwise false. </returns>
         public bool Can( Permission permission, [NotNull] Rank targetRank ) {
             return Rank.Can( permission, targetRank );
         }
@@ -1013,6 +1019,7 @@ namespace fCraft {
             }
         }
 
+        /// <summary> Raised when a property is changed. </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
         internal bool RaisePropertyChangedEvents { get; set; }

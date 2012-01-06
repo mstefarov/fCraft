@@ -18,15 +18,20 @@ namespace fCraft {
             MessageColored = messageColored;
         }
 
-
+        /// <summary> Player who caused the error. </summary>
         [NotNull]
         public Player Player { get; private set; }
 
+        /// <summary> Target of the command that caused the error. </summary>
         [CanBeNull]
         public PlayerInfo Target { get; private set; }
 
+        /// <summary> Error code of the exception. </summary>
         public PlayerOpExceptionCode ErrorCode { get; private set; }
 
+        /// <summary>
+        /// Message to be displayed, in coloured format.
+        /// </summary>
         [NotNull]
         public string MessageColored { get; private set; }
 
@@ -272,7 +277,7 @@ namespace fCraft {
         }
     }
 
-
+    /// <summary> Possible player operation exception codes. </summary>
     public enum PlayerOpExceptionCode {
         /// <summary> Other/unknown/unexpected error. </summary>
         Other,
