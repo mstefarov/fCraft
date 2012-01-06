@@ -148,9 +148,13 @@ namespace fCraft.Drawing {
             LogCompletion = true;
         }
 
-        /// <summary> Prepares the draw operation, calculates the coordinates, and if possible the volume of the draw operation. </summary>
-        /// <param name="marks"> Marks (points) used to create the bounding box. </param>
-        /// <returns> Whether or not the draw operation can procede; tests intial data's validity. </returns>
+
+        /// <summary> Prepares the draw operation. Calculates the bounding box and volume, and initializes the brush.  </summary>
+        /// <param name="marks"> Marks (points) given by the player. Number of marks should match ExpectedMarks. </param>
+        /// <returns> Whether or not the brush could be initialized. </returns>
+        /// <exception cref="ArgumentNullException"> If marks is null. </exception>
+        /// <exception cref="ArgumentException"> If wrong number of marks was given. </exception>
+        /// <exception cref="InvalidOperationException"> If brush was not set prior to calling Prepare. </exception>
         public virtual bool Prepare( [NotNull] Vector3I[] marks ) {
             if( marks == null ) throw new ArgumentNullException( "marks" );
             if( marks.Length != ExpectedMarks ) {
@@ -164,12 +168,13 @@ namespace fCraft.Drawing {
                 Bounds = new BoundingBox( Marks[0], Marks[1] );
             }
 
-            if( Brush == null ) throw new NullReferenceException( Name + ": Brush not set" );
+            if( Brush == null ) throw new InvalidOperationException( Name + ": Brush not set" );
             return Brush.Begin( Player, this );
         }
 
-        /// <summary> Begins the draw operation. </summary>
-        /// <returns> Whether or not the operation can begin, false if event is cancelled. </returns>
+
+        /// <summary> Begins the draw operation. Raises DrawOperation.Beginning/Began events. </summary>
+        /// <returns> True is operation began succesfully; false if cancelled by an event callback. </returns>
         public virtual bool Begin() {
             if( !RaiseBeginningEvent( this ) ) return false;
             UndoState = Player.DrawBegin( this );
@@ -183,7 +188,8 @@ namespace fCraft.Drawing {
 
         public abstract int DrawBatch( int maxBlocksToDraw );
 
-        /// <summary> Cancels this draw operation. </summary>
+
+        /// <summary> Cancels this draw operation (asynchronously). </summary>
         public void Cancel() {
             IsCancelled = true;
         }

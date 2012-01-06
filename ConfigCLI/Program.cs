@@ -470,7 +470,7 @@ namespace fCraft.ConfigCLI {
             TextOption optionName = menu.AddOption( 1, "Name: \"" + currentRank.Name + "\"" );
 
             TextOption optionColor = menu.AddOption( 2, "Color: " + Color.GetName( currentRank.Color ) );
-            optionColor.BackColor = Color.ToConsoleColor( currentRank.Color );
+            optionColor.ForeColor = Color.ToConsoleColor( currentRank.Color );
 
             TextOption optionPrefix = menu.AddOption( 3, "Prefix: \"" + currentRank.Prefix + "\"" );
 
@@ -530,18 +530,19 @@ namespace fCraft.ConfigCLI {
             Permission[] permissions = (Permission[])Enum.GetValues( typeof( Permission ) );
 
             TextOption optionBack = menu.AddOption( "B", "Back to rank " + currentRank.Name );
-            TextOption optionClear = menu.AddOption( "C", "Clear" );
+            TextOption optionInvert = menu.AddOption( "I", "Invert" );
             menu.Column = Column.Right;
             TextOption optionAll = menu.AddOption( "A", "All" );
-            TextOption optionInvert = menu.AddOption( "I", "Invert" );
+            TextOption optionNone = menu.AddOption( "N", "None" );
             menu.AddSpacer( Column.Left );
             menu.AddSpacer( Column.Right );
 
             for( int i = 0; i < permissions.Length; i++ ) {
-                menu.Column = (i > permissions.Length/2 ? Column.Right : Column.Left);
-                if(currentRank.Permissions[i]) {
-                    menu.AddOption( ( i + 1 ).ToString(), "[X] " + permissions[i], permissions[i] );
-                }else {
+                menu.Column = ( i > permissions.Length / 2 ? Column.Right : Column.Left );
+                if( currentRank.Permissions[i] ) {
+                    TextOption option = menu.AddOption( ( i + 1 ).ToString(), "[X] " + permissions[i], permissions[i] );
+                    option.ForeColor = ConsoleColor.White;
+                } else {
                     menu.AddOption( ( i + 1 ).ToString(), "[ ] " + permissions[i], permissions[i] );
                 }
             }
@@ -551,13 +552,17 @@ namespace fCraft.ConfigCLI {
                 return MenuState.RankDetails;
 
             }else if(choice ==optionAll){
-                for( int i = 0; i < permissions.Length; i++ ) {
-                    currentRank.Permissions[i] = true;
+                if( TextMenu.ShowYesNo( "Grant all permissions to rank " + currentRank.Name + "?" ) ) {
+                    for( int i = 0; i < permissions.Length; i++ ) {
+                        currentRank.Permissions[i] = true;
+                    }
                 }
 
-            } else if( choice == optionClear ) {
-                for( int i = 0; i < permissions.Length; i++ ) {
-                    currentRank.Permissions[i] = false;
+            } else if( choice == optionNone ) {
+                if( TextMenu.ShowYesNo( "Revoke all permissions from rank " + currentRank.Name + "?" ) ) {
+                    for( int i = 0; i < permissions.Length; i++ ) {
+                        currentRank.Permissions[i] = false;
+                    }
                 }
 
             } else if( choice == optionInvert) {
