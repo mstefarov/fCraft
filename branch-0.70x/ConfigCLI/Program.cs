@@ -845,6 +845,19 @@ to handle references to the deleted ""{0}"" rank.";
             }
         }
 
+
+        public static string PadLeftSub( this string text, int leftPad, int length ) {
+            string result = text.PadLeft( leftPad );
+            if( result.Length > length ) result = result.Substring( 0, length );
+            return result;
+        }
+
+        public static string PadRightSub( this string text, int length ) {
+            string result = text.PadRight( length );
+            if( result.Length > length ) result = result.Substring( 0, length );
+            return result;
+        }
+
 #if !DEBUG
         static void ReportFailure( ShutdownReason reason ) {
             Console.Title = String.Format( "fCraft {0} {1}", Updater.CurrentRelease.VersionString, reason );

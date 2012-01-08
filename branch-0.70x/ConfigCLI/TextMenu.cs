@@ -13,6 +13,8 @@ namespace fCraft.ConfigCLI {
 
 
     sealed class TextMenu {
+        const int ColumnSize = 40;
+
         readonly Dictionary<string, TextOption> options = new Dictionary<string, TextOption>();
         readonly List<TextOption> lines = new List<TextOption>();
         public Column Column { get; set; }
@@ -69,9 +71,6 @@ namespace fCraft.ConfigCLI {
             }
         }
 
-
-        const int ColumnSize = 40;
-
         void PrintOptions() {
             bool hasRightSide = lines.Any( line => line.Column == Column.Right );
 
@@ -87,25 +86,33 @@ namespace fCraft.ConfigCLI {
                 for( int i = 0; i < maxSize; i++ ) {
                     if( i >= listLeft.Length ) {
                         TextOption option = listRight[i];
+                        int labelSize = maxRightOptionLength + 2;
                         if( option.Label == null ) {
                             SetColor( option );
-                            Console.WriteLine( option.Text.PadLeft( ColumnSize + maxRightOptionLength + 2 ) );
+                            Console.WriteLine( option.Text
+                                                     .PadLeftSub( ColumnSize + labelSize, ColumnSize * 2 - 1 ) );
                         } else {
-                            Console.Write( "{0}. ", option.Label.PadLeft( ColumnSize + maxRightOptionLength ) );
+                            Console.Write( "{0}. ", option.Label
+                                                          .PadLeft( ColumnSize + maxRightOptionLength ) );
                             SetColor( option );
-                            Console.WriteLine( option.Text );
+                            Console.WriteLine( option.Text
+                                                     .PadRightSub( ColumnSize - labelSize - 1 ) );
                         }
                         ResetColor();
 
                     } else if( i >= listRight.Length ) {
                         TextOption option = listLeft[i];
+                        int labelSize = maxLeftOptionLength + 2;
                         if( option.Label == null ) {
                             SetColor( option );
-                            Console.WriteLine( option.Text.PadLeft( maxLeftOptionLength + 2 ) );
+                            Console.WriteLine( option.Text
+                                                     .PadLeftSub( labelSize, ColumnSize * 2 - 1 ) );
                         } else {
-                            Console.Write( "{0}. ", option.Label.PadLeft( maxLeftOptionLength ));
-                            SetColor(option);
-                            Console.WriteLine( option.Text );
+                            Console.Write( "{0}. ", option.Label
+                                                          .PadLeft( maxLeftOptionLength ) );
+                            SetColor( option );
+                            Console.WriteLine( option.Text
+                                                     .PadRightSub( ColumnSize * 2 - labelSize - 1 ) );
                         }
                         ResetColor();
 
@@ -113,23 +120,30 @@ namespace fCraft.ConfigCLI {
                         TextOption option1 = listLeft[i];
                         TextOption option2 = listRight[i];
 
+                        int leftLabelSize = maxLeftOptionLength + 2;
                         if( option1.Label == null ) {
                             SetColor( option1 );
-                            Console.Write( option1.Text.PadRight( ColumnSize ).Substring( 0, ColumnSize ) );
+                            Console.Write( option1.Text
+                                                  .PadLeftSub( leftLabelSize, ColumnSize ) );
                         } else {
                             Console.Write( "{0}. ", option1.Label.PadLeft( maxLeftOptionLength ) );
                             SetColor( option1 );
-                            Console.Write( option1.Text.PadRight( ColumnSize ).Substring( 0, ColumnSize ) );
+                            Console.Write( option1.Text
+                                                  .PadRightSub( ColumnSize - leftLabelSize ) );
                         }
                         ResetColor();
 
+                        int rightLabelSize = maxLeftOptionLength + 2;
                         if( option2.Label == null ) {
                             SetColor( option2 );
-                            Console.WriteLine( option2.Text.PadLeft( maxRightOptionLength + 2 ) );
+                            Console.WriteLine( option2.Text
+                                                      .PadLeftSub( rightLabelSize, ColumnSize - 1 ) );
                         } else {
-                            Console.Write( "{0}. ", option2.Label.PadLeft( maxRightOptionLength ) );
+                            Console.Write( "{0}. ", option2.Label
+                                                           .PadLeft( maxRightOptionLength ) );
                             SetColor( option2 );
-                            Console.WriteLine( option2.Text );
+                            Console.WriteLine( option2.Text
+                                                      .PadRightSub( ColumnSize - rightLabelSize - 1 ) );
                         }
                         ResetColor();
                     }
@@ -137,14 +151,17 @@ namespace fCraft.ConfigCLI {
 
             } else {
                 int maxOptionLength = lines.Where( line => line.Label != null ).Max( line => line.Label.Length );
+                        int labelSize = maxOptionLength + 2;
                 foreach( TextOption option in lines ) {
                     if( option.Label == null ) {
                         SetColor( option );
-                        Console.WriteLine( option.Text.PadLeft( maxOptionLength + 2 ) );
+                        Console.WriteLine( option.Text
+                                                 .PadLeftSub( labelSize, ColumnSize*2-1 ) );
                     } else {
-                        Console.Write( "{0}. ", option.Label.PadLeft( maxOptionLength ) );
+                        Console.Write( "{0}. ", option.Label
+                                                      .PadLeft( maxOptionLength ) );
                         SetColor( option );
-                        Console.WriteLine( option.Text );
+                        Console.WriteLine( option.Text.PadRightSub( ColumnSize * 2 - labelSize - 1 ) );
                     }
                     ResetColor();
                 }
