@@ -305,29 +305,20 @@ namespace fCraft {
         }
 
 
-        /// <summary> Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only. </summary>
-        /// <returns> true if the <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only; otherwise, false. </returns>
         public bool IsReadOnly {
             get { return false; }
         }
 
 
-        /// <summary> Gets a value indicating whether access to the <see cref="T:System.Collections.ICollection"/> is synchronized (thread safe). </summary>
-        /// <returns> true if access to the <see cref="T:System.Collections.ICollection"/> is synchronized (thread safe); otherwise, false. </returns>
-        /// <filterpriority>2</filterpriority>
         public bool IsSynchronized {
             get { return true; }
         }
 
 
-        readonly object syncRoot = new object();
-
-        /// <summary> Gets an object that can be used to synchronize access to the <see cref="T:System.Collections.ICollection"/>. </summary>
-        /// <returns> An object that can be used to synchronize access to the <see cref="T:System.Collections.ICollection"/>. </returns>
-        /// <filterpriority>2</filterpriority>
         public object SyncRoot {
             get { return syncRoot; }
         }
+        readonly object syncRoot = new object();
 
         #endregion
 
