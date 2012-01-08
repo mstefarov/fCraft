@@ -603,9 +603,6 @@ namespace fCraft {
 
         #region IDictionary Members
 
-        /// <summary> Gets a value indicating whether the <see cref="T:System.Collections.IDictionary"/> object has a fixed size. </summary>
-        /// <returns> true if the <see cref="T:System.Collections.IDictionary"/> object has a fixed size; otherwise, false. </returns>
-        /// <filterpriority>2</filterpriority>
         public bool IsFixedSize { get { return false; } }
 
 
