@@ -432,9 +432,13 @@ namespace fCraft.ConfigCLI {
                 while( true ) {
                     string rankName = Console.ReadLine();
                     if( Rank.IsValidRankName( rankName ) ) {
-                        Rank newRank = new Rank( rankName, RankManager.GenerateID() );
-                        AddRank( newRank );
-                        break;
+                        if( RankManager.FindRank( rankName ) != null ) {
+                            WriteWarning( "A rank with this name already exists." );
+                        } else {
+                            Rank newRank = new Rank( rankName, RankManager.GenerateID() );
+                            AddRank( newRank );
+                            break;
+                        }
                     } else {
                         WriteWarning( "Rank names must be between 1 and 16 characters long, " +
                                       "and must contain only letters, digits, and underscores." );
@@ -451,9 +455,13 @@ namespace fCraft.ConfigCLI {
                     while( true ) {
                         string rankName = Console.ReadLine();
                         if( Rank.IsValidRankName( rankName ) ) {
-                            Rank newRank = new Rank( rankName, RankManager.GenerateID(), rankToCopy );
-                            AddRank( newRank );
-                            break;
+                            if( RankManager.FindRank( rankName ) != null ) {
+                                WriteWarning( "A rank with this name already exists." );
+                            } else {
+                                Rank newRank = new Rank( rankName, RankManager.GenerateID(), rankToCopy );
+                                AddRank( newRank );
+                                break;
+                            }
                         } else {
                             WriteWarning( "Rank names must be between 1 and 16 characters long, " +
                                           "and must contain only letters, digits, and underscores." );
