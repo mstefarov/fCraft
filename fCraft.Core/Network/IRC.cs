@@ -55,13 +55,15 @@ namespace fCraft {
             bool reconnect;
             public bool ResponsibleForInputParsing;
             public string ActualBotNick;
+            string desiredBotNick;
             DateTime lastMessageSent;
             readonly ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
 
 
             public bool Start( [NotNull] string botNick, bool parseInput ) {
                 if( botNick == null ) throw new ArgumentNullException( "botNick" );
-                ActualBotNick = botNick;
+                desiredBotNick = botNick;
+                ActualBotNick = desiredBotNick;
                 ResponsibleForInputParsing = parseInput;
                 try {
                     // start the machinery!
@@ -111,6 +113,7 @@ namespace fCraft {
 
                 do {
                     try {
+                        ActualBotNick = desiredBotNick;
                         reconnect = false;
                         Logger.Log( LogType.IRC,
                                     "Connecting to {0}:{1} as {2}",
@@ -436,6 +439,7 @@ namespace fCraft {
         }
 
 
+        [PublicAPI]
         public static bool Start() {
             int threadCount = ConfigKey.IRCThreads.GetInt();
 
