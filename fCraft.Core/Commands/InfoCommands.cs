@@ -112,6 +112,18 @@ namespace fCraft {
                 // find players by regex/wildcard
                 infos = PlayerDB.FindByPattern( name ).ToArray();
 
+            } else if( name.StartsWith( "@" ) ) {
+                string rankName = name.Substring( 1 );
+                Rank rank = RankManager.FindRank( rankName );
+                if( rank == null ) {
+                    player.Message( "Unknown rank: {0}", rankName );
+                    return;
+                } else {
+                    infos = PlayerDB.PlayerInfoList
+                                    .Where( info => info.Rank == rank )
+                                    .ToArray();
+                }
+
             } else {
                 // find players by partial matching
                 PlayerInfo tempInfo;
