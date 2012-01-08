@@ -179,7 +179,7 @@ namespace fCraft.MapConversion {
                 Map map = LoadHeaderInternal( mapStream );
 
                 if( !map.ValidateHeader() ) {
-                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
+                    throw new MapFormatException( "MapD3: One or more of the map dimensions are invalid." );
                 }
 
                 // Read in the map data

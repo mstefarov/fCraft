@@ -213,7 +213,7 @@ namespace fCraft {
             }
         }
 
-        /// <summary> Gets the index of the specified colour. </summary>
+        /// <summary> Gets the index of the specified color. </summary>
         /// <param name="color"> Color to parse. </param>
         /// <returns> Index of the specified color. </returns>
         public static int ParseToIndex( [NotNull] string color ) {

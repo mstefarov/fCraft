@@ -170,6 +170,7 @@ namespace fCraft {
 
         /// <summary> Creates a new World for the given Map, with same properties as this world. </summary>
         /// <returns> Newly-created World object, with the new map. </returns>
+        [PublicAPI]
         public World ChangeMap( [NotNull] Map newMap ) {
             if( newMap == null ) throw new ArgumentNullException( "newMap" );
             MapChangedOn = DateTime.UtcNow;

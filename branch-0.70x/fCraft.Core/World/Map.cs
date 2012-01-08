@@ -597,6 +597,7 @@ namespace fCraft {
 
         /// <summary> Replaces all nonstandard (50-255) blocks with air. </summary>
         /// <returns> True if any blocks needed replacement. </returns>
+        [PublicAPI]
         public bool RemoveUnknownBlocktypes() {
             return ConvertBlockTypes( ZeroMapping );
         }

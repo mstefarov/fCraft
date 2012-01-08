@@ -83,7 +83,7 @@ namespace fCraft.MapConversion {
 
             int blockCount = IPAddress.HostToNetworkOrder( bs.ReadInt32() );
             if( blockCount != map.Volume ) {
-                throw new MapFormatException( "Map dimensions in the metadata do not match dimensions of the block array." );
+                throw new MapFormatException( "MapMyne: Map dimensions in the metadata do not match dimensions of the block array." );
             }
 
             map.Blocks = new byte[blockCount];
@@ -96,10 +96,10 @@ namespace fCraft.MapConversion {
             if( stream == null ) throw new ArgumentNullException( "stream" );
             INIFile metaFile = new INIFile( stream );
             if( metaFile.IsEmpty ) {
-                throw new MapFormatException( "Metadata file is empty or incorrectly formatted." );
+                throw new MapFormatException( "MapMyne: Metadata file is empty or incorrectly formatted." );
             }
             if( !metaFile.Contains( "size", "x", "y", "z" ) ) {
-                throw new MapFormatException( "Metadata file is missing map dimensions." );
+                throw new MapFormatException( "MapMyne: Metadata file is missing map dimensions." );
             }
 
             int width = Int32.Parse( metaFile["size", "x"] );
@@ -109,7 +109,7 @@ namespace fCraft.MapConversion {
             Map map = new Map( null, width, length, height, false );
 
             if( !map.ValidateHeader() ) {
-                throw new MapFormatException( "One or more of the map dimensions are invalid." );
+                throw new MapFormatException( "MapMyne: One or more of the map dimensions are invalid." );
             }
 
             if( metaFile.Contains( "spawn", "x", "y", "z", "h" ) ) {

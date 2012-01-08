@@ -52,9 +52,11 @@ namespace fCraft.Drawing {
     /// <summary> Class that describes an individual instance of a configured brush.
     /// Each brush instance will only be used for one DrawOperation, so it can store state.
     /// Stateless brush types may combine IBrush and IBrushInstance into one class. </summary>
+    [PublicAPI]
     public interface IBrushInstance {
         /// <summary> Configured brush that created this instance. </summary>
         [NotNull]
+        [PublicAPI]
         IBrush Brush { get; }
 
         /// <summary> A compact readable summary of brush type, configuration, and state. </summary>

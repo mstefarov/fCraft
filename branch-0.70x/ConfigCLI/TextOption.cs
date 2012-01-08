@@ -39,15 +39,10 @@ namespace fCraft.ConfigCLI {
             };
         }
 
-
-        static TextOption() {
-            ForeColorDefault = ConsoleColor.Gray;
-            BackColorDefault = ConsoleColor.Black;
-        }
-
         public static readonly TextOption SpacerLeft = new TextOption( null, "", Column.Left );
         public static readonly TextOption SpacerRight = new TextOption( null, "", Column.Right );
-        public static ConsoleColor ForeColorDefault { get; set; }
-        public static ConsoleColor BackColorDefault { get; set; }
+
+        const ConsoleColor ForeColorDefault = ConsoleColor.Gray;
+        const ConsoleColor BackColorDefault = ConsoleColor.Black;
     }
 }

@@ -1,10 +1,12 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
+using JetBrains.Annotations;
 
 namespace fCraft.Events {
     /// <summary> An EventArgs for an event that can be cancelled. </summary>
     public interface ICancellableEvent {
         /// <summary> Set to "true" to cancel the event. </summary>
+        [PublicAPI]
         bool Cancel { get; set; }
     }
 

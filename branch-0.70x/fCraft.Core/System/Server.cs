@@ -798,6 +798,7 @@ namespace fCraft {
             gcRequested = true;
         }
 
+
         /// <summary> Verifies a players name, using playername, hash, and salt. </summary>
         /// <param name="name"> Name of the player being verified. </param>
         /// <param name="hash"> Hash associated with the player. </param>
@@ -817,6 +818,7 @@ namespace fCraft {
             }
             return sb.ToString().Equals( hash, StringComparison.OrdinalIgnoreCase );
         }
+
 
         /// <summary> Calculates the maximum number of packets that should be sent out per update, 
         /// based on bandwith, and update throttling. </summary>
@@ -843,6 +845,7 @@ namespace fCraft {
 
         static readonly Regex RegexIP = new Regex( @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b",
                                                    RegexOptions.Compiled );
+
         /// <summary> Checks to see if the specified IP, is a valid IPv4 address. </summary>
         /// <param name="ipString"> IPv4 address to verify. </param>
         /// <returns> Whether or not the IP is a valid IPv4 address. </returns>
@@ -850,6 +853,7 @@ namespace fCraft {
             if( ipString == null ) throw new ArgumentNullException( "ipString" );
             return RegexIP.IsMatch( ipString );
         }
+
 
         /// <summary> Replaces keywords in a message with their corresponding values. </summary>
         /// <param name="player"> Player who is receiving this message. </param>
@@ -895,6 +899,7 @@ namespace fCraft {
             return sb.ToString();
         }
 
+
         static readonly Uri IPCheckUri = new Uri( "http://checkip.dyndns.org/" );
         const int IPCheckTimeout = 30000;
 
@@ -927,6 +932,7 @@ namespace fCraft {
             }
         }
  
+
         internal static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
             return new IPEndPoint( InternalIP, 0 );
         }
@@ -1207,90 +1213,5 @@ namespace fCraft {
         }
 
         #endregion
-    }
-
-
-    /// <summary> Describes the circumstances of server shutdown. </summary>
-    public sealed class ShutdownParams {
-
-        /// <summary> Sets the parameters of a server shutdown. </summary>
-        /// <param name="reason"> Reason for server shutdown. </param>
-        /// <param name="delay"> (UTC) Timespan on how long to wait before shutting down. </param>
-        /// <param name="killProcess"> whether fCraft should attempt to kill its own process after shutdown is complete. </param>
-        /// <param name="restart"> Whether or not to restart the server after this shutdown. </param>
-        public ShutdownParams( ShutdownReason reason, TimeSpan delay, bool killProcess, bool restart ) {
-            Reason = reason;
-            Delay = delay;
-            KillProcess = killProcess;
-            Restart = restart;
-        }
-
-        /// <summary> Sets the parameters of a server shutdown. </summary>
-        /// <param name="reason"> Reason for server shutdown. </param>
-        /// <param name="delay"> (UTC) Timespan on how long to wait before shutting down. </param>
-        /// <param name="killProcess"> whether fCraft should attempt to kill its own process after shutdown is complete. </param>
-        /// <param name="restart"> Whether or not to restart the server after this shutdown. </param>
-        /// <param name="customReason"> "Overriding reason why server is being shutdown. </param>
-        /// <param name="initiatedBy"> Player or entity who initiated the shutdown. </param>
-        public ShutdownParams( ShutdownReason reason, TimeSpan delay, bool killProcess,
-                               bool restart, [CanBeNull] string customReason, [CanBeNull] Player initiatedBy ) :
-            this( reason, delay, killProcess, restart ) {
-            customReasonString = customReason;
-            InitiatedBy = initiatedBy;
-        }
-
-        /// <summary> Reason why the server is shutting down. </summary>
-        public ShutdownReason Reason { get; private set; }
-
-        readonly string customReasonString;
-
-        /// <summary> Reason why the server is shutting down, if customReasonString is not null it overrides. </summary>
-        [NotNull]
-        public string ReasonString {
-            get {
-                return customReasonString ?? Reason.ToString();
-            }
-        }
-
-        /// <summary> Delay before shutting down. </summary>
-        public TimeSpan Delay { get; private set; }
-
-        /// <summary> Whether fCraft should try to forcefully kill the current process. </summary>
-        public bool KillProcess { get; private set; }
-
-        /// <summary> Whether the server is expected to restart itself after shutting down. </summary>
-        public bool Restart { get; private set; }
-
-        /// <summary> Player who initiated the shutdown. May be null or Console. </summary>
-        [CanBeNull]
-        public Player InitiatedBy { get; private set; }
-    }
-
-
-    /// <summary> Categorizes conditions that lead to server shutdowns. </summary>
-    public enum ShutdownReason {
-        /// <summary> Cause of server shutdown is unknown. </summary>
-        Unknown,
-
-        /// <summary> Use for mod- or plugin-triggered shutdowns. </summary>
-        Other,
-
-        /// <summary> InitLibrary or InitServer failed. </summary>
-        FailedToInitialize,
-
-        /// <summary> StartServer failed. </summary>
-        FailedToStart,
-
-        /// <summary> Server is restarting, usually because someone called /Restart. </summary>
-        Restarting,
-
-        /// <summary> Server has experienced a non-recoverable crash. </summary>
-        Crashed,
-
-        /// <summary> Server is shutting down, usually because someone called /Shutdown. </summary>
-        ShuttingDown,
-
-        /// <summary> Server process is being closed/killed. </summary>
-        ProcessClosing
     }
 }

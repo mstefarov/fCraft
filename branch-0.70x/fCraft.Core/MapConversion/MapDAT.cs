@@ -211,7 +211,7 @@ namespace fCraft.MapConversion {
                     map = new Map( null, width, length, height, false ) { Spawn = spawn };
 
                     if( !map.ValidateHeader() ) {
-                        throw new MapFormatException( "One or more of the map dimensions are invalid." );
+                        throw new MapFormatException( "MapDAT: One or more of the map dimensions are invalid." );
                     }
 
                     // find the start of the block array
@@ -231,7 +231,7 @@ namespace fCraft.MapConversion {
                         Array.Copy( data, pointer, map.Blocks, 0, map.Blocks.Length );
                         map.ConvertBlockTypes( Mapping );
                     } else {
-                        throw new MapFormatException( "Could not locate block array." );
+                        throw new MapFormatException( "MapDAT: Could not locate block array." );
                     }
                     break;
                 }

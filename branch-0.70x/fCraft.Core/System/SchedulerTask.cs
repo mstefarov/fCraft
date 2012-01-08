@@ -152,6 +152,7 @@ namespace fCraft {
 
 
         /// <summary> Runs the task forever at a given interval after an initial delay, until manually stopped. </summary>
+        [PublicAPI]
         public SchedulerTask RunForever( object userState, TimeSpan interval, TimeSpan delay ) {
             UserState = userState;
             return RunForever( interval, delay );
@@ -163,6 +164,7 @@ namespace fCraft {
         #region Run Repeating
 
         /// <summary> Runs the task a given number of times, at a given interval after an initial delay. </summary>
+        [PublicAPI]
         public SchedulerTask RunRepeating( TimeSpan delay, TimeSpan interval, int times ) {
             if( times < 1 ) throw new ArgumentException( "Must be ran at least 1 time.", "times" );
             MaxRepeats = times;
@@ -225,6 +227,7 @@ namespace fCraft {
 
 
         /// <summary> Stops the task, and removes it from the schedule. </summary>
+        [PublicAPI]
         public SchedulerTask Stop() {
             IsStopped = true;
             return this;

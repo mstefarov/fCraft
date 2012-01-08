@@ -71,7 +71,7 @@ namespace fCraft.MapConversion {
 
             // Read in the magic number
             if( bs.ReadByte() != 0xbe || bs.ReadByte() != 0xee || bs.ReadByte() != 0xef ) {
-                throw new MapFormatException( "MinerCPP map header is incorrect." );
+                throw new MapFormatException( "MapMinerCPP: Map header is incorrect." );
             }
 
             // Read in the map dimesions
@@ -113,7 +113,7 @@ namespace fCraft.MapConversion {
                     Map map = LoadHeaderInternal( gs );
 
                     if( !map.ValidateHeader() ) {
-                        throw new MapFormatException( "One or more of the map dimensions are invalid." );
+                        throw new MapFormatException( "MapMinerCPP: One or more of the map dimensions are invalid." );
                     }
 
                     // Read in the map data

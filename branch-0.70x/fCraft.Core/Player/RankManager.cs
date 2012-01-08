@@ -79,7 +79,7 @@ namespace fCraft {
             XElement permissions = new XElement( "Ranks" );
 
             XElement owner = new XElement( "Rank" );
-            owner.Add( new XAttribute( "id", RankManager.GenerateID() ) );
+            owner.Add( new XAttribute( "id", GenerateID() ) );
             owner.Add( new XAttribute( "name", "owner" ) );
             owner.Add( new XAttribute( "rank", 100 ) );
             owner.Add( new XAttribute( "color", "red" ) );
@@ -159,7 +159,7 @@ namespace fCraft {
 
 
             XElement op = new XElement( "Rank" );
-            op.Add( new XAttribute( "id", RankManager.GenerateID() ) );
+            op.Add( new XAttribute( "id", GenerateID() ) );
             op.Add( new XAttribute( "name", "op" ) );
             op.Add( new XAttribute( "rank", 80 ) );
             op.Add( new XAttribute( "color", "aqua" ) );
@@ -227,7 +227,7 @@ namespace fCraft {
 
 
             XElement builder = new XElement( "Rank" );
-            builder.Add( new XAttribute( "id", RankManager.GenerateID() ) );
+            builder.Add( new XAttribute( "id", GenerateID() ) );
             builder.Add( new XAttribute( "name", "builder" ) );
             builder.Add( new XAttribute( "rank", 30 ) );
             builder.Add( new XAttribute( "color", "white" ) );
@@ -266,7 +266,7 @@ namespace fCraft {
 
 
             XElement guest = new XElement( "Rank" );
-            guest.Add( new XAttribute( "id", RankManager.GenerateID() ) );
+            guest.Add( new XAttribute( "id", GenerateID() ) );
             guest.Add( new XAttribute( "name", "guest" ) );
             guest.Add( new XAttribute( "rank", 0 ) );
             guest.Add( new XAttribute( "color", "silver" ) );
@@ -289,32 +289,47 @@ namespace fCraft {
             return permissions;
         }
 
-        /// <summary> Adds a new rank to the list. Checks for duplicates. </summary>
+
+        /// <summary> Adds a new rank to the list (bottom of hierarchy). Checks for duplicates. </summary>
         /// <param name="rank"> Rank to add to the list. </param>
         /// <exception cref="ArgumentNullException"> If rank is null. </exception>
         /// <exception cref="InvalidOperationException"> If PlayerDB is already loaded. </exception>
         /// <exception cref="RankDefinitionException"> If a rank with this name or ID is already defined. </exception>
         public static void AddRank( [NotNull] Rank rank ) {
-            if( rank == null ) throw new ArgumentNullException( "rank" );
+            AddRank( rank, Ranks.Count );
+        }
+
+
+        /// <summary> Adds a new rank to the list at the desired position in the hierarchy. Checks for duplicates. </summary>
+        /// <param name="newRank"> Rank to add to the list. </param>
+        /// <param name="desiredIndex"> Desired rank index (zero-based). </param>
+        /// <exception cref="ArgumentNullException"> If rank is null. </exception>
+        /// <exception cref="InvalidOperationException"> If PlayerDB is already loaded. </exception>
+        /// <exception cref="RankDefinitionException"> If a rank with this name or ID is already defined. </exception>
+        public static void AddRank( [NotNull] Rank newRank, int desiredIndex ) {
+            if( desiredIndex < 0 || desiredIndex > Ranks.Count ) {
+                throw new ArgumentOutOfRangeException( "desiredIndex" );
+            }
+            if( newRank == null ) throw new ArgumentNullException( "rank" );
             CheckIfPlayerDBLoaded();
 
             // check for duplicate rank names
-            if( RanksByName.ContainsKey( rank.Name.ToLower() ) ) {
-                throw new RankDefinitionException( rank.Name,
+            if( RanksByName.ContainsKey( newRank.Name.ToLower() ) ) {
+                throw new RankDefinitionException( newRank.Name,
                                                    "Duplicate definition for rank \"{0}\" (by Name) was ignored.",
-                                                   rank.Name );
+                                                   newRank.Name );
             }
 
-            if( RanksByID.ContainsKey( rank.ID ) ) {
-                throw new RankDefinitionException( rank.Name,
+            if( RanksByID.ContainsKey( newRank.ID ) ) {
+                throw new RankDefinitionException( newRank.Name,
                                                    "Duplicate definition for rank \"{0}\" (by ID) was ignored.",
-                                                   rank.Name );
+                                                   newRank.Name );
             }
 
-            Ranks.Add( rank );
-            RanksByName[rank.Name.ToLower()] = rank;
-            RanksByFullName[rank.FullName] = rank;
-            RanksByID[rank.ID] = rank;
+            Ranks.Insert( desiredIndex, newRank );
+            RanksByName[newRank.Name.ToLower()] = newRank;
+            RanksByFullName[newRank.FullName] = newRank;
+            RanksByID[newRank.ID] = newRank;
             RebuildIndex();
         }
 

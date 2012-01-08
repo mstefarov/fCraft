@@ -114,7 +114,7 @@ namespace fCraft.MapConversion {
                 // read the layer index
                 int layerCount = reader.ReadByte();
                 if( layerCount < 1 ) {
-                    throw new MapFormatException( "No data layers found." );
+                    throw new MapFormatException( "MapFCMv3: No data layers found." );
                 }
                 mapStream.Seek( 25 * layerCount, SeekOrigin.Current );
 

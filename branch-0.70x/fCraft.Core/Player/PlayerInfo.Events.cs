@@ -129,6 +129,7 @@ namespace fCraft.Events {
     /// <summary> An EventArgs for an event that directly related to a particular PlayerInfo. </summary>
     public interface IPlayerInfoEvent {
         /// <summary> Player affected by the event. </summary>
+        [PublicAPI]
         PlayerInfo PlayerInfo { get; }
     }
 

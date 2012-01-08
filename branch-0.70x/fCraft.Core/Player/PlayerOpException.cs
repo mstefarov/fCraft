@@ -4,13 +4,13 @@ using System.Net;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> Exception that is thrown when a player's action or command could not be completed. </summary>
     public sealed class PlayerOpException : Exception {
         public PlayerOpException( [NotNull] Player player, [CanBeNull] PlayerInfo target,
                                   PlayerOpExceptionCode errorCode,
                                   [NotNull] string message, [NotNull] string messageColored )
             : base( message ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( message == null ) throw new ArgumentNullException( "message" );
             if( messageColored == null ) throw new ArgumentNullException( "messageColored" );
             Player = player;
             Target = target;
@@ -26,12 +26,10 @@ namespace fCraft {
         [CanBeNull]
         public PlayerInfo Target { get; private set; }
 
-        /// <summary> Error code of the exception. </summary>
+        /// <summary> Error code associated with the error. </summary>
         public PlayerOpExceptionCode ErrorCode { get; private set; }
 
-        /// <summary>
-        /// Message to be displayed, in coloured format.
-        /// </summary>
+        /// <summary> Message to display to player, via Minecraft chat. Optionally enhanced with colorcodes. </summary>
         [NotNull]
         public string MessageColored { get; private set; }
 
