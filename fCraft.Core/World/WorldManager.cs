@@ -4,16 +4,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Xml;
 using System.Xml.Linq;
 using fCraft.Events;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
+#if !DEBUG
+using System.Xml;
+#endif
 
 namespace fCraft {
-    /// <summary> Manages all the worlds on a server.
-    /// This includes loading/unloading, saving
-    /// and world deletion. </summary>
+    /// <summary> Manages the world list. Handles loading/unloading, renaming, map changes, and more. </summary>
     public static class WorldManager {
 
         /// <summary> List of worlds currently being managed by WorldManager. </summary>

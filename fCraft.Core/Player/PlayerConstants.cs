@@ -1,5 +1,6 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
+using JetBrains.Annotations;
 
 // This file condenses some of the player-related enumerations
 namespace fCraft {
@@ -23,9 +24,11 @@ namespace fCraft {
         /// <summary> Invalid characters in a message </summary>
         InvalidMessageKick = 0x12,
 
-        /// <summary> Attempted to place invalid blocktype </summary>
+        /// <summary> Attempted to place invalid blocktype.
+        /// Since fCraft 0.600 release, it is no longer possible to get kicked in this context. </summary>
         [Obsolete]
-        InvalidSetTileKick = 0x13,
+        [UsedImplicitly]
+        InvalidBlockKick = 0x13,
 
         /// <summary> Unknown opcode or packet </summary>
         InvalidOpcodeKick = 0x14,

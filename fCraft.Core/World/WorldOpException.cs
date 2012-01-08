@@ -3,8 +3,9 @@ using System;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary> WorldOperationException, thrown when an invalid operation is attempted on a world. </summary>
+    /// <summary> Exception that is thrown when an invalid operation is attempted on a world. </summary>
     public sealed class WorldOpException : Exception {
+        /// <summary> Error code associated with the error. </summary>
         public WorldOpExceptionCode ErrorCode { get; private set; }
 
 
@@ -17,22 +18,19 @@ namespace fCraft {
         }
 
 
-        /// <summary> Creates a new instance of fCraft.WorldOpException, with the specified error code and message. </summary>
-        /// <param name="errorCode"> Error that took place. </param>
-        /// <param name="message"> Message to display. </param>
         public WorldOpException( WorldOpExceptionCode errorCode, [NotNull] string message )
             : base( message ) {
             ErrorCode = errorCode;
         }
 
 
-        public WorldOpException( string worldName, WorldOpExceptionCode errorCode, Exception innerException )
+        public WorldOpException( [CanBeNull] string worldName, WorldOpExceptionCode errorCode, Exception innerException )
             : base( GetMessage( worldName, errorCode ), innerException ) {
             ErrorCode = errorCode;
         }
 
 
-        public WorldOpException( WorldOpExceptionCode errorCode, string message, Exception innerException )
+        public WorldOpException( WorldOpExceptionCode errorCode, [NotNull] string message, Exception innerException )
             : base( message, innerException ) {
             ErrorCode = errorCode;
         }

@@ -118,6 +118,7 @@
     <Compile Include="Plugins\CILPluginLoader.cs" />
     <Compile Include="Plugins\PluginLoadResult.cs" />
     <Compile Include="Plugins\PluginManager.cs" />
+    <Compile Include="System\ShutdownParams.cs" />
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
     <Compile Include="Utils\Vector3F.cs" />

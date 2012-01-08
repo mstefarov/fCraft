@@ -916,8 +916,9 @@ namespace fCraft {
             }
 
             if( world == target.World ) {
-                player.Message( "Player {0}&S is already in world {1}",
+                player.Message( "Player {0}&S is already in world {1}&S. They were brought to spawn.",
                                 target.ClassyName, world.ClassyName );
+                target.TeleportTo( world.Map.Spawn );
                 return;
             }
 

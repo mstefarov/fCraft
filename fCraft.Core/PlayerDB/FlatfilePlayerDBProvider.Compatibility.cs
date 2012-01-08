@@ -609,6 +609,7 @@ namespace fCraft {
         }
 
 
+        [PublicAPI]
         public static bool ToTimeSpanLegacy( [NotNull] string str, out TimeSpan result ) {
             if( str == null ) throw new ArgumentNullException( "str" );
             if( str.Length > 1 ) {

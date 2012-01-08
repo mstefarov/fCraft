@@ -3,9 +3,10 @@ using System;
 using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
-    /// <summary> Exception caused by problems with the map file's incorrect format or structure. </summary>
+    /// <summary> Exception that is thrown when problems arise during map saving or loading.
+    /// May be caused by map file's incorrect format or structure. </summary>
     public sealed class MapFormatException : Exception {
-        public MapFormatException() { }
-        public MapFormatException( [NotNull] string message ) : base( message ) { }
+        internal MapFormatException() { }
+        internal MapFormatException( [NotNull] string message ) : base( message ) { }
     }
 }

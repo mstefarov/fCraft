@@ -898,6 +898,7 @@ namespace fCraft {
         /// <summary> Resets key value to its default setting. </summary>
         /// <param name="key"> Config key to reset. </param>
         /// <returns> True if value was reset. False if resetting was cancelled by an event handler/plugin. </returns>
+        [PublicAPI]
         public static bool ResetValue( this ConfigKey key ) {
             return key.TrySetValue( key.GetDefault() );
         }
@@ -912,6 +913,7 @@ namespace fCraft {
         /// False if value is valid, but assignment was cancelled by an event handler/plugin. </returns>
         /// <exception cref="T:System.ArgumentNullException" />
         /// <exception cref="T:System.FormatException" />
+        [PublicAPI]
         public static bool SetValue( this ConfigKey key, object rawValue ) {
             if( rawValue == null ) {
                 throw new ArgumentNullException( "rawValue", key + ": ConfigKey values cannot be null. Use an empty string to indicate unset value." );
@@ -942,6 +944,7 @@ namespace fCraft {
         /// <exception cref="T:System.ArgumentNullException" />
         /// <returns> True if value is valid and has been assigned.
         /// False if value was invalid, or if assignment was cancelled by an event callback. </returns>
+        [PublicAPI]
         public static bool TrySetValue( this ConfigKey key, object rawValue ) {
             try {
                 return SetValue( key, rawValue );

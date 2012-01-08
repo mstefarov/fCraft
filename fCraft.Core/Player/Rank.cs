@@ -63,15 +63,15 @@ namespace fCraft {
         /// Subordinate ranks start at 1. Higher index = lower rank. </summary>
         public int Index;
 
-        /// <summary> The Rank immediately above this Rank. </summary>
+        /// <summary> The Rank immediately above this Rank. Set by RankManager. </summary>
         [CanBeNull]
         public Rank NextRankUp { get; internal set; }
 
-        /// <summary> The Rank immediately below this Rank. </summary>
+        /// <summary> The Rank immediately below this Rank. Set by RankManager. </summary>
         [CanBeNull]
         public Rank NextRankDown { get; internal set; }
 
-        /// <summary> The main world for this Rank. </summary>
+        /// <summary> The main world for this Rank. Set and saved by WorldManager. </summary>
         [CanBeNull]
         public World MainWorld { get; set; }
 
@@ -98,6 +98,34 @@ namespace fCraft {
             Name = name;
             ID = id;
             FullName = Name + "#" + ID;
+        }
+
+
+        /// <summary> Sets the name and ID of this Rank. </summary>
+        /// <param name="name"> Name to assign to this Rank. </param>
+        /// <param name="id"> ID to assing to this Rank. </param>
+        /// <param name="existingRank"> Existing rank to copy. May not be null. </param>
+        /// <exception cref="ArgumentNullException"> If name, id, or existingRank is null. </exception>
+        public Rank( [NotNull] string name, [NotNull] string id, [NotNull] Rank existingRank )
+            : this() {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( id == null ) throw new ArgumentNullException( "id" );
+            if( existingRank == null ) throw new ArgumentNullException( "existingRank" );
+            Name = name;
+            ID = id;
+            FullName = Name + "#" + ID;
+            Color = existingRank.Color;
+            Prefix = existingRank.Prefix;
+            Permissions = (bool[])existingRank.Permissions.Clone();
+            AllowSecurityCircumvention = existingRank.AllowSecurityCircumvention;
+            CopySlots = existingRank.CopySlots;
+            FillLimit = existingRank.FillLimit;
+            DrawLimit = existingRank.DrawLimit;
+            IdleKickTimer = existingRank.IdleKickTimer;
+            AntiGriefBlocks = existingRank.AntiGriefBlocks;
+            AntiGriefSeconds = existingRank.AntiGriefSeconds;
+            HasReservedSlot = existingRank.HasReservedSlot;
+            PermissionLimits = (Rank[])existingRank.PermissionLimits.Clone();
         }
 
 
@@ -640,19 +668,24 @@ namespace fCraft {
     }
 
 
+    /// <summary> Exception that is thrown when parsing a rank definition has failed. </summary>
     public sealed class RankDefinitionException : Exception {
-        public RankDefinitionException( string rankName, string message )
+        internal RankDefinitionException( [CanBeNull] string rankName, [NotNull] string message )
             : base( message ) {
             RankName = rankName;
         }
 
+
         [StringFormatMethod( "message" )]
-        public RankDefinitionException( string rankName, string message, params object[] args ) :
+        internal RankDefinitionException( [CanBeNull] string rankName, [NotNull] string message, [NotNull] params object[] args ) :
             base( String.Format( message, args ) ) {
+            if( args == null ) throw new ArgumentNullException( "args" );
             RankName=rankName;
         }
 
 
+        /// <summary> Name of the rank in question. </summary>
+        [CanBeNull]
         public string RankName { get; private set; }
     }
 }

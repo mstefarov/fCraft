@@ -130,7 +130,7 @@ namespace fCraft.MapConversion {
                 } catch { }
             }
 
-            throw new MapFormatException( "Unknown map format." );
+            throw new MapFormatException( "Could not find any converter to load the given file." );
         }
 
         /// <summary> Attempts to load the map including the block data from it's header using the specified filename. </summary>
@@ -191,14 +191,19 @@ namespace fCraft.MapConversion {
                 } catch { }
             }
 
-            throw new MapFormatException( "Unknown map format." );
+            throw new MapFormatException( "Could not find any converter to load the given file." );
         }
+
 
         /// <summary> Attempts to save the map, under the specified filename using the specified format. </summary>
         /// <param name="mapToSave"> Map file to be saved.</param>
         /// <param name="fileName">The name of the file to save to. </param>
         /// <param name="format"> The format to use when saving the map. </param>
         /// <returns> Whether or not the map save completed successfully. </returns>
+        /// <exception cref="ArgumentNullException"> If mapToSave or fileName are null. </exception>
+        /// <exception cref="ArgumentException"> If format is set to MapFormat.Unknown. </exception>
+        /// <exception cref="MapFormatException">  If no converter could be found for the given format. </exception>
+        /// <exception cref="NotImplementedException"> If saving to this format is not implemented or supported. </exception>
         public static bool TrySave( [NotNull] Map mapToSave, [NotNull] string fileName, MapFormat format ) {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
@@ -208,13 +213,15 @@ namespace fCraft.MapConversion {
                 IMapConverter converter = AvailableConverters[format];
                 try {
                     return converter.Save( mapToSave, fileName );
+                } catch( NotImplementedException ) {
+                    throw;
                 } catch( Exception ex ) {
                     Logger.LogAndReportCrash( "Map failed to save", "MapConversion", ex, false );
                     return false;
                 }
             }
 
-            throw new MapFormatException( "Unknown map format for saving." );
+            throw new MapFormatException( "No converter could be found for the given format." );
         }
 
 

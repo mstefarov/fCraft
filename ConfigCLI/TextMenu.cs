@@ -17,6 +17,8 @@ namespace fCraft.ConfigCLI {
         readonly List<TextOption> lines = new List<TextOption>();
         public Column Column { get; set; }
 
+
+        [NotNull]
         public TextOption AddOption( [NotNull] TextOption newOption ) {
             if( newOption == null ) throw new ArgumentNullException( "newOption" );
             if( newOption.Label != null ) {
@@ -27,19 +29,31 @@ namespace fCraft.ConfigCLI {
         }
 
 
+        [NotNull]
         public TextOption AddOption( int label, [NotNull] string text ) {
             if( text == null ) throw new ArgumentNullException( "text" );
             return AddOption( new TextOption( label.ToString( CultureInfo.InvariantCulture ), text, Column ) );
         }
 
 
+        [NotNull]
         public TextOption AddOption( [CanBeNull] string label, [NotNull] string text ) {
             if( text == null ) throw new ArgumentNullException( "text" );
             return AddOption( new TextOption( label, text, Column ) );
         }
 
 
-        public TextOption AddOption( [CanBeNull] string label, [NotNull] string text, object tag ) {
+        [NotNull]
+        public TextOption AddOption( int label, [NotNull] string text, [CanBeNull] object tag ) {
+            TextOption newOption = new TextOption( label.ToString( CultureInfo.InvariantCulture ), text, Column ) {
+                Tag = tag
+            };
+            return AddOption( newOption );
+        }
+
+
+        [NotNull]
+        public TextOption AddOption( [CanBeNull] string label, [NotNull] string text, [CanBeNull] object tag ) {
             TextOption newOption = new TextOption( label, text, Column ) {
                 Tag = tag
             };
@@ -47,8 +61,8 @@ namespace fCraft.ConfigCLI {
         }
 
 
-        public void AddSpacer( Column column ) {
-            if( column == Column.Left ) {
+        public void AddSpacer() {
+            if( Column == Column.Left ) {
                 lines.Add( TextOption.SpacerLeft );
             } else {
                 lines.Add( TextOption.SpacerRight );
@@ -56,78 +70,83 @@ namespace fCraft.ConfigCLI {
         }
 
 
+        const int ColumnSize = 40;
+
         void PrintOptions() {
             bool hasRightSide = lines.Any( line => line.Column == Column.Right );
 
             if( hasRightSide ) {
                 var listLeft = lines.Where( line => line.Column == Column.Left ).ToArray();
                 var listRight = lines.Where( line => line.Column == Column.Right ).ToArray();
-                int maxLeftOptionLength = listLeft.Where( line => line.Label != null ).Max( line => line.Label.Length );
-                int maxRightOptionLength = listRight.Where( line => line.Label != null ).Max( line => line.Label.Length );
+                int maxLeftOptionLength = listLeft.Where( line => line.Label != null )
+                                                  .Max( line => line.Label.Length );
+                int maxRightOptionLength = listRight.Where( line => line.Label != null )
+                                                    .Max( line => line.Label.Length );
                 int maxSize = Math.Max( listLeft.Length, listRight.Length );
+
                 for( int i = 0; i < maxSize; i++ ) {
                     if( i >= listLeft.Length ) {
                         TextOption option = listRight[i];
-                        if( Program.UseColor ) {
-                            Console.BackgroundColor = option.BackColor;
-                            Console.ForegroundColor = option.ForeColor;
-                        }
                         if( option.Label == null ) {
-                            Console.WriteLine( "{0}", option.Text.PadLeft( 40 + maxRightOptionLength + 2 ) );
+                            SetColor( option );
+                            Console.WriteLine( option.Text.PadLeft( ColumnSize + maxRightOptionLength + 2 ) );
                         } else {
-                            Console.WriteLine( "{0}. {1}", option.Label.PadLeft( 40 + maxRightOptionLength ), option.Text );
+                            Console.Write( "{0}. ", option.Label.PadLeft( ColumnSize + maxRightOptionLength ) );
+                            SetColor( option );
+                            Console.WriteLine( option.Text );
                         }
+                        ResetColor();
 
                     } else if( i >= listRight.Length ) {
                         TextOption option = listLeft[i];
-                        if( Program.UseColor ) {
-                            Console.BackgroundColor = option.BackColor;
-                            Console.ForegroundColor = option.ForeColor;
-                        }
                         if( option.Label == null ) {
-                            Console.WriteLine( "{0}", option.Text.PadLeft( maxLeftOptionLength + 2 ) );
+                            SetColor( option );
+                            Console.WriteLine( option.Text.PadLeft( maxLeftOptionLength + 2 ) );
                         } else {
-                            Console.WriteLine( "{0}. {1}", option.Label.PadLeft( maxLeftOptionLength ), option.Text );
+                            Console.Write( "{0}. ", option.Label.PadLeft( maxLeftOptionLength ));
+                            SetColor(option);
+                            Console.WriteLine( option.Text );
                         }
+                        ResetColor();
 
                     } else {
                         TextOption option1 = listLeft[i];
                         TextOption option2 = listRight[i];
-                        if( Program.UseColor ) {
-                            Console.BackgroundColor = option1.BackColor;
-                            Console.ForegroundColor = option1.ForeColor;
-                        }
+
                         if( option1.Label == null ) {
-                            string text = option1.Text;
-                            Console.Write( text.PadRight( 40 ).Substring( 0, 40 ) );
+                            SetColor( option1 );
+                            Console.Write( option1.Text.PadRight( ColumnSize ).Substring( 0, ColumnSize ) );
                         } else {
-                            string text = String.Format( "{0}. {1}", option1.Label.PadLeft( maxLeftOptionLength ), option1.Text );
-                            Console.Write( text.PadRight( 40 ).Substring( 0, 40 ) );
+                            Console.Write( "{0}. ", option1.Label.PadLeft( maxLeftOptionLength ) );
+                            SetColor( option1 );
+                            Console.Write( option1.Text.PadRight( ColumnSize ).Substring( 0, ColumnSize ) );
                         }
-                        if( Program.UseColor ) {
-                            Console.BackgroundColor = option2.BackColor;
-                            Console.ForegroundColor = option2.ForeColor;
-                        }
+                        ResetColor();
+
                         if( option2.Label == null ) {
-                            Console.WriteLine( "{0}", option2.Text.PadLeft( maxRightOptionLength + 2 ) );
+                            SetColor( option2 );
+                            Console.WriteLine( option2.Text.PadLeft( maxRightOptionLength + 2 ) );
                         } else {
-                            Console.WriteLine( "{0}. {1}", option2.Label.PadLeft( maxRightOptionLength ), option2.Text );
+                            Console.Write( "{0}. ", option2.Label.PadLeft( maxRightOptionLength ) );
+                            SetColor( option2 );
+                            Console.WriteLine( option2.Text );
                         }
+                        ResetColor();
                     }
                 }
 
             } else {
                 int maxOptionLength = lines.Where( line => line.Label != null ).Max( line => line.Label.Length );
                 foreach( TextOption option in lines ) {
-                    if( Program.UseColor ) {
-                        Console.BackgroundColor = option.BackColor;
-                        Console.ForegroundColor = option.ForeColor;
-                    }
                     if( option.Label == null ) {
-                        Console.WriteLine( "{0}", option.Text.PadLeft( maxOptionLength + 2 ) );
+                        SetColor( option );
+                        Console.WriteLine( option.Text.PadLeft( maxOptionLength + 2 ) );
                     } else {
-                        Console.WriteLine( "{0}. {1}", option.Label.PadLeft( maxOptionLength ), option.Text );
+                        Console.Write( "{0}. ", option.Label.PadLeft( maxOptionLength ) );
+                        SetColor( option );
+                        Console.WriteLine( option.Text );
                     }
+                    ResetColor();
                 }
             }
 
@@ -135,13 +154,28 @@ namespace fCraft.ConfigCLI {
         }
 
 
+        static void SetColor( [NotNull] TextOption option ) {
+            if( option == null ) throw new ArgumentNullException( "option" );
+            if( !Program.UseColor ) return;
+            Console.BackgroundColor = option.BackColor;
+            Console.ForegroundColor = option.ForeColor;
+        }
+
+
+        static void ResetColor() {
+            if( Program.UseColor ) Console.ResetColor();
+        }
+
+
+        [NotNull]
         public TextOption Show() {
             return Show( "Enter your selection: " );
         }
 
 
         [NotNull]
-        public TextOption Show( string prompt ) {
+        public TextOption Show( [NotNull] string prompt ) {
+            if( prompt == null ) throw new ArgumentNullException( "prompt" );
             PrintOptions();
             Console.WriteLine();
             while( true ) {
@@ -158,20 +192,28 @@ namespace fCraft.ConfigCLI {
         }
 
 
-        public static bool ShowYesNo( string prompt ) {
+        [StringFormatMethod("prompt")]
+        public static bool ShowYesNo( [NotNull] string prompt, params object[] formatArgs ) {
+            if( prompt == null ) throw new ArgumentNullException( "prompt" );
             while( true ) {
-                Console.Write( "{0} (Y/N): ", prompt );
+                if( Program.UseColor ) Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write( prompt + " (Y/N): ", formatArgs );
                 string input = Console.ReadLine().ToLower();
-                if( input.Equals( "yes", StringComparison.OrdinalIgnoreCase ) || input.Equals( "y", StringComparison.OrdinalIgnoreCase ) ) {
+                if( Program.UseColor ) Console.ResetColor();
+
+                if( input.Equals( "yes", StringComparison.OrdinalIgnoreCase ) ||
+                    input.Equals( "y", StringComparison.OrdinalIgnoreCase ) ) {
                     return true;
-                } else if( input.Equals( "no", StringComparison.OrdinalIgnoreCase ) || input.Equals( "n", StringComparison.OrdinalIgnoreCase ) ) {
+                } else if( input.Equals( "no", StringComparison.OrdinalIgnoreCase ) ||
+                    input.Equals( "n", StringComparison.OrdinalIgnoreCase ) ) {
                     return false;
                 }
             }
         }
 
 
-        public static int ShowNumber( string prompt, int min, int max ) {
+        public static int ShowNumber( [NotNull] string prompt, int min, int max ) {
+            if( prompt == null ) throw new ArgumentNullException( "prompt" );
             while( true ) {
                 Console.Write( "{0} ({1}-{2}, or press enter to cancel): ", prompt, min, max );
                 string input = Console.ReadLine();

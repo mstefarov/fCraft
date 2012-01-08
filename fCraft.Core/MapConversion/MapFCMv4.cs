@@ -174,7 +174,7 @@ namespace fCraft.MapConversion {
             map.DateModified = modifiedTime.ToDateTime();
 
             int metaEntryCount = bs.ReadInt32();
-            if( metaEntryCount < 0 ) throw new MapFormatException( "Negative metadata entry count." );
+            if( metaEntryCount < 0 ) throw new MapFormatException( "MapFCMv4: Negative metadata entry count." );
 
             // metadata
             for( int i = 0; i < metaEntryCount; i++ ) {
@@ -211,14 +211,14 @@ namespace fCraft.MapConversion {
             }
 
             int layerCount = bs.ReadInt32();
-            if( layerCount < 0 ) throw new MapFormatException( "Negative layer count." );
+            if( layerCount < 0 ) throw new MapFormatException( "MapFCMv4: Negative layer count." );
 
             // layers
             if( readLayers ) {
                 for( int l = 0; l < layerCount; l++ ) {
                     string layerName = ReadString( bs );
                     int layerSize = bs.ReadInt32();
-                    if( layerSize < 0 ) throw new MapFormatException( "Invalid layer size." );
+                    if( layerSize < 0 ) throw new MapFormatException( "MapFCMv4: Invalid layer size." );
 
                     switch( layerName ) {
                         case BlockLayerName:
@@ -256,7 +256,7 @@ namespace fCraft.MapConversion {
         static string ReadString( [NotNull] BinaryReader reader ) {
             if( reader == null ) throw new ArgumentNullException( "reader" );
             int stringLength = reader.ReadInt32();
-            if( stringLength < 0 ) throw new MapFormatException( "Negative string length." );
+            if( stringLength < 0 ) throw new MapFormatException( "MapFCMv4: Negative string length." );
             return Encoding.ASCII.GetString( reader.ReadBytes( stringLength ) );
         }
 

@@ -175,6 +175,7 @@ namespace fCraft.Drawing {
 
         /// <summary> Begins the draw operation. Raises DrawOperation.Beginning/Began events. </summary>
         /// <returns> True is operation began succesfully; false if cancelled by an event callback. </returns>
+        [PublicAPI]
         public virtual bool Begin() {
             if( !RaiseBeginningEvent( this ) ) return false;
             UndoState = Player.DrawBegin( this );

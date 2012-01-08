@@ -18,6 +18,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> Ranked( [NotNull] this IEnumerable<Player> source, [NotNull] Rank rank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( rank == null ) throw new ArgumentNullException( "rank" );
@@ -35,6 +36,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> NotRanked( [NotNull] this IEnumerable<Player> source, [NotNull] Rank rank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( rank == null ) throw new ArgumentNullException( "rank" );
@@ -52,6 +54,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> RankedAbove( [NotNull] this IEnumerable<Player> source, [NotNull] Rank minRank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( minRank == null ) throw new ArgumentNullException( "minRank" );
@@ -69,6 +72,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> RankedAtLeast( [NotNull] this IEnumerable<Player> source, [NotNull] Rank minRank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( minRank == null ) throw new ArgumentNullException( "minRank" );
@@ -86,6 +90,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> RankedBelow( [NotNull] this IEnumerable<Player> source, [NotNull] Rank maxRank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( maxRank == null ) throw new ArgumentNullException( "maxRank" );
@@ -103,6 +108,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> RankedAtMost( [NotNull] this IEnumerable<Player> source, [NotNull] Rank maxRank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( maxRank == null ) throw new ArgumentNullException( "maxRank" );
@@ -124,6 +130,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If source is null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> Can( [NotNull] this IEnumerable<Player> source, Permission permission ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             foreach( Player player in source ) {
@@ -142,6 +149,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If source or affectedRank is null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> Can( [NotNull] this IEnumerable<Player> source, Permission permission, [NotNull] Rank affectedRank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( affectedRank == null ) throw new ArgumentNullException( "affectedRank" );
@@ -159,6 +167,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If source is null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> Cant( [NotNull] this IEnumerable<Player> source, Permission permission ) {
             foreach( Player player in source ) {
                 if( !player.Can( permission ) ) {
@@ -176,6 +185,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If source or affectedRank is null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> Cant( [NotNull] this IEnumerable<Player> source, Permission permission, [NotNull] Rank affectedRank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( affectedRank == null ) throw new ArgumentNullException( "affectedRank" );
@@ -194,6 +204,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> CanSee( [NotNull] this IEnumerable<Player> source, [NotNull] Player targetPlayer ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( targetPlayer == null ) throw new ArgumentNullException( "targetPlayer" );
@@ -212,6 +223,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> CantSee( [NotNull] this IEnumerable<Player> source, [NotNull] Player targetPlayer ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( targetPlayer == null ) throw new ArgumentNullException( "targetPlayer" );
@@ -229,6 +241,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> CanBeSeen( [NotNull] this IEnumerable<Player> source, [NotNull] Player observer ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( observer == null ) throw new ArgumentNullException( "observer" );
@@ -246,6 +259,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> CantBeSeen( [NotNull] this IEnumerable<Player> source, [NotNull] Player observer ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( observer == null ) throw new ArgumentNullException( "observer" );
@@ -267,6 +281,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> Ignoring( [NotNull] this IEnumerable<Player> source, [NotNull] Player player ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -284,6 +299,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> NotIgnoring( [NotNull] this IEnumerable<Player> source, [NotNull] Player player ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -301,6 +317,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> Ignoring( [NotNull] this IEnumerable<Player> source, [NotNull] PlayerInfo playerInfo ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
@@ -318,6 +335,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> NotIgnoring( [NotNull] this IEnumerable<Player> source, [NotNull] PlayerInfo playerInfo ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
@@ -335,6 +353,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> IgnoredBy( [NotNull] this IEnumerable<Player> source, [NotNull] Player ignorer ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( ignorer == null ) throw new ArgumentNullException( "ignorer" );
@@ -352,6 +371,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> NotIgnoredBy( [NotNull] this IEnumerable<Player> source, [NotNull] Player ignorer ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( ignorer == null ) throw new ArgumentNullException( "ignorer" );
@@ -373,6 +393,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> InWorld( [NotNull] this IEnumerable<Player> source, [NotNull] World world ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( world == null ) throw new ArgumentNullException( "world" );
@@ -390,6 +411,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> NotInWorld( [NotNull] this IEnumerable<Player> source, [NotNull] World world ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( world == null ) throw new ArgumentNullException( "world" );
@@ -413,6 +435,7 @@ namespace fCraft {
         /// <returns> A set that contains all players in the input sequence, plus the given player. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> Union( [NotNull] this IEnumerable<Player> source, [NotNull] Player includedPlayer ) {
             bool found = false;
             foreach( Player player in source ) {
@@ -434,6 +457,7 @@ namespace fCraft {
         /// <returns> A set that contains all players in the input sequence, minus the given player. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> Except( [NotNull] this IEnumerable<Player> source, [CanBeNull] Player excludedPlayer ) {
             foreach( Player player in source ) {
                 if( player != excludedPlayer ) {
@@ -453,6 +477,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> FromIP( [NotNull] this IEnumerable<Player> source, [NotNull] IPAddress ip ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( ip == null ) throw new ArgumentNullException( "ip" );
@@ -470,6 +495,7 @@ namespace fCraft {
         /// <returns> Filtered collection of players. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [NotNull]
+        [PublicAPI]
         public static IEnumerable<Player> NotFromIP( [NotNull] this IEnumerable<Player> source, [NotNull] IPAddress ip ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( ip == null ) throw new ArgumentNullException( "ip" );
@@ -490,6 +516,7 @@ namespace fCraft {
         /// <param name="message"> String/message to send. </param>
         /// <returns> Number of players who received the message. </returns>
         /// <exception cref="ArgumentNullException"> If source or message is null. </exception>
+        [PublicAPI]
         public static int Message( [NotNull] this IEnumerable<Player> source,
                                    [NotNull] string message ) {
             if( source == null ) throw new ArgumentNullException( "source" );
@@ -510,6 +537,7 @@ namespace fCraft {
         /// <param name="message"> String/message to send. </param>
         /// <returns> Number of players who received the message. </returns>
         /// <exception cref="ArgumentNullException"> If source or message is null. </exception>
+        [PublicAPI]
         public static int Message( [NotNull] this IEnumerable<Player> source,
                                    [CanBeNull] Player except,
                                    [NotNull] string message ) {
@@ -536,6 +564,7 @@ namespace fCraft {
         /// <returns> Number of players who received the message. </returns>
         /// <exception cref="ArgumentNullException"> If source, message, or formatArgs are null. </exception>
         [StringFormatMethod( "message" )]
+        [PublicAPI]
         public static int Message( [NotNull] this IEnumerable<Player> source,
                                    [CanBeNull] Player except,
                                    [NotNull] string message,
@@ -562,6 +591,7 @@ namespace fCraft {
         /// <returns> Number of players who received the message. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [StringFormatMethod( "message" )]
+        [PublicAPI]
         public static int Message( [NotNull] this IEnumerable<Player> source,
                                    [NotNull] string message,
                                    [NotNull] params object[] formatArgs ) {
@@ -587,6 +617,7 @@ namespace fCraft {
         /// <param name="message"> String/message to send. </param>
         /// <returns> Number of players who received the message. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
+        [PublicAPI]
         public static int MessagePrefixed( [NotNull] this IEnumerable<Player> source, [NotNull] string prefix, [NotNull] string message ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( prefix == null ) throw new ArgumentNullException( "prefix" );
@@ -612,6 +643,7 @@ namespace fCraft {
         /// <returns> Number of players who received the message. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [StringFormatMethod( "message" )]
+        [PublicAPI]
         public static int MessagePrefixed( [NotNull] this IEnumerable<Player> source, [NotNull] string prefix, [NotNull] string message, params object[] formatArgs ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( message == null ) throw new ArgumentNullException( "message" );
@@ -637,6 +669,7 @@ namespace fCraft {
         /// <returns> Number of players who received the message. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [StringFormatMethod( "message" )]
+        [PublicAPI]
         public static int MessageWoMAlert( [NotNull] this IEnumerable<Player> source,
                                            [NotNull] string message,
                                            [NotNull] params object[] formatArgs ) {
@@ -661,6 +694,7 @@ namespace fCraft {
         /// <param name="packet"> Packet to send. </param>
         /// <returns> Number of players who received the packet. </returns>
         /// <exception cref="ArgumentNullException"> If source is null. </exception>
+        [PublicAPI]
         public static int Send( [NotNull] this IEnumerable<Player> source, Packet packet ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             int i = 0;
@@ -678,6 +712,7 @@ namespace fCraft {
         /// <param name="packet"> Packet to send. </param>
         /// <returns> Number of players who received the packet. </returns>
         /// <exception cref="ArgumentNullException"> If source is null. </exception>
+        [PublicAPI]
         public static int Send( [NotNull] this IEnumerable<Player> source, [CanBeNull] Player except, Packet packet ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             int i = 0;
@@ -695,6 +730,7 @@ namespace fCraft {
         /// <param name="packet"> Packet to send. </param>
         /// <returns> Number of players who received the packet. </returns>
         /// <exception cref="ArgumentNullException"> If source is null. </exception>
+        [PublicAPI]
         public static int SendLowPriority( [NotNull] this IEnumerable<Player> source, Packet packet ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             int i = 0;
@@ -712,6 +748,7 @@ namespace fCraft {
         /// <param name="packet"> Packet to send. </param>
         /// <returns> Number of players who received the packet. </returns>
         /// <exception cref="ArgumentNullException"> If source is null. </exception>
+        [PublicAPI]
         public static int SendLowPriority( [NotNull] this IEnumerable<Player> source, [CanBeNull] Player except, Packet packet ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             int i = 0;

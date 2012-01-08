@@ -3,9 +3,9 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Provides a way for printing an object's name beautified with Minecraft color codes.
-    /// It was "classy" in a sense that it was colored based on "class" (rank) of a player/world/zone. </summary>
+    /// It was "classy" in a sense that it was colored based on "class" (rank) associated with a player/command/world/zone. </summary>
     public interface IClassy {
-        /// <summary> Name formatted with minecraft colour codes, stored as a string. </summary>
+        /// <summary> Name optionally formatted with minecraft color codes. </summary>
         [NotNull]
         string ClassyName { get; }
     }

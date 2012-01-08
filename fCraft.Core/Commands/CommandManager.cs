@@ -69,7 +69,11 @@ namespace fCraft {
 
 
         /// <summary> Registers a custom command with fCraft.
-        /// CommandRegistrationException may be thrown if the given descriptor does not meet all the requirements. </summary>
+        /// Raises CommandManager.CommandRegistering/CommandRegistered events. </summary>
+        /// <param name="descriptor"> Command descriptor to register. May not be null. </param>
+        /// <exception cref="ArgumentNullException"> If descriptor is null. </exception>
+        /// <exception cref="CommandRegistrationException"> If command could not be registered. </exception>
+        [PublicAPI]
         public static void RegisterCustomCommand( [NotNull] CommandDescriptor descriptor ) {
             if( descriptor == null ) throw new ArgumentNullException( "descriptor" );
             descriptor.IsCustom = true;
@@ -82,31 +86,40 @@ namespace fCraft {
 
 #if DEBUG
             if( descriptor.Category == CommandCategory.None && !descriptor.IsCustom ) {
-                throw new CommandRegistrationException( "Standard commands must have a category set." );
+                throw new CommandRegistrationException( descriptor,
+                                                        "Standard commands must have a category set." );
             }
 #endif
 
             if( !IsValidCommandName( descriptor.Name ) ) {
-                throw new CommandRegistrationException( "All commands need a name, between 1 and 16 alphanumeric characters long." );
+                throw new CommandRegistrationException( descriptor,
+                                                        "All commands need a name, between 1 and 16 alphanumeric characters long." );
             }
 
             string normalizedName = descriptor.Name.ToLower();
 
             if( Commands.ContainsKey( normalizedName ) ) {
-                throw new CommandRegistrationException( "A command with the name \"{0}\" is already registered.", descriptor.Name );
+                throw new CommandRegistrationException( descriptor,
+                                                        "A command with the name \"{0}\" is already registered.",
+                                                        normalizedName );
             }
 
             if( ReservedCommandNames.Contains( normalizedName ) ) {
-                throw new CommandRegistrationException( "The command name is reserved." );
+                throw new CommandRegistrationException( descriptor,
+                                                        "The command name \"{0}\" is reserved.",
+                                                        normalizedName );
             }
 
             if( descriptor.Handler == null ) {
-                throw new CommandRegistrationException( "All command descriptors are required to provide a handler callback." );
+                throw new CommandRegistrationException( descriptor,
+                                                        "All command descriptors are required to provide a handler callback." );
             }
 
             if( descriptor.Aliases != null ) {
                 if( descriptor.Aliases.Any( alias => Commands.ContainsKey( alias ) ) ) {
-                    throw new CommandRegistrationException( "One of the aliases for \"{0}\" is using the name of an already-defined command." );
+                    throw new CommandRegistrationException( descriptor,
+                                                            "One of the aliases for \"{0}\" is using the name of an already-defined command.",
+                                                            normalizedName );
                 }
             }
 
@@ -154,11 +167,13 @@ namespace fCraft {
         }
 
 
+
         /// <summary> Finds an instance of CommandDescriptor for a given command.
         /// Case-insensitive, but no autocompletion. </summary>
         /// <param name="commandName"> Command to find. </param>
         /// <param name="alsoCheckAliases"> Whether to check command aliases. </param>
-        /// <returns> CommandDesriptor object if found, null if not found. </returns>
+        /// <returns> Relevant CommandDesriptor object if found, null if not found. </returns>
+        /// <exception cref="ArgumentNullException"> If commandName is null. </exception>
         [CanBeNull]
         [Pure]
         public static CommandDescriptor GetDescriptor( [NotNull] string commandName, bool alsoCheckAliases ) {
@@ -179,6 +194,7 @@ namespace fCraft {
         /// <param name="cmd"> Command to be parsed and executed. </param>
         /// <param name="fromConsole"> Whether this command is being called from a non-player (e.g. Console). </param>
         /// <returns> True if the command was called, false if something prevented it from being called. </returns>
+        [PublicAPI]
         public static bool ParseCommand( [NotNull] Player player, [NotNull] CommandReader cmd, bool fromConsole ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
@@ -282,12 +298,29 @@ namespace fCraft {
         #endregion
     }
 
+
+    /// <summary> Exception that is thrown when an attempt to register a command has failed. </summary>
     public sealed class CommandRegistrationException : Exception {
-        public CommandRegistrationException( string message ) : base( message ) { }
+        internal CommandRegistrationException( [NotNull] CommandDescriptor descriptor, [NotNull] string message )
+            : base( message ) {
+            if( descriptor == null ) throw new ArgumentNullException( "descriptor" );
+            Descriptor = descriptor;
+        }
+
 
         [StringFormatMethod( "message" )]
-        public CommandRegistrationException( string message, params object[] args ) :
-            base( String.Format( message, args ) ) { }
+        internal CommandRegistrationException( [NotNull] CommandDescriptor descriptor,
+                                               [NotNull] string message, [NotNull] params object[] args )
+            : base( String.Format( message, args ) ) {
+            if( descriptor == null ) throw new ArgumentNullException( "descriptor" );
+            if( args == null ) throw new ArgumentNullException( "args" );
+            Descriptor = descriptor;
+        }
+
+
+        /// <summary> Descriptor for the command that could not be registered. </summary>
+        [NotNull]
+        public CommandDescriptor Descriptor { get; private set; }
     }
 }
 
