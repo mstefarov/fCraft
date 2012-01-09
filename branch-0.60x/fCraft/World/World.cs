@@ -1,4 +1,4 @@
-﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -268,8 +268,15 @@ namespace fCraft {
                         if( idlestPlayer != null ) {
                             idlestPlayer.Kick( Player.Console, "Auto-kicked to make room (idle).",
                                                LeaveReason.IdleKick, false, false, false );
-                            Server.Message( "Player {0}&S was auto-kicked to make room for {1}",
+
+                            Server.Players
+                                  .CanSee( player )
+                                  .Message( "&SPlayer {0}&S was auto-kicked to make room for {1}",
                                             idlestPlayer.ClassyName, player.ClassyName );
+                            Server.Players
+                                  .CantSee( player )
+                                  .Message( "{0}&S was kicked for being idle for {1} min",
+                                            player.ClassyName, player.Info.Rank.IdleKickTimer );
                         } else {
                             return null;
                         }
