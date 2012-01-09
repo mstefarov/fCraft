@@ -1,4 +1,4 @@
-﻿// Contributed by Jared Klopper. Opticraft is copyright (c) 2011, Jared Klopper
+﻿// Contributed by Jared Klopper. Opticraft is copyright (c) 2011-2012, Jared Klopper
 using System;
 using System.IO;
 using System.IO.Compression;

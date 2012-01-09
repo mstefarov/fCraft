@@ -1,4 +1,4 @@
-﻿/* Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+﻿/* Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
  * 
  * Based, in part, on SmartIrc4net code. Original license is reproduced below.
  * 
@@ -55,13 +55,14 @@ namespace fCraft {
             bool reconnect;
             public bool ResponsibleForInputParsing;
             public string ActualBotNick;
+            string desiredBotNick;
             DateTime lastMessageSent;
             readonly ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
 
 
             public bool Start( [NotNull] string botNick, bool parseInput ) {
                 if( botNick == null ) throw new ArgumentNullException( "botNick" );
-                ActualBotNick = botNick;
+                desiredBotNick = botNick;
                 ResponsibleForInputParsing = parseInput;
                 try {
                     // start the machinery!
@@ -111,6 +112,7 @@ namespace fCraft {
 
                 do {
                     try {
+                        ActualBotNick = desiredBotNick;
                         reconnect = false;
                         Logger.Log( LogType.IRC,
                                     "Connecting to {0}:{1} as {2}",
