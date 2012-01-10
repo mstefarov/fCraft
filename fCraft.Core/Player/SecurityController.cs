@@ -406,6 +406,7 @@ namespace fCraft {
             if( other == null ) throw new ArgumentNullException( "other" );
             minRank = other.minRank;
             maxRank = other.maxRank;
+            rawExceptions = other.rawExceptions;
             lock( other.locker ) {
                 includedPlayers = new Dictionary<string, PlayerInfo>( other.includedPlayers );
                 excludedPlayers = new Dictionary<string, PlayerInfo>( other.excludedPlayers );
