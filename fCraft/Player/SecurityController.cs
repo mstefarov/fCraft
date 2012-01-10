@@ -321,6 +321,7 @@ namespace fCraft {
         public SecurityController( [NotNull] SecurityController other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             minRank = other.minRank;
+            rawExceptions = other.rawExceptions;
             lock( other.locker ) {
                 includedPlayers = new Dictionary<string, PlayerInfo>( other.includedPlayers );
                 excludedPlayers = new Dictionary<string, PlayerInfo>( other.excludedPlayers );
