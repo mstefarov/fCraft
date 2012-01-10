@@ -74,6 +74,7 @@ namespace fCraft {
 
         /// <summary> General-purpose persistent state object,
         /// can be used for anything you want. </summary>
+        [CanBeNull]
         public object UserState { get; set; }
 
 
@@ -126,6 +127,7 @@ namespace fCraft {
 
         #region Run Forever
 
+        [NotNull]
         SchedulerTask RunForever() {
             IsRecurring = true;
             NextTime = DateTime.UtcNow.Add( Delay );
@@ -135,6 +137,7 @@ namespace fCraft {
 
 
         /// <summary> Runs the task forever at a given interval, until manually stopped. </summary>
+        [NotNull]
         public SchedulerTask RunForever( TimeSpan interval ) {
             if( interval.Ticks < 0 ) throw new ArgumentException( "Interval must be positive", "interval" );
             Interval = interval;
@@ -143,6 +146,7 @@ namespace fCraft {
 
 
         /// <summary> Runs the task forever at a given interval after an initial delay, until manually stopped. </summary>
+        [NotNull]
         public SchedulerTask RunForever( TimeSpan interval, TimeSpan delay ) {
             if( interval.Ticks < 0 ) throw new ArgumentException( "Interval must be positive", "interval" );
             Interval = interval;
@@ -152,10 +156,12 @@ namespace fCraft {
 
 
         /// <summary> Runs the task forever at a given interval after an initial delay, until manually stopped. </summary>
-        [PublicAPI]
-        public SchedulerTask RunForever( object userState, TimeSpan interval, TimeSpan delay ) {
+        [NotNull]
+        public SchedulerTask RunForever( [CanBeNull] object userState, TimeSpan interval, TimeSpan delay ) {
             UserState = userState;
-            return RunForever( interval, delay );
+            Interval = interval;
+            Delay = delay;
+            return RunForever();
         }
 
         #endregion
