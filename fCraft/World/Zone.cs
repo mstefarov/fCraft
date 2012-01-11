@@ -95,36 +95,43 @@ namespace fCraft {
 
             if( PlayerDB.IsLoaded ) {
                 // Part 2:
-                foreach( string playerName in parts[1].Split( ' ' ) ) {
-                    if( !Player.IsValidName( playerName ) ) {
-                        Logger.Log( LogType.Warning,
-                                    "Invalid entry in zone \"{0}\" whitelist: {1}", Name, playerName );
-                        continue;
+                if( parts[1].Length > 0 ) {
+                    foreach( string playerName in parts[1].Split( ' ' ) ) {
+                        if( !Player.IsValidName( playerName ) ) {
+                            Logger.Log( LogType.Warning,
+                                        "Invalid entry in zone \"{0}\" whitelist: {1}", Name, playerName );
+                            continue;
+                        }
+                        PlayerInfo info = PlayerDB.FindPlayerInfoExact( playerName );
+                        if( info == null ) {
+                            Logger.Log( LogType.Warning,
+                                        "Unrecognized player in zone \"{0}\" whitelist: {1}", Name, playerName );
+                            continue; // player name not found in the DB (discarded)
+                        }
+                        Controller.Include( info );
                     }
-                    PlayerInfo info = PlayerDB.FindPlayerInfoExact( playerName );
-                    if( info == null ) {
-                        Logger.Log( LogType.Warning,
-                                    "Unrecognized player in zone \"{0}\" whitelist: {1}", Name, playerName );
-                        continue; // player name not found in the DB (discarded)
-                    }
-                    Controller.Include( info );
                 }
 
                 // Part 3: excluded list
-                foreach( string playerName in parts[2].Split( ' ' ) ) {
-                    if( !Player.IsValidName( playerName ) ) {
-                        Logger.Log( LogType.Warning,
-                                    "Invalid entry in zone \"{0}\" blacklist: {1}", Name, playerName );
-                        continue;
+                if( parts[2].Length > 0 ) {
+                    foreach( string playerName in parts[2].Split( ' ' ) ) {
+                        if( !Player.IsValidName( playerName ) ) {
+                            Logger.Log( LogType.Warning,
+                                        "Invalid entry in zone \"{0}\" blacklist: {1}", Name, playerName );
+                            continue;
+                        }
+                        PlayerInfo info = PlayerDB.FindPlayerInfoExact( playerName );
+                        if( info == null ) {
+                            Logger.Log( LogType.Warning,
+                                        "Unrecognized player in zone \"{0}\" whitelist: {1}", Name, playerName );
+                            continue; // player name not found in the DB (discarded)
+                        }
+                        Controller.Exclude( info );
                     }
-                    PlayerInfo info = PlayerDB.FindPlayerInfoExact( playerName );
-                    if( info == null ) {
-                        Logger.Log( LogType.Warning,
-                                    "Unrecognized player in zone \"{0}\" whitelist: {1}", Name, playerName );
-                        continue; // player name not found in the DB (discarded)
-                    }
-                    Controller.Exclude( info );
                 }
+            } else {
+                rawWhitelist = parts[1];
+                rawBlacklist = parts[2];
             }
 
             // Part 4: extended header
@@ -136,6 +143,8 @@ namespace fCraft {
                 if( EditedBy != null ) EditedDate = DateTime.Parse( xheader[3] );
             }
         }
+
+        internal string rawWhitelist, rawBlacklist;
 
 
         public string ClassyName {
