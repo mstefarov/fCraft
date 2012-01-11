@@ -32,11 +32,23 @@ namespace fCraft {
 
         /// <summary> Player who created this zone. May be null if unknown. </summary>
         [CanBeNull]
-        public PlayerInfo CreatedBy { get; private set; }
+        public string CreatedBy { get; private set; }
+
+        public string CreatedByClassy {
+            get {
+                return PlayerDB.FindExactClassyName( CreatedBy );
+            }
+        }
 
         /// <summary> Player who was the last to edit this zone. May be null if unknown. </summary>
         [CanBeNull]
-        public PlayerInfo EditedBy { get; private set; }
+        public string EditedBy { get; private set; }
+
+        public string EditedByClassy {
+            get {
+                return PlayerDB.FindExactClassyName( EditedBy );
+            }
+        }
 
         /// <summary> Map that this zone is on. </summary>
         [NotNull]
@@ -51,14 +63,14 @@ namespace fCraft {
             if( createdBy == null ) throw new ArgumentNullException( "createdBy" );
             CreatedDate = DateTime.UtcNow;
             Bounds = bounds;
-            CreatedBy = createdBy;
+            CreatedBy = createdBy.Name;
         }
 
 
         public void Edit( [NotNull] PlayerInfo editedBy ) {
             if( editedBy == null ) throw new ArgumentNullException( "editedBy" );
             EditedDate = DateTime.UtcNow;
-            EditedBy = editedBy;
+            EditedBy = editedBy.Name;
             RaiseChangedEvent();
         }
 
@@ -137,10 +149,21 @@ namespace fCraft {
             // Part 4: extended header
             if( parts.Length > 3 ) {
                 string[] xheader = parts[3].Split( ' ' );
-                CreatedBy = PlayerDB.FindPlayerInfoExact( xheader[0] );
-                if( CreatedBy != null ) CreatedDate = DateTime.Parse( xheader[1] );
-                EditedBy = PlayerDB.FindPlayerInfoExact( xheader[2] );
-                if( EditedBy != null ) EditedDate = DateTime.Parse( xheader[3] );
+                if( xheader[0] == "-" ) {
+                    CreatedBy = null;
+                    CreatedDate = DateTime.MinValue;
+                } else {
+                    CreatedBy = xheader[0];
+                    CreatedDate = DateTime.Parse( xheader[1] );
+                }
+
+                if( xheader[2] == "-" ) {
+                    EditedBy = null;
+                    EditedDate = DateTime.MinValue;
+                } else {
+                    EditedBy = xheader[2];
+                    EditedDate = DateTime.Parse( xheader[3] );
+                }
             }
         }
 
@@ -166,13 +189,13 @@ namespace fCraft {
 
             if( root.Element( "created" ) != null ) {
                 XElement created = root.Element( "created" );
-                CreatedBy = PlayerDB.FindPlayerInfoExact( created.Attribute( "by" ).Value );
+                CreatedBy = created.Attribute( "by" ).Value;
                 CreatedDate = DateTime.Parse( created.Attribute( "on" ).Value );
             }
 
             if( root.Element( "edited" ) != null ) {
                 XElement edited = root.Element( "edited" );
-                EditedBy = PlayerDB.FindPlayerInfoExact( edited.Attribute( "by" ).Value );
+                EditedBy = edited.Attribute( "by" ).Value;
                 EditedDate = DateTime.Parse( edited.Attribute( "on" ).Value );
             }
 
@@ -193,14 +216,14 @@ namespace fCraft {
 
             if( CreatedBy != null ) {
                 XElement created = new XElement( "created" );
-                created.Add( new XAttribute( "by", CreatedBy.Name ) );
+                created.Add( new XAttribute( "by", CreatedBy ) );
                 created.Add( new XAttribute( "on", CreatedDate.ToCompactString() ) );
                 root.Add( created );
             }
 
             if( EditedBy != null ) {
                 XElement edited = new XElement( "edited" );
-                edited.Add( new XAttribute( "by", EditedBy.Name ) );
+                edited.Add( new XAttribute( "by", EditedBy ) );
                 edited.Add( new XAttribute( "on", EditedDate.ToCompactString() ) );
                 root.Add( edited );
             }
