@@ -711,6 +711,19 @@ namespace fCraft {
                     player.Message( "You are no longer hidden." );
                 }
 
+                // check if target is still allowed to spectate
+                Player spectatedPlayer = target.SpectatedPlayer;
+                if( spectatedPlayer != null && !target.Can( Permission.Spectate, spectatedPlayer.Info.Rank ) ) {
+                    target.StopSpectating();
+                }
+
+                // check if others are still allowed to spectate target
+                foreach( Player spectator in Server.Players.Where( p => p.SpectatedPlayer == target ) ) {
+                    if( !spectator.Can( Permission.Spectate, newRank ) ) {
+                        spectator.StopSpectating();
+                    }
+                }
+
                 // ensure copy slot consistency
                 target.InitCopySlots();
 

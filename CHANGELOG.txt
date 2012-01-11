@@ -1,3 +1,15 @@
+0.613
+ Fix: Fixed ConfigGUI not saving changes to ShowConnectionMessages key.
+ Fix: Fixed a case where ServerGUI could crash while attempting to rename a world.
+ Fix: All spectate permissions are now re-checked when someone gets promoted or demoted.
+ Fix: Fixed ConfigGUI Worlds tab crash when dealing with zoned maps.
+ Fix: Fixed IRC bot not retrying for desired nickname after reconnecting
+ Fix: Fixed a case where editing a world via ConfigGUI would clear security whitelists/blacklists.
+ Fix: Fixed spectating players not being treated as hidden (thanks Hellenion)
+ Fix: Fixed formatting in "Player ___ got auto-kicked" message (thanks BobKare)
+ Fix: Fixed auto-kick revealing hidden players (thanks BobKare)
+ Fix: Fixed RandomBrush-related /undo artifacts in /triangle (thanks Lunara_Noctis)
+
 0.612
  Fix: Fixed "/Worlds @Rank" not autocompleting rank names.
  Fix: Fixed compatibility with legacy PlayerDB format versions. PlayerDB files created by fCraft 0.400+ will work again.
