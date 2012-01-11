@@ -69,7 +69,7 @@ namespace fCraft.Drawing {
             return blocksDone;
         }
 
-
+        
 
         readonly HashSet<int> modifiedBlocks = new HashSet<int>();
 
