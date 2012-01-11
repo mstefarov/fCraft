@@ -211,7 +211,11 @@ namespace fCraft {
 
                             string header = reader.ReadLine();
 
-                            if( header == null ) return null; // if PlayerDB is an empty file
+                            if( header == null ) {
+                                // if PlayerDB is an empty file
+                                Logger.Log( LogType.Warning, "PlayerDB.Load: PlayerDB file is empty." );
+                                return null;
+                            }
 
                             lock( syncRoot ) {
                                 int version = IdentifyFormatVersion( header );
