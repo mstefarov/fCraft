@@ -559,7 +559,7 @@ namespace fCraft {
                 UpdateCache();
             }
             return count;
-        }*/
+        }
 
 
         static bool PlayerIsInactive( [NotNull] IDictionary<IPAddress, List<PlayerInfo>> playersByIP, [NotNull] PlayerInfo player, bool checkIP ) {
@@ -580,7 +580,7 @@ namespace fCraft {
                 return playersByIP[player.LastIP].All( other => (other == player) || PlayerIsInactive( playersByIP, other, false ) );
             }
             return true;
-        }
+        }*/
 
 
         internal static void SwapPlayerInfo( [NotNull] PlayerInfo p1, [NotNull] PlayerInfo p2 ) {

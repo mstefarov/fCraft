@@ -310,7 +310,7 @@ namespace fCraft {
             if( desiredIndex < 0 || desiredIndex > Ranks.Count ) {
                 throw new ArgumentOutOfRangeException( "desiredIndex" );
             }
-            if( newRank == null ) throw new ArgumentNullException( "rank" );
+            if( newRank == null ) throw new ArgumentNullException( "newRank" );
             CheckIfPlayerDBLoaded();
 
             // check for duplicate rank names

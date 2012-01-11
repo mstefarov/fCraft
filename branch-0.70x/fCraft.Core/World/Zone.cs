@@ -33,10 +33,13 @@ namespace fCraft {
         /// <summary> Zone editing date, UTC. </summary>
         public DateTime EditedDate { get; private set; }
 
+
         /// <summary> Player who created this zone. May be null if unknown. </summary>
         [CanBeNull]
         public string CreatedBy { get; private set; }
-        /// <summary> Classy name of the player who created this zone. May be null if unknown. </summary>
+
+        /// <summary> Classy name of the player who created this zone.
+        /// Returns "?" if CreatedBy name is unknown, unrecognized, or null. </summary>
         [NotNull]
         public string CreatedByClassy {
             get {
@@ -44,21 +47,19 @@ namespace fCraft {
             }
         }
 
+
         /// <summary> Player who was the last to edit this zone. May be null if unknown. </summary>
         [CanBeNull]
         public string EditedBy { get; private set; }
 
-        /// <summary> Classy name of the player who was the last to edit this zone. May be null if unknown. </summary>
+        /// <summary> Decorated name of the player who was the last to edit this zone.
+        /// Returns "?" if EditedBy name is unknown, unrecognized, or null. </summary>
         [NotNull]
         public string EditedByClassy {
             get {
                 return PlayerDB.FindExactClassyName( EditedBy );
             }
         }
-
-        /// <summary> Map that this zone is on. </summary>
-        [NotNull]
-        public Map Map { get; set; }
 
 
         /// <summary> Creates the zone boundaries, and sets CreatedDate/CreatedBy. </summary>
@@ -142,17 +143,32 @@ namespace fCraft {
                     }
                     Controller.Exclude( info );
                 }
+            } else {
+                RawWhitelist = parts[1];
+                RawBlacklist = parts[2];
             }
 
             // Part 4: extended header
             if( parts.Length > 3 ) {
                 string[] xheader = parts[3].Split( ' ' );
-                CreatedBy = xheader[0];
-                if( CreatedBy != null ) CreatedDate = DateTime.Parse( xheader[1] );
-                EditedBy = xheader[2];
-                if( EditedBy != null ) EditedDate = DateTime.Parse( xheader[3] );
+                if( xheader[0] == "-" ) {
+                    CreatedBy = null;
+                    CreatedDate = DateTime.MinValue;
+                } else {
+                    CreatedBy = xheader[0];
+                    CreatedDate = DateTime.Parse( xheader[1] );
+                }
+
+                if( xheader[2] == "-" ) {
+                    EditedBy = null;
+                    EditedDate = DateTime.MinValue;
+                } else {
+                    EditedBy = xheader[2];
+                    EditedDate = DateTime.Parse( xheader[3] );
+                }
             }
         }
+        internal readonly string RawWhitelist, RawBlacklist;
 
 
         public string ClassyName {
