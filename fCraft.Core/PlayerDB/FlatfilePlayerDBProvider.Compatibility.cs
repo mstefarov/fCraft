@@ -35,7 +35,7 @@ namespace fCraft {
         }
 
 
-        internal PlayerInfo LoadFormat2( [NotNull] string[] fields ) {
+        PlayerInfo LoadFormat2( [NotNull] string[] fields ) {
             if( fields == null ) throw new ArgumentNullException( "fields" );
             int id = Int32.Parse( fields[29] );
             if( id < 256 ) id = GetNextID();

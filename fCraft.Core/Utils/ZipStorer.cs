@@ -284,7 +284,7 @@ namespace System.IO.Compression {
 
         /// <summary> Read all the file records in the central directory. </summary>
         /// <returns>List of all entries in directory</returns>
-        public List<ZipFileEntry> ReadCentralDir() {
+        public IEnumerable<ZipFileEntry> ReadCentralDir() {
             if( centralDirImage == null )
                 throw new InvalidOperationException( "Central directory currently does not exist" );
 
@@ -336,30 +336,30 @@ namespace System.IO.Compression {
 
         /// <summary> Copy the contents of a stored file into a physical file </summary>
         /// <param name="zfe"> Entry information of file to extract </param>
-        /// <param name="fileName"> Name of file to store uncompressed data </param>
+        /// <param name="destinationFileName"> Name of file to store uncompressed data </param>
         /// <returns> True if success, false if not. </returns>
         /// <remarks> Unique compression methods are Store and Deflate </remarks>
-        public bool ExtractFile( ZipFileEntry zfe, [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+        public bool ExtractFile( ZipFileEntry zfe, [NotNull] string destinationFileName ) {
+            if( destinationFileName == null ) throw new ArgumentNullException( "destinationFileName" );
             // Make sure the parent directory exist
-            string path = Path.GetDirectoryName( fileName );
+            string path = Path.GetDirectoryName( destinationFileName );
             if( path == null ) throw new NotImplementedException();
 
             if( !Directory.Exists( path ) ) {
                 Directory.CreateDirectory( path );
             }
             // Check it is directory. If so, do nothing
-            if( Directory.Exists( fileName ) ) {
+            if( Directory.Exists( destinationFileName ) ) {
                 return true;
             }
 
-            Stream output = new FileStream( fileName, FileMode.Create, FileAccess.Write );
+            Stream output = new FileStream( destinationFileName, FileMode.Create, FileAccess.Write );
             bool result = ExtractFile( zfe, output );
             if( result )
                 output.Close();
 
-            File.SetCreationTime( fileName, zfe.ModifyTime );
-            File.SetLastWriteTime( fileName, zfe.ModifyTime );
+            File.SetCreationTime( destinationFileName, zfe.ModifyTime );
+            File.SetLastWriteTime( destinationFileName, zfe.ModifyTime );
 
             return result;
         }
@@ -424,7 +424,7 @@ namespace System.IO.Compression {
 
 
             //Get full list of entries
-            List<ZipFileEntry> fullList = zip.ReadCentralDir();
+            IEnumerable<ZipFileEntry> fullList = zip.ReadCentralDir();
 
             //In order to delete we need to create a copy of the zip file excluding the selected items
             string tempZipName = Path.GetTempFileName();

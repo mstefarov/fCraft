@@ -334,49 +334,49 @@ namespace fCraft {
         class EnumeratorBase {
 
             // Starting node ("root" of the trie/subtrie)
-            protected readonly TrieNode StartingNode;
+            readonly TrieNode startingNode;
 
             // Current node (presumably with payload)
             protected TrieNode CurrentNode;
 
             // Index of the child in the current node
-            protected int CurrentIndex;
+            int currentIndex;
 
             // Version of collection when we started iterating. Used to keep track of collection changes.
-            protected int StartingVersion;
+            int startingVersion;
 
             // Trie from which our nodes originate (used in conjunction with startingVersion to check for modification).
-            protected readonly Trie<T> BaseTrie;
+            readonly Trie<T> baseTrie;
 
             protected StringBuilder CurrentKeyName;
 
-            protected readonly string BasePrefix;
+            readonly string basePrefix;
 
 
             // A couple stacks to keep track of our position in the trie
-            protected readonly Stack<TrieNode> Parents = new Stack<TrieNode>();
-            protected readonly Stack<int> ParentIndices = new Stack<int>();
+            readonly Stack<TrieNode> parents = new Stack<TrieNode>();
+            readonly Stack<int> parentIndices = new Stack<int>();
 
 
             protected EnumeratorBase( [NotNull] TrieNode node, [NotNull] Trie<T> trie, [NotNull] string prefix ) {
                 if( node == null ) throw new ArgumentNullException( "node" );
                 if( trie == null ) throw new ArgumentNullException( "trie" );
                 if( prefix == null ) throw new ArgumentNullException( "prefix" );
-                StartingNode = node;
-                BaseTrie = trie;
-                BasePrefix = prefix;
-                CurrentKeyName = new StringBuilder( BasePrefix );
-                StartingVersion = BaseTrie.version;
+                startingNode = node;
+                baseTrie = trie;
+                basePrefix = prefix;
+                CurrentKeyName = new StringBuilder( basePrefix );
+                startingVersion = baseTrie.version;
             }
 
 
             protected bool MoveNextInternal() {
-                if( StartingNode == null ) return false;
-                if( BaseTrie.version != StartingVersion ) {
+                if( startingNode == null ) return false;
+                if( baseTrie.version != startingVersion ) {
                     ThrowCollectionModifiedException();
                 }
                 if( CurrentNode == null ) {
-                    CurrentNode = StartingNode;
+                    CurrentNode = startingNode;
                     if( CurrentNode.Payload != null ) {
                         return true;
                     }
@@ -386,28 +386,28 @@ namespace fCraft {
 
 
             protected void ResetInternal() {
-                Parents.Clear();
-                ParentIndices.Clear();
+                parents.Clear();
+                parentIndices.Clear();
                 CurrentNode = null;
-                StartingVersion = BaseTrie.version;
-                CurrentKeyName = new StringBuilder( BasePrefix );
+                startingVersion = baseTrie.version;
+                CurrentKeyName = new StringBuilder( basePrefix );
             }
 
 
-            protected bool FindNextPayload() {
+            bool FindNextPayload() {
             continueLoop:
                 switch( CurrentNode.Tag ) {
                     case MultiNode:
-                        while( CurrentIndex < CurrentNode.Children.Length ) {
-                            if( CurrentNode.Children[CurrentIndex] != null ) {
-                                MoveDown( CurrentNode.Children[CurrentIndex], CurrentIndex );
+                        while( currentIndex < CurrentNode.Children.Length ) {
+                            if( CurrentNode.Children[currentIndex] != null ) {
+                                MoveDown( CurrentNode.Children[currentIndex], currentIndex );
                                 if( CurrentNode.Payload != null ) {
                                     return true;
                                 } else {
                                     goto continueLoop;
                                 }
                             } else {
-                                CurrentIndex++;
+                                currentIndex++;
                             }
                         }
                         if( !MoveUp() ) return false;
@@ -418,7 +418,7 @@ namespace fCraft {
                         goto continueLoop;
 
                     default:
-                        if( CurrentIndex == 0 ) {
+                        if( currentIndex == 0 ) {
                             MoveDown( CurrentNode.Children[0], CurrentNode.Tag );
                             if( CurrentNode.Payload != null ) {
                                 return true;
@@ -433,29 +433,29 @@ namespace fCraft {
 
 
             // Pops the nearest parent from the stack (moving up the trie)
-            protected bool MoveUp() {
-                if( Parents.Count == 0 ) {
+            bool MoveUp() {
+                if( parents.Count == 0 ) {
                     return false;
                 } else {
                     CurrentKeyName.Remove( CurrentKeyName.Length - 1, 1 );
-                    CurrentNode = Parents.Pop();
-                    CurrentIndex = ParentIndices.Pop();
+                    CurrentNode = parents.Pop();
+                    currentIndex = parentIndices.Pop();
                     return true;
                 }
             }
 
 
             // Pushes current node onto the stack, and makes the given node current.
-            protected void MoveDown( TrieNode node, int index ) {
+            void MoveDown( TrieNode node, int index ) {
                 CurrentKeyName.Append( CodeToChar( index ) );
-                Parents.Push( CurrentNode );
-                ParentIndices.Push( CurrentIndex + 1 );
+                parents.Push( CurrentNode );
+                parentIndices.Push( currentIndex + 1 );
                 CurrentNode = node;
-                CurrentIndex = 0;
+                currentIndex = 0;
             }
 
 
-            protected static void ThrowCollectionModifiedException() {
+            static void ThrowCollectionModifiedException() {
                 throw new InvalidOperationException( "Trie was modified since enumeration started." );
             }
         }
