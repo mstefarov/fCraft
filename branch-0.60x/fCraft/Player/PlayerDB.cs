@@ -103,91 +103,13 @@ namespace fCraft {
 
                             string header = reader.ReadLine();
 
-                            if( header == null ) return; // if PlayerDB is an empty file
-
-                            lock( AddLocker ) {
-                                int version = IdentifyFormatVersion( header );
-                                if( version > FormatVersion ) {
-                                    Logger.Log( LogType.Warning,
-                                                "PlayerDB.Load: Attempting to load unsupported PlayerDB format ({0}). Errors may occur.",
-                                                version );
-                                } else if( version < FormatVersion ) {
-                                    Logger.Log( LogType.Warning,
-                                                "PlayerDB.Load: Converting PlayerDB to a newer format (version {0} to {1}).",
-                                                version, FormatVersion );
+                            // if PlayerDB is an empty file
+                            if( header == null ) {
+                                Logger.Log( LogType.Warning, "PlayerDB.Load: PlayerDB file is empty." );
+                            } else {
+                                lock( AddLocker ) {
+                                    LoadInternal( reader, header );
                                 }
-
-                                int emptyRecords = 0;
-                                while( true ) {
-                                    string line = reader.ReadLine();
-                                    if( line == null ) break;
-                                    string[] fields = line.Split( ',' );
-                                    if( fields.Length >= PlayerInfo.MinFieldCount ) {
-#if !DEBUG
-                                        try {
-#endif
-                                        PlayerInfo info;
-                                        switch( version ) {
-                                            case 0:
-                                                info = PlayerInfo.LoadFormat0( fields, true );
-                                                break;
-                                            case 1:
-                                                info = PlayerInfo.LoadFormat1( fields );
-                                                break;
-                                            default:
-                                                // Versions 2-5 differ in semantics only, not in actual serialization format.
-                                                info = PlayerInfo.LoadFormat2( fields );
-                                                break;
-                                        }
-
-                                        if( info.ID > maxID ) {
-                                            maxID = info.ID;
-                                            Logger.Log( LogType.Warning, "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1})." );
-                                        }
-
-                                        // A record is considered "empty" if the player has never logged in.
-                                        // Empty records may be created by /Import, /Ban, and /Rank commands on typos.
-                                        // Deleting such records should have no negative impact on DB completeness.
-                                        if( (info.LastIP.Equals( IPAddress.None ) || info.LastIP.Equals( IPAddress.Any ) || info.TimesVisited == 0) &&
-                                            !info.IsBanned && info.Rank == RankManager.DefaultRank ) {
-
-                                            Logger.Log( LogType.SystemActivity,
-                                                        "PlayerDB.Load: Skipping an empty record for player \"{0}\"",
-                                                        info.Name );
-                                            emptyRecords++;
-                                            continue;
-                                        }
-
-                                        // Check for duplicates. Unless PlayerDB.txt was altered externally, this does not happen.
-                                        if( Trie.ContainsKey( info.Name ) ) {
-                                            Logger.Log( LogType.Error,
-                                                        "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.",
-                                                        info.Name );
-                                        } else {
-                                            Trie.Add( info.Name, info );
-                                            list.Add( info );
-                                        }
-#if !DEBUG
-                                        } catch( Exception ex ) {
-                                            Logger.LogAndReportCrash( "Error while parsing PlayerInfo record",
-                                                                      "fCraft",
-                                                                      ex,
-                                                                      false );
-                                        }
-#endif
-                                    } else {
-                                        Logger.Log( LogType.Error,
-                                                    "PlayerDB.Load: Unexpected field count ({0}), expecting at least {1} fields for a PlayerDB entry.",
-                                                    fields.Length, PlayerInfo.MinFieldCount );
-                                    }
-                                }
-
-                                if( emptyRecords > 0 ) {
-                                    Logger.Log( LogType.Warning,
-                                                "PlayerDB.Load: Skipped {0} empty records.", emptyRecords );
-                                }
-
-                                RunCompatibilityChecks( version );
                             }
                         }
                     }
@@ -201,6 +123,91 @@ namespace fCraft {
                 UpdateCache();
                 IsLoaded = true;
             }
+        }
+
+        static void LoadInternal( StreamReader reader, string header ) {
+            int version = IdentifyFormatVersion( header );
+            if( version > FormatVersion ) {
+                Logger.Log( LogType.Warning,
+                            "PlayerDB.Load: Attempting to load unsupported PlayerDB format ({0}). Errors may occur.",
+                            version );
+            } else if( version < FormatVersion ) {
+                Logger.Log( LogType.Warning,
+                            "PlayerDB.Load: Converting PlayerDB to a newer format (version {0} to {1}).",
+                            version, FormatVersion );
+            }
+
+            int emptyRecords = 0;
+            while( true ) {
+                string line = reader.ReadLine();
+                if( line == null ) break;
+                string[] fields = line.Split( ',' );
+                if( fields.Length >= PlayerInfo.MinFieldCount ) {
+#if !DEBUG
+                    try {
+#endif
+                        PlayerInfo info;
+                        switch( version ) {
+                            case 0:
+                                info = PlayerInfo.LoadFormat0( fields, true );
+                                break;
+                            case 1:
+                                info = PlayerInfo.LoadFormat1( fields );
+                                break;
+                            default:
+                                // Versions 2-5 differ in semantics only, not in actual serialization format.
+                                info = PlayerInfo.LoadFormat2( fields );
+                                break;
+                        }
+
+                        if( info.ID > maxID ) {
+                            maxID = info.ID;
+                            Logger.Log( LogType.Warning, "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1})." );
+                        }
+
+                        // A record is considered "empty" if the player has never logged in.
+                        // Empty records may be created by /Import, /Ban, and /Rank commands on typos.
+                        // Deleting such records should have no negative impact on DB completeness.
+                        if( (info.LastIP.Equals( IPAddress.None ) || info.LastIP.Equals( IPAddress.Any ) || info.TimesVisited == 0) &&
+                            !info.IsBanned && info.Rank == RankManager.DefaultRank ) {
+
+                            Logger.Log( LogType.SystemActivity,
+                                        "PlayerDB.Load: Skipping an empty record for player \"{0}\"",
+                                        info.Name );
+                            emptyRecords++;
+                            continue;
+                        }
+
+                        // Check for duplicates. Unless PlayerDB.txt was altered externally, this does not happen.
+                        if( Trie.ContainsKey( info.Name ) ) {
+                            Logger.Log( LogType.Error,
+                                        "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.",
+                                        info.Name );
+                        } else {
+                            Trie.Add( info.Name, info );
+                            list.Add( info );
+                        }
+#if !DEBUG
+                    } catch( Exception ex ) {
+                        Logger.LogAndReportCrash( "Error while parsing PlayerInfo record",
+                                                  "fCraft",
+                                                  ex,
+                                                  false );
+                    }
+#endif
+                } else {
+                    Logger.Log( LogType.Error,
+                                "PlayerDB.Load: Unexpected field count ({0}), expecting at least {1} fields for a PlayerDB entry.",
+                                fields.Length, PlayerInfo.MinFieldCount );
+                }
+            }
+
+            if( emptyRecords > 0 ) {
+                Logger.Log( LogType.Warning,
+                            "PlayerDB.Load: Skipped {0} empty records.", emptyRecords );
+            }
+
+            RunCompatibilityChecks( version );
         }
 
         static Dictionary<int,Rank> rankMapping;
