@@ -14,6 +14,5 @@ Each branch contains a different snapshot of fCraft's code. Branches are:
     /branch-MySQL/  Experimental branch with MySQL support for the backend
                     player record storage. Unstable.
 
-    /tags/0.610/    Code corresponding to fCraft release 0.610. Stable.
-                    This is the codebase that you probably want to use for
-                    any mods.
+    /tags/0.610/    Code snapshots corresponding to stable fCraft releases.
+                    These are the versions that you should use for any mods.
