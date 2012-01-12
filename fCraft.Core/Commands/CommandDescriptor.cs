@@ -82,7 +82,9 @@ namespace fCraft {
         [CanBeNull]
         public Rank MinRank {
             get {
-                if( AnyPermission ) {
+                if( Permissions == null ) {
+                    return RankManager.LowestRank;
+                } else if( AnyPermission ) {
                     return RankManager.GetMinRankWithAnyPermission( Permissions );
                 } else {
                     return RankManager.GetMinRankWithAllPermissions( Permissions );
