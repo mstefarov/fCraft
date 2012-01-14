@@ -1141,9 +1141,11 @@ namespace fCraft {
         static void SpecPatrolHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
-            Player target = playerWorld.GetNextPatrolTarget( player );
+            Player target = playerWorld.GetNextPatrolTarget( player,
+                                                             p => player.Can( Permission.Spectate, p.Info.Rank ),
+                                                             true );
             if( target == null ) {
-                player.Message( "Patrol: No one to patrol in this world." );
+                player.Message( "Patrol: No one to spec-patrol in this world." );
                 return;
             }
 

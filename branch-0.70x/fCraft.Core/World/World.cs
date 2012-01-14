@@ -493,9 +493,12 @@ namespace fCraft {
         readonly object patrolLock = new object();
         static readonly TimeSpan MinPatrolInterval = TimeSpan.FromSeconds( 20 );
 
-        /// <summary> Selects the next player to move to while patroling </summary>
+
+        /// <summary> Selects the next player to move to while patroling.
+        /// Sets target's LastPatrolTime automatically. </summary>
         /// <param name="observer"> Player who is patrolling </param>
         /// <returns> Player who has been selected to be patrolled </returns>
+        /// <exception cref="ArgumentNullException"> If observer is null. </exception>
         public Player GetNextPatrolTarget( [NotNull] Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
             lock( patrolLock ) {
@@ -507,6 +510,35 @@ namespace fCraft {
                                           .OrderBy( p => p.LastPatrolTime.Ticks )
                                           .FirstOrDefault();
                 if( candidate != null ) {
+                    candidate.LastPatrolTime = DateTime.UtcNow;
+                }
+                return candidate;
+            }
+        }
+
+
+        /// <summary> Selects the next player to move to while patroling. </summary>
+        /// <param name="observer"> Player who is patrolling </param>
+        /// <param name="predicate"> Additional inclusion check for patrol targets.
+        /// Applied after the standard checks. Allows filtering out unwanted players. </param>
+        /// <param name="setLastPatrolTime"> Whether to set target's LastPatrolTime. </param>
+        /// <returns> Player who has been selected to be patrolled </returns>
+        /// <exception cref="ArgumentNullException"> If observer or predicate is null. </exception>
+        public Player GetNextPatrolTarget( [NotNull] Player observer,
+                                           [NotNull] Predicate<Player> predicate,
+                                           bool setLastPatrolTime ) {
+            if( observer == null ) throw new ArgumentNullException( "observer" );
+            if( predicate == null ) throw new ArgumentNullException( "predicate" );
+            lock( patrolLock ) {
+                Player candidate = Players.RankedAtMost( RankManager.PatrolledRank )
+                                          .CanBeSeen( observer )
+                                          .Where( p => p.LastActiveTime > p.LastPatrolTime &&
+                                                       p.HasFullyConnected &&
+                                                       DateTime.UtcNow.Subtract( p.LastPatrolTime ) > MinPatrolInterval )
+                                          .Where( p => predicate( p ) )
+                                          .OrderBy( p => p.LastPatrolTime.Ticks )
+                                          .FirstOrDefault();
+                if( setLastPatrolTime && candidate != null ) {
                     candidate.LastPatrolTime = DateTime.UtcNow;
                 }
                 return candidate;
