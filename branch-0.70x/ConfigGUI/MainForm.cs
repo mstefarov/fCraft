@@ -1247,6 +1247,9 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                     lFillLimit.Enabled = check;
                     lFillLimitUnits.Enabled = check;
                     nFillLimit.Enabled = check;
+                    if( check ) {
+                        vPermissions.Items[(int)Permission.Draw].Checked = true;
+                    }
                     break;
 
                 case Permission.CopyAndPaste:
@@ -1254,6 +1257,9 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                                          vPermissions.Items[(int)Permission.CopyAndPaste].Checked;
                     lCopyPasteSlots.Enabled = check;
                     nCopyPasteSlots.Enabled = check;
+                    if( check ) {
+                        vPermissions.Items[(int)Permission.Draw].Checked = true;
+                    }
                     break;
 
                 case Permission.ManageWorlds:
