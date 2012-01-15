@@ -991,6 +991,15 @@ namespace fCraft {
                 return;
             }
 
+            if( worldName == "-" ) {
+                if( player.LastUsedWorldName != null ) {
+                    worldName = player.LastUsedWorldName;
+                } else {
+                    player.Message( "Cannot repeat world name: you haven't used any names yet." );
+                    return;
+                }
+            }
+
             World[] worlds = WorldManager.FindWorlds( player, worldName );
 
             if( worlds.Length > 1 ) {
