@@ -6,9 +6,11 @@ namespace fCraft.Drawing {
     /// <summary> Class that desribes a type of brush in general, and allows creating new brushes with /Brush.
     /// One instance of IBrushFactory for each type of brush is kept by the BrushManager. </summary>
     public interface IBrushFactory {
+        /// <summary> Name of the specific IBrushFactory implementation. </summary>
         [NotNull]
         string Name { get; }
 
+        /// <summary> Help string to display to users. </summary>
         [NotNull]
         string Help { get; }
 

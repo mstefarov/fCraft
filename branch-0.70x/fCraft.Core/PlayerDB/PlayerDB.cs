@@ -183,6 +183,7 @@ namespace fCraft {
         static SchedulerTask saveTask;
 
         static TimeSpan saveInterval = TimeSpan.FromSeconds( 90 );
+        /// <summary> Amount of time to wait between saving to DB. </summary>
         public static TimeSpan SaveInterval {
             get { return saveInterval; }
             set {

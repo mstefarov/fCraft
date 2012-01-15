@@ -29,6 +29,8 @@ using System;
 
 namespace fCraft {
     public static class IRCCommands {
+
+#pragma warning disable 1591
         public static string Pass( string password ) {
             return "PASS " + password;
         }
@@ -464,5 +466,6 @@ namespace fCraft {
         public static string Squit( string server, string comment ) {
             return "SQUIT " + server + " :" + comment;
         }
+#pragma warning restore 1591
     }
 }

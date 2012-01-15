@@ -783,6 +783,7 @@ namespace fCraft {
         [NotNull]
         readonly object syncRoot = new object();
 
+         /// <summary>  Object used for synchronization (lock). </summary>
         [NotNull]
         public object SyncRoot {
             get { return syncRoot; }
@@ -791,6 +792,8 @@ namespace fCraft {
 
         #region Constructors and Serialization
 
+        /// <summary> Sets the player ID to the specified value. </summary>
+        /// <param name="id">Value to set the player ID as. </param>
         public PlayerInfo( int id ) {
             ID = id;
         }

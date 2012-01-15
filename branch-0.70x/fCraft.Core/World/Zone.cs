@@ -171,6 +171,7 @@ namespace fCraft {
         internal readonly string RawWhitelist, RawBlacklist;
 
 
+        /// <summary> Name optionally formatted with minecraft color codes. </summary>
         public string ClassyName {
             get {
                 return Controller.MinRank.Color + Name;

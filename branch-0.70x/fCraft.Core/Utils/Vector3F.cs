@@ -174,6 +174,9 @@ namespace fCraft {
         }
 
 
+        /// <summary> Returns the hash code for this instance. </summary>
+        /// <returns> A 32-bit signed integer that is the hash code for this instance. </returns>
+        /// <filterpriority>2</filterpriority>
         public override int GetHashCode() {
             return (int)( X + Y * 1625 + Z * 2642245 );
         }

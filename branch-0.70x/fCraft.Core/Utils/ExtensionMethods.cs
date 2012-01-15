@@ -246,7 +246,7 @@ namespace fCraft {
             return false;
         }
 
-
+        
         public static readonly TimeSpan MaxTimeSpan = TimeSpan.FromDays( 9999 );
 
 
