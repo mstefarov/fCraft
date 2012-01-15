@@ -14,6 +14,7 @@ namespace fCraft {
     /// <summary> Checks for updates, and keeps track of current version/revision. </summary>
     public static class Updater {
 
+        /// <summary> The current release information of this version/revision. </summary>
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             700,
             1397,
@@ -32,6 +33,7 @@ namespace fCraft {
         /// <summary> The latest stable branch/version of fCraft. </summary>
         public const string LatestStable = "0.612_r1306";
 
+        /// <summary> Url to update fCraft from. </summary>
         public static string UpdateUrl { get; set; }
 
         static Updater() {
@@ -168,22 +170,29 @@ namespace fCraft {
             Flags = releaseType;
         }
 
+        /// <summary> Flag collection. </summary>
         public ReleaseFlags Flags { get; private set; }
-
+        
+        /// <summary> Flags in this release as a string. </summary>
         public string FlagsString { get { return ReleaseFlagsToString( Flags ); } }
 
+        /// <summary> String array of flags for this release. </summary>
         public string[] FlagsList { get { return ReleaseFlagsToStringArray( Flags ); } }
 
+        /// <summary> Version of the particular release of fCraft. </summary>
         public Version Version { get; private set; }
 
+        /// <summary> Date this version was released. </summary>
         public DateTime Date { get; private set; }
 
+        /// <summary> How long this version has been released for. </summary>
         public TimeSpan Age {
             get {
                 return DateTime.UtcNow.Subtract( Date );
             }
         }
 
+        /// <summary> This version as a string. </summary>
         public string VersionString {
             get {
                 if( IsFlagged( ReleaseFlags.Unstable ) ) {
@@ -196,10 +205,15 @@ namespace fCraft {
             }
         }
 
+        /// <summary> Summary of what the release was about. </summary>
         public string Summary { get; private set; }
 
+        /// <summary> List of all the changes from the previous version. </summary>
         public string[] ChangeLog { get; private set; }
 
+        /// <summary> Converts a string to its corresponding release flag. </summary>
+        /// <param name="str"> String to convert. </param>
+        /// <returns> Release flag. </returns>
         public static ReleaseFlags StringToReleaseFlags( [NotNull] string str ) {
             if( str == null ) throw new ArgumentNullException( "str" );
             ReleaseFlags flags = ReleaseFlags.None;
@@ -240,6 +254,9 @@ namespace fCraft {
             return flags;
         }
 
+        /// <summary> Converts a release flag to a string. </summary>
+        /// <param name="flags"> Release flag to convert. </param>
+        /// <returns> Release flag as a string. </returns>
         public static string ReleaseFlagsToString( ReleaseFlags flags ) {
             StringBuilder sb = new StringBuilder();
             if( (flags & ReleaseFlags.APIChange) == ReleaseFlags.APIChange ) sb.Append( 'A' );
@@ -255,6 +272,9 @@ namespace fCraft {
             return sb.ToString();
         }
 
+        /// <summary> Converts a release flag collection into a string array. </summary>
+        /// <param name="flags"> release flag collection to convert. </param>
+        /// <returns> Release flags as a string array. </returns>
         public static string[] ReleaseFlagsToStringArray( ReleaseFlags flags ) {
             List<string> list = new List<string>();
             if( (flags & ReleaseFlags.APIChange) == ReleaseFlags.APIChange ) list.Add( "API Changes" );
@@ -270,6 +290,9 @@ namespace fCraft {
             return list.ToArray();
         }
 
+        /// <summary> Whether or not this release is flagged with the specified flag. </summary>
+        /// <param name="flag"> Flag to check for. </param>
+        /// <returns> True if this release contains specified flag, otherwise false. </returns>
         public bool IsFlagged( ReleaseFlags flag ) {
             return (Flags & flag) == flag;
         }
@@ -302,6 +325,7 @@ namespace fCraft {
     /// Use binary flag logic or Release.IsFlagged() to test for flags. </summary>
     [Flags]
     public enum ReleaseFlags {
+        /// <summary> Nothing was changed. </summary>
         None = 0,
 
         /// <summary> The API was notably changed in this release. </summary>

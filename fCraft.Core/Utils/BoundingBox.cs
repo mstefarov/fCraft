@@ -173,12 +173,19 @@ namespace fCraft {
         #endregion
 
 
+        /// <summary> Indicates whether the current object is equal to another object of the same type. </summary>
+        /// <returns> true if the current object is equal to the <paramref name="other"/> parameter; otherwise, false. </returns>
+        /// <param name="other">An object to compare with this object.</param>
         public bool Equals( BoundingBox other ) {
             return XMin == other.XMin && XMax == other.XMax &&
                    YMin == other.YMin && YMax == other.YMax &&
                    ZMin == other.ZMin && ZMax == other.ZMax;
         }
 
+
+        /// <summary> Returns a <see cref="T:System.String"/> that represents the current <see cref="T:System.Object"/>. </summary>
+        /// <returns> A <see cref="T:System.String"/> that represents the current <see cref="T:System.Object"/>. </returns>
+        /// <filterpriority>2</filterpriority>
         public override string ToString() {
             return "BoundingBox" + Dimensions;
         }

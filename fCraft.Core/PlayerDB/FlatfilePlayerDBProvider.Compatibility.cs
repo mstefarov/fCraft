@@ -763,7 +763,6 @@ namespace fCraft {
             sb.AppendEscaped( info.DisplayedName ); // 47
         }
 
-
         public static DateTime ToDateTimeLegacy( long timestamp ) {
             return new DateTime( timestamp * TicksPerMillisecond + DateTimeUtil.TicksToUnixEpoch, DateTimeKind.Utc );
         }

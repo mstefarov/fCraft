@@ -236,18 +236,30 @@ namespace fCraft {
             HeartbeatUri = heartbeatUri;
         }
 
+        /// <summary> The heartbeat Uri sent to minecraft.net in order to remain on the server list. </summary>
         [NotNull]
         public Uri HeartbeatUri { get; private set; }
+        /// <summary> Server salt used in name verification (hashing). </summary>
         public string Salt { get; set; }
+        /// <summary> IP address of this server. </summary>
         public IPAddress ServerIP { get; set; }
+        /// <summary> Port that players should connect to in order to join this server. </summary>
         public int Port { get; set; }
+        /// <summary> Number of players currently in the server. </summary>
         public int PlayerCount { get; set; }
+        /// <summary> Maximum number of player the server can support. </summary>
         public int MaxPlayers { get; set; }
+        /// <summary> Name of the server to display on minecraft.net. </summary>
         public string ServerName { get; set; }
+        /// <summary> Wether or not the server should be listed on minecraft.net </summary>
         public bool IsPublic { get; set; }
+        /// <summary> Version of the classice minecraft protocol that this server is using. </summary>
         public int ProtocolVersion { get; set; }
+        /// <summary> Any other custom data that needs to be sent. </summary>
         public Dictionary<string, string> CustomData { get; private set; }
 
+        /// <summary> Creates the heartbeat url based on the server information. </summary>
+        /// <returns></returns>
         public Uri CreateUri() {
             UriBuilder ub = new UriBuilder( HeartbeatUri );
             StringBuilder sb = new StringBuilder();

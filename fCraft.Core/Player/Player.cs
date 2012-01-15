@@ -796,9 +796,11 @@ namespace fCraft {
 
         #region Confirmation
 
+        /// <summary> Callback to confirm an action, before executing the action. </summary>
         [CanBeNull]
         public ConfirmationCallback ConfirmCallback { get; private set; }
 
+        /// <summary> Callback to confirm an arguement, before executing the action. </summary>
         [CanBeNull]
         public object ConfirmArgument { get; private set; }
 
