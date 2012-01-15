@@ -754,6 +754,14 @@ namespace fCraft {
                 }
 
             } else {
+                if( name == "-" ) {
+                    if( player.LastUsedPlayerName != null ) {
+                        name = player.LastUsedPlayerName;
+                    } else {
+                        player.Message( "Cannot repeat player name: you haven't used any names yet." );
+                        return;
+                    }
+                }
                 Player[] matches = Server.FindPlayers( player, name, true );
                 if( matches.Length == 1 ) {
                     Player target = matches[0];
