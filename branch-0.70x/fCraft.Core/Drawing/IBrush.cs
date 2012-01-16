@@ -10,7 +10,7 @@ namespace fCraft.Drawing {
         [NotNull]
         string Name { get; }
 
-        /// <summary> Help string to display to users. </summary>
+        /// <summary> Help string to display to users. Shown in "/Help Brush Name". </summary>
         [NotNull]
         string Help { get; }
 

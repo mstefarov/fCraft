@@ -726,7 +726,7 @@ namespace fCraft {
 
                 // Check if THIS player is spectating someone else
                 Player spectatee = target.SpectatedPlayer;
-                if( spectatee != null && !target.Can( Permission.Spectate, spectatee.Info.Rank ) ) {
+                if( spectatee != null && !target.Can( Permission.Spectate, spectatee ) ) {
                     target.Message( "You are no longer allowed to spectate {0}", spectatee.ClassyName );
                     target.StopSpectating();
                 }
@@ -872,6 +872,11 @@ namespace fCraft {
                     string msg = String.Format( "Player {0} is not currently frozen.", Name );
                     string colorMsg = String.Format( "&SPlayer {0}&S is not currently frozen.", ClassyName );
                     throw new PlayerOpException( player, this, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
+                }
+
+                // Check if player has sufficient rank permissions
+                if( !player.Can( Permission.Freeze, Rank ) ) {
+                    PlayerOpException.ThrowPermissionLimit( player, this, "unfreeze", Permission.Freeze );
                 }
 
                 // Raise PlayerInfo.FreezeChanging event
