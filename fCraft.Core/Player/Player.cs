@@ -431,9 +431,9 @@ namespace fCraft {
                         if( ConfirmCallback != null ) {
                             if( DateTime.UtcNow.Subtract( ConfirmRequestTime ) < ConfirmationTimeout ) {
                                 SendToSpectators( "/ok" );
-                                ConfirmCallback( this, ConfirmArgument );
+                                ConfirmCallback( this, ConfirmParameter );
                                 ConfirmCallback = null;
-                                ConfirmArgument = null;
+                                ConfirmParameter = null;
                             } else {
                                 MessageNow( "Confirmation timed out. Enter the command again." );
                             }
@@ -796,13 +796,52 @@ namespace fCraft {
 
         #region Confirmation
 
-        /// <summary> Callback to confirm an action, before executing the action. </summary>
+        /// <summary> Callback to be called when player types in "/ok" to confirm an action.
+        /// Use Player.Confirm(...) methods to set this. </summary>
         [CanBeNull]
         public ConfirmationCallback ConfirmCallback { get; private set; }
 
-        /// <summary> Callback to confirm an arguement, before executing the action. </summary>
+
+        /// <summary> Custom parameter to be passed to Player.ConfirmCallback. </summary>
         [CanBeNull]
-        public object ConfirmArgument { get; private set; }
+        public object ConfirmParameter { get; private set; }
+
+
+        /// <summary> Time when the confirmation was requested. UTC. </summary>
+        public DateTime ConfirmRequestTime { get; private set; }
+
+
+        /// <summary> Request player to confirm continuing with the command.
+        /// Player is prompted to type "/ok", and when he/she does,
+        /// the command is called again with IsConfirmed flag set. </summary>
+        /// <param name="cmd"> Command that needs confirmation. </param>
+        /// <param name="message"> Message to print before "Type /ok to continue". </param>
+        /// <param name="args"> Optional String.Format() arguments, for the message. </param>
+        /// <exception cref="ArgumentNullException"> If cmd, message, or args is null. </exception>
+        [StringFormatMethod( "message" )]
+        public void Confirm( [NotNull] CommandReader cmd, [NotNull] string message, [NotNull] params object[] args ) {
+            Confirm( ConfirmCommandCallback, cmd, message, args );
+        }
+
+
+        /// <summary> Request player to confirm an action.
+        /// Player is prompted to type "/ok", and when he/she does, custom callback will be called </summary>
+        /// <param name="callback"> Method to call when player confirms. </param>
+        /// <param name="callbackParameter"> Argument to pass to the callback. May be null. </param>
+        /// <param name="message"> Message to print before "Type /ok to continue". </param>
+        /// <param name="args"> Optional String.Format() arguments, for the message. </param>
+        /// <exception cref="ArgumentNullException"> If callback, message, or args is null. </exception>
+        [StringFormatMethod( "message" )]
+        public void Confirm( [NotNull] ConfirmationCallback callback, [CanBeNull] object callbackParameter, [NotNull] string message, [NotNull] params object[] args ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( args == null ) throw new ArgumentNullException( "args" );
+            ConfirmCallback = callback;
+            ConfirmParameter = callbackParameter;
+            ConfirmRequestTime = DateTime.UtcNow;
+            Message( "{0} Type &H/ok&S to continue.", String.Format( message, args ) );
+        }
+
 
         static void ConfirmCommandCallback( [NotNull] Player player, object tag ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -811,31 +850,6 @@ namespace fCraft {
             cmd.IsConfirmed = true;
             bool fromConsole = ( player == Console );
             CommandManager.ParseCommand( player, cmd, fromConsole );
-        }
-
-        /// <summary> Time when the confirmation was requested. UTC. </summary>
-        public DateTime ConfirmRequestTime { get; private set; }
-
-        /// <summary> Request player to confirm continuing with the command.
-        /// Player is prompted to type "/ok", and when he/she does,
-        /// the command is called again with IsConfirmed flag set. </summary>
-        /// <param name="cmd"> Command that needs confirmation. </param>
-        /// <param name="message"> Message to print before "Type /ok to continue". </param>
-        /// <param name="args"> Optional String.Format() arguments, for the message. </param>
-        [StringFormatMethod( "message" )]
-        public void Confirm( [NotNull] CommandReader cmd, [NotNull] string message, [NotNull] params object[] args ) {
-            Confirm( ConfirmCommandCallback, cmd, message, args );
-        }
-
-        [StringFormatMethod( "message" )]
-        public void Confirm( [NotNull] ConfirmationCallback callback, [CanBeNull] object arg, [NotNull] string message, [NotNull] params object[] args ) {
-            if( callback == null ) throw new ArgumentNullException( "callback" );
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( args == null ) throw new ArgumentNullException( "args" );
-            ConfirmCallback = callback;
-            ConfirmArgument = arg;
-            ConfirmRequestTime = DateTime.UtcNow;
-            Message( "{0} Type &H/ok&S to continue.", String.Format( message, args ) );
         }
 
         #endregion
@@ -1133,6 +1147,14 @@ namespace fCraft {
         public bool Can( Permission permission, [NotNull] Rank other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             return IsSuper || Info.Rank.Can( permission, other );
+        }
+
+
+        /// <summary> Returns true if player has the given permission,
+        /// and is allowed to affect players of the given rank. </summary>
+        public bool Can( Permission permission, [NotNull] Player other ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
+            return IsSuper || Info.Rank.Can( permission, other.Info.Rank );
         }
 
 
@@ -1534,7 +1556,7 @@ namespace fCraft {
                     PlayerOpException.ThrowCannotTargetSelf( this, Info, "spectate" );
                 }
 
-                if( !Can( Permission.Spectate, target.Info.Rank ) ) {
+                if( !Can( Permission.Spectate, target ) ) {
                     PlayerOpException.ThrowPermissionLimit( this, target.Info, "spectate", Permission.Spectate );
                 }
 

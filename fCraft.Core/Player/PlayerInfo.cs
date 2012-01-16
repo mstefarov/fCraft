@@ -792,15 +792,15 @@ namespace fCraft {
 
         #region Constructors and Serialization
 
-        /// <summary> Sets the player ID to the specified value. </summary>
-        /// <param name="id">Value to set the player ID as. </param>
+        // creates a blank PlayerInfo record.
         public PlayerInfo( int id ) {
             ID = id;
         }
 
 
         // create a record for an unrecognized or a super player
-        public PlayerInfo( int id, [NotNull] string name, [NotNull] Rank startingRank, RankChangeType rankChangeType, bool isSuper )
+        public PlayerInfo( int id, [NotNull] string name, [NotNull] Rank startingRank,
+                           RankChangeType rankChangeType, bool isSuper )
             : this( id ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
@@ -813,10 +813,12 @@ namespace fCraft {
 
 
         // create a record for a newly logged-in player
-        public PlayerInfo( int id, [NotNull] string name, [NotNull] Rank startingRank, RankChangeType rankChangeType, IPAddress address )
+        public PlayerInfo( int id, [NotNull] string name, [NotNull] Rank startingRank,
+                           RankChangeType rankChangeType, [NotNull] IPAddress address )
             : this( id ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
+            if( address == null ) throw new ArgumentNullException( "address" );
             this.name = name;
             rank = startingRank;
             this.rankChangeType = rankChangeType;

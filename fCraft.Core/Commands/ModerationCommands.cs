@@ -13,6 +13,7 @@ namespace fCraft {
     static class ModerationCommands {
         const string BanCommonHelp = "Ban information can be viewed with &H/BanInfo";
 
+
         internal static void Init() {
             CdBan.Help += BanCommonHelp;
             CdBanIP.Help += BanCommonHelp;
@@ -93,7 +94,6 @@ namespace fCraft {
         }
 
 
-
         static readonly CommandDescriptor CdBanIP = new CommandDescriptor {
             Name = "BanIP",
             Category = CommandCategory.Moderation,
@@ -105,7 +105,7 @@ namespace fCraft {
                    "Any text after PlayerName/IP will be saved as a memo. ",
             Handler = BanIPHandler
         };
-
+        
         static void BanIPHandler( Player player, CommandReader cmd ) {
             string targetNameOrIP = cmd.Next();
             if( targetNameOrIP == null ) {
@@ -138,7 +138,6 @@ namespace fCraft {
                 }
             }
         }
-
 
 
         static readonly CommandDescriptor CdBanAll = new CommandDescriptor {
@@ -188,7 +187,6 @@ namespace fCraft {
         }
 
 
-
         static readonly CommandDescriptor CdUnban = new CommandDescriptor {
             Name = "Unban",
             Category = CommandCategory.Moderation,
@@ -215,7 +213,6 @@ namespace fCraft {
                 player.Message( ex.MessageColored );
             }
         }
-
 
 
         static readonly CommandDescriptor CdUnbanIP = new CommandDescriptor {
@@ -255,7 +252,6 @@ namespace fCraft {
                 player.Message( ex.MessageColored );
             }
         }
-
 
 
         static readonly CommandDescriptor CdUnbanAll = new CommandDescriptor {
@@ -310,11 +306,11 @@ namespace fCraft {
 
         static void BanExHandler( Player player, CommandReader cmd ) {
             string playerName = cmd.Next();
-            if( playerName == null || playerName.Length < 2 || (playerName[0] != '-' && playerName[0] != '+') ) {
+            if( playerName == null || playerName.Length < 2 || ( playerName[0] != '-' && playerName[0] != '+' ) ) {
                 CdBanEx.PrintUsage( player );
                 return;
             }
-            bool addExemption = (playerName[0] == '+');
+            bool addExemption = ( playerName[0] == '+' );
             string targetName = playerName.Substring( 1 );
             PlayerInfo target = PlayerDB.FindByPartialNameOrPrintMatches( player, targetName );
             if( target == null ) return;
@@ -329,6 +325,7 @@ namespace fCraft {
                                         target.ClassyName );
                     }
                     break;
+
                 case BanStatus.BanExempt:
                     if( addExemption ) {
                         player.Message( "IP-Ban exemption already exists for player {0}", target.ClassyName );
@@ -338,6 +335,7 @@ namespace fCraft {
                         target.BanStatus = BanStatus.NotBanned;
                     }
                     break;
+
                 case BanStatus.NotBanned:
                     if( addExemption ) {
                         player.Message( "IP-Ban exemption added for player {0}",
@@ -534,7 +532,8 @@ namespace fCraft {
                     Server.Players.CantSee( player ).Message( "&SPlayer {0}&S left the server.", player.ClassyName );
                 }
                 if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() ) {
-                    IRC.PlayerDisconnectedHandler( null, new PlayerDisconnectedEventArgs( player, LeaveReason.ClientQuit, true ) );
+                    IRC.PlayerDisconnectedHandler( null,
+                                                   new PlayerDisconnectedEventArgs( player, LeaveReason.ClientQuit, true ) );
                 }
             }
 
@@ -597,10 +596,10 @@ namespace fCraft {
             Handler = SetSpawnHandler
         };
 
+
         static void SetSpawnHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
-
 
             string playerName = cmd.Next();
             if( playerName == null ) {
@@ -618,7 +617,7 @@ namespace fCraft {
                 if( infos.Length == 1 ) {
                     Player target = infos[0];
                     player.LastUsedPlayerName = target.Name;
-                    if( player.Can( Permission.Bring, target.Info.Rank ) ) {
+                    if( player.Can( Permission.Bring, target ) ) {
                         target.Send( PacketWriter.MakeAddEntity( 255, target.ListName, player.Position ) );
                     } else {
                         player.Message( "You may only set spawn of players ranked {0}&S or lower.",
@@ -739,9 +738,9 @@ namespace fCraft {
 
                     } else {
                         player.TeleportTo( new Position {
-                            X = (short)(x * 32 + 16),
-                            Y = (short)(y * 32 + 16),
-                            Z = (short)(z * 32 + 16),
+                            X = (short)( x * 32 + 16 ),
+                            Y = (short)( y * 32 + 16 ),
+                            Z = (short)( z * 32 + 16 ),
                             R = player.Position.R,
                             L = player.Position.L
                         } );
@@ -792,13 +791,13 @@ namespace fCraft {
                                                 targetWorld.ClassyName,
                                                 targetWorld.AccessSecurity.MinRank.ClassyName );
                                 break;
-                            // TODO: Uncomment
-                            //case SecurityCheckResult.RankTooHigh:
-                            //    player.Message("Cannot teleport to {0}&S because world {1}&S requires {2}-&S to join.",
-                            //        target.ClassyName,
-                            //        targetWorld.ClassyName,
-                            //        targetWorld.AccessSecurity.MaxRank.ClassyName); 
-                            // TODO: case PermissionType.RankTooHigh:
+                                // TODO: Uncomment
+                                //case SecurityCheckResult.RankTooHigh:
+                                //    player.Message("Cannot teleport to {0}&S because world {1}&S requires {2}-&S to join.",
+                                //        target.ClassyName,
+                                //        targetWorld.ClassyName,
+                                //        targetWorld.AccessSecurity.MaxRank.ClassyName); 
+                                // TODO: case PermissionType.RankTooHigh:
                         }
                     }
 
@@ -856,12 +855,13 @@ namespace fCraft {
             }
 
             World world = toPlayer.World;
-            if(world==null) PlayerOpException.ThrowNoWorld( toPlayer );
+            if( world == null ) PlayerOpException.ThrowNoWorld( toPlayer );
 
             Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
             if( target == null ) return;
 
-            if( !player.Can( Permission.Bring, target.Info.Rank ) ) {
+            // check if player is allowed to bring target
+            if( !player.Can( Permission.Bring, target ) ) {
                 player.Message( "You may only bring players ranked {0}&S or lower.",
                                 player.Info.Rank.GetLimit( Permission.Bring ).ClassyName );
                 player.Message( "{0}&S is ranked {1}",
@@ -874,16 +874,25 @@ namespace fCraft {
                 target.TeleportTo( toPlayer.Position );
 
             } else {
-                if( world.AccessSecurity.CheckDetailed( target.Info ) == SecurityCheckResult.RankTooLow &&
-                    player.CanJoin(world) && !cmd.IsConfirmed ) {
-                    player.Confirm( cmd,
-                                    "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
-                                    target.Name,
-                                    world );
-                    return;
-                }
                 // teleport to a different world
-                BringPlayerToWorld( player, target, world, true, true );
+                SecurityCheckResult check = world.AccessSecurity.CheckDetailed( target.Info );
+                if( check == SecurityCheckResult.RankTooHigh || check == SecurityCheckResult.RankTooLow ) {
+                    if( player.CanJoin( world ) ) {
+                        if( cmd.IsConfirmed ) {
+                            BringPlayerToWorld( player, target, world, true, true );
+                        } else {
+                            player.Confirm( cmd,
+                                            "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
+                                            target.Name,
+                                            world );
+                        }
+                    } else {
+                        player.Message( "Neither you nor {0}&S are allowed to join world {1}",
+                                        target.ClassyName, world.ClassyName );
+                    }
+                } else {
+                    BringPlayerToWorld( player, target, world, false, true );
+                }
             }
         }
 
@@ -916,7 +925,7 @@ namespace fCraft {
                 return;
             }
 
-            if( !player.Can( Permission.Bring, target.Info.Rank ) ) {
+            if( !player.Can( Permission.Bring, target ) ) {
                 player.Message( "You may only bring players ranked {0}&S or lower.",
                                 player.Info.Rank.GetLimit( Permission.Bring ).ClassyName );
                 player.Message( "{0}&S is ranked {1}",
@@ -927,23 +936,28 @@ namespace fCraft {
             if( world == target.World ) {
                 player.Message( "Player {0}&S is already in world {1}&S. They were brought to spawn.",
                                 target.ClassyName, world.ClassyName );
-                target.TeleportTo( world.Map.Spawn );
+                target.TeleportTo( target.WorldMap.Spawn );
                 return;
             }
 
-            bool overridePermission = false;
-            if( world.AccessSecurity.CheckDetailed( target.Info ) == SecurityCheckResult.RankTooLow && player.CanJoin( world ) ) {
-                if( cmd.IsConfirmed ) {
-                    overridePermission = true;
+            SecurityCheckResult check = world.AccessSecurity.CheckDetailed( target.Info );
+            if( check == SecurityCheckResult.RankTooHigh || check == SecurityCheckResult.RankTooLow ) {
+                if( player.CanJoin( world ) ) {
+                    if( cmd.IsConfirmed ) {
+                        BringPlayerToWorld( player, target, world, true, false );
+                    } else {
+                        player.Confirm( cmd,
+                                        "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
+                                        target.Name,
+                                        world );
+                    }
                 } else {
-                    player.Confirm( cmd,
-                                    "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
+                    player.Message( "Neither you nor {0}&S are allowed to join world {1}",
                                     target.ClassyName, world.ClassyName );
-                    return;
                 }
+            } else {
+                BringPlayerToWorld( player, target, world, false, false );
             }
-
-            BringPlayerToWorld( player, target, world, overridePermission, false );
         }
 
 
@@ -969,7 +983,7 @@ namespace fCraft {
 
             // Parse the list of worlds and ranks
             string arg;
-            while( (arg = cmd.Next()) != null ) {
+            while( ( arg = cmd.Next() ) != null ) {
                 if( arg.StartsWith( "@" ) ) {
                     Rank rank = RankManager.FindRank( arg.Substring( 1 ) );
                     if( rank == null ) {
@@ -1037,7 +1051,7 @@ namespace fCraft {
 
             // Actually bring all the players
             foreach( Player targetPlayer in targetPlayers.CanBeSeen( player )
-                                                         .RankedAtMost( bringLimit ) ) {
+                .RankedAtMost( bringLimit ) ) {
                 if( targetPlayer.World == player.World ) {
                     // teleport within the same world
                     targetPlayer.TeleportTo( player.Position );
@@ -1060,7 +1074,6 @@ namespace fCraft {
                 player.Message( "Bringing {0} players...", count );
             }
         }
-
 
 
         static void BringPlayerToWorld( [NotNull] Player player, [NotNull] Player target, [NotNull] World world,
@@ -1106,7 +1119,7 @@ namespace fCraft {
                                         world.AccessSecurity.MinRank.ClassyName );
                     }
                     break;
-                // TODO: case PermissionType.RankTooHigh:
+                    // TODO: case PermissionType.RankTooHigh:
             }
         }
 
@@ -1151,7 +1164,7 @@ namespace fCraft {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
             Player target = playerWorld.GetNextPatrolTarget( player,
-                                                             p => player.Can( Permission.Spectate, p.Info.Rank ),
+                                                             p => player.Can( Permission.Spectate, p ),
                                                              true );
             if( target == null ) {
                 player.Message( "Patrol: No one to spec-patrol in this world." );
@@ -1278,9 +1291,9 @@ namespace fCraft {
                 return;
             }
 
-            if( !player.Can( Permission.Spectate, target.Info.Rank ) ) {
+            if( !player.Can( Permission.Spectate, target ) ) {
                 player.Message( "You may only spectate players ranked {0}&S or lower.",
-                player.Info.Rank.GetLimit( Permission.Spectate ).ClassyName );
+                                player.Info.Rank.GetLimit( Permission.Spectate ).ClassyName );
                 player.Message( "{0}&S is ranked {1}",
                                 target.ClassyName, target.Info.Rank.ClassyName );
                 return;
@@ -1316,7 +1329,7 @@ namespace fCraft {
                 try {
                     targetInfo.Freeze( player, true, true );
                     player.Message( "Player {0}&S has been frozen while you retry.", targetInfo.ClassyName );
-                } catch( PlayerOpException) { }
+                } catch( PlayerOpException ) {}
             }
         }
 
