@@ -713,6 +713,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdTP = new CommandDescriptor {
             Name = "TP",
+            Aliases = new[] { "to" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Teleport },
             Usage = "/TP PlayerName&S or &H/TP X Y Z",
