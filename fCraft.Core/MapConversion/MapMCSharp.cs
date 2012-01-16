@@ -252,14 +252,14 @@ namespace fCraft.MapConversion {
                     bs.Write( (ushort)0x752 );
 
                     // Write the map dimensions
-                    bs.Write( mapToSave.Width );
-                    bs.Write( mapToSave.Length );
-                    bs.Write( mapToSave.Height );
+                    bs.Write( (short)mapToSave.Width );
+                    bs.Write( (short)mapToSave.Length );
+                    bs.Write( (short)mapToSave.Height );
 
                     // Write the spawn location
-                    bs.Write( mapToSave.Spawn.X / 32 );
-                    bs.Write( mapToSave.Spawn.Z / 32 );
-                    bs.Write( mapToSave.Spawn.Y / 32 );
+                    bs.Write( (short)(mapToSave.Spawn.X / 32) );
+                    bs.Write( (short)(mapToSave.Spawn.Z / 32) );
+                    bs.Write( (short)(mapToSave.Spawn.Y / 32) );
 
                     //Write the spawn orientation
                     bs.Write( mapToSave.Spawn.R );
