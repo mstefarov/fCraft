@@ -56,7 +56,8 @@ namespace fCraft {
         static bool LoaderClaims( [NotNull] IPluginLoader pluginLoader, [NotNull] string fileName ) {
             if( pluginLoader == null ) throw new ArgumentNullException( "pluginLoader" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            return pluginLoader.PluginExtensions.Any( fileName.EndsWith );
+            return pluginLoader.PluginExtensions
+                               .Any( ext => fileName.EndsWith( ext, StringComparison.OrdinalIgnoreCase ) );
         }
 
 
