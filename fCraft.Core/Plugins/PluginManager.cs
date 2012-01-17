@@ -87,13 +87,13 @@ namespace fCraft {
 
                             if( newPlugin.MinFCraftVersion > fVersion ) {
                                 Logger.Log( LogType.Error,
-                                            "PluginLoader: Plugin \"{0} {1}\" requires a newer version of fCraft ({2}) and will not work.",
+                                            "PluginManager: Plugin \"{0} {1}\" requires a newer version of fCraft ({2}) and will not work.",
                                             newPlugin.Name, newPlugin.Version, newPlugin.MinFCraftVersion );
                                 continue;
                             }
                             if( newPlugin.MaxFCraftVersion < fVersion ) {
                                 Logger.Log( LogType.Warning,
-                                            "PluginLoader: Plugin \"{0} {1}\" was designed to work with " +
+                                            "PluginManager: Plugin \"{0} {1}\" was designed to work with " +
                                             "older versions of fCraft ({2} through {3}) and may not work correctly.",
                                             newPlugin.Name, newPlugin.Version,
                                             newPlugin.MinFCraftVersion, newPlugin.MaxFCraftVersion );
@@ -101,13 +101,22 @@ namespace fCraft {
 
                             Plugins.Add( newPlugin.Name.ToLower(), newPlugin );
                             Logger.Log( LogType.SystemActivity,
-                                        "PluginLoader: Added {0} {1}",
+                                        "PluginManager: Added {0} {1}",
                                         newPlugin.Name, newPlugin.Version );
                             RaisePluginAddedEvent( pluginLoader, fileName, newPlugin );
+                            return;
                         }
+                    } else {
+                        Logger.Log( LogType.Warning,
+                                    "PluginManager: Loading plugin from \"{0}\" using {1} has failed: {2}",
+                                    fileName, pluginLoader.GetType().Name, result.Exception );
                     }
                 }
             }
+
+            Logger.Log( LogType.Warning,
+                        "PluginManager: Could not find suitable plugin loader for \"{0}\"",
+                        fileName );
         }
 
 

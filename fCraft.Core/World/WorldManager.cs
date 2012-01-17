@@ -59,8 +59,9 @@ namespace fCraft {
         internal static bool LoadWorldList() {
             World firstWorld = null;
             World newMainWorld = null;
-            Worlds = new World[0];
-            if( File.Exists( Paths.WorldListFileName ) ) {
+            lock( SyncRoot ) {
+                Worlds = new World[0];
+                if( File.Exists( Paths.WorldListFileName ) ) {
 #if !DEBUG
                 try {
 #endif
@@ -68,7 +69,7 @@ namespace fCraft {
                     XElement root = doc.Root;
                     if( root != null ) {
                         foreach( XElement el in root.Elements( "World" ) ) {
-                            
+
 #if DEBUG
                             World newWorld = AddWorld( el );
 #else
@@ -87,7 +88,7 @@ namespace fCraft {
                         }
 
                         XAttribute temp;
-                        if( (temp = root.Attribute( "main" )) != null ) {
+                        if( ( temp = root.Attribute( "main" ) ) != null ) {
                             World suggestedMainWorld = FindWorldExact( temp.Value );
 
                             if( suggestedMainWorld != null ) {
@@ -161,33 +162,33 @@ namespace fCraft {
                 }
 #endif
 
-                if( newMainWorld == null ) {
-                    Logger.Log( LogType.Error,
-                                "Server.Start: Could not load any of the specified worlds, or no worlds were specified. " +
-                                "Creating default \"main\" world." );
+                    if( newMainWorld == null ) {
+                        Logger.Log( LogType.Error,
+                                    "Server.Start: Could not load any of the specified worlds, or no worlds were specified. " +
+                                    "Creating default \"main\" world." );
+                        newMainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
+                    }
+
+                } else {
+                    Logger.Log( LogType.SystemActivity,
+                                "Server.Start: No world list found. Creating default \"main\" world." );
                     newMainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
                 }
 
-            } else {
-                Logger.Log( LogType.SystemActivity,
-                            "Server.Start: No world list found. Creating default \"main\" world." );
-                newMainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
+                // if there is no default world still, die.
+                if( newMainWorld == null ) {
+                    throw new Exception( "Could not create any worlds." );
+
+                } else if( newMainWorld.AccessSecurity.HasRestrictions ) {
+                    Logger.Log( LogType.Warning,
+                                "Server.LoadWorldList: Main world cannot have any access restrictions. " +
+                                "Access permission for \"{0}\" has been reset.",
+                                newMainWorld.Name );
+                    newMainWorld.AccessSecurity.Reset();
+                }
+
+                MainWorld = newMainWorld;
             }
-
-            // if there is no default world still, die.
-            if( newMainWorld == null ) {
-                throw new Exception( "Could not create any worlds." );
-
-            } else if( newMainWorld.AccessSecurity.HasRestrictions ) {
-                Logger.Log( LogType.Warning,
-                            "Server.LoadWorldList: Main world cannot have any access restrictions. " +
-                            "Access permission for \"{0}\" has been reset.",
-                             newMainWorld.Name );
-                newMainWorld.AccessSecurity.Reset();
-            }
-
-            MainWorld = newMainWorld;
-
             return true;
         }
 
