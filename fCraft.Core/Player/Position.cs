@@ -84,6 +84,7 @@ namespace fCraft {
             };
         }
 
+
         /// <summary> Gets the distance to another position in squared format (i.e. no squareroot). </summary>
         /// <param name="other"> Position to compare to. </param>
         /// <returns> Squared distance between positions. </returns>

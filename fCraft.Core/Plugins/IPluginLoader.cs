@@ -5,7 +5,7 @@ namespace fCraft {
     /// <summary> Provides the ability to load plugins of a specific type,
     /// such as IronPython, .NET assemblies, etc. </summary>
     public interface IPluginLoader {
-        PluginLoadResult LoadPlugins( string pluginName );
+        PluginLoadResult LoadPlugins( string fileName );
         string[] PluginExtensions { get; }
     }
 }

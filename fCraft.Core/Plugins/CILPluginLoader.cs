@@ -13,11 +13,11 @@ namespace fCraft {
             get { return new[] { ".dll" }; }
         }
 
-        public PluginLoadResult LoadPlugins( [NotNull] string pluginName ) {
-            if( pluginName == null ) throw new ArgumentNullException( "pluginName" );
+        public PluginLoadResult LoadPlugins( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 List<IPlugin> plugins = new List<IPlugin>();
-                Assembly assembly = Assembly.LoadFrom( pluginName );
+                Assembly assembly = Assembly.LoadFrom( fileName );
                 foreach( Type pluginType in assembly.GetTypes() ) {
                     if( pluginType.GetInterfaces().Contains( typeof( IPlugin ) ) && pluginType.IsClass ) {
                         plugins.Add( (IPlugin)Activator.CreateInstance( pluginType ) );

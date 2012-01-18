@@ -30,9 +30,9 @@ namespace fCraft.Python {
             get { return new [] { ".py" }; }
         }
 
-        public PluginLoadResult LoadPlugins(string filePath) {
+        public PluginLoadResult LoadPlugins(string fileName) {
             try {
-                ScriptSource script = _ironPythonEngine.CreateScriptSourceFromFile(filePath);
+                ScriptSource script = _ironPythonEngine.CreateScriptSourceFromFile(fileName);
                 CompiledCode code = script.Compile();
                 ScriptScope scope = _ironPythonEngine.CreateScope();
                 code.Execute(scope);
