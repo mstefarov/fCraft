@@ -339,7 +339,7 @@ namespace fCraft {
         /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. 
         /// If null was given instead of rank name, returns null. </returns>
         [CanBeNull]
-        public static Rank FindRank( string name ) {
+        public static Rank FindRank( [CanBeNull] string name ) {
             if( name == null ) return null;
 
             Rank result = null;

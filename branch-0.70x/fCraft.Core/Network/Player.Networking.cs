@@ -28,6 +28,7 @@ namespace fCraft {
         const int SleepDelay = 5; // milliseconds
         const int SocketPollInterval = 200; // multiples of SleepDelay, approx. 1 second
         const int PingInterval = 3; // multiples of SocketPollInterval, approx. 3 seconds
+        const int StackSize = 262144;
 
         const string NoSmpMessage = "This server is for Minecraft Classic only.";
 
@@ -88,7 +89,7 @@ namespace fCraft {
                 reader = new BinaryReader( stream );
                 writer = new PacketWriter( stream );
 
-                ioThread = new Thread( IoLoop ) {
+                ioThread = new Thread( IoLoop, StackSize ) {
                     Name = "fCraft.Session",
                     IsBackground = true
                 };
