@@ -158,7 +158,7 @@ namespace fCraft {
 
             // move newly-written file into its permanent destination
             try {
-                Paths.MoveOrReplace( tempFileName, fileName );
+                Paths.MoveOrReplaceFile( tempFileName, fileName );
                 Logger.Log( LogType.SystemActivity,
                             "Saved map to {0}", fileName );
                 HasChangedSinceBackup = true;

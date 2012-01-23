@@ -74,7 +74,7 @@ namespace fCraft {
                 };
                 const string tempFile = Paths.HeartbeatDataFileName + ".tmp";
                 File.WriteAllLines( tempFile, data, Encoding.ASCII );
-                Paths.MoveOrReplace( tempFile, Paths.HeartbeatDataFileName );
+                Paths.MoveOrReplaceFile( tempFile, Paths.HeartbeatDataFileName );
             }
         }
 

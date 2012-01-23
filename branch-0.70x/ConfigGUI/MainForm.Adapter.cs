@@ -629,7 +629,7 @@ namespace fCraft.ConfigGUI {
                 }
                 doc.Add( root );
                 doc.Save( worldListTempFileName );
-                Paths.MoveOrReplace( worldListTempFileName, Paths.WorldListFileName );
+                Paths.MoveOrReplaceFile( worldListTempFileName, Paths.WorldListFileName );
             } catch( Exception ex ) {
                 MessageBox.Show( String.Format( "An error occurred while trying to save world list ({0}): {1}{2}",
                                                 Paths.WorldListFileName,

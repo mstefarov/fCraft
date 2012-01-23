@@ -124,7 +124,7 @@ namespace fCraft {
                 }
             }
             try {
-                Paths.MoveOrReplace( tempFile, Paths.IPBanListFileName );
+                Paths.MoveOrReplaceFile( tempFile, Paths.IPBanListFileName );
             } catch( Exception ex ) {
                 Logger.Log( LogType.Error,
                             "IPBanList.Save: An error occurred while trying to save ban list file: {0}", ex );

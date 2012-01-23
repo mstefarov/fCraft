@@ -125,15 +125,16 @@ namespace fCraft {
 
         #region Utility Methods
 
-        public static void MoveOrReplace( [NotNull] string source, [NotNull] string destination ) {
+        public static void MoveOrReplaceFile( [NotNull] string source, [NotNull] string destination ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( destination == null ) throw new ArgumentNullException( "destination" );
             if( File.Exists( destination ) ) {
                 if( Path.GetPathRoot( Path.GetFullPath( source ) ) == Path.GetPathRoot( Path.GetFullPath( destination ) ) ) {
-                    File.Replace( source, destination, null, true );
+                    string backupFileName = destination + ".bak";
+                    File.Replace( source, destination, backupFileName, true );
+                    File.Delete( backupFileName );
                 } else {
-                    File.Delete( destination );
-                    File.Move( source, destination );
+                    File.Copy( source, destination, true );
                 }
             } else {
                 File.Move( source, destination );
@@ -340,8 +341,8 @@ namespace fCraft {
             if( originalFile.Name == newFileName ) return;
             FileInfo newFile = new FileInfo( Path.Combine( originalFile.DirectoryName, newFileName ) );
             string tempFileName = originalFile.FullName + Guid.NewGuid();
-            MoveOrReplace( originalFile.FullName, tempFileName );
-            MoveOrReplace( tempFileName, newFile.FullName );
+            MoveOrReplaceFile( originalFile.FullName, tempFileName );
+            MoveOrReplaceFile( tempFileName, newFile.FullName );
         }
 
 

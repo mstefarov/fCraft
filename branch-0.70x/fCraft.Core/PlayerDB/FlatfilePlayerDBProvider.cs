@@ -580,7 +580,7 @@ namespace fCraft {
                 }
 
                 try {
-                    Paths.MoveOrReplace( tempFileName, Paths.PlayerDBFileName + ".bin" );
+                    Paths.MoveOrReplaceFile( tempFileName, Paths.PlayerDBFileName + ".bin" );
                 } catch( Exception ex ) {
                     Logger.Log( LogType.Error,
                                 "PlayerDB.SaveBinary: An error occurred while trying to save PlayerDB: {0}", ex);
