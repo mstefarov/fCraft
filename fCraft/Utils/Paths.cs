@@ -132,10 +132,11 @@ namespace fCraft {
             if( destination == null ) throw new ArgumentNullException( "destination" );
             if( File.Exists( destination ) ) {
                 if( Path.GetPathRoot( Path.GetFullPath( source ) ) == Path.GetPathRoot( Path.GetFullPath( destination ) ) ) {
-                    File.Replace( source, destination, null, true );
+                    string backupFileName = destination + ".bak";
+                    File.Replace( source, destination, backupFileName, true );
+                    File.Delete( backupFileName );
                 } else {
-                    File.Delete( destination );
-                    File.Move( source, destination );
+                    File.Copy( source, destination, true );
                 }
             } else {
                 File.Move( source, destination );
