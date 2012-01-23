@@ -1170,10 +1170,8 @@ namespace fCraft {
 
         // movement optimization
         int fullUpdateCounter;
-        /// <summary> Default amount of PartialPositionUpdates between a full position update. </summary>
-        public const int FullPositionUpdateIntervalDefault = 20;
-        /// <summary> Default amount of PartialPositionUpdates between a full position update. </summary>
-        public static int FullPositionUpdateInterval = FullPositionUpdateIntervalDefault;
+        internal const int FullPositionUpdateIntervalDefault = 20;
+        internal static int FullPositionUpdateInterval = FullPositionUpdateIntervalDefault;
         const int SkipMovementThresholdSquared = 64,
                   SkipRotationThresholdSquared = 1500;
 

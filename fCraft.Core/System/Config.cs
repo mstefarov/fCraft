@@ -772,7 +772,7 @@ namespace fCraft {
                 // write out the changes
                 string tempFileName = path + ".temp";
                 file.Save( tempFileName );
-                Paths.MoveOrReplace( tempFileName, path );
+                Paths.MoveOrReplaceFile( tempFileName, path );
                 return true;
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Config failed to save", "fCraft", ex, true );

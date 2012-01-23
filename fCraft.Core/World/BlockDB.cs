@@ -270,7 +270,7 @@ namespace fCraft {
                     }
                 }
             }
-            Paths.MoveOrReplace( tempFileName, FileName );
+            Paths.MoveOrReplaceFile( tempFileName, FileName );
         }
 
 

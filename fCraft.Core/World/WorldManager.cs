@@ -267,7 +267,7 @@ namespace fCraft {
 
                 doc.Add( root );
                 doc.Save( WorldListTempFileName );
-                Paths.MoveOrReplace( WorldListTempFileName, Paths.WorldListFileName );
+                Paths.MoveOrReplaceFile( WorldListTempFileName, Paths.WorldListFileName );
             }
         }
 
