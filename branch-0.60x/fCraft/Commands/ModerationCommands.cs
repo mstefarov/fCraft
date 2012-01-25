@@ -871,16 +871,25 @@ namespace fCraft {
                 target.TeleportTo( toPlayer.Position );
 
             } else {
-                if( world.AccessSecurity.CheckDetailed( target.Info ) == SecurityCheckResult.RankTooLow &&
-                    player.CanJoin( world ) && !cmd.IsConfirmed ) {
-                    player.Confirm( cmd,
-                                    "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
-                                    target.Name,
-                                    world );
-                    return;
-                }
                 // teleport to a different world
-                BringPlayerToWorld( player, target, world, true, true );
+                SecurityCheckResult check = world.AccessSecurity.CheckDetailed( target.Info );
+                if( check == SecurityCheckResult.RankTooHigh || check == SecurityCheckResult.RankTooLow ) {
+                    if( player.CanJoin( world ) ) {
+                        if( cmd.IsConfirmed ) {
+                            BringPlayerToWorld( player, target, world, true, true );
+                        } else {
+                            player.Confirm( cmd,
+                                            "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
+                                            target.Name,
+                                            world );
+                        }
+                    } else {
+                        player.Message( "Neither you nor {0}&S are allowed to join world {1}",
+                                        target.ClassyName, world.ClassyName );
+                    }
+                } else {
+                    BringPlayerToWorld( player, target, world, false, true );
+                }
             }
         }
 
@@ -922,24 +931,30 @@ namespace fCraft {
             }
 
             if( world == target.World ) {
-                player.Message( "Player {0}&S is already in world {1}",
+                player.Message( "Player {0}&S is already in world {1}&S. They were brought to spawn.",
                                 target.ClassyName, world.ClassyName );
+                target.TeleportTo( target.WorldMap.Spawn );
                 return;
             }
 
-            bool overridePermission = false;
-            if( world.AccessSecurity.CheckDetailed( target.Info ) == SecurityCheckResult.RankTooLow && player.CanJoin( world ) ) {
-                if( cmd.IsConfirmed ) {
-                    overridePermission = true;
+            SecurityCheckResult check = world.AccessSecurity.CheckDetailed( target.Info );
+            if( check == SecurityCheckResult.RankTooHigh || check == SecurityCheckResult.RankTooLow ) {
+                if( player.CanJoin( world ) ) {
+                    if( cmd.IsConfirmed ) {
+                        BringPlayerToWorld( player, target, world, true, false );
+                    } else {
+                        player.Confirm( cmd,
+                                        "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
+                                        target.Name,
+                                        world );
+                    }
                 } else {
-                    player.Confirm( cmd,
-                                    "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
+                    player.Message( "Neither you nor {0}&S are allowed to join world {1}",
                                     target.ClassyName, world.ClassyName );
-                    return;
                 }
+            } else {
+                BringPlayerToWorld( player, target, world, false, false );
             }
-
-            BringPlayerToWorld( player, target, world, overridePermission, false );
         }
 
 
@@ -1120,11 +1135,14 @@ namespace fCraft {
         };
 
         static void PatrolHandler( Player player, Command cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
-            Player target = player.World.GetNextPatrolTarget( player );
+            Player target = playerWorld.GetNextPatrolTarget( player,
+                                                             p => player.Can( Permission.Spectate, p.Info.Rank ),
+                                                             true );
             if( target == null ) {
-                player.Message( "Patrol: No one to patrol in this world." );
+                player.Message( "Patrol: No one to spec-patrol in this world." );
                 return;
             }
 

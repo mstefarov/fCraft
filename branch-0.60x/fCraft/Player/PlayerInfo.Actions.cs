@@ -865,6 +865,11 @@ namespace fCraft {
                     throw new PlayerOpException( player, this, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
                 }
 
+                // Check if player has sufficient rank permissions
+                if( !player.Can( Permission.Freeze, Rank ) ) {
+                    PlayerOpException.ThrowPermissionLimit( player, this, "unfreeze", Permission.Freeze );
+                }
+
                 // Raise PlayerInfo.FreezeChanging event
                 if( raiseEvents && RaiseFreezeChangingEvent( this, player, true, announce ) ) {
                     PlayerOpException.ThrowCancelled( player, this );
