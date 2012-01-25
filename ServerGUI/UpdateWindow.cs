@@ -69,7 +69,7 @@ namespace fCraft.ServerGUI {
             string args = Server.GetArgString() +
                           String.Format( "--restart=\"{0}\"", MonoCompat.PrependMono( "ServerGUI.exe" ) );
             MonoCompat.StartDotNetProcess( updaterFullPath, args, true );
-            Application.Exit();
+            Server.Shutdown( new ShutdownParams( ShutdownReason.Restarting, TimeSpan.Zero, true, false ), false );
         }
 
 
