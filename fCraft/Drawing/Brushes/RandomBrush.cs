@@ -57,7 +57,7 @@ namespace fCraft.Drawing {
     }
 
 
-    public sealed class RandomBrush : IBrushInstance, IBrush {
+    public unsafe sealed class RandomBrush : IBrushInstance, IBrush {
         public const int MaxRatio = 10000;
 
         public Block[] Blocks { get; private set; }
@@ -199,12 +199,11 @@ namespace fCraft.Drawing {
 
         public Block NextBlock( [NotNull] DrawOperation op ) {
             if( op == null ) throw new ArgumentNullException( "op" );
-            int n = seed + op.Coords.X +
-                           op.Coords.Y * 1625 +
-                           op.Coords.Z * 2642245;
+            int n = seed ^ (op.Coords.X + 1290 * op.Coords.Y + 1664510 * op.Coords.Z);
             n = (n << 13) ^ n;
-            int randomness = (n * (n * n * 15731 + 789221) + 1376312589) & 0x7FFFFFFF;
-            return actualBlocks[randomness % actualBlocks.Length];
+            n = (n * (n * n * 15731 + 789221) + 1376312589) & 0x7FFFFFFF;
+            double derp = (((double)n) / (double)0x7FFFFFFF) * actualBlocks.Length;
+            return actualBlocks[(int)Math.Floor( derp )];
         }
 
 
