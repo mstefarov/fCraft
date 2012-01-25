@@ -663,6 +663,7 @@ namespace fCraft {
 
 
             // ----==== Beyond this point, player is considered connected (authenticated and registered) ====----
+            Logger.Log( LogType.UserActivity, "Player {0} connected from {1}.", Name, IP );
 
 
             // Figure out what the starting world should be
@@ -697,7 +698,6 @@ namespace fCraft {
                 }
             }
 
-            Logger.Log( LogType.UserActivity, "Player {0} connected from {1}.", Name, IP );
             bool firstTime = (Info.TimesVisited == 1);
             if( !JoinWorldNow( startingWorld, true, WorldChangeContext.FirstWorld ) ) {
                 Logger.Log( LogType.Warning,
