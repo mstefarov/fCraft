@@ -1050,7 +1050,7 @@ namespace fCraft {
                 player.Info.ProcessLogout( player );
 
                 Logger.Log( LogType.UserActivity,
-                            "{0} left the server.", player.Name );
+                            "{0} left the server ({1})", player.Name, player.LeaveReason );
                 if( player.HasRegistered && ConfigKey.ShowConnectionMessages.Enabled() ) {
                     Players.CanSee( player ).Message( "&SPlayer {0}&S left the server.",
                                                       player.ClassyName );
