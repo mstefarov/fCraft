@@ -27,8 +27,6 @@
             this.tCredits = new System.Windows.Forms.TextBox();
             this.lHeader = new System.Windows.Forms.Label();
             this.lSubheader = new System.Windows.Forms.Label();
-            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
-            this.linkLabel2 = new System.Windows.Forms.LinkLabel();
             this.SuspendLayout();
             // 
             // tCredits
@@ -62,40 +60,16 @@
             this.lSubheader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lSubheader.Location = new System.Drawing.Point(198, 13);
             this.lSubheader.Name = "lSubheader";
-            this.lSubheader.Size = new System.Drawing.Size(242, 52);
+            this.lSubheader.Size = new System.Drawing.Size(289, 52);
             this.lSubheader.TabIndex = 2;
             this.lSubheader.Text = "Free/open-source Minecraft game server.\r\nVersion {0}\r\nDeveloped by Matvei Stefaro" +
-    "v\r\nFor news and documentation, visit";
-            // 
-            // linkLabel1
-            // 
-            this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Location = new System.Drawing.Point(399, 52);
-            this.linkLabel1.Name = "linkLabel1";
-            this.linkLabel1.Size = new System.Drawing.Size(77, 13);
-            this.linkLabel1.TabIndex = 3;
-            this.linkLabel1.TabStop = true;
-            this.linkLabel1.Text = "www.fCraft.net";
-            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
-            // 
-            // linkLabel2
-            // 
-            this.linkLabel2.AutoSize = true;
-            this.linkLabel2.Location = new System.Drawing.Point(376, 39);
-            this.linkLabel2.Name = "linkLabel2";
-            this.linkLabel2.Size = new System.Drawing.Size(93, 13);
-            this.linkLabel2.TabIndex = 4;
-            this.linkLabel2.TabStop = true;
-            this.linkLabel2.Text = "<me@matvei.org>";
-            this.linkLabel2.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel2_LinkClicked);
+    "v in 2009-2012\r\nFor news and documentation, visit www.fCraft.net";
             // 
             // AboutWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(489, 480);
-            this.Controls.Add(this.linkLabel2);
-            this.Controls.Add(this.linkLabel1);
             this.Controls.Add(this.lSubheader);
             this.Controls.Add(this.lHeader);
             this.Controls.Add(this.tCredits);
@@ -115,7 +89,5 @@
         private System.Windows.Forms.TextBox tCredits;
         private System.Windows.Forms.Label lHeader;
         private System.Windows.Forms.Label lSubheader;
-        private System.Windows.Forms.LinkLabel linkLabel1;
-        private System.Windows.Forms.LinkLabel linkLabel2;
     }
 }
