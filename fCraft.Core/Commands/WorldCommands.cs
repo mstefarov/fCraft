@@ -844,7 +844,7 @@ namespace fCraft {
             }
 
             // Check map dimensions
-            const string dimensionRecommendation = "Dimensions must be between 1 and 2047. " +
+            const string dimensionRecommendation = "Dimensions must be between 16 and 2047. " +
                                                    "Recommended values: 16, 32, 64, 128, 256, 512, and 1024.";
             if( !Map.IsValidDimension( mapWidth ) ) {
                 player.Message( "Cannot make map with width {0}. {1}", mapWidth, dimensionRecommendation );
@@ -854,6 +854,11 @@ namespace fCraft {
                 return;
             } else if( !Map.IsValidDimension( mapHeight ) ) {
                 player.Message( "Cannot make map with height {0}. {1}", mapHeight, dimensionRecommendation );
+                return;
+            }
+            long volume = (long)mapWidth * (long)mapLength * (long)mapHeight;
+            if( volume > Int32.MaxValue ) {
+                player.Message( "Map volume may not exceed {0}", Int32.MaxValue );
                 return;
             }
 
@@ -2484,6 +2489,7 @@ namespace fCraft {
                         return;
                 }
             }
+            player.LastUsedWorldName = newName;
 
             WorldManager.SaveWorldList();
             Logger.Log( LogType.UserActivity,
