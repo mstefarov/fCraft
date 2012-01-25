@@ -4,6 +4,7 @@
  Fix: Solved File.Replace-related errors, which caused occasional save failures.
  Fix: Fixed /SpecPatrol not checking caller's Spectate permission limit when selecting the next target.
  Fix: Fixed "random" brush producing obvious repeating patterns.
+ Fix: Fixed auto-updater occasionally freezing when attempting to "Restart Now".
  Fix: Added permission limit check to /unfreeze (thanks Xb0x4d4m)
  Fix: Improved the way /Bring and /WBring enforce access permissions (thanks Hellenion)
  Change: Added more information about player connects/disconnects to log file.
