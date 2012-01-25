@@ -2190,6 +2190,7 @@ namespace fCraft {
                             return;
                         }
 
+                        // try loading the new map file
                         Map map;
                         try {
                             map = MapUtility.Load( fullFileName );
@@ -2199,6 +2200,7 @@ namespace fCraft {
                             return;
                         }
 
+                        // actually change the map
                         try {
                             world.MapChangedBy = player.Name;
                             world.ChangeMap( map );
@@ -2207,6 +2209,18 @@ namespace fCraft {
                                         "Could not complete WorldLoad operation: {0}", ex.Message );
                             player.Message( "&WWLoad: {0}", ex.Message );
                             return;
+                        }
+
+                        // try to copy over BlockDB
+                        if( Paths.Contains( Paths.MapPath, fullFileName ) &&
+                            !Paths.Compare( fullFileName, world.MapFileName ) &&
+                            fullFileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
+                            string blockDBFileName = Path.Combine( Paths.BlockDBPath, Path.GetFileNameWithoutExtension( fullFileName ) + ".fbdb" );
+                            if( File.Exists( blockDBFileName ) ) {
+                                player.Message( "WLoad: BlockDB data copied over from \"{0}\"",
+                                                Path.GetFileName( fullFileName ) );
+                                Paths.MoveOrReplaceFile( blockDBFileName, world.BlockDB.FileName );
+                            }
                         }
 
                         world.Players.Message( player, "{0}&S loaded a new map for the world {1}",
