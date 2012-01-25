@@ -504,6 +504,27 @@ namespace fCraft {
             }
         }
 
+        public Player GetNextPatrolTarget( [NotNull] Player observer,
+                                           [NotNull] Predicate<Player> predicate,
+                                           bool setLastPatrolTime ) {
+            if( observer == null ) throw new ArgumentNullException( "observer" );
+            if( predicate == null ) throw new ArgumentNullException( "predicate" );
+            lock( patrolLock ) {
+                Player candidate = Players.RankedAtMost( RankManager.PatrolledRank )
+                                          .CanBeSeen( observer )
+                                          .Where( p => p.LastActiveTime > p.LastPatrolTime &&
+                                                       p.HasFullyConnected &&
+                                                       DateTime.UtcNow.Subtract( p.LastPatrolTime ) > MinPatrolInterval )
+                                          .Where( p => predicate( p ) )
+                                          .OrderBy( p => p.LastPatrolTime.Ticks )
+                                          .FirstOrDefault();
+                if( setLastPatrolTime && candidate != null ) {
+                    candidate.LastPatrolTime = DateTime.UtcNow;
+                }
+                return candidate;
+            }
+        }
+
         #endregion
 
 
