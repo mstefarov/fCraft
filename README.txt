@@ -275,9 +275,9 @@ Thanks to Minecraft servers that helped test and improve fCraft:
     D3M0Ns FreeBuild, ~The Best Freebuild 24/7~, fCraft Freebuild Official
 
 Thanks to people who submitted bug reports and feature requests:
-    Astelyn, Clhdrums87, Darklight, David00143, Dogwatch, Epiclolwut, Fehzor,
-    Gamma-Metroid, Hellenion, Sunfall, maintrain97, Mavinstar, Unison,
-    and all others.
+    AndrewPH, Astelyn, BobKare, Clhdrums87, Darklight, David00143, Dogwatch,
+    Epiclolwut, Fehzor, Gamma-Metroid, Hellenion, Sunfall, maintrain97,
+    Mavinstar, Unison, and all others.
 
 Special thanks for inspiration and suggestions:
     CO2, Descension, ElectricFuzzball, Exe, Hearty0, iKJames, LG_Legacy,
