@@ -1,3 +1,13 @@
+0.614
+ Fix: Fixed server crashing if PlayerDB.txt exists but is empty.
+ Fix: Fixed "/join -" using player names, and "/tp -" using world names.
+ Fix: Solved File.Replace-related errors, which caused occasional save failures.
+ Fix: Fixed /SpecPatrol not checking caller's Spectate permission limit when selecting the next target.
+ Fix: Fixed "random" brush producing obvious repeating patterns.
+ Fix: Added permission limit check to /unfreeze (thanks Xb0x4d4m)
+ Fix: Improved the way /Bring and /WBring enforce access permissions (thanks Hellenion)
+ Change: Added more information about player connects/disconnects to log file.
+
 0.613
  Fix: Fixed ConfigGUI not saving changes to ShowConnectionMessages key.
  Fix: Fixed a case where ServerGUI could crash while attempting to rename a world.

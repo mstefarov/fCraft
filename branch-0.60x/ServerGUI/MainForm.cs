@@ -166,7 +166,7 @@ namespace fCraft.ServerGUI {
                     }
                     logBox.SelectionStart = logBox.Text.Length;
                     logBox.ScrollToCaret();
-                    logBox.Refresh();
+                    if( !Server.IsRunning ) logBox.Refresh();
                 }
             } catch( ObjectDisposedException ) {
             } catch( InvalidOperationException ) { }
