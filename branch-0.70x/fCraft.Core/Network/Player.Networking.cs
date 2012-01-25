@@ -697,6 +697,7 @@ namespace fCraft {
                 }
             }
 
+            Logger.Log( LogType.UserActivity, "Player {0} connected from {1}.", Name, IP );
             bool firstTime = (Info.TimesVisited == 1);
             if( !JoinWorldNow( startingWorld, true, WorldChangeContext.FirstWorld ) ) {
                 Logger.Log( LogType.Warning,
