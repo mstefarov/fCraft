@@ -1138,11 +1138,9 @@ namespace fCraft {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
-            Player target = playerWorld.GetNextPatrolTarget( player,
-                                                             p => player.Can( Permission.Spectate, p.Info.Rank ),
-                                                             true );
+            Player target = playerWorld.GetNextPatrolTarget( player );
             if( target == null ) {
-                player.Message( "Patrol: No one to spec-patrol in this world." );
+                player.Message( "Patrol: No one to patrol in this world." );
                 return;
             }
 
@@ -1163,9 +1161,12 @@ namespace fCraft {
         static void SpecPatrolHandler( Player player, Command cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
-            Player target = playerWorld.GetNextPatrolTarget( player );
+
+            Player target = playerWorld.GetNextPatrolTarget( player,
+                                                             p => player.Can( Permission.Spectate, p.Info.Rank ),
+                                                             true );
             if( target == null ) {
-                player.Message( "Patrol: No one to patrol in this world." );
+                player.Message( "Patrol: No one to spec-patrol in this world." );
                 return;
             }
 
