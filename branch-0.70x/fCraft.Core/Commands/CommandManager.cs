@@ -162,7 +162,7 @@ namespace fCraft {
 
             Commands.Add( normalizedName, descriptor );
 
-            CommandRegisteredEvent.Raise( new CommandRegisteredEventArgs( descriptor ) );
+            RaiseCommandRegisteredEvent( descriptor );
         }
 
 
@@ -252,13 +252,11 @@ namespace fCraft {
             add { CommandRegisteringEvent.Add( value, Priority.Normal ); }
             remove { CommandRegisteringEvent.Remove( value ); }
         }
-
-        static readonly PriorityEvent<CommandRegistringEventArgs> CommandRegisteringEvent = new PriorityEvent<CommandRegistringEventArgs>();
-
         public static void CommandRegisteringPriority( [NotNull] EventHandler<CommandRegistringEventArgs> callback, Priority priority ) {
             if( callback == null ) throw new ArgumentNullException( "callback" );
             CommandRegisteringEvent.Add( callback, priority );
         }
+        static readonly PriorityEvent<CommandRegistringEventArgs> CommandRegisteringEvent = new PriorityEvent<CommandRegistringEventArgs>();
 
 
         /// <summary> Occurs when a command has been registered. </summary>
@@ -266,13 +264,11 @@ namespace fCraft {
             add { CommandRegisteredEvent.Add( value, Priority.Normal ); }
             remove { CommandRegisteredEvent.Remove( value ); }
         }
-
-        static readonly PriorityEvent<CommandRegisteredEventArgs> CommandRegisteredEvent = new PriorityEvent<CommandRegisteredEventArgs>();
-
         public static void CommandRegisteredPriority( [NotNull] EventHandler<CommandRegisteredEventArgs> callback, Priority priority ) {
             if( callback == null ) throw new ArgumentNullException( "callback" );
             CommandRegisteredEvent.Add( callback, priority );
         }
+        static readonly PriorityEvent<CommandRegisteredEventArgs> CommandRegisteredEvent = new PriorityEvent<CommandRegisteredEventArgs>();
 
 
         /// <summary> Occurs when a command is being called by a player or the console (cancellable). </summary>
@@ -280,13 +276,11 @@ namespace fCraft {
             add { CommandCallingEvent.Add( value, Priority.Normal ); }
             remove { CommandCallingEvent.Remove( value ); }
         }
-
-        static readonly PriorityEvent<CommandCallingEventArgs> CommandCallingEvent = new PriorityEvent<CommandCallingEventArgs>();
-
         public static void CommandCallingPriority( [NotNull] EventHandler<CommandCallingEventArgs> callback, Priority priority ) {
             if( callback == null ) throw new ArgumentNullException( "callback" );
             CommandCallingEvent.Add( callback, priority );
         }
+        static readonly PriorityEvent<CommandCallingEventArgs> CommandCallingEvent = new PriorityEvent<CommandCallingEventArgs>();
 
 
         /// <summary> Occurs when the command has been called by a player or the console. </summary>
@@ -294,19 +288,22 @@ namespace fCraft {
             add { CommandCalledEvent.Add( value, Priority.Normal ); }
             remove { CommandCalledEvent.Remove( value ); }
         }
-
-        static readonly PriorityEvent<CommandCalledEventArgs> CommandCalledEvent = new PriorityEvent<CommandCalledEventArgs>();
-
         public static void CommandCalledPriority( [NotNull] EventHandler<CommandCalledEventArgs> callback, Priority priority ) {
             if( callback == null ) throw new ArgumentNullException( "callback" );
             CommandCalledEvent.Add( callback, priority );
         }
+        static readonly PriorityEvent<CommandCalledEventArgs> CommandCalledEvent = new PriorityEvent<CommandCalledEventArgs>();
 
 
         static bool RaiseCommandRegisteringEvent( CommandDescriptor descriptor ) {
             var e = new CommandRegistringEventArgs( descriptor );
             CommandRegisteringEvent.Raise( e );
             return !e.Cancel;
+        }
+
+
+        static void RaiseCommandRegisteredEvent( CommandDescriptor descriptor ) {
+            CommandRegisteredEvent.Raise( new CommandRegisteredEventArgs( descriptor ) );
         }
 
 
