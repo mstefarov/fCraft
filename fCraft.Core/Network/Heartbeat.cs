@@ -143,7 +143,7 @@ namespace fCraft {
                             Uri oldUri = Server.Uri;
                             if( newUri != oldUri ) {
                                 Server.Uri = newUri;
-                                RaiseUriChangedEvent( oldUri, newUri );
+                                UriChangedEvent.Raise( new UriChangedEventArgs( oldUri, newUri ) );
                             }
                         } catch( UriFormatException ) {
                             Logger.Log( LogType.Error,
@@ -168,38 +168,52 @@ namespace fCraft {
         #region Events
 
         /// <summary> Occurs when a heartbeat is about to be sent (cancellable). </summary>
-        public static event EventHandler<HeartbeatSendingEventArgs> Sending;
+        public static event EventHandler<HeartbeatSendingEventArgs> Sending {
+            add { SendingEvent.Add( value, Priority.Normal ); }
+            remove { SendingEvent.Remove( value ); }
+        }
+        public static void SendingPriority( [NotNull] EventHandler<HeartbeatSendingEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            SendingEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<HeartbeatSendingEventArgs> SendingEvent = new PriorityEvent<HeartbeatSendingEventArgs>();
+
 
         /// <summary> Occurs when a heartbeat has been sent. </summary>
-        public static event EventHandler<HeartbeatSentEventArgs> Sent;
+        public static event EventHandler<HeartbeatSentEventArgs> Sent {
+            add { SentEvent.Add( value, Priority.Normal ); }
+            remove { SentEvent.Remove( value ); }
+        }
+        public static void SentPriority( [NotNull] EventHandler<HeartbeatSentEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            SentEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<HeartbeatSentEventArgs> SentEvent = new PriorityEvent<HeartbeatSentEventArgs>();
+
 
         /// <summary> Occurs when the server Uri has been set or changed. </summary>
-        public static event EventHandler<UriChangedEventArgs> UriChanged;
+        public static event EventHandler<UriChangedEventArgs> UriChanged {
+            add { UriChangedEvent.Add( value, Priority.Normal ); }
+            remove { UriChangedEvent.Remove( value ); }
+        }
+        public static void UriChangedPriority( [NotNull] EventHandler<UriChangedEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            UriChangedEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<UriChangedEventArgs> UriChangedEvent = new PriorityEvent<UriChangedEventArgs>();
 
 
         static bool RaiseHeartbeatSendingEvent( HeartbeatData data, Uri uri, bool getServerUri ) {
-            var handler = Sending;
-            if( handler == null ) return true;
             var e = new HeartbeatSendingEventArgs( data, uri, getServerUri );
-            handler( null, e );
+            SendingEvent.Raise( e );
             return !e.Cancel;
         }
 
-        static void RaiseHeartbeatSentEvent( HeartbeatData heartbeatData,
-                                             HttpWebResponse response,
-                                             string text ) {
-            var handler = Sent;
-            if( handler != null ) {
-                handler( null, new HeartbeatSentEventArgs( heartbeatData,
-                                                     response.Headers,
-                                                     response.StatusCode,
-                                                     text ) );
-            }
-        }
-
-        static void RaiseUriChangedEvent( Uri oldUri, Uri newUri ) {
-            var handler = UriChanged;
-            if( handler != null ) handler( null, new UriChangedEventArgs( oldUri, newUri ) );
+        static void RaiseHeartbeatSentEvent( HeartbeatData heartbeatData, HttpWebResponse response, string text ) {
+            SentEvent.Raise( new HeartbeatSentEventArgs( heartbeatData,
+                                                         response.Headers,
+                                                         response.StatusCode,
+                                                         text ) );
         }
 
         #endregion

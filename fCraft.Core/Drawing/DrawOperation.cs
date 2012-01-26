@@ -373,32 +373,53 @@ namespace fCraft.Drawing {
         #region Events
 
         /// <summary> Occurs when a DrawOperation is about to begin. </summary>
-        public static event EventHandler<DrawOperationBeginningEventArgs> Beginning;
+        public static event EventHandler<DrawOperationBeginningEventArgs> Beginning {
+            add { BeginningEvent.Add( value, Priority.Normal ); }
+            remove { BeginningEvent.Remove( value ); }
+        }
+        public static void BeginningPriority( [NotNull] EventHandler<DrawOperationBeginningEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            BeginningEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<DrawOperationBeginningEventArgs> BeginningEvent = new PriorityEvent<DrawOperationBeginningEventArgs>();
+
 
         /// <summary> Occurs after a DrawOperation has began. </summary>
-        public static event EventHandler<DrawOperationEventArgs> Began;
+        public static event EventHandler<DrawOperationEventArgs> Began {
+            add { BeganEvent.Add( value, Priority.Normal ); }
+            remove { BeganEvent.Remove( value ); }
+        }
+        public static void BeganPriority( [NotNull] EventHandler<DrawOperationEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            BeganEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<DrawOperationEventArgs> BeganEvent = new PriorityEvent<DrawOperationEventArgs>();
+
 
         /// <summary> Occurs when a DrawOperation has ended (finished or was cancelled). </summary>
-        public static event EventHandler<DrawOperationEventArgs> Ended;
+        public static event EventHandler<DrawOperationEventArgs> Ended {
+            add { EndedEvent.Add( value, Priority.Normal ); }
+            remove { EndedEvent.Remove( value ); }
+        }
+        public static void EndedPriority( [NotNull] EventHandler<DrawOperationEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            EndedEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<DrawOperationEventArgs> EndedEvent = new PriorityEvent<DrawOperationEventArgs>();
 
 
-        // Returns false if cancelled
         protected static bool RaiseBeginningEvent( DrawOperation op ) {
-            var handler = Beginning;
-            if( handler == null ) return true;
             var e = new DrawOperationBeginningEventArgs( op );
-            handler( null, e );
+            BeginningEvent.Raise( e );
             return !e.Cancel;
         }
 
         protected static void RaiseBeganEvent( DrawOperation op ) {
-            var handler = Began;
-            if( handler != null ) handler( null, new DrawOperationEventArgs( op ) );
+            BeganEvent.Raise( new DrawOperationEventArgs( op ) );
         }
 
         protected static void RaiseEndedEvent( DrawOperation op ) {
-            var handler = Ended;
-            if( handler != null ) handler( null, new DrawOperationEventArgs( op ) );
+            EndedEvent.Raise( new DrawOperationEventArgs( op ) );
         }
 
         #endregion
