@@ -1170,8 +1170,7 @@ namespace fCraft {
         };
 
         static void SpawnHandler( Player player, CommandReader cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
-            player.TeleportTo( player.World.LoadMap().Spawn );
+            player.TeleportTo( player.WorldMap.Spawn );
         }
 
         #endregion

@@ -223,7 +223,8 @@ namespace fCraft {
 
         static bool SendInternal( [NotNull] ChatSendingEventArgs e ) {
             if( e == null ) throw new ArgumentNullException( "e" );
-            if( RaiseSendingEvent( e ) ) return false;
+            SendingEvent.Raise( e );
+            if( e.Cancel ) return false;
 
             int recepients = e.RecepientList.Message( e.FormattedMessage );
 
@@ -233,7 +234,7 @@ namespace fCraft {
                 e.Player.Info.ProcessMessageWritten();
             }
 
-            RaiseSentEvent( e, recepients );
+            SentEvent.Raise( new ChatSentEventArgs( e, recepients ) );
             return true;
         }
 
@@ -335,26 +336,28 @@ namespace fCraft {
 
         #region Events
 
-        static bool RaiseSendingEvent( ChatSendingEventArgs args ) {
-            var handler = Sending;
-            if( handler == null ) return false;
-            handler( null, args );
-            return args.Cancel;
-        }
-
-
-        static void RaiseSentEvent( ChatSendingEventArgs args, int count ) {
-            var handler = Sent;
-            if( handler != null ) handler( null, new ChatSentEventArgs( args.Player, args.Message, args.FormattedMessage,
-                                                                        args.MessageType, args.RecepientList, count ) );
-        }
-
-
         /// <summary> Occurs when a chat message is about to be sent. Cancellable. </summary>
-        public static event EventHandler<ChatSendingEventArgs> Sending;
+        public static event EventHandler<ChatSendingEventArgs> Sending {
+            add { SendingEvent.Add( value, Priority.Normal ); }
+            remove { SendingEvent.Remove( value ); }
+        }
+        public static void SendingPriority( [NotNull] EventHandler<ChatSendingEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            SendingEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<ChatSendingEventArgs> SendingEvent = new PriorityEvent<ChatSendingEventArgs>();
+
 
         /// <summary> Occurs after a chat message has been sent. </summary>
-        public static event EventHandler<ChatSentEventArgs> Sent;
+        public static event EventHandler<ChatSentEventArgs> Sent {
+            add { SentEvent.Add( value, Priority.Normal ); }
+            remove { SentEvent.Remove( value ); }
+        }
+        public static void SentPriority( [NotNull] EventHandler<ChatSentEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            SentEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<ChatSentEventArgs> SentEvent = new PriorityEvent<ChatSentEventArgs>();
 
         #endregion
     }
@@ -449,13 +452,12 @@ namespace fCraft.Events {
 
     /// <summary> Provides data for Chat.Sent event. Immutable. </summary>
     public sealed class ChatSentEventArgs : EventArgs, IPlayerEvent {
-        internal ChatSentEventArgs( Player player, string message, string formattedMessage,
-                                    ChatMessageType messageType, IEnumerable<Player> recepientList, int recepientCount ) {
-            Player = player;
-            Message = message;
-            MessageType = messageType;
-            RecepientList = recepientList;
-            FormattedMessage = formattedMessage;
+        internal ChatSentEventArgs( ChatSendingEventArgs e, int recepientCount ) {
+            Player = e.Player;
+            Message = e.Message;
+            MessageType = e.MessageType;
+            RecepientList = e.RecepientList;
+            FormattedMessage = e.FormattedMessage;
             RecepientCount = recepientCount;
         }
 

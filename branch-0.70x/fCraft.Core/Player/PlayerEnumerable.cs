@@ -485,26 +485,6 @@ namespace fCraft {
 
         #region Messaging
 
-        /// <summary> Broadcasts a message. </summary>
-        /// <param name="source"> List of players who will receive the message. </param>
-        /// <param name="message"> String/message to send. </param>
-        /// <returns> Number of players who received the message. </returns>
-        /// <exception cref="ArgumentNullException"> If source or message is null. </exception>
-        public static int Message( [NotNull] this IEnumerable<Player> source,
-                                   [NotNull] string message ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( message == null ) throw new ArgumentNullException( "message" );
-            int i = 0;
-            foreach( Packet packet in LineWrapper.Wrap( message ) ) {
-                foreach( Player player in source ) {
-                    player.Send( packet );
-                    i++;
-                }
-            }
-            return i;
-        }
-
-
         /// <summary> Formats and broadcasts a message. </summary>
         /// <param name="source"> List of players who will receive the message. </param>
         /// <param name="except"> Player to exclude from the recepient list. </param>
@@ -520,6 +500,7 @@ namespace fCraft {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
+            if( formatArgs.Length > 0 ) message = String.Format( message, formatArgs );
             int i = 0;
             foreach( Packet packet in LineWrapper.Wrap( String.Format( message, formatArgs ) ) ) {
                 foreach( Player player in source ) {
@@ -545,6 +526,7 @@ namespace fCraft {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
+            if( formatArgs.Length > 0 ) message = String.Format( message, formatArgs );
             int i = 0;
             foreach( Packet packet in LineWrapper.Wrap( String.Format( message, formatArgs ) ) ) {
                 foreach( Player player in source ) {
@@ -571,6 +553,7 @@ namespace fCraft {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( prefix == null ) throw new ArgumentNullException( "prefix" );
             if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
+            if( formatArgs.Length > 0 ) message = String.Format( message, formatArgs );
             int i = 0;
             foreach( Packet packet in LineWrapper.WrapPrefixed( prefix, String.Format( message, formatArgs ) ) ) {
                 foreach( Player player in source ) {
@@ -597,6 +580,7 @@ namespace fCraft {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
+            if( formatArgs.Length > 0 ) message = String.Format( message, formatArgs );
             int i = 0;
             foreach( Player player in source ) {
                 player.MessageWoMAlert( message, formatArgs );
