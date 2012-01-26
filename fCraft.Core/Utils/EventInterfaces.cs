@@ -6,7 +6,6 @@ namespace fCraft.Events {
     /// <summary> An EventArgs for an event that can be cancelled. </summary>
     public interface ICancellableEvent {
         /// <summary> Set to "true" to cancel the event. </summary>
-        [PublicAPI]
         bool Cancel { get; set; }
     }
 

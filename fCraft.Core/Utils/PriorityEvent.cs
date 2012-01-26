@@ -21,7 +21,7 @@ namespace fCraft {
 
     sealed class PriorityEvent<T> where T : EventArgs {
         static readonly List<KeyValuePair<Priority, EventHandler<T>>> Callbacks =
-            new List<KeyValuePair<Priority, EventHandler<T>>>();
+                    new List<KeyValuePair<Priority, EventHandler<T>>>();
         EventHandler<T> combined;
         readonly object syncRoot = new object();
 
@@ -49,14 +49,27 @@ namespace fCraft {
         }
 
 
-        public void Raise( object sender, T args ) {
+        public void Raise( object sender, T e ) {
             var handler = combined;
-            if( handler != null ) handler( sender, args );
+            if( handler != null ) {
+                handler( sender, e );
+            }
+        }
+
+
+        public void Raise( T e ) {
+            var handler = combined;
+            if( handler != null ) {
+                handler( null, e );
+            }
         }
     }
 
 
-    enum Priority {
+    /// <summary> Event callback priority.
+    /// Lower-priority callbacks are invoked sooner.
+    /// Higher-priority events are invoked later.</summary>
+    public enum Priority {
         Lowest = 0,
         Low = 1,
         Normal = 2,

@@ -78,7 +78,6 @@ namespace fCraft {
         /// <param name="assemblyArgs"> Arguments to pass to the executable. </param>
         /// <param name="detachIfMono"> If true, new process will be detached under Mono. </param>
         /// <returns>Process object</returns>
-        [PublicAPI]
         public static Process StartDotNetProcess( [NotNull] string assemblyLocation, [NotNull] string assemblyArgs, bool detachIfMono ) {
             if( assemblyLocation == null ) throw new ArgumentNullException( "assemblyLocation" );
             if( assemblyArgs == null ) throw new ArgumentNullException( "assemblyArgs" );

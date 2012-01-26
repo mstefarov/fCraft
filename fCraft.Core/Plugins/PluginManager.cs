@@ -22,7 +22,6 @@ namespace fCraft {
 
         /// <summary> Initializes plugin loaders, and attempts to load all plugins. </summary>
         /// <exception cref="InvalidOperationException"> If PluginManager is already initialized. </exception>
-        [PublicAPI]
         public static void Init() {
             if( initialized ) throw new InvalidOperationException( "PluginManager is already initialized." );
             initialized = true;
@@ -71,7 +70,6 @@ namespace fCraft {
         /// Does not activate any plugins. </summary>
         /// <param name="fileName"> Relative or absolute path to the file. </param>
         /// <exception cref="ArgumentNullException"> If fileName is null. </exception>
-        [PublicAPI]
         public static void AddPlugin( [NotNull] string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
 
@@ -122,7 +120,6 @@ namespace fCraft {
 
         /// <summary> Activates all loaded plugins. </summary>
         /// <exception cref="InvalidOperationException"> If PluginManager is not initialized. </exception>
-        [PublicAPI]
         public static void ActivatePlugins() {
             if( !initialized ) throw new InvalidOperationException( "PluginManager is not initialized." );
             foreach( IPlugin plugin in Plugins.Values ) {
@@ -139,7 +136,6 @@ namespace fCraft {
         /// <param name="pluginName"> Case-insensitive full name of the plugin. </param>
         /// <returns> Relevant IPlugin object if found; null if not found. </returns>
         /// <exception cref="ArgumentNullException"> If pluginName is null. </exception>
-        [PublicAPI]
         public static IPlugin Find( [NotNull] string pluginName ) {
             if( pluginName == null ) throw new ArgumentNullException( "pluginName" );
             IPlugin result;
@@ -152,11 +148,9 @@ namespace fCraft {
 
 
         /// <summary> Occurs when a plugin is successfully loaded. </summary>
-        [PublicAPI]
         public static event EventHandler<PluginAddedEventArgs> PluginAdded;
          
         /// <summary> Occurs when a plugin is succesfully activated. </summary>
-        [PublicAPI]
         public static event EventHandler<PluginActivatedEventArgs> PluginActivated;
 
 

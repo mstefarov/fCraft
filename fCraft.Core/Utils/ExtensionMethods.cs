@@ -518,7 +518,6 @@ namespace fCraft {
         /// <param name="array"> Byte array to fill. </param>
         /// <param name="value"> Value to assign to every byte in the array. </param>
         /// <exception cref="ArgumentNullException"> If array is null. </exception>
-        [PublicAPI]
         public static void MemSet( [NotNull] this byte[] array, byte value ) {
             if( array == null ) throw new ArgumentNullException( "array" );
             byte[] rawValue = new[] { value, value, value, value, value, value, value, value };

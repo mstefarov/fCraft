@@ -464,14 +464,12 @@ namespace fCraft {
         #region Events
 
         /// <summary> Occurs after a message has been logged. </summary>
-        [PublicAPI]
         public static event EventHandler<LogEventArgs> Logged;
 
 
         /// <summary> Occurs when the server "crashes" (has an unhandled exception).
         /// Note that such occurences will not always cause shutdowns - check ShutdownImminent property.
         /// Reporting of the crash may be suppressed. </summary>
-        [PublicAPI]
         public static event EventHandler<CrashedEventArgs> Crashed;
 
 

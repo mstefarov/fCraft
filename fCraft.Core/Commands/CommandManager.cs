@@ -73,7 +73,6 @@ namespace fCraft {
         /// <param name="descriptor"> Command descriptor to register. May not be null. </param>
         /// <exception cref="ArgumentNullException"> If descriptor is null. </exception>
         /// <exception cref="CommandRegistrationException"> If command could not be registered. </exception>
-        [PublicAPI]
         public static void RegisterCustomCommand( [NotNull] CommandDescriptor descriptor ) {
             if( descriptor == null ) throw new ArgumentNullException( "descriptor" );
             descriptor.IsCustom = true;
@@ -131,8 +130,8 @@ namespace fCraft {
                 descriptor.Usage = "/" + descriptor.Name;
             }
 
-            if( !RaiseCommandRegisteringEvent( descriptor ) ) {
-                return;
+            if( !RaiseCommandRegisteringEvent(descriptor) ) {
+                throw new CommandRegistrationException(descriptor,"Cancelled by CommandRegistering event");
             }
 
             if( Aliases.ContainsKey( normalizedName ) ) {
@@ -163,7 +162,7 @@ namespace fCraft {
 
             Commands.Add( normalizedName, descriptor );
 
-            RaiseCommandRegisteredEvent( descriptor );
+            CommandRegisteredEvent.Raise( new CommandRegisteredEventArgs( descriptor ) );
         }
 
 
@@ -194,7 +193,6 @@ namespace fCraft {
         /// <param name="cmd"> Command to be parsed and executed. </param>
         /// <param name="fromConsole"> Whether this command is being called from a non-player (e.g. Console). </param>
         /// <returns> True if the command was called, false if something prevented it from being called. </returns>
-        [PublicAPI]
         public static bool ParseCommand( [NotNull] Player player, [NotNull] CommandReader cmd, bool fromConsole ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
@@ -250,49 +248,77 @@ namespace fCraft {
         #region Events
 
         /// <summary> Occurs when a command is being registered (cancellable). </summary>
-        [PublicAPI]
-        public static event EventHandler<CommandRegistringEventArgs> CommandRegistering;
+        public static event EventHandler<CommandRegistringEventArgs> CommandRegistering {
+            add { CommandRegisteringEvent.Add( value, Priority.Normal ); }
+            remove { CommandRegisteringEvent.Remove( value ); }
+        }
+
+        static readonly PriorityEvent<CommandRegistringEventArgs> CommandRegisteringEvent = new PriorityEvent<CommandRegistringEventArgs>();
+
+        public static void CommandRegisteringPriority( [NotNull] EventHandler<CommandRegistringEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            CommandRegisteringEvent.Add( callback, priority );
+        }
+
 
         /// <summary> Occurs when a command has been registered. </summary>
-        [PublicAPI]
-        public static event EventHandler<CommandRegisteredEventArgs> CommandRegistered;
+        public static event EventHandler<CommandRegisteredEventArgs> CommandRegistered {
+            add { CommandRegisteredEvent.Add( value, Priority.Normal ); }
+            remove { CommandRegisteredEvent.Remove( value ); }
+        }
+
+        static readonly PriorityEvent<CommandRegisteredEventArgs> CommandRegisteredEvent = new PriorityEvent<CommandRegisteredEventArgs>();
+
+        public static void CommandRegisteredPriority( [NotNull] EventHandler<CommandRegisteredEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            CommandRegisteredEvent.Add( callback, priority );
+        }
+
 
         /// <summary> Occurs when a command is being called by a player or the console (cancellable). </summary>
-        [PublicAPI]
-        public static event EventHandler<CommandCallingEventArgs> CommandCalling;
+        public static event EventHandler<CommandCallingEventArgs> CommandCalling {
+            add { CommandCallingEvent.Add( value, Priority.Normal ); }
+            remove { CommandCallingEvent.Remove( value ); }
+        }
+
+        static readonly PriorityEvent<CommandCallingEventArgs> CommandCallingEvent = new PriorityEvent<CommandCallingEventArgs>();
+
+        public static void CommandCallingPriority( [NotNull] EventHandler<CommandCallingEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            CommandCallingEvent.Add( callback, priority );
+        }
+
 
         /// <summary> Occurs when the command has been called by a player or the console. </summary>
-        [PublicAPI]
-        public static event EventHandler<CommandCalledEventArgs> CommandCalled;
+        public static event EventHandler<CommandCalledEventArgs> CommandCalled {
+            add { CommandCalledEvent.Add( value, Priority.Normal ); }
+            remove { CommandCalledEvent.Remove( value ); }
+        }
+
+        static readonly PriorityEvent<CommandCalledEventArgs> CommandCalledEvent = new PriorityEvent<CommandCalledEventArgs>();
+
+        public static void CommandCalledPriority( [NotNull] EventHandler<CommandCalledEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            CommandCalledEvent.Add( callback, priority );
+        }
 
 
         static bool RaiseCommandRegisteringEvent( CommandDescriptor descriptor ) {
-            var handler = CommandRegistering;
-            if( handler == null ) return true;
             var e = new CommandRegistringEventArgs( descriptor );
-            handler( null, e );
+            CommandRegisteringEvent.Raise( e );
             return !e.Cancel;
         }
 
 
-        static void RaiseCommandRegisteredEvent( CommandDescriptor descriptor ) {
-            var handler = CommandRegistered;
-            if( handler != null ) handler( null, new CommandRegisteredEventArgs( descriptor ) );
-        }
-
-
         internal static bool RaiseCommandCallingEvent( CommandReader cmd, CommandDescriptor descriptor, Player player ) {
-            var handler = CommandCalling;
-            if( handler == null ) return true;
             var e = new CommandCallingEventArgs( cmd, descriptor, player );
-            handler( null, e );
+            CommandCallingEvent.Raise( e );
             return !e.Cancel;
         }
 
 
         internal static void RaiseCommandCalledEvent( CommandReader cmd, CommandDescriptor descriptor, Player player ) {
-            var handler = CommandCalled;
-            if( handler != null ) CommandCalled( null, new CommandCalledEventArgs( cmd, descriptor, player ) );
+            CommandCalledEvent.Raise( new CommandCalledEventArgs( cmd, descriptor, player ) );
         }
 
         #endregion

@@ -427,7 +427,6 @@ namespace fCraft {
         #region Permissions
 
         /// <summary> Checks whether this rank is granted the given permission. </summary>
-        [PublicAPI]
         [Pure]
         public bool Can( Permission permission ) {
             return Permissions[(int)permission];
@@ -435,7 +434,6 @@ namespace fCraft {
 
 
         /// <summary> Checks whether this rank is granted all the permission on the given list. </summary>
-        [PublicAPI]
         [Pure]
         public bool Can( [NotNull] params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
@@ -444,7 +442,6 @@ namespace fCraft {
 
 
         /// <summary> Checks whether this rank is granted the given permission, and whether the limit is high </summary>
-        [PublicAPI]
         [Pure]
         public bool Can( Permission permission, [NotNull] Rank other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
@@ -453,7 +450,6 @@ namespace fCraft {
 
 
         /// <summary> Whether players of this rank are allowed to see hidden players of the given rank. </summary>
-        [PublicAPI]
         [Pure]
         public bool CanSeeHidden( [NotNull] Rank other ) {
             if( other == null ) throw new ArgumentNullException( "other" );

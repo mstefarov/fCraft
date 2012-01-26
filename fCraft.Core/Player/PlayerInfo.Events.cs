@@ -9,47 +9,37 @@ namespace fCraft {
 
         /// <summary> Occurs when a new PlayerDB entry is being created.
         /// Allows changing the starting rank. Cancellable (kicks the player). </summary>
-        [PublicAPI]
         public static event EventHandler<PlayerInfoBeingCreatedEventArgs> BeingCreated;
 
         /// <summary> Occurs after a new PlayerDB entry has been created. </summary>
-        [PublicAPI]
         public static event EventHandler<PlayerInfoCreatedEventArgs> Created;
 
         /// <summary> Occurs when a player's rank is about to be changed (automatically or manually).
         /// Allows changing reason and announce flag. Cancellable. </summary>
-        [PublicAPI]
         public static event EventHandler<PlayerInfoRankChangingEventArgs> RankChanging;
 
         /// <summary> Occurs after a player's rank was changed (automatically or manually). </summary>
-        [PublicAPI]
         public static event EventHandler<PlayerInfoRankChangedEventArgs> RankChanged;
 
         /// <summary> Occurs when a player is about to be banned or unbanned.
         /// Allows changing reason and announce flag. Cancellable. </summary>
-        [PublicAPI]
         public static event EventHandler<PlayerInfoBanChangingEventArgs> BanChanging;
 
         /// <summary> Occurs after a player has been banned or unbanned. </summary>
-        [PublicAPI]
         public static event EventHandler<PlayerInfoBanChangedEventArgs> BanChanged;
 
         /// <summary> Occurs when a player is about to be frozen or unfrozen.
         /// Allows changing announce flag. Cancellable. </summary>
-        [PublicAPI]
         public static event EventHandler<PlayerInfoFrozenChangingEventArgs> FreezeChanging;
 
         /// <summary> Occurs after a player has been frozen or unfrozen. </summary>
-        [PublicAPI]
         public static event EventHandler<PlayerInfoFrozenChangedEventArgs> FreezeChanged;
 
         /// <summary> Occurs when a player is about to be muted or unmuted. 
         /// Allows changing duration and announce flag. Cancellable. </summary>
-        [PublicAPI]
         public static event EventHandler<PlayerInfoMuteChangingEventArgs> MuteChanging;
 
         /// <summary> Occurs after a player has been muted or unmuted. </summary>
-        [PublicAPI]
         public static event EventHandler<PlayerInfoMuteChangedEventArgs> MuteChanged;
 
 
@@ -129,7 +119,6 @@ namespace fCraft.Events {
     /// <summary> An EventArgs for an event that directly related to a particular PlayerInfo. </summary>
     public interface IPlayerInfoEvent {
         /// <summary> Player affected by the event. </summary>
-        [PublicAPI]
         PlayerInfo PlayerInfo { get; }
     }
 
