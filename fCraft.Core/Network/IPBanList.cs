@@ -145,7 +145,7 @@ namespace fCraft {
                 if( raiseEvent ) {
                     if( !RaiseAddingIPBanEvent( ban ) ) return false;
                     Bans.Add( ban.Address.ToString(), ban );
-                    RaiseAddedIPBanEvent( ban );
+                    AddedIPBanEvent.Raise( new IPBanEventArgs( ban ) );
                 } else {
                     Bans.Add( ban.Address.ToString(), ban );
                 }
@@ -198,7 +198,9 @@ namespace fCraft {
                     if( !RaiseRemovingIPBanEvent( info ) ) return false;
                 }
                 if( Bans.Remove( address.ToString() ) ) {
-                    if( raiseEvents ) RaiseRemovedIPBanEvent( info );
+                    if( raiseEvents ) {
+                        RemovedIPBanEvent.Raise( new IPBanEventArgs( info ) );
+                    }
                     Save();
                     return true;
                 } else {
@@ -582,49 +584,64 @@ namespace fCraft {
         #region Events
 
         /// <summary> Occurs when a new IP ban is about to be added (cancellable). </summary>
-        public static event EventHandler<IPBanCancellableEventArgs> AddingIPBan;
+        public static event EventHandler<IPBanCancellableEventArgs> AddingIPBan {
+            add { AddingIPBanEvent.Add( value, Priority.Normal ); }
+            remove { AddingIPBanEvent.Remove( value ); }
+        }
+        public static void AddingIPBanPriority( [NotNull] EventHandler<IPBanCancellableEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            AddingIPBanEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<IPBanCancellableEventArgs> AddingIPBanEvent = new PriorityEvent<IPBanCancellableEventArgs>();
 
 
         /// <summary> Occurs when a new IP ban has been added. </summary>
-        public static event EventHandler<IPBanEventArgs> AddedIPBan;
+        public static event EventHandler<IPBanEventArgs> AddedIPBan {
+            add { AddedIPBanEvent.Add( value, Priority.Normal ); }
+            remove { AddedIPBanEvent.Remove( value ); }
+        }
+        public static void AddedIPBanPriority( [NotNull] EventHandler<IPBanEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            AddedIPBanEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<IPBanEventArgs> AddedIPBanEvent = new PriorityEvent<IPBanEventArgs>();
 
 
         /// <summary> Occurs when an existing IP ban is about to be removed (cancellable). </summary>
-        public static event EventHandler<IPBanCancellableEventArgs> RemovingIPBan;
+        public static event EventHandler<IPBanCancellableEventArgs> RemovingIPBan {
+            add { RemovingIPBanEvent.Add( value, Priority.Normal ); }
+            remove { RemovingIPBanEvent.Remove( value ); }
+        }
+        public static void RemovingIPBanPriority( [NotNull] EventHandler<IPBanCancellableEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            RemovingIPBanEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<IPBanCancellableEventArgs> RemovingIPBanEvent = new PriorityEvent<IPBanCancellableEventArgs>();
 
 
         /// <summary> Occurs after an existing IP ban has been removed. </summary>
-        public static event EventHandler<IPBanEventArgs> RemovedIPBan;
+        public static event EventHandler<IPBanEventArgs> RemovedIPBan {
+            add { RemovedIPBanEvent.Add( value, Priority.Normal ); }
+            remove { RemovedIPBanEvent.Remove( value ); }
+        }
+        public static void RemovedIPBanPriority( [NotNull] EventHandler<IPBanEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            RemovedIPBanEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<IPBanEventArgs> RemovedIPBanEvent = new PriorityEvent<IPBanEventArgs>();
 
 
         static bool RaiseAddingIPBanEvent( [NotNull] IPBanInfo info ) {
-            if( info == null ) throw new ArgumentNullException( "info" );
-            var handler = AddingIPBan;
-            if( handler == null ) return true;
             var e = new IPBanCancellableEventArgs( info );
-            handler( null, e );
+            AddingIPBanEvent.Raise( e );
             return !e.Cancel;
         }
 
-        static void RaiseAddedIPBanEvent( [NotNull] IPBanInfo info ) {
-            if( info == null ) throw new ArgumentNullException( "info" );
-            var handler = AddedIPBan;
-            if( handler != null ) handler( null, new IPBanEventArgs( info ) );
-        }
 
         static bool RaiseRemovingIPBanEvent( [NotNull] IPBanInfo info ) {
-            if( info == null ) throw new ArgumentNullException( "info" );
-            var handler = RemovingIPBan;
-            if( handler == null ) return true;
             var e = new IPBanCancellableEventArgs( info );
-            handler( null, e );
+            RemovingIPBanEvent.Raise( e );
             return !e.Cancel;
-        }
-
-        static void RaiseRemovedIPBanEvent( [NotNull] IPBanInfo info ) {
-            if( info == null ) throw new ArgumentNullException( "info" );
-            var handler = RemovedIPBan;
-            if( handler != null ) handler( null, new IPBanEventArgs( info ) );
         }
 
         #endregion
@@ -633,7 +650,7 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
-
+    /// <summary> Provides data for IPBanList.AddedIPBan and RemovedIPBan events. Immutable. </summary>
     public class IPBanEventArgs : EventArgs {
         internal IPBanEventArgs( [NotNull] IPBanInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
@@ -645,6 +662,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for IPBanList.AddingIPBan and RemovingIPBan events. Cancellable. </summary>
     public sealed class IPBanCancellableEventArgs : IPBanEventArgs, ICancellableEvent {
         internal IPBanCancellableEventArgs( IPBanInfo info ) :
             base( info ) {
@@ -652,5 +670,4 @@ namespace fCraft.Events {
 
         public bool Cancel { get; set; }
     }
-
 }

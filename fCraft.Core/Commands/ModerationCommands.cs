@@ -1262,20 +1262,25 @@ namespace fCraft {
             Aliases = new[] { "follow", "spec" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Spectate },
-            Usage = "/Spectate PlayerName",
+            Usage = "/Spectate [PlayerName]",
+            Help = "Starts spectating the target player. " +
+                   "When you \"spectate\" someone, you follow their first-person view. " +
+                   "Spectating automatically hides you. Use &H/Unspectate&S to stop.",
             Handler = SpectateHandler
         };
 
         static void SpectateHandler( Player player, CommandReader cmd ) {
             string targetName = cmd.Next();
+
+            // if no name was given, show current/last spectate target
             if( targetName == null ) {
                 PlayerInfo lastSpec = player.LastSpectatedPlayer;
                 if( lastSpec != null ) {
                     Player spec = player.SpectatedPlayer;
                     if( spec != null ) {
-                        player.Message( "Now spectating {0}", spec.ClassyName );
+                        player.Message( "Now spectating: {0}", spec.ClassyName );
                     } else {
-                        player.Message( "Last spectated {0}", lastSpec.ClassyName );
+                        player.Message( "Most recently spectated: {0}", lastSpec.ClassyName );
                     }
                 } else {
                     CdSpectate.PrintUsage( player );
@@ -1311,6 +1316,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Spectate },
             NotRepeatable = true,
+            Help = "",
             Handler = UnspectateHandler
         };
 
