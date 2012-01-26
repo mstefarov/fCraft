@@ -905,7 +905,6 @@ namespace fCraft {
 
         /// <summary> Handles manually-placed/deleted blocks.
         /// Returns true if player's action should result in a kick. </summary>
-        [PublicAPI]
         public bool PlaceBlock( Vector3I coord, ClickAction action, Block type ) {
             if( World == null ) PlayerOpException.ThrowNoWorld( this );
             Map map = WorldMap;

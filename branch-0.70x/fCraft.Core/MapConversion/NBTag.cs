@@ -124,7 +124,6 @@ namespace fCraft.MapConversion {
             }
         }
 
-        [PublicAPI]
         public NBTag Remove( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( this is NBTCompound ) {

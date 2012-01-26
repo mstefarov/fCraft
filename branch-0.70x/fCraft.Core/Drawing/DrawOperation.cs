@@ -175,7 +175,6 @@ namespace fCraft.Drawing {
 
         /// <summary> Begins the draw operation. Raises DrawOperation.Beginning/Began events. </summary>
         /// <returns> True is operation began succesfully; false if cancelled by an event callback. </returns>
-        [PublicAPI]
         public virtual bool Begin() {
             if( !RaiseBeginningEvent( this ) ) return false;
             UndoState = Player.DrawBegin( this );
@@ -374,15 +373,12 @@ namespace fCraft.Drawing {
         #region Events
 
         /// <summary> Occurs when a DrawOperation is about to begin. </summary>
-        [PublicAPI]
         public static event EventHandler<DrawOperationBeginningEventArgs> Beginning;
 
         /// <summary> Occurs after a DrawOperation has began. </summary>
-        [PublicAPI]
         public static event EventHandler<DrawOperationEventArgs> Began;
 
         /// <summary> Occurs when a DrawOperation has ended (finished or was cancelled). </summary>
-        [PublicAPI]
         public static event EventHandler<DrawOperationEventArgs> Ended;
 
 

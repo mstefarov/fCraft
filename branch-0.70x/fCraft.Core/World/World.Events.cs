@@ -4,10 +4,8 @@ using JetBrains.Annotations;
 
 namespace fCraft.Events {
     /// <summary> An EventArgs for an event that directly relates to a particular world. </summary>
-    [PublicAPI]
     public interface IWorldEvent {
         /// <summary> World affected by the event. </summary>
-        [PublicAPI]
         World World { get; }
     }
 

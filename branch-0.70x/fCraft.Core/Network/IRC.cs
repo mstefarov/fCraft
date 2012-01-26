@@ -439,8 +439,7 @@ namespace fCraft {
         }
 
 
-        [PublicAPI]
-        public static bool Start() {
+        internal static bool Start() {
             int threadCount = ConfigKey.IRCThreads.GetInt();
 
             if( threadCount == 1 ) {
