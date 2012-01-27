@@ -143,6 +143,9 @@ namespace fCraft {
         /// changing per-world permissions, and using the map generator. </summary>
         ManageWorlds,
 
+        /// <summary> Ability to use /WFlush command. </summary>
+        FlushWorlds,
+
         /// <summary> Ability to enable/disable, clear, and configure BlockDB. </summary>
         ManageBlockDB,
 

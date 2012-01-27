@@ -141,6 +141,7 @@ namespace fCraft {
 
             owner.Add( new XElement( Permission.ManageZones.ToString() ) );
             owner.Add( new XElement( Permission.ManageWorlds.ToString() ) );
+            owner.Add( new XElement( Permission.FlushWorlds.ToString() ) );
             owner.Add( new XElement( Permission.ManageBlockDB.ToString() ) );
             owner.Add( new XElement( Permission.Import.ToString() ) );
             owner.Add( new XElement( Permission.Draw.ToString() ) );
@@ -213,6 +214,7 @@ namespace fCraft {
             op.Add( new XElement( Permission.SetSpawn.ToString() ) );
 
             op.Add( new XElement( Permission.ManageZones.ToString() ) );
+            op.Add( new XElement( Permission.FlushWorlds.ToString() ) );
             op.Add( new XElement( Permission.Lock.ToString() ) );
             op.Add( new XElement( Permission.Draw.ToString() ) );
             op.Add( new XElement( Permission.DrawAdvanced.ToString() ) );
