@@ -412,13 +412,10 @@ namespace fCraft {
             PlayerDB.StartSaveTask();
 
             // Announcements
-            if( ConfigKey.AnnouncementInterval.GetInt() > 0 ) {
-                TimeSpan announcementInterval = TimeSpan.FromMinutes( ConfigKey.AnnouncementInterval.GetInt() );
-                Scheduler.NewTask( ShowRandomAnnouncement ).RunForever( announcementInterval );
-            }
+            AnnounceInterval = TimeSpan.FromMinutes( ConfigKey.AnnouncementInterval.GetInt() );
 
             // garbage collection
-            gcTask = Scheduler.NewTask( DoGC ).RunForever( GCInterval, TimeSpan.FromSeconds( 45 ) );
+            GCInterval = GCIntervalDefault;
 
             Heartbeat.Start();
             if( ConfigKey.HeartbeatToWoMDirect.Enabled() ) {
@@ -661,15 +658,16 @@ namespace fCraft {
 
         #region Scheduled Tasks
 
-        // checks for incoming connections
+        [CanBeNull]
         static SchedulerTask checkConnectionsTask;
         static TimeSpan checkConnectionsInterval = TimeSpan.FromMilliseconds( 250 );
+        const int SocketAcceptsPerTick = 3;
 
-        /// <summary> (UTC) Timespan that controls how long the server should wait between connection checks. </summary>
+        /// <summary> Interval between connection checks. </summary>
         public static TimeSpan CheckConnectionsInterval {
             get { return checkConnectionsInterval; }
             set {
-                if( value.Ticks < 0 ) throw new ArgumentException( "CheckConnectionsInterval may not be negative." );
+                if( value.Ticks <= 0 ) throw new ArgumentOutOfRangeException( "value", "CheckConnectionsInterval may not be zero or negative." );
                 checkConnectionsInterval = value;
                 if( checkConnectionsTask != null ) checkConnectionsTask.Interval = value;
             }
@@ -677,25 +675,33 @@ namespace fCraft {
 
         static void CheckConnections( SchedulerTask param ) {
             TcpListener listenerCache = listener;
-            if( listenerCache != null && listenerCache.Pending() ) {
-                try {
-                    Player.StartSession( listenerCache.AcceptTcpClient() );
-                } catch( Exception ex ) {
-                    Logger.Log( LogType.Error,
-                                "Server.CheckConnections: Could not accept incoming connection: {0}", ex );
+            if( listenerCache != null ) {
+                for( int i = 0; listenerCache.Pending() && i < SocketAcceptsPerTick; i++ ) {
+                    try {
+                        listener.BeginAcceptTcpClient( AcceptCallback, null );
+                    } catch( Exception ex ) {
+                        Logger.Log( LogType.Error,
+                                    "Server.CheckConnections: Could not accept incoming connection: {0}", ex );
+                    }
                 }
             }
         }
 
+        static void AcceptCallback( [NotNull] IAsyncResult e ) {
+            TcpClient client = listener.EndAcceptTcpClient( e );
+            Player.StartSession( client );
+        }
 
-        // checks for idle players
+
+        [CanBeNull]
         static SchedulerTask checkIdlesTask;
         static TimeSpan checkIdlesInterval = TimeSpan.FromSeconds( 30 );
-        /// <summary> (UTC) Timespan that contols how long the server should wait between idle player checks. </summary>
+
+        /// <summary> Interval between idle-kick checks. </summary>
         public static TimeSpan CheckIdlesInterval {
             get { return checkIdlesInterval; }
             set {
-                if( value.Ticks < 0 ) throw new ArgumentException( "CheckIdlesInterval may not be negative." );
+                if( value.Ticks <= 0 ) throw new ArgumentOutOfRangeException( "value", "CheckIdlesInterval may not be zero or negative." );
                 checkIdlesInterval = value;
                 if( checkIdlesTask != null ) checkIdlesTask.Interval = checkIdlesInterval;
             }
@@ -719,18 +725,29 @@ namespace fCraft {
         }
 
 
-        // collects garbage (forced collection is necessary under Mono)
+        [CanBeNull]
         static SchedulerTask gcTask;
-        static TimeSpan gcInterval = TimeSpan.FromSeconds( 60 );
-        /// <summary> (UTC) Timespan that controls how long the server should wait between GarbageCollection calls. </summary>
+        static TimeSpan gcInterval;
+        static readonly TimeSpan GCIntervalDefault = TimeSpan.FromSeconds( 60 );
+
+        /// <summary> Interval between forced GarbageCollection calls. </summary>
         public static TimeSpan GCInterval {
             get { return gcInterval; }
             set {
-                if( value.Ticks < 0 ) throw new ArgumentException( "GCInterval may not be negative." );
+                if( value.Ticks < 0 ) throw new ArgumentOutOfRangeException( "value", "GCInterval may not be negative." );
                 gcInterval = value;
-                if( gcTask != null ) gcTask.Interval = gcInterval;
+                if( gcTask != null ) {
+                    if( value.Ticks == 0 ) {
+                        gcTask.Stop();
+                    } else {
+                        gcTask.Interval = gcInterval;
+                    }
+                } else if( value.Ticks > 0 ) {
+                    gcTask = Scheduler.NewTask( DoGC ).RunForever( gcInterval, TimeSpan.FromSeconds( 45 ) );
+                }
             }
         }
+
 
         static void DoGC( SchedulerTask task ) {
             if( !gcRequested ) return;
@@ -751,7 +768,28 @@ namespace fCraft {
         }
 
 
-        // shows announcements
+        [CanBeNull]
+        static SchedulerTask announceTask;
+        static TimeSpan announceInterval = TimeSpan.FromSeconds( 60 );
+
+        /// <summary> Interval between forced GarbageCollection calls. </summary>
+        public static TimeSpan AnnounceInterval {
+            get { return announceInterval; }
+            set {
+                if( value.Ticks < 0 ) throw new ArgumentOutOfRangeException( "value", "AnnounceInterval may not be negative." );
+                announceInterval = value;
+                if( announceTask != null ) {
+                    if( value.Ticks == 0 ) {
+                        announceTask.Stop();
+                    } else {
+                        announceTask.Interval = announceInterval;
+                    }
+                } else if( value.Ticks > 0 ) {
+                    announceTask = Scheduler.NewTask( ShowRandomAnnouncement ).RunForever( AnnounceInterval );
+                }
+            }
+        }
+
         static void ShowRandomAnnouncement( SchedulerTask task ) {
             if( !File.Exists( Paths.AnnouncementsFileName ) ) return;
             string[] lines = File.ReadAllLines( Paths.AnnouncementsFileName );
