@@ -57,7 +57,7 @@ Server does not show up on minecraft.net list:
 "Could not connect to server: it's probably down":
     Make sure that you added firewall exception for fCraft (if applicable),
     and forwarded the port on your router. If you are connecting from same
-    computer that the server is working on, try connecting to:
+    computer that the server is running on, try connecting to:
     http://www.minecraft.net/play.jsp?ip=127.0.0.1&port=____
         (fill in the blank with your server's port number)
 
@@ -72,9 +72,9 @@ Server does not show up on minecraft.net list:
         connect to a newly-restarted server (to give your server time to
         synchronize with minecraft.net).
     4. If you (or your players) are using WoM client's "Resume" function, which
-        uses cached verification information, use the proper log-in procedure
-        in WoM. The "Resume" function only works as long as your IP does not
-        change and as long as the server does not restart.
+        uses cached verification information, try using the proper log-in
+        procedure in WoM instead. The "Resume" function only works as long as
+        your IP does not change and as long as the server does not restart.
     5. If you are using WoM and connecting with a bookmark, make sure that the
         bookmarked address starts with "http://www.minecraft.net/..." and not
         "mc://...". Addresses in the form "mc://" are temporary, and will stop
