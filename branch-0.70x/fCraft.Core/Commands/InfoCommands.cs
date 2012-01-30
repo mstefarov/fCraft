@@ -95,7 +95,7 @@ namespace fCraft {
                 string ipString = name.Substring( 0, name.IndexOf( '/' ) );
                 string rangeString = name.Substring( name.IndexOf( '/' ) + 1 );
                 byte range;
-                if( Server.IsIP( ipString ) && IPAddress.TryParse( ipString, out ip ) &&
+                if( IPAddressUtil.IsIP( ipString ) && IPAddress.TryParse( ipString, out ip ) &&
                     Byte.TryParse( rangeString, out range ) && range <= 32 ) {
                     player.Message( "Searching {0}-{1}", ip.FirstIAddressInRange( range ), ip.LastAddressInRange( range ) );
                     infos = PlayerDB.FindPlayersCidr( ip, range ).ToArray();
@@ -104,7 +104,7 @@ namespace fCraft {
                     return;
                 }
 
-            }else if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
+            }else if( IPAddressUtil.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
                 // find players by IP
                 infos = PlayerDB.FindByIP( ip ).ToArray();
 
@@ -483,7 +483,7 @@ namespace fCraft {
                 return;
             }
 
-            if( Server.IsIP( name ) && IPAddress.TryParse( name, out address ) ) {
+            if( IPAddressUtil.IsIP( name ) && IPAddress.TryParse( name, out address ) ) {
                 IPBanInfo banInfo = IPBanList.Get( address );
                 if( banInfo != null ) {
                     player.Message( "{0} was banned by {1}&S on {2:dd MMM yyyy} ({3} ago)",

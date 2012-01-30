@@ -415,7 +415,7 @@ namespace fCraft {
             AnnounceInterval = TimeSpan.FromMinutes( ConfigKey.AnnouncementInterval.GetInt() );
 
             // garbage collection
-            GCInterval = GCIntervalDefault;
+            Scheduler.NewTask( DoGC ).RunForever( GCInterval, TimeSpan.FromSeconds( 45 ) );
 
             Heartbeat.Start();
             if( ConfigKey.HeartbeatToWoMDirect.Enabled() ) {
@@ -726,49 +726,6 @@ namespace fCraft {
 
 
         [CanBeNull]
-        static SchedulerTask gcTask;
-        static TimeSpan gcInterval;
-        static readonly TimeSpan GCIntervalDefault = TimeSpan.FromSeconds( 60 );
-
-        /// <summary> Interval between forced GarbageCollection calls. </summary>
-        public static TimeSpan GCInterval {
-            get { return gcInterval; }
-            set {
-                if( value.Ticks < 0 ) throw new ArgumentOutOfRangeException( "value", "GCInterval may not be negative." );
-                gcInterval = value;
-                if( gcTask != null ) {
-                    if( value.Ticks == 0 ) {
-                        gcTask.Stop();
-                    } else {
-                        gcTask.Interval = gcInterval;
-                    }
-                } else if( value.Ticks > 0 ) {
-                    gcTask = Scheduler.NewTask( DoGC ).RunForever( gcInterval, TimeSpan.FromSeconds( 45 ) );
-                }
-            }
-        }
-
-
-        static void DoGC( SchedulerTask task ) {
-            if( !gcRequested ) return;
-            gcRequested = false;
-
-            Process proc = Process.GetCurrentProcess();
-            proc.Refresh();
-            long usageBefore = proc.PrivateMemorySize64 / (1024 * 1024);
-
-            GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
-
-            proc.Refresh();
-            long usageAfter = proc.PrivateMemorySize64 / (1024 * 1024);
-
-            Logger.Log( LogType.Debug,
-                        "Server.DoGC: Collected on schedule ({0}->{1} MB).",
-                        usageBefore, usageAfter );
-        }
-
-
-        [CanBeNull]
         static SchedulerTask announceTask;
         static TimeSpan announceInterval = TimeSpan.FromSeconds( 60 );
 
@@ -802,14 +759,36 @@ namespace fCraft {
         }
 
 
-        // measures CPU usage
-        /// <summary> Whether or not the server is currently monitoring CPU usage. </summary>
+        static readonly TimeSpan GCInterval = TimeSpan.FromSeconds( 60 );
+        static void DoGC( SchedulerTask task ) {
+            if( !gcRequested ) return;
+            gcRequested = false;
+
+            Process proc = Process.GetCurrentProcess();
+            proc.Refresh();
+            long usageBefore = proc.PrivateMemorySize64 / ( 1024 * 1024 );
+
+            GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
+
+            proc.Refresh();
+            long usageAfter = proc.PrivateMemorySize64 / ( 1024 * 1024 );
+
+            Logger.Log( LogType.Debug,
+                        "Server.DoGC: Collected on schedule ({0}->{1} MB).",
+                        usageBefore, usageAfter );
+        }
+
+
+        /// <summary> Whether or not the server is currently monitoring CPU usage. 
+        /// (CPU usage monitoring sometimes does not work under Mono). </summary>
         public static bool IsMonitoringCPUUsage { get; private set; }
         static TimeSpan cpuUsageStartingOffset;
 
-        /// <summary> Total CPU usage, as a fraction between 0 and 1. </summary>
+        /// <summary> Total CPU usage, as a fraction between 0 (0%) and 1 (100%).
+        /// Calculated as: CPU_time / (real_time * number_of_cores) </summary>
         public static double CPUUsageTotal { get; private set; }
-        /// <summary> CPU usage in the last minute, as a fraction between 0 and 1. </summary>
+
+        /// <summary> CPU usage averaged over the past minute, as a fraction between 0 and 1. </summary>
         public static double CPUUsageLastMinute { get; private set; }
 
         static TimeSpan oldCPUTime = new TimeSpan( 0 );
@@ -834,7 +813,7 @@ namespace fCraft {
 
         static bool gcRequested;
 
-        /// <summary> Requests that the server initiate GarbageCollection. </summary>
+        /// <summary> Requests that the server initiate GarbageCollection (async). </summary>
         public static void RequestGC() {
             gcRequested = true;
         }
@@ -861,11 +840,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Calculates the maximum number of packets that should be sent out per update, 
-        /// based on bandwith, and update throttling. </summary>
-        /// <param name="world"> World to calculate limit for. </param>
-        /// <returns> Maximum number of packets per update. </returns>
-        public static int CalculateMaxPacketsPerUpdate( [NotNull] World world ) {
+        internal static int CalculateMaxPacketsPerUpdate( [NotNull] World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );
             int packetsPerTick = (int)(BlockUpdateThrottling / TicksPerSecond);
             int maxPacketsPerUpdate = (int)(MaxUploadSpeed / TicksPerSecond * 128);
@@ -881,18 +856,6 @@ namespace fCraft {
             }
 
             return maxPacketsPerUpdate;
-        }
-
-
-        static readonly Regex RegexIP = new Regex( @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b",
-                                                   RegexOptions.Compiled );
-
-        /// <summary> Checks to see if the specified IP, is a valid IPv4 address. </summary>
-        /// <param name="ipString"> IPv4 address to verify. </param>
-        /// <returns> Whether or not the IP is a valid IPv4 address. </returns>
-        public static bool IsIP( [NotNull] string ipString ) {
-            if( ipString == null ) throw new ArgumentNullException( "ipString" );
-            return RegexIP.IsMatch( ipString );
         }
 
 
