@@ -1265,7 +1265,7 @@ namespace fCraft {
 
                 } else {
                     IPAddress ip;
-                    if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
+                    if( IPAddressUtil.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
                         ip.BanIP( player, reason, true, true );
                     } else {
                         player.Message( "Could not parse \"{0}\" as either name or IP. Skipping.", name );

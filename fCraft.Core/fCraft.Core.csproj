@@ -119,6 +119,8 @@
     <Compile Include="Plugins\PluginLoadResult.cs" />
     <Compile Include="Plugins\PluginManager.cs" />
     <Compile Include="System\ShutdownParams.cs" />
+    <Compile Include="Utils\DateTimeUtil.cs" />
+    <Compile Include="Utils\IPAddressUtil.cs" />
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
     <Compile Include="Utils\PriorityEvent.cs" />
@@ -276,7 +278,7 @@
     <Compile Include="System\SchedulerTask.cs" />
     <Compile Include="Utils\IClassy.cs" />
     <Compile Include="System\Server.Events.cs" />
-    <Compile Include="Utils\ExtensionMethods.cs" />
+    <Compile Include="Utils\Util.cs" />
     <Compile Include="Utils\LogRecorder.cs" />
     <Compile Include="Utils\PerlinNoise3D.cs" />
     <Compile Include="Utils\ZipStorer.cs" />
