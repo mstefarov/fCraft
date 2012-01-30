@@ -320,7 +320,7 @@ namespace fCraft {
                 Blocks[blockIndex] = (byte)update.BlockType;
 
                 if( !World.IsFlushing ) {
-                    Packet packet = PacketWriter.MakeSetBlock( update.X, update.Y, update.Z, update.BlockType );
+                    Packet packet = Packet.MakeSetBlock( update.X, update.Y, update.Z, update.BlockType );
                     World.Players.SendLowPriority( update.Origin, packet );
                 }
                 packetsSent++;

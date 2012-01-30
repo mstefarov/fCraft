@@ -53,7 +53,7 @@ namespace fCraft {
         Thread ioThread;
         TcpClient client;
         readonly NetworkStream stream;
-        BinaryReader reader;
+        PacketReader reader;
         PacketWriter writer;
         readonly ConcurrentQueue<Packet> outputQueue = new ConcurrentQueue<Packet>(),
                                          priorityOutputQueue = new ConcurrentQueue<Packet>();
@@ -86,7 +86,7 @@ namespace fCraft {
                 if( !Server.RaiseSessionConnectingEvent( IP ) ) return;
 
                 stream = client.GetStream();
-                reader = new BinaryReader( stream );
+                reader = new PacketReader( stream );
                 writer = new PacketWriter( stream );
 
                 ioThread = new Thread( IoLoop, StackSize ) {
@@ -142,7 +142,7 @@ namespace fCraft {
                             return;
                         }
                         if( pingCounter > PingInterval ) {
-                            writer.WritePing();
+                            writer.Write( OpCode.Ping );
                             BytesSent++;
                             pingCounter = 0;
                             MeasureBandwidthUseRates();
@@ -167,8 +167,8 @@ namespace fCraft {
 
                         if( IsDeaf && packet.OpCode == OpCode.Message ) continue;
 
-                        writer.Write( packet.Data );
-                        BytesSent += packet.Data.Length;
+                        writer.Write( packet.Bytes );
+                        BytesSent += packet.Bytes.Length;
                         packetsSent++;
 
                         if( packet.OpCode == OpCode.Kick ) {
@@ -188,8 +188,8 @@ namespace fCraft {
                         lock( joinWorldLock ) {
                             if( forcedWorldToJoin != null ) {
                                 while( priorityOutputQueue.Dequeue( ref packet ) ) {
-                                    writer.Write( packet.Data );
-                                    BytesSent += packet.Data.Length;
+                                    writer.Write( packet.Bytes );
+                                    BytesSent += packet.Bytes.Length;
                                     packetsSent++;
                                     if( packet.OpCode == OpCode.Kick ) {
                                         writer.Flush();
@@ -212,12 +212,10 @@ namespace fCraft {
                         }
                     }
 
-
                     // get input from player
                     while( canReceive && stream.DataAvailable ) {
-                        byte opcode = reader.ReadByte();
-                        switch( (OpCode)opcode ) {
-
+                        OpCode opcode = (OpCode)reader.ReadByte();
+                        switch( opcode ) {
                             case OpCode.Message:
                                 if( !ProcessMessagePacket() ) return;
                                 break;
@@ -274,7 +272,7 @@ namespace fCraft {
             BytesReceived += 66;
             ResetIdleTimer();
             reader.ReadByte();
-            string message = ReadString();
+            string message = reader.ReadString();
 
             if( !IsSuper && message.StartsWith( "/womid " ) ) {
                 IsUsingWoM = true;
@@ -313,9 +311,9 @@ namespace fCraft {
             BytesReceived += 10;
             reader.ReadByte();
             Position newPos = new Position {
-                X = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
-                Z = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
-                Y = IPAddress.NetworkToHostOrder( reader.ReadInt16() ),
+                X = reader.ReadInt16(),
+                Z = reader.ReadInt16(),
+                Y = reader.ReadInt16(),
                 R = reader.ReadByte(),
                 L = reader.ReadByte()
             };
@@ -344,7 +342,7 @@ namespace fCraft {
                 // special handling for frozen players
                 if( delta.X * delta.X + delta.Y * delta.Y > AntiSpeedMaxDistanceSquared ||
                     Math.Abs( delta.Z ) > 40 ) {
-                    SendNow( PacketWriter.MakeSelfTeleport( Position ) );
+                    SendNow( Packet.MakeSelfTeleport( Position ) );
                 }
                 newPos.X = Position.X;
                 newPos.Y = Position.Y;
@@ -392,9 +390,9 @@ namespace fCraft {
             BytesReceived += 9;
             if( World == null || World.Map == null ) return;
             ResetIdleTimer();
-            short x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
-            short z = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
-            short y = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
+            short x = reader.ReadInt16();
+            short z = reader.ReadInt16();
+            short y = reader.ReadInt16();
             ClickAction action = (reader.ReadByte() == 1) ? ClickAction.Build : ClickAction.Delete;
             byte type = reader.ReadByte();
 
@@ -429,32 +427,25 @@ namespace fCraft {
             Server.RaiseSessionDisconnectedEvent( this, LeaveReason );
 
             if( HasRegistered ) {
-                Server.UnregisterPlayer( this );
+                lock( kickSyncLock ) {
+                    if( useSyncKick ) {
+                        syncKickWaiter.Set();
+                    } else {
+                        Server.UnregisterPlayer( this );
+                    }
+                }
                 RaisePlayerDisconnectedEvent( this, LeaveReason );
             }
 
-            if( reader != null ) {
-                reader.Close();
-                reader = null;
-            }
-
-            if( writer != null ) {
-                writer.Close();
-                writer = null;
-            }
-
-            if( client != null ) {
-                client.Close();
-                client = null;
-            }
-
+            if( stream != null ) stream.Close();
+            if( client != null ) client.Close();
             ioThread = null;
         }
 
 
         bool LoginSequence() {
+            // start reading the first packet
             byte opcode = reader.ReadByte();
-
             switch( opcode ) {
                 case (byte)OpCode.Handshake:
                     break;
@@ -485,7 +476,7 @@ namespace fCraft {
                 return false;
             }
 
-            string playerName = ReadString();
+            string playerName = reader.ReadString();
 
             // Check name for nonstandard characters
             if( !IsValidName( playerName ) ) {
@@ -496,7 +487,7 @@ namespace fCraft {
                 return false;
             }
 
-            string verificationCode = ReadString();
+            string verificationCode = reader.ReadString();
             reader.ReadByte(); // unused
             BytesReceived += 131;
 
@@ -617,7 +608,7 @@ namespace fCraft {
 
             // Check if player is paid (if required)
             if( ConfigKey.PaidPlayersOnly.Enabled() ) {
-                SendNow( PacketWriter.MakeHandshake( this,
+                SendNow( Packet.MakeHandshake( this,
                                                      ConfigKey.ServerName.GetString(),
                                                      "Please wait; Checking paid status..." ) );
                 writer.Flush();
@@ -670,7 +661,7 @@ namespace fCraft {
             } else {
                 motd = ConfigKey.MOTD.GetString();
             }
-            SendNow( PacketWriter.MakeHandshake( this, serverName, motd ) );
+            SendNow( Packet.MakeHandshake( this, serverName, motd ) );
 
             // AutoRank
             if( ConfigKey.AutoRankEnabled.Enabled() ) {
@@ -795,7 +786,7 @@ namespace fCraft {
 
         void GentlyKickBetaClients() {
             // This may be someone connecting with an SMP client
-            int strLen = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
+            int strLen = reader.ReadInt16();
 
             if( strLen >= 2 && strLen <= 16 ) {
                 string smpPlayerName = Encoding.BigEndianUnicode.GetString( reader.ReadBytes( strLen*2 ) );
@@ -961,10 +952,10 @@ namespace fCraft {
 
             // Start sending over the level copy
             if( oldWorld != null ) {
-                SendNow( PacketWriter.MakeHandshake( this, textLine1, textLine2 ) );
+                SendNow( Packet.MakeHandshake( this, textLine1, textLine2 ) );
             }
 
-            writer.WriteMapBegin();
+            writer.Write( OpCode.MapBegin );
             BytesSent++;
 
             // enable Nagle's algorithm (in case it was turned off by LowLatencyMode)
@@ -998,7 +989,10 @@ namespace fCraft {
                 byte progress = (byte)(100 * mapBytesSent / blockData.Length);
 
                 // write in chunks of 1024 bytes or less
-                writer.WriteMapChunk( buffer, chunkSize, progress );
+                writer.Write( OpCode.MapChunk );
+                writer.Write( (short)chunkSize );
+                writer.Write( buffer, 0, 1024 );
+                writer.Write( progress );
                 BytesSent += 1028;
                 mapBytesSent += chunkSize;
             }
@@ -1007,17 +1001,20 @@ namespace fCraft {
             client.NoDelay = ConfigKey.LowLatencyMode.Enabled();
 
             // Done sending over level copy
-            writer.WriteMapEnd( map );
+            writer.Write( OpCode.MapEnd );
+            writer.Write( (short)map.Width );
+            writer.Write( (short)map.Height );
+            writer.Write( (short)map.Length );
             BytesSent += 7;
 
             // Sets player's spawn point to map spawn
-            writer.WriteAddEntity( 255, this, map.Spawn );
+            writer.Write( Packet.MakeAddEntity( -1, ListName, map.Spawn ).Bytes );
             BytesSent += 74;
 
             // Teleport player to the target location
             // This allows preserving spawn rotation/look, and allows
             // teleporting player to a specific location (e.g. /TP or /Bring)
-            writer.WriteTeleport( 255, Position );
+            writer.Write( Packet.MakeTeleport( -1, Position ).Bytes );
             BytesSent += 10;
 
             if( oldWorld == newWorld ) {
@@ -1027,10 +1024,8 @@ namespace fCraft {
             }
 
             RaisePlayerJoinedWorldEvent( this, oldWorld, context );
-
-            // Done.
+            
             Server.RequestGC();
-
             return true;
         }
 
@@ -1048,8 +1043,8 @@ namespace fCraft {
             if( Thread.CurrentThread != ioThread ) {
                 throw new InvalidOperationException( "SendNow may only be called from player's own thread." );
             }
-            writer.Write( packet.Data );
-            BytesSent += packet.Data.Length;
+            writer.Write( packet.Bytes );
+            BytesSent += packet.Bytes.Length;
         }
 
 
@@ -1067,11 +1062,6 @@ namespace fCraft {
         }
 
         #endregion
-
-
-        string ReadString() {
-            return Encoding.ASCII.GetString( reader.ReadBytes( 64 ) ).TrimEnd();
-        }
 
         /// <summary> Clears the low priority player queue. </summary>
         void ClearLowPriotityOutputQueue() {
@@ -1106,7 +1096,7 @@ namespace fCraft {
             ClearPriorityOutputQueue();
 
             // bypassing Send() because canQueue is false
-            priorityOutputQueue.Enqueue( PacketWriter.MakeDisconnect( message ) );
+            priorityOutputQueue.Enqueue( Packet.MakeKick( message ) );
         }
 
 
@@ -1123,13 +1113,13 @@ namespace fCraft {
             canQueue = false;
             canReceive = false;
             canSend = false;
-            SendNow( PacketWriter.MakeDisconnect( message ) );
+            SendNow( Packet.MakeKick( message ) );
             writer.Flush();
         }
 
 
         bool useSyncKick;
-        readonly ManualResetEvent kickWaiter = new ManualResetEvent( false );
+        readonly ManualResetEvent syncKickWaiter = new ManualResetEvent( false );
         readonly object kickSyncLock = new object();
         internal void KickSynchronously( [NotNull] string message, LeaveReason reason ) {
             if( message == null ) throw new ArgumentNullException( "message" );
@@ -1139,7 +1129,7 @@ namespace fCraft {
                 }
                 useSyncKick = true;
                 Kick( message, reason );
-                kickWaiter.WaitOne();
+                syncKickWaiter.WaitOne();
                 Server.UnregisterPlayer( this );
             }
         }
@@ -1192,7 +1182,7 @@ namespace fCraft {
 
         void ResetVisibleEntities() {
             foreach( var pos in entities.Values ) {
-                SendNow( PacketWriter.MakeRemoveEntity( pos.ID ) );
+                SendNow( Packet.MakeRemoveEntity( pos.ID ) );
             }
             freePlayerIDs.Clear();
             for( int i = 1; i <= sbyte.MaxValue; i++ ) {
@@ -1229,7 +1219,7 @@ namespace fCraft {
                             spectatedPlayer = null;
                         }
                     } else if( spectatePos != Position ) {
-                        SendNow( PacketWriter.MakeSelfTeleport( spectatePos ) );
+                        SendNow( Packet.MakeSelfTeleport( spectatePos ) );
                     }
                 }
             }
@@ -1300,7 +1290,7 @@ namespace fCraft {
             if( freePlayerIDs.Count > 0 ) {
                 var pos = new VisibleEntity( newPos, freePlayerIDs.Pop(), player.Info.Rank );
                 entities.Add( player, pos );
-                SendNow( PacketWriter.MakeAddEntity( pos.ID, player.ListName, newPos ) );
+                SendNow( Packet.MakeAddEntity( pos.ID, player.ListName, newPos ) );
             }
         }
 
@@ -1309,7 +1299,7 @@ namespace fCraft {
             if( entity == null ) throw new ArgumentNullException( "entity" );
             entity.Hidden = true;
             entity.LastKnownPosition = VisibleEntity.HiddenPosition;
-            SendNow( PacketWriter.MakeTeleport( entity.ID, VisibleEntity.HiddenPosition ) );
+            SendNow( Packet.MakeTeleport( entity.ID, VisibleEntity.HiddenPosition ) );
         }
 
 
@@ -1317,22 +1307,22 @@ namespace fCraft {
             if( entity == null ) throw new ArgumentNullException( "entity" );
             entity.Hidden = false;
             entity.LastKnownPosition = newPos;
-            SendNow( PacketWriter.MakeTeleport( entity.ID, newPos ) );
+            SendNow( Packet.MakeTeleport( entity.ID, newPos ) );
         }
 
 
         void ReAddEntity( [NotNull] VisibleEntity entity, [NotNull] Player player, Position newPos ) {
             if( entity == null ) throw new ArgumentNullException( "entity" );
             if( player == null ) throw new ArgumentNullException( "player" );
-            SendNow( PacketWriter.MakeRemoveEntity( entity.ID ) );
-            SendNow( PacketWriter.MakeAddEntity( entity.ID, player.ListName, newPos ) );
+            SendNow( Packet.MakeRemoveEntity( entity.ID ) );
+            SendNow( Packet.MakeAddEntity( entity.ID, player.ListName, newPos ) );
             entity.LastKnownPosition = newPos;
         }
 
 
         void RemoveEntity( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            SendNow( PacketWriter.MakeRemoveEntity( entities[player].ID ) );
+            SendNow( Packet.MakeRemoveEntity( entities[player].ID ) );
             freePlayerIDs.Push( entities[player].ID );
             entities.Remove( player );
         }
@@ -1372,7 +1362,7 @@ namespace fCraft {
             if( partialUpdates && delta.FitsIntoMoveRotatePacket && fullUpdateCounter < FullPositionUpdateInterval ) {
                 if( posChanged && rotChanged ) {
                     // incremental position + rotation update
-                    packet = PacketWriter.MakeMoveRotate( entity.ID, new Position {
+                    packet = Packet.MakeMoveRotate( entity.ID, new Position {
                         X = delta.X,
                         Y = delta.Y,
                         Z = delta.Z,
@@ -1382,18 +1372,18 @@ namespace fCraft {
 
                 } else if( posChanged ) {
                     // incremental position update
-                    packet = PacketWriter.MakeMove( entity.ID, delta );
+                    packet = Packet.MakeMove( entity.ID, delta );
 
                 } else if( rotChanged ) {
                     // absolute rotation update
-                    packet = PacketWriter.MakeRotate( entity.ID, newPos );
+                    packet = Packet.MakeRotate( entity.ID, newPos );
                 } else {
                     return;
                 }
 
             } else {
                 // full (absolute position + rotation) update
-                packet = PacketWriter.MakeTeleport( entity.ID, newPos );
+                packet = Packet.MakeTeleport( entity.ID, newPos );
             }
 
             entity.LastKnownPosition = newPos;
@@ -1438,7 +1428,7 @@ namespace fCraft {
 
 
         void DenyMovement() {
-            SendNow( PacketWriter.MakeSelfTeleport( lastValidPosition ) );
+            SendNow( Packet.MakeSelfTeleport( lastValidPosition ) );
             if( DateTime.UtcNow.Subtract( antiSpeedLastNotification ).Seconds > 1 ) {
                 Message( "&WYou are not allowed to speedhack." );
                 antiSpeedLastNotification = DateTime.UtcNow;

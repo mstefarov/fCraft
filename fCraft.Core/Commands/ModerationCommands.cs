@@ -606,7 +606,7 @@ namespace fCraft {
                 Map map = player.WorldMap;
                 map.Spawn = player.Position;
                 player.TeleportTo( map.Spawn );
-                player.Send( PacketWriter.MakeAddEntity( 255, player.ListName, player.Position ) );
+                player.Send( Packet.MakeAddEntity( -1, player.ListName, player.Position ) );
                 player.Message( "New spawn point saved." );
                 Logger.Log( LogType.UserActivity,
                             "{0} changed the spawned point.",
@@ -618,7 +618,7 @@ namespace fCraft {
                     Player target = infos[0];
                     player.LastUsedPlayerName = target.Name;
                     if( player.Can( Permission.Bring, target ) ) {
-                        target.Send( PacketWriter.MakeAddEntity( 255, target.ListName, player.Position ) );
+                        target.Send( Packet.MakeAddEntity( -1, target.ListName, player.Position ) );
                     } else {
                         player.Message( "You may only set spawn of players ranked {0}&S or lower.",
                                         player.Info.Rank.GetLimit( Permission.Bring ).ClassyName );
