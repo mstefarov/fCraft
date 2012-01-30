@@ -426,7 +426,6 @@ namespace fCraft {
 
         void Disconnect() {
             State = SessionState.Disconnected;
-            Server.UnregisterSession( this );
             Server.RaiseSessionDisconnectedEvent( this, LeaveReason );
 
             if( HasRegistered ) {
@@ -612,17 +611,6 @@ namespace fCraft {
                                                       ipBanInfo.BannedBy,
                                                       ipBanInfo.BanReason );
                 KickNow( bannedMessage, LeaveReason.LoginFailed );
-                return false;
-            }
-
-
-            // Check if max number of connections is reached for IP
-            if( !Server.RegisterSession( this ) ) {
-                Info.ProcessFailedLogin( this );
-                Logger.Log( LogType.SuspiciousActivity,
-                            "Player.LoginSequence: Denied player {0}: maximum number of connections was reached for {1}",
-                            playerName, IP );
-                KickNow( String.Format( "Max connections reached for {0}", IP ), LeaveReason.LoginFailed );
                 return false;
             }
 
@@ -1126,9 +1114,6 @@ namespace fCraft {
         // Can only be used from IoThread (this is not thread-safe).
         void KickNow( [NotNull] string message, LeaveReason leaveReason ) {
             if( message == null ) throw new ArgumentNullException( "message" );
-            if( !Enum.IsDefined( typeof( LeaveReason ), leaveReason ) ) {
-                throw new ArgumentOutOfRangeException( "leaveReason" );
-            }
             if( Thread.CurrentThread != ioThread ) {
                 throw new InvalidOperationException( "KickNow may only be called from player's own thread." );
             }
@@ -1140,6 +1125,23 @@ namespace fCraft {
             canSend = false;
             SendNow( PacketWriter.MakeDisconnect( message ) );
             writer.Flush();
+        }
+
+
+        bool useSyncKick;
+        readonly ManualResetEvent kickWaiter = new ManualResetEvent( false );
+        readonly object kickSyncLock = new object();
+        internal void KickSynchronously( [NotNull] string message, LeaveReason reason ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            lock( kickSyncLock ) {
+                if( useSyncKick ) {
+                    return;
+                }
+                useSyncKick = true;
+                Kick( message, reason );
+                kickWaiter.WaitOne();
+                Server.UnregisterPlayer( this );
+            }
         }
 
 
