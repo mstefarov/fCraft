@@ -472,18 +472,18 @@ namespace fCraft {
                 Logger.Log( LogType.Error,
                             "Player.LoginSequence: Wrong protocol version: {0}.",
                             clientProtocolVersion );
-                KickNow( "Incompatible protocol version!", LeaveReason.ProtocolViolation );
+                KickNow( "Incompatible protocol version.", LeaveReason.ProtocolViolation );
                 return false;
             }
 
-            string playerName = reader.ReadString();
+            string givenName = reader.ReadString();
 
             // Check name for nonstandard characters
-            if( !IsValidName( playerName ) ) {
+            if( !IsValidName( givenName ) ) {
                 Logger.Log( LogType.SuspiciousActivity,
                             "Player.LoginSequence: Unacceptable player name: {0} ({1})",
-                            playerName, IP );
-                KickNow( "Invalid characters in player name!", LeaveReason.ProtocolViolation );
+                            givenName, IP );
+                KickNow( "Unacceptable player name.", LeaveReason.ProtocolViolation );
                 return false;
             }
 
@@ -492,10 +492,10 @@ namespace fCraft {
             BytesReceived += 131;
 
             Position = WorldManager.MainWorld.Map.Spawn;
-            Info = PlayerDB.FindOrCreateInfoForPlayer( playerName, IP );
+            Info = PlayerDB.FindOrCreateInfoForPlayer( givenName, IP );
             ResetAllBinds();
 
-            if( Server.VerifyName( Name, verificationCode, Heartbeat.Salt ) ) {
+            if( Server.VerifyName( givenName, verificationCode, Heartbeat.Salt ) ) {
                 IsVerified = true;
 
             } else {
@@ -554,6 +554,10 @@ namespace fCraft {
                             break;
                     }
                 }
+            }
+            // update capitalization of player's name
+            if( !Info.Name.Equals( givenName, StringComparison.Ordinal ) ) {
+                Info.Name = givenName;
             }
 
 
