@@ -183,6 +183,11 @@ namespace fCraft {
                 rawMessage = partialMessage + rawMessage;
                 partialMessage = null;
             }
+            
+            // replace %-codes with &-codes
+            if( Can( Permission.UseColorCodes ) ) {
+                rawMessage = Color.ReplacePercentCodes( rawMessage );
+            }
 
             switch( Chat.GetRawMessageType( rawMessage ) ) {
                 case RawMessageType.Chat: {
@@ -202,10 +207,6 @@ namespace fCraft {
 
                         if( rawMessage.EndsWith( "//" ) ) {
                             rawMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
-                        }
-
-                        if( Can( Permission.UseColorCodes ) && rawMessage.Contains( "%" ) ) {
-                            rawMessage = Color.ReplacePercentCodes( rawMessage );
                         }
 
                         Chat.SendGlobal( this, rawMessage );
@@ -280,10 +281,6 @@ namespace fCraft {
                         } else {
                             otherPlayerName = rawMessage.Substring( 1, rawMessage.IndexOf( ' ' ) - 1 );
                             messageText = rawMessage.Substring( rawMessage.IndexOf( ' ' ) + 1 );
-                        }
-
-                        if( messageText.Contains( "%" ) && Can( Permission.UseColorCodes ) ) {
-                            messageText = Color.ReplacePercentCodes( messageText );
                         }
 
                         if( otherPlayerName == "-" ) {
@@ -369,9 +366,6 @@ namespace fCraft {
                         }
 
                         string messageText = rawMessage.Substring( rawMessage.IndexOf( ' ' ) + 1 );
-                        if( messageText.Contains( "%" ) && Can( Permission.UseColorCodes ) ) {
-                            messageText = Color.ReplacePercentCodes( messageText );
-                        }
 
                         Player[] spectators = Server.Players.NotRanked( Info.Rank )
                                                             .Where( p => p.spectatedPlayer == this )

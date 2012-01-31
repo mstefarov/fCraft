@@ -475,13 +475,13 @@ namespace fCraft {
                 return false;
             }
 
-            string playerName = ReadString();
+            string givenName = ReadString();
 
             // Check name for nonstandard characters
-            if( !IsValidName( playerName ) ) {
+            if( !IsValidName( givenName ) ) {
                 Logger.Log( LogType.SuspiciousActivity,
                             "Player.LoginSequence: Unacceptible player name: {0} ({1})",
-                            playerName, IP );
+                            givenName, IP );
                 KickNow( "Invalid characters in player name!", LeaveReason.ProtocolViolation );
                 return false;
             }
@@ -493,11 +493,15 @@ namespace fCraft {
             // ReSharper disable PossibleNullReferenceException
             Position = WorldManager.MainWorld.Map.Spawn;
             // ReSharper restore PossibleNullReferenceException
-            Info = PlayerDB.FindOrCreateInfoForPlayer( playerName, IP );
+            Info = PlayerDB.FindOrCreateInfoForPlayer( givenName, IP );
             ResetAllBinds();
 
-            if( Server.VerifyName( Name, verificationCode, Heartbeat.Salt ) ) {
+            if( Server.VerifyName( givenName, verificationCode, Heartbeat.Salt ) ) {
                 IsVerified = true;
+                // update capitalization of player's name
+                if( !Info.Name.Equals( givenName, StringComparison.Ordinal ) ) {
+                    Info.Name = givenName;
+                }
 
             } else {
                 NameVerificationMode nameVerificationMode = ConfigKey.VerifyNames.GetEnum<NameVerificationMode>();
@@ -612,7 +616,7 @@ namespace fCraft {
                 Info.ProcessFailedLogin( this );
                 Logger.Log( LogType.SuspiciousActivity,
                             "Player.LoginSequence: Denied player {0}: maximum number of connections was reached for {1}",
-                            playerName, IP );
+                            givenName, IP );
                 KickNow( String.Format( "Max connections reached for {0}", IP ), LeaveReason.LoginFailed );
                 return false;
             }
