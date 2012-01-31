@@ -843,9 +843,6 @@ namespace fCraft {
 
                 case "displayedname":
                     string oldDisplayedName = info.DisplayedName;
-                    if( player.Can( Permission.UseColorCodes ) ) {
-                        valName = Color.ReplacePercentCodes( valName );
-                    }
                     if( valName.Length == 0 ) valName = null;
                     if( valName == info.DisplayedName ) {
                         if( valName == null ) {

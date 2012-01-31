@@ -211,6 +211,11 @@ namespace fCraft {
                 partialMessage = null;
             }
 
+            // replace %-codes with &-codes
+            if( Can( Permission.UseColorCodes ) ) {
+                rawMessage = Color.ReplacePercentCodes( rawMessage );
+            }
+
             switch( Chat.GetRawMessageType( rawMessage ) ) {
                 case RawMessageType.Chat: {
                         if( !Can( Permission.Chat ) ) return;
@@ -229,10 +234,6 @@ namespace fCraft {
                         }
                         rawMessage = Chat.UnescapeTrailingSlashes( rawMessage );
 
-                        if( Can( Permission.UseColorCodes ) && rawMessage.Contains( "%" ) ) {
-                            rawMessage = Color.ReplacePercentCodes( rawMessage );
-                        }
-
                         Chat.SendGlobal( this, rawMessage );
                     } break;
 
@@ -245,9 +246,6 @@ namespace fCraft {
                         if( DetectChatSpam() ) return;
                         rawMessage = Chat.UnescapeLeadingSlashes( rawMessage );
                         rawMessage = Chat.UnescapeTrailingSlashes( rawMessage );
-                        if( Can( Permission.UseColorCodes ) && rawMessage.Contains( "%" ) ) {
-                            rawMessage = Color.ReplacePercentCodes( rawMessage );
-                        }
                         Chat.SendWorld( this, rawMessage );
                     } break;
 
@@ -319,10 +317,6 @@ namespace fCraft {
                         } else {
                             otherPlayerName = rawMessage.Substring( 1, rawMessage.IndexOf( ' ' ) - 1 );
                             messageText = rawMessage.Substring( rawMessage.IndexOf( ' ' ) + 1 );
-                        }
-
-                        if( messageText.Contains( "%" ) && Can( Permission.UseColorCodes ) ) {
-                            messageText = Color.ReplacePercentCodes( messageText );
                         }
 
                         if( otherPlayerName == "-" ) {
@@ -408,9 +402,6 @@ namespace fCraft {
                         }
 
                         string messageText = rawMessage.Substring( rawMessage.IndexOf( ' ' ) + 1 );
-                        if( messageText.Contains( "%" ) && Can( Permission.UseColorCodes ) ) {
-                            messageText = Color.ReplacePercentCodes( messageText );
-                        }
 
                         Player[] spectators = Server.Players.NotRanked( Info.Rank )
                                                             .Where( p => p.spectatedPlayer == this )
