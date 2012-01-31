@@ -50,9 +50,6 @@ namespace fCraft {
 
             if( player.Can( Permission.Say ) ) {
                 string msg = cmd.NextAll().Trim();
-                if( player.Can( Permission.UseColorCodes ) && msg.Contains( "%" ) ) {
-                    msg = Color.ReplacePercentCodes( msg );
-                }
                 if( msg.Length > 0 ) {
                     Chat.SendSay( player, msg );
                 } else {
@@ -91,9 +88,6 @@ namespace fCraft {
 
             string message = cmd.NextAll().Trim();
             if( message.Length > 0 ) {
-                if( player.Can( Permission.UseColorCodes ) && message.Contains( "%" ) ) {
-                    message = Color.ReplacePercentCodes( message );
-                }
                 Chat.SendStaff( player, message );
             }
         }
@@ -204,9 +198,6 @@ namespace fCraft {
             string msg = cmd.NextAll().Trim();
             if( msg.Length > 0 ) {
                 player.Info.ProcessMessageWritten();
-                if( player.Can( Permission.UseColorCodes ) && msg.Contains( "%" ) ) {
-                    msg = Color.ReplacePercentCodes( msg );
-                }
                 Chat.SendMe( player, msg );
             }
         }
