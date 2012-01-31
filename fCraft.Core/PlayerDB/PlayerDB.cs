@@ -216,10 +216,9 @@ namespace fCraft {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( lastIP == null ) throw new ArgumentNullException( "lastIP" );
             CheckIfLoaded();
-            PlayerInfo info;
 
             lock( provider.SyncRoot ) {
-                info = provider.FindExact( name );
+                PlayerInfo info = provider.FindExact( name );
                 if( info == null ) {
                     var e = new PlayerInfoBeingCreatedEventArgs( name, lastIP, RankManager.DefaultRank, false );
                     PlayerInfo.RaiseBeingCreatedEvent( e );
@@ -231,9 +230,9 @@ namespace fCraft {
 
                     PlayerInfo.RaiseCreatedEvent( info, false );
                 }
-            }
 
-            return info;
+                return info;
+            }
         }
 
 
