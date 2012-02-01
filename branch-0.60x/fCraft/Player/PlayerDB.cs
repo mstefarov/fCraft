@@ -187,7 +187,7 @@ namespace fCraft {
                         }
 #if !DEBUG
                     } catch( Exception ex ) {
-                        Logger.LogAndReportCrash( "Error while parsing PlayerInfo record",
+                        Logger.LogAndReportCrash( "Error while parsing PlayerInfo record: " + line,
                                                   "fCraft",
                                                   ex,
                                                   false );
