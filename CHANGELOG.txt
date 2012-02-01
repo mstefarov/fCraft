@@ -1,11 +1,17 @@
+0.615 (preliminary)
+ Fix: Fixed /Patrol checking Spectate permission, and /SpecPatrol not checking it.
+ Fix: Fixed /WRename not updating player's last-used-world-name (thanks Hellenion)
+ Fix: Fixed colorcodes (%-codes) not getting applied consistently (thanks BobKare)
+ Fix: Fixed a rare name-verification issue that only affected players whose ranks have been imported (thanks Mc_MrCat)
+
 0.614
  Fix: Fixed server crashing if PlayerDB.txt exists but is empty.
- Fix: Fixed "/join -" using player names, and "/tp -" using world names.
+ Fix: Fixed "/Join -" using player names, and "/TP -" using world names.
  Fix: Solved File.Replace-related errors, which caused occasional save failures.
  Fix: Fixed /SpecPatrol not checking caller's Spectate permission limit when selecting the next target.
  Fix: Fixed "random" brush producing obvious repeating patterns.
  Fix: Fixed auto-updater occasionally freezing when attempting to "Restart Now".
- Fix: Added permission limit check to /unfreeze (thanks Xb0x4d4m)
+ Fix: Added permission limit check to /Unfreeze (thanks Xb0x4d4m)
  Fix: Improved the way /Bring and /WBring enforce access permissions (thanks Hellenion)
  Change: Added more information about player connects/disconnects to log file.
 
