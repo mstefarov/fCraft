@@ -37,6 +37,8 @@ namespace fCraft.UpdateInstaller {
         const string ConfigFileNameDefault = "config.xml",
                      BackupFileNameFormat = "fCraftData_{0:yyyyMMdd'_'HH'-'mm'-'ss}_BeforeUpdate.zip";
 
+        public const string DataBackupDirectory = "databackups";
+
         static readonly string[] FilesToBackup = new[]{
             "PlayerDB.txt",
             "config.xml",
@@ -188,9 +190,9 @@ namespace fCraft.UpdateInstaller {
 
             // Restart fCraft (if requested)
             if( restartTarget != null ) {
-                if(restartTarget=="fCraftConsole.exe"){
+                if( restartTarget == "fCraftConsole.exe" ) {
                     restartTarget = "ServerCLI.exe";
-                }else if( restartTarget=="fCraftUI.exe"){
+                } else if( restartTarget == "fCraftUI.exe" ) {
                     restartTarget = "ServerGUI.exe";
                 }
 
@@ -216,7 +218,11 @@ namespace fCraft.UpdateInstaller {
 
 
         static void DoBackup() {
+            if( !Directory.Exists( DataBackupDirectory ) ) {
+                Directory.CreateDirectory( DataBackupDirectory );
+            }
             string backupFileName = String.Format( BackupFileNameFormat, DateTime.Now ); // localized
+            backupFileName = Path.Combine( DataBackupDirectory, backupFileName );
             using( FileStream fs = File.Create( backupFileName ) ) {
                 using( ZipStorer backupZip = ZipStorer.Create( fs, "" ) ) {
                     foreach( string dataFileName in FilesToBackup ) {

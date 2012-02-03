@@ -813,10 +813,14 @@ namespace fCraft {
         }
 
 
-        const string DataBackupFileNameFormat = "fCraftData_{0:yyyyMMdd'_'HH'-'mm'-'ss}.zip";
 
         public static void BackupData() {
-            string backupFileName = String.Format( DataBackupFileNameFormat, DateTime.Now ); // localized
+            if( !Paths.TestDirectory( "DataBackup", Paths.DataBackupDirectory, true ) ) {
+                Logger.Log( LogType.Error, "Unable to create a data backup." );
+                return;
+            }
+            string backupFileName = String.Format( Paths.DataBackupFileNameFormat, DateTime.Now ); // localized
+            backupFileName = Path.Combine( Paths.DataBackupDirectory, backupFileName );
             using( FileStream fs = File.Create( backupFileName ) ) {
                 string fileComment = String.Format( "Backup of fCraft data for server \"{0}\", saved on {1}",
                                                     ConfigKey.ServerName.GetString(),
