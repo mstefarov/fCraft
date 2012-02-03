@@ -1,8 +1,10 @@
-0.615 (preliminary)
+0.615
  Fix: Fixed /Patrol checking Spectate permission, and /SpecPatrol not checking it.
  Fix: Fixed /WRename not updating player's last-used-world-name (thanks Hellenion)
  Fix: Fixed colorcodes (%-codes) not getting applied consistently (thanks BobKare)
  Fix: Fixed a rare name-verification issue that only affected players whose ranks have been imported (thanks Mc_MrCat)
+ Fix: ConfigGUI now correctly interprets "Notify" and "Auto" updater settings.
+ Change: Data backups are now stored in ./databackups/ directory.
 
 0.614
  Fix: Fixed server crashing if PlayerDB.txt exists but is empty.

@@ -122,6 +122,10 @@ namespace fCraft {
             }
         }
 
+
+        public const string DataBackupDirectory = "databackups";
+        public const string DataBackupFileNameFormat = "fCraftData_{0:yyyyMMdd'_'HH'-'mm'-'ss}.zip";
+
         #endregion
 
 

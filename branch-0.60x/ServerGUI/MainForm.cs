@@ -48,13 +48,25 @@ namespace fCraft.ServerGUI {
 
                 BeginInvoke( (Action)OnInitSuccess );
 
-                UpdaterResult update = Updater.CheckForUpdates();
-                if( shutdownPending ) return;
-
-                if( update.UpdateAvailable ) {
-                    new UpdateWindow( update, false ).ShowDialog();
+                // check for updates
+                UpdaterMode updaterMode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
+                if( updaterMode != UpdaterMode.Disabled ) {
+                    UpdaterResult update = Updater.CheckForUpdates();
+                    if( shutdownPending ) return;
+                    if( update.UpdateAvailable ) {
+                        if( updaterMode == UpdaterMode.Notify ) {
+                            String updateMsg = String.Format( "An fCraft update is available! Visit www.fCraft.net to download. " +
+                                                              "Local version: {0}. Latest available version: {1}.",
+                                                              Updater.CurrentRelease.VersionString,
+                                                              update.LatestRelease.VersionString );
+                            Logger.LogToConsole( updateMsg );
+                        } else {
+                            new UpdateWindow( update ).ShowDialog();
+                        }
+                    }
                 }
 
+                // set process priority
                 if( !ConfigKey.ProcessPriority.IsBlank() ) {
                     try {
                         Process.GetCurrentProcess().PriorityClass = ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
