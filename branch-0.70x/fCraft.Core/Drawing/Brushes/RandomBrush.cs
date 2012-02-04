@@ -197,7 +197,7 @@ namespace fCraft.Drawing {
             int n = seed ^ ( op.Coords.X + 1290 * op.Coords.Y + 1664510 * op.Coords.Z );
             n = ( n << 13 ) ^ n;
             n = ( n * ( n * n * 15731 + 789221 ) + 1376312589 ) & 0x7FFFFFFF;
-            double derp = ( ( (double)n ) / (double)0x7FFFFFFF ) * actualBlocks.Length;
+            double derp = ( n / (double)0x7FFFFFFF ) * actualBlocks.Length;
             return actualBlocks[(int)Math.Floor( derp )];
         }
 

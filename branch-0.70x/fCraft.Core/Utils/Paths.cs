@@ -33,7 +33,6 @@ namespace fCraft {
                 "fCraft.GUI.dll",
                 "ServerCLI.exe",
                 "ServerGUI.exe",
-                "ServerWinService.exe",
                 UpdaterFileName,
                 ConfigFileNameDefault,
                 PlayerDBFileName,
@@ -119,6 +118,9 @@ namespace fCraft {
                 return Path.Combine( MapPath, "backups" );
             }
         }
+
+        public const string DataBackupDirectory = "databackups";
+        public const string DataBackupFileNameFormat = "fCraftData_{0:yyyyMMdd'_'HH'-'mm'-'ss}.zip";
 
         #endregion
 

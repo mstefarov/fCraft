@@ -25,7 +25,7 @@ namespace fCraft {
             Category = CommandCategory.Zone,
             Aliases = new[] { "zone" },
             Permissions = new[] { Permission.ManageZones },
-            Usage = "/ZAdd ZoneName RankName",
+            Usage = "/ZAdd ZoneName RankName&S or &H/ZAdd +PlayerName",
             Help = "Create a zone that overrides build permissions. " +
                    "This can be used to restrict access to an area (by setting RankName to a high rank) " +
                    "or to designate a guest area (by lowering RankName).",
@@ -54,8 +54,7 @@ namespace fCraft {
                                         playerWorld.ClassyName );
                         return;
 
-                    // TODO: Must be below rank or Operator
-                    //case SecurityCheckResult.RankTooHigh:
+                    //case SecurityCheckResult.RankTooHigh: // TODO
                 }
             }
 
@@ -69,10 +68,11 @@ namespace fCraft {
                 // Find the target player
                 PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, givenZoneName );
                 if( info == null ) return;
+                givenZoneName = info.Name;
 
                 // Make sure that the name is not taken already.
                 // If a zone named after the player already exists, try adding a number after the name (e.g. "Notch2")
-                newZone.Name = info.Name;
+                newZone.Name = givenZoneName;
                 for( int i = 2; zoneCollection.Contains( newZone.Name ); i++ ) {
                     newZone.Name = givenZoneName + i;
                 }

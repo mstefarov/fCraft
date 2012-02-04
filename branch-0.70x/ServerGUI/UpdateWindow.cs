@@ -14,11 +14,11 @@ namespace fCraft.ServerGUI {
         readonly bool autoUpdate;
         bool closeFormWhenDownloaded;
 
-        public UpdateWindow( UpdaterResult update, bool auto ) {
+        public UpdateWindow( UpdaterResult update ) {
             InitializeComponent();
             updaterFullPath = Path.Combine( Paths.WorkingPath, Paths.UpdaterFileName );
             updateResult = update;
-            autoUpdate = auto;
+            autoUpdate = ( ConfigKey.UpdaterMode.GetEnum<UpdaterMode>() == UpdaterMode.Auto );
             CreateDetailedChangeLog();
             lVersion.Text = String.Format( lVersion.Text,
                                            Updater.CurrentRelease.VersionString,
@@ -97,6 +97,8 @@ namespace fCraft.ServerGUI {
 
         private void bUpdateLater_Click( object sender, EventArgs e ) {
             Updater.RunAtShutdown = true;
+            Logger.Log( LogType.SystemActivity,
+                        "An fCraft update will be applied next time the server is shut down or restarted." );
             Close();
         }
 
