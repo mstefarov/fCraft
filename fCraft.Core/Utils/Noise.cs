@@ -78,9 +78,9 @@ namespace fCraft {
 
 
         public float StaticNoise( int x, int y ) {
-            int n = Seed + x + y * short.MaxValue;
-            n = (n << 13) ^ n;
-            return (float)(1.0 - ((n * (n * n * 15731 + 789221) + 1376312589) & 0x7FFFFFFF) / 1073741824d);
+            int n = Seed ^ x + ( y * short.MaxValue );
+            n = ( n << 13 ) ^ n;
+            return (float)( 1.0 - ( ( n * ( n * n * 15731 + 789221 ) + 1376312589 ) & 0x7FFFFFFF ) / 1073741824d );
         }
 
 

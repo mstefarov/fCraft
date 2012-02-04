@@ -198,6 +198,7 @@ namespace fCraft.ServerCLI {
                     if( updaterMode == UpdaterMode.Prompt ) {
                         Console.WriteLine( "Restart the server and update now? y/n" );
                         var key = Console.ReadKey();
+                        Console.ReadLine();
                         if( key.KeyChar == 'y' ) {
                             RestartForUpdate();
                             return;

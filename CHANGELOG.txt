@@ -1,3 +1,34 @@
+0.615
+ Fix: Fixed /Patrol checking Spectate permission, and /SpecPatrol not checking it.
+ Fix: Fixed /WRename not updating player's last-used-world-name (thanks Hellenion)
+ Fix: Fixed colorcodes (%-codes) not getting applied consistently (thanks BobKare)
+ Fix: Fixed a rare name-verification issue that only affected players whose ranks have been imported (thanks Mc_MrCat)
+ Fix: ConfigGUI now correctly interprets "Notify" and "Auto" updater settings.
+ Change: Data backups are now stored in ./databackups/ directory.
+
+0.614
+ Fix: Fixed server crashing if PlayerDB.txt exists but is empty.
+ Fix: Fixed "/Join -" using player names, and "/TP -" using world names.
+ Fix: Solved File.Replace-related errors, which caused occasional save failures.
+ Fix: Fixed /SpecPatrol not checking caller's Spectate permission limit when selecting the next target.
+ Fix: Fixed "random" brush producing obvious repeating patterns.
+ Fix: Fixed auto-updater occasionally freezing when attempting to "Restart Now".
+ Fix: Added permission limit check to /Unfreeze (thanks Xb0x4d4m)
+ Fix: Improved the way /Bring and /WBring enforce access permissions (thanks Hellenion)
+ Change: Added more information about player connects/disconnects to log file.
+
+0.613
+ Fix: Fixed ConfigGUI not saving changes to ShowConnectionMessages key.
+ Fix: Fixed a case where ConfigGUI could crash while attempting to rename a world.
+ Fix: All spectate permissions are now re-checked when someone gets promoted or demoted.
+ Fix: Fixed ConfigGUI Worlds tab crash when dealing with zoned maps.
+ Fix: Fixed IRC bot not retrying for desired nickname after reconnecting
+ Fix: Fixed a case where editing a world via ConfigGUI would clear security whitelists/blacklists.
+ Fix: Fixed spectating players not being treated as hidden (thanks Hellenion)
+ Fix: Fixed formatting in "Player ___ got auto-kicked" message (thanks BobKare)
+ Fix: Fixed auto-kick revealing hidden players (thanks BobKare)
+ Fix: Fixed RandomBrush-related /Undo artifacts in /Triangle (thanks Lunara_Noctis)
+
 0.612
  Fix: Fixed "/Worlds @Rank" not autocompleting rank names.
  Fix: Fixed compatibility with legacy PlayerDB format versions. PlayerDB files created by fCraft 0.400+ will work again.
