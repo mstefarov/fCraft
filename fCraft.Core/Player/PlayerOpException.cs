@@ -48,10 +48,9 @@ namespace fCraft {
                 if( unban ) {
                     msg = "Please specify an unban reason.";
                 } else {
-                    msg = "Please specify an ban reason.";
+                    msg = "Please specify a ban reason.";
                 }
                 string colorMsg = "&S" + msg;
-                throw new NotImplementedException();
                 throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.ReasonRequired, msg, colorMsg );
             }
         }
