@@ -39,9 +39,9 @@ namespace fCraft {
         /// </summary>
         public int CopySlots = 2;
 
-        /// <summary> Maximum number of blocks away the origin that a fill is allowed to travel. </summary>
-        /// <example> A limit of 32, means that the maximum fill dimensions are (32 * 2 + 1),
-        /// which is 65 x 65 x 65. </example>
+        /// <summary> Maximum number of blocks away the origin that a fill is allowed to travel.
+        /// Applies to /Fill2D command. For example, a limit of 32, means that the maximum fill
+        /// dimensions are (32 * 2 + 1), which is 65 x 65 x 65. </summary>
         public int FillLimit = 32;
 
         /// <summary> Maximum number of blocks that player is allowed to draw at a time using draw commands. </summary>
