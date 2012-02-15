@@ -62,26 +62,26 @@ namespace fCraft {
                    "If no operation is given, world's BlockDB status is shown. " +
                    "If no WorldName is given, prints status of all worlds.",
             HelpSections = new Dictionary<string, string>{
-                { "auto",       "/BlockDB <WorldName> Auto\n&S" +
+                { "auto",       "&H/BlockDB <WorldName> Auto\n&S" +
                                 "Allows BlockDB to decide whether it should be enabled or disabled based on each world's permissions (default)." },
-                { "on",         "/BlockDB <WorldName> On\n&S" +
+                { "on",         "&H/BlockDB <WorldName> On\n&S" +
                                 "Enables block tracking. Information will only be available for blocks that changed while BlockDB was enabled." },
-                { "off",        "/BlockDB <WorldName> Off\n&S" +
+                { "off",        "&H/BlockDB <WorldName> Off\n&S" +
                                 "Disables block tracking. Block changes will NOT be recorded while BlockDB is disabled. " +
                                 "Note that disabling BlockDB does not delete the existing data. Use &Hclear&S for that." },
-                { "clear",      "/BlockDB <WorldName> Clear\n&S" +
+                { "clear",      "&H/BlockDB <WorldName> Clear\n&S" +
                                 "Clears all recorded data from the BlockDB. Erases all changes from memory and deletes the .fbdb file." },
-                { "limit",      "/BlockDB <WorldName> Limit <#>|None\n&S" +
+                { "limit",      "&H/BlockDB <WorldName> Limit <#>|None\n&S" +
                                 "Sets the limit on the maximum number of changes to store for a given world. " +
                                 "Oldest changes will be deleted once the limit is reached. " +
                                 "Put \"None\" to disable limiting. " +
                                 "Unless a Limit or a TimeLimit it specified, all changes will be stored indefinitely." },
-                { "timelimit",  "/BlockDB <WorldName> TimeLimit <Time>/None\n&S" +
+                { "timelimit",  "&H/BlockDB <WorldName> TimeLimit <Time>/None\n&S" +
                                 "Sets the age limit for stored changes. " +
                                 "Oldest changes will be deleted once the limit is reached. " +
                                 "Use \"None\" to disable time limiting. " +
                                 "Unless a Limit or a TimeLimit it specified, all changes will be stored indefinitely." },
-                { "preload",    "/BlockDB <WorldName> Preload On/Off\n&S" +
+                { "preload",    "&H/BlockDB <WorldName> Preload On/Off\n&S" +
                                 "Enabled or disables preloading. When BlockDB is preloaded, all changes are stored in memory as well as in a file. " +
                                 "This reduces CPU and disk use for busy maps, but may not be suitable for large maps due to increased memory use." },
             },
@@ -1380,7 +1380,7 @@ namespace fCraft {
                                 if( target != null ) {
                                     target.Message( "You were removed from the access blacklist of world {0}&S by {1}&S. " +
                                                     "You are still NOT allowed to join (by rank).",
-                                                    player.ClassyName, world.ClassyName );
+                                                    world.ClassyName, player.ClassyName );
                                 }
                             }
                             Logger.Log( LogType.UserActivity,
@@ -1450,7 +1450,7 @@ namespace fCraft {
                                 if( target != null ) {
                                     target.Message( "You were removed from the access whitelist of world {0}&S by {1}&S. " +
                                                     "You are still allowed to join (by rank).",
-                                                    player.ClassyName, world.ClassyName );
+                                                    world.ClassyName, player.ClassyName );
                                 }
                             } else {
                                 player.Message( "{0}&S is no longer allowed to access {1}",
@@ -1623,7 +1623,7 @@ namespace fCraft {
                                 if( target != null ) {
                                     target.Message( "You were removed from the build blacklist of world {0}&S by {1}&S. " +
                                                     "You are still NOT allowed to build (by rank).",
-                                                    player.ClassyName, world.ClassyName );
+                                                    world.ClassyName, player.ClassyName );
                                 }
                             }
                             Logger.Log( LogType.UserActivity,
@@ -1693,7 +1693,7 @@ namespace fCraft {
                                 if( target != null ) {
                                     target.Message( "You were removed from the build whitelist of world {0}&S by {1}&S. " +
                                                     "You are still allowed to build (by rank).",
-                                                    player.ClassyName, world.ClassyName );
+                                                    world.ClassyName, player.ClassyName );
                                 }
                             } else {
                                 player.Message( "{0}&S is no longer allowed to build in {1}",

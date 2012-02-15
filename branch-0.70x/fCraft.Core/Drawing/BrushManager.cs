@@ -54,12 +54,12 @@ namespace fCraft.Drawing {
 
         public static void RegisterBrush( [NotNull] IBrushFactory factory ) {
             if( factory == null ) throw new ArgumentNullException( "factory" );
-            string helpString = String.Format( "{0} brush: {1}",
+            string helpString = String.Format( "&S{0} brush: {1}",
                                                factory.Name, factory.Help );
             string lowerName = factory.Name.ToLower();
             BrushFactories.Add( lowerName, factory );
             if( factory.Aliases != null ) {
-                helpString += "Aliases: " + factory.Aliases.JoinToString();
+                helpString += " Aliases: &H" + factory.Aliases.JoinToString();
                 foreach( string alias in factory.Aliases ) {
                     BrushAliases.Add( alias.ToLower(), factory );
                 }
