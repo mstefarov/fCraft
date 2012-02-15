@@ -205,7 +205,7 @@ namespace fCraft {
             }
 
             string name;
-            while( (name = cmd.Next()) != null ) {
+            while( ( name = cmd.Next() ) != null ) {
                 if( name.Length < 2 ) continue;
 
                 if( name.StartsWith( "+" ) ) {
@@ -214,10 +214,15 @@ namespace fCraft {
 
                     // prevent players from whitelisting themselves to bypass protection
                     if( !player.Info.Rank.AllowSecurityCircumvention && player.Info == info ) {
-                        if( !zone.Controller.Check( info ) ) {
-                            player.Message( "You must be {0}+&S to add yourself to this zone's whitelist.",
-                                            zone.Controller.MinRank.ClassyName );
-                            continue;
+                        switch( zone.Controller.CheckDetailed( info ) ) {
+                            case SecurityCheckResult.BlackListed:
+                                player.Message( "You are not allowed to remove yourself from the blacklist of zone {0}",
+                                                zone.ClassyName );
+                                continue;
+                            case SecurityCheckResult.RankTooLow:
+                                player.Message( "You must be {0}+&S to add yourself to the whitelist of zone {1}",
+                                                zone.Controller.MinRank.ClassyName, zone.ClassyName );
+                                continue;
                         }
                     }
 
