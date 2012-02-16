@@ -78,7 +78,6 @@
     <EmbeddedResource Include="UpdateWindow.resx">
       <DependentUpon>UpdateWindow.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="Properties\app.config" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

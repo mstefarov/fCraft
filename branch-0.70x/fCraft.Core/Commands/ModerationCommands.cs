@@ -883,8 +883,7 @@ namespace fCraft {
                         } else {
                             player.Confirm( cmd,
                                             "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
-                                            target.Name,
-                                            world );
+                                            target.ClassyName, world.ClassyName );
                         }
                     } else {
                         player.Message( "Neither you nor {0}&S are allowed to join world {1}",
@@ -948,8 +947,7 @@ namespace fCraft {
                     } else {
                         player.Confirm( cmd,
                                         "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
-                                        target.Name,
-                                        world );
+                                        target.ClassyName, world.ClassyName );
                     }
                 } else {
                     player.Message( "Neither you nor {0}&S are allowed to join world {1}",
