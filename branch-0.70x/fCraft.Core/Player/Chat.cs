@@ -17,7 +17,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
-            var recepientList = Server.Players.NotIgnoring( player );
+            var recipientList = Server.Players.NotIgnoring( player );
 
             string formattedMessage = String.Format( "{0}&F: {1}",
                                                      player.ClassyName,
@@ -27,7 +27,7 @@ namespace fCraft {
                                               rawMessage,
                                               formattedMessage,
                                               ChatMessageType.Global,
-                                              recepientList );
+                                              recipientList );
 
             if( !SendInternal( e ) ) return false;
 
@@ -48,8 +48,8 @@ namespace fCraft {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
-            var recepientList = playerWorld.Players.NotIgnoring( player )
-                                                   .Union( player );
+            var recipientList = playerWorld.Players
+                                           .NotIgnoring( player );
 
             string formattedMessage = String.Format( "({0}&F){1}: {2}",
                                                      playerWorld.ClassyName,
@@ -60,7 +60,7 @@ namespace fCraft {
                                               rawMessage,
                                               formattedMessage,
                                               ChatMessageType.World,
-                                              recepientList );
+                                              recipientList );
 
             if( !SendInternal( e ) ) return false;
 
@@ -80,7 +80,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
-            var recepientList = Server.Players.NotIgnoring( player );
+            var recipientList = Server.Players.NotIgnoring( player );
 
             string formattedMessage = String.Format( "&M*{0} {1}",
                                                      player.Name,
@@ -90,7 +90,7 @@ namespace fCraft {
                                               rawMessage,
                                               formattedMessage,
                                               ChatMessageType.Me,
-                                              recepientList );
+                                              recipientList );
 
             if( !SendInternal( e ) ) return false;
 
@@ -102,7 +102,7 @@ namespace fCraft {
 
         /// <summary> Sends a private message (PM). Does NOT send a copy of the message to the sender. </summary>
         /// <param name="from"> Sender player. </param>
-        /// <param name="to"> Recepient player. </param>
+        /// <param name="to"> recipient player. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
         /// <exception cref="ArgumentNullException"> If from-player, to-player, or rawMessage is null. </exception>
@@ -110,7 +110,9 @@ namespace fCraft {
             if( from == null ) throw new ArgumentNullException( "from" );
             if( to == null ) throw new ArgumentNullException( "to" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-            var recepientList = new[] { to };
+            var recipientList = new[] { to }
+                                    .Union( Server.Players.Spectating( from ) )
+                                    .Union( Server.Players.Spectating( to ) );
 
             string formattedMessage = String.Format( "&Pfrom {0}: {1}",
                                                      from.Name, rawMessage );
@@ -119,7 +121,7 @@ namespace fCraft {
                                               rawMessage,
                                               formattedMessage,
                                               ChatMessageType.PM,
-                                              recepientList );
+                                              recipientList );
 
             if( !SendInternal( e ) ) return false;
 
@@ -141,7 +143,10 @@ namespace fCraft {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
-            var recepientList = rank.Players.NotIgnoring( player ).Union( player );
+            var recipientList = rank.Players
+                                    .NotIgnoring( player )
+                                    .Union( player )
+                                    .Union( Server.Players.Spectating( player ) );
 
             string formattedMessage = String.Format( "&P({0}&P){1}: {2}",
                                                      rank.ClassyName,
@@ -152,7 +157,7 @@ namespace fCraft {
                                               rawMessage,
                                               formattedMessage,
                                               ChatMessageType.Rank,
-                                              recepientList );
+                                              recipientList );
 
             if( !SendInternal( e ) ) return false;
 
@@ -172,7 +177,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
-            var recepientList = Server.Players.NotIgnoring( player );
+            var recipientList = Server.Players.NotIgnoring( player );
 
             string formattedMessage = Color.Say + rawMessage;
 
@@ -180,7 +185,7 @@ namespace fCraft {
                                               rawMessage,
                                               formattedMessage,
                                               ChatMessageType.Say,
-                                              recepientList );
+                                              recipientList );
 
             if( !SendInternal( e ) ) return false;
 
@@ -199,9 +204,10 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
-            var recepientList = Server.Players.Can( Permission.ReadStaffChat )
-                                              .NotIgnoring( player )
-                                              .Union( player );
+            var recipientList = Server.Players
+                                      .Can( Permission.ReadStaffChat )
+                                      .NotIgnoring( player )
+                                      .Union( player );
 
             string formattedMessage = String.Format( "&P(staff){0}&P: {1}",
                                                      player.ClassyName,
@@ -211,7 +217,7 @@ namespace fCraft {
                                               rawMessage,
                                               formattedMessage,
                                               ChatMessageType.Staff,
-                                              recepientList );
+                                              recipientList );
 
             if( !SendInternal( e ) ) return false;
 
@@ -226,15 +232,15 @@ namespace fCraft {
             SendingEvent.Raise( e );
             if( e.Cancel ) return false;
 
-            int recepients = e.RecepientList.Message( e.FormattedMessage );
+            int recipients = e.recipientList.Message( e.FormattedMessage );
 
             // Only increment the MessagesWritten count if someone other than
-            // the player was on the recepient list.
-            if( recepients > 1 || (recepients == 1 && e.RecepientList.First() != e.Player) ) {
+            // the player was on the recipient list.
+            if( recipients > 1 || (recipients == 1 && e.recipientList.First() != e.Player) ) {
                 e.Player.Info.ProcessMessageWritten();
             }
 
-            SentEvent.Raise( new ChatSentEventArgs( e, recepients ) );
+            SentEvent.Raise( new ChatSentEventArgs( e, recipients ) );
             return true;
         }
 
@@ -430,14 +436,14 @@ namespace fCraft {
 namespace fCraft.Events {
 
     /// <summary> Provides data for Chat.Sending event. Cancellable.
-    /// FormattedMessage and RecepientList properties may be changed. </summary>
+    /// FormattedMessage and recipientList properties may be changed. </summary>
     public sealed class ChatSendingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
         internal ChatSendingEventArgs( Player player, string message, string formattedMessage,
-                                       ChatMessageType messageType, IEnumerable<Player> recepientList ) {
+                                       ChatMessageType messageType, IEnumerable<Player> recipientList ) {
             Player = player;
             Message = message;
             MessageType = messageType;
-            RecepientList = recepientList;
+            recipientList = recipientList;
             FormattedMessage = formattedMessage;
         }
 
@@ -445,27 +451,27 @@ namespace fCraft.Events {
         public string Message { get; private set; }
         public string FormattedMessage { get; set; }
         public ChatMessageType MessageType { get; private set; }
-        public IEnumerable<Player> RecepientList { get; set; }
+        public IEnumerable<Player> recipientList { get; set; }
         public bool Cancel { get; set; }
     }
 
 
     /// <summary> Provides data for Chat.Sent event. Immutable. </summary>
     public sealed class ChatSentEventArgs : EventArgs, IPlayerEvent {
-        internal ChatSentEventArgs( ChatSendingEventArgs e, int recepientCount ) {
+        internal ChatSentEventArgs( ChatSendingEventArgs e, int recipientCount ) {
             Player = e.Player;
             Message = e.Message;
             MessageType = e.MessageType;
-            RecepientList = e.RecepientList;
+            recipientList = e.recipientList;
             FormattedMessage = e.FormattedMessage;
-            RecepientCount = recepientCount;
+            recipientCount = recipientCount;
         }
 
         public Player Player { get; private set; }
         public string Message { get; private set; }
         public string FormattedMessage { get; private set; }
         public ChatMessageType MessageType { get; private set; }
-        public IEnumerable<Player> RecepientList { get; private set; }
-        public int RecepientCount { get; private set; }
+        public IEnumerable<Player> recipientList { get; private set; }
+        public int recipientCount { get; private set; }
     }
 }

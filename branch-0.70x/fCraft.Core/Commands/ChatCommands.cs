@@ -119,6 +119,11 @@ namespace fCraft {
                 PlayerInfo targetInfo = PlayerDB.FindByPartialNameOrPrintMatches( player, name );
                 if( targetInfo == null ) return;
 
+                if( targetInfo == player.Info ) {
+                    player.Message( "You cannot ignore yourself." );
+                    return;
+                }
+
                 if( player.Ignore( targetInfo ) ) {
                     player.MessageNow( "You are now ignoring {0}", targetInfo.ClassyName );
                 } else {
