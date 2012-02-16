@@ -120,7 +120,7 @@ namespace fCraft {
                 if( targetInfo == null ) return;
 
                 if( targetInfo == player.Info ) {
-                    player.Message( "You cannot ignore yourself." );
+                    player.MessageNow( "You cannot ignore yourself." );
                     return;
                 }
 

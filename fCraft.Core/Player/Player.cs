@@ -629,8 +629,9 @@ namespace fCraft {
             if( itemType == null ) throw new ArgumentNullException( "itemType" );
             if( items == null ) throw new ArgumentNullException( "items" );
 
-            string nameList = items.Take( MatchesToPrint ).JoinToString( ", ", p => p.ClassyName );
-            int count = items.Count();
+            IClassy[] itemsEnumerated = items.ToArray();
+            string nameList = itemsEnumerated.Take( MatchesToPrint ).JoinToString( ", ", p => p.ClassyName );
+            int count = itemsEnumerated.Length;
             if( count > MatchesToPrint ) {
                 Message( "More than {0} {1} matched: {2}",
                          count, itemType, nameList );

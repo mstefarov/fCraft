@@ -51,10 +51,10 @@ namespace fCraft {
              canQueue = true;
 
         Thread ioThread;
-        TcpClient client;
+        readonly TcpClient client;
         readonly NetworkStream stream;
-        PacketReader reader;
-        PacketWriter writer;
+        readonly PacketReader reader;
+        readonly PacketWriter writer;
         readonly ConcurrentQueue<Packet> outputQueue = new ConcurrentQueue<Packet>(),
                                          priorityOutputQueue = new ConcurrentQueue<Packet>();
 

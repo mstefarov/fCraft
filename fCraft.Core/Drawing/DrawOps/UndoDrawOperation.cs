@@ -24,11 +24,7 @@ namespace fCraft.Drawing {
         /// <summary> General name of this type of draw operation. Should be same for all instances. </summary>
         public override string Name {
             get {
-                if( Redo ) {
-                    return "Redo";
-                } else {
-                    return "Undo";
-                }
+                return Redo ? "Redo" : "Undo";
             }
         }
 

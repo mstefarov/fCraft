@@ -1,6 +1,7 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using JetBrains.Annotations;
 
@@ -541,8 +542,9 @@ namespace fCraft {
             if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
             if( formatArgs.Length > 0 ) message = String.Format( message, formatArgs );
             int i = 0;
+            Player[] sourceEnumerated = source.ToArray();
             foreach( Packet packet in LineWrapper.Wrap( String.Format( message, formatArgs ) ) ) {
-                foreach( Player player in source ) {
+                foreach( Player player in sourceEnumerated ) {
                     if( player == except ) continue;
                     player.Send( packet );
                     i++;
@@ -567,8 +569,9 @@ namespace fCraft {
             if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
             if( formatArgs.Length > 0 ) message = String.Format( message, formatArgs );
             int i = 0;
+            Player[] sourceEnumerated = source.ToArray();
             foreach( Packet packet in LineWrapper.Wrap( String.Format( message, formatArgs ) ) ) {
-                foreach( Player player in source ) {
+                foreach( Player player in sourceEnumerated ) {
                     player.Send( packet );
                     i++;
                 }
@@ -587,15 +590,17 @@ namespace fCraft {
         /// <returns> Number of players who received the message. </returns>
         /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         [StringFormatMethod( "message" )]
-        public static int MessagePrefixed( [NotNull] this IEnumerable<Player> source, [NotNull] string prefix, [NotNull] string message, params object[] formatArgs ) {
+        public static int MessagePrefixed( [NotNull] this IEnumerable<Player> source, [NotNull] string prefix,
+                                           [NotNull] string message, params object[] formatArgs ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( prefix == null ) throw new ArgumentNullException( "prefix" );
             if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
             if( formatArgs.Length > 0 ) message = String.Format( message, formatArgs );
             int i = 0;
+            Player[] sourceEnumerated = source.ToArray();
             foreach( Packet packet in LineWrapper.WrapPrefixed( prefix, String.Format( message, formatArgs ) ) ) {
-                foreach( Player player in source ) {
+                foreach( Player player in sourceEnumerated ) {
                     player.Send( packet );
                     i++;
                 }

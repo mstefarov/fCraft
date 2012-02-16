@@ -17,7 +17,7 @@ namespace fCraft {
         /// <summary> The current release information of this version/revision. </summary>
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             700,
-            1445,
+            1451,
             new DateTime( 2011, 12, 28, 11, 15, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.Dev
@@ -25,24 +25,27 @@ namespace fCraft {
             | ReleaseFlags.Dev
 #endif
  );
-        /// <summary> The current fCraft user agent. </summary>
-        public static string UserAgent {
-            get { return "fCraft " + CurrentRelease.VersionString; }
-        }
+
+        /// <summary> User-agent value used for HTTP requests (heartbeat, updater, external IP check, etc). </summary>
+        public static string UserAgent { get; set; }
 
         /// <summary> The latest stable branch/version of fCraft. </summary>
-        public const string LatestStable = "0.612_r1306";
+        public const string LatestStable = "0.615_r1444";
 
-        /// <summary> Url to update fCraft from. </summary>
+        /// <summary> Url to update fCraft from. Use "{0}" as a placeholder for CurrentRelease.Version.Revision </summary>
         public static string UpdateUrl { get; set; }
+
+        /// <summary> Amount of time in milliseconds before the updater will consider the connection dead.
+        /// Default: 4000ms </summary>
+        public static int UpdateCheckTimeout { get; set; }
+
 
         static Updater() {
             UpdateCheckTimeout = 4000;
             UpdateUrl = "http://www.fcraft.net/UpdateCheck.php?r={0}";
+            UserAgent = "fCraft " + CurrentRelease.VersionString;
         }
 
-        /// <summary> Amount of time in milliseconds before the updater will consider the connection dead. </summary>
-        public static int UpdateCheckTimeout { get; set; }
 
         /// <summary> Checks fCraft.net for updated versions of fCraft. </summary>
         /// <returns></returns>
@@ -141,12 +144,16 @@ namespace fCraft {
                 return new UpdaterResult( false, null, new ReleaseInfo[0] );
             }
         }
-        internal UpdaterResult( bool updateAvailable, Uri downloadUri, IEnumerable<ReleaseInfo> releases ) {
+
+        internal UpdaterResult( bool updateAvailable, [NotNull] Uri downloadUri, [NotNull] ReleaseInfo[] releases ) {
+            if( downloadUri == null ) throw new ArgumentNullException( "downloadUri" );
+            if( releases == null ) throw new ArgumentNullException( "releases" );
             UpdateAvailable = updateAvailable;
             DownloadUri = downloadUri;
             History = releases.OrderByDescending( r => r.Version.Build ).ToArray();
             LatestRelease = releases.FirstOrDefault();
         }
+
         /// <summary> Whether or not an update for fCraft is available for download. </summary>
         public bool UpdateAvailable { get; private set; }
         /// <summary> Url to download the update from. </summary>

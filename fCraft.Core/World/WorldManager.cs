@@ -155,6 +155,7 @@ namespace fCraft {
                     string errorMsg = "WorldManager.LoadWorldList: worlds.xml is not properly formatted: " + ex.Message;
                     Logger.LogAndReportCrash( "World list failed to load", "fCraft",
                                               new MisconfigurationException( errorMsg, ex ), true );
+                    return false;
 
                 } catch( Exception ex ) {
                     Logger.LogAndReportCrash( "World list failed to load", "fCraft", ex, true );
@@ -175,11 +176,7 @@ namespace fCraft {
                     newMainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
                 }
 
-                // if there is no default world still, die.
-                if( newMainWorld == null ) {
-                    throw new Exception( "Could not create any worlds." );
-
-                } else if( newMainWorld.AccessSecurity.HasRestrictions ) {
+                if( newMainWorld.AccessSecurity.HasRestrictions ) {
                     Logger.Log( LogType.Warning,
                                 "Server.LoadWorldList: Main world cannot have any access restrictions. " +
                                 "Access permission for \"{0}\" has been reset.",

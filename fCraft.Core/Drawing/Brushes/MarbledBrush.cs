@@ -109,10 +109,10 @@ namespace fCraft.Drawing {
         }
 
 
-        public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation state ) {
+        public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation op ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
-            if( state == null ) throw new ArgumentNullException( "state" );
+            if( op == null ) throw new ArgumentNullException( "op" );
 
             List<Block> blocks = new List<Block>();
             List<int> blockRatios = new List<int>();

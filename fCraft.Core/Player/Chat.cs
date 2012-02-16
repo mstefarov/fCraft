@@ -232,11 +232,11 @@ namespace fCraft {
             SendingEvent.Raise( e );
             if( e.Cancel ) return false;
 
-            int recipients = e.recipientList.Message( e.FormattedMessage );
+            int recipients = e.RecipientList.Message( e.FormattedMessage );
 
             // Only increment the MessagesWritten count if someone other than
             // the player was on the recipient list.
-            if( recipients > 1 || (recipients == 1 && e.recipientList.First() != e.Player) ) {
+            if( recipients > 1 || (recipients == 1 && e.RecipientList.First() != e.Player) ) {
                 e.Player.Info.ProcessMessageWritten();
             }
 
@@ -443,7 +443,7 @@ namespace fCraft.Events {
             Player = player;
             Message = message;
             MessageType = messageType;
-            recipientList = recipientList;
+            RecipientList = recipientList;
             FormattedMessage = formattedMessage;
         }
 
@@ -451,7 +451,7 @@ namespace fCraft.Events {
         public string Message { get; private set; }
         public string FormattedMessage { get; set; }
         public ChatMessageType MessageType { get; private set; }
-        public IEnumerable<Player> recipientList { get; set; }
+        public IEnumerable<Player> RecipientList { get; set; }
         public bool Cancel { get; set; }
     }
 
@@ -462,16 +462,16 @@ namespace fCraft.Events {
             Player = e.Player;
             Message = e.Message;
             MessageType = e.MessageType;
-            recipientList = e.recipientList;
+            RecipientList = e.RecipientList;
             FormattedMessage = e.FormattedMessage;
-            recipientCount = recipientCount;
+            RecipientCount = recipientCount;
         }
 
         public Player Player { get; private set; }
         public string Message { get; private set; }
         public string FormattedMessage { get; private set; }
         public ChatMessageType MessageType { get; private set; }
-        public IEnumerable<Player> recipientList { get; private set; }
-        public int recipientCount { get; private set; }
+        public IEnumerable<Player> RecipientList { get; private set; }
+        public int RecipientCount { get; private set; }
     }
 }

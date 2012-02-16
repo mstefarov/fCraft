@@ -57,10 +57,10 @@ namespace fCraft.Drawing {
         /// If any are given, these parameters should generally replace any stored configuration. </param>
         /// <param name="op"> DrawOperation that will be using this brush. </param>
         /// <returns> A newly-made brush, or null if there was some problem with parameters/permissions. </returns>
-        public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation state ) {
+        public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation op ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
-            if( state == null ) throw new ArgumentNullException( "state" );
+            if( op == null ) throw new ArgumentNullException( "op" );
             Block block = Block.Undefined,
                   altBlock = Block.Undefined;
 
@@ -126,9 +126,9 @@ namespace fCraft.Drawing {
         /// <param name="player"> Player who started the DrawOperation. </param>
         /// <param name="op"> DrawOperation that will be using this brush. </param>
         /// <returns> Whether this brush instance has successfully began or not. </returns>
-        public bool Begin( Player player, DrawOperation state ) {
+        public bool Begin( Player player, DrawOperation op ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( state == null ) throw new ArgumentNullException( "state" );
+            if( op == null ) throw new ArgumentNullException( "op" );
             if( Block == Block.Undefined ) {
                 if( player.LastUsedBlockType == Block.Undefined ) {
                     player.Message( "Cannot deduce desired block. Click a block or type out the block name." );

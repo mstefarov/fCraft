@@ -1,6 +1,5 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
-using JetBrains.Annotations;
 
 namespace fCraft.Events {
     /// <summary> An EventArgs for an event that can be cancelled. </summary>
