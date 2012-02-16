@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 
 // Miscallaneous utilities
 namespace fCraft {
+    /// <summary> Provides methods JoinToString/JoinToClassyString methods
+    /// for merging lists and enumerations into strings. </summary>
     public static class EnumerableUtil {
         /// <summary> Joins all items in a collection into one string separated with commas and spaces (", "). </summary>
         /// <param name="items"> Sequence of items to join. ToString() is called on each item. </param>
@@ -339,21 +341,23 @@ namespace fCraft {
 
     /// <summary> Provides utility methods for working with enumerations. </summary>
     public static class EnumUtil {
-        /// <summary> Attempts to parse an enumeration </summary>
-        /// <typeparam name="TEnum"></typeparam>
-        /// <param name="value"></param>
-        /// <param name="output"></param>
-        /// <param name="ignoreCase"></param>
-        /// <returns></returns>
+        /// <summary> Attempts to parse an enumeration.
+        /// Only accepts explicitly enumerated names/values, not just any number. </summary>
+        /// <typeparam name="TEnum"> Type of enumeration to parse. </typeparam>
+        /// <param name="value"> Raw string value to parse. </param>
+        /// <param name="output"> Parsed enumeration. </param>
+        /// <param name="ignoreCase"> Whether parsing should be case-insensitive. </param>
+        /// <returns> True if parsing succeeded, otherwise false. </returns>
         public static bool TryParse<TEnum>( [NotNull] string value, out TEnum output, bool ignoreCase ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             try {
                 output = (TEnum)Enum.Parse( typeof( TEnum ), value, ignoreCase );
                 return Enum.IsDefined( typeof( TEnum ), output );
             } catch( ArgumentException ) {
-                output = default( TEnum );
-                return false;
+            } catch( OverflowException ) {
             }
+            output = default( TEnum );
+            return false;
         }
     }
 }

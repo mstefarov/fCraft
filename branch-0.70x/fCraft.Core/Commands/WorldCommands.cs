@@ -844,7 +844,7 @@ namespace fCraft {
             }
 
             // Check map dimensions
-            const string dimensionRecommendation = "Dimensions must be between 16 and 2047. " +
+            const string dimensionRecommendation = "Dimensions must be between 16 and 2048. " +
                                                    "Recommended values: 16, 32, 64, 128, 256, 512, and 1024.";
             if( !Map.IsValidDimension( mapWidth ) ) {
                 player.Message( "Cannot make map with width {0}. {1}", mapWidth, dimensionRecommendation );
@@ -903,6 +903,7 @@ namespace fCraft {
             } else {
                 if( cmd.HasNext ) {
                     CdGenerate.PrintUsage( player );
+                    player.Message( "Hint: If filename contains spaces, enclose it in quotes (\")" );
                     return;
                 }
                 // saving to file
