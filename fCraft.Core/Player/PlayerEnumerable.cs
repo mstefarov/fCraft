@@ -483,11 +483,50 @@ namespace fCraft {
         #endregion
 
 
+        #region Spectate
+
+
+        /// <summary> Filters a collection of players, leaving only those who are spectating the given player. </summary>
+        /// <param name="source"> Original collection of players. Will not get modified. </param>
+        /// <param name="player"> Player who is supposed to be spectated. </param>
+        /// <returns> Filtered collection of players. </returns>
+        /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
+        [NotNull]
+        public static IEnumerable<Player> Spectating( [NotNull] this IEnumerable<Player> source, [NotNull] Player player ) {
+            if( source == null ) throw new ArgumentNullException( "source" );
+            if( player == null ) throw new ArgumentNullException( "player" );
+            foreach( Player otherPlayer in source ) {
+                if( otherPlayer.SpectatedPlayer == player ) {
+                    yield return otherPlayer;
+                }
+            }
+        }
+
+
+        /// <summary> Filters a collection of players, leaving only those who are NOT spectating the given player. </summary>
+        /// <param name="source"> Original collection of players. Will not get modified. </param>
+        /// <param name="player"> Player who is supposed to be NOT spectated. </param>
+        /// <returns> Filtered collection of players. </returns>
+        /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
+        [NotNull]
+        public static IEnumerable<Player> NotSpectating( [NotNull] this IEnumerable<Player> source, [NotNull] Player player ) {
+            if( source == null ) throw new ArgumentNullException( "source" );
+            if( player == null ) throw new ArgumentNullException( "player" );
+            foreach( Player otherPlayer in source ) {
+                if( otherPlayer.SpectatedPlayer != player ) {
+                    yield return otherPlayer;
+                }
+            }
+        }
+
+        #endregion
+
+
         #region Messaging
 
         /// <summary> Formats and broadcasts a message. </summary>
         /// <param name="source"> List of players who will receive the message. </param>
-        /// <param name="except"> Player to exclude from the recepient list. </param>
+        /// <param name="except"> Player to exclude from the recipient list. </param>
         /// <param name="message"> String/message to send. </param>
         /// <param name="formatArgs"> Format parameters. Same semantics as String.Format </param>
         /// <returns> Number of players who received the message. </returns>
@@ -612,7 +651,7 @@ namespace fCraft {
 
         /// <summary> Broadcasts a packet with normal priority. </summary>
         /// <param name="source"> List of players who will receive the packet. </param>
-        /// <param name="except"> Player to exclude from the recepient list. May be null. </param>
+        /// <param name="except"> Player to exclude from the recipient list. May be null. </param>
         /// <param name="packet"> Packet to send. </param>
         /// <returns> Number of players who received the packet. </returns>
         /// <exception cref="ArgumentNullException"> If source is null. </exception>
@@ -646,7 +685,7 @@ namespace fCraft {
 
         /// <summary> Broadcasts a packet with low priority. </summary>
         /// <param name="source"> List of players who will receive the packet. </param>
-        /// <param name="except"> Player to exclude from the recepient list. May be null. </param>
+        /// <param name="except"> Player to exclude from the recipient list. May be null. </param>
         /// <param name="packet"> Packet to send. </param>
         /// <returns> Number of players who received the packet. </returns>
         /// <exception cref="ArgumentNullException"> If source is null. </exception>

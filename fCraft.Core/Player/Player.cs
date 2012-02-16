@@ -203,6 +203,7 @@ namespace fCraft {
                 } else {
                     MessageNow( "There is currently nothing to cancel." );
                 }
+                SendToSpectators( rawMessage );
                 return;
             }
 
@@ -344,7 +345,6 @@ namespace fCraft {
                             }
                             if( !target.IsIgnoring( Info ) && !target.IsDeaf ) {
                                 Chat.SendPM( this, target, messageText );
-                                SendToSpectators( "to {0}&F: {1}", target.ClassyName, messageText );
                             }
 
                             if( !CanSee( target ) ) {
@@ -749,6 +749,7 @@ namespace fCraft {
         /// false is the player has already been ignored previously. </returns>
         public bool Ignore( [NotNull] PlayerInfo other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
+            if( other == Info ) PlayerOpException.ThrowCannotTargetSelf( this, Info, "ignore" );
             lock( ignoreLock ) {
                 if( !ignoreList.Contains( other ) ) {
                     ignoreList.Add( other );
