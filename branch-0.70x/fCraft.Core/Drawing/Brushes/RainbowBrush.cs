@@ -39,7 +39,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation state ) {
+        public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation op ) {
             return this;
         }
 
@@ -61,9 +61,9 @@ namespace fCraft.Drawing {
             get { return Instance; }
         }
 
-        public bool Begin( Player player, DrawOperation state ) {
+        public bool Begin( Player player, DrawOperation op ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( state == null ) throw new ArgumentNullException( "state" );
+            if( op == null ) throw new ArgumentNullException( "op" );
             return true;
         }
 

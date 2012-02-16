@@ -856,7 +856,7 @@ namespace fCraft {
                 player.Message( "Cannot make map with height {0}. {1}", mapHeight, dimensionRecommendation );
                 return;
             }
-            long volume = (long)mapWidth * (long)mapLength * (long)mapHeight;
+            long volume = (long)mapWidth * mapLength * mapHeight;
             if( volume > Int32.MaxValue ) {
                 player.Message( "Map volume may not exceed {0}", Int32.MaxValue );
                 return;
@@ -2311,8 +2311,10 @@ namespace fCraft {
             if( param == null ) {
                 player.Message( "Main world is {0}", WorldManager.MainWorld.ClassyName );
                 var mainedRanks = RankManager.Ranks
-                                             .Where( r => r.MainWorld != null && r.MainWorld != WorldManager.MainWorld );
-                if( mainedRanks.Any() ) {
+                                             .Where( r => r.MainWorld != null && r.MainWorld != WorldManager.MainWorld )
+                                             .ToArray();
+
+                if( mainedRanks.Length > 0 ) {
                     player.Message( "Rank mains: {0}",
                                     mainedRanks.JoinToString( r => String.Format( "{0}&S for {1}&S",
                                                                                   r.MainWorld.ClassyName,
