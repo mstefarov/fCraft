@@ -1095,15 +1095,9 @@ namespace fCraft {
                 return;
             }
 
-            if( target.World == null ) {
-                // Chances of this happening are miniscule
-                player.Message( "Player {0}&S is not in any world." );
-                return;
-            } else {
-                player.Message( "Player {0}&S is on world {1}&S:",
-                                target.ClassyName,
-                                target.World.ClassyName );
-            }
+            player.Message( "Player {0}&S is on world {1}&S:",
+                            target.ClassyName,
+                            target.World.ClassyName );
 
             Vector3I targetBlockCoords = target.Position.ToBlockCoords();
             player.Message( "{0}{1} - {2}",

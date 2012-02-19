@@ -555,10 +555,6 @@ namespace fCraft {
                     }
                 }
             }
-            // update capitalization of player's name
-            if( !Info.Name.Equals( givenName, StringComparison.Ordinal ) ) {
-                Info.Name = givenName;
-            }
 
 
             // Check if player is banned

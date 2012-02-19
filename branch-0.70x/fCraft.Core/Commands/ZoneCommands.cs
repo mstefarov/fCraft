@@ -1,5 +1,6 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Linq;
 using fCraft.MapConversion;
 
 namespace fCraft {
@@ -186,7 +187,9 @@ namespace fCraft {
             Permissions = new[] { Permission.ManageZones },
             Usage = "/ZEdit ZoneName [RankName] [+IncludedName] [-ExcludedName]",
             Help = "Allows editing the zone permissions after creation. " +
-                   "You can change the rank restrictions, and include or exclude individual players.",
+                   "You can change the rank restrictions, and include or exclude individual players. "+
+                   "To include individuals, use \"+PlayerName\". To exclude, use \"-PlayerName\". " +
+                   "To clear whitelist, use \"-*\". To clear blacklist use \"+*\"",
             Handler = ZoneEditHandler
         };
 
@@ -204,12 +207,46 @@ namespace fCraft {
                 return;
             }
 
-            string name;
-            while( ( name = cmd.Next() ) != null ) {
-                if( name.Length < 2 ) continue;
+            string nextToken;
+            while( ( nextToken = cmd.Next() ) != null ) {
+                // Clear whitelist
+                if( nextToken.Equals( "-*" ) ) {
+                    PlayerInfo[] oldWhitelist = zone.Controller.ExceptionList.Included.ToArray();
+                    if( oldWhitelist.Length > 0 ) {
+                        zone.Controller.ResetIncludedList();
+                        player.Message( "Whitelist of zone {0}&S cleared: {1}",
+                                        zone.ClassyName, oldWhitelist.JoinToClassyString() );
+                        Logger.Log( LogType.UserActivity,
+                                    "Player {0} cleared whitelist of zone {1} on world {2}: {3}",
+                                    player.Name, zone.Name, player.World.Name,
+                                    oldWhitelist.JoinToString( pi => pi.Name ) );
+                    } else {
+                        player.Message( "Whitelist of zone {0}&S is empty.",
+                                        zone.ClassyName );
+                    }
+                    continue;
+                }
 
-                if( name.StartsWith( "+" ) ) {
-                    PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, name.Substring( 1 ) );
+                // Clear blacklist
+                if( nextToken.Equals( "+*" ) ) {
+                    PlayerInfo[] oldBlacklist = zone.Controller.ExceptionList.Excluded.ToArray();
+                    if( oldBlacklist.Length > 0 ) {
+                        zone.Controller.ResetExcludedList();
+                        player.Message( "Blacklist of zone {0}&S cleared: {1}",
+                                        zone.ClassyName, oldBlacklist.JoinToClassyString() );
+                        Logger.Log( LogType.UserActivity,
+                                    "Player {0} cleared blacklist of zone {1} on world {2}: {3}",
+                                    player.Name, zone.Name, player.World.Name,
+                                    oldBlacklist.JoinToString( pi => pi.Name ) );
+                    } else {
+                        player.Message( "Blacklist of zone {0}&S is empty.",
+                                        zone.ClassyName );
+                    }
+                    continue;
+                }
+
+                if( nextToken.StartsWith( "+" ) ) {
+                    PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, nextToken.Substring( 1 ) );
                     if( info == null ) return;
 
                     // prevent players from whitelisting themselves to bypass protection
@@ -243,8 +280,8 @@ namespace fCraft {
                             break;
                     }
 
-                } else if( name.StartsWith( "-" ) ) {
-                    PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, name.Substring( 1 ) );
+                } else if( nextToken.StartsWith( "-" ) ) {
+                    PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, nextToken.Substring( 1 ) );
                     if( info == null ) return;
 
                     switch( zone.Controller.Exclude( info ) ) {
@@ -265,7 +302,7 @@ namespace fCraft {
                     }
 
                 } else {
-                    Rank minRank = RankManager.FindRank( name );
+                    Rank minRank = RankManager.FindRank( nextToken );
 
                     if( minRank != null ) {
                         // prevent players from lowering rank so bypass protection
@@ -283,7 +320,7 @@ namespace fCraft {
                             changesWereMade = true;
                         }
                     } else {
-                        player.MessageNoRank( name );
+                        player.MessageNoRank( nextToken );
                     }
                 }
 

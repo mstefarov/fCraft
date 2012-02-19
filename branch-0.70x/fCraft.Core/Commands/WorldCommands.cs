@@ -1292,7 +1292,9 @@ namespace fCraft {
             Usage = "/WAccess [WorldName [RankName]]",
             Help = "Shows access permission for player's current world. " +
                    "If optional WorldName parameter is given, shows access permission for another world. " +
-                   "If RankName parameter is also given, sets access permission for specified world.",
+                   "If RankName parameter is also given, sets access permission for specified world." +
+                   "To include individuals, use \"+PlayerName\" in place of rank. To exclude, use \"-PlayerName\". " +
+                   "To clear whitelist, use \"-*\". To clear blacklist use \"+*\"",
             Handler = WorldAccessHandler
         };
 
@@ -1314,12 +1316,14 @@ namespace fCraft {
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
             if( world == null ) return;
 
-
-            string name = cmd.Next();
-            if( name == null ) {
+            // If no parameters were given, print info
+            string nextToken = cmd.Next();
+            if( nextToken == null ) {
                 player.Message( world.AccessSecurity.GetDescription( world, "world", "accessed" ) );
                 return;
             }
+
+            // Deny adding access restrictions to main
             if( world == WorldManager.MainWorld ) {
                 player.Message( "The main world cannot have access restrictions." );
                 return;
@@ -1327,10 +1331,33 @@ namespace fCraft {
 
             bool changesWereMade = false;
             do {
-                if( name.Length < 2 ) continue;
+                // Clear whitelist
+                if( nextToken.Equals( "-*" ) ) {
+                    PlayerInfo[] oldWhitelist = world.AccessSecurity.ExceptionList.Included.ToArray();
+                    world.AccessSecurity.ResetIncludedList();
+                    player.Message( "Access whitelist of {0}&S cleared: {1}",
+                                    world.ClassyName, oldWhitelist.JoinToClassyString() );
+                    Logger.Log( LogType.UserActivity,
+                                "Player {0} cleared access whitelist of world {1}: {2}",
+                                player.Name, world.Name, oldWhitelist.JoinToString( pi => pi.Name ) );
+                    continue;
+                }
+
+                // Clear blacklist
+                if( nextToken.Equals( "+*" ) ) {
+                    PlayerInfo[] oldBlacklist = world.AccessSecurity.ExceptionList.Excluded.ToArray();
+                    world.AccessSecurity.ResetExcludedList();
+                    player.Message( "Access blacklist of {0}&S cleared: {1}",
+                                    world.ClassyName, oldBlacklist.JoinToClassyString() );
+                    Logger.Log( LogType.UserActivity,
+                                "Player {0} cleared access blacklist of world {1}: {2}",
+                                player.Name, world.Name, oldBlacklist.JoinToString( pi => pi.Name ) );
+                    continue;
+                }
+
                 // Whitelisting individuals
-                if( name.StartsWith( "+" ) ) {
-                    PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, name.Substring( 1 ) );
+                if( nextToken.StartsWith( "+" ) ) {
+                    PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, nextToken.Substring( 1 ) );
                     if( info == null ) return;
 
                     // prevent players from whitelisting themselves to bypass protection
@@ -1410,8 +1437,8 @@ namespace fCraft {
                     }
 
                     // Blacklisting individuals
-                } else if( name.StartsWith( "-" ) ) {
-                    PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, name.Substring( 1 ) );
+                } else if( nextToken.StartsWith( "-" ) ) {
+                    PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, nextToken.Substring( 1 ) );
                     if( info == null ) return;
 
                     if( world.AccessSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooHigh ||
@@ -1470,9 +1497,9 @@ namespace fCraft {
 
                     // Setting minimum rank
                 } else {
-                    Rank rank = RankManager.FindRank( name );
+                    Rank rank = RankManager.FindRank( nextToken );
                     if( rank == null ) {
-                        player.MessageNoRank( name );
+                        player.MessageNoRank( nextToken );
 
                     } else if( !player.Info.Rank.AllowSecurityCircumvention &&
                                world.AccessSecurity.MinRank > rank &&
@@ -1514,7 +1541,7 @@ namespace fCraft {
                                     player.Name, world.Name, world.AccessSecurity.MinRank.Name );
                     }
                 }
-            } while( (name = cmd.Next()) != null );
+            } while( (nextToken = cmd.Next()) != null );
 
             if( changesWereMade ) {
                 var playersWhoCantStay = world.Players.Where( p => !p.CanJoin( world ) );
@@ -1539,7 +1566,9 @@ namespace fCraft {
             Usage = "/WBuild [WorldName [RankName]]",
             Help = "Shows build permissions for player's current world. " +
                    "If optional WorldName parameter is given, shows build permission for another world. " +
-                   "If RankName parameter is also given, sets build permission for specified world.",
+                   "If RankName parameter is also given, sets build permission for specified world. " +
+                   "To include individuals, use \"+PlayerName\" in place of rank. To exclude, use \"-PlayerName\". " +
+                   "To clear whitelist, use \"-*\". To clear blacklist use \"+*\"",
             Handler = WorldBuildHandler
         };
 
@@ -1562,18 +1591,51 @@ namespace fCraft {
             if( world == null ) return;
 
 
-            string name = cmd.Next();
-            if( name == null ) {
+            string nextToken = cmd.Next();
+            if( nextToken == null ) {
                 player.Message( world.BuildSecurity.GetDescription( world, "world", "modified" ) );
                 return;
             }
 
             bool changesWereMade = false;
             do {
-                if( name.Length < 2 ) continue;
+                // Clear whitelist
+                if( nextToken.Equals( "-*" ) ) {
+                    PlayerInfo[] oldWhitelist = world.BuildSecurity.ExceptionList.Included.ToArray();
+                    if( oldWhitelist.Length > 0 ) {
+                        world.BuildSecurity.ResetIncludedList();
+                        player.Message( "Build whitelist of world {0}&S cleared: {1}",
+                                        world.ClassyName, oldWhitelist.JoinToClassyString() );
+                        Logger.Log( LogType.UserActivity,
+                                    "Player {0} cleared build whitelist of world {1}: {2}",
+                                    player.Name, world.Name, oldWhitelist.JoinToString( pi => pi.Name ) );
+                    } else {
+                        player.Message( "Build whitelist of world {0}&S is empty.",
+                                        world.ClassyName );
+                    }
+                    continue;
+                }
+
+                // Clear blacklist
+                if( nextToken.Equals( "+*" ) ) {
+                    PlayerInfo[] oldBlacklist = world.BuildSecurity.ExceptionList.Excluded.ToArray();
+                    if( oldBlacklist.Length > 0 ) {
+                        world.BuildSecurity.ResetExcludedList();
+                        player.Message( "Build blacklist of world {0}&S cleared: {1}",
+                                        world.ClassyName, oldBlacklist.JoinToClassyString() );
+                        Logger.Log( LogType.UserActivity,
+                                    "Player {0} cleared build blacklist of world {1}: {2}",
+                                    player.Name, world.Name, oldBlacklist.JoinToString( pi => pi.Name ) );
+                    } else {
+                        player.Message( "Build blacklist of world {0}&S is empty.",
+                                        world.ClassyName );
+                    }
+                    continue;
+                }
+
                 // Whitelisting individuals
-                if( name.StartsWith( "+" ) ) {
-                    PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, name.Substring( 1 ) );
+                if( nextToken.StartsWith( "+" ) ) {
+                    PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, nextToken.Substring( 1 ) );
                     if( info == null ) return;
 
                     // prevent players from whitelisting themselves to bypass protection
@@ -1653,8 +1715,8 @@ namespace fCraft {
                     }
 
                     // Blacklisting individuals
-                } else if( name.StartsWith( "-" ) ) {
-                    PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, name.Substring( 1 ) );
+                } else if( nextToken.StartsWith( "-" ) ) {
+                    PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, nextToken.Substring( 1 ) );
                     if( info == null ) return;
 
                     if( world.BuildSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooHigh ||
@@ -1713,9 +1775,9 @@ namespace fCraft {
 
                     // Setting minimum rank
                 } else {
-                    Rank rank = RankManager.FindRank( name );
+                    Rank rank = RankManager.FindRank( nextToken );
                     if( rank == null ) {
-                        player.MessageNoRank( name );
+                        player.MessageNoRank( nextToken );
                     } else if( !player.Info.Rank.AllowSecurityCircumvention &&
                                world.BuildSecurity.MinRank > rank &&
                                world.BuildSecurity.MinRank > player.Info.Rank ) {
@@ -1763,7 +1825,7 @@ namespace fCraft {
                                     player.Name, world.Name, world.BuildSecurity.MinRank.Name );
                     }
                 }
-            } while( (name = cmd.Next()) != null );
+            } while( (nextToken = cmd.Next()) != null );
 
             if( changesWereMade ) {
                 WorldManager.SaveWorldList();
