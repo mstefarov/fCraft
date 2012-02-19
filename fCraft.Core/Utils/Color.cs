@@ -415,6 +415,7 @@ namespace fCraft {
             return sb.ToString();
         }
 
+        /*
         static IRCColor ToIRCColor( string colorCode ) {
             string parsedColor = Parse( colorCode );
             if( String.IsNullOrEmpty( parsedColor ) ) {
@@ -426,6 +427,7 @@ namespace fCraft {
         static string Parse( IRCColor ircColor ) {
             return MinecraftToIRCColors.First( pair => pair.Value == ircColor ).Key;
         }
+        */
 
         #endregion
 

@@ -462,13 +462,21 @@ namespace fCraft {
 
         const string WoMAlertPrefix = "^detail.user.alert=";
 
+
         /// <summary> Sends a message as a WoM alert.
         /// Players who use World of Minecraft client will see this message on the left side of the screen.
         /// Other players will receive it as a normal message. </summary>
-        /// <param name="message"> Message to send. "System color" code ("&S") will be prepended. </param>
+        /// <param name="message"> A composite format string for the message. "System color" code ("&S") will be prepended. </param>
+        /// <param name="args"> An object array that contains zero or more objects to format. </param>
         /// <exception cref="ArgumentNullException"> If message is null. </exception>
-        public void MessageWoMAlert( [NotNull] string message ) {
+        /// <exception cref="FormatException"> If message format is invalid. </exception>
+        [StringFormatMethod( "message" )]
+        public void MessageWoMAlert( [NotNull] string message, [NotNull] params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
+            if( args == null ) throw new ArgumentNullException( "args" );
+            if( args.Length > 0 ) {
+                message = String.Format( message, args );
+            }
             if( this == Console ) {
                 Logger.LogToConsole( message );
             } else if( IsUsingWoM ) {
@@ -483,40 +491,6 @@ namespace fCraft {
         }
 
 
-        // ReSharper disable MethodOverloadWithOptionalParameter
-        /// <summary> Sends a message as a WoM alert.
-        /// Players who use World of Minecraft client will see this message on the left side of the screen.
-        /// Other players will receive it as a normal message. </summary>
-        /// <param name="message"> A composite format string for the message. "System color" code ("&S") will be prepended. </param>
-        /// <param name="args"> An object array that contains zero or more objects to format. </param>
-        /// <exception cref="ArgumentNullException"> If message is null. </exception>
-        /// <exception cref="FormatException"> If message format is invalid. </exception>
-        [StringFormatMethod( "message" )]
-        public void MessageWoMAlert( [NotNull] string message, [NotNull] params object[] args ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( args == null ) throw new ArgumentNullException( "args" );
-            MessageWoMAlert( String.Format( message, args ) );
-        }
-        // ReSharper restore MethodOverloadWithOptionalParameter
-
-
-        /// <summary> Sends a text message to this player.
-        /// If the message does not fit on one line, prefix ">" is prepended to wrapped line. </summary>
-        /// <param name="message"> Message to send. "System color" code ("&S") will be prepended. </param>
-        /// <exception cref="ArgumentNullException"> If message is null. </exception>
-        public void Message( [NotNull] string message ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( IsSuper ) {
-                Logger.LogToConsole( message );
-            } else {
-                foreach( Packet p in LineWrapper.Wrap( Color.Sys + message ) ) {
-                    Send( p );
-                }
-            }
-        }
-
-
-        // ReSharper disable MethodOverloadWithOptionalParameter
         /// <summary> Sends a text message to this player.
         /// If the message does not fit on one line, prefix ">" is prepended to wrapped line. </summary>
         /// <param name="message"> A composite format string for the message. "System color" code ("&S") will be prepended. </param>
@@ -527,9 +501,17 @@ namespace fCraft {
         public void Message( [NotNull] string message, [NotNull] params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
-            Message( String.Format( message, args ) );
+            if( args.Length > 0 ) {
+                message = String.Format( message, args );
+            }
+            if( IsSuper ) {
+                Logger.LogToConsole( message );
+            } else {
+                foreach( Packet p in LineWrapper.Wrap( Color.Sys + message ) ) {
+                    Send( p );
+                }
+            }
         }
-        // ReSharper restore MethodOverloadWithOptionalParameter
 
 
         /// <summary> Sends a text message to this player, prefixing each line. </summary>

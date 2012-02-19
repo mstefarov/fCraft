@@ -663,7 +663,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.EditPlayerDB },
             Help = "Allows direct editing of players' database records. List of editable properties: " +
-                   "BanReason, DisplayedName, KickReason, PreviousRank, RankChangeType, " +
+                   "BanReason, DisplayedName, KickReason, Name, PreviousRank, RankChangeType, " +
                    "RankReason, TimesKicked, TotalTime, UnbanReason. For detailed help see &H/Help SetInfo <Property>",
             HelpSections = new Dictionary<string, string>{
                 { "banreason",      "&H/SetInfo <PlayerName> BanReason <Reason>\n&S" +
@@ -676,6 +676,8 @@ namespace fCraft {
                 { "kickreason",     "&H/SetInfo <PlayerName> KickReason <Reason>\n&S" +
                                     "Changes reason of most-recent kick for the given player. " +
                                     "Original kick reason is preserved in the logs." },
+                { "name",           "&H/SetInfo <PlayerName> Name <Name>\n&S" +
+                                    "Changes capitalization of player's name." },
                 { "previousrank",   "&H/SetInfo <PlayerName> PreviousRank <RankName>\n&S" +
                                     "Changes previous rank held by the player. " +
                                     "To reset previous rank to \"none\" (will show as \"default\" in &H/Info&S), " +
@@ -713,19 +715,68 @@ namespace fCraft {
             if( info == null ) return;
 
             switch( propertyName.ToLower() ) {
-                case "timeskicked":
-                    int oldTimesKicked = info.TimesKicked;
-                    if( ValidateInt( valName, 0, 9999 ) ) {
-                        info.TimesKicked = Int32.Parse( valName );
-                        player.Message( "SetInfo: TimesKicked for {0}&S changed from {1} to {2}",
-                                        info.ClassyName,
-                                        oldTimesKicked,
-                                        info.TimesKicked );
-                        break;
-                    } else {
-                        player.Message( "SetInfo: TimesKicked value out of range (Acceptable value range: 0-9999)" );
-                        return;
+                case "banreason":
+                    if( valName.Length == 0 ) valName = null;
+                    if( SetPlayerInfoField( player, "BanReason", info, info.BanReason, valName ) ) {
+                        info.BanReason = valName;
                     }
+                    break;
+
+                case "displayedname":
+                    string oldDisplayedName = info.DisplayedName;
+                    if( valName.Length == 0 ) valName = null;
+                    if( valName == info.DisplayedName ) {
+                        if( valName == null ) {
+                            player.Message( "SetInfo: DisplayedName for {0} is not set.",
+                                            info.Name );
+                        } else {
+                            player.Message( "SetInfo: DisplayedName for {0} is already set to \"{1}&S\"",
+                                            info.Name,
+                                            valName );
+                        }
+                        break;
+                    }
+                    info.DisplayedName = valName;
+
+                    if( oldDisplayedName == null ) {
+                        player.Message( "SetInfo: DisplayedName for {0} set to \"{1}&S\"",
+                                        info.Name,
+                                        valName );
+                    } else if( valName == null ) {
+                        player.Message( "SetInfo: DisplayedName for {0} was reset (was \"{1}&S\")",
+                                        info.Name,
+                                        oldDisplayedName );
+                    } else {
+                        player.Message( "SetInfo: DisplayedName for {0} changed from \"{1}&S\" to \"{2}&S\"",
+                                        info.Name,
+                                        oldDisplayedName,
+                                        valName );
+                    }
+                    break;
+
+                case "kickreason":
+                    if( valName.Length == 0 ) valName = null;
+                    if( SetPlayerInfoField( player, "KickReason", info, info.LastKickReason, valName ) ) {
+                        info.LastKickReason = valName;
+                    }
+                    break;
+
+                case "name":
+                    if( valName.Equals( info.Name, StringComparison.OrdinalIgnoreCase ) ) {
+                        player.Message( "SetInfo: You may change capitalization of player's real name. " +
+                                        "If you'd like to make other changes to the way player's name is displayed, " +
+                                        "use &H/SetInfo <Name> DisplayedName <NewName>" );
+                        break;
+                    }
+                    string oldName = info.Name;
+                    if( oldName != valName ) {
+                        info.Name = valName;
+                        player.Message( "Name capitalization changed from \"{0}\" to \"{1}\"",
+                                        oldName, valName );
+                    } else {
+                        player.Message( "Name capitalization is already \"{0}\"", oldName );
+                    }
+                    break;
 
                 case "previousrank":
                     Rank newPreviousRank;
@@ -733,7 +784,7 @@ namespace fCraft {
                         newPreviousRank = RankManager.FindRank( valName );
                         if( newPreviousRank == null ) {
                             player.MessageNoRank( valName );
-                            return;
+                            break;
                         }
                     } else {
                         newPreviousRank = null;
@@ -750,7 +801,7 @@ namespace fCraft {
                                             info.ClassyName,
                                             newPreviousRank.ClassyName );
                         }
-                        return;
+                        break;
                     }
 
                     if( oldPreviousRank == null ) {
@@ -769,13 +820,48 @@ namespace fCraft {
                     }
                     break;
 
+                case "rankchangetype":
+                    RankChangeType oldType = info.RankChangeType;
+                    try {
+                        info.RankChangeType = (RankChangeType)Enum.Parse( typeof( RankChangeType ), valName, true );
+                    } catch( ArgumentException ) {
+                        player.Message( "SetInfo: Could not parse RankChangeType. Allowed values: {0}",
+                                        String.Join( ", ", Enum.GetNames( typeof( RankChangeType ) ) ) );
+                        break;
+                    }
+                    player.Message( "SetInfo: RankChangeType for {0}&S changed from {1} to {2}",
+                                    info.ClassyName,
+                                    oldType,
+                                    info.RankChangeType );
+                    break;
+
+                case "rankreason":
+                    if( valName.Length == 0 ) valName = null;
+                    if( SetPlayerInfoField( player, "RankReason", info, info.RankChangeReason, valName ) ) {
+                        info.RankChangeReason = valName;
+                    }
+                    break;
+
+                case "timeskicked":
+                    int oldTimesKicked = info.TimesKicked;
+                    if( ValidateInt( valName, 0, 9999 ) ) {
+                        info.TimesKicked = Int32.Parse( valName );
+                        player.Message( "SetInfo: TimesKicked for {0}&S changed from {1} to {2}",
+                                        info.ClassyName,
+                                        oldTimesKicked,
+                                        info.TimesKicked );
+                    } else {
+                        player.Message( "SetInfo: TimesKicked value out of range (Acceptable value range: 0-9999)" );
+                    }
+                    break;
+
                 case "totaltime":
                     TimeSpan newTotalTime;
                     TimeSpan oldTotalTime = info.TotalTime;
                     if( valName.TryParseMiniTimespan( out newTotalTime ) ) {
                         if( newTotalTime > DateTimeUtil.MaxTimeSpan ) {
                             player.MessageMaxTimeSpan();
-                            return;
+                            break;
                         }
                         info.TotalTime = newTotalTime;
                         player.Message( "SetInfo: TotalTime for {0}&S changed from {1} ({2}) to {3} ({4})",
@@ -784,92 +870,15 @@ namespace fCraft {
                                         oldTotalTime.ToCompactString(),
                                         info.TotalTime.ToMiniString(),
                                         info.TotalTime.ToCompactString() );
-                        break;
                     } else {
                         player.Message( "SetInfo: Could not parse value given for TotalTime." );
-                        return;
                     }
-
-                case "rankchangetype":
-                    RankChangeType oldType = info.RankChangeType;
-                    try {
-                        info.RankChangeType = (RankChangeType)Enum.Parse( typeof( RankChangeType ), valName, true );
-                    } catch( ArgumentException ) {
-                        player.Message( "SetInfo: Could not parse RankChangeType. Allowed values: {0}",
-                                        String.Join( ", ", Enum.GetNames( typeof( RankChangeType ) ) ) );
-                        return;
-                    }
-                    player.Message( "SetInfo: RankChangeType for {0}&S changed from {1} to {2}",
-                                    info.ClassyName,
-                                    oldType,
-                                    info.RankChangeType );
                     break;
-
-                case "banreason":
-                    if( valName.Length == 0 ) valName = null;
-                    if( SetPlayerInfoField( player, "BanReason", info, info.BanReason, valName ) ) {
-                        info.BanReason = valName;
-                        break;
-                    } else {
-                        return;
-                    }
 
                 case "unbanreason":
                     if( valName.Length == 0 ) valName = null;
                     if( SetPlayerInfoField( player, "UnbanReason", info, info.UnbanReason, valName ) ) {
                         info.UnbanReason = valName;
-                        break;
-                    } else {
-                        return;
-                    }
-
-                case "rankreason":
-                    if( valName.Length == 0 ) valName = null;
-                    if( SetPlayerInfoField( player, "RankReason", info, info.RankChangeReason, valName ) ) {
-                        info.RankChangeReason = valName;
-                        break;
-                    } else {
-                        return;
-                    }
-
-                case "kickreason":
-                    if( valName.Length == 0 ) valName = null;
-                    if( SetPlayerInfoField( player, "KickReason", info, info.LastKickReason, valName ) ) {
-                        info.LastKickReason = valName;
-                        break;
-                    } else {
-                        return;
-                    }
-
-                case "displayedname":
-                    string oldDisplayedName = info.DisplayedName;
-                    if( valName.Length == 0 ) valName = null;
-                    if( valName == info.DisplayedName ) {
-                        if( valName == null ) {
-                            player.Message( "SetInfo: DisplayedName for {0} is not set.",
-                                            info.Name );
-                        } else {
-                            player.Message( "SetInfo: DisplayedName for {0} is already set to \"{1}&S\"",
-                                            info.Name,
-                                            valName );
-                        }
-                        return;
-                    }
-                    info.DisplayedName = valName;
-
-                    if( oldDisplayedName == null ) {
-                        player.Message( "SetInfo: DisplayedName for {0} set to \"{1}&S\"",
-                                        info.Name,
-                                        valName );
-                    } else if( valName == null ) {
-                        player.Message( "SetInfo: DisplayedName for {0} was reset (was \"{1}&S\")",
-                                        info.Name,
-                                        oldDisplayedName );
-                    } else {
-                        player.Message( "SetInfo: DisplayedName for {0} changed from \"{1}&S\" to \"{2}&S\"",
-                                        info.Name,
-                                        oldDisplayedName,
-                                        valName );
                     }
                     break;
 
