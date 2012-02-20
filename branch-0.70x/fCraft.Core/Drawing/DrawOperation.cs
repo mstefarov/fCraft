@@ -242,8 +242,7 @@ namespace fCraft.Drawing {
                 world.Players.SendLowPriority( Packet.MakeSetBlock( Coords, newBlock ) );
             }
 
-            Player.RaisePlayerPlacedBlockEvent( Player, Map, Coords,
-                                                oldBlock, newBlock, Context );
+            Player.RaisePlayerPlacedBlockEvent( Player, Map, Coords, oldBlock, newBlock, Context );
 
             if( !UndoState.IsTooLargeToUndo ) {
                 if( !UndoState.Add( Coords, oldBlock ) ) {
