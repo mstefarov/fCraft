@@ -49,21 +49,53 @@ namespace fCraft {
 
 
         /// <summary> Occurs when player is about to move (cancellable). </summary>
-        public static event EventHandler<PlayerMovingEventArgs> Moving;
+        public static event EventHandler<PlayerMovingEventArgs> Moving {
+            add { MovingEvent.Add( value, Priority.Normal ); }
+            remove { MovingEvent.Remove( value ); }
+        }
+        public static void MovingPriority( [NotNull] EventHandler<PlayerMovingEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            MovingEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<PlayerMovingEventArgs> MovingEvent = new PriorityEvent<PlayerMovingEventArgs>();
 
 
         /// <summary> Occurs when player has moved. </summary>
-        public static event EventHandler<PlayerMovedEventArgs> Moved;
+        public static event EventHandler<PlayerMovedEventArgs> Moved {
+            add { MovedEvent.Add( value, Priority.Normal ); }
+            remove { MovedEvent.Remove( value ); }
+        }
+        public static void MovedPriority( [NotNull] EventHandler<PlayerMovedEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            MovedEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<PlayerMovedEventArgs> MovedEvent = new PriorityEvent<PlayerMovedEventArgs>();
 
 
         /// <summary> Occurs when player clicked a block (cancellable).
         /// Note that a click will not necessarily result in a block being placed or deleted. </summary>
-        public static event EventHandler<PlayerClickingEventArgs> Clicking;
+        public static event EventHandler<PlayerClickingEventArgs> Clicking {
+            add { ClickingEvent.Add( value, Priority.Normal ); }
+            remove { ClickingEvent.Remove( value ); }
+        }
+        public static void ClickingPriority( [NotNull] EventHandler<PlayerClickingEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            ClickingEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<PlayerClickingEventArgs> ClickingEvent = new PriorityEvent<PlayerClickingEventArgs>();
 
 
         /// <summary> Occurs after a player has clicked a block.
         /// Note that a click will not necessarily result in a block being placed or deleted. </summary>
-        public static event EventHandler<PlayerClickedEventArgs> Clicked;
+        public static event EventHandler<PlayerClickedEventArgs> Clicked {
+            add { ClickedEvent.Add( value, Priority.Normal ); }
+            remove { ClickedEvent.Remove( value ); }
+        }
+        public static void ClickedPriority( [NotNull] EventHandler<PlayerClickedEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            ClickedEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<PlayerClickedEventArgs> ClickedEvent = new PriorityEvent<PlayerClickedEventArgs>();
 
 
         /// <summary> Occurs when a player is about to place a block.
@@ -129,35 +161,15 @@ namespace fCraft {
 
         static bool RaisePlayerMovingEvent( [NotNull] Player player, Position newPos ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            var handler = Moving;
-            if( handler == null ) return true;
             var e = new PlayerMovingEventArgs( player, newPos );
-            handler( null, e );
+            MovingEvent.Raise( e );
             return !e.Cancel;
         }
 
 
         static void RaisePlayerMovedEvent( [NotNull] Player player, Position oldPos ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            var handler = Moved;
-            if( handler != null ) handler( null, new PlayerMovedEventArgs( player, oldPos ) );
-        }
-
-
-        static bool RaisePlayerClickingEvent( [NotNull] PlayerClickingEventArgs e ) {
-            if( e == null ) throw new ArgumentNullException( "e" );
-            var handler = Clicking;
-            if( handler == null ) return true;
-            handler( null, e );
-            return !e.Cancel;
-        }
-
-
-        static void RaisePlayerClickedEvent( [NotNull] PlayerClickingEventArgs e ) {
-            var handler = Clicked;
-            if( handler != null ) {
-                handler( null, new PlayerClickedEventArgs( e.Player, e.Coords, e.Action, e.Block ) );
-            }
+            MovedEvent.Raise( new PlayerMovedEventArgs( player, oldPos ) );
         }
 
 

@@ -410,11 +410,12 @@ namespace fCraft {
             // Those clicks should be simply ignored.
             if( World.Map.InBounds( coords ) ) {
                 var e = new PlayerClickingEventArgs( this, coords, action, (Block)type );
-                if( RaisePlayerClickingEvent( e ) ) {
-                    RaisePlayerClickedEvent( e );
-                    PlaceBlock( e.Coords, e.Action, e.Block );
-                } else {
+                ClickingEvent.Raise( e );
+                if( e.Cancel ) {
                     RevertBlockNow( coords );
+                } else {
+                    ClickedEvent.Raise( new PlayerClickedEventArgs( e.Player, e.Coords, e.Action, e.Block ) );
+                    PlaceBlock( e.Coords, e.Action, e.Block );
                 }
             }
         }
