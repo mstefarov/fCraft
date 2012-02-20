@@ -120,8 +120,8 @@ namespace fCraft.Drawing {
             }
             List<Block> blocks = new List<Block>();
             while( cmd.HasNext ) {
-                Block block = cmd.NextBlock( Player );
-                if( block == Block.Undefined ) return false;
+                Block block;
+                if( !cmd.NextBlock( Player, false, out block ) ) return false;
                 blocks.Add( block );
             }
             if( blocks.Count > 0 ) {
@@ -140,14 +140,14 @@ namespace fCraft.Drawing {
             if( Blocks == null ) return block;
             if( Not ) {
                 for( int i = 0; i < Blocks.Length; i++ ) {
-                    if( block == Blocks[i] ) return Block.Undefined;
+                    if( block == Blocks[i] ) return Block.None;
                 }
                 return block;
             } else {
                 for( int i = 0; i < Blocks.Length; i++ ) {
                     if( block == Blocks[i] ) return block;
                 }
-                return Block.Undefined;
+                return Block.None;
             }
         }
     }

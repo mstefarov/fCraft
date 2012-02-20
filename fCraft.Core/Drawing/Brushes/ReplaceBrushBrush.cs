@@ -32,8 +32,8 @@ namespace fCraft.Drawing {
                 return null;
             }
 
-            Block block = cmd.NextBlock( player );
-            if( block == Block.Undefined ) return null;
+            Block block;
+            if( !cmd.NextBlock( player, false, out block ) ) return null;
 
             string brushName = cmd.Next();
             if( brushName == null || !CommandManager.IsValidCommandName( brushName ) ) {
@@ -98,8 +98,8 @@ namespace fCraft.Drawing {
             if( op == null ) throw new ArgumentNullException( "op" );
 
             if( cmd.HasNext ) {
-                Block block = cmd.NextBlock( player );
-                if( block == Block.Undefined ) return null;
+                Block block;
+                if( !cmd.NextBlock( player, false, out block ) ) return null;
 
                 string brushName = cmd.Next();
                 if( brushName == null || !CommandManager.IsValidCommandName( brushName ) ) {
@@ -161,7 +161,7 @@ namespace fCraft.Drawing {
             if( block == Block ) {
                 return ReplacementInstance.NextBlock( op );
             } else {
-                return Block.Undefined;
+                return Block.None;
             }
         }
 

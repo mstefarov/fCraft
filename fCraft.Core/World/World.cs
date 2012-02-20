@@ -823,7 +823,7 @@ namespace fCraft {
             XAttribute tempAttr;
 
             // load hidden status
-            if( (tempAttr = el.Attribute( "hidden" )) != null ) {
+            if( ( tempAttr = el.Attribute( "hidden" ) ) != null ) {
                 bool isHidden;
                 if( Boolean.TryParse( tempAttr.Value, out isHidden ) ) {
                     IsHidden = isHidden;
@@ -836,7 +836,7 @@ namespace fCraft {
 
             // load access and build security
             XElement tempEl;
-            if( (tempEl = el.Element( AccessSecurityXmlTagName )) != null ) {
+            if( ( tempEl = el.Element( AccessSecurityXmlTagName ) ) != null ) {
                 AccessSecurity = new SecurityController( tempEl, true );
             } else if( ( tempEl = el.Element( "accessSecurity" ) ) != null ) {
                 AccessSecurity = new SecurityController( tempEl, true );
@@ -844,7 +844,7 @@ namespace fCraft {
                 AccessSecurity = new SecurityController();
             }
 
-            if( (tempEl = el.Element( BuildSecurityXmlTagName )) != null ) {
+            if( ( tempEl = el.Element( BuildSecurityXmlTagName ) ) != null ) {
                 BuildSecurity = new SecurityController( tempEl, true );
             } else if( ( tempEl = el.Element( "buildSecurity" ) ) != null ) {
                 BuildSecurity = new SecurityController( tempEl, true );
@@ -853,7 +853,7 @@ namespace fCraft {
             }
 
             // load backup interval
-            if( (tempAttr = el.Attribute( "backup" )) != null ) {
+            if( ( tempAttr = el.Attribute( "backup" ) ) != null ) {
                 if( !tempAttr.Value.ToTimeSpan( out backupInterval ) ) {
                     backupInterval = DefaultBackupInterval;
                     Logger.Log( LogType.Warning,
@@ -872,12 +872,12 @@ namespace fCraft {
             }
 
             // load map (if needed)
-            Preload = (el.Attribute( "noUnload" ) != null);
+            Preload = ( el.Attribute( "noUnload" ) != null );
 
             // load environment settings
             XElement envEl = el.Element( EnvironmentXmlTagName );
             if( envEl != null ) {
-                if( (tempAttr = envEl.Attribute( "cloud" )) != null ) {
+                if( ( tempAttr = envEl.Attribute( "cloud" ) ) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out CloudColor ) ) {
                         CloudColor = -1;
                         Logger.Log( LogType.Warning,
@@ -885,7 +885,7 @@ namespace fCraft {
                                     Name );
                     }
                 }
-                if( (tempAttr = envEl.Attribute( "fog" )) != null ) {
+                if( ( tempAttr = envEl.Attribute( "fog" ) ) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out FogColor ) ) {
                         FogColor = -1;
                         Logger.Log( LogType.Warning,
@@ -893,7 +893,7 @@ namespace fCraft {
                                     Name );
                     }
                 }
-                if( (tempAttr = envEl.Attribute( "sky" )) != null ) {
+                if( ( tempAttr = envEl.Attribute( "sky" ) ) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out SkyColor ) ) {
                         SkyColor = -1;
                         Logger.Log( LogType.Warning,
@@ -901,7 +901,7 @@ namespace fCraft {
                                     Name );
                     }
                 }
-                if( (tempAttr = envEl.Attribute( "level" )) != null ) {
+                if( ( tempAttr = envEl.Attribute( "level" ) ) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out EdgeLevel ) ) {
                         EdgeLevel = -1;
                         Logger.Log( LogType.Warning,
@@ -909,9 +909,9 @@ namespace fCraft {
                                     Name );
                     }
                 }
-                if( (tempAttr = envEl.Attribute( "edge" )) != null ) {
-                    Block block = Map.GetBlockByName( tempAttr.Value );
-                    if( block == Block.Undefined ) {
+                if( ( tempAttr = envEl.Attribute( "edge" ) ) != null ) {
+                    Block block;
+                    if( !Map.GetBlockByName( tempAttr.Value, false, out block ) ) {
                         EdgeBlock = Block.Water;
                         Logger.Log( LogType.Warning,
                                     "WorldManager: Could not parse \"edge\" attribute of Environment settings for world \"{0}\", assuming default (Water).",

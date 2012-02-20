@@ -26,8 +26,9 @@ namespace fCraft.Drawing {
         public IBrush MakeBrush( Player player, CommandReader cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
-            Block block = cmd.NextBlock( player );
-            Block altBlock = cmd.NextBlock( player );
+            Block block, altBlock;
+            cmd.NextBlock( player, true, out block );
+            cmd.NextBlock( player, true, out altBlock );
             return new CheckeredBrush( block, altBlock );
         }
     }
@@ -60,9 +61,9 @@ namespace fCraft.Drawing {
 
         public string Description {
             get {
-                if( Block2 != Block.Undefined ) {
+                if( Block2 != Block.None ) {
                     return String.Format( "{0}({1},{2})", Factory.Name, Block1, Block2 );
-                } else if( Block1 != Block.Undefined ) {
+                } else if( Block1 != Block.None ) {
                     return String.Format( "{0}({1})", Factory.Name, Block1 );
                 } else {
                     return Factory.Name;
@@ -77,14 +78,19 @@ namespace fCraft.Drawing {
             if( op == null ) throw new ArgumentNullException( "op" );
 
             if( cmd.HasNext ) {
-                Block block = cmd.NextBlock( player );
-                if( block == Block.Undefined ) return null;
-                Block altBlock = cmd.NextBlock( player );
+                Block block, altBlock;
+                if( !cmd.NextBlock( player, true, out block ) ) return null;
+                if( cmd.HasNext ) {
+                    if( !cmd.NextBlock( player, true, out altBlock ) ) return null;
+                } else {
+                    altBlock = Block.None;
+                }
+
                 Block1 = block;
                 Block2 = altBlock;
 
-            } else if( Block1 == Block.Undefined ) {
-                player.Message( "{0}: Please specify at least one block.", Factory.Name );
+            } else if( Block1 == Block.None ) {
+                player.Message( "{0}: Please specify one or two blocks.", Factory.Name );
                 return null;
             }
 

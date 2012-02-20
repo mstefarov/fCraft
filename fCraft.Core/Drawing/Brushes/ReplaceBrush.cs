@@ -30,15 +30,15 @@ namespace fCraft.Drawing {
 
             Stack<Block> blocks = new Stack<Block>();
             while( cmd.HasNext ) {
-                Block block = cmd.NextBlock( player );
-                if( block == Block.Undefined ) return null;
+                Block block;
+                if( !cmd.NextBlock( player, false, out block ) ) return null;
                 blocks.Push( block );
             }
             switch( blocks.Count ) {
                 case 0:
                     return new ReplaceBrush();
                 case 1:
-                    return new ReplaceBrush( blocks.ToArray(), Block.Undefined );
+                    return new ReplaceBrush( blocks.ToArray(), Block.None );
                 default: {
                     Block replacement = blocks.Pop();
                     return new ReplaceBrush( blocks.ToArray(), replacement );
@@ -78,7 +78,7 @@ namespace fCraft.Drawing {
             get {
                 if( Blocks == null ) {
                     return Factory.Name;
-                } else if( Replacement == Block.Undefined ) {
+                } else if( Replacement == Block.None ) {
                     return String.Format( "{0}({1} -> ?)",
                                           Factory.Name,
                                           Blocks.JoinToString() );
@@ -99,8 +99,8 @@ namespace fCraft.Drawing {
 
             Stack<Block> blocks = new Stack<Block>();
             while( cmd.HasNext ) {
-                Block block = cmd.NextBlock( player );
-                if( block == Block.Undefined ) return null;
+                Block block;
+                if( !cmd.NextBlock( player, false, out block ) ) return null;
                 blocks.Push( block );
             }
 
@@ -143,8 +143,8 @@ namespace fCraft.Drawing {
             if( Blocks == null || Blocks.Length == 0 ) {
                 throw new InvalidOperationException( "No blocks given." );
             }
-            if( Replacement == Block.Undefined ) {
-                if( player.LastUsedBlockType == Block.Undefined ) {
+            if( Replacement == Block.None ) {
+                if( player.LastUsedBlockType == Block.None ) {
                     player.Message( "Cannot deduce desired replacement block. Click a block or type out the block name." );
                     return false;
                 } else {
@@ -164,7 +164,7 @@ namespace fCraft.Drawing {
                     return Replacement;
                 }
             }
-            return Block.Undefined;
+            return Block.None;
         }
 
 

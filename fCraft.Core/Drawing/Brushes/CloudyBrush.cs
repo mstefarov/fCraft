@@ -31,9 +31,9 @@ namespace fCraft.Drawing {
             List<Block> blocks = new List<Block>();
             List<int> blockRatios = new List<int>();
             while( cmd.HasNext ) {
-                int ratio = 1;
-                Block block = cmd.NextBlockWithParam( player, ref ratio );
-                if( block == Block.Undefined ) return null;
+                int ratio;
+                Block block;
+                if( !cmd.NextBlockWithParam( player, true, out block, out ratio ) ) return null;
                 if( ratio < 0 || ratio > 1000 ) {
                     player.Message( "{0} brush: Invalid block ratio ({1}). Must be between 1 and 1000.",
                                     Name, ratio );
@@ -84,7 +84,7 @@ namespace fCraft.Drawing {
             get {
                 if( Blocks.Length == 0 ) {
                     return Factory.Name;
-                } else if( Blocks.Length == 1 || ( Blocks.Length == 2 && Blocks[1] == Block.Undefined ) ) {
+                } else if( Blocks.Length == 1 || ( Blocks.Length == 2 && Blocks[1] == Block.None ) ) {
                     return String.Format( "{0}({1})", Factory.Name, Blocks[0] );
                 } else {
                     StringBuilder sb = new StringBuilder();
@@ -113,13 +113,14 @@ namespace fCraft.Drawing {
             List<Block> blocks = new List<Block>();
             List<int> blockRatios = new List<int>();
             while( cmd.HasNext ) {
-                int ratio = 1;
-                Block block = cmd.NextBlockWithParam( player, ref ratio );
+                int ratio;
+                Block block;
+                if( !cmd.NextBlockWithParam( player, true, out block, out ratio ) ) return null;
                 if( ratio < 0 || ratio > 1000 ) {
                     player.Message( "Invalid block ratio ({0}). Must be between 1 and 1000.", ratio );
                     return null;
                 }
-                if( block == Block.Undefined ) return null;
+                if( block == Block.None ) return null;
                 blocks.Add( block );
                 blockRatios.Add( ratio );
             }
