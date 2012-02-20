@@ -517,8 +517,24 @@ namespace fCraft {
 
         static void ZoneRemoveHandler( Player player, CommandReader cmd ) {
             string zoneName = cmd.Next();
-            if( zoneName == null ) {
+            if( zoneName == null || cmd.HasNext ) {
                 CdZoneRemove.PrintUsage( player );
+                return;
+            }
+
+            if( zoneName == "*" ) {
+                if( !cmd.IsConfirmed ) {
+                    player.Confirm( cmd,
+                                    "&WRemove ALL zones on this world ({0}&W)? This cannot be undone.&S",
+                                    player.World.ClassyName );
+                    return;
+                }
+                player.WorldMap.Zones.Clear();
+                Logger.Log( LogType.UserActivity,
+                            "Player {0} removed all zones on world {1}",
+                            player.Name, player.World.Name );
+                Server.Message( "Player {0}&S removed all zones on world {1}",
+                                player.ClassyName, player.World.ClassyName );
                 return;
             }
 
