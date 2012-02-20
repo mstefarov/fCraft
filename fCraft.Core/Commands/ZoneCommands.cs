@@ -211,7 +211,7 @@ namespace fCraft {
             while( ( nextToken = cmd.Next() ) != null ) {
                 // Clear whitelist
                 if( nextToken.Equals( "-*" ) ) {
-                    PlayerInfo[] oldWhitelist = zone.Controller.ExceptionList.Included.ToArray();
+                    PlayerInfo[] oldWhitelist = zone.Controller.ExceptionList.Included;
                     if( oldWhitelist.Length > 0 ) {
                         zone.Controller.ResetIncludedList();
                         player.Message( "Whitelist of zone {0}&S cleared: {1}",
@@ -229,7 +229,7 @@ namespace fCraft {
 
                 // Clear blacklist
                 if( nextToken.Equals( "+*" ) ) {
-                    PlayerInfo[] oldBlacklist = zone.Controller.ExceptionList.Excluded.ToArray();
+                    PlayerInfo[] oldBlacklist = zone.Controller.ExceptionList.Excluded;
                     if( oldBlacklist.Length > 0 ) {
                         zone.Controller.ResetExcludedList();
                         player.Message( "Blacklist of zone {0}&S cleared: {1}",

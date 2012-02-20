@@ -27,10 +27,13 @@ namespace fCraft.MapConversion {
             AvailableConverters.Add( MapFormat.Opticraft, new MapOpticraft() );
         }
 
+
         /// <summary> Identifies the map format from the specified filename. </summary>
         /// <param name="fileName"> The name of the file. </param>
         /// <param name="tryFallbackConverters"> Whether or not to attempt to try other converters if this fails. </param>
         /// <returns> Map format of the specified file. </returns>
+        /// <exception cref="ArgumentNullException"> If fileName is null. </exception>
+        /// <exception cref="FileNotFoundException"> If file/directory with the given name is missing. </exception>
         public static MapFormat Identify( [NotNull] string fileName, bool tryFallbackConverters ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             MapStorageType targetType = MapStorageType.SingleFile;
@@ -68,10 +71,12 @@ namespace fCraft.MapConversion {
             return MapFormat.Unknown;
         }
 
+
         /// <summary> Attempts to load the map excluding the block data from it's header using the specified filename. </summary>
         /// <param name="fileName"> The name of the file.</param>
         /// <param name="map"> Where the loaded map should be stored. </param>
         /// <returns> Whether or not the map excluding block data was loaded successfully. </returns>
+        /// <exception cref="ArgumentNullException"> If fileName is null. </exception>
         public static bool TryLoadHeader( [NotNull] string fileName, out Map map ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
@@ -86,9 +91,14 @@ namespace fCraft.MapConversion {
             }
         }
 
+
         /// <summary> Loads the map excluding block data from it's header using the specified filename. </summary>
         /// <param name="fileName"> The name of the file. </param>
         /// <returns> The loaded map excluding block data. </returns>
+        /// <exception cref="ArgumentNullException"> If fileName is null. </exception>
+        /// <exception cref="FileNotFoundException"> If file/directory with the given name is missing. </exception>
+        /// <exception cref="MapFormatException"> If no converter could be found to load the map. </exception>
+        [NotNull]
         public static Map LoadHeader( [NotNull] string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
 
@@ -133,10 +143,12 @@ namespace fCraft.MapConversion {
             throw new MapFormatException( "Could not find any converter to load the given file." );
         }
 
+
         /// <summary> Attempts to load the map including the block data from it's header using the specified filename. </summary>
-        /// <param name="fileName"> The name of the file.</param>
+        /// <param name="fileName"> The name of the file. </param>
         /// <param name="map"> Where the loaded map should be stored. </param>
         /// <returns> Whether or not the map was loaded successfully. </returns>
+        /// <exception cref="ArgumentNullException"> If fileName is null. </exception>
         public static bool TryLoad( [NotNull] string fileName, out Map map ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
@@ -150,9 +162,14 @@ namespace fCraft.MapConversion {
             }
         }
 
+
         /// <summary> Loads the map from it's header using the specified filename. </summary>
         /// <param name="fileName"> The name of the file. </param>
         /// <returns> The loaded map excluding block data. </returns>
+        /// <exception cref="ArgumentNullException"> If fileName is null. </exception>
+        /// <exception cref="FileNotFoundException"> If file/directory with the given name is missing. </exception>
+        /// <exception cref="MapFormatException"> If no converter could be found to load the map. </exception>
+        [NotNull]
         public static Map Load( [NotNull] string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             MapStorageType targetType = MapStorageType.SingleFile;

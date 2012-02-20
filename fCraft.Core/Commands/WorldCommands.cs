@@ -1333,7 +1333,7 @@ namespace fCraft {
             do {
                 // Clear whitelist
                 if( nextToken.Equals( "-*" ) ) {
-                    PlayerInfo[] oldWhitelist = world.AccessSecurity.ExceptionList.Included.ToArray();
+                    PlayerInfo[] oldWhitelist = world.AccessSecurity.ExceptionList.Included;
                     world.AccessSecurity.ResetIncludedList();
                     player.Message( "Access whitelist of {0}&S cleared: {1}",
                                     world.ClassyName, oldWhitelist.JoinToClassyString() );
@@ -1345,7 +1345,7 @@ namespace fCraft {
 
                 // Clear blacklist
                 if( nextToken.Equals( "+*" ) ) {
-                    PlayerInfo[] oldBlacklist = world.AccessSecurity.ExceptionList.Excluded.ToArray();
+                    PlayerInfo[] oldBlacklist = world.AccessSecurity.ExceptionList.Excluded;
                     world.AccessSecurity.ResetExcludedList();
                     player.Message( "Access blacklist of {0}&S cleared: {1}",
                                     world.ClassyName, oldBlacklist.JoinToClassyString() );
@@ -1601,7 +1601,7 @@ namespace fCraft {
             do {
                 // Clear whitelist
                 if( nextToken.Equals( "-*" ) ) {
-                    PlayerInfo[] oldWhitelist = world.BuildSecurity.ExceptionList.Included.ToArray();
+                    PlayerInfo[] oldWhitelist = world.BuildSecurity.ExceptionList.Included;
                     if( oldWhitelist.Length > 0 ) {
                         world.BuildSecurity.ResetIncludedList();
                         player.Message( "Build whitelist of world {0}&S cleared: {1}",
@@ -1618,7 +1618,7 @@ namespace fCraft {
 
                 // Clear blacklist
                 if( nextToken.Equals( "+*" ) ) {
-                    PlayerInfo[] oldBlacklist = world.BuildSecurity.ExceptionList.Excluded.ToArray();
+                    PlayerInfo[] oldBlacklist = world.BuildSecurity.ExceptionList.Excluded;
                     if( oldBlacklist.Length > 0 ) {
                         world.BuildSecurity.ResetExcludedList();
                         player.Message( "Build blacklist of world {0}&S cleared: {1}",

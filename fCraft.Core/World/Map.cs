@@ -166,7 +166,7 @@ namespace fCraft {
             } catch( Exception ex ) {
                 HasChangedSinceSave = true;
                 Logger.Log( LogType.Error,
-                            "Error trying to replace file \"{0}\": {1}",
+                            "Map.Save: Error trying to replace file \"{0}\": {1}",
                             fileName, ex );
                 if( File.Exists( tempFileName ) )
                     File.Delete( tempFileName );
