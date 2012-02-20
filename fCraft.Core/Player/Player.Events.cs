@@ -10,18 +10,42 @@ namespace fCraft {
         /// Player name is verified and bans are checked before this event is raised,
         /// but before the player is registered with the server.
         /// Player's state at this point is SessionState.Connecting. </summary>
-        public static event EventHandler<PlayerConnectingEventArgs> Connecting;
+        public static event EventHandler<PlayerConnectingEventArgs> Connecting {
+            add { ConnectingEvent.Add( value, Priority.Normal ); }
+            remove { ConnectingEvent.Remove( value ); }
+        }
+        public static void ConnectingPriority( [NotNull] EventHandler<PlayerConnectingEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            ConnectingEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<PlayerConnectingEventArgs> ConnectingEvent = new PriorityEvent<PlayerConnectingEventArgs>();
 
 
         /// <summary> Occurs when a player has connected, but before the player has joined any world.
         /// Allows changing the player's starting world.
         /// Player's state at this point is SessionState.Connecting, and about to change to SessionState.LoadingMain </summary>
-        public static event EventHandler<PlayerConnectedEventArgs> Connected;
+        public static event EventHandler<PlayerConnectedEventArgs> Connected {
+            add { ConnectedEvent.Add( value, Priority.Normal ); }
+            remove { ConnectedEvent.Remove( value ); }
+        }
+        public static void ConnectedPriority( [NotNull] EventHandler<PlayerConnectedEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            ConnectedEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<PlayerConnectedEventArgs> ConnectedEvent = new PriorityEvent<PlayerConnectedEventArgs>();
 
 
         /// <summary> Occurs after a player has connected and joined the starting world. 
         /// Player's state at this point has just changed from SessionState.LoadingMain to SessionState.Online </summary>
-        public static event EventHandler<PlayerEventArgs> Ready;
+        public static event EventHandler<PlayerEventArgs> Ready {
+            add { ReadyEvent.Add( value, Priority.Normal ); }
+            remove { ReadyEvent.Remove( value ); }
+        }
+        public static void ReadyPriority( [NotNull] EventHandler<PlayerEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            ReadyEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<PlayerEventArgs> ReadyEvent = new PriorityEvent<PlayerEventArgs>();
 
 
         /// <summary> Occurs when player is about to move (cancellable). </summary>
@@ -83,28 +107,23 @@ namespace fCraft {
 
         static bool RaisePlayerConnectingEvent( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            var handler = Connecting;
-            if( handler == null ) return true;
             var e = new PlayerConnectingEventArgs( player );
-            handler( null, e );
+            ConnectingEvent.Raise( e );
             return !e.Cancel;
         }
 
 
         internal static World RaisePlayerConnectedEvent( [NotNull] Player player, World world, bool isFake ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            var handler = Connected;
-            if( handler == null ) return world;
             var e = new PlayerConnectedEventArgs( player, world, isFake );
-            handler( null, e );
+            ConnectedEvent.Raise( e );
             return e.StartingWorld;
         }
 
 
         static void RaisePlayerReadyEvent( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            var handler = Ready;
-            if( handler != null ) handler( null, new PlayerEventArgs( player ) );
+            ReadyEvent.Raise( new PlayerEventArgs( player ) );
         }
 
 
