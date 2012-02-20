@@ -616,7 +616,6 @@ namespace fCraft {
 
             // alternative names for blocks
             BlockNames["skip"] = Block.None;
-            BlockNames["-"] = Block.None;
 
             BlockNames["a"] = Block.Air; // common typo
             BlockNames["nothing"] = Block.Air;
