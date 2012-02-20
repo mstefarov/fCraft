@@ -228,6 +228,7 @@ namespace fCraft.Events {
         [NotNull]
         public IPAddress IP { get; private set; }
 
+        /// <summary> If set to 'true', rejects connection and kicks the player. </summary>
         public bool Cancel { get; set; }
     }
 
@@ -260,6 +261,8 @@ namespace fCraft.Events {
         [NotNull]
         public Player Player { get; private set; }
 
+        /// <summary> If set to 'true', rejects player's connection and kicks them.
+        /// Use Player.Kick() in conjunction with .Cancel to set the kick message. </summary>
         public bool Cancel { get; set; }
     }
 
