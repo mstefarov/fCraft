@@ -47,7 +47,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdInfo = new CommandDescriptor {
             Name = "Info",
-            Aliases = new[] { "whois", "whowas" },
+            Aliases = new[] { "i", "whois", "whowas" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
