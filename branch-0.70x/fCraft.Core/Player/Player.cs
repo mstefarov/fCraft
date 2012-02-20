@@ -1155,7 +1155,7 @@ namespace fCraft {
 
             // check whether coordinate is in bounds
             Block oldBlock = map.GetBlock( coords );
-            if( oldBlock == Block.Undefined ) {
+            if( oldBlock == Block.None ) {
                 result = CanPlaceResult.OutOfBounds;
                 goto eventCheck;
             }

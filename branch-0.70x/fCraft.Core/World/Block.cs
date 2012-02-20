@@ -5,9 +5,7 @@ namespace fCraft {
     /// <summary> Enumeration of all standard Minecraft Classic block types. </summary>
     #pragma warning disable 1591
     public enum Block : byte {
-
-        Undefined = 255, // for error checking
-
+        None = 255, // for error checking
 
         Air = 0,
         Stone = 1,

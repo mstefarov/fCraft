@@ -220,7 +220,7 @@ namespace fCraft.Drawing {
 #endif
 
             Block newBlock = Brush.NextBlock( this );
-            if( newBlock == Block.Undefined ) return false;
+            if( newBlock == Block.None ) return false;
 
             int blockIndex = Map.Index( Coords );
 

@@ -650,8 +650,8 @@ namespace fCraft {
                     break;
 
                 case "edge":
-                    Block block = Map.GetBlockByName( valueText );
-                    if( block == Block.Undefined ) {
+                    Block block;
+                    if( !Map.GetBlockByName( valueText, false, out block ) ) {
                         CdEnv.PrintUsage( player );
                         return;
                     }

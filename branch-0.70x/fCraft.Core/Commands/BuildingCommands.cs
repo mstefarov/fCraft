@@ -478,20 +478,16 @@ namespace fCraft {
         };
 
         static void BindHandler( Player player, CommandReader cmd ) {
-            string originalBlockName = cmd.Next();
-            if( originalBlockName == null ) {
+            if( !cmd.HasNext ) {
                 player.Message( "All bindings have been reset." );
                 player.ResetAllBinds();
                 return;
             }
-            Block originalBlock = Map.GetBlockByName( originalBlockName );
-            if( originalBlock == Block.Undefined ) {
-                player.Message( "Bind: Unrecognized block name: {0}", originalBlockName );
-                return;
-            }
 
-            string replacementBlockName = cmd.Next();
-            if( replacementBlockName == null ) {
+            Block originalBlock;
+            if( !cmd.NextBlock( player, false, out originalBlock ) ) return;
+
+            if( !cmd.HasNext ) {
                 if( player.GetBind( originalBlock ) != originalBlock ) {
                     player.Message( "{0} is no longer bound to {1}",
                                     originalBlock,
@@ -504,36 +500,34 @@ namespace fCraft {
                 return;
             }
 
+            Block replacementBlock;
+            if( !cmd.NextBlock( player, false, out replacementBlock ) ) return;
+
             if( cmd.HasNext ) {
                 CdBind.PrintUsage( player );
                 return;
             }
 
-            Block replacementBlock = Map.GetBlockByName( replacementBlockName );
-            if( replacementBlock == Block.Undefined ) {
-                player.Message( "Bind: Unrecognized block name: {0}", replacementBlockName );
+            Permission permission = Permission.Build;
+            switch( replacementBlock ) {
+                case Block.Grass:
+                    permission = Permission.PlaceGrass;
+                    break;
+                case Block.Admincrete:
+                    permission = Permission.PlaceAdmincrete;
+                    break;
+                case Block.Water:
+                    permission = Permission.PlaceWater;
+                    break;
+                case Block.Lava:
+                    permission = Permission.PlaceLava;
+                    break;
+            }
+            if( player.Can( permission ) ) {
+                player.Bind( originalBlock, replacementBlock );
+                player.Message( "{0} is now replaced with {1}", originalBlock, replacementBlock );
             } else {
-                Permission permission = Permission.Build;
-                switch( replacementBlock ) {
-                    case Block.Grass:
-                        permission = Permission.PlaceGrass;
-                        break;
-                    case Block.Admincrete:
-                        permission = Permission.PlaceAdmincrete;
-                        break;
-                    case Block.Water:
-                        permission = Permission.PlaceWater;
-                        break;
-                    case Block.Lava:
-                        permission = Permission.PlaceLava;
-                        break;
-                }
-                if( player.Can( permission ) ) {
-                    player.Bind( originalBlock, replacementBlock );
-                    player.Message( "{0} is now replaced with {1}", originalBlock, replacementBlock );
-                } else {
-                    player.Message( "&WYou do not have {0} permission.", permission );
-                }
+                player.Message( "&WYou do not have {0} permission.", permission );
             }
         }
 
@@ -905,8 +899,7 @@ namespace fCraft {
         static void CutHandler( Player player, CommandReader cmd ) {
             Block fillBlock = Block.Air;
             if( cmd.HasNext ) {
-                fillBlock = cmd.NextBlock( player );
-                if( fillBlock == Block.Undefined ) return;
+                if( !cmd.NextBlock( player, false, out fillBlock ) ) return;
                 if( cmd.HasNext ) {
                     CdCut.PrintUsage( player );
                     return;

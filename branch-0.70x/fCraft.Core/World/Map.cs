@@ -232,7 +232,7 @@ namespace fCraft {
         public Block GetBlock( int x, int y, int z ) {
             if( x < Width && y < Length && z < Height && x >= 0 && y >= 0 && z >= 0 )
                 return (Block)Blocks[Index( x, y, z )];
-            return Block.Undefined;
+            return Block.None;
         }
 
 
@@ -242,7 +242,7 @@ namespace fCraft {
         public Block GetBlock( Vector3I coords ) {
             if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 && coords.Z >= 0 )
                 return (Block)Blocks[Index( coords )];
-            return Block.Undefined;
+            return Block.None;
         }
 
 
@@ -608,14 +608,15 @@ namespace fCraft {
         static Map() {
             // add default names for blocks, and their numeric codes
             foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
-                if( block != Block.Undefined ) {
-                    BlockNames.Add( block.ToString().ToLower(), block );
+                BlockNames.Add( block.ToString().ToLower(), block );
+                if( block != Block.None ) {
                     BlockNames.Add( ((int)block).ToString( CultureInfo.InvariantCulture ), block );
                 }
             }
 
             // alternative names for blocks
-            BlockNames["none"] = Block.Undefined;
+            BlockNames["skip"] = Block.None;
+            BlockNames["-"] = Block.None;
 
             BlockNames["a"] = Block.Air; // common typo
             BlockNames["nothing"] = Block.Air;
@@ -843,18 +844,27 @@ namespace fCraft {
         }
 
 
-        /// <summary> Tries to find a blocktype by name. </summary>
-        /// <param name="blockName"> Name of the block. </param>
-        /// <returns> Described Block, or Block.Undefined if name could not be recognized. </returns>
-        public static Block GetBlockByName( [NotNull] string blockName ) {
+        /// <summary> Finds Block corresponding to given blockName. </summary>
+        /// <param name="blockName"> Given block name to parse. </param>
+        /// <param name="allowNoneBlock"> Whether "none" block type is acceptible. </param>
+        /// <param name="block"> Block corresponding to given blockName;
+        /// Block.Undefined if value could not be parsed. </param>
+        /// <returns> True if given blockName was parsed as an acceptible block type. </returns>
+        /// <exception cref="ArgumentNullException"> If blockName is null. </exception>
+        public static bool GetBlockByName( [NotNull] string blockName, bool allowNoneBlock, out Block block ) {
             if( blockName == null ) throw new ArgumentNullException( "blockName" );
-            Block result;
-            if( BlockNames.TryGetValue( blockName.ToLower(), out result ) ) {
-                return result;
+            if( BlockNames.TryGetValue( blockName.ToLower(), out block ) ) {
+                if( block == Block.None ) {
+                    return allowNoneBlock;
+                } else {
+                    return true;
+                }
             } else {
-                return Block.Undefined;
+                block = Block.None;
+                return false;
             }
         }
+
 
         /// <summary> Tries to find WoM file hashes for edge textures. </summary>
         /// <param name="block"> Blocktype to find edge texture hash for. </param>

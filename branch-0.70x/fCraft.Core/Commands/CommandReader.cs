@@ -184,52 +184,69 @@ namespace fCraft {
 
 
         [DebuggerStepThrough]
-        public Block NextBlock( [NotNull] Player player ) {
+        public bool NextBlock( [NotNull] Player player, bool allowNone, out Block block ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             string blockName = Next();
-            Block targetBlock = Block.Undefined;
+            block = Block.None;
             if( blockName != null ) {
-                targetBlock = Map.GetBlockByName( blockName );
-                if( targetBlock == Block.Undefined ) {
+                if( Map.GetBlockByName( blockName, true, out block ) ) {
+                    if( block == Block.None && !allowNone ) {
+                        player.Message( "The \"none\" block is not allowed here" );
+                        return false;
+                    } else {
+                        return true;
+                    }
+                } else {
                     player.Message( "Unrecognized blocktype \"{0}\"", blockName );
+                    return false;
                 }
+
+            } else {
+                return false;
             }
-            return targetBlock;
         }
 
 
-        public Block NextBlockWithParam( [NotNull] Player player, ref int param ) {
+        public bool NextBlockWithParam( [NotNull] Player player, bool allowNoneBlock, out Block block, out int param ) {
             if( player == null ) throw new ArgumentNullException( "player" );
+            block = Block.None;
+            param = 1;
+
             string jointString = Next();
             if( jointString == null ) {
-                return Block.Undefined;
+                return false;
             }
 
-            Block targetBlock;
             int slashIndex = jointString.IndexOf( '/' );
             if( slashIndex != -1 ) {
                 string blockName = jointString.Substring( 0, slashIndex );
                 string paramString = jointString.Substring( slashIndex + 1 );
 
-                targetBlock = Map.GetBlockByName( blockName );
-                if( targetBlock == Block.Undefined ) {
+                if( Map.GetBlockByName( blockName, true, out block ) ) {
+                    if( block == Block.None && !allowNoneBlock ) {
+                        player.Message( "The \"none\" block is not allowed here" );
+                    } else {
+                        if( Int32.TryParse( paramString, out param ) ) {
+                            return true;
+                        }
+                        player.Message( "Could not parse \"{0}\" as an integer.", paramString );
+                    }
+                } else {
                     player.Message( "Unrecognized blocktype \"{0}\"", blockName );
                 }
 
-                int tempParam;
-                if( Int32.TryParse( paramString, out tempParam ) ) {
-                    param = tempParam;
-                } else {
-                    player.Message( "Could not parse \"{0}\" as an integer.", paramString );
-                }
-
             } else {
-                targetBlock = Map.GetBlockByName( jointString );
-                if( targetBlock == Block.Undefined ) {
+                if( Map.GetBlockByName( jointString, true, out block ) ) {
+                    if( block == Block.None && !allowNoneBlock ) {
+                        player.Message( "The \"none\" block is not allowed here" );
+                    } else {
+                        return true;
+                    }
+                } else {
                     player.Message( "Unrecognized blocktype \"{0}\"", jointString );
                 }
             }
-            return targetBlock;
+            return false;
         }
 
 

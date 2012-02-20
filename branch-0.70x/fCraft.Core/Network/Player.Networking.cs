@@ -72,7 +72,7 @@ namespace fCraft {
             LastActiveTime = DateTime.UtcNow;
             LastPatrolTime = DateTime.UtcNow;
             LeaveReason = LeaveReason.Unknown;
-            LastUsedBlockType = Block.Undefined;
+            LastUsedBlockType = Block.None;
 
             client = tcpClient;
             client.SendTimeout = SocketTimeout;
