@@ -1216,11 +1216,8 @@ namespace fCraft {
             }
 
         eventCheck:
-            var handler = PlacingBlock;
-            if( handler == null ) return result;
-
             var e = new PlayerPlacingBlockEventArgs( this, map, coords, oldBlock, newBlock, context, result );
-            handler( null, e );
+            PlacingBlockEvent.Raise( e );
             return e.Result;
         }
 
@@ -1675,7 +1672,7 @@ namespace fCraft {
             // raise Player.BeingKicked event
             if( raiseEvents ) {
                 var e = new PlayerBeingKickedEventArgs( this, player, reason, announce, recordToPlayerDB, context );
-                RaisePlayerBeingKickedEvent( e );
+                BeingKickedEvent.Raise( e );
                 if( e.Cancel ) PlayerOpException.ThrowCancelled( player, Info );
                 recordToPlayerDB = e.RecordToPlayerDB;
                 announce = e.Announce;
@@ -1713,7 +1710,7 @@ namespace fCraft {
             // raise Player.Kicked event
             if( raiseEvents ) {
                 var e = new PlayerKickedEventArgs( this, player, reason, announce, recordToPlayerDB, context );
-                RaisePlayerKickedEvent( e );
+                KickedEvent.Raise( e );
             }
         }
 

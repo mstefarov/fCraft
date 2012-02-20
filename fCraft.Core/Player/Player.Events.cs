@@ -100,25 +100,57 @@ namespace fCraft {
 
         /// <summary> Occurs when a player is about to place a block.
         /// Permission checks are done before calling this event, and their result may be overridden. </summary>
-        public static event EventHandler<PlayerPlacingBlockEventArgs> PlacingBlock;
+        public static event EventHandler<PlayerPlacingBlockEventArgs> PlacingBlock {
+            add { PlacingBlockEvent.Add( value, Priority.Normal ); }
+            remove { PlacingBlockEvent.Remove( value ); }
+        }
+        public static void PlacingBlockPriority( [NotNull] EventHandler<PlayerPlacingBlockEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            PlacingBlockEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<PlayerPlacingBlockEventArgs> PlacingBlockEvent = new PriorityEvent<PlayerPlacingBlockEventArgs>();
 
 
         /// <summary>  Occurs when a player has placed a block.
         /// This event does not occur if the block placement was disallowed. </summary>
-        public static event EventHandler<PlayerPlacedBlockEventArgs> PlacedBlock;
+        public static event EventHandler<PlayerPlacedBlockEventArgs> PlacedBlock {
+            add { PlacedBlockEvent.Add( value, Priority.Normal ); }
+            remove { PlacedBlockEvent.Remove( value ); }
+        }
+        public static void PlacedBlockPriority( [NotNull] EventHandler<PlayerPlacedBlockEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            PlacedBlockEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<PlayerPlacedBlockEventArgs> PlacedBlockEvent = new PriorityEvent<PlayerPlacedBlockEventArgs>();
 
 
         /// <summary> Occurs before a player is kicked (cancellable). 
         /// Kick may be caused by /Kick, /Ban, /BanIP, or /BanAll commands, or by idling.
         /// Callbacks may override whether the kick will be announced or recorded in PlayerDB. </summary>
-        public static event EventHandler<PlayerBeingKickedEventArgs> BeingKicked;
+        public static event EventHandler<PlayerBeingKickedEventArgs> BeingKicked {
+            add { BeingKickedEvent.Add( value, Priority.Normal ); }
+            remove { BeingKickedEvent.Remove( value ); }
+        }
+        public static void BeingKickedPriority( [NotNull] EventHandler<PlayerBeingKickedEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            BeingKickedEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<PlayerBeingKickedEventArgs> BeingKickedEvent = new PriorityEvent<PlayerBeingKickedEventArgs>();
 
 
         /// <summary> Occurs after a player has been kicked. Specifically, it happens after
         /// kick has been announced and recorded to PlayerDB (if applicable), just before the
         /// target player disconnects.
         /// Kick may be caused by /Kick, /Ban, /BanIP, or /BanAll commands, or by idling. </summary>
-        public static event EventHandler<PlayerKickedEventArgs> Kicked;
+        public static event EventHandler<PlayerKickedEventArgs> Kicked {
+            add { KickedEvent.Add( value, Priority.Normal ); }
+            remove { KickedEvent.Remove( value ); }
+        }
+        public static void KickedPriority( [NotNull] EventHandler<PlayerKickedEventArgs> callback, Priority priority ) {
+            if( callback == null ) throw new ArgumentNullException( "callback" );
+            KickedEvent.Add( callback, priority );
+        }
+        static readonly PriorityEvent<PlayerKickedEventArgs> KickedEvent = new PriorityEvent<PlayerKickedEventArgs>();
 
 
         /// <summary> Happens after a player has hidden or unhidden. </summary>
@@ -175,24 +207,8 @@ namespace fCraft {
 
         internal static void RaisePlayerPlacedBlockEvent( Player player, Map map, Vector3I coords,
                                                           Block oldBlock, Block newBlock, BlockChangeContext context ) {
-            var handler = PlacedBlock;
-            if( handler != null ) {
-                handler( null, new PlayerPlacedBlockEventArgs( player, map, coords, oldBlock, newBlock, context ) );
-            }
-        }
-
-
-        static void RaisePlayerBeingKickedEvent( [NotNull] PlayerBeingKickedEventArgs e ) {
-            if( e == null ) throw new ArgumentNullException( "e" );
-            var handler = BeingKicked;
-            if( handler != null ) handler( null, e );
-        }
-
-
-        static void RaisePlayerKickedEvent( [NotNull] PlayerKickedEventArgs e ) {
-            if( e == null ) throw new ArgumentNullException( "e" );
-            var handler = Kicked;
-            if( handler != null ) handler( null, e );
+            var e = new PlayerPlacedBlockEventArgs( player, map, coords, oldBlock, newBlock, context );
+            PlacedBlockEvent.Raise( e );
         }
 
 
