@@ -145,8 +145,7 @@ namespace fCraft {
             }
         }
 
-        internal UpdaterResult( bool updateAvailable, [NotNull] Uri downloadUri, [NotNull] ReleaseInfo[] releases ) {
-            if( downloadUri == null ) throw new ArgumentNullException( "downloadUri" );
+        internal UpdaterResult( bool updateAvailable, Uri downloadUri, [NotNull] ReleaseInfo[] releases ) {
             if( releases == null ) throw new ArgumentNullException( "releases" );
             UpdateAvailable = updateAvailable;
             DownloadUri = downloadUri;
@@ -158,7 +157,7 @@ namespace fCraft {
         public bool UpdateAvailable { get; private set; }
         /// <summary> Url to download the update from. </summary>
         public Uri DownloadUri { get; private set; }
-        /// <summary> Array of previous release information. / </summary>
+        /// <summary> Array of previous release information. </summary>
         public ReleaseInfo[] History { get; private set; }
         /// <summary> Release information of the lastest release. </summary>
         public ReleaseInfo LatestRelease { get; private set; }
