@@ -2010,7 +2010,7 @@ namespace fCraft {
             string prefix = ( usePrefix ? "  " : "" );
             switch( world.BackupEnabledState ) {
                 case YesNoAuto.Yes:
-                    player.Message( "{0}World {1} is backed up every {2}",
+                    player.Message( "{0}World {1}&S is backed up every {2}",
                                     prefix,
                                     world.ClassyName,
                                     world.BackupInterval.ToMiniString() );
@@ -2022,11 +2022,11 @@ namespace fCraft {
                     break;
                 case YesNoAuto.Auto:
                     if( World.DefaultBackupsEnabled ) {
-                        player.Message( "{0}Backups are disabled on {1} (default)",
+                        player.Message( "{0}Backups are disabled on {1}&S (default)",
                                         prefix,
                                         world.ClassyName );
                     } else {
-                        player.Message( "{0}World {1} is backed up every {2} (default)",
+                        player.Message( "{0}World {1} is backed up every {2}&S (default)",
                                         prefix,
                                         world.ClassyName,
                                         World.DefaultBackupInterval.ToMiniString() );
