@@ -1948,34 +1948,34 @@ namespace fCraft {
                         PrintBackupInfo( player, world, false );
 
                     } else if( value.Equals( "off", StringComparison.OrdinalIgnoreCase ) ) {
-                        if( world.BackupEnabledState == YesNoAuto.No ) {
+                        if( world.BackupsEnabledState == YesNoAuto.No ) {
                             MessageSameBackupSettings( player, world );
                             return;
                         } else {
-                            world.BackupEnabledState = YesNoAuto.No;
+                            world.BackupsEnabledState = YesNoAuto.No;
                         }
 
                     } else if( value.Equals( "default", StringComparison.OrdinalIgnoreCase ) ) {
-                        if( world.BackupEnabledState == YesNoAuto.Auto ) {
+                        if( world.BackupsEnabledState == YesNoAuto.Auto ) {
                             MessageSameBackupSettings( player, world );
                             return;
                         } else {
-                            world.BackupEnabledState = YesNoAuto.Auto;
+                            world.BackupsEnabledState = YesNoAuto.Auto;
                             return;
                         }
 
                     } else if( value.TryParseMiniTimespan( out backupInterval ) ) {
                         if( backupInterval == TimeSpan.Zero ) {
-                            if( world.BackupEnabledState == YesNoAuto.No ) {
+                            if( world.BackupsEnabledState == YesNoAuto.No ) {
                                 MessageSameBackupSettings( player, world );
                                 return;
                             } else {
-                                world.BackupEnabledState = YesNoAuto.No;
+                                world.BackupsEnabledState = YesNoAuto.No;
                             }
                         } else {
-                            if( world.BackupEnabledState != YesNoAuto.Yes || world.BackupInterval != backupInterval ) {
+                            if( world.BackupsEnabledState != YesNoAuto.Yes || world.BackupInterval != backupInterval ) {
                                 world.BackupInterval = backupInterval;
-                                world.BackupEnabledState = YesNoAuto.Yes;
+                                world.BackupsEnabledState = YesNoAuto.Yes;
                             } else {
                                 return;
                             }
@@ -2008,7 +2008,7 @@ namespace fCraft {
 
         static void PrintBackupInfo( Player player, World world, bool usePrefix ) {
             string prefix = ( usePrefix ? "  " : "" );
-            switch( world.BackupEnabledState ) {
+            switch( world.BackupsEnabledState ) {
                 case YesNoAuto.Yes:
                     player.Message( "{0}World {1}&S is backed up every {2}",
                                     prefix,
@@ -2029,7 +2029,7 @@ namespace fCraft {
                         player.Message( "{0}World {1} is backed up every {2}&S (default)",
                                         prefix,
                                         world.ClassyName,
-                                        World.DefaultBackupInterval.ToMiniString() );
+                                        World.BackupIntervalDefault.ToMiniString() );
                     }
                     break;
             }

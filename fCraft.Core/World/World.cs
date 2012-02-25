@@ -629,7 +629,7 @@ namespace fCraft {
         /// <summary> Whether timed backups are enabled (either manually or by default) on this world. </summary>
         public bool BackupsEnabled {
             get {
-                switch( BackupEnabledState ) {
+                switch( BackupsEnabledState ) {
                     case YesNoAuto.Yes:
                         return BackupInterval > TimeSpan.Zero;
                     case YesNoAuto.No:
@@ -643,19 +643,19 @@ namespace fCraft {
 
         /// <summary> Backup state. Use "Yes" to enable, "No" to disable, and "Auto" to use default settings.
         /// If setting to "Yes", make sure to set BackupInterval property value first. </summary>
-        public YesNoAuto BackupEnabledState {
-            get { return backupEnabledState; }
+        public YesNoAuto BackupsEnabledState {
+            get { return backupsEnabledState; }
             set {
                 lock( BackupLock ) {
-                    if( value == backupEnabledState ) return;
+                    if( value == backupsEnabledState ) return;
                     if( value == YesNoAuto.Yes && BackupInterval <= TimeSpan.Zero ) {
                         throw new InvalidOperationException( "Set BackupInterval before setting BackupEnabledState to Yes." );
                     }
-                    backupEnabledState = value;
+                    backupsEnabledState = value;
                 }
             }
         }
-        YesNoAuto backupEnabledState = YesNoAuto.Auto;
+        YesNoAuto backupsEnabledState = YesNoAuto.Auto;
 
 
         /// <summary> Timed backup interval.
@@ -663,18 +663,18 @@ namespace fCraft {
         /// If BackupEnabledState is set to "No" or "Auto", this property has no effect. </summary>
         public TimeSpan BackupInterval {
             get {
-                switch( backupEnabledState ) {
+                switch( backupsEnabledState ) {
                     case YesNoAuto.Yes:
                         return backupInterval;
                     case YesNoAuto.No:
                         return TimeSpan.Zero;
                     default: //case YesNoAuto.Auto:
-                        return DefaultBackupInterval;
+                        return BackupIntervalDefault;
                 }
             }
             set {
                 lock( BackupLock ) {
-                    if( BackupEnabledState == YesNoAuto.Yes && value >= TimeSpan.Zero ) {
+                    if( BackupsEnabledState == YesNoAuto.Yes && value >= TimeSpan.Zero ) {
                         throw new InvalidOperationException( "BackupInterval must be positive if BackupEnabledState is set to Yes." );
                     }
                     backupInterval = value;
@@ -685,25 +685,25 @@ namespace fCraft {
 
 
         /// <summary> Default backup interval, for worlds that have BackupEnabledState set to "Auto". </summary>
-        public static TimeSpan DefaultBackupInterval { get; set; }
+        public static TimeSpan BackupIntervalDefault { get; set; }
 
 
         /// <summary> Whether timed backups are enabled by default for worlds that have BackupEnabledState set to "Auto". </summary>
         public static bool DefaultBackupsEnabled {
-            get { return DefaultBackupInterval > TimeSpan.Zero; }
+            get { return BackupIntervalDefault > TimeSpan.Zero; }
         }
 
 
         internal string BackupSettingDescription {
             get {
-                switch( backupEnabledState ) {
+                switch( backupsEnabledState ) {
                     case YesNoAuto.No:
                         return "disabled (manual)";
                     case YesNoAuto.Yes:
                         return String.Format( "enabled ({0})", backupInterval.ToMiniString() );
                     default: //case YesNoAuto.Auto:
                         if( DefaultBackupsEnabled ) {
-                            return String.Format( "default ({0})", DefaultBackupInterval.ToMiniString() );
+                            return String.Format( "default ({0})", BackupIntervalDefault.ToMiniString() );
                         } else {
                             return "default (disabled)";
                         }
@@ -855,14 +855,14 @@ namespace fCraft {
             // load backup interval
             if( ( tempAttr = el.Attribute( "backup" ) ) != null ) {
                 if( !tempAttr.Value.ToTimeSpan( out backupInterval ) ) {
-                    backupInterval = DefaultBackupInterval;
+                    backupInterval = BackupIntervalDefault;
                     Logger.Log( LogType.Warning,
                                 "WorldManager: Could not parse \"backup\" attribute of world \"{0}\", assuming default ({1}).",
                                 Name,
                                 BackupInterval.ToMiniString() );
                 }
             } else {
-                BackupInterval = DefaultBackupInterval;
+                BackupInterval = BackupIntervalDefault;
             }
 
             // load BlockDB settings
@@ -951,7 +951,7 @@ namespace fCraft {
                 root.Add( BuildSecurity.Serialize( BuildSecurityXmlTagName ) );
             }
 
-            if( BackupInterval != DefaultBackupInterval ) {
+            if( BackupInterval != BackupIntervalDefault ) {
                 root.Add( new XAttribute( "backup", BackupInterval.ToSecondsString() ) );
             }
 
