@@ -13,7 +13,6 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
-using fCraft.AutoRank;
 using fCraft.Drawing;
 using fCraft.Events;
 using JetBrains.Annotations;
@@ -309,10 +308,6 @@ namespace fCraft {
             // Init IRC
             IRC.Init();
 
-            if( ConfigKey.AutoRankEnabled.Enabled() ) {
-                AutoRankManager.Init();
-            }
-
             RaiseEvent( Initialized );
 
             serverInitialized = true;
@@ -425,8 +420,6 @@ namespace fCraft {
             }
 
             if( ConfigKey.IRCBotEnabled.Enabled() ) IRC.Start();
-
-            Scheduler.NewTask( AutoRankManager.TaskCallback ).RunForever( AutoRankManager.TickInterval );
 
             // start the main loop - server is now connectible
             Scheduler.Start();
