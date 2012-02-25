@@ -16,11 +16,10 @@ namespace fCraft {
         static IPluginLoader cilPluginLoader;
         static IPluginLoader pythonPluginLoader;
 
-        /// <summary> List of all Plugins currently being managed by this PluginManager. </summary>
-        public static Dictionary<string,IPlugin> Plugins { get; private set; }
-
         public static Dictionary<string, PluginDescriptor> PluginDescriptors { get; private set; }
 
+        /// <summary> List of all Plugins currently being managed by this PluginManager. </summary>
+        public static Dictionary<PluginDescriptor, IPlugin> Plugins { get; private set; }
 
         const string PythonPluginLoaderType = "fCraft.Python.PythonPluginLoader";
         static bool initialized;
@@ -31,8 +30,8 @@ namespace fCraft {
             if( initialized ) throw new InvalidOperationException( "PluginManager is already initialized." );
             initialized = true;
 
-            Plugins = new Dictionary<string, IPlugin>();
             PluginDescriptors = new Dictionary<string, PluginDescriptor>();
+            Plugins = new Dictionary<PluginDescriptor, IPlugin>();
 
             cilPluginLoader = new CILPluginLoader();
 
@@ -53,6 +52,13 @@ namespace fCraft {
                 foreach( FileInfo file in pluginsDir.EnumerateFiles( ".fpi", SearchOption.AllDirectories ) ) {
                     LoadDescriptor( file.FullName );
                 }
+                if( PluginDescriptors.Count == 0 ) {
+                    Logger.Log( LogType.Warning,
+                                "PluginManager: No plugins found." );
+                }
+            } else {
+                Logger.Log( LogType.Warning,
+                            "PluginManager: \"plugins\" directory missing." );
             }
         }
 
@@ -61,16 +67,17 @@ namespace fCraft {
             try {
                 XDocument descriptorXml = XDocument.Load( fullName );
                 PluginDescriptor descriptor = new PluginDescriptor( descriptorXml.Root );
+                descriptor.PluginDescriptorFileName = fullName;
                 if( descriptor.LoaderType == PluginLoaderType.Python && pythonPluginLoader == null ) {
                     Logger.Log( LogType.Warning,
-                                "PluginManager: Could not load {0}: python support is disabled.",
+                                "PluginManager: Could not load {0}: Python support is disabled.",
                                 fullName );
                 } else {
-                    PluginDescriptors.Add( descriptor.Name, descriptor );
+                    PluginDescriptors.Add( descriptor.Name.ToLower(), descriptor );
                 }
             } catch( Exception ex ) {
                 Logger.Log( LogType.Error,
-                            "Could not load plugin descriptor from {0}: {1}", fullName, ex );
+                            "PluginManager: Failed to load plugin descriptor from {0}: {1}", fullName, ex );
             }
         }
 
@@ -88,30 +95,47 @@ namespace fCraft {
                         loader = cilPluginLoader;
                     }
                     IPlugin plugin = loader.LoadPlugin( descriptor );
+                    Plugins.Add( descriptor, plugin );
                     RaisePluginActivatedEvent( plugin );
                 } catch( Exception ex ) {
                     Logger.Log( LogType.Error,
-                                "Could not activate plugin {0} {1}: {2}",
+                                "PluginManager: Could not activate plugin {0} {1}: {2}",
                                 descriptor.Name, descriptor.Version, ex );
                 }
             }
         }
 
 
-        /// <summary> Tries to find a plugin by name. </summary>
+        /// <summary> Tries to find a plugin descriptor by name. </summary>
         /// <param name="pluginName"> Case-insensitive full name of the plugin. </param>
-        /// <returns> Relevant IPlugin object if found; null if not found. </returns>
+        /// <returns> Relevant PluginDescriptor object if found; null if not found. </returns>
         /// <exception cref="ArgumentNullException"> If pluginName is null. </exception>
-        public static IPlugin Find( [NotNull] string pluginName ) {
+        public static PluginDescriptor FindDescriptor( [NotNull] string pluginName ) {
             if( pluginName == null ) throw new ArgumentNullException( "pluginName" );
-            IPlugin result;
-            if( Plugins.TryGetValue( pluginName, out result ) ) {
+            PluginDescriptor result;
+            if( PluginDescriptors.TryGetValue( pluginName.ToLower(), out result ) ) {
                 return result;
             } else {
                 return null;
             }
         }
 
+
+        /// <summary> Finds a plugin instance by name. </summary>
+        /// <param name="pluginName"> Case-insensitive full name of the plugin. </param>
+        /// <returns> Relevant IPlugin object if found; null if plugin with this name was found, or if it was not activated yet. </returns>
+        /// <exception cref="ArgumentNullException"> If pluginName is null. </exception>
+        public static IPlugin FindInstance( [NotNull] string pluginName ) {
+            if( pluginName == null ) throw new ArgumentNullException( "pluginName" );
+            PluginDescriptor descriptor = FindDescriptor( pluginName );
+            if( descriptor == null ) return null;
+            IPlugin result;
+            if( Plugins.TryGetValue( descriptor, out result ) ) {
+                return result;
+            } else {
+                return null;
+            }
+        }
 
         /// <summary> Occurs when a plugin is successfully loaded. </summary>
         public static event EventHandler<PluginAddedEventArgs> PluginAdded;
