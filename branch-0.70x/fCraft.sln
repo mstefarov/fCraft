@@ -33,6 +33,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fCraft.MySql", "fCraft.MySql\fCraft.MySql.csproj", "{A1E664AC-8812-4EA0-96CF-350AF5CD0659}"
 EndProject
 Global
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_Events|Any CPU = Debug_Events|Any CPU
 		Debug_IRC|Any CPU = Debug_IRC|Any CPU

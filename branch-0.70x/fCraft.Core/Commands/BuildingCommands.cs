@@ -910,7 +910,7 @@ namespace fCraft {
                 Brush = new NormalBrush( fillBlock )
             };
 
-            player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
+            player.SelectionStart( 2, DrawOperationCallback, op, CdCut.Permissions );
             if( fillBlock != Block.Air ) {
                 player.Message( "Cut/{0}: Click 2 blocks or use &H/Mark&S to make a selection.",
                                 fillBlock );
@@ -1187,7 +1187,7 @@ namespace fCraft {
         static void PasteXHandler( Player player, CommandReader cmd ) {
             PasteDrawOperation op = new PasteDrawOperation( player, false );
             if( !op.ReadParams( cmd ) ) return;
-            player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
+            player.SelectionStart( 2, DrawOperationCallback, op, CdPasteX.Permissions );
             player.MessageNow( "{0}: Click 2 blocks or use &H/Mark&S to make a selection.",
                                op.Description );
         }
@@ -1210,7 +1210,7 @@ namespace fCraft {
         static void PasteNotXHandler( Player player, CommandReader cmd ) {
             PasteDrawOperation op = new PasteDrawOperation( player, true );
             if( !op.ReadParams( cmd ) ) return;
-            player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
+            player.SelectionStart( 2, DrawOperationCallback, op, CdPasteNotX.Permissions );
             player.MessageNow( "{0}: Click 2 blocks or use &H/Mark&S to make a selection.",
                                op.Description );
         }
@@ -1232,7 +1232,7 @@ namespace fCraft {
         static void PasteHandler( Player player, CommandReader cmd ) {
             QuickPasteDrawOperation op = new QuickPasteDrawOperation( player, false );
             if( !op.ReadParams( cmd ) ) return;
-            player.SelectionStart( 1, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
+            player.SelectionStart( 1, DrawOperationCallback, op, CdPaste.Permissions );
             player.MessageNow( "{0}: Click a block or use &H/Mark&S to begin pasting.",
                                op.Description );
         }
@@ -1255,7 +1255,7 @@ namespace fCraft {
         static void PasteNotHandler( Player player, CommandReader cmd ) {
             QuickPasteDrawOperation op = new QuickPasteDrawOperation( player, true );
             if( !op.ReadParams( cmd ) ) return;
-            player.SelectionStart( 1, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
+            player.SelectionStart( 1, DrawOperationCallback, op, CdPasteNot.Permissions );
             player.MessageNow( "{0}: Click a block or use &H/Mark&S to begin pasting.",
                                op.Description );
         }
