@@ -340,7 +340,6 @@ promote/demote players by name, even if they have not visited the server yet.
 Also allows to manipulate players' records, and to promote/demote players in batches.
 Affected commands:
     /PruneDB
-    /AutoRankAll
     /MassRank
     /SetInfo
     /InfoSwap

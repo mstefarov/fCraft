@@ -15,8 +15,6 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdMe );
 
-            CommandManager.RegisterCommand( CdRoll );
-
             CommandManager.RegisterCommand( CdDeafen );
 
             CommandManager.RegisterCommand( CdClear );
@@ -206,55 +204,6 @@ namespace fCraft {
                 player.Info.ProcessMessageWritten();
                 Chat.SendMe( player, msg );
             }
-        }
-
-        #endregion
-
-
-        #region Roll
-
-        static readonly CommandDescriptor CdRoll = new CommandDescriptor {
-            Name = "Roll",
-            Category = CommandCategory.Chat,
-            Permissions = new[] { Permission.Chat },
-            IsConsoleSafe = true,
-            Help = "Gives random number between 1 and 100.\n" +
-                   "&H/Roll MaxNumber\n" +
-                   "&S  Gives number between 1 and max.\n" +
-                   "&H/Roll MinNumber MaxNumber\n" +
-                   "&S  Gives number between min and max.",
-            Handler = RollHandler
-        };
-
-        static void RollHandler( Player player, CommandReader cmd ) {
-            if( player.Info.IsMuted ) {
-                player.MessageMuted();
-                return;
-            }
-
-            if( player.DetectChatSpam() ) return;
-
-            Random rand = new Random();
-            int n1;
-            int min, max;
-            if( cmd.NextInt( out n1 ) ) {
-                int n2;
-                if( !cmd.NextInt( out n2 ) ) {
-                    n2 = 1;
-                }
-                min = Math.Min( n1, n2 );
-                max = Math.Max( n1, n2 );
-            } else {
-                min = 1;
-                max = 100;
-            }
-
-            int num = rand.Next( min, max + 1 );
-            Server.Message( player,
-                            "{0}{1} rolled {2} ({3}...{4})",
-                            player.ClassyName, Color.Silver, num, min, max );
-            player.Message( "{0}You rolled {1} ({2}...{3})",
-                            Color.Silver, num, min, max );
         }
 
         #endregion
