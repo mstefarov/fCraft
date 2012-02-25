@@ -1,38 +1,34 @@
 ﻿// fCraft is Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
-// CILPluginLoader contributed by Jared Klopper (LgZ-optical).
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Reflection;
-using JetBrains.Annotations;
 
 namespace fCraft {
     // Loads CIL assemblies and instantiates IPlugin objects.
     sealed class CILPluginLoader : IPluginLoader {
-        public string[] PluginExtensions {
-            get { return new[] { ".dll" }; }
+        readonly Dictionary<string, Assembly> assemblyCache = new Dictionary<string, Assembly>();
+
+        public PluginLoaderType LoaderType {
+            get { return PluginLoaderType.CIL; }
         }
 
-        public PluginLoadResult LoadPlugins( [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            try {
-                List<IPlugin> plugins = new List<IPlugin>();
-                Assembly assembly = Assembly.LoadFrom( fileName );
-                foreach( Type pluginType in assembly.GetTypes() ) {
-                    if( pluginType.GetInterfaces().Contains( typeof( IPlugin ) ) && pluginType.IsClass ) {
-                        plugins.Add( (IPlugin)Activator.CreateInstance( pluginType ) );
-                    }
-                }
-                return new PluginLoadResult {
-                    LoadSuccessful = true,
-                    LoadedPlugins = plugins
-                };
-            } catch( Exception exception ) {
-                return new PluginLoadResult {
-                    Exception = exception,
-                    LoadSuccessful = false
-                };
+
+        public IPlugin LoadPlugin( PluginDescriptor descriptor ) {
+            if( descriptor == null ) throw new ArgumentNullException( "descriptor" );
+            string descriptorPath = Path.GetDirectoryName( descriptor.PluginDescriptorFileName );
+            string fileName = Path.GetFullPath( Path.Combine( descriptorPath, descriptor.PluginFileName ) );
+
+            Assembly assembly;
+            if( !assemblyCache.TryGetValue( fileName, out assembly ) ) {
+                assembly = Assembly.LoadFrom( fileName );
             }
+
+            IPlugin pluginInstance = (IPlugin)assembly.CreateInstance( descriptor.PluginTypeName );
+            if( pluginInstance == null ) {
+                throw new Exception( "Could not find given plugin type" );
+            }
+            return pluginInstance;
         }
     }
 }

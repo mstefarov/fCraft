@@ -13,10 +13,13 @@ using fCraft.Events;
 namespace fCraft {
     /// <summary> Manages all Plugin loaders and Plugin objects. </summary>
     public static class PluginManager {
-        static List<IPluginLoader> PluginLoaders { get; set; }
+        static IPluginLoader cilPluginLoader;
+        static IPluginLoader pythonPluginLoader;
 
         /// <summary> List of all Plugins currently being managed by this PluginManager. </summary>
         public static Dictionary<string,IPlugin> Plugins { get; private set; }
+
+        public static Dictionary<string, PluginDescriptor> PluginDescriptors { get; private set; }
 
 
         const string PythonPluginLoaderType = "fCraft.Python.PythonPluginLoader";
@@ -29,16 +32,16 @@ namespace fCraft {
             initialized = true;
 
             Plugins = new Dictionary<string, IPlugin>();
-            PluginLoaders = new List<IPluginLoader>();
+            PluginDescriptors = new Dictionary<string, PluginDescriptor>();
 
-            AddLoader( new CILPluginLoader() );
+            cilPluginLoader = new CILPluginLoader();
 
             string pythonPath = Path.Combine( Paths.WorkingPath, Paths.PythonPluginLoaderModule );
             if( File.Exists( pythonPath ) ) {
                 Assembly pythonLoaderAsm = Assembly.LoadFile( pythonPath );
                 IPluginLoader pythonLoader = (IPluginLoader)pythonLoaderAsm.CreateInstance( PythonPluginLoaderType );
                 if( pythonLoader != null ) {
-                    AddLoader( pythonLoader );
+                    pythonPluginLoader = pythonLoader;
                     Logger.Log( LogType.Debug, "PluginManager: Python plugin support enabled." );
                 } else {
                     Logger.Log( LogType.Error, "PluginManager: Failed to load Python plugin support." );
@@ -48,23 +51,27 @@ namespace fCraft {
             DirectoryInfo pluginsDir = new DirectoryInfo( Paths.PluginDirectory );
             if( pluginsDir.Exists ) {
                 foreach( FileInfo file in pluginsDir.EnumerateFiles( ".fpi", SearchOption.AllDirectories ) ) {
-                    AddPlugin( file.FullName );
+                    LoadDescriptor( file.FullName );
                 }
             }
         }
 
 
-        static void AddPlugin( string fullName ) {
-            string descriptorPath = Path.GetDirectoryName( fullName );
-            XDocument doc = XDocument.Load( fullName );
-            PluginDescriptor descriptor = new PluginDescriptor( doc.Root );
-            // TODO
-        }
-
-
-        static void AddLoader( [NotNull] IPluginLoader loader ) {
-            if( loader == null ) throw new ArgumentNullException( "loader" );
-            PluginLoaders.Add( loader );
+        static void LoadDescriptor( string fullName ) {
+            try {
+                XDocument descriptorXml = XDocument.Load( fullName );
+                PluginDescriptor descriptor = new PluginDescriptor( descriptorXml.Root );
+                if( descriptor.LoaderType == PluginLoaderType.Python && pythonPluginLoader == null ) {
+                    Logger.Log( LogType.Warning,
+                                "PluginManager: Could not load {0}: python support is disabled.",
+                                fullName );
+                } else {
+                    PluginDescriptors.Add( descriptor.Name, descriptor );
+                }
+            } catch( Exception ex ) {
+                Logger.Log( LogType.Error,
+                            "Could not load plugin descriptor from {0}: {1}", fullName, ex );
+            }
         }
 
 
@@ -72,9 +79,21 @@ namespace fCraft {
         /// <exception cref="InvalidOperationException"> If PluginManager is not initialized. </exception>
         public static void ActivatePlugins() {
             if( !initialized ) throw new InvalidOperationException( "PluginManager is not initialized." );
-            foreach( IPlugin plugin in Plugins.Values ) {
-                plugin.Activate();
-                RaisePluginActivatedEvent( plugin );
+            foreach( PluginDescriptor descriptor in PluginDescriptors.Values ) {
+                try {
+                    IPluginLoader loader;
+                    if( descriptor.LoaderType == PluginLoaderType.Python ) {
+                        loader = pythonPluginLoader;
+                    } else {
+                        loader = cilPluginLoader;
+                    }
+                    IPlugin plugin = loader.LoadPlugin( descriptor );
+                    RaisePluginActivatedEvent( plugin );
+                } catch( Exception ex ) {
+                    Logger.Log( LogType.Error,
+                                "Could not activate plugin {0} {1}: {2}",
+                                descriptor.Name, descriptor.Version, ex );
+                }
             }
         }
 
@@ -130,12 +149,6 @@ namespace fCraft {
             }
             return true;
         }
-    }
-
-
-    public enum PluginLoaderType {
-        CIL,
-        Python
     }
 }
 

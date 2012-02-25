@@ -1,11 +1,16 @@
 ﻿// fCraft is Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
-// Plugin subsystem contributed by Jared Klopper (LgZ-optical).
+
+using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary> Provides the ability to load plugins of a specific type,
-    /// such as IronPython, .NET assemblies, etc. </summary>
+    /// <summary> Provides the ability to load plugins of a specific type. </summary>
     public interface IPluginLoader {
-        PluginLoadResult LoadPlugins( string fileName );
-        string[] PluginExtensions { get; }
+        [NotNull]
+        IPlugin LoadPlugin( [NotNull] PluginDescriptor fileName );
+    }
+
+    public enum PluginLoaderType {
+        CIL,
+        Python
     }
 }
