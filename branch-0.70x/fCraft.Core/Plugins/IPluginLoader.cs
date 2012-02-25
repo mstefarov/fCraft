@@ -6,7 +6,7 @@ namespace fCraft {
     /// <summary> Provides the ability to load plugins of a specific type. </summary>
     public interface IPluginLoader {
         [NotNull]
-        IPlugin LoadPlugin( [NotNull] PluginDescriptor fileName );
+        IPlugin LoadPlugin( [NotNull] PluginDescriptor descriptor );
     }
 
     public enum PluginLoaderType {
