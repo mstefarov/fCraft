@@ -48,6 +48,10 @@ namespace fCraft {
 
         internal static void Start() {
             Scheduler.NewBackgroundTask( Beat ).RunForever( Delay );
+            if( ConfigKey.HeartbeatToWoMDirect.Enabled() ) {
+                Logger.Log( LogType.SystemActivity,
+                            "WoM Direct heartbeat is enabled. Your server will be listed on http://direct.worldofminecraft.com" );
+            }
         }
 
 
