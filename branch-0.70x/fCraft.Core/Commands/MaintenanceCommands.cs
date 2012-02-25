@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using fCraft.AutoRank;
 using JetBrains.Annotations;
 
 namespace fCraft {
@@ -16,7 +15,6 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdDumpStats );
 
             CommandManager.RegisterCommand( CdMassRank );
-            CommandManager.RegisterCommand( CdAutoRankAll );
             CommandManager.RegisterCommand( CdSetInfo );
 
             CommandManager.RegisterCommand( CdReload );
@@ -530,74 +528,6 @@ namespace fCraft {
         #endregion
 
 
-        #region AutoRank
-
-        static readonly CommandDescriptor CdAutoRankAll = new CommandDescriptor {
-            Name = "AutoRankAll",
-            Category = CommandCategory.Maintenance | CommandCategory.Moderation,
-            IsConsoleSafe = true,
-            IsHidden = true,
-            Permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
-            Help = "If AutoRank is disabled, it can still be called manually using this command.",
-            Usage = "/AutoRankAll [FromRank]",
-            Handler = AutoRankAllHandler
-        };
-
-        static void AutoRankAllHandler( Player player, CommandReader cmd ) {
-            string rankName = cmd.Next();
-            Rank rank = null;
-            if( rankName != null ) {
-                rank = RankManager.FindRank( rankName );
-                if( rank == null ) {
-                    player.MessageNoRank( rankName );
-                    return;
-                }
-            }
-
-            PlayerInfo[] list;
-            if( rank == null ) {
-                list = PlayerDB.PlayerInfoList;
-            } else {
-                list = PlayerDB.PlayerInfoList.Where( p => p.Rank == rank ).ToArray();
-            }
-            DoAutoRankAll( player, list, false, "~AutoRankAll" );
-        }
-
-        internal static void DoAutoRankAll( [NotNull] Player player, [NotNull] PlayerInfo[] list, bool silent, string message ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( list == null ) throw new ArgumentNullException( "list" );
-
-            if( !AutoRankManager.HasCriteria ) {
-                player.Message( "AutoRankAll: No criteria found." );
-                return;
-            }
-
-            player.Message( "AutoRankAll: Evaluating {0} players...", list.Length );
-
-            Stopwatch sw = Stopwatch.StartNew();
-            int promoted = 0, demoted = 0;
-            for( int i = 0; i < list.Length; i++ ) {
-                Rank newRank = AutoRankManager.Check( list[i] );
-                if( newRank != null ) {
-                    if( newRank > list[i].Rank ) {
-                        promoted++;
-                    } else if( newRank < list[i].Rank ) {
-                        demoted++;
-                    }
-                    try {
-                        list[i].ChangeRank( player, newRank, message, !silent, true, true );
-                    } catch (PlayerOpException ex){
-                        player.Message( ex.MessageColored );
-                    }
-                }
-            }
-            sw.Stop();
-            player.Message( "AutoRankAll: Worked for {0}ms, {1} players promoted, {2} demoted.", sw.ElapsedMilliseconds, promoted, demoted );
-        }
-
-        #endregion
-
-
         #region MassRank
 
         static readonly CommandDescriptor CdMassRank = new CommandDescriptor {
@@ -970,10 +900,6 @@ namespace fCraft {
                             player.Message( "An error occurred while trying to reload config: {0}: {1}", ex.GetType().Name, ex.Message );
                             success = false;
                         }
-                        break;
-
-                    case "autorank":
-                        success = AutoRankManager.Init();
                         break;
 
                     case "salt":

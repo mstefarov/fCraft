@@ -524,11 +524,6 @@ characters, and even colorcodes here.",
             MinLength = 1, MaxLength = 64 )]
         ConsoleName,
 
-        [BoolKey( ConfigSection.Advanced, false,
-@"Activate autorank (experimental, unsupported, use at your own risk).",
-            RequiresRestartToChange = true )]
-        AutoRankEnabled,
-
         [BoolKey( ConfigSection.Advanced, true,
 @"Activate heartbeat to minecraft.net.
 If disabled, heartbeat data is written to heartbeatdata.txt." )]
