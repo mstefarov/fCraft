@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Xml;
 using JetBrains.Annotations;
 using fCraft.Events;
 
@@ -168,6 +169,27 @@ namespace fCraft {
                 handler( null, new PluginActivatedEventArgs( plugin ) );
             }
         }
+
+
+        [Pure]
+        public static bool IsValidPluginName( [NotNull] string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( name.Length < 2 || name.Length > 32 ) return false;
+            for( int i = 0; i < name.Length; i++ ) {
+                char ch = name[i];
+                if( ( ch < '0' && ch != '.' ) || ( ch > '9' && ch < 'A' ) ||
+                    ( ch > 'Z' && ch < '_' ) || ( ch > '_' && ch < 'a' ) || ch > 'z' ) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+
+    public enum PluginLoaderType {
+        CIL,
+        Python
     }
 }
 

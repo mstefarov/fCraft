@@ -89,7 +89,7 @@ namespace fCraft {
 
         #region Serialization
 
-        public const string XmlRootName = "MySqlPlayerDBProviderConfig";
+        public const string XmlRootName = "mySqlPlayerDBProviderConfig";
 
         [NotNull]
         public XElement Serialize() {
@@ -101,42 +101,42 @@ namespace fCraft {
         public XElement Serialize( [NotNull] string rootName ) {
             if( rootName == null ) throw new ArgumentNullException( "rootName" );
             XElement root = new XElement( rootName );
-            root.Add( new XElement( "Host", Host ) );
-            root.Add( new XElement( "Port", Port ) );
-            root.Add( new XElement( "Database", Database ) );
-            root.Add( new XElement( "UserID", UserID ) );
-            root.Add( new XElement( "Password", Password ) );
+            root.Add( new XElement( "host", Host ) );
+            root.Add( new XElement( "port", Port ) );
+            root.Add( new XElement( "database", Database ) );
+            root.Add( new XElement( "userID", UserID ) );
+            root.Add( new XElement( "password", Password ) );
             return root;
         }
 
 
         public MySqlPlayerDBProviderConfig( [NotNull] XContainer el ) {
             if( el == null ) throw new ArgumentNullException( "el" );
-            XElement hostEl = el.Element( "Host" );
+            XElement hostEl = el.Element( "host" );
             if( hostEl == null || String.IsNullOrEmpty( hostEl.Value ) ) {
                 throw new SerializationException( "MySqlPlayerDBProvider: No host specified in config." );
             }
             Host = hostEl.Value;
 
-            XElement portEl = el.Element( "Port" );
+            XElement portEl = el.Element( "port" );
             if( portEl == null || String.IsNullOrEmpty( portEl.Value ) ) {
                 throw new SerializationException( "MySqlPlayerDBProvider: No port specified in config." );
             }
             Port = Int32.Parse( portEl.Value );
 
-            XElement databaseEl = el.Element( "Database" );
+            XElement databaseEl = el.Element( "database" );
             if( databaseEl == null || String.IsNullOrEmpty( databaseEl.Value ) ) {
                 throw new SerializationException( "MySqlPlayerDBProvider: No database specified in config." );
             }
             Database = databaseEl.Value;
 
-            XElement userIDEl = el.Element( "UserID" );
+            XElement userIDEl = el.Element( "userID" );
             if( userIDEl == null || String.IsNullOrEmpty( userIDEl.Value ) ) {
                 throw new SerializationException( "MySqlPlayerDBProvider: No user id specified in config." );
             }
             UserID = userIDEl.Value;
 
-            XElement passwordEl = el.Element( "Password" );
+            XElement passwordEl = el.Element( "password" );
             if( passwordEl == null || passwordEl.Value == null ) {
                 throw new SerializationException( "MySqlPlayerDBProvider: No password specified in config." );
             }
