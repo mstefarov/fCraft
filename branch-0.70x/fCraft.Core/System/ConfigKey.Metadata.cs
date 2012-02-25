@@ -12,9 +12,11 @@ namespace fCraft {
     /// <summary> Describes attributes and metadata of a configuration key. </summary>
     [AttributeUsage( AttributeTargets.Field )]
     class ConfigKeyAttribute : DescriptionAttribute {
-        protected ConfigKeyAttribute( ConfigSection section, [NotNull] Type valueType, object defaultValue, [NotNull] string description )
+        protected ConfigKeyAttribute( ConfigSection section, [NotNull] Type valueType,
+                                      [NotNull] string defaultValue, [NotNull] string description )
             : base( description ) {
             if( valueType == null ) throw new ArgumentNullException( "valueType" );
+            if( defaultValue == null ) throw new ArgumentNullException( "defaultValue" );
             if( description == null ) throw new ArgumentNullException( "description" );
             ValueType = valueType;
             DefaultValue = defaultValue;
@@ -25,7 +27,7 @@ namespace fCraft {
         public Type ValueType { get; protected set; }
 
         [NotNull]
-        public object DefaultValue { get; protected set; }
+        public string DefaultValue { get; protected set; }
 
         public ConfigSection Section { get; private set; }
 
@@ -68,7 +70,7 @@ namespace fCraft {
 
     sealed class StringKeyAttribute : ConfigKeyAttribute {
         public const int NoLengthRestriction = -1;
-        public StringKeyAttribute( ConfigSection section, object defaultValue, string description )
+        public StringKeyAttribute( ConfigSection section, string defaultValue, string description )
             : base( section, typeof( string ), defaultValue, description ) {
             MinLength = NoLengthRestriction;
             MaxLength = NoLengthRestriction;
@@ -106,7 +108,7 @@ namespace fCraft {
 
     sealed class IntKeyAttribute : ConfigKeyAttribute {
         public IntKeyAttribute( ConfigSection section, int defaultValue, string description )
-            : base( section, typeof( int ), defaultValue, description ) {
+            : base( section, typeof( int ), defaultValue.ToString( CultureInfo.InvariantCulture ), description ) {
             MinValue = int.MinValue;
             MaxValue = int.MaxValue;
             PowerOfTwo = false;
@@ -127,7 +129,7 @@ namespace fCraft {
 
         public override bool IsDefault( string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
-            return ( Int32.Parse( value ) == (int)DefaultValue );
+            return ( Int32.Parse( value ) == Int32.Parse(DefaultValue) );
         }
 
 
@@ -206,8 +208,9 @@ namespace fCraft {
 
         public override bool IsDefault( string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
-            return (value.Length==0);
+            return ( value.Length == 0 );
         }
+
 
         public override void Validate( string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
@@ -289,21 +292,21 @@ namespace fCraft {
 
     sealed class BoolKeyAttribute : ConfigKeyAttribute {
         public BoolKeyAttribute( ConfigSection section, bool defaultValue, string description )
-            : base( section, typeof( bool ), defaultValue, description ) {
+            : base( section, typeof( bool ), defaultValue.ToString( CultureInfo.InvariantCulture ), description ) {
         }
 
         public override bool IsDefault( string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
-            return ( Boolean.Parse( value ) == (bool)DefaultValue );
+            return ( Boolean.Parse( value ) == Boolean.Parse( DefaultValue ) );
         }
 
 
         public override string GetUsableString( string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             if( value.Length == 0 ) {
-                return DefaultValue.ToString();
+                return DefaultValue;
             } else {
-                return value;
+                return value.ToLower();
             }
         }
 
@@ -330,13 +333,13 @@ namespace fCraft {
             BlankMeaning = defaultMeaning;
             switch( BlankMeaning ) {
                 case BlankValueMeaning.Any:
-                    DefaultValue = IPAddress.Any;
+                    DefaultValue = IPAddress.Any.ToString();
                     break;
                 case BlankValueMeaning.Loopback:
-                    DefaultValue = IPAddress.Loopback;
+                    DefaultValue = IPAddress.Loopback.ToString();
                     break;
                 default:
-                    DefaultValue = IPAddress.None;
+                    DefaultValue = IPAddress.None.ToString();
                     break;
             }
         }
@@ -462,7 +465,7 @@ namespace fCraft {
 
     sealed class EnumKeyAttribute : ConfigKeyAttribute {
         public EnumKeyAttribute( ConfigSection section, object defaultValue, string description )
-            : base( section, defaultValue.GetType(), defaultValue, description ) {
+            : base( section, defaultValue.GetType(), defaultValue.ToString(), description ) {
             ValueType = defaultValue.GetType();
         }
 

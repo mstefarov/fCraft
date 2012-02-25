@@ -164,7 +164,9 @@ namespace fCraft {
      * 153 - r1246 - Added PlayerDBProvider data
      *               Removed BackupDataOnStartup key.
      *               
-     * 154 - r1312 - Added SeparateWorldAndGlobalChat key (default: true).
+     * 154 - r1312 - Added SeparateWorldAndGlobalChat key (default: false)
+     * 
+     * 155 - r1464 - Added WoMDirectDescription and WoMDirectFlags keys
      * 
      */
 
@@ -176,7 +178,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 154;
+        public const int CurrentVersion = 155;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY
@@ -291,7 +293,7 @@ namespace fCraft {
 
 
         /// <summary> Provides the default value for a given ConfigKey. </summary>
-        public static object GetDefault( this ConfigKey key ) {
+        public static string GetDefault( this ConfigKey key ) {
             return KeyMetadata[(int)key].DefaultValue;
         }
 
@@ -406,12 +408,12 @@ namespace fCraft {
             // read the rest of the keys
             if( version < FirstVersionWithSectionTags ) {
                 foreach( XElement element in config.Elements() ) {
-                    ParseKeyElementPreSettings( element );
+                    ParseKeyElementLegacy( element );
                 }
             } else if( version < FirstVersionWithSettingsTag ) {
                 foreach( XElement section in config.Elements( "Section" ) ) {
                     foreach( XElement keyElement in section.Elements() ) {
-                        ParseKeyElementPreSettings( keyElement );
+                        ParseKeyElementLegacy( keyElement );
                     }
                 }
             } else {
@@ -475,7 +477,8 @@ namespace fCraft {
         public static XElement PlayerDBProviderConfig { get; set; }
 
 
-        static void ParseKeyElementPreSettings( [NotNull] XElement element ) {
+        // LEGACY loader (for compatibility with config.xml versions prior to 152)
+        static void ParseKeyElementLegacy( [NotNull] XElement element ) {
             if( element == null ) throw new ArgumentNullException( "element" );
 
             string keyName = element.Name.ToString().ToLower();
@@ -519,23 +522,40 @@ namespace fCraft {
                             element );
                 return;
             }
+            XAttribute defaultAttr = element.Attribute( "default" );
             string keyName = keyAttr.Value;
             string value = valueAttr.Value;
+
             ConfigKey key;
-            if( EnumUtil.TryParse( keyName, out key, true ) ) {
-                // known key
-                TrySetValue( key, value );
-
-            } else if( LegacyConfigKeys.ContainsKey( keyName ) ) { // LEGACY
-                // renamed/legacy key
-                TrySetValue( LegacyConfigKeys[keyName], value );
-
-            } else {
-                // unknown key
-                Logger.Log( LogType.Warning,
-                            "Config: Unrecognized entry ignored: {0} = {1}",
-                            element.Name, element.Value );
+            if( !EnumUtil.TryParse( keyName, out key, true )) {
+                if( LegacyConfigKeys.ContainsKey( keyName ) ) {
+                    key = LegacyConfigKeys[keyName];
+                } else {
+                    // unknown key
+                    Logger.Log( LogType.Warning,
+                                "Config: Unrecognized key ignored: {0} = {1}",
+                                element.Name, element.Value );
+                    return;
+                }
             }
+
+            // see if setting is on its default value, and whether defaults have changed
+            if( defaultAttr != null ) {
+                string oldDefault = defaultAttr.Value;
+                if( key.GetString() == key.GetString( value ) && !key.IsDefault( oldDefault ) ) {
+                    Logger.Log( LogType.Warning,
+                                "Config: Default value for {0} has been changed from {1} (\"{2}\") to {3} (\"{4}\"). " +
+                                "You may want to adjust your settings accordingly.",
+                                key,
+                                key.GetPresentationString( oldDefault ),
+                                oldDefault,
+                                key.GetPresentationString( key.GetDefault() ),
+                                key.GetDefault() );
+                }
+            }
+
+            // known key
+            TrySetValue( key, value );
         }
 
 
@@ -791,9 +811,14 @@ namespace fCraft {
         }
 
 
-        /// <summary> Returns string value for the given key. </summary>
+        /// <summary> Returns normalized string value for the given key. </summary>
         public static string GetString( this ConfigKey key ) {
             return KeyMetadata[(int)key].GetUsableString( Settings[(int)key] );
+        }
+
+        /// <summary> Returns normalized string value for the given key. </summary>
+        public static string GetString( this ConfigKey key, string value ) {
+            return KeyMetadata[(int)key].GetUsableString( value );
         }
 
 
@@ -802,14 +827,13 @@ namespace fCraft {
             return KeyMetadata[(int)key].GetPresentationString( Settings[(int)key] );
         }
 
-
         /// <summary> Returns nicely formatted string (but not necessarily parsable) value for the given key. </summary>
         public static string GetPresentationString( this ConfigKey key, string value ) {
             return KeyMetadata[(int)key].GetPresentationString( value );
         }
 
 
-        /// <summary> Returns raw value for the given key. </summary>
+        /// <summary> Returns raw string value for the given key (the value straight from config.xml) </summary>
         public static string GetRawString( this ConfigKey key ) {
             return Settings[(int)key];
         }

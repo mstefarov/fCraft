@@ -98,6 +98,10 @@ namespace fCraft {
             // we dont want WoM redirecting back to minecraft.net
             data.CustomData["noforward"] = "1";
 
+            // wom description and flags
+            data.CustomData["desc"] = ConfigKey.WoMDirectDescription.GetString();
+            data.CustomData["flags"] = ConfigKey.WoMDirectFlags.GetString();
+
             if( !RaiseHeartbeatSendingEvent( data, WoMDirectUri, false ) ) {
                 return;
             }
