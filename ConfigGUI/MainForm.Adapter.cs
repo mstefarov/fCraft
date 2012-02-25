@@ -387,7 +387,7 @@ namespace fCraft.ConfigGUI {
                 nMaxUndo.Value = ConfigKey.MaxUndo.GetInt();
             } else {
                 xMaxUndo.Checked = false;
-                nMaxUndo.Value = (int)ConfigKey.MaxUndo.GetDefault();
+                nMaxUndo.Value = Int32.Parse( ConfigKey.MaxUndo.GetDefault() );
             }
             nMaxUndoStates.Value = ConfigKey.MaxUndoStates.GetInt();
 
