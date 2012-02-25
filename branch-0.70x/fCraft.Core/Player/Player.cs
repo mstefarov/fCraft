@@ -36,11 +36,6 @@ namespace fCraft {
         /// and that prevents console from calling certain commands (like /TP). </summary>
         public static Player Console;
 
-        /// <summary> The pseudo-player for commands issued by the Autorank system.
-        /// Autorank has all the permissions granted. Note that Player.Autorank.World is always null,
-        /// and that prevents Autorank from calling certain commands (like /TP). </summary>
-        public static Player AutoRank;
-
 
         #region Properties
 

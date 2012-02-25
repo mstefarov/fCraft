@@ -335,7 +335,6 @@ namespace fCraft {
             RaiseEvent( Starting );
 
             Player.Console = new Player( ReservedPlayerID.Console, ConfigKey.ConsoleName.GetString(), RankManager.HighestRank );
-            Player.AutoRank = new Player( ReservedPlayerID.AutoRank, "(AutoRank)", RankManager.HighestRank );
 
             if( ConfigKey.BlockDBEnabled.Enabled() ) BlockDB.Init();
 

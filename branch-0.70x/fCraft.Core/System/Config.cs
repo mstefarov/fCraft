@@ -60,18 +60,18 @@ namespace fCraft {
      *              Made the order of Rank elements determine the relative index
      *              Config.xml files of earlier versions than 111 can NOT be loaded by this copy of fCraft.
      *
-     * 112 - r235 - Removed PingInterval config key
+     * 112 - r235 - Removed PingInterval key
      *              Removed inactive ControlPhysics and AddLandmarks permissions
      *
-     * 113 - r243 - Removed IRCBotQuitMsg config key
+     * 113 - r243 - Removed IRCBotQuitMsg key
      * 
      * 114 - r244 - Added IRCRegisteredNick, IRCNickServ, and IRCNickServMessage keys
      * 
-     * 115 - r265 - Added IRCThreads keys
+     * 115 - r265 - Added IRCThreads key
      * 
-     * 116 - r272 - Added AutoRankEnabled keys
+     * 116 - r272 - Added AutoRankEnabled key
      * 
-     * 117 - r280 - Added MaxUndo keys
+     * 117 - r280 - Added MaxUndo key
      * 
      * 118 - r318 - Added MeColor and WarningColor keys
      * 
@@ -168,6 +168,8 @@ namespace fCraft {
      * 
      * 155 - r1464 - Added WoMDirectDescription and WoMDirectFlags keys
      * 
+     * 156 - r1473 - Removed AutoRankEnabled key
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -178,7 +180,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 155;
+        public const int CurrentVersion = 156;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY

@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Class that describes a plugin. </summary>
-    public class PluginDescriptor {
+    public sealed class PluginDescriptor {
         /// <summary> Name of the this plugin. </summary>
         [NotNull]
         public string Name { get; set; }

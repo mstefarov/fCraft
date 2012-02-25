@@ -55,7 +55,7 @@ namespace fCraft {
         // Checks whether given value matches defaults.
         public virtual bool IsDefault( [NotNull] string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
-            return ( value == DefaultValue.ToString() );
+            return ( value == DefaultValue );
         }
 
         // Checks if value is acceptible. Throws FormatException any failure.
@@ -490,7 +490,7 @@ namespace fCraft {
         public override string GetUsableString( string value ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             if( value.Length == 0 ) {
-                return DefaultValue.ToString();
+                return DefaultValue;
             } else {
                 return value;
             }
