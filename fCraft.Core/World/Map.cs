@@ -477,7 +477,9 @@ namespace fCraft {
 
         static void DeleteOldBackups( [NotNull] DirectoryInfo directory ) {
             if( directory == null ) throw new ArgumentNullException( "directory" );
-            var backupList = directory.GetFiles( "*.fcm" ).OrderBy( fi => -fi.CreationTimeUtc.Ticks ).ToList();
+            var backupList = directory.GetFiles( "*.fcm" )
+                                      .OrderBy( fi => -fi.CreationTimeUtc.Ticks )
+                                      .ToList();
 
             int maxFileCount = ConfigKey.MaxBackups.GetInt();
 

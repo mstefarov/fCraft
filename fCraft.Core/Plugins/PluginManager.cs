@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
+using System.Xml.Linq;
 using JetBrains.Annotations;
 using fCraft.Events;
 
@@ -46,18 +47,18 @@ namespace fCraft {
 
             DirectoryInfo pluginsDir = new DirectoryInfo( Paths.PluginDirectory );
             if( pluginsDir.Exists ) {
-                foreach( FileInfo file in pluginsDir.EnumerateFiles() ) {
+                foreach( FileInfo file in pluginsDir.EnumerateFiles( ".fpi", SearchOption.AllDirectories ) ) {
                     AddPlugin( file.FullName );
                 }
             }
         }
 
 
-        static bool LoaderClaims( [NotNull] IPluginLoader pluginLoader, [NotNull] string fileName ) {
-            if( pluginLoader == null ) throw new ArgumentNullException( "pluginLoader" );
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            return pluginLoader.PluginExtensions
-                               .Any( ext => fileName.EndsWith( ext, StringComparison.OrdinalIgnoreCase ) );
+        static void AddPlugin( string fullName ) {
+            string descriptorPath = Path.GetDirectoryName( fullName );
+            XDocument doc = XDocument.Load( fullName );
+            PluginDescriptor descriptor = new PluginDescriptor( doc.Root );
+            // TODO
         }
 
 
@@ -67,67 +68,12 @@ namespace fCraft {
         }
 
 
-        /// <summary> Attempts to load all plugins from the given file.
-        /// Does not activate any plugins. </summary>
-        /// <param name="fileName"> Relative or absolute path to the file. </param>
-        /// <exception cref="ArgumentNullException"> If fileName is null. </exception>
-        public static void AddPlugin( [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-
-            // build number is stripped
-            Version fVersion = new Version( Updater.CurrentRelease.Version.Major,
-                                            Updater.CurrentRelease.Version.Minor );
-
-            foreach( IPluginLoader pluginLoader in PluginLoaders ) {
-                if( LoaderClaims( pluginLoader, fileName ) ) {
-                    PluginLoadResult result = pluginLoader.LoadPlugins( fileName );
-                    if( result.LoadSuccessful ) {
-                        foreach( IPlugin newPlugin in result.LoadedPlugins ) {
-
-                            if( newPlugin.MinFCraftVersion > fVersion ) {
-                                Logger.Log( LogType.Error,
-                                            "PluginManager: Plugin \"{0} {1}\" requires a newer version of fCraft ({2}) and will not work.",
-                                            newPlugin.Name, newPlugin.Version, newPlugin.MinFCraftVersion );
-                                continue;
-                            }
-                            if( newPlugin.MaxFCraftVersion < fVersion ) {
-                                Logger.Log( LogType.Warning,
-                                            "PluginManager: Plugin \"{0} {1}\" was designed to work with " +
-                                            "older versions of fCraft ({2} through {3}) and may not work correctly.",
-                                            newPlugin.Name, newPlugin.Version,
-                                            newPlugin.MinFCraftVersion, newPlugin.MaxFCraftVersion );
-                            }
-
-                            Plugins.Add( newPlugin.Name.ToLower(), newPlugin );
-                            Logger.Log( LogType.SystemActivity,
-                                        "PluginManager: Added {0} {1}",
-                                        newPlugin.Name, newPlugin.Version );
-                            RaisePluginAddedEvent( pluginLoader, fileName, newPlugin );
-                            return;
-                        }
-                    } else {
-                        Logger.Log( LogType.Warning,
-                                    "PluginManager: Loading plugin from \"{0}\" using {1} has failed: {2}",
-                                    fileName, pluginLoader.GetType().Name, result.Exception );
-                    }
-                }
-            }
-
-            Logger.Log( LogType.Warning,
-                        "PluginManager: Could not find suitable plugin loader for \"{0}\"",
-                        fileName );
-        }
-
-
         /// <summary> Activates all loaded plugins. </summary>
         /// <exception cref="InvalidOperationException"> If PluginManager is not initialized. </exception>
         public static void ActivatePlugins() {
             if( !initialized ) throw new InvalidOperationException( "PluginManager is not initialized." );
             foreach( IPlugin plugin in Plugins.Values ) {
                 plugin.Activate();
-                Logger.Log( LogType.SystemActivity,
-                            "PluginLoader: Activated {0} {1}",
-                            plugin.Name, plugin.Version );
                 RaisePluginActivatedEvent( plugin );
             }
         }
