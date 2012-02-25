@@ -327,7 +327,7 @@ namespace fCraft {
             } else {
                 DirectoryInfo parentDir = fileInfo.Directory;
                 StringComparison sc = (caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
-                return parentDir.GetFiles( "*", SearchOption.TopDirectoryOnly )
+                return parentDir.EnumerateFiles()
                                 .Any( file => file.Name.Equals( fileInfo.Name, sc ) );
             }
         }
@@ -355,7 +355,7 @@ namespace fCraft {
             if( fullFileName == null ) throw new ArgumentNullException( "fullFileName" );
             FileInfo fi = new FileInfo( fullFileName );
             DirectoryInfo parentDir = fi.Directory;
-            return parentDir.GetFiles( "*", SearchOption.TopDirectoryOnly )
+            return parentDir.EnumerateFiles()
                             .Where( file => file.Name.Equals( fi.Name, StringComparison.OrdinalIgnoreCase ) )
                             .ToArray();
         }

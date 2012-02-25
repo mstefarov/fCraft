@@ -69,7 +69,8 @@ namespace fCraft {
         }
 
 
-        public PluginDescriptor( XElement el ) {
+        public PluginDescriptor( [NotNull] XElement el ) {
+            if( el == null ) throw new ArgumentNullException( "el" );
             XElement nameEl = el.Element( "name" );
             if( nameEl == null || String.IsNullOrEmpty( nameEl.Value ) ) {
                 throw new SerializationException( "PluginDescriptor: No name specified." );
