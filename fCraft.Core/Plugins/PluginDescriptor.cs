@@ -46,9 +46,11 @@ namespace fCraft {
         /// <summary> Default element name for XML serialization. </summary>
         public const string XmlRootName = "fPlugin";
 
+
         public XElement Serialize() {
             return Serialize( XmlRootName );
         }
+
 
         public XElement Serialize( [NotNull] string tagName ) {
             if( tagName == null ) throw new ArgumentNullException( "tagName" );
@@ -76,8 +78,8 @@ namespace fCraft {
                 throw new SerializationException( "PluginDescriptor: No name specified." );
             }
             Name = nameEl.Value;
-            if( PluginManager.IsValidPluginName( Name ) ) {
-                throw new SerializationException( "PluginDescriptor: Unacceptible plugin." );
+            if( !PluginManager.IsValidPluginName( Name ) ) {
+                throw new SerializationException( "PluginDescriptor: Unacceptible plugin name." );
             }
 
             XElement authorEl = el.Element( "author" );

@@ -49,7 +49,7 @@ namespace fCraft {
 
             DirectoryInfo pluginsDir = new DirectoryInfo( Paths.PluginDirectory );
             if( pluginsDir.Exists ) {
-                foreach( FileInfo file in pluginsDir.EnumerateFiles( ".fpi", SearchOption.AllDirectories ) ) {
+                foreach( FileInfo file in pluginsDir.EnumerateFiles( "*.fpi", SearchOption.AllDirectories ) ) {
                     LoadDescriptor( file.FullName );
                 }
                 if( PluginDescriptors.Count == 0 ) {
