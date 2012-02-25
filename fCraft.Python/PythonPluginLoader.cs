@@ -1,13 +1,8 @@
-﻿using System;
+﻿// PythonPluginLoader based on code contributed by Jared Klopper (LgZ-optical).
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-
-using fCraft;
-using fCraft.Events;
-
-using IronPython.Hosting;
 using IronPython.Runtime.Types;
 
 using Microsoft.Scripting.Hosting;
@@ -17,50 +12,42 @@ using IronPython.Runtime.Operations;
 namespace fCraft.Python {
     /// <summary> Loads IronPython plugin files. </summary>
     public class PythonPluginLoader : IPluginLoader {
-        private ScriptRuntime _ironPythonRuntime;
-        private ScriptEngine _ironPythonEngine;
+        readonly ScriptRuntime ironPythonRuntime;
+        readonly ScriptEngine ironPythonEngine;
+
 
         public PythonPluginLoader() {
-            _ironPythonEngine = IronPython.Hosting.Python.CreateEngine();
-            _ironPythonRuntime = _ironPythonEngine.Runtime;
-            _ironPythonRuntime.LoadAssembly(typeof(Server).Assembly);
+            ironPythonEngine = IronPython.Hosting.Python.CreateEngine();
+            ironPythonRuntime = ironPythonEngine.Runtime;
+            ironPythonRuntime.LoadAssembly( typeof( Server ).Assembly );
         }
+
 
         public string[] PluginExtensions {
-            get { return new [] { ".py" }; }
+            get { return new[] { ".py" }; }
         }
 
-        public PluginLoadResult LoadPlugins(string fileName) {
-            try {
-                ScriptSource script = _ironPythonEngine.CreateScriptSourceFromFile(fileName);
-                CompiledCode code = script.Compile();
-                ScriptScope scope = _ironPythonEngine.CreateScope();
-                code.Execute(scope);
 
-                List<IPlugin> plugins = new List<IPlugin>();
-                foreach (KeyValuePair<string, dynamic> kvp in scope.GetItems().Where(kvp => kvp.Value is PythonType)) {
-                    dynamic value = kvp.Value;
-                    if (PythonOps.IsSubClass(value, DynamicHelpers.GetPythonTypeFromType(typeof(IPlugin)))) {
-                        IPlugin plugin = value();
-                        plugins.Add(plugin);
-                    }
+        public IPlugin LoadPlugin( PluginDescriptor descriptor ) {
+            string descriptorPath = Path.GetDirectoryName( descriptor.PluginDescriptorFileName );
+            string fileName = Path.GetFullPath( Path.Combine( descriptorPath, descriptor.PluginFileName ) );
+
+            ScriptSource script = ironPythonEngine.CreateScriptSourceFromFile( fileName );
+            CompiledCode code = script.Compile();
+            ScriptScope scope = ironPythonEngine.CreateScope();
+            code.Execute( scope );
+
+            IEnumerable<dynamic> typeList = scope.GetItems().Select( kvp => kvp.Value ).Where( item => item is PythonType );
+            dynamic pluginType = typeList.FirstOrDefault( item => item.Name.Equals( descriptor ) );
+            if( pluginType != null ) {
+                if( PythonOps.IsSubClass( pluginType, DynamicHelpers.GetPythonTypeFromType( typeof( IPlugin ) ) ) ) {
+                    IPlugin plugin = pluginType();
+                    return plugin;
+                } else {
+                    throw new Exception( "Specified type does not implement IPlugin." );
                 }
-                return new PluginLoadResult() {
-                    LoadedPlugins = plugins,
-                    LoadSuccessful = true, 
-                };
-
-            } catch (Exception e) {
-                return new PluginLoadResult() {
-                    Exception = e,
-                    LoadSuccessful = false
-                };
-            }
-        }
-
-        private void LoadAssemblies() {
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
-                _ironPythonRuntime.LoadAssembly(assembly);
+            } else {
+                throw new Exception( "Specified type not found." );
             }
         }
     }

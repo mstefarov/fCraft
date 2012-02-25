@@ -7,7 +7,5 @@ namespace fCraft {
     /// <summary> Defines information about a plugin. 
     /// There may be multiple of these types defined in an assembly or module. </summary>
     public interface IPlugin {
-        /// <summary> Enables this plugin using the specified PluginManager. </summary>
-        void Activate();
     }
 }
