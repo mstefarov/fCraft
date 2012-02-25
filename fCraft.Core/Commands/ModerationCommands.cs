@@ -522,7 +522,11 @@ namespace fCraft {
             string silentString = cmd.Next();
             bool silent = false;
             if( silentString != null ) {
-                silent = silentString.Equals( "silent", StringComparison.OrdinalIgnoreCase );
+                if( !silentString.Equals( "silent", StringComparison.OrdinalIgnoreCase ) || cmd.HasNext ) {
+                    CdHide.PrintUsage( player );
+                    return;
+                }
+                silent = true;
             }
 
             player.Info.IsHidden = true;
@@ -561,6 +565,11 @@ namespace fCraft {
 
         static void UnhideHandler( Player player, CommandReader cmd ) {
             if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+
+            if( cmd.HasNext ) {
+                CdUnhide.PrintUsage( player );
+                return;
+            }
 
             if( !player.Info.IsHidden ) {
                 player.Message( "You are not currently hidden." );
@@ -606,6 +615,11 @@ namespace fCraft {
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
             string playerName = cmd.Next();
+            if( cmd.HasNext ) {
+                CdSetSpawn.PrintUsage( player );
+                return;
+            }
+
             if( playerName == null ) {
                 Map map = player.WorldMap;
                 map.Spawn = player.Position;
@@ -665,7 +679,7 @@ namespace fCraft {
 
         static void FreezeHandler( Player player, CommandReader cmd ) {
             string targetName = cmd.Next();
-            if( targetName == null ) {
+            if( targetName == null || cmd.HasNext ) {
                 CdFreeze.PrintUsage( player );
                 return;
             }
@@ -694,7 +708,7 @@ namespace fCraft {
 
         static void UnfreezeHandler( Player player, CommandReader cmd ) {
             string targetName = cmd.Next();
-            if( targetName == null ) {
+            if( targetName == null || cmd.HasNext ) {
                 CdFreeze.PrintUsage( player );
                 return;
             }
@@ -842,13 +856,13 @@ namespace fCraft {
 
         static void BringHandler( Player player, CommandReader cmd ) {
             string name = cmd.Next();
-            if( name == null ) {
+            string toName = cmd.Next();
+            if( name == null || cmd.HasNext ) {
                 CdBring.PrintUsage( player );
                 return;
             }
 
             // bringing someone to another player (instead of to self)
-            string toName = cmd.Next();
             Player toPlayer = player;
             if( toName != null ) {
                 toPlayer = Server.FindPlayerOrPrintMatches( player, toName, false, true );
@@ -913,7 +927,7 @@ namespace fCraft {
         static void WorldBringHandler( Player player, CommandReader cmd ) {
             string playerName = cmd.Next();
             string worldName = cmd.Next();
-            if( playerName == null || worldName == null ) {
+            if( playerName == null || worldName == null || cmd.HasNext ) {
                 CdBring.PrintUsage( player );
                 return;
             }
@@ -1140,9 +1154,15 @@ namespace fCraft {
         };
 
         static void PatrolHandler( Player player, CommandReader cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
-            Player target = player.World.GetNextPatrolTarget( player );
+            if( cmd.HasNext ) {
+                CdPatrol.PrintUsage( player );
+                return;
+            }
+
+            Player target = playerWorld.GetNextPatrolTarget( player );
             if( target == null ) {
                 player.Message( "Patrol: No one to patrol in this world." );
                 return;
@@ -1165,6 +1185,12 @@ namespace fCraft {
         static void SpecPatrolHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
+
+            if( cmd.HasNext ) {
+                CdPatrol.PrintUsage( player );
+                return;
+            }
+
             Player target = playerWorld.GetNextPatrolTarget( player,
                                                              p => player.Can( Permission.Spectate, p ),
                                                              true );
@@ -1200,7 +1226,7 @@ namespace fCraft {
             TimeSpan duration;
 
             // validate command parameters
-            if( targetName == null || timeString == null ||
+            if( targetName == null || timeString == null || cmd.HasNext ||
                 !timeString.TryParseMiniTimespan( out duration ) || duration <= TimeSpan.Zero ) {
                 CdMute.PrintUsage( player );
                 return;
@@ -1237,7 +1263,7 @@ namespace fCraft {
 
         static void UnmuteHandler( Player player, CommandReader cmd ) {
             string targetName = cmd.Next();
-            if( targetName == null ) {
+            if( targetName == null || cmd.HasNext ) {
                 CdUnmute.PrintUsage( player );
                 return;
             }
@@ -1289,6 +1315,11 @@ namespace fCraft {
                 return;
             }
 
+            if( cmd.HasNext ) {
+                CdSpectate.PrintUsage( player );
+                return;
+            }
+
             Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, true );
             if( target == null ) return;
 
@@ -1322,6 +1353,10 @@ namespace fCraft {
         };
 
         static void UnspectateHandler( Player player, CommandReader cmd ) {
+            if( cmd.HasNext ) {
+                CdUnspectate.PrintUsage( player );
+                return;
+            }
             if( !player.StopSpectating() ) {
                 player.Message( "You are not currently spectating anyone." );
             }
