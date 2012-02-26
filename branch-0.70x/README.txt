@@ -217,7 +217,7 @@ under Microsoft Public License. See LICENSE.MicrosoftDLR.txt
 fCraft.Python uses and bundles IronPython, licensed under Apache License, v2.0.
 See LICENSE.IronPython.txt
 
-Original Minecraft was developed by Markus "Notch" Petersson of Mojang AB, and
+Original Minecraft was developed by Markus "Notch" Persson of Mojang AB, and
 is not affiliated with fCraft in any way. fCraft does not make use of any code,
 assets, or any other files from Minecraft. 
 
