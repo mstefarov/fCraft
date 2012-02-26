@@ -210,7 +210,7 @@ fCraft uses and bundles Devart dotConnect for MySQL, under free license.
 Full text of the Devart dotConnect for MySQL license should be included with
 your copy of fCraft in LICENSE.dotConnect.txt
 
-Original Minecraft was developed by Markus "Notch" Petersson of Mojang, and is 
+Original Minecraft was developed by Markus "Notch" Persson of Mojang, and is 
 not affiliated with fCraft in any way. fCraft does not use any code, assets,
 or any other files from Minecraft.
 
