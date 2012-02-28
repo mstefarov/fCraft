@@ -823,16 +823,7 @@ namespace fCraft {
                     player.MessageManyMatches( "player", matches );
 
                 } else {
-                    // Try to guess if player typed "/TP" instead of "/Join"
-                    World[] worlds = WorldManager.FindWorlds( player, name );
-
-                    if( worlds.Length == 1 ) {
-                        player.LastUsedWorldName = worlds[0].Name;
-                        player.StopSpectating();
-                        player.ParseMessage( "/Join " + worlds[0].Name );
-                    } else {
-                        player.MessageNoPlayer( name );
-                    }
+                    player.MessageNoPlayer( name );
                 }
             }
         }
