@@ -1042,15 +1042,7 @@ namespace fCraft {
                 }
 
             } else {
-                // no worlds found - see if player meant to type in "/Join" and not "/TP"
-                Player[] players = Server.FindPlayers( player, worldName, true );
-                if( players.Length == 1 ) {
-                    player.LastUsedPlayerName = players[0].Name;
-                    player.StopSpectating();
-                    player.ParseMessage( "/TP " + players[0].Name );
-                } else {
-                    player.MessageNoWorld( worldName );
-                }
+                player.MessageNoWorld( worldName );
             }
         }
 
