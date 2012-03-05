@@ -999,6 +999,7 @@ namespace fCraft {
 
         #endregion
 
+
         /// <summary> Whether or not this player has the specified permission. </summary>
         /// <param name="permission"> Permission to check if the player has. </param>
         /// <returns> True if the player has permission, otherwise false. </returns>
