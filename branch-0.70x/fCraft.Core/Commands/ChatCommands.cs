@@ -201,8 +201,9 @@ namespace fCraft {
 
             string msg = cmd.NextAll().Trim();
             if( msg.Length > 0 ) {
-                player.Info.ProcessMessageWritten();
                 Chat.SendMe( player, msg );
+            } else {
+                CdMe.PrintUsage( player );
             }
         }
 
