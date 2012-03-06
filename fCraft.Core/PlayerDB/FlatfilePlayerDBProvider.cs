@@ -19,14 +19,6 @@ namespace fCraft {
         }
 
 
-        [NotNull]
-        readonly object syncRoot = new object();
-
-        [NotNull]
-        public object SyncRoot {
-            get { return syncRoot; }
-        }
-
         /* 
          * Version 0 - before 0.530 - all dates/times are local
          * Version 1 - 0.530-0.536 - all dates and times are stored as UTC unix timestamps (milliseconds)
@@ -36,11 +28,6 @@ namespace fCraft {
          * Version 5 - 0.600+ - removed FailedLoginCount column
          */
         const int FormatVersion = 5;
-
-
-        // used to prevent concurrent access to the PlayerDB file
-        [NotNull]
-        readonly object saveLoadLocker = new object();
 
 
         [NotNull]
@@ -113,14 +100,16 @@ namespace fCraft {
         public IEnumerable<PlayerInfo> FindByIP( IPAddress address, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             List<PlayerInfo> result = new List<PlayerInfo>();
-            PlayerInfo[] cache = PlayerDB.PlayerInfoList;
-            for( int i = 0; i < cache.Length; i++ ) {
-                if( cache[i].LastIP.Equals( address ) ) {
-                    result.Add( cache[i] );
-                    if( result.Count >= limit ) break;
+            using( PlayerDB.GetReadLock() ) {
+                int total = PlayerDB.List.Count;
+                for( int i = 0; i < total; i++ ) {
+                    if( PlayerDB.List[i].LastIP.Equals( address ) ) {
+                        result.Add( PlayerDB.List[i] );
+                        if( result.Count >= limit ) break;
+                    }
                 }
+                return result.ToArray();
             }
-            return result.ToArray();
         }
 
 
@@ -130,8 +119,8 @@ namespace fCraft {
         /// <returns> A sequence of zero or more PlayerInfos whose names start with partialName. </returns>
         public IEnumerable<PlayerInfo> FindByPartialName( string partialName, int limit ) {
             if( partialName == null ) throw new ArgumentNullException( "partialName" );
-            lock( syncRoot ) {
-                return trie.GetList( partialName, limit );
+            using( PlayerDB.GetReadLock() ) {
+                return trie.GetList( partialName, limit ).ToArray();
             }
         }
 
@@ -162,11 +151,13 @@ namespace fCraft {
             string regexString = "^" + RegexNonNameChars.Replace( pattern, "" ).Replace( "*", ".*" ).Replace( "?", "." ) + "$";
             Regex regex = new Regex( regexString, RegexOptions.IgnoreCase );
             List<PlayerInfo> result = new List<PlayerInfo>();
-            PlayerInfo[] cache = PlayerDB.PlayerInfoList;
-            for( int i = 0; i < cache.Length; i++ ) {
-                if( regex.IsMatch( cache[i].Name ) ) {
-                    result.Add( cache[i] );
-                    if( result.Count >= limit ) break;
+            using( PlayerDB.GetReadLock() ) {
+                int total = PlayerDB.List.Count;
+                for( int i = 0; i < total; i++ ) {
+                    if( regex.IsMatch( PlayerDB.List[i].Name ) ) {
+                        result.Add( PlayerDB.List[i] );
+                        if( result.Count >= limit ) break;
+                    }
                 }
             }
             return result.ToArray();
@@ -204,7 +195,7 @@ namespace fCraft {
         public IEnumerable<PlayerInfo> Load() {
             //LoadBinary();
             //return;
-            lock( saveLoadLocker ) {
+            using( PlayerDB.GetWriteLock() ) {
                 if( File.Exists( Paths.PlayerDBFileName ) ) {
                     using( FileStream fs = OpenRead( Paths.PlayerDBFileName ) ) {
                         using( StreamReader reader = new StreamReader( fs, Encoding.UTF8, true, BufferSize ) ) {
@@ -217,67 +208,68 @@ namespace fCraft {
                                 return null;
                             }
 
-                            lock( syncRoot ) {
-                                int version = IdentifyFormatVersion( header );
-                                if( version > FormatVersion ) {
-                                    Logger.Log( LogType.Warning,
-                                                "PlayerDB.Load: Attempting to load unsupported PlayerDB format ({0}). Errors may occur.",
-                                                version );
-                                } else if( version < FormatVersion ) {
-                                    Logger.Log( LogType.Warning,
-                                                "PlayerDB.Load: Converting PlayerDB to a newer format (version {0} to {1}).",
-                                                version, FormatVersion );
-                                }
+                            int version = IdentifyFormatVersion( header );
+                            if( version > FormatVersion ) {
+                                Logger.Log( LogType.Warning,
+                                            "PlayerDB.Load: Attempting to load unsupported PlayerDB format ({0}). Errors may occur.",
+                                            version );
+                            } else if( version < FormatVersion ) {
+                                Logger.Log( LogType.Warning,
+                                            "PlayerDB.Load: Converting PlayerDB to a newer format (version {0} to {1}).",
+                                            version, FormatVersion );
+                            }
 
-                                int emptyRecords = 0;
-                                while( true ) {
-                                    string line = reader.ReadLine();
-                                    if( line == null ) break;
-                                    string[] fields = line.Split( ',' );
-                                    if( fields.Length >= MinFieldCount ) {
+                            int emptyRecords = 0;
+                            while( true ) {
+                                string line = reader.ReadLine();
+                                if( line == null ) break;
+                                string[] fields = line.Split( ',' );
+                                if( fields.Length >= MinFieldCount ) {
 #if !DEBUG
                                         try {
 #endif
-                                            PlayerInfo info;
-                                            switch( version ) {
-                                                case 0:
-                                                    info = LoadFormat0( fields );
-                                                    break;
-                                                case 1:
-                                                    info = LoadFormat1( fields );
-                                                    break;
-                                                default:
-                                                    // Versions 2-5 differ in semantics only, not in actual serialization format.
-                                                    info = LoadFormat2( fields );
-                                                    break;
-                                            }
+                                    PlayerInfo info;
+                                    switch( version ) {
+                                        case 0:
+                                            info = LoadFormat0( fields );
+                                            break;
+                                        case 1:
+                                            info = LoadFormat1( fields );
+                                            break;
+                                        default:
+                                            // Versions 2-5 differ in semantics only, not in actual serialization format.
+                                            info = LoadFormat2( fields );
+                                            break;
+                                    }
 
-                                            if( info.ID > maxID ) {
-                                                maxID = info.ID;
-                                                Logger.Log( LogType.Warning, "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1})." );
-                                            }
+                                    if( info.ID > maxID ) {
+                                        maxID = info.ID;
+                                        Logger.Log( LogType.Warning,
+                                                    "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1})." );
+                                    }
 
-                                            // A record is considered "empty" if the player has never logged in.
-                                            // Empty records may be created by /Import, /Ban, and /Rank commands on typos.
-                                            // Deleting such records should have no negative impact on DB completeness.
-                                            if( (info.LastIP.Equals( IPAddress.None ) || info.LastIP.Equals( IPAddress.Any ) || info.TimesVisited == 0) &&
-                                                !info.IsBanned && info.Rank == RankManager.DefaultRank ) {
+                                    // A record is considered "empty" if the player has never logged in.
+                                    // Empty records may be created by /Import, /Ban, and /Rank commands on typos.
+                                    // Deleting such records should have no negative impact on DB completeness.
+                                    if( ( info.LastIP.Equals( IPAddress.None ) || info.LastIP.Equals( IPAddress.Any ) ||
+                                          info.TimesVisited == 0 ) &&
+                                        !info.IsBanned && info.Rank == RankManager.DefaultRank ) {
 
-                                                Logger.Log( LogType.SystemActivity,
-                                                            "PlayerDB.Load: Skipping an empty record for player \"{0}\"",
-                                                            info.Name );
-                                                emptyRecords++;
-                                                continue;
-                                            }
+                                        Logger.Log( LogType.SystemActivity,
+                                                    "PlayerDB.Load: Skipping an empty record for player \"{0}\"",
+                                                    info.Name );
+                                        emptyRecords++;
+                                        continue;
+                                    }
 
-                                            // Check for duplicates. Unless PlayerDB.txt was altered externally, this does not happen.
-                                            if( trie.ContainsKey( info.Name ) ) {
-                                                Logger.Log( LogType.Error,
-                                                            "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.",
-                                                            info.Name );
-                                            } else {
-                                                trie.Add( info.Name, info );
-                                            }
+                                    // Check for duplicates. Unless PlayerDB.txt was altered externally, this does not happen.
+                                    if( trie.ContainsKey( info.Name ) ) {
+                                        Logger.Log( LogType.Error,
+                                                    "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.",
+                                                    info.Name );
+                                    } else {
+                                        trie.Add( info.Name, info );
+                                    }
 #if !DEBUG
                                         } catch( Exception ex ) {
                                             Logger.LogAndReportCrash( "Error while parsing PlayerInfo record: " + line,
@@ -286,17 +278,16 @@ namespace fCraft {
                                                                       false );
                                         }
 #endif
-                                    } else {
-                                        Logger.Log( LogType.Error,
-                                                    "PlayerDB.Load: Unexpected field count ({0}), expecting at least {1} fields for a PlayerDB entry.",
-                                                    fields.Length, MinFieldCount );
-                                    }
+                                } else {
+                                    Logger.Log( LogType.Error,
+                                                "PlayerDB.Load: Unexpected field count ({0}), expecting at least {1} fields for a PlayerDB entry.",
+                                                fields.Length, MinFieldCount );
                                 }
+                            }
 
-                                if( emptyRecords > 0 ) {
-                                    Logger.Log( LogType.Warning,
-                                                "PlayerDB.Load: Skipped {0} empty records.", emptyRecords );
-                                }
+                            if( emptyRecords > 0 ) {
+                                Logger.Log( LogType.Warning,
+                                            "PlayerDB.Load: Skipped {0} empty records.", emptyRecords );
                             }
                         }
                     }
@@ -323,7 +314,7 @@ namespace fCraft {
 
 
         internal void LoadBinary() {
-            lock( saveLoadLocker ) {
+            using( PlayerDB.GetWriteLock() ) {
                 if( File.Exists( Paths.PlayerDBFileName + ".bin" ) ) {
                     using( FileStream fs = OpenRead( Paths.PlayerDBFileName + ".bin" ) ) {
                         BinaryReader reader = new BinaryReader( fs );
@@ -341,56 +332,57 @@ namespace fCraft {
 
                         maxID = reader.ReadInt32();
 
-                        lock( syncRoot ) {
-                            int rankCount = reader.ReadInt32();
-                            rankMapping = new Dictionary<int, Rank>( rankCount );
-                            for( int i = 0; i < rankCount; i++ ) {
-                                byte rankIndex = reader.ReadByte();
-                                string rankName = reader.ReadString();
-                                Rank rank = Rank.Parse( rankName );
-                                if( rank == null ) {
-                                    Logger.Log( LogType.Error,
-                                                "PlayerDB.LoadBinary: Could not parse rank: \"{0}\". Assigning rank {1} instead.",
-                                                rankName, RankManager.DefaultRank );
-                                    rank = RankManager.DefaultRank;
-                                }
-                                rankMapping.Add( rankIndex, rank );
+                        int rankCount = reader.ReadInt32();
+                        rankMapping = new Dictionary<int, Rank>( rankCount );
+                        for( int i = 0; i < rankCount; i++ ) {
+                            byte rankIndex = reader.ReadByte();
+                            string rankName = reader.ReadString();
+                            Rank rank = Rank.Parse( rankName );
+                            if( rank == null ) {
+                                Logger.Log( LogType.Error,
+                                            "PlayerDB.LoadBinary: Could not parse rank: \"{0}\". Assigning rank {1} instead.",
+                                            rankName, RankManager.DefaultRank );
+                                rank = RankManager.DefaultRank;
                             }
-                            int records = reader.ReadInt32();
+                            rankMapping.Add( rankIndex, rank );
+                        }
+                        int records = reader.ReadInt32();
 
-                            int emptyRecords = 0;
-                            for( int i = 0; i < records; i++ ) {
+                        int emptyRecords = 0;
+                        for( int i = 0; i < records; i++ ) {
 #if !DEBUG
                                 try {
 #endif
-                                    PlayerInfo info = LoadBinaryFormat0( reader );
+                            PlayerInfo info = LoadBinaryFormat0( reader );
 
-                                    if( info.ID > maxID ) {
-                                        maxID = info.ID;
-                                        Logger.Log( LogType.Warning, "PlayerDB.LoadBinary: Adjusting wrongly saved MaxID ({0} to {1})." );
-                                    }
+                            if( info.ID > maxID ) {
+                                maxID = info.ID;
+                                Logger.Log( LogType.Warning,
+                                            "PlayerDB.LoadBinary: Adjusting wrongly saved MaxID ({0} to {1})." );
+                            }
 
-                                    // A record is considered "empty" if the player has never logged in.
-                                    // Empty records may be created by /Import, /Ban, and /Rank commands on typos.
-                                    // Deleting such records should have no negative impact on DB completeness.
-                                    if( (info.LastIP.Equals( IPAddress.None ) || info.LastIP.Equals( IPAddress.Any ) || info.TimesVisited == 0) &&
-                                        !info.IsBanned && info.Rank == RankManager.DefaultRank ) {
+                            // A record is considered "empty" if the player has never logged in.
+                            // Empty records may be created by /Import, /Ban, and /Rank commands on typos.
+                            // Deleting such records should have no negative impact on DB completeness.
+                            if( ( info.LastIP.Equals( IPAddress.None ) || info.LastIP.Equals( IPAddress.Any ) ||
+                                  info.TimesVisited == 0 ) &&
+                                !info.IsBanned && info.Rank == RankManager.DefaultRank ) {
 
-                                        Logger.Log( LogType.SystemActivity,
-                                                    "PlayerDB.LoadBinary: Skipping an empty record for player \"{0}\"",
-                                                    info.Name );
-                                        emptyRecords++;
-                                        continue;
-                                    }
+                                Logger.Log( LogType.SystemActivity,
+                                            "PlayerDB.LoadBinary: Skipping an empty record for player \"{0}\"",
+                                            info.Name );
+                                emptyRecords++;
+                                continue;
+                            }
 
-                                    // Check for duplicates. Unless PlayerDB.txt was altered externally, this does not happen.
-                                    if( trie.ContainsKey( info.Name ) ) {
-                                        Logger.Log( LogType.Error,
-                                                    "PlayerDB.LoadBinary: Duplicate record for player \"{0}\" skipped.",
-                                                    info.Name );
-                                    } else {
-                                        trie.Add( info.Name, info );
-                                    }
+                            // Check for duplicates. Unless PlayerDB.txt was altered externally, this does not happen.
+                            if( trie.ContainsKey( info.Name ) ) {
+                                Logger.Log( LogType.Error,
+                                            "PlayerDB.LoadBinary: Duplicate record for player \"{0}\" skipped.",
+                                            info.Name );
+                            } else {
+                                trie.Add( info.Name, info );
+                            }
 #if !DEBUG
                                 } catch( Exception ex ) {
                                     Logger.LogAndReportCrash( "Error while parsing PlayerInfo record",
@@ -399,12 +391,11 @@ namespace fCraft {
                                                               false );
                                 }
 #endif
-                            }
+                        }
 
-                            if( emptyRecords > 0 ) {
-                                Logger.Log( LogType.Warning,
-                                            "PlayerDB.LoadBinary: Skipped {0} empty records.", emptyRecords );
-                            }
+                        if( emptyRecords > 0 ) {
+                            Logger.Log( LogType.Warning,
+                                        "PlayerDB.LoadBinary: Skipped {0} empty records.", emptyRecords );
                         }
                     }
                 } else {
@@ -562,8 +553,7 @@ namespace fCraft {
         public void Save() {
             const string tempFileName = Paths.PlayerDBFileName + ".bin.temp";
 
-            lock( saveLoadLocker ) {
-                PlayerInfo[] listCopy = PlayerDB.PlayerInfoList;
+            using( PlayerDB.GetReadLock() ) {
                 using( FileStream fs = OpenWrite( tempFileName ) ) {
                     BinaryWriter writer = new BinaryWriter( fs );
                     writer.Write( FormatVersion );
@@ -573,9 +563,10 @@ namespace fCraft {
                         writer.Write( (byte)rank.Index );
                         writer.Write( rank.FullName );
                     }
-                    writer.Write( listCopy.Length );
-                    for( int i = 0; i < listCopy.Length; i++ ) {
-                        SaveBinaryFormat0( listCopy[i], writer );
+                    int total = PlayerDB.List.Count;
+                    writer.Write( total );
+                    for( int i = 0; i < total; i++ ) {
+                        SaveBinaryFormat0( PlayerDB.List[i], writer );
                     }
                 }
 
@@ -583,10 +574,11 @@ namespace fCraft {
                     Paths.MoveOrReplaceFile( tempFileName, Paths.PlayerDBFileName + ".bin" );
                 } catch( Exception ex ) {
                     Logger.Log( LogType.Error,
-                                "PlayerDB.SaveBinary: An error occurred while trying to save PlayerDB: {0}", ex);
+                                "PlayerDB.SaveBinary: An error occurred while trying to save PlayerDB: {0}", ex );
                 }
             }
         }
+
 
         [NotNull]
         static FileStream OpenWrite( [NotNull] string fileName ) {

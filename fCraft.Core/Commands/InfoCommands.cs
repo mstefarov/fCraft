@@ -119,9 +119,11 @@ namespace fCraft {
                     player.Message( "Unknown rank: {0}", rankName );
                     return;
                 } else {
-                    infos = PlayerDB.PlayerInfoList
-                                    .Where( info => info.Rank == rank )
-                                    .ToArray();
+                    using( PlayerDB.GetReadLock() ) {
+                        infos = PlayerDB.List
+                                        .Where( info => info.Rank == rank )
+                                        .ToArray();
+                    }
                 }
 
             } else {
@@ -722,7 +724,7 @@ namespace fCraft {
 
             player.Message( "Servers status: Up for {0:0.0} hours, using {1:0} MB",
                             DateTime.UtcNow.Subtract( Server.StartTime ).TotalHours,
-                            (Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024)) );
+                            ( Process.GetCurrentProcess().PrivateMemorySize64 / ( 1024 * 1024 ) ) );
 
             if( Server.IsMonitoringCPUUsage ) {
                 player.Message( "  Averaging {0:0.0}% CPU now, {1:0.0}% overall",
@@ -745,20 +747,42 @@ namespace fCraft {
             player.Message( "  Bandwidth: {0:0.0} KB/s up, {1:0.0} KB/s down",
                             bytesSentRate / 1000, bytesReceivedRate / 1000 );
 
+            int total, banned = 0;
+            long blocksBuilt = 0, blocksDeleted = 0, blocksDrawn = 0, messagesWritten = 0, timesKickedOthers = 0;
+            double totalHours = 0, bannedPercent = 0;
+            using( PlayerDB.GetReadLock() ) {
+                total = PlayerDB.List.Count;
+                for( int i = 0; i < total; i++ ) {
+                    PlayerInfo info = PlayerDB.List[i];
+                    if( info.IsBanned ) banned++;
+                    blocksBuilt += info.BlocksBuilt;
+                    blocksDeleted += info.BlocksDeleted;
+                    blocksDrawn += info.BlocksDrawn;
+                    messagesWritten += info.MessagesWritten;
+                    timesKickedOthers += info.TimesKickedOthers;
+                    totalHours += info.TotalTime.TotalHours;
+                }
+            }
+            if( total != 0 ) {
+                bannedPercent = ( banned * 100d / total );
+            }
+
+
             player.Message( "  Tracking {0} players ({1} online, {2} banned ({3:0.0}%), {4} IP-banned).",
-                            PlayerDB.PlayerInfoList.Length,
+                            total,
                             Server.CountVisiblePlayers( player ),
-                            PlayerDB.BannedCount,
-                            PlayerDB.BannedPercentage,
+                            banned,
+                            bannedPercent,
                             IPBanList.Count );
 
-            player.Message( "  Players built {0}, deleted {1}, drew {2} blocks, wrote {3} messages, issued {4} kicks, spent {5:0} hours total.",
-                            PlayerDB.PlayerInfoList.Sum( p => p.BlocksBuilt ),
-                            PlayerDB.PlayerInfoList.Sum( p => p.BlocksDeleted ),
-                            PlayerDB.PlayerInfoList.Sum( p => p.BlocksDrawn ),
-                            PlayerDB.PlayerInfoList.Sum( p => p.MessagesWritten ),
-                            PlayerDB.PlayerInfoList.Sum( p => p.TimesKickedOthers ),
-                            PlayerDB.PlayerInfoList.Sum( p => p.TotalTime.TotalHours ) );
+            player.Message(
+                "  Players built {0}, deleted {1}, drew {2} blocks, wrote {3} messages, issued {4} kicks, spent {5:0} hours total.",
+                blocksBuilt,
+                blocksDeleted,
+                blocksDrawn,
+                messagesWritten,
+                timesKickedOthers,
+                totalHours );
 
             player.Message( "  There are {0} worlds available ({1} loaded, {2} hidden).",
                             WorldManager.Worlds.Length,
@@ -786,10 +810,12 @@ namespace fCraft {
                 return;
             }
             player.Message( "Below is a list of ranks. For detail see &H{0}", CdRankInfo.Usage );
-            foreach( Rank rank in RankManager.Ranks ) {
-                player.Message( "&S    {0}  ({1} players)",
-                                rank.ClassyName,
-                                rank.PlayerCount );
+            using( PlayerDB.GetReadLock() ) {
+                foreach( Rank rank in RankManager.Ranks ) {
+                    player.Message( "&S    {0}  ({1} players)",
+                                    rank.ClassyName,
+                                    PlayerDB.List.Count( t => t.Rank == rank ) );
+                }
             }
         }
 
