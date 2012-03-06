@@ -17,11 +17,6 @@ namespace fCraft.MySql {
             get { return PlayerDBProviderType.MySql; }
         }
 
-        readonly object syncRoot = new object();
-        public object SyncRoot {
-            get { return syncRoot; }
-        }
-
 
         /// <summary> Adds a new PlayerInfo entry for an actual, logged-in player. </summary>
         /// <returns> A newly-created PlayerInfo entry. </returns>
@@ -29,7 +24,7 @@ namespace fCraft.MySql {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( address == null ) throw new ArgumentNullException( "address" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
-            lock( syncRoot ) {
+            using( PlayerDB.GetWriteLock() ) {
                 using( MySqlTransaction transaction = connection.BeginTransaction() ) {
                     preInsertCommand.Transaction = transaction;
                     preInsertCommand.ExecuteNonQuery();
@@ -56,7 +51,7 @@ namespace fCraft.MySql {
         public PlayerInfo AddUnrecognizedPlayer( string name, Rank startingRank, RankChangeType rankChangeType ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
-            lock( syncRoot ) {
+            using( PlayerDB.GetWriteLock() ) {
                 using( MySqlTransaction transaction = connection.BeginTransaction() ) {
                     preInsertCommand.Transaction = transaction;
                     preInsertCommand.ExecuteNonQuery();
@@ -82,7 +77,7 @@ namespace fCraft.MySql {
         /// <param name="playerInfo"> Player record to import. </param>
         public void Import( PlayerInfo playerInfo ) {
             if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
-            lock( syncRoot ) {
+            using( PlayerDB.GetWriteLock() ) {
                 GetImportCommand( playerInfo ).ExecuteNonQuery();
             }
         }
@@ -92,7 +87,7 @@ namespace fCraft.MySql {
         /// <param name="playerInfos"> List of player record to import. </param>
         public void Import( IEnumerable<PlayerInfo> playerInfos ) {
             if( playerInfos == null ) throw new ArgumentNullException( "playerInfos" );
-            lock( syncRoot ) {
+            using( PlayerDB.GetWriteLock() ) {
                 using( MySqlTransaction transaction = connection.BeginTransaction() ) {
                     importCommand.Transaction = transaction;
                     foreach( PlayerInfo info in playerInfos ) {
@@ -109,7 +104,7 @@ namespace fCraft.MySql {
         /// <returns> True if the entry is successfully found and removed; otherwise false. </returns>
         public bool Remove( PlayerInfo playerInfo ) {
             if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
-            lock( syncRoot ) {
+            using( PlayerDB.GetWriteLock() ) {
                 MySqlCommand cmd = GetDeleteCommand( playerInfo.ID );
                 int rowsAffected = cmd.ExecuteNonQuery();
                 return (rowsAffected > 0);
@@ -122,7 +117,7 @@ namespace fCraft.MySql {
         /// <returns> PlayerInfo if player was found, or null if not found. </returns>
         public PlayerInfo FindExact( string fullName ) {
             if( fullName == null ) throw new ArgumentNullException( "fullName" );
-            lock( syncRoot ) {
+            using( PlayerDB.GetReadLock() ) {
                 MySqlCommand cmd = GetFindExactCommand( fullName );
                 object playerIdOrNull = cmd.ExecuteScalar();
                 if( playerIdOrNull == null ) {
@@ -141,7 +136,7 @@ namespace fCraft.MySql {
         /// <returns> A sequence of zero or more PlayerInfos who have logged in from given IP. </returns>
         public IEnumerable<PlayerInfo> FindByIP( IPAddress address, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
-            lock( syncRoot ) {
+            using( PlayerDB.GetReadLock() ) {
                 MySqlCommand cmd = GetFindByIPCommand( address, limit );
                 List<PlayerInfo> results = new List<PlayerInfo>();
                 using( MySqlDataReader reader = cmd.ExecuteReader() ) {
@@ -162,7 +157,7 @@ namespace fCraft.MySql {
         public IEnumerable<PlayerInfo> FindByPartialName( string partialName, int limit ) {
             if( partialName == null ) throw new ArgumentNullException( "partialName" );
 
-            lock( syncRoot ) {
+            using( PlayerDB.GetReadLock() ) {
                 MySqlCommand cmdExact = GetFindExactCommand( partialName );
                 object playerIdOrNull = cmdExact.ExecuteScalar();
 
@@ -196,7 +191,7 @@ namespace fCraft.MySql {
         public bool FindOneByPartialName( string partialName, out PlayerInfo result ) {
             if( partialName == null ) throw new ArgumentNullException( "partialName" );
 
-            lock( syncRoot ) {
+            using( PlayerDB.GetReadLock() ) {
                 MySqlCommand cmdExact = GetFindExactCommand( partialName );
                 object playerIdOrNull = cmdExact.ExecuteScalar();
 
@@ -240,7 +235,7 @@ namespace fCraft.MySql {
                                              .Replace( '*', '%' ) // zero-or-more-characters wildcard
                                              .Replace( '?', '_' ); // single-character wildcard
 
-            lock( syncRoot ) {
+            using( PlayerDB.GetReadLock() ) {
                 MySqlCommand cmdPartial = GetFindPartialCommand( processedPattern, limit );
                 using( MySqlDataReader reader = cmdPartial.ExecuteReader() ) {
                     List<PlayerInfo> results = new List<PlayerInfo>();
@@ -412,8 +407,8 @@ namespace fCraft.MySql {
 
         /// <summary> Saves the whole database. </summary>
         public void Save() {
-            lock( syncRoot ) {
-                var playersToUpdate = PlayerDB.PlayerInfoList.Where( p => p.Changed );
+            using( PlayerDB.GetWriteLock() ) {
+                var playersToUpdate = PlayerDB.List.Where( p => p.Changed );
                 using( MySqlTransaction transaction = connection.BeginTransaction() ) {
                     MySqlCommand cmd = null;
                     foreach( PlayerInfo info in playersToUpdate ) {

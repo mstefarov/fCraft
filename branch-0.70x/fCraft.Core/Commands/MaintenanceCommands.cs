@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using JetBrains.Annotations;
 
@@ -104,7 +105,10 @@ namespace fCraft {
                 return;
             }
 
-            int playerCount = fromRank.PlayerCount;
+            int playerCount;
+            using( PlayerDB.GetReadLock() ) {
+                playerCount = PlayerDB.List.Count( t => t.Rank == fromRank );
+            }
             string verb = (fromRank > toRank ? "demot" : "promot");
 
             if( !cmd.IsConfirmed ) {

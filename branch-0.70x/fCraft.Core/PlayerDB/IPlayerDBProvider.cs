@@ -6,8 +6,6 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Provides storage and lookup functionality for PlayerDB. </summary>
     public interface IPlayerDBProvider {
-        object SyncRoot { get; }
-
         PlayerDBProviderType Type { get; }
 
 

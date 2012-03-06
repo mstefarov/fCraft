@@ -602,14 +602,6 @@ namespace fCraft {
         }
 
 
-        /// <summary> Total number of players of this rank (online and offline). </summary>
-        public int PlayerCount {
-            get {
-                return PlayerDB.PlayerInfoList.Count( t => t.Rank == this );
-            }
-        }
-
-
         /// <summary> Parses serialized rank. Accepts either the "name" or "name#ID" (FullName) format.
         /// Uses legacy rank mapping table for unrecognized ranks. Does not autocomplete.
         /// Name part is case-insensitive. ID part is case-sensitive. </summary>

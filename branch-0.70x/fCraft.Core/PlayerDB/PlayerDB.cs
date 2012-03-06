@@ -7,21 +7,18 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Persistent database of player information. </summary>
     public static class PlayerDB {
-        static readonly List<PlayerInfo> List = new List<PlayerInfo>();
+        /// <summary> List of all players in the database, sorted by ID.
+        /// ALWAYS ACQUIRE A DATABASE LOCK using PlayerDB.GetReadLock/GetWriteLock/GetUpgradeableLock before reading from this.
+        /// Never add, remove, or rearrange contents of this list to avoid database desynchronization. </summary>
+        public static readonly List<PlayerInfo> List = new List<PlayerInfo>();
         static IPlayerDBProvider provider;
-        static readonly object AddLocker = new object();
-
-        /// <summary> Cached list of all players in the database.
-        /// May be quite long. Make sure to copy a reference to
-        /// the list before accessing it in a loop, since this 
-        /// array be frequently be replaced by an updated one. </summary>
-        public static PlayerInfo[] PlayerInfoList { get; private set; }
 
 
         /// <summary> True if PlayerDB is loaded and ready; otherwise false. </summary>
@@ -65,7 +62,7 @@ namespace fCraft {
             CheckIfLoaded();
 
             PlayerInfo newInfo;
-            lock( provider.SyncRoot ) {
+            using( GetWriteLock() ) {
                 newInfo = provider.FindExact( name );
                 if( newInfo != null ) {
                     throw new ArgumentException( "A PlayerDB entry already exists for this name.", "name" );
@@ -81,7 +78,6 @@ namespace fCraft {
                 newInfo.RaisePropertyChangedEvents = true;
 
                 List.Add( newInfo );
-                UpdateCache();
             }
             PlayerInfo.RaiseCreatedEvent( newInfo, false );
             return newInfo;
@@ -95,72 +91,73 @@ namespace fCraft {
         /// <exception cref="MisconfigurationException"> If an unknown PlayerDBProviderType is specified. </exception>
         /// <exception cref="TypeLoadException"> If MySqlPlayerDBProvider could not be found. </exception>
         public static void Load() {
-            if( IsLoaded ) throw new InvalidOperationException( "PlayerDB is already loaded." );
-            Stopwatch sw = Stopwatch.StartNew();
+            using( GetWriteLock() ) {
+                if( IsLoaded ) throw new InvalidOperationException( "PlayerDB is already loaded." );
+                Stopwatch sw = Stopwatch.StartNew();
 
-            switch( ProviderType ) {
-                case PlayerDBProviderType.Flatfile:
-                    provider = new FlatfilePlayerDBProvider();
-                    break;
-                case PlayerDBProviderType.MySql:
-                    Assembly mySqlAsm =
-                        Assembly.LoadFile( Path.Combine( Paths.WorkingPath, Paths.MySqlPlayerDBProviderModule ) );
-                    provider = (IPlayerDBProvider)mySqlAsm.CreateInstance( MySqlPlayerDBProviderType );
-                    if( provider == null ) {
-                        throw new TypeLoadException( "PlayerDB.Load: Could not find MySqlPlayerDBProvider." );
-                    }
-                    break;
-                default:
-                    throw new MisconfigurationException( "PlayerDB.Load: Unknown ProviderType: " + ProviderType );
-            }
-
-            var playerList = provider.Load();
-
-            if( playerList != null ) {
-                List.AddRange( playerList );
-                sw.Stop();
-                Logger.Log( LogType.Debug,
-                            "PlayerDB.Load: Done loading ({0} records read) in {1}ms",
-                            List.Count, sw.ElapsedMilliseconds );
-            } else {
-                Logger.Log( LogType.Debug,
-                            "PlayerDB.Load: No records loaded." );
-            }
-
-            Logger.Log( LogType.SystemActivity, "PlayerDB: Checking consistency of player records..." );
-            List.Sort( PlayerInfo.ComparerByID );
-
-            int unhid = 0, unfroze = 0, unmuted = 0;
-            for( int i = 0; i < List.Count; i++ ) {
-                if( List[i].IsBanned ) {
-                    if( List[i].IsHidden ) {
-                        unhid++;
-                        List[i].IsHidden = false;
-                    }
-
-                    if( List[i].IsFrozen ) {
-                        List[i].Unfreeze();
-                        unfroze++;
-                    }
-
-                    if( List[i].IsMuted ) {
-                        List[i].Unmute();
-                        unmuted++;
-                    }
+                switch( ProviderType ) {
+                    case PlayerDBProviderType.Flatfile:
+                        provider = new FlatfilePlayerDBProvider();
+                        break;
+                    case PlayerDBProviderType.MySql:
+                        Assembly mySqlAsm =
+                            Assembly.LoadFile( Path.Combine( Paths.WorkingPath, Paths.MySqlPlayerDBProviderModule ) );
+                        provider = (IPlayerDBProvider)mySqlAsm.CreateInstance( MySqlPlayerDBProviderType );
+                        if( provider == null ) {
+                            throw new TypeLoadException( "PlayerDB.Load: Could not find MySqlPlayerDBProvider." );
+                        }
+                        break;
+                    default:
+                        throw new MisconfigurationException( "PlayerDB.Load: Unknown ProviderType: " + ProviderType );
                 }
-                List[i].RaisePropertyChangedEvents = true;
-            }
-            if( unhid != 0 || unfroze != 0 || unmuted != 0 ) {
-                Logger.Log( LogType.SystemActivity,
-                            "PlayerDB: Unhid {0}, unfroze {1}, and unmuted {2} banned accounts.",
-                            unhid, unfroze, unmuted );
-            }
 
-            UpdateCache();
-            IsLoaded = true;
+                var playerList = provider.Load();
 
-            // Import everything from flatfile
-            //provider.Import( new FlatfilePlayerDBProvider().Load() );
+                if( playerList != null ) {
+                    List.AddRange( playerList );
+                    sw.Stop();
+                    Logger.Log( LogType.Debug,
+                                "PlayerDB.Load: Done loading ({0} records read) in {1}ms",
+                                List.Count, sw.ElapsedMilliseconds );
+                } else {
+                    Logger.Log( LogType.Debug,
+                                "PlayerDB.Load: No records loaded." );
+                }
+
+                Logger.Log( LogType.SystemActivity, "PlayerDB: Checking consistency of player records..." );
+                List.Sort( PlayerInfo.ComparerByID );
+
+                int unhid = 0, unfroze = 0, unmuted = 0;
+                for( int i = 0; i < List.Count; i++ ) {
+                    if( List[i].IsBanned ) {
+                        if( List[i].IsHidden ) {
+                            unhid++;
+                            List[i].IsHidden = false;
+                        }
+
+                        if( List[i].IsFrozen ) {
+                            List[i].Unfreeze();
+                            unfroze++;
+                        }
+
+                        if( List[i].IsMuted ) {
+                            List[i].Unmute();
+                            unmuted++;
+                        }
+                    }
+                    List[i].RaisePropertyChangedEvents = true;
+                }
+                if( unhid != 0 || unfroze != 0 || unmuted != 0 ) {
+                    Logger.Log( LogType.SystemActivity,
+                                "PlayerDB: Unhid {0}, unfroze {1}, and unmuted {2} banned accounts.",
+                                unhid, unfroze, unmuted );
+                }
+
+                IsLoaded = true;
+
+                // Import everything from flatfile
+                //provider.Import( new FlatfilePlayerDBProvider().Load() );
+            }
         }
 
 
@@ -216,10 +213,10 @@ namespace fCraft {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( lastIP == null ) throw new ArgumentNullException( "lastIP" );
             CheckIfLoaded();
-
-            lock( provider.SyncRoot ) {
+            using( var lockHandle = GetUpgradableReadLock() ) {
                 PlayerInfo info = provider.FindExact( name );
                 if( info == null ) {
+                    lockHandle.EnterWrite();
                     var e = new PlayerInfoBeingCreatedEventArgs( name, lastIP, RankManager.DefaultRank, false );
                     PlayerInfo.RaiseBeingCreatedEvent( e );
                     if( e.Cancel ) throw new OperationCanceledException( "Cancelled by a plugin." );
@@ -286,15 +283,16 @@ namespace fCraft {
             int count = 0;
             uint addressInt = address.AsUInt();
             uint netMask = IPAddressUtil.NetMask( range );
-            PlayerInfo[] cache = PlayerInfoList;
-            for( int i = 0; i < cache.Length; i++ ) {
-                if( cache[i].LastIP.Match( addressInt, netMask ) ) {
-                    result.Add( cache[i] );
-                    count++;
-                    if( count >= limit ) return result.ToArray();
+            using( GetReadLock() ) {
+                for( int i = 0; i < List.Count; i++ ) {
+                    if( List[i].LastIP.Match( addressInt, netMask ) ) {
+                        result.Add( List[i] );
+                        count++;
+                        if( count >= limit ) return result.ToArray();
+                    }
                 }
+                return result;
             }
-            return result;
         }
 
 
@@ -416,7 +414,7 @@ namespace fCraft {
         /// <returns> Player's formatted name, if found. "?" if fullName is null or empty. "fullName(?)" if player was not found. </returns>
         [NotNull]
         public static string FindExactClassyName( [CanBeNull] string fullName ) {
-            if( string.IsNullOrEmpty( fullName ) ) return "?";
+            if( String.IsNullOrEmpty( fullName ) ) return "?";
             if( !IsLoaded ) return fullName + "(?)";
             PlayerInfo info = FindExact( fullName );
             if( info == null ) return fullName + "(?)";
@@ -431,7 +429,7 @@ namespace fCraft {
             if( id < 256 ) throw new ArgumentException( "Valid player IDs start at 256." );
             CheckIfLoaded();
             PlayerInfo dummy = new PlayerInfo( id );
-            lock( AddLocker ) {
+            using( GetReadLock() ) {
                 int index = List.BinarySearch( dummy, PlayerInfo.ComparerByID );
                 if( index >= 0 ) {
                     return List[index];
@@ -446,27 +444,6 @@ namespace fCraft {
 
         #region Stats
 
-        /// <summary> Number of banned PlayerInfo records. Does not include IP-banned records. </summary>
-        public static int BannedCount {
-            get {
-                return PlayerInfoList.Count( t => t.IsBanned );
-            }
-        }
-
-
-        /// <summary> Percentage of players who are banned. </summary>
-        public static float BannedPercentage {
-            get {
-                var listCache = PlayerInfoList;
-                if( listCache.Length == 0 ) {
-                    return 0;
-                } else {
-                    return listCache.Count( t => t.IsBanned ) * 100f / listCache.Length;
-                }
-            }
-        }
-
-
         /// <summary> Number of PlayerInfo records in the database. </summary>
         public static int Size {
             get { return List.Count; }
@@ -475,19 +452,19 @@ namespace fCraft {
         #endregion
 
 
-        public static int MassRankChange( [NotNull] Player player, [NotNull] Rank from, [NotNull] Rank to, [NotNull] string reason ) {
+        public static int MassRankChange( [NotNull] Player player, [NotNull] Rank fromRank, [NotNull] Rank toRank, [NotNull] string reason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( from == null ) throw new ArgumentNullException( "from" );
-            if( to == null ) throw new ArgumentNullException( "to" );
+            if( fromRank == null ) throw new ArgumentNullException( "fromRank" );
+            if( toRank == null ) throw new ArgumentNullException( "toRank" );
             if( reason == null ) throw new ArgumentNullException( "reason" );
             CheckIfLoaded();
             int affected = 0;
             string fullReason = reason + "~MassRank";
-            lock( AddLocker ) {
-                for( int i = 0; i < PlayerInfoList.Length; i++ ) {
-                    if( PlayerInfoList[i].Rank == from ) {
+            using( GetWriteLock() ) {
+                for( int i = 0; i < List.Count; i++ ) {
+                    if( List[i].Rank == fromRank ) {
                         try {
-                            List[i].ChangeRank( player, to, fullReason, true, true, false );
+                            List[i].ChangeRank( player, toRank, fullReason, true, true, false );
                         } catch( PlayerOpException ex ) {
                             player.Message( ex.MessageColored );
                         }
@@ -495,13 +472,6 @@ namespace fCraft {
                     }
                 }
                 return affected;
-            }
-        }
-
-
-        static void UpdateCache() {
-            lock( AddLocker ) {
-                PlayerInfoList = List.ToArray();
             }
         }
 
@@ -586,36 +556,34 @@ namespace fCraft {
         internal static void SwapPlayerInfo( [NotNull] PlayerInfo p1, [NotNull] PlayerInfo p2 ) {
             if( p1 == null ) throw new ArgumentNullException( "p1" );
             if( p2 == null ) throw new ArgumentNullException( "p2" );
-            lock( AddLocker ) {
-                lock( provider.SyncRoot ) {
-                    if( p1.IsOnline || p2.IsOnline ) {
-                        throw new InvalidOperationException( "Both players must be offline to swap info." );
-                    }
-
-                    string tempString = p1.Name;
-                    p1.Name = p2.Name;
-                    p2.Name = tempString;
-
-                    DateTime tempDate = p1.LastLoginDate;
-                    p1.LastLoginDate = p2.LastLoginDate;
-                    p2.LastLoginDate = tempDate;
-
-                    tempDate = p1.LastSeen;
-                    p1.LastSeen = p2.LastSeen;
-                    p2.LastSeen = tempDate;
-
-                    LeaveReason tempLeaveReason = p1.LeaveReason;
-                    p1.LeaveReason = p2.LeaveReason;
-                    p2.LeaveReason = tempLeaveReason;
-
-                    IPAddress tempIP = p1.LastIP;
-                    p1.LastIP = p2.LastIP;
-                    p2.LastIP = tempIP;
-
-                    bool tempBool = p1.IsHidden;
-                    p1.IsHidden = p2.IsHidden;
-                    p2.IsHidden = tempBool;
+            using( GetWriteLock() ) {
+                if( p1.IsOnline || p2.IsOnline ) {
+                    throw new InvalidOperationException( "Both players must be offline to swap info." );
                 }
+
+                string tempString = p1.Name;
+                p1.Name = p2.Name;
+                p2.Name = tempString;
+
+                DateTime tempDate = p1.LastLoginDate;
+                p1.LastLoginDate = p2.LastLoginDate;
+                p2.LastLoginDate = tempDate;
+
+                tempDate = p1.LastSeen;
+                p1.LastSeen = p2.LastSeen;
+                p2.LastSeen = tempDate;
+
+                LeaveReason tempLeaveReason = p1.LeaveReason;
+                p1.LeaveReason = p2.LeaveReason;
+                p2.LeaveReason = tempLeaveReason;
+
+                IPAddress tempIP = p1.LastIP;
+                p1.LastIP = p2.LastIP;
+                p2.LastIP = tempIP;
+
+                bool tempBool = p1.IsHidden;
+                p1.IsHidden = p2.IsHidden;
+                p2.IsHidden = tempBool;
             }
         }
 
@@ -635,5 +603,77 @@ namespace fCraft {
             }
             return sb;
         }
+
+
+        #region Thread Safety
+
+        static readonly ReaderWriterLockSlim SyncRoot = new ReaderWriterLockSlim( LockRecursionPolicy.SupportsRecursion );
+
+        // Contains code inspired by http://stackoverflow.com/a/1150287/383361
+
+        public static ReadLockHelper GetReadLock() {
+            return new ReadLockHelper( SyncRoot );
+        }
+
+        public static UpgradeableReadLockHelper GetUpgradableReadLock() {
+            return new UpgradeableReadLockHelper( SyncRoot );
+        }
+
+
+        public static WriteLockHelper GetWriteLock() {
+            return new WriteLockHelper( SyncRoot );
+        }
+
+
+        public struct ReadLockHelper : IDisposable {
+            private readonly ReaderWriterLockSlim readerWriterLock;
+
+            public ReadLockHelper( ReaderWriterLockSlim readerWriterLock ) {
+                readerWriterLock.EnterReadLock();
+                this.readerWriterLock = readerWriterLock;
+            }
+
+            public void Dispose() {
+                readerWriterLock.ExitReadLock();
+            }
+        }
+
+
+        public struct UpgradeableReadLockHelper : IDisposable {
+            private readonly ReaderWriterLockSlim readerWriterLock;
+
+            public UpgradeableReadLockHelper( ReaderWriterLockSlim readerWriterLock ) {
+                readerWriterLock.EnterUpgradeableReadLock();
+                this.readerWriterLock = readerWriterLock;
+            }
+
+            public void EnterWrite() {
+                readerWriterLock.EnterWriteLock();
+            }
+
+            public void ExitWrite() {
+                readerWriterLock.ExitWriteLock();
+            }
+
+            public void Dispose() {
+                readerWriterLock.ExitUpgradeableReadLock();
+            }
+        }
+
+
+        public struct WriteLockHelper : IDisposable {
+            private readonly ReaderWriterLockSlim readerWriterLock;
+
+            public WriteLockHelper( ReaderWriterLockSlim readerWriterLock ) {
+                readerWriterLock.EnterWriteLock();
+                this.readerWriterLock = readerWriterLock;
+            }
+
+            public void Dispose() {
+                readerWriterLock.ExitWriteLock();
+            }
+        }
+
+        #endregion
     }
 }
