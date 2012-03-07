@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace fCraftGUI.Properties {
+namespace fCraft.GUI.Properties {
     using System;
     
     

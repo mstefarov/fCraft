@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle( "fCraftGUI" )]
+[assembly: AssemblyTitle( "fCraft.GUI" )]
 [assembly: AssemblyDescription( "Shared graphics-related functionality for fCraft" )]
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "fCraft.net" )]
-[assembly: AssemblyProduct( "fCraftGUI" )]
+[assembly: AssemblyProduct( "fCraft" )]
 [assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2012 (matvei.org)" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]

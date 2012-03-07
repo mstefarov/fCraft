@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription( "Tool for automating the process of building fCraft update binaries." )]
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "fCraft.net" )]
-[assembly: AssemblyProduct( "fCraft UpdateBuilder" )]
+[assembly: AssemblyProduct( "fCraft" )]
 [assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2012 (matvei.org)" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]

@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle( "fCraft.MySql" )]
+[assembly: AssemblyTitle( "fCraft MySql" )]
 [assembly: AssemblyDescription( "MySql components for fCraft" )]
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "fCraft.net" )]
-[assembly: AssemblyProduct( "fCraft.MySql" )]
+[assembly: AssemblyProduct( "fCraft" )]
 [assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2012 (matvei.org)" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
