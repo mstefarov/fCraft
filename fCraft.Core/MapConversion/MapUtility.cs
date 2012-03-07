@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
@@ -253,6 +254,16 @@ namespace fCraft.MapConversion {
                 bytesRead += readPass;
                 bytesLeft -= readPass;
             }
+        }
+
+
+        public static IMapConverter GetConverter( MapFormat format ) {
+            return AvailableConverters[format];
+        }
+
+
+        public static IMapConverter[] GetConverters() {
+            return AvailableConverters.Values.ToArray();
         }
     }
     // ReSharper restore EmptyGeneralCatchClause

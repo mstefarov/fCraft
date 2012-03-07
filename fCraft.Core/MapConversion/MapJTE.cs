@@ -9,43 +9,21 @@ namespace fCraft.MapConversion {
     /// <summary> JTE map conversion implementation, for converting JTE map format into fCraft's default map format. </summary>
     public sealed class MapJTE : IMapConverter {
 
-        static readonly byte[] Mapping = new byte[256];
-
-        static MapJTE() {
-            Mapping[255] = (byte)Block.Sponge;      // lava sponge
-            Mapping[254] = (byte)Block.TNT;         // dynamite
-            Mapping[253] = (byte)Block.Sponge;      // supersponge
-            Mapping[252] = (byte)Block.Water;       // watervator
-            Mapping[251] = (byte)Block.White;       // soccer
-            Mapping[250] = (byte)Block.Red;         // fire
-            Mapping[249] = (byte)Block.Red;         // badfire
-            Mapping[248] = (byte)Block.Red;         // hellfire
-            Mapping[247] = (byte)Block.Black;       // ashes
-            Mapping[246] = (byte)Block.Orange;      // torch
-            Mapping[245] = (byte)Block.Orange;      // safetorch
-            Mapping[244] = (byte)Block.Orange;      // helltorch
-            Mapping[243] = (byte)Block.Red;         // uberfire
-            Mapping[242] = (byte)Block.Red;         // godfire
-            Mapping[241] = (byte)Block.TNT;         // nuke
-            Mapping[240] = (byte)Block.Lava;        // lavavator
-            Mapping[239] = (byte)Block.Admincrete;  // instawall
-            Mapping[238] = (byte)Block.Admincrete;  // spleef
-            Mapping[237] = (byte)Block.Green;       // resetspleef
-            Mapping[236] = (byte)Block.Red;         // deletespleef
-            Mapping[235] = (byte)Block.Sponge;      // godsponge
-            // all others default to 0/air
-        }
-
-
         public string ServerName {
             get { return "JTE's"; }
         }
 
+        public bool SupportsExport {
+            get { return true; }
+        }
+
+        public string FileExtension {
+            get { return "gz"; }
+        }
 
         public MapStorageType StorageType {
             get { return MapStorageType.SingleFile; }
         }
-
 
         public MapFormat Format {
             get { return MapFormat.JTE; }
@@ -161,6 +139,34 @@ namespace fCraft.MapConversion {
                 }
                 return true;
             }
+        }
+
+
+        static readonly byte[] Mapping = new byte[256];
+
+        static MapJTE() {
+            Mapping[255] = (byte)Block.Sponge;      // lava sponge
+            Mapping[254] = (byte)Block.TNT;         // dynamite
+            Mapping[253] = (byte)Block.Sponge;      // supersponge
+            Mapping[252] = (byte)Block.Water;       // watervator
+            Mapping[251] = (byte)Block.White;       // soccer
+            Mapping[250] = (byte)Block.Red;         // fire
+            Mapping[249] = (byte)Block.Red;         // badfire
+            Mapping[248] = (byte)Block.Red;         // hellfire
+            Mapping[247] = (byte)Block.Black;       // ashes
+            Mapping[246] = (byte)Block.Orange;      // torch
+            Mapping[245] = (byte)Block.Orange;      // safetorch
+            Mapping[244] = (byte)Block.Orange;      // helltorch
+            Mapping[243] = (byte)Block.Red;         // uberfire
+            Mapping[242] = (byte)Block.Red;         // godfire
+            Mapping[241] = (byte)Block.TNT;         // nuke
+            Mapping[240] = (byte)Block.Lava;        // lavavator
+            Mapping[239] = (byte)Block.Admincrete;  // instawall
+            Mapping[238] = (byte)Block.Admincrete;  // spleef
+            Mapping[237] = (byte)Block.Green;       // resetspleef
+            Mapping[236] = (byte)Block.Red;         // deletespleef
+            Mapping[235] = (byte)Block.Sponge;      // godsponge
+            // all others default to 0/air
         }
     }
 }

@@ -14,6 +14,8 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Persistent database of player information. </summary>
     public static class PlayerDB {
+        const string MySqlPlayerDBProviderType = "fCraft.MySql.MySqlPlayerDBProvider";
+
         /// <summary> List of all players in the database, sorted by ID.
         /// ALWAYS ACQUIRE A DATABASE LOCK using PlayerDB.GetReadLock/GetWriteLock/GetUpgradeableLock before reading from this.
         /// Never add, remove, or rearrange contents of this list to avoid database desynchronization. </summary>
@@ -32,7 +34,6 @@ namespace fCraft {
 
         /// <summary> Current PlayerDBProvider type. May only be changed BEFORE PlayerDB is loaded. </summary>
         /// <exception cref="InvalidOperationException"> If PlayerDB is already loaded. </exception>
-        static PlayerDBProviderType providerType;
         public static PlayerDBProviderType ProviderType {
             get { return providerType; }
             set {
@@ -40,6 +41,7 @@ namespace fCraft {
                 providerType = value;
             }
         }
+        static PlayerDBProviderType providerType;
 
 
         [NotNull]
@@ -84,8 +86,6 @@ namespace fCraft {
         }
 
 
-        const string MySqlPlayerDBProviderType = "fCraft.MySql.MySqlPlayerDBProvider";
-        
         /// <summary> Loads contents of PlayerDB. </summary>
         /// <exception cref="InvalidOperationException"> If PlayerDB is akready loaded. </exception>
         /// <exception cref="MisconfigurationException"> If an unknown PlayerDBProviderType is specified. </exception>

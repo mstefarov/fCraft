@@ -17,11 +17,17 @@ namespace fCraft.MapConversion {
             get { return "Myne/MyneCraft/HyveBuild/iCraft"; }
         }
 
+        public bool SupportsExport {
+            get { return false; }
+        }
+
+        public string FileExtension {
+            get { throw new NotSupportedException(); }
+        }
 
         public MapStorageType StorageType {
             get { return MapStorageType.Directory; }
         }
-
 
         public MapFormat Format {
             get { return MapFormat.Myne; }
