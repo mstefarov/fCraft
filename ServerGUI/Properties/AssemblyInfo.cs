@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle( "fCraft ServerGUI" )]
 [assembly: AssemblyDescription( "Graphical frontend for fCraft server" )]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany( "matvei.org" )]
+[assembly: AssemblyCompany( "fCraft.net" )]
 [assembly: AssemblyProduct( "fCraft ServerGUI" )]
 [assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2012 (matvei.org)" )]
 [assembly: AssemblyTrademark( "" )]

@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle( "fCraft UpdateInstaller" )]
-[assembly: AssemblyDescription( "fCraft self-extracting updater" )]
+[assembly: AssemblyTitle( "MapConverter" )]
+[assembly: AssemblyDescription( "fCraft batch map converter" )]
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "fCraft.net" )]
-[assembly: AssemblyProduct( "fCraft UpdateInstaller" )]
+[assembly: AssemblyProduct( "fCraft MapConverter" )]
 [assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2012 (matvei.org)" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible( false )]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid( "b228bbdb-289f-49d7-934a-2701bec9e179" )]
+[assembly: Guid( "35ee4a71-656d-46e1-8c51-9d4994f2b3e5" )]
 
 // Version information for an assembly consists of the following four values:
 //
