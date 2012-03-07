@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle( "fCraft ConfigCLI" )]
 [assembly: AssemblyDescription( "Command-line interface for configuring fCraft" )]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany( "matvei.org" )]
+[assembly: AssemblyCompany( "fCraft.net" )]
 [assembly: AssemblyProduct( "fCraft ConfigCLI" )]
 [assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2012 (matvei.org)" )]
 [assembly: AssemblyTrademark( "" )]

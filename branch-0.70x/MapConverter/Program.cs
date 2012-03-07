@@ -1,23 +1,10 @@
-﻿using System;
+﻿// Part of fCraft | Copyright 2009-2012 Matvei Stefarov <me@matvei.org> | MIT License
+using System;
 using System.IO;
 using System.Linq;
 using fCraft.MapConversion;
 
 namespace fCraft.MapConverter {
-    enum ReturnCode {
-        Success = 0,
-        WrongArgCount = 1,
-        UnrecognizedFromFormat = 2,
-        UnrecognizedToFormat = 3,
-        InputDirNotFound = 4,
-        ErrorOpeningDirForLoading = 5,
-        ErrorOpeningDirForSaving = 6,
-        UnsupportedSaveFormat = 7,
-        ErrorLoading = 8,
-        ErrorSaving = 9
-    }
-
-
     static class Program {
         const int ExpectedArgs = 4;
         static IMapConverter[] allConverters;
@@ -130,5 +117,18 @@ namespace fCraft.MapConverter {
             Console.WriteLine( "Supported ToFormats: {0}",
                                allConverters.Where( c => c.SupportsExport ).JoinToString( c => c.Format.ToString() ) );
         }
+    }
+
+    enum ReturnCode {
+        Success = 0,
+        WrongArgCount = 1,
+        UnrecognizedFromFormat = 2,
+        UnrecognizedToFormat = 3,
+        InputDirNotFound = 4,
+        ErrorOpeningDirForLoading = 5,
+        ErrorOpeningDirForSaving = 6,
+        UnsupportedSaveFormat = 7,
+        ErrorLoading = 8,
+        ErrorSaving = 9
     }
 }

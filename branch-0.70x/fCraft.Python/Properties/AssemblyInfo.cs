@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle( "fCraft.Python" )]
 [assembly: AssemblyDescription( "" )]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany( "matvei.org" )]
+[assembly: AssemblyCompany( "fCraft.net" )]
 [assembly: AssemblyProduct( "fCraft Python plugin loader" )]
 [assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2012 (matvei.org)" )]
 [assembly: AssemblyTrademark( "" )]
