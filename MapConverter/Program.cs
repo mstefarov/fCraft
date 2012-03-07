@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using fCraft.MapConversion;
+using fCraft.Events;
 
 namespace fCraft.MapConverter {
     static class Program {
@@ -11,6 +12,7 @@ namespace fCraft.MapConverter {
 
         static int Main( string[] args ) {
             // init fCraft
+            Logger.Logged += OnLogged;
             Server.InitLibrary( new string[0] );
 
             allConverters = MapUtility.GetConverters();
@@ -112,6 +114,19 @@ namespace fCraft.MapConverter {
             }
 
             return (int)ReturnCode.Success;
+        }
+
+        static void OnLogged( object sender, LogEventArgs e ) {
+            switch( e.MessageType ) {
+                case LogType.Error:
+                case LogType.SeriousError:
+                case LogType.Warning:
+                    Console.Error.WriteLine( e.MessageType );
+                    return;
+                default:
+                    Console.WriteLine( e.Message );
+                    return;
+            }
         }
 
 
