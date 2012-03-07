@@ -213,19 +213,19 @@ namespace fCraft {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( lastIP == null ) throw new ArgumentNullException( "lastIP" );
             CheckIfLoaded();
-            using( var lockHandle = GetUpgradableReadLock() ) {
+            using( GetUpgradableReadLock() ) {
                 PlayerInfo info = provider.FindExact( name );
                 if( info == null ) {
-                    lockHandle.EnterWrite();
-                    var e = new PlayerInfoBeingCreatedEventArgs( name, lastIP, RankManager.DefaultRank, false );
-                    PlayerInfo.RaiseBeingCreatedEvent( e );
-                    if( e.Cancel ) throw new OperationCanceledException( "Cancelled by a plugin." );
+                    using( GetWriteLock() ) {
+                        var e = new PlayerInfoBeingCreatedEventArgs( name, lastIP, RankManager.DefaultRank, false );
+                        PlayerInfo.RaiseBeingCreatedEvent( e );
+                        if( e.Cancel ) throw new OperationCanceledException( "Cancelled by a plugin." );
 
-                    info = provider.AddPlayer( name, e.StartingRank, RankChangeType.Default, lastIP );
-                    info.RaisePropertyChangedEvents = true;
-                    List.Add( info );
-
-                    PlayerInfo.RaiseCreatedEvent( info, false );
+                        info = provider.AddPlayer( name, e.StartingRank, RankChangeType.Default, lastIP );
+                        info.RaisePropertyChangedEvents = true;
+                        List.Add( info );
+                        PlayerInfo.RaiseCreatedEvent( info, false );
+                    }
                 }
 
                 return info;
@@ -253,46 +253,6 @@ namespace fCraft {
             if( limit < 0 ) throw new ArgumentOutOfRangeException( "limit" );
             CheckIfLoaded();
             return provider.FindByIP( address, limit );
-        }
-
-
-        /// <summary> Finds players in the given IPv4 address range. </summary>
-        /// <param name="address"> Player's IP address. </param>
-        /// <param name="range"> CIDR range byte (0-32). </param>
-        /// <returns> A sequence of zero or more PlayerInfos who have logged in from given IP. </returns>
-        [NotNull]
-        public static IEnumerable<PlayerInfo> FindPlayersCidr( [NotNull] IPAddress address, byte range ) {
-            if( address == null ) throw new ArgumentNullException( "address" );
-            if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
-            return FindPlayersCidr( address, range, Int32.MaxValue );
-        }
-
-
-        /// <summary> Finds players in the given IPv4 address range. </summary>
-        /// <param name="address"> Player's IP address. </param>
-        /// <param name="range"> CIDR range byte (0-32). </param>
-        /// <param name="limit"> Maximum number of results to return. </param>
-        /// <returns> A sequence of zero or more PlayerInfos who have logged in from given IP. </returns>
-        [NotNull]
-        public static IEnumerable<PlayerInfo> FindPlayersCidr( [NotNull] IPAddress address, byte range, int limit ) {
-            if( address == null ) throw new ArgumentNullException( "address" );
-            if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
-            if( limit < 0 ) throw new ArgumentOutOfRangeException( "limit" );
-            CheckIfLoaded();
-            List<PlayerInfo> result = new List<PlayerInfo>();
-            int count = 0;
-            uint addressInt = address.AsUInt();
-            uint netMask = IPAddressUtil.NetMask( range );
-            using( GetReadLock() ) {
-                for( int i = 0; i < List.Count; i++ ) {
-                    if( List[i].LastIP.Match( addressInt, netMask ) ) {
-                        result.Add( List[i] );
-                        count++;
-                        if( count >= limit ) return result.ToArray();
-                    }
-                }
-                return result;
-            }
         }
 
 
@@ -609,8 +569,6 @@ namespace fCraft {
 
         static readonly ReaderWriterLockSlim SyncRoot = new ReaderWriterLockSlim( LockRecursionPolicy.SupportsRecursion );
 
-        // Contains code inspired by http://stackoverflow.com/a/1150287/383361
-
         public static ReadLockHelper GetReadLock() {
             return new ReadLockHelper( SyncRoot );
         }
@@ -645,14 +603,6 @@ namespace fCraft {
             public UpgradeableReadLockHelper( ReaderWriterLockSlim readerWriterLock ) {
                 readerWriterLock.EnterUpgradeableReadLock();
                 this.readerWriterLock = readerWriterLock;
-            }
-
-            public void EnterWrite() {
-                readerWriterLock.EnterWriteLock();
-            }
-
-            public void ExitWrite() {
-                readerWriterLock.ExitWriteLock();
             }
 
             public void Dispose() {
