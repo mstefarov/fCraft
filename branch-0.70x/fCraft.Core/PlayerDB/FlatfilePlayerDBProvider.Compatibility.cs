@@ -11,7 +11,6 @@ namespace fCraft {
         public const int MinFieldCount = 24;
         const long TicksPerMillisecond = 10000;
 
-        #region Loading
 
         int IdentifyFormatVersion( [NotNull] string header ) {
             if( header == null ) throw new ArgumentNullException( "header" );
@@ -620,147 +619,8 @@ namespace fCraft {
             }
         }
 
-        #endregion
 
 
-        #region Saving
-
-        public static string Escape( [CanBeNull] string str ) {
-            if( String.IsNullOrEmpty( str ) ) {
-                return "";
-            } else if( str.IndexOf( ',' ) > -1 ) {
-                return str.Replace( ',', '\xFF' );
-            } else {
-                return str;
-            }
-        }
-
-
-        internal void SaveFormat5( [NotNull] PlayerInfo info, [NotNull] StringBuilder sb ) {
-            if( info == null ) throw new ArgumentNullException( "info" );
-            if( sb == null ) throw new ArgumentNullException( "sb" );
-            sb.Append( info.Name ).Append( ',' ); // 0
-            if( !info.LastIP.Equals( IPAddress.None ) ) sb.Append( info.LastIP ); // 1
-            sb.Append( ',' );
-
-            sb.Append( info.Rank.FullName ).Append( ',' ); // 2
-            info.RankChangeDate.ToUnixTimeString( sb ).Append( ',' ); // 3
-
-            sb.AppendEscaped( info.RankChangedBy ).Append( ',' ); // 4
-
-            switch( info.BanStatus ) {
-                case BanStatus.Banned:
-                    sb.Append( 'b' );
-                    break;
-                case BanStatus.BanExempt:
-                    sb.Append( 'x' );
-                    break;
-            }
-            sb.Append( ',' ); // 5
-
-            info.BanDate.ToUnixTimeString( sb ).Append( ',' ); // 6
-            sb.AppendEscaped( info.BannedBy ).Append( ',' ); // 7
-            info.UnbanDate.ToUnixTimeString( sb ).Append( ',' ); // 8
-            sb.AppendEscaped( info.UnbannedBy ).Append( ',' ); // 9
-            sb.AppendEscaped( info.BanReason ).Append( ',' ); // 10
-            sb.AppendEscaped( info.UnbanReason ).Append( ',' ); // 11
-
-            info.LastFailedLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 12
-
-            if( !info.LastFailedLoginIP.Equals( IPAddress.None ) ) {
-                sb.Append( info.LastFailedLoginIP.ToString() ); // 13
-            }
-            sb.Append( ',', 2 ); // skip 14
-
-            info.FirstLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 15
-            info.LastLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 16
-
-            if( info.IsOnline ) {
-                (info.TotalTime.Add( info.TimeSinceLastLogin )).ToTickString( sb ).Append( ',' ); // 17
-            } else {
-                info.TotalTime.ToTickString( sb ).Append( ',' ); // 17
-            }
-
-            if( info.BlocksBuilt > 0 ) sb.Digits( info.BlocksBuilt ); // 18
-            sb.Append( ',' );
-
-            if( info.BlocksDeleted > 0 ) sb.Digits( info.BlocksDeleted ); // 19
-            sb.Append( ',' );
-
-            sb.Append( info.TimesVisited ).Append( ',' ); // 20
-
-
-            if( info.MessagesWritten > 0 ) sb.Digits( info.MessagesWritten ); // 21
-            sb.Append( ',', 3 ); // 22-23 no longer in use
-
-            if( info.PreviousRank != null ) sb.Append( info.PreviousRank.FullName ); // 24
-            sb.Append( ',' );
-
-            sb.AppendEscaped( info.RankChangeReason ).Append( ',' ); // 25
-
-
-            if( info.TimesKicked > 0 ) sb.Digits( info.TimesKicked ); // 26
-            sb.Append( ',' );
-
-            if( info.TimesKickedOthers > 0 ) sb.Digits( info.TimesKickedOthers ); // 27
-            sb.Append( ',' );
-
-            if( info.TimesBannedOthers > 0 ) sb.Digits( info.TimesBannedOthers ); // 28
-            sb.Append( ',' );
-
-
-            sb.Digits( info.ID ).Append( ',' ); // 29
-
-            sb.Digits( (int)info.RankChangeType ).Append( ',' ); // 30
-
-
-            info.LastKickDate.ToUnixTimeString( sb ).Append( ',' ); // 31
-
-            if( info.IsOnline ) DateTime.UtcNow.ToUnixTimeString( sb ); // 32
-            else info.LastSeen.ToUnixTimeString( sb );
-            sb.Append( ',' );
-
-            if( info.BlocksDrawn > 0 ) sb.Append( info.BlocksDrawn ); // 33
-            sb.Append( ',' );
-
-            sb.AppendEscaped( info.LastKickBy ).Append( ',' ); // 34
-            sb.AppendEscaped( info.LastKickReason ).Append( ',' ); // 35
-
-            info.BannedUntil.ToUnixTimeString( sb ); // 36
-
-            if( info.IsFrozen ) {
-                sb.Append( ',' ).Append( 'f' ).Append( ',' ); // 37
-                sb.AppendEscaped( info.FrozenBy ).Append( ',' ); // 38
-                info.FrozenOn.ToUnixTimeString( sb ).Append( ',' ); // 39
-            } else {
-                sb.Append( ',', 4 ); // 37-39
-            }
-
-            if( info.MutedUntil > DateTime.UtcNow ) {
-                info.MutedUntil.ToUnixTimeString( sb ).Append( ',' ); // 40
-                sb.AppendEscaped( info.MutedBy ).Append( ',' ); // 41
-            } else {
-                sb.Append( ',', 2 ); // 40-41
-            }
-
-            sb.AppendEscaped( info.Password ).Append( ',' ); // 42
-
-            if( info.IsOnline ) sb.Append( 'o' ); // 43
-            sb.Append( ',' );
-
-            if( info.BandwidthUseMode != BandwidthUseMode.Default ) {
-                sb.Digits( (int)info.BandwidthUseMode ); // 44
-            }
-            sb.Append( ',' );
-
-            if( info.IsHidden ) sb.Append( 'h' ); // 45
-
-            sb.Append( ',' );
-            info.LastModified.ToUnixTimeString( sb ); // 46
-
-            sb.Append( ',' );
-            sb.AppendEscaped( info.DisplayedName ); // 47
-        }
 
         public static DateTime ToDateTimeLegacy( long timestamp ) {
             return new DateTime( timestamp * TicksPerMillisecond + DateTimeUtil.TicksToUnixEpoch, DateTimeKind.Utc );
@@ -778,7 +638,5 @@ namespace fCraft {
                 return false;
             }
         }
-
-        #endregion
     }
 }

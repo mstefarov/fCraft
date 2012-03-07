@@ -135,12 +135,12 @@ namespace fCraft {
             string[] fields = new string[FieldCount];
 
             fields[0] = Address.ToString();
-            fields[1] = FlatfilePlayerDBProvider.Escape( BannedBy );
+            fields[1] = IPBanList.Escape( BannedBy );
             fields[2] = BanDate.ToUnixTimeString();
-            fields[3] = FlatfilePlayerDBProvider.Escape( BanReason );
-            fields[4] = FlatfilePlayerDBProvider.Escape( PlayerName );
+            fields[3] = IPBanList.Escape( BanReason );
+            fields[4] = IPBanList.Escape( PlayerName );
             fields[5] = Attempts.ToString( CultureInfo.InvariantCulture );
-            fields[6] = FlatfilePlayerDBProvider.Escape( LastAttemptName );
+            fields[6] = IPBanList.Escape( LastAttemptName );
             fields[7] = LastAttemptDate.ToUnixTimeString();
 
             return String.Join( ",", fields );
