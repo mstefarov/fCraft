@@ -260,6 +260,7 @@ namespace fCraft.ConfigGUI {
                 progressBar.Visible = true;
                 progressBar.Style = ProgressBarStyle.Continuous;
                 if( bwRenderer.IsBusy ) {
+                    renderer.CancelAsync();
                     bwRenderer.CancelAsync();
                     while( bwRenderer.IsBusy ) {
                         Thread.Sleep( 1 );
@@ -275,7 +276,10 @@ namespace fCraft.ConfigGUI {
             renderer = new IsoCat( Map, IsoCatMode.Normal, previewRotation );
             Rectangle cropRectangle;
             if( bwRenderer.CancellationPending ) return;
-            Bitmap rawImage = renderer.Draw( out cropRectangle, bwRenderer );
+            renderer.ProgressChanged +=
+                ( progressSender, progressArgs ) =>
+                bwRenderer.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
+            Bitmap rawImage = renderer.Draw( out cropRectangle );
             if( bwRenderer.CancellationPending ) return;
             if( rawImage != null ) {
                 previewImage = rawImage.Clone( cropRectangle, rawImage.PixelFormat );

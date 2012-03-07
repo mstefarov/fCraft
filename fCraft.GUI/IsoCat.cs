@@ -56,6 +56,19 @@ namespace fCraft.GUI {
             }
         }
 
+        public event ProgressChangedEventHandler ProgressChanged;
+        public void CancelAsync() {
+            IsCancelled = true;
+        }
+        volatile bool IsCancelled;
+
+        void ReportProgress( float progress ) {
+            var handler = ProgressChanged;
+            if( handler != null ) {
+                handler( this, new ProgressChangedEventArgs( (int)Math.Round( 100 * progress ), "Drawing" ) );
+            }
+        }
+
 
         int x, y, z;
         byte block;
@@ -113,64 +126,70 @@ namespace fCraft.GUI {
 
         byte* bp, ctp;
         [CanBeNull]
-        public Bitmap Draw( out Rectangle cropRectangle, BackgroundWorker worker ) {
+        public Bitmap Draw( out Rectangle cropRectangle ) {
             cropRectangle = Rectangle.Empty;
             try {
-                fixed( byte* bpx = Map.Blocks ) {
-                    fixed( byte* tp = Tiles ) {
-                        fixed( byte* stp = ShadowTiles ) {
-                            bp = bpx;
-                            while( z < Map.Height ) {
-                                block = GetBlock( x, y, z );
-                                if( block != 0 ) {
+                fixed( byte* bpx = Map.Blocks,
+                              tp = Tiles,
+                             stp = ShadowTiles ) {
+                    bp = bpx;
+                    while( z < Map.Height ) {
+                        block = GetBlock( x, y, z );
+                        if( block != 0 ) {
 
-                                    switch( Rot ) {
-                                        case 0: ctp = (z >= Map.Shadows[x, y] ? tp : stp); break;
-                                        case 1: ctp = (z >= Map.Shadows[dimX1 - y, x] ? tp : stp); break;
-                                        case 2: ctp = (z >= Map.Shadows[dimX1 - x, dimY1 - y] ? tp : stp); break;
-                                        case 3: ctp = (z >= Map.Shadows[y, dimY1 - x] ? tp : stp); break;
-                                    }
+                            switch( Rot ) {
+                                case 0:
+                                    ctp = ( z >= Map.Shadows[x, y] ? tp : stp );
+                                    break;
+                                case 1:
+                                    ctp = ( z >= Map.Shadows[dimX1 - y, x] ? tp : stp );
+                                    break;
+                                case 2:
+                                    ctp = ( z >= Map.Shadows[dimX1 - x, dimY1 - y] ? tp : stp );
+                                    break;
+                                case 3:
+                                    ctp = ( z >= Map.Shadows[y, dimY1 - x] ? tp : stp );
+                                    break;
+                            }
 
-                                    int blockRight, blockLeft, blockUp;
+                            int blockRight, blockLeft, blockUp;
 
-                                    if( x != (Rot == 1 || Rot == 3 ? dimY1 : dimX1) ) blockRight = GetBlock( x + 1, y, z );
-                                    else blockRight = 0;
-                                    if( y != (Rot == 1 || Rot == 3 ? dimX1 : dimY1) ) blockLeft = GetBlock( x, y + 1, z );
-                                    else blockLeft = 0;
-                                    if( z != Map.Height - 1 ) blockUp = GetBlock( x, y, z + 1 );
-                                    else blockUp = 0;
+                            if( x != ( Rot == 1 || Rot == 3 ? dimY1 : dimX1 ) ) blockRight = GetBlock( x + 1, y, z );
+                            else blockRight = 0;
+                            if( y != ( Rot == 1 || Rot == 3 ? dimX1 : dimY1 ) ) blockLeft = GetBlock( x, y + 1, z );
+                            else blockLeft = 0;
+                            if( z != Map.Height - 1 ) blockUp = GetBlock( x, y, z + 1 );
+                            else blockUp = 0;
 
-                                    if( blockUp == 0 || blockLeft == 0 || blockRight == 0 || // air
-                                        blockUp == 8 || blockLeft == 8 || blockRight == 8 || // water
-                                        blockUp == 9 || blockLeft == 9 || blockRight == 9 || // water
-                                        (block != 20 && (blockUp == 20 || blockLeft == 20 || blockRight == 20)) || // glass
-                                        blockUp == 18 || blockLeft == 18 || blockRight == 18 || // foliage
-                                        blockLeft == 44 || blockRight == 44 || // step
+                            if( blockUp == 0 || blockLeft == 0 || blockRight == 0 || // air
+                                blockUp == 8 || blockLeft == 8 || blockRight == 8 || // water
+                                blockUp == 9 || blockLeft == 9 || blockRight == 9 || // water
+                                ( block != 20 && ( blockUp == 20 || blockLeft == 20 || blockRight == 20 ) ) || // glass
+                                blockUp == 18 || blockLeft == 18 || blockRight == 18 || // foliage
+                                blockLeft == 44 || blockRight == 44 || // step
 
-                                        blockUp == 10 || blockLeft == 10 || blockRight == 10 || // lava
-                                        blockUp == 11 || blockLeft == 11 || blockRight == 11 || // lava
+                                blockUp == 10 || blockLeft == 10 || blockRight == 10 || // lava
+                                blockUp == 11 || blockLeft == 11 || blockRight == 11 || // lava
 
-                                        blockUp == 37 || blockLeft == 37 || blockRight == 37 || // flower
-                                        blockUp == 38 || blockLeft == 38 || blockRight == 38 || // flower
-                                        blockUp == 6 || blockLeft == 6 || blockRight == 6 || // tree
-                                        blockUp == 39 || blockLeft == 39 || blockRight == 39 || // mushroom
-                                        blockUp == 40 || blockLeft == 40 || blockRight == 40 ) // mushroom
-                                        BlendTile();
-                                }
+                                blockUp == 37 || blockLeft == 37 || blockRight == 37 || // flower
+                                blockUp == 38 || blockLeft == 38 || blockRight == 38 || // flower
+                                blockUp == 6 || blockLeft == 6 || blockRight == 6 || // tree
+                                blockUp == 39 || blockLeft == 39 || blockRight == 39 || // mushroom
+                                blockUp == 40 || blockLeft == 40 || blockRight == 40 ) // mushroom
+                                BlendTile();
+                        }
 
-                                x++;
-                                if( x == (Rot == 1 || Rot == 3 ? dimY : dimX) ) {
-                                    y++;
-                                    x = 0;
-                                }
-                                if( y == (Rot == 1 || Rot == 3 ? dimX : dimY) ) {
-                                    z++;
-                                    y = 0;
-                                    if( worker != null && z % 4 == 0 ) {
-                                        if( worker.CancellationPending ) return null;
-                                        worker.ReportProgress( (z * 100) / Map.Height );
-                                    }
-                                }
+                        x++;
+                        if( x == ( Rot == 1 || Rot == 3 ? dimY : dimX ) ) {
+                            y++;
+                            x = 0;
+                        }
+                        if( y == ( Rot == 1 || Rot == 3 ? dimX : dimY ) ) {
+                            z++;
+                            y = 0;
+                            if( z % 8 == 0 ) {
+                                if( IsCancelled ) return null;
+                                ReportProgress( z / (float)Map.Height );
                             }
                         }
                     }
@@ -193,7 +212,7 @@ namespace fCraft.GUI {
                     }
                 }
 
-                if( worker != null && worker.CancellationPending ) return null;
+                if( IsCancelled ) return null;
 
                 // find top bound (yMin)
                 cont = true;
@@ -209,7 +228,7 @@ namespace fCraft.GUI {
                     }
                 }
 
-                if( worker != null && worker.CancellationPending ) return null;
+                if( IsCancelled ) return null;
 
                 // find right bound (xMax)
                 cont = true;
@@ -225,7 +244,7 @@ namespace fCraft.GUI {
                     }
                 }
 
-                if( worker != null && worker.CancellationPending ) return null;
+                if( IsCancelled ) return null;
 
                 // find bottom bound (yMax)
                 cont = true;
@@ -248,7 +267,7 @@ namespace fCraft.GUI {
                 return imageBmp;
             } finally {
                 imageBmp.UnlockBits( imageData );
-                if( worker != null && worker.CancellationPending && imageBmp != null ) {
+                if( IsCancelled && imageBmp != null ) {
                     try {
                         imageBmp.Dispose();
                     } catch( ObjectDisposedException ) { }
