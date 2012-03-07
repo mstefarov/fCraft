@@ -131,6 +131,17 @@ namespace fCraft {
             }
         }
 
+
+        public static string Escape( [CanBeNull] string str ) {
+            if( String.IsNullOrEmpty( str ) ) {
+                return "";
+            } else if( str.IndexOf( ',' ) > -1 ) {
+                return str.Replace( ',', '\xFF' );
+            } else {
+                return str;
+            }
+        }
+
         #endregion
 
 
