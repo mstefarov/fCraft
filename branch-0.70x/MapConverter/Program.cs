@@ -83,7 +83,7 @@ namespace fCraft.MapConverter {
                         Console.Write( "Loading {0}... ", subdir.Name );
                         string targetName = Path.Combine( outputPath, subdir.Name + '.' + toConverter.FileExtension );
                         Map map = fromConverter.Load( subdir.FullName );
-                        Console.Write( "Saving {0}... ", Path.GetFileNameWithoutExtension( targetName ) );
+                        Console.Write( "Saving {0}... ", Path.GetFileName( targetName ) );
                         toConverter.Save( map, targetName );
                         Console.WriteLine( "ok" );
                     } catch( Exception ex ) {
@@ -94,14 +94,19 @@ namespace fCraft.MapConverter {
                 // go through all files
                 foreach( var fileInfo in inputDir.EnumerateFiles() ) {
                     try {
+                        if( !fromConverter.ClaimsName( fileInfo.FullName ) ) {
+                            Console.WriteLine( "Skipping {0}", fileInfo.Name );
+                            continue;
+                        }
                         Console.Write( "Loading {0}... ", fileInfo.Name );
                         string targetName = Path.Combine( outputPath, Path.GetFileNameWithoutExtension( fileInfo.Name ) + '.' + toConverter.FileExtension );
                         Map map = fromConverter.Load( fileInfo.FullName );
-                        Console.Write( "Saving {0}... ", Path.GetFileNameWithoutExtension( targetName ) );
+                        Console.Write( "Saving {0}... ", Path.GetFileName( targetName ) );
                         map.Save( targetName );
                         Console.WriteLine( "ok" );
                     } catch( Exception ex ) {
-                        Console.Error.WriteLine( "ERROR: {0}: {1}", ex.GetType().Name, ex.Message );
+                        Console.WriteLine( "ERROR" );
+                        Console.Error.WriteLine( "{0}: {1}", ex.GetType().Name, ex.Message );
                     }
                 }
             }
@@ -111,10 +116,10 @@ namespace fCraft.MapConverter {
 
 
         static void PrintUsage() {
-            Console.WriteLine( "Usage: MapConverter FromFormat ToFormat \"LoadPath\" \"SavePath\"" );
-            Console.WriteLine( "Supported FromFormats: {0}",
+            Console.WriteLine( "Usage: MapConverter InputFormat OutputFormat \"LoadPath\" \"SavePath\"" );
+            Console.WriteLine( "Supported input formats: {0}",
                                allConverters.JoinToString( c => c.Format.ToString() ) );
-            Console.WriteLine( "Supported ToFormats: {0}",
+            Console.WriteLine( "Supported output formats: {0}",
                                allConverters.Where( c => c.SupportsExport ).JoinToString( c => c.Format.ToString() ) );
         }
     }
@@ -127,8 +132,6 @@ namespace fCraft.MapConverter {
         InputDirNotFound = 4,
         ErrorOpeningDirForLoading = 5,
         ErrorOpeningDirForSaving = 6,
-        UnsupportedSaveFormat = 7,
-        ErrorLoading = 8,
-        ErrorSaving = 9
+        UnsupportedSaveFormat = 7
     }
 }
