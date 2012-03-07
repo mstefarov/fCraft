@@ -8,6 +8,150 @@ namespace fCraft.MapConversion {
     /// <summary> D3 map conversion implementation, for converting D3 map format into fCraft's default map format. </summary>
     public sealed class MapD3 : IMapConverter {
 
+        public string ServerName {
+            get { return "D3"; }
+        }
+
+        public bool SupportsExport {
+            get { return true; }
+        }
+
+        public string FileExtension {
+            get { return "map"; }
+        }
+
+        public MapStorageType StorageType {
+            get { return MapStorageType.SingleFile; }
+        }
+
+        public MapFormat Format {
+            get { return MapFormat.D3; }
+        }
+
+
+        public bool ClaimsName( string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            return fileName.EndsWith( ".map", StringComparison.OrdinalIgnoreCase );
+        }
+
+
+        public bool Claims( string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            try {
+                using( FileStream mapStream = File.OpenRead( fileName ) ) {
+                    using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
+                        BinaryReader bs = new BinaryReader( gs );
+                        int formatVersion = IPAddress.NetworkToHostOrder( bs.ReadInt32() );
+                        return (formatVersion == 1000 || formatVersion == 1010 || formatVersion == 1020 ||
+                                formatVersion == 1030 || formatVersion == 1040 || formatVersion == 1050);
+                    }
+                }
+            } catch( Exception ) {
+                return false;
+            }
+        }
+
+
+        public Map LoadHeader( string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            using( FileStream mapStream = File.OpenRead( fileName ) ) {
+                return LoadHeaderInternal( mapStream );
+            }
+        }
+
+
+        static Map LoadHeaderInternal( Stream stream ) {
+            if( stream == null ) throw new ArgumentNullException( "stream" );
+            // Setup a GZipStream to decompress and read the map file
+            using( GZipStream gs = new GZipStream( stream, CompressionMode.Decompress, true ) ) {
+                BinaryReader bs = new BinaryReader( gs );
+
+                int formatVersion = IPAddress.NetworkToHostOrder( bs.ReadInt32() );
+
+                // Read in the map dimesions
+                int width = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                int length = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+
+                Map map = new Map( null, width, length, height, false );
+
+                Position spawn = new Position();
+
+                switch( formatVersion ) {
+                    case 1000:
+                    case 1010:
+                        break;
+                    case 1020:
+                        spawn.X = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        spawn.Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        spawn.Z = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        map.Spawn = spawn;
+                        break;
+                    //case 1030:
+                    //case 1040:
+                    //case 1050:
+                    default:
+                        spawn.X = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        spawn.Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        spawn.Z = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        spawn.R = (byte)IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        spawn.L = (byte)IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        map.Spawn = spawn;
+                        break;
+                }
+
+                return map;
+            }
+        }
+
+
+        public Map Load( string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            using( FileStream mapStream = File.OpenRead( fileName ) ) {
+
+                Map map = LoadHeaderInternal( mapStream );
+
+                if( !map.ValidateHeader() ) {
+                    throw new MapFormatException( "MapD3: One or more of the map dimensions are invalid." );
+                }
+
+                // Read in the map data
+                map.Blocks = new byte[map.Volume];
+                mapStream.Read( map.Blocks, 0, map.Blocks.Length );
+                map.ConvertBlockTypes( Mapping );
+
+                return map;
+            }
+        }
+
+
+        public bool Save( Map mapToSave, string fileName ) {
+            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            using( FileStream mapStream = File.Create( fileName ) ) {
+                using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress ) ) {
+                    BinaryWriter bs = new BinaryWriter( gs );
+
+                    // Write the magic number
+                    bs.Write( IPAddress.HostToNetworkOrder( 1050 ) );
+                    bs.Write( (byte)0 );
+                    bs.Write( (byte)0 );
+
+                    // Write the map dimensions
+                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.Width ) );
+                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.Length ) );
+                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.Height ) );
+
+                    // Write the map data
+                    bs.Write( mapToSave.Blocks, 0, mapToSave.Blocks.Length );
+
+                    bs.Close();
+                    return true;
+                }
+            }
+        }
+
+
         static readonly byte[] Mapping = new byte[256];
 
         static MapD3() {
@@ -68,156 +212,6 @@ namespace fCraft.MapConversion {
             Mapping[247] = (byte)Block.Iron;        // Cannon
             Mapping[248] = (byte)Block.Obsidian;    // Blob
             // all others default to 0/air
-        }
-
-
-        /// <summary> Returns name(s) of the server(s) that uses this format. </summary>
-        public string ServerName {
-            get { return "D3"; }
-        }
-
-
-        /// <summary> Returns the map storage type (file-based or directory-based). </summary>
-        public MapStorageType StorageType {
-            get { return MapStorageType.SingleFile; }
-        }
-
-
-        /// <summary> Returns the format name. </summary>
-        public MapFormat Format {
-            get { return MapFormat.D3; }
-        }
-
-
-        /// <summary> Returns true if the filename (or directory name) matches this format's expectations. </summary>
-        public bool ClaimsName( string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            return fileName.EndsWith( ".map", StringComparison.OrdinalIgnoreCase );
-        }
-
-
-        /// <summary> Allows validating the map format while using minimal resources. </summary>
-        /// <returns> Returns true if specified file/directory is valid for this format. </returns>
-        public bool Claims( string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            try {
-                using( FileStream mapStream = File.OpenRead( fileName ) ) {
-                    using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
-                        BinaryReader bs = new BinaryReader( gs );
-                        int formatVersion = IPAddress.NetworkToHostOrder( bs.ReadInt32() );
-                        return (formatVersion == 1000 || formatVersion == 1010 || formatVersion == 1020 ||
-                                formatVersion == 1030 || formatVersion == 1040 || formatVersion == 1050);
-                    }
-                }
-            } catch( Exception ) {
-                return false;
-            }
-        }
-
-
-        /// <summary> Attempts to load map dimensions from specified location.
-        /// Throws MapFormatException on failure. </summary>
-        public Map LoadHeader( string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream mapStream = File.OpenRead( fileName ) ) {
-                return LoadHeaderInternal( mapStream );
-            }
-        }
-
-
-        static Map LoadHeaderInternal( Stream stream ) {
-            if( stream == null ) throw new ArgumentNullException( "stream" );
-            // Setup a GZipStream to decompress and read the map file
-            using( GZipStream gs = new GZipStream( stream, CompressionMode.Decompress, true ) ) {
-                BinaryReader bs = new BinaryReader( gs );
-
-                int formatVersion = IPAddress.NetworkToHostOrder( bs.ReadInt32() );
-
-                // Read in the map dimesions
-                int width = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                int length = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-
-                Map map = new Map( null, width, length, height, false );
-
-                Position spawn = new Position();
-
-                switch( formatVersion ) {
-                    case 1000:
-                    case 1010:
-                        break;
-                    case 1020:
-                        spawn.X = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        spawn.Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        spawn.Z = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        map.Spawn = spawn;
-                        break;
-                    //case 1030:
-                    //case 1040:
-                    //case 1050:
-                    default:
-                        spawn.X = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        spawn.Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        spawn.Z = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        spawn.R = (byte)IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        spawn.L = (byte)IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        map.Spawn = spawn;
-                        break;
-                }
-
-                return map;
-            }
-        }
-
-
-        /// <summary> Fully loads map from specified location.
-        /// Throws MapFormatException on failure. </summary>
-        public Map Load( string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream mapStream = File.OpenRead( fileName ) ) {
-
-                Map map = LoadHeaderInternal( mapStream );
-
-                if( !map.ValidateHeader() ) {
-                    throw new MapFormatException( "MapD3: One or more of the map dimensions are invalid." );
-                }
-
-                // Read in the map data
-                map.Blocks = new byte[map.Volume];
-                mapStream.Read( map.Blocks, 0, map.Blocks.Length );
-                map.ConvertBlockTypes( Mapping );
-
-                return map;
-            }
-        }
-
-
-        /// <summary> Saves given map at the given location. </summary>
-        /// <returns> True if saving succeeded; otherwise false. </returns>
-        public bool Save( Map mapToSave, string fileName ) {
-            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream mapStream = File.Create( fileName ) ) {
-                using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress ) ) {
-                    BinaryWriter bs = new BinaryWriter( gs );
-
-                    // Write the magic number
-                    bs.Write( IPAddress.HostToNetworkOrder( 1050 ) );
-                    bs.Write( (byte)0 );
-                    bs.Write( (byte)0 );
-
-                    // Write the map dimensions
-                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.Width ) );
-                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.Length ) );
-                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.Height ) );
-
-                    // Write the map data
-                    bs.Write( mapToSave.Blocks, 0, mapToSave.Blocks.Length );
-
-                    bs.Close();
-                    return true;
-                }
-            }
         }
     }
 }

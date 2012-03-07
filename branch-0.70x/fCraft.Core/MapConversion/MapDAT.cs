@@ -8,74 +8,27 @@ namespace fCraft.MapConversion {
     /// <summary> .Dat map conversion implementation, for converting .Dat map format into fCraft's default map format. </summary>
     public sealed class MapDat : IMapConverter {
 
-        static readonly byte[] Mapping = new byte[256];
-
-        static MapDat() {
-            Mapping[50] = (byte)Block.Air;      // torch
-            Mapping[51] = (byte)Block.Lava;     // fire
-            Mapping[52] = (byte)Block.Glass;    // spawner
-            Mapping[53] = (byte)Block.Stair;    // wood stairs
-            Mapping[54] = (byte)Block.Wood;     // chest
-            Mapping[55] = (byte)Block.Air;      // redstone wire
-            Mapping[56] = (byte)Block.IronOre;  // diamond ore
-            Mapping[57] = (byte)Block.Aqua;     // diamond block
-            Mapping[58] = (byte)Block.Log;      // workbench
-            Mapping[59] = (byte)Block.Leaves;   // crops
-            Mapping[60] = (byte)Block.Dirt;     // soil
-            Mapping[61] = (byte)Block.Stone;    // furnace
-            Mapping[62] = (byte)Block.Stone;    // burning furnance
-            Mapping[63] = (byte)Block.Air;      // sign post
-            Mapping[64] = (byte)Block.Air;      // wooden door
-            Mapping[65] = (byte)Block.Air;      // ladder
-            Mapping[66] = (byte)Block.Air;      // rails
-            Mapping[67] = (byte)Block.Stair;    // cobblestone stairs
-            Mapping[68] = (byte)Block.Air;      // wall sign
-            Mapping[69] = (byte)Block.Air;      // lever
-            Mapping[70] = (byte)Block.Air;      // pressure plate
-            Mapping[71] = (byte)Block.Air;      // iron door
-            Mapping[72] = (byte)Block.Air;      // wooden pressure plate
-            Mapping[73] = (byte)Block.IronOre;  // redstone ore
-            Mapping[74] = (byte)Block.IronOre;  // glowing redstone ore
-            Mapping[75] = (byte)Block.Air;      // redstone torch (off)
-            Mapping[76] = (byte)Block.Air;      // redstone torch (on)
-            Mapping[77] = (byte)Block.Air;      // stone button
-            Mapping[78] = (byte)Block.Air;      // snow
-            Mapping[79] = (byte)Block.Glass;    // ice
-            Mapping[80] = (byte)Block.White;    // snow block
-            Mapping[81] = (byte)Block.Leaves;   // cactus
-            Mapping[82] = (byte)Block.Gray;     // clay
-            Mapping[83] = (byte)Block.Leaves;   // reed
-            Mapping[84] = (byte)Block.Log;      // jukebox
-            Mapping[85] = (byte)Block.Wood;     // fence
-            Mapping[86] = (byte)Block.Orange;   // pumpkin
-            Mapping[87] = (byte)Block.Dirt;     // netherstone
-            Mapping[88] = (byte)Block.Gravel;   // slow sand
-            Mapping[89] = (byte)Block.Sand;     // lightstone
-            Mapping[90] = (byte)Block.Violet;   // portal
-            Mapping[91] = (byte)Block.Orange;   // jack-o-lantern
-            // all others default to 0/air
-        }
-
-
-        /// <summary> Returns name(s) of the server(s) that uses this format. </summary>
         public string ServerName {
             get { return "Creative/Vanilla"; }
         }
 
+        public bool SupportsExport {
+            get { return false; }
+        }
 
-        /// <summary> Returns the map storage type (file-based or directory-based). </summary>
+        public string FileExtension {
+            get { return "dat"; }
+        }
+
         public MapStorageType StorageType {
             get { return MapStorageType.SingleFile; }
         }
 
-
-        /// <summary> Returns the format name. </summary>
         public MapFormat Format {
             get { return MapFormat.Creative; }
         }
 
 
-        /// <summary> Returns true if the filename (or directory name) matches this format's expectations. </summary>
         public bool ClaimsName( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".dat", StringComparison.OrdinalIgnoreCase ) ||
@@ -83,8 +36,6 @@ namespace fCraft.MapConversion {
         }
 
 
-        /// <summary> Allows validating the map format while using minimal resources. </summary>
-        /// <returns> Returns true if specified file/directory is valid for this format. </returns>
         public bool Claims( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
@@ -112,8 +63,6 @@ namespace fCraft.MapConversion {
         }
 
 
-        /// <summary> Attempts to load map dimensions from specified location.
-        /// Throws MapFormatException on failure. </summary>
         public Map LoadHeader( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             Map map = Load( fileName );
@@ -131,8 +80,6 @@ namespace fCraft.MapConversion {
         }
 
 
-        /// <summary> Fully loads map from specified location.
-        /// Throws MapFormatException on failure. </summary>
         public Map Load( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
@@ -240,12 +187,59 @@ namespace fCraft.MapConversion {
         }
 
 
-        /// <summary> Saves given map at the given location. </summary>
-        /// <returns> True if saving succeeded; otherwise false. </returns>
         public bool Save( Map mapToSave, string fileName ) {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             throw new NotImplementedException();
+        }
+
+
+        static readonly byte[] Mapping = new byte[256];
+
+        static MapDat() {
+            Mapping[50] = (byte)Block.Air;      // torch
+            Mapping[51] = (byte)Block.Lava;     // fire
+            Mapping[52] = (byte)Block.Glass;    // spawner
+            Mapping[53] = (byte)Block.Stair;    // wood stairs
+            Mapping[54] = (byte)Block.Wood;     // chest
+            Mapping[55] = (byte)Block.Air;      // redstone wire
+            Mapping[56] = (byte)Block.IronOre;  // diamond ore
+            Mapping[57] = (byte)Block.Aqua;     // diamond block
+            Mapping[58] = (byte)Block.Log;      // workbench
+            Mapping[59] = (byte)Block.Leaves;   // crops
+            Mapping[60] = (byte)Block.Dirt;     // soil
+            Mapping[61] = (byte)Block.Stone;    // furnace
+            Mapping[62] = (byte)Block.Stone;    // burning furnance
+            Mapping[63] = (byte)Block.Air;      // sign post
+            Mapping[64] = (byte)Block.Air;      // wooden door
+            Mapping[65] = (byte)Block.Air;      // ladder
+            Mapping[66] = (byte)Block.Air;      // rails
+            Mapping[67] = (byte)Block.Stair;    // cobblestone stairs
+            Mapping[68] = (byte)Block.Air;      // wall sign
+            Mapping[69] = (byte)Block.Air;      // lever
+            Mapping[70] = (byte)Block.Air;      // pressure plate
+            Mapping[71] = (byte)Block.Air;      // iron door
+            Mapping[72] = (byte)Block.Air;      // wooden pressure plate
+            Mapping[73] = (byte)Block.IronOre;  // redstone ore
+            Mapping[74] = (byte)Block.IronOre;  // glowing redstone ore
+            Mapping[75] = (byte)Block.Air;      // redstone torch (off)
+            Mapping[76] = (byte)Block.Air;      // redstone torch (on)
+            Mapping[77] = (byte)Block.Air;      // stone button
+            Mapping[78] = (byte)Block.Air;      // snow
+            Mapping[79] = (byte)Block.Glass;    // ice
+            Mapping[80] = (byte)Block.White;    // snow block
+            Mapping[81] = (byte)Block.Leaves;   // cactus
+            Mapping[82] = (byte)Block.Gray;     // clay
+            Mapping[83] = (byte)Block.Leaves;   // reed
+            Mapping[84] = (byte)Block.Log;      // jukebox
+            Mapping[85] = (byte)Block.Wood;     // fence
+            Mapping[86] = (byte)Block.Orange;   // pumpkin
+            Mapping[87] = (byte)Block.Dirt;     // netherstone
+            Mapping[88] = (byte)Block.Gravel;   // slow sand
+            Mapping[89] = (byte)Block.Sand;     // lightstone
+            Mapping[90] = (byte)Block.Violet;   // portal
+            Mapping[91] = (byte)Block.Orange;   // jack-o-lantern
+            // all others default to 0/air
         }
     }
 }

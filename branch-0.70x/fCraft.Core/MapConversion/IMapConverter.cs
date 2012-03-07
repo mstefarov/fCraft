@@ -7,7 +7,16 @@ namespace fCraft.MapConversion {
         /// <summary> Returns name(s) of the server(s) that uses this format. </summary>
         [NotNull]
         string ServerName { get; }
-        
+
+
+        /// <summary> Whether this converter supports exporting/saving to the format. </summary>
+        bool SupportsExport { get; }
+
+
+        /// <summary> File extension assiciated with this file.
+        /// Throws NotSupportedException if this is a directory-based format. </summary>
+        string FileExtension { get; }
+
 
         /// <summary> Returns the map storage type (file-based or directory-based). </summary>
         MapStorageType StorageType { get; }
