@@ -125,7 +125,7 @@ namespace fCraft.Events {
 
     /// <summary> Provides data for PlayerInfo.BeingCreated event. Cancellable.
     /// Allows changing StartingRank. </summary>
-    public sealed class PlayerInfoBeingCreatedEventArgs : EventArgs, ICancellableEvent {
+    public sealed class PlayerInfoBeingCreatedEventArgs : EventArgs, ICancelableEvent {
         internal PlayerInfoBeingCreatedEventArgs( [NotNull] string name, [CanBeNull] IPAddress ip,
                                                   [NotNull] Rank startingRank, bool isUnrecognized ) {
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -177,7 +177,7 @@ namespace fCraft.Events {
 
 
     /// <summary> Provides data for PlayerInfo.RankChanging event. Cancellable. </summary>
-    public sealed class PlayerInfoRankChangingEventArgs : EventArgs, IPlayerInfoEvent, ICancellableEvent {
+    public sealed class PlayerInfoRankChangingEventArgs : EventArgs, IPlayerInfoEvent, ICancelableEvent {
         internal PlayerInfoRankChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player rankChanger,
                                                   [NotNull] Rank newRank, [CanBeNull] string reason,
                                                   RankChangeType rankChangeType, bool announce ) {
@@ -271,7 +271,7 @@ namespace fCraft.Events {
 
     /// <summary> Provides data for PlayerInfo.BanChanging event. Cancellable.
     /// Reason and Announce properties may be changed. </summary>
-    public sealed class PlayerInfoBanChangingEventArgs : EventArgs, IPlayerInfoEvent, ICancellableEvent {
+    public sealed class PlayerInfoBanChangingEventArgs : EventArgs, IPlayerInfoEvent, ICancelableEvent {
         internal PlayerInfoBanChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player banner,
                                                  bool isBeingUnbanned, [CanBeNull] string reason, bool announce ) {
             if( target == null ) throw new ArgumentNullException( "target" );
@@ -341,7 +341,7 @@ namespace fCraft.Events {
 
     /// <summary> Provides data for PlayerInfo.FrozenChanging event. Cancellable. 
     /// Announce property may be changed. </summary>
-    public sealed class PlayerInfoFrozenChangingEventArgs : EventArgs, IPlayerInfoEvent, ICancellableEvent {
+    public sealed class PlayerInfoFrozenChangingEventArgs : EventArgs, IPlayerInfoEvent, ICancelableEvent {
         internal PlayerInfoFrozenChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player freezer,
                                                      bool isBeingUnfrozen, bool announce ) {
             if( target == null ) throw new ArgumentNullException( "target" );
@@ -401,7 +401,7 @@ namespace fCraft.Events {
 
     /// <summary> Provides data for PlayerInfo.MuteChanging event. Cancellable. 
     /// Duration and Announce properties may be changed. </summary>
-    public sealed class PlayerInfoMuteChangingEventArgs : EventArgs, IPlayerInfoEvent, ICancellableEvent {
+    public sealed class PlayerInfoMuteChangingEventArgs : EventArgs, IPlayerInfoEvent, ICancelableEvent {
         internal PlayerInfoMuteChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player muter,
                                                   TimeSpan duration, bool unmuting, bool announce ) {
             if( target == null ) throw new ArgumentNullException( "target" );

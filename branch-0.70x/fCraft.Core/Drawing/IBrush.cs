@@ -78,7 +78,7 @@ namespace fCraft.Drawing {
         /// <returns> Block type to place, or Block.Undefined to skip. </returns>
         Block NextBlock( [NotNull] DrawOperation op );
 
-        /// <summary> Called when the DrawOperation is done or cancelled.
+        /// <summary> Called when the DrawOperation is done or canceled.
         /// Resources used by the brush should be freed/disposed here. </summary>
         void End();
     }

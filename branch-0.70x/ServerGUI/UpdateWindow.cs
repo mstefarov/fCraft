@@ -61,11 +61,11 @@ namespace fCraft.ServerGUI {
         }
 
 
-        private void bCancel_Click( object sender, EventArgs e ) {
+        void bCancel_Click( object sender, EventArgs e ) {
             Close();
         }
 
-        private void bUpdateNow_Click( object sender, EventArgs e ) {
+        void bUpdateNow_Click( object sender, EventArgs e ) {
             string args = Server.GetArgString() +
                           String.Format( "--restart=\"{0}\"", MonoCompat.PrependMono( "ServerGUI.exe" ) );
             MonoCompat.StartDotNetProcess( updaterFullPath, args, true );
@@ -91,18 +91,18 @@ namespace fCraft.ServerGUI {
             tChangeLog.Text = sb.ToString();
         }
 
-        private void xShowDetails_CheckedChanged( object sender, EventArgs e ) {
+        void xShowDetails_CheckedChanged( object sender, EventArgs e ) {
             CreateDetailedChangeLog();
         }
 
-        private void bUpdateLater_Click( object sender, EventArgs e ) {
+        void bUpdateLater_Click( object sender, EventArgs e ) {
             Updater.RunAtShutdown = true;
             Logger.Log( LogType.SystemActivity,
                         "An fCraft update will be applied next time the server is shut down or restarted." );
             Close();
         }
 
-        private void UpdateWindow_FormClosing( object sender, FormClosingEventArgs e ) {
+        void UpdateWindow_FormClosing( object sender, FormClosingEventArgs e ) {
             if( !downloader.IsBusy ) return;
             downloader.CancelAsync();
             closeFormWhenDownloaded = true;

@@ -13,7 +13,6 @@ using fCraft.GUI;
 using fCraft.MapConversion;
 using System.Text;
 
-
 namespace fCraft.ConfigGUI {
     sealed partial class AddWorldPopup : Form {
         readonly BackgroundWorker bwLoader = new BackgroundWorker(),
@@ -58,6 +57,7 @@ namespace fCraft.ConfigGUI {
 
         public AddWorldPopup( WorldListEntry world ) {
             InitializeComponent();
+            renderer = new IsoCat();
             fileBrowser.Filter = MapLoadFilter;
 
             cBackup.Items.AddRange( WorldListEntry.BackupEnumNames );
@@ -253,7 +253,7 @@ namespace fCraft.ConfigGUI {
 
         #region Map Preview
 
-        IsoCat renderer;
+        readonly IsoCat renderer;
 
         void Redraw( bool drawAgain ) {
             lock( redrawLock ) {
@@ -273,18 +273,20 @@ namespace fCraft.ConfigGUI {
 
         void AsyncDraw( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
-            renderer = new IsoCat( Map, IsoCatMode.Normal, previewRotation );
-            Rectangle cropRectangle;
+            renderer.Rotation = previewRotation;
+
             if( bwRenderer.CancellationPending ) return;
+
             renderer.ProgressChanged +=
                 ( progressSender, progressArgs ) =>
                 bwRenderer.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
-            Bitmap rawImage = renderer.Draw( out cropRectangle );
-            if( bwRenderer.CancellationPending ) return;
+            IsoCatResult result = renderer.Draw( map );
+            if( result.Canceled || bwRenderer.CancellationPending ) return;
+
+            Bitmap rawImage = result.Bitmap;
             if( rawImage != null ) {
-                previewImage = rawImage.Clone( cropRectangle, rawImage.PixelFormat );
+                previewImage = rawImage.Clone( result.CropRectangle, rawImage.PixelFormat );
             }
-            renderer = null;
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 

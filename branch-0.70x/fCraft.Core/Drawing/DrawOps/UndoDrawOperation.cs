@@ -53,7 +53,7 @@ namespace fCraft.Drawing {
 
 
         /// <summary> Begins the draw operation. Raises DrawOperation.Beginning/Began events. </summary>
-        /// <returns> True is operation began succesfully; false if cancelled by an event callback. </returns>
+        /// <returns> True is operation began succesfully; false if canceled by an event callback. </returns>
         public override bool Begin() {
             if( !RaiseBeginningEvent( this ) ) return false;
             if( Redo ) {

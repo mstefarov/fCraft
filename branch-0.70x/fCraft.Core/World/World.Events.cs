@@ -26,7 +26,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class MainWorldChangingEventArgs : MainWorldChangedEventArgs, ICancellableEvent {
+    public sealed class MainWorldChangingEventArgs : MainWorldChangedEventArgs, ICancelableEvent {
         internal MainWorldChangingEventArgs( World oldWorld, [NotNull] World newWorld )
             : base( oldWorld, newWorld ) { }
 
@@ -54,7 +54,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class WorldCreatingEventArgs : EventArgs, ICancellableEvent {
+    public sealed class WorldCreatingEventArgs : EventArgs, ICancelableEvent {
         internal WorldCreatingEventArgs( [CanBeNull] Player player, [NotNull] string worldName, [CanBeNull] Map map, bool fromXml ) {
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
             Player = player;

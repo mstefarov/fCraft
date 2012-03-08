@@ -67,7 +67,7 @@ namespace fCraft {
                 var e = new PlayerInfoBanChangingEventArgs( this, player, unban, reason, announce );
                 if( raiseEvents ) {
                     RaiseBanChangingEvent( e );
-                    if( e.Cancel ) PlayerOpException.ThrowCancelled( player, this );
+                    if( e.Cancel ) PlayerOpException.ThrowCanceled( player, this );
                     reason = e.Reason;
                 }
 
@@ -668,7 +668,7 @@ namespace fCraft {
             if( raiseEvents ) {
                 var e = new PlayerInfoRankChangingEventArgs( this, player, newRank, reason, rankChangeType, announce );
                 RaiseRankChangingEvent( e );
-                if( e.Cancel ) PlayerOpException.ThrowCancelled( player, this );
+                if( e.Cancel ) PlayerOpException.ThrowCanceled( player, this );
                 announce = e.Announce;
                 reason = e.Reason;
             }
@@ -701,7 +701,7 @@ namespace fCraft {
 
                 // cancel selection in progress
                 if( target.IsMakingSelection ) {
-                    target.Message( "Selection cancelled." );
+                    target.Message( "Selection canceled." );
                     target.SelectionCancel();
                 }
 
@@ -817,7 +817,7 @@ namespace fCraft {
                 if( raiseEvents ) {
                     var e = new PlayerInfoFrozenChangingEventArgs( this, player, false, announce );
                     RaiseFreezeChangingEvent( e );
-                    if( e.Cancel ) PlayerOpException.ThrowCancelled( player, this );
+                    if( e.Cancel ) PlayerOpException.ThrowCanceled( player, this );
                     announce = e.Announce;
                 }
 
@@ -883,7 +883,7 @@ namespace fCraft {
                 if( raiseEvents ){
                     var e = new PlayerInfoFrozenChangingEventArgs( this, player, true, announce );
                     RaiseFreezeChangingEvent( e );
-                    if( e.Cancel ) PlayerOpException.ThrowCancelled( player, this );
+                    if( e.Cancel ) PlayerOpException.ThrowCanceled( player, this );
                     announce = e.Announce;
                 }
 
@@ -955,7 +955,7 @@ namespace fCraft {
                     if( raiseEvents ) {
                         var e = new PlayerInfoMuteChangingEventArgs( this, player, duration, false, announce );
                         RaiseMuteChangingEvent( e );
-                        if( e.Cancel ) PlayerOpException.ThrowCancelled( player, this );
+                        if( e.Cancel ) PlayerOpException.ThrowCanceled( player, this );
                         announce = e.Announce;
                         duration = e.Duration;
                     }
@@ -1027,7 +1027,7 @@ namespace fCraft {
                 if( raiseEvents ) {
                     var e = new PlayerInfoMuteChangingEventArgs( this, player, timeLeft, true, announce );
                     RaiseMuteChangingEvent( e );
-                    if( e.Cancel ) PlayerOpException.ThrowCancelled( player, this );
+                    if( e.Cancel ) PlayerOpException.ThrowCanceled( player, this );
                     announce = e.Announce;
                 }
 

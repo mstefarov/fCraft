@@ -46,11 +46,11 @@ namespace fCraft.Drawing {
         /// <summary> Whether this operation has been started (queued for processing on the Map). </summary>
         public bool HasBegun { get; protected set; }
 
-        /// <summary> Whether this operation is done (has finished or had been cancelled). </summary>
+        /// <summary> Whether this operation is done (has finished or had been canceled). </summary>
         public bool IsDone { get; protected set; }
 
-        /// <summary> Whether this operation has been cancelled (e.g. by /Undo or /WLock). </summary>
-        public bool IsCancelled { get; protected set; }
+        /// <summary> Whether this operation has been canceled (e.g. by /Undo or /WLock). </summary>
+        public bool IsCanceled { get; protected set; }
 
         /// <summary> Number of blocks/coordinates that were considered for drawing. </summary>
         public int BlocksProcessed { get; protected set; }
@@ -174,7 +174,7 @@ namespace fCraft.Drawing {
 
 
         /// <summary> Begins the draw operation. Raises DrawOperation.Beginning/Began events. </summary>
-        /// <returns> True is operation began succesfully; false if cancelled by an event callback. </returns>
+        /// <returns> True is operation began succesfully; false if canceled by an event callback. </returns>
         public virtual bool Begin() {
             if( !RaiseBeginningEvent( this ) ) return false;
             UndoState = Player.DrawBegin( this );
@@ -191,12 +191,12 @@ namespace fCraft.Drawing {
 
         /// <summary> Cancels this draw operation (asynchronously). </summary>
         public void Cancel() {
-            IsCancelled = true;
+            IsCanceled = true;
         }
 
 
         internal void End() {
-            if( IsCancelled ) {
+            if( IsCanceled ) {
                 OnCancellation();
             } else {
                 OnCompletion();
@@ -337,12 +337,12 @@ namespace fCraft.Drawing {
         void OnCancellation() {
             if( AnnounceCompletion ) {
                 if( BlocksDenied > 0 ) {
-                    Player.Message( "{0}: Cancelled after {1}. Processed {2}, updated {3}. Skipped {4} due to permission issues.",
+                    Player.Message( "{0}: Canceled after {1}. Processed {2}, updated {3}. Skipped {4} due to permission issues.",
                                     Description,
                                     DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
                                     BlocksProcessed, BlocksUpdated, BlocksDenied );
                 } else {
-                    Player.Message( "{0}: Cancelled after {1}. Processed {2} blocks, updated {3} blocks.",
+                    Player.Message( "{0}: Canceled after {1}. Processed {2} blocks, updated {3} blocks.",
                                     Description,
                                     DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
                                     BlocksProcessed, BlocksUpdated );
@@ -350,7 +350,7 @@ namespace fCraft.Drawing {
             }
             if( LogCompletion && Map.World != null ) {
                 Logger.Log( LogType.UserActivity,
-                            "Player {0} cancelled {1} on world {2}. Processed {3}, Updated {4}, Skipped {5}, Denied {6} blocks.",
+                            "Player {0} canceled {1} on world {2}. Processed {3}, Updated {4}, Skipped {5}, Denied {6} blocks.",
                             Player, Description, Map.World.Name,
                             BlocksProcessed, BlocksUpdated, BlocksSkipped, BlocksDenied );
             }
@@ -395,7 +395,7 @@ namespace fCraft.Drawing {
         static readonly PriorityEvent<DrawOperationEventArgs> BeganEvent = new PriorityEvent<DrawOperationEventArgs>();
 
 
-        /// <summary> Occurs when a DrawOperation has ended (finished or was cancelled). </summary>
+        /// <summary> Occurs when a DrawOperation has ended (finished or was canceled). </summary>
         public static event EventHandler<DrawOperationEventArgs> Ended {
             add { EndedEvent.Add( value, Priority.Normal ); }
             remove { EndedEvent.Remove( value ); }
@@ -436,7 +436,7 @@ namespace fCraft.Events {
 
 
     /// <summary> Provides data for DrawOperation.Beginning event. Cancellable. </summary>
-    public sealed class DrawOperationBeginningEventArgs : EventArgs, ICancellableEvent {
+    public sealed class DrawOperationBeginningEventArgs : EventArgs, ICancelableEvent {
         public DrawOperationBeginningEventArgs( DrawOperation drawOp ) {
             DrawOp = drawOp;
         }

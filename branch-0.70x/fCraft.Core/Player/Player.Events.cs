@@ -265,7 +265,7 @@ namespace fCraft.Events {
 
 
     /// <summary> Provides data for Server.SessionConnecting event. Cancellable. </summary>
-    public sealed class SessionConnectingEventArgs : EventArgs, ICancellableEvent {
+    public sealed class SessionConnectingEventArgs : EventArgs, ICancelableEvent {
         internal SessionConnectingEventArgs( [NotNull] IPAddress ip ) {
             if( ip == null ) throw new ArgumentNullException( "ip" );
             IP = ip;
@@ -298,7 +298,7 @@ namespace fCraft.Events {
 
 
     /// <summary> Provides data for Player.Connecting event. Cancellable. </summary>
-    public sealed class PlayerConnectingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
+    public sealed class PlayerConnectingEventArgs : EventArgs, IPlayerEvent, ICancelableEvent {
         internal PlayerConnectingEventArgs( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
@@ -338,7 +338,7 @@ namespace fCraft.Events {
 
 
     /// <summary> Provides data for Player.Moving event. Cancellable. </summary>
-    public sealed class PlayerMovingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
+    public sealed class PlayerMovingEventArgs : EventArgs, IPlayerEvent, ICancelableEvent {
         internal PlayerMovingEventArgs( [NotNull] Player player, Position newPos ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
@@ -383,7 +383,7 @@ namespace fCraft.Events {
 
     /// <summary> Provides data for Player.Clicking event. Cancellable.
     /// Coords, Block, and Action properties may be changed. </summary>
-    public sealed class PlayerClickingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
+    public sealed class PlayerClickingEventArgs : EventArgs, IPlayerEvent, ICancelableEvent {
         internal PlayerClickingEventArgs( [NotNull] Player player, Vector3I coords,
                                           ClickAction action, Block block ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -515,7 +515,7 @@ namespace fCraft.Events {
 
 
     /// <summary> Provides data for Player.BeingKicked event. Cancellable. </summary>
-    public sealed class PlayerBeingKickedEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
+    public sealed class PlayerBeingKickedEventArgs : EventArgs, IPlayerEvent, ICancelableEvent {
         internal PlayerBeingKickedEventArgs( [NotNull] Player player, [NotNull] Player kicker, [CanBeNull] string reason,
                                               bool announce, bool recordToPlayerDB, LeaveReason context ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -614,7 +614,7 @@ namespace fCraft.Events {
 
     /// <summary> Provides data for Player.JoiningWorld event. Cancellable.
     /// Allows overriding the text that is shown on connection screen. </summary>
-    public sealed class PlayerJoiningWorldEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
+    public sealed class PlayerJoiningWorldEventArgs : EventArgs, IPlayerEvent, ICancelableEvent {
         internal PlayerJoiningWorldEventArgs( [NotNull] Player player, [CanBeNull] World oldWorld,
                                               [NotNull] World newWorld, WorldChangeContext context,
                                               string textLine1, string textLine2 ) {

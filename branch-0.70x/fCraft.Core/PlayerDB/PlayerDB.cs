@@ -73,7 +73,7 @@ namespace fCraft {
                 var e = new PlayerInfoBeingCreatedEventArgs( name, IPAddress.None, RankManager.DefaultRank, true );
                 PlayerInfo.RaiseBeingCreatedEvent( e );
                 if( e.Cancel ) {
-                    throw new OperationCanceledException( "Cancelled by a plugin." );
+                    throw new OperationCanceledException( "Canceled by a plugin." );
                 }
 
                 newInfo = provider.AddUnrecognizedPlayer( name, e.StartingRank, rankChangeType );
@@ -219,7 +219,7 @@ namespace fCraft {
                     using( GetWriteLock() ) {
                         var e = new PlayerInfoBeingCreatedEventArgs( name, lastIP, RankManager.DefaultRank, false );
                         PlayerInfo.RaiseBeingCreatedEvent( e );
-                        if( e.Cancel ) throw new OperationCanceledException( "Cancelled by a plugin." );
+                        if( e.Cancel ) throw new OperationCanceledException( "Canceled by a plugin." );
 
                         info = provider.AddPlayer( name, e.StartingRank, RankChangeType.Default, lastIP );
                         info.RaisePropertyChangedEvents = true;

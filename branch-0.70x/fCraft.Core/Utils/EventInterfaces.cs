@@ -2,8 +2,8 @@
 using System;
 
 namespace fCraft.Events {
-    /// <summary> An EventArgs for an event that can be cancelled. </summary>
-    public interface ICancellableEvent {
+    /// <summary> An EventArgs for an event that can be canceled. </summary>
+    public interface ICancelableEvent {
         /// <summary> Set to "true" to cancel the event. </summary>
         bool Cancel { get; set; }
     }

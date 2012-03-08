@@ -312,7 +312,7 @@ namespace fCraft {
 namespace fCraft.Events {
     /// <summary> Provides data for Heartbeat.Sending event. Cancellable. 
     /// HeartbeatData may be modified, Uri and GetSercerUri may be changed. </summary>
-    public sealed class HeartbeatSendingEventArgs : EventArgs, ICancellableEvent {
+    public sealed class HeartbeatSendingEventArgs : EventArgs, ICancelableEvent {
         internal HeartbeatSendingEventArgs( HeartbeatData data, Uri uri, bool getServerUri ) {
             HeartbeatData = data;
             Uri = uri;

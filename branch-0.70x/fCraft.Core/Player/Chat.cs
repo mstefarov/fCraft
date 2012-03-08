@@ -11,7 +11,7 @@ namespace fCraft {
         /// <summary> Sends a global (white) chat message. </summary>
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
-        /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        /// <returns> True if message was sent, false if it was canceled by an event callback. </returns>
         /// <exception cref="ArgumentNullException"> If player or rawMessage is null. </exception>
         public static bool SendGlobal( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -40,7 +40,7 @@ namespace fCraft {
         /// <summary> Sends world/local chat message. </summary>
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
-        /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        /// <returns> True if message was sent, false if it was canceled by an event callback. </returns>
         /// <exception cref="ArgumentNullException"> If player or rawMessage is null. </exception>
         public static bool SendWorld( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -74,7 +74,7 @@ namespace fCraft {
         /// <summary> Sends an action message (/Me). </summary>
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
-        /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        /// <returns> True if message was sent, false if it was canceled by an event callback. </returns>
         /// <exception cref="ArgumentNullException"> If player or rawMessage is null. </exception>
         public static bool SendMe( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -104,7 +104,7 @@ namespace fCraft {
         /// <param name="from"> Sender player. </param>
         /// <param name="to"> recipient player. </param>
         /// <param name="rawMessage"> Message text. </param>
-        /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        /// <returns> True if message was sent, false if it was canceled by an event callback. </returns>
         /// <exception cref="ArgumentNullException"> If from-player, to-player, or rawMessage is null. </exception>
         public static bool SendPM( [NotNull] Player from, [NotNull] Player to, [NotNull] string rawMessage ) {
             if( from == null ) throw new ArgumentNullException( "from" );
@@ -136,7 +136,7 @@ namespace fCraft {
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rank"> Target rank. </param>
         /// <param name="rawMessage"> Message text. </param>
-        /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        /// <returns> True if message was sent, false if it was canceled by an event callback. </returns>
         /// <exception cref="ArgumentNullException"> If player, rank, or rawMessage is null. </exception>
         public static bool SendRank( [NotNull] Player player, [NotNull] Rank rank, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -171,7 +171,7 @@ namespace fCraft {
         /// <summary> Sends a global announcement (/Say). </summary>
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
-        /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        /// <returns> True if message was sent, false if it was canceled by an event callback. </returns>
         /// <exception cref="ArgumentNullException"> If player or rawMessage is null. </exception>
         public static bool SendSay( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -198,7 +198,7 @@ namespace fCraft {
         /// <summary> Sends a staff message (/Staff). </summary>
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
-        /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
+        /// <returns> True if message was sent, false if it was canceled by an event callback. </returns>
         /// <exception cref="ArgumentNullException"> If player or rawMessage is null. </exception>
         public static bool SendStaff( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -437,7 +437,7 @@ namespace fCraft.Events {
 
     /// <summary> Provides data for Chat.Sending event. Cancellable.
     /// FormattedMessage and recipientList properties may be changed. </summary>
-    public sealed class ChatSendingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
+    public sealed class ChatSendingEventArgs : EventArgs, IPlayerEvent, ICancelableEvent {
         internal ChatSendingEventArgs( Player player, string message, string formattedMessage,
                                        ChatMessageType messageType, IEnumerable<Player> recipientList ) {
             Player = player;

@@ -68,8 +68,8 @@ namespace fCraft {
                     case WorldOpExceptionCode.NoChangeNeeded:
                         return "No change needed for world \"" + worldName + "\".";
 
-                    case WorldOpExceptionCode.Cancelled:
-                        return "Operation for world \"" + worldName + "\" was cancelled by a plugin.";
+                    case WorldOpExceptionCode.Canceled:
+                        return "Operation for world \"" + worldName + "\" was canceled by a plugin.";
 
                     case WorldOpExceptionCode.SecurityError:
                         return "You are not allowed to do this operation to world \"" + worldName + "\".";
@@ -114,8 +114,8 @@ namespace fCraft {
                     case WorldOpExceptionCode.NoChangeNeeded:
                         return "No change needed.";
 
-                    case WorldOpExceptionCode.Cancelled:
-                        return "Operation cancelled by a plugin.";
+                    case WorldOpExceptionCode.Canceled:
+                        return "Operation canceled by a plugin.";
 
                     case WorldOpExceptionCode.SecurityError:
                         return "You are not allowed to do this operation.";
@@ -172,7 +172,7 @@ namespace fCraft {
         /// <summary> Map file could not be renamed, replaced, or moved. </summary>
         MapMoveError,
 
-        /// <summary> A plugin callback cancelled the operation. </summary>
-        Cancelled
+        /// <summary> A plugin callback canceled the operation. </summary>
+        Canceled
     }
 }
