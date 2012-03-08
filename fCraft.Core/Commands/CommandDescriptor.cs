@@ -118,7 +118,7 @@ namespace fCraft {
         /// <param name="cmd"> Command arguments. </param>
         /// <param name="raiseEvent"> Whether CommandCalling and CommandCalled events should be raised. </param>
         /// <returns> True if the command was called succesfully.
-        /// False if the call was cancelled by the CommandCalling event. </returns>
+        /// False if the call was canceled by the CommandCalling event. </returns>
         public bool Call( [NotNull] Player player, [NotNull] CommandReader cmd, bool raiseEvent ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );

@@ -36,7 +36,7 @@ namespace fCraft {
                 if( value == null ) throw new ArgumentNullException( "value" );
                 if( value == mainWorld ) return;
                 if( !RaiseMainWorldChangingEvent( mainWorld, value ) ) {
-                    throw new WorldOpException( value.Name, WorldOpExceptionCode.Cancelled );
+                    throw new WorldOpException( value.Name, WorldOpExceptionCode.Canceled );
                 }
                 World oldWorld;
                 lock( SyncRoot ) {
@@ -381,7 +381,7 @@ namespace fCraft {
                 CheckMapFile( name );
 
                 if( !RaiseWorldCreatingEvent( null, name, null, true ) ) {
-                    throw new WorldOpException( name, WorldOpExceptionCode.Cancelled );
+                    throw new WorldOpException( name, WorldOpExceptionCode.Canceled );
                 }
 
                 World newWorld = new World( name, el );
@@ -414,7 +414,7 @@ namespace fCraft {
                 }
 
                 if( !RaiseWorldCreatingEvent( player, name, map, false ) ) {
-                    throw new WorldOpException( name, WorldOpExceptionCode.Cancelled );
+                    throw new WorldOpException( name, WorldOpExceptionCode.Canceled );
                 }
 
                 World newWorld = new World( name ) {

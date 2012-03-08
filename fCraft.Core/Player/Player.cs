@@ -190,11 +190,11 @@ namespace fCraft {
             if( rawMessage.StartsWith( "/nvm", StringComparison.OrdinalIgnoreCase ) ||
                 rawMessage.StartsWith( "/cancel", StringComparison.OrdinalIgnoreCase ) ) {
                 if( partialMessage != null ) {
-                    MessageNow( "Partial message cancelled." );
+                    MessageNow( "Partial message canceled." );
                     partialMessage = null;
                 } else if( IsMakingSelection ) {
                     SelectionCancel();
-                    MessageNow( "Selection cancelled." );
+                    MessageNow( "Selection canceled." );
                 } else {
                     MessageNow( "There is currently nothing to cancel." );
                 }
@@ -1668,7 +1668,7 @@ namespace fCraft {
             if( raiseEvents ) {
                 var e = new PlayerBeingKickedEventArgs( this, player, reason, announce, recordToPlayerDB, context );
                 BeingKickedEvent.Raise( e );
-                if( e.Cancel ) PlayerOpException.ThrowCancelled( player, Info );
+                if( e.Cancel ) PlayerOpException.ThrowCanceled( player, Info );
                 recordToPlayerDB = e.RecordToPlayerDB;
                 announce = e.Announce;
                 reason = e.Reason;

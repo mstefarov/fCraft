@@ -247,12 +247,12 @@ namespace fCraft {
 
 
         [TerminatesProgram]
-        internal static void ThrowCancelled( [NotNull] Player player, [NotNull] PlayerInfo target ) {
+        internal static void ThrowCanceled( [NotNull] Player player, [NotNull] PlayerInfo target ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( target == null ) throw new ArgumentNullException( "target" );
-            const string msg = "Cancelled by plugin.";
+            const string msg = "Canceled by plugin.";
             const string colorMsg = "&S" + msg;
-            throw new PlayerOpException( player, target, PlayerOpExceptionCode.Cancelled, msg, colorMsg );
+            throw new PlayerOpException( player, target, PlayerOpExceptionCode.Canceled, msg, colorMsg );
         }
 
 
@@ -307,8 +307,8 @@ namespace fCraft {
         /// <summary> Player must have a world to execute this operation. </summary>
         MustBeInAWorld,
 
-        /// <summary> Operation was cancelled by an event callback (e.g. by a mod or a plugin). </summary>
-        Cancelled,
+        /// <summary> Operation was canceled by an event callback (e.g. by a mod or a plugin). </summary>
+        Canceled,
 
         /// <summary> Cannot ban IPAddress.Any or IPAddress.All. </summary>
         InvalidIP

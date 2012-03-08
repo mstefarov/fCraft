@@ -377,8 +377,8 @@ namespace fCraft {
             for( int i = 0; i < drawOps.Count; i++ ) {
                 DrawOperation op = drawOps[i];
 
-                // remove a cancelled drawOp from the list
-                if( op.IsCancelled ) {
+                // remove a canceled drawOp from the list
+                if( op.IsCanceled ) {
                     op.End();
                     drawOps.RemoveAt( i );
                     i--;

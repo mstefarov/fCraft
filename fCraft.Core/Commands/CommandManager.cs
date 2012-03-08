@@ -130,8 +130,8 @@ namespace fCraft {
                 descriptor.Usage = "/" + descriptor.Name;
             }
 
-            if( !RaiseCommandRegisteringEvent(descriptor) ) {
-                throw new CommandRegistrationException(descriptor,"Cancelled by CommandRegistering event");
+            if( !RaiseCommandRegisteringEvent( descriptor ) ) {
+                throw new CommandRegistrationException( descriptor, "Canceled by CommandRegistering event" );
             }
 
             if( Aliases.ContainsKey( normalizedName ) ) {
@@ -210,7 +210,7 @@ namespace fCraft {
                     if( !descriptor.CanBeCalledBy( player.Info.Rank ) ) {
                         player.MessageNoAccess( descriptor );
                     } else if( !descriptor.Call( player, cmd, true ) ) {
-                        player.Message( "Command was cancelled." );
+                        player.Message( "Command was canceled." );
                     } else {
                         return true;
                     }
@@ -218,7 +218,7 @@ namespace fCraft {
                     if( descriptor.Call( player, cmd, true ) ) {
                         return true;
                     } else {
-                        player.Message( "Command was cancelled." );
+                        player.Message( "Command was canceled." );
                     }
                 }
             }
@@ -360,7 +360,7 @@ namespace fCraft.Events {
 
 
     /// <summary> Provides data for CommandManager.CommandRegistering event. Cancellable. </summary>
-    public sealed class CommandRegistringEventArgs : CommandRegisteredEventArgs, ICancellableEvent {
+    public sealed class CommandRegistringEventArgs : CommandRegisteredEventArgs, ICancelableEvent {
         internal CommandRegistringEventArgs( CommandDescriptor commandDescriptor )
             : base( commandDescriptor ) {
         }
@@ -384,7 +384,7 @@ namespace fCraft.Events {
 
 
     /// <summary> Provides data for CommandManager.CommandCalling event. Cancellable. </summary>
-    public sealed class CommandCallingEventArgs : CommandCalledEventArgs, ICancellableEvent {
+    public sealed class CommandCallingEventArgs : CommandCalledEventArgs, ICancelableEvent {
         internal CommandCallingEventArgs( CommandReader command, CommandDescriptor commandDescriptor, Player player ) :
             base( command, commandDescriptor, player ) {
         }

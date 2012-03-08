@@ -681,9 +681,9 @@ namespace fCraft {
             }
 
             // Cancel the last DrawOp, if still in progress
-            if( undoState.Op != null && !undoState.Op.IsDone && !undoState.Op.IsCancelled ) {
+            if( undoState.Op != null && !undoState.Op.IsDone && !undoState.Op.IsCanceled ) {
                 undoState.Op.Cancel();
-                msg += String.Format( "Cancelled {0} (was {1}% done). ",
+                msg += String.Format( "Canceled {0} (was {1}% done). ",
                                      undoState.Op.Description,
                                      undoState.Op.PercentDone );
             }
@@ -742,7 +742,7 @@ namespace fCraft {
             string msg = "Redo: ";
             if( redoState.Op != null && !redoState.Op.IsDone ) {
                 redoState.Op.Cancel();
-                msg += String.Format( "Cancelled {0} (was {1}% done). ",
+                msg += String.Format( "Canceled {0} (was {1}% done). ",
                                      redoState.Op.Description,
                                      redoState.Op.PercentDone );
             }

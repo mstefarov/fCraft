@@ -150,7 +150,7 @@ namespace fCraft.Drawing {
         }
 
 
-        /// <summary> Called when the DrawOperation is done or cancelled.
+        /// <summary> Called when the DrawOperation is done or canceled.
         /// Resources used by the brush should be freed/disposed here. </summary>
         public void End() { }
     }

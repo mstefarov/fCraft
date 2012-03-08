@@ -509,7 +509,7 @@ namespace fCraft {
 
         /// <summary> Initiates the server shutdown with given parameters. </summary>
         /// <param name="shutdownParams"> Shutdown parameters </param>
-        /// <param name="waitForShutdown"> If true, blocks the calling thread until shutdown is complete or cancelled. </param>
+        /// <param name="waitForShutdown"> If true, blocks the calling thread until shutdown is complete or canceled. </param>
         public static void Shutdown( [NotNull] ShutdownParams shutdownParams, bool waitForShutdown ) {
             if( shutdownParams == null ) throw new ArgumentNullException( "shutdownParams" );
             lock( ShutdownLock ) {
@@ -538,7 +538,7 @@ namespace fCraft {
 
 
         /// <summary> Attempts to cancel the shutdown timer. </summary>
-        /// <returns> True if a shutdown timer was cancelled, false if no shutdown is in progress.
+        /// <returns> True if a shutdown timer was canceled, false if no shutdown is in progress.
         /// Also returns false if it's too late to cancel (shutdown has begun). </returns>
         public static bool CancelShutdown() {
             lock( ShutdownLock ) {
