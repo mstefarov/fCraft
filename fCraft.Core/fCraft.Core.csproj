@@ -117,6 +117,7 @@
     <Compile Include="Plugins\PluginManager.cs" />
     <Compile Include="System\ShutdownParams.cs" />
     <Compile Include="Utils\DateTimeUtil.cs" />
+    <Compile Include="Utils\Mono.Options.cs" />
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
     <Compile Include="Utils\PriorityEvent.cs" />
