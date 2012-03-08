@@ -1009,26 +1009,26 @@ namespace fCraft {
             if( flipX ) {
                 if( flipY ) {
                     if( flipH ) {
-                        player.Message( "Flipped copy along all axes." );
+                        player.Message( "Flipped copy (slot {0}) along all axes.", info.Slot+1 );
                     } else {
-                        player.Message( "Flipped copy along X (east/west) and Y (north/south) axes." );
+                        player.Message( "Flipped copy (slot {0}) along X (east/west) and Y (north/south) axes.", info.Slot + 1 );
                     }
                 } else {
                     if( flipH ) {
-                        player.Message( "Flipped copy along X (east/west) and Z (vertical) axes." );
+                        player.Message( "Flipped copy (slot {0}) along X (east/west) and Z (vertical) axes.", info.Slot + 1 );
                     } else {
-                        player.Message( "Flipped copy along X (east/west) axis." );
+                        player.Message( "Flipped copy (slot {0}) along X (east/west) axis.", info.Slot + 1 );
                     }
                 }
             } else {
                 if( flipY ) {
                     if( flipH ) {
-                        player.Message( "Flipped copy along Y (north/south) and Z (vertical) axes." );
+                        player.Message( "Flipped copy (slot {0}) along Y (north/south) and Z (vertical) axes.", info.Slot + 1 );
                     } else {
-                        player.Message( "Flipped copy along Y (north/south) axis." );
+                        player.Message( "Flipped copy (slot {0}) along Y (north/south) axis.", info.Slot + 1 );
                     }
                 } else {
-                    player.Message( "Flipped copy along Z (vertical) axis." );
+                    player.Message( "Flipped copy (slot {0}) along Z (vertical) axis.", info.Slot + 1 );
                 }
             }
 
@@ -1164,7 +1164,7 @@ namespace fCraft {
             }
 
             player.Message( "Rotated copy (slot {0}) by {1} degrees around {2} axis.",
-                            info.Slot, degrees, axis );
+                            info.Slot + 1, degrees, axis );
             player.SetCopyInformation( info );
         }
 
