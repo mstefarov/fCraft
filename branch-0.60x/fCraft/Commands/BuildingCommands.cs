@@ -1168,7 +1168,7 @@ namespace fCraft {
             }
 
             player.Message( "Rotated copy (slot {0}) by {1} degrees around {2} axis.",
-                            info.Slot, degrees, axis );
+                            info.Slot + 1, degrees, axis );
             player.SetCopyInformation( info );
         }
 

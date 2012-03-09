@@ -122,7 +122,7 @@ namespace fCraft {
                 // or generate a default one
                 if( Map == null ) {
                     Server.Message( "&WMapfile is missing for world {0}&W. A new map has been created.", ClassyName );
-                    Logger.Log( LogType.SystemActivity,
+                    Logger.Log( LogType.Warning,
                                 "World.LoadMap: Map file missing for world {0}. Generating default flatgrass map.",
                                 Name );
                     Map = MapGenerator.GenerateFlatgrass( 128, 128, 64 );
