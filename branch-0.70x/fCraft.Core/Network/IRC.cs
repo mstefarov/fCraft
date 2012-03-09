@@ -475,7 +475,8 @@ namespace fCraft {
             if( ConfigKey.IRCUseColor.Enabled() ) {
                 line = Color.ToIRCColorCodes( line );
             } else {
-                line = NonPrintableChars.Replace( line, "" ).Trim();
+                line = NonPrintableChars.Replace( line, "" );
+                line = Color.StripColors( line ).Trim();
             }
             for( int i = 0; i < channelNames.Length; i++ ) {
                 SendRawMessage( IRCCommands.Privmsg( channelNames[i], line ) );
@@ -540,11 +541,15 @@ namespace fCraft {
             bool enabled = ConfigKey.IRCBotForwardFromServer.Enabled();
             switch( args.MessageType ) {
                 case ChatMessageType.Global:
+                    string msg;
                     if( enabled ) {
-                        SendChannelMessage( args.Player.ClassyName + Color.IRCReset + ": " + args.Message );
+                        msg = args.Message;
                     } else if( args.Message.StartsWith( "#" ) ) {
-                        SendChannelMessage( args.Player.ClassyName + Color.IRCReset + ": " + args.Message.Substring( 1 ) );
+                        msg = args.Message.Substring( 1 );
+                    } else {
+                        return;
                     }
+                    SendChannelMessage( args.Player.ClassyName + Color.IRCReset + ": " + msg );
                     break;
 
                 case ChatMessageType.Me:
