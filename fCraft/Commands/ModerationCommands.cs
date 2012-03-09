@@ -1197,9 +1197,8 @@ namespace fCraft {
             TimeSpan duration;
 
             // validate command parameters
-            if( targetName == null || !Player.IsValidName( targetName ) ||
-                timeString == null || !timeString.TryParseMiniTimespan( out duration ) ||
-                duration <= TimeSpan.Zero ) {
+            if( String.IsNullOrEmpty( targetName ) || String.IsNullOrEmpty( timeString ) ||
+                !timeString.TryParseMiniTimespan( out duration ) || duration <= TimeSpan.Zero ) {
                 CdMute.PrintUsage( player );
                 return;
             }
@@ -1235,7 +1234,7 @@ namespace fCraft {
 
         static void UnmuteHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
-            if( targetName == null || !Player.IsValidName( targetName ) ) {
+            if( String.IsNullOrEmpty( targetName ) ) {
                 CdUnmute.PrintUsage( player );
                 return;
             }
