@@ -1370,7 +1370,7 @@ namespace fCraft {
                                 if( target != null ) {
                                     target.Message( "You were removed from the access blacklist of world {0}&S by {1}&S. " +
                                                     "You are still NOT allowed to join (by rank).",
-                                                    player.ClassyName, world.ClassyName );
+                                                    world.ClassyName, player.ClassyName );
                                 }
                             }
                             Logger.Log( LogType.UserActivity,
@@ -1444,7 +1444,7 @@ namespace fCraft {
                                 if( target != null ) {
                                     target.Message( "You were removed from the access whitelist of world {0}&S by {1}&S. " +
                                                     "You are still allowed to join (by rank).",
-                                                    player.ClassyName, world.ClassyName );
+                                                    world.ClassyName, player.ClassyName );
                                 }
                             } else {
                                 player.Message( "{0}&S is no longer allowed to access {1}",
@@ -1613,7 +1613,7 @@ namespace fCraft {
                                 if( target != null ) {
                                     target.Message( "You were removed from the build blacklist of world {0}&S by {1}&S. " +
                                                     "You are still NOT allowed to build (by rank).",
-                                                    player.ClassyName, world.ClassyName );
+                                                    world.ClassyName, player.ClassyName );
                                 }
                             }
                             Logger.Log( LogType.UserActivity,
@@ -1687,7 +1687,7 @@ namespace fCraft {
                                 if( target != null ) {
                                     target.Message( "You were removed from the build whitelist of world {0}&S by {1}&S. " +
                                                     "You are still allowed to build (by rank).",
-                                                    player.ClassyName, world.ClassyName );
+                                                    world.ClassyName, player.ClassyName );
                                 }
                             } else {
                                 player.Message( "{0}&S is no longer allowed to build in {1}",
