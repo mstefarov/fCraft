@@ -58,24 +58,24 @@ namespace fCraft.GUI {
         }
 
 
-        public byte ShadingStrength { get; set; }
-
         public int[] ChunkCoords { get; private set; }
 
         public int Rotation { get; set; }
 
         public IsoCatMode Mode { get; set; }
 
-
         public bool SeeThroughWater { get; set; }
         public bool SeeThroughLava { get; set; }
+        public bool DrawShadows { get; set; }
+        public bool Gradient { get; set; }
 
 
         public IsoCat() {
-            ShadingStrength = 48;
             Rotation = 0;
             Mode = IsoCatMode.Normal;
             ChunkCoords = new int[6];
+            DrawShadows = true;
+            Gradient = true;
         }
 
 
@@ -129,6 +129,13 @@ namespace fCraft.GUI {
 
             mh34 = map.Height * 3 / 4;
 
+            short[,] shadows;
+            if( DrawShadows ) {
+                shadows = map.ComputeHeightmap();
+            } else {
+                shadows = new short[map.Width,map.Length];
+            }
+
             try {
                 fixed( byte* bpx = map.Blocks,
                     tp = Tiles,
@@ -140,16 +147,16 @@ namespace fCraft.GUI {
 
                             switch( Rotation ) {
                                 case 0:
-                                    ctp = ( z >= map.Shadows[x, y] ? tp : stp );
+                                    ctp = ( z >= shadows[x, y] ? tp : stp );
                                     break;
                                 case 1:
-                                    ctp = ( z >= map.Shadows[dimX1 - y, x] ? tp : stp );
+                                    ctp = ( z >= shadows[dimX1 - y, x] ? tp : stp );
                                     break;
                                 case 2:
-                                    ctp = ( z >= map.Shadows[dimX1 - x, dimY1 - y] ? tp : stp );
+                                    ctp = ( z >= shadows[dimX1 - x, dimY1 - y] ? tp : stp );
                                     break;
                                 case 3:
-                                    ctp = ( z >= map.Shadows[y, dimY1 - x] ? tp : stp );
+                                    ctp = ( z >= shadows[y, dimY1 - x] ? tp : stp );
                                     break;
                             }
 
@@ -329,36 +336,33 @@ namespace fCraft.GUI {
             // Destination percentage is just the additive inverse.
             int destAlpha = 255 - sourceAlpha;
 
-            // Apply shading
-            if( z < ( map.Height >> 1 ) ) {
-                int shadow = ( z >> 1 ) + mh34;
-                image[imageOffset] =
-                    (byte)
-                    ( ( ctp[tileOffset] * sourceAlpha * shadow + image[imageOffset] * destAlpha * map.Height ) /
-                      blendDivisor );
-                image[imageOffset + 1] =
-                    (byte)
-                    ( ( ctp[tileOffset + 1] * sourceAlpha * shadow + image[imageOffset + 1] * destAlpha * map.Height ) /
-                      blendDivisor );
-                image[imageOffset + 2] =
-                    (byte)
-                    ( ( ctp[tileOffset + 2] * sourceAlpha * shadow + image[imageOffset + 2] * destAlpha * map.Height ) /
-                      blendDivisor );
+            if( Gradient ) {
+                // Apply shading
+                if( z < ( map.Height >> 1 ) ) {
+                    int shadow = ( z >> 1 ) + mh34;
+                    image[imageOffset] =
+                        (byte) ( ( ctp[tileOffset] * sourceAlpha * shadow + image[imageOffset] * destAlpha * map.Height ) / blendDivisor );
+                    image[imageOffset + 1] =
+                        (byte) ( ( ctp[tileOffset + 1] * sourceAlpha * shadow + image[imageOffset + 1] * destAlpha * map.Height ) / blendDivisor );
+                    image[imageOffset + 2] =
+                        (byte) ( ( ctp[tileOffset + 2] * sourceAlpha * shadow + image[imageOffset + 2] * destAlpha * map.Height ) / blendDivisor );
+                } else {
+                    int shadow = ( z - ( map.Height >> 1 ) ) * 48;
+                    image[imageOffset] =
+                        (byte) Math.Min( 255, ( ctp[tileOffset] * sourceAlpha + shadow + image[imageOffset] * destAlpha ) / 255 );
+                    image[imageOffset + 1] =
+                        (byte) Math.Min( 255, ( ctp[tileOffset + 1] * sourceAlpha + shadow + image[imageOffset + 1] * destAlpha ) / 255 );
+                    image[imageOffset + 2] =
+                        (byte) Math.Min( 255, ( ctp[tileOffset + 2] * sourceAlpha + shadow + image[imageOffset + 2] * destAlpha ) / 255 );
+                }
             } else {
-                int shadow = ( z - ( map.Height >> 1 ) ) * ShadingStrength;
                 image[imageOffset] =
-                    (byte)
-                    Math.Min( 255, ( ctp[tileOffset] * sourceAlpha + shadow + image[imageOffset] * destAlpha ) / 255 );
+                    (byte)Math.Min( 255, ( ctp[tileOffset] * sourceAlpha + image[imageOffset] * destAlpha ) / 255 );
                 image[imageOffset + 1] =
-                    (byte)
-                    Math.Min( 255,
-                              ( ctp[tileOffset + 1] * sourceAlpha + shadow + image[imageOffset + 1] * destAlpha ) / 255 );
+                    (byte)Math.Min( 255, ( ctp[tileOffset + 1] * sourceAlpha + image[imageOffset + 1] * destAlpha ) / 255 );
                 image[imageOffset + 2] =
-                    (byte)
-                    Math.Min( 255,
-                              ( ctp[tileOffset + 2] * sourceAlpha + shadow + image[imageOffset + 2] * destAlpha ) / 255 );
+                    (byte)Math.Min( 255, ( ctp[tileOffset + 2] * sourceAlpha + image[imageOffset + 2] * destAlpha ) / 255 );
             }
-
             image[imageOffset + 3] = (byte)finalAlpha;
         }
 

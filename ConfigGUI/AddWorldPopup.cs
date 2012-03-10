@@ -227,7 +227,6 @@ namespace fCraft.ConfigGUI {
             stopwatch = Stopwatch.StartNew();
             try {
                 Map = MapUtility.Load( fileToLoad );
-                Map.CalculateShadows();
             } catch( Exception ex ) {
                 MessageBox.Show( String.Format( "Could not load specified map: {0}: {1}",
                                                 ex.GetType().Name, ex.Message ) );
@@ -371,7 +370,6 @@ namespace fCraft.ConfigGUI {
             }
 
             if( floodBarrier ) generatedMap.MakeFloodBarrier();
-            generatedMap.CalculateShadows();
             Map = generatedMap;
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
         }
