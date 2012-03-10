@@ -9,7 +9,7 @@ namespace fCraft.MapConversion {
     public sealed class MapDat : IMapConverter {
 
         public string ServerName {
-            get { return "Creative/Vanilla"; }
+            get { return "Classic/Vanilla"; }
         }
 
         public bool SupportsExport {
@@ -25,7 +25,7 @@ namespace fCraft.MapConversion {
         }
 
         public MapFormat Format {
-            get { return MapFormat.Creative; }
+            get { return MapFormat.Classic; }
         }
 
 
