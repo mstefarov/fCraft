@@ -170,7 +170,8 @@ namespace fCraft.MapConverter {
 
         static OptionSet opts;
 
-        static void ParseOptions( string[] args ) {
+        static void ParseOptions( [NotNull] string[] args ) {
+            if( args == null ) throw new ArgumentNullException( "args" );
             string importerList = allConverters.JoinToString( c => c.Format.ToString() );
             string exporterList = allConverters.Where( c => c.SupportsExport ).JoinToString( c => c.Format.ToString() );
 
@@ -272,16 +273,5 @@ namespace fCraft.MapConverter {
         }
 
         #endregion
-    }
-
-    enum ReturnCode {
-        Success = 0,
-        ArgumentParsingError = 1,
-        UnrecognizedImporter = 2,
-        UnrecognizedExporter = 3,
-        InputDirNotFound = 4,
-        PathError = 5,
-        ErrorOpeningDirForSaving = 6,
-        UnsupportedSaveFormat = 7
     }
 }

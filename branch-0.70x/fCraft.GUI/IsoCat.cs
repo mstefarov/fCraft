@@ -67,6 +67,10 @@ namespace fCraft.GUI {
         public IsoCatMode Mode { get; set; }
 
 
+        public bool SeeThroughWater { get; set; }
+        public bool SeeThroughLava { get; set; }
+
+
         public IsoCat() {
             ShadingStrength = 48;
             Rotation = 0;
@@ -125,7 +129,6 @@ namespace fCraft.GUI {
 
             mh34 = map.Height * 3 / 4;
 
-            Rectangle cropRectangle = Rectangle.Empty;
             try {
                 fixed( byte* bpx = map.Blocks,
                     tp = Tiles,
@@ -162,20 +165,23 @@ namespace fCraft.GUI {
                             else blockUp = 0;
 
                             if( blockUp == 0 || blockLeft == 0 || blockRight == 0 || // air
-                                blockUp == 8 || blockLeft == 8 || blockRight == 8 || // water
-                                blockUp == 9 || blockLeft == 9 || blockRight == 9 || // water
-                                ( block != 20 && ( blockUp == 20 || blockLeft == 20 || blockRight == 20 ) ) || // glass
+
+                                ( block != 8 && block != 9 || !SeeThroughWater ) &&
+                                ( blockUp == 8 || blockLeft == 8 || blockRight == 8 || blockUp == 9 || blockLeft == 9 || blockRight == 9 ) || // water
+
+                                ( block != 10 && block != 11 || !SeeThroughLava ) &&
+                                ( blockUp == 10 || blockLeft == 10 || blockRight == 10 || blockUp == 11 || blockLeft == 11 || blockRight == 11 ) || // lava
+
+                                block != 20 && ( blockUp == 20 || blockLeft == 20 || blockRight == 20 ) || // glass
                                 blockUp == 18 || blockLeft == 18 || blockRight == 18 || // foliage
                                 blockLeft == 44 || blockRight == 44 || // step
 
-                                blockUp == 10 || blockLeft == 10 || blockRight == 10 || // lava
-                                blockUp == 11 || blockLeft == 11 || blockRight == 11 || // lava
-
                                 blockUp == 37 || blockLeft == 37 || blockRight == 37 || // flower
                                 blockUp == 38 || blockLeft == 38 || blockRight == 38 || // flower
-                                blockUp == 6 || blockLeft == 6 || blockRight == 6 || // tree
-                                blockUp == 39 || blockLeft == 39 || blockRight == 39 || // mushroom
+                                blockUp == 6 || blockLeft == 6 || blockRight == 6 || // sapling
+                                blockUp == 39 || blockLeft == 39 || blockRight == 39 ||
                                 blockUp == 40 || blockLeft == 40 || blockRight == 40 ) // mushroom
+                                
                                 BlendTile();
                         }
 
@@ -260,10 +266,10 @@ namespace fCraft.GUI {
                     }
                 }
 
-                cropRectangle = new Rectangle( Math.Max( 0, xMin - 2 ),
-                                               Math.Max( 0, yMin - 2 ),
-                                               Math.Min( imageBmp.Width, xMax - xMin + 4 ),
-                                               Math.Min( imageBmp.Height, yMax - yMin + 4 ) );
+                Rectangle cropRectangle = new Rectangle( Math.Max( 0, xMin - 2 ),
+                                                         Math.Max( 0, yMin - 2 ),
+                                                         Math.Min( imageBmp.Width, xMax - xMin + 4 ),
+                                                         Math.Min( imageBmp.Height, yMax - yMin + 4 ) );
                 return new IsoCatResult( false, imageBmp, cropRectangle );
             } finally {
                 imageBmp.UnlockBits( imageData );
