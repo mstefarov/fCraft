@@ -352,6 +352,7 @@ namespace fCraft {
                 player.LastDrawOp = null;
                 player.UndoClear();
                 player.RedoClear();
+                player.IsRepeatingSelection = false;
                 player.SelectionCancel();
 
                 // update player list

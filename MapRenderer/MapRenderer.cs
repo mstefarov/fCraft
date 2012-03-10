@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 
 namespace fCraft.MapRenderer {
-    class Program {
+    class MapRenderer {
         static void Main( string[] args ) {
         }
     }

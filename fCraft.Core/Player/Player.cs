@@ -1382,6 +1382,7 @@ namespace fCraft {
             }
         }
 
+
         public void SelectionExecute() {
             if( !IsMakingSelection || selectionCallback == null ) {
                 throw new InvalidOperationException( "No selection in progress." );
@@ -1401,6 +1402,7 @@ namespace fCraft {
                 MessageNoAccess( selectionPermissions );
             }
         }
+
 
         /// <summary> Initates the selection </summary>
         /// <param name="marksExpected"> Number of marks that are needed to create the selection </param>
