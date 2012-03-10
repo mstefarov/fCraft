@@ -1256,18 +1256,21 @@ namespace fCraft {
 
             string reason = "(import from " + serverName + ")";
             foreach( string name in names ) {
-                if( Player.IsValidName( name ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
-                                      PlayerDB.AddFakeEntry( name, RankChangeType.Default );
-                    info.Ban( player, reason, true, true );
-
-                } else {
+                try {
                     IPAddress ip;
                     if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
                         ip.BanIP( player, reason, true, true );
+                    } else if( Player.IsValidName( name ) ) {
+                        PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
+                                          PlayerDB.AddFakeEntry( name, RankChangeType.Default );
+                        info.Ban( player, reason, true, true );
+
                     } else {
                         player.Message( "Could not parse \"{0}\" as either name or IP. Skipping.", name );
                     }
+                } catch( PlayerOpException ex ) {
+                    Logger.Log( LogType.Warning, "ImportBans: " + ex.Message );
+                    player.Message( ex.MessageColored );
                 }
             }
 
@@ -1329,11 +1332,16 @@ namespace fCraft {
 
             string reason = "(Import from " + serverName + ")";
             foreach( string name in names ) {
-                PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
-                                  PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
                 try {
-                    info.ChangeRank( player, targetRank, reason, !silent, true, false );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
+                                      PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
+                    try {
+                        info.ChangeRank( player, targetRank, reason, !silent, true, false );
+                    } catch( PlayerOpException ex ) {
+                        player.Message( ex.MessageColored );
+                    }
                 } catch( PlayerOpException ex ) {
+                    Logger.Log( LogType.Warning, "ImportRanks: " + ex.Message );
                     player.Message( ex.MessageColored );
                 }
             }

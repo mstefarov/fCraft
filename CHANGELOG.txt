@@ -1,3 +1,14 @@
+0.616
+ Fix: Fixed /Import terminating when importing bans, if a player with the given name is already banned.
+ Fix: Fixed a formatting error in /Bring and /WBring confirmation messages.
+ Fix: Fixed mixed-up messages in /WAccess and /WBuild when removing players from blacklist/whitelist (thanks ruggedbear and xN8Gx)
+ Fix: Fixed /Static not turning off after switching worlds (thanks boblol0909)
+ Fix: Fixed /Rotate printing incorrect copyslot number (thanks Mc_MrCat)
+ Fix: Fixed a ServerGUI crash when pressing the down arrow key after typing in the first console message (thanks Jason)
+ Fix: /Me messages no longer count towards stats twice (thanks recon_)
+ Fix: /Mute and /Unmute now usable with "-" in place of player name (thanks thelonedrummer18)
+ Fix: Fixed README.txt typo (thanks Wolfmade)
+
 0.615
  Fix: Fixed /Patrol checking Spectate permission, and /SpecPatrol not checking it.
  Fix: Fixed /WRename not updating player's last-used-world-name (thanks Hellenion)
