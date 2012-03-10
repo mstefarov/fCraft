@@ -25,7 +25,7 @@ namespace fCraft.MapConversion {
         Myne,
 
         /// <summary> Map format used by Mojang's classic and survivaltest. </summary>
-        Creative,
+        Classic,
 
         /// <summary> Map format used by Mojang's indev. </summary>
         NBT,

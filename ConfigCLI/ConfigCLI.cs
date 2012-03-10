@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 using fCraft.Events;
 
 namespace fCraft.ConfigCLI {
-    static class Program {
+    static class ConfigCLI {
         public static bool UseColor { get; private set; }
 
 

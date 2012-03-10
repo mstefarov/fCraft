@@ -18,7 +18,7 @@ namespace fCraft.MapConversion {
             AvailableConverters.Add( MapFormat.FCMv4, new MapFCMv4() );
             AvailableConverters.Add( MapFormat.FCMv3, new MapFCMv3() );
             AvailableConverters.Add( MapFormat.FCMv2, new MapFCMv2() );
-            AvailableConverters.Add( MapFormat.Creative, new MapDat() );
+            AvailableConverters.Add( MapFormat.Classic, new MapDat() );
             AvailableConverters.Add( MapFormat.MCSharp, new MapMCSharp() );
             AvailableConverters.Add( MapFormat.D3, new MapD3() );
             AvailableConverters.Add( MapFormat.JTE, new MapJTE() );
@@ -141,7 +141,7 @@ namespace fCraft.MapConversion {
                 } catch { }
             }
 
-            throw new MapFormatException( "Could not find any converter to load the given file." );
+            throw new NoMapConverterFoundException( "Could not find any converter to load the given file." );
         }
 
 
@@ -209,7 +209,7 @@ namespace fCraft.MapConversion {
                 } catch { }
             }
 
-            throw new MapFormatException( "Could not find any converter to load the given file." );
+            throw new NoMapConverterFoundException( "Could not find any converter to load the given file." );
         }
 
 
@@ -229,17 +229,19 @@ namespace fCraft.MapConversion {
 
             if( AvailableConverters.ContainsKey( format ) ) {
                 IMapConverter converter = AvailableConverters[format];
-                try {
-                    return converter.Save( mapToSave, fileName );
-                } catch( NotImplementedException ) {
-                    throw;
-                } catch( Exception ex ) {
-                    Logger.LogAndReportCrash( "Map failed to save", "MapConversion", ex, false );
-                    return false;
+                if( converter.SupportsExport ) {
+                    try {
+                        return converter.Save( mapToSave, fileName );
+                    } catch( Exception ex ) {
+                        Logger.LogAndReportCrash( "Map failed to save", "MapConversion", ex, false );
+                        return false;
+                    }
+                } else {
+                    throw new NotSupportedException( format + " map converter does not support saving." );
                 }
             }
 
-            throw new MapFormatException( "No converter could be found for the given format." );
+            throw new NoMapConverterFoundException( "No converter could be found for the given format." );
         }
 
 

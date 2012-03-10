@@ -167,20 +167,20 @@ namespace fCraft.ConfigCLI {
                 }
             }
 
-            if( Program.UseColor ) Console.ResetColor();
+            if( ConfigCLI.UseColor ) Console.ResetColor();
         }
 
 
         static void SetColor( [NotNull] TextOption option ) {
             if( option == null ) throw new ArgumentNullException( "option" );
-            if( !Program.UseColor ) return;
+            if( !ConfigCLI.UseColor ) return;
             Console.BackgroundColor = option.BackColor;
             Console.ForegroundColor = option.ForeColor;
         }
 
 
         static void ResetColor() {
-            if( Program.UseColor ) Console.ResetColor();
+            if( ConfigCLI.UseColor ) Console.ResetColor();
         }
 
 
@@ -213,10 +213,10 @@ namespace fCraft.ConfigCLI {
         public static bool ShowYesNo( [NotNull] string prompt, params object[] formatArgs ) {
             if( prompt == null ) throw new ArgumentNullException( "prompt" );
             while( true ) {
-                if( Program.UseColor ) Console.ForegroundColor = ConsoleColor.Yellow;
+                if( ConfigCLI.UseColor ) Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.Write( prompt + " (Y/N): ", formatArgs );
                 string input = Console.ReadLine().ToLower();
-                if( Program.UseColor ) Console.ResetColor();
+                if( ConfigCLI.UseColor ) Console.ResetColor();
 
                 if( input.Equals( "yes", StringComparison.OrdinalIgnoreCase ) ||
                     input.Equals( "y", StringComparison.OrdinalIgnoreCase ) ) {
