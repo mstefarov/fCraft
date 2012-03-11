@@ -13,7 +13,7 @@ namespace fCraft.UpdateBuilder {
             "ServerGUI.exe",
             "../../CHANGELOG.txt",
             "../../LICENSE.dotConnect.txt",
-            "../../README.txt",
+            "../../README.txt"
         };
 
         const string BinariesFileName = "../../UpdateInstaller/Resources/Payload.zip";

@@ -144,6 +144,17 @@ namespace fCraft {
         }
 
 
+        /// <summary> If given fileName is contained in a directory, returns full directory name.
+        /// If fileName is in the path root (e.g. C:\), returns normalized path root. </summary>
+        /// <exception cref="ArgumentNullException"> fileName is null </exception>
+        [NotNull]
+        public static string GetDirNameOrPathRoot( [NotNull] string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            string fullPath = Path.GetFullPath( fileName );
+            return Path.GetDirectoryName( fullPath ) ?? Path.GetPathRoot( fullPath );
+        }
+
+
         /// <summary> Makes sure that the path format is valid, that it exists, that it is accessible and writeable. </summary>
         /// <param name="pathLabel"> Name of the path that's being tested (e.g. "map path"). Used for logging. </param>
         /// <param name="path"> Full or partial path. </param>
