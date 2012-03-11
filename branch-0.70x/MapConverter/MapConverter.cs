@@ -59,11 +59,15 @@ namespace fCraft.MapConverter {
             try {
                 if( File.Exists( inputPath ) ) {
                     directoryMode = false;
-                    if( outputDirName == null ) outputDirName = Path.GetDirectoryName( Path.GetFullPath( inputPath ) );
+                    if( outputDirName == null ) {
+                        outputDirName = Paths.GetDirNameOrPathRoot( inputPath );
+                    }
 
                 } else if( Directory.Exists( inputPath ) ) {
                     directoryMode = true;
-                    if( outputDirName == null ) outputDirName = Path.GetFullPath( inputPath );
+                    if( outputDirName == null ) {
+                        outputDirName = Paths.GetDirNameOrPathRoot( inputPath );
+                    }
 
                 } else {
                     Console.Error.WriteLine( "MapConverter: Cannot locate \"{0}\"", inputPath );
@@ -134,7 +138,7 @@ namespace fCraft.MapConverter {
                 string targetPath = Path.Combine( outputDirName, targetFileName );
                 if( !overwrite && File.Exists( targetPath ) ) {
                     Console.WriteLine();
-                    if( !ShowYesNo( "File \"{0}\" already exists. Overwrite?" ) ) {
+                    if( !ShowYesNo( "File \"{0}\" already exists. Overwrite?", targetFileName ) ) {
                         return;
                     }
                 }
