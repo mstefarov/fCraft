@@ -9,6 +9,9 @@ namespace fCraft.MapConversion {
         string ServerName { get; }
 
 
+        /// <summary> Whether this converter supports importing/loading from the format. </summary>
+        bool SupportsImport { get; }
+
         /// <summary> Whether this converter supports exporting/saving to the format. </summary>
         bool SupportsExport { get; }
 
@@ -24,8 +27,10 @@ namespace fCraft.MapConversion {
 
         /// <summary> Returns the format name. </summary>
         MapFormat Format { get; }
+    }
 
 
+    public interface IMapImporter : IMapConverter {
         /// <summary> Returns true if the filename (or directory name) matches this format's expectations. </summary>
         bool ClaimsName( [NotNull] string path );
 
@@ -45,8 +50,10 @@ namespace fCraft.MapConversion {
         /// Throws MapFormatException on failure. </summary>
         [NotNull]
         Map Load( [NotNull] string path );
+    }
 
 
+    public interface IMapExporter : IMapConverter {
         /// <summary> Saves given map at the given location. </summary>
         /// <returns> True if saving succeeded; otherwise false. </returns>
         bool Save( [NotNull] Map mapToSave, [NotNull] string path );

@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     /// <summary> Next file format that fCraft shall use. </summary>
-    public sealed class MapFCMv4 : IMapConverter {
+    public sealed class MapFCMv4 : IMapImporter, IMapExporter {
         private const int FormatID = 0x00FC0004;
         const string ZoneMetaGroupName = "fCraft.Zones",
                      BlockLayerName = "Blocks";
@@ -16,6 +16,10 @@ namespace fCraft.MapConversion {
 
         public string ServerName {
             get { return "fCraft"; }
+        }
+
+        public bool SupportsImport {
+            get { return true; }
         }
 
         public bool SupportsExport {

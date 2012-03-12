@@ -7,9 +7,13 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     /// <summary> MCSharp map conversion implementation, for converting MCSharp map format into fCraft's default map format. </summary>
-    public sealed class MapMCSharp : IMapConverter {
+    public sealed class MapMCSharp : IMapImporter, IMapExporter {
         public string ServerName {
             get { return "MCSharp, MCLawl, MCForge, FemtoCraft"; }
+        }
+
+        public bool SupportsImport {
+            get { return true; }
         }
 
         public bool SupportsExport {

@@ -6,10 +6,14 @@ using System.Net;
 
 namespace fCraft.MapConversion {
     /// <summary> .Dat map conversion implementation, for converting .Dat map format into fCraft's default map format. </summary>
-    public sealed class MapDat : IMapConverter {
+    public sealed class MapDat : IMapImporter {
 
         public string ServerName {
             get { return "Classic/Vanilla"; }
+        }
+
+        public bool SupportsImport {
+            get { return true; }
         }
 
         public bool SupportsExport {
@@ -184,13 +188,6 @@ namespace fCraft.MapConversion {
                 }
                 return map;
             }
-        }
-
-
-        public bool Save( Map mapToSave, string fileName ) {
-            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            throw new NotImplementedException();
         }
 
 

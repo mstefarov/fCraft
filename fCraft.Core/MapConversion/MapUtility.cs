@@ -10,22 +10,33 @@ namespace fCraft.MapConversion {
     // ReSharper disable EmptyGeneralCatchClause
     /// <summary> Utilities used to handle different map formats, including loading, parsing, and saving. </summary>
     public static class MapUtility {
+        static readonly Dictionary<MapFormat, IMapImporter> Importers = new Dictionary<MapFormat, IMapImporter>();
+        static readonly Dictionary<MapFormat, IMapExporter> Exporters = new Dictionary<MapFormat, IMapExporter>();
 
-        static readonly Dictionary<MapFormat, IMapConverter> AvailableConverters = new Dictionary<MapFormat, IMapConverter>();
+
+        public static void RegisterConverter( IMapConverter converter ) {
+            IMapImporter asImporter = converter as IMapImporter;
+            IMapExporter asExporter = converter as IMapExporter;
+            if( asImporter != null ) Importers.Add( asImporter.Format, asImporter );
+            if( asExporter != null ) Exporters.Add( asExporter.Format, asExporter );
+            if( asImporter == null && asExporter == null ) {
+                throw new ArgumentException( "Given converter is neither an IMapImporter nor an IMapExporter." );
+            }
+        }
 
 
         static MapUtility() {
-            AvailableConverters.Add( MapFormat.FCMv4, new MapFCMv4() );
-            AvailableConverters.Add( MapFormat.FCMv3, new MapFCMv3() );
-            AvailableConverters.Add( MapFormat.FCMv2, new MapFCMv2() );
-            AvailableConverters.Add( MapFormat.Classic, new MapDat() );
-            AvailableConverters.Add( MapFormat.MCSharp, new MapMCSharp() );
-            AvailableConverters.Add( MapFormat.D3, new MapD3() );
-            AvailableConverters.Add( MapFormat.JTE, new MapJTE() );
-            AvailableConverters.Add( MapFormat.MinerCPP, new MapMinerCPP() );
-            AvailableConverters.Add( MapFormat.Myne, new MapMyne() );
-            AvailableConverters.Add( MapFormat.NBT, new MapNBT() );
-            AvailableConverters.Add( MapFormat.Opticraft, new MapOpticraft() );
+            RegisterConverter( new MapFCMv4() );
+            RegisterConverter( new MapFCMv3() );
+            RegisterConverter( new MapFCMv2() );
+            RegisterConverter( new MapDat() );
+            RegisterConverter( new MapMCSharp() );
+            RegisterConverter( new MapD3() );
+            RegisterConverter( new MapJTE() );
+            RegisterConverter( new MapMinerCPP() );
+            RegisterConverter( new MapMyne() );
+            RegisterConverter( new MapNBT() );
+            RegisterConverter( new MapOpticraft() );
         }
 
 
@@ -46,8 +57,8 @@ namespace fCraft.MapConversion {
                 }
             }
 
-            List<IMapConverter> fallbackConverters = new List<IMapConverter>();
-            foreach( IMapConverter converter in AvailableConverters.Values ) {
+            List<IMapImporter> fallbackConverters = new List<IMapImporter>();
+            foreach( IMapImporter converter in Importers.Values ) {
                 try {
                     if( converter.StorageType == targetType && converter.ClaimsName( fileName ) ) {
                         if( converter.Claims( fileName ) ) {
@@ -60,7 +71,7 @@ namespace fCraft.MapConversion {
             }
 
             if( tryFallbackConverters ) {
-                foreach( IMapConverter converter in fallbackConverters ) {
+                foreach( IMapImporter converter in fallbackConverters ) {
                     try {
                         if( converter.Claims( fileName ) ) {
                             return converter.Format;
@@ -112,10 +123,10 @@ namespace fCraft.MapConversion {
                 }
             }
 
-            List<IMapConverter> fallbackConverters = new List<IMapConverter>();
+            List<IMapImporter> fallbackConverters = new List<IMapImporter>();
 
             // first try all converters for the file extension
-            foreach( IMapConverter converter in AvailableConverters.Values ) {
+            foreach( IMapImporter converter in Importers.Values ) {
                 bool claims = false;
                 try {
                     claims = (converter.StorageType == targetType) &&
@@ -133,7 +144,7 @@ namespace fCraft.MapConversion {
                 }
             }
 
-            foreach( IMapConverter converter in fallbackConverters ) {
+            foreach( IMapImporter converter in fallbackConverters ) {
                 try {
                     Map map = converter.LoadHeader( fileName );
                     map.HasChangedSinceSave = false;
@@ -182,10 +193,10 @@ namespace fCraft.MapConversion {
                 }
             }
 
-            List<IMapConverter> fallbackConverters = new List<IMapConverter>();
+            List<IMapImporter> fallbackConverters = new List<IMapImporter>();
 
             // first try all converters for the file extension
-            foreach( IMapConverter converter in AvailableConverters.Values ) {
+            foreach( IMapImporter converter in Importers.Values ) {
                 bool claims = false;
                 try {
                     claims = (converter.StorageType == targetType) &&
@@ -201,7 +212,7 @@ namespace fCraft.MapConversion {
                 }
             }
 
-            foreach( IMapConverter converter in fallbackConverters ) {
+            foreach( IMapImporter converter in fallbackConverters ) {
                 try {
                     Map map = converter.Load( fileName );
                     map.HasChangedSinceSave = false;
@@ -227,8 +238,8 @@ namespace fCraft.MapConversion {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             if( format == MapFormat.Unknown ) throw new ArgumentException( "Format may not be \"Unknown\"", "format" );
 
-            if( AvailableConverters.ContainsKey( format ) ) {
-                IMapConverter converter = AvailableConverters[format];
+            if( Exporters.ContainsKey( format ) ) {
+                IMapExporter converter = Exporters[format];
                 if( converter.SupportsExport ) {
                     try {
                         return converter.Save( mapToSave, fileName );
@@ -259,13 +270,33 @@ namespace fCraft.MapConversion {
         }
 
 
-        public static IMapConverter GetConverter( MapFormat format ) {
-            return AvailableConverters[format];
+        [CanBeNull]
+        public static IMapImporter GetImporter( MapFormat format ) {
+            IMapImporter result;
+            if( Importers.TryGetValue( format, out result ) ) {
+                return result;
+            } else {
+                return null;
+            }
+        }
+
+        [CanBeNull]
+        public static IMapExporter GetExporter( MapFormat format ) {
+            IMapExporter result;
+            if( Exporters.TryGetValue( format, out result ) ) {
+                return result;
+            } else {
+                return null;
+            }
         }
 
 
-        public static IMapConverter[] GetConverters() {
-            return AvailableConverters.Values.ToArray();
+        public static IMapImporter[] GetImporters() {
+            return Importers.Values.ToArray();
+        }
+
+        public static IMapExporter[] GetExporters() {
+            return Exporters.Values.ToArray();
         }
     }
     // ReSharper restore EmptyGeneralCatchClause

@@ -37,7 +37,9 @@ namespace fCraft.MapConversion {
         D3,
 
         /// <summary> Format used by Opticraft v0.2+. Support contributed by Jared Klopper (LgZ-optical). </summary>
-        Opticraft
+        Opticraft,
+
+        Raw
     }
 
 
