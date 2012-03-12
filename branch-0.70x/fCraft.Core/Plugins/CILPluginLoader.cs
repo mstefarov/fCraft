@@ -16,8 +16,8 @@ namespace fCraft {
 
         public IPlugin LoadPlugin( PluginDescriptor descriptor ) {
             if( descriptor == null ) throw new ArgumentNullException( "descriptor" );
-            string descriptorPath = Path.GetDirectoryName( descriptor.PluginDescriptorFileName );
-            string fileName = Path.GetFullPath( Path.Combine( descriptorPath, descriptor.PluginFileName ) );
+            string descriptorPath = Paths.GetDirNameOrPathRoot( descriptor.PluginDescriptorFileName );
+            string fileName = Path.Combine( descriptorPath, descriptor.PluginFileName );
 
             Assembly assembly;
             if( !assemblyCache.TryGetValue( fileName, out assembly ) ) {
