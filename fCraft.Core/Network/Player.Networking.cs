@@ -1216,9 +1216,7 @@ namespace fCraft {
 
             for( int i = 0; i < worldPlayerList.Length; i++ ) {
                 Player otherPlayer = worldPlayerList[i];
-                if( otherPlayer == this ||
-                    !CanSeeMoving( otherPlayer ) ||
-                    SpectatedPlayer == otherPlayer ) continue;
+                if( otherPlayer == this ) continue;
 
                 Position otherPos = otherPlayer.Position;
                 int distance = pos.DistanceSquaredTo( otherPos );
@@ -1238,7 +1236,7 @@ namespace fCraft {
                         }
 
                     } else {
-                        if( distance > entityHidingThreshold ) {
+                        if( distance > entityHidingThreshold || !CanSeeMoving( otherPlayer ) || SpectatedPlayer == otherPlayer ) {
                             HideEntity( entity );
 
                         } else if( entity.LastKnownPosition != otherPos ) {
