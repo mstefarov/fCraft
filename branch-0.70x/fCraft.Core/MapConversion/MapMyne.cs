@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     /// <summary> Myne map conversion implementation, for converting Myne map format into fCraft's default map format. </summary>
-    public sealed class MapMyne : IMapConverter {
+    public sealed class MapMyne : IMapImporter {
 
         const string BlockStoreFileName = "blocks.gz";
         const string MetaDataFileName = "world.meta";
@@ -15,6 +15,10 @@ namespace fCraft.MapConversion {
 
         public string ServerName {
             get { return "Myne/MyneCraft/HyveBuild/iCraft"; }
+        }
+
+        public bool SupportsImport {
+            get { return true; }
         }
 
         public bool SupportsExport {
@@ -128,13 +132,6 @@ namespace fCraft.MapConversion {
                 };
             }
             return map;
-        }
-
-
-        public bool Save( Map mapToSave, string fileName ) {
-            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            throw new NotImplementedException();
         }
     }
 }

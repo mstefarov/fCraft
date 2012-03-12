@@ -10,21 +10,18 @@ using Mono.Options;
 
 namespace fCraft.MapConverter {
     static class MapConverter {
-        static IMapConverter[] allConverters;
         static string importerName,
                       exporterName,
                       inputPath,
                       outputDirName,
                       inputFilter;
-        static IMapConverter importer;
-        static IMapConverter exporter;
+        static IMapImporter importer;
+        static IMapExporter exporter;
         static bool recursive, overwrite;
 
 
         static int Main( string[] args ) {
             Logger.Logged += OnLogged;
-
-            allConverters = MapUtility.GetConverters();
 
             ParseOptions( args );
 
@@ -32,8 +29,8 @@ namespace fCraft.MapConverter {
             if( importerName != null ) {
                 MapFormat importFormat;
                 if( !EnumUtil.TryParse( importerName, out importFormat, true ) ||
-                    ( importer = MapUtility.GetConverter( importFormat ) ) == null ) {
-                    Console.Error.WriteLine( "Unrecognized importer \"{0}\"", importerName );
+                    ( importer = MapUtility.GetImporter( importFormat ) ) == null ) {
+                    Console.Error.WriteLine( "Unsupported importer \"{0}\"", importerName );
                     PrintUsage();
                     return (int)ReturnCode.UnrecognizedImporter;
                 }
@@ -42,16 +39,10 @@ namespace fCraft.MapConverter {
             // parse exporter format
             MapFormat exportFormat;
             if( !EnumUtil.TryParse( exporterName, out exportFormat, true ) ||
-                ( exporter = MapUtility.GetConverter( exportFormat ) ) == null ) {
-                Console.Error.WriteLine( "Unrecognized exporter \"{0}\"", exporterName );
+                ( exporter = MapUtility.GetExporter( exportFormat ) ) == null ) {
+                    Console.Error.WriteLine( "Unsupported exporter \"{0}\"", exporterName );
                 PrintUsage();
                 return (int)ReturnCode.UnrecognizedExporter;
-            }
-            if( !exporter.SupportsExport ) {
-                Console.Error.WriteLine( "fCraft does not support exporting to {0} ({1}) format.",
-                                         exporter.Format, exporter.ServerName );
-                Console.WriteLine( "See \"MapConverter --help\" for a list of supported formats." );
-                return (int)ReturnCode.UnsupportedSaveFormat;
             }
 
             // check if input path exists, and if it's a file or directory
@@ -176,8 +167,8 @@ namespace fCraft.MapConverter {
 
         static void ParseOptions( [NotNull] string[] args ) {
             if( args == null ) throw new ArgumentNullException( "args" );
-            string importerList = allConverters.JoinToString( c => c.Format.ToString() );
-            string exporterList = allConverters.Where( c => c.SupportsExport ).JoinToString( c => c.Format.ToString() );
+            string importerList = MapUtility.GetImporters().JoinToString( c => c.Format.ToString() );
+            string exporterList = MapUtility.GetExporters().JoinToString( c => c.Format.ToString() );
 
             bool printHelp = false;
 

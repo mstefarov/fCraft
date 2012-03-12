@@ -5,18 +5,23 @@ using System.IO.Compression;
 
 namespace fCraft.MapConversion {
     /// <summary> NBT map conversion implementation, for converting NBT map format into fCraft's default map format. </summary>
-    public sealed class MapNBT : IMapConverter {
+    public sealed class MapNBT : IMapImporter {
         public string ServerName {
             get { return "InDev"; }
+        }
+
+        public string FileExtension {
+            get { return "mclevel"; }
+        }
+
+        public bool SupportsImport {
+            get { return true; }
         }
 
         public bool SupportsExport {
             get { return false; }
         }
 
-        public string FileExtension {
-            get { return "mclevel"; }
-        }
 
         public MapStorageType StorageType {
             get { return MapStorageType.SingleFile; }

@@ -7,11 +7,15 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     /// <summary> fCraft map format converter, for obsolete format version #2 (2010). </summary>
-    public sealed class MapFCMv2 : IMapConverter {
+    public sealed class MapFCMv2 : IMapImporter {
         private const uint Identifier = 0xfc000002;
 
         public string ServerName {
             get { return "fCraft"; }
+        }
+
+        public bool SupportsImport {
+            get { return true; }
         }
 
         public bool SupportsExport {
@@ -133,13 +137,6 @@ namespace fCraft.MapConversion {
 
                 return map;
             }
-        }
-
-
-        public bool Save( Map mapToSave, string fileName ) {
-            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            throw new NotImplementedException();
         }
 
 
