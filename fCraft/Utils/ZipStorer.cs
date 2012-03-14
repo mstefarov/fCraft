@@ -595,7 +595,9 @@ namespace System.IO.Compression {
                     }
                 }
             } while( bytesRead == buffer.Length );
-            outStream.Flush();
+
+            if( totalRead > 0 )
+                outStream.Flush(); // fix for "Internal error Flush" under Mono
 
             if( zfe.Method == Compression.Deflate )
                 outStream.Dispose();

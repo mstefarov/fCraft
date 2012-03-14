@@ -201,7 +201,7 @@ namespace fCraft {
         /// <summary> Checks for unprintable or illegal characters in a message. </summary>
         /// <param name="message"> Message to check. </param>
         /// <returns> True if message contains invalid chars. False if message is clean. </returns>
-        public static bool ContainsInvalidChars( IEnumerable<char> message ) {
+        public static bool ContainsInvalidChars( string message ) {
             return message.Any( t => t < ' ' || t == '&' || t > '~' );
         }
 
