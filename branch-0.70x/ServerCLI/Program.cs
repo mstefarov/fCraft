@@ -153,13 +153,18 @@ namespace fCraft.ServerCLI {
         static readonly AutoResetEvent UpdateDownloadWaiter = new AutoResetEvent( false );
         static bool updateFailed;
 
+        static readonly object ProgressReportLock = new object();
         static void OnUpdateDownloadProgress( object sender, DownloadProgressChangedEventArgs e ) {
-            Console.CursorLeft = 0;
-            Console.Write( "{0}% |", e.ProgressPercentage );
-            for( int i = 0; i < e.ProgressPercentage / 2 - 1; i++ ) Console.Write( '=' );
-            Console.Write( '>' );
-            for( int i = 0; i < 50 - e.ProgressPercentage / 2 - 1; i++ ) Console.Write( ' ' );
-            Console.Write( '|' );
+            lock( ProgressReportLock ) {
+                Console.CursorLeft = 0;
+                int maxProgress = Console.WindowWidth - 9;
+                int progress = (int)Math.Round( ( e.ProgressPercentage / 100f ) * ( maxProgress - 1 ) );
+                Console.Write( "{0,3}% |", e.ProgressPercentage );
+                Console.Write( new String( '=', progress ) );
+                Console.Write( '>' );
+                Console.Write( new String( ' ', maxProgress - progress ) );
+                Console.Write( '|' );
+            }
         }
 
 
