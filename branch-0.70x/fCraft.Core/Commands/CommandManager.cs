@@ -11,7 +11,7 @@ namespace fCraft {
         static readonly SortedList<string, string> Aliases = new SortedList<string, string>();
         static readonly SortedList<string, CommandDescriptor> Commands = new SortedList<string, CommandDescriptor>();
 
-        static readonly string[] ReservedCommandNames = new[] { "ok", "nvm" };
+        static readonly string[] ReservedCommandNames = new[] { "ok", "nvm", "client" };
 
         // Sets up all the command hooks
         internal static void Init() {

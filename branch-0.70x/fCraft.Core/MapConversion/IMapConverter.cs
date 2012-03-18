@@ -8,22 +8,18 @@ namespace fCraft.MapConversion {
         [NotNull]
         string ServerName { get; }
 
-
         /// <summary> Whether this converter supports importing/loading from the format. </summary>
         bool SupportsImport { get; }
 
         /// <summary> Whether this converter supports exporting/saving to the format. </summary>
         bool SupportsExport { get; }
 
-
         /// <summary> File extension assiciated with this file.
         /// Throws NotSupportedException if this is a directory-based format. </summary>
         string FileExtension { get; }
 
-
         /// <summary> Returns the map storage type (file-based or directory-based). </summary>
         MapStorageType StorageType { get; }
-
 
         /// <summary> Returns the format name. </summary>
         MapFormat Format { get; }
@@ -34,17 +30,14 @@ namespace fCraft.MapConversion {
         /// <summary> Returns true if the filename (or directory name) matches this format's expectations. </summary>
         bool ClaimsName( [NotNull] string path );
 
-
         /// <summary> Allows validating the map format while using minimal resources. </summary>
         /// <returns> Returns true if specified file/directory is valid for this format. </returns>
         bool Claims( [NotNull] string path );
-
 
         /// <summary> Attempts to load map dimensions from specified location.
         /// Throws MapFormatException on failure. </summary>
         [NotNull]
         Map LoadHeader( [NotNull] string path );
-
 
         /// <summary> Fully loads map from specified location.
         /// Throws MapFormatException on failure. </summary>
