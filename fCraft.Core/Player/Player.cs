@@ -43,10 +43,6 @@ namespace fCraft {
         public PlayerInfo Info { get; private set; }
 
 
-        /// <summary> Determines if this player is granted all permissions </summary>
-        public readonly bool IsSuper;
-
-
         /// <summary> Whether the player has completed the login sequence. </summary>
         public SessionState State { get; private set; }
 
@@ -165,7 +161,6 @@ namespace fCraft {
             IP = IPAddress.None;
             ResetAllBinds();
             State = SessionState.Offline;
-            IsSuper = true;
         }
 
 
@@ -499,7 +494,7 @@ namespace fCraft {
             if( args.Length > 0 ) {
                 message = String.Format( message, args );
             }
-            if( IsSuper ) {
+            if( Info.IsSuper ) {
                 Logger.LogToConsole( message );
             } else {
                 foreach( Packet p in LineWrapper.Wrap( Color.Sys + message ) ) {
@@ -835,7 +830,7 @@ namespace fCraft {
         readonly Queue<DateTime> spamChatLog = new Queue<DateTime>( AntispamMessageCount );
 
         internal bool DetectChatSpam() {
-            if( IsSuper ) return false;
+            if( Info.IsSuper ) return false;
             if( spamChatLog.Count >= AntispamMessageCount ) {
                 DateTime oldestTime = spamChatLog.Dequeue();
                 if( DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds < AntispamInterval ) {
@@ -1094,20 +1089,20 @@ namespace fCraft {
         /// <summary> Returns true if player has ALL of the given permissions. </summary>
         public bool Can( [NotNull] params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
-            return IsSuper || permissions.All( Info.Rank.Can );
+            return Info.IsSuper || permissions.All( Info.Rank.Can );
         }
 
 
         /// <summary> Returns true if player has ANY of the given permissions. </summary>
         public bool CanAny( [NotNull] params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
-            return IsSuper || permissions.Any( Info.Rank.Can );
+            return Info.IsSuper || permissions.Any( Info.Rank.Can );
         }
 
 
         /// <summary> Returns true if player has the given permission. </summary>
         public bool Can( Permission permission ) {
-            return IsSuper || Info.Rank.Can( permission );
+            return Info.IsSuper || Info.Rank.Can( permission );
         }
 
 
@@ -1115,7 +1110,7 @@ namespace fCraft {
         /// and is allowed to affect players of the given rank. </summary>
         public bool Can( Permission permission, [NotNull] Rank other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            return IsSuper || Info.Rank.Can( permission, other );
+            return Info.IsSuper || Info.Rank.Can( permission, other );
         }
 
 
@@ -1123,7 +1118,7 @@ namespace fCraft {
         /// and is allowed to affect players of the given rank. </summary>
         public bool Can( Permission permission, [NotNull] Player other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            return IsSuper || Info.Rank.Can( permission, other.Info.Rank );
+            return Info.IsSuper || Info.Rank.Can( permission, other.Info.Rank );
         }
 
 
@@ -1131,14 +1126,14 @@ namespace fCraft {
         /// draw commands that affect a given number of blocks. </summary>
         public bool CanDraw( int volume ) {
             if( volume < 0 ) throw new ArgumentOutOfRangeException( "volume" );
-            return IsSuper || (Info.Rank.DrawLimit == 0) || (volume <= Info.Rank.DrawLimit);
+            return Info.IsSuper || ( Info.Rank.DrawLimit == 0 ) || ( volume <= Info.Rank.DrawLimit );
         }
 
 
         /// <summary> Returns true if player is allowed to join a given world. </summary>
         public bool CanJoin( [NotNull] World worldToJoin ) {
             if( worldToJoin == null ) throw new ArgumentNullException( "worldToJoin" );
-            return IsSuper || worldToJoin.AccessSecurity.Check( Info );
+            return Info.IsSuper || worldToJoin.AccessSecurity.Check( Info );
         }
 
 
@@ -1224,7 +1219,7 @@ namespace fCraft {
         public bool CanSee( [NotNull] Player other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             return other == this ||
-                   IsSuper ||
+                   Info.IsSuper ||
                    !other.Info.IsHidden ||
                    Info.Rank.CanSeeHidden( other.Info.Rank );
         }
@@ -1237,7 +1232,7 @@ namespace fCraft {
         public bool CanSeeMoving( [NotNull] Player other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             return other == this ||
-                   IsSuper ||
+                   Info.IsSuper ||
                    other.spectatedPlayer == null && !other.Info.IsHidden ||
                    ( other.spectatedPlayer != this && Info.Rank.CanSeeHidden( other.Info.Rank ) );
         }

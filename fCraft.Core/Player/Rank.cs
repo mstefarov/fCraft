@@ -34,9 +34,7 @@ namespace fCraft {
         /// Affects /WMain, /WAccess, /WBuild, /ZAdd, /ZEdit, and /ZRemove. </summary>
         public bool AllowSecurityCircumvention;
 
-        /// <summary>
-        /// Maximum number of buffered copies this rank is allowed to have.
-        /// </summary>
+        /// <summary> Maximum number of buffered copies this rank is allowed to have. </summary>
         public int CopySlots = 2;
 
         /// <summary> Maximum number of blocks away the origin that a fill is allowed to travel.
@@ -430,14 +428,6 @@ namespace fCraft {
         [Pure]
         public bool Can( Permission permission ) {
             return Permissions[(int)permission];
-        }
-
-
-        /// <summary> Checks whether this rank is granted all the permission on the given list. </summary>
-        [Pure]
-        public bool Can( [NotNull] params Permission[] permissions ) {
-            if( permissions == null ) throw new ArgumentNullException( "permissions" );
-            return permissions.All( perm => Permissions[(int)perm] );
         }
 
 
