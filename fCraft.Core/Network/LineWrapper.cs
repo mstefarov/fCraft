@@ -12,7 +12,7 @@ namespace fCraft {
     /// Removes invalid characters and color sequences.
     /// Supports optional line prefixes for second and consequent lines.
     /// This class is implemented as IEnumerable of Packets, so it's usable with foreach() and Linq. </summary>
-    sealed class LineWrapper : IEnumerable<Packet>, IEnumerator<Packet> {
+    public sealed class LineWrapper : IEnumerable<Packet>, IEnumerator<Packet> {
         const string DefaultPrefixString = "> ";
         static readonly byte[] DefaultPrefix;
 
@@ -152,7 +152,7 @@ namespace fCraft {
                                 inputIndex = wrapIndex;
                                 outputIndex = wrapOutputIndex;
                                 color = wrapColor;
-                            }// else word is too long, dont backtrack to wrap
+                            } // else word is too long, dont backtrack to wrap
                             return true;
                         }
                         spaceCount = 0;
@@ -163,6 +163,10 @@ namespace fCraft {
 
                 case (byte)'-':
                     expectingColor = false;
+                    if( spaceCount > 0 ) {
+                        wrapIndex = inputIndex;
+                        wrapColor = color;
+                    }
                     if( !Append( ch ) ) {
                         if( wordLength < LineSize - prefix.Length ) {
                             inputIndex = wrapIndex;
@@ -172,10 +176,12 @@ namespace fCraft {
                         return true;
                     }
                     spaceCount = 0;
-                    // allow wrapping after dash
-                    wrapIndex = inputIndex + 1;
-                    wrapOutputIndex = outputIndex;
-                    wrapColor = color;
+                    if( wordLength > 1 ) {
+                        // allow wrapping after dash
+                        wrapIndex = inputIndex + 1;
+                        wrapOutputIndex = outputIndex;
+                        wrapColor = color;
+                    }
                     break;
 
                 case (byte)'\n':
@@ -188,7 +194,7 @@ namespace fCraft {
                         if( ProcessColor( ref ch ) ) {
                             color = ch;
                             hadColor = true;
-                        }// else colorcode is invalid, skip
+                        } // else colorcode is invalid, skip
                     } else {
                         if( spaceCount > 0 ) {
                             wrapIndex = inputIndex;
@@ -203,7 +209,7 @@ namespace fCraft {
                                 inputIndex = wrapIndex;
                                 outputIndex = wrapOutputIndex;
                                 color = wrapColor;
-                            }// else word is too long, dont backtrack to wrap
+                            } // else word is too long, dont backtrack to wrap
                             return true;
                         }
                     }
@@ -343,13 +349,13 @@ namespace fCraft {
 
 
         /// <summary> Creates a new line wrapper for a given raw string. </summary>
-        public static LineWrapper Wrap( string message ) {
+        public static IEnumerable<Packet> Wrap( string message ) {
             return new LineWrapper( message );
         }
 
 
         /// <summary> Creates a new line wrapper for a given raw string. </summary>
-        public static LineWrapper WrapPrefixed( string prefix, string message ) {
+        public static IEnumerable<Packet> WrapPrefixed( string prefix, string message ) {
             return new LineWrapper( prefix, message );
         }
     }
