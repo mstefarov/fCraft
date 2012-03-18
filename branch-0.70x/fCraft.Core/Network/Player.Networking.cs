@@ -273,7 +273,7 @@ namespace fCraft {
             reader.ReadByte();
             string message = reader.ReadString();
 
-            if( !IsSuper && message.StartsWith( "/womid " ) ) {
+            if( !Info.IsSuper && message.StartsWith( "/womid " ) ) {
                 IsUsingWoM = true;
                 return true;
             }

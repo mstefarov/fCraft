@@ -1249,7 +1249,7 @@ namespace fCraft {
             if( worlds.Length == 0 ) {
                 player.Message( "There are no {0}.", listName );
 
-            } else if( worlds.Length <= WorldNamesPerPage || player.IsSuper ) {
+            } else if( worlds.Length <= WorldNamesPerPage || player.Info.IsSuper ) {
                 player.MessagePrefixed( "&S  ", "&SThere are {0} {1}: {2}",
                                         worlds.Length, listName, worlds.JoinToClassyString() );
 

@@ -1004,7 +1004,7 @@ namespace fCraft {
         /// <param name="permission"> Permission to check if the player has. </param>
         /// <returns> True if the player has permission, otherwise false. </returns>
         public bool Can( Permission permission ) {
-            return Rank.Can( permission );
+            return IsSuper || Rank.Can( permission );
         }
 
         /// <summary> Whether or not this player has the ability to affect the target rank, using the specified permission. </summary>
@@ -1012,7 +1012,7 @@ namespace fCraft {
         /// <param name="targetRank"> Player to check if this player has permission to affect. </param>
         /// <returns> True if the player has permission, otherwise false. </returns>
         public bool Can( Permission permission, [NotNull] Rank targetRank ) {
-            return Rank.Can( permission, targetRank );
+            return IsSuper || Rank.Can( permission, targetRank );
         }
 
 

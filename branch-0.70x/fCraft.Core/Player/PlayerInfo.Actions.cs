@@ -156,7 +156,7 @@ namespace fCraft {
                 IPAddress address = LastIP;
 
                 // Check if player is trying to ban self
-                if( player.Info == this || address.Equals( player.IP ) && !player.IsSuper ) {
+                if( player.Info == this || address.Equals( player.IP ) && !player.Info.IsSuper ) {
                     PlayerOpException.ThrowCannotTargetSelf( player, this, "IP-ban" );
                 }
 
@@ -267,7 +267,7 @@ namespace fCraft {
                 IPAddress address = LastIP;
 
                 // Check if player is trying to unban self
-                if( player.Info == this || address.Equals( player.IP ) && !player.IsSuper ) {
+                if( player.Info == this || address.Equals( player.IP ) && !player.Info.IsSuper ) {
                     PlayerOpException.ThrowCannotTargetSelf( player, this, "IP-unban" );
                 }
 
@@ -337,7 +337,7 @@ namespace fCraft {
                 IPAddress address = LastIP;
 
                 // Check if player is trying to ban self
-                if( player.Info == this || address.Equals( player.IP ) && !player.IsSuper ) {
+                if( player.Info == this || address.Equals( player.IP ) && !player.Info.IsSuper ) {
                     PlayerOpException.ThrowCannotTargetSelf( player, this, "ban-all" );
                 }
 
@@ -461,7 +461,7 @@ namespace fCraft {
                 IPAddress address = LastIP;
 
                 // Check if player is trying to unban self
-                if( player.Info == this || address.Equals( player.IP ) && !player.IsSuper ) {
+                if( player.Info == this || address.Equals( player.IP ) && !player.Info.IsSuper ) {
                     PlayerOpException.ThrowCannotTargetSelf( player, this, "unban-all" );
                 }
 
