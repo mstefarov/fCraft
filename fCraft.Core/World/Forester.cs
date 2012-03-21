@@ -1,4 +1,4 @@
-﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 // Based on Forester script by dudecon, ported with permission.
 // Original: http://www.minecraftforum.net/viewtopic.php?f=25&t=9426
 using System;

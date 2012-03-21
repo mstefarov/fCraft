@@ -1,7 +1,6 @@
-﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 
 namespace fCraft {
-
     /// <summary> Enumeration of all standard Minecraft Classic block types. </summary>
     #pragma warning disable 1591
     public enum Block : byte {

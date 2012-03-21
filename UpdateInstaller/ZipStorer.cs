@@ -1,5 +1,4 @@
-﻿// Part of fCraft | fCraft is Copyright 2009-2012 Matvei Stefarov <me@matvei.org> | MIT License
-// Based on ZipStorer 2.35 (March 14, 2010), by Jaime Olivares: zipstorer.codeplex.com
+﻿// Based on ZipStorer 2.35 (March 14, 2010), by Jaime Olivares: zipstorer.codeplex.com
 using System.Collections.Generic;
 using System.Text;
 using JetBrains.Annotations;

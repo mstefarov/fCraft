@@ -1,4 +1,4 @@
-﻿// Part of fCraft | Copyright 2009-2012 Matvei Stefarov <me@matvei.org> | MIT License
+﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System.IO;
 using System.IO.Compression;
 

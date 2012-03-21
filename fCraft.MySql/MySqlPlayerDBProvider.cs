@@ -1,4 +1,4 @@
-﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net;
 using System.Xml.Linq;
 using Devart.Data.MySql;
-using JetBrains.Annotations;
 
 namespace fCraft.MySql {
     internal sealed partial class MySqlPlayerDBProvider : IPlayerDBProvider {

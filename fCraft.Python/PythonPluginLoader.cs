@@ -1,4 +1,5 @@
-﻿// PythonPluginLoader based on code contributed by Jared Klopper (LgZ-optical).
+﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+// PythonPluginLoader based on code contributed by Jared Klopper (LgZ-optical).
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -1,4 +1,6 @@
-﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+// Based on Lock Free Queue implementation by Idaho Edokpayi:
+// http://www.codeproject.com/Articles/23317/Lock-Free-Queue-implementation-in-C-and-C
 using System.Threading;
 
 namespace fCraft {
