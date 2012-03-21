@@ -40,11 +40,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MapRenderer.cs" />
@@ -52,16 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\fCraft.Core\fCraft.Core.csproj">
-      <Project>{7FBE7809-6F77-415C-ABEB-A3F627E817B0}</Project>
-      <Name>fCraft.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\fCraft.GUI\fCraft.GUI.csproj">
-      <Project>{AFAEE6CC-8B4F-40CD-9623-7FFDC8E52222}</Project>
-      <Name>fCraft.GUI</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

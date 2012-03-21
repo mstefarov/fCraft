@@ -1,4 +1,4 @@
-﻿// fCraft is Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 // Plugin subsystem based heavily on code contributed by Jared Klopper (LgZ-optical).
 using System;
 using System.Collections.Generic;

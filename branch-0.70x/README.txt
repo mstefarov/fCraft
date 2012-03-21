@@ -174,55 +174,6 @@ versions of fCraft.
 
 
 
-=== Licensing =================================================================
-
-fCraft is open-source and available free of change for all uses. fCraft code
-and binaries are licensed and distributed under the permissive MIT License,
-reproduced here:
-
-----
-Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-----
-
-If you create fCraft plugins that do not include any substantial portions of
-fCraft's original code, they belong to you and you are free to do absolutely
-anything with them. However, if you would like to distribute whole modified
-copies of fCraft, please follow the MIT License terms.
-
-fCraft uses and bundles Devart dotConnect for MySQL, under free license.
-Full text of the Devart dotConnect for MySQL license should be included with
-your copy of fCraft in LICENSE.dotConnect.txt
-
-fCraft.Python uses and bundles Microsoft Dynamic Language Runtime, licensed
-under Microsoft Public License. See LICENSE.MicrosoftDLR.txt
-
-fCraft.Python uses and bundles IronPython, licensed under Apache License, v2.0.
-See LICENSE.IronPython.txt
-
-Original Minecraft was developed by Markus "Notch" Persson of Mojang AB, and
-is not affiliated with fCraft in any way. fCraft does not make use of any code,
-assets, or any other files from Minecraft. 
-
-
-
 === Privacy Notice ============================================================
 
 By default, fCraft is configured to automatically submit crash reports to
@@ -268,7 +219,7 @@ Thanks to people who supported fCraft development through donations:
 Thanks to people whose code has been ported to fCraft:
     Dudecon (Forester), Osici (Omen), vLK (MinerCPP), Karl Seguin,
     Tim Van Wassenhove (timvw.be), Paul Bourke (Spline interpolation),
-    Sam Allen (dotnetperls.com)
+    Idaho Edokpayi (ConcurrentQueue), Sam Allen (dotnetperls.com)
 
 Thanks to Minecraft servers that helped test and improve fCraft:
     TheOne's Zombie Survival, SpecialAttack.net Freebuild, Team9000 Freebuild,
