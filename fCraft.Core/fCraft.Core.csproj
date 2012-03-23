@@ -118,6 +118,7 @@
     <Compile Include="Plugins\PluginManager.cs" />
     <Compile Include="System\ShutdownParams.cs" />
     <Compile Include="Utils\DateTimeUtil.cs" />
+    <Compile Include="Utils\JSON.cs" />
     <Compile Include="Utils\Mono.Options.cs" />
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
@@ -299,6 +300,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
