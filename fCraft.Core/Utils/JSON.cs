@@ -22,7 +22,7 @@ namespace fCraft {
 
         public JSONObject( string inputString ) {
             ReadJSONObject( inputString, 0 );
-            token = PeekToken();
+            token = FindNextToken();
             if( token != Token.None ) {
                 ThrowUnexpected( token, "None" );
             }
@@ -32,7 +32,7 @@ namespace fCraft {
         int ReadJSONObject( string inputString, int offset ) {
             str = inputString;
             index = offset;
-            token = PeekToken();
+            token = FindNextToken();
             if( token != Token.BeginObject ) {
                 ThrowUnexpected( token, "BeginObject" );
             }
@@ -40,7 +40,7 @@ namespace fCraft {
             index++;
             bool first = true;
             do {
-                token = PeekToken();
+                token = FindNextToken();
 
                 if( token == Token.EndObject ) {
                     index++;
@@ -49,12 +49,11 @@ namespace fCraft {
 
                 if( first ) {
                     first = false;
-                } else {
-                    if( token != Token.ValueSeparator ) {
-                        ThrowUnexpected( token, "EndObject or ValueSeparator" );
-                    }
+                } else if( token == Token.ValueSeparator ) {
                     index++;
-                    token = PeekToken();
+                    token = FindNextToken();
+                } else {
+                    ThrowUnexpected( token, "EndObject or ValueSeparator" );
                 }
 
                 if( token != Token.String ) {
@@ -62,12 +61,12 @@ namespace fCraft {
                 }
 
                 string key = ReadString();
-                token = PeekToken();
+                token = FindNextToken();
                 if( token != Token.NameSeparator ) {
                     ThrowUnexpected( token, "NameSeparator" );
                 }
                 index++;
-                token = PeekToken();
+                token = FindNextToken();
                 object value = ReadValue();
                 Add( key, value );
             } while( token != Token.None );
@@ -98,7 +97,7 @@ namespace fCraft {
             Number
         }
 
-        Token PeekToken() {
+        Token FindNextToken() {
             if( index >= str.Length ) return Token.None;
             while( str[index] == ' ' || str[index] == '\t' || str[index] == '\r' || str[index] == '\n' ) {
                 index++;
@@ -253,6 +252,26 @@ namespace fCraft {
                     }
                     index += 5;
                     return false;
+
+                case Token.BeginArray:
+                    index++;
+                    List<object> list = new List<object>();
+                    bool first = true;
+                    while( true ) {
+                        token = FindNextToken();
+                        if( token == Token.EndArray ) break;
+                        if( first ) {
+                            first = false;
+                        } else if( token == Token.ValueSeparator ) {
+                            index++;
+                            token = FindNextToken();
+                        } else {
+                            ThrowUnexpected( token, "ValueSeparator" );
+                        }
+                        list.Add( ReadValue() );
+                    }
+                    index++;
+                    return list.ToArray();
             }
             throw new SerializationException( "Unexpected token " + token + "; expected value" );
         }
