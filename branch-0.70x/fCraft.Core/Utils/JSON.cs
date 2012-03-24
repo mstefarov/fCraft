@@ -3,11 +3,264 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Text;
+using JetBrains.Annotations;
 
-namespace fCraft.Utils {
-    class JSONObject : IDictionary<string,object> {
+namespace fCraft {
+    public class JSONObject : IDictionary<string, object> {
         readonly Dictionary<string, object> data = new Dictionary<string, object>();
+
+
+        #region Parsing
+
+        public JSONObject() {}
+
+        int index;
+        Token token;
+        string str;
+
+        public JSONObject( string inputString ) {
+            ReadJSONObject( inputString, 0 );
+            token = PeekToken();
+            if( token != Token.None ) {
+                ThrowUnexpected( token, "None" );
+            }
+        }
+
+
+        int ReadJSONObject( string inputString, int offset ) {
+            str = inputString;
+            index = offset;
+            token = PeekToken();
+            if( token != Token.BeginObject ) {
+                ThrowUnexpected( token, "BeginObject" );
+            }
+
+            index++;
+            bool first = true;
+            do {
+                token = PeekToken();
+
+                if( token == Token.EndObject ) {
+                    index++;
+                    return index;
+                }
+
+                if( first ) {
+                    first = false;
+                } else {
+                    if( token != Token.ValueSeparator ) {
+                        ThrowUnexpected( token, "EndObject or ValueSeparator" );
+                    }
+                    index++;
+                    token = PeekToken();
+                }
+
+                if( token != Token.String ) {
+                    ThrowUnexpected( token, "String" );
+                }
+
+                string key = ReadString();
+                token = PeekToken();
+                if( token != Token.NameSeparator ) {
+                    ThrowUnexpected( token, "NameSeparator" );
+                }
+                index++;
+                token = PeekToken();
+                object value = ReadValue();
+                Add( key, value );
+            } while( token != Token.None );
+            return index;
+        }
+
+
+        [TerminatesProgram]
+        static void ThrowUnexpected( Token given, string expected ) {
+            throw new SerializationException( "JSON: Unexpected token " + given +
+                                              ", expecting "+expected );
+        }
+
+
+        enum Token {
+            Error,
+            None,
+            BeginObject,
+            EndObject,
+            BeginArray,
+            EndArray,
+            NameSeparator,
+            ValueSeparator,
+            Null,
+            True,
+            False,
+            String,
+            Number
+        }
+
+        Token PeekToken() {
+            if( index >= str.Length ) return Token.None;
+            while( str[index] == ' ' || str[index] == '\t' || str[index] == '\r' || str[index] == '\n' ) {
+                index++;
+                if( index >= str.Length ) return Token.None;
+            }
+            switch( str[index] ) {
+                case '{':
+                    return Token.BeginObject;
+                case '}':
+                    return Token.EndObject;
+                case '[':
+                    return Token.BeginArray;
+                case ']':
+                    return Token.EndArray;
+                case 'n':
+                    return Token.Null;
+                case 't':
+                    return Token.True;
+                case 'f':
+                    return Token.False;
+                case ':':
+                    return Token.NameSeparator;
+                case ',':
+                    return Token.ValueSeparator;
+                case '"':
+                    return Token.String;
+                case '-':
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    return Token.Number;
+                default:
+                    return Token.Error;
+            }
+        }
+
+
+        string ReadString() {
+            StringBuilder sb = new StringBuilder();
+            index++;
+
+            for( int start = -1; index < str.Length - 1; index++ ) {
+                char c = str[index];
+
+                if( c == '"' ) {
+                    if( start != -1 && start != index ) {
+                        sb.Append( str, start, index - start );
+                        index++;
+                        return sb.ToString();
+                    }
+                }
+
+                if( c == '\\' ) {
+                    if( start != -1 && start != index ) {
+                        sb.Append( str, start, index - start );
+                        start = -1;
+                    }
+                    index++;
+                    if( index >= str.Length - 1 ) break;
+                    switch( str[index] ) {
+                        case '"':
+                        case '/':
+                        case '\\':
+                            start = index;
+                            continue;
+                        case 'b':
+                            sb.Append( '\b' );
+                            continue;
+                        case 'f':
+                            sb.Append( '\f' );
+                            continue;
+                        case 'n':
+                            sb.Append( '\n' );
+                            continue;
+                        case 'r':
+                            sb.Append( '\r' );
+                            continue;
+                        case 't':
+                            sb.Append( '\t' );
+                            continue;
+                        case 'u':
+                            if( index >= str.Length - 5 ) break;
+                            uint c0 = ReadHexChar( str[index + 1], 0x1000 );
+                            uint c1 = ReadHexChar( str[index + 2], 0x0100 );
+                            uint c2 = ReadHexChar( str[index + 3], 0x0010 );
+                            uint c3 = ReadHexChar( str[index + 4], 0x0001 );
+                            sb.Append( (char)( c0 + c1 + c2 + c3 ) );
+                            index += 3;
+                            continue;
+                    }
+                }
+
+                if( c >= ' ' ) {
+                    if( start == -1 ) start = index;
+                    continue;
+                }
+
+                throw new SerializationException( "Unexpected character: " + ( (int)c ).ToString( "X4", NumberFormatInfo.InvariantInfo ) );
+            }
+            throw new SerializationException( "Unexpected end of string" );
+        }
+
+
+        uint ReadHexChar( char ch, uint multiplier ) {
+            if( ch >= '0' && ch <= '9' )
+                return (uint)( ch - '0' ) * multiplier;
+            else if( ch >= 'A' && ch <= 'F' )
+                return (uint)( ( ch - 'A' ) + 10 ) * multiplier;
+            else if( ch >= 'a' && ch <= 'f' )
+                return (uint)( ( ch - 'a' ) + 10 ) * multiplier;
+            throw new SerializationException( "Unexpected Unicode entity" );
+        }
+
+
+        object ReadValue() {
+            switch( token ) {
+                case Token.BeginObject:
+                    JSONObject newObj = new JSONObject();
+                    index = newObj.ReadJSONObject( str, index );
+                    return newObj;
+
+                case Token.String:
+                    return ReadString();
+
+                case Token.Null:
+                    if( index >= str.Length - 4 ||
+                        str[index + 1] != 'u' || str[index + 2] != 'l' || str[index + 3] != 'l' ) {
+                        throw new SerializationException( "Unexpected token; expected 'null'" );
+                    }
+                    index += 4;
+                    return null;
+
+                case Token.True:
+                    if( index >= str.Length - 4 ||
+                        str[index + 1] != 'r' || str[index + 2] != 'u' || str[index + 3] != 'e' ) {
+                        throw new SerializationException( "Unexpected token; expected 'true'" );
+                    }
+                    index += 4;
+                    return true;
+
+                case Token.False:
+                    if( index >= str.Length - 5 ||
+                        str[index + 1] != 'a' || str[index + 2] != 'l' || str[index + 3] != 's' || str[index + 4] != 'e' ) {
+                        throw new SerializationException( "Unexpected token; expected 'false'" );
+                    }
+                    index += 5;
+                    return false;
+            }
+            throw new SerializationException( "Unexpected token " + token + "; expected value" );
+        }
+
+        #endregion
+
+
+        #region Serialization
 
         public string Serialize() {
             StringBuilder sb = new StringBuilder();
@@ -18,7 +271,13 @@ namespace fCraft.Utils {
 
         void SerializeInternal( StringBuilder sb ) {
             sb.Append( '{' );
+            bool first = true;
             foreach( var kvp in data ) {
+                if( first ) {
+                    first = false;
+                } else {
+                    sb.Append( ',' );
+                }
                 WriteString( sb, kvp.Key );
                 sb.Append( ':' );
                 WriteValue( sb, kvp.Value );
@@ -40,11 +299,10 @@ namespace fCraft.Utils {
                 }
             } else if( obj is sbyte || obj is byte ||
                        obj is short || obj is ushort ||
-                       obj is int || obj is uint ||
-                       obj is long ) {
+                       obj is int ) {
+                sb.Append( (int)obj );
+            } else if( obj is uint || obj is long ) {
                 sb.Append( (long)obj );
-            } else if( obj is ulong ) {
-                sb.Append( (ulong)obj );
             } else if( obj is float || obj is double || obj is decimal ) {
                 sb.Append( (double)obj );
             } else if( obj is string ) {
@@ -111,6 +369,10 @@ namespace fCraft.Utils {
             sb.Append( ']' );
         }
 
+        #endregion
+
+
+        #region Has/Get/TryGet shortcuts
 
         // ==== non-cast ====
         public bool Has( string key ) {
@@ -210,6 +472,33 @@ namespace fCraft.Utils {
                 return false;
             }
             return ( boxedVal is int );
+        }
+
+
+        // ==== longs ====
+        public long GetLong( string key ) {
+            return (long)data[key];
+        }
+
+
+        public bool TryGetLong( string key, out long val ) {
+            val = 0;
+            object boxedVal;
+            if( !data.TryGetValue( key, out boxedVal ) ) {
+                return false;
+            }
+            if( !( boxedVal is long ) ) return false;
+            val = (long)boxedVal;
+            return true;
+        }
+
+
+        public bool HasLong( string key ) {
+            object boxedVal;
+            if( !data.TryGetValue( key, out boxedVal ) ) {
+                return false;
+            }
+            return ( boxedVal is long );
         }
 
 
@@ -364,6 +653,8 @@ namespace fCraft.Utils {
             return ( boxedVal == null ) || ( boxedVal as Array != null );
         }
 
+        #endregion
+
 
         #region IDictionary members etc
 
@@ -418,7 +709,7 @@ namespace fCraft.Utils {
 
 
         public void Add( string key, object value ) {
-
+            data.Add( key, value );
         }
 
 
