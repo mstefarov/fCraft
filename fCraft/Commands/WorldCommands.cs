@@ -1823,7 +1823,7 @@ namespace fCraft {
         static void WorldHideHandler( Player player, Command cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
-                CdWorldAccess.PrintUsage( player );
+                CdWorldHide.PrintUsage( player );
                 return;
             }
 
@@ -1854,7 +1854,7 @@ namespace fCraft {
         static void WorldUnhideHandler( Player player, Command cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
-                CdWorldAccess.PrintUsage( player );
+                CdWorldUnhide.PrintUsage( player );
                 return;
             }
 
