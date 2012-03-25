@@ -14,11 +14,12 @@ namespace fCraft {
 
         #region Parsing
 
-        public JSONObject() {}
-
         int index;
         Token token;
         string str;
+
+        public JSONObject() { }
+
 
         public JSONObject( string inputString ) {
             ReadJSONObject( inputString, 0 );
@@ -71,74 +72,6 @@ namespace fCraft {
                 Add( key, value );
             } while( token != Token.None );
             return index;
-        }
-
-
-        [TerminatesProgram]
-        static void ThrowUnexpected( Token given, string expected ) {
-            throw new SerializationException( "JSON: Unexpected token " + given +
-                                              ", expecting "+expected );
-        }
-
-
-        enum Token {
-            Error,
-            None,
-            BeginObject,
-            EndObject,
-            BeginArray,
-            EndArray,
-            NameSeparator,
-            ValueSeparator,
-            Null,
-            True,
-            False,
-            String,
-            Number
-        }
-
-        Token FindNextToken() {
-            if( index >= str.Length ) return Token.None;
-            while( str[index] == ' ' || str[index] == '\t' || str[index] == '\r' || str[index] == '\n' ) {
-                index++;
-                if( index >= str.Length ) return Token.None;
-            }
-            switch( str[index] ) {
-                case '{':
-                    return Token.BeginObject;
-                case '}':
-                    return Token.EndObject;
-                case '[':
-                    return Token.BeginArray;
-                case ']':
-                    return Token.EndArray;
-                case 'n':
-                    return Token.Null;
-                case 't':
-                    return Token.True;
-                case 'f':
-                    return Token.False;
-                case ':':
-                    return Token.NameSeparator;
-                case ',':
-                    return Token.ValueSeparator;
-                case '"':
-                    return Token.String;
-                case '-':
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                    return Token.Number;
-                default:
-                    return Token.Error;
-            }
         }
 
 
@@ -229,6 +162,9 @@ namespace fCraft {
                 case Token.String:
                     return ReadString();
 
+                case Token.Number:
+                    return ReadNumber();
+
                 case Token.Null:
                     if( index >= str.Length - 4 ||
                         str[index + 1] != 'u' || str[index + 2] != 'l' || str[index + 3] != 'l' ) {
@@ -276,6 +212,102 @@ namespace fCraft {
             throw new SerializationException( "Unexpected token " + token + "; expected value" );
         }
 
+
+        object ReadNumber() {
+            int start = index;
+            while( FindNextToken() == Token.Number ) index++;
+            string numberString = str.Substring( start, index - start );
+            int tryInt;
+            if( Int32.TryParse( numberString, out tryInt ) ) {
+                return tryInt;
+            }
+            long tryLong;
+            if( Int64.TryParse( numberString, out tryLong ) ) {
+                return tryLong;
+            }
+            double tryDouble;
+            if( Double.TryParse( numberString, out tryDouble ) ) {
+                return tryDouble;
+            }
+            throw new SerializationException( "Invalid number format" );
+        }
+
+
+        enum Token {
+            None,
+            Error,
+
+            BeginObject,
+            EndObject,
+            BeginArray,
+            EndArray,
+            NameSeparator,
+            ValueSeparator,
+            Null,
+            True,
+            False,
+            String,
+            Number
+        }
+
+
+        Token FindNextToken() {
+            if( index >= str.Length ) return Token.None;
+            char c = str[index];
+            while( c == ' ' || c == '\t' || c == '\r' || c == '\n' ) {
+                index++;
+                if( index >= str.Length ) return Token.None;
+                c = str[index];
+            }
+            switch( c ) {
+                case '{':
+                    return Token.BeginObject;
+                case '}':
+                    return Token.EndObject;
+                case '[':
+                    return Token.BeginArray;
+                case ']':
+                    return Token.EndArray;
+                case 'n':
+                    return Token.Null;
+                case 't':
+                    return Token.True;
+                case 'f':
+                    return Token.False;
+                case ':':
+                    return Token.NameSeparator;
+                case ',':
+                    return Token.ValueSeparator;
+                case '"':
+                    return Token.String;
+                case '+':
+                case '-':
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                case '.':
+                case 'e':
+                case 'E':
+                    return Token.Number;
+                default:
+                    return Token.Error;
+            }
+        }
+
+
+        [TerminatesProgram]
+        static void ThrowUnexpected( Token given, string expected ) {
+            throw new SerializationException( "JSON: Unexpected token " + given +
+                                              ", expecting " + expected );
+        }
+
         #endregion
 
 
@@ -316,20 +348,18 @@ namespace fCraft {
                 } else {
                     sb.Append( "false" );
                 }
-            } else if( obj is sbyte || obj is byte ||
-                       obj is short || obj is ushort ||
-                       obj is int ) {
+            } else if( obj is int ) {
                 sb.Append( (int)obj );
-            } else if( obj is uint || obj is long ) {
+            } else if( obj is long ) {
                 sb.Append( (long)obj );
-            } else if( obj is float || obj is double || obj is decimal ) {
+            } else if( obj is double ) {
                 sb.Append( (double)obj );
             } else if( obj is string ) {
                 WriteString( sb, obj as string );
-            } else if( obj is Array ) {
-                WriteArray( sb, obj as Array );
+            } else if( obj is IList ) {
+                WriteArray( sb, obj as IList );
             } else {
-                WriteString( sb, obj.ToString() );
+                throw new InvalidOperationException( "Non-serializable object found in collection" );
             }
         }
 
@@ -688,7 +718,7 @@ namespace fCraft {
 
 
         public void Add( KeyValuePair<string, object> item ) {
-            throw new NotImplementedException();
+            Add( item.Key, item.Value );
         }
 
 
@@ -727,8 +757,28 @@ namespace fCraft {
         }
 
 
-        public void Add( string key, object value ) {
-            data.Add( key, value );
+        public void Add( string key, object obj ) {
+            if( obj == null || obj is JSONObject ||
+                obj is int || obj is long || obj is double ||
+                obj is bool || obj is string || obj is IList ) {
+                data.Add( key, obj );
+            } else if( obj is sbyte ) {
+                data.Add( key, (int)(sbyte)obj );
+            } else if( obj is byte ) {
+                data.Add( key, (int)(byte)obj );
+            } else if( obj is short ) {
+                data.Add( key, (int)(short)obj );
+            } else if( obj is ushort ) {
+                data.Add( key, (int)(ushort)obj );
+            } else if( obj is uint ) {
+                data.Add( key, (long)(uint)obj );
+            } else if( obj is float ) {
+                data.Add( key, (double)(float)obj );
+            } else if( obj is decimal ) {
+                data.Add( key, (double)(decimal)obj );
+            } else {
+                throw new ArgumentException( "Unacceptable value type." );
+            }
         }
 
 
