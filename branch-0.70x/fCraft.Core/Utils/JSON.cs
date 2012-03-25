@@ -313,109 +313,155 @@ namespace fCraft {
 
         #region Serialization
 
-        public string Serialize() {
+        class JSONSerializer {
+            int indent = 2;
+            bool compact = false;
+            int indentLevel;
             StringBuilder sb = new StringBuilder();
-            SerializeInternal( sb );
-            return sb.ToString();
-        }
 
-
-        void SerializeInternal( StringBuilder sb ) {
-            sb.Append( '{' );
-            bool first = true;
-            foreach( var kvp in data ) {
-                if( first ) {
-                    first = false;
-                } else {
-                    sb.Append( ',' );
-                }
-                WriteString( sb, kvp.Key );
-                sb.Append( ':' );
-                WriteValue( sb, kvp.Value );
+            public JSONSerializer() {
             }
-            sb.Append( '}' );
-        }
 
-
-        void WriteValue( StringBuilder sb, object obj ) {
-            if( obj == null ) {
-                sb.Append( "null" );
-            } else if( obj is JSONObject ) {
-                ( obj as JSONObject ).SerializeInternal( sb );
-            } else if( obj is bool ) {
-                if( (bool)obj ) {
-                    sb.Append( "true" );
-                } else {
-                    sb.Append( "false" );
-                }
-            } else if( obj is int ) {
-                sb.Append( (int)obj );
-            } else if( obj is long ) {
-                sb.Append( (long)obj );
-            } else if( obj is double ) {
-                sb.Append( (double)obj );
-            } else if( obj is string ) {
-                WriteString( sb, obj as string );
-            } else if( obj is IList ) {
-                WriteArray( sb, obj as IList );
-            } else {
-                throw new InvalidOperationException( "Non-serializable object found in collection" );
+            public JSONSerializer( int indent ) {
+                this.indent = indent;
+                compact = (indent < 0);
             }
-        }
 
 
-        void WriteString( StringBuilder sb, string str ) {
-            sb.Append( '\"' );
-            int runIndex = -1;
+            public string Serialize( JSONObject obj ) {
+                sb.Length = 0;
+                indentLevel = 0;
+                SerializeInternal( obj );
+                return sb.ToString();
+            }
 
-            for( var index = 0; index < str.Length; index++ ) {
-                var c = str[index];
 
-                if( c >= ' ' && c < 128 && c != '\"' && c != '\\' ) {
-                    if( runIndex == -1 ) {
-                        runIndex = index;
+            void Indent() {
+                sb.Append( ' ', indentLevel * indent );
+            }
+
+
+            void SerializeInternal( JSONObject obj ) {
+                if( !compact ) Indent();
+                sb.Append( '{' );
+                if( obj.data.Count > 0 ) {
+                    if( !compact ) sb.Append( Environment.NewLine );
+                    indentLevel++;
+                    bool first = true;
+                    foreach( var kvp in obj.data ) {
+                        if( first ) {
+                            first = false;
+                        } else {
+                            sb.Append( ',' );
+                            if( !compact ) sb.Append( Environment.NewLine );
+                        }
+                        if( !compact ) Indent();
+                        WriteString( kvp.Key );
+                        sb.Append( ':' );
+                        if( !compact ) sb.Append( ' ' );
+                        WriteValue( kvp.Value );
                     }
-                    continue;
+                    indentLevel--;
+                    if( !compact ) {
+                        sb.Append( Environment.NewLine );
+                        Indent();
+                    }
+                }
+                sb.Append( '}' );
+            }
+
+
+            void WriteValue( object obj ) {
+                if( obj == null ) {
+                    sb.Append( "null" );
+                } else if( obj is JSONObject ) {
+                    SerializeInternal( obj as JSONObject );
+                } else if( obj is bool ) {
+                    if( (bool)obj ) {
+                        sb.Append( "true" );
+                    } else {
+                        sb.Append( "false" );
+                    }
+                } else if( obj is int ) {
+                    sb.Append( (int)obj );
+                } else if( obj is long ) {
+                    sb.Append( (long)obj );
+                } else if( obj is double ) {
+                    sb.Append( (double)obj );
+                } else if( obj is string ) {
+                    WriteString( obj as string );
+                } else if( obj is IList ) {
+                    WriteArray( obj as IList );
+                } else {
+                    throw new InvalidOperationException( "Non-serializable object found in collection" );
+                }
+            }
+
+
+            void WriteString( string str ) {
+                sb.Append( '\"' );
+                int runIndex = -1;
+
+                for( var index = 0; index < str.Length; index++ ) {
+                    var c = str[index];
+
+                    if( c >= ' ' && c < 128 && c != '\"' && c != '\\' ) {
+                        if( runIndex == -1 ) {
+                            runIndex = index;
+                        }
+                        continue;
+                    }
+
+                    if( runIndex != -1 ) {
+                        sb.Append( str, runIndex, index - runIndex );
+                        runIndex = -1;
+                    }
+
+                    switch( c ) {
+                        case '\t': sb.Append( "\\t" ); break;
+                        case '\r': sb.Append( "\\r" ); break;
+                        case '\n': sb.Append( "\\n" ); break;
+                        case '"':
+                        case '\\': sb.Append( '\\' ); sb.Append( c ); break;
+                        default:
+                            sb.Append( "\\u" );
+                            sb.Append( ( (int)c ).ToString( "X4", NumberFormatInfo.InvariantInfo ) );
+                            break;
+                    }
                 }
 
                 if( runIndex != -1 ) {
-                    sb.Append( str, runIndex, index - runIndex );
-                    runIndex = -1;
+                    sb.Append( str, runIndex, str.Length - runIndex );
                 }
 
-                switch( c ) {
-                    case '\t': sb.Append( "\\t" ); break;
-                    case '\r': sb.Append( "\\r" ); break;
-                    case '\n': sb.Append( "\\n" ); break;
-                    case '"':
-                    case '\\': sb.Append( '\\' ); sb.Append( c ); break;
-                    default:
-                        sb.Append( "\\u" );
-                        sb.Append( ( (int)c ).ToString( "X4", NumberFormatInfo.InvariantInfo ) );
-                        break;
+                sb.Append( '\"' );
+            }
+
+
+            void WriteArray( IList array ) {
+                sb.Append( '[' );
+                bool first = true;
+                foreach( var element in array ) {
+                    if( first ) {
+                        first = false;
+                    } else {
+                        sb.Append( ',' );
+                        if( !compact ) sb.Append( ' ' );
+                    }
+                    WriteValue( element );
                 }
+                sb.Append( ']' );
             }
-
-            if( runIndex != -1 ) {
-                sb.Append( str, runIndex, str.Length - runIndex );
-            }
-
-            sb.Append( '\"' );
         }
 
 
-        void WriteArray( StringBuilder sb, IList array ) {
-            sb.Append( '[' );
-            bool first = true;
-            foreach( var element in array ) {
-                if( first ) {
-                    first = false;
-                } else {
-                    sb.Append( ',' );
-                }
-                WriteValue( sb, element );
-            }
-            sb.Append( ']' );
+        public string Serialize() {
+            return new JSONSerializer().Serialize( this );
+        }
+
+
+        public string Serialize( int indent ) {
+            return new JSONSerializer( indent ).Serialize( this );
         }
 
         #endregion
@@ -655,23 +701,23 @@ namespace fCraft {
 
 
         // ==== Array ====
-        public Array GetArray( string key ) {
-            return (Array)data[key];
+        public IList GetList( string key ) {
+            return (IList)data[key];
         }
 
 
-        public bool TryGetArray( string key, out Array val ) {
+        public bool TryGetList( string key, out IList val ) {
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 val = null;
                 return false;
             }
-            val = ( boxedVal as Array );
+            val = ( boxedVal as IList );
             return ( val != null );
         }
 
 
-        public bool TryGetArrayOrNull( string key, out Array val ) {
+        public bool TryGetListOrNull( string key, out IList val ) {
             val = null;
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
@@ -680,32 +726,40 @@ namespace fCraft {
             if( boxedVal == null ) {
                 return true;
             }
-            val = ( boxedVal as Array );
+            val = ( boxedVal as IList );
             return ( val != null );
         }
 
 
-        public bool HasArray( string key ) {
+        public bool HasList( string key ) {
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 return false;
             }
-            return ( boxedVal as Array != null );
+            return ( boxedVal as IList != null );
         }
 
 
-        public bool HasArrayOrNull( string key ) {
+        public bool HasListOrNull( string key ) {
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 return false;
             }
-            return ( boxedVal == null ) || ( boxedVal as Array != null );
+            return ( boxedVal == null ) || ( boxedVal as IList != null );
         }
 
         #endregion
 
 
         #region IDictionary members etc
+
+
+        public JSONObject( IEnumerable<KeyValuePair<string, object>> other ) {
+            foreach( var kvp in other ) {
+                Add( kvp );
+            }
+        }
+
 
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator() {
             return data.GetEnumerator();
