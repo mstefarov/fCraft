@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
 using JetBrains.Annotations;
@@ -18,10 +17,15 @@ namespace fCraft {
         Token token;
         string str;
 
+        /// <summary> Creates an empty JSONObject. </summary>
         public JSONObject() {}
 
 
-        public JSONObject( string inputString ) {
+        /// <summary> Creates a JSONObject from a serialized string. </summary>
+        /// <param name="inputString"> Serialized JSON object to parse. </param>
+        /// <exception cref="ArgumentNullException"> If inputString is null. </exception>
+        public JSONObject( [NotNull] string inputString ) {
+            if( inputString == null ) throw new ArgumentNullException( "inputString" );
             ReadJSONObject( inputString, 0 );
             token = FindNextToken();
             if( token != Token.None ) {
@@ -142,7 +146,7 @@ namespace fCraft {
         }
 
 
-        uint ReadHexChar( char ch, uint multiplier ) {
+        static uint ReadHexChar( char ch, uint multiplier ) {
             if( ch >= '0' && ch <= '9' )
                 return (uint)( ch - '0' ) * multiplier;
             else if( ch >= 'A' && ch <= 'F' )
@@ -313,11 +317,11 @@ namespace fCraft {
 
         #region Serialization
 
-        class JSONSerializer {
-            int indent = 2;
-            bool compact = false;
+        sealed class JSONSerializer {
+            readonly int indent = 2;
+            readonly bool compact;
             int indentLevel;
-            StringBuilder sb = new StringBuilder();
+            readonly StringBuilder sb = new StringBuilder();
 
             public JSONSerializer() {}
 
@@ -329,7 +333,7 @@ namespace fCraft {
 
 
             public string Serialize( JSONObject obj ) {
-                sb.Length = 0;
+                sb.Clear();
                 indentLevel = 0;
                 SerializeInternal( obj );
                 return sb.ToString();
@@ -469,11 +473,16 @@ namespace fCraft {
         }
 
 
+        /// <summary> Serializes this JSONObject with default settings. </summary>
         public string Serialize() {
             return new JSONSerializer().Serialize( this );
         }
 
 
+        /// <summary> Serializes this JSONObject with custom indentation. </summary>
+        /// <param name="indent"> Number of spaces to use for indentation.
+        /// If zero or positive, padding and line breaks are added.
+        /// If negative, serialization is done as compactly as possible. </param>
         public string Serialize( int indent ) {
             return new JSONSerializer( indent ).Serialize( this );
         }
