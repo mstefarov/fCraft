@@ -2,12 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    public class JSONObject : IDictionary<string, object> {
+    /// <summary> Little JSON parsing/serialization library. </summary>
+    public sealed class JSONObject : IDictionary<string, object>, ICloneable {
         readonly Dictionary<string, object> data = new Dictionary<string, object>();
 
 
@@ -393,8 +395,8 @@ namespace fCraft {
                     sb.Append( (double)obj );
                 } else if( obj is string ) {
                     WriteString( obj as string );
-                } else if( obj is IList ) {
-                    WriteArray( obj as IList );
+                } else if( obj is Array ) {
+                    WriteArray( obj as Array );
                 } else {
                     throw new InvalidOperationException( "JSONObject: Non-serializable object found in the collection." );
                 }
@@ -456,7 +458,7 @@ namespace fCraft {
             }
 
 
-            void WriteArray( IList array ) {
+            void WriteArray( Array array ) {
                 sb.Append( '[' );
                 bool first = true;
                 foreach( var element in array ) {
@@ -620,33 +622,6 @@ namespace fCraft {
         }
 
 
-        // ==== boolean ====
-        public bool GetBool( string key ) {
-            return (bool)data[key];
-        }
-
-
-        public bool TryGetBool( string key, out bool val ) {
-            val = false;
-            object boxedVal;
-            if( !data.TryGetValue( key, out boxedVal ) ) {
-                return false;
-            }
-            if( !( boxedVal is bool ) ) return false;
-            val = (bool)boxedVal;
-            return true;
-        }
-
-
-        public bool HasBool( string key ) {
-            object boxedVal;
-            if( !data.TryGetValue( key, out boxedVal ) ) {
-                return false;
-            }
-            return ( boxedVal is bool );
-        }
-
-
         // ==== double ====
         public double GetDouble( string key ) {
             return (double)data[key];
@@ -671,6 +646,33 @@ namespace fCraft {
                 return false;
             }
             return ( boxedVal is double );
+        }
+
+
+        // ==== boolean ====
+        public bool GetBool( string key ) {
+            return (bool)data[key];
+        }
+
+
+        public bool TryGetBool( string key, out bool val ) {
+            val = false;
+            object boxedVal;
+            if( !data.TryGetValue( key, out boxedVal ) ) {
+                return false;
+            }
+            if( !( boxedVal is bool ) ) return false;
+            val = (bool)boxedVal;
+            return true;
+        }
+
+
+        public bool HasBool( string key ) {
+            object boxedVal;
+            if( !data.TryGetValue( key, out boxedVal ) ) {
+                return false;
+            }
+            return ( boxedVal is bool );
         }
 
 
@@ -724,23 +726,28 @@ namespace fCraft {
 
 
         // ==== Array ====
-        public IList GetList( string key ) {
-            return (IList)data[key];
+        public T[] GetArray<T>( string key ) {
+            return ( (object[])data[key] ).Cast<T>().ToArray();
         }
 
 
-        public bool TryGetList( string key, out IList val ) {
+        public bool TryGetArray<T>( string key, out T[] val ) {
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 val = null;
                 return false;
             }
-            val = ( boxedVal as IList );
-            return ( val != null );
+            try {
+                val = GetArray<T>( key );
+                return true;
+            } catch( InvalidCastException ) {
+                val = null;
+                return false;
+            }
         }
 
 
-        public bool TryGetListOrNull( string key, out IList val ) {
+        public bool TryGetArrayOrNull<T>( string key, out T[] val ) {
             val = null;
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
@@ -749,32 +756,37 @@ namespace fCraft {
             if( boxedVal == null ) {
                 return true;
             }
-            val = ( boxedVal as IList );
-            return ( val != null );
+            try {
+                val = GetArray<T>( key );
+                return true;
+            } catch( InvalidCastException ) {
+                val = null;
+                return false;
+            }
         }
 
 
-        public bool HasList( string key ) {
+        public bool HasArray( string key ) {
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 return false;
             }
-            return ( boxedVal as IList != null );
+            return ( boxedVal as object[] != null );
         }
 
 
-        public bool HasListOrNull( string key ) {
+        public bool HasArrayOrNull( string key ) {
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 return false;
             }
-            return ( boxedVal == null ) || ( boxedVal as IList != null );
+            return ( boxedVal == null ) || ( boxedVal as object[] != null );
         }
 
         #endregion
 
 
-        #region IDictionary members etc
+        #region IDictionary / ICollection / ICloneable members
 
 
         public JSONObject( IEnumerable<KeyValuePair<string, object>> other ) {
@@ -837,7 +849,7 @@ namespace fCraft {
         public void Add( string key, object obj ) {
             if( obj == null || obj is JSONObject ||
                 obj is int || obj is long || obj is double ||
-                obj is bool || obj is string || obj is IList ) {
+                obj is bool || obj is string || obj is Array ) {
                 data.Add( key, obj );
             } else if( obj is sbyte ) {
                 data.Add( key, (int)(sbyte)obj );
@@ -882,6 +894,11 @@ namespace fCraft {
 
         public ICollection<object> Values {
             get { return data.Values; }
+        }
+
+
+        public object Clone() {
+            return new JSONObject( this );
         }
 
         #endregion
