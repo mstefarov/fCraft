@@ -85,9 +85,9 @@ namespace fCraft {
                 if( c == '"' ) {
                     if( start != -1 && start != index ) {
                         sb.Append( str, start, index - start );
-                        index++;
-                        return sb.ToString();
                     }
+                    index++;
+                    return sb.ToString();
                 }
 
                 if( c == '\\' ) {
@@ -125,7 +125,7 @@ namespace fCraft {
                             uint c2 = ReadHexChar( str[index + 3], 0x0010 );
                             uint c3 = ReadHexChar( str[index + 4], 0x0001 );
                             sb.Append( (char)( c0 + c1 + c2 + c3 ) );
-                            index += 3;
+                            index += 4;
                             continue;
                     }
                 }
@@ -342,7 +342,6 @@ namespace fCraft {
 
 
             void SerializeInternal( JSONObject obj ) {
-                if( !compact ) Indent();
                 sb.Append( '{' );
                 if( obj.data.Count > 0 ) {
                     if( !compact ) sb.Append( Environment.NewLine );
@@ -418,14 +417,20 @@ namespace fCraft {
                     }
 
                     switch( c ) {
-                        case '\t':
-                            sb.Append( "\\t" );
+                        case '\b':
+                            sb.Append( "\\b" );
+                            break;
+                        case '\f':
+                            sb.Append( "\\f" );
+                            break;
+                        case '\n':
+                            sb.Append( "\\n" );
                             break;
                         case '\r':
                             sb.Append( "\\r" );
                             break;
-                        case '\n':
-                            sb.Append( "\\n" );
+                        case '\t':
+                            sb.Append( "\\t" );
                             break;
                         case '"':
                         case '\\':
