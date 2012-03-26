@@ -16,7 +16,6 @@ namespace fCraft {
         #region Parsing
 
         int index;
-        Token token;
         string str;
         readonly StringBuilder stringParserBuffer = new StringBuilder();
         readonly List<object> arrayParserBuffer = new List<object>();
@@ -31,7 +30,7 @@ namespace fCraft {
         public JsonObject( [NotNull] string inputString ) {
             if( inputString == null ) throw new ArgumentNullException( "inputString" );
             ReadJSONObject( inputString, 0 );
-            token = FindNextToken();
+            Token token = FindNextToken();
             if( token != Token.None ) {
                 ThrowUnexpected( token, "None" );
             }
@@ -43,7 +42,7 @@ namespace fCraft {
         int ReadJSONObject( string inputString, int offset ) {
             str = inputString;
             index = offset;
-            token = FindNextToken();
+            Token token = FindNextToken();
             if( token != Token.BeginObject ) {
                 ThrowUnexpected( token, "BeginObject" );
             }
@@ -77,7 +76,6 @@ namespace fCraft {
                     ThrowUnexpected( token, "NameSeparator" );
                 }
                 index++;
-                token = FindNextToken();
                 object value = ReadValue();
                 Add( key, value );
             } while( token != Token.None );
@@ -168,7 +166,7 @@ namespace fCraft {
 
 
         object ReadValue() {
-            switch( token ) {
+            switch( FindNextToken() ) {
                 case Token.BeginObject:
                     JsonObject newObj = new JsonObject();
                     index = newObj.ReadJSONObject( str, index );
@@ -209,7 +207,7 @@ namespace fCraft {
                     index++;
                     bool first = true;
                     while( true ) {
-                        token = FindNextToken();
+                        Token token = FindNextToken();
                         if( token == Token.EndArray ) break;
                         if( first ) {
                             first = false;
@@ -224,7 +222,7 @@ namespace fCraft {
                     index++;
                     return arrayParserBuffer.ToArray();
             }
-            throw new SerializationException( "JSONObject: Unexpected token " + token + "; expected a value." );
+            throw new SerializationException( "JSONObject: Unexpected token; expected a value." );
         }
 
 
@@ -232,24 +230,26 @@ namespace fCraft {
             long val = 1;
             double doubleVal = Double.NaN;
             bool first = true;
+            bool negate = false;
 
             // Parse sign
             char c = str[index];
             if( str[index] == '-' ) {
                 c = str[++index];
-                val = -1;
+                negate = true;
             }
 
             // Parse integer part
             while( index < str.Length ) {
-                if( c == '0' ) {
-                    if( first ) {
+                if(first) {
+                    if( c == '0' ) {
+                        val = 0;
                         c = str[++index];
                         break;
-                    } else {
-                        val *= 10;
+                    } else if( c >= '1' && c <= '9' ) {
+                        val = ( c - '0' );
                     }
-                } else if( c >= '1' && c <= '9' ) {
+                } else if( c >= '0' && c <= '9' ) {
                     val *= 10;
                     val += ( c - '0' );
                 } else {
@@ -284,35 +284,44 @@ namespace fCraft {
                     throw new SerializationException( "JSONObject: Unexpected end of a number (after decimal point)." );
                 }
                 doubleVal = val + fraction;
+                // Negate (if needed)
+                if( negate ) doubleVal = -doubleVal;
+
+            } else {
+                if( negate ) val = -val;
             }
 
             // Parse exponent (if present)
             if( c == 'e' || c == 'E' ) {
                 int exponent = 1;
+                negate = false;
 
                 // Exponent sign
                 c = str[++index];
                 if( c == '-' ) {
-                    exponent = -1;
+                    negate = true;
                     c = str[++index];
                 } else if( c == '+' ) {
                     c = str[++index];
                 }
 
                 // Exponent value
+                first = true;
                 while( index < str.Length ) {
-                    if( c == '0' ) {
-                        if( first ) {
+                    if(first){
+                        if( c == '0' ) {
                             exponent = 0;
                             index++;
                             break;
+                        } else if( c >= '1' && c <= '9' ) {
+                            exponent = ( c - '0' );
                         } else {
-                            val *= 10;
+                            throw new SerializationException( "JSONObject: Unexpected character in exponent." );
                         }
-                    } else if( c > '1' && c < '9' ) {
+                    } else if( c >= '0' && c <= '9' ) {
                         exponent *= 10;
                         exponent += ( c - '0' );
-                    } else {
+                    }else{
                         break;
                     }
                     first = false;
@@ -322,7 +331,10 @@ namespace fCraft {
                     throw new SerializationException( "JSONObject: Unexpected end of a number (exponent)." );
                 }
 
-                // Multiply the value by 10^exponent
+                // Apply the exponent
+                if( negate ) {
+                    exponent = -exponent;
+                }
                 if( Double.IsNaN( doubleVal ) ) {
                     doubleVal = val;
                 }
