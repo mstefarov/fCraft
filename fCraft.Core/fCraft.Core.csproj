@@ -118,7 +118,7 @@
     <Compile Include="Plugins\PluginManager.cs" />
     <Compile Include="System\ShutdownParams.cs" />
     <Compile Include="Utils\DateTimeUtil.cs" />
-    <Compile Include="Utils\JsonObject_.cs" />
+    <Compile Include="Utils\JsonObject.cs" />
     <Compile Include="Utils\Mono.Options.cs" />
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
