@@ -221,22 +221,116 @@ namespace fCraft {
 
 
         object ReadNumber() {
-            int start = index;
-            while( FindNextToken() == Token.Number ) index++;
-            string numberString = str.Substring( start, index - start );
-            int tryInt;
-            if( Int32.TryParse( numberString, out tryInt ) ) {
-                return tryInt;
+            long val = 1;
+            double doubleVal = Double.NaN;
+            bool first = true;
+
+            // Parse sign
+            char c = str[index];
+            if( str[index] == '-' ) {
+                c = str[++index];
+                val = -1;
             }
-            long tryLong;
-            if( Int64.TryParse( numberString, out tryLong ) ) {
-                return tryLong;
+
+            // Parse integer part
+            while( index < str.Length ) {
+                if( c == '0' ) {
+                    if( first ) {
+                        c = str[++index];
+                        break;
+                    } else {
+                        val *= 10;
+                    }
+                } else if( c >= '1' && c <= '9' ) {
+                    val *= 10;
+                    val += ( c - '0' );
+                } else {
+                    break;
+                }
+                first = false;
+                c = str[++index];
             }
-            double tryDouble;
-            if( Double.TryParse( numberString, out tryDouble ) ) {
-                return tryDouble;
+            if( index >= str.Length ) {
+                throw new SerializationException( "JSONObject: Unexpected end of a number (before decimal point)." );
             }
-            throw new SerializationException( "JSONObject: Invalid number format." );
+
+            // Parse fractional part (if present)
+            if( c == '.' ) {
+                c = str[++index];
+                double fraction = 0;
+                int multiplier = 10;
+                first = true;
+                while( index < str.Length ) {
+                    if( c >= '0' && c <= '9' ) {
+                        fraction += ( c - '0' ) / (double)multiplier;
+                        multiplier *= 10;
+                    } else if( first ) {
+                        throw new SerializationException( "JSONObject: Expected at least one digit after the decimal point." );
+                    } else {
+                        break;
+                    }
+                    c = str[++index];
+                    first = false;
+                }
+                if( index >= str.Length ) {
+                    throw new SerializationException( "JSONObject: Unexpected end of a number (after decimal point)." );
+                }
+                doubleVal = val + fraction;
+            }
+
+            // Parse exponent (if present)
+            if( c == 'e' || c == 'E' ) {
+                int exponent = 1;
+
+                // Exponent sign
+                c = str[++index];
+                if( c == '-' ) {
+                    exponent = -1;
+                    c = str[++index];
+                } else if( c == '+' ) {
+                    c = str[++index];
+                }
+
+                // Exponent value
+                while( index < str.Length ) {
+                    if( c == '0' ) {
+                        if( first ) {
+                            exponent = 0;
+                            index++;
+                            break;
+                        } else {
+                            val *= 10;
+                        }
+                    } else if( c > '1' && c < '9' ) {
+                        exponent *= 10;
+                        exponent += ( c - '0' );
+                    } else {
+                        break;
+                    }
+                    first = false;
+                    c = str[++index];
+                }
+                if( index >= str.Length ) {
+                    throw new SerializationException( "JSONObject: Unexpected end of a number (exponent)." );
+                }
+
+                // Multiply the value by 10^exponent
+                if( Double.IsNaN( doubleVal ) ) {
+                    doubleVal = val;
+                }
+                doubleVal *= Math.Pow( 10, exponent );
+            }
+
+            // Return value in appropriate format
+            if( Double.IsNaN( doubleVal ) ) {
+                if( val >= Int32.MinValue && val <= Int32.MaxValue ) {
+                    return (int)val;
+                } else {
+                    return val;
+                }
+            } else {
+                return doubleVal;
+            }
         }
 
 
@@ -727,7 +821,11 @@ namespace fCraft {
 
         // ==== Array ====
         public T[] GetArray<T>( string key ) {
-            return ( (object[])data[key] ).Cast<T>().ToArray();
+            if( data[key] is T[] ) {
+                return (T[])data[key];
+            } else {
+                return ( (object[])data[key] ).Cast<T>().ToArray();
+            }
         }
 
 
@@ -843,6 +941,29 @@ namespace fCraft {
 
         public bool ContainsKey( string key ) {
             return data.ContainsKey( key );
+        }
+
+
+        public void Add( string key, JSONObject obj ) {
+            data.Add( key, obj );
+        }
+        public void Add( string key, int obj ) {
+            data.Add( key, obj );
+        }
+        public void Add( string key, long obj ) {
+            data.Add( key, obj );
+        }
+        public void Add( string key, double obj ) {
+            data.Add( key, obj );
+        }
+        public void Add( string key, bool obj ) {
+            data.Add( key, obj );
+        }
+        public void Add( string key, string obj ) {
+            data.Add( key, obj );
+        }
+        public void Add( string key, Array obj ) {
+            data.Add( key, obj );
         }
 
 
