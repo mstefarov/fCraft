@@ -18,6 +18,8 @@ namespace fCraft {
         int index;
         Token token;
         string str;
+        readonly StringBuilder stringParserBuffer = new StringBuilder();
+        readonly List<object> arrayParserBuffer = new List<object>();
 
         /// <summary> Creates an empty JSONObject. </summary>
         public JSONObject() {}
@@ -33,6 +35,8 @@ namespace fCraft {
             if( token != Token.None ) {
                 ThrowUnexpected( token, "None" );
             }
+            stringParserBuffer = null;
+            arrayParserBuffer = null;
         }
 
 
@@ -82,7 +86,7 @@ namespace fCraft {
 
 
         string ReadString() {
-            StringBuilder sb = new StringBuilder();
+            stringParserBuffer.Clear();
             index++;
 
             for( int start = -1; index < str.Length - 1; index++ ) {
@@ -90,15 +94,15 @@ namespace fCraft {
 
                 if( c == '"' ) {
                     if( start != -1 && start != index ) {
-                        sb.Append( str, start, index - start );
+                        stringParserBuffer.Append( str, start, index - start );
                     }
                     index++;
-                    return sb.ToString();
+                    return stringParserBuffer.ToString();
                 }
 
                 if( c == '\\' ) {
                     if( start != -1 && start != index ) {
-                        sb.Append( str, start, index - start );
+                        stringParserBuffer.Append( str, start, index - start );
                         start = -1;
                     }
                     index++;
@@ -110,19 +114,19 @@ namespace fCraft {
                             start = index;
                             continue;
                         case 'b':
-                            sb.Append( '\b' );
+                            stringParserBuffer.Append( '\b' );
                             continue;
                         case 'f':
-                            sb.Append( '\f' );
+                            stringParserBuffer.Append( '\f' );
                             continue;
                         case 'n':
-                            sb.Append( '\n' );
+                            stringParserBuffer.Append( '\n' );
                             continue;
                         case 'r':
-                            sb.Append( '\r' );
+                            stringParserBuffer.Append( '\r' );
                             continue;
                         case 't':
-                            sb.Append( '\t' );
+                            stringParserBuffer.Append( '\t' );
                             continue;
                         case 'u':
                             if( index >= str.Length - 5 ) break;
@@ -130,7 +134,7 @@ namespace fCraft {
                             uint c1 = ReadHexChar( str[index + 2], 0x0100 );
                             uint c2 = ReadHexChar( str[index + 3], 0x0010 );
                             uint c3 = ReadHexChar( str[index + 4], 0x0001 );
-                            sb.Append( (char)( c0 + c1 + c2 + c3 ) );
+                            stringParserBuffer.Append( (char)( c0 + c1 + c2 + c3 ) );
                             index += 4;
                             continue;
                     }
@@ -197,8 +201,8 @@ namespace fCraft {
                     return false;
 
                 case Token.BeginArray:
+                    arrayParserBuffer.Clear();
                     index++;
-                    List<object> list = new List<object>();
                     bool first = true;
                     while( true ) {
                         token = FindNextToken();
@@ -211,10 +215,10 @@ namespace fCraft {
                         } else {
                             ThrowUnexpected( token, "ValueSeparator" );
                         }
-                        list.Add( ReadValue() );
+                        arrayParserBuffer.Add( ReadValue() );
                     }
                     index++;
-                    return list.ToArray();
+                    return arrayParserBuffer.ToArray();
             }
             throw new SerializationException( "JSONObject: Unexpected token " + token + "; expected a value." );
         }
@@ -381,7 +385,6 @@ namespace fCraft {
                     return Token.ValueSeparator;
                 case '"':
                     return Token.String;
-                case '+':
                 case '-':
                 case '0':
                 case '1':
@@ -393,9 +396,6 @@ namespace fCraft {
                 case '7':
                 case '8':
                 case '9':
-                case '.':
-                case 'e':
-                case 'E':
                     return Token.Number;
                 default:
                     return Token.Error;
@@ -969,8 +969,8 @@ namespace fCraft {
 
         public void Add( string key, object obj ) {
             if( obj == null || obj is JSONObject ||
-                obj is int || obj is long || obj is double ||
-                obj is bool || obj is string || obj is Array ) {
+                obj is string || obj is int ||
+                obj is long || obj is double || obj is bool || obj is Array ) {
                 data.Add( key, obj );
             } else if( obj is sbyte ) {
                 data.Add( key, (int)(sbyte)obj );
