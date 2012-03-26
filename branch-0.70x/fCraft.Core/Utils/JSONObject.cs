@@ -86,7 +86,7 @@ namespace fCraft {
 
 
         string ReadString() {
-            stringParserBuffer.Clear();
+            stringParserBuffer.Length = 0;
             index++;
 
             for( int start = -1; index < str.Length - 1; index++ ) {
@@ -94,7 +94,12 @@ namespace fCraft {
 
                 if( c == '"' ) {
                     if( start != -1 && start != index ) {
-                        stringParserBuffer.Append( str, start, index - start );
+                        if( stringParserBuffer.Length == 0 ) {
+                            index++;
+                            return str.Substring( start, index - start - 1 );
+                        } else {
+                            stringParserBuffer.Append( str, start, index - start );
+                        }
                     }
                     index++;
                     return stringParserBuffer.ToString();
@@ -140,13 +145,12 @@ namespace fCraft {
                     }
                 }
 
-                if( c >= ' ' ) {
-                    if( start == -1 ) start = index;
-                    continue;
+                if( c < ' ' ) {
+                    throw new SerializationException( "JSONObject: Unexpected character: " +
+                                                      ( (int)c ).ToString( "X4", NumberFormatInfo.InvariantInfo ) + "." );
                 }
 
-                throw new SerializationException( "JSONObject: Unexpected character: " +
-                                                  ( (int)c ).ToString( "X4", NumberFormatInfo.InvariantInfo ) + "." );
+                if( start == -1 ) start = index;
             }
             throw new SerializationException( "JSONObject: Unexpected end of string." );
         }
@@ -326,14 +330,12 @@ namespace fCraft {
             }
 
             // Return value in appropriate format
-            if( Double.IsNaN( doubleVal ) ) {
-                if( val >= Int32.MinValue && val <= Int32.MaxValue ) {
-                    return (int)val;
-                } else {
-                    return val;
-                }
-            } else {
+            if( !Double.IsNaN( doubleVal ) ) {
                 return doubleVal;
+            } else if( val >= Int32.MinValue && val <= Int32.MaxValue ) {
+                return (int)val;
+            } else {
+                return val;
             }
         }
 
