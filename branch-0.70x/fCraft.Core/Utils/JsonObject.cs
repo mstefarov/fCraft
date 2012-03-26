@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Little JSON parsing/serialization library. </summary>
-    public sealed class JSONObject : IDictionary<string, object>, ICloneable {
+    public sealed class JsonObject : IDictionary<string, object>, ICloneable {
         readonly Dictionary<string, object> data = new Dictionary<string, object>();
 
 
@@ -22,13 +22,13 @@ namespace fCraft {
         readonly List<object> arrayParserBuffer = new List<object>();
 
         /// <summary> Creates an empty JSONObject. </summary>
-        public JSONObject() {}
+        public JsonObject() {}
 
 
         /// <summary> Creates a JSONObject from a serialized string. </summary>
         /// <param name="inputString"> Serialized JSON object to parse. </param>
         /// <exception cref="ArgumentNullException"> If inputString is null. </exception>
-        public JSONObject( [NotNull] string inputString ) {
+        public JsonObject( [NotNull] string inputString ) {
             if( inputString == null ) throw new ArgumentNullException( "inputString" );
             ReadJSONObject( inputString, 0 );
             token = FindNextToken();
@@ -170,7 +170,7 @@ namespace fCraft {
         object ReadValue() {
             switch( token ) {
                 case Token.BeginObject:
-                    JSONObject newObj = new JSONObject();
+                    JsonObject newObj = new JsonObject();
                     index = newObj.ReadJSONObject( str, index );
                     return newObj;
 
@@ -430,7 +430,7 @@ namespace fCraft {
             }
 
 
-            public string Serialize( JSONObject obj ) {
+            public string Serialize( [NotNull] JsonObject obj ) {
                 sb.Clear();
                 indentLevel = 0;
                 SerializeInternal( obj );
@@ -439,14 +439,13 @@ namespace fCraft {
 
 
             void Indent() {
-                sb.Append( ' ', indentLevel * indent );
+                sb.Append( '\r' ).Append( '\n' ).Append( ' ', indentLevel * indent );
             }
 
 
-            void SerializeInternal( JSONObject obj ) {
+            void SerializeInternal( [NotNull] JsonObject obj ) {
                 sb.Append( '{' );
                 if( obj.data.Count > 0 ) {
-                    if( !compact ) sb.Append( Environment.NewLine );
                     indentLevel++;
                     bool first = true;
                     foreach( var kvp in obj.data ) {
@@ -454,7 +453,6 @@ namespace fCraft {
                             first = false;
                         } else {
                             sb.Append( ',' );
-                            if( !compact ) sb.Append( Environment.NewLine );
                         }
                         if( !compact ) Indent();
                         WriteString( kvp.Key );
@@ -464,7 +462,6 @@ namespace fCraft {
                     }
                     indentLevel--;
                     if( !compact ) {
-                        sb.Append( Environment.NewLine );
                         Indent();
                     }
                 }
@@ -472,75 +469,78 @@ namespace fCraft {
             }
 
 
-            void WriteValue( object obj ) {
+            void WriteValue( [CanBeNull] object obj ) {
+                JsonObject asObject;
+                string asString;
+                Array asArray;
                 if( obj == null ) {
                     sb.Append( "null" );
-                } else if( obj is JSONObject ) {
-                    SerializeInternal( obj as JSONObject );
+                } else if( (asObject = obj as JsonObject) != null ) {
+                    SerializeInternal( asObject );
+                } else if( obj is int ) {
+                    sb.Append( ( (int)obj ).ToString( NumberFormatInfo.InvariantInfo ) );
+                } else if( obj is double ) {
+                    sb.Append( ( (double)obj ).ToString( NumberFormatInfo.InvariantInfo ) );
+                } else if( ( asString = obj as string ) != null ) {
+                    WriteString( asString );
+                } else if( ( asArray = obj as Array ) != null ) {
+                    WriteArray( asArray );
+                } else if( obj is long ) {
+                    sb.Append( ( (long)obj ).ToString( NumberFormatInfo.InvariantInfo ) );
                 } else if( obj is bool ) {
                     if( (bool)obj ) {
                         sb.Append( "true" );
                     } else {
                         sb.Append( "false" );
                     }
-                } else if( obj is int ) {
-                    sb.Append( (int)obj );
-                } else if( obj is long ) {
-                    sb.Append( (long)obj );
-                } else if( obj is double ) {
-                    sb.Append( (double)obj );
-                } else if( obj is string ) {
-                    WriteString( obj as string );
-                } else if( obj is Array ) {
-                    WriteArray( obj as Array );
                 } else {
                     throw new InvalidOperationException( "JSONObject: Non-serializable object found in the collection." );
                 }
             }
 
 
-            void WriteString( string str ) {
-                sb.Append( '\"' );
+            void WriteString( [NotNull] string str ) {
+                sb.Append( '"' );
                 int runIndex = -1;
 
-                for( var index = 0; index < str.Length; index++ ) {
-                    var c = str[index];
+                for( var i = 0; i < str.Length; i++ ) {
+                    var c = str[i];
 
                     if( c >= ' ' && c < 128 && c != '\"' && c != '\\' ) {
                         if( runIndex == -1 ) {
-                            runIndex = index;
+                            runIndex = i;
                         }
                         continue;
                     }
 
                     if( runIndex != -1 ) {
-                        sb.Append( str, runIndex, index - runIndex );
+                        sb.Append( str, runIndex, i - runIndex );
                         runIndex = -1;
                     }
 
+                    sb.Append( '\\' );
                     switch( c ) {
                         case '\b':
-                            sb.Append( "\\b" );
+                            sb.Append( 'b' );
                             break;
                         case '\f':
-                            sb.Append( "\\f" );
+                            sb.Append( 'f' );
                             break;
                         case '\n':
-                            sb.Append( "\\n" );
+                            sb.Append( 'n' );
                             break;
                         case '\r':
-                            sb.Append( "\\r" );
+                            sb.Append( 'r' );
                             break;
                         case '\t':
-                            sb.Append( "\\t" );
+                            sb.Append( 't' );
                             break;
                         case '"':
                         case '\\':
-                            sb.Append( '\\' );
                             sb.Append( c );
                             break;
                         default:
-                            sb.Append( "\\u" );
+                            sb.Append( 'u' );
                             sb.Append( ( (int)c ).ToString( "X4", NumberFormatInfo.InvariantInfo ) );
                             break;
                     }
@@ -554,17 +554,17 @@ namespace fCraft {
             }
 
 
-            void WriteArray( Array array ) {
+            void WriteArray( [NotNull] Array array ) {
                 sb.Append( '[' );
                 bool first = true;
-                foreach( var element in array ) {
+                for( int i = 0; i < array.Length; i++ ) {
                     if( first ) {
                         first = false;
                     } else {
                         sb.Append( ',' );
                         if( !compact ) sb.Append( ' ' );
                     }
-                    WriteValue( element );
+                    WriteValue( array.GetValue( i ) );
                 }
                 sb.Append( ']' );
             }
@@ -572,6 +572,7 @@ namespace fCraft {
 
 
         /// <summary> Serializes this JSONObject with default settings. </summary>
+        [NotNull]
         public string Serialize() {
             return new JSONSerializer().Serialize( this );
         }
@@ -581,6 +582,7 @@ namespace fCraft {
         /// <param name="indent"> Number of spaces to use for indentation.
         /// If zero or positive, padding and line breaks are added.
         /// If negative, serialization is done as compactly as possible. </param>
+        [NotNull]
         public string Serialize( int indent ) {
             return new JSONSerializer( indent ).Serialize( this );
         }
@@ -591,12 +593,14 @@ namespace fCraft {
         #region Has/Get/TryGet shortcuts
 
         // ==== non-cast ====
-        public bool Has( string key ) {
+        public bool Has( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             return data.ContainsKey( key );
         }
 
 
-        public bool HasNull( string key ) {
+        public bool HasNull( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 return false;
@@ -605,23 +609,27 @@ namespace fCraft {
         }
 
 
-        public object Get( string key ) {
+        public object Get( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             return data[key];
         }
 
 
-        public bool TryGet( string key, out object val ) {
+        public bool TryGet( [NotNull] string key, [CanBeNull] out object val ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             return data.TryGetValue( key, out val );
         }
 
 
         // ==== strings ====
-        public string GetString( string key ) {
+        public string GetString( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             return (string)data[key];
         }
 
 
-        public bool TryGetString( string key, out string val ) {
+        public bool TryGetString( [NotNull] string key, [NotNull] out string val ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 val = null;
@@ -632,7 +640,8 @@ namespace fCraft {
         }
 
 
-        public bool TryGetStringOrNull( string key, out string val ) {
+        public bool TryGetStringOrNull( [NotNull] string key, [CanBeNull] out string val ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             val = null;
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
@@ -646,7 +655,8 @@ namespace fCraft {
         }
 
 
-        public bool HasString( string key ) {
+        public bool HasString( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 return false;
@@ -655,7 +665,8 @@ namespace fCraft {
         }
 
 
-        public bool HasStringOrNull( string key ) {
+        public bool HasStringOrNull( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 return false;
@@ -665,12 +676,14 @@ namespace fCraft {
 
 
         // ==== integers ====
-        public int GetInt( string key ) {
+        public int GetInt( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             return (int)data[key];
         }
 
 
-        public bool TryGetInt( string key, out int val ) {
+        public bool TryGetInt( [NotNull] string key, out int val ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             val = 0;
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
@@ -682,7 +695,8 @@ namespace fCraft {
         }
 
 
-        public bool HasInt( string key ) {
+        public bool HasInt( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 return false;
@@ -692,12 +706,14 @@ namespace fCraft {
 
 
         // ==== longs ====
-        public long GetLong( string key ) {
+        public long GetLong( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             return (long)data[key];
         }
 
 
-        public bool TryGetLong( string key, out long val ) {
+        public bool TryGetLong( [NotNull] string key, out long val ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             val = 0;
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
@@ -709,7 +725,8 @@ namespace fCraft {
         }
 
 
-        public bool HasLong( string key ) {
+        public bool HasLong( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 return false;
@@ -719,12 +736,14 @@ namespace fCraft {
 
 
         // ==== double ====
-        public double GetDouble( string key ) {
+        public double GetDouble( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             return (double)data[key];
         }
 
 
-        public bool TryGetDouble( string key, out double val ) {
+        public bool TryGetDouble( [NotNull] string key, out double val ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             val = 0;
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
@@ -736,7 +755,8 @@ namespace fCraft {
         }
 
 
-        public bool HasDouble( string key ) {
+        public bool HasDouble( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 return false;
@@ -746,12 +766,14 @@ namespace fCraft {
 
 
         // ==== boolean ====
-        public bool GetBool( string key ) {
+        public bool GetBool( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             return (bool)data[key];
         }
 
 
-        public bool TryGetBool( string key, out bool val ) {
+        public bool TryGetBool( [NotNull] string key, out bool val ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             val = false;
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
@@ -763,7 +785,8 @@ namespace fCraft {
         }
 
 
-        public bool HasBool( string key ) {
+        public bool HasBool( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 return false;
@@ -773,23 +796,27 @@ namespace fCraft {
 
 
         // ==== JSONObject ====
-        public JSONObject GetObject( string key ) {
-            return (JSONObject)data[key];
+        [CanBeNull]
+        public JsonObject GetObject( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
+            return (JsonObject)data[key];
         }
 
 
-        public bool TryGetObject( string key, out JSONObject val ) {
+        public bool TryGetObject( [NotNull] string key, [NotNull] out JsonObject val ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 val = null;
                 return false;
             }
-            val = ( boxedVal as JSONObject );
+            val = ( boxedVal as JsonObject );
             return ( val != null );
         }
 
 
-        public bool TryGetObjectOrNull( string key, out JSONObject val ) {
+        public bool TryGetObjectOrNull( [NotNull] string key, [CanBeNull] out JsonObject val ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             val = null;
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
@@ -798,31 +825,35 @@ namespace fCraft {
             if( boxedVal == null ) {
                 return true;
             }
-            val = ( boxedVal as JSONObject );
+            val = ( boxedVal as JsonObject );
             return ( val != null );
         }
 
 
-        public bool HasObject( string key ) {
+        public bool HasObject( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 return false;
             }
-            return ( boxedVal as JSONObject != null );
+            return ( boxedVal as JsonObject != null );
         }
 
 
-        public bool HasObjectOrNull( string key ) {
+        public bool HasObjectOrNull( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 return false;
             }
-            return ( boxedVal == null ) || ( boxedVal as JSONObject != null );
+            return ( boxedVal == null ) || ( boxedVal as JsonObject != null );
         }
 
 
         // ==== Array ====
-        public T[] GetArray<T>( string key ) {
+        [CanBeNull]
+        public T[] GetArray<T>( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             if( data[key] is T[] ) {
                 return (T[])data[key];
             } else {
@@ -831,7 +862,8 @@ namespace fCraft {
         }
 
 
-        public bool TryGetArray<T>( string key, out T[] val ) {
+        public bool TryGetArray<T>( [NotNull] string key, [NotNull] out T[] val ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 val = null;
@@ -847,7 +879,8 @@ namespace fCraft {
         }
 
 
-        public bool TryGetArrayOrNull<T>( string key, out T[] val ) {
+        public bool TryGetArrayOrNull<T>( [NotNull] string key, [CanBeNull] out T[] val ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             val = null;
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
@@ -866,7 +899,8 @@ namespace fCraft {
         }
 
 
-        public bool HasArray( string key ) {
+        public bool HasArray( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 return false;
@@ -875,7 +909,8 @@ namespace fCraft {
         }
 
 
-        public bool HasArrayOrNull( string key ) {
+        public bool HasArrayOrNull( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
                 return false;
@@ -889,7 +924,8 @@ namespace fCraft {
         #region IDictionary / ICollection / ICloneable members
 
 
-        public JSONObject( IEnumerable<KeyValuePair<string, object>> other ) {
+        /// <summary> Creates a JsonObject from an existing JsonObject or string-object dictionary. </summary>
+        public JsonObject( IEnumerable<KeyValuePair<string, object>> other ) {
             foreach( var kvp in other ) {
                 Add( kvp );
             }
@@ -946,31 +982,51 @@ namespace fCraft {
         }
 
 
-        public void Add( string key, JSONObject obj ) {
-            data.Add( key, obj );
-        }
-        public void Add( string key, int obj ) {
-            data.Add( key, obj );
-        }
-        public void Add( string key, long obj ) {
-            data.Add( key, obj );
-        }
-        public void Add( string key, double obj ) {
-            data.Add( key, obj );
-        }
-        public void Add( string key, bool obj ) {
-            data.Add( key, obj );
-        }
-        public void Add( string key, string obj ) {
-            data.Add( key, obj );
-        }
-        public void Add( string key, Array obj ) {
+        public void Add( [NotNull] string key, JsonObject obj ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             data.Add( key, obj );
         }
 
 
-        public void Add( string key, object obj ) {
-            if( obj == null || obj is JSONObject ||
+        public void Add( [NotNull] string key, int obj ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
+            data.Add( key, obj );
+        }
+
+
+        public void Add( [NotNull] string key, long obj ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
+            data.Add( key, obj );
+        }
+
+
+        public void Add( [NotNull] string key, double obj ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
+            data.Add( key, obj );
+        }
+
+
+        public void Add( [NotNull] string key, bool obj ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
+            data.Add( key, obj );
+        }
+
+
+        public void Add( [NotNull] string key, string obj ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
+            data.Add( key, obj );
+        }
+
+
+        public void Add( [NotNull] string key, Array obj ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
+            data.Add( key, obj );
+        }
+
+
+        public void Add( [NotNull] string key, object obj ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
+            if( obj == null || obj is JsonObject ||
                 obj is string || obj is int ||
                 obj is long || obj is double || obj is bool || obj is Array ) {
                 data.Add( key, obj );
@@ -995,18 +1051,26 @@ namespace fCraft {
 
 
         public bool Remove( string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             return data.Remove( key );
         }
 
 
         bool IDictionary<string, object>.TryGetValue( string key, out object value ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
             return data.TryGetValue( key, out value );
         }
 
 
         public object this[ string key ] {
-            get { return data[key]; }
-            set { data[key] = value; }
+            get {
+                if( key == null ) throw new ArgumentNullException( "key" );
+                return data[key];
+            }
+            set {
+                if( key == null ) throw new ArgumentNullException( "key" );
+                data[key] = value;
+            }
         }
 
 
@@ -1021,7 +1085,7 @@ namespace fCraft {
 
 
         public object Clone() {
-            return new JSONObject( this );
+            return new JsonObject( this );
         }
 
         #endregion
