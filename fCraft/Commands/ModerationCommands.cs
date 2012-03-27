@@ -908,7 +908,7 @@ namespace fCraft {
             string playerName = cmd.Next();
             string worldName = cmd.Next();
             if( playerName == null || worldName == null ) {
-                CdBring.PrintUsage( player );
+                CdWorldBring.PrintUsage( player );
                 return;
             }
 
