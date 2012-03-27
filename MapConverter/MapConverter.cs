@@ -28,7 +28,7 @@ namespace fCraft.MapConverter {
             // parse importer name
             if( importerName != null ) {
                 MapFormat importFormat;
-                if( !EnumUtil.TryParse( importerName, out importFormat, true ) ||
+                if( !Enum.TryParse( importerName, true, out importFormat ) ||
                     ( importer = MapUtility.GetImporter( importFormat ) ) == null ) {
                     Console.Error.WriteLine( "Unsupported importer \"{0}\"", importerName );
                     PrintUsage();
@@ -38,7 +38,7 @@ namespace fCraft.MapConverter {
 
             // parse exporter format
             MapFormat exportFormat;
-            if( !EnumUtil.TryParse( exporterName, out exportFormat, true ) ||
+            if( !Enum.TryParse( exporterName, true, out exportFormat ) ||
                 ( exporter = MapUtility.GetExporter( exportFormat ) ) == null ) {
                     Console.Error.WriteLine( "Unsupported exporter \"{0}\"", exporterName );
                 PrintUsage();

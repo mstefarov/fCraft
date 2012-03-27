@@ -130,7 +130,7 @@ namespace fCraft {
                 throw new SerializationException( "PluginDescriptor: No loaderType specified." );
             }
             PluginLoaderType loaderType;
-            if( !EnumUtil.TryParse( loaderTypeEl.Value, out loaderType, true ) ) {
+            if( !Enum.TryParse( loaderTypeEl.Value, true, out loaderType ) ) {
                 throw new SerializationException( "PluginDescriptor: Unrecognized loaderType specified." );
             }
             LoaderType = loaderType;

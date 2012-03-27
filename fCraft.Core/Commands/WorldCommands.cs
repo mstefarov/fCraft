@@ -781,10 +781,10 @@ namespace fCraft {
                     noTrees = true;
                     swapThemeAndTemplate = true;
 
-                } else if( EnumUtil.TryParse( themeName, out theme, true ) ) {
+                } else if( Enum.TryParse( themeName, true, out theme ) ) {
                     noTrees = (theme != MapGenTheme.Forest);
 
-                } else if( EnumUtil.TryParse( templateName, out theme, true ) ) {
+                } else if( Enum.TryParse( templateName, true, out theme ) ) {
                     noTrees = (theme != MapGenTheme.Forest);
                     swapThemeAndTemplate = true;
 
@@ -797,14 +797,14 @@ namespace fCraft {
 
                 // parse template
                 if( swapThemeAndTemplate ) {
-                    if( !EnumUtil.TryParse( themeName, out template, true ) ) {
+                    if( !Enum.TryParse( themeName, true, out template ) ) {
                         player.Message( "Unrecognized template \"{0}\". Available templates are: {1}",
                                         themeName,
                                         Enum.GetNames( typeof( MapGenTemplate ) ).JoinToString() );
                         return;
                     }
                 } else {
-                    if( !EnumUtil.TryParse( templateName, out template, true ) ) {
+                    if( !Enum.TryParse( templateName, true, out template ) ) {
                         player.Message( "Unrecognized template \"{0}\". Available templates are: {1}",
                                         templateName,
                                         Enum.GetNames( typeof( MapGenTemplate ) ).JoinToString() );

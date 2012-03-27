@@ -341,29 +341,6 @@ namespace fCraft {
     }
 
 
-    /// <summary> Provides utility methods for working with enumerations. </summary>
-    public static class EnumUtil {
-        /// <summary> Attempts to parse an enumeration.
-        /// Only accepts explicitly enumerated names/values, not just any number. </summary>
-        /// <typeparam name="TEnum"> Type of enumeration to parse. </typeparam>
-        /// <param name="value"> Raw string value to parse. </param>
-        /// <param name="output"> Parsed enumeration. </param>
-        /// <param name="ignoreCase"> Whether parsing should be case-insensitive. </param>
-        /// <returns> True if parsing succeeded, otherwise false. </returns>
-        public static bool TryParse<TEnum>( [NotNull] string value, out TEnum output, bool ignoreCase ) {
-            if( value == null ) throw new ArgumentNullException( "value" );
-            try {
-                output = (TEnum)Enum.Parse( typeof( TEnum ), value, ignoreCase );
-                return Enum.IsDefined( typeof( TEnum ), output );
-            } catch( ArgumentException ) {
-            } catch( OverflowException ) {
-            }
-            output = default( TEnum );
-            return false;
-        }
-    }
-
-
     /// <summary> Provides utility methods for working with IP addresses and ranges. </summary>
     public static class IPAddressUtil {
         static readonly Regex RegexIP = new Regex( @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b",

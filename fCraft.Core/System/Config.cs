@@ -462,7 +462,7 @@ namespace fCraft {
                 if( typeAttr == null ) {
                     Logger.Log( LogType.Warning,
                                 "Config.Load: No PlayerDBProvider specified in config. Assuming default (flatfile)." );
-                } else if( EnumUtil.TryParse( typeAttr.Value, out providerType, true ) ) {
+                } else if( Enum.TryParse( typeAttr.Value, true, out providerType ) ) {
                     PlayerDB.ProviderType = providerType;
                     PlayerDBProviderConfig = playerDBProviderEl.Elements().FirstOrDefault();
                 } else {
@@ -485,7 +485,7 @@ namespace fCraft {
 
             string keyName = element.Name.ToString().ToLower();
             ConfigKey key;
-            if( EnumUtil.TryParse( keyName, out key, true ) ) {
+            if( Enum.TryParse( keyName, true, out key ) ) {
                 // known key
                 TrySetValue( key, element.Value );
 
@@ -529,7 +529,7 @@ namespace fCraft {
             string value = valueAttr.Value;
 
             ConfigKey key;
-            if( !EnumUtil.TryParse( keyName, out key, true )) {
+            if( !Enum.TryParse( keyName, true, out key ) ) {
                 if( LegacyConfigKeys.ContainsKey( keyName ) ) {
                     key = LegacyConfigKeys[keyName];
                 } else {

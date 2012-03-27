@@ -147,7 +147,7 @@ namespace fCraft {
                         argValue = null;
                     }
                     ArgKey key;
-                    if( EnumUtil.TryParse( argKeyName, out key, true ) ) {
+                    if( Enum.TryParse( argKeyName, true, out key ) ) {
                         Args.Add( key, argValue );
                     } else {
                         Console.Error.WriteLine( "Unknown argument: {0}", arg );
