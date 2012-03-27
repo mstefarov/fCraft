@@ -194,7 +194,7 @@ namespace fCraft {
                         } else {
                             db.EnabledState = YesNoAuto.No;
                             WorldManager.SaveWorldList();
-                            player.Message( "BlockDB is was auto-disabled, and is now manually disabled on world {0}&S.",
+                            player.Message( "BlockDB was auto-disabled, and is now manually disabled on world {0}&S.",
                                             world.ClassyName );
                         }
                         break;
