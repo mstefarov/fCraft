@@ -36,11 +36,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapConverter", "MapConverte
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapRenderer", "MapRenderer\MapRenderer.csproj", "{FEB81153-E837-4322-9BD7-E6999FABD7D9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpgradeTool", "UpgradeTool\UpgradeTool.csproj", "{527752A3-DA59-4637-AFD3-F164C519A321}"
+EndProject
 Global
-	GlobalSection(SubversionScc) = preSolution
-		Svn-Managed = True
-		Manager = AnkhSVN - Subversion Support for Visual Studio
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_Events|Any CPU = Debug_Events|Any CPU
 		Debug_Events|Mixed Platforms = Debug_Events|Mixed Platforms
@@ -359,6 +357,31 @@ Global
 		{FEB81153-E837-4322-9BD7-E6999FABD7D9}.Release|Mixed Platforms.Build.0 = Release|x86
 		{FEB81153-E837-4322-9BD7-E6999FABD7D9}.Release|x86.ActiveCfg = Release|x86
 		{FEB81153-E837-4322-9BD7-E6999FABD7D9}.Release|x86.Build.0 = Release|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug_Events|Any CPU.ActiveCfg = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug_Events|Mixed Platforms.ActiveCfg = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug_Events|Mixed Platforms.Build.0 = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug_Events|x86.ActiveCfg = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug_Events|x86.Build.0 = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug_IRC|Any CPU.ActiveCfg = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug_IRC|Mixed Platforms.ActiveCfg = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug_IRC|Mixed Platforms.Build.0 = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug_IRC|x86.ActiveCfg = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug_IRC|x86.Build.0 = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug_Scheduler|Any CPU.ActiveCfg = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug_Scheduler|Mixed Platforms.ActiveCfg = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug_Scheduler|Mixed Platforms.Build.0 = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug_Scheduler|x86.ActiveCfg = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug_Scheduler|x86.Build.0 = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug|x86.ActiveCfg = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Debug|x86.Build.0 = Debug|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Release|Any CPU.ActiveCfg = Release|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Release|Mixed Platforms.Build.0 = Release|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Release|x86.ActiveCfg = Release|x86
+		{527752A3-DA59-4637-AFD3-F164C519A321}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -368,5 +391,10 @@ Global
 		{478256DE-BD19-4046-9449-A12FF90EE6A8} = {3DCD3531-25BC-4608-86E4-65AECA5A3FF6}
 		{FB042F94-95FB-4EEC-922D-B7D0F08B58DA} = {3DCD3531-25BC-4608-86E4-65AECA5A3FF6}
 		{FEB81153-E837-4322-9BD7-E6999FABD7D9} = {3DCD3531-25BC-4608-86E4-65AECA5A3FF6}
+		{527752A3-DA59-4637-AFD3-F164C519A321} = {3DCD3531-25BC-4608-86E4-65AECA5A3FF6}
+	EndGlobalSection
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
 	EndGlobalSection
 EndGlobal

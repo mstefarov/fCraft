@@ -25,7 +25,7 @@ namespace fCraft.MapConverter {
             ParseOptions( args );
 
             // parse importer name
-            if( importerName != null ) {
+            if( importerName != null && !importerName.Equals( "auto", StringComparison.OrdinalIgnoreCase ) ) {
                 MapFormat importFormat;
                 if( !Enum.TryParse( importerName, true, out importFormat ) ||
                     ( importer = MapUtility.GetImporter( importFormat ) ) == null ) {
@@ -179,7 +179,7 @@ namespace fCraft.MapConverter {
 
                 .Add( "i=|importer=",
                       "Optional: Converter used for importing/loading maps. " +
-                      "Available importers: " + importerList,
+                      "Available importers: Auto (default), " + importerList,
                       o => importerName = o )
 
                 .Add( "o=|output=",
