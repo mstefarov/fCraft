@@ -1,20 +1,63 @@
 ﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
+using System.IO;
 using JetBrains.Annotations;
 using Mono.Options;
 using fCraft.Events;
+using fCraft.GUI;
 using fCraft.MapConversion;
 
 namespace fCraft.MapRenderer {
-    class MapRenderer {
-        static bool noGradient, noShadows, seeThroughWater, seeThroughLava, recursive, overwrite;
-        static string inputPath, angleString, isoCatModeName, outputDirName, regionString, inputFilter;
+    static class MapRenderer {
+        static int angle;
+        static IsoCatMode mode = IsoCatMode.Normal;
+        static ImageFormat format = ImageFormat.Png;
+        static BoundingBox region = BoundingBox.Empty;
+        static int jpegQuality = 80;
 
-        static void Main( string[] args ) {
+        static bool noGradient, noShadows, seeThroughWater, seeThroughLava, recursive, overwrite;
+        static string inputPath, angleString, isoCatModeName, outputDirName, regionString, inputFilter, imageFormatName, jpegQualityString;
+
+        static int Main( string[] args ) {
             Logger.Logged += OnLogged;
 
             ParseOptions( args );
+
+
+            // check if input path exists, and if it's a file or directory
+            bool directoryMode;
+            try {
+                if( File.Exists( inputPath ) ) {
+                    directoryMode = false;
+                    if( outputDirName == null ) {
+                        outputDirName = Paths.GetDirNameOrPathRoot( inputPath );
+                    }
+
+                } else if( Directory.Exists( inputPath ) ) {
+                    directoryMode = true;
+                    if( outputDirName == null ) {
+                        outputDirName = Paths.GetDirNameOrPathRoot( inputPath );
+                    }
+
+                } else {
+                    Console.Error.WriteLine( "MapRenderer: Cannot locate \"{0}\"", inputPath );
+                    return (int)ReturnCode.InputDirNotFound;
+                }
+
+                if( !Directory.Exists( outputDirName ) ) {
+                    Directory.CreateDirectory( outputDirName );
+                }
+
+            } catch( Exception ex ) {
+                Console.Error.WriteLine( "MapRenderer: {0}: {1}",
+                                         ex.GetType().Name,
+                                         ex.Message );
+                return (int)ReturnCode.PathError;
+            }
+
+            return (int)ReturnCode.Success;
         }
 
 
@@ -38,8 +81,6 @@ namespace fCraft.MapRenderer {
 
         static void ParseOptions( [NotNull] string[] args ) {
             if( args == null ) throw new ArgumentNullException( "args" );
-            string importerList = MapUtility.GetImporters().JoinToString( c => c.Format.ToString() );
-            string exporterList = MapUtility.GetExporters().JoinToString( c => c.Format.ToString() );
 
             bool printHelp = false;
 
@@ -56,7 +97,7 @@ namespace fCraft.MapRenderer {
                 .Add( "i=|image=",
                       "Image format to use for exporting. " +
                       "Supported formats: BMP, GIF, JPEG, PNG, TIFF. Default: PNG.",
-                      o => outputDirName = o )
+                      o => imageFormatName = o )
 
                 .Add( "m=|mode=",
                       "Rendering mode. May be \"normal\", \"cut\" (cuts out a quarter of the map, revealing inside), " +
@@ -84,7 +125,7 @@ namespace fCraft.MapRenderer {
                 .Add( "q=|quality=",
                       "Sets JPEG compression quality. Between 0 and 100. Default is 80." +
                       "Applicable only when exporting images to .jpg or .jpeg.",
-                      o => seeThroughLava = ( o != null ) )
+                      o => jpegQualityString = o )
 
                 .Add( "r|recursive",
                       "Look through all subdirectories for map files. " +
@@ -129,8 +170,70 @@ namespace fCraft.MapRenderer {
                 Environment.Exit( (int)ReturnCode.ArgumentParsingError );
             }
             inputPath = pathList[0];
-        }
+            
+            // Parse angle
+            if( angleString != null && ( !Int32.TryParse( angleString, out angle ) ||
+                                         angle != -90 && angle != 0 && angle != 180 && angle != 270 ) ) {
+                Console.Error.WriteLine( "MapRenderer: Angle must be a number: -90, 0, 90, 180, or 270" );
+                Environment.Exit( (int)ReturnCode.ArgumentParsingError );
+            }
 
+            // Parse mode
+            if( isoCatModeName != null && !Enum.TryParse( isoCatModeName, out mode ) ) {
+                Console.Error.WriteLine( "MapRenderer: Rendering mode should be: \"normal\", \"cut\", \"peel\", or \"chunk\"." );
+                Environment.Exit( (int)ReturnCode.ArgumentParsingError );
+            }
+
+            // Parse region (if in chunk mode)
+            if( mode == IsoCatMode.Chunk ) {
+                if( regionString == null ) {
+                    Console.Error.WriteLine( "MapRenderer: Region parameter is required when mode is set to \"chunk\"" );
+                    Environment.Exit( (int)ReturnCode.ArgumentParsingError );
+                }
+                try {
+                    string[] regionParts = regionString.Split( ',' );
+                    region = new BoundingBox( Int32.Parse( regionParts[0] ), Int32.Parse( regionParts[1] ), Int32.Parse( regionParts[2] ),
+                                              Int32.Parse( regionParts[3] ), Int32.Parse( regionParts[4] ), Int32.Parse( regionParts[5] ) );
+                } catch {
+                    Console.Error.WriteLine( "MapRenderer: Region should be specified in the following format: \"--region=x1,y1,z1,x2,y2,z2\"" );
+                }
+            } else if( regionString != null ) {
+                Console.Error.WriteLine( "MapRenderer: Region parameter is only allowed when mode is set to \"chunk\"" );
+                Environment.Exit( (int)ReturnCode.ArgumentParsingError );
+            }
+
+            // Parse given image format
+            if( imageFormatName != null ) {
+                if( imageFormatName.Equals( "BMP", StringComparison.OrdinalIgnoreCase ) ) {
+                    format = ImageFormat.Bmp;
+                }else if( imageFormatName.Equals( "GIF", StringComparison.OrdinalIgnoreCase ) ) {
+                    format = ImageFormat.Gif;
+                } else if( imageFormatName.Equals( "JPEG", StringComparison.OrdinalIgnoreCase ) || imageFormatName.Equals( "JPG", StringComparison.OrdinalIgnoreCase ) ) {
+                    format = ImageFormat.Jpeg;
+                }else if( imageFormatName.Equals( "PNG", StringComparison.OrdinalIgnoreCase ) ) {
+                    format = ImageFormat.Png;
+                } else if( imageFormatName.Equals( "TIFF", StringComparison.OrdinalIgnoreCase ) || imageFormatName.Equals( "TIF", StringComparison.OrdinalIgnoreCase ) ) {
+                    format = ImageFormat.Tiff;
+                } else {
+                    Console.Error.WriteLine( "MapRenderer: Image file format should be: BMP, GIF, JPEG, PNG, or TIFF" );
+                    Environment.Exit( (int)ReturnCode.ArgumentParsingError );
+                }
+            }
+
+            // Parse JPEG quality
+            if( jpegQualityString != null ) {
+                if( format == ImageFormat.Jpeg ) {
+                    if( !Int32.TryParse( jpegQualityString, out jpegQuality ) || jpegQuality < 0 || jpegQuality > 100 ) {
+                        Console.Error.WriteLine( "MapRenderer: JpegQuality parameter should be a number between 0 and 100" );
+                        Environment.Exit( (int)ReturnCode.ArgumentParsingError );
+                    }
+                } else {
+                    Console.Error.WriteLine( "MapRenderer: JpegQuality parameter is only allowed when image format is set to \"JPEG\"" );
+                    Environment.Exit( (int)ReturnCode.ArgumentParsingError );
+                }
+            }
+        }
+        
 
         static void PrintUsage() {
             Console.WriteLine( "Usage: MapRenderer [options] \"MapFileOrDirectory\"" );
