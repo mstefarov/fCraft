@@ -12,7 +12,6 @@ namespace fCraft {
     public sealed class JsonObject : IDictionary<string, object>, ICloneable {
         readonly Dictionary<string, object> data = new Dictionary<string, object>();
 
-
         #region Parsing
 
         int index;
@@ -144,8 +143,8 @@ namespace fCraft {
                 }
 
                 if( c < ' ' ) {
-                    throw new SerializationException( "JSONObject: Unexpected character: " +
-                                                      ( (int)c ).ToString( "X4", NumberFormatInfo.InvariantInfo ) + "." );
+                    ThrowSerialization( "JSONObject: Unexpected character: " +
+                                        ( (int)c ).ToString( "X4", NumberFormatInfo.InvariantInfo ) + "." );
                 }
 
                 if( start == -1 ) start = index;
@@ -155,13 +154,17 @@ namespace fCraft {
 
 
         static uint ReadHexChar( char ch, uint multiplier ) {
-            if( ch >= '0' && ch <= '9' )
-                return (uint)( ch - '0' ) * multiplier;
-            else if( ch >= 'A' && ch <= 'F' )
-                return (uint)( ( ch - 'A' ) + 10 ) * multiplier;
-            else if( ch >= 'a' && ch <= 'f' )
-                return (uint)( ( ch - 'a' ) + 10 ) * multiplier;
-            throw new SerializationException( "JSONObject: Incorrectly specified Unicode entity." );
+            uint val = 0;
+            if( ch >= '0' && ch <= '9' ) {
+                val = (uint)( ch - '0' ) * multiplier;
+            } else if( ch >= 'A' && ch <= 'F' ) {
+                val = (uint)( ( ch - 'A' ) + 10 ) * multiplier;
+            } else if( ch >= 'a' && ch <= 'f' ) {
+                val = (uint)( ( ch - 'a' ) + 10 ) * multiplier;
+            } else {
+                ThrowSerialization( "JSONObject: Incorrectly specified Unicode entity." );
+            }
+            return val;
         }
 
 
@@ -181,7 +184,7 @@ namespace fCraft {
                 case Token.Null:
                     if( index >= str.Length - 4 ||
                         str[index + 1] != 'u' || str[index + 2] != 'l' || str[index + 3] != 'l' ) {
-                        throw new SerializationException( "JSONObject: Expected 'null'." );
+                        ThrowSerialization( "JSONObject: Expected 'null'." );
                     }
                     index += 4;
                     return null;
@@ -189,7 +192,7 @@ namespace fCraft {
                 case Token.True:
                     if( index >= str.Length - 4 ||
                         str[index + 1] != 'r' || str[index + 2] != 'u' || str[index + 3] != 'e' ) {
-                        throw new SerializationException( "JSONObject: Expected 'true'." );
+                        ThrowSerialization( "JSONObject: Expected 'true'." );
                     }
                     index += 4;
                     return true;
@@ -197,7 +200,7 @@ namespace fCraft {
                 case Token.False:
                     if( index >= str.Length - 5 ||
                         str[index + 1] != 'a' || str[index + 2] != 'l' || str[index + 3] != 's' || str[index + 4] != 'e' ) {
-                        throw new SerializationException( "JSONObject: Expected 'false'." );
+                        ThrowSerialization( "JSONObject: Expected 'false'." );
                     }
                     index += 5;
                     return false;
@@ -213,7 +216,6 @@ namespace fCraft {
                             first = false;
                         } else if( token == Token.ValueSeparator ) {
                             index++;
-                            token = FindNextToken();
                         } else {
                             ThrowUnexpected( token, "ValueSeparator" );
                         }
@@ -259,7 +261,7 @@ namespace fCraft {
                 c = str[++index];
             }
             if( index >= str.Length ) {
-                throw new SerializationException( "JSONObject: Unexpected end of a number (before decimal point)." );
+                ThrowSerialization( "JSONObject: Unexpected end of a number (before decimal point)." );
             }
 
             // Parse fractional part (if present)
@@ -273,7 +275,7 @@ namespace fCraft {
                         fraction += ( c - '0' ) / (double)multiplier;
                         multiplier *= 10;
                     } else if( first ) {
-                        throw new SerializationException( "JSONObject: Expected at least one digit after the decimal point." );
+                        ThrowSerialization( "JSONObject: Expected at least one digit after the decimal point." );
                     } else {
                         break;
                     }
@@ -281,7 +283,7 @@ namespace fCraft {
                     first = false;
                 }
                 if( index >= str.Length ) {
-                    throw new SerializationException( "JSONObject: Unexpected end of a number (after decimal point)." );
+                    ThrowSerialization( "JSONObject: Unexpected end of a number (after decimal point)." );
                 }
                 doubleVal = val + fraction;
                 // Negate (if needed)
@@ -298,11 +300,14 @@ namespace fCraft {
 
                 // Exponent sign
                 c = str[++index];
-                if( c == '-' ) {
-                    negate = true;
-                    c = str[++index];
-                } else if( c == '+' ) {
-                    c = str[++index];
+                switch( c ) {
+                    case '-':
+                        negate = true;
+                        c = str[++index];
+                        break;
+                    case '+':
+                        c = str[++index];
+                        break;
                 }
 
                 // Exponent value
@@ -316,7 +321,7 @@ namespace fCraft {
                         } else if( c >= '1' && c <= '9' ) {
                             exponent = ( c - '0' );
                         } else {
-                            throw new SerializationException( "JSONObject: Unexpected character in exponent." );
+                            ThrowSerialization( "JSONObject: Unexpected character in exponent." );
                         }
                     } else if( c >= '0' && c <= '9' ) {
                         exponent *= 10;
@@ -328,7 +333,7 @@ namespace fCraft {
                     c = str[++index];
                 }
                 if( index >= str.Length ) {
-                    throw new SerializationException( "JSONObject: Unexpected end of a number (exponent)." );
+                    ThrowSerialization( "JSONObject: Unexpected end of a number (exponent)." );
                 }
 
                 // Apply the exponent
@@ -422,6 +427,12 @@ namespace fCraft {
             throw new SerializationException( "JSONObject: Unexpected token " + given + ", expecting " + expected + "." );
         }
 
+
+        [TerminatesProgram]
+        static void ThrowSerialization( string message ) {
+            throw new SerializationException( message );
+        }
+
         #endregion
 
 
@@ -506,7 +517,7 @@ namespace fCraft {
                         sb.Append( "false" );
                     }
                 } else {
-                    throw new InvalidOperationException( "JSONObject: Non-serializable object found in the collection." );
+                    ThrowSerialization( "JSONObject: Non-serializable object found in the collection." );
                 }
             }
 
@@ -640,7 +651,7 @@ namespace fCraft {
         }
 
 
-        public bool TryGetString( [NotNull] string key, [NotNull] out string val ) {
+        public bool TryGetString( [NotNull] string key, out string val ) {
             if( key == null ) throw new ArgumentNullException( "key" );
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
@@ -815,7 +826,7 @@ namespace fCraft {
         }
 
 
-        public bool TryGetObject( [NotNull] string key, [NotNull] out JsonObject val ) {
+        public bool TryGetObject( [NotNull] string key, out JsonObject val ) {
             if( key == null ) throw new ArgumentNullException( "key" );
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
@@ -874,7 +885,7 @@ namespace fCraft {
         }
 
 
-        public bool TryGetArray<T>( [NotNull] string key, [NotNull] out T[] val ) {
+        public bool TryGetArray<T>( [NotNull] string key, out T[] val ) {
             if( key == null ) throw new ArgumentNullException( "key" );
             object boxedVal;
             if( !data.TryGetValue( key, out boxedVal ) ) {
@@ -930,11 +941,39 @@ namespace fCraft {
             return ( boxedVal == null ) || ( boxedVal as object[] != null );
         }
 
+
+        // ==== Enum ====
+        public T GetEnum<T>( [NotNull] string key ) {
+            if( key == null ) throw new ArgumentNullException( "key" );
+            return (T)Enum.Parse( typeof( T ), data[key].ToString() );
+        }
+
+
+        public bool TryGetEnum<T>( [NotNull] string key, bool ignoreCase, out T val ) where T : struct {
+            if( key == null ) throw new ArgumentNullException( "key" );
+            object boxedVal;
+            if( !data.TryGetValue( key, out boxedVal ) ) {
+                val = default( T );
+                return false;
+            }
+            return Enum.TryParse( boxedVal.ToString(), ignoreCase, out val );
+        }
+
+
+        public bool HasEnum<T>( [NotNull] string key, bool ignoreCase ) where T : struct {
+            if( key == null ) throw new ArgumentNullException( "key" );
+            T val;
+            object boxedVal;
+            if( !data.TryGetValue( key, out boxedVal ) ) {
+                return false;
+            }
+            return Enum.TryParse( boxedVal.ToString(), ignoreCase, out val );
+        }
+
         #endregion
 
 
         #region IDictionary / ICollection / ICloneable members
-
 
         /// <summary> Creates a JsonObject from an existing JsonObject or string-object dictionary. </summary>
         public JsonObject( IEnumerable<KeyValuePair<string, object>> other ) {
@@ -1036,7 +1075,7 @@ namespace fCraft {
         }
 
 
-        public void Add( [NotNull] string key, object obj ) {
+        public void Add( string key, object obj ) {
             if( key == null ) throw new ArgumentNullException( "key" );
             if( obj == null || obj is JsonObject ||
                 obj is string || obj is int ||
@@ -1056,6 +1095,8 @@ namespace fCraft {
                 data.Add( key, (double)(float)obj );
             } else if( obj is decimal ) {
                 data.Add( key, (double)(decimal)obj );
+            } else if( obj.GetType().IsEnum ) {
+                Add( key, Convert.ChangeType( obj, obj.GetType().GetEnumUnderlyingType() ) );
             } else {
                 throw new ArgumentException( "JSONObject: Unacceptable value type." );
             }

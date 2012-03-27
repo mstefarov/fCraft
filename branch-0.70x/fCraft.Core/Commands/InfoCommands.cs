@@ -1253,7 +1253,7 @@ namespace fCraft {
                 prefix =  "Hidden commands";
                 cd = CommandManager.GetCommands( true );
 
-            } else if( EnumUtil.TryParse( param, out category, true ) ) {
+            } else if( Enum.TryParse( param, true, out category ) ) {
                 prefix = String.Format( "{0} commands", category );
                 cd = CommandManager.GetCommands( category, false );
 

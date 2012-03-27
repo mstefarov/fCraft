@@ -96,7 +96,7 @@ namespace fCraft.ConfigGUI {
             } else {
                 if( (temp = blockEl.Attribute( "enabled" )) != null ) {
                     YesNoAuto enabledStateTemp;
-                    if( EnumUtil.TryParse( temp.Value, out enabledStateTemp, true ) ) {
+                    if( Enum.TryParse( temp.Value, true, out enabledStateTemp ) ) {
                         BlockDBEnabled = enabledStateTemp;
                     } else {
                         Logger.Log( LogType.Warning,
