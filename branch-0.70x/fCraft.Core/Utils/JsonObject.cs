@@ -12,12 +12,14 @@ namespace fCraft {
     public sealed class JsonObject : IDictionary<string, object>, ICloneable {
         readonly Dictionary<string, object> data = new Dictionary<string, object>();
 
+
         #region Parsing
 
         int index;
         string str;
         readonly StringBuilder stringParserBuffer = new StringBuilder();
         readonly List<object> arrayParserBuffer = new List<object>();
+
 
         /// <summary> Creates an empty JSONObject. </summary>
         public JsonObject() {}
@@ -243,7 +245,7 @@ namespace fCraft {
 
             // Parse integer part
             while( index < str.Length ) {
-                if(first) {
+                if( first ) {
                     if( c == '0' ) {
                         val = 0;
                         c = str[++index];
@@ -313,7 +315,7 @@ namespace fCraft {
                 // Exponent value
                 first = true;
                 while( index < str.Length ) {
-                    if(first){
+                    if( first ) {
                         if( c == '0' ) {
                             exponent = 0;
                             index++;
@@ -326,7 +328,7 @@ namespace fCraft {
                     } else if( c >= '0' && c <= '9' ) {
                         exponent *= 10;
                         exponent += ( c - '0' );
-                    }else{
+                    } else {
                         break;
                     }
                     first = false;
@@ -498,7 +500,7 @@ namespace fCraft {
                 Array asArray;
                 if( obj == null ) {
                     sb.Append( "null" );
-                } else if( (asObject = obj as JsonObject) != null ) {
+                } else if( ( asObject = obj as JsonObject ) != null ) {
                     SerializeInternal( asObject );
                 } else if( obj is int ) {
                     sb.Append( ( (int)obj ).ToString( NumberFormatInfo.InvariantInfo ) );
@@ -1077,9 +1079,9 @@ namespace fCraft {
 
         public void Add( string key, object obj ) {
             if( key == null ) throw new ArgumentNullException( "key" );
-            if( obj == null || obj is JsonObject ||
+            if( obj == null || obj is JsonObject || obj is Array ||
                 obj is string || obj is int ||
-                obj is long || obj is double || obj is bool || obj is Array ) {
+                obj is long || obj is double || obj is bool ) {
                 data.Add( key, obj );
             } else if( obj is sbyte ) {
                 data.Add( key, (int)(sbyte)obj );
