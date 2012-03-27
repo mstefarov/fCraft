@@ -172,9 +172,9 @@ namespace Mono.Options
             using( IEnumerator<int> ewidths = widths.GetEnumerator() ) {
                 bool? hw = null;
                 int width = GetNextWidth( ewidths, int.MaxValue, ref hw );
-                int start = 0, end;
+                int start = 0;
                 do {
-                    end = GetLineEnd( start, width, self );
+                    int end = GetLineEnd( start, width, self );
                     char c = self[end - 1];
                     if( char.IsWhiteSpace( c ) )
                         --end;
@@ -209,11 +209,11 @@ namespace Mono.Options
         }
 
         private static bool IsEolChar( char c ) {
-            return !char.IsLetterOrDigit( c );
+            return Char.IsWhiteSpace( c ) || c == '-';
         }
 
         private static int GetLineEnd( int start, int length, string description ) {
-            int end = System.Math.Min( start + length, description.Length );
+            int end = Math.Min( start + length, description.Length );
             int sep = -1;
             for( int i = start; i < end; ++i ) {
                 if( description[i] == '\n' )
@@ -531,10 +531,6 @@ namespace Mono.Options
     }
 
     public abstract class ArgumentSource {
-
-        protected ArgumentSource() {
-        }
-
         public abstract string[] GetNames();
         public abstract string Description { get; }
         public abstract bool GetArguments( string value, out IEnumerable<string> replacement );
@@ -1064,8 +1060,8 @@ namespace Mono.Options
         }
 
         private const int OptionWidth = 29;
-        private const int Description_FirstWidth = 80 - OptionWidth;
-        private const int Description_RemWidth = 80 - OptionWidth - 2;
+        private const int Description_FirstWidth = 79 - OptionWidth;
+        private const int Description_RemWidth = 79 - OptionWidth - 2;
 
         public void WriteOptionDescriptions( TextWriter o ) {
             foreach( Option p in this ) {
@@ -1073,7 +1069,7 @@ namespace Mono.Options
 
                 Category c = p as Category;
                 if( c != null ) {
-                    WriteDescription( o, p.Description, "", 80, 80 );
+                    WriteDescription( o, p.Description, "", 79, 79 );
                     continue;
                 }
 
