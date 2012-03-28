@@ -60,6 +60,16 @@ namespace fCraft.MapRenderer {
                 return (int)ReturnCode.PathError;
             }
 
+            // check recursive flag
+            if( recursive && !directoryMode ) {
+                Console.Error.WriteLine( "MapRenderer: Recursive flag is given, but input is not a directory." );
+            }
+
+            // check input filter
+            if( inputFilter != null && !directoryMode ) {
+                Console.Error.WriteLine( "MapRenderer: Filter param is given, but input is not a directory." );
+            }
+
             return (int)ReturnCode.Success;
         }
 
@@ -208,8 +218,7 @@ namespace fCraft.MapRenderer {
                     Console.Error.WriteLine( "MapRenderer: Region should be specified in the following format: \"--region=x1,y1,z1,x2,y2,z2\"" );
                 }
             } else if( regionString != null ) {
-                Console.Error.WriteLine( "MapRenderer: Region parameter is only allowed when mode is set to \"chunk\"" );
-                return ReturnCode.ArgumentParsingError;
+                Console.Error.WriteLine( "MapRenderer: Region parameter is given, but rendering mode was not set to \"chunk\"" );
             }
 
             // Parse given image format
@@ -238,8 +247,7 @@ namespace fCraft.MapRenderer {
                         return ReturnCode.ArgumentParsingError;
                     }
                 } else {
-                    Console.Error.WriteLine( "MapRenderer: JpegQuality parameter is only allowed when image format is set to \"JPEG\"" );
-                    return ReturnCode.ArgumentParsingError;
+                    Console.Error.WriteLine( "MapRenderer: JpegQuality parameter given, but image export format was not set to \"JPEG\"." );
                 }
             }
 
