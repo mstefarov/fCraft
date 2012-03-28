@@ -22,7 +22,10 @@ namespace fCraft.MapConverter {
         static int Main( string[] args ) {
             Logger.Logged += OnLogged;
 
-            ParseOptions( args );
+            ReturnCode optionParsingResult = ParseOptions( args );
+            if( optionParsingResult != ReturnCode.Success ) {
+                return (int)optionParsingResult;
+            }
 
             // parse importer name
             if( importerName != null && !importerName.Equals( "auto", StringComparison.OrdinalIgnoreCase ) ) {
@@ -80,7 +83,7 @@ namespace fCraft.MapConverter {
                 Console.Error.WriteLine( "MapConverter: Recursive flag is given, but input is not a directory." );
             }
 
-            // check recursive flag
+            // check input filter
             if( inputFilter != null && !directoryMode ) {
                 Console.Error.WriteLine( "MapConverter: Filter param is given, but input is not a directory." );
             }
@@ -164,7 +167,7 @@ namespace fCraft.MapConverter {
 
         static OptionSet opts;
 
-        static void ParseOptions( [NotNull] string[] args ) {
+        static ReturnCode ParseOptions( [NotNull] string[] args ) {
             if( args == null ) throw new ArgumentNullException( "args" );
             string importerList = MapUtility.GetImporters().JoinToString( c => c.Format.ToString() );
             string exporterList = MapUtility.GetExporters().JoinToString( c => c.Format.ToString() );
@@ -205,16 +208,17 @@ namespace fCraft.MapConverter {
                       "Prints out the options.",
                       o => printHelp = ( o != null ) );
 
-            List<string> pathList = new List<string>();
+            List<string> pathList;
             try {
                 pathList = opts.Parse( args );
             } catch( OptionException ex ) {
                 Console.Error.Write( "MapConverter: " );
                 Console.Error.WriteLine( ex.Message );
                 PrintHelp();
-                Environment.Exit( (int)ReturnCode.ArgumentParsingError );
+                return ReturnCode.ArgumentParsingError;
             }
 
+            // Print help and break out
             if( printHelp ) {
                 PrintHelp();
                 Environment.Exit( (int)ReturnCode.Success );
@@ -223,15 +227,17 @@ namespace fCraft.MapConverter {
             if( pathList.Count != 1 ) {
                 Console.Error.WriteLine( "MapConverter: At least one file or directory name required." );
                 PrintUsage();
-                Environment.Exit( (int)ReturnCode.ArgumentParsingError );
+                return ReturnCode.ArgumentParsingError;
             }
             inputPath = pathList[0];
 
             if( exporterName == null ) {
                 Console.Error.WriteLine( "MapConverter: Export format required." );
                 PrintUsage();
-                Environment.Exit( (int)ReturnCode.ArgumentParsingError );
+                return ReturnCode.ArgumentParsingError;
             }
+
+            return ReturnCode.Success;
         }
 
 
