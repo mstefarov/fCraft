@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using ImageManipulation;
 using JetBrains.Annotations;
 using Mono.Options;
 using fCraft.Events;
@@ -179,12 +180,16 @@ namespace fCraft.MapRenderer {
         }
 
 
-        static void SaveImage( Image image, string targetFileName ) {
+        static void SaveImage( Bitmap image, string targetFileName ) {
             if( format == ImageFormat.Jpeg ) {
                 EncoderParameters encoderParams = new EncoderParameters();
                 encoderParams.Param[0] = new EncoderParameter( Encoder.Quality, jpegQuality );
                 image.Save( targetFileName, encoder, encoderParams );
-            } else {
+            } else if( format == ImageFormat.Gif ) {
+                OctreeQuantizer q = new OctreeQuantizer( 255, 8 );
+                image = q.Quantize( image );
+                image.Save( targetFileName, format );
+            }else{
                 image.Save( targetFileName, format );
             }
         }
