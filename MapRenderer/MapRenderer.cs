@@ -1,6 +1,7 @@
 ﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using JetBrains.Annotations;
@@ -14,11 +15,14 @@ namespace fCraft.MapRenderer {
         static int angle;
         static IsoCatMode mode = IsoCatMode.Normal;
         static ImageFormat format = ImageFormat.Png;
+        static string imageFileExtension = ".png";
         static BoundingBox region = BoundingBox.Empty;
         static int jpegQuality = 80;
         static IMapImporter importer;
+        static IsoCat renderer;
+        static ImageCodecInfo encoder;
 
-        static bool noGradient, noShadows, seeThroughWater, seeThroughLava, recursive, overwrite;
+        static bool noGradient, noShadows, seeThroughWater, seeThroughLava, recursive, overwrite, uncropped;
         static string inputPath, angleString, isoCatModeName, outputDirName, regionString, inputFilter, imageFormatName, jpegQualityString, importerName;
 
         static int Main( string[] args ) {
@@ -70,7 +74,118 @@ namespace fCraft.MapRenderer {
                 Console.Error.WriteLine( "MapRenderer: Filter param is given, but input is not a directory." );
             }
 
+            // initialize image encoder
+            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
+            foreach( ImageCodecInfo codec in codecs ) {
+                if( codec.FormatID == format.Guid ) {
+                    encoder = codec;
+                    break;
+                }
+            }
+            if( encoder == null ) {
+                Console.Error.WriteLine( "MapRenderer: Specified image encoder is not supported." );
+                return (int)ReturnCode.UnsupportedSaveFormat;
+            }
+
+            // create and configure the renderer
+            renderer = new IsoCat {
+                SeeThroughLava = seeThroughLava,
+                SeeThroughWater = seeThroughWater,
+                Mode = mode,
+                Gradient = !noGradient,
+                DrawShadows = !noShadows
+            };
+            if( mode == IsoCatMode.Chunk ) {
+                renderer.ChunkCoords[0] = region.XMin;
+                renderer.ChunkCoords[1] = region.YMin;
+                renderer.ChunkCoords[2] = region.ZMin;
+                renderer.ChunkCoords[3] = region.XMax;
+                renderer.ChunkCoords[4] = region.YMax;
+                renderer.ChunkCoords[5] = region.ZMax;
+            }
+            if( angle == 90 ) {
+                renderer.Rotation = 1;
+            }else if(angle==180){
+                renderer.Rotation = 2;
+            } else if( angle == -90 || angle == 270 ) {
+                renderer.Rotation = 3;
+            }
+
+            // go through the map files, and draw each one
+            if( importer != null && importer.StorageType == MapStorageType.Directory ) {
+                RenderOneMap( new DirectoryInfo( inputPath ) );
+            } else if( !directoryMode ) {
+                RenderOneMap( new FileInfo( inputPath ) );
+            } else {
+                SearchOption recursiveOption = ( recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly );
+                DirectoryInfo inputDirInfo = new DirectoryInfo( inputPath );
+                if( inputFilter == null ) inputFilter = "*";
+                foreach( FileSystemInfo dirInfo in inputDirInfo.EnumerateFileSystemInfos( inputFilter, recursiveOption ) ) {
+                    RenderOneMap( dirInfo );
+                }
+            }
+
             return (int)ReturnCode.Success;
+        }
+
+
+
+        static void RenderOneMap( [NotNull] FileSystemInfo fileSystemInfo ) {
+            if( fileSystemInfo == null ) throw new ArgumentNullException( "fileSystemInfo" );
+
+            try {
+                Map map;
+                if( importer != null ) {
+                    if( !importer.ClaimsName( fileSystemInfo.FullName ) ) return;
+                    Console.Write( "Loading {0}... ", fileSystemInfo.Name );
+                    map = importer.Load( fileSystemInfo.FullName );
+                } else {
+                    Console.Write( "Checking {0}... ", fileSystemInfo.Name );
+                    map = MapUtility.Load( fileSystemInfo.FullName );
+                }
+
+                string targetFileName;
+                if( ( fileSystemInfo.Attributes & FileAttributes.Directory ) == FileAttributes.Directory ) {
+                    targetFileName = fileSystemInfo.Name + imageFileExtension;
+                } else {
+                    targetFileName = Path.GetFileNameWithoutExtension( fileSystemInfo.Name ) + imageFileExtension;
+                }
+
+                string targetPath = Path.Combine( outputDirName, targetFileName );
+                if( !overwrite && File.Exists( targetPath ) ) {
+                    Console.WriteLine();
+                    if( !ShowYesNo( "File \"{0}\" already exists. Overwrite?", targetFileName ) ) {
+                        return;
+                    }
+                }
+                Console.Write( "Drawing... " );
+                IsoCatResult result = renderer.Draw( map );
+                Console.Write( "Saving {0}... ", Path.GetFileName( targetFileName ) );
+                if( uncropped ) {
+                    SaveImage( result.Bitmap, targetPath );
+                } else {
+                    SaveImage( result.Bitmap.Clone( result.CropRectangle, result.Bitmap.PixelFormat ), targetPath );
+                }
+                Console.WriteLine( "ok" );
+
+            } catch( NoMapConverterFoundException ) {
+                Console.WriteLine( "skip" );
+
+            } catch( Exception ex ) {
+                Console.WriteLine( "ERROR" );
+                Console.Error.WriteLine( "{0}: {1}", ex.GetType().Name, ex );
+            }
+        }
+
+
+        static void SaveImage( Bitmap image, string targetFileName ) {
+            if( format == ImageFormat.Jpeg ) {
+                EncoderParameters encoderParams = new EncoderParameters();
+                encoderParams.Param[0] = new EncoderParameter( Encoder.Quality, jpegQuality );
+                image.Save( targetFileName, encoder, encoderParams );
+            } else {
+                image.Save( targetFileName, format );
+            }
         }
 
 
@@ -165,6 +280,10 @@ namespace fCraft.MapRenderer {
                       "Makes all lava partially see-through, instead of mostly opaque.",
                       o => seeThroughLava = ( o != null ) )
 
+                .Add( "u|uncropped",
+                      "Does not crop the output image, possibly leaving some empty space around the map.",
+                      o => uncropped = (o!=null) )
+
                 .Add( "?|h|help",
                       "Prints out the options.",
                       o => printHelp = ( o != null ) );
@@ -225,14 +344,19 @@ namespace fCraft.MapRenderer {
             if( imageFormatName != null ) {
                 if( imageFormatName.Equals( "BMP", StringComparison.OrdinalIgnoreCase ) ) {
                     format = ImageFormat.Bmp;
+                    imageFileExtension = ".bmp";
                 }else if( imageFormatName.Equals( "GIF", StringComparison.OrdinalIgnoreCase ) ) {
                     format = ImageFormat.Gif;
+                    imageFileExtension = ".gif";
                 } else if( imageFormatName.Equals( "JPEG", StringComparison.OrdinalIgnoreCase ) || imageFormatName.Equals( "JPG", StringComparison.OrdinalIgnoreCase ) ) {
                     format = ImageFormat.Jpeg;
+                    imageFileExtension = ".jpg";
                 }else if( imageFormatName.Equals( "PNG", StringComparison.OrdinalIgnoreCase ) ) {
                     format = ImageFormat.Png;
+                    imageFileExtension = ".png";
                 } else if( imageFormatName.Equals( "TIFF", StringComparison.OrdinalIgnoreCase ) || imageFormatName.Equals( "TIF", StringComparison.OrdinalIgnoreCase ) ) {
                     format = ImageFormat.Tiff;
+                    imageFileExtension = ".tif";
                 } else {
                     Console.Error.WriteLine( "MapRenderer: Image file format should be: BMP, GIF, JPEG, PNG, or TIFF" );
                     return ReturnCode.ArgumentParsingError;
