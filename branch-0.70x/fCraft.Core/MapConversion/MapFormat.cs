@@ -28,7 +28,7 @@ namespace fCraft.MapConversion {
         Classic,
 
         /// <summary> Map format used by Mojang's indev. </summary>
-        NBT,
+        Indev,
 
         /// <summary> Map format used by JTE's server. </summary>
         JTE,
