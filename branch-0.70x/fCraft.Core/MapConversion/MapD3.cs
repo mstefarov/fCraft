@@ -113,7 +113,6 @@ namespace fCraft.MapConversion {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream fs = File.OpenRead( fileName ) ) {
                 using( GZipStream gs = new GZipStream( fs, CompressionMode.Decompress ) ) {
-
                     Map map = LoadHeaderInternal( gs );
 
                     if( !map.ValidateHeader() ) {
@@ -121,8 +120,12 @@ namespace fCraft.MapConversion {
                     }
 
                     // Read in the map data
+                    byte[] buffer = new byte[4];
                     map.Blocks = new byte[map.Volume];
-                    MapUtility.ReadAll( gs, map.Blocks );
+                    for( int i = 0; i < map.Volume; i++ ) {
+                        gs.Read( buffer, 0, 4 );
+                        map.Blocks[i] = buffer[0];
+                    }
                     map.ConvertBlockTypes( Mapping );
 
                     return map;
@@ -136,28 +139,30 @@ namespace fCraft.MapConversion {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.Create( fileName ) ) {
                 using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress ) ) {
-                    BinaryWriter bs = new BinaryWriter( gs );
+                    using( BufferedStream bs = new BufferedStream( gs ) ) {
+                        BinaryWriter bw = new BinaryWriter( bs );
 
-                    // Write the magic number
-                    bs.Write( 1050 );
+                        // Write the magic number
+                        bw.Write( 1050 );
 
-                    // Write the map dimensions
-                    bs.Write( mapToSave.Width );
-                    bs.Write( mapToSave.Length );
-                    bs.Write( mapToSave.Height );
+                        // Write the map dimensions
+                        bw.Write( mapToSave.Width );
+                        bw.Write( mapToSave.Length );
+                        bw.Write( mapToSave.Height );
 
-                    Vector3I spawn = mapToSave.Spawn.ToBlockCoords();
-                    bs.Write( (short)spawn.X );
-                    bs.Write( (short)spawn.Y );
-                    bs.Write( (short)spawn.Z );
-                    bs.Write( (short)mapToSave.Spawn.R );
-                    bs.Write( (short)mapToSave.Spawn.L );
+                        Vector3I spawn = mapToSave.Spawn.ToBlockCoords();
+                        bw.Write( (short)spawn.X );
+                        bw.Write( (short)spawn.Y );
+                        bw.Write( (short)spawn.Z );
+                        bw.Write( (short)mapToSave.Spawn.R );
+                        bw.Write( (short)mapToSave.Spawn.L );
 
-                    // Write the map data
-                    bs.Write( mapToSave.Blocks, 0, mapToSave.Blocks.Length );
-
-                    bs.Close();
-                    return true;
+                        // Write the map data
+                        for( int i = 0; i < mapToSave.Volume; i++ ) {
+                            bw.Write( (int)mapToSave.Blocks[i] );
+                        }
+                        return true;
+                    }
                 }
             }
         }
