@@ -190,6 +190,7 @@ namespace fCraft.ConfigGUI {
             tStatus2.Text = "";
             progressBar.Visible = true;
             progressBar.Style = ProgressBarStyle.Marquee;
+            Update();
             bwLoader.RunWorkerAsync();
         }
 
@@ -256,8 +257,10 @@ namespace fCraft.ConfigGUI {
 
         void Redraw( bool drawAgain ) {
             lock( redrawLock ) {
+                progressBar.Value = 0;
                 progressBar.Visible = true;
                 progressBar.Style = ProgressBarStyle.Continuous;
+                Update();
                 if( bwRenderer.IsBusy ) {
                     renderer.CancelAsync();
                     bwRenderer.CancelAsync();
