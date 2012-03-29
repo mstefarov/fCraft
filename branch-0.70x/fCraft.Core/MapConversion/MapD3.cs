@@ -58,16 +58,17 @@ namespace fCraft.MapConversion {
 
         public Map LoadHeader( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream mapStream = File.OpenRead( fileName ) ) {
-                return LoadHeaderInternal( mapStream );
+            using( FileStream fs = File.OpenRead( fileName ) ) {
+                using( GZipStream gs = new GZipStream( fs, CompressionMode.Decompress ) ) {
+                    return LoadHeaderInternal( gs );
+                }
             }
         }
 
 
-        static Map LoadHeaderInternal( Stream stream ) {
-            if( stream == null ) throw new ArgumentNullException( "stream" );
+        static Map LoadHeaderInternal( GZipStream gs ) {
+            if( gs == null ) throw new ArgumentNullException( "gs" );
             // Setup a GZipStream to decompress and read the map file
-            using( GZipStream gs = new GZipStream( stream, CompressionMode.Decompress, true ) ) {
                 BinaryReader bs = new BinaryReader( gs );
 
                 int formatVersion = bs.ReadInt32();
@@ -105,26 +106,27 @@ namespace fCraft.MapConversion {
                 }
 
                 return map;
-            }
         }
 
 
         public Map Load( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream mapStream = File.OpenRead( fileName ) ) {
+            using( FileStream fs = File.OpenRead( fileName ) ) {
+                using( GZipStream gs = new GZipStream( fs, CompressionMode.Decompress ) ) {
 
-                Map map = LoadHeaderInternal( mapStream );
+                    Map map = LoadHeaderInternal( gs );
 
-                if( !map.ValidateHeader() ) {
-                    throw new MapFormatException( "MapD3: One or more of the map dimensions are invalid." );
+                    if( !map.ValidateHeader() ) {
+                        throw new MapFormatException( "MapD3: One or more of the map dimensions are invalid." );
+                    }
+
+                    // Read in the map data
+                    map.Blocks = new byte[map.Volume];
+                    MapUtility.ReadAll( gs, map.Blocks );
+                    map.ConvertBlockTypes( Mapping );
+
+                    return map;
                 }
-
-                // Read in the map data
-                map.Blocks = new byte[map.Volume];
-                mapStream.Read( map.Blocks, 0, map.Blocks.Length );
-                map.ConvertBlockTypes( Mapping );
-
-                return map;
             }
         }
 
@@ -137,14 +139,19 @@ namespace fCraft.MapConversion {
                     BinaryWriter bs = new BinaryWriter( gs );
 
                     // Write the magic number
-                    bs.Write( IPAddress.HostToNetworkOrder( 1050 ) );
-                    bs.Write( (byte)0 );
-                    bs.Write( (byte)0 );
+                    bs.Write( 1050 );
 
                     // Write the map dimensions
-                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.Width ) );
-                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.Length ) );
-                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.Height ) );
+                    bs.Write( mapToSave.Width );
+                    bs.Write( mapToSave.Length );
+                    bs.Write( mapToSave.Height );
+
+                    Vector3I spawn = mapToSave.Spawn.ToBlockCoords();
+                    bs.Write( (short)spawn.X );
+                    bs.Write( (short)spawn.Y );
+                    bs.Write( (short)spawn.Z );
+                    bs.Write( (short)mapToSave.Spawn.R );
+                    bs.Write( (short)mapToSave.Spawn.L );
 
                     // Write the map data
                     bs.Write( mapToSave.Blocks, 0, mapToSave.Blocks.Length );
