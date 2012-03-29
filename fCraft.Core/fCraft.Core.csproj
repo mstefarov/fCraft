@@ -138,7 +138,7 @@
     <Compile Include="MapConversion\MapFormat.cs" />
     <Compile Include="MapConversion\MapMCSharp.cs" />
     <Compile Include="MapConversion\MapMinerCPP.cs" />
-    <Compile Include="MapConversion\MapNBT.cs" />
+    <Compile Include="MapConversion\MapIndev.cs" />
     <Compile Include="MapConversion\MapUtility.cs" />
     <Compile Include="MapConversion\NBTag.cs" />
     <Compile Include="Network\IRC.cs" />

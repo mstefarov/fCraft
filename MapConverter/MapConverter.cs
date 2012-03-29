@@ -215,7 +215,7 @@ namespace fCraft.MapConverter {
                 Console.Error.Write( "MapConverter: " );
                 Console.Error.WriteLine( ex.Message );
                 PrintHelp();
-                return ReturnCode.ArgumentParsingError;
+                return ReturnCode.ArgumentError;
             }
 
             // Print help and break out
@@ -227,14 +227,14 @@ namespace fCraft.MapConverter {
             if( pathList.Count != 1 ) {
                 Console.Error.WriteLine( "MapConverter: At least one file or directory name required." );
                 PrintUsage();
-                return ReturnCode.ArgumentParsingError;
+                return ReturnCode.ArgumentError;
             }
             inputPath = pathList[0];
 
             if( exporterName == null ) {
                 Console.Error.WriteLine( "MapConverter: Export format required." );
                 PrintUsage();
-                return ReturnCode.ArgumentParsingError;
+                return ReturnCode.ArgumentError;
             }
 
             return ReturnCode.Success;

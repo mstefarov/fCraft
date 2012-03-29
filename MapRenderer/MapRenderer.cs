@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using JetBrains.Annotations;
 using Mono.Options;
 using fCraft.Events;
@@ -76,12 +77,7 @@ namespace fCraft.MapRenderer {
 
             // initialize image encoder
             ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
-            foreach( ImageCodecInfo codec in codecs ) {
-                if( codec.FormatID == format.Guid ) {
-                    encoder = codec;
-                    break;
-                }
-            }
+            encoder = codecs.FirstOrDefault( codec => codec.FormatID == format.Guid );
             if( encoder == null ) {
                 Console.Error.WriteLine( "MapRenderer: Specified image encoder is not supported." );
                 return (int)ReturnCode.UnsupportedSaveFormat;
@@ -103,12 +99,17 @@ namespace fCraft.MapRenderer {
                 renderer.ChunkCoords[4] = region.YMax;
                 renderer.ChunkCoords[5] = region.ZMax;
             }
-            if( angle == 90 ) {
-                renderer.Rotation = 1;
-            }else if(angle==180){
-                renderer.Rotation = 2;
-            } else if( angle == -90 || angle == 270 ) {
-                renderer.Rotation = 3;
+            switch( angle ) {
+                case 90:
+                    renderer.Rotation = 1;
+                    break;
+                case 180:
+                    renderer.Rotation = 2;
+                    break;
+                case 270:
+                case -90:
+                    renderer.Rotation = 3;
+                    break;
             }
 
             // go through the map files, and draw each one
@@ -173,12 +174,12 @@ namespace fCraft.MapRenderer {
 
             } catch( Exception ex ) {
                 Console.WriteLine( "ERROR" );
-                Console.Error.WriteLine( "{0}: {1}", ex.GetType().Name, ex );
+                Console.Error.WriteLine( "{0}: {1}", ex.GetType().Name, ex.Message );
             }
         }
 
 
-        static void SaveImage( Bitmap image, string targetFileName ) {
+        static void SaveImage( Image image, string targetFileName ) {
             if( format == ImageFormat.Jpeg ) {
                 EncoderParameters encoderParams = new EncoderParameters();
                 encoderParams.Param[0] = new EncoderParameter( Encoder.Quality, jpegQuality );
@@ -231,13 +232,12 @@ namespace fCraft.MapRenderer {
 
                 .Add( "e=|export=",
                       "Image format to use for exporting. " +
-                      "Supported formats: BMP, GIF, JPEG, PNG, TIFF. Default: PNG.",
+                      "Supported formats: PNG (default), BMP, GIF, JPEG, TIFF.",
                       o => imageFormatName = o )
 
                 .Add( "m=|mode=",
-                      "Rendering mode. May be \"normal\", \"cut\" (cuts out a quarter of the map, revealing inside), " +
-                      "\"peeled\" (strips the outer-most layer of blocks), \"chunk\" (renders only a specified region of the map). " +
-                      "Default is \"normal\".",
+                      "Rendering mode. May be \"normal\" (default), \"cut\" (cuts out a quarter of the map, revealing inside), " +
+                      "\"peeled\" (strips the outer-most layer of blocks), \"chunk\" (renders only a specified region of the map).",
                       o => isoCatModeName = o )
 
                 .Add( "g|nogradient",
@@ -295,7 +295,7 @@ namespace fCraft.MapRenderer {
                 Console.Error.Write( "MapRenderer: " );
                 Console.Error.WriteLine( ex.Message );
                 PrintHelp();
-                return ReturnCode.ArgumentParsingError;
+                return ReturnCode.ArgumentError;
             }
 
             if( printHelp ) {
@@ -306,7 +306,7 @@ namespace fCraft.MapRenderer {
             if( pathList.Count != 1 ) {
                 Console.Error.WriteLine( "MapRenderer: At least one file or directory name required." );
                 PrintUsage();
-                return ReturnCode.ArgumentParsingError;
+                return ReturnCode.ArgumentError;
             }
             inputPath = pathList[0];
             
@@ -314,20 +314,20 @@ namespace fCraft.MapRenderer {
             if( angleString != null && ( !Int32.TryParse( angleString, out angle ) ||
                                          angle != -90 && angle != 0 && angle != 180 && angle != 270 ) ) {
                 Console.Error.WriteLine( "MapRenderer: Angle must be a number: -90, 0, 90, 180, or 270" );
-                return ReturnCode.ArgumentParsingError;
+                return ReturnCode.ArgumentError;
             }
 
             // Parse mode
             if( isoCatModeName != null && !Enum.TryParse( isoCatModeName, out mode ) ) {
                 Console.Error.WriteLine( "MapRenderer: Rendering mode should be: \"normal\", \"cut\", \"peel\", or \"chunk\"." );
-                return ReturnCode.ArgumentParsingError;
+                return ReturnCode.ArgumentError;
             }
 
             // Parse region (if in chunk mode)
             if( mode == IsoCatMode.Chunk ) {
                 if( regionString == null ) {
                     Console.Error.WriteLine( "MapRenderer: Region parameter is required when mode is set to \"chunk\"" );
-                    return ReturnCode.ArgumentParsingError;
+                    return ReturnCode.ArgumentError;
                 }
                 try {
                     string[] regionParts = regionString.Split( ',' );
@@ -359,7 +359,7 @@ namespace fCraft.MapRenderer {
                     imageFileExtension = ".tif";
                 } else {
                     Console.Error.WriteLine( "MapRenderer: Image file format should be: BMP, GIF, JPEG, PNG, or TIFF" );
-                    return ReturnCode.ArgumentParsingError;
+                    return ReturnCode.ArgumentError;
                 }
             }
 
@@ -368,7 +368,7 @@ namespace fCraft.MapRenderer {
                 if( format == ImageFormat.Jpeg ) {
                     if( !Int32.TryParse( jpegQualityString, out jpegQuality ) || jpegQuality < 0 || jpegQuality > 100 ) {
                         Console.Error.WriteLine( "MapRenderer: JpegQuality parameter should be a number between 0 and 100" );
-                        return ReturnCode.ArgumentParsingError;
+                        return ReturnCode.ArgumentError;
                     }
                 } else {
                     Console.Error.WriteLine( "MapRenderer: JpegQuality parameter given, but image export format was not set to \"JPEG\"." );

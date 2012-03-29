@@ -3,12 +3,10 @@
 namespace fCraft.MapRenderer {
     enum ReturnCode {
         Success = 0,
-        ArgumentParsingError = 1,
+        ArgumentError = 1,
         UnrecognizedImporter = 2,
-        UnrecognizedExporter = 3,
-        InputDirNotFound = 4,
-        PathError = 5,
-        ErrorOpeningDirForSaving = 6,
-        UnsupportedSaveFormat = 7
+        InputDirNotFound = 3,
+        PathError = 4,
+        UnsupportedSaveFormat = 5
     }
 }

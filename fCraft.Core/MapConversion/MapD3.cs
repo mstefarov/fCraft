@@ -45,7 +45,7 @@ namespace fCraft.MapConversion {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
                     using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
                         BinaryReader bs = new BinaryReader( gs );
-                        int formatVersion = IPAddress.NetworkToHostOrder( bs.ReadInt32() );
+                        int formatVersion = bs.ReadInt32();
                         return (formatVersion == 1000 || formatVersion == 1010 || formatVersion == 1020 ||
                                 formatVersion == 1030 || formatVersion == 1040 || formatVersion == 1050);
                     }
@@ -70,12 +70,12 @@ namespace fCraft.MapConversion {
             using( GZipStream gs = new GZipStream( stream, CompressionMode.Decompress, true ) ) {
                 BinaryReader bs = new BinaryReader( gs );
 
-                int formatVersion = IPAddress.NetworkToHostOrder( bs.ReadInt32() );
+                int formatVersion = bs.ReadInt32();
 
                 // Read in the map dimesions
-                int width = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                int length = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                int width = bs.ReadInt16();
+                int length = bs.ReadInt16();
+                int height = bs.ReadInt16();
 
                 Map map = new Map( null, width, length, height, false );
 
@@ -86,20 +86,20 @@ namespace fCraft.MapConversion {
                     case 1010:
                         break;
                     case 1020:
-                        spawn.X = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        spawn.Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        spawn.Z = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        spawn.X = (short)( bs.ReadInt16() * 32 );
+                        spawn.Y = (short)( bs.ReadInt16() * 32 );
+                        spawn.Z = (short)( bs.ReadInt16() * 32 );
                         map.Spawn = spawn;
                         break;
                     //case 1030:
                     //case 1040:
                     //case 1050:
                     default:
-                        spawn.X = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        spawn.Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        spawn.Z = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        spawn.R = (byte)IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-                        spawn.L = (byte)IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+                        spawn.X = (short)(bs.ReadInt16() * 32);
+                        spawn.Y = (short)(bs.ReadInt16() * 32);
+                        spawn.Z = (short)(bs.ReadInt16() * 32);
+                        spawn.R = (byte)bs.ReadInt16();
+                        spawn.L = (byte)bs.ReadInt16();
                         map.Spawn = spawn;
                         break;
                 }

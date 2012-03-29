@@ -5,9 +5,9 @@ using System.IO.Compression;
 
 namespace fCraft.MapConversion {
     /// <summary> NBT map conversion implementation, for converting NBT map format into fCraft's default map format. </summary>
-    public sealed class MapNBT : IMapImporter {
+    public sealed class MapIndev : IMapImporter {
         public string ServerName {
-            get { return "InDev"; }
+            get { return "Indev"; }
         }
 
         public string FileExtension {
@@ -28,7 +28,7 @@ namespace fCraft.MapConversion {
         }
 
         public MapFormat Format {
-            get { return MapFormat.NBT; }
+            get { return MapFormat.Indev; }
         }
 
 
