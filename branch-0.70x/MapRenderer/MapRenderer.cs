@@ -318,8 +318,8 @@ namespace fCraft.MapRenderer {
             }
 
             // Parse mode
-            if( isoCatModeName != null && !Enum.TryParse( isoCatModeName, out mode ) ) {
-                Console.Error.WriteLine( "MapRenderer: Rendering mode should be: \"normal\", \"cut\", \"peel\", or \"chunk\"." );
+            if( isoCatModeName != null && !Enum.TryParse( isoCatModeName, true, out mode ) ) {
+                Console.Error.WriteLine( "MapRenderer: Rendering mode should be: \"normal\", \"cut\", \"peeled\", or \"chunk\"." );
                 return ReturnCode.ArgumentError;
             }
 
