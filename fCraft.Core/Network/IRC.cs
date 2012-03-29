@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -83,7 +84,9 @@ namespace fCraft {
 
             void Connect() {
                 // initialize the client
-                client = new TcpClient {
+                IPAddress ipToBindTo = IPAddress.Parse( ConfigKey.IP.GetString() );
+                IPEndPoint localEndPoint = new IPEndPoint( ipToBindTo, 0 );
+                client = new TcpClient( localEndPoint ) {
                     NoDelay = true,
                     ReceiveTimeout = Timeout,
                     SendTimeout = Timeout
