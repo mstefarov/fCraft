@@ -116,7 +116,7 @@
     <Compile Include="Plugins\CILPluginLoader.cs" />
     <Compile Include="Plugins\PluginDescriptor.cs" />
     <Compile Include="Plugins\PluginManager.cs" />
-    <Compile Include="System\Config2.cs" />
+    <Compile Include="System\Config.cs" />
     <Compile Include="System\ShutdownParams.cs" />
     <Compile Include="Utils\DateTimeUtil.cs" />
     <Compile Include="Utils\JsonObject.cs" />
@@ -157,7 +157,6 @@
     <Compile Include="Utils\Color.cs" />
     <Compile Include="Network\Heartbeat.cs" />
     <Compile Include="System\Server.cs" />
-    <Compile Include="System\Config.cs" />
     <Compile Include="System\Logger.cs" />
     <Compile Include="Network\PacketWriter.cs" />
     <Compile Include="Network\Packet.cs" />

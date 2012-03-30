@@ -3,10 +3,11 @@ using System;
 using System.IO;
 using System.Net;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace fCraft {
     sealed class PacketWriter : BinaryWriter {
-        public PacketWriter( Stream stream )
+        public PacketWriter( [NotNull] Stream stream )
             : base( stream ) {}
 
 

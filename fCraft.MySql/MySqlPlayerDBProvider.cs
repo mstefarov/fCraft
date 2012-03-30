@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Net;
-using System.Xml.Linq;
 using Devart.Data.MySql;
 
 namespace fCraft.MySql {
@@ -266,16 +265,14 @@ namespace fCraft.MySql {
         public IEnumerable<PlayerInfo> Load() {
             connection = new MySqlConnection();
 
-            XElement configEl = Config.PlayerDBProviderConfig;
-            if( configEl == null ) {
-                throw new MisconfigurationException( "MySqlPlayerDBProvider: No configuration specified in config.xml." );
-            } else if( configEl.Name != MySqlPlayerDBProviderConfig.XmlRootName ) {
-                throw new MisconfigurationException( "MySqlPlayerDBProvider: No configuration specific to this provider given in config.xml" );
-            }
-            try {
-                config = new MySqlPlayerDBProviderConfig( configEl );
-            } catch( ArgumentException ex ) {
-                throw new MisconfigurationException( "MySqlPlayerDBProvider: Error parsing configuration: " + ex.Message, ex );
+            if(PlayerDB.MySqlProviderSettings!=null){
+                try {
+                    config = new MySqlPlayerDBProviderConfig( PlayerDB.MySqlProviderSettings );
+                } catch( Exception ex ) {
+                    throw new MisconfigurationException( "MySqlPlayerDBProvider: Error parsing configuration: " + ex.Message, ex );
+                }
+            } else {
+                throw new MisconfigurationException( "MySqlPlayerDBProvider: Configuration missing from config file." );
             }
 
             connection.Host = config.Host;

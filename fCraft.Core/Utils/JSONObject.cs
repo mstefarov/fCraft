@@ -1098,7 +1098,7 @@ namespace fCraft {
             } else if( obj is decimal ) {
                 data.Add( key, (double)(decimal)obj );
             } else if( obj.GetType().IsEnum ) {
-                Add( key, Convert.ChangeType( obj, obj.GetType().GetEnumUnderlyingType() ) );
+                Add( key, obj.ToString() );
             } else {
                 throw new ArgumentException( "JSONObject: Unacceptable value type." );
             }

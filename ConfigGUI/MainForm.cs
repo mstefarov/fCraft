@@ -527,20 +527,22 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
         private void bPlayerDBProviderConfig_Click( object sender, EventArgs e ) {
-            MySqlPlayerDBProviderConfig config;
-            if( Config.PlayerDBProviderConfig != null && Config.PlayerDBProviderConfig.Name == MySqlPlayerDBProviderConfig.XmlRootName ) {
-                try {
-                    config = new MySqlPlayerDBProviderConfig( Config.PlayerDBProviderConfig );
-                } catch( Exception ex ) {
-                    MessageBox.Show( ex.ToString(), "Error parsing MySql PlayerDB provider settings." );
+            if( PlayerDB.ProviderType == PlayerDBProviderType.MySql ) {
+                MySqlPlayerDBProviderConfig config;
+                if( PlayerDB.MySqlProviderSettings != null ) {
+                    try {
+                        config = new MySqlPlayerDBProviderConfig( PlayerDB.MySqlProviderSettings );
+                    } catch( Exception ex ) {
+                        MessageBox.Show( ex.ToString(), "Error parsing MySql PlayerDB provider settings." );
+                        config = new MySqlPlayerDBProviderConfig();
+                    }
+                } else {
                     config = new MySqlPlayerDBProviderConfig();
                 }
-            } else {
-                config = new MySqlPlayerDBProviderConfig();
-            }
-            PropertyGridPopup popup = new PropertyGridPopup( "MySql PlayerDB provider settings", config );
-            if( popup.ShowDialog() == DialogResult.OK ) {
-                Config.PlayerDBProviderConfig = config.Serialize();
+                PropertyGridPopup popup = new PropertyGridPopup( "MySql PlayerDB provider settings", config );
+                if( popup.ShowDialog() == DialogResult.OK ) {
+                    PlayerDB.MySqlProviderSettings = config.Serialize();
+                }
             }
         }
 
@@ -1363,13 +1365,11 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                     return;
                 }
             }
-            using( LogRecorder saveLogger = new LogRecorder() ) {
-                if( Config.Save() ) {
-                    bApply.Enabled = false;
-                }
-                if( saveLogger.HasMessages ) {
-                    MessageBox.Show( saveLogger.MessageString, "Some problems were encountered while saving." );
-                }
+            try {
+                Config.Save();
+                bApply.Enabled = false;
+            } catch( Exception ex ) {
+                MessageBox.Show( ex.ToString() );
             }
         }
 
@@ -1382,9 +1382,9 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         private void bResetAll_Click( object sender, EventArgs e ) {
             if( MessageBox.Show( "Are you sure you want to reset everything to defaults?", "Warning",
                                  MessageBoxButtons.OKCancel ) != DialogResult.OK ) return;
-            Config2.LoadDefaults();
+            Config.LoadDefaults();
             RankManager.ResetToDefaults();
-            Config2.ResetLogOptions();
+            Config.ResetLogOptions();
 
             ApplyTabGeneral();
             ApplyTabChat();
@@ -1403,15 +1403,15 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                                  MessageBoxButtons.OKCancel ) != DialogResult.OK ) return;
             switch( tabs.SelectedIndex ) {
                 case 0:// General
-                    Config2.LoadDefaults( ConfigSection.General );
+                    Config.LoadDefaults( ConfigSection.General );
                     ApplyTabGeneral();
                     break;
                 case 1: // Chat
-                    Config2.LoadDefaults( ConfigSection.Chat );
+                    Config.LoadDefaults( ConfigSection.Chat );
                     ApplyTabChat();
                     break;
                 case 2:// Worlds
-                    Config2.LoadDefaults( ConfigSection.Worlds );
+                    Config.LoadDefaults( ConfigSection.Worlds );
                     ApplyTabWorlds(); // also reloads world list
                     break;
                 case 3:// Ranks
@@ -1421,24 +1421,24 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                     RebuildRankList();
                     break;
                 case 4:// Security
-                    Config2.LoadDefaults( ConfigSection.Security );
+                    Config.LoadDefaults( ConfigSection.Security );
                     ApplyTabSecurity();
                     break;
                 case 5:// Saving and Backup
-                    Config2.LoadDefaults( ConfigSection.SavingAndBackup );
+                    Config.LoadDefaults( ConfigSection.SavingAndBackup );
                     ApplyTabSavingAndBackup();
                     break;
                 case 6:// Logging
-                    Config2.LoadDefaults( ConfigSection.Logging );
-                    Config2.ResetLogOptions();
+                    Config.LoadDefaults( ConfigSection.Logging );
+                    Config.ResetLogOptions();
                     ApplyTabLogging();
                     break;
                 case 7:// IRC
-                    Config2.LoadDefaults( ConfigSection.IRC );
+                    Config.LoadDefaults( ConfigSection.IRC );
                     ApplyTabIRC();
                     break;
                 case 8:// Advanced
-                    Config2.LoadDefaults( ConfigSection.Logging );
+                    Config.LoadDefaults( ConfigSection.Logging );
                     ApplyTabAdvanced();
                     break;
             }
