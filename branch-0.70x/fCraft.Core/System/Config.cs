@@ -270,7 +270,7 @@ namespace fCraft {
         /// <summary> Overwrites current settings with defaults. </summary>
         public static void LoadDefaults() {
             for( int i = 0; i < KeyMetadata.Length; i++ ) {
-                SetValue( (ConfigKey)i, KeyMetadata[i].DefaultValue );
+                ((ConfigKey)i).SetValue( KeyMetadata[i].DefaultValue );
             }
         }
 
@@ -278,25 +278,8 @@ namespace fCraft {
         /// <summary> Loads defaults for keys in a given ConfigSection. </summary>
         public static void LoadDefaults( ConfigSection section ) {
             foreach( var key in KeySections[section] ) {
-                SetValue( key, KeyMetadata[(int)key].DefaultValue );
+                key.SetValue( KeyMetadata[(int)key].DefaultValue );
             }
-        }
-
-
-        /// <summary> Checks whether given ConfigKey still has its default value. </summary>
-        public static bool IsDefault( this ConfigKey key ) {
-            return KeyMetadata[(int)key].IsDefault( Settings[(int)key] );
-        }
-
-        /// <summary> Checks whether given ConfigKey still has its default value. </summary>
-        public static bool IsDefault( this ConfigKey key, string value ) {
-            return KeyMetadata[(int)key].IsDefault( value );
-        }
-
-
-        /// <summary> Provides the default value for a given ConfigKey. </summary>
-        public static string GetDefault( this ConfigKey key ) {
-            return KeyMetadata[(int)key].DefaultValue;
         }
 
 
@@ -487,12 +470,12 @@ namespace fCraft {
             ConfigKey key;
             if( Enum.TryParse( keyName, true, out key ) ) {
                 // known key
-                TrySetValue( key, element.Value );
+                key.TrySetValue( element.Value );
 
             } else if( LegacyConfigKeys.ContainsKey( keyName ) ) {
                 // LEGACY
                 // renamed/legacy key
-                TrySetValue( LegacyConfigKeys[keyName], element.Value );
+                LegacyConfigKeys[keyName].TrySetValue( element.Value );
 
             } else if( keyName == "limitoneconnectionperip" ) {
                 // LEGACY
@@ -557,7 +540,7 @@ namespace fCraft {
             }
 
             // known key
-            TrySetValue( key, value );
+            key.TrySetValue( value );
         }
 
 
@@ -654,9 +637,9 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.MapPath:
-                    if( !Paths.IgnoreMapPathConfigKey && GetString( ConfigKey.MapPath ).Length > 0 ) {
-                        if( Paths.TestDirectory( "MapPath", GetString( ConfigKey.MapPath ), true ) ) {
-                            Paths.MapPath = Path.GetFullPath( GetString( ConfigKey.MapPath ) );
+                    if( !Paths.IgnoreMapPathConfigKey && ConfigKey.MapPath.IsBlank() ) {
+                        if( Paths.TestDirectory( "MapPath", ConfigKey.MapPath.GetString(), true ) ) {
+                            Paths.MapPath = Path.GetFullPath( ConfigKey.MapPath.GetString() );
                         }
                     }
                     break;
@@ -805,179 +788,7 @@ namespace fCraft {
         #endregion
 
 
-        #region Getters
-
-        /// <summary> Checks whether any value has been set for a given key. </summary>
-        public static bool IsBlank( this ConfigKey key ) {
-            return (Settings[(int)key].Length == 0);
-        }
-
-
-        /// <summary> Returns normalized string value for the given key. </summary>
-        public static string GetString( this ConfigKey key ) {
-            return KeyMetadata[(int)key].GetUsableString( Settings[(int)key] );
-        }
-
-        /// <summary> Returns normalized string value for the given key. </summary>
-        public static string GetString( this ConfigKey key, string value ) {
-            return KeyMetadata[(int)key].GetUsableString( value );
-        }
-
-
-        /// <summary> Returns nicely formatted string (but not necessarily parsable) value for the given key. </summary>
-        public static string GetPresentationString( this ConfigKey key ) {
-            return KeyMetadata[(int)key].GetPresentationString( Settings[(int)key] );
-        }
-
-        /// <summary> Returns nicely formatted string (but not necessarily parsable) value for the given key. </summary>
-        public static string GetPresentationString( this ConfigKey key, string value ) {
-            return KeyMetadata[(int)key].GetPresentationString( value );
-        }
-
-
-        /// <summary> Returns raw string value for the given key (the value straight from config.xml) </summary>
-        public static string GetRawString( this ConfigKey key ) {
-            return Settings[(int)key];
-        }
-
-
-        /// <summary> Attempts to parse given key's value as an integer. </summary>
-        /// <exception cref="T:System.FormatException" />
-        public static int GetInt( this ConfigKey key ) {
-            return Int32.Parse( GetString( key ) );
-        }
-
-
-        /// <summary> Attempts to parse a given key's value as an integer. </summary>
-        /// <param name="key"> ConfigKey to get value from. </param>
-        /// <param name="result"> Will be set to the value on success, or to 0 on failure. </param>
-        /// <returns> Whether parsing succeeded. </returns>
-        public static bool TryGetInt( this ConfigKey key, out int result ) {
-            return Int32.TryParse( GetString( key ), out result );
-        }
-
-
-        /// <summary> Attempts to parse a given key's value as an enumeration.
-        /// An ArgumentException is thrown if value could not be parsed.
-        /// Note the parsing is done in a case-insensitive way. </summary>
-        /// <typeparam name="TEnum"> Enum to use for parsing.
-        /// An ArgumentException will be thrown if this is not an enum. </typeparam>
-        public static TEnum GetEnum<TEnum>( this ConfigKey key ) where TEnum : struct {
-            if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required" );
-            return (TEnum)Enum.Parse( typeof( TEnum ), GetString( key ), true );
-        }
-
-
-        /// <summary> Attempts to parse given key's value as a boolean. </summary>
-        /// <exception cref="T:System.FormatException" />
-        public static bool Enabled( this ConfigKey key ) {
-            if( SettingsUseEnabledCache[(int)key] ) {
-                return SettingsEnabledCache[(int)key];
-            } else {
-                return Boolean.Parse( GetString( key ) );
-            }
-        }
-
-
-        /// <summary> Attempts to parse a given key's value as a boolean. </summary>
-        /// <param name="key"> ConfigKey to get value from. </param>
-        /// <param name="result"> Will be set to the value on success, or to false on failure. </param>
-        /// <returns> Whether parsing succeeded. </returns>
-        public static bool TryGetBool( this ConfigKey key, out bool result ) {
-            if( SettingsUseEnabledCache[(int)key] ) {
-                result = SettingsEnabledCache[(int)key];
-                return true;
-            } else {
-                result = false;
-                return false;
-            }
-        }
-
-
-        /// <summary> Returns the expected Type of the key's value, as specified in key metadata. </summary>
-        public static Type GetValueType( this ConfigKey key ) {
-            return KeyMetadata[(int)key].ValueType;
-        }
-
-
-        /// <summary> Returns the ConfigSection that a given key is associated with. </summary>
-        public static ConfigSection GetSection( this ConfigKey key ) {
-            return KeyMetadata[(int)key].Section;
-        }
-
-
-        /// <summary> Returns the description text for a given config key. </summary>
-        public static string GetDescription( this ConfigKey key ) {
-            return KeyMetadata[(int)key].Description;
-        }
-
-        /// <summary> Returns whether given ConfigKey contains a Minecraft color. </summary>
-        public static bool IsColor( this ConfigKey key ) {
-            return KeyMetadata[(int)key].IsColor;
-        }
-
-        #endregion
-
-
         #region Setters
-
-        /// <summary> Resets key value to its default setting. </summary>
-        /// <param name="key"> Config key to reset. </param>
-        /// <returns> True if value was reset. False if resetting was canceled by an event handler/plugin. </returns>
-        public static bool ResetValue( this ConfigKey key ) {
-            return key.TrySetValue( key.GetDefault() );
-        }
-
-
-        /// <summary> Sets value of a given config key.
-        /// Note that this method may throw exceptions if the given value is not acceptable.
-        /// Use Config.TrySetValue() if you'd like to suppress exceptions in favor of a boolean return value. </summary>
-        /// <param name="key"> Config key to set. </param>
-        /// <param name="rawValue"> Value to assign to the key. If passed object is not a string, rawValue.ToString() is used. </param>
-        /// <returns> True if value is valid and has been assigned.
-        /// False if value is valid, but assignment was canceled by an event handler/plugin. </returns>
-        /// <exception cref="T:System.ArgumentNullException" />
-        /// <exception cref="T:System.FormatException" />
-        public static bool SetValue( this ConfigKey key, object rawValue ) {
-            if( rawValue == null ) {
-                throw new ArgumentNullException( "rawValue", key + ": ConfigKey values cannot be null. Use an empty string to indicate unset value." );
-            }
-
-            string value = (rawValue as string ?? rawValue.ToString());
-
-            if( LegacyConfigValues.ContainsKey( key ) ) {
-                foreach( var pair in LegacyConfigValues.Values ) {
-                    if( pair.Key.Equals( value, StringComparison.OrdinalIgnoreCase ) ) {
-                        value = pair.Value;
-                        break;
-                    }
-                }
-            }
-
-            // throws various exceptions (most commonly FormatException) if invalid
-            KeyMetadata[(int)key].Validate( value );
-
-            return DoSetValue( key, value );
-        }
-
-
-        /// <summary> Attempts to set the value of a given config key.
-        /// Check the return value to make sure that the given value was acceptable. </summary>
-        /// <param name="key"> Config key to set. </param>
-        /// <param name="rawValue"> Value to assign to the key. If passed object is not a string, rawValue.ToString() is used. </param>
-        /// <exception cref="T:System.ArgumentNullException" />
-        /// <returns> True if value is valid and has been assigned.
-        /// False if value was invalid, or if assignment was canceled by an event callback. </returns>
-        public static bool TrySetValue( this ConfigKey key, object rawValue ) {
-            try {
-                return SetValue( key, rawValue );
-            } catch( FormatException ex ) {
-                Logger.Log( LogType.Error,
-                            "{0}.TrySetValue: {1}",
-                            key, ex.Message );
-                return false;
-            }
-        }
 
 
         static bool DoSetValue( ConfigKey key, string newValue ) {
@@ -1095,43 +906,5 @@ namespace fCraft {
         }
 
         #endregion
-
-
-        /// <summary> Returns a list of all keys in a section. </summary>
-        public static ConfigKey[] GetKeys( this ConfigSection section ) {
-            return KeySections[section];
-        }
     }
-}
-
-
-namespace fCraft.Events {
-
-    public sealed class ConfigKeyChangingEventArgs : EventArgs, ICancelableEvent {
-        public ConfigKey Key { get; private set; }
-        public string OldValue { get; private set; }
-        public string NewValue { get; set; }
-        public bool Cancel { get; set; }
-
-        public ConfigKeyChangingEventArgs( ConfigKey key, string oldValue, string newValue ) {
-            Key = key;
-            OldValue = oldValue;
-            NewValue = newValue;
-            Cancel = false;
-        }
-    }
-
-
-    public sealed class ConfigKeyChangedEventArgs : EventArgs {
-        public ConfigKey Key { get; private set; }
-        public string OldValue { get; private set; }
-        public string NewValue { get; private set; }
-
-        public ConfigKeyChangedEventArgs( ConfigKey key, string oldValue, string newValue ) {
-            Key = key;
-            OldValue = oldValue;
-            NewValue = newValue;
-        }
-    }
-
 }
