@@ -43,6 +43,8 @@ namespace fCraft {
         }
         static PlayerDBProviderType providerType;
 
+        public static JsonObject ProviderSettings { get; set; }
+
 
         [NotNull]
         internal static PlayerInfo AddSuperPlayer( ReservedPlayerID id, [NotNull] string name, [NotNull] Rank rank ) {
