@@ -16,16 +16,26 @@ namespace fCraft.MapRenderer {
     static class MapRenderer {
         static int angle;
         static IsoCatMode mode = IsoCatMode.Normal;
-        static ImageFormat format = ImageFormat.Png;
+        static ImageFormat exportFormat = ImageFormat.Png;
         static string imageFileExtension = ".png";
         static BoundingBox region = BoundingBox.Empty;
         static int jpegQuality = 80;
-        static IMapImporter importer;
+        static IMapImporter mapImporter;
         static IsoCat renderer;
-        static ImageCodecInfo encoder;
+        static ImageCodecInfo imageEncoder;
 
-        static bool noGradient, noShadows, seeThroughWater, seeThroughLava, recursive, overwrite, uncropped;
-        static string inputPath, angleString, isoCatModeName, outputDirName, regionString, inputFilter, imageFormatName, jpegQualityString, importerName;
+        static bool noGradient,
+                    noShadows,
+                    seeThroughWater,
+                    seeThroughLava,
+                    recursive,
+                    overwrite,
+                    uncropped;
+
+        static string inputPath,
+                      outputDirName,
+                      inputFilter;
+
 
         static int Main( string[] args ) {
             Logger.Logged += OnLogged;
@@ -78,8 +88,8 @@ namespace fCraft.MapRenderer {
 
             // initialize image encoder
             ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
-            encoder = codecs.FirstOrDefault( codec => codec.FormatID == format.Guid );
-            if( encoder == null ) {
+            imageEncoder = codecs.FirstOrDefault( codec => codec.FormatID == exportFormat.Guid );
+            if( imageEncoder == null ) {
                 Console.Error.WriteLine( "MapRenderer: Specified image encoder is not supported." );
                 return (int)ReturnCode.UnsupportedSaveFormat;
             }
@@ -114,7 +124,7 @@ namespace fCraft.MapRenderer {
             }
 
             // go through the map files, and draw each one
-            if( importer != null && importer.StorageType == MapStorageType.Directory ) {
+            if( mapImporter != null && mapImporter.StorageType == MapStorageType.Directory ) {
                 RenderOneMap( new DirectoryInfo( inputPath ) );
             } else if( !directoryMode ) {
                 RenderOneMap( new FileInfo( inputPath ) );
@@ -122,7 +132,8 @@ namespace fCraft.MapRenderer {
                 SearchOption recursiveOption = ( recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly );
                 DirectoryInfo inputDirInfo = new DirectoryInfo( inputPath );
                 if( inputFilter == null ) inputFilter = "*";
-                foreach( FileSystemInfo dirInfo in inputDirInfo.EnumerateFileSystemInfos( inputFilter, recursiveOption ) ) {
+                foreach( FileSystemInfo dirInfo in inputDirInfo.EnumerateFileSystemInfos( inputFilter, recursiveOption )
+                    ) {
                     RenderOneMap( dirInfo );
                 }
             }
@@ -137,10 +148,10 @@ namespace fCraft.MapRenderer {
 
             try {
                 Map map;
-                if( importer != null ) {
-                    if( !importer.ClaimsName( fileSystemInfo.FullName ) ) return;
+                if( mapImporter != null ) {
+                    if( !mapImporter.ClaimsName( fileSystemInfo.FullName ) ) return;
                     Console.Write( "Loading {0}... ", fileSystemInfo.Name );
-                    map = importer.Load( fileSystemInfo.FullName );
+                    map = mapImporter.Load( fileSystemInfo.FullName );
                 } else {
                     Console.Write( "Checking {0}... ", fileSystemInfo.Name );
                     map = MapUtility.Load( fileSystemInfo.FullName );
@@ -181,16 +192,16 @@ namespace fCraft.MapRenderer {
 
 
         static void SaveImage( Bitmap image, string targetFileName ) {
-            if( format == ImageFormat.Jpeg ) {
+            if( exportFormat == ImageFormat.Jpeg ) {
                 EncoderParameters encoderParams = new EncoderParameters();
                 encoderParams.Param[0] = new EncoderParameter( Encoder.Quality, jpegQuality );
-                image.Save( targetFileName, encoder, encoderParams );
-            } else if( format == ImageFormat.Gif ) {
+                image.Save( targetFileName, imageEncoder, encoderParams );
+            } else if( exportFormat == ImageFormat.Gif ) {
                 OctreeQuantizer q = new OctreeQuantizer( 255, 8 );
                 image = q.Quantize( image );
-                image.Save( targetFileName, format );
-            }else{
-                image.Save( targetFileName, format );
+                image.Save( targetFileName, exportFormat );
+            } else {
+                image.Save( targetFileName, exportFormat );
             }
         }
 
@@ -213,8 +224,15 @@ namespace fCraft.MapRenderer {
 
         static OptionSet opts;
 
+
         static ReturnCode ParseOptions( [NotNull] string[] args ) {
             if( args == null ) throw new ArgumentNullException( "args" );
+            string jpegQualityString = null,
+                   imageFormatName = null,
+                   importerName = null,
+                   angleString = null,
+                   isoCatModeName = null,
+                   regionString = null;
 
             string importerList = MapUtility.GetImporters().JoinToString( c => c.Format.ToString() );
 
@@ -287,7 +305,7 @@ namespace fCraft.MapRenderer {
 
                 .Add( "u|uncropped",
                       "Does not crop the output image, possibly leaving some empty space around the map.",
-                      o => uncropped = (o!=null) )
+                      o => uncropped = ( o != null ) )
 
                 .Add( "?|h|help",
                       "Prints out the options.",
@@ -314,7 +332,7 @@ namespace fCraft.MapRenderer {
                 return ReturnCode.ArgumentError;
             }
             inputPath = pathList[0];
-            
+
             // Parse angle
             if( angleString != null && ( !Int32.TryParse( angleString, out angle ) ||
                                          angle != -90 && angle != 0 && angle != 180 && angle != 270 ) ) {
@@ -324,7 +342,8 @@ namespace fCraft.MapRenderer {
 
             // Parse mode
             if( isoCatModeName != null && !Enum.TryParse( isoCatModeName, true, out mode ) ) {
-                Console.Error.WriteLine( "MapRenderer: Rendering mode should be: \"normal\", \"cut\", \"peeled\", or \"chunk\"." );
+                Console.Error.WriteLine(
+                    "MapRenderer: Rendering mode should be: \"normal\", \"cut\", \"peeled\", or \"chunk\"." );
                 return ReturnCode.ArgumentError;
             }
 
@@ -336,47 +355,56 @@ namespace fCraft.MapRenderer {
                 }
                 try {
                     string[] regionParts = regionString.Split( ',' );
-                    region = new BoundingBox( Int32.Parse( regionParts[0] ), Int32.Parse( regionParts[1] ), Int32.Parse( regionParts[2] ),
-                                              Int32.Parse( regionParts[3] ), Int32.Parse( regionParts[4] ), Int32.Parse( regionParts[5] ) );
+                    region = new BoundingBox( Int32.Parse( regionParts[0] ), Int32.Parse( regionParts[1] ),
+                                              Int32.Parse( regionParts[2] ),
+                                              Int32.Parse( regionParts[3] ), Int32.Parse( regionParts[4] ),
+                                              Int32.Parse( regionParts[5] ) );
                 } catch {
-                    Console.Error.WriteLine( "MapRenderer: Region should be specified in the following format: \"--region=x1,y1,z1,x2,y2,z2\"" );
+                    Console.Error.WriteLine(
+                        "MapRenderer: Region should be specified in the following format: \"--region=x1,y1,z1,x2,y2,z2\"" );
                 }
             } else if( regionString != null ) {
-                Console.Error.WriteLine( "MapRenderer: Region parameter is given, but rendering mode was not set to \"chunk\"" );
+                Console.Error.WriteLine(
+                    "MapRenderer: Region parameter is given, but rendering mode was not set to \"chunk\"" );
             }
 
             // Parse given image format
             if( imageFormatName != null ) {
                 if( imageFormatName.Equals( "BMP", StringComparison.OrdinalIgnoreCase ) ) {
-                    format = ImageFormat.Bmp;
+                    exportFormat = ImageFormat.Bmp;
                     imageFileExtension = ".bmp";
-                }else if( imageFormatName.Equals( "GIF", StringComparison.OrdinalIgnoreCase ) ) {
-                    format = ImageFormat.Gif;
+                } else if( imageFormatName.Equals( "GIF", StringComparison.OrdinalIgnoreCase ) ) {
+                    exportFormat = ImageFormat.Gif;
                     imageFileExtension = ".gif";
-                } else if( imageFormatName.Equals( "JPEG", StringComparison.OrdinalIgnoreCase ) || imageFormatName.Equals( "JPG", StringComparison.OrdinalIgnoreCase ) ) {
-                    format = ImageFormat.Jpeg;
+                } else if( imageFormatName.Equals( "JPEG", StringComparison.OrdinalIgnoreCase ) ||
+                           imageFormatName.Equals( "JPG", StringComparison.OrdinalIgnoreCase ) ) {
+                    exportFormat = ImageFormat.Jpeg;
                     imageFileExtension = ".jpg";
-                }else if( imageFormatName.Equals( "PNG", StringComparison.OrdinalIgnoreCase ) ) {
-                    format = ImageFormat.Png;
+                } else if( imageFormatName.Equals( "PNG", StringComparison.OrdinalIgnoreCase ) ) {
+                    exportFormat = ImageFormat.Png;
                     imageFileExtension = ".png";
-                } else if( imageFormatName.Equals( "TIFF", StringComparison.OrdinalIgnoreCase ) || imageFormatName.Equals( "TIF", StringComparison.OrdinalIgnoreCase ) ) {
-                    format = ImageFormat.Tiff;
+                } else if( imageFormatName.Equals( "TIFF", StringComparison.OrdinalIgnoreCase ) ||
+                           imageFormatName.Equals( "TIF", StringComparison.OrdinalIgnoreCase ) ) {
+                    exportFormat = ImageFormat.Tiff;
                     imageFileExtension = ".tif";
                 } else {
-                    Console.Error.WriteLine( "MapRenderer: Image file format should be: BMP, GIF, JPEG, PNG, or TIFF" );
+                    Console.Error.WriteLine(
+                        "MapRenderer: Image file format should be: BMP, GIF, JPEG, PNG, or TIFF" );
                     return ReturnCode.ArgumentError;
                 }
             }
 
             // Parse JPEG quality
             if( jpegQualityString != null ) {
-                if( format == ImageFormat.Jpeg ) {
+                if( exportFormat == ImageFormat.Jpeg ) {
                     if( !Int32.TryParse( jpegQualityString, out jpegQuality ) || jpegQuality < 0 || jpegQuality > 100 ) {
-                        Console.Error.WriteLine( "MapRenderer: JpegQuality parameter should be a number between 0 and 100" );
+                        Console.Error.WriteLine(
+                            "MapRenderer: JpegQuality parameter should be a number between 0 and 100" );
                         return ReturnCode.ArgumentError;
                     }
                 } else {
-                    Console.Error.WriteLine( "MapRenderer: JpegQuality parameter given, but image export format was not set to \"JPEG\"." );
+                    Console.Error.WriteLine(
+                        "MapRenderer: JpegQuality parameter given, but image export format was not set to \"JPEG\"." );
                 }
             }
 
@@ -384,7 +412,7 @@ namespace fCraft.MapRenderer {
             if( importerName != null && !importerName.Equals( "auto", StringComparison.OrdinalIgnoreCase ) ) {
                 MapFormat importFormat;
                 if( !Enum.TryParse( importerName, true, out importFormat ) ||
-                    ( importer = MapUtility.GetImporter( importFormat ) ) == null ) {
+                    ( mapImporter = MapUtility.GetImporter( importFormat ) ) == null ) {
                     Console.Error.WriteLine( "Unsupported importer \"{0}\"", importerName );
                     PrintUsage();
                     return ReturnCode.UnrecognizedImporter;
@@ -393,7 +421,7 @@ namespace fCraft.MapRenderer {
 
             return ReturnCode.Success;
         }
-        
+
 
         static void PrintUsage() {
             Console.WriteLine( "Usage: MapRenderer [options] \"MapFileOrDirectory\"" );
@@ -420,7 +448,7 @@ namespace fCraft.MapRenderer {
                     input.Equals( "y", StringComparison.OrdinalIgnoreCase ) ) {
                     return true;
                 } else if( input.Equals( "no", StringComparison.OrdinalIgnoreCase ) ||
-                    input.Equals( "n", StringComparison.OrdinalIgnoreCase ) ) {
+                           input.Equals( "n", StringComparison.OrdinalIgnoreCase ) ) {
                     return false;
                 }
             }
