@@ -240,7 +240,7 @@ namespace fCraft.MapRenderer {
 
             opts = new OptionSet()
                 .Add( "a=|angle=",
-                      "Angle to view the map from. May be -90, 0, 90, 180, or 270. Default is 0.",
+                      "Angle (orientation) from which the map is drawn. May be -90, 0, 90, 180, or 270. Default is 0.",
                       o => angleString = o )
 
                 .Add( "f=|filter=",
@@ -281,7 +281,7 @@ namespace fCraft.MapRenderer {
                       o => overwrite = ( o != null ) )
 
                 .Add( "q=|quality=",
-                      "Sets JPEG compression quality. Between 0 and 100. Default is 80." +
+                      "Sets JPEG compression quality. Between 0 and 100. Default is 80. " +
                       "Applicable only when exporting images to .jpg or .jpeg.",
                       o => jpegQualityString = o )
 
@@ -300,11 +300,11 @@ namespace fCraft.MapRenderer {
                       o => seeThroughWater = ( o != null ) )
 
                 .Add( "l|seethroughlava",
-                      "Makes all lava partially see-through, instead of mostly opaque.",
+                      "Makes all lava partially see-through, instead of opaque.",
                       o => seeThroughLava = ( o != null ) )
 
                 .Add( "u|uncropped",
-                      "Does not crop the output image, possibly leaving some empty space around the map.",
+                      "Does not crop the finished map image, leaving some empty space around the edges.",
                       o => uncropped = ( o != null ) )
 
                 .Add( "?|h|help",
@@ -323,7 +323,7 @@ namespace fCraft.MapRenderer {
 
             if( printHelp ) {
                 PrintHelp();
-                return ReturnCode.Success;
+                Environment.Exit( (int)ReturnCode.Success );
             }
 
             if( pathList.Count != 1 ) {
