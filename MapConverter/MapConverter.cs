@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using JetBrains.Annotations;
-using fCraft.MapConversion;
 using fCraft.Events;
+using fCraft.MapConversion;
+using JetBrains.Annotations;
 using Mono.Options;
 
 namespace fCraft.MapConverter {

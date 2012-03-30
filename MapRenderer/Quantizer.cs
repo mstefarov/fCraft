@@ -21,7 +21,7 @@ namespace ImageManipulation {
         /// <remarks> If you construct this class with a true value for singlePass, then the code will, when quantizing your image,
         /// only call the 'QuantizeImage' function. If two passes are required, the code will call 'InitialQuantizeImage'
         /// and then 'QuantizeImage'. </remarks>
-        public Quantizer( bool singlePass ) {
+        protected Quantizer( bool singlePass ) {
             this.singlePass = singlePass;
         }
 
@@ -67,7 +67,7 @@ namespace ImageManipulation {
 
                 // Then set the color palette on the output bitmap. I'm passing in the current palette 
                 // as there's no way to construct a new, empty palette.
-                output.Palette = this.GetPalette( output.Palette );
+                output.Palette = GetPalette( output.Palette );
 
                 // Then call the second pass which actually does the conversion
                 SecondPass( sourceData, output, width, height, bounds );
@@ -89,12 +89,11 @@ namespace ImageManipulation {
             // Define the source data pointers. The source row is a byte to
             // keep addition of the stride value easier (as this is in bytes)
             byte* pSourceRow = (byte*)sourceData.Scan0.ToPointer();
-            Int32* pSourcePixel;
 
             // Loop through each row
             for( int row = 0; row < height; row++ ) {
                 // Set the source pixel to the first pixel in this row
-                pSourcePixel = (Int32*)pSourceRow;
+                Int32* pSourcePixel = (Int32*)pSourceRow;
 
                 // And loop through each column
                 for( int col = 0; col < width; col++, pSourcePixel++ )
@@ -203,19 +202,19 @@ namespace ImageManipulation {
         [StructLayout( LayoutKind.Explicit )]
         protected struct Color32 {
             /// <summary> Holds the blue component of the colour. </summary>
-            [FieldOffset( 0 )] public byte Blue;
+            [FieldOffset( 0 )] public readonly byte Blue;
 
             /// <summary> Holds the green component of the colour. </summary>
-            [FieldOffset( 1 )] public byte Green;
+            [FieldOffset( 1 )] public readonly byte Green;
 
             /// <summary> Holds the red component of the colour. </summary>
-            [FieldOffset( 2 )] public byte Red;
+            [FieldOffset( 2 )] public readonly byte Red;
 
             /// <summary> Holds the alpha component of the colour. </summary>
-            [FieldOffset( 3 )] public byte Alpha;
+            [FieldOffset( 3 )] public readonly byte Alpha;
 
             /// <summary> Permits the Color32 to be treated as an Int32. </summary>
-            [FieldOffset( 0 )] public int ARGB;
+            [FieldOffset( 0 )] public readonly int ARGB;
 
             /// <summary> Return the color for this Color32 object. </summary>
             public Color Color {
