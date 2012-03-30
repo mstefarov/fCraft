@@ -43,7 +43,8 @@ namespace fCraft {
         }
         static PlayerDBProviderType providerType;
 
-        public static JsonObject ProviderSettings { get; set; }
+        public static JsonObject MySqlProviderSettings { get; set; }
+        public static JsonObject FlatfileProviderSettings { get; set; }
 
 
         [NotNull]

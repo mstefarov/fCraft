@@ -2,7 +2,6 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
-using System.Xml.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
@@ -89,58 +88,47 @@ namespace fCraft {
 
         #region Serialization
 
-        public const string XmlRootName = "mySqlPlayerDBProviderConfig";
-
         [NotNull]
-        public XElement Serialize() {
-            return Serialize( XmlRootName );
+        public JsonObject Serialize() {
+            return new JsonObject{
+                { "Host",       Host },
+                { "Port",       Port },
+                { "Database",   Database },
+                { "UserID",     UserID },
+                { "Password",   Password }
+            };
         }
 
 
-        [NotNull]
-        public XElement Serialize( [NotNull] string rootName ) {
-            if( rootName == null ) throw new ArgumentNullException( "rootName" );
-            XElement root = new XElement( rootName );
-            root.Add( new XElement( "host", Host ) );
-            root.Add( new XElement( "port", Port ) );
-            root.Add( new XElement( "database", Database ) );
-            root.Add( new XElement( "userID", UserID ) );
-            root.Add( new XElement( "password", Password ) );
-            return root;
-        }
-
-
-        public MySqlPlayerDBProviderConfig( [NotNull] XContainer el ) {
+        public MySqlPlayerDBProviderConfig( [NotNull] JsonObject el ) {
             if( el == null ) throw new ArgumentNullException( "el" );
-            XElement hostEl = el.Element( "host" );
-            if( hostEl == null || String.IsNullOrEmpty( hostEl.Value ) ) {
+
+            string tempString;
+            if( !el.TryGetString( "Host", out tempString ) ) {
                 throw new SerializationException( "MySqlPlayerDBProvider: No host specified in config." );
             }
-            Host = hostEl.Value;
+            Host = tempString;
 
-            XElement portEl = el.Element( "port" );
-            if( portEl == null || String.IsNullOrEmpty( portEl.Value ) ) {
+            int tempInt;
+            if( !el.TryGetInt( "Port", out tempInt ) ) {
                 throw new SerializationException( "MySqlPlayerDBProvider: No port specified in config." );
             }
-            Port = Int32.Parse( portEl.Value );
+            Port = tempInt;
 
-            XElement databaseEl = el.Element( "database" );
-            if( databaseEl == null || String.IsNullOrEmpty( databaseEl.Value ) ) {
+            if( !el.TryGetString( "Database", out tempString ) ) {
                 throw new SerializationException( "MySqlPlayerDBProvider: No database specified in config." );
             }
-            Database = databaseEl.Value;
+            Database = tempString;
 
-            XElement userIDEl = el.Element( "userID" );
-            if( userIDEl == null || String.IsNullOrEmpty( userIDEl.Value ) ) {
+            if( !el.TryGetString( "UserID", out tempString ) ) {
                 throw new SerializationException( "MySqlPlayerDBProvider: No user id specified in config." );
             }
-            UserID = userIDEl.Value;
+            UserID = tempString;
 
-            XElement passwordEl = el.Element( "password" );
-            if( passwordEl == null || passwordEl.Value == null ) {
+            if( !el.TryGetString( "Password", out tempString ) ) {
                 throw new SerializationException( "MySqlPlayerDBProvider: No password specified in config." );
             }
-            Password = passwordEl.Value;
+            Password = tempString;
         }
 
         #endregion

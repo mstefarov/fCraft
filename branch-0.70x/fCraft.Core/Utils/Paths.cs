@@ -53,7 +53,7 @@ namespace fCraft {
 
         public const string MapPathDefault = "maps",
                             LogPathDefault = "logs",
-                            ConfigFileNameDefault = "config.xml";
+                            ConfigFileNameDefault = "config.json";
 
         public static readonly string WorkingPathDefault;
 
