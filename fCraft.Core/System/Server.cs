@@ -279,7 +279,7 @@ namespace fCraft {
             RaiseEvent( Initializing );
 
 #if DEBUG
-            Config.RunSelfTest();
+            Config2.RunSelfTest();
 #else
             // delete the old updater, if exists
             File.Delete( Paths.UpdaterFileName );

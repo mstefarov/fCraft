@@ -191,11 +191,6 @@ namespace fCraft {
 
         // Mapping of keys to their values
         static readonly string[] Settings;
-        static readonly bool[] SettingsEnabledCache; // cached .Enabled() calls
-        static readonly bool[] SettingsUseEnabledCache; // cached .Enabled() calls
-
-        // Mapping of keys to their metadata containers.
-        static readonly ConfigKeyAttribute[] KeyMetadata;
 
         // Keys organized by sections
         static readonly Dictionary<ConfigSection, ConfigKey[]> KeySections = new Dictionary<ConfigSection, ConfigKey[]>();
@@ -209,31 +204,6 @@ namespace fCraft {
 
 
         static Config() {
-            int keyCount = Enum.GetValues( typeof( ConfigKey ) ).Length;
-            Settings = new string[keyCount];
-            SettingsEnabledCache = new bool[keyCount];
-            SettingsUseEnabledCache = new bool[keyCount];
-            KeyMetadata = new ConfigKeyAttribute[keyCount];
-
-            // gather metadata for ConfigKeys
-            foreach( var keyField in typeof( ConfigKey ).GetFields() ) {
-                foreach( var attribute in (ConfigKeyAttribute[])keyField.GetCustomAttributes( typeof( ConfigKeyAttribute ), false ) ) {
-                    ConfigKey key = (ConfigKey)keyField.GetValue( null );
-                    attribute.Key = key;
-                    KeyMetadata[(int)key] = attribute;
-                }
-            }
-
-            // organize ConfigKeys into categories, based on metadata
-            foreach( ConfigSection section in Enum.GetValues( typeof( ConfigSection ) ) ) {
-                ConfigSection sec = section;
-                KeySections.Add( section, KeyMetadata.Where( meta => (meta.Section == sec) )
-                                                     .Select( meta => meta.Key )
-                                                     .ToArray() );
-            }
-
-            LoadDefaults();
-
             // These keys were renamed at some point. LEGACY
             LegacyConfigKeys.Add( "SendRedundantBlockUpdates".ToLower(), ConfigKey.RelayAllBlockUpdates );
             LegacyConfigKeys.Add( "AutomaticUpdates".ToLower(), ConfigKey.UpdaterMode );
@@ -246,53 +216,6 @@ namespace fCraft {
             LegacyConfigValues.Add( ConfigKey.ProcessPriority,
                                     new KeyValuePair<string, string>( "Low", ProcessPriorityClass.Idle.ToString() ) );
         }
-
-
-#if DEBUG
-        // Makes sure that defaults and metadata containers are set.
-        // This is invoked by Server.InitServer() if built with DEBUG flag.
-        internal static void RunSelfTest() {
-            foreach( ConfigKey key in Enum.GetValues( typeof( ConfigKey ) ) ) {
-                if( Settings[(int)key] == null ) {
-                    throw new Exception( "One of the ConfigKey keys is null: " + key );
-                }
-
-                if( KeyMetadata[(int)key] == null ) {
-                    throw new Exception( "One of the ConfigKey keys does not have metadata set: " + key );
-                }
-            }
-        }
-#endif
-
-
-        #region Defaults
-
-        /// <summary> Overwrites current settings with defaults. </summary>
-        public static void LoadDefaults() {
-            for( int i = 0; i < KeyMetadata.Length; i++ ) {
-                ((ConfigKey)i).SetValue( KeyMetadata[i].DefaultValue );
-            }
-        }
-
-
-        /// <summary> Loads defaults for keys in a given ConfigSection. </summary>
-        public static void LoadDefaults( ConfigSection section ) {
-            foreach( var key in KeySections[section] ) {
-                key.SetValue( KeyMetadata[(int)key].DefaultValue );
-            }
-        }
-
-
-        public static void ResetLogOptions() {
-            for( int i = 0; i < Logger.ConsoleOptions.Length; i++ ) {
-                Logger.ConsoleOptions[i] = true;
-                Logger.LogFileOptions[i] = true;
-            }
-            Logger.ConsoleOptions[(int)LogType.ConsoleInput] = false;
-            Logger.ConsoleOptions[(int)LogType.Debug] = false;
-        }
-
-        #endregion
 
 
         #region Loading
@@ -371,7 +294,7 @@ namespace fCraft {
                 LoadRankList( config, fromFile );
             }
             
-            ResetLogOptions();
+            Config2.ResetLogOptions();
 
             // read log options for console
             XElement consoleOptions = config.Element( "ConsoleOptions" );
@@ -455,7 +378,7 @@ namespace fCraft {
                 }
             }
 
-            if( reloading ) RaiseReloadedEvent();
+            //if( reloading ) RaiseReloadedEvent();
         }
 
 
@@ -788,33 +711,6 @@ namespace fCraft {
         #endregion
 
 
-        #region Setters
-
-
-        static bool DoSetValue( ConfigKey key, string newValue ) {
-            string oldValue = Settings[(int)key];
-            if( oldValue != newValue ) {
-                if( !RaiseKeyChangingEvent( key, oldValue, ref newValue ) ) return false;
-                Settings[(int)key] = newValue;
-
-                bool enabledCache;
-                if( Boolean.TryParse( newValue, out enabledCache ) ) {
-                    SettingsUseEnabledCache[(int)key] = true;
-                    SettingsEnabledCache[(int)key] = enabledCache;
-                } else {
-                    SettingsUseEnabledCache[(int)key] = false;
-                    SettingsEnabledCache[(int)key] = false;
-                }
-
-                ApplyKeyChange( key );
-                RaiseKeyChangedEvent( key, oldValue, newValue );
-            }
-            return true;
-        }
-
-        #endregion
-
-
         #region Ranks
 
         static void LoadRankList( [NotNull] XContainer el, bool fromFile ) {
@@ -863,46 +759,6 @@ namespace fCraft {
 
             // parse rank-limit permissions
             RankManager.ParsePermissionLimits();
-        }
-
-        #endregion
-
-
-        #region Events
-
-        /// <summary> Occurs after the entire configuration has been reloaded from file. </summary>
-        public static event EventHandler Reloaded;
-
-
-        /// <summary> Occurs when a config key is about to be changed (cancellable).
-        /// The new value may be replaced by the callback. </summary>
-        public static event EventHandler<ConfigKeyChangingEventArgs> KeyChanging;
-
-
-        /// <summary> Occurs after a config key has been changed. </summary>
-        public static event EventHandler<ConfigKeyChangedEventArgs> KeyChanged;
-
-
-        static void RaiseReloadedEvent() {
-            var handler = Reloaded;
-            if( handler != null ) handler( null, EventArgs.Empty );
-        }
-
-
-        static bool RaiseKeyChangingEvent( ConfigKey key, string oldValue, ref string newValue ) {
-            var handler = KeyChanging;
-            if( handler == null ) return true;
-            var e = new ConfigKeyChangingEventArgs( key, oldValue, newValue );
-            handler( null, e );
-            newValue = e.NewValue;
-            return !e.Cancel;
-        }
-
-
-        static void RaiseKeyChangedEvent( ConfigKey key, string oldValue, string newValue ) {
-            var handler = KeyChanged;
-            var args = new ConfigKeyChangedEventArgs( key, oldValue, newValue );
-            if( handler != null ) handler( null, args );
         }
 
         #endregion
