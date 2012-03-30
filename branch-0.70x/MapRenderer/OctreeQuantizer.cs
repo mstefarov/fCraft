@@ -86,7 +86,7 @@ namespace ImageManipulation {
 
 
         /// <summary> Class which does the actual quantization. </summary>
-        class Octree {
+        sealed class Octree {
             /// <summary> Construct the octree. </summary>
             /// <param name="maxColorBits"> The maximum number of significant bits in the image. </param>
             public Octree( int maxColorBits ) {
@@ -123,7 +123,7 @@ namespace ImageManipulation {
                 int index;
 
                 // Find the deepest level containing at least one reducible node
-                for( index = maxColorBits - 1; ( index > 0 ) && ( null == reducibleNodes[index] ); index-- ) ;
+                for( index = maxColorBits - 1; ( index > 0 ) && ( null == reducibleNodes[index] ); index-- ) {}
 
                 // Reduce the node most recently added to the list at level 'index'
                 OctreeNode node = reducibleNodes[index];
@@ -145,14 +145,14 @@ namespace ImageManipulation {
             }
 
             /// <summary> Return the array of reducible nodes. </summary>
-            protected OctreeNode[] ReducibleNodes {
+            OctreeNode[] ReducibleNodes {
                 get { return reducibleNodes; }
             }
 
 
             /// <summary> Keep track of the previous node that was quantized. </summary>
             /// <param name="node"> The node last quantized. </param>
-            protected void TrackPrevious( OctreeNode node ) {
+            void TrackPrevious( OctreeNode node ) {
                 previousNode = node;
             }
 
@@ -181,7 +181,7 @@ namespace ImageManipulation {
 
 
             /// <summary> Mask used when getting the appropriate pixels for a given node. </summary>
-            static int[] mask = new int[8] { 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
+            static readonly int[] Mask = new[] { 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
 
             /// <summary> The root of the octree. </summary>
             readonly OctreeNode root;
@@ -203,7 +203,7 @@ namespace ImageManipulation {
 
 
             /// <summary> Class which encapsulates each node in the tree. </summary>
-            protected class OctreeNode {
+            sealed class OctreeNode {
                 /// <summary> Construct the node. </summary>
                 /// <param name="level"> The level in the tree = 0 - 7 </param>
                 /// <param name="colorBits"> The number of significant color bits in the image. </param>
@@ -218,11 +218,11 @@ namespace ImageManipulation {
                     // If a leaf, increment the leaf count
                     if( leaf ) {
                         octree.Leaves++;
-                        nextReducible = null;
+                        NextReducible = null;
                         children = null;
                     } else {
                         // Otherwise add this to the reducible nodes
-                        nextReducible = octree.ReducibleNodes[level];
+                        NextReducible = octree.ReducibleNodes[level];
                         octree.ReducibleNodes[level] = this;
                         children = new OctreeNode[8];
                     }
@@ -243,9 +243,9 @@ namespace ImageManipulation {
                     } else {
                         // Go to the next level down in the tree
                         int shift = 7 - level;
-                        int index = ( ( pixel->Red & mask[level] ) >> ( shift - 2 ) ) |
-                                    ( ( pixel->Green & mask[level] ) >> ( shift - 1 ) ) |
-                                    ( ( pixel->Blue & mask[level] ) >> ( shift ) );
+                        int index = ( ( pixel->Red & Mask[level] ) >> ( shift - 2 ) ) |
+                                    ( ( pixel->Green & Mask[level] ) >> ( shift - 1 ) ) |
+                                    ( ( pixel->Blue & Mask[level] ) >> ( shift ) );
 
                         OctreeNode child = children[index];
 
@@ -263,32 +263,24 @@ namespace ImageManipulation {
 
 
                 /// <summary> Get/Set the next reducible node. </summary>
-                public OctreeNode NextReducible {
-                    get { return nextReducible; }
-                    set { nextReducible = value; }
-                }
-
-                /// <summary> Return the child nodes. </summary>
-                public OctreeNode[] Children {
-                    get { return children; }
-                }
+                public OctreeNode NextReducible { get; private set; }
 
 
                 /// <summary> Reduce this node by removing all of its children. </summary>
                 /// <returns> The number of leaves removed. </returns>
                 public int Reduce() {
                     red = green = blue = 0;
-                    int children = 0;
+                    int reducedChildren = 0;
 
                     // Loop through all children and add their information to this node
                     for( int index = 0; index < 8; index++ ) {
-                        if( null != this.children[index] ) {
-                            red += this.children[index].red;
-                            green += this.children[index].green;
-                            blue += this.children[index].blue;
-                            pixelCount += this.children[index].pixelCount;
-                            ++children;
-                            this.children[index] = null;
+                        if( null != children[index] ) {
+                            red += children[index].red;
+                            green += children[index].green;
+                            blue += children[index].blue;
+                            pixelCount += children[index].pixelCount;
+                            ++reducedChildren;
+                            children[index] = null;
                         }
                     }
 
@@ -296,17 +288,17 @@ namespace ImageManipulation {
                     leaf = true;
 
                     // Return the number of nodes to decrement the leaf count by
-                    return ( children - 1 );
+                    return ( reducedChildren - 1 );
                 }
 
 
                 /// <summary> Traverse the tree, building up the color palette. </summary>
                 /// <param name="palette"> The palette. </param>
-                /// <param name="paletteIndex"> The current palette index. </param>
-                public void ConstructPalette( ArrayList palette, ref int paletteIndex ) {
+                /// <param name="currentPaletteIndex"> The current palette index. </param>
+                public void ConstructPalette( IList palette, ref int currentPaletteIndex ) {
                     if( leaf ) {
                         // Consume the next palette index
-                        this.paletteIndex = paletteIndex++;
+                        paletteIndex = currentPaletteIndex++;
 
                         // And set the color of the palette entry
                         palette.Add( Color.FromArgb( red / pixelCount, green / pixelCount, blue / pixelCount ) );
@@ -314,7 +306,7 @@ namespace ImageManipulation {
                         // Loop through children looking for leaves
                         for( int index = 0; index < 8; index++ ) {
                             if( null != children[index] )
-                                children[index].ConstructPalette( palette, ref paletteIndex );
+                                children[index].ConstructPalette( palette, ref currentPaletteIndex );
                         }
                     }
                 }
@@ -322,21 +314,21 @@ namespace ImageManipulation {
 
                 /// <summary> Return the palette index for the passed color. </summary>
                 public int GetPaletteIndex( Color32* pixel, int level ) {
-                    int paletteIndex = this.paletteIndex;
+                    int result = paletteIndex;
 
                     if( !leaf ) {
                         int shift = 7 - level;
-                        int index = ( ( pixel->Red & mask[level] ) >> ( shift - 2 ) ) |
-                                    ( ( pixel->Green & mask[level] ) >> ( shift - 1 ) ) |
-                                    ( ( pixel->Blue & mask[level] ) >> ( shift ) );
+                        int index = ( ( pixel->Red & Mask[level] ) >> ( shift - 2 ) ) |
+                                    ( ( pixel->Green & Mask[level] ) >> ( shift - 1 ) ) |
+                                    ( ( pixel->Blue & Mask[level] ) >> ( shift ) );
 
                         if( null != children[index] )
-                            paletteIndex = children[index].GetPaletteIndex( pixel, level + 1 );
+                            result = children[index].GetPaletteIndex( pixel, level + 1 );
                         else
                             throw new Exception( "Didn't expect this!" );
                     }
 
-                    return paletteIndex;
+                    return result;
                 }
 
 
@@ -366,9 +358,6 @@ namespace ImageManipulation {
 
                 /// <summary> Pointers to any child nodes. </summary>
                 readonly OctreeNode[] children;
-
-                /// <summary> Pointer to next reducible node. </summary>
-                OctreeNode nextReducible;
 
                 /// <summary> The index of this node in the palette. </summary>
                 int paletteIndex;

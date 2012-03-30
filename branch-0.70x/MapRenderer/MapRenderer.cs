@@ -5,12 +5,12 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using ImageManipulation;
-using JetBrains.Annotations;
-using Mono.Options;
 using fCraft.Events;
 using fCraft.GUI;
 using fCraft.MapConversion;
+using ImageManipulation;
+using JetBrains.Annotations;
+using Mono.Options;
 
 namespace fCraft.MapRenderer {
     static class MapRenderer {
