@@ -2,15 +2,23 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
+using System.Xml.Linq;
+using JetBrains.Annotations;
 using fCraft.Events;
 
 namespace fCraft {
     public static class Config2 {
+        /// <summary> Latest (current) version of the configuration file.
+        /// Versions before 200 were XML, versions 200+ are JSON. </summary>
+        public const int CurrentVersion = 200;
+        public const int LowestSupportedVersion = 200;
+
         // Mapping of keys to their values.
         static readonly string[] Values;
 
-        // Boolean setting cache
+        // Cache of boolean keys
         static readonly bool[] SettingsEnabledCache; // cached .Enabled() calls
         static readonly bool[] SettingsUseEnabledCache; // cached .Enabled() calls
 
@@ -21,14 +29,67 @@ namespace fCraft {
         static readonly Dictionary<ConfigSection, ConfigKey[]> KeySections = new Dictionary<ConfigSection, ConfigKey[]>();
 
 
+        static Config2() {
+            int keyCount = Enum.GetValues( typeof( ConfigKey ) ).Length;
+            Values = new string[keyCount];
+            SettingsEnabledCache = new bool[keyCount];
+            SettingsUseEnabledCache = new bool[keyCount];
+            KeyMetadata = new ConfigKeyAttribute[keyCount];
+
+            // gather metadata for ConfigKeys
+            foreach( var keyField in typeof( ConfigKey ).GetFields() ) {
+                foreach( var attribute in (ConfigKeyAttribute[])keyField.GetCustomAttributes( typeof( ConfigKeyAttribute ), false ) ) {
+                    ConfigKey key = (ConfigKey)keyField.GetValue( null );
+                    attribute.Key = key;
+                    KeyMetadata[(int)key] = attribute;
+                }
+            }
+
+            // organize ConfigKeys into categories, based on metadata
+            foreach( ConfigSection section in Enum.GetValues( typeof( ConfigSection ) ) ) {
+                ConfigSection sec = section;
+                KeySections.Add( section, KeyMetadata.Where( meta => (meta.Section == sec) )
+                                                     .Select( meta => meta.Key )
+                                                     .ToArray() );
+            }
+
+            LoadDefaults();
+        }
+
+
+#if DEBUG
+        // Makes sure that defaults and metadata containers are set.
+        // This is invoked by Server.InitServer() if built with DEBUG flag.
+        internal static void RunSelfTest() {
+            foreach( ConfigKey key in Enum.GetValues( typeof( ConfigKey ) ) ) {
+                if( Values[(int)key] == null ) {
+                    throw new Exception( "One of the ConfigKey keys is null: " + key );
+                }
+
+                if( KeyMetadata[(int)key] == null ) {
+                    throw new Exception( "One of the ConfigKey keys does not have metadata set: " + key );
+                }
+            }
+        }
+#endif
+
+
         #region Defaults
 
         /// <summary> Overwrites current settings with defaults. </summary>
-        public static void LoadDefaults() { }
+        public static void LoadDefaults() {
+            for( int i = 0; i < KeyMetadata.Length; i++ ) {
+                ( (ConfigKey)i ).SetValue( KeyMetadata[i].DefaultValue );
+            }
+        }
 
 
         /// <summary> Loads defaults for keys in a given ConfigSection. </summary>
-        public static void LoadDefaults( ConfigSection section ) { }
+        public static void LoadDefaults( ConfigSection section ) {
+            foreach( var key in KeySections[section] ) {
+                key.SetValue( KeyMetadata[(int)key].DefaultValue );
+            }
+        }
 
 
         /// <summary> Checks whether given ConfigKey still has its default value. </summary>
@@ -65,6 +126,7 @@ namespace fCraft {
         /// <summary> Whether Config has been loaded. If true, calling Config.Load() again will fail. </summary>
         public static bool IsLoaded { get; private set; }
 
+
         /// <summary> Loads configuration from file. </summary>
         public static void Load() {
             if( IsLoaded ) {
@@ -82,6 +144,144 @@ namespace fCraft {
 
 
         static void Load( bool reloading, bool loadRankList ) {
+            JsonObject root;
+            bool fromFile;
+
+            // load file
+            if( File.Exists( Paths.ConfigFileName ) ) {
+                try {
+                    string raw = File.ReadAllText( Paths.ConfigFileName );
+                    root = new JsonObject( raw );
+                    fromFile = true;
+                } catch( SerializationException ex ) {
+                    string errorMsg = "Config.Load: Config file is not properly formatted: " + ex.Message;
+                    throw new MisconfigurationException( errorMsg, ex );
+                }
+            } else {
+                Logger.Log( LogType.Warning,
+                            "Config.Load: Config file not found; using defaults." );
+                root = new JsonObject();
+                fromFile = false;
+            }
+
+            // detect version number
+            if( root.HasInt( "Version" ) ) {
+                int version = root.GetInt( "Version" );
+                if( version < LowestSupportedVersion ) {
+                    Logger.Log( LogType.Warning,
+                                "Config.Load: Your config file is too old to be loaded properly. " +
+                                "Some settings will be lost or replaced with defaults. " +
+                                "Please run ConfigGUI/ConfigCLI to make sure that everything is in order." );
+                } else if( version != CurrentVersion ) {
+                    Logger.Log( LogType.Warning,
+                                "Config.Load: Your config.xml was made for a different version of fCraft. " +
+                                "Some obsolete settings might be ignored, and some recently-added settings will be set to defaults. " +
+                                "It is recommended that you run ConfigGUI/ConfigCLI to make sure that everything is in order." );
+                }
+            } else if( fromFile ) {
+                Logger.Log( LogType.Warning,
+                            "Config.Load: Version number missing from config file. It might be corrupted. " +
+                            "Please run ConfigGUI/ConfigCLI to make sure that everything is in order." );
+            }
+
+            // read rank definitions
+            if( loadRankList ) {
+                RankManager.Reset();
+                // TODO: LoadRankList( config, fromFile );
+            }
+
+            // load log options
+            ResetLogOptions();
+            if( root.HasArray( "ConsoleOptions" ) ) {
+                ReadLogOptions( root, "ConsoleOptions", Logger.ConsoleOptions );
+            } else if( fromFile ) {
+                Logger.Log( LogType.Warning, "Config.Load: Using default console options." );
+            }
+            if( root.HasArray( "LogFileOptions" ) ) {
+                ReadLogOptions( root, "LogFileOptions", Logger.LogFileOptions );
+            } else if( fromFile ) {
+                Logger.Log( LogType.Warning, "Config.Load: Using default log file options." );
+            }
+
+            // load normal config keys
+            JsonObject settings;
+            if(root.TryGetObject("Settings",out settings)){
+                foreach( var kvp in settings ) {
+                    ReadSetting( kvp.Key, kvp.Value );
+                }
+            }
+
+            // apply rank-related settings
+            if( !reloading ) {
+                RankManager.DefaultRank = Rank.Parse( ConfigKey.DefaultRank.GetString() );
+                RankManager.DefaultBuildRank = Rank.Parse( ConfigKey.DefaultBuildRank.GetString() );
+                RankManager.PatrolledRank = Rank.Parse( ConfigKey.PatrolledRank.GetString() );
+                RankManager.BlockDBAutoEnableRank = Rank.Parse( ConfigKey.BlockDBAutoEnableRank.GetString() );
+            }
+
+            // key relation validation
+            if( ConfigKey.MaxPlayersPerWorld.GetInt() > ConfigKey.MaxPlayers.GetInt() ) {
+                Logger.Log( LogType.Warning,
+                            "Value of MaxPlayersPerWorld ({0}) was lowered to match MaxPlayers ({1}).",
+                            ConfigKey.MaxPlayersPerWorld.GetInt(),
+                            ConfigKey.MaxPlayers.GetInt() );
+                ConfigKey.MaxPlayersPerWorld.TrySetValue( ConfigKey.MaxPlayers.GetInt() );
+            }
+
+            // TODO: PlayerDBProviderConfig
+
+            if( reloading ) RaiseReloadedEvent();
+        }
+
+
+        static void ReadSetting( string keyName, object rawObj ) {
+            try {
+                JsonObject obj = (JsonObject)rawObj;
+                string value = obj.GetString( "Value" );
+
+                ConfigKey key;
+                if( !Enum.TryParse( keyName, true, out key ) ) {
+                    // unknown key
+                    Logger.Log( LogType.Warning,
+                                "Config: Unrecognized key ignored: {0} = {1}",
+                                keyName, value );
+                }
+
+                string oldDefault;
+                if( obj.TryGetString( "Default", out oldDefault ) ) {
+                    if( key.GetString() == key.GetString( value ) && !key.IsDefault( oldDefault ) ) {
+                        Logger.Log( LogType.Warning,
+                                    "Config: Default value for {0} has been changed from {1} (\"{2}\") to {3} (\"{4}\"). " +
+                                    "You may want to adjust your settings accordingly.",
+                                    key,
+                                    key.GetPresentationString( oldDefault ),
+                                    oldDefault,
+                                    key.GetPresentationString( key.GetDefault() ),
+                                    key.GetDefault() );
+                    }
+                }
+
+                key.TrySetValue( value );
+
+            } catch( Exception ex ) {
+                Logger.Log( LogType.Error,
+                            "Config.LoadLogOptions: Could not load \"{0}\" setting: {1}",
+                            keyName, ex );
+            }
+        }
+
+
+        static void ReadLogOptions( JsonObject root, string propertyName, bool[] destination ) {
+            try {
+                string[] optionNames = root.GetArray<string>( propertyName );
+                for( int i = 0; i < destination.Length; i++ ) {
+                    destination[i] = optionNames.Contains( ( (LogType)i ).ToString() );
+                }
+            } catch( Exception ex ) {
+                Logger.Log( LogType.Error,
+                            "Config.LoadLogOptions: Could not load {0}: {1}",
+                            propertyName, ex );
+            }
         }
 
 

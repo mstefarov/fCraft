@@ -1382,9 +1382,9 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         private void bResetAll_Click( object sender, EventArgs e ) {
             if( MessageBox.Show( "Are you sure you want to reset everything to defaults?", "Warning",
                                  MessageBoxButtons.OKCancel ) != DialogResult.OK ) return;
-            Config.LoadDefaults();
+            Config2.LoadDefaults();
             RankManager.ResetToDefaults();
-            Config.ResetLogOptions();
+            Config2.ResetLogOptions();
 
             ApplyTabGeneral();
             ApplyTabChat();
@@ -1403,15 +1403,15 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                                  MessageBoxButtons.OKCancel ) != DialogResult.OK ) return;
             switch( tabs.SelectedIndex ) {
                 case 0:// General
-                    Config.LoadDefaults( ConfigSection.General );
+                    Config2.LoadDefaults( ConfigSection.General );
                     ApplyTabGeneral();
                     break;
                 case 1: // Chat
-                    Config.LoadDefaults( ConfigSection.Chat );
+                    Config2.LoadDefaults( ConfigSection.Chat );
                     ApplyTabChat();
                     break;
                 case 2:// Worlds
-                    Config.LoadDefaults( ConfigSection.Worlds );
+                    Config2.LoadDefaults( ConfigSection.Worlds );
                     ApplyTabWorlds(); // also reloads world list
                     break;
                 case 3:// Ranks
@@ -1421,24 +1421,24 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                     RebuildRankList();
                     break;
                 case 4:// Security
-                    Config.LoadDefaults( ConfigSection.Security );
+                    Config2.LoadDefaults( ConfigSection.Security );
                     ApplyTabSecurity();
                     break;
                 case 5:// Saving and Backup
-                    Config.LoadDefaults( ConfigSection.SavingAndBackup );
+                    Config2.LoadDefaults( ConfigSection.SavingAndBackup );
                     ApplyTabSavingAndBackup();
                     break;
                 case 6:// Logging
-                    Config.LoadDefaults( ConfigSection.Logging );
-                    Config.ResetLogOptions();
+                    Config2.LoadDefaults( ConfigSection.Logging );
+                    Config2.ResetLogOptions();
                     ApplyTabLogging();
                     break;
                 case 7:// IRC
-                    Config.LoadDefaults( ConfigSection.IRC );
+                    Config2.LoadDefaults( ConfigSection.IRC );
                     ApplyTabIRC();
                     break;
                 case 8:// Advanced
-                    Config.LoadDefaults( ConfigSection.Logging );
+                    Config2.LoadDefaults( ConfigSection.Logging );
                     ApplyTabAdvanced();
                     break;
             }
