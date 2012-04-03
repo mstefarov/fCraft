@@ -18,6 +18,7 @@ namespace fCraft {
             Password = password;
         }
 
+
         [Description( "Hostname or IP address of MySQL server." )]
         [DefaultValue( "localhost" )]
         [NotNull]

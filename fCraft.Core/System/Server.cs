@@ -365,15 +365,14 @@ namespace fCraft {
             InternalIP = ((IPEndPoint)listener.LocalEndpoint).Address;
             ExternalIP = CheckExternalIP();
 
-            if( ExternalIP == null ) {
+            if( ExternalIP == null || InternalIP.Equals( ExternalIP ) ) {
                 Logger.Log( LogType.SystemActivity,
-                            "Server.Run: Now accepting connections on port {0}", Port );
+                            "Server.Run: Now accepting connections on {0}:{1}", InternalIP, Port );
             } else {
                 Logger.Log( LogType.SystemActivity,
-                            "Server.Run: Now accepting connections at {0}:{1}",
-                            ExternalIP, Port );
+                            "Server.Run: Now accepting connections on {0}:{2} (external address {1}:{2})",
+                            InternalIP, ExternalIP, Port );
             }
-
 
             // list loaded worlds
             WorldManager.UpdateWorldList();
