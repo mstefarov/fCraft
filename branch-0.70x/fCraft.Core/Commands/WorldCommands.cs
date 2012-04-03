@@ -395,6 +395,7 @@ namespace fCraft {
             Aliases = new[] { "b", "bi", "whodid", "about" },
             Permissions = new[] { Permission.ViewOthersInfo },
             RepeatableSelection = true,
+            Usage = "/BInfo [X Y Z]",
             Help = "Checks edit history for a given block.",
             Handler = BlockInfoHandler
         };
@@ -403,19 +404,35 @@ namespace fCraft {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
+            // Make sure BlockDB is usable
             if( !BlockDB.IsEnabledGlobally ) {
                 player.Message( "&WBlockDB is disabled on this server." );
                 return;
             }
-
             if( !playerWorld.BlockDB.IsEnabled ) {
                 player.Message( "&WBlockDB is disabled in this world." );
                 return;
             }
 
-            player.Message( "BInfo: Click a block to look it up." );
+            int x, y, z;
+            if( cmd.NextInt( out x ) && cmd.NextInt( out y ) && cmd.NextInt( out z ) ) {
+                // If block coordinates are given, run the BlockDB query right away
+                if( cmd.HasNext ) {
+                    CdBlockInfo.PrintUsage( player );
+                    return;
+                }
+                Vector3I coords = new Vector3I( x, y, z );
+                Map map = player.WorldMap;
+                coords.X = Math.Min( map.Width - 1, Math.Max( 0, coords.X ) );
+                coords.Y = Math.Min( map.Length - 1, Math.Max( 0, coords.Y ) );
+                coords.Z = Math.Min( map.Height - 1, Math.Max( 0, coords.Z ) );
+                BlockInfoSelectionCallback( player, new[] { coords }, null );
 
-            player.SelectionStart( 1, BlockInfoSelectionCallback, null, CdBlockInfo.Permissions );
+            } else {
+                // Otherwise, start a selection
+                player.Message( "BInfo: Click a block to look it up." );
+                player.SelectionStart( 1, BlockInfoSelectionCallback, null, CdBlockInfo.Permissions );
+            }
         }
 
         static void BlockInfoSelectionCallback( Player player, Vector3I[] marks, object tag ) {
