@@ -759,6 +759,7 @@ namespace fCraft {
                         }
                         return;
                     }
+                    info.PreviousRank = newPreviousRank;
 
                     if( oldPreviousRank == null ) {
                         player.Message( "SetInfo: PreviousRank for {0}&S set to {1}&",
