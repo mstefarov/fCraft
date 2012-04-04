@@ -219,7 +219,7 @@ Thanks to people who supported fCraft development through donations:
 Thanks to people whose code has been ported to fCraft:
     Dudecon (Forester), Osici (Omen), vLK (MinerCPP), Karl Seguin,
     Tim Van Wassenhove (timvw.be), Paul Bourke (Spline interpolation),
-    Idaho Edokpayi (ConcurrentQueue), Sam Allen (dotnetperls.com)
+    Sam Allen (dotnetperls.com), Morgan Skinner (OctreeQuantizer)
 
 Thanks to Minecraft servers that helped test and improve fCraft:
     TheOne's Zombie Survival, SpecialAttack.net Freebuild, Team9000 Freebuild,

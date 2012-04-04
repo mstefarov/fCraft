@@ -26,6 +26,7 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -130,18 +131,18 @@ namespace fCraft {
                         while( isConnected && !reconnect ) {
                             Thread.Sleep( 10 );
 
-                            if( localQueue.Length > 0 &&
+                            if( !localQueue.IsEmpty &&
                                 DateTime.UtcNow.Subtract( lastMessageSent ).TotalMilliseconds >= SendDelay &&
-                                localQueue.Dequeue( ref outputLine ) ) {
+                                localQueue.TryDequeue( out outputLine ) ) {
 
                                 writer.Write( outputLine + "\r\n" );
                                 lastMessageSent = DateTime.UtcNow;
                                 writer.Flush();
                             }
 
-                            if( OutputQueue.Length > 0 &&
+                            if( OutputQueue.IsEmpty &&
                                 DateTime.UtcNow.Subtract( lastMessageSent ).TotalMilliseconds >= SendDelay &&
-                                OutputQueue.Dequeue( ref outputLine ) ) {
+                                OutputQueue.TryDequeue( out outputLine ) ) {
 
                                 writer.Write( outputLine + "\r\n" );
                                 lastMessageSent = DateTime.UtcNow;
