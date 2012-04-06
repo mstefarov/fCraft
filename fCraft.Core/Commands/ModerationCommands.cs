@@ -885,7 +885,7 @@ namespace fCraft {
             } else {
                 // teleport to a different world
                 SecurityCheckResult check = world.AccessSecurity.CheckDetailed( target.Info );
-                if( check == SecurityCheckResult.RankTooHigh || check == SecurityCheckResult.RankTooLow ) {
+                if( check == SecurityCheckResult.RankTooLow ) {
                     if( player.CanJoin( world ) ) {
                         if( cmd.IsConfirmed ) {
                             BringPlayerToWorld( player, target, world, true, true );
@@ -949,7 +949,7 @@ namespace fCraft {
             }
 
             SecurityCheckResult check = world.AccessSecurity.CheckDetailed( target.Info );
-            if( check == SecurityCheckResult.RankTooHigh || check == SecurityCheckResult.RankTooLow ) {
+            if( check == SecurityCheckResult.RankTooLow ) {
                 if( player.CanJoin( world ) ) {
                     if( cmd.IsConfirmed ) {
                         BringPlayerToWorld( player, target, world, true, false );

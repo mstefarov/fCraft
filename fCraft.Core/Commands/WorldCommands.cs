@@ -1450,8 +1450,7 @@ namespace fCraft {
                     PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, nextToken.Substring( 1 ) );
                     if( info == null ) return;
 
-                    if( world.AccessSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooHigh ||
-                        world.AccessSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooLow ) {
+                    if( world.AccessSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooLow ) {
                         player.Message( "{0}&S is already barred from accessing {1}&S (by rank)",
                                         info.ClassyName, world.ClassyName );
                         continue;
@@ -1728,8 +1727,7 @@ namespace fCraft {
                     PlayerInfo info = PlayerDB.FindByPartialNameOrPrintMatches( player, nextToken.Substring( 1 ) );
                     if( info == null ) return;
 
-                    if( world.BuildSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooHigh ||
-                        world.BuildSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooLow ) {
+                    if( world.BuildSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooLow ) {
                         player.Message( "{0}&S is already barred from building in {1}&S (by rank)",
                                         info.ClassyName, world.ClassyName );
                         continue;
@@ -2474,7 +2472,6 @@ namespace fCraft {
             } else if( !player.Info.Rank.AllowSecurityCircumvention && !player.CanJoin( world ) ) {
                 // Prevent players from exploiting /WMain to gain access to restricted maps
                 switch( world.AccessSecurity.CheckDetailed( player.Info ) ) {
-                    case SecurityCheckResult.RankTooHigh:
                     case SecurityCheckResult.RankTooLow:
                         player.Message( "You are not allowed to set {0}&S as the main world (by rank).", world.ClassyName );
                         return;

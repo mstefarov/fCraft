@@ -46,36 +46,11 @@ namespace fCraft {
         }
 
 
-        /// <summary> Highest allowed player rank. </summary>
-        [NotNull]
-        public Rank MaxRank {
-            get { return maxRank ?? RankManager.HighestRank; }
-            set {
-                if( value == null ) throw new ArgumentNullException( "value" );
-                if( maxRank != value ) {
-                    maxRank = value;
-                    RaiseChangedEvent();
-                }
-            }
-        }
-
-        [CanBeNull]
-        Rank maxRank;
-
-        /// <summary> Resets the current maximum rank to null. </summary>
-        public void ResetMaxRank() {
-            if( maxRank != null ) {
-                maxRank = null;
-                RaiseChangedEvent();
-            }
-        }
-
-
         /// <summary> True if a rank restriction is in effect.
         /// This property is used to distinguish cases of no MinRank set
         /// vs. cases of MinRank set to LowestRank. </summary>
         public bool HasRankRestriction {
-            get { return ( minRank != null ) || ( maxRank != null ); }
+            get { return ( minRank != null ); }
         }
 
         #endregion
@@ -94,7 +69,6 @@ namespace fCraft {
         public bool HasRestrictions {
             get {
                 return MinRank > RankManager.LowestRank ||
-                       MaxRank < RankManager.HighestRank ||
                        ExceptionList.Excluded.Length > 0;
             }
         }
@@ -176,7 +150,7 @@ namespace fCraft {
                 }
             }
 
-            if( info.Rank >= MinRank && info.Rank <= MaxRank ) return true;
+            if( info.Rank >= MinRank ) return true;
 
             for( int i = 0; i < listCache.Included.Length; i++ ) {
                 if( listCache.Included[i] == info ) {
@@ -200,7 +174,7 @@ namespace fCraft {
                 }
             }
 
-            if( info.Rank >= MinRank && info.Rank <= MaxRank )
+            if( info.Rank >= MinRank )
                 return SecurityCheckResult.Allowed;
 
             for( int i = 0; i < listCache.Included.Length; i++ ) {
@@ -209,11 +183,7 @@ namespace fCraft {
                 }
             }
 
-            if( info.Rank > MaxRank) {
-                return SecurityCheckResult.RankTooHigh;
-            } else { // info.Rank < MinRank
-                return SecurityCheckResult.RankTooLow;
-            }
+            return SecurityCheckResult.RankTooLow;
         }
 
 
@@ -292,10 +262,6 @@ namespace fCraft {
 
             if( (tempEl = el.Element( "minRank" )) != null ) {
                 minRank = Rank.Parse( tempEl.Value );
-            }
-
-            if( ( tempEl = el.Element( "maxRank" ) ) != null ) {
-                maxRank = Rank.Parse( tempEl.Value );
             }
 
             if( parseExceptions ) {
@@ -391,7 +357,6 @@ namespace fCraft {
                 includedPlayers.Clear();
                 excludedPlayers.Clear();
                 minRank = null;
-                maxRank = null;
                 UpdatePlayerListCache();
             }
         }
@@ -405,7 +370,6 @@ namespace fCraft {
         public SecurityController( [NotNull] SecurityController other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             minRank = other.minRank;
-            maxRank = other.maxRank;
             rawExceptions = other.rawExceptions;
             lock( other.locker ) {
                 includedPlayers = new Dictionary<string, PlayerInfo>( other.includedPlayers );
@@ -476,9 +440,6 @@ namespace fCraft {
 
         /// <summary> Denied, rank too low. </summary>
         RankTooLow,
-
-        /// <summary> Denied, rank too high (not yet implemented). </summary>
-        RankTooHigh,
 
         /// <summary> Allowed, this entity was explicitly allowed / whitelisted. </summary>
         WhiteListed,
