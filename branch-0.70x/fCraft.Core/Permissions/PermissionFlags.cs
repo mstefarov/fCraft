@@ -3,7 +3,7 @@ using System;
 
 namespace fCraft {
     [Flags]
-    enum PermissionFlags {
+    public enum PermissionFlags {
         None = 0,
         NeedsTarget = 1,
         NeedsWorld = 2,
