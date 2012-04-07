@@ -21,33 +21,19 @@ namespace fCraft {
         public PermissionController Parent { get; private set; }
         public PermissionNode Node { get; private set; }
 
-        readonly HashSet<Rank> rankInclusions = new HashSet<Rank>();
+        readonly Dictionary<Rank, PermissionLimits> rankInclusions = new Dictionary<Rank, PermissionLimits>();
         readonly HashSet<Rank> rankExclusions = new HashSet<Rank>();
-        readonly Dictionary<Rank, PermissionLimits> rankLimitOverrides = new Dictionary<Rank, PermissionLimits>();
-        readonly HashSet<string> playerInclusions = new HashSet<string>();
+        readonly Dictionary<string, PermissionLimits> playerInclusions = new Dictionary<string, PermissionLimits>();
         readonly HashSet<string> playerExclusions = new HashSet<string>();
-        readonly Dictionary<string, PermissionLimits> playerLimitOverrides = new Dictionary<string, PermissionLimits>();
 
 
         public bool Can( PlayerInfo player ) {
-            if( playerInclusions.Contains( player.Name ) ) {
-                return true;
-
-            } else if( rankInclusions.Contains( player.Rank ) ) {
-                return true;
-
-            } else if( Parent != null ) {
-                return Parent.Can( player );
-
-            } else {
-                return false;
-            }
+            return GetLimit( player ) != null;
         }
 
 
         public bool Can( PlayerInfo player, PlayerInfo targetPlayer ) {
-            if( !Can( player ) ) return false;
-            PermissionLimits limit = GetLimits( player );
+            return false; // todo
         }
 
 
@@ -57,7 +43,64 @@ namespace fCraft {
 
 
         public bool Can( PlayerInfo player, int quantity ) {
-            return false; // todo
+            if( ( Node.Flags & PermissionFlags.NeedsQuantity ) == 0 ) {
+                throw new PermissionCheckException( "Quantity limit is not applicable to " + Node.Name );
+            }
+            PermissionLimits limits = GetLimit( player );
+            if( limits == null ) {
+                return false;
+            } else {
+                return ( limits.MaxQuantity <= quantity );
+            }
+        }
+
+
+        public bool CanGrant( PlayerInfo player ) {
+            PermissionLimits limits = GetLimit( player );
+            if( limits == null ) {
+                return false;
+            } else {
+                return limits.CanGrant;
+            }
+        }
+
+
+        public bool CanRevoke( PlayerInfo player ) {
+            PermissionLimits limits = GetLimit( player );
+            if( limits == null ) {
+                return false;
+            } else {
+                return limits.CanGrant;
+            }
+        }
+
+
+        public PermissionLimits GetLimit( PlayerInfo player ) {
+            return GetPlayerLimit( player ) ?? GetRankLimit( player.Rank );
+        }
+
+
+        PermissionLimits GetPlayerLimit( PlayerInfo player ) {
+            PermissionLimits limiter;
+            if( playerInclusions.TryGetValue( player.Name, out limiter ) ) {
+                return limiter;
+            } else if( Parent != null ) {
+                return Parent.GetPlayerLimit( player );
+            } else {
+                return null;
+            }
+        }
+
+
+        PermissionLimits GetRankLimit( Rank rank ) {
+            PermissionLimits limiter;
+            if( rankInclusions.TryGetValue( rank, out limiter ) ) {
+                return limiter;
+            } else if( Parent != null ) {
+                return Parent.GetRankLimit( rank );
+            } else {
+                return null;
+            }
         }
 
 
@@ -71,8 +114,10 @@ namespace fCraft {
         }
 
 
-        public PermissionOverride Include( Rank rank ) {
-            if( rankInclusions.Contains( rank ) ) {
+        #region Including / Excluding
+
+        public PermissionOverride Include( Rank rank, PermissionLimits limits ) {
+            if( rankInclusions.ContainsKey( rank ) ) {
                 return PermissionOverride.Allow;
 
             } else if( rankExclusions.Contains( rank ) ) {
@@ -80,29 +125,28 @@ namespace fCraft {
                 return PermissionOverride.Deny;
 
             } else {
-                rankInclusions.Add( rank );
+                rankInclusions.Add( rank, limits );
                 return PermissionOverride.None;
             }
         }
 
 
         public PermissionOverride Exclude( Rank rank ) {
-            if( rankInclusions.Contains( rank ) ) {
-                rankInclusions.Remove( rank );
+            if( rankInclusions.Remove( rank ) ) {
                 return PermissionOverride.Allow;
 
             } else if( rankExclusions.Contains( rank ) ) {
                 return PermissionOverride.Deny;
 
             } else {
-                rankInclusions.Add( rank );
+                rankExclusions.Add( rank );
                 return PermissionOverride.None;
             }
         }
 
 
-        public PermissionOverride Include( string name ) {
-            if( playerInclusions.Contains( name ) ) {
+        public PermissionOverride Include( string name, PermissionLimits limits ) {
+            if( playerInclusions.ContainsKey( name ) ) {
                 return PermissionOverride.Allow;
 
             } else if( playerExclusions.Contains( name ) ) {
@@ -110,49 +154,30 @@ namespace fCraft {
                 return PermissionOverride.Deny;
 
             } else {
-                playerInclusions.Add( name );
+                playerInclusions.Add( name, limits );
                 return PermissionOverride.None;
             }
         }
 
 
         public PermissionOverride Exclude( string name ) {
-            if( playerInclusions.Contains( name ) ) {
-                playerInclusions.Remove( name );
+            if( playerInclusions.Remove( name ) ) {
                 return PermissionOverride.Allow;
+
             } else if( playerExclusions.Contains( name ) ) {
                 return PermissionOverride.Deny;
+
             } else {
-                playerInclusions.Add( name );
+                playerExclusions.Add( name );
                 return PermissionOverride.None;
             }
         }
 
-
-        public PermissionLimits GetLimits( PlayerInfo player ) {
-            PermissionLimits result;
-            if( playerLimitOverrides.TryGetValue( player.Name, out result ) ) {
-                return result;
-
-            } else if( rankLimitOverrides.TryGetValue( player.Rank, out result ) ) {
-                return result;
-
-            } else if( Parent != null ) {
-                return Parent.GetLimits( player );
-
-            } else {
-                return null;
-            }
-        }
+        #endregion
+    }
 
 
-        public PermissionLimits GetLimit( string name ) {
-            PermissionLimits result;
-            if( playerLimitOverrides.TryGetValue( name, out result ) ) {
-                return result;
-            } else {
-                return null;
-            }
-        }
+    public class PermissionCheckException : Exception {
+        public PermissionCheckException( string message ) : base( message ) {}
     }
 }
