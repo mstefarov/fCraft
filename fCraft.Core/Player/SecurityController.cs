@@ -199,23 +199,6 @@ namespace fCraft {
             PlayerExceptions list = ExceptionList;
 
             StringBuilder message = new StringBuilder( noun.UppercaseFirst() );
-
-            // TODO: Uncomment this
-            //if (HasRankRestriction) {
-            //    if (HasLowerRankRestriction) {
-            //        message.AppendFormat( " {0}&S can only be {1} by {2}+&S",
-            //                        target.ClassyName,
-            //                        verb,
-            //                        MinRank.ClassyName );
-            //    }
-            //    if (HasUpperRankRestriction) {
-            //        message.AppendFormat( " {0}&S can only be {1} by {2}-&S",
-            //                        target.ClassyName,
-            //                        verb,
-            //                        MaxRank.ClassyName );
-            //    }
-            //}
-
             if( HasRankRestriction ) {
                 message.AppendFormat( " {0}&S can only be {1} by {2}+&S",
                                       target.ClassyName,
@@ -298,18 +281,6 @@ namespace fCraft {
             if( HasRankRestriction ) {
                 root.Add( new XElement( "minRank", MinRank.FullName ) );
             }
-
-            // TODO: Uncomment this
-            //if (HasRankRestriction) {
-            //    if (HasLowerRankRestriction) {
-            //        root.Add( new XElement( "minRank", MinRank.FullName ) );
-            //    }
-            //    if (HasUpperRankRestriction) {
-            //        root.Add( new XElement( "maxRank", MaxRank.FullName ) );
-            //    }
-            //}
-
-            //root.Add( new XElement( "maxRank", MaxRank.FullName ) ); 
 
             lock( locker ) {
                 foreach( string playerName in includedPlayers.Keys ) {
@@ -419,19 +390,6 @@ namespace fCraft {
 
 
     #region Enums
-
-    /// <summary> Indicates what kind of per-entity override/exception is defined in a security controller. </summary>
-    public enum PermissionOverride {
-        /// <summary> No permission exception. </summary>
-        None,
-
-        /// <summary> Entity is explicitly allowed / whitelisted. </summary>
-        Allow,
-
-        /// <summary> Entity is explicitly denied / blacklisted. </summary>
-        Deny
-    }
-
 
     /// <summary> Possible results of a SecurityController permission check. </summary>
     public enum SecurityCheckResult {
