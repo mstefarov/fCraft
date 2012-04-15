@@ -62,6 +62,8 @@ namespace fCraft {
             color = NoColor;
             wordLength = 0;
             inputIndex = 0;
+            wrapIndex = 0;
+            wrapOutputIndex = 0;
         }
 
 
@@ -80,11 +82,9 @@ namespace fCraft {
             lastColor = NoColor;
             Current = new Packet( output );
 
-            wordLength = 0;
-            wrapIndex = 0;
             wrapColor = NoColor;
-            wrapOutputIndex = outputStart;
             expectingColor = false;
+            wrapOutputIndex = outputStart;
 
             // Prepend line prefix, if needed
             if( inputIndex > 0 && prefix.Length > 0 ) {
@@ -92,6 +92,8 @@ namespace fCraft {
                 byte preBufferColor = color;
                 color = NoColor;
                 inputIndex = 0;
+                wrapIndex = 0;
+                wordLength = 0;
                 while( inputIndex < prefix.Length ) {
                     byte ch = prefix[inputIndex];
                     if( ProcessChar( ch ) ) {
@@ -104,6 +106,9 @@ namespace fCraft {
                 color = preBufferColor;
                 wrapColor = preBufferColor;
             }
+            
+            wordLength = 0;
+            wrapIndex = inputIndex;
 
             // Append as much of the remaining input as possible
             while( inputIndex < input.Length ) {
@@ -148,7 +153,7 @@ namespace fCraft {
                         // append "&&"
                         expectingColor = false;
                         if( !Append( ch ) ) {
-                            if( wordLength < LineSize - 1 - prefix.Length ) {
+                            if( wordLength < LineSize - 2 - prefix.Length ) {
                                 inputIndex = wrapIndex;
                                 outputIndex = wrapOutputIndex;
                                 color = wrapColor;
