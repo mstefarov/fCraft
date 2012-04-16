@@ -70,7 +70,7 @@ namespace fCraft {
             if( limits == null ) {
                 return false;
             } else {
-                return limits.CanGrant;
+                return limits.CanRevoke;
             }
         }
 
