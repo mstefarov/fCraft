@@ -279,7 +279,7 @@ namespace fCraft {
                 return true;
             }
 
-            if( Chat.ContainsInvalidChars( message ) ) {
+            if( message.Any( t => t < ' ' || t > '~' ) ) {
                 Logger.Log( LogType.SuspiciousActivity,
                             "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.",
                             Name );
@@ -287,8 +287,13 @@ namespace fCraft {
                 KickNow( "Illegal characters in chat.", LeaveReason.InvalidMessageKick );
                 return false;
             }
+
+            if( message.IndexOf( '&' ) != -1 ) {
+                message = Color.EscapeAmpersands( message );
+            }
+
 #if DEBUG
-                ParseMessage( message );
+            ParseMessage( message );
 #else
             try {
                 ParseMessage( message );
