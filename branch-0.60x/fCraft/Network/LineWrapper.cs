@@ -1,4 +1,5 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+//#define DEBUG_LINE_WRAPPER
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -115,18 +116,12 @@ namespace fCraft {
                 byte ch = input[inputIndex];
                 if( ProcessChar( ch ) ) {
                     // Line wrap is needed
-                    //Console.WriteLine( "\"" + Encoding.ASCII.GetString( output, outputStart, outputIndex - outputStart ) + "\"" );
                     PrepareOutput();
-                    //Console.WriteLine( "\"" + Encoding.ASCII.GetString( output, outputStart, outputIndex - outputStart ) + "\"" );
-                    //Console.WriteLine();
                     return true;
                 }
                 inputIndex++;
             }
-            //Console.WriteLine( "\"" + Encoding.ASCII.GetString( output, outputStart, outputIndex - outputStart ) + "\"" );
-            //Console.WriteLine();
             PrepareOutput();
-            //Console.WriteLine( "\"" + Encoding.ASCII.GetString( output, outputStart, outputIndex - outputStart ) + "\"" );
             return true;
         }
 
@@ -157,7 +152,10 @@ namespace fCraft {
                                 inputIndex = wrapIndex;
                                 outputIndex = wrapOutputIndex;
                                 color = wrapColor;
-                            }// else word is too long, dont backtrack to wrap
+                            } else {
+                                inputIndex--;
+                                // else word is too long, dont backtrack to wrap
+                            }
                             return true;
                         }
                         spaceCount = 0;
@@ -219,16 +217,22 @@ namespace fCraft {
 
 
         void PrepareOutput() {
+            // pad the packet with spaces
             for( int i = outputIndex; i < PacketSize; i++ ) {
                 output[i] = (byte)' ';
             }
-            for( ; outputIndex > outputStart; outputIndex-- ) {
+            // make sure there is no trailing ampersand
+            /*for( ; outputIndex > outputStart; outputIndex-- ) {
                 if( output[outputIndex - 1] == '&' ) {
                     output[outputIndex - 1] = (byte)' ';
                 } else if( output[outputIndex - 1] != ' ' ) {
-                    return;
+                    break;
                 }
-            }
+            }*/
+#if DEBUG_LINE_WRAPPER
+            Console.WriteLine( "\"" + Encoding.ASCII.GetString( output, outputStart, outputIndex - outputStart ) + "\"" );
+            Console.WriteLine();
+#endif
         }
 
 
@@ -241,10 +245,12 @@ namespace fCraft {
 
             if( prependColor ) bytesToInsert += 2;
             if( outputIndex + bytesToInsert + spaceCount > PacketSize ) {
-                /*Console.WriteLine( "X ii={0} ({1}+{2}+{3}={4}) wl={5} wi={6} woi={7}",
+#if DEBUG_LINE_WRAPPER
+                Console.WriteLine( "X ii={0} ({1}+{2}+{3}={4}) wl={5} wi={6} woi={7}",
                                    inputIndex,
                                    outputIndex, bytesToInsert, spaceCount, outputIndex + bytesToInsert + spaceCount,
-                                   wordLength, wrapIndex, wrapOutputIndex );*/
+                                   wordLength, wrapIndex, wrapOutputIndex );
+#endif
                 return false;
             }
 
@@ -254,8 +260,8 @@ namespace fCraft {
                 output[outputIndex++] = color;
                 lastColor = color;
             }
-
-            //int spaceCount1 = spaceCount;
+            
+            int spacesToAppend = spaceCount;
             if( spaceCount > 0 && outputIndex > outputStart ) {
                 // append spaces that accumulated since last word
                 while( spaceCount > 0 ) {
@@ -265,9 +271,11 @@ namespace fCraft {
                 wordLength = 0;
             }
             wordLength += bytesToInsert;
-
-            /*Console.WriteLine( "ii={0} oi={1} wl={2} wi={3} woi={4} sc={5} bti={6}",
-                               inputIndex, outputIndex, wordLength, wrapIndex, wrapOutputIndex, spaceCount1, bytesToInsert );*/
+            
+#if DEBUG_LINE_WRAPPER
+            Console.WriteLine( "ii={0} oi={1} wl={2} wi={3} woi={4} sc={5} bti={6}",
+                               inputIndex, outputIndex, wordLength, wrapIndex, wrapOutputIndex, spacesToAppend, bytesToInsert );
+#endif
 
             // append character
             if( ch == (byte)'&' ) output[outputIndex++] = ch;
