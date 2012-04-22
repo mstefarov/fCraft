@@ -415,7 +415,7 @@ namespace fCraft.ConfigGUI {
             WorldListEntry entry2 = (WorldListEntry)b;
             switch( propertyName ) {
                 case "Description":
-                    if( entry1.MapHeader == null && entry2.MapHeader == null ) return null;
+                    if( entry1.MapHeader == null && entry2.MapHeader == null ) return 0;
                     if( entry1.MapHeader == null ) return -1;
                     if( entry2.MapHeader == null ) return 1;
                     int volumeDifference = entry1.MapHeader.Volume - entry2.MapHeader.Volume;
