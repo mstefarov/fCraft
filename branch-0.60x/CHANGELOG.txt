@@ -1,3 +1,14 @@
+0.617
+ Feature: /BInfo (/bi) now accepts optional XYZ coordinates, like /Mark.
+ Fix: Added a workaround for "Internal error Flush" under Mono.
+ Fix: Fixed /WBring printing incorrect usage syntax (thanks recon_)
+ Fix: Fixed typo in /BlockDB (thanks xN8Gx)
+ Fix: Fixed IRC bots not binding to the specified local endpoint.
+ Fix: Fixed "previousrank" not getting updated by /SetInfo working (thanks nope__avi)
+ Fix: Fixed several rare stability issues (thanks Kevinsweijen).
+ Fix: Fixed /Undo and /Redo producing odd log messages if 0 blocks have been changed.
+ Change: Allowed '&' character to be entered in chat, which is now escaped.
+
 0.616
  Fix: Fixed /Import terminating when importing bans, if a player with the given name is already banned.
  Fix: Fixed a formatting error in /Bring and /WBring confirmation messages.
