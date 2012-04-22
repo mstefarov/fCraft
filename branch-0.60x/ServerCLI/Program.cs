@@ -39,18 +39,6 @@ namespace fCraft.ServerCLI {
             Logger.Logged += OnLogged;
             Heartbeat.UriChanged += OnHeartbeatUriChanged;
 
-            while( true ) {
-                Console.WriteLine( new String( '-', 64 ) );
-                string input = Console.ReadLine();
-                foreach( Packet packet in LineWrapper.Wrap( input ) ) {
-                    Console.Write( Encoding.ASCII.GetString( packet.Data, 2, 64 ) );
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine( '|' );
-                    Console.ResetColor();
-                }
-                Console.WriteLine();
-            }
-
             Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
 
 #if !DEBUG
