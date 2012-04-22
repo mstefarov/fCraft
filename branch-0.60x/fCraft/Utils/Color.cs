@@ -333,12 +333,6 @@ namespace fCraft {
         };
 
 
-        public static string EscapeAmpersands( [NotNull] string input ) {
-            if( input == null ) throw new ArgumentNullException( "input" );
-            return input.Replace( "&", "&&" );
-        }
-
-
         public static string ToIRCColorCodes( [NotNull] string input ) {
             if( input == null ) throw new ArgumentNullException( "input" );
             StringBuilder sb = new StringBuilder( SubstituteSpecialColors( input ) );
