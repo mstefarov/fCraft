@@ -24,7 +24,7 @@ namespace fCraft {
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
- );
+        );
 
         public static string UserAgent {
             get { return "fCraft " + CurrentRelease.VersionString; }

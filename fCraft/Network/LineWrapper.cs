@@ -147,26 +147,8 @@ namespace fCraft {
 
                 case (byte)'&':
                     if( expectingColor ) {
-                        // append "&&"
-                        if( spaceCount > 0 ) {
-                            // set wrapping point to the first (preceding) ampersand, if at beginning of a word
-                            wrapIndex = inputIndex - 1;
-                            wrapColor = color;
-                        }
+                        // skip double ampersands
                         expectingColor = false;
-                        if( !Append( ch ) ) {
-                            if( wordLength < LineSize - 2 - prefix.Length ) {
-                                // word doesn't fit in line, backtrack to wrapping point
-                                inputIndex = wrapIndex;
-                                outputIndex = wrapOutputIndex;
-                                color = wrapColor;
-                            } else {
-                                // force wrap (word is too long), backtrack one character
-                                inputIndex--;
-                            }
-                            return true;
-                        }
-                        spaceCount = 0;
                     } else {
                         expectingColor = true;
                     }
