@@ -35,6 +35,7 @@ namespace fCraft.Drawing {
 
         public BoundingBox GetBounds() {
             lock( SyncRoot ) {
+                if( Buffer.Count == 0 ) return BoundingBox.Empty;
                 Vector3I min = new Vector3I( int.MaxValue, int.MaxValue, int.MaxValue );
                 Vector3I max = new Vector3I( int.MinValue, int.MinValue, int.MinValue );
                 for( int i = 0; i < Buffer.Count; i++ ) {
