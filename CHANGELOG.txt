@@ -1,3 +1,7 @@
+0.618
+ Fix: Fixed a crash in ConfigGUI when trying to sort by map size and a map file is missing (thanks Moose).
+ Change: Ampersands are no longer allowed in chat, even escaped, due to unpredictable Minecraft client behavior.
+
 0.617
  Feature: /BInfo (/bi) now accepts optional XYZ coordinates, like /Mark.
  Fix: Added a workaround for "Internal error Flush" under Mono.
