@@ -958,7 +958,7 @@ namespace fCraft {
             var blockString = topBlocks.JoinToString( p => String.Format( "{0}: {1} ({2}%)",
                                                                           p.Key,
                                                                           p.Value,
-                                                                          (p.Value * 100) / box.Volume ) );
+                                                                          (p.Value * 100L) / box.Volume ) );
             player.Message( "  Top {0} block types: {1}",
                             topBlocks.Length, blockString );
         }
