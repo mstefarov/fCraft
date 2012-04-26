@@ -147,26 +147,8 @@ namespace fCraft {
 
                 case (byte)'&':
                     if( expectingColor ) {
-                        // append "&&"
-                        if( spaceCount > 0 ) {
-                            // set wrapping point to the first (preceding) ampersand, if at beginning of a word
-                            wrapIndex = inputIndex - 1;
-                            wrapColor = color;
-                        }
+                        // skip double ampersands
                         expectingColor = false;
-                        if( !Append( ch ) ) {
-                            if( wordLength < LineSize - 2 - prefix.Length ) {
-                                // word doesn't fit in line, backtrack to wrapping point
-                                inputIndex = wrapIndex;
-                                outputIndex = wrapOutputIndex;
-                                color = wrapColor;
-                            } else {
-                                // force wrap (word is too long), backtrack one character
-                                inputIndex--;
-                            }
-                            return true;
-                        }
-                        spaceCount = 0;
                     } else {
                         expectingColor = true;
                     }
@@ -271,10 +253,8 @@ namespace fCraft {
                 output[outputIndex++] = color;
                 lastColor = color;
             }
-            
-#if DEBUG_LINE_WRAPPER
+
             int spacesToAppend = spaceCount;
-#endif
             if( spaceCount > 0 && outputIndex > outputStart ) {
                 // append spaces that accumulated since last word
                 while( spaceCount > 0 ) {
@@ -369,13 +349,13 @@ namespace fCraft {
 
 
         /// <summary> Creates a new line wrapper for a given raw string. </summary>
-        public static IEnumerable<Packet> Wrap( string message ) {
+        public static LineWrapper Wrap( string message ) {
             return new LineWrapper( message );
         }
 
 
         /// <summary> Creates a new line wrapper for a given raw string. </summary>
-        public static IEnumerable<Packet> WrapPrefixed( string prefix, string message ) {
+        public static LineWrapper WrapPrefixed( string prefix, string message ) {
             return new LineWrapper( prefix, message );
         }
     }
