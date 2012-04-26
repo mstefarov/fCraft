@@ -329,26 +329,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Escapes (doubles up) all ampersands in a string. </summary>
-        public static void EscapeAmpersands( [NotNull] StringBuilder sb ) {
-            if( sb == null ) throw new ArgumentNullException( "sb" );
-            sb.Replace( "&", "&&" );
-        }
-
-
-        /// <summary> Escapes (doubles up) all ampersands in a string. </summary>
-        [NotNull]
-        public static string EscapeAmpersands( [NotNull] string input ) {
-            if( input == null ) throw new ArgumentNullException( "input" );
-            if( input.IndexOf( '&' ) == -1 ) {
-                return input;
-            } else {
-                return input.Replace( "&", "&&" );
-            }
-        }
-
-
-        /// <summary> Strips all ampersand color codes, and unescapes doubled-up ampersands. </summary>
+        /// <summary> Strips all ampersand color codes and doubled-up ampersands. </summary>
         public static string StripColors( [NotNull] string input ) {
             if( input == null ) throw new ArgumentNullException( "input" );
             if( input.IndexOf( '&' ) == -1 ) {
@@ -359,8 +340,6 @@ namespace fCraft {
                     if( input[i] == '&' ) {
                         if( i == input.Length - 1 ) {
                             break;
-                        } else if( input[i + 1] == '&' ) {
-                            output.Append( '&' );
                         }
                         i++;
                     } else {

@@ -288,8 +288,8 @@ namespace fCraft {
                 return false;
             }
 
-            if( message.IndexOf( '&' ) != -1 ) {
-                message = Color.EscapeAmpersands( message );
+            if( message.IndexOf( '&' ) != -1 && !Can( Permission.UseColorCodes ) ) {
+                message = Color.StripColors( message );
             }
 
 #if DEBUG

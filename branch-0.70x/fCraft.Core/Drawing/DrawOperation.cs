@@ -89,7 +89,7 @@ namespace fCraft.Drawing {
                 }else if( IsDone ) {
                     return 100;
                 } else {
-                    return Math.Min( 100, Math.Max( 0, (BlocksProcessed * 100) / BlocksTotalEstimate ) );
+                    return (int)Math.Min( 100, Math.Max( 0, (BlocksProcessed * 100L) / BlocksTotalEstimate ) );
                 }
             }
         }
