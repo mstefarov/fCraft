@@ -57,6 +57,8 @@ namespace fCraft {
             }
         }
 
+        [CanBeNull]
+        public string Greeting { get; set; }
 
         // used to synchronize player joining/parting with map loading/saving
         internal readonly object SyncRoot = new object();
