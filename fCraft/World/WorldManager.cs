@@ -177,6 +177,7 @@ namespace fCraft {
                 world.BuildSecurity = new SecurityController( tempEl, true );
             }
 
+            // load backup settings (TODO: broken)
             if( (tempAttr = el.Attribute( "backup" )) != null ) {
                 TimeSpan backupInterval;
                 if( tempAttr.Value.ToTimeSpan( out backupInterval ) ) {
@@ -192,11 +193,13 @@ namespace fCraft {
                 world.BackupInterval = World.DefaultBackupInterval;
             }
 
+            // load BlockDB settings
             XElement blockEl = el.Element( BlockDB.XmlRootName );
             if( blockEl != null ) {
                 world.BlockDB.LoadSettings( blockEl );
             }
 
+            // load environment settings
             XElement envEl = el.Element( EnvironmentXmlTagName );
             if( envEl != null ) {
                 if( (tempAttr = envEl.Attribute( "cloud" )) != null ) {
@@ -248,6 +251,42 @@ namespace fCraft {
                             world.EdgeBlock = block;
                         }
                     }
+                }
+            }
+
+            // load loaded/map-changed information
+            long timestamp;
+            tempEl = el.Element( "LoadedBy" );
+            if( tempEl != null ) world.LoadedBy = tempEl.Value;
+            tempEl = el.Element( "LoadedOn" );
+            if( Int64.TryParse( tempEl.Value, out timestamp ) ) {
+                world.LoadedOn = timestamp.ToDateTime();
+            }
+            tempEl = el.Element( "MapChangedBy" );
+            if( tempEl != null ) world.MapChangedBy = tempEl.Value;
+            tempEl = el.Element( "MapChangedOn" );
+            if( Int64.TryParse( tempEl.Value, out timestamp ) ) {
+                world.MapChangedOn = timestamp.ToDateTime();
+            }
+
+            // load lock information
+            if( (tempAttr = el.Attribute( "locked" )) != null ) {
+                bool isLocked;
+                if( Boolean.TryParse( tempAttr.Value, out isLocked ) ) {
+                    world.IsLocked = isLocked;
+                }
+                tempEl = el.Element( "LockedBy" );
+                if( tempEl != null ) world.LockedBy = tempEl.Value;
+                tempEl = el.Element( "LockedOn" );
+                if( Int64.TryParse( tempEl.Value, out timestamp ) ) {
+                    world.LockedOn = timestamp.ToDateTime();
+                }
+            } else {
+                tempEl = el.Element( "UnlockedBy" );
+                if( tempEl != null ) world.UnlockedBy = tempEl.Value;
+                tempEl = el.Element( "UnlockedOn" );
+                if( Int64.TryParse( tempEl.Value, out timestamp ) ) {
+                    world.UnlockedOn = timestamp.ToDateTime();
                 }
             }
 
@@ -354,6 +393,7 @@ namespace fCraft {
                         temp.Add( new XElement( RankMainXmlTagName, mainedRank.FullName ) );
                     }
 
+                    // save loaded/map-changed information
                     if( !String.IsNullOrEmpty( world.LoadedBy ) ) {
                         temp.Add( new XElement( "LoadedBy", world.LoadedBy ) );
                     }
@@ -367,6 +407,7 @@ namespace fCraft {
                         temp.Add( new XElement( "MapChangedOn", world.MapChangedOn.ToUnixTime() ) );
                     }
 
+                    // save environmental settings
                     XElement elEnv = new XElement( EnvironmentXmlTagName );
                     if( world.CloudColor > -1 ) elEnv.Add( new XAttribute( "cloud", world.CloudColor ) );
                     if( world.FogColor > -1 ) elEnv.Add( new XAttribute( "fog", world.FogColor ) );
@@ -375,6 +416,24 @@ namespace fCraft {
                     if( world.EdgeBlock != Block.Water ) elEnv.Add( new XAttribute( "edge", world.EdgeBlock ) );
                     if( elEnv.HasAttributes ) {
                         temp.Add( elEnv );
+                    }
+
+                    // save lock information
+                    if( world.IsLocked ) {
+                        temp.Add( new XAttribute( "locked", true ) );
+                        if( !String.IsNullOrEmpty( world.LockedBy ) ) {
+                            temp.Add( new XElement( "LockedBy", world.LockedBy ) );
+                        }
+                        if( world.LockedOn != DateTime.MinValue ) {
+                            temp.Add( new XElement( "LockedOn", world.LockedOn.ToUnixTime() ) );
+                        }
+                    } else {
+                        if( !String.IsNullOrEmpty( world.UnlockedBy ) ) {
+                            temp.Add( new XElement( "UnlockedBy", world.UnlockedBy ) );
+                        }
+                        if( world.UnlockedOn != DateTime.MinValue ) {
+                            temp.Add( new XElement( "UnlockedOn", world.UnlockedOn.ToUnixTime() ) );
+                        }
                     }
 
                     root.Add( temp );

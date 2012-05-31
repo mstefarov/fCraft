@@ -1947,12 +1947,12 @@ namespace fCraft {
             if( world.IsLocked ) {
                 player.Message( "  {0}&S was locked {1} ago by {2}",
                                 world.ClassyName,
-                                DateTime.UtcNow.Subtract( world.LockedDate ).ToMiniString(),
+                                DateTime.UtcNow.Subtract( world.LockedOn ).ToMiniString(),
                                 world.LockedBy );
             } else if( world.UnlockedBy != null ) {
                 player.Message( "  {0}&S was unlocked {1} ago by {2}",
                                 world.ClassyName,
-                                DateTime.UtcNow.Subtract( world.UnlockedDate ).ToMiniString(),
+                                DateTime.UtcNow.Subtract( world.UnlockedOn ).ToMiniString(),
                                 world.UnlockedBy );
             }
 

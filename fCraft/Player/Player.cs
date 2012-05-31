@@ -115,14 +115,14 @@ namespace fCraft {
         [NotNull]
         public string ListName {
             get {
-                string displayedName = Name;
+                string formattedName = Name;
                 if( ConfigKey.RankPrefixesInList.Enabled() ) {
-                    displayedName = Info.Rank.Prefix + displayedName;
+                    formattedName = Info.Rank.Prefix + formattedName;
                 }
                 if( ConfigKey.RankColorsInChat.Enabled() && Info.Rank.Color != Color.White ) {
-                    displayedName = Info.Rank.Color + displayedName;
+                    formattedName = Info.Rank.Color + formattedName;
                 }
-                return displayedName;
+                return formattedName;
             }
         }
 
