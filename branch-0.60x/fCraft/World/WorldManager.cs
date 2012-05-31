@@ -166,6 +166,9 @@ namespace fCraft {
             if( firstWorld == null ) firstWorld = world;
 
             XElement tempEl;
+            tempEl = el.Element( "Greeting" );
+            if( tempEl != null && !String.IsNullOrEmpty( tempEl.Value ) ) world.Greeting = tempEl.Value;
+
             if( (tempEl = el.Element( AccessSecurityXmlTagName )) != null ) {
                 world.AccessSecurity = new SecurityController( tempEl, true );
             } else if( (tempEl = el.Element( "accessSecurity" )) != null ) {
@@ -181,16 +184,21 @@ namespace fCraft {
             if( (tempAttr = el.Attribute( "backup" )) != null ) {
                 TimeSpan backupInterval;
                 if( tempAttr.Value.ToTimeSpan( out backupInterval ) ) {
-                    world.BackupInterval = backupInterval;
+                    if( backupInterval <= TimeSpan.Zero ) {
+                        world.BackupEnabledState = YesNoAuto.No;
+                    } else {
+                        world.BackupEnabledState = YesNoAuto.Yes;
+                        world.BackupInterval = backupInterval;
+                    }
                 } else {
-                    world.BackupInterval = World.DefaultBackupInterval;
+                    world.BackupEnabledState = YesNoAuto.Auto;
                     Logger.Log( LogType.Warning,
                                 "WorldManager: Could not parse \"backup\" attribute of world \"{0}\", assuming default ({1}).",
                                 worldName,
                                 world.BackupInterval.ToMiniString() );
                 }
             } else {
-                world.BackupInterval = World.DefaultBackupInterval;
+                world.BackupEnabledState = YesNoAuto.Auto;
             }
 
             // load BlockDB settings
@@ -376,8 +384,14 @@ namespace fCraft {
                         temp.Add( world.BuildSecurity.Serialize( BuildSecurityXmlTagName ) );
                     }
 
-                    if( world.BackupInterval != World.DefaultBackupInterval ) {
-                        temp.Add( new XAttribute( "backup", world.BackupInterval.ToTickString() ) );
+                    // save backup settings
+                    switch( world.BackupEnabledState ) {
+                        case YesNoAuto.Yes:
+                            temp.Add( new XAttribute( "backup", world.BackupInterval.ToTickString() ) );
+                            break;
+                        case YesNoAuto.No:
+                            temp.Add( new XAttribute( "backup", 0 ) );
+                            break;
                     }
 
                     if( world.NeverUnload ) {
@@ -388,7 +402,7 @@ namespace fCraft {
                     }
                     temp.Add( world.BlockDB.SaveSettings() );
 
-                    World world1 = world;
+                    World world1 = world; // keeping ReSharper happy
                     foreach( Rank mainedRank in RankManager.Ranks.Where( r => r.MainWorld == world1 ) ) {
                         temp.Add( new XElement( RankMainXmlTagName, mainedRank.FullName ) );
                     }

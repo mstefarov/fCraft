@@ -1029,6 +1029,10 @@ namespace fCraft {
                 Message( "Rejoined world {0}", newWorld.ClassyName );
             } else {
                 Message( "Joined world {0}", newWorld.ClassyName );
+                string greeting = newWorld.Greeting;
+                if( greeting != null ) {
+                    Message( "&R* {0}: {1}", newWorld.Name, greeting );
+                }
             }
 
             RaisePlayerJoinedWorldEvent( this, oldWorld, reason );
