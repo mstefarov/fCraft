@@ -2527,6 +2527,169 @@ namespace fCraft {
         #endregion
 
 
+
+        #region WorldSet
+
+        static readonly CommandDescriptor CdWorldSet = new CommandDescriptor {
+            Name = "WSet",
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
+            Permissions = new[] { Permission.ManageWorlds },
+            Usage = "/WSet <World> <Variable> <Value>",
+            Help = "Sets a world variable. Variables are: hide, backups, greeting",
+            HelpSections = new Dictionary<string, string>{
+                { "hide",       "&H/WSet <WorldName> Hide On/Off\n&S" +
+                                "When a world is hidden, it does not show up on the &H/Worlds&S list. It can still be joined normally." },
+                { "backups",    "&H/WSet <WorldName> Backups Off\n&S or &H/WSet <WorldName> Backups <Time>\n&S" +
+                                "Enabled or disables periodic backups. Time is given in the compact format." },
+                { "greeting",   "&H/WSet <WorldName> Greeting <Text>\n&S" +
+                                "Sets a greeting message. Message is shown whenver someone joins the map, and can also be viewed in &H/WInfo" }
+            },
+            Handler = WorldSetHandler
+        };
+
+        static void WorldSetHandler( Player player, Command cmd ) {
+            string worldName = cmd.Next();
+            string varName = cmd.Next();
+            string value = cmd.Next();
+            if( worldName == null || varName == null ) {
+                CdWorldSet.PrintUsage( player );
+                return;
+            }
+
+            World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
+            if( world == null ) return;
+
+            switch( varName.ToLower() ) {
+                case "hide":
+                case "hidden":
+                    if( value == null ) {
+                        player.Message( "World {0}&S is current {1}hidden.",
+                                        world.ClassyName,
+                                        world.IsHidden ? "" : "NOT " );
+                    } else if( value.Equals( "on", StringComparison.OrdinalIgnoreCase ) ||
+                               value.Equals( "true", StringComparison.OrdinalIgnoreCase ) ||
+                               value == "1" ) {
+                        if( world.IsHidden ) {
+                            player.Message( "World {0}&S is already hidden.", world.ClassyName );
+                        } else {
+                            player.Message( "World {0}&S is now hidden.", world.ClassyName );
+                            world.IsHidden = true;
+                            WorldManager.SaveWorldList();
+                        }
+                    } else if( value.Equals( "off", StringComparison.OrdinalIgnoreCase ) ||
+                               value.Equals( "false", StringComparison.OrdinalIgnoreCase ) ||
+                               value == "0" ) {
+                        if( world.IsHidden ) {
+                            player.Message( "World {0}&S is no longer hidden.", world.ClassyName );
+                            world.IsHidden = false;
+                            WorldManager.SaveWorldList();
+                        } else {
+                            player.Message( "World {0}&S is not hidden.", world.ClassyName );
+                        }
+                    } else {
+                        CdWorldSet.PrintUsage( player );
+                    }
+                    break;
+
+                case "backup":
+                case "backups":
+                    TimeSpan backupInterval;
+                    string oldDescription = world.BackupSettingDescription;
+                    if( value == null ) {
+                        PrintBackupInfo( player, world, false );
+
+                    } else if( value.Equals( "off", StringComparison.OrdinalIgnoreCase ) ) {
+                        if( world.BackupEnabledState == YesNoAuto.No ) {
+                            MessageSameBackupSettings( player, world );
+                            return;
+                        } else {
+                            world.BackupEnabledState = YesNoAuto.No;
+                        }
+
+                    } else if( value.Equals( "default", StringComparison.OrdinalIgnoreCase ) ) {
+                        if( world.BackupEnabledState == YesNoAuto.Auto ) {
+                            MessageSameBackupSettings( player, world );
+                            return;
+                        } else {
+                            world.BackupEnabledState = YesNoAuto.Auto;
+                            return;
+                        }
+
+                    } else if( value.TryParseMiniTimespan( out backupInterval ) ) {
+                        if( backupInterval == TimeSpan.Zero ) {
+                            if( world.BackupEnabledState == YesNoAuto.No ) {
+                                MessageSameBackupSettings( player, world );
+                                return;
+                            } else {
+                                world.BackupEnabledState = YesNoAuto.No;
+                            }
+                        } else {
+                            if( world.BackupEnabledState != YesNoAuto.Yes || world.BackupInterval != backupInterval ) {
+                                world.BackupInterval = backupInterval;
+                                world.BackupEnabledState = YesNoAuto.Yes;
+                            } else {
+                                return;
+                            }
+                        }
+
+                    } else {
+                        CdWorldSet.PrintUsage( player );
+                        return;
+                    }
+                    player.Message( "Backup setting for world {0}&S changed from \"{1}\" to \"{2}\"",
+                                    world.ClassyName, oldDescription, world.BackupSettingDescription );
+                    break;
+
+                case "description":
+                case "greeting":
+                    player.Message( "Not implemented yet." ); // TODO
+                    break;
+
+                default:
+                    CdWorldSet.PrintUsage( player );
+                    break;
+            }
+        }
+
+        static void MessageSameBackupSettings( Player player, World world ) {
+            player.Message( "Backup settings for {0}&S are already \"{1}\"",
+                            world.ClassyName, world.BackupSettingDescription );
+        }
+
+
+        static void PrintBackupInfo( Player player, World world, bool usePrefix ) {
+            string prefix = (usePrefix ? "  " : "");
+            switch( world.BackupEnabledState ) {
+                case YesNoAuto.Yes:
+                    player.Message( "{0}World {1} is backed up every {2}",
+                                    prefix,
+                                    world.ClassyName,
+                                    world.BackupInterval.ToMiniString() );
+                    break;
+                case YesNoAuto.No:
+                    player.Message( "{0}Backups are manually disabled on {0}",
+                                    prefix,
+                                    world.ClassyName );
+                    break;
+                case YesNoAuto.Auto:
+                    if( World.DefaultBackupsEnabled ) {
+                        player.Message( "{0}Backups are disabled on {1} (default)",
+                                        prefix,
+                                        world.ClassyName );
+                    } else {
+                        player.Message( "{0}World {1} is backed up every {2} (default)",
+                                        prefix,
+                                        world.ClassyName,
+                                        World.DefaultBackupInterval.ToMiniString() );
+                    }
+                    break;
+            }
+        }
+
+        #endregion
+
+
         #region WorldUnload
 
         static readonly CommandDescriptor CdWorldUnload = new CommandDescriptor {

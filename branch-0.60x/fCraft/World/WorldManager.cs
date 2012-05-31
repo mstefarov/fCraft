@@ -177,7 +177,7 @@ namespace fCraft {
                 world.BuildSecurity = new SecurityController( tempEl, true );
             }
 
-            // load backup settings (TODO: broken)
+            // load backup settings
             if( (tempAttr = el.Attribute( "backup" )) != null ) {
                 TimeSpan backupInterval;
                 if( tempAttr.Value.ToTimeSpan( out backupInterval ) ) {
