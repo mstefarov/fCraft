@@ -163,7 +163,6 @@ namespace fCraft {
 
         public void ChangeMap( [NotNull] Map newMap ) {
             if( newMap == null ) throw new ArgumentNullException( "newMap" );
-            MapChangedOn = DateTime.UtcNow;
             lock( SyncRoot ) {
                 World newWorld = new World( Name ) {
                     AccessSecurity = (SecurityController)AccessSecurity.Clone(),
@@ -175,12 +174,12 @@ namespace fCraft {
                     IsLocked = IsLocked,
                     LockedBy = LockedBy,
                     UnlockedBy = UnlockedBy,
-                    LockedDate = LockedDate,
-                    UnlockedDate = UnlockedDate,
+                    LockedOn = LockedOn,
+                    UnlockedOn = UnlockedOn,
                     LoadedBy = LoadedBy,
                     LoadedOn = LoadedOn,
                     MapChangedBy = MapChangedBy,
-                    MapChangedOn = MapChangedOn,
+                    MapChangedOn = DateTime.UtcNow,
                     FogColor = FogColor,
                     CloudColor = CloudColor,
                     SkyColor = SkyColor,
@@ -433,7 +432,7 @@ namespace fCraft {
         public bool IsLocked { get; private set; }
 
         public string LockedBy, UnlockedBy;
-        public DateTime LockedDate, UnlockedDate;
+        public DateTime LockedOn, UnlockedOn;
 
         readonly object lockLock = new object();
 
@@ -445,7 +444,7 @@ namespace fCraft {
                     return false;
                 } else {
                     LockedBy = player.Name;
-                    LockedDate = DateTime.UtcNow;
+                    LockedOn = DateTime.UtcNow;
                     IsLocked = true;
                     Map mapCache = Map;
                     if( mapCache != null ) {
@@ -467,7 +466,7 @@ namespace fCraft {
             lock( lockLock ) {
                 if( IsLocked ) {
                     UnlockedBy = player.Name;
-                    UnlockedDate = DateTime.UtcNow;
+                    UnlockedOn = DateTime.UtcNow;
                     IsLocked = false;
                     Players.Message( "&WMap was unlocked by {0}", player.ClassyName );
                     Logger.Log( LogType.UserActivity,

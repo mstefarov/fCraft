@@ -278,6 +278,10 @@ namespace fCraft {
                 KickNow( "Illegal characters in chat.", LeaveReason.InvalidMessageKick );
                 return false;
             }
+
+            if( message.IndexOf( '&' ) != -1 && !Can( Permission.UseColorCodes ) ) {
+                message = Color.StripColors( message );
+            }
 #if DEBUG
             ParseMessage( message, false );
 #else
