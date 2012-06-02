@@ -2466,9 +2466,9 @@ namespace fCraft {
                 { "hide",       "&H/WSet <WorldName> Hide On/Off\n&S" +
                                 "When a world is hidden, it does not show up on the &H/Worlds&S list. It can still be joined normally." },
                 { "backups",    "&H/WSet <World> Backups Off&S, &H/WSet <World> Backups Default&S, or &H/WSet <World> Backups <Time>\n&S" +
-                                "Enabled or disables periodic backups. Time is given in the compact format." },
+                                "Enables or disables periodic backups. Time is given in the compact format." },
                 { "greeting",   "&H/WSet <WorldName> Greeting <Text>\n&S" +
-                                "Sets a greeting message. Message is shown whenver someone joins the map, and can also be viewed in &H/WInfo" }
+                                "Sets a greeting message. Message is shown whenever someone joins the map, and can also be viewed in &H/WInfo" }
             },
             Handler = WorldSetHandler
         };
@@ -2524,7 +2524,7 @@ namespace fCraft {
                     if( value == null ) {
                         player.Message( GetBackupSettingsString( world ) );
 
-                    } else if( value.Equals( "off", StringComparison.OrdinalIgnoreCase ) ) {
+                    } else if( value.Equals( "off", StringComparison.OrdinalIgnoreCase ) || value.Equals( "disabled", StringComparison.OrdinalIgnoreCase ) ) {
                         if( world.BackupEnabledState == YesNoAuto.No ) {
                             MessageSameBackupSettings( player, world );
                             return;
@@ -2532,7 +2532,7 @@ namespace fCraft {
                             world.BackupEnabledState = YesNoAuto.No;
                         }
 
-                    } else if( value.Equals( "default", StringComparison.OrdinalIgnoreCase ) ) {
+                    } else if( value.Equals( "default", StringComparison.OrdinalIgnoreCase ) || value.Equals( "auto", StringComparison.OrdinalIgnoreCase ) ) {
                         if( world.BackupEnabledState == YesNoAuto.Auto ) {
                             MessageSameBackupSettings( player, world );
                             return;
