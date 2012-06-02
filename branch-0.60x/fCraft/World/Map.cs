@@ -339,10 +339,10 @@ namespace fCraft {
             get { return drawOps.Count; }
         }
 
-        public int DrawQueueBlockCount {
+        public long DrawQueueBlockCount {
             get {
                 lock( drawOpLock ) {
-                    return drawOps.Sum( op => op.BlocksLeftToProcess );
+                    return drawOps.Sum( op => (long)op.BlocksLeftToProcess );
                 }
             }
         }
