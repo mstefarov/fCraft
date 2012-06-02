@@ -1911,13 +1911,7 @@ namespace fCraft {
                 player.Message( "  BlockDB is disabled on {0}", world.ClassyName );
             }
 
-            if( world.BackupInterval == TimeSpan.Zero ) {
-                if( WorldManager.DefaultBackupInterval != TimeSpan.Zero ) {
-                    player.Message( "  Periodic backups are disabled on {0}", world.ClassyName );
-                }
-            } else {
-                player.Message( "  Periodic backups every {0}", world.BackupInterval.ToMiniString() );
-            }
+            player.Message( "  " + GetBackupSettingsString( world ) );
         }
 
         #endregion
@@ -2528,7 +2522,7 @@ namespace fCraft {
                     TimeSpan backupInterval;
                     string oldDescription = world.BackupSettingDescription;
                     if( value == null ) {
-                        PrintBackupInfo( player, world, false );
+                        player.Message( GetBackupSettingsString( world ) );
 
                     } else if( value.Equals( "off", StringComparison.OrdinalIgnoreCase ) ) {
                         if( world.BackupEnabledState == YesNoAuto.No ) {
@@ -2558,7 +2552,6 @@ namespace fCraft {
                         } else {
                             if( world.BackupEnabledState != YesNoAuto.Yes || world.BackupInterval != backupInterval ) {
                                 world.BackupInterval = backupInterval;
-                                world.BackupEnabledState = YesNoAuto.Yes;
                             } else {
                                 return;
                             }
@@ -2598,32 +2591,27 @@ namespace fCraft {
         }
 
 
-        static void PrintBackupInfo( Player player, World world, bool usePrefix ) {
-            string prefix = (usePrefix ? "  " : "");
+        static string GetBackupSettingsString( World world ) {
             switch( world.BackupEnabledState ) {
                 case YesNoAuto.Yes:
-                    player.Message( "{0}World {1} is backed up every {2}",
-                                    prefix,
-                                    world.ClassyName,
-                                    world.BackupInterval.ToMiniString() );
-                    break;
+                    return String.Format( "World {0}&S is backed up every {1}",
+                                          world.ClassyName,
+                                          world.BackupInterval.ToMiniString() );
                 case YesNoAuto.No:
-                    player.Message( "{0}Backups are manually disabled on {0}",
-                                    prefix,
-                                    world.ClassyName );
-                    break;
+                    return String.Format( "Backups are manually disabled on {0}&S",
+                                          world.ClassyName );
                 case YesNoAuto.Auto:
                     if( World.DefaultBackupsEnabled ) {
-                        player.Message( "{0}Backups are disabled on {1} (default)",
-                                        prefix,
-                                        world.ClassyName );
+                        return String.Format( "World {0}&S is backed up every {1} (default)",
+                                              world.ClassyName,
+                                              World.DefaultBackupInterval.ToMiniString() );
                     } else {
-                        player.Message( "{0}World {1} is backed up every {2} (default)",
-                                        prefix,
-                                        world.ClassyName,
-                                        World.DefaultBackupInterval.ToMiniString() );
+                        return String.Format( "Backups are disabled on {0}&S (default)",
+                                              world.ClassyName );
                     }
-                    break;
+                default:
+                    // never happens
+                    throw new Exception( "Unexpected BackupEnabledState value: " + world.BackupEnabledState );
             }
         }
 
