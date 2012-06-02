@@ -334,6 +334,14 @@ namespace fCraft {
             if( !WorldManager.LoadWorldList() ) return false;
             WorldManager.SaveWorldList();
 
+            if( ConfigKey.BackupOnStartup.Enabled() ) {
+                foreach( World world in WorldManager.Worlds ) {
+                    string backupFileName = String.Format( World.TimedBackupFormat,
+                                                           world.Name, DateTime.Now ); // localized
+                    world.SaveBackup( Path.Combine( Paths.BackupPath, backupFileName ) );
+                }
+            }
+
             // open the port
             Port = ConfigKey.Port.GetInt();
             InternalIP = IPAddress.Parse( ConfigKey.IP.GetString() );

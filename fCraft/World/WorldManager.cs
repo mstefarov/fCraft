@@ -66,11 +66,11 @@ namespace fCraft {
                     XElement root = doc.Root;
                     if( root != null ) {
                         foreach( XElement el in root.Elements( "World" ) ) {
-#if !DEBUG
+#if DEBUG
+                            LoadWorldListEntry( el );
+#else
                             try {
-#endif
                                 LoadWorldListEntry( el );
-#if !DEBUG
                             } catch( Exception ex ) {
                                 Logger.LogAndReportCrash( "An error occured while trying to parse one of the entries on the world list",
                                                           "fCraft", ex, false );
