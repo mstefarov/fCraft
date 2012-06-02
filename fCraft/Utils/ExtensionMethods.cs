@@ -406,6 +406,7 @@ namespace fCraft {
             if( number >= 100000000 || number < 0 ) {
                 // Use system ToString.
                 builder.Append( number );
+                return builder;
             }
             int copy;
             int digit;
