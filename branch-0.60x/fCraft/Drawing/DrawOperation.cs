@@ -88,7 +88,7 @@ namespace fCraft.Drawing {
             get {
                 if( !HasBegun ) {
                     return 0;
-                }else if( IsDone ) {
+                } else if( IsDone || BlocksTotalEstimate == 0 ) {
                     return 100;
                 } else {
                     return (int)Math.Min( 100, Math.Max( 0, (BlocksProcessed * 100L) / BlocksTotalEstimate ) );
