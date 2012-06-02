@@ -632,8 +632,8 @@ namespace fCraft {
             set {
                 lock( backupLock ) {
                     if( value == backupEnabledState ) return;
-                    if( value == YesNoAuto.Yes && BackupInterval <= TimeSpan.Zero ) {
-                        throw new InvalidOperationException( "Set BackupInterval before setting BackupEnabledState to Yes." );
+                    if( value == YesNoAuto.Yes && backupInterval <= TimeSpan.Zero ) {
+                        throw new InvalidOperationException( "To set BackupEnabledState to 'Yes,' set BackupInterval instead." );
                     }
                     backupEnabledState = value;
                 }
@@ -652,16 +652,18 @@ namespace fCraft {
                         return backupInterval;
                     case YesNoAuto.No:
                         return TimeSpan.Zero;
-                    default: //case YesNoAuto.Auto:
+                    default: // case YesNoAuto.Auto:
                         return DefaultBackupInterval;
                 }
             }
             set {
                 lock( backupLock ) {
-                    if( BackupEnabledState == YesNoAuto.Yes && value >= TimeSpan.Zero ) {
-                        throw new InvalidOperationException( "BackupInterval must be positive if BackupEnabledState is set to Yes." );
-                    }
                     backupInterval = value;
+                    if( value >= TimeSpan.Zero ) {
+                        BackupEnabledState = YesNoAuto.Yes;
+                    } else {
+                        BackupEnabledState = YesNoAuto.No;
+                    }
                 }
             }
         }

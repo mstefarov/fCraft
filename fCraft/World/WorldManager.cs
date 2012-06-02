@@ -59,7 +59,9 @@ namespace fCraft {
             World newMainWorld = null;
             Worlds = new World[0];
             if( File.Exists( Paths.WorldListFileName ) ) {
+#if !DEBUG
                 try {
+#endif
                     XDocument doc = XDocument.Load( Paths.WorldListFileName );
                     XElement root = doc.Root;
                     if( root != null ) {
@@ -97,10 +99,12 @@ namespace fCraft {
                             newMainWorld = firstWorld;
                         }
                     }
+#if !DEBUG
                 } catch( Exception ex ) {
                     Logger.LogAndReportCrash( "Error occured while trying to load the world list.", "fCraft", ex, true );
                     return false;
                 }
+#endif
 
                 if( newMainWorld == null ) {
                     Logger.Log( LogType.Error,
@@ -267,13 +271,13 @@ namespace fCraft {
             tempEl = el.Element( "LoadedBy" );
             if( tempEl != null ) world.LoadedBy = tempEl.Value;
             tempEl = el.Element( "LoadedOn" );
-            if( Int64.TryParse( tempEl.Value, out timestamp ) ) {
+            if( tempEl != null && Int64.TryParse( tempEl.Value, out timestamp ) ) {
                 world.LoadedOn = timestamp.ToDateTime();
             }
             tempEl = el.Element( "MapChangedBy" );
             if( tempEl != null ) world.MapChangedBy = tempEl.Value;
             tempEl = el.Element( "MapChangedOn" );
-            if( Int64.TryParse( tempEl.Value, out timestamp ) ) {
+            if( tempEl != null && Int64.TryParse( tempEl.Value, out timestamp ) ) {
                 world.MapChangedOn = timestamp.ToDateTime();
             }
 
@@ -286,14 +290,14 @@ namespace fCraft {
                 tempEl = el.Element( "LockedBy" );
                 if( tempEl != null ) world.LockedBy = tempEl.Value;
                 tempEl = el.Element( "LockedOn" );
-                if( Int64.TryParse( tempEl.Value, out timestamp ) ) {
+                if( tempEl != null && Int64.TryParse( tempEl.Value, out timestamp ) ) {
                     world.LockedOn = timestamp.ToDateTime();
                 }
             } else {
                 tempEl = el.Element( "UnlockedBy" );
                 if( tempEl != null ) world.UnlockedBy = tempEl.Value;
                 tempEl = el.Element( "UnlockedOn" );
-                if( Int64.TryParse( tempEl.Value, out timestamp ) ) {
+                if( tempEl != null && Int64.TryParse( tempEl.Value, out timestamp ) ) {
                     world.UnlockedOn = timestamp.ToDateTime();
                 }
             }
