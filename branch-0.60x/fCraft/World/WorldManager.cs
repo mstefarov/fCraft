@@ -191,7 +191,6 @@ namespace fCraft {
                     if( backupInterval <= TimeSpan.Zero ) {
                         world.BackupEnabledState = YesNoAuto.No;
                     } else {
-                        world.BackupEnabledState = YesNoAuto.Yes;
                         world.BackupInterval = backupInterval;
                     }
                 } else {

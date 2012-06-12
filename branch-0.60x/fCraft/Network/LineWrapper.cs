@@ -21,7 +21,6 @@ namespace fCraft {
             DefaultPrefix = Encoding.ASCII.GetBytes( DefaultPrefixString );
         }
 
-        const int LineSize = 64;
         const int MaxPrefixSize = 32;
         const int PacketSize = 66; // opcode + id + 64
         const byte NoColor = (byte)'f';
