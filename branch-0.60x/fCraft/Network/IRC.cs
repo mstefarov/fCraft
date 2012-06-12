@@ -219,6 +219,9 @@ namespace fCraft {
                                 }
                             }
                             processedMessage = NonPrintableChars.Replace( processedMessage, "" );
+                            if( ConfigKey.IRCStripMinecraftColors.Enabled() ) {
+                                processedMessage = Color.StripColors( processedMessage );
+                            }
                             if( processedMessage.Length > 0 ) {
                                 if( ConfigKey.IRCBotForwardFromIRC.Enabled() ) {
                                     if( msg.Type == IRCMessageType.ChannelAction ) {
@@ -256,8 +259,12 @@ namespace fCraft {
                             Send( IRCCommands.Join( msg.Channel ) );
                         } else {
                             if( !ResponsibleForInputParsing ) return;
+                            string kickMessage = NonPrintableChars.Replace( msg.Message, "" );
+                            if( ConfigKey.IRCStripMinecraftColors.Enabled() ) {
+                                kickMessage = Color.StripColors( kickMessage );
+                            }
                             Server.Message( "&i(IRC) {0} kicked {1} from {2} ({3})",
-                                            msg.Nick, kicked, msg.Channel, msg.Message );
+                                            msg.Nick, kicked, msg.Channel, kickMessage );
                         }
                         return;
 

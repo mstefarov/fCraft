@@ -394,6 +394,10 @@ or requires identification/authentication." )]
 @"Whether the bots should use colors and formatting on IRC." )]
         IRCUseColor,
 
+        [BoolKey(ConfigSection.IRC, true,
+@"Whether Minecraft colorcodes entered on IRC should be removed before showing message in-game." )]
+        IRCStripMinecraftColors,
+
         [IntKey( ConfigSection.IRC, 750,
 @"Minimum delay (in milliseconds) between IRC messages. Many networks
 have strict message rate limits, so a delay of at least 500ms is recommended.",
