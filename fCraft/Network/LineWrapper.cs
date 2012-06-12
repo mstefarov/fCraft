@@ -1,5 +1,5 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
-//#define DEBUG_LINE_WRAPPER
+// #define DEBUG_LINE_WRAPPER
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -28,9 +28,12 @@ namespace fCraft {
 
         public Packet Current { get; private set; }
 
-        byte color, lastColor;
-        bool hadColor;
-        int spaceCount, wordLength;
+        byte color,
+             lastColor;
+        bool hadColor, // used to see if white (&f) colorcodes should be inserted
+             hadSpace; // used to see if a word needs to be forcefully wrapped (i.e. doesnt fit in one line)
+        int spaceCount,
+            wordLength; // used to see whether to wrap at hyphens
 
         readonly byte[] input;
         int inputIndex;
@@ -115,6 +118,7 @@ namespace fCraft {
             
             wordLength = 0;
             wrapIndex = inputIndex;
+            hadSpace = false;
 
             // Append as much of the remaining input as possible
             while( inputIndex < input.Length ) {
@@ -135,6 +139,7 @@ namespace fCraft {
         bool ProcessChar( byte ch ) {
             switch( ch ) {
                 case (byte)' ':
+                    hadSpace = true;
                     expectingColor = false;
                     if( spaceCount == 0 ) {
                         // first space after a word, set wrapping point
@@ -162,7 +167,7 @@ namespace fCraft {
                     }
                     expectingColor = false;
                     if( !Append( ch ) ) {
-                        if( wordLength < LineSize - prefix.Length ) {
+                        if( hadSpace ) {
                             // word doesn't fit in line, backtrack to wrapping point
                             inputIndex = wrapIndex;
                             outputIndex = wrapOutputIndex;
@@ -203,7 +208,7 @@ namespace fCraft {
                             ch = (byte)'?';
                         }
                         if( !Append( ch ) ) {
-                            if( wordLength < LineSize - prefix.Length ) {
+                            if( hadSpace ) {
                                 inputIndex = wrapIndex;
                                 outputIndex = wrapOutputIndex;
                                 color = wrapColor;
@@ -332,7 +337,7 @@ namespace fCraft {
         }
 
 
-        public void Dispose() { }
+        void IDisposable.Dispose() { }
 
 
         #region IEnumerable<Packet> Members
