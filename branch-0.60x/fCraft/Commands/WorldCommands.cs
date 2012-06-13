@@ -2340,7 +2340,6 @@ namespace fCraft {
             }
 
             player.LastUsedWorldName = newName;
-            WorldManager.SaveWorldList();
             Logger.Log( LogType.UserActivity,
                         "{0} renamed the world \"{1}\" to \"{2}\".",
                         player.Name, oldName, newName );
