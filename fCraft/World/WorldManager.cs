@@ -621,6 +621,7 @@ namespace fCraft {
                     WorldIndex.Remove( world.Name.ToLower() );
                     world.Name = newName;
                     WorldIndex.Add( newName.ToLower(), world );
+                    SaveWorldList();
                     UpdateWorldList();
 
                     if( moveMapFile ) {
@@ -688,6 +689,7 @@ namespace fCraft {
                     MainWorld = newWorld;
                 }
 
+                SaveWorldList();
                 UpdateWorldList();
             }
         }
