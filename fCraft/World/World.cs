@@ -450,6 +450,7 @@ namespace fCraft {
                     LockedBy = player.Name;
                     LockedOn = DateTime.UtcNow;
                     IsLocked = true;
+                    WorldManager.SaveWorldList();
                     Map mapCache = Map;
                     if( mapCache != null ) {
                         mapCache.ClearUpdateQueue();
@@ -472,6 +473,7 @@ namespace fCraft {
                     UnlockedBy = player.Name;
                     UnlockedOn = DateTime.UtcNow;
                     IsLocked = false;
+                    WorldManager.SaveWorldList();
                     Players.Message( "&WMap was unlocked by {0}", player.ClassyName );
                     Logger.Log( LogType.UserActivity,
                                 "World \"{0}\" was unlocked by {1}",
@@ -664,7 +666,7 @@ namespace fCraft {
             set {
                 lock( backupLock ) {
                     backupInterval = value;
-                    if( value >= TimeSpan.Zero ) {
+                    if( value > TimeSpan.Zero ) {
                         BackupEnabledState = YesNoAuto.Yes;
                     } else {
                         BackupEnabledState = YesNoAuto.No;
