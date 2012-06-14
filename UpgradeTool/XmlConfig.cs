@@ -158,6 +158,15 @@ namespace fCraft.UpgradeTool {
  * 152 - r1243 - Changed the way fCraft stores config keys.
  *               Before: <fCraftConfig><Section name="blah"><KeyName>Value</KeyName></Section></fCraftConfig>
  *               After: <fCraftConfig><Settings><ConfigKey key="KeyName" value="Value" default="DefaultValue" /></Settings></fCraftConfig>
+ *               
+ * 153 - r1246 - Added PlayerDBProvider data (0.700_dev)
+ *               Removed BackupDataOnStartup key (0.700_dev)
+ *               
+ * 154 - r1312 - Added SeparateWorldAndGlobalChat key (default: false) (0.700_dev)
+ * 
+ * 155 - r1464 - Added WoMDirectDescription and WoMDirectFlags keys
+ * 
+ * 156 - r1473 - Removed AutoRankEnabled key (0.700_dev)
  */
 
     class XmlConfig {
