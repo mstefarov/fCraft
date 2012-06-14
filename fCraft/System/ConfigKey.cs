@@ -69,6 +69,21 @@ overwhelming the Internet connection with data.",
             MinValue = 1, MaxValue = short.MaxValue )]
         UploadBandwidth,
 
+
+        [BoolKey( ConfigSection.General, true,
+@"If enabled, sends heartbeats to WoM Direct service, http://direct.worldofminecraft.com/" )]
+        HeartbeatToWoMDirect,
+
+        [StringKey( ConfigSection.General, "",
+@"If HeartbeatToWoMDirect is enabled, this description will be shown in the server list.",
+            MaxLength = 64 )]
+        WoMDirectDescription,
+
+        [StringKey( ConfigSection.General, "[fCraft]",
+@"If HeartbeatToWoMDirect is enabled, this string will be shown in the server list under ""flags""",
+            MaxLength = 16 )]
+        WoMDirectFlags,
+
         #endregion
 
 
@@ -510,18 +525,6 @@ Each state increases the maximum potential memory use per-player.",
 @"Enable heartbeat to minecraft.net.
 If disabled, heartbeat data is written to heartbeatdata.txt." )]
         HeartbeatEnabled,
-
-        [BoolKey( ConfigSection.Advanced, true,
-@"If enabled, sends heartbeats to WoM Direct service, http://direct.worldofminecraft.com/" )]
-        HeartbeatToWoMDirect,
-
-        [StringKey( ConfigSection.Advanced, "",
-@"If HeartbeatToWoMDirect is enabled, this description will be shown in the server list." )]
-        WoMDirectDescription,
-
-        [StringKey( ConfigSection.Advanced, "[fCraft]",
-@"If HeartbeatToWoMDirect is enabled, this string will be shown in the server list under ""flags""" )]
-        WoMDirectFlags,
 
         [BoolKey( ConfigSection.Advanced, false,
 @"If enabled, allows changing worlds' environment settings for WoM clients via /Env" )]

@@ -143,6 +143,14 @@ namespace fCraft.ConfigGUI {
             updaterWindow.RunBeforeUpdate = ConfigKey.RunBeforeUpdate.GetString();
             updaterWindow.RunAfterUpdate = ConfigKey.RunAfterUpdate.GetString();
             updaterWindow.UpdaterMode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
+
+            xHeartbeatToWoMDirect.Checked = ConfigKey.HeartbeatToWoMDirect.Enabled();
+            tWoMDirectDescription.Text = ConfigKey.WoMDirectDescription.GetString();
+            tWoMDirectFlags.Text = ConfigKey.WoMDirectFlags.GetString();
+            tWoMDirectDescription.Enabled = xHeartbeatToWoMDirect.Checked;
+            lWoMDirectDescription.Enabled = xHeartbeatToWoMDirect.Checked;
+            tWoMDirectFlags.Enabled = xHeartbeatToWoMDirect.Checked;
+            lWoMDirectFlags.Enabled = xHeartbeatToWoMDirect.Checked;
         }
 
 
@@ -351,7 +359,7 @@ namespace fCraft.ConfigGUI {
             xIRCBotAnnounceServerJoins.Checked = ConfigKey.IRCBotAnnounceServerJoins.Enabled();
             xIRCBotForwardFromIRC.Checked = ConfigKey.IRCBotForwardFromIRC.Enabled();
             xIRCBotForwardFromServer.Checked = ConfigKey.IRCBotForwardFromServer.Enabled();
-
+            xIRCStripMinecraftColors.Checked = ConfigKey.IRCStripMinecraftColors.Enabled();
 
             colorIRC = Color.ParseToIndex( ConfigKey.IRCMessageColor.GetString() );
             ApplyColor( bColorIRC, colorIRC );
@@ -409,8 +417,6 @@ namespace fCraft.ConfigGUI {
                 tIP.Enabled = true;
                 xIP.Checked = true;
             }
-
-            xHeartbeatToWoMDirect.Checked = ConfigKey.HeartbeatToWoMDirect.Enabled();
         }
 
 
@@ -456,6 +462,10 @@ namespace fCraft.ConfigGUI {
 
             if( xAnnouncements.Checked ) ConfigKey.AnnouncementInterval.TrySetValue( nAnnouncements.Value );
             else ConfigKey.AnnouncementInterval.TrySetValue( 0 );
+
+            ConfigKey.HeartbeatToWoMDirect.TrySetValue( xHeartbeatToWoMDirect.Checked );
+            ConfigKey.WoMDirectDescription.TrySetValue( tWoMDirectDescription.Text );
+            ConfigKey.WoMDirectFlags.TrySetValue( tWoMDirectFlags.Text );
 
             // UpdaterSettingsWindow
             ConfigKey.UpdaterMode.TrySetValue( updaterWindow.UpdaterMode );
@@ -584,7 +594,7 @@ namespace fCraft.ConfigGUI {
 
             ConfigKey.IRCMessageColor.TrySetValue( Color.GetName( colorIRC ) );
             ConfigKey.IRCUseColor.TrySetValue( xIRCUseColor.Checked );
-
+            ConfigKey.IRCStripMinecraftColors.TrySetValue( xIRCStripMinecraftColors.Checked );
 
             // advanced
             ConfigKey.SubmitCrashReports.TrySetValue( xSubmitCrashReports.Checked );
@@ -617,8 +627,6 @@ namespace fCraft.ConfigGUI {
             ConfigKey.MaxUndoStates.TrySetValue( Convert.ToInt32( nMaxUndoStates.Value ) );
 
             ConfigKey.ConsoleName.TrySetValue( tConsoleName.Text );
-
-            ConfigKey.HeartbeatToWoMDirect.TrySetValue( xHeartbeatToWoMDirect.Checked );
 
             SaveWorldList();
         }
