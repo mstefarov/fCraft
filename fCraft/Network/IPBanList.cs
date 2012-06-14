@@ -476,7 +476,9 @@ namespace fCraft {
                     kickReason = String.Format( "Banned by {0}", player.Name );
                 }
                 for( int i = 0; i < targetsOnline.Length; i++ ) {
-                    targetsOnline[i].Kick( kickReason, LeaveReason.BanAll );
+                    if( targetsOnline[i].Info.BanStatus != BanStatus.IPBanExempt ) {
+                        targetsOnline[i].Kick( kickReason, LeaveReason.BanAll );
+                    }
                 }
             }
         }

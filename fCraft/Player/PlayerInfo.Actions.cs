@@ -204,12 +204,12 @@ namespace fCraft {
                     throw new PlayerOpException( player, this, PlayerOpExceptionCode.TargetIsExempt, msg, colorMsg );
                 }
 
+                PlayerOpException.CheckBanReason( reason, player, this, false );
+
                 // Ban the name
                 if( needNameBan ) {
                     Ban( player, reason, announce, raiseEvents );
                 }
-
-                PlayerOpException.CheckBanReason( reason, player, this, false );
 
                 // Ban the IP
                 if( needIPBan ) {
@@ -246,6 +246,19 @@ namespace fCraft {
                                                       ClassyName );
                         }
                         throw new PlayerOpException( player, null, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
+                    }
+                }
+                
+                // Kick all players connected from address
+                string kickReason;
+                if( reason != null ) {
+                    kickReason = String.Format( "IP-Banned by {0}: {1}", player.Name, reason );
+                } else {
+                    kickReason = String.Format( "IP-Banned by {0}", player.Name );
+                }
+                foreach( Player other in Server.Players.FromIP( address ) ) {
+                    if( other.Info.BanStatus != BanStatus.IPBanExempt ) {
+                        other.Kick( kickReason, LeaveReason.BanIP ); // TODO: check side effects of not using DoKick
                     }
                 }
             }
@@ -435,7 +448,9 @@ namespace fCraft {
                         kickReason = String.Format( "Banned by {0}", player.Name );
                     }
                     for( int i = 0; i < targetsOnline.Length; i++ ) {
-                        targetsOnline[i].Kick( kickReason, LeaveReason.BanAll );
+                        if( targetsOnline[i].Info.BanStatus != BanStatus.IPBanExempt ) {
+                            targetsOnline[i].Kick( kickReason, LeaveReason.BanAll );
+                        }
                     }
                 }
             }
