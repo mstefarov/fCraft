@@ -2574,6 +2574,7 @@ namespace fCraft {
                         }
                     } else {
                         world.Greeting = value;
+                        player.Message( "Greeting message for world {0}&S set to: &R{1}", world.ClassyName, value );
                     }
                     break;
 
