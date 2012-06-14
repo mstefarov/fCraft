@@ -16,7 +16,7 @@ namespace fCraft {
                             RankMainXmlTagName = "RankMainWorld";
 
         public static World[] Worlds { get; private set; }
-        static readonly SortedDictionary<string, World> WorldIndex = new SortedDictionary<string, World>();
+        static readonly SortedDictionary<string, World> WorldIndex = new SortedDictionary<string, World>( StringComparer.OrdinalIgnoreCase );
 
         public static TimeSpan DefaultBackupInterval { get; set; }
 

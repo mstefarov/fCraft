@@ -1007,6 +1007,11 @@ namespace fCraft {
                     PlayerOpException.ThrowPermissionMissing( player, this, "unmute", Permission.Mute );
                 }
 
+                // Check if player has sufficient rank permissions
+                if( !player.Can( Permission.Mute, Rank ) ) {
+                    PlayerOpException.ThrowPermissionLimit( player, this, "unmute", Permission.Mute );
+                }
+
                 if( timeLeft <= TimeSpan.Zero ) {
                     string msg = String.Format( "Player {0} is not currently muted.", Name );
                     string msgColor = String.Format( "&SPlayer {0}&S is not currently muted.", ClassyName );
