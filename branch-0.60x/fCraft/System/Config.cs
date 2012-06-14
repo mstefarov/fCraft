@@ -169,6 +169,8 @@ namespace fCraft {
      * 
      * 156 - r1473 - Removed AutoRankEnabled key (0.700_dev)
      * 
+     * 157 - r1586 - Added IRCStripMinecraftColors
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -179,7 +181,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 156;
+        public const int CurrentVersion = 157;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY

@@ -25,11 +25,17 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( MainForm ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
+            this.gWoMDirect = new System.Windows.Forms.GroupBox();
+            this.lWoMDirectFlags = new System.Windows.Forms.Label();
+            this.tWoMDirectFlags = new System.Windows.Forms.TextBox();
+            this.lWoMDirectDescription = new System.Windows.Forms.Label();
+            this.tWoMDirectDescription = new System.Windows.Forms.TextBox();
+            this.xHeartbeatToWoMDirect = new System.Windows.Forms.CheckBox();
             this.gUpdaterSettings = new System.Windows.Forms.GroupBox();
             this.bShowAdvancedUpdaterSettings = new System.Windows.Forms.Button();
             this.cUpdaterMode = new System.Windows.Forms.ComboBox();
@@ -219,14 +225,16 @@
             this.vConsoleOptions = new System.Windows.Forms.ListView();
             this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
             this.tabIRC = new System.Windows.Forms.TabPage();
+            this.gIRCColors = new System.Windows.Forms.GroupBox();
+            this.xIRCStripMinecraftColors = new System.Windows.Forms.CheckBox();
+            this.bColorIRC = new System.Windows.Forms.Button();
+            this.xIRCUseColor = new System.Windows.Forms.CheckBox();
+            this.lColorIRC = new System.Windows.Forms.Label();
             this.xIRCListShowNonEnglish = new System.Windows.Forms.CheckBox();
             this.gIRCOptions = new System.Windows.Forms.GroupBox();
             this.xIRCBotAnnounceServerEvents = new System.Windows.Forms.CheckBox();
-            this.xIRCUseColor = new System.Windows.Forms.CheckBox();
             this.lIRCNoForwardingMessage = new System.Windows.Forms.Label();
             this.xIRCBotAnnounceIRCJoins = new System.Windows.Forms.CheckBox();
-            this.bColorIRC = new System.Windows.Forms.Button();
-            this.lColorIRC = new System.Windows.Forms.Label();
             this.xIRCBotForwardFromIRC = new System.Windows.Forms.CheckBox();
             this.xIRCBotAnnounceServerJoins = new System.Windows.Forms.CheckBox();
             this.xIRCBotForwardFromServer = new System.Windows.Forms.CheckBox();
@@ -253,6 +261,9 @@
             this.xIRCBotEnabled = new System.Windows.Forms.CheckBox();
             this.cIRCList = new System.Windows.Forms.ComboBox();
             this.tabAdvanced = new System.Windows.Forms.TabPage();
+            this.gCrashReport = new System.Windows.Forms.GroupBox();
+            this.lCrashReportDisclaimer = new System.Windows.Forms.Label();
+            this.xSubmitCrashReports = new System.Windows.Forms.CheckBox();
             this.gPerformance = new System.Windows.Forms.GroupBox();
             this.lAdvancedWarning = new System.Windows.Forms.Label();
             this.xLowLatencyMode = new System.Windows.Forms.CheckBox();
@@ -267,7 +278,6 @@
             this.gAdvancedMisc = new System.Windows.Forms.GroupBox();
             this.nMaxUndoStates = new System.Windows.Forms.NumericUpDown();
             this.lMaxUndoStates = new System.Windows.Forms.Label();
-            this.xHeartbeatToWoMDirect = new System.Windows.Forms.CheckBox();
             this.lIPWarning = new System.Windows.Forms.Label();
             this.tIP = new System.Windows.Forms.TextBox();
             this.xIP = new System.Windows.Forms.CheckBox();
@@ -278,9 +288,6 @@
             this.xMaxUndo = new System.Windows.Forms.CheckBox();
             this.xRelayAllBlockUpdates = new System.Windows.Forms.CheckBox();
             this.xNoPartialPositionUpdates = new System.Windows.Forms.CheckBox();
-            this.gCrashReport = new System.Windows.Forms.GroupBox();
-            this.lCrashReportDisclaimer = new System.Windows.Forms.Label();
-            this.xSubmitCrashReports = new System.Windows.Forms.CheckBox();
             this.bOK = new System.Windows.Forms.Button();
             this.bCancel = new System.Windows.Forms.Button();
             this.bResetTab = new System.Windows.Forms.Button();
@@ -289,6 +296,7 @@
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
+            this.gWoMDirect.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.gHelpAndSupport.SuspendLayout();
@@ -336,18 +344,19 @@
             ((System.ComponentModel.ISupportInitialize)(this.nLogLimit)).BeginInit();
             this.gConsole.SuspendLayout();
             this.tabIRC.SuspendLayout();
+            this.gIRCColors.SuspendLayout();
             this.gIRCOptions.SuspendLayout();
             this.gIRCNetwork.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nIRCDelay)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nIRCBotPort)).BeginInit();
             this.tabAdvanced.SuspendLayout();
+            this.gCrashReport.SuspendLayout();
             this.gPerformance.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
             this.gAdvancedMisc.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxUndoStates)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).BeginInit();
-            this.gCrashReport.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabs
@@ -373,6 +382,7 @@
             // 
             // tabGeneral
             // 
+            this.tabGeneral.Controls.Add( this.gWoMDirect );
             this.tabGeneral.Controls.Add( this.gUpdaterSettings );
             this.tabGeneral.Controls.Add( this.groupBox2 );
             this.tabGeneral.Controls.Add( this.gHelpAndSupport );
@@ -381,10 +391,69 @@
             this.tabGeneral.Location = new System.Drawing.Point( 4, 24 );
             this.tabGeneral.Name = "tabGeneral";
             this.tabGeneral.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabGeneral.Size = new System.Drawing.Size( 652, 481 );
+            this.tabGeneral.Size = new System.Drawing.Size( 652, 482 );
             this.tabGeneral.TabIndex = 0;
             this.tabGeneral.Text = "General";
             this.tabGeneral.UseVisualStyleBackColor = true;
+            // 
+            // gWoMDirect
+            // 
+            this.gWoMDirect.Controls.Add( this.lWoMDirectFlags );
+            this.gWoMDirect.Controls.Add( this.tWoMDirectFlags );
+            this.gWoMDirect.Controls.Add( this.lWoMDirectDescription );
+            this.gWoMDirect.Controls.Add( this.tWoMDirectDescription );
+            this.gWoMDirect.Controls.Add( this.xHeartbeatToWoMDirect );
+            this.gWoMDirect.Location = new System.Drawing.Point( 8, 307 );
+            this.gWoMDirect.Name = "gWoMDirect";
+            this.gWoMDirect.Size = new System.Drawing.Size( 636, 80 );
+            this.gWoMDirect.TabIndex = 6;
+            this.gWoMDirect.TabStop = false;
+            this.gWoMDirect.Text = "WoM Direct";
+            // 
+            // lWoMDirectFlags
+            // 
+            this.lWoMDirectFlags.AutoSize = true;
+            this.lWoMDirectFlags.Location = new System.Drawing.Point( 386, 51 );
+            this.lWoMDirectFlags.Name = "lWoMDirectFlags";
+            this.lWoMDirectFlags.Size = new System.Drawing.Size( 37, 15 );
+            this.lWoMDirectFlags.TabIndex = 24;
+            this.lWoMDirectFlags.Text = "Flags";
+            // 
+            // tWoMDirectFlags
+            // 
+            this.tWoMDirectFlags.Location = new System.Drawing.Point( 429, 48 );
+            this.tWoMDirectFlags.MaxLength = 16;
+            this.tWoMDirectFlags.Name = "tWoMDirectFlags";
+            this.tWoMDirectFlags.Size = new System.Drawing.Size( 144, 21 );
+            this.tWoMDirectFlags.TabIndex = 25;
+            // 
+            // lWoMDirectDescription
+            // 
+            this.lWoMDirectDescription.AutoSize = true;
+            this.lWoMDirectDescription.Location = new System.Drawing.Point( 40, 51 );
+            this.lWoMDirectDescription.Name = "lWoMDirectDescription";
+            this.lWoMDirectDescription.Size = new System.Drawing.Size( 69, 15 );
+            this.lWoMDirectDescription.TabIndex = 22;
+            this.lWoMDirectDescription.Text = "Description";
+            // 
+            // tWoMDirectDescription
+            // 
+            this.tWoMDirectDescription.Location = new System.Drawing.Point( 115, 48 );
+            this.tWoMDirectDescription.MaxLength = 64;
+            this.tWoMDirectDescription.Name = "tWoMDirectDescription";
+            this.tWoMDirectDescription.Size = new System.Drawing.Size( 228, 21 );
+            this.tWoMDirectDescription.TabIndex = 23;
+            // 
+            // xHeartbeatToWoMDirect
+            // 
+            this.xHeartbeatToWoMDirect.AutoSize = true;
+            this.xHeartbeatToWoMDirect.Location = new System.Drawing.Point( 16, 20 );
+            this.xHeartbeatToWoMDirect.Name = "xHeartbeatToWoMDirect";
+            this.xHeartbeatToWoMDirect.Size = new System.Drawing.Size( 354, 19 );
+            this.xHeartbeatToWoMDirect.TabIndex = 21;
+            this.xHeartbeatToWoMDirect.Text = "Send heartbeats to WoM Direct (direct.worldofminecraft.net).";
+            this.xHeartbeatToWoMDirect.UseVisualStyleBackColor = true;
+            this.xHeartbeatToWoMDirect.CheckedChanged += new System.EventHandler( this.xHeartbeatToWoMDirect_CheckedChanged );
             // 
             // gUpdaterSettings
             // 
@@ -438,9 +507,9 @@
             this.groupBox2.Controls.Add( this.bChangelog );
             this.groupBox2.Controls.Add( this.bCredits );
             this.groupBox2.Controls.Add( this.bReadme );
-            this.groupBox2.Location = new System.Drawing.Point( 329, 413 );
+            this.groupBox2.Location = new System.Drawing.Point( 329, 412 );
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size( 315, 55 );
+            this.groupBox2.Size = new System.Drawing.Size( 315, 56 );
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "About fCraft";
@@ -481,9 +550,9 @@
             this.gHelpAndSupport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.gHelpAndSupport.Controls.Add( this.bOpenWiki );
             this.gHelpAndSupport.Controls.Add( this.bReportABug );
-            this.gHelpAndSupport.Location = new System.Drawing.Point( 8, 413 );
+            this.gHelpAndSupport.Location = new System.Drawing.Point( 8, 412 );
             this.gHelpAndSupport.Name = "gHelpAndSupport";
-            this.gHelpAndSupport.Size = new System.Drawing.Size( 315, 55 );
+            this.gHelpAndSupport.Size = new System.Drawing.Size( 315, 56 );
             this.gHelpAndSupport.TabIndex = 3;
             this.gHelpAndSupport.TabStop = false;
             this.gHelpAndSupport.Text = "Help and Support";
@@ -880,7 +949,7 @@
             this.tabChat.Location = new System.Drawing.Point( 4, 24 );
             this.tabChat.Name = "tabChat";
             this.tabChat.Padding = new System.Windows.Forms.Padding( 5, 5, 5, 10 );
-            this.tabChat.Size = new System.Drawing.Size( 652, 481 );
+            this.tabChat.Size = new System.Drawing.Size( 652, 482 );
             this.tabChat.TabIndex = 10;
             this.tabChat.Text = "Chat";
             this.tabChat.UseVisualStyleBackColor = true;
@@ -1141,7 +1210,7 @@
             this.tabWorlds.Location = new System.Drawing.Point( 4, 24 );
             this.tabWorlds.Name = "tabWorlds";
             this.tabWorlds.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabWorlds.Size = new System.Drawing.Size( 652, 458 );
+            this.tabWorlds.Size = new System.Drawing.Size( 652, 482 );
             this.tabWorlds.TabIndex = 9;
             this.tabWorlds.Text = "Worlds";
             this.tabWorlds.UseVisualStyleBackColor = true;
@@ -1286,8 +1355,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 325 );
             this.dgvWorlds.TabIndex = 0;
@@ -1345,8 +1414,8 @@
             // dgvcBlockDB
             // 
             this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle3;
             this.dgvcBlockDB.HeaderText = "BlockDB";
             this.dgvcBlockDB.Name = "dgvcBlockDB";
             this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
@@ -1368,7 +1437,7 @@
             this.tabRanks.Location = new System.Drawing.Point( 4, 24 );
             this.tabRanks.Name = "tabRanks";
             this.tabRanks.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabRanks.Size = new System.Drawing.Size( 652, 481 );
+            this.tabRanks.Size = new System.Drawing.Size( 652, 482 );
             this.tabRanks.TabIndex = 2;
             this.tabRanks.Text = "Ranks";
             this.tabRanks.UseVisualStyleBackColor = true;
@@ -1814,7 +1883,7 @@
             this.tabSecurity.Location = new System.Drawing.Point( 4, 24 );
             this.tabSecurity.Name = "tabSecurity";
             this.tabSecurity.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabSecurity.Size = new System.Drawing.Size( 652, 481 );
+            this.tabSecurity.Size = new System.Drawing.Size( 652, 482 );
             this.tabSecurity.TabIndex = 7;
             this.tabSecurity.Text = "Security";
             this.tabSecurity.UseVisualStyleBackColor = true;
@@ -2212,7 +2281,7 @@
             this.tabSavingAndBackup.Location = new System.Drawing.Point( 4, 24 );
             this.tabSavingAndBackup.Name = "tabSavingAndBackup";
             this.tabSavingAndBackup.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabSavingAndBackup.Size = new System.Drawing.Size( 652, 481 );
+            this.tabSavingAndBackup.Size = new System.Drawing.Size( 652, 482 );
             this.tabSavingAndBackup.TabIndex = 4;
             this.tabSavingAndBackup.Text = "Saving and Backup";
             this.tabSavingAndBackup.UseVisualStyleBackColor = true;
@@ -2426,7 +2495,7 @@
             this.tabLogging.Location = new System.Drawing.Point( 4, 24 );
             this.tabLogging.Name = "tabLogging";
             this.tabLogging.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabLogging.Size = new System.Drawing.Size( 652, 481 );
+            this.tabLogging.Size = new System.Drawing.Size( 652, 482 );
             this.tabLogging.TabIndex = 5;
             this.tabLogging.Text = "Logging";
             this.tabLogging.UseVisualStyleBackColor = true;
@@ -2574,6 +2643,7 @@
             // 
             // tabIRC
             // 
+            this.tabIRC.Controls.Add( this.gIRCColors );
             this.tabIRC.Controls.Add( this.xIRCListShowNonEnglish );
             this.tabIRC.Controls.Add( this.gIRCOptions );
             this.tabIRC.Controls.Add( this.gIRCNetwork );
@@ -2583,10 +2653,62 @@
             this.tabIRC.Location = new System.Drawing.Point( 4, 24 );
             this.tabIRC.Name = "tabIRC";
             this.tabIRC.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
-            this.tabIRC.Size = new System.Drawing.Size( 652, 481 );
+            this.tabIRC.Size = new System.Drawing.Size( 652, 482 );
             this.tabIRC.TabIndex = 8;
             this.tabIRC.Text = "IRC";
             this.tabIRC.UseVisualStyleBackColor = true;
+            // 
+            // gIRCColors
+            // 
+            this.gIRCColors.Controls.Add( this.xIRCStripMinecraftColors );
+            this.gIRCColors.Controls.Add( this.bColorIRC );
+            this.gIRCColors.Controls.Add( this.xIRCUseColor );
+            this.gIRCColors.Controls.Add( this.lColorIRC );
+            this.gIRCColors.Location = new System.Drawing.Point( 8, 206 );
+            this.gIRCColors.Name = "gIRCColors";
+            this.gIRCColors.Size = new System.Drawing.Size( 635, 77 );
+            this.gIRCColors.TabIndex = 6;
+            this.gIRCColors.TabStop = false;
+            this.gIRCColors.Text = "Colors";
+            // 
+            // xIRCStripMinecraftColors
+            // 
+            this.xIRCStripMinecraftColors.AutoSize = true;
+            this.xIRCStripMinecraftColors.Location = new System.Drawing.Point( 38, 49 );
+            this.xIRCStripMinecraftColors.Name = "xIRCStripMinecraftColors";
+            this.xIRCStripMinecraftColors.Size = new System.Drawing.Size( 395, 19 );
+            this.xIRCStripMinecraftColors.TabIndex = 3;
+            this.xIRCStripMinecraftColors.Text = "Strip Minecraft color codes (&&-codes) from incoming IRC messages.";
+            this.xIRCStripMinecraftColors.UseVisualStyleBackColor = true;
+            // 
+            // bColorIRC
+            // 
+            this.bColorIRC.BackColor = System.Drawing.Color.White;
+            this.bColorIRC.Location = new System.Drawing.Point( 159, 20 );
+            this.bColorIRC.Name = "bColorIRC";
+            this.bColorIRC.Size = new System.Drawing.Size( 100, 23 );
+            this.bColorIRC.TabIndex = 1;
+            this.bColorIRC.UseVisualStyleBackColor = false;
+            this.bColorIRC.Click += new System.EventHandler( this.bColorIRC_Click );
+            // 
+            // xIRCUseColor
+            // 
+            this.xIRCUseColor.AutoSize = true;
+            this.xIRCUseColor.Location = new System.Drawing.Point( 325, 20 );
+            this.xIRCUseColor.Name = "xIRCUseColor";
+            this.xIRCUseColor.Size = new System.Drawing.Size( 304, 19 );
+            this.xIRCUseColor.TabIndex = 2;
+            this.xIRCUseColor.Text = "Use colors in bot\'s IRC messages and notifications.";
+            this.xIRCUseColor.UseVisualStyleBackColor = true;
+            // 
+            // lColorIRC
+            // 
+            this.lColorIRC.AutoSize = true;
+            this.lColorIRC.Location = new System.Drawing.Point( 42, 24 );
+            this.lColorIRC.Name = "lColorIRC";
+            this.lColorIRC.Size = new System.Drawing.Size( 111, 15 );
+            this.lColorIRC.TabIndex = 0;
+            this.lColorIRC.Text = "IRC message color";
             // 
             // xIRCListShowNonEnglish
             // 
@@ -2603,17 +2725,14 @@
             // gIRCOptions
             // 
             this.gIRCOptions.Controls.Add( this.xIRCBotAnnounceServerEvents );
-            this.gIRCOptions.Controls.Add( this.xIRCUseColor );
             this.gIRCOptions.Controls.Add( this.lIRCNoForwardingMessage );
             this.gIRCOptions.Controls.Add( this.xIRCBotAnnounceIRCJoins );
-            this.gIRCOptions.Controls.Add( this.bColorIRC );
-            this.gIRCOptions.Controls.Add( this.lColorIRC );
             this.gIRCOptions.Controls.Add( this.xIRCBotForwardFromIRC );
             this.gIRCOptions.Controls.Add( this.xIRCBotAnnounceServerJoins );
             this.gIRCOptions.Controls.Add( this.xIRCBotForwardFromServer );
-            this.gIRCOptions.Location = new System.Drawing.Point( 8, 206 );
+            this.gIRCOptions.Location = new System.Drawing.Point( 8, 289 );
             this.gIRCOptions.Name = "gIRCOptions";
-            this.gIRCOptions.Size = new System.Drawing.Size( 636, 162 );
+            this.gIRCOptions.Size = new System.Drawing.Size( 636, 136 );
             this.gIRCOptions.TabIndex = 5;
             this.gIRCOptions.TabStop = false;
             this.gIRCOptions.Text = "Options";
@@ -2621,27 +2740,17 @@
             // xIRCBotAnnounceServerEvents
             // 
             this.xIRCBotAnnounceServerEvents.AutoSize = true;
-            this.xIRCBotAnnounceServerEvents.Location = new System.Drawing.Point( 38, 109 );
+            this.xIRCBotAnnounceServerEvents.Location = new System.Drawing.Point( 38, 70 );
             this.xIRCBotAnnounceServerEvents.Name = "xIRCBotAnnounceServerEvents";
             this.xIRCBotAnnounceServerEvents.Size = new System.Drawing.Size( 417, 19 );
             this.xIRCBotAnnounceServerEvents.TabIndex = 7;
             this.xIRCBotAnnounceServerEvents.Text = "Announce SERVER events (kicks, bans, promotions, demotions) on IRC.";
             this.xIRCBotAnnounceServerEvents.UseVisualStyleBackColor = true;
             // 
-            // xIRCUseColor
-            // 
-            this.xIRCUseColor.AutoSize = true;
-            this.xIRCUseColor.Location = new System.Drawing.Point( 325, 23 );
-            this.xIRCUseColor.Name = "xIRCUseColor";
-            this.xIRCUseColor.Size = new System.Drawing.Size( 149, 19 );
-            this.xIRCUseColor.TabIndex = 2;
-            this.xIRCUseColor.Text = "Use text colors on IRC.";
-            this.xIRCUseColor.UseVisualStyleBackColor = true;
-            // 
             // lIRCNoForwardingMessage
             // 
             this.lIRCNoForwardingMessage.AutoSize = true;
-            this.lIRCNoForwardingMessage.Location = new System.Drawing.Point( 35, 137 );
+            this.lIRCNoForwardingMessage.Location = new System.Drawing.Point( 35, 108 );
             this.lIRCNoForwardingMessage.Name = "lIRCNoForwardingMessage";
             this.lIRCNoForwardingMessage.Size = new System.Drawing.Size( 567, 15 );
             this.lIRCNoForwardingMessage.TabIndex = 8;
@@ -2651,36 +2760,17 @@
             // xIRCBotAnnounceIRCJoins
             // 
             this.xIRCBotAnnounceIRCJoins.AutoSize = true;
-            this.xIRCBotAnnounceIRCJoins.Location = new System.Drawing.Point( 325, 84 );
+            this.xIRCBotAnnounceIRCJoins.Location = new System.Drawing.Point( 325, 45 );
             this.xIRCBotAnnounceIRCJoins.Name = "xIRCBotAnnounceIRCJoins";
             this.xIRCBotAnnounceIRCJoins.Size = new System.Drawing.Size( 303, 19 );
             this.xIRCBotAnnounceIRCJoins.TabIndex = 6;
             this.xIRCBotAnnounceIRCJoins.Text = "Announce people joining/leaving the IRC channels.";
             this.xIRCBotAnnounceIRCJoins.UseVisualStyleBackColor = true;
             // 
-            // bColorIRC
-            // 
-            this.bColorIRC.BackColor = System.Drawing.Color.White;
-            this.bColorIRC.Location = new System.Drawing.Point( 152, 20 );
-            this.bColorIRC.Name = "bColorIRC";
-            this.bColorIRC.Size = new System.Drawing.Size( 100, 23 );
-            this.bColorIRC.TabIndex = 1;
-            this.bColorIRC.UseVisualStyleBackColor = false;
-            this.bColorIRC.Click += new System.EventHandler( this.bColorIRC_Click );
-            // 
-            // lColorIRC
-            // 
-            this.lColorIRC.AutoSize = true;
-            this.lColorIRC.Location = new System.Drawing.Point( 35, 24 );
-            this.lColorIRC.Name = "lColorIRC";
-            this.lColorIRC.Size = new System.Drawing.Size( 111, 15 );
-            this.lColorIRC.TabIndex = 0;
-            this.lColorIRC.Text = "IRC message color";
-            // 
             // xIRCBotForwardFromIRC
             // 
             this.xIRCBotForwardFromIRC.AutoSize = true;
-            this.xIRCBotForwardFromIRC.Location = new System.Drawing.Point( 38, 84 );
+            this.xIRCBotForwardFromIRC.Location = new System.Drawing.Point( 38, 45 );
             this.xIRCBotForwardFromIRC.Name = "xIRCBotForwardFromIRC";
             this.xIRCBotForwardFromIRC.Size = new System.Drawing.Size( 240, 19 );
             this.xIRCBotForwardFromIRC.TabIndex = 4;
@@ -2690,7 +2780,7 @@
             // xIRCBotAnnounceServerJoins
             // 
             this.xIRCBotAnnounceServerJoins.AutoSize = true;
-            this.xIRCBotAnnounceServerJoins.Location = new System.Drawing.Point( 325, 59 );
+            this.xIRCBotAnnounceServerJoins.Location = new System.Drawing.Point( 325, 20 );
             this.xIRCBotAnnounceServerJoins.Name = "xIRCBotAnnounceServerJoins";
             this.xIRCBotAnnounceServerJoins.Size = new System.Drawing.Size( 279, 19 );
             this.xIRCBotAnnounceServerJoins.TabIndex = 5;
@@ -2700,7 +2790,7 @@
             // xIRCBotForwardFromServer
             // 
             this.xIRCBotForwardFromServer.AutoSize = true;
-            this.xIRCBotForwardFromServer.Location = new System.Drawing.Point( 38, 59 );
+            this.xIRCBotForwardFromServer.Location = new System.Drawing.Point( 38, 20 );
             this.xIRCBotForwardFromServer.Name = "xIRCBotForwardFromServer";
             this.xIRCBotForwardFromServer.Size = new System.Drawing.Size( 240, 19 );
             this.xIRCBotForwardFromServer.TabIndex = 3;
@@ -2962,9 +3052,9 @@
             // 
             // tabAdvanced
             // 
+            this.tabAdvanced.Controls.Add( this.gCrashReport );
             this.tabAdvanced.Controls.Add( this.gPerformance );
             this.tabAdvanced.Controls.Add( this.gAdvancedMisc );
-            this.tabAdvanced.Controls.Add( this.gCrashReport );
             this.tabAdvanced.Location = new System.Drawing.Point( 4, 24 );
             this.tabAdvanced.Name = "tabAdvanced";
             this.tabAdvanced.Padding = new System.Windows.Forms.Padding( 5, 10, 5, 10 );
@@ -2972,6 +3062,40 @@
             this.tabAdvanced.TabIndex = 6;
             this.tabAdvanced.Text = "Advanced";
             this.tabAdvanced.UseVisualStyleBackColor = true;
+            // 
+            // gCrashReport
+            // 
+            this.gCrashReport.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.gCrashReport.Controls.Add( this.lCrashReportDisclaimer );
+            this.gCrashReport.Controls.Add( this.xSubmitCrashReports );
+            this.gCrashReport.Location = new System.Drawing.Point( 8, 13 );
+            this.gCrashReport.Name = "gCrashReport";
+            this.gCrashReport.Size = new System.Drawing.Size( 636, 99 );
+            this.gCrashReport.TabIndex = 6;
+            this.gCrashReport.TabStop = false;
+            this.gCrashReport.Text = "Crash Reporting";
+            // 
+            // lCrashReportDisclaimer
+            // 
+            this.lCrashReportDisclaimer.AutoSize = true;
+            this.lCrashReportDisclaimer.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.lCrashReportDisclaimer.Location = new System.Drawing.Point( 42, 42 );
+            this.lCrashReportDisclaimer.Name = "lCrashReportDisclaimer";
+            this.lCrashReportDisclaimer.Size = new System.Drawing.Size( 521, 39 );
+            this.lCrashReportDisclaimer.TabIndex = 1;
+            this.lCrashReportDisclaimer.Text = resources.GetString( "lCrashReportDisclaimer.Text" );
+            // 
+            // xSubmitCrashReports
+            // 
+            this.xSubmitCrashReports.AutoSize = true;
+            this.xSubmitCrashReports.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.xSubmitCrashReports.Location = new System.Drawing.Point( 6, 20 );
+            this.xSubmitCrashReports.Name = "xSubmitCrashReports";
+            this.xSubmitCrashReports.Size = new System.Drawing.Size( 446, 19 );
+            this.xSubmitCrashReports.TabIndex = 0;
+            this.xSubmitCrashReports.Text = "Automatically submit crash reports to fCraft developers (fCraft.net)";
+            this.xSubmitCrashReports.UseVisualStyleBackColor = true;
             // 
             // gPerformance
             // 
@@ -2988,7 +3112,7 @@
             this.gPerformance.Controls.Add( this.nThrottling );
             this.gPerformance.Controls.Add( this.lThrottling );
             this.gPerformance.Controls.Add( this.lThrottlingUnits );
-            this.gPerformance.Location = new System.Drawing.Point( 8, 328 );
+            this.gPerformance.Location = new System.Drawing.Point( 8, 304 );
             this.gPerformance.Name = "gPerformance";
             this.gPerformance.Size = new System.Drawing.Size( 636, 151 );
             this.gPerformance.TabIndex = 2;
@@ -3138,7 +3262,6 @@
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.gAdvancedMisc.Controls.Add( this.nMaxUndoStates );
             this.gAdvancedMisc.Controls.Add( this.lMaxUndoStates );
-            this.gAdvancedMisc.Controls.Add( this.xHeartbeatToWoMDirect );
             this.gAdvancedMisc.Controls.Add( this.lIPWarning );
             this.gAdvancedMisc.Controls.Add( this.tIP );
             this.gAdvancedMisc.Controls.Add( this.xIP );
@@ -3151,7 +3274,7 @@
             this.gAdvancedMisc.Controls.Add( this.xNoPartialPositionUpdates );
             this.gAdvancedMisc.Location = new System.Drawing.Point( 8, 118 );
             this.gAdvancedMisc.Name = "gAdvancedMisc";
-            this.gAdvancedMisc.Size = new System.Drawing.Size( 636, 204 );
+            this.gAdvancedMisc.Size = new System.Drawing.Size( 636, 180 );
             this.gAdvancedMisc.TabIndex = 1;
             this.gAdvancedMisc.TabStop = false;
             this.gAdvancedMisc.Text = "Miscellaneous";
@@ -3182,16 +3305,6 @@
             this.lMaxUndoStates.Size = new System.Drawing.Size( 72, 15 );
             this.lMaxUndoStates.TabIndex = 22;
             this.lMaxUndoStates.Text = "states, up to";
-            // 
-            // xHeartbeatToWoMDirect
-            // 
-            this.xHeartbeatToWoMDirect.AutoSize = true;
-            this.xHeartbeatToWoMDirect.Location = new System.Drawing.Point( 6, 176 );
-            this.xHeartbeatToWoMDirect.Name = "xHeartbeatToWoMDirect";
-            this.xHeartbeatToWoMDirect.Size = new System.Drawing.Size( 354, 19 );
-            this.xHeartbeatToWoMDirect.TabIndex = 21;
-            this.xHeartbeatToWoMDirect.Text = "Send heartbeats to WoM Direct (direct.worldofminecraft.net).";
-            this.xHeartbeatToWoMDirect.UseVisualStyleBackColor = true;
             // 
             // lIPWarning
             // 
@@ -3306,40 +3419,6 @@
             this.xNoPartialPositionUpdates.Text = "Do not use partial position updates (opcodes 9, 10, 11).";
             this.xNoPartialPositionUpdates.UseVisualStyleBackColor = true;
             // 
-            // gCrashReport
-            // 
-            this.gCrashReport.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.gCrashReport.Controls.Add( this.lCrashReportDisclaimer );
-            this.gCrashReport.Controls.Add( this.xSubmitCrashReports );
-            this.gCrashReport.Location = new System.Drawing.Point( 8, 13 );
-            this.gCrashReport.Name = "gCrashReport";
-            this.gCrashReport.Size = new System.Drawing.Size( 636, 99 );
-            this.gCrashReport.TabIndex = 0;
-            this.gCrashReport.TabStop = false;
-            this.gCrashReport.Text = "Crash Reporting";
-            // 
-            // lCrashReportDisclaimer
-            // 
-            this.lCrashReportDisclaimer.AutoSize = true;
-            this.lCrashReportDisclaimer.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.lCrashReportDisclaimer.Location = new System.Drawing.Point( 42, 42 );
-            this.lCrashReportDisclaimer.Name = "lCrashReportDisclaimer";
-            this.lCrashReportDisclaimer.Size = new System.Drawing.Size( 521, 39 );
-            this.lCrashReportDisclaimer.TabIndex = 1;
-            this.lCrashReportDisclaimer.Text = resources.GetString( "lCrashReportDisclaimer.Text" );
-            // 
-            // xSubmitCrashReports
-            // 
-            this.xSubmitCrashReports.AutoSize = true;
-            this.xSubmitCrashReports.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.xSubmitCrashReports.Location = new System.Drawing.Point( 6, 20 );
-            this.xSubmitCrashReports.Name = "xSubmitCrashReports";
-            this.xSubmitCrashReports.Size = new System.Drawing.Size( 446, 19 );
-            this.xSubmitCrashReports.TabIndex = 0;
-            this.xSubmitCrashReports.Text = "Automatically submit crash reports to fCraft developers (fCraft.net)";
-            this.xSubmitCrashReports.UseVisualStyleBackColor = true;
-            // 
             // bOK
             // 
             this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -3423,6 +3502,8 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler( this.ConfigUI_FormClosing );
             this.tabs.ResumeLayout( false );
             this.tabGeneral.ResumeLayout( false );
+            this.gWoMDirect.ResumeLayout( false );
+            this.gWoMDirect.PerformLayout();
             this.gUpdaterSettings.ResumeLayout( false );
             this.gUpdaterSettings.PerformLayout();
             this.groupBox2.ResumeLayout( false );
@@ -3488,6 +3569,8 @@
             this.gConsole.PerformLayout();
             this.tabIRC.ResumeLayout( false );
             this.tabIRC.PerformLayout();
+            this.gIRCColors.ResumeLayout( false );
+            this.gIRCColors.PerformLayout();
             this.gIRCOptions.ResumeLayout( false );
             this.gIRCOptions.PerformLayout();
             this.gIRCNetwork.ResumeLayout( false );
@@ -3495,6 +3578,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nIRCDelay)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nIRCBotPort)).EndInit();
             this.tabAdvanced.ResumeLayout( false );
+            this.gCrashReport.ResumeLayout( false );
+            this.gCrashReport.PerformLayout();
             this.gPerformance.ResumeLayout( false );
             this.gPerformance.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).EndInit();
@@ -3503,8 +3588,6 @@
             this.gAdvancedMisc.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxUndoStates)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).EndInit();
-            this.gCrashReport.ResumeLayout( false );
-            this.gCrashReport.PerformLayout();
             this.ResumeLayout( false );
 
         }
@@ -3661,9 +3744,6 @@
         private System.Windows.Forms.Button bColorIRC;
         private System.Windows.Forms.Label lColorIRC;
         private System.Windows.Forms.CheckBox xIRCBotAnnounceIRCJoins;
-        private System.Windows.Forms.CheckBox xSubmitCrashReports;
-        private System.Windows.Forms.GroupBox gCrashReport;
-        private System.Windows.Forms.Label lCrashReportDisclaimer;
         private System.Windows.Forms.GroupBox gAdvancedMisc;
         private System.Windows.Forms.Label lIRCDelay;
         private System.Windows.Forms.NumericUpDown nIRCDelay;
@@ -3753,7 +3833,6 @@
         private System.Windows.Forms.CheckBox xBlockDBAutoEnable;
         private System.Windows.Forms.CheckBox xBlockDBEnabled;
         private System.Windows.Forms.CheckBox xWoMEnableEnvExtensions;
-        private System.Windows.Forms.CheckBox xHeartbeatToWoMDirect;
         private System.Windows.Forms.NumericUpDown nCopyPasteSlots;
         private System.Windows.Forms.Label lCopyPasteSlots;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvcName;
@@ -3770,5 +3849,16 @@
         private System.Windows.Forms.Label lMaxUndoStates;
         private System.Windows.Forms.GroupBox gPerformance;
         private System.Windows.Forms.Button bChangelog;
+        private System.Windows.Forms.GroupBox gIRCColors;
+        private System.Windows.Forms.CheckBox xIRCStripMinecraftColors;
+        private System.Windows.Forms.GroupBox gWoMDirect;
+        private System.Windows.Forms.Label lWoMDirectFlags;
+        private System.Windows.Forms.TextBox tWoMDirectFlags;
+        private System.Windows.Forms.Label lWoMDirectDescription;
+        private System.Windows.Forms.TextBox tWoMDirectDescription;
+        private System.Windows.Forms.CheckBox xHeartbeatToWoMDirect;
+        private System.Windows.Forms.GroupBox gCrashReport;
+        private System.Windows.Forms.Label lCrashReportDisclaimer;
+        private System.Windows.Forms.CheckBox xSubmitCrashReports;
     }
 }

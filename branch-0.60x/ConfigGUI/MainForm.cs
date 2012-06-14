@@ -1547,5 +1547,12 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             lPrefix.Enabled = usePrefixes;
             RebuildRankList();
         }
+
+        private void xHeartbeatToWoMDirect_CheckedChanged( object sender, EventArgs e ) {
+            tWoMDirectDescription.Enabled = xHeartbeatToWoMDirect.Checked;
+            lWoMDirectDescription.Enabled = xHeartbeatToWoMDirect.Checked;
+            tWoMDirectFlags.Enabled = xHeartbeatToWoMDirect.Checked;
+            lWoMDirectFlags.Enabled = xHeartbeatToWoMDirect.Checked;
+        }
     }
 }

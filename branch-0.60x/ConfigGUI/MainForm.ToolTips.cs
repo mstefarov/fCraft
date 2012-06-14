@@ -65,6 +65,13 @@ You can use any color codes, and these special variables:
     {SERVER_NAME} = server name (as defined in config)
     {RANK} = connecting player's rank" );
 
+            toolTip.SetToolTip( xHeartbeatToWoMDirect, ConfigKey.HeartbeatToWoMDirect.GetDescription() );
+
+            toolTip.SetToolTip( tWoMDirectDescription, ConfigKey.WoMDirectDescription.GetDescription() );
+            toolTip.SetToolTip( lWoMDirectDescription, ConfigKey.WoMDirectDescription.GetDescription() );
+            toolTip.SetToolTip( tWoMDirectFlags, ConfigKey.WoMDirectFlags.GetDescription() );
+            toolTip.SetToolTip( lWoMDirectFlags, ConfigKey.WoMDirectFlags.GetDescription() );
+
         }
 
 
@@ -661,6 +668,7 @@ or type in address/port manually below.";
             // TODO: IRCThreads
 
             toolTip.SetToolTip( xIRCUseColor, ConfigKey.IRCUseColor.GetDescription() );
+            toolTip.SetToolTip( xIRCStripMinecraftColors, ConfigKey.IRCStripMinecraftColors.GetDescription() );
         }
 
 
@@ -691,8 +699,6 @@ or type in address/port manually below.";
 
             toolTip.SetToolTip( xIP, ConfigKey.IP.GetDescription() );
             toolTip.SetToolTip( tIP, ConfigKey.IP.GetDescription() );
-
-            toolTip.SetToolTip( xHeartbeatToWoMDirect, ConfigKey.HeartbeatToWoMDirect.GetDescription() );
         }
     }
 }
