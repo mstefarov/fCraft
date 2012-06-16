@@ -336,7 +336,7 @@ namespace fCraft {
             StringBuilder sb = new StringBuilder( SubstituteSpecialColors( input ) );
 
             foreach( KeyValuePair<string, IRCColor> code in MinecraftToIRCColors ) {
-                sb.Replace( code.Key, '\u0003' + ((int)code.Value).ToString().PadLeft( 2, '0' ) );
+                sb.Replace( code.Key, '\u0003' + ((int)code.Value).ToString( "00" ) );
             }
             return sb.ToString();
         }

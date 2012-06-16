@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 
 namespace fCraft {
@@ -28,6 +29,7 @@ namespace fCraft {
 
 
         const string UnsupportedMessage = "Your Mono version is not supported. Update to at least Mono 2.6+ (recommended 2.10+)";
+        static readonly Regex VersionRegex = new Regex( @"^(\d)+\.(\d+)\.(\d)\D" );
 
         const BindingFlags MonoMethodFlags = BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.ExactBinding;
         static MonoCompat() {
@@ -36,13 +38,15 @@ namespace fCraft {
             if( monoRuntimeType != null ) {
                 IsMono = true;
                 MethodInfo getDisplayNameMethod = monoRuntimeType.GetMethod( "GetDisplayName", MonoMethodFlags, null, Type.EmptyTypes, null );
+
                 if( getDisplayNameMethod != null ) {
                     MonoVersionString = (string)getDisplayNameMethod.Invoke( null, null );
+
                     try {
-                        string[] parts = MonoVersionString.Split( '.' );
-                        int major = Int32.Parse( parts[0] );
-                        int minor = Int32.Parse( parts[1] );
-                        int revision = Int32.Parse( parts[2].Substring( 0, parts[2].IndexOf( ' ' ) ) );
+                        Match versionMatch = VersionRegex.Match( MonoVersionString );
+                        int major = Int32.Parse( versionMatch.Groups[1].Value );
+                        int minor = Int32.Parse( versionMatch.Groups[2].Value );
+                        int revision = Int32.Parse( versionMatch.Groups[3].Value );
                         MonoVersion = new Version( major, minor, revision );
                         IsSGenCapable = (major == 2 && minor >= 8);
                     } catch( Exception ex ) {
