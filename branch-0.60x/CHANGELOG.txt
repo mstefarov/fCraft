@@ -1,3 +1,21 @@
+0.620
+ Feature: WoM Direct description and flags can now be set from config, without the need to go to WoM Direct website.
+ Feature: Added a new /WSet command, that allows hiding worlds, changing backup settings, and setting greeting messages.
+ Feature: More /WInfo information is persisted across server restarts: IsLocked, LockedBy, UnlockedBy, LoadedBy, LoadedOn, MapChangedBy, MapChangedOn.
+ Feature: Added IRCStripMinecraftColors config key (default: true). It determines whether Minecraft colorcodes (ampersand codes) entered on IRC should be removed before showing the message in-game.
+ Fix: Fixed incorrect percentages occasional being printed by /Measure, /Cancel, and /Undo.
+ Fix: Locked worlds remain locked after server restart.
+ Fix: Addressed many flaws and glitches in the backup system.
+ Fix: Fixed a case where draw commands that affected no blocks caused division by zero
+ Fix: Fixed a PlayerDB record corruption bug that affected numbers over 100,000,000.
+ Fix: Fixed a stability issue related to LineWrapper (thanks Kevinsweijen and Mc_MrCat).
+ Fix: Fixed IRC markup codes being forwarded to the server in IRC's channel-kick messages.
+ Fix: Fixed /Unmute not checking rank limits (thanks Jonty800).
+ Fix: Fixed "/BanIP <IP>" and "/BanAll <PlayerName>" not checking ban exemptions when kicking players (thanks BobKare).
+ Fix: Fixed "/BanIP <PlayerName>" not kicking all the players from IP address.
+ Fix: Fixed Undo/Redo messages (thanks Jonty800).
+ Fix: Fixed compatibility with Mono 2.10.8.1 (thanks Hawkzeh).
+
 0.618
  Fix: Fixed a crash in ConfigGUI when trying to sort by map size and a map file is missing (thanks Moose).
  Change: Ampersands are no longer allowed in chat, even escaped, due to unpredictable Minecraft client behavior.
