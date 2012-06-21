@@ -15,6 +15,7 @@
  Fix: Fixed "/BanIP <PlayerName>" not kicking all the players from IP address.
  Fix: Fixed Undo/Redo messages (thanks Jonty800).
  Fix: Fixed compatibility with Mono 2.10.8.1 (thanks Hawkzeh).
+ Change: Removed /WHide and /WUnhide (obsoleted by /WSet).
 
 0.618
  Fix: Fixed a crash in ConfigGUI when trying to sort by map size and a map file is missing (thanks Moose).
