@@ -2475,7 +2475,7 @@ namespace fCraft {
         static void WorldSetHandler( Player player, Command cmd ) {
             string worldName = cmd.Next();
             string varName = cmd.Next();
-            string value = cmd.Next();
+            string value = cmd.NextAll();
             if( worldName == null || varName == null ) {
                 CdWorldSet.PrintUsage( player );
                 return;
@@ -2487,7 +2487,7 @@ namespace fCraft {
             switch( varName.ToLower() ) {
                 case "hide":
                 case "hidden":
-                    if( value == null ) {
+                    if( String.IsNullOrEmpty( value ) ) {
                         player.Message( "World {0}&S is current {1}hidden.",
                                         world.ClassyName,
                                         world.IsHidden ? "" : "NOT " );
@@ -2520,7 +2520,7 @@ namespace fCraft {
                 case "backups":
                     TimeSpan backupInterval;
                     string oldDescription = world.BackupSettingDescription;
-                    if( value == null ) {
+                    if( String.IsNullOrEmpty( value ) ) {
                         player.Message( GetBackupSettingsString( world ) );
 
                     } else if( value.Equals( "off", StringComparison.OrdinalIgnoreCase ) || value.Equals( "disabled", StringComparison.OrdinalIgnoreCase ) ) {
