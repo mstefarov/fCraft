@@ -30,8 +30,14 @@ namespace fCraft.Drawing {
             BlocksTotalEstimate = Bounds.Volume;
             Coords = Bounds.MinVertex;
 
+            Context |= BlockChangeContext.Cut;
+            return true;
+        }
+
+
+        public override bool Begin() {
             // remember dimensions and orientation
-            CopyState copyInfo = new CopyState( marks[0], marks[1] );
+            CopyState copyInfo = new CopyState( Marks[0], Marks[1] );
 
             for( int x = Bounds.XMin; x <= Bounds.XMax; x++ ) {
                 for( int y = Bounds.YMin; y <= Bounds.YMax; y++ ) {
@@ -51,8 +57,7 @@ namespace fCraft.Drawing {
                             (copyInfo.Orientation.Y == 1 ? "south" : "north"),
                             (copyInfo.Orientation.Z == 1 ? "east" : "west") );
 
-            Context |= BlockChangeContext.Cut;
-            return true;
+            return base.Begin();
         }
 
 
