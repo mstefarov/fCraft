@@ -110,11 +110,26 @@ namespace fCraft {
                 // find players by IP
                 infos = PlayerDB.FindPlayers( ip );
 
+            } else if( name.Equals( "*" ) ) {
+                infos = (PlayerInfo[])PlayerDB.PlayerInfoList.Clone();
+
             } else if( name.Contains( "*" ) || name.Contains( "?" ) ) {
                 // find players by regex/wildcard
                 string regexString = "^" + RegexNonNameChars.Replace( name, "" ).Replace( "*", ".*" ).Replace( "?", "." ) + "$";
                 Regex regex = new Regex( regexString, RegexOptions.IgnoreCase | RegexOptions.Compiled );
                 infos = PlayerDB.FindPlayers( regex );
+
+            } else if( name.StartsWith( "@" ) ) {
+                string rankName = name.Substring( 1 );
+                Rank rank = RankManager.FindRank( rankName );
+                if( rank == null ) {
+                    player.Message( "Unknown rank: {0}", rankName );
+                    return;
+                } else {
+                    infos = PlayerDB.PlayerInfoList
+                                    .Where( info => info.Rank == rank )
+                                    .ToArray();
+                }
 
             } else {
                 // find players by partial matching
@@ -564,43 +579,45 @@ namespace fCraft {
             }
 
             // Show alts
-            List<PlayerInfo> altNames = new List<PlayerInfo>();
-            int bannedAltCount = 0;
-            foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( address ) ) {
-                if( playerFromSameIP == info ) continue;
-                altNames.Add( playerFromSameIP );
-                if( playerFromSameIP.IsBanned ) {
-                    bannedAltCount++;
-                }
-            }
-
-            if( altNames.Count > 0 ) {
-                altNames.Sort( new PlayerInfoComparer( player ) );
-                if( altNames.Count > MaxAltsToPrint ) {
-                    if( bannedAltCount > 0 ) {
-                        player.MessagePrefixed( "&S  ",
-                                                "&S  Over {0} accounts ({1} banned) on IP: {2} &Setc",
-                                                MaxAltsToPrint,
-                                                bannedAltCount,
-                                                altNames.Take( 15 ).ToArray().JoinToClassyString() );
-                    } else {
-                        player.MessagePrefixed( "&S  ",
-                                                "&S  Over {0} accounts on IP: {1} &Setc",
-                                                MaxAltsToPrint,
-                                                altNames.Take( 15 ).ToArray().JoinToClassyString() );
+            if( !info.LastIP.Equals( IPAddress.None ) ) {
+                List<PlayerInfo> altNames = new List<PlayerInfo>();
+                int bannedAltCount = 0;
+                foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( address ) ) {
+                    if( playerFromSameIP == info ) continue;
+                    altNames.Add( playerFromSameIP );
+                    if( playerFromSameIP.IsBanned ) {
+                        bannedAltCount++;
                     }
-                } else {
-                    if( bannedAltCount > 0 ) {
-                        player.MessagePrefixed( "&S  ",
-                                                "&S  {0} accounts ({1} banned) on IP: {2}",
-                                                altNames.Count,
-                                                bannedAltCount,
-                                                altNames.ToArray().JoinToClassyString() );
+                }
+
+                if( altNames.Count > 0 ) {
+                    altNames.Sort( new PlayerInfoComparer( player ) );
+                    if( altNames.Count > MaxAltsToPrint ) {
+                        if( bannedAltCount > 0 ) {
+                            player.MessagePrefixed( "&S  ",
+                                                    "&S  Over {0} accounts ({1} banned) on IP: {2} &Setc",
+                                                    MaxAltsToPrint,
+                                                    bannedAltCount,
+                                                    altNames.Take( 15 ).ToArray().JoinToClassyString() );
+                        } else {
+                            player.MessagePrefixed( "&S  ",
+                                                    "&S  Over {0} accounts on IP: {1} &Setc",
+                                                    MaxAltsToPrint,
+                                                    altNames.Take( 15 ).ToArray().JoinToClassyString() );
+                        }
                     } else {
-                        player.MessagePrefixed( "&S  ",
-                                                "&S  {0} accounts on IP: {1}",
-                                                altNames.Count,
-                                                altNames.ToArray().JoinToClassyString() );
+                        if( bannedAltCount > 0 ) {
+                            player.MessagePrefixed( "&S  ",
+                                                    "&S  {0} accounts ({1} banned) on IP: {2}",
+                                                    altNames.Count,
+                                                    bannedAltCount,
+                                                    altNames.ToArray().JoinToClassyString() );
+                        } else {
+                            player.MessagePrefixed( "&S  ",
+                                                    "&S  {0} accounts on IP: {1}",
+                                                    altNames.Count,
+                                                    altNames.ToArray().JoinToClassyString() );
+                        }
                     }
                 }
             }
