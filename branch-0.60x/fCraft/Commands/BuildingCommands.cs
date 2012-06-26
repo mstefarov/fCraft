@@ -810,7 +810,8 @@ namespace fCraft {
                     if( slots[i] != null ) {
                         player.Message( "  {0}: {1} blocks from {2}, {3} old",
                                         i + 1, slots[i].Buffer.Length,
-                                        slots[i].OriginWorld, DateTime.UtcNow.Subtract( slots[i].CopyTime ).ToMiniString() );
+                                        slots[i].OriginWorld,
+                                        DateTime.UtcNow.Subtract( slots[i].CopyTime ).ToMiniString() );
                     }
                 }
             }

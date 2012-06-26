@@ -120,7 +120,7 @@ namespace fCraft {
         public static bool ToDateTime( this string str, ref DateTime result ) {
             long t;
             if( str.Length > 1 && Int64.TryParse( str, out t ) ) {
-                result = UnixEpoch.AddSeconds( Int64.Parse( str ) );
+                result = UnixEpoch.AddSeconds( t );
                 return true;
             }
             return false;

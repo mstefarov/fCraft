@@ -1229,55 +1229,157 @@ namespace fCraft {
                 return;
             }
 
-            string[] names;
-
             switch( serverName.ToLower() ) {
                 case "mcsharp":
                 case "mczall":
                 case "mclawl":
                 case "mcforge":
+                    string[] names;
                     try {
                         names = File.ReadAllLines( file );
                     } catch( Exception ex ) {
+                        player.Message( "Import: Could not open \"{0}\" to import bans." );
                         Logger.Log( LogType.Error,
-                                    "Could not open \"{0}\" to import bans: {1}",
+                                    "ImportBans: Could not open \"{0}\": {1}",
                                     file, ex );
                         return;
                     }
+                    if( !cmd.IsConfirmed ) {
+                        player.Confirm( cmd, "ImportBans: Import {0} records?", names.Length );
+                        return;
+                    }
+
+                    string reason = "(imported from MCSharp)";
+                    foreach( string name in names ) {
+                        try {
+                            IPAddress ip;
+                            if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
+                                ip.BanIP( player, reason, true, true );
+                            } else if( Player.IsValidName( name ) ) {
+                                PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
+                                                  PlayerDB.AddFakeEntry( name, RankChangeType.Default );
+                                info.Ban( player, reason, true, true );
+
+                            } else {
+                                player.Message( "ImportBans: Could not parse \"{0}\" as either name or IP. Skipping.", name );
+                            }
+                        } catch( PlayerOpException ex ) {
+                            Logger.Log( LogType.Warning, "ImportBans: " + ex.Message );
+                            player.Message( ex.MessageColored );
+                        }
+                    }
+                    PlayerDB.Save();
+                    IPBanList.Save();
                     break;
+
+                case "commandbook":
+                    if( !file.Equals( "bans.csv", StringComparison.OrdinalIgnoreCase ) ) {
+                        player.Message( "Import: Please provide bans.csv file for CommandBook" );
+                        return;
+                    }
+
+                    string[] lines;
+                    try {
+                        lines = File.ReadAllLines( file );
+                    } catch( Exception ex ) {
+                        player.Message( "Import: Could not open \"{0}\" to import bans." );
+                        Logger.Log( LogType.Error,
+                                    "ImportBans: Could not open \"{0}\": {1}",
+                                    file, ex );
+                        return;
+                    }
+                    if( !cmd.IsConfirmed ) {
+                        player.Confirm( cmd, "ImportBans: Import {0} records?", lines.Length );
+                        return;
+                    }
+                    for( int i = 0; i < lines.Length; i++ ) {
+                        string[] record = ParseCsvRow( lines[i] );
+                        if( record.Length != 5 ) {
+                            player.Message( "ImportBans: Skipping line {0}", i );
+                            continue;
+                        }
+                        string playerName = record[0];
+                        string banReason = String.Format( "{0} (imported from CommandBook on {1})",
+                                                          record[2],
+                                                          DateTime.UtcNow.ToCompactString() ).Trim();
+
+                        PlayerInfo info = PlayerDB.FindPlayerInfoExact( playerName ) ??
+                                          PlayerDB.AddFakeEntry( playerName, RankChangeType.Default );
+                        
+                        try {
+                        info.Ban( player, banReason, true, true );
+                        } catch( PlayerOpException ex ) {
+                            Logger.Log( LogType.Warning, "ImportBans: " + ex.Message );
+                            player.Message( ex.MessageColored );
+                            continue;
+                        }
+
+                        long timestamp;
+                        if( record[3].Length > 1 && Int64.TryParse( record[3], out timestamp ) ) {
+                            DateTime originalBanDate = DateTimeUtil.UnixEpoch.AddMilliseconds( timestamp );
+                            info.BanDate = originalBanDate;
+                        }
+                    }
+                    PlayerDB.Save();
+                    IPBanList.Save();
+
+                    break;
+
                 default:
-                    player.Message( "fCraft does not support importing from {0}", serverName );
+                    player.Message( "fCraft does not support importing from \"{0}\". " +
+                                    "Only MCSharp and CommandBook ban lists are supported.",
+                                    serverName );
                     return;
             }
+        }
 
-            if( !cmd.IsConfirmed ) {
-                player.Confirm( cmd, "Import {0} bans.", names.Length );
-                return;
-            }
 
-            string reason = "(import from " + serverName + ")";
-            foreach( string name in names ) {
-                try {
-                    IPAddress ip;
-                    if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
-                        ip.BanIP( player, reason, true, true );
-                    } else if( Player.IsValidName( name ) ) {
-                        PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
-                                          PlayerDB.AddFakeEntry( name, RankChangeType.Default );
-                        info.Ban( player, reason, true, true );
+        // by Chris Wilson
+        static string[] ParseCsvRow( string r ) {
+            string[] c;
+            List<string> resp = new List<string>();
+            bool cont = false;
+            string cs = "";
+            c = r.Split( new char[] { ',' }, StringSplitOptions.None );
+            foreach( string y in c ) {
+                string x = y;
+                if( cont ) {
+                    // End of field
+                    if( x.EndsWith( "\"" ) ) {
+                        cs += "," + x.Substring( 0, x.Length - 1 );
+                        resp.Add( cs );
+                        cs = "";
+                        cont = false;
+                        continue;
 
                     } else {
-                        player.Message( "Could not parse \"{0}\" as either name or IP. Skipping.", name );
+                        // Field still not ended
+                        cs += "," + x;
+                        continue;
                     }
-                } catch( PlayerOpException ex ) {
-                    Logger.Log( LogType.Warning, "ImportBans: " + ex.Message );
-                    player.Message( ex.MessageColored );
                 }
+                // Fully encapsulated with no comma within
+                if( x.StartsWith( "\"" ) && x.EndsWith( "\"" ) ) {
+                    if( (x.EndsWith( "\"\"" ) && !x.EndsWith( "\"\"\"" )) && x != "\"\"" ) {
+                        cont = true;
+                        cs = x;
+                        continue;
+                    }
+                    resp.Add( x.Substring( 1, x.Length - 2 ) );
+                    continue;
+                }
+                // Start of encapsulation but comma has split it into at least next field
+                if( x.StartsWith( "\"" ) && !x.EndsWith( "\"" ) ) {
+                    cont = true;
+                    cs += x.Substring( 1 );
+                    continue;
+                }
+                // Non encapsulated complete field
+                resp.Add( x );
             }
-
-            PlayerDB.Save();
-            IPBanList.Save();
+            return resp.ToArray();
         }
+
 
 
         static void ImportRanks( Player player, Command cmd ) {
