@@ -2522,8 +2522,10 @@ namespace fCraft {
                     string oldDescription = world.BackupSettingDescription;
                     if( String.IsNullOrEmpty( value ) ) {
                         player.Message( GetBackupSettingsString( world ) );
+                        return;
 
-                    } else if( value.Equals( "off", StringComparison.OrdinalIgnoreCase ) || value.Equals( "disabled", StringComparison.OrdinalIgnoreCase ) ) {
+                    } else if( value.Equals( "off", StringComparison.OrdinalIgnoreCase ) || value.StartsWith( "disable", StringComparison.OrdinalIgnoreCase ) ) {
+                        // Disable backups on the world
                         if( world.BackupEnabledState == YesNoAuto.No ) {
                             MessageSameBackupSettings( player, world );
                             return;
@@ -2532,6 +2534,7 @@ namespace fCraft {
                         }
 
                     } else if( value.Equals( "default", StringComparison.OrdinalIgnoreCase ) || value.Equals( "auto", StringComparison.OrdinalIgnoreCase ) ) {
+                        // Set world to use default settings
                         if( world.BackupEnabledState == YesNoAuto.Auto ) {
                             MessageSameBackupSettings( player, world );
                             return;
@@ -2542,18 +2545,19 @@ namespace fCraft {
 
                     } else if( value.TryParseMiniTimespan( out backupInterval ) ) {
                         if( backupInterval == TimeSpan.Zero ) {
+                            // Set world's backup interval to 0, which is equivalent to disabled
                             if( world.BackupEnabledState == YesNoAuto.No ) {
                                 MessageSameBackupSettings( player, world );
                                 return;
                             } else {
                                 world.BackupEnabledState = YesNoAuto.No;
                             }
+                        } else if( world.BackupEnabledState != YesNoAuto.Yes || world.BackupInterval != backupInterval ) {
+                            // Alter world's backup interval
+                            world.BackupInterval = backupInterval;
                         } else {
-                            if( world.BackupEnabledState != YesNoAuto.Yes || world.BackupInterval != backupInterval ) {
-                                world.BackupInterval = backupInterval;
-                            } else {
-                                return;
-                            }
+                            MessageSameBackupSettings( player, world );
+                            return;
                         }
 
                     } else {
@@ -2568,7 +2572,7 @@ namespace fCraft {
                 case "greeting":
                     if( String.IsNullOrEmpty( value ) ) {
                         if( world.Greeting == null ) {
-                            player.Message( "No greeting message was set for world {0}", world.ClassyName );
+                            player.Message( "No greeting message is set for world {0}", world.ClassyName );
                         } else {
                             player.Message( "Greeting message removed for world {0}", world.ClassyName );
                         }
