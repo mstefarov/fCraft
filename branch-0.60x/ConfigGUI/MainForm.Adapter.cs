@@ -259,7 +259,9 @@ namespace fCraft.ConfigGUI {
 
             nAntispamMessageCount.Value = ConfigKey.AntispamMessageCount.GetInt();
             nAntispamInterval.Value = ConfigKey.AntispamInterval.GetInt();
-            nSpamMute.Value = ConfigKey.AntispamMuteDuration.GetInt();
+            nAntispamMuteDuration.Value = ConfigKey.AntispamMuteDuration.GetInt();
+
+            xAntispamMessageCount.Checked = (ConfigKey.AntispamMessageCount.GetInt() > 0) && (ConfigKey.AntispamInterval.GetInt() > 0);
 
             xAntispamKicks.Checked = (ConfigKey.AntispamMaxWarnings.GetInt() > 0);
             nAntispamMaxWarnings.Value = ConfigKey.AntispamMaxWarnings.GetInt();
@@ -513,9 +515,16 @@ namespace fCraft.ConfigGUI {
             }
             ConfigKey.AllowUnverifiedLAN.TrySetValue( xAllowUnverifiedLAN.Checked );
 
-            ConfigKey.AntispamMessageCount.TrySetValue( nAntispamMessageCount.Value );
-            ConfigKey.AntispamInterval.TrySetValue( nAntispamInterval.Value );
-            ConfigKey.AntispamMuteDuration.TrySetValue( nSpamMute.Value );
+            if( xAntispamMessageCount.Checked ) {
+                ConfigKey.AntispamMessageCount.TrySetValue( nAntispamMessageCount.Value );
+                ConfigKey.AntispamInterval.TrySetValue( nAntispamInterval.Value );
+            } else {
+                ConfigKey.AntispamMessageCount.TrySetValue( 0 );
+                ConfigKey.AntispamInterval.TrySetValue( 0 );
+            }
+
+            if( xAntispamMuteDuration.Checked ) ConfigKey.AntispamMuteDuration.TrySetValue( nAntispamMuteDuration.Value );
+            else ConfigKey.AntispamMuteDuration.TrySetValue( 0 );
 
             if( xAntispamKicks.Checked ) ConfigKey.AntispamMaxWarnings.TrySetValue( nAntispamMaxWarnings.Value );
             else ConfigKey.AntispamMaxWarnings.TrySetValue( 0 );

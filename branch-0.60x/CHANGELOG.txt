@@ -1,3 +1,14 @@
+0.621
+ Feature: Added CommandBook banlist support to /Import.
+ Feature: Added a way to list all players of a certain rank with "/Info @ClassName".
+ Fix: Fixed changes to DefaultBackupInterval config key not being applied.
+ Fix: Fixed /BanInfo showing "players on same IP" for players without a recorded IP address.
+ Fix: Fixed a missing feedback message in /WSet.
+ Fix: Fixed /WSet only saving the first word of the greeting message.
+ Fix: Fixed /Cut storing the selected blocks before checking player's draw limit (thanks ruggedbear)
+ Fix: Fixed /Fill2D starting a selection even if command parameters could not be parsed (thanks David00143)
+ Change: Sped up PlayerDB loading on startup.
+
 0.620
  Feature: WoM Direct description and flags can now be set from config, without the need to go to WoM Direct website.
  Feature: Added a new /WSet command, that allows hiding worlds, changing backup settings, and setting greeting messages.

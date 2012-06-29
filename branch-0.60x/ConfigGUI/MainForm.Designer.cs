@@ -25,8 +25,8 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( MainForm ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -97,7 +97,6 @@
             this.xRankPrefixesInList = new System.Windows.Forms.CheckBox();
             this.xRankPrefixesInChat = new System.Windows.Forms.CheckBox();
             this.xRankColorsInChat = new System.Windows.Forms.CheckBox();
-            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.xWoMEnableEnvExtensions = new System.Windows.Forms.CheckBox();
             this.bMapPath = new System.Windows.Forms.Button();
@@ -176,14 +175,12 @@
             this.lAntispamMaxWarnings = new System.Windows.Forms.Label();
             this.nAntispamMaxWarnings = new System.Windows.Forms.NumericUpDown();
             this.xAntispamKicks = new System.Windows.Forms.CheckBox();
-            this.lSpamMuteSeconds = new System.Windows.Forms.Label();
-            this.lAntispamInterval = new System.Windows.Forms.Label();
-            this.nSpamMute = new System.Windows.Forms.NumericUpDown();
-            this.lSpamMute = new System.Windows.Forms.Label();
+            this.lAntispamMuteDurationUnits = new System.Windows.Forms.Label();
+            this.lAntispamIntervalUnits = new System.Windows.Forms.Label();
+            this.nAntispamMuteDuration = new System.Windows.Forms.NumericUpDown();
             this.nAntispamInterval = new System.Windows.Forms.NumericUpDown();
             this.lAntispamMessageCount = new System.Windows.Forms.Label();
             this.nAntispamMessageCount = new System.Windows.Forms.NumericUpDown();
-            this.lSpamChat = new System.Windows.Forms.Label();
             this.gVerify = new System.Windows.Forms.GroupBox();
             this.nMaxConnectionsPerIP = new System.Windows.Forms.NumericUpDown();
             this.xAllowUnverifiedLAN = new System.Windows.Forms.CheckBox();
@@ -294,6 +291,9 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
+            this.xAntispamMessageCount = new System.Windows.Forms.CheckBox();
+            this.xAntispamMuteDuration = new System.Windows.Forms.CheckBox();
+            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gWoMDirect.SuspendLayout();
@@ -326,7 +326,7 @@
             this.gSecurityMisc.SuspendLayout();
             this.gSpamChat.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nAntispamMaxWarnings)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nSpamMute)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nAntispamMuteDuration)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nAntispamInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nAntispamMessageCount)).BeginInit();
             this.gVerify.SuspendLayout();
@@ -1186,13 +1186,6 @@
             this.xRankColorsInChat.Text = "Show rank colors.";
             this.xRankColorsInChat.UseVisualStyleBackColor = true;
             // 
-            // chatPreview
-            // 
-            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size( 637, 241 );
-            this.chatPreview.TabIndex = 2;
-            // 
             // tabWorlds
             // 
             this.tabWorlds.Controls.Add( this.xWoMEnableEnvExtensions );
@@ -1355,8 +1348,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle4.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 325 );
             this.dgvWorlds.TabIndex = 0;
@@ -1414,8 +1407,8 @@
             // dgvcBlockDB
             // 
             this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
             this.dgvcBlockDB.HeaderText = "BlockDB";
             this.dgvcBlockDB.Name = "dgvcBlockDB";
             this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
@@ -2056,17 +2049,17 @@
             // 
             // gSpamChat
             // 
+            this.gSpamChat.Controls.Add( this.xAntispamMuteDuration );
+            this.gSpamChat.Controls.Add( this.xAntispamMessageCount );
             this.gSpamChat.Controls.Add( this.lAntispamMaxWarnings );
             this.gSpamChat.Controls.Add( this.nAntispamMaxWarnings );
             this.gSpamChat.Controls.Add( this.xAntispamKicks );
-            this.gSpamChat.Controls.Add( this.lSpamMuteSeconds );
-            this.gSpamChat.Controls.Add( this.lAntispamInterval );
-            this.gSpamChat.Controls.Add( this.nSpamMute );
-            this.gSpamChat.Controls.Add( this.lSpamMute );
+            this.gSpamChat.Controls.Add( this.lAntispamMuteDurationUnits );
+            this.gSpamChat.Controls.Add( this.lAntispamIntervalUnits );
+            this.gSpamChat.Controls.Add( this.nAntispamMuteDuration );
             this.gSpamChat.Controls.Add( this.nAntispamInterval );
             this.gSpamChat.Controls.Add( this.lAntispamMessageCount );
             this.gSpamChat.Controls.Add( this.nAntispamMessageCount );
-            this.gSpamChat.Controls.Add( this.lSpamChat );
             this.gSpamChat.Location = new System.Drawing.Point( 8, 194 );
             this.gSpamChat.Name = "gSpamChat";
             this.gSpamChat.Size = new System.Drawing.Size( 636, 94 );
@@ -2077,7 +2070,8 @@
             // lAntispamMaxWarnings
             // 
             this.lAntispamMaxWarnings.AutoSize = true;
-            this.lAntispamMaxWarnings.Location = new System.Drawing.Point( 454, 62 );
+            this.lAntispamMaxWarnings.Enabled = false;
+            this.lAntispamMaxWarnings.Location = new System.Drawing.Point( 569, 61 );
             this.lAntispamMaxWarnings.Name = "lAntispamMaxWarnings";
             this.lAntispamMaxWarnings.Size = new System.Drawing.Size( 57, 15 );
             this.lAntispamMaxWarnings.TabIndex = 10;
@@ -2085,7 +2079,8 @@
             // 
             // nAntispamMaxWarnings
             // 
-            this.nAntispamMaxWarnings.Location = new System.Drawing.Point( 386, 60 );
+            this.nAntispamMaxWarnings.Enabled = false;
+            this.nAntispamMaxWarnings.Location = new System.Drawing.Point( 501, 59 );
             this.nAntispamMaxWarnings.Name = "nAntispamMaxWarnings";
             this.nAntispamMaxWarnings.Size = new System.Drawing.Size( 62, 21 );
             this.nAntispamMaxWarnings.TabIndex = 9;
@@ -2093,7 +2088,8 @@
             // xAntispamKicks
             // 
             this.xAntispamKicks.AutoSize = true;
-            this.xAntispamKicks.Location = new System.Drawing.Point( 304, 61 );
+            this.xAntispamKicks.Enabled = false;
+            this.xAntispamKicks.Location = new System.Drawing.Point( 419, 60 );
             this.xAntispamKicks.Name = "xAntispamKicks";
             this.xAntispamKicks.Size = new System.Drawing.Size( 76, 19 );
             this.xAntispamKicks.TabIndex = 8;
@@ -2101,50 +2097,45 @@
             this.xAntispamKicks.UseVisualStyleBackColor = true;
             this.xAntispamKicks.CheckedChanged += new System.EventHandler( this.xSpamChatKick_CheckedChanged );
             // 
-            // lSpamMuteSeconds
+            // lAntispamMuteDurationUnits
             // 
-            this.lSpamMuteSeconds.AutoSize = true;
-            this.lSpamMuteSeconds.Location = new System.Drawing.Point( 221, 62 );
-            this.lSpamMuteSeconds.Name = "lSpamMuteSeconds";
-            this.lSpamMuteSeconds.Size = new System.Drawing.Size( 53, 15 );
-            this.lSpamMuteSeconds.TabIndex = 7;
-            this.lSpamMuteSeconds.Text = "seconds";
+            this.lAntispamMuteDurationUnits.AutoSize = true;
+            this.lAntispamMuteDurationUnits.Enabled = false;
+            this.lAntispamMuteDurationUnits.Location = new System.Drawing.Point( 243, 61 );
+            this.lAntispamMuteDurationUnits.Name = "lAntispamMuteDurationUnits";
+            this.lAntispamMuteDurationUnits.Size = new System.Drawing.Size( 53, 15 );
+            this.lAntispamMuteDurationUnits.TabIndex = 7;
+            this.lAntispamMuteDurationUnits.Text = "seconds";
             // 
-            // lAntispamInterval
+            // lAntispamIntervalUnits
             // 
-            this.lAntispamInterval.AutoSize = true;
-            this.lAntispamInterval.Location = new System.Drawing.Point( 372, 27 );
-            this.lAntispamInterval.Name = "lAntispamInterval";
-            this.lAntispamInterval.Size = new System.Drawing.Size( 53, 15 );
-            this.lAntispamInterval.TabIndex = 4;
-            this.lAntispamInterval.Text = "seconds";
+            this.lAntispamIntervalUnits.AutoSize = true;
+            this.lAntispamIntervalUnits.Enabled = false;
+            this.lAntispamIntervalUnits.Location = new System.Drawing.Point( 383, 27 );
+            this.lAntispamIntervalUnits.Name = "lAntispamIntervalUnits";
+            this.lAntispamIntervalUnits.Size = new System.Drawing.Size( 53, 15 );
+            this.lAntispamIntervalUnits.TabIndex = 4;
+            this.lAntispamIntervalUnits.Text = "seconds";
             // 
-            // nSpamMute
+            // nAntispamMuteDuration
             // 
-            this.nSpamMute.Location = new System.Drawing.Point( 153, 59 );
-            this.nSpamMute.Name = "nSpamMute";
-            this.nSpamMute.Size = new System.Drawing.Size( 62, 21 );
-            this.nSpamMute.TabIndex = 6;
-            // 
-            // lSpamMute
-            // 
-            this.lSpamMute.AutoSize = true;
-            this.lSpamMute.Location = new System.Drawing.Point( 39, 62 );
-            this.lSpamMute.Name = "lSpamMute";
-            this.lSpamMute.Size = new System.Drawing.Size( 108, 15 );
-            this.lSpamMute.TabIndex = 5;
-            this.lSpamMute.Text = "Mute spammer for";
-            // 
-            // nAntispamInterval
-            // 
-            this.nAntispamInterval.Location = new System.Drawing.Point( 304, 25 );
-            this.nAntispamInterval.Maximum = new decimal( new int[] {
-            50,
+            this.nAntispamMuteDuration.Enabled = false;
+            this.nAntispamMuteDuration.Location = new System.Drawing.Point( 175, 59 );
+            this.nAntispamMuteDuration.Name = "nAntispamMuteDuration";
+            this.nAntispamMuteDuration.Size = new System.Drawing.Size( 62, 21 );
+            this.nAntispamMuteDuration.TabIndex = 6;
+            this.nAntispamMuteDuration.Value = new decimal( new int[] {
+            1,
             0,
             0,
             0} );
-            this.nAntispamInterval.Minimum = new decimal( new int[] {
-            1,
+            // 
+            // nAntispamInterval
+            // 
+            this.nAntispamInterval.Enabled = false;
+            this.nAntispamInterval.Location = new System.Drawing.Point( 315, 25 );
+            this.nAntispamInterval.Maximum = new decimal( new int[] {
+            50,
             0,
             0,
             0} );
@@ -2160,7 +2151,8 @@
             // lAntispamMessageCount
             // 
             this.lAntispamMessageCount.AutoSize = true;
-            this.lAntispamMessageCount.Location = new System.Drawing.Point( 219, 27 );
+            this.lAntispamMessageCount.Enabled = false;
+            this.lAntispamMessageCount.Location = new System.Drawing.Point( 232, 27 );
             this.lAntispamMessageCount.Name = "lAntispamMessageCount";
             this.lAntispamMessageCount.Size = new System.Drawing.Size( 77, 15 );
             this.lAntispamMessageCount.TabIndex = 2;
@@ -2168,14 +2160,10 @@
             // 
             // nAntispamMessageCount
             // 
-            this.nAntispamMessageCount.Location = new System.Drawing.Point( 153, 25 );
+            this.nAntispamMessageCount.Enabled = false;
+            this.nAntispamMessageCount.Location = new System.Drawing.Point( 164, 25 );
             this.nAntispamMessageCount.Maximum = new decimal( new int[] {
             50,
-            0,
-            0,
-            0} );
-            this.nAntispamMessageCount.Minimum = new decimal( new int[] {
-            2,
             0,
             0,
             0} );
@@ -2187,15 +2175,6 @@
             0,
             0,
             0} );
-            // 
-            // lSpamChat
-            // 
-            this.lSpamChat.AutoSize = true;
-            this.lSpamChat.Location = new System.Drawing.Point( 50, 27 );
-            this.lSpamChat.Name = "lSpamChat";
-            this.lSpamChat.Size = new System.Drawing.Size( 97, 15 );
-            this.lSpamChat.TabIndex = 0;
-            this.lSpamChat.Text = "Limit chat rate to";
             // 
             // gVerify
             // 
@@ -3484,6 +3463,36 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
+            // xAntispamMessageCount
+            // 
+            this.xAntispamMessageCount.AutoSize = true;
+            this.xAntispamMessageCount.Location = new System.Drawing.Point( 42, 26 );
+            this.xAntispamMessageCount.Name = "xAntispamMessageCount";
+            this.xAntispamMessageCount.Size = new System.Drawing.Size( 116, 19 );
+            this.xAntispamMessageCount.TabIndex = 11;
+            this.xAntispamMessageCount.Text = "Limit chat rate to";
+            this.xAntispamMessageCount.UseVisualStyleBackColor = true;
+            this.xAntispamMessageCount.CheckedChanged += new System.EventHandler( this.xAntispamMessageCount_CheckedChanged );
+            // 
+            // xAntispamMuteDuration
+            // 
+            this.xAntispamMuteDuration.AutoSize = true;
+            this.xAntispamMuteDuration.Enabled = false;
+            this.xAntispamMuteDuration.Location = new System.Drawing.Point( 42, 60 );
+            this.xAntispamMuteDuration.Name = "xAntispamMuteDuration";
+            this.xAntispamMuteDuration.Size = new System.Drawing.Size( 127, 19 );
+            this.xAntispamMuteDuration.TabIndex = 12;
+            this.xAntispamMuteDuration.Text = "Mute spammer for";
+            this.xAntispamMuteDuration.UseVisualStyleBackColor = true;
+            this.xAntispamMuteDuration.CheckedChanged += new System.EventHandler( this.xAntispamMuteDuration_CheckedChanged );
+            // 
+            // chatPreview
+            // 
+            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size( 637, 241 );
+            this.chatPreview.TabIndex = 2;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -3544,7 +3553,7 @@
             this.gSpamChat.ResumeLayout( false );
             this.gSpamChat.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nAntispamMaxWarnings)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nSpamMute)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nAntispamMuteDuration)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nAntispamInterval)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nAntispamMessageCount)).EndInit();
             this.gVerify.ResumeLayout( false );
@@ -3685,16 +3694,14 @@
         private System.Windows.Forms.Label lVerifyNames;
         private System.Windows.Forms.ComboBox cVerifyNames;
         private System.Windows.Forms.GroupBox gSpamChat;
-        private System.Windows.Forms.Label lAntispamInterval;
+        private System.Windows.Forms.Label lAntispamIntervalUnits;
         private System.Windows.Forms.NumericUpDown nAntispamInterval;
         private System.Windows.Forms.Label lAntispamMessageCount;
         private System.Windows.Forms.NumericUpDown nAntispamMessageCount;
-        private System.Windows.Forms.Label lSpamChat;
         private System.Windows.Forms.CheckBox xLowLatencyMode;
         private System.Windows.Forms.CheckBox xAntispamKicks;
-        private System.Windows.Forms.Label lSpamMuteSeconds;
-        private System.Windows.Forms.NumericUpDown nSpamMute;
-        private System.Windows.Forms.Label lSpamMute;
+        private System.Windows.Forms.Label lAntispamMuteDurationUnits;
+        private System.Windows.Forms.NumericUpDown nAntispamMuteDuration;
         private System.Windows.Forms.Label lAntispamMaxWarnings;
         private System.Windows.Forms.NumericUpDown nAntispamMaxWarnings;
         private System.Windows.Forms.CheckBox xBackupOnlyWhenChanged;
@@ -3860,5 +3867,7 @@
         private System.Windows.Forms.GroupBox gCrashReport;
         private System.Windows.Forms.Label lCrashReportDisclaimer;
         private System.Windows.Forms.CheckBox xSubmitCrashReports;
+        private System.Windows.Forms.CheckBox xAntispamMessageCount;
+        private System.Windows.Forms.CheckBox xAntispamMuteDuration;
     }
 }
