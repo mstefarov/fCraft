@@ -640,7 +640,7 @@ namespace fCraft {
                 lock( backupLock ) {
                     if( value == backupEnabledState ) return;
                     if( value == YesNoAuto.Yes && backupInterval <= TimeSpan.Zero ) {
-                        throw new InvalidOperationException( "To set BackupEnabledState to 'Yes,' set BackupInterval instead." );
+                        throw new InvalidOperationException( "To set BackupEnabledState to 'Yes,' set BackupInterval to the desired time interval." );
                     }
                     backupEnabledState = value;
                 }
