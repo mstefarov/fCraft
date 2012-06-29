@@ -735,13 +735,18 @@ namespace fCraft {
                 DateTime oldestTime = spamChatLog.Dequeue();
                 if( DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds < AntispamInterval ) {
                     muteWarnings++;
-                    if( muteWarnings > ConfigKey.AntispamMaxWarnings.GetInt() ) {
+                    int maxMuteWarnings = ConfigKey.AntispamMaxWarnings.GetInt();
+                    if( maxMuteWarnings > 0 && muteWarnings > maxMuteWarnings ) {
                         KickNow( "You were kicked for repeated spamming.", LeaveReason.MessageSpamKick );
                         Server.Message( "&W{0} was kicked for repeated spamming.", ClassyName );
                     } else {
                         TimeSpan autoMuteDuration = TimeSpan.FromSeconds( ConfigKey.AntispamMuteDuration.GetInt() );
-                        Info.Mute( Console, autoMuteDuration, false, true );
-                        Message( "You have been muted for {0} seconds. Slow down.", autoMuteDuration );
+                        if( autoMuteDuration > TimeSpan.Zero ) {
+                            Info.Mute( Console, autoMuteDuration, false, true );
+                            Message( "You have been muted for {0} seconds. Slow down.", autoMuteDuration );
+                        } else {
+                            Message( "You are sending messages too quickly. Slow down." );
+                        }
                     }
                     return true;
                 }

@@ -679,7 +679,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             box.Items.Clear();
             box.Items.Add( firstItem );
             foreach( Rank rank in RankManager.Ranks ) {
-                box.Items.Add( MainForm.ToComboBoxOption(rank) );
+                box.Items.Add( MainForm.ToComboBoxOption( rank ) );
             }
         }
 
@@ -698,7 +698,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             RebuildRankList();
             SelectRank( rank );
 
-            rankNameList.Insert( rank.Index + 1, MainForm.ToComboBoxOption(rank) );
+            rankNameList.Insert( rank.Index + 1, MainForm.ToComboBoxOption( rank ) );
         }
 
         private void bDeleteRank_Click( object sender, EventArgs e ) {
@@ -749,12 +749,12 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 // Update world permissions
                 string worldUpdates = "";
                 foreach( WorldListEntry world in Worlds ) {
-                    if( world.AccessPermission == MainForm.ToComboBoxOption(deletedRank) ) {
-                        world.AccessPermission = MainForm.ToComboBoxOption(replacementRank);
+                    if( world.AccessPermission == MainForm.ToComboBoxOption( deletedRank ) ) {
+                        world.AccessPermission = MainForm.ToComboBoxOption( replacementRank );
                         worldUpdates += " - " + world.Name + ": access permission changed to " + replacementRank.Name + Environment.NewLine;
                     }
-                    if( world.BuildPermission == MainForm.ToComboBoxOption(deletedRank) ) {
-                        world.BuildPermission = MainForm.ToComboBoxOption(replacementRank);
+                    if( world.BuildPermission == MainForm.ToComboBoxOption( deletedRank ) ) {
+                        world.BuildPermission = MainForm.ToComboBoxOption( replacementRank );
                         worldUpdates += " - " + world.Name + ": build permission changed to " + replacementRank.Name + Environment.NewLine;
                     }
                 }
@@ -791,7 +791,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
             if( selectedRank.Prefix == tPrefix.Text ) return;
 
-            string oldName = MainForm.ToComboBoxOption(selectedRank);
+            string oldName = MainForm.ToComboBoxOption( selectedRank );
 
             // To avoid DataErrors in World tab's DataGridView while renaming a rank,
             // the new name is first added to the list of options (without removing the old name)
@@ -846,6 +846,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         private void xSpamChatKick_CheckedChanged( object sender, EventArgs e ) {
             nAntispamMaxWarnings.Enabled = xAntispamKicks.Checked;
+            lAntispamMaxWarnings.Enabled = xAntispamKicks.Checked;
         }
 
         private void vRanks_SelectedIndexChanged( object sender, EventArgs e ) {
@@ -1092,7 +1093,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 e.Cancel = true;
 
             } else {
-                string oldName = MainForm.ToComboBoxOption(selectedRank);
+                string oldName = MainForm.ToComboBoxOption( selectedRank );
 
                 // To avoid DataErrors in World tab's DataGridView while renaming a rank,
                 // the new name is first added to the list of options (without removing the old name)
@@ -1113,7 +1114,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             if( selectedRank == null ) return;
             if( RankManager.RaiseRank( selectedRank ) ) {
                 RebuildRankList();
-                rankNameList.Insert( selectedRank.Index + 1, MainForm.ToComboBoxOption(selectedRank) );
+                rankNameList.Insert( selectedRank.Index + 1, MainForm.ToComboBoxOption( selectedRank ) );
                 rankNameList.RemoveAt( selectedRank.Index + 3 );
             }
         }
@@ -1122,7 +1123,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             if( selectedRank == null ) return;
             if( RankManager.LowerRank( selectedRank ) ) {
                 RebuildRankList();
-                rankNameList.Insert( selectedRank.Index + 2, MainForm.ToComboBoxOption(selectedRank) );
+                rankNameList.Insert( selectedRank.Index + 2, MainForm.ToComboBoxOption( selectedRank ) );
                 rankNameList.RemoveAt( selectedRank.Index );
             }
         }
@@ -1533,7 +1534,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         public static bool usePrefixes = false;
 
 
-        public static string ToComboBoxOption( Rank rank) {
+        public static string ToComboBoxOption( Rank rank ) {
             if( usePrefixes ) {
                 return String.Format( "{0,1}{1}", rank.Prefix, rank.Name );
             } else {
@@ -1553,6 +1554,21 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             lWoMDirectDescription.Enabled = xHeartbeatToWoMDirect.Checked;
             tWoMDirectFlags.Enabled = xHeartbeatToWoMDirect.Checked;
             lWoMDirectFlags.Enabled = xHeartbeatToWoMDirect.Checked;
+        }
+
+        private void xAntispamMessageCount_CheckedChanged( object sender, EventArgs e ) {
+            bool enabled = xAntispamMessageCount.Checked;
+            nAntispamMessageCount.Enabled = enabled;
+            lAntispamMessageCount.Enabled = enabled;
+            nAntispamInterval.Enabled = enabled;
+            lAntispamIntervalUnits.Enabled = enabled;
+            xAntispamMuteDuration.Enabled = enabled;
+            xAntispamKicks.Enabled = enabled;
+        }
+
+        private void xAntispamMuteDuration_CheckedChanged( object sender, EventArgs e ) {
+            nAntispamMuteDuration.Enabled = xAntispamMuteDuration.Checked;
+            lAntispamMuteDurationUnits.Enabled = xAntispamMuteDuration.Checked;
         }
     }
 }

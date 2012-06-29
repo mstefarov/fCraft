@@ -550,7 +550,7 @@ Affected commands:
             toolTip.SetToolTip( nAntispamMessageCount, ConfigKey.AntispamMessageCount.GetDescription() );
             toolTip.SetToolTip( lAntispamMessageCount, ConfigKey.AntispamMessageCount.GetDescription() );
             toolTip.SetToolTip( nAntispamInterval, ConfigKey.AntispamInterval.GetDescription() );
-            toolTip.SetToolTip( lAntispamInterval, ConfigKey.AntispamInterval.GetDescription() );
+            toolTip.SetToolTip( lAntispamIntervalUnits, ConfigKey.AntispamInterval.GetDescription() );
 
             toolTip.SetToolTip( xAntispamKicks, "Kick players who repeatedly trigger antispam warnings." );
             toolTip.SetToolTip( nAntispamMaxWarnings, ConfigKey.AntispamMaxWarnings.GetDescription() );
