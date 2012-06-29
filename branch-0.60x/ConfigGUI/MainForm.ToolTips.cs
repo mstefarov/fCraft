@@ -244,6 +244,20 @@ at one time. If unchecked, there is no limit.";
             toolTip.SetToolTip( nDrawLimit, tipDrawLimit );
             toolTip.SetToolTip( lDrawLimitUnits, tipDrawLimit );
 
+            const string copySlotLimit = 
+@"Maximum number of copied block chunks that this rank is allowed to have.
+Affects all copy/paste commands.";
+            toolTip.SetToolTip( lCopyPasteSlots, copySlotLimit );
+            toolTip.SetToolTip( nCopyPasteSlots, copySlotLimit );
+
+            const string tipFillLimit =
+@"Maximum number of blocks away the origin that a fill is allowed to travel.
+Applies to /Fill2D command. For example, a limit of 32, means that the maximum fill
+dimensions are (32 * 2 + 1), which is 65 x 65 x 65.";
+            toolTip.SetToolTip( lFillLimit, tipFillLimit );
+            toolTip.SetToolTip( nFillLimit, tipFillLimit );
+            toolTip.SetToolTip( lFillLimitUnits, tipFillLimit );
+
 
 
 
