@@ -721,6 +721,7 @@ namespace fCraft {
 
             switch( propertyName.ToLower() ) {
                 case "timeskicked":
+                case "tk":
                     int oldTimesKicked = info.TimesKicked;
                     if( ValidateInt( valName, 0, 9999 ) ) {
                         info.TimesKicked = Int32.Parse( valName );
@@ -735,6 +736,7 @@ namespace fCraft {
                     }
 
                 case "previousrank":
+                case "pr":
                     Rank newPreviousRank;
                     if( valName.Length > 0 ) {
                         newPreviousRank = RankManager.FindRank( valName );
@@ -778,6 +780,7 @@ namespace fCraft {
                     break;
 
                 case "totaltime":
+                case "tt":
                     TimeSpan newTotalTime;
                     TimeSpan oldTotalTime = info.TotalTime;
                     if( valName.TryParseMiniTimespan( out newTotalTime ) ) {
@@ -799,6 +802,7 @@ namespace fCraft {
                     }
 
                 case "rankchangetype":
+                case "rct":
                     RankChangeType oldType = info.RankChangeType;
                     try {
                         info.RankChangeType = (RankChangeType)Enum.Parse( typeof( RankChangeType ), valName, true );
@@ -814,6 +818,7 @@ namespace fCraft {
                     break;
 
                 case "banreason":
+                case "br":
                     if( valName.Length == 0 ) valName = null;
                     if( SetPlayerInfoField( player, "BanReason", info, info.BanReason, valName ) ) {
                         info.BanReason = valName;
@@ -823,6 +828,7 @@ namespace fCraft {
                     }
 
                 case "unbanreason":
+                case "ur":
                     if( valName.Length == 0 ) valName = null;
                     if( SetPlayerInfoField( player, "UnbanReason", info, info.UnbanReason, valName ) ) {
                         info.UnbanReason = valName;
@@ -832,6 +838,7 @@ namespace fCraft {
                     }
 
                 case "rankreason":
+                case "rr":
                     if( valName.Length == 0 ) valName = null;
                     if( SetPlayerInfoField( player, "RankReason", info, info.RankChangeReason, valName ) ) {
                         info.RankChangeReason = valName;
@@ -841,6 +848,7 @@ namespace fCraft {
                     }
 
                 case "kickreason":
+                case "kr":
                     if( valName.Length == 0 ) valName = null;
                     if( SetPlayerInfoField( player, "KickReason", info, info.LastKickReason, valName ) ) {
                         info.LastKickReason = valName;
@@ -850,6 +858,7 @@ namespace fCraft {
                     }
 
                 case "displayedname":
+                case "dn":
                     string oldDisplayedName = info.DisplayedName;
                     if( valName.Length == 0 ) valName = null;
                     if( valName == info.DisplayedName ) {
