@@ -14,7 +14,8 @@ namespace fCraft.ConfigGUI {
             new KeywordInfo("{PLAYERS}", "Number of players online", "Note that hidden players will not be included in this number." ),
             new KeywordInfo("{WORLDS}", "Number of worlds", "Number of worlds accessible by the player. Does not count hidden worlds." ),
             new KeywordInfo("{MOTD}", "MOTD", "Message-of-the-day (server subtitle), as specified in config." ),
-            new KeywordInfo("{VERSION}", "fCraft version", "Version of fCraft that this server is running." )
+            new KeywordInfo("{VERSION}", "fCraft version", "Version of fCraft that this server is running." ),
+            new KeywordInfo("{PLAYER_LIST}", "Player list", "List of names of all online players that this player can see, including prefixes and colors (if applicable)." )
         };
 
         const int ButtonWidth = 150,
