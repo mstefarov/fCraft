@@ -1249,7 +1249,10 @@ namespace fCraft {
                         }
 
                     } else {
-                        if( distance > entityHidingThreshold || !CanSeeMoving( otherPlayer ) || SpectatedPlayer == otherPlayer ) {
+                        if( distance > entityHidingThreshold ||
+                            !CanSeeMoving( otherPlayer ) ||
+                            SpectatedPlayer == otherPlayer ||
+                            (SpectatedPlayer != null && SpectatedPlayer == otherPlayer.SpectatedPlayer) ) {
                             HideEntity( entity );
 
                         } else if( entity.LastKnownPosition != otherPos ) {
