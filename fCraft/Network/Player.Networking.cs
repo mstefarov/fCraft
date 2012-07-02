@@ -1,18 +1,19 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using fCraft.AutoRank;
 using fCraft.Drawing;
 using fCraft.Events;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
-using System.Text.RegularExpressions;
 
 namespace fCraft {
     /// <summary> Represents a connection to a Minecraft client. Handles low-level interactions (e.g. networking). </summary>
@@ -80,7 +81,8 @@ namespace fCraft {
 
                 ioThread = new Thread( IoLoop ) {
                     Name = "fCraft.Session",
-                    IsBackground = true
+                    IsBackground = true,
+                    CurrentCulture = new CultureInfo( "en-US" )
                 };
                 ioThread.Start();
 

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -513,7 +514,8 @@ namespace fCraft {
             lock( ShutdownLock ) {
                 if( !CancelShutdown() ) return;
                 shutdownThread = new Thread( ShutdownThread ) {
-                    Name = "fCraft.Shutdown"
+                    Name = "fCraft.Shutdown",
+                    CurrentCulture = new CultureInfo( "en-US" )
                 };
                 if( shutdownParams.Delay >= ChatTimer.MinDuration ) {
                     string timerMsg = String.Format( "Server {0} ({1})",

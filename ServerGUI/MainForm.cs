@@ -2,11 +2,12 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using fCraft.Events;
 using fCraft.GUI;
-using System.Threading;
 
 namespace fCraft.ServerGUI {
 
@@ -30,8 +31,10 @@ namespace fCraft.ServerGUI {
             Server.PlayerListChanged += OnPlayerListChanged;
             Server.ShutdownEnded += OnServerShutdownEnded;
             Text = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
-            startupThread = new Thread( StartupThread );
-            startupThread.Name = "fCraft ServerGUI Startup";
+            startupThread = new Thread( StartupThread ) {
+                Name = "fCraft.ServerGUI.Startup",
+                CurrentCulture = new CultureInfo( "en-US" )
+            };
             startupThread.Start();
         }
 
