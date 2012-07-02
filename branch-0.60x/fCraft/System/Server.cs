@@ -855,6 +855,9 @@ namespace fCraft {
             sb.Replace( "{WORLDS}", WorldManager.Worlds.Length.ToString() );
             sb.Replace( "{MOTD}", ConfigKey.MOTD.GetString() );
             sb.Replace( "{VERSION}", Updater.CurrentRelease.VersionString );
+            if( input.IndexOf( "{PLAYER_LIST}" ) != -1 ) {
+                sb.Replace( "{PLAYER_LIST}", Players.CanBeSeen( player ).ToArray().JoinToClassyString() );
+            }
             return sb.ToString();
         }
 
