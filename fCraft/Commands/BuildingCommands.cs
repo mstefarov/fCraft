@@ -877,9 +877,9 @@ namespace fCraft {
             player.MessageNow( "{0} blocks copied into slot #{1}. You can now &H/Paste",
                                volume, player.CopySlot + 1 );
             player.MessageNow( "Origin at {0} {1}{2} corner.",
-                               (copyInfo.Orientation.X == 1 ? "bottom" : "top"),
+                               (copyInfo.Orientation.Z == 1 ? "bottom" : "top"),
                                (copyInfo.Orientation.Y == 1 ? "south" : "north"),
-                               (copyInfo.Orientation.Z == 1 ? "east" : "west") );
+                               (copyInfo.Orientation.X == 1 ? "east" : "west") );
 
             Logger.Log( LogType.UserActivity,
                         "{0} copied {1} blocks from {2} (between {3} and {4}).",
