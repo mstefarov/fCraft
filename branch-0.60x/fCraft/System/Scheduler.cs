@@ -1,6 +1,7 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using JetBrains.Annotations;
 
@@ -22,11 +23,13 @@ namespace fCraft {
             Logger.Log( LogType.Debug, "Scheduler: Starting..." );
 #endif
             schedulerThread = new Thread( MainLoop ) {
-                Name = "fCraft.Main"
+                Name = "fCraft.Main",
+                CurrentCulture = new CultureInfo( "en-US" )
             };
             schedulerThread.Start();
             backgroundThread = new Thread( BackgroundLoop ) {
-                Name = "fCraft.Background"
+                Name = "fCraft.Background",
+                CurrentCulture = new CultureInfo( "en-US" )
             };
             backgroundThread.Start();
         }

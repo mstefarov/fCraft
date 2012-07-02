@@ -27,6 +27,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -69,7 +70,8 @@ namespace fCraft {
                     // start the machinery!
                     thread = new Thread( IoThread ) {
                         Name = "fCraft.IRC",
-                        IsBackground = true
+                        IsBackground = true,
+                        CurrentCulture = new CultureInfo( "en-US" )
                     };
                     thread.Start();
                     return true;
