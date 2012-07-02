@@ -844,19 +844,20 @@ namespace fCraft {
             StringBuilder sb = new StringBuilder( input );
             sb.Replace( "{SERVER_NAME}", ConfigKey.ServerName.GetString() );
             sb.Replace( "{RANK}", player.Info.Rank.ClassyName );
-            sb.Replace( "{PLAYER_NAME}", player.ClassyName );
             sb.Replace( "{TIME}", DateTime.Now.ToShortTimeString() ); // localized
             if( player.World == null ) {
                 sb.Replace( "{WORLD}", "(No World)" );
             } else {
                 sb.Replace( "{WORLD}", player.World.ClassyName );
             }
-            sb.Replace( "{PLAYERS}", CountVisiblePlayers( player ).ToString() );
             sb.Replace( "{WORLDS}", WorldManager.Worlds.Length.ToString() );
             sb.Replace( "{MOTD}", ConfigKey.MOTD.GetString() );
             sb.Replace( "{VERSION}", Updater.CurrentRelease.VersionString );
-            if( input.IndexOf( "{PLAYER_LIST}" ) != -1 ) {
-                sb.Replace( "{PLAYER_LIST}", Players.CanBeSeen( player ).ToArray().JoinToClassyString() );
+            if( input.IndexOf( "{PLAYER" ) != -1 ) {
+                Player[] playerList = Players.CanBeSeen( player ).Union( player ).ToArray();
+                sb.Replace( "{PLAYER_NAME}", player.ClassyName );
+                sb.Replace( "{PLAYER_LIST}", playerList.JoinToClassyString() );
+                sb.Replace( "{PLAYERS}", CountVisiblePlayers( player ).ToString() );
             }
             return sb.ToString();
         }

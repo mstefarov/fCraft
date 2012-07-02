@@ -34,14 +34,14 @@
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.pFlow.Location = new System.Drawing.Point( 13, 13 );
             this.pFlow.Name = "pFlow";
-            this.pFlow.Size = new System.Drawing.Size( 159, 318 );
+            this.pFlow.Size = new System.Drawing.Size( 159, 356 );
             this.pFlow.TabIndex = 0;
             // 
             // bCancel
             // 
             this.bCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.bCancel.Location = new System.Drawing.Point( 62, 337 );
+            this.bCancel.Location = new System.Drawing.Point( 62, 375 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 60, 23 );
             this.bCancel.TabIndex = 1;
@@ -53,7 +53,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.bCancel;
-            this.ClientSize = new System.Drawing.Size( 184, 372 );
+            this.ClientSize = new System.Drawing.Size( 184, 410 );
             this.Controls.Add( this.bCancel );
             this.Controls.Add( this.pFlow );
             this.Name = "KeywordPicker";
