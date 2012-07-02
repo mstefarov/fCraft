@@ -857,7 +857,7 @@ namespace fCraft {
                 Player[] playerList = Players.CanBeSeen( player ).Union( player ).ToArray();
                 sb.Replace( "{PLAYER_NAME}", player.ClassyName );
                 sb.Replace( "{PLAYER_LIST}", playerList.JoinToClassyString() );
-                sb.Replace( "{PLAYERS}", CountVisiblePlayers( player ).ToString() );
+                sb.Replace( "{PLAYERS}", playerList.Length.ToString() );
             }
             return sb.ToString();
         }

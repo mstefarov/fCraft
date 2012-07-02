@@ -738,14 +738,14 @@ namespace fCraft {
                     int maxMuteWarnings = ConfigKey.AntispamMaxWarnings.GetInt();
                     if( maxMuteWarnings > 0 && muteWarnings > maxMuteWarnings ) {
                         KickNow( "You were kicked for repeated spamming.", LeaveReason.MessageSpamKick );
-                        Server.Message( "&W{0} was kicked for repeated spamming.", ClassyName );
+                        Server.Message( "&WPlayer {0}&W was kicked for spamming.", ClassyName );
                     } else {
                         TimeSpan autoMuteDuration = TimeSpan.FromSeconds( ConfigKey.AntispamMuteDuration.GetInt() );
                         if( autoMuteDuration > TimeSpan.Zero ) {
                             Info.Mute( Console, autoMuteDuration, false, true );
-                            Message( "You have been muted for {0} seconds. Slow down.", autoMuteDuration );
+                            Message( "&WYou have been muted for {0} seconds. Slow down.", autoMuteDuration );
                         } else {
-                            Message( "You are sending messages too quickly. Slow down." );
+                            Message( "&WYou are sending messages too quickly. Slow down." );
                         }
                     }
                     return true;
