@@ -36,6 +36,13 @@ For more information, see http://www.fcraft.net/wiki/Installation_Instructions
 Before starting the server for the first time, run ConfigGUI.exe to choose
 your server's name and settings.
 
+By default, fCraft servers are private. That means it will not be listed on
+minecraft.net, and only players who have the link will be able to join. To set
+your server to public, set Visibility: [Public] in ConfigGUI, (or set
+"IsPublic" key to "true" in config.xml). Remember that if the serveris running
+while you make configuration changes, you need to restart it or use
+"/Reload config" command.
+
 You may need to add firewall exceptions for fCraft applications (ConfigGUI,
 ServerGUI, or ServerCLI, or ServerWinService) to allow incoming TCP connections
 on the listening port. Default port is 25565.
@@ -51,8 +58,8 @@ front-ends (GUI, CLI, or WinService).
 === Troubleshooting ===========================================================
 
 Server does not show up on minecraft.net list:
-    Make sure that server is public. Open ConfigGUI, set Visibility: [Public]
-        (or set <IsPublic> to true in config.xml).
+    Make sure that server is public. See 2nd paragraph of "Initial Setup"
+    section, above.
 
 "Could not connect to server: it's probably down":
     Make sure that you added firewall exception for fCraft (if applicable),

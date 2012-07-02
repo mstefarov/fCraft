@@ -295,10 +295,10 @@ Both a timestamp and player's name are included in the filename." )]
         BackupOnlyWhenChanged,
 
         [IntKey( ConfigSection.SavingAndBackup, 20,
-@"Default interval for saving periodic map backups for loaded worlds.
+@"Default interval (in minutes) for saving periodic map backups for loaded worlds.
 A world is considered ""loaded"" if there is at least one player on it.
 This setting can be overridden on a per-world basis.
-Set to 0 to disable periodic backups.",
+Set to 0 to disable periodic backups by default.",
             MinValue = 0 )]
         DefaultBackupInterval,
 

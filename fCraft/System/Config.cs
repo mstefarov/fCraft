@@ -573,7 +573,7 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.DefaultBackupInterval:
-                    World.DefaultBackupInterval = new TimeSpan( TimeSpan.TicksPerSecond * key.GetInt() );
+                    World.DefaultBackupInterval = new TimeSpan( TimeSpan.TicksPerMinute * key.GetInt() );
                     break;
 
                 case ConfigKey.HelpColor:
