@@ -1,13 +1,18 @@
 0.621
- Feature: Added CommandBook banlist support to /Import.
+ Feature: Added CommandBook banlist (bans.csv) support to /Import.
  Feature: Added a way to list all players of a certain rank with "/Info @ClassName".
  Fix: Fixed changes to DefaultBackupInterval config key not being applied.
  Fix: Fixed /BanInfo showing "players on same IP" for players without a recorded IP address.
  Fix: Fixed a missing feedback message in /WSet.
  Fix: Fixed /WSet only saving the first word of the greeting message.
- Fix: Fixed /Cut storing the selected blocks before checking player's draw limit (thanks ruggedbear)
- Fix: Fixed /Fill2D starting a selection even if command parameters could not be parsed (thanks David00143)
+ Fix: Fixed fCraft occasionally using localized datetime and number formatting.
+ Fix: Fixed /Cut storing the selected blocks before checking player's draw limit (thanks ruggedbear).
+ Fix: Fixed /Fill2D starting a selection even if command parameters could not be parsed (thanks David00143).
+ Fix: Fixed /Copy and /Cut reporting incorrect origin information (thanks nope__avi).
+ Fix: Players who are spectating or being spectated by you are no longer hidden from the tab player list (thanks ruggedbear).
+ Change: Small improvements and fixes to AntiSpam functionality.
  Change: Sped up PlayerDB loading on startup.
+ Change: Added shortcuts for /SetInfo field names.
 
 0.620
  Feature: WoM Direct description and flags can now be set from config, without the need to go to WoM Direct website.

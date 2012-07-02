@@ -592,7 +592,7 @@ Affected commands:
             toolTip.SetToolTip( nBackupInterval, ConfigKey.DefaultBackupInterval.GetDescription() );
             toolTip.SetToolTip( lBackupIntervalUnits, ConfigKey.DefaultBackupInterval.GetDescription() );
 
-            toolTip.SetToolTip( xBackupOnlyWhenChanged, ConfigKey.DefaultBackupInterval.GetDescription() );
+            toolTip.SetToolTip( xBackupOnlyWhenChanged, ConfigKey.BackupOnlyWhenChanged.GetDescription() );
 
             toolTip.SetToolTip( xMaxBackups, ConfigKey.MaxBackups.GetDescription() );
             toolTip.SetToolTip( nMaxBackups, ConfigKey.MaxBackups.GetDescription() );

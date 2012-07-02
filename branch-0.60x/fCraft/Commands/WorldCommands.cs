@@ -2540,7 +2540,6 @@ namespace fCraft {
                             return;
                         } else {
                             world.BackupEnabledState = YesNoAuto.Auto;
-                            return;
                         }
 
                     } else if( value.TryParseMiniTimespan( out backupInterval ) ) {
