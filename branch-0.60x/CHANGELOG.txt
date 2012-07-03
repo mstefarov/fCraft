@@ -1,6 +1,7 @@
 0.621
  Feature: Added CommandBook banlist (bans.csv) support to /Import.
  Feature: Added a way to list all players of a certain rank with "/Info @ClassName".
+ Feature: Added {PLAYER_LIST} variable, for use in greetings/announcements/rules.
  Fix: Fixed changes to DefaultBackupInterval config key not being applied.
  Fix: Fixed /BanInfo showing "players on same IP" for players without a recorded IP address.
  Fix: Fixed a missing feedback message in /WSet.
@@ -10,6 +11,7 @@
  Fix: Fixed /Fill2D starting a selection even if command parameters could not be parsed (thanks David00143).
  Fix: Fixed /Copy and /Cut reporting incorrect origin information (thanks nope__avi).
  Fix: Players who are spectating or being spectated by you are no longer hidden from the tab player list (thanks ruggedbear).
+ Change: If multiple players are spectating the same player, they no longer see each other (thanks Hellenion).
  Change: Small improvements and fixes to AntiSpam functionality.
  Change: Sped up PlayerDB loading on startup.
  Change: Added shortcuts for /SetInfo field names.
