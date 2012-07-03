@@ -607,7 +607,7 @@ namespace fCraft {
                         try {
                             value = ParseHexColor( valueText );
                         } catch( FormatException ) {
-                            CdEnv.PrintUsage( player );
+                            player.Message( "Env: \"{0}\" is not a valid RGB color code.", valueText );
                             return;
                         }
                         player.Message( "Set fog color for {0}&S to #{1:X6}", world.ClassyName, value );
@@ -623,7 +623,7 @@ namespace fCraft {
                         try {
                             value = ParseHexColor( valueText );
                         } catch( FormatException ) {
-                            CdEnv.PrintUsage( player );
+                            player.Message( "Env: \"{0}\" is not a valid RGB color code.", valueText );
                             return;
                         }
                         player.Message( "Set cloud color for {0}&S to #{1:X6}", world.ClassyName, value );
@@ -638,7 +638,7 @@ namespace fCraft {
                         try {
                             value = ParseHexColor( valueText );
                         } catch( FormatException ) {
-                            CdEnv.PrintUsage( player );
+                            player.Message( "Env: \"{0}\" is not a valid RGB color code.", valueText );
                             return;
                         }
                         player.Message( "Set sky color for {0}&S to #{1:X6}", world.ClassyName, value );
@@ -676,7 +676,7 @@ namespace fCraft {
                     } else {
                         string textName = Map.GetEdgeTexture( block );
                         if( textName == null ) {
-                            player.Message( "Cannot use {0} for edge textures.", block );
+                            player.Message( "Env: Cannot use {0} for edge textures.", block );
                             return;
                         } else {
                             world.EdgeBlock = block;
@@ -692,9 +692,9 @@ namespace fCraft {
             WorldManager.SaveWorldList();
             if( player.World == world ) {
                 if( player.IsUsingWoM ) {
-                    player.Message( "Rejoin the world to see the changes." );
+                    player.Message( "Env: Rejoin the world to see the changes." );
                 } else {
-                    player.Message( "You need WoM client to see the changes." );
+                    player.Message( "Env: You need WoM client to see the changes." );
                 }
             }
         }
