@@ -2565,6 +2565,7 @@ namespace fCraft {
                     }
                     player.Message( "Backup setting for world {0}&S changed from \"{1}\" to \"{2}\"",
                                     world.ClassyName, oldDescription, world.BackupSettingDescription );
+                    WorldManager.SaveWorldList();
                     break;
 
                 case "description":

@@ -456,7 +456,11 @@ namespace fCraft {
                     break;
 
                 case 2:
-                    GentlyKickBetaClients();
+                    GentlyKickSMPClients();
+                    return false;
+
+                case 254:
+                    // ignore SMP pings
                     return false;
 
                 case (byte)'G':
@@ -806,12 +810,13 @@ namespace fCraft {
         }
 
 
-        void GentlyKickBetaClients() {
+        void GentlyKickSMPClients() {
             // This may be someone connecting with an SMP client
             int strLen = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
 
             if( strLen >= 2 && strLen <= 16 ) {
                 string smpPlayerName = Encoding.BigEndianUnicode.GetString( reader.ReadBytes( strLen*2 ) );
+
 
                 Logger.Log( LogType.Warning,
                             "Player.LoginSequence: Player \"{0}\" tried connecting with Minecraft Beta client from {1}. " +
@@ -833,6 +838,7 @@ namespace fCraft {
                 KickNow( "Unexpected handshake message - possible protocol mismatch!", LeaveReason.ProtocolViolation );
             }
         }
+
 
 
         static readonly Regex HttpFirstLine = new Regex( "GET /([a-zA-Z0-9_]{1,16})(~motd)? .+", RegexOptions.Compiled );
