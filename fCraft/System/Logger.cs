@@ -32,6 +32,19 @@ namespace fCraft {
         static readonly Queue<string> RecentMessages = new Queue<string>();
         const int MaxRecentMessages = 25;
 
+        public static string CurrentLogFileName {
+            get {
+                switch( SplittingType ) {
+                    case LogSplittingType.SplitBySession:
+                        return SessionStart + ".log";
+                    case LogSplittingType.SplitByDay:
+                        return DateTime.Now.ToString( ShortDateFormat ) + ".log"; // localized
+                    default:
+                        return DefaultLogFileName;
+                }
+            }
+        }
+
 
         static Logger() {
             Enabled = true;
@@ -93,20 +106,8 @@ namespace fCraft {
                 }
 
                 if( LogFileOptions[(int)type] ) {
-                    string actualLogFileName;
-                    switch( SplittingType ) {
-                        case LogSplittingType.SplitBySession:
-                            actualLogFileName = Path.Combine( Paths.LogPath, SessionStart + ".log" );
-                            break;
-                        case LogSplittingType.SplitByDay:
-                            actualLogFileName = Path.Combine( Paths.LogPath, DateTime.Now.ToString( ShortDateFormat ) + ".log" ); // localized
-                            break;
-                        default:
-                            actualLogFileName = Path.Combine( Paths.LogPath, DefaultLogFileName );
-                            break;
-                    }
                     try {
-                        File.AppendAllText( actualLogFileName, line + Environment.NewLine );
+                        File.AppendAllText( Path.Combine( Paths.LogPath, CurrentLogFileName ), line + Environment.NewLine );
                     } catch( Exception ex ) {
                         string errorMessage = "Logger.Log: " + ex.Message;
                         RaiseLoggedEvent( errorMessage,
