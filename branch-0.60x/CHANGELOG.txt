@@ -4,7 +4,6 @@
  Feature: Added {PLAYER_LIST} variable, for use in greetings/announcements/rules.
  Fix: Fixed changes to DefaultBackupInterval config key not being applied.
  Fix: Fixed /BanInfo showing "players on same IP" for players without a recorded IP address.
- Fix: Fixed a missing feedback message in /WSet.
  Fix: Fixed /WSet only saving the first word of the greeting message.
  Fix: Fixed fCraft occasionally using localized datetime and number formatting.
  Fix: Fixed /Cut storing the selected blocks before checking player's draw limit (thanks ruggedbear).
@@ -12,7 +11,7 @@
  Fix: Fixed /Copy and /Cut reporting incorrect origin information (thanks nope__avi).
  Fix: Players who are spectating or being spectated by you are no longer hidden from the tab player list (thanks ruggedbear).
  Change: If multiple players are spectating the same player, they no longer see each other (thanks Hellenion).
- Change: Small improvements and fixes to AntiSpam functionality.
+ Change: Small improvements and fixes to /WSet and to AntiSpam functionality.
  Change: Sped up PlayerDB loading on startup.
  Change: Added shortcuts for /SetInfo field names.
 
