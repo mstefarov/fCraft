@@ -24,28 +24,14 @@
         /// </summary>
         private void InitializeComponent() {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( MainForm ) );
-            this.logBox = new System.Windows.Forms.TextBox();
             this.uriDisplay = new System.Windows.Forms.TextBox();
             this.URLLabel = new System.Windows.Forms.Label();
             this.playerList = new System.Windows.Forms.ListBox();
             this.playerListLabel = new System.Windows.Forms.Label();
             this.bPlay = new System.Windows.Forms.Button();
+            this.logBox = new System.Windows.Forms.RichTextBox();
             this.console = new fCraft.ServerGUI.ConsoleBox();
             this.SuspendLayout();
-            // 
-            // logBox
-            // 
-            this.logBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.logBox.Font = new System.Drawing.Font( "Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.logBox.Location = new System.Drawing.Point( 12, 38 );
-            this.logBox.Multiline = true;
-            this.logBox.Name = "logBox";
-            this.logBox.ReadOnly = true;
-            this.logBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.logBox.Size = new System.Drawing.Size( 610, 388 );
-            this.logBox.TabIndex = 3;
             // 
             // uriDisplay
             // 
@@ -76,9 +62,9 @@
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.playerList.FormattingEnabled = true;
             this.playerList.IntegralHeight = false;
-            this.playerList.Location = new System.Drawing.Point( 628, 38 );
+            this.playerList.Location = new System.Drawing.Point( 628, 39 );
             this.playerList.Name = "playerList";
-            this.playerList.Size = new System.Drawing.Size( 144, 388 );
+            this.playerList.Size = new System.Drawing.Size( 144, 387 );
             this.playerList.TabIndex = 4;
             // 
             // playerListLabel
@@ -86,7 +72,7 @@
             this.playerListLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.playerListLabel.AutoSize = true;
             this.playerListLabel.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
-            this.playerListLabel.Location = new System.Drawing.Point( 710, 15 );
+            this.playerListLabel.Location = new System.Drawing.Point( 710, 23 );
             this.playerListLabel.Name = "playerListLabel";
             this.playerListLabel.Size = new System.Drawing.Size( 62, 13 );
             this.playerListLabel.TabIndex = 6;
@@ -104,6 +90,21 @@
             this.bPlay.UseVisualStyleBackColor = true;
             this.bPlay.Click += new System.EventHandler( this.bPlay_Click );
             // 
+            // logBox
+            // 
+            this.logBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.logBox.BackColor = System.Drawing.Color.Black;
+            this.logBox.Font = new System.Drawing.Font( "Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.logBox.HideSelection = false;
+            this.logBox.Location = new System.Drawing.Point( 12, 39 );
+            this.logBox.Name = "logBox";
+            this.logBox.ReadOnly = true;
+            this.logBox.Size = new System.Drawing.Size( 610, 387 );
+            this.logBox.TabIndex = 7;
+            this.logBox.Text = "";
+            // 
             // console
             // 
             this.console.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
@@ -120,13 +121,13 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size( 784, 464 );
+            this.Controls.Add( this.logBox );
             this.Controls.Add( this.bPlay );
             this.Controls.Add( this.console );
             this.Controls.Add( this.playerListLabel );
             this.Controls.Add( this.playerList );
             this.Controls.Add( this.URLLabel );
             this.Controls.Add( this.uriDisplay );
-            this.Controls.Add( this.logBox );
             this.Icon = ((System.Drawing.Icon)(resources.GetObject( "$this.Icon" )));
             this.MinimumSize = new System.Drawing.Size( 500, 150 );
             this.Name = "MainForm";
@@ -138,13 +139,13 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox logBox;
         private System.Windows.Forms.TextBox uriDisplay;
         private System.Windows.Forms.Label URLLabel;
         private System.Windows.Forms.ListBox playerList;
         private System.Windows.Forms.Label playerListLabel;
         private ConsoleBox console;
         private System.Windows.Forms.Button bPlay;
+        private System.Windows.Forms.RichTextBox logBox;
     }
 }
 

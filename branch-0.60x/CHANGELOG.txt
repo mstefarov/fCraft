@@ -4,7 +4,6 @@
  Feature: Added {PLAYER_LIST} variable, for use in greetings/announcements/rules.
  Fix: Fixed changes to DefaultBackupInterval config key not being applied.
  Fix: Fixed /BanInfo showing "players on same IP" for players without a recorded IP address.
- Fix: Fixed /WSet only saving the first word of the greeting message.
  Fix: Fixed fCraft occasionally using localized datetime and number formatting.
  Fix: Fixed /Cut storing the selected blocks before checking player's draw limit (thanks ruggedbear).
  Fix: Fixed /Fill2D starting a selection even if command parameters could not be parsed (thanks David00143).
