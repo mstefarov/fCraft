@@ -177,7 +177,8 @@ namespace fCraft.ServerGUI {
                     // store user's selection
                     int userSelectionStart = logBox.SelectionStart;
                     int userSelectionLength = logBox.SelectionLength;
-                    bool userSelecting = (logBox.SelectionStart != logBox.Text.Length && logBox.Focused || logBox.SelectionLength > 0);
+                    bool userSelecting = (logBox.SelectionStart != logBox.Text.Length && logBox.Focused ||
+                                          logBox.SelectionLength > 0);
 
                     // insert and color a new message
                     int oldLength = logBox.Text.Length;
