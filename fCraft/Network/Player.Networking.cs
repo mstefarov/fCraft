@@ -1201,6 +1201,8 @@ namespace fCraft {
 
         void UpdateVisibleEntities() {
             if( World == null ) PlayerOpException.ThrowNoWorld( this );
+
+            // handle following the spectatee
             if( spectatedPlayer != null ) {
                 if( !spectatedPlayer.IsOnline || !CanSee( spectatedPlayer ) ) {
                     Message( "Stopped spectating {0}&S (disconnected)", spectatedPlayer.ClassyName );
@@ -1230,12 +1232,12 @@ namespace fCraft {
                 }
             }
 
+            // check every player on the current world
             Player[] worldPlayerList = World.Players;
             Position pos = Position;
-
             for( int i = 0; i < worldPlayerList.Length; i++ ) {
                 Player otherPlayer = worldPlayerList[i];
-                if( otherPlayer == this ) continue;
+                if( otherPlayer == this || !CanSee( otherPlayer ) ) continue;
 
                 Position otherPos = otherPlayer.Position;
                 int distance = pos.DistanceSquaredTo( otherPos );
@@ -1250,15 +1252,12 @@ namespace fCraft {
                         entity.LastKnownRank = otherPlayer.Info.Rank;
 
                     } else if( entity.Hidden ) {
-                        if( distance < entityShowingThreshold ) {
+                        if( distance < entityShowingThreshold && CanSeeMoving( otherPlayer ) ) {
                             ShowEntity( entity, otherPos );
                         }
 
                     } else {
-                        if( distance > entityHidingThreshold ||
-                            !CanSeeMoving( otherPlayer ) ||
-                            SpectatedPlayer == otherPlayer ||
-                            (SpectatedPlayer != null && SpectatedPlayer == otherPlayer.SpectatedPlayer) ) {
+                        if( distance > entityHidingThreshold || !CanSeeMoving( otherPlayer ) ) {
                             HideEntity( entity );
 
                         } else if( entity.LastKnownPosition != otherPos ) {
@@ -1269,7 +1268,6 @@ namespace fCraft {
                     AddEntity( otherPlayer, otherPos );
                 }
             }
-
 
             // Find entities to remove (not marked for retention).
             foreach( var pair in entities ) {
