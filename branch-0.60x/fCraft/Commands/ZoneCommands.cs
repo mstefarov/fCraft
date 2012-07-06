@@ -77,7 +77,7 @@ namespace fCraft {
 
                 newZone.Controller.MinRank = info.Rank.NextRankUp ?? info.Rank;
                 newZone.Controller.Include( info );
-                player.Message( "Zone: Creating a {0}+&S zone for player {1}&S. Place a block or type /Mark to use your location.",
+                player.Message( "ZoneAdd: Creating a {0}+&S zone for player {1}&S. Click or &H/Mark&S 2 blocks.",
                                 newZone.Controller.MinRank.ClassyName, info.ClassyName );
                 player.SelectionStart( 2, ZoneAddCallback, newZone, CdZoneAdd.Permissions );
 
@@ -120,7 +120,8 @@ namespace fCraft {
 
                     newZone.Controller.MinRank = minRank;
                     player.SelectionStart( 2, ZoneAddCallback, newZone, CdZoneAdd.Permissions );
-                    player.Message( "Zone: Place a block or type &H/Mark&S to use your location." );
+                    player.Message( "ZoneAdd: Creating zone {1}&S. Click or &H/Mark&S 2 blocks.",
+                                    newZone.ClassyName );
 
                 } else {
                     player.MessageNoRank( rankName );

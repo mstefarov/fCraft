@@ -45,6 +45,15 @@ namespace fCraft.Drawing {
         public DateTime CopyTime { get; set; }
 
 
+        public string OriginCorner {
+            get {
+                return String.Format( "{0} {1}{2}",
+                                      (Orientation.Z == 1 ? "bottom" : "top"),
+                                      (Orientation.Y == 1 ? "south" : "north"),
+                                      (Orientation.X == 1 ? "east" : "west") );
+            }
+        }
+
         public object Clone() {
             return new CopyState( this );
         }

@@ -287,7 +287,7 @@ namespace fCraft {
             if( brush == null ) return;
             op.Brush = brush;
             player.SelectionStart( op.ExpectedMarks, DrawOperationCallback, op, Permission.Draw );
-            player.Message( "{0}: Click {1} blocks or use &H/Mark&S to make a selection.",
+            player.Message( "{0}: Click or &H/Mark&S {1} blocks.",
                             op.Description, op.ExpectedMarks );
         }
 
@@ -596,7 +596,7 @@ namespace fCraft {
             op.Brush = brush;
 
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
-            player.MessageNow( "{0}: Click 2 blocks or use &H/Mark&S to make a selection.",
+            player.MessageNow( "{0}: Click or &H/Mark&S 2 blocks.",
                                op.Brush.InstanceDescription );
         }
 
@@ -835,7 +835,7 @@ namespace fCraft {
                 return;
             }
             player.SelectionStart( 2, CopyCallback, null, CdCopy.Permissions );
-            player.MessageNow( "Copy: Place a block or type /Mark to use your location." );
+            player.MessageNow( "Copy: Click or &H/Mark&S 2 blocks." );
         }
 
 
@@ -874,15 +874,13 @@ namespace fCraft {
             copyInfo.CopyTime = DateTime.UtcNow;
             player.SetCopyInformation( copyInfo );
 
-            player.MessageNow( "{0} blocks copied into slot #{1}. You can now &H/Paste",
-                               volume, player.CopySlot + 1 );
-            player.MessageNow( "Origin at {0} {1}{2} corner.",
-                               (copyInfo.Orientation.Z == 1 ? "bottom" : "top"),
-                               (copyInfo.Orientation.Y == 1 ? "south" : "north"),
-                               (copyInfo.Orientation.X == 1 ? "east" : "west") );
+            player.MessageNow( "{0} blocks copied into slot #{1}, origin at {2} corner. You can now &H/Paste",
+                               volume,
+                               player.CopySlot + 1,
+                               copyInfo.OriginCorner );
 
             Logger.Log( LogType.UserActivity,
-                        "{0} copied {1} blocks from {2} (between {3} and {4}).",
+                        "{0} copied {1} blocks from world {2} (between {3} and {4}).",
                         player.Name, volume, playerWorld.Name,
                         bounds.MinVertex, bounds.MaxVertex );
         }
@@ -917,12 +915,8 @@ namespace fCraft {
             };
 
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
-            if( fillBlock != Block.Air ) {
-                player.Message( "Cut/{0}: Click 2 blocks or use &H/Mark&S to make a selection.",
-                                fillBlock );
-            } else {
-                player.Message( "Cut: Click 2 blocks or use &H/Mark&S to make a selection." );
-            }
+            player.Message( "{0}: Click 2 or &H/Mark&S 2 blocks.",
+                            op.Description );
         }
 
 
@@ -1192,7 +1186,7 @@ namespace fCraft {
             PasteDrawOperation op = new PasteDrawOperation( player, false );
             if( !op.ReadParams( cmd ) ) return;
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
-            player.MessageNow( "{0}: Click 2 blocks or use &H/Mark&S to make a selection.",
+            player.MessageNow( "{0}: Click or &H/Mark&S 2 blocks.",
                                op.Description );
         }
 
@@ -1215,7 +1209,7 @@ namespace fCraft {
             PasteDrawOperation op = new PasteDrawOperation( player, true );
             if( !op.ReadParams( cmd ) ) return;
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
-            player.MessageNow( "{0}: Click 2 blocks or use &H/Mark&S to make a selection.",
+            player.MessageNow( "{0}: Click or &H/Mark&S 2 blocks.",
                                op.Description );
         }
 
@@ -1237,8 +1231,8 @@ namespace fCraft {
             QuickPasteDrawOperation op = new QuickPasteDrawOperation( player, false );
             if( !op.ReadParams( cmd ) ) return;
             player.SelectionStart( 1, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
-            player.MessageNow( "{0}: Click a block or use &H/Mark&S to begin pasting.",
-                               op.Description );
+            player.MessageNow( "{0}: Click or &H/Mark&S the {1} corner.",
+                               op.Description, op.CopyInfo.OriginCorner );
         }
 
 
@@ -1260,8 +1254,8 @@ namespace fCraft {
             QuickPasteDrawOperation op = new QuickPasteDrawOperation( player, true );
             if( !op.ReadParams( cmd ) ) return;
             player.SelectionStart( 1, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
-            player.MessageNow( "{0}: Click a block or use &H/Mark&S to begin pasting.",
-                               op.Description );
+            player.MessageNow( "{0}: Click or &H/Mark&S the {1} corner.",
+                               op.Description, op.CopyInfo.OriginCorner );
         }
 
         #endregion
@@ -1319,7 +1313,7 @@ namespace fCraft {
 
             map.Metadata["fCraft.Temp", "FileName"] = fullFileName;
             player.SelectionStart( 2, RestoreCallback, map, CdRestore.Permissions );
-            player.MessageNow( "Restore: Select the area to restore. To mark a corner, place/click a block or type &H/Mark" );
+            player.MessageNow( "Restore: Click or &H/Mark&S 2 blocks." );
         }
 
 
@@ -1530,7 +1524,7 @@ namespace fCraft {
                 return;
             }
 
-            player.MessageNow( "UndoArea: Click 2 blocks or use &H/Mark&S to make a selection." );
+            player.MessageNow( "UndoArea: Click or &H/Mark&S 2 blocks." );
         }
 
 

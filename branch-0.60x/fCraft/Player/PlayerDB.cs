@@ -92,6 +92,9 @@ namespace fCraft {
 
         #region Saving/Loading
 
+        static Dictionary<int, Rank> rankMapping;
+
+
         internal static void Load() {
             lock( SaveLoadLocker ) {
                 if( File.Exists( Paths.PlayerDBFileName ) ) {
@@ -122,6 +125,7 @@ namespace fCraft {
                 IsLoaded = true;
             }
         }
+
 
         static void LoadInternal( StreamReader reader, string header ) {
             int version = IdentifyFormatVersion( header );
@@ -208,7 +212,6 @@ namespace fCraft {
             RunCompatibilityChecks( version );
         }
 
-        static Dictionary<int,Rank> rankMapping;
 
         internal static Rank GetRankByIndex( int index ) {
             Rank rank;
