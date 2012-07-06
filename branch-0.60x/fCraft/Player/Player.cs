@@ -1115,12 +1115,19 @@ namespace fCraft {
         /// Behaves very similarly to CanSee method, except when spectating:
         /// Players can never see someone who's spectating them. If other player is spectating
         /// someone else, they are treated as hidden and can only be seen by those of sufficient rank. </summary>
-        public bool CanSeeMoving( [NotNull] Player other ) {
-            if( other == null ) throw new ArgumentNullException( "other" );
-            return other == this ||
-                   IsSuper ||
-                   other.spectatedPlayer == null && !other.Info.IsHidden ||
-                   (other.spectatedPlayer != this && Info.Rank.CanSee( other.Info.Rank ));
+        public bool CanSeeMoving( [NotNull] Player otherPlayer ) {
+            if( otherPlayer == null ) throw new ArgumentNullException( "otherPlayer" );
+            // Check if player can see otherPlayer while they hide/spectate, and whether otherPlayer is spectating player
+            bool canSeeOther = (otherPlayer.spectatedPlayer == null && !otherPlayer.Info.IsHidden) ||
+                               (otherPlayer.spectatedPlayer != this && Info.Rank.CanSee( otherPlayer.Info.Rank ));
+
+            // Check if player is spectating otherPlayer, or if they're spectating the same target
+            bool hideOther = (spectatedPlayer == otherPlayer) ||
+                             (spectatedPlayer != null && spectatedPlayer == otherPlayer.spectatedPlayer);
+
+            return otherPlayer == this || // players can see self
+                   IsSuper || // superplayers have ALL permissions
+                   canSeeOther && !hideOther;
         }
 
 
