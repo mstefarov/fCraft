@@ -261,7 +261,6 @@ namespace fCraft {
             Name = "Deafen",
             Aliases = new[] { "deaf" },
             Category = CommandCategory.Chat,
-            IsConsoleSafe = true,
             Help = "Blocks all chat messages from being sent to you.",
             Handler = DeafenHandler
         };

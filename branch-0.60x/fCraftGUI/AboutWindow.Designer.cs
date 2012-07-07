@@ -41,7 +41,7 @@
             this.tCredits.Multiline = true;
             this.tCredits.Name = "tCredits";
             this.tCredits.ReadOnly = true;
-            this.tCredits.Size = new System.Drawing.Size( 468, 316 );
+            this.tCredits.Size = new System.Drawing.Size( 468, 343 );
             this.tCredits.TabIndex = 0;
             this.tCredits.Text = resources.GetString( "tCredits.Text" );
             // 
@@ -93,7 +93,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size( 492, 404 );
+            this.ClientSize = new System.Drawing.Size( 492, 431 );
             this.Controls.Add( this.linkLabel2 );
             this.Controls.Add( this.linkLabel1 );
             this.Controls.Add( this.lSubheader );
