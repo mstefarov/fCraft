@@ -119,27 +119,29 @@
   </resheader>
   <data name="tCredits.Text" xml:space="preserve">
     <value>Thanks to fCraft code contributors and modders:
-    Asiekierka, Dag10, Destroyer, FontPeg, LgZ-optical, Redshift, SystemX17, TkTech, Wootalyzer 
+    Asiekierka, Dag10, Destroyer, FontPeg, Jonty800, LgZ-optical, Redshift, SystemX17,
+    TkTech, Wootalyzer .
 
 Thanks to people who supported fCraft development through donations:
     fCraft.net community, Ardyarde, Astelyn, Cueball, D3M0N, Destoned, DreamPhreak, Pandorum,
     Redshift, TkTech, Ven000m, Wtfmejt, Zaneo, Team9000 and SpecialAttack.net communities,
-    and others who donated anonymously
+    and others who donated anonymously.
 
 Thanks to people whose code has been ported to fCraft:
-    Dudecon (Forester), Osici (Omen), vLK (MinerCPP), Tim Van Wassenhove, Paul Bourke
+    Dudecon (Forester), Osici (Omen), vLK (MinerCPP), Tim Van Wassenhove, Paul Bourke.
 
 Thanks to Minecraft servers that helped test and improve fCraft:
-    TheOne's Zombie Survival, SpecialAttack.net Freebuild, Team9000 Freebuild,
-    D3M0Ns FreeBuild, ~The Best Freebuild 24/7~, fCraft Freebuild Official
+    TheOne's Zombie Survival, SpecialAttack.net Freebuild, Team9000 Freebuild, D3M0Ns
+    FreeBuild, ~The Best Freebuild 24/7~, fCraft Freebuild Official, Red Solidus Server.
 
 Thanks to people who submitted bug reports and suggestions:
-    BobKare, Boblol0909, Clhdrums87, Dogwatch, Epiclolwut, Gamma-Metroid, Hellenion,
-    Sunfall, Maintrain97, Mavinstar, nope__avi, xN8Gx, and all others.
+    Beeriebeer, Bloody_Llama, BobKare, Boblol0909, Clhdrums87, David00143, Dogwatch,
+    Epiclolwut, Fehzor, Gamma-Metroid, Goldenhart88, Hellenion, Sunfall, Maintrain97, Mavinstar,
+    nope__avi, xN8Gx, and all others.
 
 Special thanks for inspiration and suggestions:
-    CO2, Descension, Exe, Hearty0, iKJames, LG_Legacy, PyroPyro, Revenant, Varriount,
-    Voziv, Zaneo, #mcc, MinerCPP team, OpenCraft team, HyveBuild/iCraft team
+    CO2, Descension, Exe, Hearty0, iKJames, LG_Legacy, PyroPyro, Revenant, Varriount, Voziv,
+    Zaneo, EsperNet's #mcc and #fCraft, MinerCPP team, OpenCraft team, HyveBuild/iCraft team.
 
 And thank You for using fCraft!</value>
   </data>

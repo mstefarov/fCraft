@@ -1183,11 +1183,7 @@ namespace fCraft {
         };
 
         static void PasteXHandler( Player player, Command cmd ) {
-            PasteDrawOperation op = new PasteDrawOperation( player, false );
-            if( !op.ReadParams( cmd ) ) return;
-            player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
-            player.MessageNow( "{0}: Click or &H/Mark&S 2 blocks.",
-                               op.Description );
+            PasteOpHandler( player, cmd, new PasteDrawOperation( player, false ) );
         }
 
 
@@ -1206,11 +1202,7 @@ namespace fCraft {
         };
 
         static void PasteNotXHandler( Player player, Command cmd ) {
-            PasteDrawOperation op = new PasteDrawOperation( player, true );
-            if( !op.ReadParams( cmd ) ) return;
-            player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
-            player.MessageNow( "{0}: Click or &H/Mark&S 2 blocks.",
-                               op.Description );
+            PasteOpHandler( player, cmd, new PasteDrawOperation( player, true ) );
         }
 
 
@@ -1228,11 +1220,7 @@ namespace fCraft {
         };
 
         static void PasteHandler( Player player, Command cmd ) {
-            QuickPasteDrawOperation op = new QuickPasteDrawOperation( player, false );
-            if( !op.ReadParams( cmd ) ) return;
-            player.SelectionStart( 1, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
-            player.MessageNow( "{0}: Click or &H/Mark&S the {1} corner.",
-                               op.Description, op.CopyInfo.OriginCorner );
+            PasteOpHandler( player, cmd, new QuickPasteDrawOperation( player, false ) );
         }
 
 
@@ -1251,11 +1239,21 @@ namespace fCraft {
         };
 
         static void PasteNotHandler( Player player, Command cmd ) {
-            QuickPasteDrawOperation op = new QuickPasteDrawOperation( player, true );
+            PasteOpHandler( player, cmd, new QuickPasteDrawOperation( player, true ) );
+        }
+
+
+        static void PasteOpHandler( Player player, Command cmd, DrawOpWithBrush op ) {
             if( !op.ReadParams( cmd ) ) return;
             player.SelectionStart( 1, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
-            player.MessageNow( "{0}: Click or &H/Mark&S the {1} corner.",
-                               op.Description, op.CopyInfo.OriginCorner );
+            CopyState copyInfo = player.GetCopyInformation();
+            if( copyInfo != null ) {
+                player.MessageNow( "{0}: Click or &H/Mark&S the {1} corner.",
+                                   op.Description, copyInfo.OriginCorner );
+            } else {
+                player.MessageNow( "{0}: Click or &H/Mark&S a block.",
+                                   op.Description );
+            }
         }
 
         #endregion
