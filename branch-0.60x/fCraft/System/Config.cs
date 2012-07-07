@@ -355,14 +355,16 @@ namespace fCraft {
                 if( attr != null && Int32.TryParse( attr.Value, out version ) ) {
                     if( version < LowestSupportedVersion ) {
                         Logger.Log( LogType.Warning,
-                                    "Config.Load: Your copy of config.xml is too old to be loaded properly. " +
+                                    "Config.Load: Your copy of config.xml is too old (v{0}) to be loaded properly. " +
                                     "Some settings will be lost or replaced with defaults. " +
-                                    "Please run ConfigGUI to make sure that everything is in order." );
+                                    "Please run ConfigGUI to make sure that everything is in order.",
+                                    version );
                     } else if( version != CurrentVersion ) {
                         Logger.Log( LogType.Warning,
                                     "Config.Load: Your config.xml was made for a different version of fCraft. " +
                                     "Some obsolete settings might be ignored, and some recently-added settings will be set to defaults. " +
-                                    "It is recommended that you run ConfigGUI to make sure that everything is in order." );
+                                    "It is recommended that you run ConfigGUI to make sure that everything is in order. (v{0} -> v{1})",
+                                    version, CurrentVersion );
                     }
                 } else {
                     Logger.Log( LogType.Warning,
