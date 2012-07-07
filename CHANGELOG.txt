@@ -1,3 +1,10 @@
+0.622
+ Feature: ServerGUI message log is now color-coded, easier to select/copy/paste, and featuring clickable links.
+ Fix: Fixed several regressions in /Hide and /Spectate that were introduced in 0.620-0.621 (thanks mark_b).
+ Fix: Fixed /Deafen being usable from console (thanks phonebookguy).
+ Fix: Fixed a crash in Paste/PasteNot/PasteX/PasteNotX (thanks Grant).
+ Misc: Updated some draw command messages, credits, help entries, warnings.
+
 0.621
  Feature: Added CommandBook banlist (bans.csv) support to /Import.
  Feature: Added a way to list all players of a certain rank with "/Info @ClassName".
