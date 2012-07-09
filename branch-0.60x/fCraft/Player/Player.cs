@@ -730,7 +730,7 @@ namespace fCraft {
         readonly Queue<DateTime> spamChatLog = new Queue<DateTime>( AntispamMessageCount );
 
         internal bool DetectChatSpam() {
-            if( IsSuper ) return false;
+            if( IsSuper || AntispamMessageCount < 1 || AntispamInterval < 1 ) return false;
             if( spamChatLog.Count >= AntispamMessageCount ) {
                 DateTime oldestTime = spamChatLog.Dequeue();
                 if( DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds < AntispamInterval ) {
