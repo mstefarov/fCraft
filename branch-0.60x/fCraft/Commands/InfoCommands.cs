@@ -579,7 +579,7 @@ namespace fCraft {
             }
 
             // Show alts
-            if( !info.LastIP.Equals( IPAddress.None ) ) {
+            if( !address.Equals( IPAddress.None ) ) {
                 List<PlayerInfo> altNames = new List<PlayerInfo>();
                 int bannedAltCount = 0;
                 foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( address ) ) {

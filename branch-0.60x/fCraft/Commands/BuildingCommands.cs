@@ -1183,7 +1183,7 @@ namespace fCraft {
         };
 
         static void PasteXHandler( Player player, Command cmd ) {
-            PasteOpHandler( player, cmd, new PasteDrawOperation( player, false ) );
+            PasteOpHandler( player, cmd, 2, new PasteDrawOperation( player, false ) );
         }
 
 
@@ -1202,7 +1202,7 @@ namespace fCraft {
         };
 
         static void PasteNotXHandler( Player player, Command cmd ) {
-            PasteOpHandler( player, cmd, new PasteDrawOperation( player, true ) );
+            PasteOpHandler( player, cmd, 2, new PasteDrawOperation( player, true ) );
         }
 
 
@@ -1220,7 +1220,7 @@ namespace fCraft {
         };
 
         static void PasteHandler( Player player, Command cmd ) {
-            PasteOpHandler( player, cmd, new QuickPasteDrawOperation( player, false ) );
+            PasteOpHandler( player, cmd, 1, new QuickPasteDrawOperation( player, false ) );
         }
 
 
@@ -1239,13 +1239,13 @@ namespace fCraft {
         };
 
         static void PasteNotHandler( Player player, Command cmd ) {
-            PasteOpHandler( player, cmd, new QuickPasteDrawOperation( player, true ) );
+            PasteOpHandler( player, cmd, 1, new QuickPasteDrawOperation( player, true ) );
         }
 
 
-        static void PasteOpHandler( Player player, Command cmd, DrawOpWithBrush op ) {
+        static void PasteOpHandler( Player player, Command cmd, int expectedMarks, DrawOpWithBrush op ) {
             if( !op.ReadParams( cmd ) ) return;
-            player.SelectionStart( 1, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
+            player.SelectionStart( expectedMarks, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
             CopyState copyInfo = player.GetCopyInformation();
             if( copyInfo != null ) {
                 player.MessageNow( "{0}: Click or &H/Mark&S the {1} corner.",
