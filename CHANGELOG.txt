@@ -1,3 +1,10 @@
+0.623
+ Fix: Fixed a crash in /PasteX and /PasteNotX.
+ Fix: Fixed /BanInfo crash when given a non-banned IP address.
+ Fix: Fixed a crash in Player.DetectChatSpam if AntiSpam was supposed to be disabled.
+ Fix: Fixed typos in comments and messages (thanks Jonty800).
+ Fix: Fixed a crash in /ZAdd (thanks thelonedrummer18).
+
 0.622
  Feature: ServerGUI message log is now color-coded, easier to select/copy/paste, and featuring clickable links.
  Fix: Fixed several regressions in /Hide and /Spectate that were introduced in 0.620-0.621 (thanks mark_b).
