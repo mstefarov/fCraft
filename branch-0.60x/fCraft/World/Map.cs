@@ -453,7 +453,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Checks if a given map dimension (width, height, or length) is acceptible.
+        /// <summary> Checks if a given map dimension (width, height, or length) is acceptable.
         /// Values between 1 and 2047 are technically allowed. </summary>
         public static bool IsValidDimension( int dimension ) {
             return dimension >= 16 && dimension <= 2048;
