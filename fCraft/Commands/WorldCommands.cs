@@ -1099,7 +1099,7 @@ namespace fCraft {
                             locked++;
                         }
                     }
-                    player.Message( "Unlocked {0} worlds.", locked );
+                    player.Message( "Locked {0} worlds.", locked );
                     return;
                 } else {
                     world = WorldManager.FindWorldOrPrintMatches( player, worldName );
@@ -1158,7 +1158,7 @@ namespace fCraft {
                 world = player.World;
 
             } else {
-                player.Message( "When called from console, /WLock requires a world name." );
+                player.Message( "When called from console, /WUnlock requires a world name." );
                 return;
             }
 

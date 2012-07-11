@@ -16,11 +16,11 @@ namespace fCraft {
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            623,
-            1623,
-            new DateTime( 2012, 7, 5, 8, 30, 0, DateTimeKind.Utc ),
+            624,
+            1626,
+            new DateTime( 2012, 7, 9, 20, 0, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Bugfix
+            ReleaseFlags.Bugfix | ReleaseFlags.Dev
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
@@ -30,7 +30,7 @@ namespace fCraft {
             get { return "fCraft " + CurrentRelease.VersionString; }
         }
 
-        public const string LatestStable = "0.622_r1618";
+        public const string LatestStable = "0.623_r1623";
 
         public static string UpdateUrl { get; set; }
 
