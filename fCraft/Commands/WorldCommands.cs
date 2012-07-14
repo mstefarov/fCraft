@@ -238,21 +238,19 @@ namespace fCraft {
                                 return;
                             }
 
-                            if( !cmd.IsConfirmed && limitNumber != 0 ) {
+                            string limitDisplayString = (limitNumber == 0 ? "none" : limitNumber.ToString());
+                            if( db.Limit == limitNumber ) {
+                                player.Message( "BlockDB: Limit for world {0}&S is already set to {1}",
+                                               world.ClassyName, limitDisplayString );
+
+                            } else if( !cmd.IsConfirmed && limitNumber != 0 ) {
                                 player.Confirm( cmd, "BlockDB: Change limit? Some old data for world {0}&S may be discarded.", world.ClassyName );
 
                             } else {
-                                string limitDisplayString = (limitNumber == 0 ? "none" : limitNumber.ToString());
-                                if( db.Limit == limitNumber ) {
-                                    player.Message( "BlockDB: Limit for world {0}&S is already set to {1}",
-                                                   world.ClassyName, limitDisplayString );
-
-                                } else {
-                                    db.Limit = limitNumber;
-                                    WorldManager.SaveWorldList();
-                                    player.Message( "BlockDB: Limit for world {0}&S set to {1}",
-                                                   world.ClassyName, limitDisplayString );
-                                }
+                                db.Limit = limitNumber;
+                                WorldManager.SaveWorldList();
+                                player.Message( "BlockDB: Limit for world {0}&S set to {1}",
+                                               world.ClassyName, limitDisplayString );
                             }
 
                         } else {
@@ -289,29 +287,27 @@ namespace fCraft {
                                 return;
                             }
 
-                            if( !cmd.IsConfirmed && limit != TimeSpan.Zero ) {
+                            if( db.TimeLimit == limit ) {
+                                if( db.TimeLimit == TimeSpan.Zero ) {
+                                    player.Message( "BlockDB: There is already no time limit for world {0}",
+                                                    world.ClassyName );
+                                } else {
+                                    player.Message( "BlockDB: Time limit for world {0}&S is already set to {1}",
+                                                    world.ClassyName, db.TimeLimit.ToMiniString() );
+                                }
+
+                            } else if( !cmd.IsConfirmed && limit != TimeSpan.Zero ) {
                                 player.Confirm( cmd, "BlockDB: Change time limit? Some old data for world {0}&S may be discarded.", world.ClassyName );
 
                             } else {
-
-                                if( db.TimeLimit == limit ) {
-                                    if( db.TimeLimit == TimeSpan.Zero ) {
-                                        player.Message( "BlockDB: There is already no time limit for world {0}",
-                                                        world.ClassyName );
-                                    } else {
-                                        player.Message( "BlockDB: Time limit for world {0}&S is already set to {1}",
-                                                        world.ClassyName, db.TimeLimit.ToMiniString() );
-                                    }
+                                db.TimeLimit = limit;
+                                WorldManager.SaveWorldList();
+                                if( db.TimeLimit == TimeSpan.Zero ) {
+                                    player.Message( "BlockDB: Time limit removed for world {0}",
+                                                    world.ClassyName );
                                 } else {
-                                    db.TimeLimit = limit;
-                                    WorldManager.SaveWorldList();
-                                    if( db.TimeLimit == TimeSpan.Zero ) {
-                                        player.Message( "BlockDB: Time limit removed for world {0}",
-                                                        world.ClassyName );
-                                    } else {
-                                        player.Message( "BlockDB: Time limit for world {0}&S set to {1}",
-                                                        world.ClassyName, db.TimeLimit.ToMiniString() );
-                                    }
+                                    player.Message( "BlockDB: Time limit for world {0}&S set to {1}",
+                                                    world.ClassyName, db.TimeLimit.ToMiniString() );
                                 }
                             }
 

@@ -276,7 +276,9 @@ namespace fCraft {
 
         /// <summary> Counts entries that are newer tha the given age. </summary>
         /// <param name="age"> Maximum age of entry </param>
-        /// <returns> Number of entries newer than given age. May be 0 if all entries are older than given age. </returns>
+        /// <returns> Number of entries newer than given age.
+        /// 0 if all entries are older than given age.
+        /// -1 if all entries are newer than given age. </returns>
         int CountNewerEntries( TimeSpan age ) {
             if( age < TimeSpan.Zero ) {
                 throw new ArgumentOutOfRangeException( "age", "Age must be non-negative." );
@@ -286,12 +288,12 @@ namespace fCraft {
             if( isPreloaded ) {
                 fixed( BlockDBEntry* ptr = cacheStore ) {
                     for( int i = 0; i < CacheSize; i++ ) {
-                        if( ptr[i].Timestamp >= minTimestamp ) {
+                        if( ptr[i].Timestamp < minTimestamp ) {
                             return CacheSize - i;
                         }
                     }
                 }
-                return 0;
+                return -1;
 
             } else {
                 byte[] bytes = Load();
@@ -299,12 +301,12 @@ namespace fCraft {
                 fixed( byte* parr = bytes ) {
                     BlockDBEntry* entries = (BlockDBEntry*)parr;
                     for( int i = entryCount - 1; i >= 0; i-- ) {
-                        if( entries[i].Timestamp >= minTimestamp ) {
+                        if( entries[i].Timestamp < minTimestamp ) {
                             return entryCount - i;
                         }
                     }
                 }
-                return 0;
+                return -1;
             }
         }
 
@@ -391,10 +393,12 @@ namespace fCraft {
                 int oldSize = CacheSize;
 #endif
                 int newCapacity = CountNewerEntries( timeLimit );
-                if( isPreloaded ) {
-                    LimitCapacity( newCapacity );
+                if( newCapacity != -1 ) {
+                    if( isPreloaded ) {
+                        LimitCapacity( newCapacity );
+                    }
+                    TrimFile( newCapacity );
                 }
-                TrimFile( newCapacity );
                 lastTimeLimit = DateTime.UtcNow;
 #if DEBUG_BLOCKDB
                 Logger.Log( LogType.Debug,
