@@ -1,5 +1,5 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
-//#define DEBUG_BLOCKDB
+#define DEBUG_BLOCKDB
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,7 +29,7 @@ namespace fCraft {
                     if( IsEnabledGlobally ) {
 #if DEBUG_BLOCKDB
                         if( value != enabledState ) {
-                            Logger.Log( "BlockDB({0}): Enabled={1}", LogType.Debug, World.Name, value );
+                            Logger.Log( LogType.Debug, "BlockDB({0}): Enabled={1}", World.Name, value );
                         }
 #endif
                         if( value == YesNoAuto.No && IsEnabled ) {
@@ -182,7 +182,7 @@ namespace fCraft {
                     }
                     cacheStore = destinationArray;
 #if DEBUG_BLOCKDB
-                    Logger.Log( "BlockDB({0}): CacheCapacity={1}", LogType.Debug, World.Name, value );
+                    Logger.Log( LogType.Debug, "BlockDB({0}): CacheCapacity={1}", World.Name, value );
 #endif
                 }
             }
@@ -209,7 +209,7 @@ namespace fCraft {
                             CacheClear();
                         }
 #if DEBUG_BLOCKDB
-                        Logger.Log( "BlockDB({0}): Preloaded={1}", LogType.Debug, World.Name, value );
+                        Logger.Log( LogType.Debug, "BlockDB({0}): Preloaded={1}", World.Name, value );
 #endif
                     }
                     isPreloaded = value;
@@ -327,7 +327,7 @@ namespace fCraft {
                         EnforceLimit();
                     }
 #if DEBUG_BLOCKDB
-                    Logger.Log( "BlockDB({0}): Limit={1}", LogType.Debug, World.Name, value );
+                    Logger.Log( LogType.Debug, "BlockDB({0}): Limit={1}", World.Name, value );
 #endif
                 }
             }
@@ -349,7 +349,8 @@ namespace fCraft {
                 TrimFile( limit );
                 lastLimit = DateTime.UtcNow;
 #if DEBUG_BLOCKDB
-                Logger.Log( "BlockDB({0}): Enforce Limit, CC {1}->{2}, CS {3}->{4}", LogType.Debug,
+                Logger.Log( LogType.Debug,
+                            "BlockDB({0}): Enforce Limit, CC {1}->{2}, CS {3}->{4}",
                             World.Name, oldCap, CacheCapacity, oldSize, CacheSize );
 #endif
             }
@@ -371,7 +372,9 @@ namespace fCraft {
                         EnforceTimeLimit();
                     }
 #if DEBUG_BLOCKDB
-                    Logger.Log( "BlockDB({0}): TimeLimit={1}", LogType.Debug, World.Name, value );
+                    Logger.Log( LogType.Debug,
+                                "BlockDB({0}): TimeLimit={1}",
+                                World.Name, value );
 #endif
                 }
             }
@@ -394,7 +397,8 @@ namespace fCraft {
                 TrimFile( newCapacity );
                 lastTimeLimit = DateTime.UtcNow;
 #if DEBUG_BLOCKDB
-                Logger.Log( "BlockDB({0}): Enforce TimeLimit, CC {1}->{2}, CS {3}->{4}", LogType.Debug,
+                Logger.Log( LogType.Debug,
+                            "BlockDB({0}): Enforce TimeLimit, CC {1}->{2}, CS {3}->{4}",
                             World.Name, oldCap, CacheCapacity, oldSize, CacheSize );
 #endif
             }
@@ -445,7 +449,8 @@ namespace fCraft {
             lock( SyncRoot ) {
                 if( LastFlushedIndex < CacheSize ) {
 #if DEBUG_BLOCKDB
-                    Logger.Log( "BlockDB({0}): Flushing. CC={1} CS={2} LFI={3}", LogType.Debug,
+                    Logger.Log( LogType.Debug,
+                                "BlockDB({0}): Flushing. CC={1} CS={2} LFI={3}",
                                 World.Name, CacheCapacity, CacheSize, LastFlushedIndex );
 #endif
                     int count = 0;
@@ -460,7 +465,8 @@ namespace fCraft {
                     LastFlushedIndex = CacheSize;
                     changesSinceLimitEnforcement += count;
 #if DEBUG_BLOCKDB
-                    Logger.Log( "BlockDB({0}): Flushed {1} entries. CC={2} CS={3} LFI={4}", LogType.Debug,
+                    Logger.Log( LogType.Debug,
+                                "BlockDB({0}): Flushed {1} entries. CC={2} CS={3} LFI={4}",
                                 World.Name, count, CacheCapacity, CacheSize, LastFlushedIndex );
 #endif
                 }
