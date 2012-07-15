@@ -37,11 +37,21 @@ namespace fCraft.ServerGUI {
             Server.PlayerListChanged += OnPlayerListChanged;
             Server.ShutdownEnded += OnServerShutdownEnded;
             Text = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
+        }
+
+
+        protected override void OnShown( EventArgs e ) {
+            if( typeof( fCraft.Server ).Assembly.GetName().Version != typeof( fCraft.ServerGUI.Program ).Assembly.GetName().Version ) {
+                MessageBox.Show( "fCraft.dll version does not match ServerGUI.exe version." );
+                Application.Exit();
+                return;
+            }
             startupThread = new Thread( StartupThread ) {
                 Name = "fCraft.ServerGUI.Startup",
                 CurrentCulture = new CultureInfo( "en-US" )
             };
             startupThread.Start();
+            base.OnShown( e );
         }
 
 

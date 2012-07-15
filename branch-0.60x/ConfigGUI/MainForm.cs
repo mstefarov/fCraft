@@ -31,12 +31,18 @@ namespace fCraft.ConfigGUI {
             dgvcBlockDB.FalseValue = YesNoAuto.No;
             dgvcBlockDB.IndeterminateValue = YesNoAuto.Auto;
             bold = new Font( Font, FontStyle.Bold );
-            Shown += Init;
             Text = "fCraft Configuration (" + Updater.CurrentRelease.VersionString + ")";
         }
 
+        protected override void OnShown( EventArgs e ) {
+            base.OnShown( e );
 
-        void Init( object sender, EventArgs e ) {
+            if( typeof( fCraft.Server ).Assembly.GetName().Version != typeof( fCraft.ConfigGUI.Program ).Assembly.GetName().Version ) {
+                MessageBox.Show( "fCraft.dll version does not match ConfigGUI.exe version." );
+                Application.Exit();
+                return;
+            }
+
             // fills Permission and LogType lists
             FillEnumLists();
 
