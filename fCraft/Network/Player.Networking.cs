@@ -1248,10 +1248,11 @@ namespace fCraft {
                     entity.MarkedForRetention = true;
 
                     if( entity.LastKnownRank != otherPlayer.Info.Rank ) {
-                        ReAddEntity( entity, otherPlayer, otherPos );
+                        ReAddEntity( entity, otherPlayer );
                         entity.LastKnownRank = otherPlayer.Info.Rank;
+                    }
 
-                    } else if( entity.Hidden ) {
+                    if( entity.Hidden ) {
                         if( distance < entityShowingThreshold && CanSeeMoving( otherPlayer ) ) {
                             ShowEntity( entity, otherPos );
                         }
@@ -1316,12 +1317,11 @@ namespace fCraft {
         }
 
 
-        void ReAddEntity( [NotNull] VisibleEntity entity, [NotNull] Player player, Position newPos ) {
+        void ReAddEntity( [NotNull] VisibleEntity entity, [NotNull] Player player ) {
             if( entity == null ) throw new ArgumentNullException( "entity" );
             if( player == null ) throw new ArgumentNullException( "player" );
             SendNow( PacketWriter.MakeRemoveEntity( entity.Id ) );
-            SendNow( PacketWriter.MakeAddEntity( entity.Id, player.ListName, newPos ) );
-            entity.LastKnownPosition = newPos;
+            SendNow( PacketWriter.MakeAddEntity( entity.Id, player.ListName, entity.LastKnownPosition ) );
         }
 
 
@@ -1366,7 +1366,7 @@ namespace fCraft {
             // create the movement packet
             if( partialUpdates && delta.FitsIntoMoveRotatePacket && fullUpdateCounter < FullPositionUpdateInterval ) {
                 if( posChanged && rotChanged ) {
-                    // incremental position + rotation update
+                    // incremental position + absolute rotation update
                     packet = PacketWriter.MakeMoveRotate( entity.Id, new Position {
                         X = delta.X,
                         Y = delta.Y,
@@ -1387,7 +1387,7 @@ namespace fCraft {
                 }
 
             } else {
-                // full (absolute position + rotation) update
+                // full (absolute position + absolute rotation) update
                 packet = PacketWriter.MakeTeleport( entity.Id, newPos );
             }
 

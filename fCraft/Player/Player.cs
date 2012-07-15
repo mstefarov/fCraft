@@ -1099,7 +1099,6 @@ namespace fCraft {
 
 
         /// <summary> Whether this player can currently see another player as being online.
-        /// Visibility is determined by whether the other player is hiding or spectating.
         /// Players can always see themselves. Super players (e.g. Console) can see all.
         /// Hidden players can only be seen by those of sufficient rank. </summary>
         public bool CanSee( [NotNull] Player other ) {
@@ -1113,8 +1112,8 @@ namespace fCraft {
 
         /// <summary> Whether this player can currently see another player moving.
         /// Behaves very similarly to CanSee method, except when spectating:
-        /// Players can never see someone who's spectating them. If other player is spectating
-        /// someone else, they are treated as hidden and can only be seen by those of sufficient rank. </summary>
+        /// Spectators and spectatee cannot see each other.
+        /// Spectators can only be seen by those who'd be able to see them hidden. </summary>
         public bool CanSeeMoving( [NotNull] Player otherPlayer ) {
             if( otherPlayer == null ) throw new ArgumentNullException( "otherPlayer" );
             // Check if player can see otherPlayer while they hide/spectate, and whether otherPlayer is spectating player
