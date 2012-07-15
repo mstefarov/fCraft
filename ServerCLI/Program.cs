@@ -78,11 +78,15 @@ namespace fCraft.ServerCLI {
                         if( cmd.Equals( "/Clear", StringComparison.OrdinalIgnoreCase ) ) {
                             Console.Clear();
                         } else {
+#if !DEBUG
                             try {
                                 Player.Console.ParseMessage( cmd, true );
                             } catch( Exception ex ) {
                                 Logger.LogAndReportCrash( "Error while executing a command from console", "ServerCLI", ex, false );
                             }
+#else
+                            Player.Console.ParseMessage( cmd, true );
+#endif
                         }
                     }
 
