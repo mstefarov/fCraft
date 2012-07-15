@@ -1,4 +1,5 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+//#define DEBUG_MOVEMENT
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -1242,31 +1243,32 @@ namespace fCraft {
                 Position otherPos = otherPlayer.Position;
                 int distance = pos.DistanceSquaredTo( otherPos );
 
+                // Fetch or create a VisibleEntity object for the player
                 VisibleEntity entity;
-                // if Player has a corresponding VisibleEntity
                 if( entities.TryGetValue( otherPlayer, out entity ) ) {
                     entity.MarkedForRetention = true;
-
-                    if( entity.LastKnownRank != otherPlayer.Info.Rank ) {
-                        ReAddEntity( entity, otherPlayer );
-                        entity.LastKnownRank = otherPlayer.Info.Rank;
-                    }
-
-                    if( entity.Hidden ) {
-                        if( distance < entityShowingThreshold && CanSeeMoving( otherPlayer ) ) {
-                            ShowEntity( entity, otherPos );
-                        }
-
-                    } else {
-                        if( distance > entityHidingThreshold || !CanSeeMoving( otherPlayer ) ) {
-                            HideEntity( entity );
-
-                        } else if( entity.LastKnownPosition != otherPos ) {
-                            MoveEntity( entity, otherPos );
-                        }
-                    }
                 } else {
-                    AddEntity( otherPlayer, otherPos );
+                    entity = AddEntity( otherPlayer );
+                }
+
+                // Re-add player if their rank changed (to maintain correct name colors/prefix)
+                if( entity.LastKnownRank != otherPlayer.Info.Rank ) {
+                    ReAddEntity( entity, otherPlayer );
+                    entity.LastKnownRank = otherPlayer.Info.Rank;
+                }
+
+                if( entity.Hidden ) {
+                    if( distance < entityShowingThreshold && CanSeeMoving( otherPlayer ) ) {
+                        ShowEntity( entity, otherPos );
+                    }
+
+                } else {
+                    if( distance > entityHidingThreshold || !CanSeeMoving( otherPlayer ) ) {
+                        HideEntity( entity );
+
+                    } else if( entity.LastKnownPosition != otherPos ) {
+                        MoveEntity( entity, otherPos );
+                    }
                 }
             }
 
@@ -1291,18 +1293,27 @@ namespace fCraft {
         }
 
 
-        void AddEntity( [NotNull] Player player, Position newPos ) {
+        VisibleEntity AddEntity( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( freePlayerIDs.Count > 0 ) {
-                var pos = new VisibleEntity( newPos, freePlayerIDs.Pop(), player.Info.Rank );
-                entities.Add( player, pos );
-                SendNow( PacketWriter.MakeAddEntity( pos.Id, player.ListName, newPos ) );
+                var newEntity = new VisibleEntity( VisibleEntity.HiddenPosition, freePlayerIDs.Pop(), player.Info.Rank );
+                entities.Add( player, newEntity );
+#if DEBUG_MOVEMENT
+                Logger.Log( LogType.Debug, "AddEntity: {0} added {1} ({2})", Name, newEntity.Id, player.Name );
+#endif
+                SendNow( PacketWriter.MakeAddEntity( newEntity.Id, player.ListName, newEntity.LastKnownPosition ) );
+                return newEntity;
+            } else {
+                throw new InvalidOperationException( "Player.AddEntity: Ran out of entity IDs." );
             }
         }
 
 
         void HideEntity( [NotNull] VisibleEntity entity ) {
             if( entity == null ) throw new ArgumentNullException( "entity" );
+#if DEBUG_MOVEMENT
+            Logger.Log( LogType.Debug, "HideEntity: {0} no longer sees {1}", Name, entity.Id );
+#endif
             entity.Hidden = true;
             entity.LastKnownPosition = VisibleEntity.HiddenPosition;
             SendNow( PacketWriter.MakeTeleport( entity.Id, VisibleEntity.HiddenPosition ) );
@@ -1311,6 +1322,9 @@ namespace fCraft {
 
         void ShowEntity( [NotNull] VisibleEntity entity, Position newPos ) {
             if( entity == null ) throw new ArgumentNullException( "entity" );
+#if DEBUG_MOVEMENT
+            Logger.Log( LogType.Debug, "ShowEntity: {0} now sees {1}", Name, entity.Id );
+#endif
             entity.Hidden = false;
             entity.LastKnownPosition = newPos;
             SendNow( PacketWriter.MakeTeleport( entity.Id, newPos ) );
@@ -1320,6 +1334,9 @@ namespace fCraft {
         void ReAddEntity( [NotNull] VisibleEntity entity, [NotNull] Player player ) {
             if( entity == null ) throw new ArgumentNullException( "entity" );
             if( player == null ) throw new ArgumentNullException( "player" );
+#if DEBUG_MOVEMENT
+            Logger.Log( LogType.Debug, "ReAddEntity: {0} re-added {1} ({2})", Name, entity.Id, player.Name );
+#endif
             SendNow( PacketWriter.MakeRemoveEntity( entity.Id ) );
             SendNow( PacketWriter.MakeAddEntity( entity.Id, player.ListName, entity.LastKnownPosition ) );
         }
@@ -1327,6 +1344,9 @@ namespace fCraft {
 
         void RemoveEntity( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
+#if DEBUG_MOVEMENT
+            Logger.Log( LogType.Debug, "RemoveEntity: {0} removed {1} ({2})", Name, entities[player].Id, player.Name );
+#endif
             SendNow( PacketWriter.MakeRemoveEntity( entities[player].Id ) );
             freePlayerIDs.Push( entities[player].Id );
             entities.Remove( player );
