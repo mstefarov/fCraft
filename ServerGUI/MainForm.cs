@@ -20,6 +20,11 @@ namespace fCraft.ServerGUI {
             InitializeComponent();
             Shown += StartUp;
             console.OnCommand += console_Enter;
+
+            logBox.ContextMenu = new ContextMenu( new[] {
+                new MenuItem( "Copy", CopyMenuOnClickHandler )
+            } );
+            logBox.ContextMenu.Popup += CopyMenuPopupHandler;
         }
 
 
@@ -294,6 +299,22 @@ namespace fCraft.ServerGUI {
                 Process.Start( uriDisplay.Text );
             } catch( Exception ) {
                 MessageBox.Show( "Could not open server URL. Please copy/paste it manually." );
+            }
+        }
+
+
+        // CopyMenuOnClickHandler and CopyMenuPopupHandler by Jonty800
+        private void CopyMenuOnClickHandler( object sender, EventArgs e ) {
+            if( logBox.SelectedText.Length > 0 ) {
+                Clipboard.SetText( logBox.SelectedText.ToString(), TextDataFormat.Text );
+            }
+        }
+
+
+        private void CopyMenuPopupHandler( object sender, EventArgs e ) {
+            ContextMenu menu = sender as ContextMenu;
+            if( menu != null ) {
+                menu.MenuItems[0].Enabled = (logBox.SelectedText.Length > 0);
             }
         }
     }
