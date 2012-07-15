@@ -101,7 +101,9 @@ namespace fCraft {
      * 
      * 131 - r460 - Changed default for IRCNick from "fBot" to "MinecraftBot"
      *              Relaxed range limits on many integer keys.
-     *              Renamed ProcessPriority value "Low" to "Idle", to match WinAPI 
+     *              Renamed ProcessPriority value "Low" to "Idle", to match WinAPI
+     *              Renamed AutomaticUpdates key to UpdateMode
+     *              Renamde IRCBot key to IRCBotEnabled
      *              
      * 132 - r477 - Added BackupBeforeUpdate, RunBeforeUpdate, and RunAfterUpdate config keys
      *              Renamed UpdateMode to UpdaterMode

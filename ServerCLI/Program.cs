@@ -43,6 +43,12 @@ namespace fCraft.ServerCLI {
 #if !DEBUG
             try {
 #endif
+                if( typeof( fCraft.Server ).Assembly.GetName().Version != typeof( fCraft.ServerCLI.Program ).Assembly.GetName().Version ) {
+                    Console.WriteLine( "fCraft.dll version does not match ServerCLI.exe version." );
+                    ReportFailure( ShutdownReason.FailedToInitialize, false );
+                    return;
+                }
+
                 Server.InitLibrary( args );
                 useColor = !Server.HasArg( ArgKey.NoConsoleColor );
 
@@ -77,12 +83,12 @@ namespace fCraft.ServerCLI {
                     }
 
                 } else {
-                    ReportFailure( ShutdownReason.FailedToStart );
+                    ReportFailure( ShutdownReason.FailedToStart, true );
                 }
 #if !DEBUG
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Unhandled exception in ServerCLI", "ServerCLI", ex, true );
-                ReportFailure( ShutdownReason.Crashed );
+                ReportFailure( ShutdownReason.Crashed, true );
             } finally {
                 Console.ResetColor();
             }
@@ -90,12 +96,12 @@ namespace fCraft.ServerCLI {
         }
 
 
-        static void ReportFailure( ShutdownReason reason ) {
+        static void ReportFailure( ShutdownReason reason, bool shutdown ) {
             Console.Title = String.Format( "fCraft {0} {1}", Updater.CurrentRelease.VersionString, reason );
             if( useColor ) Console.ForegroundColor = ConsoleColor.Red;
             Console.Error.WriteLine( "** {0} **", reason );
             if( useColor ) Console.ResetColor();
-            Server.Shutdown( new ShutdownParams( reason, TimeSpan.Zero, false, false ), true );
+            if(shutdown) Server.Shutdown( new ShutdownParams( reason, TimeSpan.Zero, false, false ), true );
             if( !Server.HasArg( ArgKey.ExitOnCrash ) ) {
                 Console.ReadLine();
             }
