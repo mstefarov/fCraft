@@ -71,6 +71,10 @@ namespace fCraft.ServerCLI {
 
                     while( !Server.IsShuttingDown ) {
                         string cmd = Console.ReadLine();
+                        if( cmd == null ) {
+                            Console.WriteLine( "*** Received EOF from console. You will not be able to type anything in console any longer. ***" );
+                            break;
+                        }
                         if( cmd.Equals( "/Clear", StringComparison.OrdinalIgnoreCase ) ) {
                             Console.Clear();
                         } else {
