@@ -1238,6 +1238,9 @@ namespace fCraft {
                 return;
             }
 
+            int playersBanned = 0,
+                linesSkipped = 0,
+                playersAlreadyBanned = 0;
             switch( serverName.ToLower() ) {
                 case "mcsharp":
                 case "mczall":
@@ -1268,11 +1271,16 @@ namespace fCraft {
                                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
                                                   PlayerDB.AddFakeEntry( name, RankChangeType.Default );
                                 info.Ban( player, reason, true, true );
+                                playersBanned++;
 
                             } else {
-                                player.Message( "ImportBans: Could not parse \"{0}\" as either name or IP. Skipping.", name );
+                                linesSkipped++;
                             }
                         } catch( PlayerOpException ex ) {
+                            if( ex.ErrorCode == PlayerOpExceptionCode.NoActionNeeded ) {
+                                playersAlreadyBanned++;
+                                continue;
+                            }
                             Logger.Log( LogType.Warning, "ImportBans: " + ex.Message );
                             player.Message( ex.MessageColored );
                         }
@@ -1282,7 +1290,7 @@ namespace fCraft {
                     break;
 
                 case "commandbook":
-                    if( !file.Equals( "bans.csv", StringComparison.OrdinalIgnoreCase ) ) {
+                    if( !file.EndsWith( ".csv", StringComparison.OrdinalIgnoreCase ) ) {
                         player.Message( "Import: Please provide bans.csv file for CommandBook" );
                         return;
                     }
@@ -1304,7 +1312,7 @@ namespace fCraft {
                     for( int i = 0; i < lines.Length; i++ ) {
                         string[] record = ParseCsvRow( lines[i] );
                         if( record.Length != 5 ) {
-                            player.Message( "ImportBans: Skipping line {0}", i );
+                            linesSkipped++;
                             continue;
                         }
                         string playerName = record[0];
@@ -1314,10 +1322,15 @@ namespace fCraft {
 
                         PlayerInfo info = PlayerDB.FindPlayerInfoExact( playerName ) ??
                                           PlayerDB.AddFakeEntry( playerName, RankChangeType.Default );
-                        
+
                         try {
-                        info.Ban( player, banReason, true, true );
+                            info.Ban( player, banReason, true, true );
+                            playersBanned++;
                         } catch( PlayerOpException ex ) {
+                            if( ex.ErrorCode == PlayerOpExceptionCode.NoActionNeeded ) {
+                                playersAlreadyBanned++;
+                                continue;
+                            }
                             Logger.Log( LogType.Warning, "ImportBans: " + ex.Message );
                             player.Message( ex.MessageColored );
                             continue;
@@ -1340,6 +1353,8 @@ namespace fCraft {
                                     serverName );
                     return;
             }
+            player.Message( "Import: Banned {0} players, found {1} already-banned players, skipped {2} lines.",
+                            playersBanned, playersAlreadyBanned, linesSkipped );
         }
 
 
