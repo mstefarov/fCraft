@@ -188,12 +188,24 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             updaterWindow.UpdaterMode = (UpdaterMode)cUpdaterMode.SelectedIndex;
         }
 
+        const string WikiUri = "http://www.fcraft.net/wiki/Main_Page";
         private void bOpenWiki_Click( object sender, EventArgs e ) {
-            Process.Start( "http://www.fcraft.net/wiki/Main_Page" );
+            try {
+                Process.Start( WikiUri );
+            } catch( Exception ) {
+                Clipboard.SetText( WikiUri, TextDataFormat.Text );
+                MessageBox.Show( "Link to the wiki has been copied to clipboard." );
+            }
         }
 
+        const string ReportUri = "http://forum.fcraft.net/viewforum.php?f=5";
         private void bReportABug_Click( object sender, EventArgs e ) {
-            Process.Start( "http://forum.fcraft.net/viewforum.php?f=5" );
+            try {
+                Process.Start( ReportUri );
+            } catch( Exception ) {
+                Clipboard.SetText( ReportUri, TextDataFormat.Text );
+                MessageBox.Show( "Link to the bug report forum has been copied to clipboard." );
+            }
         }
 
         private void nMaxPlayerPerWorld_Validating( object sender, CancelEventArgs e ) {
