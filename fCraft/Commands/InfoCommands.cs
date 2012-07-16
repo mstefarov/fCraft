@@ -725,6 +725,7 @@ namespace fCraft {
             }
             Process.GetCurrentProcess().Refresh();
 
+            player.Message( ConfigKey.ServerName.GetString() );
             player.Message( "Servers status: Up for {0:0.0} hours, using {1:0} MB",
                             DateTime.UtcNow.Subtract( Server.StartTime ).TotalHours,
                             (Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024)) );
