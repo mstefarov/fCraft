@@ -308,7 +308,8 @@ namespace fCraft.ServerGUI {
             try {
                 Process.Start( uriDisplay.Text );
             } catch( Exception ) {
-                MessageBox.Show( "Could not open server URL. Please copy/paste it manually." );
+                Clipboard.SetText( uriDisplay.Text, TextDataFormat.Text );
+                MessageBox.Show( "Server URL has been copied to clipboard." );
             }
         }
 
