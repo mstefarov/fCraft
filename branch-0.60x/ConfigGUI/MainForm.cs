@@ -108,7 +108,11 @@ namespace fCraft.ConfigGUI {
         #region General
 
         private void bMeasure_Click( object sender, EventArgs e ) {
-            Process.Start( "http://www.speedtest.net/" );
+            try {
+                Process.Start( "http://www.speedtest.net/" );
+            } catch( Exception ) {
+                MessageBox.Show( "Please go to speedtest.net" );
+            }
         }
 
         private void bAnnouncements_Click( object sender, EventArgs e ) {
