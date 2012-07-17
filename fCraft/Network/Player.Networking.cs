@@ -634,18 +634,21 @@ namespace fCraft {
 
 
             // Check if player is paid (if required)
-            if( ConfigKey.PaidPlayersOnly.Enabled() ) {
+            if( ConfigKey.PaidPlayersOnly.Enabled() && Info.AccountType != AccountType.Paid ) {
                 SendNow( PacketWriter.MakeHandshake( this,
                                                      ConfigKey.ServerName.GetString(),
                                                      "Please wait; Checking paid status..." ) );
                 writer.Flush();
 
-                if( !CheckPaidStatus( Name ) ) {
+                Info.AccountType = CheckPaidStatus( Name );
+                if( Info.AccountType != AccountType.Paid ) {
                     Logger.Log( LogType.SystemActivity,
                                 "Player {0} was kicked because their account is not paid, and PaidPlayersOnly setting is enabled.", Name );
                     KickNow( "Paid players allowed only.", LeaveReason.LoginFailed );
                     return false;
                 }
+            } else {
+                Info.CheckAccountType();
             }
 
 

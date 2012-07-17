@@ -229,4 +229,11 @@ namespace fCraft {
         /// <summary> Session has ended - player disconnected. </summary>
         Disconnected
     }
+
+
+    public enum AccountType : byte {
+        Unknown,
+        Free,
+        Paid
+    }
 }

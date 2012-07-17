@@ -5,9 +5,11 @@
  Fix: Fixed a rare case of hidden players being revealed (briefly) when their rank is changed.
  Fix: Fixed /Spectate leaving ghost players behind on world change (thanks Hellenion).
  Fix: Fixed a couple typos in WLock/WUnlock (thanks ImNoobSoWhat).
+ Change: Added server name to /SInfo
+ Change: If opening a link fails (from ConfigGUI or ServerGUI), the URL is copied to clipboard, instead of crashing.
  Change: "/Import bans" no longer prints a message for every player who's already banned, instead showing a total number of already-banned players at the end.
  Change: Added a missing "Copy" context menu to the ServerGUI's log box (thanks to Jonty800).
- Change: fCraft front-ends now checks fCraft.dll's assembly version, and refuses to start if there is a mismatch (Thanks Zaneo).
+ Change: fCraft front-ends now check fCraft.dll's assembly version, and refuse to start if there is a mismatch (Thanks Zaneo).
 
 0.623
  Fix: Fixed a crash in /PasteX and /PasteNotX.

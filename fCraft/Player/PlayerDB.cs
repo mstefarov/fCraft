@@ -44,7 +44,7 @@ namespace fCraft {
                               "PreviousRank,RankChangeReason,TimesKicked,TimesKickedOthers," +
                               "TimesBannedOthers,ID,RankChangeType,LastKickDate,LastSeen,BlocksDrawn," +
                               "LastKickBy,LastKickReason,BannedUntil,IsFrozen,FrozenBy,FrozenOn,MutedUntil,MutedBy," +
-                              "Password,IsOnline,BandwidthUseMode,IsHidden,LastModified,DisplayedName";
+                              "Password,IsOnline,BandwidthUseMode,IsHidden,LastModified,DisplayedName,AccountType";
 
 
         // used to ensure PlayerDB consistency when adding/removing PlayerDB entries
