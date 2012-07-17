@@ -1404,7 +1404,7 @@ namespace fCraft {
 
         /// <summary> Checks whether a given player has a paid minecraft.net account. </summary>
         /// <returns> True if the account is paid. False if it is not paid, or if information is unavailable. </returns>
-        public static bool CheckPaidStatus( [NotNull] string name ) {
+        public static AccountType CheckPaidStatus( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( PaidCheckUri + Uri.EscapeDataString( name ) );
             request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( Server.BindIPEndPointCallback );
@@ -1418,14 +1418,22 @@ namespace fCraft {
                         // ReSharper restore AssignNullToNotNullAttribute
                         string paidStatusString = responseReader.ReadToEnd();
                         bool isPaid;
-                        return Boolean.TryParse( paidStatusString, out isPaid ) && isPaid;
+                        if( Boolean.TryParse( paidStatusString, out isPaid ) ) {
+                            if( isPaid ) {
+                                return AccountType.Paid;
+                            } else {
+                                return AccountType.Free;
+                            }
+                        } else {
+                            return AccountType.Unknown;
+                        }
                     }
                 }
             } catch( WebException ex ) {
                 Logger.Log( LogType.Warning,
                             "Could not check paid status of player {0}: {1}",
                             name, ex.Message );
-                return false;
+                return AccountType.Unknown;
             }
         }
 

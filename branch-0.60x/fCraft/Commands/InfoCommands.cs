@@ -201,7 +201,7 @@ namespace fCraft {
                 if( target != null ) {
                     TimeSpan idle = target.IdleTime;
                     if( info.IsHidden ) {
-                        if( idle.TotalMinutes > 2 ) {
+                        if( idle.TotalMinutes > 1 ) {
                             if( player.Can( Permission.ViewPlayerIPs ) ) {
                                 player.Message( "About {0}&S: HIDDEN from {1} (idle {2})",
                                                 info.ClassyName,
@@ -451,6 +451,9 @@ namespace fCraft {
                                 totalTime.TotalHours,
                                 totalTime.TotalMinutes );
             }
+
+            info.CheckAccountType();
+            player.Message( "  Account type: {0}", info.AccountType );
         }
 
         #endregion
