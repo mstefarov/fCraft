@@ -234,7 +234,7 @@ namespace fCraft.ServerCLI {
         static void RestartForUpdate() {
             string restartArgs = String.Format( "{0} --restart=\"{1}\"",
                                                 Server.GetArgString(),
-                                                MonoCompat.PrependMono( "ServerGUI.exe" ) );
+                                                MonoCompat.PrependMono( "ServerCLI.exe" ) );
             MonoCompat.StartDotNetProcess( Paths.UpdaterFileName, restartArgs, true );
         }
 

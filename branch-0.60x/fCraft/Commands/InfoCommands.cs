@@ -723,6 +723,73 @@ namespace fCraft {
 
         internal static void ServerInfoHandler( Player player, Command cmd ) {
             if( cmd.HasNext ) {
+                /*{
+                    int free = PlayerDB.PlayerInfoList.Count( p => p.AccountType == AccountType.Free );
+                    int paid = PlayerDB.PlayerInfoList.Count( p => p.AccountType == AccountType.Paid );
+                    int unknown = PlayerDB.PlayerInfoList.Count( p => p.AccountType == AccountType.Unknown );
+                    player.Message( "   All: {0} free, {1} paid, {2} unknown ({3:0.0}%)",
+                                    free, paid, unknown, (paid * 100f) / (free + paid) );
+                }
+                {
+                    Rank rank = Rank.Parse( "guest" );
+                    PlayerInfo[] players = PlayerDB.PlayerInfoList.Where( p => p.Rank == rank ).ToArray();
+                    int free = players.Count( p => p.AccountType == AccountType.Free );
+                    int paid = players.Count( p => p.AccountType == AccountType.Paid );
+                    int unknown = players.Count( p => p.AccountType == AccountType.Unknown );
+                    player.Message( "   Guest: {0} free, {1} paid, {2} unknown ({3:0.0}%)",
+                                    free, paid, unknown, (paid * 100f) / (free + paid) );
+                }
+                {
+                    Rank rank = Rank.Parse( "builder" );
+                    PlayerInfo[] players = PlayerDB.PlayerInfoList.Where( p => p.Rank >= rank ).ToArray();
+                    int free = players.Count( p => p.AccountType == AccountType.Free );
+                    int paid = players.Count( p => p.AccountType == AccountType.Paid );
+                    int unknown = players.Count( p => p.AccountType == AccountType.Unknown );
+                    player.Message( "   Builder+: {0} free, {1} paid, {2} unknown ({3:0.0}%)",
+                                    free, paid, unknown, (paid * 100f) / (free + paid) );
+                }
+                {
+                    Rank rank = Rank.Parse( "veteran" );
+                    PlayerInfo[] players = PlayerDB.PlayerInfoList.Where( p => p.Rank >= rank ).ToArray();
+                    int free = players.Count( p => p.AccountType == AccountType.Free );
+                    int paid = players.Count( p => p.AccountType == AccountType.Paid );
+                    int unknown = players.Count( p => p.AccountType == AccountType.Unknown );
+                    player.Message( "   Veteran+: {0} free, {1} paid, {2} unknown ({3:0.0}%)",
+                                    free, paid, unknown, (paid * 100f) / (free + paid) );
+                }
+                {
+                    Rank rank = Rank.Parse( "mason" );
+                    PlayerInfo[] players = PlayerDB.PlayerInfoList.Where( p => p.Rank >= rank ).ToArray();
+                    int free = players.Count( p => p.AccountType == AccountType.Free );
+                    int paid = players.Count( p => p.AccountType == AccountType.Paid );
+                    int unknown = players.Count( p => p.AccountType == AccountType.Unknown );
+                    player.Message( "   Mason+: {0} free, {1} paid, {2} unknown ({3:0.0}%)",
+                                    free, paid, unknown, (paid * 100f) / (free + paid) );
+                }
+                {
+                    PlayerInfo[] players = PlayerDB.PlayerInfoList.Where( p => p.IsBanned ).ToArray();
+                    int free = players.Count( p => p.AccountType == AccountType.Free );
+                    int paid = players.Count( p => p.AccountType == AccountType.Paid );
+                    int unknown = players.Count( p => p.AccountType == AccountType.Unknown );
+                    player.Message( "   Banned: {0} free, {1} paid, {2} unknown ({3:0.0}%)",
+                                    free, paid, unknown, (paid * 100f) / (free + paid) );
+                }
+                {
+                    PlayerInfo[] players = PlayerDB.PlayerInfoList.Where( p => p.IsBanned || p.IsMuted || p.IsFrozen ).ToArray();
+                    int free = players.Count( p => p.AccountType == AccountType.Free );
+                    int paid = players.Count( p => p.AccountType == AccountType.Paid );
+                    int unknown = players.Count( p => p.AccountType == AccountType.Unknown );
+                    player.Message( "   Banned/frozen/muted: {0} free, {1} paid, {2} unknown ({3:0.0}%)",
+                                    free, paid, unknown, (paid * 100f) / (free + paid) );
+                }
+                {
+                    PlayerInfo[] players = PlayerDB.PlayerInfoList.Where( p => !p.IsBanned && !p.IsMuted && !p.IsFrozen ).ToArray();
+                    int free = players.Count( p => p.AccountType == AccountType.Free );
+                    int paid = players.Count( p => p.AccountType == AccountType.Paid );
+                    int unknown = players.Count( p => p.AccountType == AccountType.Unknown );
+                    player.Message( "   Not banned/frozen/muted: {0} free, {1} paid, {2} unknown ({3:0.0}%)",
+                                    free, paid, unknown, (paid * 100f) / (free + paid) );
+                }*/
                 CdServerInfo.PrintUsage( player );
                 return;
             }
