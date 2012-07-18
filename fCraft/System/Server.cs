@@ -430,8 +430,16 @@ namespace fCraft {
             Scheduler.Start();
             IsRunning = true;
 
+            //Scheduler.NewBackgroundTask( CheckRandomInfo ).RunForever( TimeSpan.FromMinutes( 1 ) );
+
             RaiseEvent( Started );
             return true;
+        }
+
+        static void CheckRandomInfo( SchedulerTask task ) {
+            PlayerInfo[] infos = PlayerDB.PlayerInfoList.Where( p => p.AccountType != AccountType.Unknown ).ToArray();
+            PlayerInfo info = infos[new Random().Next( infos.Length )];
+            info.CheckAccountType();
         }
 
         #endregion
