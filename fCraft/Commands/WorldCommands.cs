@@ -973,6 +973,8 @@ namespace fCraft {
                 map = generator.Generate();
             }
 
+            Server.RequestGC();
+
             // save map to file, or load it into a world
             if( fileName != null ) {
                 if( map.Save( fullFileName ) ) {
