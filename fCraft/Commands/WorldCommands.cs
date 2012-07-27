@@ -874,7 +874,7 @@ namespace fCraft {
                 return;
             }
 
-            if( !cmd.IsConfirmed && (!Map.IsRecommendedDimension( mapWidth ) || !Map.IsRecommendedDimension( mapLength )) ) {
+            if( !cmd.IsConfirmed && (!Map.IsRecommendedDimension( mapWidth ) || !Map.IsRecommendedDimension( mapLength ) || mapHeight % 16 != 0) ) {
                 player.Message( "&WThe map will have non-standard dimensions. " +
                                 "You may see glitched blocks or visual artifacts. " +
                                 "The only recommended map dimensions are: 16, 32, 64, 128, 256, 512, and 1024." );
