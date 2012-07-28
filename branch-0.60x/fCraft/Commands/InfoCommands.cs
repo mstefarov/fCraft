@@ -184,10 +184,14 @@ namespace fCraft {
             }
         }
 
+        static readonly TimeSpan InfoIdleThreshold = TimeSpan.FromMinutes( 1 );
+
         public static void PrintPlayerInfo( [NotNull] Player player, [NotNull] PlayerInfo info ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( info == null ) throw new ArgumentNullException( "info" );
             Player target = info.PlayerObject;
+
+            info.CheckAccountType();
 
             // hide online status when hidden
             if( target != null && !player.CanSee( target ) ) {
@@ -198,80 +202,42 @@ namespace fCraft {
                 player.Message( "About {0}&S: Never seen before.", info.ClassyName );
 
             } else {
-                if( target != null ) {
-                    TimeSpan idle = target.IdleTime;
-                    if( info.IsHidden ) {
-                        if( idle.TotalMinutes > 1 ) {
-                            if( player.Can( Permission.ViewPlayerIPs ) ) {
-                                player.Message( "About {0}&S: HIDDEN from {1} (idle {2})",
-                                                info.ClassyName,
-                                                info.LastIP,
-                                                idle.ToMiniString() );
-                            } else {
-                                player.Message( "About {0}&S: HIDDEN (idle {1})",
-                                                info.ClassyName,
-                                                idle.ToMiniString() );
-                            }
-                        } else {
-                            if( player.Can( Permission.ViewPlayerIPs ) ) {
-                                player.Message( "About {0}&S: HIDDEN. Online from {1}",
-                                                info.ClassyName,
-                                                info.LastIP );
-                            } else {
-                                player.Message( "About {0}&S: HIDDEN.",
-                                                info.ClassyName );
-                            }
-                        }
-                    } else {
-                        if( idle.TotalMinutes > 1 ) {
-                            if( player.Can( Permission.ViewPlayerIPs ) ) {
-                                player.Message( "About {0}&S: Online now from {1} (idle {2})",
-                                                info.ClassyName,
-                                                info.LastIP,
-                                                idle.ToMiniString() );
-                            } else {
-                                player.Message( "About {0}&S: Online now (idle {1})",
-                                                info.ClassyName,
-                                                idle.ToMiniString() );
-                            }
-                        } else {
-                            if( player.Can( Permission.ViewPlayerIPs ) ) {
-                                player.Message( "About {0}&S: Online now from {1}",
-                                                info.ClassyName,
-                                                info.LastIP );
-                            } else {
-                                player.Message( "About {0}&S: Online now.",
-                                                info.ClassyName );
-                            }
-                        }
-                    }
+                StringBuilder firstLine = new StringBuilder();
+                if( info.DisplayedName != null ) {
+                    firstLine.AppendFormat( "About {0}&S ({1}): ", info.ClassyName, info.Name );
                 } else {
-                    if( player.Can( Permission.ViewPlayerIPs ) ) {
-                        if( info.LeaveReason != LeaveReason.Unknown ) {
-                            player.Message( "About {0}&S: Last seen {1} ago from {2} ({3}).",
-                                            info.ClassyName,
-                                            info.TimeSinceLastSeen.ToMiniString(),
-                                            info.LastIP,
-                                            info.LeaveReason );
-                        } else {
-                            player.Message( "About {0}&S: Last seen {1} ago from {2}.",
-                                            info.ClassyName,
-                                            info.TimeSinceLastSeen.ToMiniString(),
-                                            info.LastIP );
-                        }
+                    firstLine.AppendFormat( "About {0}&S: ", info.ClassyName );
+                }
+                if( target != null ) {
+                    if( info.IsHidden ) {
+                        firstLine.AppendFormat( "HIDDEN", info.ClassyName );
                     } else {
-                        if( info.LeaveReason != LeaveReason.Unknown ) {
-                            player.Message( "About {0}&S: Last seen {1} ago ({2}).",
-                                            info.ClassyName,
-                                            info.TimeSinceLastSeen.ToMiniString(),
-                                            info.LeaveReason );
-                        } else {
-                            player.Message( "About {0}&S: Last seen {1} ago.",
-                                            info.ClassyName,
-                                            info.TimeSinceLastSeen.ToMiniString() );
-                        }
+                        firstLine.AppendFormat( "Online now", info.ClassyName );
+                    }
+                    if( target.IsDeaf ) {
+                        firstLine.Append( " (deaf)" );
+                    }
+                    if( player.Can( Permission.ViewPlayerIPs ) ) {
+                        firstLine.AppendFormat( " from {0}", info.LastIP );
+                    }
+                    if( target.IdleTime > InfoIdleThreshold ) {
+                        firstLine.AppendFormat( " (idle {0})", target.IdleTime.ToMiniString() );
+                    }
+
+                } else {
+                    firstLine.AppendFormat( "Last seen {0} ago", info.TimeSinceLastSeen.ToMiniString() );
+                    if( player.Can( Permission.ViewPlayerIPs ) ) {
+                        firstLine.AppendFormat( " from {0}", info.LastIP );
+                    }
+                    if( info.LeaveReason != LeaveReason.Unknown ) {
+                        firstLine.AppendFormat( " ({0})", info.LeaveReason );
                     }
                 }
+                if( info.AccountType == AccountType.Paid ) {
+                    firstLine.Append( " &a$" );
+                }
+                player.Message( firstLine.ToString() );
+
                 // Show login information
                 player.Message( "  Logged in {0} time(s) since {1:d MMM yyyy}.",
                                 info.TimesVisited,
@@ -295,21 +261,27 @@ namespace fCraft {
             switch( info.BanStatus ) {
                 case BanStatus.Banned:
                     if( ipBan != null ) {
-                        player.Message( "  Account and IP are &CBANNED&S. See &H/BanInfo" );
+                        player.Message( "  Account and IP are &CBANNED" );
+                    } else if( String.IsNullOrEmpty( info.BanReason ) ) {
+                        player.Message( "  Account is &CBANNED&S ({0}&S)", info.BanReason );
                     } else {
-                        player.Message( "  Account is &CBANNED&S. See &H/BanInfo" );
+                        player.Message( "  Account is &CBANNED" );
                     }
                     break;
                 case BanStatus.IPBanExempt:
                     if( ipBan != null ) {
-                        player.Message( "  IP is &CBANNED&S, but account is exempt. See &H/BanInfo" );
+                        player.Message( "  IP is &CBANNED&S, but account is exempt." );
                     } else {
-                        player.Message( "  IP is not banned, and account is exempt. See &H/BanInfo" );
+                        player.Message( "  IP is not banned, and account is exempt." );
                     }
                     break;
                 case BanStatus.NotBanned:
                     if( ipBan != null ) {
-                        player.Message( "  IP is &CBANNED&S. See &H/BanInfo" );
+                        if( String.IsNullOrEmpty( ipBan.BanReason ) ) {
+                            player.Message( "  IP is &CBANNED" );
+                        } else {
+                            player.Message( "  IP is &CBANNED&S ({0}&S)", ipBan.BanReason );
+                        }
                     }
                     break;
             }
@@ -361,26 +333,14 @@ namespace fCraft {
 
 
             // Stats
-            if( info.BlocksDrawn > 500000000 ) {
-                player.Message( "  Built {0} and deleted {1} blocks, drew {2}M blocks, wrote {3} messages.",
+            if( info.BlocksDrawn > 0 ) {
+                player.Message( "  Built {0:N0}; deleted {1:N0}; drew {2:N1}K blocks; wrote {3} messages.",
                                 info.BlocksBuilt,
                                 info.BlocksDeleted,
-                                info.BlocksDrawn / 1000000,
-                                info.MessagesWritten );
-            } else if( info.BlocksDrawn > 500000 ) {
-                player.Message( "  Built {0} and deleted {1} blocks, drew {2}K blocks, wrote {3} messages.",
-                                info.BlocksBuilt,
-                                info.BlocksDeleted,
-                                info.BlocksDrawn / 1000,
-                                info.MessagesWritten );
-            } else if( info.BlocksDrawn > 0 ) {
-                player.Message( "  Built {0} and deleted {1} blocks, drew {2} blocks, wrote {3} messages.",
-                                info.BlocksBuilt,
-                                info.BlocksDeleted,
-                                info.BlocksDrawn,
+                                info.BlocksDrawn / 1000d,
                                 info.MessagesWritten );
             } else {
-                player.Message( "  Built {0} and deleted {1} blocks, wrote {2} messages.",
+                player.Message( "  Built {0:N0}; deleted {1:N0} blocks; wrote {2} messages.",
                                 info.BlocksBuilt,
                                 info.BlocksDeleted,
                                 info.MessagesWritten );
@@ -389,7 +349,9 @@ namespace fCraft {
 
             // More stats
             if( info.TimesBannedOthers > 0 || info.TimesKickedOthers > 0 ) {
-                player.Message( "  Kicked {0} and banned {1} players.", info.TimesKickedOthers, info.TimesBannedOthers );
+                player.Message( "  Kicked {0} and banned {1} players.",
+                                info.TimesKickedOthers,
+                                info.TimesBannedOthers );
             }
 
             if( info.TimesKicked > 0 ) {
@@ -451,9 +413,6 @@ namespace fCraft {
                                 totalTime.TotalHours,
                                 totalTime.TotalMinutes );
             }
-
-            info.CheckAccountType();
-            player.Message( "  Account type: {0}", info.AccountType );
         }
 
         #endregion
@@ -723,73 +682,6 @@ namespace fCraft {
 
         internal static void ServerInfoHandler( Player player, Command cmd ) {
             if( cmd.HasNext ) {
-                /*{
-                    int free = PlayerDB.PlayerInfoList.Count( p => p.AccountType == AccountType.Free );
-                    int paid = PlayerDB.PlayerInfoList.Count( p => p.AccountType == AccountType.Paid );
-                    int unknown = PlayerDB.PlayerInfoList.Count( p => p.AccountType == AccountType.Unknown );
-                    player.Message( "   All: {0} free, {1} paid, {2} unknown ({3:0.0}%)",
-                                    free, paid, unknown, (paid * 100f) / (free + paid) );
-                }
-                {
-                    Rank rank = Rank.Parse( "guest" );
-                    PlayerInfo[] players = PlayerDB.PlayerInfoList.Where( p => p.Rank == rank ).ToArray();
-                    int free = players.Count( p => p.AccountType == AccountType.Free );
-                    int paid = players.Count( p => p.AccountType == AccountType.Paid );
-                    int unknown = players.Count( p => p.AccountType == AccountType.Unknown );
-                    player.Message( "   Guest: {0} free, {1} paid, {2} unknown ({3:0.0}%)",
-                                    free, paid, unknown, (paid * 100f) / (free + paid) );
-                }
-                {
-                    Rank rank = Rank.Parse( "builder" );
-                    PlayerInfo[] players = PlayerDB.PlayerInfoList.Where( p => p.Rank >= rank ).ToArray();
-                    int free = players.Count( p => p.AccountType == AccountType.Free );
-                    int paid = players.Count( p => p.AccountType == AccountType.Paid );
-                    int unknown = players.Count( p => p.AccountType == AccountType.Unknown );
-                    player.Message( "   Builder+: {0} free, {1} paid, {2} unknown ({3:0.0}%)",
-                                    free, paid, unknown, (paid * 100f) / (free + paid) );
-                }
-                {
-                    Rank rank = Rank.Parse( "veteran" );
-                    PlayerInfo[] players = PlayerDB.PlayerInfoList.Where( p => p.Rank >= rank ).ToArray();
-                    int free = players.Count( p => p.AccountType == AccountType.Free );
-                    int paid = players.Count( p => p.AccountType == AccountType.Paid );
-                    int unknown = players.Count( p => p.AccountType == AccountType.Unknown );
-                    player.Message( "   Veteran+: {0} free, {1} paid, {2} unknown ({3:0.0}%)",
-                                    free, paid, unknown, (paid * 100f) / (free + paid) );
-                }
-                {
-                    Rank rank = Rank.Parse( "mason" );
-                    PlayerInfo[] players = PlayerDB.PlayerInfoList.Where( p => p.Rank >= rank ).ToArray();
-                    int free = players.Count( p => p.AccountType == AccountType.Free );
-                    int paid = players.Count( p => p.AccountType == AccountType.Paid );
-                    int unknown = players.Count( p => p.AccountType == AccountType.Unknown );
-                    player.Message( "   Mason+: {0} free, {1} paid, {2} unknown ({3:0.0}%)",
-                                    free, paid, unknown, (paid * 100f) / (free + paid) );
-                }
-                {
-                    PlayerInfo[] players = PlayerDB.PlayerInfoList.Where( p => p.IsBanned ).ToArray();
-                    int free = players.Count( p => p.AccountType == AccountType.Free );
-                    int paid = players.Count( p => p.AccountType == AccountType.Paid );
-                    int unknown = players.Count( p => p.AccountType == AccountType.Unknown );
-                    player.Message( "   Banned: {0} free, {1} paid, {2} unknown ({3:0.0}%)",
-                                    free, paid, unknown, (paid * 100f) / (free + paid) );
-                }
-                {
-                    PlayerInfo[] players = PlayerDB.PlayerInfoList.Where( p => p.IsBanned || p.IsMuted || p.IsFrozen ).ToArray();
-                    int free = players.Count( p => p.AccountType == AccountType.Free );
-                    int paid = players.Count( p => p.AccountType == AccountType.Paid );
-                    int unknown = players.Count( p => p.AccountType == AccountType.Unknown );
-                    player.Message( "   Banned/frozen/muted: {0} free, {1} paid, {2} unknown ({3:0.0}%)",
-                                    free, paid, unknown, (paid * 100f) / (free + paid) );
-                }
-                {
-                    PlayerInfo[] players = PlayerDB.PlayerInfoList.Where( p => !p.IsBanned && !p.IsMuted && !p.IsFrozen ).ToArray();
-                    int free = players.Count( p => p.AccountType == AccountType.Free );
-                    int paid = players.Count( p => p.AccountType == AccountType.Paid );
-                    int unknown = players.Count( p => p.AccountType == AccountType.Unknown );
-                    player.Message( "   Not banned/frozen/muted: {0} free, {1} paid, {2} unknown ({3:0.0}%)",
-                                    free, paid, unknown, (paid * 100f) / (free + paid) );
-                }*/
                 CdServerInfo.PrintUsage( player );
                 return;
             }
@@ -821,14 +713,14 @@ namespace fCraft {
             player.Message( "  Bandwidth: {0:0.0} KB/s up, {1:0.0} KB/s down",
                             bytesSentRate / 1000, bytesReceivedRate / 1000 );
 
-            player.Message( "  Tracking {0} players ({1} online, {2} banned ({3:0.0}%), {4} IP-banned).",
+            player.Message( "  Tracking {0:N0} players ({1} online, {2} banned ({3:0.0}%), {4} IP-banned).",
                             PlayerDB.PlayerInfoList.Length,
                             Server.CountVisiblePlayers( player ),
                             PlayerDB.BannedCount,
                             PlayerDB.BannedPercentage,
                             IPBanList.Count );
 
-            player.Message( "  Players built {0}, deleted {1}, drew {2} blocks, wrote {3} messages, issued {4} kicks, spent {5:0} hours total.",
+            player.Message( "  Players built {0:N0}; deleted {1:N0}; drew {2:N0} blocks; wrote {3:N0} messages; issued {4:N0} kicks; spent {5:N0} hours total.",
                             PlayerDB.PlayerInfoList.Sum( p => p.BlocksBuilt ),
                             PlayerDB.PlayerInfoList.Sum( p => p.BlocksDeleted ),
                             PlayerDB.PlayerInfoList.Sum( p => p.BlocksDrawn ),
