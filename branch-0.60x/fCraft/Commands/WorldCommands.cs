@@ -1785,7 +1785,7 @@ namespace fCraft {
             Name = "WFlush",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.ManageWorlds },
+            Permissions = new[] { Permission.FlushWorlds },
             Usage = "/WFlush [WorldName]",
             Help = "Flushes the update buffer on specified map by causing players to rejoin. " +
                    "Makes cuboids and other draw commands finish REALLY fast.",

@@ -314,7 +314,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdTimer = new CommandDescriptor {
             Name = "Timer",
-            Permissions = new[] { Permission.Say },
+            Permissions = new[] { Permission.UseTimers },
             IsConsoleSafe = true,
             Category = CommandCategory.Chat,
             Usage = "/Timer <Duration> <Message>",
