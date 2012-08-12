@@ -171,7 +171,9 @@ namespace fCraft {
      * 
      * 156 - r1473 - Removed AutoRankEnabled key (0.700_dev)
      * 
-     * 157 - r1586 - Added IRCStripMinecraftColors
+     * 157 - r1586 - Added IRCStripMinecraftColors key
+     * 
+     * 158 - r1644 - Added UseTimers and FlushWorlds permissions (previously combined with Say and ManageWorlds permissions)
      * 
      */
 
@@ -183,7 +185,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 157;
+        public const int CurrentVersion = 158;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY
@@ -1007,6 +1009,7 @@ namespace fCraft {
             owner.Add( new XElement( Permission.DeleteAdmincrete.ToString() ) );
 
             owner.Add( new XElement( Permission.Say.ToString() ) );
+            owner.Add( new XElement( Permission.UseTimers.ToString() ) );
             owner.Add( new XElement( Permission.ReadStaffChat.ToString() ) );
             XElement temp = new XElement( Permission.Kick.ToString() );
             temp.Add( new XAttribute( "max", "owner" ) );
@@ -1042,6 +1045,7 @@ namespace fCraft {
 
             owner.Add( new XElement( Permission.ManageZones.ToString() ) );
             owner.Add( new XElement( Permission.ManageWorlds.ToString() ) );
+            owner.Add( new XElement( Permission.FlushWorlds.ToString() ) );
             owner.Add( new XElement( Permission.ManageBlockDB.ToString() ) );
             owner.Add( new XElement( Permission.Import.ToString() ) );
             owner.Add( new XElement( Permission.Draw.ToString() ) );
@@ -1085,6 +1089,7 @@ namespace fCraft {
             op.Add( new XElement( Permission.DeleteAdmincrete.ToString() ) );
 
             op.Add( new XElement( Permission.Say.ToString() ) );
+            op.Add( new XElement( Permission.UseTimers.ToString() ) );
             op.Add( new XElement( Permission.ReadStaffChat.ToString() ) );
             temp = new XElement( Permission.Kick.ToString() );
             temp.Add( new XAttribute( "max", "op" ) );
@@ -1114,6 +1119,7 @@ namespace fCraft {
             op.Add( new XElement( Permission.SetSpawn.ToString() ) );
 
             op.Add( new XElement( Permission.ManageZones.ToString() ) );
+            op.Add( new XElement( Permission.FlushWorlds.ToString() ) );
             op.Add( new XElement( Permission.Lock.ToString() ) );
             op.Add( new XElement( Permission.Draw.ToString() ) );
             op.Add( new XElement( Permission.DrawAdvanced.ToString() ) );

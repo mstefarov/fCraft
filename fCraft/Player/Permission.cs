@@ -52,6 +52,9 @@ namespace fCraft {
         /// <summary> Ability to use /Say command. </summary>
         Say,
 
+        /// <summary> Ability to use /Timer command. </summary>
+        UseTimers,
+
         /// <summary> Ability to read /Staff chat. </summary>
         ReadStaffChat,
 
@@ -143,6 +146,9 @@ namespace fCraft {
         /// adding, renaming, and deleting worlds, loading/saving maps,
         /// changing per-world permissions, and using the map generator. </summary>
         ManageWorlds,
+
+        /// <summary> Ability to use /WFlush command. </summary>
+        FlushWorlds,
 
         /// <summary> Ability to enable/disable, clear, and configure BlockDB. </summary>
         ManageBlockDB,
