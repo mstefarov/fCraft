@@ -51,9 +51,9 @@ namespace fCraft {
 
         Gold = 41,
         Iron = 42,
-        DoubleStair = 43,
-        Stair = 44,
-        Brick = 45,
+        DoubleSlab = 43,
+        Slab = 44,
+        Bricks = 45,
         TNT = 46,
         Books = 47,
         MossyRocks = 48,

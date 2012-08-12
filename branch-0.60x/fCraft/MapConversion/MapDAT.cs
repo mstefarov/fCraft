@@ -15,7 +15,7 @@ namespace fCraft.MapConversion {
             Mapping[50] = (byte)Block.Air;      // torch
             Mapping[51] = (byte)Block.Lava;     // fire
             Mapping[52] = (byte)Block.Glass;    // spawner
-            Mapping[53] = (byte)Block.Stair;    // wood stairs
+            Mapping[53] = (byte)Block.Slab;    // wood stairs
             Mapping[54] = (byte)Block.Wood;     // chest
             Mapping[55] = (byte)Block.Air;      // redstone wire
             Mapping[56] = (byte)Block.IronOre;  // diamond ore
@@ -29,7 +29,7 @@ namespace fCraft.MapConversion {
             Mapping[64] = (byte)Block.Air;      // wooden door
             Mapping[65] = (byte)Block.Air;      // ladder
             Mapping[66] = (byte)Block.Air;      // rails
-            Mapping[67] = (byte)Block.Stair;    // cobblestone stairs
+            Mapping[67] = (byte)Block.Slab;    // cobblestone stairs
             Mapping[68] = (byte)Block.Air;      // wall sign
             Mapping[69] = (byte)Block.Air;      // lever
             Mapping[70] = (byte)Block.Air;      // pressure plate
