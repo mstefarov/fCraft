@@ -825,9 +825,9 @@ namespace fCraft {
             }
 
             CanPlaceResult canPlaceResult;
-            if( type == Block.Stair && coord.Z > 0 && map.GetBlock( coordBelow ) == Block.Stair ) {
+            if( type == Block.Slab && coord.Z > 0 && map.GetBlock( coordBelow ) == Block.Slab ) {
                 // stair stacking
-                canPlaceResult = CanPlace( map, coordBelow, Block.DoubleStair, context );
+                canPlaceResult = CanPlace( map, coordBelow, Block.DoubleSlab, context );
             } else {
                 // normal placement
                 canPlaceResult = CanPlace( map, coord, type, context );
@@ -837,13 +837,13 @@ namespace fCraft {
             switch( canPlaceResult ) {
                 case CanPlaceResult.Allowed:
                     BlockUpdate blockUpdate;
-                    if( type == Block.Stair && coord.Z > 0 && map.GetBlock( coordBelow ) == Block.Stair ) {
+                    if( type == Block.Slab && coord.Z > 0 && map.GetBlock( coordBelow ) == Block.Slab ) {
                         // handle stair stacking
-                        blockUpdate = new BlockUpdate( this, coordBelow, Block.DoubleStair );
-                        Info.ProcessBlockPlaced( (byte)Block.DoubleStair );
+                        blockUpdate = new BlockUpdate( this, coordBelow, Block.DoubleSlab );
+                        Info.ProcessBlockPlaced( (byte)Block.DoubleSlab );
                         map.QueueUpdate( blockUpdate );
-                        RaisePlayerPlacedBlockEvent( this, World.Map, coordBelow, Block.Stair, Block.DoubleStair, context );
-                        SendNow( PacketWriter.MakeSetBlock( coordBelow, Block.DoubleStair ) );
+                        RaisePlayerPlacedBlockEvent( this, World.Map, coordBelow, Block.Slab, Block.DoubleSlab, context );
+                        SendNow( PacketWriter.MakeSetBlock( coordBelow, Block.DoubleSlab ) );
                         RevertBlockNow( coord );
                         break;
 

@@ -585,6 +585,7 @@ namespace fCraft {
             BlockNames["aquacloth"] = Block.Aqua;
             BlockNames["cyanwool"] = Block.Cyan;
             BlockNames["cyancloth"] = Block.Cyan;
+            BlockNames["lightblue"] = Block.Blue;
             BlockNames["bluewool"] = Block.Blue;
             BlockNames["bluecloth"] = Block.Blue;
             BlockNames["indigowool"] = Block.Indigo;
@@ -631,20 +632,22 @@ namespace fCraft {
             BlockNames["metal"] = Block.Iron;
             BlockNames["silver"] = Block.Iron;
 
-            BlockNames["slab"] = Block.Stair;
-            BlockNames["slabs"] = Block.DoubleStair;
-            BlockNames["steps"] = Block.DoubleStair;
-            BlockNames["stairs"] = Block.DoubleStair;
-            BlockNames["doublestep"] = Block.DoubleStair;
-            BlockNames["double_step"] = Block.DoubleStair;
-            BlockNames["double_stair"] = Block.DoubleStair;
-            BlockNames["staircasefull"] = Block.DoubleStair;
-            BlockNames["step"] = Block.Stair;
-            BlockNames["halfstep"] = Block.Stair;
-            BlockNames["halfblock"] = Block.Stair;
-            BlockNames["staircasestep"] = Block.Stair;
+            BlockNames["step"] = Block.Slab;
+            BlockNames["stair"] = Block.Slab;
+            BlockNames["halfstep"] = Block.Slab;
+            BlockNames["halfblock"] = Block.Slab;
+            BlockNames["staircasestep"] = Block.Slab;
+            BlockNames["stairs"] = Block.DoubleSlab;
+            BlockNames["steps"] = Block.DoubleSlab;
+            BlockNames["slabs"] = Block.DoubleSlab;
+            BlockNames["doublestep"] = Block.DoubleSlab;
+            BlockNames["doublestair"] = Block.DoubleSlab;
+            BlockNames["double_step"] = Block.DoubleSlab;
+            BlockNames["double_stair"] = Block.DoubleSlab;
+            BlockNames["double_slab"] = Block.DoubleSlab;
+            BlockNames["staircasefull"] = Block.DoubleSlab;
 
-            BlockNames["bricks"] = Block.Brick;
+            BlockNames["brick"] = Block.Bricks;
             BlockNames["explosive"] = Block.TNT;
             BlockNames["dynamite"] = Block.TNT;
 
@@ -672,7 +675,7 @@ namespace fCraft {
             BlockEdgeTextures[Block.Aqua] = "246870d16093ff02738b3d42084c6597c02fad36";
             BlockEdgeTextures[Block.Black] = "48dcdd9b63fe5ce1129baea990189653dc833d69";
             BlockEdgeTextures[Block.Blue] = "eea1b7e0a62d90b5b681f142bd2f483a671ba160";
-            BlockEdgeTextures[Block.Brick] = "b4a23c66dc4ba488a97becd62f2bae8d61eb8ad2";
+            BlockEdgeTextures[Block.Bricks] = "b4a23c66dc4ba488a97becd62f2bae8d61eb8ad2";
             BlockEdgeTextures[Block.Coal] = "1f9eb8aff893a43860fcd1f9c1e7ef84e0bfd77b";
             BlockEdgeTextures[Block.Cobblestone] = "b4d9c39d00102f1b3b67c9e885b62cb8e27efd03";
             BlockEdgeTextures[Block.Cyan] = "2532a657b5525ad10a0ccab78bd4343d44a0bfb7";
@@ -697,8 +700,8 @@ namespace fCraft {
             BlockEdgeTextures[Block.Sand] = "1a2dda7ed25ad5e94da4c6a0ac7e63f4a9a72590";
             BlockEdgeTextures[Block.Admincrete] = "7abdd25d9229087f29655a1974aed01cbd3eb753";
             BlockEdgeTextures[Block.Sponge] = "eaecd6ec9c24ed8a2c20ffb10e83409f04409ddd";
-            BlockEdgeTextures[Block.Stair] = "9106fb8ac7a4eb6f30ce28921f071e6b31bdd74b";
-            BlockEdgeTextures[Block.DoubleStair] = BlockEdgeTextures[Block.Stair];
+            BlockEdgeTextures[Block.Slab] = "9106fb8ac7a4eb6f30ce28921f071e6b31bdd74b";
+            BlockEdgeTextures[Block.DoubleSlab] = BlockEdgeTextures[Block.Slab];
             BlockEdgeTextures[Block.Stone] = "c2eaac7631e184e4e7f6eeca4c4d6a74f6d953f9";
             BlockEdgeTextures[Block.Teal] = "9cbd25d433c533207b9946a0228ddd9aef7b17e5";
             BlockEdgeTextures[Block.TNT] = "7314851e18cdfe9dd1513f9eab86901221421239";

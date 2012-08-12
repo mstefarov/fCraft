@@ -29,7 +29,7 @@ namespace fCraft.MapConversion {
             Mapping[200] = (byte)Block.Lava;        // Kill Lava
             Mapping[201] = (byte)Block.Stone;       // Kill Lava
             // 202 unused
-            Mapping[203] = (byte)Block.Stair;       // Still Stair
+            Mapping[203] = (byte)Block.Slab;       // Still Stair
             // 204-205 unused
             Mapping[206] = (byte)Block.Water;       // Original Water
             Mapping[207] = (byte)Block.Lava;        // Original Lava
