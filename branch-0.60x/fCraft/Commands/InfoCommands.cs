@@ -263,9 +263,9 @@ namespace fCraft {
                     if( ipBan != null ) {
                         player.Message( "  Account and IP are &CBANNED" );
                     } else if( String.IsNullOrEmpty( info.BanReason ) ) {
-                        player.Message( "  Account is &CBANNED&S ({0}&S)", info.BanReason );
-                    } else {
                         player.Message( "  Account is &CBANNED" );
+                    } else {
+                        player.Message( "  Account is &CBANNED&S ({0}&S)", info.BanReason );
                     }
                     break;
                 case BanStatus.IPBanExempt:
