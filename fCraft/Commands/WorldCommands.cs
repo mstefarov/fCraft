@@ -2110,9 +2110,10 @@ namespace fCraft {
                                     "{0} created a new world named \"{1}\" (loaded from \"{2}\")",
                                     player.Name, worldName, fileName );
                         WorldManager.SaveWorldList();
-                        player.MessageNow( "Access permission is {0}+&S, and build permission is {1}+",
+                        player.MessageNow( "Access is {0}+&S, and building is {1}+ on {2}",
                                            newWorld.AccessSecurity.MinRank.ClassyName,
-                                           newWorld.BuildSecurity.MinRank.ClassyName );
+                                           newWorld.BuildSecurity.MinRank.ClassyName,
+                                           newWorld.ClassyName );
                     }
                 }
             }
@@ -2257,8 +2258,6 @@ namespace fCraft {
                     player.Message( ex.Message );
                     return;
                 }
-
-                WorldManager.SaveWorldList();
 
                 Server.Message( "{0}&S set {1}&S to be the main world.",
                                   player.ClassyName, world.ClassyName );
@@ -2667,7 +2666,6 @@ namespace fCraft {
                 }
             }
 
-            WorldManager.SaveWorldList();
             Server.Message( player,
                             "{0}&S removed {1}&S from the world list.",
                             player.ClassyName, world.ClassyName );

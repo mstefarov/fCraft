@@ -95,6 +95,29 @@ namespace fCraft {
             return map;
         }
 
+        /// <summary> Makes an admincrete barrier, 1 block thick, around the lower half of the map. </summary>
+        public static void MakeFloodBarrier( Map map ) {
+            for( int x = 0; x < map.Width; x++ ) {
+                for( int y = 0; y < map.Length; y++ ) {
+                    map.SetBlock( x, y, 0, Block.Admincrete );
+                }
+            }
+
+            for( int x = 0; x < map.Width; x++ ) {
+                for( int z = 0; z < map.Height / 2; z++ ) {
+                    map.SetBlock( x, 0, z, Block.Admincrete );
+                    map.SetBlock( x, map.Length - 1, z, Block.Admincrete );
+                }
+            }
+
+            for( int y = 0; y < map.Length; y++ ) {
+                for( int z = 0; z < map.Height / 2; z++ ) {
+                    map.SetBlock( 0, y, z, Block.Admincrete );
+                    map.SetBlock( map.Width - 1, y, z, Block.Admincrete );
+                }
+            }
+        }
+
 
         #region Progress Reporting
 

@@ -363,7 +363,9 @@ namespace fCraft.ConfigGUI {
                                                                Convert.ToInt32( nFlatgrassDimZ.Value ) );
             }
 
-            if( floodBarrier ) generatedMap.MakeFloodBarrier();
+            if( floodBarrier ) {
+                MapGenerator.MakeFloodBarrier( generatedMap );
+            }
             generatedMap.CalculateShadows();
             Map = generatedMap;
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );

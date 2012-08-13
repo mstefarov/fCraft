@@ -991,11 +991,7 @@ namespace fCraft {
             // Fetch compressed map copy
             byte[] buffer = new byte[1024];
             int mapBytesSent = 0;
-            byte[] blockData;
-            using( MemoryStream mapStream = new MemoryStream() ) {
-                map.GetCompressedCopy( mapStream, true );
-                blockData = mapStream.ToArray();
-            }
+            byte[] blockData = map.GetCompressedCopy();
             Logger.Log( LogType.Debug,
                         "Player.JoinWorldNow: Sending compressed map ({0} bytes) to {1}.",
                         blockData.Length, Name );
