@@ -22,7 +22,7 @@ namespace fCraft.Drawing {
         /// Errors and warnings about the brush creation should be communicated by messaging the player. </param>
         /// <param name="cmd"> Parameters passed to the /Brush command (after the brush name). </param>
         /// <returns> A newly-made brush, or null if there was some problem with parameters/permissions. </returns>
-        IBrush MakeBrush( [NotNull] Player player, [NotNull] Command cmd );
+        IBrush MakeBrush( [NotNull] Player player, [NotNull] CommandReader cmd );
     }
 
 
@@ -44,7 +44,7 @@ namespace fCraft.Drawing {
         /// If any are given, these parameters should generally replace any stored configuration. </param>
         /// <param name="op"> DrawOperation that will be using this brush. </param>
         /// <returns> A newly-made brush, or null if there was some problem with parameters/permissions. </returns>
-        IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] Command cmd, [NotNull] DrawOperation op );
+        IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] CommandReader cmd, [NotNull] DrawOperation op );
     }
 
 

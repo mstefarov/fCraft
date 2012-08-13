@@ -23,7 +23,7 @@ namespace fCraft.Drawing {
         }
 
         [CanBeNull]
-        public IBrush MakeBrush( [NotNull] Player player, [NotNull] Command cmd ) {
+        public IBrush MakeBrush( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
 
@@ -32,8 +32,8 @@ namespace fCraft.Drawing {
                 return null;
             }
 
-            Block block = cmd.NextBlock( player );
-            if( block == Block.Undefined ) return null;
+            Block block;
+            if( !cmd.NextBlock( player, false, out block ) ) return null;
 
             string brushName = cmd.Next();
             if( brushName == null || !CommandManager.IsValidCommandName( brushName ) ) {
@@ -93,14 +93,14 @@ namespace fCraft.Drawing {
 
 
         [CanBeNull]
-        public IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] Command cmd, [NotNull] DrawOperation op ) {
+        public IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] CommandReader cmd, [NotNull] DrawOperation op ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( op == null ) throw new ArgumentNullException( "op" );
 
             if( cmd.HasNext ) {
-                Block block = cmd.NextBlock( player );
-                if( block == Block.Undefined ) return null;
+                Block block;
+                if( !cmd.NextBlock( player, false, out block ) ) return null;
 
                 string brushName = cmd.Next();
                 if( brushName == null || !CommandManager.IsValidCommandName( brushName ) ) {
@@ -162,7 +162,7 @@ namespace fCraft.Drawing {
             if( block == Block ) {
                 return ReplacementInstance.NextBlock( op );
             }
-            return Block.Undefined;
+            return Block.None;
         }
 
 

@@ -244,13 +244,8 @@ namespace fCraft {
                     }
                 }
                 if( (tempAttr = envEl.Attribute( "edge" )) != null ) {
-                    Block block = Map.GetBlockByName( tempAttr.Value );
-                    if( block == Block.Undefined ) {
-                        world.EdgeBlock = Block.Water;
-                        Logger.Log( LogType.Warning,
-                                    "WorldManager: Could not parse \"edge\" attribute of Environment settings for world \"{0}\", assuming default (Water).",
-                                    worldName );
-                    } else {
+                    Block block;
+                    if( Map.GetBlockByName( tempAttr.Value, false, out block ) ) {
                         if( Map.GetEdgeTexture( block ) == null ) {
                             world.EdgeBlock = Block.Water;
                             Logger.Log( LogType.Warning,
@@ -259,6 +254,11 @@ namespace fCraft {
                         } else {
                             world.EdgeBlock = block;
                         }
+                    } else {
+                        world.EdgeBlock = Block.Water;
+                        Logger.Log( LogType.Warning,
+                                    "WorldManager: Could not parse \"edge\" attribute of Environment settings for world \"{0}\", assuming default (Water).",
+                                    worldName );
                     }
                 }
             }

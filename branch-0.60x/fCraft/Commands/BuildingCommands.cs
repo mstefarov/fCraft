@@ -104,7 +104,7 @@ namespace fCraft {
             Handler = CuboidHandler
         };
 
-        static void CuboidHandler( Player player, Command cmd ) {
+        static void CuboidHandler( Player player, CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new CuboidDrawOperation( player ) );
         }
 
@@ -120,7 +120,7 @@ namespace fCraft {
             Handler = CuboidWireframeHandler
         };
 
-        static void CuboidWireframeHandler( Player player, Command cmd ) {
+        static void CuboidWireframeHandler( Player player, CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new CuboidWireframeDrawOperation( player ) );
         }
 
@@ -137,7 +137,7 @@ namespace fCraft {
             Handler = CuboidHollowHandler
         };
 
-        static void CuboidHollowHandler( Player player, Command cmd ) {
+        static void CuboidHollowHandler( Player player, CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new CuboidHollowDrawOperation( player ) );
         }
 
@@ -153,7 +153,7 @@ namespace fCraft {
             Handler = EllipsoidHandler
         };
 
-        static void EllipsoidHandler( Player player, Command cmd ) {
+        static void EllipsoidHandler( Player player, CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new EllipsoidDrawOperation( player ) );
         }
 
@@ -169,7 +169,7 @@ namespace fCraft {
             Handler = EllipsoidHollowHandler
         };
 
-        static void EllipsoidHollowHandler( Player player, Command cmd ) {
+        static void EllipsoidHollowHandler( Player player, CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new EllipsoidHollowDrawOperation( player ) );
         }
 
@@ -187,7 +187,7 @@ namespace fCraft {
             Handler = SphereHandler
         };
 
-        static void SphereHandler( Player player, Command cmd ) {
+        static void SphereHandler( Player player, CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new SphereDrawOperation( player ) );
         }
 
@@ -205,7 +205,7 @@ namespace fCraft {
             Handler = SphereHollowHandler
         };
 
-        static void SphereHollowHandler( Player player, Command cmd ) {
+        static void SphereHollowHandler( Player player, CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new SphereHollowDrawOperation( player ) );
         }
 
@@ -222,7 +222,7 @@ namespace fCraft {
             Handler = LineHandler
         };
 
-        static void LineHandler( Player player, Command cmd ) {
+        static void LineHandler( Player player, CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new LineDrawOperation( player ) );
         }
 
@@ -238,7 +238,7 @@ namespace fCraft {
             Handler = TriangleWireframeHandler
         };
 
-        static void TriangleWireframeHandler( Player player, Command cmd ) {
+        static void TriangleWireframeHandler( Player player, CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new TriangleWireframeDrawOperation( player ) );
         }
 
@@ -254,7 +254,7 @@ namespace fCraft {
             Handler = TriangleHandler
         };
 
-        static void TriangleHandler( Player player, Command cmd ) {
+        static void TriangleHandler( Player player, CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new TriangleDrawOperation( player ) );
         }
 
@@ -272,13 +272,13 @@ namespace fCraft {
             Handler = TorusHandler
         };
 
-        static void TorusHandler( Player player, Command cmd ) {
+        static void TorusHandler( Player player, CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new TorusDrawOperation( player ) );
         }
 
 
 
-        static void DrawOperationBegin( Player player, Command cmd, DrawOperation op ) {
+        static void DrawOperationBegin( Player player, CommandReader cmd, DrawOperation op ) {
             // try to create instance of player's currently selected brush
             // all command parameters are passed to the brush
             IBrushInstance brush = player.Brush.MakeInstance( player, cmd, op );
@@ -325,7 +325,7 @@ namespace fCraft {
             Handler = Fill2DHandler
         };
 
-        static void Fill2DHandler( Player player, Command cmd ) {
+        static void Fill2DHandler( Player player, CommandReader cmd ) {
             Fill2DDrawOperation op = new Fill2DDrawOperation( player );
             if( !op.ReadParams( cmd ) ) return;
             player.SelectionStart( 1, Fill2DCallback, op, Permission.Draw );
@@ -365,7 +365,7 @@ namespace fCraft {
             Handler = SolidHandler
         };
 
-        static void SolidHandler( Player player, Command cmd ) {
+        static void SolidHandler( Player player, CommandReader cmd ) {
             if( player.GetBind( Block.Stone ) == Block.Admincrete ) {
                 player.ResetBind( Block.Stone );
                 player.Message( "Solid: OFF" );
@@ -386,7 +386,7 @@ namespace fCraft {
             Handler = PaintHandler
         };
 
-        static void PaintHandler( Player player, Command cmd ) {
+        static void PaintHandler( Player player, CommandReader cmd ) {
             player.IsPainting = !player.IsPainting;
             if( player.IsPainting ) {
                 player.Message( "Paint mode: ON" );
@@ -406,7 +406,7 @@ namespace fCraft {
             Handler = GrassHandler
         };
 
-        static void GrassHandler( Player player, Command cmd ) {
+        static void GrassHandler( Player player, CommandReader cmd ) {
             if( player.GetBind( Block.Dirt ) == Block.Grass ) {
                 player.ResetBind( Block.Dirt );
                 player.Message( "Grass: OFF" );
@@ -427,7 +427,7 @@ namespace fCraft {
             Handler = WaterHandler
         };
 
-        static void WaterHandler( Player player, Command cmd ) {
+        static void WaterHandler( Player player, CommandReader cmd ) {
             if( player.GetBind( Block.Aqua ) == Block.Water ||
                 player.GetBind( Block.Cyan ) == Block.Water ||
                 player.GetBind( Block.Blue ) == Block.Water ) {
@@ -452,7 +452,7 @@ namespace fCraft {
             Handler = LavaHandler
         };
 
-        static void LavaHandler( Player player, Command cmd ) {
+        static void LavaHandler( Player player, CommandReader cmd ) {
             if( player.GetBind( Block.Red ) == Block.Lava ) {
                 player.ResetBind( Block.Red );
                 player.Message( "Lava: OFF" );
@@ -475,21 +475,17 @@ namespace fCraft {
             Handler = BindHandler
         };
 
-        static void BindHandler( Player player, Command cmd ) {
-            string originalBlockName = cmd.Next();
-            if( originalBlockName == null ) {
+        static void BindHandler( Player player, CommandReader cmd ) {
+            if( !cmd.HasNext ) {
                 player.Message( "All bindings have been reset." );
                 player.ResetAllBinds();
                 return;
             }
-            Block originalBlock = Map.GetBlockByName( originalBlockName );
-            if( originalBlock == Block.Undefined ) {
-                player.Message( "Bind: Unrecognized block name: {0}", originalBlockName );
-                return;
-            }
 
-            string replacementBlockName = cmd.Next();
-            if( replacementBlockName == null ) {
+            Block originalBlock;
+            if( !cmd.NextBlock( player, false, out originalBlock ) ) return;
+
+            if( !cmd.HasNext ) {
                 if( player.GetBind( originalBlock ) != originalBlock ) {
                     player.Message( "{0} is no longer bound to {1}",
                                     originalBlock,
@@ -502,36 +498,34 @@ namespace fCraft {
                 return;
             }
 
+            Block replacementBlock;
+            if( !cmd.NextBlock( player, false, out replacementBlock ) ) return;
+
             if( cmd.HasNext ) {
                 CdBind.PrintUsage( player );
                 return;
             }
 
-            Block replacementBlock = Map.GetBlockByName( replacementBlockName );
-            if( replacementBlock == Block.Undefined ) {
-                player.Message( "Bind: Unrecognized block name: {0}", replacementBlockName );
+            Permission permission = Permission.Build;
+            switch( replacementBlock ) {
+                case Block.Grass:
+                    permission = Permission.PlaceGrass;
+                    break;
+                case Block.Admincrete:
+                    permission = Permission.PlaceAdmincrete;
+                    break;
+                case Block.Water:
+                    permission = Permission.PlaceWater;
+                    break;
+                case Block.Lava:
+                    permission = Permission.PlaceLava;
+                    break;
+            }
+            if( player.Can( permission ) ) {
+                player.Bind( originalBlock, replacementBlock );
+                player.Message( "{0} is now replaced with {1}", originalBlock, replacementBlock );
             } else {
-                Permission permission = Permission.Build;
-                switch( replacementBlock ) {
-                    case Block.Grass:
-                        permission = Permission.PlaceGrass;
-                        break;
-                    case Block.Admincrete:
-                        permission = Permission.PlaceAdmincrete;
-                        break;
-                    case Block.Water:
-                        permission = Permission.PlaceWater;
-                        break;
-                    case Block.Lava:
-                        permission = Permission.PlaceLava;
-                        break;
-                }
-                if( player.Can( permission ) ) {
-                    player.Bind( originalBlock, replacementBlock );
-                    player.Message( "{0} is now replaced with {1}", originalBlock, replacementBlock );
-                } else {
-                    player.Message( "&WYou do not have {0} permission.", permission );
-                }
+                player.Message( "&WYou do not have {0} permission.", permission );
             }
         }
 
@@ -589,7 +583,7 @@ namespace fCraft {
 
         #region Replace
 
-        static void ReplaceHandlerInternal( IBrush factory, Player player, Command cmd ) {
+        static void ReplaceHandlerInternal( IBrush factory, Player player, CommandReader cmd ) {
             CuboidDrawOperation op = new CuboidDrawOperation( player );
             IBrushInstance brush = factory.MakeInstance( player, cmd, op );
             if( brush == null ) return;
@@ -612,7 +606,7 @@ namespace fCraft {
             Handler = ReplaceHandler
         };
 
-        static void ReplaceHandler( Player player, Command cmd ) {
+        static void ReplaceHandler( Player player, CommandReader cmd ) {
             var replaceBrush = ReplaceBrushFactory.Instance.MakeBrush( player, cmd );
             if( replaceBrush == null ) return;
             ReplaceHandlerInternal( replaceBrush, player, cmd );
@@ -631,7 +625,7 @@ namespace fCraft {
             Handler = ReplaceNotHandler
         };
 
-        static void ReplaceNotHandler( Player player, Command cmd ) {
+        static void ReplaceNotHandler( Player player, CommandReader cmd ) {
             var replaceBrush = ReplaceNotBrushFactory.Instance.MakeBrush( player, cmd );
             if( replaceBrush == null ) return;
             ReplaceHandlerInternal( replaceBrush, player, cmd );
@@ -651,7 +645,7 @@ namespace fCraft {
             Handler = ReplaceBrushHandler
         };
 
-        static void ReplaceBrushHandler( Player player, Command cmd ) {
+        static void ReplaceBrushHandler( Player player, CommandReader cmd ) {
             var replaceBrush = ReplaceBrushBrushFactory.Instance.MakeBrush( player, cmd );
             if( replaceBrush == null ) return;
             ReplaceHandlerInternal( replaceBrush, player, cmd );
@@ -670,7 +664,7 @@ namespace fCraft {
             Handler = UndoHandler
         };
 
-        static void UndoHandler( Player player, Command cmd ) {
+        static void UndoHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
             if( cmd.HasNext ) {
@@ -729,7 +723,7 @@ namespace fCraft {
             Handler = RedoHandler
         };
 
-        static void RedoHandler( Player player, Command cmd ) {
+        static void RedoHandler( Player player, CommandReader cmd ) {
             if( cmd.HasNext ) {
                 CdRedo.PrintUsage( player );
                 return;
@@ -782,7 +776,7 @@ namespace fCraft {
             Handler = CopySlotHandler
         };
 
-        static void CopySlotHandler( Player player, Command cmd ) {
+        static void CopySlotHandler( Player player, CommandReader cmd ) {
             int slotNumber;
             if( cmd.NextInt( out slotNumber ) ) {
                 if( cmd.HasNext ) {
@@ -829,7 +823,7 @@ namespace fCraft {
             Handler = CopyHandler
         };
 
-        static void CopyHandler( Player player, Command cmd ) {
+        static void CopyHandler( Player player, CommandReader cmd ) {
             if( cmd.HasNext ) {
                 CdCopy.PrintUsage( player );
                 return;
@@ -899,11 +893,10 @@ namespace fCraft {
             Handler = CutHandler
         };
 
-        static void CutHandler( Player player, Command cmd ) {
+        static void CutHandler( Player player, CommandReader cmd ) {
             Block fillBlock = Block.Air;
             if( cmd.HasNext ) {
-                fillBlock = cmd.NextBlock( player );
-                if( fillBlock == Block.Undefined ) return;
+                if( !cmd.NextBlock( player, false, out fillBlock ) ) return;
                 if( cmd.HasNext ) {
                     CdCut.PrintUsage( player );
                     return;
@@ -932,7 +925,7 @@ namespace fCraft {
             Handler = MirrorHandler
         };
 
-        static void MirrorHandler( Player player, Command cmd ) {
+        static void MirrorHandler( Player player, CommandReader cmd ) {
             CopyState originalInfo = player.GetCopyInformation();
             if( originalInfo == null ) {
                 player.MessageNow( "Nothing to flip! Copy something first." );
@@ -1048,7 +1041,7 @@ namespace fCraft {
             Handler = RotateHandler
         };
 
-        static void RotateHandler( Player player, Command cmd ) {
+        static void RotateHandler( Player player, CommandReader cmd ) {
             CopyState originalInfo = player.GetCopyInformation();
             if( originalInfo == null ) {
                 player.MessageNow( "Nothing to rotate! Copy something first." );
@@ -1182,7 +1175,7 @@ namespace fCraft {
             Handler = PasteXHandler
         };
 
-        static void PasteXHandler( Player player, Command cmd ) {
+        static void PasteXHandler( Player player, CommandReader cmd ) {
             PasteOpHandler( player, cmd, 2, new PasteDrawOperation( player, false ) );
         }
 
@@ -1201,7 +1194,7 @@ namespace fCraft {
             Handler = PasteNotXHandler
         };
 
-        static void PasteNotXHandler( Player player, Command cmd ) {
+        static void PasteNotXHandler( Player player, CommandReader cmd ) {
             PasteOpHandler( player, cmd, 2, new PasteDrawOperation( player, true ) );
         }
 
@@ -1219,7 +1212,7 @@ namespace fCraft {
             Handler = PasteHandler
         };
 
-        static void PasteHandler( Player player, Command cmd ) {
+        static void PasteHandler( Player player, CommandReader cmd ) {
             PasteOpHandler( player, cmd, 1, new QuickPasteDrawOperation( player, false ) );
         }
 
@@ -1238,12 +1231,12 @@ namespace fCraft {
             Handler = PasteNotHandler
         };
 
-        static void PasteNotHandler( Player player, Command cmd ) {
+        static void PasteNotHandler( Player player, CommandReader cmd ) {
             PasteOpHandler( player, cmd, 1, new QuickPasteDrawOperation( player, true ) );
         }
 
 
-        static void PasteOpHandler( Player player, Command cmd, int expectedMarks, DrawOpWithBrush op ) {
+        static void PasteOpHandler( Player player, CommandReader cmd, int expectedMarks, DrawOpWithBrush op ) {
             if( !op.ReadParams( cmd ) ) return;
             player.SelectionStart( expectedMarks, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
             CopyState copyInfo = player.GetCopyInformation();
@@ -1280,7 +1273,7 @@ namespace fCraft {
             Handler = RestoreHandler
         };
 
-        static void RestoreHandler( Player player, Command cmd ) {
+        static void RestoreHandler( Player player, CommandReader cmd ) {
             string fileName = cmd.Next();
             if( fileName == null ) {
                 CdRestore.PrintUsage( player );
@@ -1370,7 +1363,7 @@ namespace fCraft {
             Handler = MarkHandler
         };
 
-        static void MarkHandler( Player player, Command cmd ) {
+        static void MarkHandler( Player player, CommandReader cmd ) {
             Map map = player.WorldMap;
             int x, y, z;
             Vector3I coords;
@@ -1405,7 +1398,7 @@ namespace fCraft {
             Handler = CancelHandler
         };
 
-        static void CancelHandler( Player player, Command cmd ) {
+        static void CancelHandler( Player player, CommandReader cmd ) {
             if( cmd.HasNext ) {
                 CdCancel.PrintUsage( player );
                 return;
@@ -1460,7 +1453,7 @@ namespace fCraft {
             Handler = UndoAreaHandler
         };
 
-        static void UndoAreaHandler( Player player, Command cmd ) {
+        static void UndoAreaHandler( Player player, CommandReader cmd ) {
 
             if( !BlockDB.IsEnabledGlobally ) {
                 player.Message( "&WBlockDB is disabled on this server." );
@@ -1639,7 +1632,7 @@ namespace fCraft {
             Handler = UndoPlayerHandler
         };
 
-        static void UndoPlayerHandler( Player player, Command cmd ) {
+        static void UndoPlayerHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
@@ -1755,7 +1748,7 @@ namespace fCraft {
             Handler = StaticHandler
         };
 
-        static void StaticHandler( Player player, Command cmd ) {
+        static void StaticHandler( Player player, CommandReader cmd ) {
             if( cmd.HasNext ) {
                 CdStatic.PrintUsage( player );
                 return;

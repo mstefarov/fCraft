@@ -86,7 +86,7 @@ namespace fCraft {
             Handler = BlockDBHandler
         };
 
-        static void BlockDBHandler( Player player, Command cmd ) {
+        static void BlockDBHandler( Player player, CommandReader cmd ) {
             if( !BlockDB.IsEnabledGlobally ) {
                 player.Message( "&WBlockDB is disabled on this server." );
                 return;
@@ -394,7 +394,7 @@ namespace fCraft {
             Handler = BlockInfoHandler
         };
 
-        static void BlockInfoHandler( Player player, Command cmd ) {
+        static void BlockInfoHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
@@ -535,7 +535,7 @@ namespace fCraft {
             Handler = EnvHandler
         };
 
-        static void EnvHandler( Player player, Command cmd ) {
+        static void EnvHandler( Player player, CommandReader cmd ) {
             if( !ConfigKey.WoMEnableEnvExtensions.Enabled() ) {
                 player.Message( "Env command is disabled on this server." );
                 return;
@@ -661,8 +661,8 @@ namespace fCraft {
                     break;
 
                 case "edge":
-                    Block block = Map.GetBlockByName( valueText );
-                    if( block == Block.Undefined ) {
+                    Block block;
+                    if( !Map.GetBlockByName( valueText, false, out block ) ) {
                         CdEnv.PrintUsage( player );
                         return;
                     }
@@ -753,7 +753,7 @@ namespace fCraft {
             Handler = GenHandler
         };
 
-        static void GenHandler( Player player, Command cmd ) {
+        static void GenHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
             string themeName = cmd.Next();
             string templateName;
@@ -1004,7 +1004,7 @@ namespace fCraft {
             Handler = JoinHandler
         };
 
-        static void JoinHandler( Player player, Command cmd ) {
+        static void JoinHandler( Player player, CommandReader cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
                 CdJoin.PrintUsage( player );
@@ -1083,7 +1083,7 @@ namespace fCraft {
             Handler = WorldLockHandler
         };
 
-        static void WorldLockHandler( Player player, Command cmd ) {
+        static void WorldLockHandler( Player player, CommandReader cmd ) {
             string worldName = cmd.Next();
 
             World world;
@@ -1131,7 +1131,7 @@ namespace fCraft {
             Handler = WorldUnlockHandler
         };
 
-        static void WorldUnlockHandler( Player player, Command cmd ) {
+        static void WorldUnlockHandler( Player player, CommandReader cmd ) {
             string worldName = cmd.Next();
 
             World world;
@@ -1179,7 +1179,7 @@ namespace fCraft {
             Handler = SpawnHandler
         };
 
-        static void SpawnHandler( Player player, Command cmd ) {
+        static void SpawnHandler( Player player, CommandReader cmd ) {
             if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
             player.TeleportTo( player.World.LoadMap().Spawn );
         }
@@ -1204,7 +1204,7 @@ namespace fCraft {
             Handler = WorldsHandler
         };
 
-        static void WorldsHandler( Player player, Command cmd ) {
+        static void WorldsHandler( Player player, CommandReader cmd ) {
             string param = cmd.Next();
             World[] worlds;
 
@@ -1302,7 +1302,7 @@ namespace fCraft {
             Handler = WorldAccessHandler
         };
 
-        static void WorldAccessHandler( [NotNull] Player player, Command cmd ) {
+        static void WorldAccessHandler( [NotNull] Player player, CommandReader cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             string worldName = cmd.Next();
 
@@ -1549,7 +1549,7 @@ namespace fCraft {
             Handler = WorldBuildHandler
         };
 
-        static void WorldBuildHandler( [NotNull] Player player, Command cmd ) {
+        static void WorldBuildHandler( [NotNull] Player player, CommandReader cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             string worldName = cmd.Next();
 
@@ -1792,7 +1792,7 @@ namespace fCraft {
             Handler = WorldFlushHandler
         };
 
-        static void WorldFlushHandler( Player player, Command cmd ) {
+        static void WorldFlushHandler( Player player, CommandReader cmd ) {
             string worldName = cmd.Next();
             World world = player.World;
 
@@ -1834,7 +1834,7 @@ namespace fCraft {
             Handler = WorldInfoHandler
         };
 
-        static void WorldInfoHandler( Player player, Command cmd ) {
+        static void WorldInfoHandler( Player player, CommandReader cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
                 if( player.World == null ) {
@@ -1938,7 +1938,7 @@ namespace fCraft {
         };
 
 
-        static void WorldLoadHandler( Player player, Command cmd ) {
+        static void WorldLoadHandler( Player player, CommandReader cmd ) {
             string fileName = cmd.Next();
             string worldName = cmd.Next();
 
@@ -2137,7 +2137,7 @@ namespace fCraft {
             Handler = WorldMainHandler
         };
 
-        static void WorldMainHandler( Player player, Command cmd ) {
+        static void WorldMainHandler( Player player, CommandReader cmd ) {
             string param = cmd.Next();
             if( param == null ) {
                 player.Message( "Main world is {0}", WorldManager.MainWorld.ClassyName );
@@ -2283,7 +2283,7 @@ namespace fCraft {
             Handler = WorldRenameHandler
         };
 
-        static void WorldRenameHandler( Player player, Command cmd ) {
+        static void WorldRenameHandler( Player player, CommandReader cmd ) {
             string oldName = cmd.Next();
             string newName = cmd.Next();
             if( oldName == null || newName == null ) {
@@ -2363,7 +2363,7 @@ namespace fCraft {
             Handler = WorldSaveHandler
         };
 
-        static void WorldSaveHandler( Player player, Command cmd ) {
+        static void WorldSaveHandler( Player player, CommandReader cmd ) {
             string p1 = cmd.Next(), p2 = cmd.Next();
             if( p1 == null ) {
                 CdWorldSave.PrintUsage( player );
@@ -2470,7 +2470,7 @@ namespace fCraft {
             Handler = WorldSetHandler
         };
 
-        static void WorldSetHandler( Player player, Command cmd ) {
+        static void WorldSetHandler( Player player, CommandReader cmd ) {
             string worldName = cmd.Next();
             string varName = cmd.Next();
             string value = cmd.NextAll();
@@ -2634,7 +2634,7 @@ namespace fCraft {
             Handler = WorldUnloadHandler
         };
 
-        static void WorldUnloadHandler( Player player, Command cmd ) {
+        static void WorldUnloadHandler( Player player, CommandReader cmd ) {
             string worldName = cmd.Next();
             if( worldName == null ) {
                 CdWorldUnload.PrintUsage( player );
