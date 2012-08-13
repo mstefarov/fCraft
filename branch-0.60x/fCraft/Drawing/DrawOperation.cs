@@ -224,7 +224,7 @@ namespace fCraft.Drawing {
                 return false;
             }
 
-            Map.Blocks[blockIndex] = (byte)newBlock;
+            Map.SetBlock( blockIndex, newBlock );
 
             World world = Map.World;
             if( world != null && !world.IsFlushing ) {

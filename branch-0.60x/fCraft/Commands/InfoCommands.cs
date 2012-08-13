@@ -334,13 +334,13 @@ namespace fCraft {
 
             // Stats
             if( info.BlocksDrawn > 0 ) {
-                player.Message( "  Built {0:N0}; deleted {1:N0}; drew {2:N1}K blocks; wrote {3} messages.",
+                player.Message( "  Built {0:N0}; deleted {1:N0}; drew {2:N1}K blocks; wrote {3:N0} messages.",
                                 info.BlocksBuilt,
                                 info.BlocksDeleted,
                                 info.BlocksDrawn / 1000d,
                                 info.MessagesWritten );
             } else {
-                player.Message( "  Built {0:N0}; deleted {1:N0} blocks; wrote {2} messages.",
+                player.Message( "  Built {0:N0}; deleted {1:N0} blocks; wrote {2:N0} messages.",
                                 info.BlocksBuilt,
                                 info.BlocksDeleted,
                                 info.MessagesWritten );

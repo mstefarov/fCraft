@@ -46,6 +46,7 @@ namespace fCraft {
                     mainWorld = value;
                 }
                 RaiseMainWorldChangedEvent( oldWorld, value );
+                SaveWorldList();
             }
         }
 
@@ -716,6 +717,7 @@ namespace fCraft {
 
                 WorldIndex.Remove( worldToDelete.Name.ToLower() );
                 UpdateWorldList();
+                SaveWorldList();
             }
         }
 

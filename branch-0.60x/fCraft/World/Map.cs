@@ -198,6 +198,7 @@ namespace fCraft {
             if( x < Width && y < Length && z < Height && x >= 0 && y >= 0 && z >= 0 ) {
                 Blocks[Index( x, y, z )] = (byte)type;
                 HasChangedSinceSave = true;
+                compressedCopyCache = null;
             }
         }
 
@@ -209,7 +210,18 @@ namespace fCraft {
             if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 && coords.Z >= 0 && (byte)type < 50 ) {
                 Blocks[Index( coords )] = (byte)type;
                 HasChangedSinceSave = true;
+                compressedCopyCache = null;
             }
+        }
+
+
+        /// <summary> Sets a block at given coordinates. </summary>
+        /// <param name="index"> Index of the block (use map.Index(x,y,z)). </param>
+        /// <param name="type"> Block type to set. </param>
+        public void SetBlock( int index, Block type ) {
+            Blocks[index] = (byte)type;
+            HasChangedSinceSave = true;
+            compressedCopyCache = null;
         }
 
 
@@ -217,7 +229,7 @@ namespace fCraft {
         /// <param name="x"> X coordinate (width). </param>
         /// <param name="y"> Y coordinate (length, Notch's Z). </param>
         /// <param name="z"> Z coordinate (height, Notch's Y). </param>
-        /// <returns> Block type, as a Block enumeration. Undefined if coordinates were out of bounds. </returns>
+        /// <returns> Block type, as a Block enumeration. Block.None if coordinates were out of bounds. </returns>
         public Block GetBlock( int x, int y, int z ) {
             if( x < Width && y < Length && z < Height && x >= 0 && y >= 0 && z >= 0 )
                 return (Block)Blocks[Index( x, y, z )];
@@ -304,6 +316,7 @@ namespace fCraft {
                     break;
                 }
                 HasChangedSinceSave = true;
+                compressedCopyCache = null;
                 if( !InBounds( update.X, update.Y, update.Z ) ) continue;
                 int blockIndex = Index( update.X, update.Y, update.Z );
                 Blocks[blockIndex] = (byte)update.BlockType;
@@ -792,27 +805,25 @@ namespace fCraft {
         }
 
 
-        /// <summary> Makes an admincrete barrier, 1 block thick, around the lower half of the map. </summary>
-        public void MakeFloodBarrier() {
-            for( int x = 0; x < Width; x++ ) {
-                for( int y = 0; y < Length; y++ ) {
-                    SetBlock( x, y, 0, Block.Admincrete );
-                }
-            }
+        volatile byte[] compressedCopyCache;
 
-            for( int x = 0; x < Width; x++ ) {
-                for( int z = 0; z < Height / 2; z++ ) {
-                    SetBlock( x, 0, z, Block.Admincrete );
-                    SetBlock( x, Length - 1, z, Block.Admincrete );
+        public byte[] GetCompressedCopy() {
+            byte[] currentCopy = compressedCopyCache;
+            if( currentCopy == null ) {
+                using( MemoryStream ms = new MemoryStream() ) {
+                    using( GZipStream compressor = new GZipStream( ms, CompressionMode.Compress ) ) {
+                        // convert block count to big-endian
+                        int convertedBlockCount = IPAddress.HostToNetworkOrder( Blocks.Length );
+                        // write block count to gzip stream
+                        compressor.Write( BitConverter.GetBytes( convertedBlockCount ), 0, 4 );
+                        compressor.Write( Blocks, 0, Blocks.Length );
+                    }
+                    currentCopy = ms.ToArray();
+                    compressedCopyCache = currentCopy;
+                    Logger.Log( LogType.Debug, "Recompressing map {0} ({1:N0})", World.Name, currentCopy.Length );
                 }
             }
-
-            for( int y = 0; y < Length; y++ ) {
-                for( int z = 0; z < Height / 2; z++ ) {
-                    SetBlock( 0, y, z, Block.Admincrete );
-                    SetBlock( Width - 1, y, z, Block.Admincrete );
-                }
-            }
+            return currentCopy;
         }
 
 
