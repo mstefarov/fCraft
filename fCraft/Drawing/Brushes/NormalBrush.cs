@@ -33,7 +33,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public IBrush MakeBrush( [NotNull] Player player, [NotNull] Command cmd ) {
+        public IBrush MakeBrush( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             return this;
@@ -41,20 +41,19 @@ namespace fCraft.Drawing {
 
 
         [CanBeNull]
-        public IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] Command cmd, [NotNull] DrawOperation state ) {
+        public IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] CommandReader cmd, [NotNull] DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( state == null ) throw new ArgumentNullException( "state" );
-            Block block = Block.Undefined,
-                  altBlock = Block.Undefined;
+            Block block = Block.None,
+                  altBlock = Block.None;
 
             if( cmd.HasNext ) {
-                block = cmd.NextBlock( player );
-                if( block == Block.Undefined ) return null;
-
-                if( cmd.HasNext ) {
-                    altBlock = cmd.NextBlock( player );
-                    if( altBlock == Block.Undefined ) return null;
+                if( !cmd.NextBlock( player, true, out block ) ) {
+                    return null;
+                }
+                if( cmd.HasNext && !cmd.NextBlock( player, true, out altBlock ) ) {
+                    return null;
                 }
             }
 
@@ -68,14 +67,14 @@ namespace fCraft.Drawing {
         public Block AltBlock { get; set; }
 
         public bool HasAlternateBlock {
-            get { return AltBlock != Block.Undefined; }
+            get { return AltBlock != Block.None; }
         }
 
         public string InstanceDescription {
             get {
-                if( Block == Block.Undefined ) {
+                if( Block == Block.None ) {
                     return Brush.Factory.Name;
-                } else if( AltBlock == Block.Undefined ) {
+                } else if( AltBlock == Block.None ) {
                     return String.Format( "{0}({1})", Brush.Factory.Name, Block );
                 } else {
                     return String.Format( "{0}({1},{2})", Brush.Factory.Name, Block, AltBlock );
@@ -89,13 +88,10 @@ namespace fCraft.Drawing {
 
         public NormalBrush( Block block ) {
             Block = block;
-            AltBlock = Block.Undefined;
+            AltBlock = Block.None;
         }
 
         public NormalBrush( Block block, Block altBlock ) {
-            if( block == Block.Undefined && altBlock != Block.Undefined ) {
-                throw new ArgumentException( "Block must not be undefined if altblock is set.", "block" );
-            }
             Block = block;
             AltBlock = altBlock;
         }
@@ -104,8 +100,8 @@ namespace fCraft.Drawing {
         public bool Begin( [NotNull] Player player, [NotNull] DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( state == null ) throw new ArgumentNullException( "state" );
-            if( Block == Block.Undefined ) {
-                if( player.LastUsedBlockType == Block.Undefined ) {
+            if( Block == Block.None ) {
+                if( player.LastUsedBlockType == Block.None ) {
                     player.Message( "Cannot deduce desired block. Click a block or type out the block name." );
                     return false;
                 } else {

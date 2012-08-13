@@ -3,7 +3,7 @@
 namespace fCraft {
     /// <summary> Enumeration of all standard Minecraft Classic block types. </summary>
     public enum Block : byte {
-        Undefined = 255, // for error checking
+        None = 255, // for error checking
 
         Air = 0,
         Stone = 1,

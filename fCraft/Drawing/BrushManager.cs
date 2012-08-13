@@ -18,7 +18,7 @@ namespace fCraft.Drawing {
         };
 
 
-        static void BrushHandler( Player player, Command cmd ) {
+        static void BrushHandler( Player player, CommandReader cmd ) {
             string brushName = cmd.Next();
             if( brushName == null ) {
                 player.Message( player.Brush.Description );

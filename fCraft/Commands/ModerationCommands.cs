@@ -71,7 +71,7 @@ namespace fCraft {
             Handler = BanHandler
         };
 
-        static void BanHandler( Player player, Command cmd ) {
+        static void BanHandler( Player player, CommandReader cmd ) {
             string targetName = cmd.Next();
             if( targetName == null ) {
                 CdBan.PrintUsage( player );
@@ -106,7 +106,7 @@ namespace fCraft {
             Handler = BanIPHandler
         };
 
-        static void BanIPHandler( Player player, Command cmd ) {
+        static void BanIPHandler( Player player, CommandReader cmd ) {
             string targetNameOrIP = cmd.Next();
             if( targetNameOrIP == null ) {
                 CdBanIP.PrintUsage( player );
@@ -154,7 +154,7 @@ namespace fCraft {
             Handler = BanAllHandler
         };
 
-        static void BanAllHandler( Player player, Command cmd ) {
+        static void BanAllHandler( Player player, CommandReader cmd ) {
             string targetNameOrIP = cmd.Next();
             if( targetNameOrIP == null ) {
                 CdBanAll.PrintUsage( player );
@@ -200,7 +200,7 @@ namespace fCraft {
             Handler = UnbanHandler
         };
 
-        static void UnbanHandler( Player player, Command cmd ) {
+        static void UnbanHandler( Player player, CommandReader cmd ) {
             string targetName = cmd.Next();
             if( targetName == null ) {
                 CdUnban.PrintUsage( player );
@@ -230,7 +230,7 @@ namespace fCraft {
             Handler = UnbanIPHandler
         };
 
-        static void UnbanIPHandler( Player player, Command cmd ) {
+        static void UnbanIPHandler( Player player, CommandReader cmd ) {
             string targetNameOrIP = cmd.Next();
             if( targetNameOrIP == null ) {
                 CdUnbanIP.PrintUsage( player );
@@ -270,7 +270,7 @@ namespace fCraft {
             Handler = UnbanAllHandler
         };
 
-        static void UnbanAllHandler( Player player, Command cmd ) {
+        static void UnbanAllHandler( Player player, CommandReader cmd ) {
             string targetNameOrIP = cmd.Next();
             if( targetNameOrIP == null ) {
                 CdUnbanAll.PrintUsage( player );
@@ -308,7 +308,7 @@ namespace fCraft {
             Handler = BanExHandler
         };
 
-        static void BanExHandler( Player player, Command cmd ) {
+        static void BanExHandler( Player player, CommandReader cmd ) {
             string playerName = cmd.Next();
             if( playerName == null || playerName.Length < 2 || (playerName[0] != '-' && playerName[0] != '+') ) {
                 CdBanEx.PrintUsage( player );
@@ -368,7 +368,7 @@ namespace fCraft {
             Handler = KickHandler
         };
 
-        static void KickHandler( Player player, Command cmd ) {
+        static void KickHandler( Player player, CommandReader cmd ) {
             string name = cmd.Next();
             if( name == null ) {
                 player.Message( "Usage: &H/Kick PlayerName [Message]" );
@@ -432,7 +432,7 @@ namespace fCraft {
             Handler = RankHandler
         };
 
-        static void RankHandler( Player player, Command cmd ) {
+        static void RankHandler( Player player, CommandReader cmd ) {
             string name = cmd.Next();
             string newRankName = cmd.Next();
 
@@ -511,7 +511,7 @@ namespace fCraft {
             Handler = HideHandler
         };
 
-        static void HideHandler( Player player, Command cmd ) {
+        static void HideHandler( Player player, CommandReader cmd ) {
             if( player.Info.IsHidden ) {
                 player.Message( "You are already hidden." );
                 return;
@@ -556,7 +556,7 @@ namespace fCraft {
             Handler = UnhideHandler
         };
 
-        static void UnhideHandler( Player player, Command cmd ) {
+        static void UnhideHandler( Player player, CommandReader cmd ) {
             if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
 
             if( !player.Info.IsHidden ) {
@@ -601,7 +601,7 @@ namespace fCraft {
             Handler = SetSpawnHandler
         };
 
-        static void SetSpawnHandler( Player player, Command cmd ) {
+        static void SetSpawnHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
@@ -664,7 +664,7 @@ namespace fCraft {
             Handler = FreezeHandler
         };
 
-        static void FreezeHandler( Player player, Command cmd ) {
+        static void FreezeHandler( Player player, CommandReader cmd ) {
             string name = cmd.Next();
             if( name == null ) {
                 CdFreeze.PrintUsage( player );
@@ -693,7 +693,7 @@ namespace fCraft {
             Handler = UnfreezeHandler
         };
 
-        static void UnfreezeHandler( Player player, Command cmd ) {
+        static void UnfreezeHandler( Player player, CommandReader cmd ) {
             string name = cmd.Next();
             if( name == null ) {
                 CdFreeze.PrintUsage( player );
@@ -725,7 +725,7 @@ namespace fCraft {
             Handler = TPHandler
         };
 
-        static void TPHandler( Player player, Command cmd ) {
+        static void TPHandler( Player player, CommandReader cmd ) {
             string name = cmd.Next();
             if( name == null ) {
                 CdTP.PrintUsage( player );
@@ -834,7 +834,7 @@ namespace fCraft {
             Handler = BringHandler
         };
 
-        static void BringHandler( Player player, Command cmd ) {
+        static void BringHandler( Player player, CommandReader cmd ) {
             string name = cmd.Next();
             if( name == null ) {
                 CdBring.PrintUsage( player );
@@ -904,7 +904,7 @@ namespace fCraft {
             Handler = WorldBringHandler
         };
 
-        static void WorldBringHandler( Player player, Command cmd ) {
+        static void WorldBringHandler( Player player, CommandReader cmd ) {
             string playerName = cmd.Next();
             string worldName = cmd.Next();
             if( playerName == null || worldName == null ) {
@@ -969,7 +969,7 @@ namespace fCraft {
             Handler = BringAllHandler
         };
 
-        static void BringAllHandler( Player player, Command cmd ) {
+        static void BringAllHandler( Player player, CommandReader cmd ) {
             if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
 
             List<World> targetWorlds = new List<World>();
@@ -1134,7 +1134,7 @@ namespace fCraft {
             Handler = PatrolHandler
         };
 
-        static void PatrolHandler( Player player, Command cmd ) {
+        static void PatrolHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
@@ -1158,7 +1158,7 @@ namespace fCraft {
             Handler = SpecPatrolHandler
         };
 
-        static void SpecPatrolHandler( Player player, Command cmd ) {
+        static void SpecPatrolHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
@@ -1191,7 +1191,7 @@ namespace fCraft {
             Handler = MuteHandler
         };
 
-        static void MuteHandler( Player player, Command cmd ) {
+        static void MuteHandler( Player player, CommandReader cmd ) {
             string targetName = cmd.Next();
             string timeString = cmd.Next();
             TimeSpan duration;
@@ -1232,7 +1232,7 @@ namespace fCraft {
             Handler = UnmuteHandler
         };
 
-        static void UnmuteHandler( Player player, Command cmd ) {
+        static void UnmuteHandler( Player player, CommandReader cmd ) {
             string targetName = cmd.Next();
             if( String.IsNullOrEmpty( targetName ) ) {
                 CdUnmute.PrintUsage( player );
@@ -1264,7 +1264,7 @@ namespace fCraft {
             Handler = SpectateHandler
         };
 
-        static void SpectateHandler( Player player, Command cmd ) {
+        static void SpectateHandler( Player player, CommandReader cmd ) {
             string targetName = cmd.Next();
             if( targetName == null ) {
                 PlayerInfo lastSpec = player.LastSpectatedPlayer;
@@ -1312,7 +1312,7 @@ namespace fCraft {
             Handler = UnspectateHandler
         };
 
-        static void UnspectateHandler( Player player, Command cmd ) {
+        static void UnspectateHandler( Player player, CommandReader cmd ) {
             if( !player.StopSpectating() ) {
                 player.Message( "You are not currently spectating anyone." );
             }

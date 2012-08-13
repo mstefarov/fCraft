@@ -32,7 +32,7 @@ namespace fCraft {
             Handler = ZoneAddHandler
         };
 
-        static void ZoneAddHandler( Player player, Command cmd ) {
+        static void ZoneAddHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
@@ -187,7 +187,7 @@ namespace fCraft {
             Handler = ZoneEditHandler
         };
 
-        static void ZoneEditHandler( Player player, Command cmd ) {
+        static void ZoneEditHandler( Player player, CommandReader cmd ) {
             bool changesWereMade = false;
             string zoneName = cmd.Next();
             if( zoneName == null ) {
@@ -308,7 +308,7 @@ namespace fCraft {
             Handler = ZoneInfoHandler
         };
 
-        static void ZoneInfoHandler( Player player, Command cmd ) {
+        static void ZoneInfoHandler( Player player, CommandReader cmd ) {
             string zoneName = cmd.Next();
             if( zoneName == null ) {
                 player.Message( "No zone name specified. See &H/Help ZInfo" );
@@ -375,7 +375,7 @@ namespace fCraft {
             Handler = ZoneListHandler
         };
 
-        static void ZoneListHandler( Player player, Command cmd ) {
+        static void ZoneListHandler( Player player, CommandReader cmd ) {
             World world = player.World;
             string worldName = cmd.Next();
             if( worldName != null ) {
@@ -430,7 +430,7 @@ namespace fCraft {
             Handler = ZoneMarkHandler
         };
 
-        static void ZoneMarkHandler( Player player, Command cmd ) {
+        static void ZoneMarkHandler( Player player, CommandReader cmd ) {
             if( player.SelectionMarksExpected == 0 ) {
                 player.MessageNow( "Cannot use ZMark - no selection in progress." );
             } else if( player.SelectionMarksExpected == 2 ) {
@@ -469,7 +469,7 @@ namespace fCraft {
             Handler = ZoneRemoveHandler
         };
 
-        static void ZoneRemoveHandler( Player player, Command cmd ) {
+        static void ZoneRemoveHandler( Player player, CommandReader cmd ) {
             string zoneName = cmd.Next();
             if( zoneName == null ) {
                 CdZoneRemove.PrintUsage( player );
@@ -517,7 +517,7 @@ namespace fCraft {
             Handler = ZoneRenameHandler
         };
 
-        static void ZoneRenameHandler( Player player, Command cmd ) {
+        static void ZoneRenameHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
             if(playerWorld==null)PlayerOpException.ThrowNoWorld( player );
 
@@ -581,7 +581,7 @@ namespace fCraft {
             Handler = ZoneTestHandler
         };
 
-        static void ZoneTestHandler( Player player, Command cmd ) {
+        static void ZoneTestHandler( Player player, CommandReader cmd ) {
             player.SelectionStart( 1, ZoneTestCallback, null );
             player.Message( "Click the block that you would like to test." );
         }

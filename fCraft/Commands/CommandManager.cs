@@ -172,7 +172,7 @@ namespace fCraft {
         /// <param name="cmd"> Command to be parsed and executed. </param>
         /// <param name="fromConsole"> Whether this command is being called from a non-player (e.g. Console). </param>
         /// <returns> True if the command was called, false if something prevented it from being called. </returns>
-        public static bool ParseCommand( [NotNull] Player player, [NotNull] Command cmd, bool fromConsole ) {
+        public static bool ParseCommand( [NotNull] Player player, [NotNull] CommandReader cmd, bool fromConsole ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             CommandDescriptor descriptor = GetDescriptor( cmd.Name, true );
@@ -255,7 +255,7 @@ namespace fCraft {
         }
 
 
-        internal static bool RaiseCommandCallingEvent( Command cmd, CommandDescriptor descriptor, Player player ) {
+        internal static bool RaiseCommandCallingEvent( CommandReader cmd, CommandDescriptor descriptor, Player player ) {
             var h = CommandCalling;
             if( h == null ) return false;
             var e = new CommandCallingEventArgs( cmd, descriptor, player );
@@ -264,7 +264,7 @@ namespace fCraft {
         }
 
 
-        internal static void RaiseCommandCalledEvent( Command cmd, CommandDescriptor descriptor, Player player ) {
+        internal static void RaiseCommandCalledEvent( CommandReader cmd, CommandDescriptor descriptor, Player player ) {
             var h = CommandCalled;
             if( h != null ) CommandCalled( null, new CommandCalledEventArgs( cmd, descriptor, player ) );
         }
@@ -301,20 +301,20 @@ namespace fCraft.Events {
 
 
     public class CommandCalledEventArgs : EventArgs {
-        internal CommandCalledEventArgs( Command command, CommandDescriptor commandDescriptor, Player player ) {
+        internal CommandCalledEventArgs( CommandReader command, CommandDescriptor commandDescriptor, Player player ) {
             Command = command;
             CommandDescriptor = commandDescriptor;
             Player = player;
         }
 
-        public Command Command { get; private set; }
+        public CommandReader Command { get; private set; }
         public CommandDescriptor CommandDescriptor { get; private set; }
         public Player Player { get; private set; }
     }
 
 
     public sealed class CommandCallingEventArgs : CommandCalledEventArgs, ICancellableEvent {
-        internal CommandCallingEventArgs( Command command, CommandDescriptor commandDescriptor, Player player ) :
+        internal CommandCallingEventArgs( CommandReader command, CommandDescriptor commandDescriptor, Player player ) :
             base( command, commandDescriptor, player ) {
         }
 

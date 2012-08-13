@@ -14,7 +14,7 @@ namespace fCraft.Drawing {
             : base( player ) {
         }
 
-        public abstract bool ReadParams( Command cmd );
+        public abstract bool ReadParams( CommandReader cmd );
 
 
         protected abstract Block NextBlock();
@@ -34,7 +34,7 @@ namespace fCraft.Drawing {
             get { return null; }
         }
 
-        IBrush IBrushFactory.MakeBrush( Player player, Command cmd ) {
+        IBrush IBrushFactory.MakeBrush( Player player, CommandReader cmd ) {
             return this;
         }
 
@@ -51,7 +51,7 @@ namespace fCraft.Drawing {
             get { throw new NotImplementedException(); }
         }
 
-        IBrushInstance IBrush.MakeInstance( Player player, Command cmd, DrawOperation op ) {
+        IBrushInstance IBrush.MakeInstance( Player player, CommandReader cmd, DrawOperation op ) {
             if( ReadParams( cmd ) ) {
                 return this;
             } else {

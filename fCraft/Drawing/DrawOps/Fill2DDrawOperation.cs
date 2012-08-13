@@ -16,8 +16,8 @@ namespace fCraft.Drawing {
 
         public override string Description {
             get {
-                if( SourceBlock == Block.Undefined ) {
-                    if( ReplacementBlock == Block.Undefined ) {
+                if( SourceBlock == Block.None ) {
+                    if( ReplacementBlock == Block.None ) {
                         return Name;
                     } else {
                         return String.Format( "{0}({1})",
@@ -37,15 +37,19 @@ namespace fCraft.Drawing {
 
         public Fill2DDrawOperation( Player player )
             : base( player ) {
-            SourceBlock = Block.Undefined;
-            ReplacementBlock = Block.Undefined;
+            SourceBlock = Block.None;
+            ReplacementBlock = Block.None;
         }
 
 
-        public override bool ReadParams( Command cmd ) {
+        public override bool ReadParams( CommandReader cmd ) {
             if( cmd.HasNext ) {
-                ReplacementBlock = cmd.NextBlock( Player );
-                if( ReplacementBlock == Block.Undefined ) return false;
+                Block replacement;
+                if( cmd.NextBlock( Player, false, out replacement ) ) {
+                    ReplacementBlock = replacement;
+                } else {
+                    return false;
+                }
             }
             Brush = this;
             return true;
@@ -56,8 +60,8 @@ namespace fCraft.Drawing {
             if( marks == null ) throw new ArgumentNullException( "marks" );
             if( marks.Length < 1 ) throw new ArgumentException( "At least one mark needed.", "marks" );
 
-            if( ReplacementBlock == Block.Undefined ) {
-                if( Player.LastUsedBlockType == Block.Undefined ) {
+            if( ReplacementBlock == Block.None ) {
+                if( Player.LastUsedBlockType == Block.None ) {
                     Player.Message( "Cannot deduce desired replacement block. Click a block or type out the block name." );
                     return false;
                 } else {

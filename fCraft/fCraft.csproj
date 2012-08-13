@@ -145,7 +145,7 @@
     <Compile Include="Network\PacketWriter.cs" />
     <Compile Include="Network\Packet.cs" />
     <Compile Include="Network\Player.Networking.cs" />
-    <Compile Include="Commands\Command.cs" />
+    <Compile Include="Commands\CommandReader.cs" />
     <Compile Include="Player\Rank.cs" />
     <Compile Include="Player\Player.cs" />
     <Compile Include="Player\PlayerDB.cs" />

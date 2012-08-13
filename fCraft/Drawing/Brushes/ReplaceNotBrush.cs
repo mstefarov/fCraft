@@ -25,20 +25,20 @@ namespace fCraft.Drawing {
 
 
         [CanBeNull]
-        public IBrush MakeBrush( [NotNull] Player player, [NotNull] Command cmd ) {
+        public IBrush MakeBrush( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
 
             Stack<Block> blocks = new Stack<Block>();
             while( cmd.HasNext ) {
-                Block block = cmd.NextBlock( player );
-                if( block == Block.Undefined ) return null;
+                Block block;
+                if( !cmd.NextBlock( player, false, out block ) ) return null;
                 blocks.Push( block );
             }
             if( blocks.Count == 0 ) {
                 return new ReplaceNotBrush();
             } else if( blocks.Count == 1 ) {
-                return new ReplaceNotBrush( blocks.ToArray(), Block.Undefined );
+                return new ReplaceNotBrush( blocks.ToArray(), Block.None );
             } else {
                 Block replacement = blocks.Pop();
                 return new ReplaceNotBrush( blocks.ToArray(), replacement );
@@ -77,7 +77,7 @@ namespace fCraft.Drawing {
             get {
                 if( Blocks == null ) {
                     return Factory.Name;
-                } else if( Replacement == Block.Undefined ) {
+                } else if( Replacement == Block.None ) {
                     return String.Format( "{0}({1} -> ?)",
                                           Factory.Name,
                                           Blocks.JoinToString() );
@@ -92,15 +92,15 @@ namespace fCraft.Drawing {
 
 
         [CanBeNull]
-        public IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] Command cmd, [NotNull] DrawOperation op ) {
+        public IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] CommandReader cmd, [NotNull] DrawOperation op ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( op == null ) throw new ArgumentNullException( "op" );
 
             Stack<Block> blocks = new Stack<Block>();
             while( cmd.HasNext ) {
-                Block block = cmd.NextBlock( player );
-                if( block == Block.Undefined ) return null;
+                Block block;
+                if( !cmd.NextBlock( player, false, out block ) ) return null;
                 blocks.Push( block );
             }
 
@@ -143,8 +143,8 @@ namespace fCraft.Drawing {
             if( Blocks == null || Blocks.Length == 0 ) {
                 throw new InvalidOperationException( "No blocks given." );
             }
-            if( Replacement == Block.Undefined ) {
-                if( player.LastUsedBlockType == Block.Undefined ) {
+            if( Replacement == Block.None ) {
+                if( player.LastUsedBlockType == Block.None ) {
                     player.Message( "Cannot deduce desired replacement block. Click a block or type out the block name." );
                     return false;
                 } else {
@@ -163,7 +163,7 @@ namespace fCraft.Drawing {
             for( int i = 0; i < Blocks.Length; i++ ) {
                 // ReSharper restore LoopCanBeConvertedToQuery
                 if( block == Blocks[i] ) {
-                    return Block.Undefined;
+                    return Block.None;
                 }
             }
             return Replacement;

@@ -84,7 +84,7 @@ namespace fCraft.Drawing {
             return block;
         }
 
-        public override bool ReadParams( Command cmd ) {
+        public override bool ReadParams( CommandReader cmd ) {
             return true;
         }
     }
