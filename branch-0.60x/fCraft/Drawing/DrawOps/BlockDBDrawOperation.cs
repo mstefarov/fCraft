@@ -3,55 +3,60 @@ using System;
 
 namespace fCraft.Drawing {
     public class BlockDBDrawOperation : DrawOpWithBrush {
+        protected BlockDBEntry[] changes;
+        int entryIndex;
+        Block block;
+        string commandName;
+
+
         public override string Name {
             get { return commandName; }
         }
+
+
+        public override string Description {
+            get {
+                if( String.IsNullOrEmpty( paramDescription ) ) {
+                    return Name;
+                } else {
+                    return String.Format( "{0}({1})", Name, paramDescription );
+                }
+            }
+        }
+
+
+        public string paramDescription;
+
 
         public override int ExpectedMarks {
             get { return expectedMarks; }
         }
         int expectedMarks;
 
-        protected BlockDBEntry[] entriesToUndo;
-        int entryIndex;
-        Block block;
-        string commandName;
 
-
-        public override string Description {
-            get {
-                if( String.IsNullOrEmpty( UndoParamDescription ) ) {
-                    return Name;
-                } else {
-                    return String.Format( "{0}({1})", Name, UndoParamDescription );
-                }
-            }
-        }
-
-        public string UndoParamDescription { get; set; }
-
-
-        public BlockDBDrawOperation( Player player, string commandName, int expectedMarks )
+        public BlockDBDrawOperation( Player player, string commandName, string paramDescription, int expectedMarks )
             : base( player ) {
             if( commandName == null ) throw new ArgumentNullException( "commandName" );
+            this.paramDescription = paramDescription;
             this.commandName = commandName;
             this.expectedMarks = expectedMarks;
         }
 
 
-        public bool Prepare( Vector3I[] marks, BlockDBEntry[] entriesToUndo ) {
-            if( entriesToUndo == null ) throw new ArgumentNullException( "entriesToUndo" );
-            this.entriesToUndo = entriesToUndo;
+        public bool Prepare( Vector3I[] marks, BlockDBEntry[] changes ) {
+            if( changes == null ) throw new ArgumentNullException( "changes" );
+            this.changes = changes;
             return Prepare( marks );
         }
 
+
         public override bool Prepare( Vector3I[] marks ) {
-            if( entriesToUndo == null ) {
+            if( changes == null ) {
                 throw new InvalidOperationException( "Call the other overload to set entriesToUndo" );
             }
             Brush = this;
             if( !base.Prepare( marks ) ) return false;
-            BlocksTotalEstimate = entriesToUndo.Length;
+            BlocksTotalEstimate = changes.Length;
             if( marks.Length != 2 ) {
                 Bounds = FindBounds();
             }
@@ -60,16 +65,16 @@ namespace fCraft.Drawing {
 
 
         BoundingBox FindBounds() {
-            if( entriesToUndo.Length == 0 ) return BoundingBox.Empty;
+            if( changes.Length == 0 ) return BoundingBox.Empty;
             Vector3I min = new Vector3I( int.MaxValue, int.MaxValue, int.MaxValue );
             Vector3I max = new Vector3I( int.MinValue, int.MinValue, int.MinValue );
-            for( int i = 0; i < entriesToUndo.Length; i++ ) {
-                if( entriesToUndo[i].X < min.X ) min.X = entriesToUndo[i].X;
-                if( entriesToUndo[i].Y < min.Y ) min.Y = entriesToUndo[i].Y;
-                if( entriesToUndo[i].Z < min.Z ) min.Z = entriesToUndo[i].Z;
-                if( entriesToUndo[i].X > max.X ) max.X = entriesToUndo[i].X;
-                if( entriesToUndo[i].Y > max.Y ) max.Y = entriesToUndo[i].Y;
-                if( entriesToUndo[i].Z > max.Z ) max.Z = entriesToUndo[i].Z;
+            for( int i = 0; i < changes.Length; i++ ) {
+                if( changes[i].X < min.X ) min.X = changes[i].X;
+                if( changes[i].Y < min.Y ) min.Y = changes[i].Y;
+                if( changes[i].Z < min.Z ) min.Z = changes[i].Z;
+                if( changes[i].X > max.X ) max.X = changes[i].X;
+                if( changes[i].Y > max.Y ) max.Y = changes[i].Y;
+                if( changes[i].Z > max.Z ) max.Z = changes[i].Z;
             }
             return new BoundingBox( min, max );
         }
@@ -77,8 +82,8 @@ namespace fCraft.Drawing {
 
         public override int DrawBatch( int maxBlocksToDraw ) {
             int blocksDone = 0;
-            for( ; entryIndex < entriesToUndo.Length; entryIndex++ ) {
-                BlockDBEntry entry = entriesToUndo[entryIndex];
+            for( ; entryIndex < changes.Length; entryIndex++ ) {
+                BlockDBEntry entry = changes[entryIndex];
                 Coords = new Vector3I( entry.X, entry.Y, entry.Z );
                 block = entry.OldBlock;
                 if( entry.PlayerID == Player.Info.ID ) {

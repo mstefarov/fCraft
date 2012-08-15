@@ -1455,14 +1455,14 @@ namespace fCraft {
         };
 
         static void UndoAreaHandler( Player player, CommandReader cmd ) {
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
             if( !BlockDB.IsEnabledGlobally ) {
                 player.Message( "&WBlockDB is disabled on this server." );
                 return;
             }
 
-            World playerWorld = player.World;
-            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
             if( !playerWorld.BlockDB.IsEnabled ) {
                 player.Message( "&WBlockDB is disabled in this world." );
                 return;
@@ -1647,12 +1647,12 @@ namespace fCraft {
                 return;
             }
 
+            // parse the first parameter - either numeric or time limit
             string range = cmd.Next();
             if( range == null ) {
                 CdUndoPlayer.PrintUsage( player );
                 return;
             }
-
             int countLimit = 0;
             TimeSpan ageLimit = TimeSpan.Zero;
             if( !Int32.TryParse( range, out countLimit ) && !range.TryParseMiniTimespan( out ageLimit ) ) {
@@ -1660,6 +1660,7 @@ namespace fCraft {
                 return;
             }
 
+            // parse second and consequent parameters (player names)
             HashSet<PlayerInfo> targets = new HashSet<PlayerInfo>();
             bool allPlayers = false;
             while( cmd.HasNext ) {
@@ -1679,6 +1680,7 @@ namespace fCraft {
                         player.Message( "UndoPlayer: Player {0}&S was listed twice.", target.ClassyName );
                         return;
                     }
+                    // make sure player has the permission
                     if( player.Info != target && !player.Can( Permission.UndoAll ) &&
                         !player.Can( Permission.UndoOthersActions, target.Rank ) ) {
                         player.Message( "You may only undo actions of players ranked {0}&S or lower.",
@@ -1698,7 +1700,11 @@ namespace fCraft {
                 player.Message( "UndoPlayer: Cannot mix player names and \"*\"." );
                 return;
             }
-            
+            if( allPlayers && !player.Can( Permission.UndoAll ) ) {
+                player.MessageNoAccess( Permission.UndoAll );
+                return;
+            }
+
             PlayerInfo[] targetArray = targets.ToArray();
 
             string targetList;
@@ -1729,7 +1735,7 @@ namespace fCraft {
                     return;
                 }
 
-            } else if( ageLimit > TimeSpan.Zero ) {
+            } else {
                 if( ageLimit > DateTimeUtil.MaxTimeSpan ) {
                     player.MessageMaxTimeSpan();
                     return;
@@ -1751,12 +1757,6 @@ namespace fCraft {
                                     changes.Length, targetList, ageLimit.ToMiniString() );
                     return;
                 }
-
-            } else {
-                // should never happen
-                player.Message( "UndoPlayer: First parameter should be a number or a timespan." );
-                CdUndoPlayer.PrintUsage( player );
-                return;
             }
 
             if( changes.Length == 0 ) {
@@ -1764,10 +1764,17 @@ namespace fCraft {
                 return;
             }
 
-            var op = new BlockDBDrawOperation( player, "UndoPlayer", 0 );
-            op.UndoParamDescription = description;
+            var op = new BlockDBDrawOperation( player, "UndoPlayer", description, 0 );
             op.Prepare( new Vector3I[0], changes );
             op.Begin();
+
+            Logger.Log( LogType.UserActivity,
+                        "UndoPlayer: Player {0} will undo {1} changes (limit of {2}) by {3} on world {4}",
+                        player.Name,
+                        changes.Length,
+                        countLimit == 0 ? ageLimit.ToMiniString() : countLimit.ToString(),
+                        targetArray.Length == 0 ? "(everyone)" : targetArray.JoinToString( p => p.Name ),
+                        playerWorld.Name );
         }
 
         #endregion
