@@ -3,8 +3,6 @@ using System;
 
 namespace fCraft.Drawing {
     public abstract class BlockDBDrawOperation : DrawOpWithBrush {
-        public abstract int ExpectedMarks { get; }
-
         public override string Description {
             get { return Name; }
         }

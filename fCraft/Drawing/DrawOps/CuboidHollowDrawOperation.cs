@@ -10,6 +10,10 @@ namespace fCraft.Drawing {
             get { return "CuboidH"; }
         }
 
+        public override int ExpectedMarks {
+            get { return 2; }
+        }
+
         public CuboidHollowDrawOperation( Player player )
             : base( player ) {
         }
