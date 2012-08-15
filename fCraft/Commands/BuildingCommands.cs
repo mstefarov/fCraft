@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using fCraft.Drawing;
 using fCraft.MapConversion;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace fCraft {
@@ -1646,59 +1647,107 @@ namespace fCraft {
                 return;
             }
 
-            string name = cmd.Next();
             string range = cmd.Next();
-            if( name == null || range == null ) {
-                CdUndoPlayer.PrintUsage( player );
-                return;
-            }
-            if( cmd.HasNext ) {
+            if( range == null ) {
                 CdUndoPlayer.PrintUsage( player );
                 return;
             }
 
-            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
-            if( target == null ) return;
-
-            if( player.Info != target && !player.Can( Permission.UndoOthersActions, target.Rank ) ) {
-                player.Message( "You may only undo actions of players ranked {0}&S or lower.",
-                                player.Info.Rank.GetLimit( Permission.UndoOthersActions ).ClassyName );
-                player.Message( "Player {0}&S is ranked {1}", target.ClassyName, target.Rank.ClassyName );
+            int countLimit = 0;
+            TimeSpan ageLimit = TimeSpan.Zero;
+            if( !Int32.TryParse( range, out countLimit ) && !range.TryParseMiniTimespan( out ageLimit ) ) {
+                player.Message( "UndoPlayer: First parameter should be a number or a timespan." );
                 return;
             }
 
-            int count;
-            TimeSpan span;
-            BlockDBEntry[] changes;
-            if( Int32.TryParse( range, out count ) ) {
-                if( !cmd.IsConfirmed ) {
-                    player.Message( "Searching for last {0} changes made by {1}&s...",
-                                    count, target.ClassyName );
+            HashSet<PlayerInfo> targets = new HashSet<PlayerInfo>();
+            bool allPlayers = false;
+            while( cmd.HasNext ) {
+                string name = cmd.Next();
+                if( name == "*" ) {
+                    if( allPlayers ) {
+                        player.Message( "UndoPlayer: \"*\" was listed twice." );
+                        return;
+                    }
+                    allPlayers = true;
+                } else {
+                    PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
+                    if( target == null ) {
+                        return;
+                    }
+                    if( targets.Contains( target ) ) {
+                        player.Message( "UndoPlayer: Player {0}&S was listed twice.", target.ClassyName );
+                        return;
+                    }
+                    if( player.Info != target && !player.Can( Permission.UndoAll ) &&
+                        !player.Can( Permission.UndoOthersActions, target.Rank ) ) {
+                        player.Message( "You may only undo actions of players ranked {0}&S or lower.",
+                                        player.Info.Rank.GetLimit( Permission.UndoOthersActions ).ClassyName );
+                        player.Message( "Player {0}&S is ranked {1}", target.ClassyName, target.Rank.ClassyName );
+                        return;
+                    }
+                    targets.Add( target );
                 }
-                changes = playerWorld.BlockDB.Lookup( target, count );
+            }
+
+            if( targets.Count == 0 && !allPlayers ) {
+                player.Message( "UndoPlayer: Specify at least one player name, or \"*\" to undo everyone." );
+                return;
+            }
+            if( targets.Count > 0 && allPlayers ) {
+                player.Message( "UndoPlayer: Cannot mix player names and \"*\"." );
+                return;
+            }
+            
+            PlayerInfo[] targetArray = targets.ToArray();
+
+            string targetList;
+            if( allPlayers ) {
+                targetList = "everyone";
+            } else {
+                targetList = targetArray.JoinToClassyString();
+            }
+            BlockDBEntry[] changes;
+
+            if( countLimit > 0 ) {
+                if( !cmd.IsConfirmed ) {
+                    player.Message( "Searching for last {0} changes made by {1}&S...",
+                                    countLimit, targetList );
+                }
+                if( targetArray.Length == 0 ) {
+                    changes = playerWorld.BlockDB.Lookup( countLimit );
+                } else {
+                    changes = playerWorld.BlockDB.Lookup( targetArray, countLimit );
+                }
                 if( changes.Length > 0 && !cmd.IsConfirmed ) {
-                    player.Confirm( cmd, "Undo last {0} changes made by player {1}&S?",
-                                    changes.Length, target.ClassyName );
+                    player.Confirm( cmd, "Undo last {0} changes made by {1}&S?",
+                                    changes.Length, targetList );
                     return;
                 }
 
-            } else if( range.TryParseMiniTimespan( out span ) ) {
-                if( span > DateTimeUtil.MaxTimeSpan ) {
+            } else if( ageLimit > TimeSpan.Zero ) {
+                if( ageLimit > DateTimeUtil.MaxTimeSpan ) {
                     player.MessageMaxTimeSpan();
                     return;
                 }
                 if( !cmd.IsConfirmed ) {
-                    player.Message( "Searching for changes made by {0}&s in the last {1}...",
-                                    target.ClassyName, span.ToMiniString() );
+                    player.Message( "Searching for changes made by {0}&S in the last {1}...",
+                                    targetList, ageLimit.ToMiniString() );
                 }
-                changes = playerWorld.BlockDB.Lookup( target, span );
+                if( targetArray.Length == 0 ) {
+                    changes = playerWorld.BlockDB.Lookup( ageLimit );
+                } else {
+                    changes = playerWorld.BlockDB.Lookup( targetArray, ageLimit );
+                }
                 if( changes.Length > 0 && !cmd.IsConfirmed ) {
                     player.Confirm( cmd, "Undo changes ({0}) made by {1}&S in the last {2}?",
-                                    changes.Length, target.ClassyName, span.ToMiniString() );
+                                    changes.Length, targetList, ageLimit.ToMiniString() );
                     return;
                 }
 
             } else {
+                // should never happen
+                player.Message( "UndoPlayer: First parameter should be a number or a timespan." );
                 CdUndoPlayer.PrintUsage( player );
                 return;
             }
@@ -1708,33 +1757,9 @@ namespace fCraft {
                 return;
             }
 
-            BlockChangeContext context = BlockChangeContext.Drawn;
-            if( player.Info == target ) {
-                context |= BlockChangeContext.UndoneSelf;
-            } else {
-                context |= BlockChangeContext.UndoneOther;
-            }
-
-            int blocks = 0,
-                blocksDenied = 0;
-
-            UndoState undoState = player.DrawBegin( null );
-            Map map = player.WorldMap;
-
-            for( int i = 0; i < changes.Length; i++ ) {
-                DrawOneBlock( player, map, changes[i].OldBlock,
-                              changes[i].Coord, context,
-                              ref blocks, ref blocksDenied, undoState );
-            }
-
-            Logger.Log( LogType.UserActivity,
-                        "{0} undid {1} blocks changed by player {2} (on world {3})",
-                        player.Name,
-                        blocks,
-                        target.Name,
-                        playerWorld.Name );
-
-            DrawingFinished( player, "UndoPlayer'ed", blocks, blocksDenied );
+            var op = new UndoPlayerDrawOperation( player, changes );
+            op.Prepare( new Vector3I[0] );
+            op.Begin();
         }
 
         #endregion

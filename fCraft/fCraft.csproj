@@ -201,6 +201,8 @@
     <Compile Include="AutoRank\Criterion.cs" />
     <Compile Include="Commands\ChatCommands.cs" />
     <Compile Include="Drawing\Brushes\ReplaceBrushBrush.cs" />
+    <Compile Include="Drawing\DrawOps\BlockDBDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\UndoPlayerDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\TriangleDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\TriangleWireframeDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\Fill2DDrawOperation.cs" />
