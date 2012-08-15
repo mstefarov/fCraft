@@ -1628,8 +1628,10 @@ namespace fCraft {
             Aliases = new[] { "up", "undox" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.UndoOthersActions },
-            Usage = "/UndoPlayer PlayerName [TimeSpan|BlockCount]",
-            Help = "Reverses changes made by a given player in the current world.",
+            Usage = "/UndoPlayer (TimeSpan|BlockCount) PlayerName [AnotherName]",
+            Help = "Reverses changes made by a given player in the current world. " +
+                   "More than one player name can be given at a time. " +
+                   "Players with UndoAll permission can use '*' in place of player name to undo everyone's changes at once.",
             Handler = UndoPlayerHandler
         };
 
@@ -1637,6 +1639,7 @@ namespace fCraft {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
+            // check the environment
             if( !BlockDB.IsEnabledGlobally ) {
                 player.Message( "&WBlockDB is disabled on this server." );
                 return;
@@ -1706,7 +1709,6 @@ namespace fCraft {
             }
 
             PlayerInfo[] targetArray = targets.ToArray();
-
             string targetList;
             if( allPlayers ) {
                 targetList = "EVERYONE";
@@ -1717,6 +1719,7 @@ namespace fCraft {
             string description;
 
             if( countLimit > 0 ) {
+                // count-limited lookup
                 if( !cmd.IsConfirmed ) {
                     player.Message( "UndoPlayer: Searching for changes..." );
                 }
@@ -1736,6 +1739,7 @@ namespace fCraft {
                 }
 
             } else {
+                // time-limited lookup
                 if( ageLimit > DateTimeUtil.MaxTimeSpan ) {
                     player.MessageMaxTimeSpan();
                     return;
