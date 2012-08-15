@@ -1703,20 +1703,24 @@ namespace fCraft {
 
             string targetList;
             if( allPlayers ) {
-                targetList = "everyone";
+                targetList = "EVERYONE";
             } else {
                 targetList = targetArray.JoinToClassyString();
             }
             BlockDBEntry[] changes;
+            string description;
 
             if( countLimit > 0 ) {
                 if( !cmd.IsConfirmed ) {
-                    player.Message( "Searching for last {0} changes made by {1}&S...",
-                                    countLimit, targetList );
+                    player.Message( "UndoPlayer: Searching for changes..." );
                 }
                 if( targetArray.Length == 0 ) {
+                    description = countLimit.ToString();
                     changes = playerWorld.BlockDB.Lookup( countLimit );
                 } else {
+                    description = String.Format( "{0} by {1}",
+                                                 countLimit,
+                                                 targetArray.JoinToString( p => p.Name ) );
                     changes = playerWorld.BlockDB.Lookup( targetArray, countLimit );
                 }
                 if( changes.Length > 0 && !cmd.IsConfirmed ) {
@@ -1731,12 +1735,15 @@ namespace fCraft {
                     return;
                 }
                 if( !cmd.IsConfirmed ) {
-                    player.Message( "Searching for changes made by {0}&S in the last {1}...",
-                                    targetList, ageLimit.ToMiniString() );
+                    player.Message( "UndoPlayer: Searching for changes..." );
                 }
                 if( targetArray.Length == 0 ) {
+                    description = ageLimit.ToMiniString();
                     changes = playerWorld.BlockDB.Lookup( ageLimit );
                 } else {
+                    description = String.Format( "{0} by {1}",
+                                                 ageLimit.ToMiniString(),
+                                                 targetArray.JoinToString( p => p.Name ) );
                     changes = playerWorld.BlockDB.Lookup( targetArray, ageLimit );
                 }
                 if( changes.Length > 0 && !cmd.IsConfirmed ) {
@@ -1757,8 +1764,9 @@ namespace fCraft {
                 return;
             }
 
-            var op = new UndoPlayerDrawOperation( player, changes );
-            op.Prepare( new Vector3I[0] );
+            var op = new BlockDBDrawOperation( player, "UndoPlayer", 0 );
+            op.UndoParamDescription = description;
+            op.Prepare( new Vector3I[0], changes );
             op.Begin();
         }
 
