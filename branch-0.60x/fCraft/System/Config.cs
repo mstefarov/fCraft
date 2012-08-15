@@ -175,6 +175,8 @@ namespace fCraft {
      * 
      * 158 - r1644 - Added UseTimers and FlushWorlds permissions (previously combined with Say and ManageWorlds permissions)
      * 
+     * 159 - r1650 - Added UndoAll permission
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -185,7 +187,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 158;
+        public const int CurrentVersion = 159;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY
@@ -1052,6 +1054,7 @@ namespace fCraft {
             owner.Add( new XElement( Permission.DrawAdvanced.ToString() ) );
             owner.Add( new XElement( Permission.CopyAndPaste.ToString() ) );
             owner.Add( new XElement( Permission.UndoOthersActions.ToString() ) );
+            owner.Add( new XElement( Permission.UndoAll.ToString() ) );
 
             owner.Add( new XElement( Permission.ReloadConfig.ToString() ) );
             owner.Add( new XElement( Permission.ShutdownServer.ToString() ) );

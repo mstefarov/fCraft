@@ -104,6 +104,9 @@ namespace fCraft {
         /// <summary> Ability to undo actions of other players (UndoArea and UndoPlayer). </summary>
         UndoOthersActions,
 
+        /// <summary> Ability to undo actions of everyone, regardless of limit. </summary>
+        UndoAll,
+
         /// <summary> Ability to teleport to other players. </summary>
         Teleport,
 

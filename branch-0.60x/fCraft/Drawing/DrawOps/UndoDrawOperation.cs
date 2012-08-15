@@ -44,6 +44,7 @@ namespace fCraft.Drawing {
             return true;
         }
 
+
         public override bool Begin() {
             if( !RaiseBeginningEvent( this ) ) return false;
             if( Redo ) {
@@ -57,6 +58,7 @@ namespace fCraft.Drawing {
             RaiseBeganEvent( this );
             return true;
         }
+
 
         int undoBufferIndex;
         Block block;
