@@ -6,13 +6,16 @@ using System.Collections.Generic;
 namespace fCraft.Drawing {
     public sealed class TorusDrawOperation : DrawOperation {
         const float Bias = 0.5f;
-
         Vector3I center;
-
         int tubeR;
         double bigR;
+
         public override string Name {
             get { return "Torus"; }
+        }
+
+        public override int ExpectedMarks {
+            get { return 2; }
         }
 
         public TorusDrawOperation( Player player )

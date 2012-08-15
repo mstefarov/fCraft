@@ -9,6 +9,10 @@ namespace fCraft.Drawing {
             get { return "Line"; }
         }
 
+        public override int ExpectedMarks {
+            get { return 2; }
+        }
+
         public LineDrawOperation( Player player )
             : base( player ) {
         }

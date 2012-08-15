@@ -7,6 +7,10 @@ namespace fCraft.Drawing {
             get { return "Cut"; }
         }
 
+        public override int ExpectedMarks {
+            get { return 2; }
+        }
+
         public override string Description {
             get {
                 var normalBrush = Brush as NormalBrush;

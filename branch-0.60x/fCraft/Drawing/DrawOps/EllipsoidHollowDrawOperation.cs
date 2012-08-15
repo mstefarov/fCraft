@@ -3,9 +3,12 @@ using System;
 
 namespace fCraft.Drawing {
     public class EllipsoidHollowDrawOperation : DrawOperation {
-
         public override string Name {
             get { return "EllipsoidH"; }
+        }
+
+        public override int ExpectedMarks {
+            get { return 2; }
         }
 
         public EllipsoidHollowDrawOperation( Player player )

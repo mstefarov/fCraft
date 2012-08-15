@@ -10,6 +10,10 @@ namespace fCraft.Drawing {
             }
         }
 
+        public override int ExpectedMarks {
+            get { return 2; }
+        }
+
         public override string Description {
             get {
                 if( Blocks == null ) {

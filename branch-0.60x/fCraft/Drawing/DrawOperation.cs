@@ -12,9 +12,7 @@ namespace fCraft.Drawing {
     /// <summary> Abstract class representing a drawing operation. </summary>
     public abstract class DrawOperation {
         /// <summary> Expected number of marks to pass to DrawOperation.Prepare() </summary>
-        public virtual int ExpectedMarks {
-            get { return 2; }
-        }
+        public abstract int ExpectedMarks { get; }
 
         /// <summary> Player who is executing this command.
         /// Used for both permission checks and messaging. </summary>
