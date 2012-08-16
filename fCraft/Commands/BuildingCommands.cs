@@ -1513,8 +1513,6 @@ namespace fCraft {
                 return null;
             }
 
-            player.Message( "{0}: Searching for changes...", cmdName );
-
             // Queue UndoPlayerCallback to run
             return new BlockDBUndoArgs {
                 Player = player,
@@ -1549,7 +1547,7 @@ namespace fCraft {
                     description = args.CountLimit.ToString();
                 } else {
                     description = String.Format( "{0} by {1}",
-                                                 args.AgeLimit.ToMiniString(),
+                                                 args.CountLimit,
                                                  args.Targets.JoinToString( p => p.Name ) );
                 }
             } else {
@@ -1587,8 +1585,10 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.UndoOthersActions },
             RepeatableSelection = true,
-            Usage = "/UndoArea PlayerName [TimeSpan|BlockCount]",
-            Help = "Reverses changes made by a given player in the current world, in the given area.",
+            Usage = "/UndoArea (TimeSpan|BlockCount) PlayerName [AnotherName]",
+            Help = "Reverses changes made by a given player in the current world, in the given area. " +
+                   "More than one player name can be given at a time. " +
+                   "Players with UndoAll permission can use '*' in place of player name to undo everyone's changes at once.",
             Handler = UndoAreaHandler
         };
 
@@ -1598,9 +1598,9 @@ namespace fCraft {
 
             Permission permission;
             if( args.Targets.Length == 0 ) {
-                permission = Permission.UndoOthersActions;
-            } else {
                 permission = Permission.UndoAll;
+            } else {
+                permission = Permission.UndoOthersActions;
             }
             player.SelectionStart( 2, UndoAreaSelectionCallback, args, permission );
             player.MessageNow( "UndoArea: Click or &H/Mark&S 2 blocks." );
@@ -1685,7 +1685,6 @@ namespace fCraft {
         static void UndoPlayerHandler( Player player, CommandReader cmd ) {
             BlockDBUndoArgs args = ParseBlockDBUndoParams( player, cmd, "UndoPlayer" );
             if( args == null ) return;
-
             Scheduler.NewBackgroundTask( UndoPlayerLookup )
                      .RunOnce( args, TimeSpan.Zero );
         }
