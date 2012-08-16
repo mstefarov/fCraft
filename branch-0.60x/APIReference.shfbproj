@@ -15,19 +15,19 @@
     <RootNamespace>Documentation</RootNamespace>
     <Name>Documentation</Name>
     <!-- SHFB properties -->
-    <OutputPath>C:\fCraftHelp\0.61x\</OutputPath>
+    <OutputPath>C:\fCraftHelp\0.630\</OutputPath>
     <HtmlHelpName>Documentation</HtmlHelpName>
     <Language>en-US</Language>
     <HelpFileFormat>Website</HelpFileFormat>
     <DocumentationSources>
       <DocumentationSource sourceFile="fCraft\fCraft.csproj" />
     </DocumentationSources>
-    <HelpTitle>fCraft 0.612 API Reference</HelpTitle>
+    <HelpTitle>fCraft 0.630 API Reference</HelpTitle>
     <NamingMethod>MemberName</NamingMethod>
     <PresentationStyle>hana</PresentationStyle>
     <SyntaxFilters>CSharp</SyntaxFilters>
     <Preliminary>True</Preliminary>
-    <CopyrightText>Copyright 2009, 2010, 2011 Matvei Stefarov &amp;lt%3bme%40matvei.org&amp;gt%3b</CopyrightText>
+    <CopyrightText>Copyright 2009-2012 Matvei Stefarov &amp;lt%3bme%40matvei.org&amp;gt%3b</CopyrightText>
     <CopyrightHref>http://www.fcraft.net</CopyrightHref>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="fCraft" isDocumented="True" xmlns="">fCraft's core functionality.</NamespaceSummaryItem>
