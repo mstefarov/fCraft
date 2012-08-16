@@ -5,8 +5,7 @@ using System.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
-
-    /// <summary> Delegate for command handlers/callbacks. </summary>
+    /// <summary> Represents a method that acts as a handler for a command. </summary>
     /// <param name="source"> Player who called the command. </param>
     /// <param name="cmd"> Command arguments. </param>
     public delegate void CommandHandler( Player source, CommandReader cmd );

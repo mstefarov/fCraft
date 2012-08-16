@@ -11,7 +11,7 @@ using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary> Callback for a player-made selection of one or more blocks on a map.
+    /// <summary> Represents a callback method for a player-made selection of one or more blocks on a map.
     /// A command may request a number of marks/blocks to select, and a specify callback
     /// to be executed when the desired number of marks/blocks is reached. </summary>
     /// <param name="player"> Player who made the selection. </param>
@@ -20,6 +20,10 @@ namespace fCraft {
     /// the value of player.selectionArgs </param>
     public delegate void SelectionCallback( Player player, Vector3I[] marks, object tag );
 
+
+    /// <summary> Represents the method that responds to a confirmation command. </summary>
+    /// <param name="player"> Player who confirmed the action. </param>
+    /// <param name="tag"> Parameter that was passed to Player.Confirm() </param>
     public delegate void ConfirmationCallback( Player player, object tag, bool fromConsole );
 
 

@@ -270,15 +270,16 @@ Affected commands:
             vPermissions.Items[(int)Permission.BanAll].ToolTipText =
 @"Ability to ban/unban a player account, his IP, and all other accounts that used the IP.
 BanAll/UnbanAll commands can be used on players who keep evading bans.
-Required permissions: Ban & BanIP
+Required permissions: Ban, BanIP
 Affected commands:
     /BanAll
     /UnbanAll";
 
             vPermissions.Items[(int)Permission.BanIP].ToolTipText =
-@"Ability to ban/unban players by IP.
+@"Ability to ban/unban players by IP, and control IP-ban exemptions.
 Required permission: Ban
 Affected commands:
+    /BanEx
     /BanIP
     /UnbanIP";
 
@@ -313,9 +314,8 @@ the draw limit.
 Affected commands:
     /Copy
     /Cut
-    /Mirror
-    /Paste, /PasteNot
-    /Rotate";
+    /Mirror and /Rotate
+    /Paste, /PasteNot, /PasteX, and /PasteNotX";
 
             vPermissions.Items[(int)Permission.Delete].ToolTipText =
 @"Ability to delete or replace blocks on maps. This is a baseline permission
@@ -337,17 +337,18 @@ Affected commands:
 @"Ability to use drawing tools (commands capable of affecting many blocks
 at once). This permission can be overridden by world-specific and
 zone-specific permissions.
-Required permission: Build, Delete
+Required permissions: Build, Delete
 Affected commands:
     /Cuboid, /CuboidH, and /CuboidW
     /Ellipsoid and /EllipsoidH
     /Line
+    /Triangle and /TriangleW
     /Replace and /ReplaceNot
     /Undo and /Redo";
 
             vPermissions.Items[(int)Permission.DrawAdvanced].ToolTipText =
 @"Ability to use advanced drawing tools, such as brushes.
-Required permission: Build, Delete, Draw
+Required permissions: Build, Delete, Draw
 Affected commands:
     /Brush
     /ReplaceBrush
@@ -361,11 +362,15 @@ promote/demote players by name, even if they have not visited the server yet.
 Also allows to manipulate players' records, and to promote/demote players in batches.
 Affected commands:
     /PruneDB
-    /AutoRankAll
     /MassRank
     /SetInfo
     /InfoSwap
     /DumpStats";
+
+            vPermissions.Items[(int)Permission.FlushWorlds].ToolTipText =
+@"Ability to flush pending draw commands.
+Affected command:
+    /WFlush";
 
             vPermissions.Items[(int)Permission.Freeze].ToolTipText =
 @"Ability to freeze/unfreeze players. Frozen players cannot
@@ -385,12 +390,12 @@ Affected commands:
             vPermissions.Items[(int)Permission.Import].ToolTipText =
 @"Ability to import rank and ban lists from files. Useful if you
 are switching from another server software.
-Affected commands:
+Affected command:
     /Import";
 
             vPermissions.Items[(int)Permission.Kick].ToolTipText =
 @"Ability to kick players from the server.
-Affected commands:
+Affected command:
     /Kick";
 
             vPermissions.Items[(int)Permission.Lock].ToolTipText =
@@ -408,7 +413,6 @@ Affected commands:
     /WRename
     /WMain
     /WAccess and /WBuild
-    /WFlush
     /Gen";
 
 
@@ -470,26 +474,27 @@ Affected commands:
 
             vPermissions.Items[(int)Permission.Promote].ToolTipText =
 @"Ability to promote players to a higher rank.
-Affected commands:
+Affected command:
     /Rank";
 
             vPermissions.Items[(int)Permission.ReadStaffChat].ToolTipText =
-@"Ability to read staff chat.";
+@"Ability to read staff chat (/Staff messages).
+Note that anyone can write to staff chat.";
 
             vPermissions.Items[(int)Permission.ReloadConfig].ToolTipText =
 @"Ability to reload the configuration file without restarting.
-Affected commands:
+Affected command:
     /Reload";
 
             vPermissions.Items[(int)Permission.Say].ToolTipText =
 @"Ability to use /Say command.
 Required permission: Chat
-Affected commands:
+Affected command:
     /Say";
 
             vPermissions.Items[(int)Permission.SetSpawn].ToolTipText =
 @"Ability to change the spawn point of a world or a player.
-Affected commands:
+Affected command:
     /SetSpawn";
 
             vPermissions.Items[(int)Permission.ShutdownServer].ToolTipText =
@@ -501,13 +506,20 @@ Affected commands:
 
             vPermissions.Items[(int)Permission.Spectate].ToolTipText =
 @"Ability to spectate/follow other players in first-person view.
-Affected commands:
-    /Spectate";
+Affected command:
+    /Spectate
+    /SpecPatrol";
 
             vPermissions.Items[(int)Permission.Teleport].ToolTipText =
 @"Ability to teleport to other players.
-Affected commands:
+Affected command:
     /TP";
+
+            vPermissions.Items[(int)Permission.UndoAll].ToolTipText =
+@"Ability to undo actions of everyone at once, regardless of UndoOthersActions limit.
+Affected commands:
+    /UndoArea
+    /UndoPlayer";
 
             vPermissions.Items[(int)Permission.UndoOthersActions].ToolTipText =
 @"Ability to undo actions of other players, using the BlockDB.
@@ -522,6 +534,11 @@ Affected commands:
 @"Ability to move at a faster-than-normal rate (using hacks).
 WARNING: Speedhack detection is often inaccurate, and may produce many
 false positives - especially on laggy servers.";
+
+            vPermissions.Items[(int)Permission.UseTimers].ToolTipText =
+@"Ability to start or abort chat timers.
+Affected command:
+    /Timer";
 
             vPermissions.Items[(int)Permission.ViewOthersInfo].ToolTipText =
 @"Ability to view extended information about other players.
