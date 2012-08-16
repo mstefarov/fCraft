@@ -1425,235 +1425,40 @@ namespace fCraft {
             public TimeSpan AgeLimit;
             public BlockDBEntry[] Entries;
             public BoundingBox Area;
-            public bool Confirmed;
         }
 
 
-        static readonly CommandDescriptor CdUndoArea = new CommandDescriptor {
-            Name = "UndoArea",
-            Aliases = new[] { "ua" },
-            Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.UndoOthersActions },
-            RepeatableSelection = true,
-            Usage = "/UndoArea PlayerName [TimeSpan|BlockCount]",
-            Help = "Reverses changes made by a given player in the current world, in the given area.",
-            Handler = UndoAreaHandler
-        };
-
-        static void UndoAreaHandler( Player player, CommandReader cmd ) {
-            World playerWorld = player.World;
-            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
-
-            if( !BlockDB.IsEnabledGlobally ) {
-                player.Message( "&WBlockDB is disabled on this server." );
-                return;
-            }
-
-            if( !playerWorld.BlockDB.IsEnabled ) {
-                player.Message( "&WBlockDB is disabled in this world." );
-                return;
-            }
-
-            string name = cmd.Next();
-            string range = cmd.Next();
-            if( name == null || range == null ) {
-                CdUndoArea.PrintUsage( player );
-                return;
-            }
-            if( cmd.HasNext ) {
-                CdUndoArea.PrintUsage( player );
-                return;
-            }
-
-            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
-            if( target == null ) return;
-
-            if( player.Info != target && !player.Can( Permission.UndoOthersActions, target.Rank ) ) {
-                player.Message( "You may only undo actions of players ranked {0}&S or lower.",
-                                player.Info.Rank.GetLimit( Permission.UndoOthersActions ).ClassyName );
-                player.Message( "Player {0}&S is ranked {1}", target.ClassyName, target.Rank.ClassyName );
-                return;
-            }
-
-            int count;
-            TimeSpan span;
-            if( Int32.TryParse( range, out count ) ) {
-                UndoAreaCountArgs args = new UndoAreaCountArgs {
-                    Target = target,
-                    World = playerWorld,
-                    MaxBlocks = count
-                };
-                player.SelectionStart( 2, UndoAreaCountSelectionCallback, args, Permission.UndoOthersActions );
-
-            } else if( range.TryParseMiniTimespan( out span ) ) {
-                if( span > DateTimeUtil.MaxTimeSpan ) {
-                    player.MessageMaxTimeSpan();
-                    return;
-                }
-                UndoAreaTimeArgs args = new UndoAreaTimeArgs {
-                    Target = target,
-                    Time = span,
-                    World = playerWorld
-                };
-                player.SelectionStart( 2, UndoAreaTimeSelectionCallback, args, Permission.UndoOthersActions );
-
-            } else {
-                CdUndoArea.PrintUsage( player );
-                return;
-            }
-
-            player.MessageNow( "UndoArea: Click or &H/Mark&S 2 blocks." );
-        }
-
-
-        static void UndoAreaCountSelectionCallback( Player player, Vector3I[] marks, object tag ) {
-            World playerWorld = player.World;
-            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
-
-            UndoAreaCountArgs args = (UndoAreaCountArgs)tag;
-            args.World = playerWorld;
-            args.Area = new BoundingBox( marks[0], marks[1] );
-            BlockDBEntry[] changes = playerWorld.BlockDB.Lookup( args.Target, args.Area, args.MaxBlocks );
-            if( changes.Length > 0 ) {
-                player.Confirm( UndoAreaCountConfirmCallback, args,
-                                "Undo last {0} changes made by player {1}&S in this area?",
-                                changes.Length, args.Target.ClassyName );
-            } else {
-                player.Message( "UndoArea: Nothing to undo in this area." );
-            }
-        }
-
-
-        static void UndoAreaTimeSelectionCallback( Player player, Vector3I[] marks, object tag ) {
-            World playerWorld = player.World;
-            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
-
-            UndoAreaTimeArgs args = (UndoAreaTimeArgs)tag;
-            args.World = playerWorld;
-            args.Area = new BoundingBox( marks[0], marks[1] );
-            BlockDBEntry[] changes = playerWorld.BlockDB.Lookup( args.Target, args.Area, args.Time );
-            if( changes.Length > 0 ) {
-                player.Confirm( UndoAreaTimeConfirmCallback, args,
-                                "Undo changes ({0}) made by {1}&S in this area in the last {2}?",
-                                changes.Length, args.Target.ClassyName, args.Time.ToMiniString() );
-            } else {
-                player.Message( "UndoArea: Nothing to undo in this area." );
-            }
-        }
-
-
-        static void UndoAreaCountConfirmCallback( Player player, object tag, bool fromConsole ) {
-            UndoAreaCountArgs args = (UndoAreaCountArgs)tag;
-            BlockDBEntry[] changes = args.World.BlockDB.Lookup( args.Target, args.Area, args.MaxBlocks );
-
-            BlockChangeContext context = BlockChangeContext.Drawn;
-            if( player.Info == args.Target ) {
-                context |= BlockChangeContext.UndoneSelf;
-            } else {
-                context |= BlockChangeContext.UndoneOther;
-            }
-
-            int blocks = 0,
-                blocksDenied = 0;
-
-            UndoState undoState = player.DrawBegin( null );
-            Map map = player.WorldMap;
-
-            for( int i = 0; i < changes.Length; i++ ) {
-                DrawOneBlock( player, map, changes[i].OldBlock,
-                              changes[i].Coord, context,
-                              ref blocks, ref blocksDenied, undoState );
-            }
-
-            Logger.Log( LogType.UserActivity,
-                        "{0} undid {1} blocks changed by player {2} (in a selection on world {3})",
-                        player.Name,
-                        blocks,
-                        args.Target.Name,
-                        args.World.Name );
-
-            DrawingFinished( player, "UndoArea'd", blocks, blocksDenied );
-        }
-
-
-        static void UndoAreaTimeConfirmCallback( Player player, object tag, bool fromConsole ) {
-            UndoAreaTimeArgs args = (UndoAreaTimeArgs)tag;
-            BlockDBEntry[] changes = args.World.BlockDB.Lookup( args.Target, args.Area, args.Time );
-
-            BlockChangeContext context = BlockChangeContext.Drawn;
-            if( player.Info == args.Target ) {
-                context |= BlockChangeContext.UndoneSelf;
-            } else {
-                context |= BlockChangeContext.UndoneOther;
-            }
-
-            int blocks = 0,
-                blocksDenied = 0;
-
-            UndoState undoState = player.DrawBegin( null );
-            Map map = player.WorldMap;
-
-            for( int i = 0; i < changes.Length; i++ ) {
-                DrawOneBlock( player, map, changes[i].OldBlock,
-                              changes[i].Coord, context,
-                              ref blocks, ref blocksDenied, undoState );
-            }
-
-            Logger.Log( LogType.UserActivity,
-                        "{0} undid {1} blocks changed by player {2} (in a selection on world {3})",
-                        player.Name,
-                        blocks,
-                        args.Target.Name,
-                        args.World.Name );
-
-            DrawingFinished( player, "UndoArea'd", blocks, blocksDenied );
-        }
-
-
-
-        static readonly CommandDescriptor CdUndoPlayer = new CommandDescriptor {
-            Name = "UndoPlayer",
-            Aliases = new[] { "up", "undox" },
-            Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.UndoOthersActions },
-            Usage = "/UndoPlayer (TimeSpan|BlockCount) PlayerName [AnotherName]",
-            Help = "Reverses changes made by a given player in the current world. " +
-                   "More than one player name can be given at a time. " +
-                   "Players with UndoAll permission can use '*' in place of player name to undo everyone's changes at once.",
-            Handler = UndoPlayerHandler
-        };
-
-        // Parses command parameters, and queues UndoPlayerCallback to run.
-        static void UndoPlayerHandler( Player player, CommandReader cmd ) {
+        // parses and checks command parameters (for both UndoPlayer and UndoArea)
+        static BlockDBUndoArgs ParseBlockDBUndoParams( Player player, CommandReader cmd, string cmdName ) {
             // check if command's being called by a worldless player (e.g. console)
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
             // ensure that BlockDB is enabled
             if( !BlockDB.IsEnabledGlobally ) {
-                player.Message( "&WBlockDB is disabled on this server." );
-                return;
+                player.Message( "&W{0}: BlockDB is disabled on this server.", cmdName );
+                return null;
             }
             if( !playerWorld.BlockDB.IsEnabled ) {
-                player.Message( "&WBlockDB is disabled in this world." );
-                return;
+                player.Message( "&W{0}: BlockDB is disabled in this world.", cmdName );
+                return null;
             }
 
             // parse the first parameter - either numeric or time limit
             string range = cmd.Next();
             if( range == null ) {
                 CdUndoPlayer.PrintUsage( player );
-                return;
+                return null;
             }
             int countLimit = 0;
             TimeSpan ageLimit = TimeSpan.Zero;
             if( !Int32.TryParse( range, out countLimit ) && !range.TryParseMiniTimespan( out ageLimit ) ) {
-                player.Message( "UndoPlayer: First parameter should be a number or a timespan." );
-                return;
+                player.Message( "{0}: First parameter should be a number or a timespan.", cmdName );
+                return null;
             }
             if( ageLimit > DateTimeUtil.MaxTimeSpan ) {
                 player.MessageMaxTimeSpan();
-                return;
+                return null;
             }
 
             // parse second and consequent parameters (player names)
@@ -1664,8 +1469,8 @@ namespace fCraft {
                 if( name == "*" ) {
                     // all players
                     if( allPlayers ) {
-                        player.Message( "UndoPlayer: \"*\" was listed twice." );
-                        return;
+                        player.Message( "{0}: \"*\" was listed twice.", cmdName );
+                        return null;
                     }
                     allPlayers = true;
 
@@ -1673,42 +1478,45 @@ namespace fCraft {
                     // individual player
                     PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
                     if( target == null ) {
-                        return;
+                        return null;
                     }
                     if( targets.Contains( target ) ) {
-                        player.Message( "UndoPlayer: Player {0}&S was listed twice.", target.ClassyName );
-                        return;
+                        player.Message( "{0}: Player {1}&S was listed twice.",
+                                        target.ClassyName, cmdName );
+                        return null;
                     }
                     // make sure player has the permission
                     if( player.Info != target && !player.Can( Permission.UndoAll ) &&
                         !player.Can( Permission.UndoOthersActions, target.Rank ) ) {
-                        player.Message( "You may only undo actions of players ranked {0}&S or lower.",
+                        player.Message( "&W{0}: You may only undo actions of players ranked {1}&S or lower.",
+                                        cmdName,
                                         player.Info.Rank.GetLimit( Permission.UndoOthersActions ).ClassyName );
-                        player.Message( "Player {0}&S is ranked {1}", target.ClassyName, target.Rank.ClassyName );
-                        return;
+                        player.Message( "Player {0}&S is ranked {1}",
+                                        target.ClassyName, target.Rank.ClassyName );
+                        return null;
                     }
                     targets.Add( target );
                 }
             }
             if( targets.Count == 0 && !allPlayers ) {
-                player.Message( "UndoPlayer: Specify at least one player name, or \"*\" to undo everyone." );
-                return;
+                player.Message( "{0}: Specify at least one player name, or \"*\" to undo everyone.", cmdName );
+                return null;
             }
             if( targets.Count > 0 && allPlayers ) {
-                player.Message( "UndoPlayer: Cannot mix player names and \"*\"." );
-                return;
+                player.Message( "{0}: Cannot mix player names and \"*\".", cmdName );
+                return null;
             }
 
             // undoing everyone ('*' in place of player name) requires UndoAll permission
             if( allPlayers && !player.Can( Permission.UndoAll ) ) {
                 player.MessageNoAccess( Permission.UndoAll );
-                return;
+                return null;
             }
 
-            player.Message( "UndoPlayer: Searching for changes..." );
+            player.Message( "{0}: Searching for changes...", cmdName );
 
             // Queue UndoPlayerCallback to run
-            BlockDBUndoArgs args = new BlockDBUndoArgs {
+            return new BlockDBUndoArgs {
                 Player = player,
                 AgeLimit = ageLimit,
                 CountLimit = countLimit,
@@ -1716,64 +1524,23 @@ namespace fCraft {
                 World = playerWorld,
                 Targets = targets.ToArray()
             };
-            Scheduler.NewBackgroundTask( UndoPlayerCallback )
-                     .RunOnce( args, TimeSpan.Zero );
+
         }
 
 
-        // Looks up the changes in BlockDB and prints a confirmation prompt. Runs on a background thread.
-        static void UndoPlayerCallback( SchedulerTask task ) {
-            BlockDBUndoArgs args = (BlockDBUndoArgs)task.UserState;
-            bool allPlayers = (args.Targets.Length == 0);
-
-            // prepare to look up
-            string targetList;
-            if( allPlayers ) {
-                targetList = "EVERYONE";
-            } else {
-                targetList = args.Targets.JoinToClassyString();
-            }
-            BlockDBEntry[] changes;
-
-            if( args.CountLimit > 0 ) {
-                // count-limited lookup
-                if( args.Targets.Length == 0 ) {
-                    changes = args.World.BlockDB.Lookup( args.CountLimit );
-                } else {
-                    changes = args.World.BlockDB.Lookup( args.Targets, args.CountLimit );
-                }
-                if( changes.Length > 0 ) {
-                    args.Player.Confirm( UndoPlayerConfirmCallback, args,
-                                         "Undo last {0} changes made by {1}&S?",
-                                         changes.Length, targetList );
-                }
-
-            } else {
-                // time-limited lookup
-                if( args.Targets.Length == 0 ) {
-                    changes = args.World.BlockDB.Lookup( args.AgeLimit );
-                } else {
-                    changes = args.World.BlockDB.Lookup( args.Targets, args.AgeLimit );
-                }
-                if( changes.Length > 0 ) {
-                    args.Player.Confirm( UndoPlayerConfirmCallback, args,
-                                         "Undo changes ({0}) made by {1}&S in the last {2}?",
-                                         changes.Length, targetList, args.AgeLimit.ToMiniString() );
-                }
-            }
-
-            // stop if there's nothing to undo
-            if( changes.Length == 0 ) {
-                args.Player.Message( "UndoPlayer: Found nothing to undo." );
-            } else {
-                args.Entries = changes;
-            }
-        }
-
-
-        // called after player types "/ok" to /UndoArea's confirmation prompt.
-        static void UndoPlayerConfirmCallback( Player player, object tag, bool fromConsole ) {
+        // called after player types "/ok" to the confirmation prompt.
+        static void BlockDBUndoConfirmCallback( Player player, object tag, bool fromConsole ) {
             BlockDBUndoArgs args = (BlockDBUndoArgs)tag;
+            bool undoArea = (args.Area == null);
+            string cmdName = (undoArea ? "UndoArea" : "UndoPlayer");
+
+            // Produce 
+            Vector3I[] coords;
+            if( undoArea ) {
+                coords = new[] { args.Area.MinVertex, args.Area.MaxVertex };
+            } else {
+                coords = new Vector3I[0];
+            }
 
             // Produce a brief param description for BlockDBDrawOperation
             string description;
@@ -1796,11 +1563,12 @@ namespace fCraft {
             }
 
             // start undoing (using DrawOperation infrastructure)
-            var op = new BlockDBDrawOperation( player, "UndoPlayer", description, 0 );
-            op.Prepare( new Vector3I[0], args.Entries );
+            var op = new BlockDBDrawOperation( player, cmdName, description, coords.Length );
+            op.Prepare( coords, args.Entries );
 
             Logger.Log( LogType.UserActivity,
-                        "UndoPlayer: Player {0} will undo {1} changes (limit of {2}) by {3} on world {4}",
+                        "{0}: Player {1} will undo {2} changes (limit of {3}) by {4} on world {5}",
+                        cmdName,
                         player.Name,
                         args.Entries.Length,
                         args.CountLimit == 0 ? args.AgeLimit.ToMiniString() : args.CountLimit.ToString(),
@@ -1809,6 +1577,170 @@ namespace fCraft {
 
             op.Begin();
         }
+
+
+        #region UndoArea
+
+        static readonly CommandDescriptor CdUndoArea = new CommandDescriptor {
+            Name = "UndoArea",
+            Aliases = new[] { "ua" },
+            Category = CommandCategory.Moderation,
+            Permissions = new[] { Permission.UndoOthersActions },
+            RepeatableSelection = true,
+            Usage = "/UndoArea PlayerName [TimeSpan|BlockCount]",
+            Help = "Reverses changes made by a given player in the current world, in the given area.",
+            Handler = UndoAreaHandler
+        };
+
+        static void UndoAreaHandler( Player player, CommandReader cmd ) {
+            BlockDBUndoArgs args = ParseBlockDBUndoParams( player, cmd, "UndoArea" );
+            if( args == null ) return;
+
+            Permission permission;
+            if( args.Targets.Length == 0 ) {
+                permission = Permission.UndoOthersActions;
+            } else {
+                permission = Permission.UndoAll;
+            }
+            player.SelectionStart( 2, UndoAreaSelectionCallback, args, permission );
+            player.MessageNow( "UndoArea: Click or &H/Mark&S 2 blocks." );
+        }
+
+
+        // Queues UndoAreaLookup to run in the background
+        static void UndoAreaSelectionCallback( Player player, Vector3I[] marks, object tag ) {
+            BlockDBUndoArgs args = (BlockDBUndoArgs)tag;
+            args.Area = new BoundingBox( marks[0], marks[1] );
+            Scheduler.NewBackgroundTask( UndoAreaLookup )
+                     .RunOnce( args, TimeSpan.Zero );
+        }
+
+
+        // Looks up the changes in BlockDB and prints a confirmation prompt. Runs on a background thread.
+        static void UndoAreaLookup( SchedulerTask task ) {
+            BlockDBUndoArgs args = (BlockDBUndoArgs)task.UserState;
+            bool allPlayers = (args.Targets.Length == 0);
+
+            // prepare to look up
+            string targetList;
+            if( allPlayers ) {
+                targetList = "EVERYONE";
+            } else {
+                targetList = args.Targets.JoinToClassyString();
+            }
+            BlockDBEntry[] changes;
+
+            if( args.CountLimit > 0 ) {
+                // count-limited lookup
+                if( args.Targets.Length == 0 ) {
+                    changes = args.World.BlockDB.Lookup( args.Area, args.CountLimit );
+                } else {
+                    changes = args.World.BlockDB.Lookup( args.Area, args.Targets, args.CountLimit );
+                }
+                if( changes.Length > 0 ) {
+                    args.Player.Confirm( BlockDBUndoConfirmCallback, args,
+                                         "Undo last {0} changes made here by {1}&S?",
+                                         changes.Length, targetList );
+                }
+
+            } else {
+                // time-limited lookup
+                if( args.Targets.Length == 0 ) {
+                    changes = args.World.BlockDB.Lookup( args.Area, args.AgeLimit );
+                } else {
+                    changes = args.World.BlockDB.Lookup( args.Area, args.Targets, args.AgeLimit );
+                }
+                if( changes.Length > 0 ) {
+                    args.Player.Confirm( BlockDBUndoConfirmCallback, args,
+                                         "Undo changes ({0}) made here by {1}&S in the last {2}?",
+                                         changes.Length, targetList, args.AgeLimit.ToMiniString() );
+                }
+            }
+
+            // stop if there's nothing to undo
+            if( changes.Length == 0 ) {
+                args.Player.Message( "UndoArea: Found nothing to undo." );
+            } else {
+                args.Entries = changes;
+            }
+        }
+
+        #endregion
+
+
+        #region UndoPlayer
+
+        static readonly CommandDescriptor CdUndoPlayer = new CommandDescriptor {
+            Name = "UndoPlayer",
+            Aliases = new[] { "up", "undox" },
+            Category = CommandCategory.Moderation,
+            Permissions = new[] { Permission.UndoOthersActions },
+            Usage = "/UndoPlayer (TimeSpan|BlockCount) PlayerName [AnotherName]",
+            Help = "Reverses changes made by a given player in the current world. " +
+                   "More than one player name can be given at a time. " +
+                   "Players with UndoAll permission can use '*' in place of player name to undo everyone's changes at once.",
+            Handler = UndoPlayerHandler
+        };
+
+        static void UndoPlayerHandler( Player player, CommandReader cmd ) {
+            BlockDBUndoArgs args = ParseBlockDBUndoParams( player, cmd, "UndoPlayer" );
+            if( args == null ) return;
+
+            Scheduler.NewBackgroundTask( UndoPlayerLookup )
+                     .RunOnce( args, TimeSpan.Zero );
+        }
+
+
+        // Looks up the changes in BlockDB and prints a confirmation prompt. Runs on a background thread.
+        static void UndoPlayerLookup( SchedulerTask task ) {
+            BlockDBUndoArgs args = (BlockDBUndoArgs)task.UserState;
+            bool allPlayers = (args.Targets.Length == 0);
+
+            // prepare to look up
+            string targetList;
+            if( allPlayers ) {
+                targetList = "EVERYONE";
+            } else {
+                targetList = args.Targets.JoinToClassyString();
+            }
+            BlockDBEntry[] changes;
+
+            if( args.CountLimit > 0 ) {
+                // count-limited lookup
+                if( args.Targets.Length == 0 ) {
+                    changes = args.World.BlockDB.Lookup( args.CountLimit );
+                } else {
+                    changes = args.World.BlockDB.Lookup( args.Targets, args.CountLimit );
+                }
+                if( changes.Length > 0 ) {
+                    args.Player.Confirm( BlockDBUndoConfirmCallback, args,
+                                         "Undo last {0} changes made by {1}&S?",
+                                         changes.Length, targetList );
+                }
+
+            } else {
+                // time-limited lookup
+                if( args.Targets.Length == 0 ) {
+                    changes = args.World.BlockDB.Lookup( args.AgeLimit );
+                } else {
+                    changes = args.World.BlockDB.Lookup( args.Targets, args.AgeLimit );
+                }
+                if( changes.Length > 0 ) {
+                    args.Player.Confirm( BlockDBUndoConfirmCallback, args,
+                                         "Undo changes ({0}) made by {1}&S in the last {2}?",
+                                         changes.Length, targetList, args.AgeLimit.ToMiniString() );
+                }
+            }
+
+            // stop if there's nothing to undo
+            if( changes.Length == 0 ) {
+                args.Player.Message( "UndoPlayer: Found nothing to undo." );
+            } else {
+                args.Entries = changes;
+            }
+        }
+
+        #endregion
 
         #endregion
 
