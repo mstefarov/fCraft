@@ -609,6 +609,88 @@ namespace fCraft {
         }
 
 
+        public BlockDBEntry[] Lookup( [NotNull] BoundingBox area, int max ) {
+            if( !IsEnabled || !IsEnabledGlobally ) {
+                throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
+            }
+            if( area == null ) throw new ArgumentNullException( "area" );
+            Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
+            int count = 0;
+            Map map = World.LoadMap();
+
+            if( isPreloaded ) {
+                lock( SyncRoot ) {
+                    fixed( BlockDBEntry* entries = cacheStore ) {
+                        for( int i = CacheSize - 1; i >= 0; i-- ) {
+                            if( area.Contains( entries[i].X, entries[i].Y, entries[i].Z ) ) {
+                                int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                results[index] = entries[i];
+                                count++;
+                                if( count >= max ) break;
+                            }
+                        }
+                    }
+                }
+            } else {
+                Flush();
+                byte[] bytes = Load();
+                int entryCount = bytes.Length / BlockDBEntry.Size;
+                fixed( byte* parr = bytes ) {
+                    BlockDBEntry* entries = (BlockDBEntry*)parr;
+                    for( int i = entryCount - 1; i >= 0; i-- ) {
+                        if( area.Contains( entries[i].X, entries[i].Y, entries[i].Z ) ) {
+                            int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                            results[index] = entries[i];
+                            count++;
+                            if( count >= max ) break;
+                        }
+                    }
+                }
+            }
+            return results.Values.ToArray();
+        }
+
+
+        public BlockDBEntry[] Lookup( [NotNull] BoundingBox area, TimeSpan span ) {
+            if( !IsEnabled || !IsEnabledGlobally ) {
+                throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
+            }
+            if( area == null ) throw new ArgumentNullException( "area" );
+            long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
+            Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
+            Map map = World.LoadMap();
+
+            if( isPreloaded ) {
+                lock( SyncRoot ) {
+                    fixed( BlockDBEntry* entries = cacheStore ) {
+                        for( int i = CacheSize - 1; i >= 0; i-- ) {
+                            if( entries[i].Timestamp < ticks ) break;
+                            if( area.Contains( entries[i].X, entries[i].Y, entries[i].Z ) ) {
+                                int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                results[index] = entries[i];
+                            }
+                        }
+                    }
+                }
+            } else {
+                Flush();
+                byte[] bytes = Load();
+                int entryCount = bytes.Length / BlockDBEntry.Size;
+                fixed( byte* parr = bytes ) {
+                    BlockDBEntry* entries = (BlockDBEntry*)parr;
+                    for( int i = entryCount - 1; i >= 0; i-- ) {
+                        if( entries[i].Timestamp < ticks ) break;
+                        if( area.Contains( entries[i].X, entries[i].Y, entries[i].Z ) ) {
+                            int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                            results[index] = entries[i];
+                        }
+                    }
+                }
+            }
+            return results.Values.ToArray();
+        }
+
+
         public BlockDBEntry[] Lookup( [NotNull] PlayerInfo info, int max ) {
             if( !IsEnabled || !IsEnabledGlobally ) {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
@@ -694,7 +776,7 @@ namespace fCraft {
             if( !IsEnabled || !IsEnabledGlobally ) {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
             }
-            if( infos == null ) throw new ArgumentNullException( "info" );
+            if( infos == null ) throw new ArgumentNullException( "infos" );
             if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "info" );
             if( infos.Length == 1 ) return Lookup( infos[0], max );
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
@@ -742,7 +824,7 @@ namespace fCraft {
             if( !IsEnabled || !IsEnabledGlobally ) {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
             }
-            if( infos == null ) throw new ArgumentNullException( "info" );
+            if( infos == null ) throw new ArgumentNullException( "infos" );
             if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "info" );
             if( infos.Length == 1 ) return Lookup( infos[0], span );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
@@ -783,7 +865,7 @@ namespace fCraft {
         }
 
 
-        public BlockDBEntry[] Lookup( [NotNull] PlayerInfo info, [NotNull] BoundingBox area, int max ) {
+        public BlockDBEntry[] Lookup( [NotNull] BoundingBox area, [NotNull] PlayerInfo info, int max ) {
             if( !IsEnabled || !IsEnabledGlobally ) {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
             }
@@ -826,7 +908,7 @@ namespace fCraft {
         }
 
 
-        public BlockDBEntry[] Lookup( [NotNull] PlayerInfo info, [NotNull] BoundingBox area, TimeSpan span ) {
+        public BlockDBEntry[] Lookup( [NotNull] BoundingBox area, [NotNull] PlayerInfo info, TimeSpan span ) {
             if( !IsEnabled || !IsEnabledGlobally ) {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
             }
@@ -859,6 +941,105 @@ namespace fCraft {
                         if( entries[i].PlayerID == info.ID && area.Contains( entries[i].X, entries[i].Y, entries[i].Z ) ) {
                             int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
                             results[index] = entries[i];
+                        }
+                    }
+                }
+            }
+            return results.Values.ToArray();
+        }
+
+
+        public BlockDBEntry[] Lookup( [NotNull] BoundingBox area, [NotNull] PlayerInfo[] infos, int max ) {
+            if( !IsEnabled || !IsEnabledGlobally ) {
+                throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
+            }
+            if( infos == null ) throw new ArgumentNullException( "infos" );
+            if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "info" );
+            if( infos.Length == 1 ) return Lookup( area, infos[0], max );
+            if( area == null ) throw new ArgumentNullException( "area" );
+            Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
+            int count = 0;
+            Map map = World.LoadMap();
+
+            if( isPreloaded ) {
+                lock( SyncRoot ) {
+                    fixed( BlockDBEntry* entries = cacheStore ) {
+                        for( int i = CacheSize - 1; i >= 0 && count >= max; i-- ) {
+                            for( int j = 0; j < infos.Length; j++ ) {
+                                if( entries[i].PlayerID == infos[j].ID && area.Contains( entries[i].X, entries[i].Y, entries[i].Z ) ) {
+                                    int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                    results[index] = entries[i];
+                                    count++;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                Flush();
+                byte[] bytes = Load();
+                int entryCount = bytes.Length / BlockDBEntry.Size;
+                fixed( byte* parr = bytes ) {
+                    BlockDBEntry* entries = (BlockDBEntry*)parr;
+                    for( int i = entryCount - 1; i >= 0 && count >= max; i-- ) {
+                        if( !area.Contains( entries[i].X, entries[i].Y, entries[i].Z ) ) continue;
+                        for( int j = 0; j < infos.Length; j++ ) {
+                            if( entries[i].PlayerID == infos[j].ID ) {
+                                int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                results[index] = entries[i];
+                                count++;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            return results.Values.ToArray();
+        }
+
+
+        public BlockDBEntry[] Lookup( [NotNull] BoundingBox area, [NotNull] PlayerInfo[] infos, TimeSpan span ) {
+            if( !IsEnabled || !IsEnabledGlobally ) {
+                throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
+            }
+            if( infos == null ) throw new ArgumentNullException( "infos" );
+            if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "info" );
+            if( infos.Length == 1 ) return Lookup( area, infos[0], span );
+            if( area == null ) throw new ArgumentNullException( "area" );
+            long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
+            Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
+            Map map = World.LoadMap();
+
+            if( isPreloaded ) {
+                lock( SyncRoot ) {
+                    fixed( BlockDBEntry* entries = cacheStore ) {
+                        for( int i = CacheSize - 1; i >= 0 && entries[i].Timestamp < ticks; i-- ) {
+                            if( area.Contains( entries[i].X, entries[i].Y, entries[i].Z ) ) continue;
+                            for( int j = 0; j < infos.Length; j++ ) {
+                                if( entries[i].PlayerID == infos[j].ID  ) {
+                                    int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                    results[index] = entries[i];
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                Flush();
+                byte[] bytes = Load();
+                int entryCount = bytes.Length / BlockDBEntry.Size;
+                fixed( byte* parr = bytes ) {
+                    BlockDBEntry* entries = (BlockDBEntry*)parr;
+                    for( int i = entryCount - 1; i >= 0 && entries[i].Timestamp < ticks; i-- ) {
+                        if( !area.Contains( entries[i].X, entries[i].Y, entries[i].Z ) ) continue;
+                        for( int j = 0; j < infos.Length; j++ ) {
+                            if( entries[i].PlayerID == infos[j].ID ) {
+                                int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                results[index] = entries[i];
+                                break;
+                            }
                         }
                     }
                 }
