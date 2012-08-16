@@ -261,6 +261,8 @@ namespace fCraft {
     }
 
 
+    /// <summary> Represents the method that is called when a SchedulerTask is executed. </summary>
+    /// <param name="task"> SchedulerTask associated with the task that was called. </param>
     public delegate void SchedulerCallback( [NotNull] SchedulerTask task );
 
 

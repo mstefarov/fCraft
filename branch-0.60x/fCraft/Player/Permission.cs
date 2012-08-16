@@ -74,8 +74,7 @@ namespace fCraft {
         BanIP,
 
         /// <summary> Ability to ban/unban a player account, his IP, and all other
-        /// accounts that used the IP. BanAll/UnbanAll commands can be used
-        /// on players who keep evading bans. </summary>
+        /// accounts that used the IP. </summary>
         BanAll,
 
         /// <summary> Ability to promote players to a higher rank. </summary>
@@ -104,7 +103,7 @@ namespace fCraft {
         /// <summary> Ability to undo actions of other players (UndoArea and UndoPlayer). </summary>
         UndoOthersActions,
 
-        /// <summary> Ability to undo actions of everyone, regardless of limit. </summary>
+        /// <summary> Ability to undo actions of everyone at once, regardless of UndoOthersActions limit. </summary>
         UndoAll,
 
         /// <summary> Ability to teleport to other players. </summary>
