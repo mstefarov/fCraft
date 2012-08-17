@@ -550,7 +550,7 @@ namespace fCraft {
                         return false;
                     }
                     if( shutdownTimer != null ) {
-                        shutdownTimer.Stop();
+                        shutdownTimer.Abort();
                         shutdownTimer = null;
                     }
                     ShutdownWaiter.Set();

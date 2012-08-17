@@ -14,6 +14,8 @@ namespace fCraft {
 
         public bool IsRunning { get; private set; }
 
+        public bool Aborted { get; private set; }
+
         [CanBeNull]
         public string Message { get; private set; }
 
@@ -65,6 +67,7 @@ namespace fCraft {
                                oneSecondRepeats );
         }
 
+
         static void TimerCallback( [NotNull] SchedulerTask task ) {
             if( task == null ) throw new ArgumentNullException( "task" );
             ChatTimer timer = (ChatTimer)task.UserState;
@@ -74,7 +77,7 @@ namespace fCraft {
                 } else {
                     Chat.SendSay( Player.Console, "(Timer Up) " + timer.Message );
                 }
-                timer.Stop();
+                timer.Stop( false );
 
             } else if( timer.announceIntervalIndex >= 0 ) {
                 if( timer.lastHourAnnounced != (int)timer.TimeLeft.TotalHours ) {
@@ -88,6 +91,7 @@ namespace fCraft {
             }
         }
 
+
         void Announce( TimeSpan timeLeft ) {
             if( String.IsNullOrEmpty( Message ) ) {
                 Chat.SendSay( Player.Console, "(Timer) " + timeLeft.ToMiniString() );
@@ -99,10 +103,17 @@ namespace fCraft {
             }
         }
 
-        public void Stop() {
+
+        public void Abort() {
+            Stop( true );
+        }
+
+        void Stop( bool aborted ) {
+            Aborted = aborted;
             IsRunning = false;
             task.Stop();
             RemoveTimerFromList( this );
+            RaiseStoppedEvent( this );
         }
 
 
@@ -113,7 +124,9 @@ namespace fCraft {
             if( duration < MinDuration ) {
                 throw new ArgumentException( "Timer duration should be at least 1s", "duration" );
             }
-            return new ChatTimer( duration, message, startedBy );
+            ChatTimer newTimer = new ChatTimer( duration, message, startedBy );
+            RaiseStartedEvent( newTimer );
+            return newTimer;
         }
 
         static readonly TimeSpan[] AnnounceIntervals = new[] {
@@ -180,5 +193,32 @@ namespace fCraft {
         }
 
         #endregion
+
+
+        /// <summary> Occurs after a ChatTimer was added. </summary>
+        public static event EventHandler<ChatTimerEventArgs> Started;
+
+
+        /// <summary> Occurs after a ChatTimer has expired or was aborted. </summary>
+        public static event EventHandler<ChatTimerEventArgs> Stopped;
+
+
+        static void RaiseStartedEvent( ChatTimer timer ) {
+            var h = Started;
+            if( h != null ) h( null, new ChatTimerEventArgs( timer ) );
+        }
+
+        static void RaiseStoppedEvent( ChatTimer timer ) {
+            var h = Stopped;
+            if( h != null ) h( null, new ChatTimerEventArgs( timer ) );
+        }
+    }
+
+
+    public class ChatTimerEventArgs : EventArgs {
+        public ChatTimerEventArgs( ChatTimer timer ) {
+            Timer = timer;
+        }
+        public ChatTimer Timer { get; private set; }
     }
 }

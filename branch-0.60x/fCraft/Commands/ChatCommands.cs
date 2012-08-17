@@ -357,7 +357,7 @@ namespace fCraft {
                     if( timer == null || !timer.IsRunning ) {
                         player.Message( "Given timer (#{0}) does not exist.", timerId );
                     } else {
-                        timer.Stop();
+                        timer.Abort();
                         string abortMsg = String.Format( "&Y(Timer) {0}&Y aborted a timer with {1} left: {2}",
                                                          player.ClassyName, timer.TimeLeft.ToMiniString(), timer.Message );
                         Chat.SendSay( player, abortMsg );
