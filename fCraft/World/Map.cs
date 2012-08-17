@@ -538,6 +538,7 @@ namespace fCraft {
             BlockNames["gras"] = Block.Grass; // common typo
 
             BlockNames["soil"] = Block.Dirt;
+            BlockNames["cobble"] = Block.Cobblestone;
             BlockNames["stones"] = Block.Cobblestone;
             BlockNames["rocks"] = Block.Cobblestone;
             BlockNames["plank"] = Block.Wood;
