@@ -381,6 +381,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdPaint = new CommandDescriptor {
             Name = "Paint",
             Aliases = new[] { "p" },
+            Permissions = new[] { Permission.Build, Permission.Delete },
             Category = CommandCategory.Building,
             Help = "When paint mode is on, any block you delete will be replaced with the block you are holding. " +
                    "Paint command toggles this behavior on and off.",
@@ -1358,7 +1359,7 @@ namespace fCraft {
             Name = "Mark",
             Aliases = new[] { "m" },
             Category = CommandCategory.Building,
-            Usage = "/Mark&S or &H/Mark X Y H",
+            Usage = "/Mark&S or &H/Mark X Y Z",
             Help = "When making a selection (for drawing or zoning) use this to make a marker at your position in the world. " +
                    "If three numbers are given, those coordinates are used instead.",
             Handler = MarkHandler

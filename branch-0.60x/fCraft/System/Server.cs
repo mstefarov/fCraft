@@ -494,8 +494,11 @@ namespace fCraft {
 
                 Scheduler.EndShutdown();
 
-                if( PlayerDB.IsLoaded ) PlayerDB.Save();
-                if( IPBanList.IsLoaded ) IPBanList.Save();
+                if( IsRunning ) {
+                    if( PlayerDB.IsLoaded ) PlayerDB.Save();
+                    if( IPBanList.IsLoaded ) IPBanList.Save();
+                }
+                IsRunning = false;
 
                 RaiseShutdownEndedEvent( shutdownParams );
 #if !DEBUG

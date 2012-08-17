@@ -1256,6 +1256,15 @@ namespace fCraft {
             }
 
             player.Message( sb.ToString() );
+            if( !player.Can( Permission.UseColorCodes ) ) {
+                Rank reqRank = RankManager.GetMinRankWithAllPermissions( Permission.UseColorCodes );
+                if( reqRank == null ) {
+                    player.Message( "&WNone of the ranks have permission to use colors in chat." );
+                } else {
+                    player.Message( "&WOnly {0}+&S can use colors in chat.",
+                             reqRank.ClassyName );
+                }
+            }
         }
 
         #endregion
