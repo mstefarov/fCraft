@@ -173,12 +173,17 @@ namespace fCraft {
         public void ParseMessage( [NotNull] string rawMessage, bool fromConsole ) {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
-            if( rawMessage.Equals( "/nvm", StringComparison.OrdinalIgnoreCase ) ) {
+            // handle canceling selections and partial messages
+            if( rawMessage.StartsWith( "/nvm", StringComparison.OrdinalIgnoreCase ) ||
+                rawMessage.StartsWith( "/cancel", StringComparison.OrdinalIgnoreCase ) ) {
                 if( partialMessage != null ) {
                     MessageNow( "Partial message cancelled." );
                     partialMessage = null;
+                } else if( IsMakingSelection ) {
+                    SelectionCancel();
+                    MessageNow( "Selection cancelled." );
                 } else {
-                    MessageNow( "No partial message to cancel." );
+                    MessageNow( "There is currently nothing to cancel." );
                 }
                 return;
             }
@@ -796,8 +801,8 @@ namespace fCraft {
             }
 
             if( IsSpectating ) {
-                Message( "You cannot build or delete while spectating." );
                 RevertBlockNow( coord );
+                Message( "You cannot build or delete while spectating." );
                 return false;
             }
 
@@ -811,7 +816,7 @@ namespace fCraft {
 
             BlockChangeContext context = BlockChangeContext.Manual;
             if( IsPainting && action == ClickAction.Delete ) {
-                context = BlockChangeContext.Replaced;
+                context |= BlockChangeContext.Replaced;
             }
 
             // bindings
@@ -847,9 +852,8 @@ namespace fCraft {
                         Info.ProcessBlockPlaced( (byte)Block.DoubleSlab );
                         map.QueueUpdate( blockUpdate );
                         RaisePlayerPlacedBlockEvent( this, World.Map, coordBelow, Block.Slab, Block.DoubleSlab, context );
-                        SendNow( PacketWriter.MakeSetBlock( coordBelow, Block.DoubleSlab ) );
                         RevertBlockNow( coord );
-                        break;
+                        SendNow( PacketWriter.MakeSetBlock( coordBelow, Block.DoubleSlab ) );
 
                     } else {
                         // handle normal blocks

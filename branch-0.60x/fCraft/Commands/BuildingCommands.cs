@@ -1392,24 +1392,16 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdCancel = new CommandDescriptor {
             Name = "Cancel",
-            Category = CommandCategory.Building,
+            Category = CommandCategory.Building | CommandCategory.Chat,
             NotRepeatable = true,
-            Help = "Cancels current selection (for drawing or zoning) operation, for instance if you misclicked on the first block. " +
-                   "If you wish to stop a drawing in-progress, use &H/Undo&S instead.",
+            Help = "If you are writing a partial/multiline message, it's canceled. " +
+                   "Otherwise, cancels current selection (for drawing or zoning). " +
+                   "If you wish to stop a drawing in-progress, use &H/Undo&S instead. ",
             Handler = CancelHandler
         };
 
         static void CancelHandler( Player player, CommandReader cmd ) {
-            if( cmd.HasNext ) {
-                CdCancel.PrintUsage( player );
-                return;
-            }
-            if( player.IsMakingSelection ) {
-                player.SelectionCancel();
-                player.MessageNow( "Selection cancelled." );
-            } else {
-                player.MessageNow( "There is currently nothing to cancel." );
-            }
+            throw new NotSupportedException( "/Cancel handler may not be used directly. Use Player.SelectionCancel() instead." );
         }
 
         #endregion
